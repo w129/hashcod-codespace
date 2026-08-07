@@ -8,10 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Servidor PHP Native + React TypeScript l8</title>
     
-    <!-- Cargar React 18, ReactDOM y Babel TypeScript Transpiler -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- React 18 & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -120,33 +119,272 @@
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div className="top-bar" style="width:100%; max-width:1100px; margin: 0 auto 24px auto;">
+        <div className="left-controls">
+            <label className="checkbox-label">
+                <input type="checkbox" id="formatToggle" checked onchange="toggleFormat()">
+                <span>Dar formato al texto</span>
+            </label>
+        </div>
+        <div className="icon-globe">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+                <path d="M64,1C29.3,1,1,29.3,1,64c0,8.2,1.6,16.2,4.6,23.8c0.3,0.8,1,1.4,1.7,1.7c6.8,3.1,12.4,4.7,16.7,4.7c3.2,0,5.8-0.9,7.8-2.6 c3.5-3,3.3-7,3.2-11.3c-0.1-3.8-0.3-8.2,1.7-13.5c2.4-6.4,6.1-9.6,9.7-12.8c3.5-3.1,7.2-6.3,8.2-11.8c1.6-8.6-3.7-18.1-16.4-29 C46.1,9.2,54.8,7,64,7c23.4,0,43.6,14.2,52.3,34.4c-5.3-1-13.1-1.8-18.1,1.8c-2.7,1.9-4.2,4.8-4.5,8.5c-0.1,1.2,0.2,2.8,0.6,5.2 c1.1,6,2.8,16.1-2.2,22.7c-2.2,2.9-8.3,7.1-24.6,10.5c-0.8,0.2-1.3,0.3-1.5,0.3c-11.1,3.2-24,25.6-25.4,28.9c0,0,0,0,0,0 c-0.2,0.5-0.2,1-0.1,1.6c0.2,1,0.9,1.9,1.9,2.3c6.9,2.5,14.2,3.8,21.6,3.8c34.7,0,63-28.3,63-63S98.7,1,64,1z"></path>
+            </svg>
+        </div>
+    </div>
 
-    <!-- Componentes React escritas en TypeScript -->
-    <script type="text/babel" data-presets="react,typescript">
-        const { useState, useEffect, useRef } = React;
+    <div className="main-container" style="width:100%; max-width:1100px; margin: 0 auto;">
+        <!-- Bloque (=) de ejecuciones -->
+        <div className="block-row">
+            <div className="block-symbol">=</div>
+            <div className="block-body" id="executionContent"></div>
+        </div>
 
-        // Interfaces TypeScript
-        interface ExecutionData {
-            ok: boolean;
-            isError?: boolean;
-            error?: string;
-            output?: any;
-            command?: string;
-            timestamp?: string;
-        }
+        <!-- Bloque (>) de comandos y ventana desplegable -->
+        <div className="function-drawer-wrapper">
+            <div className="block-row">
+                <div className="block-symbol clickable-symbol" onclick="toggleFunctionDrawer()" title="Haz clic en (>) para abrir/cerrar ventana de funciones">
+                    &gt;
+                </div>
+                <div className="block-body block-input-container">
+                    <input type="text" id="cmdInput" className="cmd-input" placeholder="Escribe un comando aquí y presiona Enter..." autocomplete="off" onkeydown="handleCommandKey(event)">
+                    <div className="cell-action-icon" title="Activar/Desactivar Teclado de Escritorio" onclick="toggleVirtualKeyboard()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" fill="#000000" />
+                            <circle cx="82" cy="18" r="4.5" fill="#000000" />
+                            <circle cx="88" cy="28" r="2.5" fill="#000000" />
+                            <circle cx="78" cy="38" r="2" fill="#ffffff" />
+                            <circle cx="79" cy="74" r="2.5" fill="#000000" />
+                            <circle cx="28" cy="54" r="3" fill="#000000" />
+                            <circle cx="34" cy="80" r="2.5" fill="#000000" />
+                            <rect x="36" y="24" width="28" height="34" rx="3" fill="#ffffff" />
+                            <path d="M 36 50 L 36 58 C 36 61 41 61 44 61 L 58 61 C 55 56 46 55 42 50 Z" fill="#ffffff" />
+                            <line x1="41" y1="30" x2="57" y2="30" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
+                            <line x1="41" y1="36" x2="60" y2="36" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
+                            <line x1="41" y1="42" x2="55" y2="42" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
+                            <line x1="41" y1="48" x2="60" y2="48" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
 
-        interface CommandRow {
-            command: string;
-            description: string;
-        }
+            <!-- Ventana Desplegable de Funciones -->
+            <div className="function-drawer" id="functionDrawer">
+                <div className="function-drawer-header">&gt;/ function to execute</div>
+                <div className="function-drawer-inner">
+                    <textarea id="functionEditor" className="function-editor" placeholder="// Escribe las funciones aquí..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
+                </div>
 
-        // Sintaxis resaltada para objetos JSON
-        function syntaxHighlight(json: any, formatted: boolean): string {
-            let str = typeof json !== 'string' ? JSON.stringify(json, undefined, formatted ? 2 : undefined) : json;
-            if (!formatted) return str;
-            str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match: string) => {
+                <!-- Teclado Virtual Blanco Adaptado -->
+                <div className="virtual-keyboard-white" id="virtualKeyboard">
+                    <div className="vk-top-bar-indicators">
+                        <span className="vk-brand">NATIVE DESKTOP KEYBOARD</span>
+                        <div className="vk-leds">
+                            <span className="vk-led"><i className="led-dot"></i> Bloq Num</span>
+                            <span className="vk-led"><i className="led-dot" id="ledCaps"></i> Bloq Mayús</span>
+                            <span className="vk-led"><i className="led-dot"></i> Bloq Despl</span>
+                        </div>
+                    </div>
+
+                    <div className="vk-main-chassis">
+                        <!-- Bloque 1: Alfanumérico con F1-F12 Rojas -->
+                        <div className="vk-block-main">
+                            <div className="vk-row vk-f-row">
+                                <div className="vk-key key-esc" onclick="pressVirtualKey('ESC')">Esc</div>
+                                <div className="vk-f-group">
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F1')">F1</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F2')">F2</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F3')">F3</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F4')">F4</div>
+                                </div>
+                                <div className="vk-f-group">
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F5')">F5</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F6')">F6</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F7')">F7</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F8')">F8</div>
+                                </div>
+                                <div className="vk-f-group">
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F9')">F9</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F10')">F10</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F11')">F11</div>
+                                    <div className="vk-key key-f" onclick="pressVirtualKey('F12')">F12</div>
+                                </div>
+                            </div>
+
+                            <div className="vk-row">
+                                <div className="vk-key" onclick="pressVirtualKey('`')">º<br>\</div>
+                                <div className="vk-key" onclick="pressVirtualKey('1')">1<br>!</div>
+                                <div className="vk-key" onclick="pressVirtualKey('2')">2<br>"</div>
+                                <div className="vk-key" onclick="pressVirtualKey('3')">3<br>·</div>
+                                <div className="vk-key" onclick="pressVirtualKey('4')">4<br>$</div>
+                                <div className="vk-key" onclick="pressVirtualKey('5')">5<br>%</div>
+                                <div class="vk-key" onclick="pressVirtualKey('6')">6<br>&amp;</div>
+                                <div className="vk-key" onclick="pressVirtualKey('7')">7<br>/</div>
+                                <div className="vk-key" onclick="pressVirtualKey('8')">8<br>(</div>
+                                <div className="vk-key" onclick="pressVirtualKey('9')">9<br>)</div>
+                                <div className="vk-key" onclick="pressVirtualKey('0')">0<br>=</div>
+                                <div className="vk-key" onclick="pressVirtualKey('\'')">'<br>?</div>
+                                <div className="vk-key" onclick="pressVirtualKey('¿')">¿<br>¡</div>
+                                <div className="vk-key key-backspace" onclick="pressVirtualKey('BACKSPACE')">←</div>
+                            </div>
+
+                            <div className="vk-row">
+                                <div className="vk-key key-tab" onclick="pressVirtualKey('TAB')">⇥ Tab</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('q')">Q</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('w')">W</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('e')">E</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('r')">R</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('t')">T</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('y')">Y</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('u')">U</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('i')">I</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('o')">O</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('p')">P</div>
+                                <div className="vk-key" onclick="pressVirtualKey('^')">^</div>
+                                <div className="vk-key" onclick="pressVirtualKey('*')">*</div>
+                                <div className="vk-key key-enter" onclick="pressVirtualKey('ENTER')">↵ Enter</div>
+                            </div>
+
+                            <div className="vk-row">
+                                <div className="vk-key key-caps" id="vkCapsBtn" onclick="pressVirtualKey('CAPS')">Bloq Mayús</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('a')">A</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('s')">S</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('d')">D</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('f')">F</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('g')">G</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('h')">H</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('j')">J</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('k')">K</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('l')">L</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('ñ')">Ñ</div>
+                                <div className="vk-key" onclick="pressVirtualKey('¨')">¨</div>
+                                <div className="vk-key" onclick="pressVirtualKey('ç')">Ç</div>
+                            </div>
+
+                            <div className="vk-row">
+                                <div className="vk-key key-shift" onclick="pressVirtualKey('CAPS')">⇧ Shift</div>
+                                <div className="vk-key" onclick="pressVirtualKey('<')">&lt;</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('z')">Z</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('x')">X</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('c')">C</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('v')">V</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('b')">B</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('n')">N</div>
+                                <div className="vk-key letter-key" onclick="pressVirtualKey('m')">M</div>
+                                <div className="vk-key" onclick="pressVirtualKey(';')">;</div>
+                                <div className="vk-key" onclick="pressVirtualKey(':')">:</div>
+                                <div className="vk-key" onclick="pressVirtualKey('-')">-</div>
+                                <div className="vk-key key-shift-r" onclick="pressVirtualKey('CAPS')">⇧ Shift</div>
+                            </div>
+
+                            <div className="vk-row">
+                                <div className="vk-key key-ctrl" onclick="pressVirtualKey('CTRL')">Control</div>
+                                <div className="vk-key key-win" onclick="pressVirtualKey('WIN')">❖</div>
+                                <div className="vk-key key-alt" onclick="pressVirtualKey('ALT')">Alt</div>
+                                <div className="vk-key key-spacebar" onclick="pressVirtualKey('SPACE')"></div>
+                                <div className="vk-key key-alt" onclick="pressVirtualKey('ALT')">Alt Gr</div>
+                                <div className="vk-key key-win" onclick="pressVirtualKey('WIN')">❖</div>
+                                <div className="vk-key key-ctrl" onclick="pressVirtualKey('CTRL')">Control</div>
+                            </div>
+                        </div>
+
+                        <!-- Bloque 2: Navegación y Flechas -->
+                        <div className="vk-block-nav">
+                            <div className="vk-row">
+                                <div className="vk-key" onclick="pressVirtualKey('IMPR')">Impr</div>
+                                <div className="vk-key" onclick="pressVirtualKey('BLOQ')">Bloq</div>
+                                <div className="vk-key" onclick="pressVirtualKey('PAUSA')">Pausa</div>
+                            </div>
+                            <div className="vk-nav-grid-6">
+                                <div className="vk-key" onclick="pressVirtualKey('INS')">Insert</div>
+                                <div className="vk-key" onclick="pressVirtualKey('INICIO')">Inicio</div>
+                                <div className="vk-key" onclick="pressVirtualKey('REPAG')">Re Pág</div>
+                                <div className="vk-key" onclick="pressVirtualKey('SUPR')">Supr</div>
+                                <div className="vk-key" onclick="pressVirtualKey('FIN')">Fin</div>
+                                <div className="vk-key" onclick="pressVirtualKey('AVPAG')">Av Pág</div>
+                            </div>
+                            <div className="vk-arrows">
+                                <div className="vk-row"><div className="vk-key" onclick="pressVirtualKey('UP')">▲</div></div>
+                                <div className="vk-row">
+                                    <div className="vk-key" onclick="pressVirtualKey('LEFT')">◄</div>
+                                    <div className="vk-key" onclick="pressVirtualKey('DOWN')">▼</div>
+                                    <div className="vk-key" onclick="pressVirtualKey('RIGHT')">►</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bloque 3: Teclado Numérico -->
+                        <div className="vk-block-numpad">
+                            <div className="vk-row">
+                                <div className="vk-key" onclick="pressVirtualKey('NUM')">Bloq Num</div>
+                                <div className="vk-key" onclick="pressVirtualKey('/')">/</div>
+                                <div className="vk-key" onclick="pressVirtualKey('*')">*</div>
+                                <div className="vk-key" onclick="pressVirtualKey('-')">-</div>
+                            </div>
+                            <div className="vk-numpad-body">
+                                <div className="vk-numpad-left">
+                                    <div className="vk-row">
+                                        <div className="vk-key" onclick="pressVirtualKey('7')">7</div>
+                                        <div className="vk-key" onclick="pressVirtualKey('8')">8</div>
+                                        <div className="vk-key" onclick="pressVirtualKey('9')">9</div>
+                                    </div>
+                                    <div className="vk-row">
+                                        <div className="vk-key" onclick="pressVirtualKey('4')">4</div>
+                                        <div className="vk-key" onclick="pressVirtualKey('5')">5</div>
+                                        <div className="vk-key" onclick="pressVirtualKey('6')">6</div>
+                                    </div>
+                                    <div className="vk-row">
+                                        <div className="vk-key" onclick="pressVirtualKey('1')">1</div>
+                                        <div className="vk-key" onclick="pressVirtualKey('2')">2</div>
+                                        <div className="vk-key" onclick="pressVirtualKey('3')">3</div>
+                                    </div>
+                                    <div className="vk-row">
+                                        <div className="vk-key key-num-zero" onclick="pressVirtualKey('0')">0</div>
+                                        <div className="vk-key" onclick="pressVirtualKey('.')">.</div>
+                                    </div>
+                                </div>
+                                <div className="vk-numpad-right">
+                                    <div className="vk-key key-plus" onclick="pressVirtualKey('+')">+</div>
+                                    <div className="vk-key key-num-enter" onclick="pressVirtualKey('ENTER')">Intro</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let latestExecutionData = null;
+        let hasExecutedCommand = false;
+        let activeInputTarget = null;
+        let isCapsActive = false;
+
+        const executionContainer = document.getElementById('executionContent');
+        const formatToggle = document.getElementById('formatToggle');
+        const cmdInput = document.getElementById('cmdInput');
+        const functionEditor = document.getElementById('functionEditor');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            activeInputTarget = cmdInput;
+            if (cmdInput) {
+                cmdInput.addEventListener('focus', () => { activeInputTarget = cmdInput; });
+                cmdInput.addEventListener('click', () => { activeInputTarget = cmdInput; });
+            }
+            if (functionEditor) {
+                functionEditor.addEventListener('focus', () => { activeInputTarget = functionEditor; });
+                functionEditor.addEventListener('click', () => { activeInputTarget = functionEditor; });
+            }
+        });
+
+        function syntaxHighlight(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, undefined, formatToggle.checked ? 2 : undefined);
+            }
+            if (!formatToggle.checked) return json;
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
                 let cls = 'json-number';
                 if (/^"/.test(match)) {
                     cls = /:$/.test(match) ? 'json-key' : 'json-string';
@@ -155,317 +393,180 @@
                 } else if (/null/.test(match)) {
                     cls = 'json-null';
                 }
-                return `<span class="${cls}">${match}</span>`;
+                return '<span class="' + cls + '">' + match + '</span>';
             });
         }
 
-        // Componente Aplicación Principal React + TS
-        const App: React.FC = () => {
-            const [formatted, setFormatted] = useState<boolean>(true);
-            const [latestData, setLatestData] = useState<ExecutionData | null>(null);
-            const [hasExecuted, setHasExecuted] = useState<boolean>(false);
-            const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-            const [isKbActive, setIsKbActive] = useState<boolean>(false);
-            const [isCapsActive, setIsCapsActive] = useState<boolean>(false);
-            const [cmdValue, setCmdValue] = useState<string>('');
-            const [funcValue, setFuncValue] = useState<string>('');
-            const [activeTarget, setActiveTarget] = useState<'cmd' | 'func'>('cmd');
+        function render() {
+            if (!hasExecutedCommand || !latestExecutionData) {
+                executionContainer.textContent = '';
+                return;
+            }
 
-            const cmdRef = useRef<HTMLInputElement>(null);
-            const funcRef = useRef<HTMLTextAreaElement>(null);
+            if (latestExecutionData.isError || latestExecutionData.error) {
+                const errorMsg = latestExecutionData.error || "Your command does not exist....";
+                executionContainer.innerHTML = '<span style="color: #ff0000; font-weight: 600;">' + errorMsg + '</span>';
+                return;
+            }
 
-            const submitCommand = async (commandToRun: string) => {
-                if (!commandToRun.trim()) return;
-                try {
-                    setHasExecuted(true);
-                    const res = await fetch('/api/command', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ command: commandToRun.trim() })
-                    });
-                    const result: ExecutionData = await res.json();
-                    setLatestData(result);
-                    setCmdValue('');
-                } catch (err) {
-                    console.error("Error enviando comando a PHP:", err);
-                }
-            };
+            const dataToDisplay = latestExecutionData.output !== undefined ? latestExecutionData.output : latestExecutionData;
 
-            const toggleDrawer = () => {
-                setIsDrawerOpen(!isDrawerOpen);
-                if (!isDrawerOpen) {
-                    setActiveTarget('func');
-                    setTimeout(() => funcRef.current?.focus(), 100);
-                }
-            };
+            if (dataToDisplay && dataToDisplay.type === "EMPTY_CELL") {
+                executionContainer.textContent = '';
+                return;
+            }
 
-            const toggleKeyboard = () => {
-                if (!isDrawerOpen) setIsDrawerOpen(true);
-                setIsKbActive(!isKbActive);
-            };
+            if (dataToDisplay && dataToDisplay.type === "COMMAND_VERTICAL_LIST" && Array.isArray(dataToDisplay.rows)) {
+                const htmlRows = dataToDisplay.rows.map(r => 
+                    `<div className="vertical-cmd-row">` +
+                        `<span className="vertical-cmd-name">${r.command}</span>` +
+                        `<span className="vertical-cmd-sep">-</span>` +
+                        `<span className="vertical-cmd-desc">${r.description}</span>` +
+                    `</div>`
+                ).join('');
+                executionContainer.innerHTML = `<div className="vertical-cmd-table">${htmlRows}</div>`;
+                return;
+            }
 
-            const handleVirtualKey = (keyVal: string) => {
-                let currentVal = activeTarget === 'cmd' ? cmdValue : funcValue;
-                const targetRef = activeTarget === 'cmd' ? cmdRef.current : funcRef.current;
+            if (formatToggle.checked) {
+                document.body.classList.remove('raw-mode');
+                executionContainer.innerHTML = syntaxHighlight(dataToDisplay);
+            } else {
+                document.body.classList.add('raw-mode');
+                executionContainer.textContent = JSON.stringify(dataToDisplay);
+            }
+        }
 
-                const start = targetRef?.selectionStart || currentVal.length;
-                const end = targetRef?.selectionEnd || currentVal.length;
+        function toggleFormat() { render(); }
 
-                if (keyVal === 'BACKSPACE') {
-                    if (start === end && start > 0) {
-                        currentVal = currentVal.substring(0, start - 1) + currentVal.substring(end);
-                    } else if (start !== end) {
-                        currentVal = currentVal.substring(0, start) + currentVal.substring(end);
-                    }
-                } else if (keyVal === 'ENTER') {
-                    if (activeTarget === 'cmd') {
-                        submitCommand(cmdValue);
-                        return;
-                    } else {
-                        currentVal = currentVal.substring(0, start) + "\n" + currentVal.substring(end);
-                    }
-                } else if (keyVal === 'TAB') {
-                    currentVal = currentVal.substring(0, start) + "    " + currentVal.substring(end);
-                } else if (keyVal === 'CAPS') {
-                    setIsCapsActive(!isCapsActive);
-                    return;
-                } else if (keyVal === 'SPACE') {
-                    currentVal = currentVal.substring(0, start) + " " + currentVal.substring(end);
-                } else if (keyVal.startsWith('CMD:')) {
-                    const cmd = keyVal.replace('CMD:', '');
-                    setCmdValue(cmd);
-                    submitCommand(cmd);
-                    return;
+        async function submitCommand(cmd) {
+            if (!cmd) return;
+            try {
+                hasExecutedCommand = true;
+                const res = await fetch('/api/command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: cmd })
+                });
+                const result = await res.json();
+                latestExecutionData = result;
+                render();
+            } catch (e) {
+                console.error("Error al enviar comando:", e);
+            }
+        }
+
+        function toggleFunctionDrawer() {
+            const drawer = document.getElementById('functionDrawer');
+            drawer.classList.toggle('open');
+            if (drawer.classList.contains('open')) {
+                functionEditor.focus();
+                activeInputTarget = functionEditor;
+            }
+        }
+
+        function toggleVirtualKeyboard() {
+            const drawer = document.getElementById('functionDrawer');
+            const vk = document.getElementById('virtualKeyboard');
+            if (!drawer.classList.contains('open')) {
+                drawer.classList.add('open');
+            }
+            vk.classList.toggle('active');
+            if (vk.classList.contains('active')) {
+                if (!activeInputTarget) activeInputTarget = cmdInput;
+                activeInputTarget.focus();
+            }
+        }
+
+        function updateKeyboardCapsState() {
+            const capsBtn = document.getElementById('vkCapsBtn');
+            const ledCaps = document.getElementById('ledCaps');
+            if (capsBtn) {
+                if (isCapsActive) {
+                    capsBtn.classList.add('active-toggle');
+                    if (ledCaps) ledCaps.classList.add('active');
                 } else {
-                    let char = keyVal;
-                    if (isCapsActive && char.length === 1 && char.match(/[a-z]/i)) char = char.toUpperCase();
-                    else if (!isCapsActive && char.length === 1 && char.match(/[A-Z]/i)) char = char.toLowerCase();
-                    currentVal = currentVal.substring(0, start) + char + currentVal.substring(end);
+                    capsBtn.classList.remove('active-toggle');
+                    if (ledCaps) ledCaps.classList.remove('active');
                 }
+            }
+            const letterKeys = document.querySelectorAll('.letter-key');
+            letterKeys.forEach(key => {
+                const char = key.textContent;
+                key.textContent = isCapsActive ? char.toUpperCase() : char.toLowerCase();
+            });
+        }
 
-                if (activeTarget === 'cmd') setCmdValue(currentVal);
-                else setFuncValue(currentVal);
-            };
+        function pressVirtualKey(keyVal) {
+            if (!activeInputTarget || activeInputTarget.id === 'executionContent') {
+                activeInputTarget = cmdInput;
+            }
+            activeInputTarget.focus();
 
-            // Renderizar contenido de la celda (=)
-            const renderExecutionContent = () => {
-                if (!hasExecuted || !latestData) return null;
+            const start = activeInputTarget.selectionStart || 0;
+            const end = activeInputTarget.selectionEnd || 0;
+            const val = activeInputTarget.value || '';
 
-                if (latestData.isError || latestData.error) {
-                    const msg = latestData.error || "Your command does not exist....";
-                    return <span style={{ color: '#ff0000', fontWeight: 600 }}>{msg}</span>;
+            if (keyVal === 'BACKSPACE') {
+                if (start === end && start > 0) {
+                    activeInputTarget.value = val.substring(0, start - 1) + val.substring(end);
+                    activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start - 1;
+                } else if (start !== end) {
+                    activeInputTarget.value = val.substring(0, start) + val.substring(end);
+                    activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start;
                 }
-
-                const data = latestData.output !== undefined ? latestData.output : latestData;
-
-                if (data && data.type === 'EMPTY_CELL') {
-                    return null;
+            } else if (keyVal === 'ENTER') {
+                if (activeInputTarget.id === 'cmdInput') {
+                    triggerCommandSubmit();
+                } else {
+                    activeInputTarget.value = val.substring(0, start) + "\n" + val.substring(end);
+                    activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + 1;
                 }
-
-                if (data && data.type === 'COMMAND_VERTICAL_LIST' && Array.isArray(data.rows)) {
-                    return (
-                        <div className="vertical-cmd-table">
-                            {data.rows.map((r: CommandRow, idx: number) => (
-                                <div key={idx} className="vertical-cmd-row">
-                                    <span className="vertical-cmd-name">{r.command}</span>
-                                    <span className="vertical-cmd-sep">-</span>
-                                    <span className="vertical-cmd-desc">{r.description}</span>
-                                </div>
-                            ))}
-                        </div>
-                    );
+            } else if (keyVal === 'TAB') {
+                activeInputTarget.value = val.substring(0, start) + "    " + val.substring(end);
+                activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + 4;
+            } else if (keyVal === 'CAPS') {
+                isCapsActive = !isCapsActive;
+                updateKeyboardCapsState();
+            } else if (keyVal === 'SPACE') {
+                activeInputTarget.value = val.substring(0, start) + " " + val.substring(end);
+                activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + 1;
+            } else {
+                let charToInsert = keyVal;
+                if (isCapsActive && charToInsert.length === 1 && charToInsert.match(/[a-z]/i)) {
+                    charToInsert = charToInsert.toUpperCase();
+                } else if (!isCapsActive && charToInsert.length === 1 && charToInsert.match(/[A-Z]/i)) {
+                    charToInsert = charToInsert.toLowerCase();
                 }
+                activeInputTarget.value = val.substring(0, start) + charToInsert + val.substring(end);
+                activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + charToInsert.length;
+            }
+        }
 
-                const htmlStr = syntaxHighlight(data, formatted);
-                return <div dangerouslySetInnerHTML={{ __html: htmlStr }} />;
-            };
+        function handleEditorKeyDown(event) {
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                const editor = event.target;
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                editor.value = editor.value.substring(0, start) + "    " + editor.value.substring(end);
+                editor.selectionStart = editor.selectionEnd = start + 4;
+            }
+        }
 
-            return (
-                <div style={{ width: '100%', maxWidth: '1100px' }}>
-                    {/* Barra Superior */}
-                    <div className="top-bar">
-                        <div className="left-controls">
-                            <label className="checkbox-label">
-                                <input type="checkbox" checked={formatted} onChange={() => setFormatted(!formatted)} />
-                                <span>Dar formato al texto</span>
-                            </label>
-                        </div>
-                        <div className="icon-globe">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-                                <path d="M64,1C29.3,1,1,29.3,1,64c0,8.2,1.6,16.2,4.6,23.8c0.3,0.8,1,1.4,1.7,1.7c6.8,3.1,12.4,4.7,16.7,4.7c3.2,0,5.8-0.9,7.8-2.6 c3.5-3,3.3-7,3.2-11.3c-0.1-3.8-0.3-8.2,1.7-13.5c2.4-6.4,6.1-9.6,9.7-12.8c3.5-3.1,7.2-6.3,8.2-11.8c1.6-8.6-3.7-18.1-16.4-29 C46.1,9.2,54.8,7,64,7c23.4,0,43.6,14.2,52.3,34.4c-5.3-1-13.1-1.8-18.1,1.8c-2.7,1.9-4.2,4.8-4.5,8.5c-0.1,1.2,0.2,2.8,0.6,5.2 c1.1,6,2.8,16.1-2.2,22.7c-2.2,2.9-8.3,7.1-24.6,10.5c-0.8,0.2-1.3,0.3-1.5,0.3c-11.1,3.2-24,25.6-25.4,28.9c0,0,0,0,0,0 c-0.2,0.5-0.2,1-0.1,1.6c0.2,1,0.9,1.9,1.9,2.3c6.9,2.5,14.2,3.8,21.6,3.8c34.7,0,63-28.3,63-63S98.7,1,64,1z"></path>
-                            </svg>
-                        </div>
-                    </div>
+        function triggerCommandSubmit() {
+            const command = cmdInput.value.trim();
+            if (command) {
+                submitCommand(command);
+                cmdInput.value = '';
+            }
+        }
 
-                    <div className="main-container">
-                        {/* Celda (=) de Ejecuciones */}
-                        <div className="block-row">
-                            <div className="block-symbol">=</div>
-                            <div className="block-body" id="executionContent">
-                                {renderExecutionContent()}
-                            </div>
-                        </div>
-
-                        {/* Celda (>) de Comandos y Ventana Desplegable */}
-                        <div className="function-drawer-wrapper">
-                            <div className="block-row">
-                                <div className="block-symbol clickable-symbol" onClick={toggleDrawer} title="Haz clic en (>) para abrir/cerrar ventana de funciones">
-                                    &gt;
-                                </div>
-                                <div className="block-body block-input-container">
-                                    <input
-                                        ref={cmdRef}
-                                        type="text"
-                                        className="cmd-input"
-                                        placeholder="Escribe un comando aquí y presiona Enter..."
-                                        value={cmdValue}
-                                        onChange={(e) => setCmdValue(e.target.value)}
-                                        onFocus={() => setActiveTarget('cmd')}
-                                        onKeyDown={(e) => { if (e.key === 'Enter') submitCommand(cmdValue); }}
-                                    />
-                                    <div className="cell-action-icon" onClick={toggleKeyboard} title="Activar/Desactivar Teclado de Escritorio">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                                            <circle cx="50" cy="50" r="40" fill="#000000" />
-                                            <circle cx="82" cy="18" r="4.5" fill="#000000" />
-                                            <circle cx="88" cy="28" r="2.5" fill="#000000" />
-                                            <circle cx="78" cy="38" r="2" fill="#ffffff" />
-                                            <circle cx="79" cy="74" r="2.5" fill="#000000" />
-                                            <circle cx="28" cy="54" r="3" fill="#000000" />
-                                            <circle cx="34" cy="80" r="2.5" fill="#000000" />
-                                            <rect x="36" y="24" width="28" height="34" rx="3" fill="#ffffff" />
-                                            <path d="M 36 50 L 36 58 C 36 61 41 61 44 61 L 58 61 C 55 56 46 55 42 50 Z" fill="#ffffff" />
-                                            <line x1="41" y1="30" x2="57" y2="30" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
-                                            <line x1="41" y1="36" x2="60" y2="36" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
-                                            <line x1="41" y1="42" x2="55" y2="42" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
-                                            <line x1="41" y1="48" x2="60" y2="48" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Ventana Desplegable de Funciones */}
-                            <div className={`function-drawer ${isDrawerOpen ? 'open' : ''}`}>
-                                <div className="function-drawer-header">&gt;/ function to execute</div>
-                                <div className="function-drawer-inner">
-                                    <textarea
-                                        ref={funcRef}
-                                        className="function-editor"
-                                        placeholder="// Escribe las funciones aquí..."
-                                        value={funcValue}
-                                        onChange={(e) => setFuncValue(e.target.value)}
-                                        onFocus={() => setActiveTarget('func')}
-                                    />
-                                </div>
-
-                                {/* Teclado Virtual Blanco Adaptado (React Component) */}
-                                <div className={`virtual-keyboard-white ${isKbActive ? 'active' : ''}`}>
-                                    <div className="vk-top-bar-indicators">
-                                        <span className="vk-brand">NATIVE DESKTOP KEYBOARD (REACT + TS)</span>
-                                        <div className="vk-leds">
-                                            <span className="vk-led"><i className="led-dot"></i> Bloq Num</span>
-                                            <span className="vk-led"><i className={`led-dot ${isCapsActive ? 'active' : ''}`}></i> Bloq Mayús</span>
-                                            <span className="vk-led"><i className="led-dot"></i> Bloq Despl</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="vk-main-chassis">
-                                        {/* Bloque 1: Alfanumérico con F1-F12 Rojas */}
-                                        <div className="vk-block-main">
-                                            <div className="vk-row vk-f-row">
-                                                <div className="vk-key key-esc" onClick={() => handleVirtualKey('ESC')}>Esc</div>
-                                                <div className="vk-f-group">
-                                                    {['F1','F2','F3','F4'].map(f => <div key={f} className="vk-key key-f" onClick={() => handleVirtualKey(f)}>{f}</div>)}
-                                                </div>
-                                                <div className="vk-f-group">
-                                                    {['F5','F6','F7','F8'].map(f => <div key={f} className="vk-key key-f" onClick={() => handleVirtualKey(f)}>{f}</div>)}
-                                                </div>
-                                                <div className="vk-f-group">
-                                                    {['F9','F10','F11','F12'].map(f => <div key={f} className="vk-key key-f" onClick={() => handleVirtualKey(f)}>{f}</div>)}
-                                                </div>
-                                            </div>
-
-                                            <div className="vk-row">
-                                                <div className="vk-key" onClick={() => handleVirtualKey('`')}>º<br/>\</div>
-                                                {['1','2','3','4','5','6','7','8','9','0','\'','¿'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{k}</div>)}
-                                                <div className="vk-key key-backspace" onClick={() => handleVirtualKey('BACKSPACE')}>←</div>
-                                            </div>
-
-                                            <div className="vk-row">
-                                                <div className="vk-key key-tab" onClick={() => handleVirtualKey('TAB')}>⇥ Tab</div>
-                                                {['Q','W','E','R','T','Y','U','I','O','P','^','*'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{isCapsActive ? k : k.toLowerCase()}</div>)}
-                                                <div className="vk-key key-enter" onClick={() => handleVirtualKey('ENTER')}>↵ Enter</div>
-                                            </div>
-
-                                            <div className="vk-row">
-                                                <div className={`vk-key key-caps ${isCapsActive ? 'active-toggle' : ''}`} onClick={() => handleVirtualKey('CAPS')}>Bloq Mayús</div>
-                                                {['A','S','D','F','G','H','J','K','L','Ñ','¨','Ç'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{isCapsActive ? k : k.toLowerCase()}</div>)}
-                                            </div>
-
-                                            <div className="vk-row">
-                                                <div className="vk-key key-shift" onClick={() => handleVirtualKey('CAPS')}>⇧ Shift</div>
-                                                {['<','Z','X','C','V','B','N','M',';',':','-'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{isCapsActive && k.length===1 ? k : k.toLowerCase()}</div>)}
-                                                <div className="vk-key key-shift-r" onClick={() => handleVirtualKey('CAPS')}>⇧ Shift</div>
-                                            </div>
-
-                                            <div className="vk-row">
-                                                <div className="vk-key key-ctrl" onClick={() => handleVirtualKey('CTRL')}>Control</div>
-                                                <div className="vk-key key-win" onClick={() => handleVirtualKey('WIN')}>❖</div>
-                                                <div className="vk-key key-alt" onClick={() => handleVirtualKey('ALT')}>Alt</div>
-                                                <div className="vk-key key-spacebar" onClick={() => handleVirtualKey('SPACE')}></div>
-                                                <div className="vk-key key-alt" onClick={() => handleVirtualKey('ALT')}>Alt Gr</div>
-                                                <div className="vk-key key-ctrl" onClick={() => handleVirtualKey('CTRL')}>Control</div>
-                                            </div>
-                                        </div>
-
-                                        {/* Bloque 2: Navegación y Flechas */}
-                                        <div className="vk-block-nav">
-                                            <div className="vk-row">
-                                                {['Impr','Bloq','Pausa'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{k}</div>)}
-                                            </div>
-                                            <div className="vk-nav-grid-6">
-                                                {['Insert','Inicio','Re Pág','Supr','Fin','Av Pág'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{k}</div>)}
-                                            </div>
-                                            <div className="vk-arrows">
-                                                <div className="vk-row"><div className="vk-key" onClick={() => handleVirtualKey('UP')}>▲</div></div>
-                                                <div className="vk-row">
-                                                    <div className="vk-key" onClick={() => handleVirtualKey('LEFT')}>◄</div>
-                                                    <div className="vk-key" onClick={() => handleVirtualKey('DOWN')}>▼</div>
-                                                    <div className="vk-key" onClick={() => handleVirtualKey('RIGHT')}>►</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Bloque 3: Teclado Numérico */}
-                                        <div className="vk-block-numpad">
-                                            <div className="vk-row">
-                                                {['Bloq Num','/','*','-'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{k}</div>)}
-                                            </div>
-                                            <div className="vk-numpad-body">
-                                                <div className="vk-numpad-left">
-                                                    <div className="vk-row">{['7','8','9'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{k}</div>)}</div>
-                                                    <div className="vk-row">{['4','5','6'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{k}</div>)}</div>
-                                                    <div className="vk-row">{['1','2','3'].map(k => <div key={k} className="vk-key" onClick={() => handleVirtualKey(k)}>{k}</div>)}</div>
-                                                    <div className="vk-row">
-                                                        <div className="vk-key key-num-zero" onClick={() => handleVirtualKey('0')}>0</div>
-                                                        <div className="vk-key" onClick={() => handleVirtualKey('.')}>.</div>
-                                                    </div>
-                                                </div>
-                                                <div className="vk-numpad-right">
-                                                    <div className="vk-key key-plus" onClick={() => handleVirtualKey('+')}>+</div>
-                                                    <div className="vk-key key-num-enter" onClick={() => handleVirtualKey('ENTER')}>Intro</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        function handleCommandKey(event) {
+            if (event.key === 'Enter') {
+                triggerCommandSubmit();
+            }
+        }
     </script>
 </body>
 </html>

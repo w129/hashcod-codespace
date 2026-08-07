@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: native-server-l8
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon

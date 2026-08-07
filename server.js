@@ -1,0 +1,264 @@
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { exec } = require('child_process');
+
+const PORT = 8000;
+const PUBLIC_DIR = __dirname;
+
+const BROWSER_NAMES = ['chrome', 'brave', 'msedge', 'firefox', 'camoufox', 'opera', 'vivaldi', 'arc'];
+
+// Catálogo oficial de comandos creados y su funcionalidad a la derecha
+const REGISTERED_COMMANDS = {
+    "mane_list?": "Muestra la lista de comandos creados y su funcionalidad",
+    "crl": "Deja la celda de ejecución (=) totalmente vacía",
+    "status": "Consulta el estado del servidor y motores detectados",
+    "browsers": "Muestra los procesos reales de navegadores en ejecución",
+    "ping": "Comprueba la conectividad y latencia con el servidor"
+};
+
+let currentBrowserState = {
+    ok: true,
+    enabled: true,
+    running: true,
+    engine: "scanning...",
+    browserConnected: true,
+    browserRunning: true,
+    activeBrowsers: {}
+};
+
+let lastExecutionResult = null;
+
+const clients = new Set();
+let isScanning = false;
+
+// Escanear procesos REALES de la computadora del usuario
+function scanRealBrowsers() {
+    if (isScanning) return;
+    isScanning = true;
+
+    exec('tasklist /FO CSV /NH', { timeout: 3000 }, (error, stdout) => {
+        isScanning = false;
+        if (error || !stdout) return;
+
+        const lines = stdout.split(/\r?\n/);
+        const browserStats = {};
+
+        for (const name of BROWSER_NAMES) {
+            browserStats[name] = { running: false, processCount: 0, pids: [], totalMemoryKB: 0 };
+        }
+
+        for (const line of lines) {
+            if (!line) continue;
+            const match = line.match(/^"([^"]+)","(\d+)","[^"]*","[^"]*","([^"]+)"/);
+            if (match) {
+                const exeName = match[1].toLowerCase();
+                const pid = parseInt(match[2], 10);
+                const memStr = match[3].replace(/[^\d]/g, '');
+                const memKB = parseInt(memStr, 10) || 0;
+
+                for (const bName of BROWSER_NAMES) {
+                    if (exeName.includes(bName)) {
+                        browserStats[bName].running = true;
+                        browserStats[bName].processCount++;
+                        browserStats[bName].pids.push(pid);
+                        browserStats[bName].totalMemoryKB += memKB;
+                    }
+                }
+            }
+        }
+
+        let mainEngine = "none";
+        let maxCount = 0;
+        const activeBrowsers = {};
+
+        for (const [name, info] of Object.entries(browserStats)) {
+            if (info.running) {
+                activeBrowsers[name] = {
+                    running: true,
+                    processCount: info.processCount,
+                    memoryMB: Math.round(info.totalMemoryKB / 1024),
+                    pids: info.pids.slice(0, 5)
+                };
+                if (info.processCount > maxCount) {
+                    maxCount = info.processCount;
+                    mainEngine = name;
+                }
+            }
+        }
+
+        const isAnyRunning = mainEngine !== "none";
+
+        currentBrowserState = {
+            ok: isAnyRunning,
+            enabled: true,
+            running: isAnyRunning,
+            engine: mainEngine,
+            browserConnected: isAnyRunning,
+            browserRunning: isAnyRunning,
+            activeBrowsers: activeBrowsers
+        };
+
+        broadcastState();
+    });
+}
+
+setInterval(scanRealBrowsers, 1500);
+scanRealBrowsers();
+
+function broadcastState() {
+    const payload = {
+        execution: lastExecutionResult,
+        browserState: currentBrowserState
+    };
+    const data = `data: ${JSON.stringify(payload)}\n\n`;
+    for (const client of clients) {
+        client.write(data);
+    }
+}
+
+// Procesar comandos de la celda (>)
+function processCommand(cmdString) {
+    const rawCmd = (cmdString || '').trim();
+    const lowerCmd = rawCmd.toLowerCase();
+    const timestamp = new Date().toISOString();
+
+    const knownCmdKeys = Object.keys(REGISTERED_COMMANDS);
+    const isValidCommand = knownCmdKeys.includes(lowerCmd) || lowerCmd === 'crl?' || lowerCmd === 'mane_list' || lowerCmd === 'help' || lowerCmd === '?';
+
+    if (!isValidCommand) {
+        lastExecutionResult = {
+            ok: false,
+            isError: true,
+            command: rawCmd,
+            timestamp: timestamp,
+            error: "Your command does not exist...."
+        };
+        broadcastState();
+        return lastExecutionResult;
+    }
+
+    let outputResult = {};
+
+    // Comando crl / crl?: Dejar la celda (=) completamente vacía
+    if (lowerCmd === 'crl' || lowerCmd === 'crl?') {
+        outputResult = {
+            type: "EMPTY_CELL"
+        };
+    }
+    // Comando Maestro: mane_list? -> Retorna filas verticales con comando a la izquierda y funcionalidad a la derecha
+    else if (lowerCmd === 'mane_list?' || lowerCmd === 'mane_list' || lowerCmd === 'help' || lowerCmd === '?') {
+        const rows = Object.entries(REGISTERED_COMMANDS).map(([cmd, desc]) => {
+            return { command: cmd, description: desc };
+        });
+
+        outputResult = {
+            type: "COMMAND_VERTICAL_LIST",
+            rows: rows
+        };
+    } else if (lowerCmd === 'status' || lowerCmd === 'browsers') {
+        outputResult = currentBrowserState;
+    } else if (lowerCmd === 'ping') {
+        outputResult = { pong: true, time: timestamp };
+    }
+
+    lastExecutionResult = {
+        ok: true,
+        isError: false,
+        timestamp: timestamp,
+        lastCommand: rawCmd,
+        output: outputResult
+    };
+
+    broadcastState();
+    return lastExecutionResult;
+}
+
+const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        return res.end();
+    }
+
+    if (req.url === '/api/stream') {
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        });
+
+        const payload = {
+            execution: lastExecutionResult,
+            browserState: currentBrowserState
+        };
+
+        res.write(`data: ${JSON.stringify(payload)}\n\n`);
+        clients.add(res);
+
+        req.on('close', () => {
+            clients.delete(res);
+        });
+        return;
+    }
+
+    if (req.method === 'POST' && (req.url === '/api/command' || req.url === '/cmd')) {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+            try {
+                const parsed = JSON.parse(body || '{}');
+                console.log(`[${new Date().toLocaleTimeString()}] ⌨️  Comando recibido: "${parsed.command}"`);
+                const result = processCommand(parsed.command || '');
+                res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+                res.end(JSON.stringify(result, null, 2));
+            } catch (e) {
+                res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+                res.end(JSON.stringify({ ok: false, isError: true, error: "Your command does not exist...." }));
+            }
+        });
+        return;
+    }
+
+    if (req.url === '/json' || req.url === '/api/status' || req.headers.accept?.includes('application/json')) {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({
+            execution: lastExecutionResult,
+            browserState: currentBrowserState
+        }, null, 2));
+    }
+
+    let filePath = path.join(PUBLIC_DIR, req.url === '/' ? 'index.html' : req.url);
+    const ext = path.extname(filePath).toLowerCase();
+
+    const MIME_TYPES = {
+        '.html': 'text/html',
+        '.css': 'text/css',
+        '.js': 'text/javascript',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.svg': 'image/svg+xml'
+    };
+
+    const contentType = MIME_TYPES[ext] || 'text/plain';
+
+    fs.readFile(filePath, (err, content) => {
+        if (err) {
+            res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ error: 404, message: "Recurso no encontrado" }));
+        } else {
+            res.writeHead(200, { 'Content-Type': contentType + '; charset=utf-8' });
+            res.end(content, 'utf-8');
+        }
+    });
+});
+
+server.listen(PORT, () => {
+    console.log(`\n==================================================`);
+    console.log(`🚀 SERVIDOR CON COMANDO (crl) EN PUERTO ${PORT}`);
+    console.log(`==================================================\n`);
+});

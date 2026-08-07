@@ -1,0 +1,8 @@
+{
+    "name": "laragon/l8-server",
+    "description": "Servidor Native PHP + React TypeScript l8",
+    "type": "project",
+    "require": {
+        "php": ">=8.1"
+    }
+}

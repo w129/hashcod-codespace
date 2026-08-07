@@ -370,7 +370,7 @@
 
                                     <div className="vk-main-chassis">
                                         {/* Bloque 1: Alfanumérico con F1-F12 Rojas */}
-                                        <div class="vk-block-main">
+                                        <div className="vk-block-main">
                                             <div className="vk-row vk-f-row">
                                                 <div className="vk-key key-esc" onClick={() => handleVirtualKey('ESC')}>Esc</div>
                                                 <div className="vk-f-group">
@@ -413,7 +413,7 @@
                                                 <div className="vk-key key-alt" onClick={() => handleVirtualKey('ALT')}>Alt</div>
                                                 <div className="vk-key key-spacebar" onClick={() => handleVirtualKey('SPACE')}></div>
                                                 <div className="vk-key key-alt" onClick={() => handleVirtualKey('ALT')}>Alt Gr</div>
-                                                <div class="vk-key key-ctrl" onClick={() => handleVirtualKey('CTRL')}>Control</div>
+                                                <div className="vk-key key-ctrl" onClick={() => handleVirtualKey('CTRL')}>Control</div>
                                             </div>
                                         </div>
 

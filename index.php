@@ -318,6 +318,29 @@
             font-weight: 500;
         }
 
+        .license-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            border: 1px solid #cfcbc3;
+            color: #141414;
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .license-badge .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #2563eb;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
         .action-btn-link {
             display: inline-flex;
             align-items: center;
@@ -973,7 +996,7 @@
                 if (repos.length === 0) {
                     rowsHtml = `
                         <tr>
-                            <td colspan="5" style="text-align:center; padding:24px; color:#888;">
+                            <td colspan="6" style="text-align:center; padding:24px; color:#888;">
                                 ${dataToDisplay.github_error ? ('Error GitHub: ' + escHtml(dataToDisplay.github_error)) : 'Sin resultados. Prueba otra búsqueda (ej: repos react, repos laravel).'}
                             </td>
                         </tr>`;
@@ -982,14 +1005,12 @@
                         const full = r.user_repo || r.name;
                         const cloned = !!r.cloned;
                         const licRaw = (r.license || 'Unknown').toString().trim() || 'Unknown';
-                        const licLabel = licRaw.toUpperCase() === 'NONE' || licRaw.toUpperCase() === 'NOASSERTION' ? 'None' : licRaw;
+                        const licUpper = licRaw.toUpperCase();
+                        const licLabel = (licUpper === 'NONE' || licUpper === 'NOASSERTION' || licUpper === 'UNKNOWN') ? 'None' : licRaw;
                         const statusBadge = cloned
                             ? `<span class="mime-tag" style="background:#e6f4ea;color:#137333;">Clonado</span>`
                             : `<span class="mime-tag" style="background:#eceae4;color:#444;">GitHub</span>`;
-                        const licenseBadge = `<span class="mime-tag" title="Licencia del repositorio" style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfcbc3;color:#141414;border-radius:999px;padding:2px 10px;">
-                                <span style="width:7px;height:7px;border-radius:50%;background:#2563eb;display:inline-block;flex-shrink:0;"></span>
-                                <span>${escHtml(licLabel)}</span>
-                            </span>`;
+                        const licenseBadge = `<span class="license-badge" title="Licencia SPDX del repositorio"><span class="dot"></span>${escHtml(licLabel)}</span>`;
                         const actions = cloned
                             ? `<button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'))" title="Inspeccionar código">
                                     ${SVG_CODE_WINDOW_BLACK}<span>Ver Código</span>
@@ -1008,15 +1029,13 @@
                                 <td>
                                     <div class="file-name-cell">
                                         ${SVG_GITHUB_BLACK}
-                                        <div style="display:flex;flex-direction:column;gap:4px;">
+                                        <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
                                             <span>${escHtml(full)}</span>
-                                            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-                                                ${statusBadge}
-                                                ${licenseBadge}
-                                            </div>
+                                            ${statusBadge}
                                         </div>
                                     </div>
                                 </td>
+                                <td>${licenseBadge}</td>
                                 <td><span class="mime-tag">${escHtml(r.branch || 'main')}</span></td>
                                 <td style="color:#666; font-size:11px; font-family:monospace;">${escHtml(r.last_commit || '')}</td>
                                 <td>${escHtml(r.size_formatted || '—')}</td>
@@ -1086,6 +1105,7 @@
                                 <thead>
                                     <tr>
                                         <th>Repositorio</th>
+                                        <th>Licencia</th>
                                         <th>Rama Active</th>
                                         <th>Descripción / Commit</th>
                                         <th>Tamaño</th>

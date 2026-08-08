@@ -60,21 +60,43 @@
             cursor: pointer;
         }
 
-        .icon-globe {
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 4px;
+        }
+
+        .icon-globe,
+        .icon-gateway {
             height: 22px;
             width: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-right: 4px;
+            color: #111111;
+            background: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
         }
 
-        .icon-globe svg {
+        .icon-gateway {
+            cursor: pointer;
+        }
+
+        .icon-globe svg,
+        .icon-gateway svg {
             height: 20px;
             width: 20px;
             max-width: 20px;
             max-height: 20px;
             display: block;
+            fill: currentColor;
+        }
+
+        .icon-gateway:hover {
+            opacity: 0.75;
         }
 
         .main-container {
@@ -393,6 +415,117 @@
             font-weight: 600;
             cursor: pointer;
             font-family: inherit;
+        }
+
+        .gateway-modal {
+            background: #ffffff;
+            border: 1px solid #e0dcd3;
+            border-radius: 10px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+            max-width: 420px;
+            width: 100%;
+            padding: 18px 20px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .gateway-modal-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .gateway-modal-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .gateway-modal-brand img {
+            width: 22px;
+            height: 22px;
+        }
+
+        .gateway-modal-text {
+            color: #333;
+            font-size: 12px;
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+
+        .gateway-modal-text code {
+            background: #f4f2ec;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        .gateway-modal label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .gateway-modal input[type="tel"] {
+            width: 100%;
+            border: 1px solid #d5d1c7;
+            border-radius: 6px;
+            padding: 9px 10px;
+            font-family: inherit;
+            font-size: 13px;
+            margin-bottom: 12px;
+            background: #faf9f6;
+        }
+
+        .gateway-modal-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .gateway-modal-btn {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .gateway-modal-btn:disabled {
+            opacity: 0.55;
+            cursor: wait;
+        }
+
+        .gateway-modal-btn.secondary {
+            background: #eceae4;
+            color: #111;
+        }
+
+        .gateway-modal-status {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #666;
+            min-height: 16px;
+        }
+
+        .gateway-modal-status.ok { color: #137333; font-weight: 600; }
+        .gateway-modal-status.err { color: #c5221f; font-weight: 600; }
+
+        .action-gateway-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #000000;
         }
 
         .action-btn-link {
@@ -736,17 +869,24 @@
                 <span>Dar formato al texto</span>
             </label>
         </div>
-        <div class="icon-globe" title="l8 codespace" aria-label="l8 codespace">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-hidden="true">
-                <path fill="currentColor" d="M22.4,27.1L22.4,27.1L22.4,27.1 M27,27.8L27,27.8L27,27.8 M21,24.7c-0.3,0-0.5,0.1-0.7,0.3l-2.6,2.4c-0.4,0.4-0.7,1-0.7,1.6 v2.2c0,0.6,0.2,1.2,0.7,1.6l0.5,0.5c0.2,0.2,0.5,0.3,0.8,0.3c0.3,0,0.6-0.1,0.8-0.3l0.8-0.8c0.2-0.2,0.5-0.3,0.8-0.3h0.9 c0.3,0,0.6,0.1,0.8,0.3l1.2,1.3c0.2,0.2,0.5,0.3,0.8,0.3h0.7c0.4,0,0.8-0.2,0.9-0.6l1.4-2.8c0.1-0.2,0.1-0.5,0.1-0.8L26.7,26 c-0.1-0.5-0.6-0.7-1-0.7c-0.2,0-0.5,0.1-0.7,0.3c-0.2,0.2-0.4,0.3-0.7,0.3c-0.1,0-0.3,0-0.4-0.1l-2.5-1C21.2,24.7,21.1,24.7,21,24.7 L21,24.7z"></path>
-                <path fill="currentColor" d="M25,38v-0.3c0-0.4,0.2-0.7,0.5-0.9l2.6-1.7c0.4-0.3,0.9-0.2,1.2,0.2l0.5,0.7c0.4,0.5,0.2,1.3-0.4,1.6l-3.1,1.3 C25.7,39.2,25,38.7,25,38z"></path>
-                <path fill="currentColor" d="M30,34.4v-1.8c0-0.5,0.5-0.8,0.9-0.5l0.9,0.9c0.2,0.2,0.2,0.7,0,0.9l-0.9,0.9C30.6,35.2,30,34.9,30,34.4z"></path>
-                <path fill="currentColor" d="M42.5,24h-1.4c-0.2,0-0.4,0-0.6,0.1l-2.7,1.2c-0.2,0.1-0.4,0.3-0.6,0.5l-0.6,0.8c-0.4,0.5-0.4,1.2,0,1.7l0.8,1.2 c0.4,0.5,0.3,1.3-0.1,1.8l-1,1.2c-0.2,0.3-0.3,0.6-0.3,0.9v5C41.2,33,42.5,29,42.5,24L42.5,24z"></path>
-                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M32.7,7.7c5.8,3.1,9.8,9.3,9.8,16.3c0,10.2-8.3,18.5-18.5,18.5c-5.4,0-10.3-2.3-13.7-6.1"></path>
-                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6.3,29.3c-0.5-1.7-0.8-3.5-0.8-5.3C5.5,13.8,13.8,5.5,24,5.5c0.5,0,1,0,1.5,0.1"></path>
-                <path fill="currentColor" d="M41.8,19L39,13.2c0-0.9-2.3-2.6-2.3-2.6c-0.7-0.7-1.5-1.3-2.3-1.9L33,9.9c-0.2,0.2-0.5,0.3-0.7,0.3c-0.2,0-0.4-0.1-0.6-0.2 l-0.9-0.8C30.6,9.1,30.4,9,30.1,9H28c-0.6,0-1,0.4-1,1v1c0,0.6,0.4,1,1,1h0.5c0.3,0,0.6,0.1,0.8,0.3l2.5,2.9 c0.2,0.2,0.2,0.4,0.2,0.6l0,2.5c0,0.2,0,0.3,0.1,0.5l1.5,2.6c0.2,0.3,0.5,0.5,0.9,0.5H35c0.6,0,1,0.4,1,1s0.4,1,1,1h0 c0.3,0,0.5-0.1,0.7-0.3l1.5-1.4c0.2-0.2,0.4-0.3,0.7-0.3l2.5-0.1C42.3,20.9,42.1,19.9,41.8,19z"></path>
-                <path fill="currentColor" d="M20.6,5.8l-7.9,3.5l-6,8.2c-0.4,1.1-0.7,2.2-0.9,3.3l1.3,1.3c0.1,0.1,0.1,0.1,0.2,0.2l1.5,3C8.9,25.8,9.2,26,9.6,26h0.5 c0.5,0,0.9-0.4,0.9-0.9v-2.7c0-0.2,0.1-0.5,0.3-0.6L12,21c0,0,0.1-0.1,0.3-0.1s0.3,0.1,0.4,0.6c0.1,1,0.6,3.7,0.6,3.7 c0.1,0.4,0.4,0.8,0.9,0.8c0.5,0,0.9-0.4,0.9-0.9v-7.2c0-0.5,0.4-0.9,0.9-0.9h0.7c0.2,0,0.5-0.1,0.6-0.3l1-1c0.4-0.4,0.3-1-0.1-1.4 l-0.4-0.3c-0.4-0.3-0.5-0.9-0.2-1.3l0.4-0.5c0.2-0.2,0.4-0.3,0.7-0.3c0.4,0,0.7,0.2,0.9,0.6l0.3,0.8c0.1,0.4,0.5,0.6,0.9,0.6h0.4 c0.5,0,0.9-0.4,0.9-0.9v-2.4c0-0.1,0-0.2,0.1-0.3l1.9-4.8C22.8,5.5,21.7,5.6,20.6,5.8z"></path>
-            </svg>
+        <div class="top-bar-right">
+            <button type="button" class="icon-gateway" title="Gateway l8 codespace" aria-label="Gateway l8 codespace" onclick="openPlatformGateway()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" role="img" aria-hidden="true">
+                    <path d="M 9.875 0.0625 C 9.617188 0.0976563 9.378906 0.230469 9.21875 0.4375 C 6.585938 3.582031 5 7.644531 5 12.0625 C 5 16.429688 6.542969 20.433594 9.125 23.5625 C 9.480469 23.992188 10.117188 24.058594 10.546875 23.703125 C 10.976563 23.347656 11.042969 22.710938 10.6875 22.28125 C 8.390625 19.496094 7 15.957031 7 12.0625 C 7 8.125 8.40625 4.515625 10.75 1.71875 C 11.027344 1.40625 11.082031 0.957031 10.886719 0.585938 C 10.691406 0.21875 10.289063 0.0078125 9.875 0.0625 Z M 39.8125 0.0625 C 39.453125 0.128906 39.160156 0.378906 39.042969 0.726563 C 38.925781 1.070313 39.003906 1.449219 39.25 1.71875 C 41.59375 4.515625 43 8.125 43 12.0625 C 43 15.957031 41.609375 19.496094 39.3125 22.28125 C 38.957031 22.710938 39.023438 23.347656 39.453125 23.703125 C 39.882813 24.058594 40.519531 23.992188 40.875 23.5625 C 43.457031 20.433594 45 16.429688 45 12.0625 C 45 7.644531 43.414063 3.582031 40.78125 0.4375 C 40.570313 0.171875 40.242188 0.03125 39.90625 0.0625 C 39.875 0.0625 39.84375 0.0625 39.8125 0.0625 Z M 15.6875 3.34375 C 15.429688 3.378906 15.191406 3.511719 15.03125 3.71875 C 13.140625 5.976563 12 8.890625 12 12.0625 C 12 15.234375 13.140625 18.148438 15.03125 20.40625 C 15.253906 20.707031 15.621094 20.855469 15.988281 20.800781 C 16.355469 20.742188 16.660156 20.488281 16.78125 20.136719 C 16.902344 19.785156 16.816406 19.394531 16.5625 19.125 C 14.960938 17.214844 14 14.753906 14 12.0625 C 14 9.371094 14.960938 6.914063 16.5625 5 C 16.839844 4.6875 16.894531 4.238281 16.699219 3.867188 C 16.503906 3.5 16.101563 3.289063 15.6875 3.34375 Z M 34 3.34375 C 33.640625 3.410156 33.347656 3.660156 33.230469 4.007813 C 33.113281 4.351563 33.191406 4.730469 33.4375 5 C 35.039063 6.914063 36 9.371094 36 12.0625 C 36 14.753906 35.039063 17.214844 33.4375 19.125 C 33.183594 19.394531 33.097656 19.785156 33.21875 20.136719 C 33.339844 20.488281 33.644531 20.742188 34.011719 20.800781 C 34.378906 20.855469 34.746094 20.707031 34.96875 20.40625 C 36.859375 18.148438 38 15.234375 38 12.0625 C 38 8.890625 36.859375 5.976563 34.96875 3.71875 C 34.757813 3.453125 34.429688 3.3125 34.09375 3.34375 C 34.0625 3.34375 34.03125 3.34375 34 3.34375 Z M 25 8 C 22.789063 8 21 9.789063 21 12 C 21 13.324219 21.632813 14.492188 22.625 15.21875 L 10.5 47.28125 C 10.113281 48.316406 10.636719 49.472656 11.671875 49.859375 C 12.707031 50.246094 13.863281 49.722656 14.25 48.6875 L 15.53125 45.34375 L 32.6875 40.5625 L 35.75 48.6875 C 36.136719 49.722656 37.292969 50.246094 38.328125 49.859375 C 39.363281 49.472656 39.886719 48.316406 39.5 47.28125 L 27.375 15.21875 C 28.367188 14.492188 29 13.324219 29 12 C 29 9.789063 27.210938 8 25 8 Z M 25 20.3125 L 27.5625 27.0625 L 21.59375 29.3125 Z M 28.96875 30.78125 L 30.5625 35.03125 L 24.1875 32.625 Z M 19.40625 35.09375 L 27.03125 37.96875 L 17.28125 40.6875 Z"></path>
+                </svg>
+            </button>
+            <div class="icon-globe" title="l8 codespace" aria-label="l8 codespace">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-hidden="true">
+                    <path fill="currentColor" d="M22.4,27.1L22.4,27.1L22.4,27.1 M27,27.8L27,27.8L27,27.8 M21,24.7c-0.3,0-0.5,0.1-0.7,0.3l-2.6,2.4c-0.4,0.4-0.7,1-0.7,1.6 v2.2c0,0.6,0.2,1.2,0.7,1.6l0.5,0.5c0.2,0.2,0.5,0.3,0.8,0.3c0.3,0,0.6-0.1,0.8-0.3l0.8-0.8c0.2-0.2,0.5-0.3,0.8-0.3h0.9 c0.3,0,0.6,0.1,0.8,0.3l1.2,1.3c0.2,0.2,0.5,0.3,0.8,0.3h0.7c0.4,0,0.8-0.2,0.9-0.6l1.4-2.8c0.1-0.2,0.1-0.5,0.1-0.8L26.7,26 c-0.1-0.5-0.6-0.7-1-0.7c-0.2,0-0.5,0.1-0.7,0.3c-0.2,0.2-0.4,0.3-0.7,0.3c-0.1,0-0.3,0-0.4-0.1l-2.5-1C21.2,24.7,21.1,24.7,21,24.7 L21,24.7z"></path>
+                    <path fill="currentColor" d="M25,38v-0.3c0-0.4,0.2-0.7,0.5-0.9l2.6-1.7c0.4-0.3,0.9-0.2,1.2,0.2l0.5,0.7c0.4,0.5,0.2,1.3-0.4,1.6l-3.1,1.3 C25.7,39.2,25,38.7,25,38z"></path>
+                    <path fill="currentColor" d="M30,34.4v-1.8c0-0.5,0.5-0.8,0.9-0.5l0.9,0.9c0.2,0.2,0.2,0.7,0,0.9l-0.9,0.9C30.6,35.2,30,34.9,30,34.4z"></path>
+                    <path fill="currentColor" d="M42.5,24h-1.4c-0.2,0-0.4,0-0.6,0.1l-2.7,1.2c-0.2,0.1-0.4,0.3-0.6,0.5l-0.6,0.8c-0.4,0.5-0.4,1.2,0,1.7l0.8,1.2 c0.4,0.5,0.3,1.3-0.1,1.8l-1,1.2c-0.2,0.3-0.3,0.6-0.3,0.9v5C41.2,33,42.5,29,42.5,24L42.5,24z"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M32.7,7.7c5.8,3.1,9.8,9.3,9.8,16.3c0,10.2-8.3,18.5-18.5,18.5c-5.4,0-10.3-2.3-13.7-6.1"></path>
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6.3,29.3c-0.5-1.7-0.8-3.5-0.8-5.3C5.5,13.8,13.8,5.5,24,5.5c0.5,0,1,0,1.5,0.1"></path>
+                    <path fill="currentColor" d="M41.8,19L39,13.2c0-0.9-2.3-2.6-2.3-2.6c-0.7-0.7-1.5-1.3-2.3-1.9L33,9.9c-0.2,0.2-0.5,0.3-0.7,0.3c-0.2,0-0.4-0.1-0.6-0.2 l-0.9-0.8C30.6,9.1,30.4,9,30.1,9H28c-0.6,0-1,0.4-1,1v1c0,0.6,0.4,1,1,1h0.5c0.3,0,0.6,0.1,0.8,0.3l2.5,2.9 c0.2,0.2,0.2,0.4,0.2,0.6l0,2.5c0,0.2,0,0.3,0.1,0.5l1.5,2.6c0.2,0.3,0.5,0.5,0.9,0.5H35c0.6,0,1,0.4,1,1s0.4,1,1,1h0 c0.3,0,0.5-0.1,0.7-0.3l1.5-1.4c0.2-0.2,0.4-0.3,0.7-0.3l2.5-0.1C42.3,20.9,42.1,19.9,41.8,19z"></path>
+                    <path fill="currentColor" d="M20.6,5.8l-7.9,3.5l-6,8.2c-0.4,1.1-0.7,2.2-0.9,3.3l1.3,1.3c0.1,0.1,0.1,0.1,0.2,0.2l1.5,3C8.9,25.8,9.2,26,9.6,26h0.5 c0.5,0,0.9-0.4,0.9-0.9v-2.7c0-0.2,0.1-0.5,0.3-0.6L12,21c0,0,0.1-0.1,0.3-0.1s0.3,0.1,0.4,0.6c0.1,1,0.6,3.7,0.6,3.7 c0.1,0.4,0.4,0.8,0.9,0.8c0.5,0,0.9-0.4,0.9-0.9v-7.2c0-0.5,0.4-0.9,0.9-0.9h0.7c0.2,0,0.5-0.1,0.6-0.3l1-1c0.4-0.4,0.3-1-0.1-1.4 l-0.4-0.3c-0.4-0.3-0.5-0.9-0.2-1.3l0.4-0.5c0.2-0.2,0.4-0.3,0.7-0.3c0.4,0,0.7,0.2,0.9,0.6l0.3,0.8c0.1,0.4,0.5,0.6,0.9,0.6h0.4 c0.5,0,0.9-0.4,0.9-0.9v-2.4c0-0.1,0-0.2,0.1-0.3l1.9-4.8C22.8,5.5,21.7,5.6,20.6,5.8z"></path>
+                </svg>
+            </div>
         </div>
     </div>
 
@@ -874,6 +1014,7 @@
         // ICONOS VECTORIALES REUTILIZABLES
         const SVG_GITHUB_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:18px; height:18px;" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1.0.07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>';
         const SVG_CODE_WINDOW_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:16px; height:16px;" viewBox="0 0 32 32"><path d="M 4 5 L 4 27 L 28 27 L 28 5 Z M 6 7 L 26 7 L 26 9 L 6 9 Z M 6 11 L 26 11 L 26 25 L 6 25 Z M 16 13 L 14 23 L 16 23 L 18 13 Z M 11.1875 13.40625 L 8.1875 17.40625 L 7.75 18 L 8.1875 18.59375 L 11.1875 22.59375 L 12.8125 21.40625 L 10.25 18 L 12.8125 14.59375 Z M 20.8125 13.40625 L 19.1875 14.59375 L 21.75 18 L 19.1875 21.40625 L 20.8125 22.59375 L 23.8125 18.59375 L 24.25 18 L 23.8125 17.40625 Z"></path></svg>';
+        const SVG_GATEWAY_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:16px; height:16px;" viewBox="0 0 50 50"><path d="M 9.875 0.0625 C 9.617188 0.0976563 9.378906 0.230469 9.21875 0.4375 C 6.585938 3.582031 5 7.644531 5 12.0625 C 5 16.429688 6.542969 20.433594 9.125 23.5625 C 9.480469 23.992188 10.117188 24.058594 10.546875 23.703125 C 10.976563 23.347656 11.042969 22.710938 10.6875 22.28125 C 8.390625 19.496094 7 15.957031 7 12.0625 C 7 8.125 8.40625 4.515625 10.75 1.71875 C 11.027344 1.40625 11.082031 0.957031 10.886719 0.585938 C 10.691406 0.21875 10.289063 0.0078125 9.875 0.0625 Z M 39.8125 0.0625 C 39.453125 0.128906 39.160156 0.378906 39.042969 0.726563 C 38.925781 1.070313 39.003906 1.449219 39.25 1.71875 C 41.59375 4.515625 43 8.125 43 12.0625 C 43 15.957031 41.609375 19.496094 39.3125 22.28125 C 38.957031 22.710938 39.023438 23.347656 39.453125 23.703125 C 39.882813 24.058594 40.519531 23.992188 40.875 23.5625 C 43.457031 20.433594 45 16.429688 45 12.0625 C 45 7.644531 43.414063 3.582031 40.78125 0.4375 C 40.570313 0.171875 40.242188 0.03125 39.90625 0.0625 C 39.875 0.0625 39.84375 0.0625 39.8125 0.0625 Z M 15.6875 3.34375 C 15.429688 3.378906 15.191406 3.511719 15.03125 3.71875 C 13.140625 5.976563 12 8.890625 12 12.0625 C 12 15.234375 13.140625 18.148438 15.03125 20.40625 C 15.253906 20.707031 15.621094 20.855469 15.988281 20.800781 C 16.355469 20.742188 16.660156 20.488281 16.78125 20.136719 C 16.902344 19.785156 16.816406 19.394531 16.5625 19.125 C 14.960938 17.214844 14 14.753906 14 12.0625 C 14 9.371094 14.960938 6.914063 16.5625 5 C 16.839844 4.6875 16.894531 4.238281 16.699219 3.867188 C 16.503906 3.5 16.101563 3.289063 15.6875 3.34375 Z M 34 3.34375 C 33.640625 3.410156 33.347656 3.660156 33.230469 4.007813 C 33.113281 4.351563 33.191406 4.730469 33.4375 5 C 35.039063 6.914063 36 9.371094 36 12.0625 C 36 14.753906 35.039063 17.214844 33.4375 19.125 C 33.183594 19.394531 33.097656 19.785156 33.21875 20.136719 C 33.339844 20.488281 33.644531 20.742188 34.011719 20.800781 C 34.378906 20.855469 34.746094 20.707031 34.96875 20.40625 C 36.859375 18.148438 38 15.234375 38 12.0625 C 38 8.890625 36.859375 5.976563 34.96875 3.71875 C 34.757813 3.453125 34.429688 3.3125 34.09375 3.34375 C 34.0625 3.34375 34.03125 3.34375 34 3.34375 Z M 25 8 C 22.789063 8 21 9.789063 21 12 C 21 13.324219 21.632813 14.492188 22.625 15.21875 L 10.5 47.28125 C 10.113281 48.316406 10.636719 49.472656 11.671875 49.859375 C 12.707031 50.246094 13.863281 49.722656 14.25 48.6875 L 15.53125 45.34375 L 32.6875 40.5625 L 35.75 48.6875 C 36.136719 49.722656 37.292969 50.246094 38.328125 49.859375 C 39.363281 49.472656 39.886719 48.316406 39.5 47.28125 L 27.375 15.21875 C 28.367188 14.492188 29 13.324219 29 12 C 29 9.789063 27.210938 8 25 8 Z M 25 20.3125 L 27.5625 27.0625 L 21.59375 29.3125 Z M 28.96875 30.78125 L 30.5625 35.03125 L 24.1875 32.625 Z M 19.40625 35.09375 L 27.03125 37.96875 L 17.28125 40.6875 Z"></path></svg>';
         const SVG_CHECK_VECTOR = '<svg class="svg-icon-vector" style="fill:#137333; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
         const SVG_CROSS_VECTOR = '<svg class="svg-icon-vector" style="fill:#c5221f; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>';
         const SVG_EXT_LINK = '<svg class="svg-icon-vector" style="fill:#000000; width:13px; height:13px;" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>';
@@ -1076,6 +1217,98 @@
             if (btn) btn.addEventListener('click', () => overlay.remove());
         }
 
+        function openPlatformGateway() {
+            window.open('/gateway', '_blank', 'noopener');
+        }
+
+        function openGatewaySend(repoName, userRepo) {
+            const existing = document.getElementById('gatewayModal');
+            if (existing) existing.remove();
+            const full = userRepo || repoName || '';
+            const overlay = document.createElement('div');
+            overlay.id = 'gatewayModal';
+            overlay.className = 'unlicensed-modal-overlay';
+            overlay.innerHTML = `
+                <div class="gateway-modal" role="dialog" aria-modal="true" aria-labelledby="gatewayModalTitle">
+                    <div class="gateway-modal-title" id="gatewayModalTitle">Gateway</div>
+                    <div class="gateway-modal-brand">
+                        <img src="/favicon.svg?v=3" alt="l8 codespace">
+                        <span>l8 codespace</span>
+                    </div>
+                    <div class="gateway-modal-text">
+                        Enviar <code>${full.replace(/</g,'&lt;')}</code> como carpeta a un dispositivo.
+                        En el teléfono abre <code>/gateway</code>, ingresa el mismo número y espera la notificación de <strong>l8 codespace</strong>.
+                    </div>
+                    <label for="gatewayPhoneInput">Número del dispositivo</label>
+                    <input id="gatewayPhoneInput" type="tel" inputmode="tel" placeholder="+573001234567" autocomplete="tel">
+                    <div class="gateway-modal-actions">
+                        <button type="button" class="gateway-modal-btn" id="gatewaySendBtn">Enviar carpeta</button>
+                        <button type="button" class="gateway-modal-btn secondary" id="gatewayOpenReceiveBtn">Abrir receptor</button>
+                        <button type="button" class="gateway-modal-btn secondary" id="gatewayCloseBtn">Cerrar</button>
+                    </div>
+                    <div class="gateway-modal-status" id="gatewayStatus"></div>
+                </div>
+            `;
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
+            document.body.appendChild(overlay);
+
+            const phoneInput = document.getElementById('gatewayPhoneInput');
+            const statusEl = document.getElementById('gatewayStatus');
+            const sendBtn = document.getElementById('gatewaySendBtn');
+            const savedPhone = localStorage.getItem('l8_gateway_last_phone') || '';
+            if (savedPhone) phoneInput.value = savedPhone;
+            phoneInput.focus();
+
+            document.getElementById('gatewayCloseBtn').addEventListener('click', () => overlay.remove());
+            document.getElementById('gatewayOpenReceiveBtn').addEventListener('click', () => {
+                window.open('/gateway', '_blank', 'noopener');
+            });
+
+            const doSend = async () => {
+                const phone = (phoneInput.value || '').trim();
+                if (!phone) {
+                    statusEl.textContent = 'Ingresa el número del dispositivo.';
+                    statusEl.className = 'gateway-modal-status err';
+                    return;
+                }
+                localStorage.setItem('l8_gateway_last_phone', phone);
+                sendBtn.disabled = true;
+                statusEl.textContent = 'Empaquetando carpeta y activando gateway…';
+                statusEl.className = 'gateway-modal-status';
+                try {
+                    const res = await fetch('/api/gateway/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ repo: full, phone })
+                    });
+                    const data = await res.json();
+                    if (!data.ok) {
+                        statusEl.textContent = data.error || 'No se pudo enviar el repositorio.';
+                        statusEl.className = 'gateway-modal-status err';
+                        if (data.unlicensed) {
+                            showUnlicensedPopup(data.error || 'This repository is unlicensed! Do not use it.', full);
+                        }
+                        sendBtn.disabled = false;
+                        return;
+                    }
+                    statusEl.textContent = data.message || 'Enviado. Espera la notificación en el teléfono.';
+                    statusEl.className = 'gateway-modal-status ok';
+                    sendBtn.disabled = false;
+                } catch (err) {
+                    statusEl.textContent = 'Error de red al hablar con el gateway.';
+                    statusEl.className = 'gateway-modal-status err';
+                    sendBtn.disabled = false;
+                }
+            };
+
+            sendBtn.addEventListener('click', doSend);
+            phoneInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') doSend();
+            });
+        }
+
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 alert('Clave pública SSH copiada al portapapeles con éxito!');
@@ -1144,16 +1377,19 @@
                             ? `<span class="mime-tag" style="background:#e6f4ea;color:#137333;">Clonado</span>`
                             : `<span class="mime-tag" style="background:#eceae4;color:#444;">GitHub</span>`;
                         const licenseBadge = `<span class="license-badge" title="Licencia SPDX del repositorio"><span class="dot"></span>${escHtml(licLabel)}</span>`;
-                        // Icono código a la izquierda de Guardar / GitHub / Pull
+                        // Gateway (izquierda) + icono código + Guardar / GitHub / Pull
+                        const gatewayBtn = `<button class="action-btn-link action-code-btn action-gateway-btn" style="border:none; background:transparent; cursor:pointer;" onclick="openGatewaySend(decodeURIComponent('${escAttr(r.name)}'), decodeURIComponent('${escAttr(full)}'))" title="Enviar carpeta por gateway a un dispositivo">
+                                    ${SVG_GATEWAY_BLACK}
+                               </button>`;
                         const codeBtn = `<button class="action-btn-link action-code-btn" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'), decodeURIComponent('${escAttr(full)}'))" title="Ver todo el código en la terminal negra">
                                     ${SVG_CODE_WINDOW_BLACK}
                                </button>`;
                         const actions = cloned
-                            ? `${codeBtn}
+                            ? `${gatewayBtn}${codeBtn}
                                <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ' + decodeURIComponent('${escAttr(full)}'))">
                                     ${SVG_REFRESH_VECTOR}<span>Git Pull</span>
                                </button>`
-                            : `${codeBtn}
+                            : `${gatewayBtn}${codeBtn}
                                <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('save ' + decodeURIComponent('${escAttr(full)}'))">
                                     ${SVG_GITHUB_BLACK}<span>Guardar</span>
                                </button>

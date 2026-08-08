@@ -1188,6 +1188,268 @@ function formatBytes($bytes, $precision = 2) {
     return round($bytes, $precision) . ' ' . $units[$pow];
 }
 
+/**
+ * GATEWAY: envío de repositorios (carpeta .zip) a dispositivos por número
+ */
+function gatewayDirs() {
+    global $STORAGE_DIR;
+    $base = $STORAGE_DIR . '/gateway';
+    $packs = $base . '/packs';
+    if (!file_exists($base)) @mkdir($base, 0777, true);
+    if (!file_exists($packs)) @mkdir($packs, 0777, true);
+    return [
+        'base' => $base,
+        'packs' => $packs,
+        'transfers' => $base . '/transfers.json',
+        'devices' => $base . '/devices.json'
+    ];
+}
+
+function gatewayReadJson($path) {
+    if (!file_exists($path)) return [];
+    $raw = @file_get_contents($path);
+    if ($raw === false || $raw === '') return [];
+    $data = json_decode($raw, true);
+    return is_array($data) ? $data : [];
+}
+
+function gatewayWriteJson($path, $data) {
+    $dir = dirname($path);
+    if (!file_exists($dir)) @mkdir($dir, 0777, true);
+    return file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false;
+}
+
+function gatewayNormalizePhone($phone) {
+    $phone = trim((string)$phone);
+    $phone = preg_replace('/[^\d+]/', '', $phone);
+    if ($phone === '') return '';
+    if ($phone[0] === '+') {
+        return '+' . preg_replace('/\D/', '', substr($phone, 1));
+    }
+    return preg_replace('/\D/', '', $phone);
+}
+
+function gatewayPlatformBrand() {
+    return [
+        'name' => 'l8 codespace',
+        'icon' => '/favicon.svg?v=3'
+    ];
+}
+
+function gatewayPackRepoFolder($repoFolder) {
+    global $REPOS_DIR;
+    $dirs = gatewayDirs();
+    $safeRepo = basename($repoFolder);
+    $source = realpath($REPOS_DIR . '/' . $safeRepo);
+    $base = realpath($REPOS_DIR);
+    if (!$source || !$base || strpos($source, $base) !== 0 || !is_dir($source)) {
+        return ['ok' => false, 'error' => 'Repositorio no clonado en el servidor. Guárdalo/clónalo primero.'];
+    }
+    if (!class_exists('ZipArchive')) {
+        return ['ok' => false, 'error' => 'ZipArchive no disponible en el servidor'];
+    }
+
+    $transferId = bin2hex(random_bytes(12));
+    $zipName = $safeRepo . '-' . $transferId . '.zip';
+    $zipPath = $dirs['packs'] . '/' . $zipName;
+
+    $zip = new ZipArchive();
+    if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+        return ['ok' => false, 'error' => 'No se pudo crear el paquete zip'];
+    }
+
+    $rootPrefix = $safeRepo . '/';
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($iterator as $item) {
+        $full = $item->getPathname();
+        $rel = str_replace('\\', '/', substr($full, strlen($source) + 1));
+        if ($rel === '' || strpos($rel, '.git/') === 0 || $rel === '.git' || strpos($rel, '/.git/') !== false) {
+            continue;
+        }
+        $entry = $rootPrefix . $rel;
+        if ($item->isDir()) {
+            $zip->addEmptyDir($entry);
+        } else if ($item->isFile()) {
+            if (filesize($full) > 25000000) continue; // omite archivos >25MB
+            $zip->addFile($full, $entry);
+        }
+    }
+    $zip->close();
+
+    if (!file_exists($zipPath) || filesize($zipPath) < 22) {
+        @unlink($zipPath);
+        return ['ok' => false, 'error' => 'El paquete de carpeta quedó vacío o inválido'];
+    }
+
+    $supabaseObject = null;
+    if (function_exists('supabaseStorageUpload') && function_exists('supabaseConfig')) {
+        $cfg = supabaseConfig();
+        if (!empty($cfg['configured'])) {
+            $object = 'gateway/' . $zipName;
+            $up = @supabaseStorageUpload($object, $zipPath, 'application/zip', true);
+            if (!empty($up['ok'])) {
+                $supabaseObject = $object;
+            }
+        }
+    }
+
+    return [
+        'ok' => true,
+        'id' => $transferId,
+        'repo_name' => $safeRepo,
+        'zip_path' => $zipPath,
+        'zip_name' => $zipName,
+        'size_bytes' => filesize($zipPath),
+        'size_formatted' => formatBytes(filesize($zipPath)),
+        'supabase_object' => $supabaseObject
+    ];
+}
+
+function gatewayRegisterDevice($phone, $meta = []) {
+    $phone = gatewayNormalizePhone($phone);
+    if ($phone === '' || strlen(preg_replace('/\D/', '', $phone)) < 8) {
+        return ['ok' => false, 'error' => 'Número de teléfono inválido'];
+    }
+    $dirs = gatewayDirs();
+    $devices = gatewayReadJson($dirs['devices']);
+    $devices[$phone] = [
+        'phone' => $phone,
+        'platform' => $meta['platform'] ?? 'l8 codespace',
+        'user_agent' => $meta['user_agent'] ?? '',
+        'registered_at' => date('c'),
+        'last_seen' => date('c')
+    ];
+    gatewayWriteJson($dirs['devices'], $devices);
+    return ['ok' => true, 'phone' => $phone, 'device' => $devices[$phone]];
+}
+
+function gatewaySendRepoToPhone($repoTarget, $phone) {
+    global $REPOS_DIR;
+    $phone = gatewayNormalizePhone($phone);
+    if ($phone === '' || strlen(preg_replace('/\D/', '', $phone)) < 8) {
+        return ['ok' => false, 'error' => 'Ingresa un número de teléfono válido'];
+    }
+
+    $clean = trim((string)$repoTarget);
+    if ($clean === '') {
+        return ['ok' => false, 'error' => 'Falta el repositorio a enviar'];
+    }
+
+    $userRepo = $clean;
+    if (preg_match('#^https://github\.com/([^/]+/[^/]+)#i', $clean, $m)) {
+        $userRepo = preg_replace('/\.git$/i', '', $m[1]);
+    } else {
+        $userRepo = preg_replace('/\.git$/i', '', $clean);
+    }
+    $repoFolder = basename($userRepo);
+    $targetPath = $REPOS_DIR . '/' . $repoFolder;
+
+    if (!file_exists($targetPath . '/.git')) {
+        $clone = cloneOrUpdateRepository($userRepo);
+        if (empty($clone['ok'])) {
+            return [
+                'ok' => false,
+                'error' => $clone['raw_output'] ?? ($clone['error'] ?? 'No se pudo clonar el repositorio para enviarlo'),
+                'unlicensed' => !empty($clone['unlicensed'])
+            ];
+        }
+    }
+
+    $pack = gatewayPackRepoFolder($repoFolder);
+    if (empty($pack['ok'])) {
+        return $pack;
+    }
+
+    $brand = gatewayPlatformBrand();
+    $dirs = gatewayDirs();
+    $transfers = gatewayReadJson($dirs['transfers']);
+    $notification = [
+        'title' => $brand['name'],
+        'body' => $brand['name'] . ' te envió la carpeta ' . $userRepo,
+        'icon' => $brand['icon']
+    ];
+
+    $item = [
+        'id' => $pack['id'],
+        'phone' => $phone,
+        'repo_name' => $repoFolder,
+        'user_repo' => $userRepo,
+        'zip_name' => $pack['zip_name'],
+        'size_formatted' => $pack['size_formatted'],
+        'supabase_object' => $pack['supabase_object'],
+        'download_url' => '/api/gateway/download/' . $pack['id'],
+        'notification_title' => $notification['title'],
+        'notification_body' => $notification['body'],
+        'notification_icon' => $notification['icon'],
+        'platform' => $brand['name'],
+        'status' => 'pending',
+        'created_at' => date('c'),
+        'delivered_at' => null
+    ];
+
+    $transfers[$pack['id']] = $item;
+    gatewayWriteJson($dirs['transfers'], $transfers);
+
+    $devices = gatewayReadJson($dirs['devices']);
+    $deviceOnline = isset($devices[$phone]);
+
+    return [
+        'ok' => true,
+        'type' => 'GATEWAY_SEND_RESULT',
+        'transfer' => $item,
+        'device_registered' => $deviceOnline,
+        'message' => $deviceOnline
+            ? 'Gateway listo: el teléfono registrado recibirá la notificación de ' . $brand['name'] . '.'
+            : 'Paquete listo. Abre /gateway en el teléfono, ingresa este mismo número y espera la notificación de ' . $brand['name'] . '.'
+    ];
+}
+
+function gatewayPollPhone($phone) {
+    $phone = gatewayNormalizePhone($phone);
+    if ($phone === '') {
+        return ['ok' => false, 'error' => 'Número requerido'];
+    }
+    $dirs = gatewayDirs();
+    $devices = gatewayReadJson($dirs['devices']);
+    if (isset($devices[$phone])) {
+        $devices[$phone]['last_seen'] = date('c');
+        gatewayWriteJson($dirs['devices'], $devices);
+    }
+
+    $transfers = gatewayReadJson($dirs['transfers']);
+    $pending = [];
+    $changed = false;
+    foreach ($transfers as $id => $item) {
+        if (($item['phone'] ?? '') !== $phone) continue;
+        if (($item['status'] ?? '') === 'pending') {
+            $item['status'] = 'delivered';
+            $item['delivered_at'] = date('c');
+            $transfers[$id] = $item;
+            $changed = true;
+            $pending[] = $item;
+        }
+    }
+    if ($changed) {
+        gatewayWriteJson($dirs['transfers'], $transfers);
+    }
+    return [
+        'ok' => true,
+        'phone' => $phone,
+        'platform' => gatewayPlatformBrand(),
+        'transfers' => $pending
+    ];
+}
+
+function gatewayFindTransfer($id) {
+    $dirs = gatewayDirs();
+    $transfers = gatewayReadJson($dirs['transfers']);
+    return $transfers[$id] ?? null;
+}
+
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Endpoint GET para obtener el árbol de carpetas de un repositorio
@@ -1215,6 +1477,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri
     $target = $inputData['repo'] ?? $_POST['repo'] ?? '';
     $res = cloneOrUpdateRepository($target);
     echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// GATEWAY: registrar dispositivo receptor (teléfono)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/gateway/register') {
+    header('Content-Type: application/json; charset=utf-8');
+    $inputData = json_decode(file_get_contents('php://input'), true) ?: [];
+    $res = gatewayRegisterDevice(
+        $inputData['phone'] ?? $_POST['phone'] ?? '',
+        [
+            'platform' => $inputData['platform'] ?? 'l8 codespace',
+            'user_agent' => $inputData['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? '')
+        ]
+    );
+    echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// GATEWAY: enviar repositorio como carpeta (.zip) a un número
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/gateway/send') {
+    header('Content-Type: application/json; charset=utf-8');
+    $inputData = json_decode(file_get_contents('php://input'), true) ?: [];
+    $repo = $inputData['repo'] ?? $_POST['repo'] ?? '';
+    $phone = $inputData['phone'] ?? $_POST['phone'] ?? '';
+    $res = gatewaySendRepoToPhone($repo, $phone);
+    echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// GATEWAY: el teléfono consulta notificaciones / transferencias pendientes
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $uri === '/api/gateway/poll') {
+    header('Content-Type: application/json; charset=utf-8');
+    $res = gatewayPollPhone($_GET['phone'] ?? '');
+    echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// GATEWAY: descarga del paquete carpeta
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/api/gateway/download/([a-f0-9]+)$#', $uri, $gm)) {
+    $item = gatewayFindTransfer($gm[1]);
+    if (!$item) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'error' => 'Transferencia no encontrada']);
+        exit;
+    }
+    $dirs = gatewayDirs();
+    $zipPath = $dirs['packs'] . '/' . ($item['zip_name'] ?? '');
+    if ((!file_exists($zipPath) || !is_file($zipPath)) && !empty($item['supabase_object']) && function_exists('supabaseStorageDownload')) {
+        $remote = @supabaseStorageDownload($item['supabase_object']);
+        if (!empty($remote['ok']) && $remote['data'] !== null) {
+            file_put_contents($zipPath, $remote['data']);
+        }
+    }
+    if (!file_exists($zipPath) || !is_file($zipPath)) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'error' => 'Archivo zip no disponible']);
+        exit;
+    }
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . ($item['repo_name'] ?? 'repo') . '.zip"');
+    header('Content-Length: ' . filesize($zipPath));
+    readfile($zipPath);
     exit;
 }
 

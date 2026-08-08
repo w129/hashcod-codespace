@@ -17,6 +17,12 @@ if ($uri === '/' || $uri === '/index.php' || $uri === '/index.html') {
     exit;
 }
 
+// Gateway receptor (teléfono / dispositivo)
+if ($uri === '/gateway' || $uri === '/gateway.php') {
+    require __DIR__ . '/gateway.php';
+    exit;
+}
+
 // Reenviar peticiones API a api.php
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

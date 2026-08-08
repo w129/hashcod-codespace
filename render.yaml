@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: native-server-l8
+    name: l8-codespace
     env: docker
     dockerfilePath: ./Dockerfile
     plan: free

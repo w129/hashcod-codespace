@@ -336,6 +336,31 @@
             text-decoration: underline;
         }
 
+        /* Estilos Tarjeta SSH */
+        .ssh-card-container {
+            width: 100%;
+            background: #faf9f6;
+            border: 1px solid #e6e3dd;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .ssh-key-box {
+            background: #141414;
+            color: #34c759;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            word-break: break-all;
+            user-select: all;
+            border: 1px solid #333;
+        }
+
         /* Filas verticales para el comando mane_list? */
         .vertical-cmd-table {
             display: flex;
@@ -608,7 +633,7 @@
                     &gt;
                 </div>
                 <div class="block-body block-input-container">
-                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: set_I code)..." autocomplete="off" onkeydown="handleCommandKey(event)">
+                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: ssh_key o set_I code)..." autocomplete="off" onkeydown="handleCommandKey(event)">
                     <!-- Icono derecho (Insignia circular con documento) que activa/desactiva el teclado de escritorio -->
                     <div class="cell-action-icon" title="Activar/Desactivar Teclado y Entorno Gráfico" onclick="toggleVirtualKeyboard()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -760,13 +785,20 @@
             fileInput.click();
         }
 
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Clave pública SSH copiada al portapapeles con éxito!');
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+            });
+        }
+
         function render() {
             if (!hasExecutedCommand || !latestExecutionData) {
                 executionContainer.textContent = '';
                 return;
             }
 
-            // Si el comando no existe o devuelve error, presentar en color rojo
             if (latestExecutionData.isError || latestExecutionData.error) {
                 const errorMsg = latestExecutionData.error || "Your command does not exist....";
                 executionContainer.innerHTML = '<span style="color: #ff0000; font-weight: 600;">' + errorMsg + '</span>';
@@ -775,9 +807,42 @@
 
             const dataToDisplay = latestExecutionData.output !== undefined ? latestExecutionData.output : latestExecutionData;
 
-            // Si dataToDisplay es nulo, indefinido, o un estado del sistema sin ejecución activa
             if (!dataToDisplay || dataToDisplay.type === "EMPTY_CELL" || (dataToDisplay.execution === null && dataToDisplay.browserState)) {
                 executionContainer.textContent = '';
+                return;
+            }
+
+            // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÓN SSH GITHUB)
+            if (dataToDisplay && dataToDisplay.type === "SSH_KEY_DISPLAY") {
+                const pubKey = dataToDisplay.public_key || '';
+                const sshOut = dataToDisplay.github_test_output || '';
+                const isConnected = sshOut.includes('successfully authenticated') || sshOut.includes('Hi ');
+
+                const sshHtml = `
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <svg class="svg-icon-vector" style="fill:#0451a5; width:20px; height:20px;" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                                <strong style="font-size:13px; color:#141414;">Clave Pública SSH Ed25519 (servidor-diktatcart)</strong>
+                            </div>
+                            <span class="metric-badge-black">${isConnected ? '🟢 CONECTADO CON GITHUB' : '🟡 LISTO PARA AÑADIR A GITHUB'}</span>
+                        </div>
+                        <div class="ssh-key-box" id="sshPubKeyBox">${pubKey}</div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                            <button class="btn-upload-vector" onclick="copyToClipboard('${pubKey}')">
+                                <svg class="svg-icon-vector" style="fill:#ffffff; width:14px; height:14px;" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                                <span>Copiar Clave Pública</span>
+                            </button>
+                            <a class="action-btn-link" href="https://github.com/settings/ssh/new" target="_blank">
+                                <span>Añadir en GitHub Settings ↗</span>
+                            </a>
+                        </div>
+                        <div style="font-size:11px; background:#eceae4; padding:8px 12px; border-radius:6px; color:#444;">
+                            <strong>Prueba de Conexión GitHub SSH:</strong> <code>${sshOut}</code>
+                        </div>
+                    </div>
+                `;
+                executionContainer.innerHTML = `<div style="width:100%;">${sshHtml}</div>`;
                 return;
             }
 
@@ -799,7 +864,6 @@
                     files.forEach(f => {
                         const dHash = f.dilithium5_hash ? (f.dilithium5_hash.substring(0, 22) + '...') : 'dilithium5_...';
                         
-                        // Icono vectorial por extensión de archivo
                         let fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#141414;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
                         
                         if (f.filename.endsWith('.zip') || f.filename.endsWith('.rar') || f.filename.endsWith('.7z')) {

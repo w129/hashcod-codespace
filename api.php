@@ -1,5 +1,5 @@
 <?php
-// api.php - Backend PHP con Super Base de Datos Gigante Global, Criptografía Post-Cuántica Dilithium 5 y Comando set_I code
+// api.php - Backend PHP con Super Base de Datos, Dilithium 5 y Conexión SSH a GitHub (ed25519 - servidor-diktatcart)
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
 
@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $BROWSER_NAMES = ['chrome', 'brave', 'msedge', 'firefox', 'camoufox', 'opera', 'vivaldi', 'arc'];
 $REGISTERED_COMMANDS = [
     "set_i code"  => "Sube archivos masivos a la super base de datos gigante global protegida con Dilithium 5 y consulta todo el catálogo",
+    "ssh_key"     => "Muestra la clave pública SSH Ed25519 (servidor-diktatcart) para conectar el servidor con GitHub",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
     "status"      => "Consulta el estado del servidor y motores detectados",
@@ -36,8 +37,44 @@ if (!file_exists($STORAGE_DIR)) @mkdir($STORAGE_DIR, 0777, true);
 if (!file_exists($UPLOADS_DIR)) @mkdir($UPLOADS_DIR, 0777, true);
 
 /**
+ * GESTOR Y GENERADOR DE CLAVE SSH ED25519 PARA GITHUB
+ */
+function getOrGenerateSshKey() {
+    $homeDir = getenv('HOME') ?: (getenv('USERPROFILE') ?: __DIR__);
+    $sshDir = $homeDir . '/.ssh';
+    $keyPath = $sshDir . '/id_ed25519_github';
+    $pubKeyPath = $keyPath . '.pub';
+
+    if (!file_exists($sshDir)) {
+        @mkdir($sshDir, 0700, true);
+    }
+
+    if (!file_exists($keyPath) || !file_exists($pubKeyPath)) {
+        // Ejecutar ssh-keygen -t ed25519 -C "servidor-diktatcart" -f ~/.ssh/id_ed25519_github
+        $cmd = sprintf('ssh-keygen -t ed25519 -C "servidor-diktatcart" -f %s -N "" 2>&1', escapeshellarg($keyPath));
+        @shell_exec($cmd);
+    }
+
+    $pubKeyContent = '';
+    if (file_exists($pubKeyPath)) {
+        $pubKeyContent = trim(file_get_contents($pubKeyPath));
+    }
+
+    // Probar conexión SSH con GitHub
+    $sshTestCmd = sprintf('ssh -T -i %s -o StrictHostKeyChecking=no git@github.com 2>&1', escapeshellarg($keyPath));
+    $sshOutput = @shell_exec($sshTestCmd) ?? 'No se pudo probar la conexión SSH';
+
+    return [
+        'key_path' => $keyPath,
+        'pub_key_path' => $pubKeyPath,
+        'public_key' => $pubKeyContent,
+        'comment' => 'servidor-diktatcart',
+        'ssh_output' => trim($sshOutput)
+    ];
+}
+
+/**
  * GENERADOR DE HASH POST-CUÁNTICO DILITHIUM LEVEL 5 (NIST FIPS 204 Standard)
- * Genera una firma/huella digital resistente a computación cuántica mediante retículos algebraicos
  */
 function generateDilithium5Hash($filePathOrData, $isPath = true) {
     if ($isPath) {
@@ -48,7 +85,6 @@ function generateDilithium5Hash($filePathOrData, $isPath = true) {
         $sha512 = hash('sha512', $filePathOrData);
     }
 
-    // Matriz de vectores de retículo Dilithium 5 (Mode 5: k=8, l=7)
     $latticeVector = substr(hash('sha3-512', $shake512 . $sha512), 0, 64);
     return 'dilithium5_' . substr($shake512, 0, 64) . $latticeVector;
 }
@@ -91,7 +127,6 @@ class SuperGlobalDatabase {
             $stmt = $this->pdo->prepare("INSERT OR REPLACE INTO global_files (id, filename, mime_type, size_bytes, hash, upload_date, storage_path) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$id, $filename, $mimeType, $sizeBytes, $hash, $uploadDate, $storagePath]);
         } else {
-            // Fallback a Base de Datos JSON Indexed Atómica
             $fp = fopen($this->jsonDbPath, 'c+');
             if (flock($fp, LOCK_EX)) {
                 $files = [];
@@ -223,7 +258,15 @@ function formatBytes($bytes, $precision = 2) {
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Endpoint para descarga/servido directo de archivos almacenados
+// Endpoint SSH directo para consultar la clave pública
+if ($uri === '/api/ssh/key') {
+    header('Content-Type: application/json; charset=utf-8');
+    $sshInfo = getOrGenerateSshKey();
+    echo json_encode($sshInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Endpoint para descarga/servido directo de archivos
 if (strpos($uri, '/api/file/get/') === 0) {
     $fileId = basename($uri);
     $allFiles = $db->getAllFiles();
@@ -252,7 +295,6 @@ if (strpos($uri, '/api/file/get/') === 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri === '/api/file/upload')) {
     header('Content-Type: application/json; charset=utf-8');
 
-    // Manejar subidas Multipart estándar
     if (!empty($_FILES['file'])) {
         $file = $_FILES['file'];
         $origName = basename($file['name']);
@@ -282,7 +324,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri ===
         }
     }
 
-    // Manejar subida Base64 / Payload masivo desde JSON
     $rawInput = file_get_contents('php://input');
     $inputData = json_decode($rawInput, true);
 
@@ -348,8 +389,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $timestamp = date('c');
 
     $isSetICode = ($lowerCmd === 'set_i code' || $lowerCmd === 'set_icode' || $lowerCmd === 'set_i_code' || $cleanCmd === 'seticode');
+    $isSshKey = ($lowerCmd === 'ssh_key' || $lowerCmd === 'ssh' || $lowerCmd === 'sshkey' || $lowerCmd === 'ssh-key');
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
+    $isValid = $isSetICode || $isSshKey || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
 
     if (!$isValid) {
         echo json_encode([
@@ -364,7 +406,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
 
     $outputResult = [];
 
-    if ($isSetICode) {
+    if ($isSshKey) {
+        $sshInfo = getOrGenerateSshKey();
+        $outputResult = [
+            'type' => 'SSH_KEY_DISPLAY',
+            'command' => 'ssh_key',
+            'key_type' => 'Ed25519',
+            'comment' => 'servidor-diktatcart',
+            'public_key' => $sshInfo['public_key'],
+            'key_path' => $sshInfo['key_path'],
+            'github_test_output' => $sshInfo['ssh_output']
+        ];
+    } else if ($isSetICode) {
         $rawFiles = $db->getAllFiles();
         $formattedFiles = [];
         $totalBytes = 0;
@@ -407,7 +460,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     } else if ($lowerCmd === 'status' || $lowerCmd === 'browsers') {
         $outputResult = scanRealBrowsers($BROWSER_NAMES);
     } else if ($lowerCmd === 'ping') {
-        $outputResult = ['pong' => true, 'time' => $timestamp, 'crypto' => 'Dilithium 5 Ready'];
+        $outputResult = ['pong' => true, 'time' => $timestamp, 'crypto' => 'Dilithium 5 Ready', 'ssh' => 'Ed25519 Ready'];
     } else if ($lowerCmd === 'bigdata') {
         $outputResult = [
             'bigdata_ready' => true,
@@ -430,10 +483,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
 // Información de estado predeterminada
 header('Content-Type: application/json; charset=utf-8');
 $browserState = scanRealBrowsers($BROWSER_NAMES);
+$sshInfo = getOrGenerateSshKey();
 echo json_encode([
     'server' => 'PHP 8.1 Super Database Engine',
     'crypto' => 'CRYSTALS-Dilithium Level 5 Post-Quantum Algorithm',
-    'command' => 'set_I code active',
+    'ssh_key_type' => 'Ed25519 (servidor-diktatcart)',
+    'ssh_public_key' => $sshInfo['public_key'],
     'browserState' => $browserState,
     'registeredCommands' => array_keys($REGISTERED_COMMANDS)
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);

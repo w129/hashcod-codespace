@@ -1,11 +1,18 @@
 FROM php:8.1-cli
 
-# Instalar librerías del sistema requeridas para opcache y zip
+# Instalar librerías del sistema requeridas para opcache, zip, openssh y git
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     unzip \
+    openssh-client \
+    git \
     && docker-php-ext-install opcache zip \
     && rm -rf /var/lib/apt/lists/*
+
+# Configurar directorio SSH y archivo config de GitHub
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
+    echo "Host github.com\n\tStrictHostKeyChecking no\n\tIdentityFile /root/.ssh/id_ed25519_github\n" > /root/.ssh/config && \
+    chmod 600 /root/.ssh/config
 
 # Configuración de memoria y OPcache para procesamiento de datos masivos
 RUN { \

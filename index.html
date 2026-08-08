@@ -2075,12 +2075,13 @@
                 const canvas = document.getElementById('bootBlackholeCanvas');
                 if (!canvas || !window.OriginkitBlackHole) return;
                 if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
+                const wide = window.innerWidth > 720;
                 blackholeInstance = window.OriginkitBlackHole.create(canvas, {
                     showCenter: true,
-                    // sit left so brand fits cleanly on the right
-                    centre: { radius: 8, x: 38, y: 54 },
+                    // sit left on desktop so brand fits cleanly on the right
+                    centre: { radius: 8, x: wide ? 38 : 50, y: wide ? 54 : 46 },
                     background: '#ffffff',
-                    outerRadius: 78,
+                    outerRadius: wide ? 78 : 82,
                     particleCount: 2400,
                     particleSize: 1.9,
                     trail: 82,

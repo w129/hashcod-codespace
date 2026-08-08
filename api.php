@@ -1,5 +1,5 @@
 <?php
-// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Gestión de Repositorios Clonados
+// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Clonación Inteligente (SSH con Fallback HTTPS)
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
 
@@ -21,7 +21,7 @@ $BROWSER_NAMES = ['chrome', 'brave', 'msedge', 'firefox', 'camoufox', 'opera', '
 $REGISTERED_COMMANDS = [
     "set_i code"  => "Sube archivos masivos a la super base de datos gigante global protegida con Dilithium 5 y consulta todo el catálogo",
     "repos"       => "Muestra la lista completa de repositorios de GitHub clonados y guardados en el servidor de la plataforma",
-    "clone <repo>"=> "Clona o actualiza repositorios de GitHub vía SSH en el servidor (ej: clone w129/l8-codespace)",
+    "clone <repo>"=> "Clona o actualiza repositorios de GitHub vía SSH/HTTPS en el servidor (ej: clone langgenius/dify)",
     "ssh_key"     => "Muestra la clave pública SSH Ed25519 generada por esta plataforma para conectar el servidor con GitHub",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
@@ -82,7 +82,7 @@ function getOrGenerateSshKey($forceRegenerate = false) {
 }
 
 /**
- * GESTOR DE REPOSITORIOS GITHUB (CLONACIÓN Y PERSISTENCIA SSH)
+ * GESTOR DE REPOSITORIOS GITHUB CON MOTOR DE CLONACIÓN INTELIGENTE (SSH -> HTTPS FALLBACK)
  */
 function cloneOrUpdateRepository($repoTarget) {
     global $REPOS_DIR;
@@ -91,31 +91,33 @@ function cloneOrUpdateRepository($repoTarget) {
 
     $cleanTarget = trim($repoTarget);
     if (empty($cleanTarget)) {
-        return ['ok' => false, 'error' => 'Especifica un repositorio para clonar (ej: clone w129/l8-codespace)'];
+        return ['ok' => false, 'error' => 'Especifica un repositorio para clonar (ej: clone langgenius/dify)'];
     }
 
-    // Normalizar la URL del repositorio SSH de GitHub
+    // Normalización inteligente de la ruta del repositorio
+    $userRepo = '';
     if (strpos($cleanTarget, 'git@github.com:') === 0) {
-        $sshUrl = $cleanTarget;
-        $repoFolder = preg_replace('/\.git$/i', '', basename(parse_url($cleanTarget, PHP_URL_PATH) ?? $cleanTarget));
-    } else if (preg_match('#^https://github\.com/([^/]+)/([^/]+)#i', $cleanTarget, $matches)) {
-        $user = $matches[1];
-        $repo = preg_replace('/\.git$/i', '', $matches[2]);
-        $sshUrl = "git@github.com:$user/$repo.git";
-        $repoFolder = $repo;
-    } else if (preg_match('#^([^/]+)/([^/]+)$#i', $cleanTarget, $matches)) {
-        $user = $matches[1];
-        $repo = preg_replace('/\.git$/i', '', $matches[2]);
-        $sshUrl = "git@github.com:$user/$repo.git";
-        $repoFolder = $repo;
+        $userRepo = preg_replace('#^git@github\.com:#i', '', $cleanTarget);
+        $userRepo = preg_replace('/\.git$/i', '', $userRepo);
+    } else if (preg_match('#^https://github\.com/([^/]+/[^/]+)#i', $cleanTarget, $matches)) {
+        $userRepo = preg_replace('/\.git$/i', '', $matches[1]);
+    } else if (strpos($cleanTarget, '/') !== false) {
+        $userRepo = preg_replace('/\.git$/i', '', $cleanTarget);
     } else {
-        $repoFolder = preg_replace('/[^a-zA-Z0-9_\-]/', '', $cleanTarget);
-        $sshUrl = "git@github.com:$cleanTarget.git";
+        // Fallback para nombres simples como "dify" -> "langgenius/dify" o "dify/dify"
+        if (strtolower($cleanTarget) === 'dify') {
+            $userRepo = "langgenius/dify";
+        } else {
+            $userRepo = $cleanTarget;
+        }
     }
 
+    $sshUrl   = "git@github.com:$userRepo.git";
+    $httpsUrl = "https://github.com/$userRepo.git";
+    $repoFolder = basename($userRepo);
     $targetPath = $REPOS_DIR . '/' . $repoFolder;
 
-    // Configurar GIT_SSH_COMMAND para usar la clave SSH Ed25519 de la plataforma
+    // Configurar GIT_SSH_COMMAND con la clave Ed25519
     $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=no', escapeshellarg($keyPath));
     putenv("GIT_SSH_COMMAND=$gitSshCmd");
 
@@ -123,20 +125,30 @@ function cloneOrUpdateRepository($repoTarget) {
     $action = '';
 
     if (file_exists($targetPath . '/.git')) {
-        // Repositorio ya clonado -> Ejecutar git pull para actualizar
         $action = 'pull';
         $cmd = sprintf('cd %s && git pull origin main 2>&1 || git pull origin master 2>&1', escapeshellarg($targetPath));
         $output = shell_exec($cmd);
     } else {
-        // Clonar repositorio desde GitHub mediante SSH
         $action = 'clone';
-        $cmd = sprintf('git clone %s %s 2>&1', escapeshellarg($sshUrl), escapeshellarg($targetPath));
-        $output = shell_exec($cmd);
+        // 1. Intentar clonación rápida mediante SSH
+        $cmdSsh = sprintf('git clone %s %s 2>&1', escapeshellarg($sshUrl), escapeshellarg($targetPath));
+        $outputSsh = shell_exec($cmdSsh);
+
+        if (file_exists($targetPath . '/.git')) {
+            $output = $outputSsh;
+        } else {
+            // 2. Si SSH devuelve Permission Denied, usar automáticamente Fallback HTTPS
+            if (file_exists($targetPath)) {
+                @shell_exec(sprintf('rm -rf %s', escapeshellarg($targetPath)));
+            }
+            $cmdHttps = sprintf('git clone %s %s 2>&1', escapeshellarg($httpsUrl), escapeshellarg($targetPath));
+            $outputHttps = shell_exec($cmdHttps);
+            $output = "SSH Connection Note: SSH Key not registered on GitHub account yet.\nHTTPS Auto-Fallback Execution:\n" . $outputHttps;
+        }
     }
 
     $isSuccess = file_exists($targetPath . '/.git');
 
-    // Obtener información del último commit
     $lastCommit = 'Sin commits';
     $branch = 'main';
     if ($isSuccess) {
@@ -150,7 +162,9 @@ function cloneOrUpdateRepository($repoTarget) {
         'ok' => $isSuccess,
         'action' => $action,
         'repo_name' => $repoFolder,
+        'user_repo' => $userRepo,
         'ssh_url' => $sshUrl,
+        'https_url' => $httpsUrl,
         'target_path' => $targetPath,
         'branch' => $branch,
         'last_commit' => $lastCommit,
@@ -172,7 +186,6 @@ function getStoredRepositories() {
             $branch = trim(shell_exec(sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($fullPath))) ?? 'main');
             $remoteUrl = trim(shell_exec(sprintf('cd %s && git config --get remote.origin.url 2>&1', escapeshellarg($fullPath))) ?? '');
             
-            // Calcular tamaño del directorio en MB/KB
             $sizeBytes = 0;
             $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($fullPath, RecursiveDirectoryIterator::SKIP_DOTS));
             foreach ($files as $file) {

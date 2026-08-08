@@ -1,7 +1,11 @@
 FROM php:8.1-cli
 
-# Instalar extensiones de alto rendimiento de PHP
-RUN docker-php-ext-install opcache zip
+# Instalar librerías del sistema requeridas para opcache y zip
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    unzip \
+    && docker-php-ext-install opcache zip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Configuración de memoria y OPcache para procesamiento de datos masivos
 RUN { \

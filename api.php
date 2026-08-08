@@ -1,5 +1,5 @@
 <?php
-// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Clonación Ultrarrápida (--depth 1)
+// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Persistencia Automática tras Despliegues de Render
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
 
@@ -82,7 +82,22 @@ function getOrGenerateSshKey($forceRegenerate = false) {
 }
 
 /**
- * GESTOR DE REPOSITORIOS GITHUB ULTRARRÁPIDO (--depth 1) CON FALLBACK AUTOMÁTICO HTTPS
+ * GUARDADO PERSISTENTE DEL ÍNDICE DE REPOSITORIOS (RESISTENTE A DESPLIEGUES Y REINICIOS DE RENDER)
+ */
+function saveRepoIndexEntry($repoMeta) {
+    global $STORAGE_DIR;
+    $indexPath = $STORAGE_DIR . '/repos_index.json';
+    $existing = [];
+    if (file_exists($indexPath)) {
+        $raw = file_get_contents($indexPath);
+        $existing = json_decode($raw, true) ?? [];
+    }
+    $existing[$repoMeta['name']] = $repoMeta;
+    file_put_contents($indexPath, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+/**
+ * GESTOR DE REPOSITORIOS GITHUB CON MOTOR DE AUTO-RESTAURACIÓN AUTOMÁTICA TRAS REINICIOS
  */
 function cloneOrUpdateRepository($repoTarget) {
     global $REPOS_DIR;
@@ -127,14 +142,12 @@ function cloneOrUpdateRepository($repoTarget) {
         $output = shell_exec($cmd);
     } else {
         $action = 'clone';
-        // 1. Intentar clonación optimizada SSH con --depth 1
         $cmdSsh = sprintf('git clone --depth 1 %s %s 2>&1', escapeshellarg($sshUrl), escapeshellarg($targetPath));
         $outputSsh = shell_exec($cmdSsh);
 
         if (file_exists($targetPath . '/.git')) {
             $output = $outputSsh;
         } else {
-            // 2. Si SSH falla por permisos, ejecutar Fallback HTTPS optimizado con --depth 1
             if (file_exists($targetPath)) {
                 @shell_exec(sprintf('rm -rf %s', escapeshellarg($targetPath)));
             }
@@ -153,6 +166,16 @@ function cloneOrUpdateRepository($repoTarget) {
         $lastCommit = trim(shell_exec($commitCmd) ?? 'Commit info unavailable');
         $branchCmd = sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($targetPath));
         $branch = trim(shell_exec($branchCmd) ?? 'main');
+
+        $repoMeta = [
+            'name' => $repoFolder,
+            'user_repo' => $userRepo,
+            'branch' => $branch,
+            'remote_url' => $httpsUrl,
+            'last_commit' => $lastCommit,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        saveRepoIndexEntry($repoMeta);
     }
 
     return [
@@ -169,37 +192,69 @@ function cloneOrUpdateRepository($repoTarget) {
     ];
 }
 
+/**
+ * CONSULTA Y AUTO-RESTAURACIÓN AUTOMÁTICA DE REPOSITORIOS GUARDADOS TRAS DESPLIEGUES
+ */
 function getStoredRepositories() {
-    global $REPOS_DIR;
+    global $REPOS_DIR, $STORAGE_DIR;
     $repos = [];
-    if (!file_exists($REPOS_DIR)) return $repos;
+    $indexPath = $STORAGE_DIR . '/repos_index.json';
+    $indexRepos = [];
 
-    $dirs = scandir($REPOS_DIR);
-    foreach ($dirs as $d) {
-        if ($d === '.' || $d === '..') continue;
-        $fullPath = $REPOS_DIR . '/' . $d;
-        if (is_dir($fullPath) && file_exists($fullPath . '/.git')) {
-            $lastCommit = trim(shell_exec(sprintf('cd %s && git log -1 --pretty=format:"%%h - %%s (%%cr)" 2>&1', escapeshellarg($fullPath))) ?? '');
-            $branch = trim(shell_exec(sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($fullPath))) ?? 'main');
-            $remoteUrl = trim(shell_exec(sprintf('cd %s && git config --get remote.origin.url 2>&1', escapeshellarg($fullPath))) ?? '');
-            
-            $sizeBytes = 0;
-            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($fullPath, RecursiveDirectoryIterator::SKIP_DOTS));
-            foreach ($files as $file) {
-                $sizeBytes += $file->getSize();
+    if (file_exists($indexPath)) {
+        $raw = file_get_contents($indexPath);
+        $indexRepos = json_decode($raw, true) ?? [];
+    }
+
+    if (file_exists($REPOS_DIR)) {
+        $dirs = scandir($REPOS_DIR);
+        foreach ($dirs as $d) {
+            if ($d === '.' || $d === '..') continue;
+            $fullPath = $REPOS_DIR . '/' . $d;
+            if (is_dir($fullPath) && file_exists($fullPath . '/.git')) {
+                $lastCommit = trim(shell_exec(sprintf('cd %s && git log -1 --pretty=format:"%%h - %%s (%%cr)" 2>&1', escapeshellarg($fullPath))) ?? '');
+                $branch = trim(shell_exec(sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($fullPath))) ?? 'main');
+                $remoteUrl = trim(shell_exec(sprintf('cd %s && git config --get remote.origin.url 2>&1', escapeshellarg($fullPath))) ?? '');
+                
+                $sizeBytes = 0;
+                $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($fullPath, RecursiveDirectoryIterator::SKIP_DOTS));
+                foreach ($files as $file) {
+                    $sizeBytes += $file->getSize();
+                }
+
+                $repoMeta = [
+                    'name' => $d,
+                    'branch' => $branch,
+                    'remote_url' => $remoteUrl,
+                    'last_commit' => $lastCommit,
+                    'size_formatted' => formatBytes($sizeBytes),
+                    'updated_at' => date('Y-m-d H:i:s', filemtime($fullPath))
+                ];
+                $repos[$d] = $repoMeta;
+                saveRepoIndexEntry($repoMeta);
             }
-
-            $repos[] = [
-                'name' => $d,
-                'branch' => $branch,
-                'remote_url' => $remoteUrl,
-                'last_commit' => $lastCommit,
-                'size_formatted' => formatBytes($sizeBytes),
-                'updated_at' => date('Y-m-d H:i:s', filemtime($fullPath))
-            ];
         }
     }
-    return $repos;
+
+    // Auto-Restauración transparente si el contenedor fue reiniciado/desplegado en Render
+    foreach ($indexRepos as $name => $meta) {
+        if (!isset($repos[$name])) {
+            $userRepo = !empty($meta['user_repo']) ? $meta['user_repo'] : $name;
+            $res = cloneOrUpdateRepository($userRepo);
+            if ($res['ok']) {
+                $repos[$name] = [
+                    'name' => $name,
+                    'branch' => $res['branch'],
+                    'remote_url' => $res['https_url'],
+                    'last_commit' => $res['last_commit'],
+                    'size_formatted' => formatBytes(15000000),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+            }
+        }
+    }
+
+    return array_values($repos);
 }
 
 /**
@@ -255,43 +310,38 @@ class SuperGlobalDatabase {
         if ($this->pdo) {
             $stmt = $this->pdo->prepare("INSERT OR REPLACE INTO global_files (id, filename, mime_type, size_bytes, hash, upload_date, storage_path) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$id, $filename, $mimeType, $sizeBytes, $hash, $uploadDate, $storagePath]);
-        } else {
-            $fp = fopen($this->jsonDbPath, 'c+');
-            if (flock($fp, LOCK_EX)) {
-                $files = [];
-                $size = filesize($this->jsonDbPath);
-                if ($size > 0) {
-                    $raw = fread($fp, $size);
-                    $files = json_decode($raw, true) ?? [];
-                }
-                $files[$id] = [
-                    'id' => $id,
-                    'filename' => $filename,
-                    'mime_type' => $mimeType,
-                    'size_bytes' => $sizeBytes,
-                    'hash' => $hash,
-                    'upload_date' => $uploadDate,
-                    'storage_path' => $storagePath
-                ];
-                ftruncate($fp, 0);
-                rewind($fp);
-                fwrite($fp, json_encode($files, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                flock($fp, LOCK_UN);
-            }
-            fclose($fp);
         }
+        
+        $fp = fopen($this->jsonDbPath, 'c+');
+        if (flock($fp, LOCK_EX)) {
+            $files = [];
+            $size = file_exists($this->jsonDbPath) ? filesize($this->jsonDbPath) : 0;
+            if ($size > 0) {
+                $raw = fread($fp, $size);
+                $files = json_decode($raw, true) ?? [];
+            }
+            $files[$id] = [
+                'id' => $id,
+                'filename' => $filename,
+                'mime_type' => $mimeType,
+                'size_bytes' => $sizeBytes,
+                'hash' => $hash,
+                'upload_date' => $uploadDate,
+                'storage_path' => $storagePath
+            ];
+            ftruncate($fp, 0);
+            rewind($fp);
+            fwrite($fp, json_encode($files, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            flock($fp, LOCK_UN);
+        }
+        fclose($fp);
     }
 
     public function getAllFiles() {
-        if ($this->pdo) {
-            $stmt = $this->pdo->query("SELECT * FROM global_files ORDER BY upload_date DESC");
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } else {
-            if (!file_exists($this->jsonDbPath)) return [];
-            $raw = file_get_contents($this->jsonDbPath);
-            $files = json_decode($raw, true) ?? [];
-            return array_values($files);
-        }
+        if (!file_exists($this->jsonDbPath)) return [];
+        $raw = file_get_contents($this->jsonDbPath);
+        $files = json_decode($raw, true) ?? [];
+        return array_values($files);
     }
 }
 

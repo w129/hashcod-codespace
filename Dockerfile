@@ -1,12 +1,22 @@
 FROM php:8.1-cli
 
-# Instalar librerías del sistema requeridas para opcache, zip, openssh y git
+# Instalar librerías del sistema + GitHub CLI (gh) para Render
 RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
     libzip-dev \
     libcurl4-openssl-dev \
     unzip \
     openssh-client \
     git \
+    && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+      | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+      > /etc/apt/sources.list.d/github-cli.list \
+    && apt-get update \
+    && apt-get install -y gh \
     && docker-php-ext-install opcache zip curl \
     && rm -rf /var/lib/apt/lists/*
 

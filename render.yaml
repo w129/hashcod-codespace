@@ -14,4 +14,6 @@ services:
         sync: false
       - key: SUPABASE_STORAGE_BUCKET
         value: l8-storage
+      - key: GITHUB_TOKEN
+        sync: false
 

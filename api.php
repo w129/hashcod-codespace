@@ -202,7 +202,20 @@ function saveRepoIndexEntriesBatch($metas) {
     writeRepoIndex($existing);
 }
 
-function getGhBinary() {
+/**
+ * Token GitHub para API REST (sin depender del binario `gh` en Render).
+ */
+function getGithubApiToken() {
+    loadEnvFile();
+    $token = getenv('GITHUB_TOKEN') ?: ($_ENV['GITHUB_TOKEN'] ?? '');
+    if ($token === '') {
+        $token = getenv('GH_TOKEN') ?: ($_ENV['GH_TOKEN'] ?? '');
+    }
+    if ($token !== '') {
+        return trim($token);
+    }
+
+    // Fallback local: si existe GitHub CLI autenticado
     $candidates = [
         'C:\\Program Files\\GitHub CLI\\gh.exe',
         '/usr/bin/gh',
@@ -210,25 +223,99 @@ function getGhBinary() {
         'gh'
     ];
     foreach ($candidates as $bin) {
-        if ($bin === 'gh' || file_exists($bin)) {
-            return $bin;
+        if ($bin !== 'gh' && !file_exists($bin)) continue;
+        $out = @shell_exec(escapeshellarg($bin) . ' auth token 2>NUL');
+        if (!$out) {
+            $out = @shell_exec(escapeshellarg($bin) . ' auth token 2>/dev/null');
         }
+        $out = trim((string)$out);
+        if ($out !== '' && strpos($out, ' ') === false && strlen($out) > 20) {
+            return $out;
+        }
+        break;
     }
-    return 'gh';
+    return '';
 }
 
-function runGhJson($args) {
-    $gh = escapeshellarg(getGhBinary());
-    $cmd = $gh . ' ' . $args . ' 2>&1';
-    $raw = @shell_exec($cmd);
-    if ($raw === null || $raw === '') {
-        return ['ok' => false, 'error' => 'GitHub CLI no respondió', 'data' => null];
+/**
+ * Llamada directa a api.github.com (funciona en Docker/Render sin `gh`).
+ * $path ej: "search/repositories?q=..." o "repos/owner/name"
+ */
+function githubApiJson($path) {
+    $path = ltrim($path, '/');
+    if (strpos($path, 'api ') === 0) {
+        // Compat: antiguos callers pasaban "api 'endpoint'"
+        $path = trim(substr($path, 4));
+        $path = trim($path, " \t\n\r\0\x0B'\"");
     }
-    $decoded = json_decode($raw, true);
+    $url = 'https://api.github.com/' . $path;
+    $token = getGithubApiToken();
+
+    $headers = [
+        'Accept: application/vnd.github+json',
+        'User-Agent: l8-codespace-platform',
+        'X-GitHub-Api-Version: 2022-11-28'
+    ];
+    if ($token !== '') {
+        $headers[] = 'Authorization: Bearer ' . $token;
+    }
+
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+        // Evita errores HTTP/2 PROTOCOL_ERROR en algunos hosts/Docker
+        if (defined('CURL_HTTP_VERSION_1_1')) {
+            curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        }
+        $raw = curl_exec($ch);
+        $errno = curl_errno($ch);
+        $err = curl_error($ch);
+        $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($errno) {
+            return ['ok' => false, 'error' => $err ?: 'Error cURL GitHub', 'data' => null, 'status' => 0];
+        }
+    } else {
+        $ctx = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'header' => implode("\r\n", $headers),
+                'timeout' => 45,
+                'ignore_errors' => true
+            ]
+        ]);
+        $raw = @file_get_contents($url, false, $ctx);
+        $status = 0;
+        if (isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m)) {
+            $status = (int)$m[1];
+        }
+        if ($raw === false) {
+            return ['ok' => false, 'error' => 'No se pudo contactar api.github.com', 'data' => null, 'status' => 0];
+        }
+    }
+
+    $decoded = json_decode((string)$raw, true);
     if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
-        return ['ok' => false, 'error' => trim($raw), 'data' => null];
+        return ['ok' => false, 'error' => trim((string)$raw), 'data' => null, 'status' => $status];
     }
-    return ['ok' => true, 'data' => $decoded, 'error' => null];
+    if ($status >= 400) {
+        $msg = is_array($decoded) ? ($decoded['message'] ?? ('HTTP ' . $status)) : ('HTTP ' . $status);
+        return ['ok' => false, 'error' => $msg, 'data' => $decoded, 'status' => $status];
+    }
+    return ['ok' => true, 'data' => $decoded, 'error' => null, 'status' => $status];
+}
+
+/** @deprecated usar githubApiJson — se mantiene como alias */
+function runGhJson($args) {
+    // Extrae endpoint de formas: api 'search/...'  |  api search/...
+    $args = trim((string)$args);
+    if (preg_match('/^api\s+(.+)$/i', $args, $m)) {
+        $endpoint = trim($m[1], " \t\n\r\0\x0B'\"");
+        return githubApiJson($endpoint);
+    }
+    return githubApiJson($args);
 }
 
 /**

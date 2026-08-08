@@ -1855,6 +1855,36 @@ function runOriginKitBlackhole() {
     ];
 }
 
+
+// Leer el source del componente blackhole generado por originkit
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/originkit/blackhole' || $uri === '/api/cli/blackhole/source')) {
+    header('Content-Type: application/json; charset=utf-8');
+    global $STORAGE_DIR;
+    $candidates = [
+        $STORAGE_DIR . '/originkit-workspace/src/components/originkit/ui/blackhole.tsx',
+        $STORAGE_DIR . '/originkit-workspace/src/components/originkit/ui/blackhole.jsx',
+        $STORAGE_DIR . '/originkit-workspace/components/originkit/ui/blackhole.tsx',
+        __DIR__ . '/components/originkit/ui/blackhole.tsx',
+    ];
+    $found = null;
+    foreach ($candidates as $p) {
+        if (file_exists($p) && is_file($p)) { $found = $p; break; }
+    }
+    if (!$found) {
+        echo json_encode(['ok' => false, 'error' => 'blackhole.tsx no encontrado. Ejecuta primero el CLI de arranque.'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $source = file_get_contents($found);
+    echo json_encode([
+        'ok' => true,
+        'path' => $found,
+        'filename' => basename($found),
+        'size' => filesize($found),
+        'source' => $source
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // CLI de arranque: bunx --bun originkit@latest add blackhole
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/cli/blackhole' || $uri === '/api/cli/run-blackhole')) {
     header('Content-Type: application/json; charset=utf-8');

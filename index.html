@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servidor de EjecuciÃ³n y Comandos</title>
+    <title>Servidor de Ejecución y Comandos</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
@@ -519,7 +519,7 @@
             gap: 10px;
         }
 
-        /* TOOLBAR PARA INSPECIONAR CÃ“DIGO POR CARPETAS */
+        /* TOOLBAR PARA INSPECIONAR CÓDIGO POR CARPETAS */
         .repo-inspector-bar {
             display: none;
             align-items: center;
@@ -731,15 +731,15 @@
             <div class="block-body" id="executionContent"></div>
         </div>
 
-        <!-- Bloque (>) de introducciÃ³n de comandos y su ventana desplegable -->
+        <!-- Bloque (>) de introducción de comandos y su ventana desplegable -->
         <div class="function-drawer-wrapper">
             <div class="block-row block-prompt">
                 <div class="block-symbol clickable-symbol" id="symbolPrompt" onclick="toggleFunctionDrawer()" title="Haz clic en (>) para abrir/cerrar la ventana de funciones">
                     &gt;
                 </div>
                 <div class="block-body block-input-container">
-                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquÃ­ y presiona Enter (ej: repos, clone langgenius/dify)..." autocomplete="off" onkeydown="handleCommandKey(event)">
-                    <div class="cell-action-icon" title="Activar/Desactivar Teclado y Entorno GrÃ¡fico" onclick="toggleVirtualKeyboard()">
+                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: repos, clone langgenius/dify)..." autocomplete="off" onkeydown="handleCommandKey(event)">
+                    <div class="cell-action-icon" title="Activar/Desactivar Teclado y Entorno Gráfico" onclick="toggleVirtualKeyboard()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="40" fill="#000000" />
                             <circle cx="82" cy="18" r="4.5" fill="#000000" />
@@ -765,17 +765,17 @@
                     <span>&gt;/ function to execute</span>
                 </div>
 
-                <!-- Barra Navegadora de CÃ³digo por Carpetas en la Consola Negra -->
+                <!-- Barra Navegadora de Código por Carpetas en la Consola Negra -->
                 <div class="repo-inspector-bar" id="repoInspectorBar">
                     <span style="color:#ffffff; font-size:12px; font-weight:600;">Estructura:</span>
                     <select id="repoFileSelector" class="repo-file-selector" onchange="loadSelectedRepoFile(this.value)">
-                        <option value="">ðŸ“ Selecciona un archivo de cÃ³digo por carpeta...</option>
+                        <option value="">📁 Selecciona un archivo de código por carpeta...</option>
                     </select>
                     <span id="repoFilePathInfo" style="color:#888888; font-size:11px; font-family:monospace;"></span>
                 </div>
 
                 <div class="function-drawer-inner">
-                    <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquÃ­ o inspecciona el cÃ³digo de repositorios guardados..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
+                    <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí o inspecciona el código de repositorios guardados..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
                 </div>
 
                 <div class="virtual-keyboard-white" id="virtualKeyboard">
@@ -786,7 +786,7 @@
                                 <div class="vk-pills">
                                     <span class="vk-pill active">123</span>
                                     <span class="vk-pill">fx</span>
-                                    <span class="vk-pill">Î±Î²</span>
+                                    <span class="vk-pill">αβ</span>
                                 </div>
                             </div>
                             <div class="vk-card-body" id="keyWindowBody">
@@ -826,7 +826,7 @@
                                 </div>
                             </div>
                             <div class="vk-card-body equations-body">
-                                <textarea id="equationsEditor" class="equations-editor" placeholder="// Ecuaciones y fÃ³rmulas matemÃ¡ticas..." spellcheck="false"></textarea>
+                                <textarea id="equationsEditor" class="equations-editor" placeholder="// Ecuaciones y fórmulas matemáticas..." spellcheck="false"></textarea>
                             </div>
                         </div>
                     </div>
@@ -893,9 +893,9 @@
 
             headerTitle.innerHTML = `&gt;/ function to execute &bull; <span style="color:#34c759;">Inspeccionando Repositorio: <strong>${repoName}</strong></span>`;
             toolbar.style.display = 'flex';
-            selector.innerHTML = '<option value="">â³ Cargando estructura de carpetas...</option>';
+            selector.innerHTML = '<option value="">⏳ Cargando estructura de carpetas...</option>';
             pathInfo.textContent = '';
-            editor.value = "// Cargando cÃ³digo completo del repositorio '" + repoName + "' por carpetas...";
+            editor.value = "// Cargando código completo del repositorio '" + repoName + "' por carpetas...";
 
             try {
                 const res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(repoName));
@@ -907,13 +907,13 @@
                 }
 
                 currentRepoTree = data.tree || [];
-                selector.innerHTML = '<option value="">ðŸ“ Selecciona un archivo por carpeta...</option>';
+                selector.innerHTML = '<option value="">📁 Selecciona un archivo por carpeta...</option>';
 
                 currentRepoTree.forEach(item => {
                     if (item.type === 'file') {
                         const opt = document.createElement('option');
                         opt.value = item.path;
-                        opt.textContent = "ðŸ“„ " + item.path + " (" + item.size_formatted + ")";
+                        opt.textContent = "📄 " + item.path + " (" + item.size_formatted + ")";
                         selector.appendChild(opt);
                     }
                 });
@@ -922,7 +922,7 @@
                     selector.selectedIndex = 1;
                     loadSelectedRepoFile(selector.value);
                 } else {
-                    editor.value = "// Repositorio vacÃ­o o sin archivos de cÃ³digo visibles.";
+                    editor.value = "// Repositorio vacío o sin archivos de código visibles.";
                 }
             } catch (err) {
                 console.error("Error al cargar repositorio:", err);
@@ -936,7 +936,7 @@
             const pathInfo = document.getElementById('repoFilePathInfo');
             
             pathInfo.textContent = currentInspectedRepo + " / " + filePath;
-            editor.value = "// Cargando cÃ³digo de '" + filePath + "'...";
+            editor.value = "// Cargando código de '" + filePath + "'...";
 
             try {
                 const res = await fetch('/api/repo/file?repo=' + encodeURIComponent(currentInspectedRepo) + '&path=' + encodeURIComponent(filePath));
@@ -1025,7 +1025,7 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert('Clave pÃºblica SSH copiada al portapapeles con Ã©xito!');
+                alert('Clave pública SSH copiada al portapapeles con éxito!');
             }).catch(err => {
                 console.error('Error al copiar:', err);
             });
@@ -1050,7 +1050,7 @@
                 return;
             }
 
-            // RENDERIZADO PARA EL CATÃLOGO GLOBAL DE GITHUB (repos / clone / save)
+            // RENDERIZADO PARA EL CATÁLOGO GLOBAL DE GITHUB (repos / clone / save)
             if (dataToDisplay && (dataToDisplay.type === "REPOS_CATALOG" || dataToDisplay.type === "REPO_CLONE_RESULT")) {
                 const repos = dataToDisplay.repos || (dataToDisplay.all_repos || []);
                 const cloneResult = dataToDisplay.result;
@@ -1059,7 +1059,7 @@
                 const page = dataToDisplay.page || 1;
                 const defaultQueries = ['is:public', 'is:public stars:>50'];
                 let queryVal = (dataToDisplay.query && !defaultQueries.includes(dataToDisplay.query)) ? dataToDisplay.query : '';
-                // No mostrar el fragmento tÃ©cnico de filtros de licencia en la barra
+                // No mostrar el fragmento técnico de filtros de licencia en la barra
                 queryVal = queryVal.replace(/\s*\(license:mit[\s\S]*?\)\s*/gi, '').trim();
                 const escHtml = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                 const escAttr = (s) => encodeURIComponent(String(s ?? ''));
@@ -1077,7 +1077,7 @@
                     rowsHtml = `
                         <tr>
                             <td colspan="6" style="text-align:center; padding:24px; color:#888;">
-                                ${dataToDisplay.github_error ? ('Error GitHub: ' + escHtml(dataToDisplay.github_error)) : 'Sin resultados con licencia MIT / Apache / BSD. Si el repo no tiene licencia verÃ¡s una alerta en rojo.'}
+                                ${dataToDisplay.github_error ? ('Error GitHub: ' + escHtml(dataToDisplay.github_error)) : 'Sin resultados con licencia MIT / Apache / BSD. Si el repo no tiene licencia verás una alerta en rojo.'}
                             </td>
                         </tr>`;
                 } else {
@@ -1092,8 +1092,8 @@
                             : `<span class="mime-tag" style="background:#eceae4;color:#444;">GitHub</span>`;
                         const licenseBadge = `<span class="license-badge" title="Licencia SPDX del repositorio"><span class="dot"></span>${escHtml(licLabel)}</span>`;
                         const actions = cloned
-                            ? `<button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'))" title="Inspeccionar cÃ³digo">
-                                    ${SVG_CODE_WINDOW_BLACK}<span>Ver CÃ³digo</span>
+                            ? `<button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'))" title="Inspeccionar código">
+                                    ${SVG_CODE_WINDOW_BLACK}<span>Ver Código</span>
                                </button>
                                <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ' + decodeURIComponent('${escAttr(full)}'))">
                                     ${SVG_REFRESH_VECTOR}<span>Git Pull</span>
@@ -1118,7 +1118,7 @@
                                 <td>${licenseBadge}</td>
                                 <td><span class="mime-tag">${escHtml(r.branch || 'main')}</span></td>
                                 <td style="color:#666; font-size:11px; font-family:monospace;">${escHtml(r.last_commit || '')}</td>
-                                <td>${escHtml(r.size_formatted || 'â€”')}</td>
+                                <td>${escHtml(r.size_formatted || '—')}</td>
                                 <td>
                                     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                                         ${actions}
@@ -1152,11 +1152,11 @@
                             <div class="catalog-metrics">
                                 <div class="metric-item">
                                     ${SVG_GITHUB_BLACK}
-                                    <span>ConexiÃ³n SSH:</span>
+                                    <span>Conexión SSH:</span>
                                     <span class="metric-badge-black">GitHub SSH Active</span>
                                 </div>
                                 <div class="metric-item">
-                                    <span>En esta pÃ¡gina:</span>
+                                    <span>En esta página:</span>
                                     <span class="metric-badge-black">${repos.length}</span>
                                 </div>
                                 <div class="metric-item">
@@ -1165,7 +1165,7 @@
                                 </div>
                                 <div class="metric-item">
                                     <span>GitHub match:</span>
-                                    <span class="metric-badge-black">${githubTotal > 0 ? githubTotal.toLocaleString() : 'â€”'}</span>
+                                    <span class="metric-badge-black">${githubTotal > 0 ? githubTotal.toLocaleString() : '—'}</span>
                                 </div>
                             </div>
                             <button class="btn-upload-vector" onclick="triggerCloneRepo()">
@@ -1176,9 +1176,9 @@
                         <form onsubmit="triggerGithubRepoSearch(event)" style="display:flex; gap:8px; margin:10px 0 14px; flex-wrap:wrap; align-items:center;">
                             <input id="githubRepoSearch" type="text" value="${escHtml(queryVal)}" placeholder="Buscar repos MIT/Apache/BSD (ej: facebook/react)" style="flex:1; min-width:220px; padding:8px 12px; border:1px solid #d0cdc4; border-radius:6px; font-size:12px; font-family:inherit; background:#fff;" />
                             <button type="submit" class="btn-upload-vector" style="padding:8px 14px;">Buscar GitHub</button>
-                            <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${Math.max(1, page - 1)})">â† Ant.</button>
-                            <span style="font-size:11px; color:#666;">PÃ¡g. ${page}</span>
-                            <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${page + 1})">Sig. â†’</button>
+                            <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${Math.max(1, page - 1)})">← Ant.</button>
+                            <span style="font-size:11px; color:#666;">Pág. ${page}</span>
+                            <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${page + 1})">Sig. →</button>
                         </form>
                         <div class="catalog-table-wrapper">
                             <table class="catalog-table-vector">
@@ -1187,8 +1187,8 @@
                                         <th>Repositorio</th>
                                         <th>Licencia</th>
                                         <th>Rama Active</th>
-                                        <th>DescripciÃ³n / Commit</th>
-                                        <th>TamaÃ±o</th>
+                                        <th>Descripción / Commit</th>
+                                        <th>Tamaño</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -1206,14 +1206,14 @@
             // RENDERIZADO PARA EL COMANDO supabase
             if (dataToDisplay && dataToDisplay.type === "SUPABASE_STATUS") {
                 const connected = !!dataToDisplay.connected;
-                const url = dataToDisplay.url || 'â€”';
+                const url = dataToDisplay.url || '—';
                 const msg = dataToDisplay.message || dataToDisplay.error || '';
                 const auth = dataToDisplay.auth_health || {};
                 const supabaseHtml = `
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <strong style="font-size:13px; color:#141414;">ConexiÃ³n Supabase</strong>
+                                <strong style="font-size:13px; color:#141414;">Conexión Supabase</strong>
                             </div>
                             <span class="metric-badge-black">
                                 <svg class="svg-icon-vector" style="fill:${connected ? '#34c759' : '#f5a623'}; width:10px; height:10px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
@@ -1224,11 +1224,11 @@
                             <div><strong>URL:</strong> <code>${url}</code></div>
                             <div><strong>Publishable key:</strong> ${dataToDisplay.has_publishable ? 'configurada' : 'faltante'}</div>
                             <div><strong>Secret key:</strong> ${dataToDisplay.has_secret ? 'configurada' : 'faltante'}</div>
-                            <div><strong>Storage bucket:</strong> ${dataToDisplay.storage_bucket || 'l8-storage'} Â· ${dataToDisplay.storage_ready ? 'listo' : 'pendiente'}</div>
+                            <div><strong>Storage bucket:</strong> ${dataToDisplay.storage_bucket || 'l8-storage'} · ${dataToDisplay.storage_ready ? 'listo' : 'pendiente'}</div>
                             <div style="background:#eceae4; padding:8px 12px; border-radius:6px; color:#444;">
-                                ${msg}${auth.name ? ' Â· Auth: ' + auth.name + ' ' + (auth.version || '') : ''}
+                                ${msg}${auth.name ? ' · Auth: ' + auth.name + ' ' + (auth.version || '') : ''}
                             </div>
-                            <div style="font-size:11px; color:#666;">Almacenamiento remoto activo: archivos (set_i code), Ã­ndices de repos y catÃ¡logo global se sincronizan a Supabase Storage.</div>
+                            <div style="font-size:11px; color:#666;">Almacenamiento remoto activo: archivos (set_i code), índices de repos y catálogo global se sincronizan a Supabase Storage.</div>
                         </div>
                     </div>
                 `;
@@ -1236,7 +1236,7 @@
                 return;
             }
 
-            // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÃ“N SSH GITHUB)
+            // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÓN SSH GITHUB)
             if (dataToDisplay && dataToDisplay.type === "SSH_KEY_DISPLAY") {
                 const pubKey = dataToDisplay.public_key || '';
                 const sshOut = dataToDisplay.github_test_output || '';
@@ -1247,26 +1247,26 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <svg class="svg-icon-vector" style="fill:#000000; width:20px; height:20px;" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-                                <strong style="font-size:13px; color:#141414;">Clave PÃºblica SSH Ed25519 del Servidor</strong>
+                                <strong style="font-size:13px; color:#141414;">Clave Pública SSH Ed25519 del Servidor</strong>
                             </div>
                             <span class="metric-badge-black">
                                 <svg class="svg-icon-vector" style="fill:${isConnected ? '#34c759' : '#f5a623'}; width:10px; height:10px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
-                                <span>${isConnected ? 'CONECTADO CON GITHUB' : 'LISTO PARA AÃ‘ADIR A GITHUB'}</span>
+                                <span>${isConnected ? 'CONECTADO CON GITHUB' : 'LISTO PARA AÑADIR A GITHUB'}</span>
                             </span>
                         </div>
                         <div class="ssh-key-box" id="sshPubKeyBox">${pubKey}</div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                             <button class="btn-upload-vector" onclick="copyToClipboard('${pubKey}')">
                                 <svg class="svg-icon-vector" style="fill:#ffffff; width:14px; height:14px;" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                                <span>Copiar Clave PÃºblica</span>
+                                <span>Copiar Clave Pública</span>
                             </button>
                             <a class="action-btn-link" href="https://github.com/settings/ssh/new" target="_blank">
-                                <span>AÃ±adir en GitHub Settings</span>
+                                <span>Añadir en GitHub Settings</span>
                                 ${SVG_EXT_LINK}
                             </a>
                         </div>
                         <div style="font-size:11px; background:#eceae4; padding:8px 12px; border-radius:6px; color:#444;">
-                            <strong>Prueba de ConexiÃ³n GitHub SSH:</strong> <code>${sshOut}</code>
+                            <strong>Prueba de Conexión GitHub SSH:</strong> <code>${sshOut}</code>
                         </div>
                     </div>
                 `;
@@ -1285,7 +1285,7 @@
                         <tr>
                             <td colspan="6" style="text-align:center; padding:24px; color:#888;">
                                 <svg style="width:32px; height:32px; fill:#000000; opacity:0.3; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                                No hay archivos almacenados aÃºn en la Super Base de Datos.<br>Haz clic en <strong>'Subir Nuevo Archivo'</strong> para almacenar uno.
+                                No hay archivos almacenados aún en la Super Base de Datos.<br>Haz clic en <strong>'Subir Nuevo Archivo'</strong> para almacenar uno.
                             </td>
                         </tr>`;
                 } else {
@@ -1358,11 +1358,11 @@
                                 <thead>
                                     <tr>
                                         <th>Archivo</th>
-                                        <th>Firma Post-CuÃ¡ntica (Dilithium 5)</th>
+                                        <th>Firma Post-Cuántica (Dilithium 5)</th>
                                         <th>Tipo MIME</th>
-                                        <th>TamaÃ±o</th>
+                                        <th>Tamaño</th>
                                         <th>Fecha de Subida</th>
-                                        <th>AcciÃ³n</th>
+                                        <th>Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1520,4 +1520,3 @@
     </script>
 </body>
 </html>
-

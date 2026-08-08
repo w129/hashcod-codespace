@@ -274,7 +274,7 @@
             color: #666666;
         }
 
-        /* NUEVA ESTRUCTURA DE 3 PANELES (key window | Vector graphic | Equations window) */
+        /* ESTRUCTURA DE 3 PANELES (key window | Vector graphic | Equations window) */
         .virtual-keyboard-white {
             display: none;
             margin-top: 16px;
@@ -415,25 +415,30 @@
             box-shadow: none;
         }
 
+        /* CAMBIO A TECLAS NEGRAS ELEGANTES */
         .key-f {
-            background: linear-gradient(180deg, #ff4d4d 0%, #d90000 100%);
+            background: linear-gradient(180deg, #2c2c2c 0%, #000000 100%);
             color: #ffffff;
-            border: 1px solid #b30000;
-            border-bottom: 2px solid #800000;
+            border: 1px solid #000000;
+            border-bottom: 2px solid #000000;
             font-weight: bold;
         }
 
+        .key-f:hover {
+            background: linear-gradient(180deg, #444444 0%, #111111 100%);
+        }
+
         .key-enter {
-            background: linear-gradient(180deg, #e6f0ff 0%, #cce0ff 100%);
-            border-color: #99c2ff;
-            color: #0052cc;
+            background: linear-gradient(180deg, #333333 0%, #000000 100%);
+            border-color: #000000;
+            color: #ffffff;
         }
 
         .key-num-zero {
             flex: 2;
         }
 
-        /* Panel Central Vector Graphic con Doble Marco Rectangular */
+        /* Panel Central Vector Graphic con Doble Marco Rectangular Limpio */
         .vector-graphic-panel {
             padding: 0;
             border: none;
@@ -561,7 +566,7 @@
                     <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
                 </div>
 
-                <!-- NUEVA ESTRUCTURA DE 3 SECCIONES (key window | Vector graphic | Equations window) -->
+                <!-- ESTRUCTURA DE 3 SECCIONES (key window | Vector graphic | Equations window) -->
                 <div class="virtual-keyboard-white" id="virtualKeyboard">
                     <div class="vk-top-bar-indicators">
                         <span class="vk-brand">NATIVE GRAPHIC & EQUATIONS WORKSPACE</span>
@@ -603,16 +608,13 @@
                             </div>
                         </div>
 
-                        <!-- Panel 2: Vector graphic (Centro con doble marco rectangular) -->
+                        <!-- Panel 2: Vector graphic (Centro con doble marco rectangular limpio) -->
                         <div class="vk-panel vector-graphic-panel">
                             <div class="vector-outer-frame">
                                 <div class="vector-inner-frame">
                                     <div class="vector-graphic-title">Vector graphic</div>
                                     <svg class="vector-canvas" viewBox="0 0 300 200">
-                                        <line x1="20" y1="180" x2="280" y2="180" stroke="#cccccc" stroke-width="1.5" />
-                                        <line x1="20" y1="20" x2="20" y2="180" stroke="#cccccc" stroke-width="1.5" />
-                                        <path d="M 20 160 Q 80 20, 150 100 T 280 40" fill="none" stroke="#0451a5" stroke-width="2.5" />
-                                        <circle cx="150" cy="100" r="4" fill="#ff0000" />
+                                        <rect x="0" y="0" width="300" height="200" fill="#fafafa" />
                                     </svg>
                                 </div>
                             </div>

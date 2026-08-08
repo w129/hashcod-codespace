@@ -1115,9 +1115,11 @@
                             <div><strong>URL:</strong> <code>${url}</code></div>
                             <div><strong>Publishable key:</strong> ${dataToDisplay.has_publishable ? 'configurada' : 'faltante'}</div>
                             <div><strong>Secret key:</strong> ${dataToDisplay.has_secret ? 'configurada' : 'faltante'}</div>
+                            <div><strong>Storage bucket:</strong> ${dataToDisplay.storage_bucket || 'l8-storage'} · ${dataToDisplay.storage_ready ? 'listo' : 'pendiente'}</div>
                             <div style="background:#eceae4; padding:8px 12px; border-radius:6px; color:#444;">
                                 ${msg}${auth.name ? ' · Auth: ' + auth.name + ' ' + (auth.version || '') : ''}
                             </div>
+                            <div style="font-size:11px; color:#666;">Almacenamiento remoto activo: archivos (set_i code), índices de repos y catálogo global se sincronizan a Supabase Storage.</div>
                         </div>
                     </div>
                 `;

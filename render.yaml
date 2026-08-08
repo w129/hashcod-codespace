@@ -12,4 +12,6 @@ services:
         sync: false
       - key: SUPABASE_SECRET_KEY
         sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: l8-storage
 

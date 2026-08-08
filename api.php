@@ -26,7 +26,7 @@ $REGISTERED_COMMANDS = [
     "clone <repo>"=> "Clona o actualiza repositorios de GitHub vía SSH/HTTPS en el servidor (ej: clone langgenius/dify)",
     "save <repo>" => "Guarda un repositorio de GitHub en el catálogo sin clonarlo (ej: save facebook/react)",
     "ssh_key"     => "Muestra la clave pública SSH Ed25519 generada por esta plataforma para conectar el servidor con GitHub",
-    "supabase"    => "Prueba la conexión con Supabase (URL + keys) y muestra el estado del proyecto",
+    "supabase"    => "Estado de Supabase Storage: conecta y almacena archivos, repos_index y catálogo global en la nube",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
     "status"      => "Consulta el estado del servidor y motores detectados",
@@ -173,6 +173,10 @@ function writeRepoIndex($existing) {
     global $STORAGE_DIR;
     $indexPath = $STORAGE_DIR . '/repos_index.json';
     file_put_contents($indexPath, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    // Persistencia remota en Supabase Storage
+    if (function_exists('supabaseSyncMetaFile')) {
+        @supabaseSyncMetaFile($indexPath, 'repos_index.json');
+    }
 }
 
 function saveRepoIndexEntry($repoMeta) {
@@ -514,8 +518,11 @@ function getLocalClonedRepositories($lightweight = false) {
  */
 function getStoredRepositories() {
     global $STORAGE_DIR;
-    $repos = getLocalClonedRepositories();
+    $repos = getLocalClonedRepositories(true);
     $indexPath = $STORAGE_DIR . '/repos_index.json';
+    if (function_exists('supabaseHydrateMetaFile')) {
+        @supabaseHydrateMetaFile($indexPath, 'repos_index.json', false);
+    }
 
     if (file_exists($indexPath)) {
         $indexRepos = json_decode(file_get_contents($indexPath), true) ?? [];
@@ -676,6 +683,14 @@ class SuperGlobalDatabase {
 
     public function insertFile($id, $filename, $mimeType, $sizeBytes, $hash, $storagePath) {
         $uploadDate = date('c');
+        $supabaseObject = null;
+        if (function_exists('supabaseStorePlatformFile') && file_exists($storagePath)) {
+            $remote = @supabaseStorePlatformFile($id, $storagePath, $mimeType, $filename);
+            if (!empty($remote['ok'])) {
+                $supabaseObject = $remote['path'] ?? null;
+            }
+        }
+
         if ($this->pdo) {
             $stmt = $this->pdo->prepare("INSERT OR REPLACE INTO global_files (id, filename, mime_type, size_bytes, hash, upload_date, storage_path) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$id, $filename, $mimeType, $sizeBytes, $hash, $uploadDate, $storagePath]);
@@ -696,7 +711,8 @@ class SuperGlobalDatabase {
                 'size_bytes' => $sizeBytes,
                 'hash' => $hash,
                 'upload_date' => $uploadDate,
-                'storage_path' => $storagePath
+                'storage_path' => $storagePath,
+                'supabase_object' => $supabaseObject
             ];
             ftruncate($fp, 0);
             rewind($fp);
@@ -704,9 +720,16 @@ class SuperGlobalDatabase {
             flock($fp, LOCK_UN);
         }
         fclose($fp);
+
+        if (function_exists('supabaseSyncMetaFile')) {
+            @supabaseSyncMetaFile($this->jsonDbPath, 'global_database_index.json');
+        }
     }
 
     public function getAllFiles() {
+        if (function_exists('supabaseHydrateMetaFile')) {
+            @supabaseHydrateMetaFile($this->jsonDbPath, 'global_database_index.json', false);
+        }
         if (!file_exists($this->jsonDbPath)) return [];
         $raw = file_get_contents($this->jsonDbPath);
         $files = json_decode($raw, true) ?? [];
@@ -855,6 +878,21 @@ if (strpos($uri, '/api/file/get/') === 0) {
         }
     }
 
+    // Si falta en disco local, hidratar desde Supabase Storage
+    if ($targetFile && !file_exists($targetFile['storage_path']) && function_exists('supabaseStorageDownload')) {
+        $object = $targetFile['supabase_object'] ?? null;
+        if (!$object) {
+            $ext = pathinfo($targetFile['filename'] ?? '', PATHINFO_EXTENSION);
+            $object = 'files/' . $fileId . ($ext ? ('.' . $ext) : '');
+        }
+        $remote = @supabaseStorageDownload($object);
+        if (!empty($remote['ok']) && $remote['data'] !== null) {
+            $dir = dirname($targetFile['storage_path']);
+            if (!file_exists($dir)) @mkdir($dir, 0777, true);
+            file_put_contents($targetFile['storage_path'], $remote['data']);
+        }
+    }
+
     if ($targetFile && file_exists($targetFile['storage_path'])) {
         header('Content-Type: ' . $targetFile['mime_type']);
         header('Content-Disposition: inline; filename="' . $targetFile['filename'] . '"');
@@ -863,7 +901,7 @@ if (strpos($uri, '/api/file/get/') === 0) {
         exit;
     } else {
         header("HTTP/1.1 404 Not Found");
-        echo json_encode(['error' => 'Archivo no encontrado en el servidor']);
+        echo json_encode(['error' => 'Archivo no encontrado en el servidor ni en Supabase Storage']);
         exit;
     }
 }

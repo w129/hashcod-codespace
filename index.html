@@ -546,7 +546,7 @@
                 <!-- TECLADO Y PANELES CON EL NUEVO ESTILO ELEGANTE IBM PLEX MONO -->
                 <div class="virtual-keyboard-white" id="virtualKeyboard">
                     <div class="vk-3panel-container">
-                        <!-- Panel 1: Key Window (Izquierda) -->
+                        <!-- Panel 1: Key Window (Izquierda - Limpio a la espera de tus teclas) -->
                         <div class="vk-card-panel">
                             <div class="vk-card-header">
                                 <span class="vk-card-title">Key window</span>
@@ -556,36 +556,9 @@
                                     <span class="vk-pill">αβ</span>
                                 </div>
                             </div>
-                            <div class="vk-card-body">
-                                <!-- Fila de funciones -->
-                                <div class="fn-grid">
-                                    <button class="fn" onclick="pressVirtualKey('x²')">x²</button>
-                                    <button class="fn" onclick="pressVirtualKey('√')">√</button>
-                                    <button class="fn" onclick="pressVirtualKey('π')">π</button>
-                                    <button class="fn" onclick="pressVirtualKey('(')">(</button>
-                                    <button class="fn" onclick="pressVirtualKey(')')">)</button>
-                                </div>
-
-                                <!-- Teclado principal -->
-                                <div class="keys-grid">
-                                    <button class="k" onclick="pressVirtualKey('7')">7</button>
-                                    <button class="k" onclick="pressVirtualKey('8')">8</button>
-                                    <button class="k" onclick="pressVirtualKey('9')">9</button>
-                                    <button class="op" onclick="pressVirtualKey('+')">+</button>
-
-                                    <button class="k" onclick="pressVirtualKey('4')">4</button>
-                                    <button class="k" onclick="pressVirtualKey('5')">5</button>
-                                    <button class="k" onclick="pressVirtualKey('6')">6</button>
-                                    <button class="op" onclick="pressVirtualKey('-')">−</button>
-
-                                    <button class="k" onclick="pressVirtualKey('1')">1</button>
-                                    <button class="k" onclick="pressVirtualKey('2')">2</button>
-                                    <button class="k" onclick="pressVirtualKey('3')">3</button>
-                                    <button class="op" onclick="pressVirtualKey('*')">×</button>
-
-                                    <button class="k span-2" onclick="pressVirtualKey('0')">0</button>
-                                    <button class="k" onclick="pressVirtualKey('.')">.</button>
-                                    <button class="enter" onclick="pressVirtualKey('ENTER')">↵</button>
+                            <div class="vk-card-body" id="keyWindowBody">
+                                <div class="keys-grid-placeholder" style="flex: 1; border: 1px dashed #d0cdcf; border-radius: 8px; background: #ffffff; display: flex; align-items: center; justify-content: center; color: #8c8983; font-size: 12px; font-family: 'IBM Plex Mono', monospace; min-height: 280px; padding: 12px; text-align: center;">
+                                    [ Espacio preparado para tus teclas personalizadas ]
                                 </div>
                             </div>
                         </div>

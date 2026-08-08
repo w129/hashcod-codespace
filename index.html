@@ -53,6 +53,7 @@
 
         .icon-globe {
             height: 20px;
+            width: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -62,6 +63,8 @@
         .icon-globe svg {
             height: 18px;
             width: 18px;
+            max-width: 18px;
+            max-height: 18px;
             fill: #000000;
             display: block;
         }
@@ -781,8 +784,8 @@
 
             const dataToDisplay = latestExecutionData.output !== undefined ? latestExecutionData.output : latestExecutionData;
 
-            // Comando crl: vaciar completamente la celda (=)
-            if (dataToDisplay && dataToDisplay.type === "EMPTY_CELL") {
+            // Si dataToDisplay es nulo, indefinido, o un estado del sistema sin ejecución activa
+            if (!dataToDisplay || dataToDisplay.type === "EMPTY_CELL" || (dataToDisplay.execution === null && dataToDisplay.browserState)) {
                 executionContainer.textContent = '';
                 return;
             }
@@ -975,9 +978,8 @@
             eventSource.onmessage = function(event) {
                 try {
                     const payload = JSON.parse(event.data);
-                    // Solo actualizar datos de fondo si el usuario ya ha ejecutado comandos
-                    if (hasExecutedCommand) {
-                        latestExecutionData = payload.execution || payload;
+                    if (hasExecutedCommand && payload.execution) {
+                        latestExecutionData = payload.execution;
                         render();
                     }
                 } catch (e) {

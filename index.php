@@ -787,8 +787,8 @@
 
             const dataToDisplay = latestExecutionData.output !== undefined ? latestExecutionData.output : latestExecutionData;
 
-            // Comando crl: vaciar completamente la celda (=)
-            if (dataToDisplay && dataToDisplay.type === "EMPTY_CELL") {
+            // Si dataToDisplay es nulo, indefinido, o un estado del sistema sin ejecución activa
+            if (!dataToDisplay || dataToDisplay.type === "EMPTY_CELL" || (dataToDisplay.execution === null && dataToDisplay.browserState)) {
                 executionContainer.textContent = '';
                 return;
             }
@@ -981,8 +981,9 @@
             eventSource.onmessage = function(event) {
                 try {
                     const payload = JSON.parse(event.data);
-                    if (hasExecutedCommand) {
-                        latestExecutionData = payload.execution || payload;
+                    // Solo actualizar datos de fondo si vienen ejecuciones válidas activas
+                    if (hasExecutedCommand && payload.execution) {
+                        latestExecutionData = payload.execution;
                         render();
                     }
                 } catch (e) {

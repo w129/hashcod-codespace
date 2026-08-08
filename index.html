@@ -118,7 +118,7 @@
         .block-execution .block-body {
             background-color: #ffffff;
             min-height: 80px;
-            max-height: 500px;
+            max-height: 550px;
             overflow-y: auto;
             align-items: flex-start;
         }
@@ -168,6 +168,93 @@
             width: 22px;
             height: 22px;
             display: block;
+        }
+
+        /* Tabla de archivos para set_I code */
+        .catalog-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .catalog-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #faf9f6;
+            border: 1px solid #e6e3dd;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .catalog-info {
+            display: flex;
+            gap: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #141414;
+        }
+
+        .catalog-badge {
+            background: #141414;
+            color: #ffffff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .upload-btn {
+            background: #141414;
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .upload-btn:hover {
+            background: #333333;
+        }
+
+        .catalog-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .catalog-table th {
+            background: #eceae4;
+            color: #141414;
+            font-weight: 600;
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid #d0cdcf;
+        }
+
+        .catalog-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            color: #222;
+        }
+
+        .catalog-table tr:hover td {
+            background: #fcfbf9;
+        }
+
+        .file-link {
+            color: #0451a5;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
         }
 
         /* Filas verticales para el comando mane_list? */
@@ -352,76 +439,6 @@
             flex-direction: column;
         }
 
-        .fn-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-
-        .keys-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 9px;
-        }
-
-        .fn, .k, .op, .enter {
-            border: none;
-            cursor: pointer;
-            font-family: 'IBM Plex Mono', ui-monospace, monospace;
-            transition: box-shadow .06s, transform .06s, background .12s;
-        }
-
-        /* Fila de funciones */
-        .fn {
-            height: 38px;
-            border-radius: 6px;
-            background: #eceae4;
-            color: #4d4a44;
-            font: 400 13px 'IBM Plex Mono', monospace;
-        }
-        .fn:hover { background: #e2dfd7; }
-
-        /* Teclas numéricas — profundidad física */
-        .k {
-            height: 58px;
-            border-radius: 10px;
-            background: #fff;
-            color: #141414;
-            font: 500 19px 'IBM Plex Mono', monospace;
-            box-shadow: 0 2px 0 #ddd9d1, 0 1px 2px rgba(0,0,0,.05);
-        }
-        .k:hover { background: #ffffff; }
-        .k:active { box-shadow: 0 0 0 #ddd9d1; transform: translateY(2px); }
-
-        .k.span-2 {
-            grid-column: span 2;
-        }
-
-        /* Operadores */
-        .op {
-            height: 58px;
-            border-radius: 10px;
-            background: #2f2c26;
-            color: #f5f3ed;
-            font: 500 19px 'IBM Plex Mono', monospace;
-            box-shadow: 0 2px 0 #16140f;
-        }
-        .op:hover { background: #3c3831; }
-        .op:active { box-shadow: 0 0 0 #16140f; transform: translateY(2px); }
-
-        /* Enter */
-        .enter {
-            height: 58px;
-            border-radius: 10px;
-            background: #141414;
-            color: #fff;
-            font: 500 16px 'IBM Plex Mono', monospace;
-            box-shadow: 0 2px 0 #000;
-        }
-        .enter:hover { background: #262626; }
-        .enter:active { box-shadow: 0 0 0 #000; transform: translateY(2px); }
-
         /* Panel Central Vector Graphic */
         .vector-body {
             padding: 12px;
@@ -512,7 +529,7 @@
                     &gt;
                 </div>
                 <div class="block-body block-input-container">
-                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter..." autocomplete="off" onkeydown="handleCommandKey(event)">
+                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: set_I code)..." autocomplete="off" onkeydown="handleCommandKey(event)">
                     <!-- Icono derecho (Insignia circular con documento) que activa/desactiva el teclado de escritorio -->
                     <div class="cell-action-icon" title="Activar/Desactivar Teclado y Entorno Gráfico" onclick="toggleVirtualKeyboard()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -557,8 +574,9 @@
                                 </div>
                             </div>
                             <div class="vk-card-body" id="keyWindowBody">
-                                <div class="keys-grid-placeholder" style="flex: 1; border: 1px dashed #d0cdcf; border-radius: 8px; background: #ffffff; display: flex; align-items: center; justify-content: center; color: #8c8983; font-size: 12px; font-family: 'IBM Plex Mono', monospace; min-height: 280px; padding: 12px; text-align: center;">
-                                    [ Espacio preparado para tus teclas personalizadas ]
+                                <div class="keys-grid-placeholder" style="flex: 1; border: 1px dashed #d0cdcf; border-radius: 8px; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8c8983; font-size: 12px; font-family: 'IBM Plex Mono', monospace; min-height: 280px; padding: 12px; text-align: center; gap: 12px;">
+                                    <span>[ Espacio preparado para tus teclas personalizadas ]</span>
+                                    <button class="upload-btn" onclick="triggerFileUpload()">📤 Subir Archivo a la Super Base de Datos</button>
                                 </div>
                             </div>
                         </div>
@@ -632,6 +650,34 @@
             });
         }
 
+        function triggerFileUpload() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const res = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (data.ok) {
+                        submitCommand('set_i code');
+                    } else {
+                        alert('Error al subir archivo: ' + (data.error || 'Desconocido'));
+                    }
+                } catch (err) {
+                    console.error('Error al subir archivo:', err);
+                }
+            };
+            fileInput.click();
+        }
+
         function render() {
             if (!hasExecutedCommand || !latestExecutionData) {
                 executionContainer.textContent = '';
@@ -650,6 +696,57 @@
             // Si dataToDisplay es nulo, indefinido, o un estado del sistema sin ejecución activa
             if (!dataToDisplay || dataToDisplay.type === "EMPTY_CELL" || (dataToDisplay.execution === null && dataToDisplay.browserState)) {
                 executionContainer.textContent = '';
+                return;
+            }
+
+            // RENDERIZADO ESPECIAL PARA EL COMANDO set_I code (SUPER BASE DE DATOS GLOBAL)
+            if (dataToDisplay && dataToDisplay.type === "GLOBAL_FILES_CATALOG") {
+                const files = dataToDisplay.files || [];
+                const totalStorage = dataToDisplay.total_storage_formatted || "0 B";
+
+                let rowsHtml = '';
+                if (files.length === 0) {
+                    rowsHtml = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">No hay archivos almacenados todavía en la Super Base de Datos. Haz clic en 'Subir Nuevo Archivo' para subir uno.</td></tr>`;
+                } else {
+                    files.forEach(f => {
+                        rowsHtml += `
+                            <tr>
+                                <td><strong>${f.filename}</strong></td>
+                                <td><span style="font-size:10px; background:#eceae4; padding:2px 6px; border-radius:4px; color:#444;">${f.mime_type}</span></td>
+                                <td>${f.size_formatted}</td>
+                                <td style="color:#666; font-size:11px;">${f.upload_date}</td>
+                                <td><a class="file-link" href="${f.url}" target="_blank" download="${f.filename}">⬇️ Descargar / Ver</a></td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                const catalogHtml = `
+                    <div class="catalog-container">
+                        <div class="catalog-banner">
+                            <div class="catalog-info">
+                                <span>📁 Archivos en Base de Datos: <span class="catalog-badge">${files.length}</span></span>
+                                <span>💾 Almacenamiento Global: <span class="catalog-badge">${totalStorage}</span></span>
+                            </div>
+                            <button class="upload-btn" onclick="triggerFileUpload()">📤 Subir Nuevo Archivo</button>
+                        </div>
+                        <table class="catalog-table">
+                            <thead>
+                                <tr>
+                                    <th>Archivo</th>
+                                    <th>Tipo MIME</th>
+                                    <th>Tamaño</th>
+                                    <th>Fecha de Subida</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                executionContainer.innerHTML = catalogHtml;
                 return;
             }
 
@@ -729,38 +826,6 @@
             if (vk.classList.contains('active')) {
                 if (!activeInputTarget) activeInputTarget = document.getElementById('cmdInput');
                 activeInputTarget.focus();
-            }
-        }
-
-        function pressVirtualKey(keyVal) {
-            // Garantizar que la celda (=) NO sea editable
-            if (!activeInputTarget || activeInputTarget.id === 'executionContent') {
-                activeInputTarget = document.getElementById('cmdInput');
-            }
-            activeInputTarget.focus();
-
-            const start = activeInputTarget.selectionStart || 0;
-            const end = activeInputTarget.selectionEnd || 0;
-            const val = activeInputTarget.value || '';
-
-            if (keyVal === 'BACKSPACE') {
-                if (start === end && start > 0) {
-                    activeInputTarget.value = val.substring(0, start - 1) + val.substring(end);
-                    activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start - 1;
-                } else if (start !== end) {
-                    activeInputTarget.value = val.substring(0, start) + val.substring(end);
-                    activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start;
-                }
-            } else if (keyVal === 'ENTER') {
-                if (activeInputTarget.id === 'cmdInput') {
-                    triggerCommandSubmit();
-                } else {
-                    activeInputTarget.value = val.substring(0, start) + "\n" + val.substring(end);
-                    activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + 1;
-                }
-            } else {
-                activeInputTarget.value = val.substring(0, start) + keyVal + val.substring(end);
-                activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + keyVal.length;
             }
         }
 

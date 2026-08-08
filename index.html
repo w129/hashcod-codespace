@@ -949,12 +949,64 @@
             display: block;
         }
 
+        .boot-brand {
+            position: absolute;
+            top: 50%;
+            right: clamp(28px, 8vw, 96px);
+            transform: translateY(-50%);
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            gap: clamp(12px, 2vw, 18px);
+            pointer-events: none;
+            animation: bootBrandIn 0.7s ease 0.15s both;
+        }
+
+        @keyframes bootBrandIn {
+            from { opacity: 0; transform: translateY(calc(-50% + 8px)); }
+            to { opacity: 1; transform: translateY(-50%); }
+        }
+
+        .boot-brand-icon {
+            width: clamp(42px, 6vw, 64px);
+            height: clamp(42px, 6vw, 64px);
+            flex: 0 0 auto;
+            display: block;
+        }
+
+        .boot-brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .boot-brand-name {
+            margin: 0;
+            color: #111;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(22px, 3.4vw, 40px);
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            white-space: nowrap;
+        }
+
+        .boot-brand-tag {
+            margin: 0;
+            color: #6a6a6a;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: clamp(11px, 1.2vw, 13px);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
         .boot-cli-footer {
             position: absolute;
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: 3;
+            z-index: 5;
             padding: 18px 22px;
             display: flex;
             align-items: center;
@@ -998,6 +1050,27 @@
             font-size: 12px;
             letter-spacing: 0.02em;
         }
+
+        @media (max-width: 720px) {
+            .boot-brand {
+                top: auto;
+                bottom: 88px;
+                right: 22px;
+                left: 22px;
+                transform: none;
+                justify-content: flex-end;
+                animation: bootBrandInMobile 0.7s ease 0.15s both;
+            }
+
+            @keyframes bootBrandInMobile {
+                from { opacity: 0; transform: translateY(8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .boot-brand-name {
+                white-space: normal;
+            }
+        }
     </style>
     <script src="/components/originkit/ui/blackhole-runtime.js"></script>
 </head>
@@ -1008,6 +1081,13 @@
                 <div class="boot-cli-body" id="bootCliBody" hidden></div>
                 <div class="boot-cli-visual" id="bootCliVisual">
                     <canvas id="bootBlackholeCanvas"></canvas>
+                    <div class="boot-brand" aria-label="l8 codespace">
+                        <img class="boot-brand-icon" src="/favicon.svg?v=3" alt="" width="64" height="64">
+                        <div class="boot-brand-text">
+                            <p class="boot-brand-name">l8 codespace</p>
+                            <p class="boot-brand-tag">platform</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="boot-cli-footer">
@@ -1997,11 +2077,12 @@
                 if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
                 blackholeInstance = window.OriginkitBlackHole.create(canvas, {
                     showCenter: true,
-                    centre: { radius: 8, x: 50, y: 52 },
+                    // sit left so brand fits cleanly on the right
+                    centre: { radius: 8, x: 38, y: 54 },
                     background: '#ffffff',
-                    outerRadius: 92,
-                    particleCount: 2600,
-                    particleSize: 1.85,
+                    outerRadius: 78,
+                    particleCount: 2400,
+                    particleSize: 1.9,
                     trail: 82,
                     tilt: 70,
                     tiltSideway: 12,

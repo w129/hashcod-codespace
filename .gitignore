@@ -4,3 +4,7 @@
 vendor/
 node_modules/
 *.log
+uploads/
+data_storage/repos/
+data_storage/*.sqlite
+data_storage/*.sqlite-*

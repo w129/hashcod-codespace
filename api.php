@@ -1189,7 +1189,8 @@ function formatBytes($bytes, $precision = 2) {
 }
 
 /**
- * GATEWAY: compartir repositorios (carpeta .zip) con código único tipo JSLA-SAKA
+ * GATEWAY: compartir repos con código único (JSLA-SAKA).
+ * Fuente de verdad: Supabase Storage (disco de Render es efímero).
  */
 function gatewayDirs() {
     global $STORAGE_DIR;
@@ -1226,6 +1227,13 @@ function gatewayPlatformBrand() {
     ];
 }
 
+function gatewaySupabaseReady() {
+    return function_exists('supabaseConfig')
+        && function_exists('supabaseStorageUpload')
+        && function_exists('supabaseStorageDownload')
+        && !empty(supabaseConfig()['configured']);
+}
+
 /** Normaliza a formato XXXX-XXXX (A-Z). */
 function gatewayNormalizeCode($code) {
     $raw = strtoupper(preg_replace('/[^A-Za-z]/', '', (string)$code));
@@ -1237,9 +1245,75 @@ function gatewayIsValidCodeFormat($code) {
     return (bool)preg_match('/^[A-Z]{4}-[A-Z]{4}$/', (string)$code);
 }
 
+/** Clave de storage sin guion: FEAJSSQJ */
+function gatewayCodeStorageKey($code) {
+    $code = gatewayNormalizeCode($code);
+    return str_replace('-', '', $code);
+}
+
+function gatewayShareObjectPath($code) {
+    return 'gateway/shares/' . gatewayCodeStorageKey($code) . '.json';
+}
+
+function gatewayPackObjectPath($code) {
+    return 'gateway/packs/' . gatewayCodeStorageKey($code) . '.zip';
+}
+
+function gatewayFetchRemoteShare($code) {
+    if (!gatewaySupabaseReady()) return null;
+    $code = gatewayNormalizeCode($code);
+    if (!gatewayIsValidCodeFormat($code)) return null;
+    $res = @supabaseStorageDownloadJson(gatewayShareObjectPath($code));
+    if (empty($res['ok']) || !is_array($res['data'] ?? null)) {
+        return null;
+    }
+    $item = $res['data'];
+    if (empty($item['code'])) $item['code'] = $code;
+    return $item;
+}
+
+function gatewayPersistShareRemote($item) {
+    if (!gatewaySupabaseReady()) {
+        return ['ok' => false, 'error' => 'Supabase no configurado: el código no sobrevivirá entre dispositivos en Render.'];
+    }
+    $code = gatewayNormalizeCode($item['code'] ?? '');
+    if (!gatewayIsValidCodeFormat($code)) {
+        return ['ok' => false, 'error' => 'Código inválido al persistir'];
+    }
+    $item['code'] = $code;
+    $item['updated_at'] = date('c');
+    $up = @supabaseStorageUploadJson(gatewayShareObjectPath($code), $item);
+    if (empty($up['ok'])) {
+        return ['ok' => false, 'error' => 'No se pudo guardar el código en Supabase: ' . ($up['error'] ?? 'error')];
+    }
+    // índices auxiliares (best-effort)
+    @supabaseSyncMetaFile(gatewayDirs()['codes'], 'gateway_codes.json');
+    @supabaseSyncMetaFile(gatewayDirs()['transfers'], 'gateway_transfers.json');
+    return ['ok' => true, 'path' => gatewayShareObjectPath($code)];
+}
+
+function gatewayCacheShareLocal($item) {
+    $dirs = gatewayDirs();
+    $code = $item['code'] ?? '';
+    $id = $item['id'] ?? '';
+    if ($code === '' || $id === '') return;
+
+    $transfers = gatewayReadJson($dirs['transfers']);
+    $codes = gatewayReadJson($dirs['codes']);
+    $transfers[$id] = $item;
+    $codes[$code] = [
+        'code' => $code,
+        'transfer_id' => $id,
+        'status' => $item['status'] ?? 'ready',
+        'created_at' => $item['created_at'] ?? date('c')
+    ];
+    gatewayWriteJson($dirs['transfers'], $transfers);
+    gatewayWriteJson($dirs['codes'], $codes);
+}
+
 /**
  * Genera un código único no repetido (formato JSLA-SAKA).
- * Usa alfabeto A-Z sin I/O para legibilidad; verifica transfers + codes index.
+ * Comprueba local + Supabase para no repetir.
  */
 function gatewayGenerateUniqueCode() {
     $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // sin I/O
@@ -1248,6 +1322,12 @@ function gatewayGenerateUniqueCode() {
     $lock = @fopen($lockPath, 'c+');
     if ($lock) {
         flock($lock, LOCK_EX);
+    }
+
+    // hidratar índices locales desde Supabase si están vacíos
+    if (gatewaySupabaseReady() && function_exists('supabaseHydrateMetaFile')) {
+        @supabaseHydrateMetaFile($dirs['codes'], 'gateway_codes.json', false);
+        @supabaseHydrateMetaFile($dirs['transfers'], 'gateway_transfers.json', false);
     }
 
     $transfers = gatewayReadJson($dirs['transfers']);
@@ -1261,16 +1341,17 @@ function gatewayGenerateUniqueCode() {
     }
 
     $code = '';
-    for ($attempt = 0; $attempt < 80; $attempt++) {
+    for ($attempt = 0; $attempt < 100; $attempt++) {
         $chunk = '';
         for ($i = 0; $i < 8; $i++) {
             $chunk .= $alphabet[random_int(0, strlen($alphabet) - 1)];
         }
         $candidate = substr($chunk, 0, 4) . '-' . substr($chunk, 4, 4);
-        if (!isset($used[$candidate])) {
-            $code = $candidate;
-            break;
-        }
+        if (isset($used[$candidate])) continue;
+        // verificación remota anti-colisión
+        if (gatewayFetchRemoteShare($candidate)) continue;
+        $code = $candidate;
+        break;
     }
 
     if ($code === '') {
@@ -1281,7 +1362,6 @@ function gatewayGenerateUniqueCode() {
         return ['ok' => false, 'error' => 'No se pudo generar un código único'];
     }
 
-    // Reserva inmediata del código para evitar colisiones concurrentes
     $codes[$code] = [
         'code' => $code,
         'reserved_at' => date('c'),
@@ -1296,7 +1376,7 @@ function gatewayGenerateUniqueCode() {
     return ['ok' => true, 'code' => $code];
 }
 
-function gatewayPackRepoFolder($repoFolder, $transferId = null) {
+function gatewayPackRepoFolder($repoFolder, $code = null, $transferId = null) {
     global $REPOS_DIR;
     $dirs = gatewayDirs();
     $safeRepo = basename($repoFolder);
@@ -1310,7 +1390,8 @@ function gatewayPackRepoFolder($repoFolder, $transferId = null) {
     }
 
     $transferId = $transferId ?: bin2hex(random_bytes(12));
-    $zipName = $safeRepo . '-' . $transferId . '.zip';
+    $codeKey = $code ? gatewayCodeStorageKey($code) : $transferId;
+    $zipName = $safeRepo . '-' . $codeKey . '.zip';
     $zipPath = $dirs['packs'] . '/' . $zipName;
 
     $zip = new ZipArchive();
@@ -1346,14 +1427,17 @@ function gatewayPackRepoFolder($repoFolder, $transferId = null) {
     }
 
     $supabaseObject = null;
-    if (function_exists('supabaseStorageUpload') && function_exists('supabaseConfig')) {
-        $cfg = supabaseConfig();
-        if (!empty($cfg['configured'])) {
-            $object = 'gateway/' . $zipName;
-            $up = @supabaseStorageUpload($object, $zipPath, 'application/zip', true);
-            if (!empty($up['ok'])) {
-                $supabaseObject = $object;
-            }
+    if (gatewaySupabaseReady()) {
+        // ruta estable por código para poder recuperar desde cualquier instancia
+        $object = $code ? gatewayPackObjectPath($code) : ('gateway/packs/' . $zipName);
+        $up = @supabaseStorageUpload($object, $zipPath, 'application/zip', true);
+        if (!empty($up['ok'])) {
+            $supabaseObject = $object;
+        } else {
+            return [
+                'ok' => false,
+                'error' => 'No se pudo subir la carpeta a Supabase Storage: ' . ($up['error'] ?? 'error')
+            ];
         }
     }
 
@@ -1371,6 +1455,13 @@ function gatewayPackRepoFolder($repoFolder, $transferId = null) {
 
 function gatewayShareRepo($repoTarget) {
     global $REPOS_DIR;
+
+    if (!gatewaySupabaseReady()) {
+        return [
+            'ok' => false,
+            'error' => 'Gateway requiere Supabase Storage para compartir entre dispositivos. Configura SUPABASE_URL / SUPABASE_SECRET_KEY en Render.'
+        ];
+    }
 
     $clean = trim((string)$repoTarget);
     if ($clean === '') {
@@ -1403,9 +1494,8 @@ function gatewayShareRepo($repoTarget) {
     }
     $code = $codeRes['code'];
 
-    $pack = gatewayPackRepoFolder($repoFolder);
+    $pack = gatewayPackRepoFolder($repoFolder, $code);
     if (empty($pack['ok'])) {
-        // libera reserva del código si el pack falla
         $dirs = gatewayDirs();
         $codes = gatewayReadJson($dirs['codes']);
         unset($codes[$code]);
@@ -1414,10 +1504,6 @@ function gatewayShareRepo($repoTarget) {
     }
 
     $brand = gatewayPlatformBrand();
-    $dirs = gatewayDirs();
-    $transfers = gatewayReadJson($dirs['transfers']);
-    $codes = gatewayReadJson($dirs['codes']);
-
     $item = [
         'id' => $pack['id'],
         'code' => $code,
@@ -1436,22 +1522,22 @@ function gatewayShareRepo($repoTarget) {
         'claim_count' => 0
     ];
 
-    $transfers[$pack['id']] = $item;
-    $codes[$code] = [
-        'code' => $code,
-        'transfer_id' => $pack['id'],
-        'status' => 'ready',
-        'created_at' => date('c')
-    ];
-    gatewayWriteJson($dirs['transfers'], $transfers);
-    gatewayWriteJson($dirs['codes'], $codes);
+    gatewayCacheShareLocal($item);
+    $persist = gatewayPersistShareRemote($item);
+    if (empty($persist['ok'])) {
+        return [
+            'ok' => false,
+            'error' => $persist['error'] ?? 'No se pudo publicar el código en Supabase'
+        ];
+    }
 
     return [
         'ok' => true,
         'type' => 'GATEWAY_SHARE_RESULT',
         'code' => $code,
         'transfer' => $item,
-        'message' => 'Código generado. En el otro dispositivo abre /gateway e ingresa ' . $code . ' para obtener la carpeta.'
+        'persisted' => true,
+        'message' => 'Código generado y guardado en la nube. En el otro dispositivo abre /gateway e ingresa ' . $code . '.'
     ];
 }
 
@@ -1460,19 +1546,26 @@ function gatewayFindByCode($code) {
     if (!gatewayIsValidCodeFormat($code)) {
         return null;
     }
+
+    // 1) Supabase (fuente de verdad entre dispositivos / hibernate)
+    $remote = gatewayFetchRemoteShare($code);
+    if ($remote) {
+        gatewayCacheShareLocal($remote);
+        return $remote;
+    }
+
+    // 2) cache local
     $dirs = gatewayDirs();
     $codes = gatewayReadJson($dirs['codes']);
     $transferId = $codes[$code]['transfer_id'] ?? null;
-    if (!$transferId) {
-        // fallback: buscar en transfers por code
-        $transfers = gatewayReadJson($dirs['transfers']);
-        foreach ($transfers as $item) {
-            if (($item['code'] ?? '') === $code) return $item;
-        }
-        return null;
-    }
     $transfers = gatewayReadJson($dirs['transfers']);
-    return $transfers[$transferId] ?? null;
+    if ($transferId && isset($transfers[$transferId])) {
+        return $transfers[$transferId];
+    }
+    foreach ($transfers as $item) {
+        if (($item['code'] ?? '') === $code) return $item;
+    }
+    return null;
 }
 
 function gatewayFindTransfer($idOrCode) {
@@ -1495,16 +1588,12 @@ function gatewayClaimByCode($code) {
         return ['ok' => false, 'error' => 'Código no encontrado o expirado.'];
     }
 
-    $dirs = gatewayDirs();
-    $transfers = gatewayReadJson($dirs['transfers']);
-    $id = $item['id'];
-    if (isset($transfers[$id])) {
-        $transfers[$id]['claimed_at'] = date('c');
-        $transfers[$id]['claim_count'] = (int)($transfers[$id]['claim_count'] ?? 0) + 1;
-        $transfers[$id]['status'] = 'claimed';
-        $item = $transfers[$id];
-        gatewayWriteJson($dirs['transfers'], $transfers);
-    }
+    $item['claimed_at'] = date('c');
+    $item['claim_count'] = (int)($item['claim_count'] ?? 0) + 1;
+    $item['status'] = 'claimed';
+    gatewayCacheShareLocal($item);
+    // actualizar metadatos remotos (best-effort; no bloquea descarga)
+    @gatewayPersistShareRemote($item);
 
     $brand = gatewayPlatformBrand();
     return [
@@ -1516,6 +1605,40 @@ function gatewayClaimByCode($code) {
         'download_url' => $item['download_url'] ?? ('/api/gateway/download/' . rawurlencode($code)),
         'message' => 'Código válido. Descarga la carpeta de ' . ($item['user_repo'] ?? $item['repo_name']) . '.'
     ];
+}
+
+function gatewayResolveZipPath($item) {
+    $dirs = gatewayDirs();
+    $zipPath = $dirs['packs'] . '/' . ($item['zip_name'] ?? '');
+    $code = $item['code'] ?? '';
+
+    if (file_exists($zipPath) && is_file($zipPath)) {
+        return $zipPath;
+    }
+
+    if (!gatewaySupabaseReady()) {
+        return null;
+    }
+
+    $candidates = [];
+    if (!empty($item['supabase_object'])) $candidates[] = $item['supabase_object'];
+    if ($code) $candidates[] = gatewayPackObjectPath($code);
+    if (!empty($item['zip_name'])) $candidates[] = 'gateway/' . $item['zip_name'];
+    if (!empty($item['zip_name'])) $candidates[] = 'gateway/packs/' . $item['zip_name'];
+
+    foreach ($candidates as $object) {
+        $remote = @supabaseStorageDownload($object);
+        if (!empty($remote['ok']) && $remote['data'] !== null && $remote['data'] !== '') {
+            if (!$zipPath || $zipPath === ($dirs['packs'] . '/')) {
+                $zipPath = $dirs['packs'] . '/' . ($item['zip_name'] ?: (gatewayCodeStorageKey($code) . '.zip'));
+            }
+            @file_put_contents($zipPath, $remote['data']);
+            if (file_exists($zipPath) && filesize($zipPath) > 22) {
+                return $zipPath;
+            }
+        }
+    }
+    return null;
 }
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -1582,7 +1705,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/api/gateway/download/
     $key = rawurldecode($gm[1]);
     $item = gatewayFindTransfer($key);
     if (!$item) {
-        // intentar normalizar como código
         $item = gatewayFindByCode($key);
     }
     if (!$item) {
@@ -1591,18 +1713,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/api/gateway/download/
         echo json_encode(['ok' => false, 'error' => 'Código o transferencia no encontrada']);
         exit;
     }
-    $dirs = gatewayDirs();
-    $zipPath = $dirs['packs'] . '/' . ($item['zip_name'] ?? '');
-    if ((!file_exists($zipPath) || !is_file($zipPath)) && !empty($item['supabase_object']) && function_exists('supabaseStorageDownload')) {
-        $remote = @supabaseStorageDownload($item['supabase_object']);
-        if (!empty($remote['ok']) && $remote['data'] !== null) {
-            file_put_contents($zipPath, $remote['data']);
-        }
-    }
-    if (!file_exists($zipPath) || !is_file($zipPath)) {
+    $zipPath = gatewayResolveZipPath($item);
+    if (!$zipPath || !file_exists($zipPath) || !is_file($zipPath)) {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code(404);
-        echo json_encode(['ok' => false, 'error' => 'Archivo zip no disponible']);
+        echo json_encode(['ok' => false, 'error' => 'Archivo zip no disponible en Supabase/local']);
         exit;
     }
     header('Content-Type: application/zip');

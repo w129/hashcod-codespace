@@ -2117,17 +2117,18 @@
                 if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
                 blackholeInstance = window.OriginkitBlackHole.create(canvas, {
                     showCenter: true,
-                    centre: { radius: 16, x: 50, y: 50 },
+                    centre: { radius: 9, x: 50, y: 52 },
                     background: '#000000',
-                    outerRadius: 78,
-                    particleCount: 1200,
-                    particleSize: 2.1,
-                    trail: 55,
-                    tilt: 22,
-                    tiltSideway: 155,
-                    orbitSpeed: 4.2,
-                    pullSpeed: 0.45,
-                    colors: ['#ffffff', '#ffd6a5', '#ffadad', '#a0c4ff', '#bdb2ff', '#fdffb6', '#caffbf', '#9bf6ff']
+                    outerRadius: 94,
+                    particleCount: 3200,
+                    particleSize: 1.25,
+                    trail: 72,
+                    tilt: 70,
+                    tiltSideway: 16,
+                    orbitSpeed: 3.4,
+                    pullSpeed: 0.18,
+                    armCount: 8,
+                    colors: ['#ffffff', '#f2f2f2', '#ff3b30', '#ff2d55', '#ff6b4a', '#c8c8c8', '#8a8a8a', '#ff453a']
                 });
                 // ensure correct size after becoming visible
                 setTimeout(() => blackholeInstance && blackholeInstance.resize && blackholeInstance.resize(), 30);

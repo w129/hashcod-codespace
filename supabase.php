@@ -27,18 +27,26 @@ function loadEnvFile($path = null) {
     }
 }
 
+function envValue($key, $default = '') {
+    $val = getenv($key);
+    if ($val !== false && $val !== '') return $val;
+    if (isset($_ENV[$key]) && $_ENV[$key] !== '') return (string)$_ENV[$key];
+    if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') return (string)$_SERVER[$key];
+    return $default;
+}
+
 function supabaseConfig() {
     loadEnvFile();
-    $url = rtrim(getenv('SUPABASE_URL') ?: ($_ENV['SUPABASE_URL'] ?? ''), '/');
-    $publishable = getenv('SUPABASE_PUBLISHABLE_KEY') ?: ($_ENV['SUPABASE_PUBLISHABLE_KEY'] ?? '');
-    $secret = getenv('SUPABASE_SECRET_KEY') ?: ($_ENV['SUPABASE_SECRET_KEY'] ?? '');
+    $url = rtrim(envValue('SUPABASE_URL'), '/');
+    $publishable = envValue('SUPABASE_PUBLISHABLE_KEY');
+    $secret = envValue('SUPABASE_SECRET_KEY');
     if ($publishable === '') {
-        $publishable = getenv('SUPABASE_ANON_KEY') ?: ($_ENV['SUPABASE_ANON_KEY'] ?? '');
+        $publishable = envValue('SUPABASE_ANON_KEY');
     }
     if ($secret === '') {
-        $secret = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: ($_ENV['SUPABASE_SERVICE_ROLE_KEY'] ?? '');
+        $secret = envValue('SUPABASE_SERVICE_ROLE_KEY');
     }
-    $bucket = getenv('SUPABASE_STORAGE_BUCKET') ?: ($_ENV['SUPABASE_STORAGE_BUCKET'] ?? 'l8-storage');
+    $bucket = envValue('SUPABASE_STORAGE_BUCKET', 'l8-storage');
     return [
         'url' => $url,
         'publishable_key' => $publishable,

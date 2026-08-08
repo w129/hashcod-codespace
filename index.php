@@ -1,5 +1,5 @@
 <?php
-// index.php - Servidor Native PHP + React TypeScript l8
+// index.php - Servidor Native PHP + React TypeScript l8 (Iconos Vectoriales Negros SVG)
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -170,6 +170,7 @@
             display: block;
         }
 
+        /* DISEÑO Y TARJETAS CON ICONOGRAFÍA 100% VECTORIAL EN NEGRO */
         .catalog-card {
             width: 100%;
             background: #faf9f6;
@@ -214,24 +215,27 @@
             height: 16px;
             display: inline-block;
             vertical-align: middle;
-            fill: currentColor;
+            fill: #000000;
         }
 
         .metric-badge-black {
-            background: #141414;
+            background: #000000;
             color: #ffffff;
             padding: 4px 9px;
             border-radius: 5px;
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-upload-vector {
             display: flex;
             align-items: center;
             gap: 8px;
-            background: #141414;
+            background: #000000;
             color: #ffffff;
             border: none;
             padding: 8px 16px;
@@ -287,19 +291,19 @@
             align-items: center;
             gap: 8px;
             font-weight: 600;
-            color: #141414;
+            color: #000000;
         }
 
         .hash-badge-vector {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 10px;
-            background: #141414;
+            background: #000000;
             color: #ffffff;
             padding: 3px 8px;
             border-radius: 4px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             max-width: 220px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -319,7 +323,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            color: #0451a5;
+            color: #000000;
             font-weight: 600;
             text-decoration: none;
             padding: 4px 8px;
@@ -328,7 +332,7 @@
         }
 
         .action-btn-link:hover {
-            background: #e6f0ff;
+            background: #e5e5e5;
             text-decoration: underline;
         }
 
@@ -346,7 +350,7 @@
         }
 
         .ssh-key-box {
-            background: #141414;
+            background: #000000;
             color: #34c759;
             padding: 12px;
             border-radius: 6px;
@@ -372,7 +376,7 @@
         }
 
         .vertical-cmd-name {
-            color: #0451a5;
+            color: #000000;
             font-weight: bold;
             min-width: 130px;
         }
@@ -386,7 +390,7 @@
             color: #111111;
         }
 
-        .json-key { color: #0451a5; }
+        .json-key { color: #000000; font-weight: 600; }
         .json-string { color: #a31515; }
         .json-number { color: #098658; }
         .json-boolean { color: #0000ff; }
@@ -672,8 +676,8 @@
                                 <div class="keys-grid-placeholder" style="flex: 1; border: 1px dashed #d0cdcf; border-radius: 8px; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8c8983; font-size: 12px; font-family: 'IBM Plex Mono', monospace; min-height: 280px; padding: 12px; text-align: center; gap: 12px;">
                                     <span>[ Espacio preparado para tus teclas personalizadas ]</span>
                                     <button class="btn-upload-vector" onclick="triggerFileUpload()">
-                                        <svg class="svg-icon-vector" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
-                                        Subir Archivo (Dilithium 5)
+                                        <svg class="svg-icon-vector" style="fill:#ffffff;" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                                        <span>Subir Archivo (Dilithium 5)</span>
                                     </button>
                                 </div>
                             </div>
@@ -720,6 +724,13 @@
         const executionContainer = document.getElementById('executionContent');
         const formatToggle = document.getElementById('formatToggle');
         const cmdInput = document.getElementById('cmdInput');
+
+        // ICONOS VECTORIALES REUTILIZABLES (NEGRO PUSO #000000)
+        const SVG_GITHUB_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:18px; height:18px;" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1.0.07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>';
+        const SVG_CHECK_VECTOR = '<svg class="svg-icon-vector" style="fill:#137333; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+        const SVG_CROSS_VECTOR = '<svg class="svg-icon-vector" style="fill:#c5221f; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>';
+        const SVG_EXT_LINK = '<svg class="svg-icon-vector" style="fill:#000000; width:13px; height:13px;" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>';
+        const SVG_REFRESH_VECTOR = '<svg class="svg-icon-vector" style="fill:#000000; width:14px; height:14px;" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>';
 
         function syntaxHighlight(json) {
             if (typeof json !== 'string') {
@@ -818,7 +829,7 @@
                     rowsHtml = `
                         <tr>
                             <td colspan="5" style="text-align:center; padding:24px; color:#888;">
-                                <svg style="width:32px; height:32px; fill:#cccccc; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                <svg style="width:32px; height:32px; fill:#000000; opacity:0.3; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                                 No hay repositorios de GitHub clonados guardados en la plataforma aún.<br>Usa el comando <strong>'clone usuario/repo'</strong> o haz clic en 'Clonar Nuevo Repositorio'.
                             </td>
                         </tr>`;
@@ -828,7 +839,7 @@
                             <tr>
                                 <td>
                                     <div class="file-name-cell">
-                                        <svg class="svg-icon-vector" style="fill:#0451a5;" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1.0.07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+                                        ${SVG_GITHUB_BLACK}
                                         <span>${r.name}</span>
                                     </div>
                                 </td>
@@ -837,7 +848,7 @@
                                 <td>${r.size_formatted}</td>
                                 <td>
                                     <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ${r.name}')">
-                                        <svg class="svg-icon-vector" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                                        ${SVG_REFRESH_VECTOR}
                                         <span>Git Pull</span>
                                     </button>
                                 </td>
@@ -850,9 +861,13 @@
                 if (cloneResult) {
                     const alertBg = cloneResult.ok ? '#e6f4ea' : '#fce8e6';
                     const alertColor = cloneResult.ok ? '#137333' : '#c5221f';
+                    const iconHeader = cloneResult.ok ? SVG_CHECK_VECTOR : SVG_CROSS_VECTOR;
                     cloneBanner = `
                         <div style="background:${alertBg}; color:${alertColor}; padding:12px 16px; border-radius:6px; font-size:12px; display:flex; flex-direction:column; gap:4px; margin-bottom:10px;">
-                            <strong>${cloneResult.ok ? '✅ Repositorio Procesado Exitosamente (' + cloneResult.action + ')' : '❌ Error al Procesar Repositorio'}</strong>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                ${iconHeader}
+                                <strong>${cloneResult.ok ? 'Repositorio Procesado Exitosamente (' + cloneResult.action + ')' : 'Error al Procesar Repositorio'}</strong>
+                            </div>
                             <pre style="white-space:pre-wrap; font-family:monospace; font-size:11px; margin-top:4px;">${cloneResult.raw_output || ''}</pre>
                         </div>
                     `;
@@ -864,7 +879,7 @@
                         <div class="catalog-header-bar">
                             <div class="catalog-metrics">
                                 <div class="metric-item">
-                                    <svg class="svg-icon-vector" style="fill:#0451a5;" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1.0.07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+                                    ${SVG_GITHUB_BLACK}
                                     <span>Conexión SSH:</span>
                                     <span class="metric-badge-black">GitHub SSH Active</span>
                                 </div>
@@ -900,7 +915,7 @@
                 return;
             }
 
-            // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÓN SSH GITHUB)
+            // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÓN SSH GITHUB CON ICONOS NEGROS)
             if (dataToDisplay && dataToDisplay.type === "SSH_KEY_DISPLAY") {
                 const pubKey = dataToDisplay.public_key || '';
                 const sshOut = dataToDisplay.github_test_output || '';
@@ -910,10 +925,13 @@
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <svg class="svg-icon-vector" style="fill:#0451a5; width:20px; height:20px;" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                                <svg class="svg-icon-vector" style="fill:#000000; width:20px; height:20px;" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
                                 <strong style="font-size:13px; color:#141414;">Clave Pública SSH Ed25519 del Servidor</strong>
                             </div>
-                            <span class="metric-badge-black">${isConnected ? '🟢 CONECTADO CON GITHUB' : '🟡 LISTO PARA AÑADIR A GITHUB'}</span>
+                            <span class="metric-badge-black">
+                                <svg class="svg-icon-vector" style="fill:${isConnected ? '#34c759' : '#f5a623'}; width:10px; height:10px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                                <span>${isConnected ? 'CONECTADO CON GITHUB' : 'LISTO PARA AÑADIR A GITHUB'}</span>
+                            </span>
                         </div>
                         <div class="ssh-key-box" id="sshPubKeyBox">${pubKey}</div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
@@ -922,7 +940,8 @@
                                 <span>Copiar Clave Pública</span>
                             </button>
                             <a class="action-btn-link" href="https://github.com/settings/ssh/new" target="_blank">
-                                <span>Añadir en GitHub Settings ↗</span>
+                                <span>Añadir en GitHub Settings</span>
+                                ${SVG_EXT_LINK}
                             </a>
                         </div>
                         <div style="font-size:11px; background:#eceae4; padding:8px 12px; border-radius:6px; color:#444;">
@@ -944,7 +963,7 @@
                     rowsHtml = `
                         <tr>
                             <td colspan="6" style="text-align:center; padding:24px; color:#888;">
-                                <svg style="width:32px; height:32px; fill:#cccccc; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                <svg style="width:32px; height:32px; fill:#000000; opacity:0.3; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                                 No hay archivos almacenados aún en la Super Base de Datos.<br>Haz clic en <strong>'Subir Nuevo Archivo'</strong> para almacenar uno.
                             </td>
                         </tr>`;
@@ -952,12 +971,12 @@
                     files.forEach(f => {
                         const dHash = f.dilithium5_hash ? (f.dilithium5_hash.substring(0, 22) + '...') : 'dilithium5_...';
                         
-                        let fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#141414;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
+                        let fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#000000;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
                         
                         if (f.filename.endsWith('.zip') || f.filename.endsWith('.rar') || f.filename.endsWith('.7z')) {
-                            fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#0451a5;" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-2 6h-2v2h2v-2zm0-4h-2v2h2V8z"/></svg>';
+                            fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#000000;" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-2 6h-2v2h2v-2zm0-4h-2v2h2V8z"/></svg>';
                         } else if (f.mime_type.includes('image')) {
-                            fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#098658;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>';
+                            fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#000000;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>';
                         }
 
                         rowsHtml += `
@@ -993,17 +1012,17 @@
                         <div class="catalog-header-bar">
                             <div class="catalog-metrics">
                                 <div class="metric-item">
-                                    <svg class="svg-icon-vector" style="fill:#0451a5;" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                                    <svg class="svg-icon-vector" style="fill:#000000;" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
                                     <span>Firma:</span>
                                     <span class="metric-badge-black">Dilithium 5 (Post-Quantum)</span>
                                 </div>
                                 <div class="metric-item">
-                                    <svg class="svg-icon-vector" style="fill:#141414;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                    <svg class="svg-icon-vector" style="fill:#000000;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
                                     <span>Archivos:</span>
                                     <span class="metric-badge-black">${files.length}</span>
                                 </div>
                                 <div class="metric-item">
-                                    <svg class="svg-icon-vector" style="fill:#141414;" viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
+                                    <svg class="svg-icon-vector" style="fill:#000000;" viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
                                     <span>Almacenamiento:</span>
                                     <span class="metric-badge-black">${totalStorage}</span>
                                 </div>
@@ -1066,9 +1085,9 @@
             try {
                 hasExecutedCommand = true;
                 executionContainer.innerHTML = `
-                    <div style="padding:14px; background:#faf9f6; border:1px solid #e6e3dd; border-radius:8px; font-weight:600; color:#0451a5; display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono', monospace;">
-                        <svg style="animation: spin 1s linear infinite; width:20px; height:20px; fill:#0451a5;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
-                        <span>⏳ Procesando comando en el servidor... Por favor espera unos segundos...</span>
+                    <div style="padding:14px; background:#faf9f6; border:1px solid #e6e3dd; border-radius:8px; font-weight:600; color:#000000; display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono', monospace;">
+                        <svg style="animation: spin 1s linear infinite; width:20px; height:20px; fill:#000000;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+                        <span>Procesando comando en el servidor... Por favor espera unos segundos...</span>
                     </div>
                 `;
                 const res = await fetch('/api/command', {

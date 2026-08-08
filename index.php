@@ -1336,7 +1336,7 @@
                     codeBox.classList.add('visible');
                     copyBtn.style.display = 'inline-block';
                     sendBtn.textContent = 'Generar otro código';
-                    statusEl.textContent = data.message || ('Comparte este código: ' + lastCode);
+                    statusEl.textContent = data.message || ('Código listo en la nube: ' + lastCode + '. Úsalo en /gateway desde cualquier dispositivo.');
                     statusEl.className = 'gateway-modal-status ok';
                     sendBtn.disabled = false;
                 } catch (err) {

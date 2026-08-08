@@ -31,6 +31,7 @@ RUN { \
     echo 'max_execution_time = 120'; \
     echo 'upload_max_filesize = 100M'; \
     echo 'post_max_size = 100M'; \
+    echo 'variables_order = "EGPCS"'; \
     echo 'opcache.enable=1'; \
     echo 'opcache.enable_cli=1'; \
     echo 'opcache.memory_consumption=128'; \
@@ -44,8 +45,13 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
+# Entrypoint: confirma qué vars de entorno llegan al contenedor (sin secretos)
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 VOLUME ["/var/www/html/data_storage", "/var/www/html/uploads"]
 
 EXPOSE 8000
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["php", "-S", "0.0.0.0:8000", "router.php"]

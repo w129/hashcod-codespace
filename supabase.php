@@ -27,12 +27,82 @@ function loadEnvFile($path = null) {
     }
 }
 
+function envSanitize($val) {
+    if ($val === false || $val === null) return '';
+    $val = trim((string)$val);
+    if ($val === '') return '';
+    // quita comillas envolventes accidentales del panel de Render
+    if (
+        (strlen($val) >= 2) &&
+        (($val[0] === '"' && substr($val, -1) === '"') || ($val[0] === "'" && substr($val, -1) === "'"))
+    ) {
+        $val = trim(substr($val, 1, -1));
+    }
+    return $val;
+}
+
 function envValue($key, $default = '') {
-    $val = getenv($key);
-    if ($val !== false && $val !== '') return $val;
-    if (isset($_ENV[$key]) && $_ENV[$key] !== '') return (string)$_ENV[$key];
-    if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') return (string)$_SERVER[$key];
+    $candidates = [];
+
+    // 1) entorno del proceso / contenedor
+    $g = @getenv($key);
+    if ($g !== false) $candidates[] = $g;
+    // PHP 7.1+: también probar local_only
+    if (function_exists('getenv')) {
+        $gLocal = @getenv($key, true);
+        if ($gLocal !== false) $candidates[] = $gLocal;
+    }
+    if (isset($_ENV[$key])) $candidates[] = $_ENV[$key];
+    if (isset($_SERVER[$key])) $candidates[] = $_SERVER[$key];
+
+    // 2) Secret Files de Render (/etc/secrets/<KEY>)
+    foreach ([
+        '/etc/secrets/' . $key,
+        '/etc/secrets/' . strtolower($key),
+        '/etc/secrets/' . strtoupper($key),
+    ] as $secretPath) {
+        if (is_readable($secretPath)) {
+            $candidates[] = @file_get_contents($secretPath);
+        }
+    }
+
+    foreach ($candidates as $raw) {
+        $val = envSanitize($raw);
+        if ($val !== '') return $val;
+    }
     return $default;
+}
+
+/** Probe seguro: no expone secretos, solo si existen y su longitud/prefijo. */
+function envProbeKeys(array $keys) {
+    $out = [];
+    foreach ($keys as $key) {
+        $val = envValue($key, '');
+        $out[$key] = [
+            'set' => $val !== '',
+            'length' => strlen($val),
+            'prefix' => $val !== '' ? substr($val, 0, min(12, strlen($val))) : '',
+            'sources' => [
+                'getenv' => @getenv($key) !== false && envSanitize(@getenv($key)) !== '',
+                'env' => isset($_ENV[$key]) && envSanitize($_ENV[$key]) !== '',
+                'server' => isset($_SERVER[$key]) && envSanitize($_SERVER[$key]) !== '',
+                'secret_file' => is_readable('/etc/secrets/' . $key)
+            ]
+        ];
+    }
+
+    // claves visibles en $_SERVER / $_ENV que parezcan relacionadas
+    $related = [];
+    foreach ([$_ENV, $_SERVER] as $bag) {
+        if (!is_array($bag)) continue;
+        foreach (array_keys($bag) as $k) {
+            if (preg_match('/^(SUPABASE|GITHUB|GH)_/i', (string)$k)) {
+                $related[$k] = true;
+            }
+        }
+    }
+    $out['_related_keys_seen'] = array_keys($related);
+    return $out;
 }
 
 function supabaseConfig() {
@@ -303,6 +373,17 @@ function supabaseHydrateMetaFile($localPath, $metaName, $force = false) {
 
 function supabaseHealthCheck() {
     $cfg = supabaseConfig();
+    $probe = envProbeKeys([
+        'SUPABASE_URL',
+        'SUPABASE_PUBLISHABLE_KEY',
+        'SUPABASE_SECRET_KEY',
+        'SUPABASE_ANON_KEY',
+        'SUPABASE_SERVICE_ROLE_KEY',
+        'SUPABASE_STORAGE_BUCKET',
+        'GITHUB_TOKEN',
+        'GH_TOKEN'
+    ]);
+
     if (!$cfg['configured']) {
         return [
             'type' => 'SUPABASE_STATUS',
@@ -313,7 +394,8 @@ function supabaseHealthCheck() {
             'has_secret' => $cfg['secret_key'] !== '',
             'storage_bucket' => $cfg['bucket'],
             'storage_ready' => false,
-            'error' => 'Variables de entorno no configuradas',
+            'error' => 'Variables de entorno no configuradas (PHP no las ve en el contenedor). Revisa Render → Environment y haz Manual Deploy.',
+            'env_probe' => $probe,
             'auth_health' => null
         ];
     }
@@ -333,6 +415,7 @@ function supabaseHealthCheck() {
         'http_status' => $res['status'],
         'error' => $res['error'],
         'auth_health' => $res['body'],
+        'env_probe' => $probe,
         'message' => $connected
             ? ('Supabase conectado · Storage: ' . $cfg['bucket'] . (!empty($bucket['ok']) ? ' listo' : ' no disponible'))
             : ('Fallo de conexión: ' . ($res['error'] ?: 'HTTP ' . $res['status']))

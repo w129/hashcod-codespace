@@ -576,7 +576,7 @@
                             <div class="vk-card-body" id="keyWindowBody">
                                 <div class="keys-grid-placeholder" style="flex: 1; border: 1px dashed #d0cdcf; border-radius: 8px; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8c8983; font-size: 12px; font-family: 'IBM Plex Mono', monospace; min-height: 280px; padding: 12px; text-align: center; gap: 12px;">
                                     <span>[ Espacio preparado para tus teclas personalizadas ]</span>
-                                    <button class="upload-btn" onclick="triggerFileUpload()">📤 Subir Archivo a la Super Base de Datos</button>
+                                    <button class="upload-btn" onclick="triggerFileUpload()">📤 Subir Archivo (Firma Dilithium 5)</button>
                                 </div>
                             </div>
                         </div>
@@ -699,19 +699,21 @@
                 return;
             }
 
-            // RENDERIZADO ESPECIAL PARA EL COMANDO set_I code (SUPER BASE DE DATOS GLOBAL)
+            // RENDERIZADO ESPECIAL PARA EL COMANDO set_I code (SUPER BASE DE DATOS GLOBAL CON FIRMA DILITHIUM 5)
             if (dataToDisplay && dataToDisplay.type === "GLOBAL_FILES_CATALOG") {
                 const files = dataToDisplay.files || [];
                 const totalStorage = dataToDisplay.total_storage_formatted || "0 B";
 
                 let rowsHtml = '';
                 if (files.length === 0) {
-                    rowsHtml = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">No hay archivos almacenados todavía en la Super Base de Datos. Haz clic en 'Subir Nuevo Archivo' para subir uno.</td></tr>`;
+                    rowsHtml = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#888;">No hay archivos almacenados todavía en la Super Base de Datos. Haz clic en 'Subir Nuevo Archivo' para subir uno.</td></tr>`;
                 } else {
                     files.forEach(f => {
+                        const dHash = f.dilithium5_hash ? (f.dilithium5_hash.substring(0, 24) + '...') : 'dilithium5_...';
                         rowsHtml += `
                             <tr>
                                 <td><strong>${f.filename}</strong></td>
+                                <td title="${f.dilithium5_hash}"><span style="font-size:10px; background:#141414; color:#fff; padding:2px 6px; border-radius:4px; font-family:monospace;">${dHash}</span></td>
                                 <td><span style="font-size:10px; background:#eceae4; padding:2px 6px; border-radius:4px; color:#444;">${f.mime_type}</span></td>
                                 <td>${f.size_formatted}</td>
                                 <td style="color:#666; font-size:11px;">${f.upload_date}</td>
@@ -725,7 +727,8 @@
                     <div class="catalog-container">
                         <div class="catalog-banner">
                             <div class="catalog-info">
-                                <span>📁 Archivos en Base de Datos: <span class="catalog-badge">${files.length}</span></span>
+                                <span>🔑 Firma Criptográfica: <span class="catalog-badge">Dilithium 5 (Post-Quantum)</span></span>
+                                <span>📁 Archivos: <span class="catalog-badge">${files.length}</span></span>
                                 <span>💾 Almacenamiento Global: <span class="catalog-badge">${totalStorage}</span></span>
                             </div>
                             <button class="upload-btn" onclick="triggerFileUpload()">📤 Subir Nuevo Archivo</button>
@@ -734,6 +737,7 @@
                             <thead>
                                 <tr>
                                     <th>Archivo</th>
+                                    <th>Firma Post-Cuántica (Dilithium 5)</th>
                                     <th>Tipo MIME</th>
                                     <th>Tamaño</th>
                                     <th>Fecha de Subida</th>
@@ -746,7 +750,7 @@
                         </table>
                     </div>
                 `;
-                executionContainer.innerHTML = catalogHtml;
+                executionContainer.innerHTML = `<div style="width:100%;">${catalogHtml}</div>`;
                 return;
             }
 

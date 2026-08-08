@@ -207,7 +207,13 @@ function saveRepoIndexEntriesBatch($metas) {
  */
 function getGithubApiToken() {
     loadEnvFile();
-    $token = getenv('GITHUB_TOKEN') ?: ($_ENV['GITHUB_TOKEN'] ?? '');
+    $token = function_exists('envValue') ? envValue('GITHUB_TOKEN') : '';
+    if ($token === '') {
+        $token = function_exists('envValue') ? envValue('GH_TOKEN') : '';
+    }
+    if ($token === '') {
+        $token = getenv('GITHUB_TOKEN') ?: ($_ENV['GITHUB_TOKEN'] ?? '');
+    }
     if ($token === '') {
         $token = getenv('GH_TOKEN') ?: ($_ENV['GH_TOKEN'] ?? '');
     }
@@ -1733,6 +1739,32 @@ if ($uri === '/api/ssh/key') {
     $force = isset($_GET['regenerate']) && $_GET['regenerate'] === '1';
     $sshInfo = getOrGenerateSshKey($force);
     echo json_encode($sshInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Diagnóstico seguro de variables de entorno (sin exponer secretos)
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri === '/api/envcheck')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $probe = function_exists('envProbeKeys') ? envProbeKeys([
+        'SUPABASE_URL',
+        'SUPABASE_PUBLISHABLE_KEY',
+        'SUPABASE_SECRET_KEY',
+        'SUPABASE_ANON_KEY',
+        'SUPABASE_SERVICE_ROLE_KEY',
+        'SUPABASE_STORAGE_BUCKET',
+        'GITHUB_TOKEN',
+        'GH_TOKEN'
+    ]) : [];
+    $cfg = function_exists('supabaseConfig') ? supabaseConfig() : [];
+    echo json_encode([
+        'ok' => true,
+        'supabase_configured' => !empty($cfg['configured']),
+        'storage_bucket' => $cfg['bucket'] ?? null,
+        'probe' => $probe,
+        'hint' => empty($cfg['configured'])
+            ? 'PHP no ve SUPABASE_URL / keys. En Render: Environment → verifica el servicio correcto → Manual Deploy (Clear build cache).'
+            : 'Supabase env detectado.'
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 

@@ -277,16 +277,16 @@
             color: #666666;
         }
 
-        /* ESTRUCTURA DE 3 PANELES (key window | Vector graphic | Equations window) */
+        /* ESTRUCTURA ADAPTADA AL ENTORNO EN 3 PANELES */
         .virtual-keyboard-white {
             display: none;
             margin-top: 16px;
             background-color: #ffffff;
-            border: 1px solid #d8d8d8;
-            border-radius: 6px;
+            border: 2px solid #000000;
+            border-radius: 4px;
             padding: 16px;
             user-select: none;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
             animation: fadeInDrawer 0.25s ease-out;
         }
 
@@ -300,16 +300,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #ececec;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #000000;
         }
 
         .vk-brand {
             font-family: monospace, 'Courier New', Courier;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
-            color: #888888;
-            letter-spacing: 1px;
+            color: #000000;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
         }
 
         .vk-leds {
@@ -322,28 +323,31 @@
             align-items: center;
             gap: 6px;
             font-family: monospace, 'Courier New', Courier;
-            font-size: 10px;
-            color: #666666;
+            font-size: 11px;
+            font-weight: bold;
+            color: #000000;
         }
 
         .led-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background-color: #cccccc;
             display: inline-block;
+            border: 1px solid #999999;
         }
 
         .led-dot.active {
-            background-color: #34c759;
-            box-shadow: 0 0 6px #34c759;
+            background-color: #000000;
+            border-color: #000000;
+            box-shadow: 0 0 4px rgba(0,0,0,0.4);
         }
 
-        /* Contenedor de 3 Paneles */
+        /* Contenedor de 3 Paneles Adaptado */
         .vk-3panel-container {
             display: grid;
-            grid-template-columns: 1fr 1.1fr 1fr;
-            gap: 12px;
+            grid-template-columns: 1fr 1.15fr 1fr;
+            gap: 14px;
             align-items: stretch;
             width: 100%;
         }
@@ -354,16 +358,20 @@
             padding: 12px;
             display: flex;
             flex-direction: column;
-            min-height: 240px;
+            min-height: 250px;
+            box-shadow: inset 0 0 0 1px #ffffff;
         }
 
-        .vk-panel-header, .vector-graphic-title {
+        .vk-panel-header-badge {
+            background-color: #000000;
+            color: #ffffff;
             font-family: monospace, 'Courier New', Courier;
-            font-size: 15px;
-            color: #000000;
+            font-size: 13px;
+            font-weight: bold;
             text-align: center;
+            padding: 6px 12px;
             margin-bottom: 12px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
 
         .key-window-panel {
@@ -373,27 +381,28 @@
         .key-window-grid {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             width: 100%;
             height: 100%;
         }
 
         .vk-row {
             display: flex;
-            gap: 5px;
+            gap: 6px;
             width: 100%;
         }
 
+        /* Teclas 3D Alto Contraste Blanco/Negro */
         .vk-key {
-            background: linear-gradient(180deg, #ffffff 0%, #f4f4f7 100%);
-            color: #222222;
-            border: 1px solid #d0d0d5;
-            border-bottom: 2px solid #b8b8c0;
-            border-radius: 4px;
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #000000;
+            border-bottom: 4px solid #000000;
+            border-radius: 3px;
             font-family: monospace, 'Courier New', Courier;
-            font-size: 12px;
-            font-weight: 600;
-            height: 38px;
+            font-size: 13px;
+            font-weight: bold;
+            height: 42px;
             flex: 1;
             padding: 2px 4px;
             display: flex;
@@ -402,39 +411,40 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.1s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            user-select: none;
         }
 
         .vk-key:hover {
-            background: linear-gradient(180deg, #ffffff 0%, #e9e9f0 100%);
-            border-color: #a8a8b3;
-            transform: translateY(-1px);
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
 
         .vk-key:active {
-            background: #e0e0e8;
-            border-bottom-width: 1px;
-            transform: translateY(1px);
+            background: #e0e0e0;
+            border-bottom-width: 2px;
+            transform: translateY(2px);
             box-shadow: none;
         }
 
-        /* CAMBIO A TECLAS NEGRAS ELEGANTES */
         .key-f {
-            background: linear-gradient(180deg, #2c2c2c 0%, #000000 100%);
+            background: #000000;
             color: #ffffff;
-            border: 1px solid #000000;
-            border-bottom: 2px solid #000000;
+            border: 2px solid #000000;
+            border-bottom: 4px solid #333333;
             font-weight: bold;
         }
 
         .key-f:hover {
-            background: linear-gradient(180deg, #444444 0%, #111111 100%);
+            background: #222222;
+            color: #ffffff;
         }
 
         .key-enter {
-            background: linear-gradient(180deg, #333333 0%, #000000 100%);
-            border-color: #000000;
+            background: #000000;
             color: #ffffff;
+            border-color: #000000;
+            font-size: 15px;
         }
 
         .key-num-zero {
@@ -460,21 +470,27 @@
         .vector-inner-frame {
             border: 1px solid #000000;
             height: 100%;
-            padding: 12px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
             position: relative;
+            background-color: #ffffff;
         }
 
-        .vector-canvas {
+        .vector-canvas-wrapper {
             width: 100%;
             height: 100%;
-            min-height: 160px;
-            border: 1px dashed #d0d0d0;
-            border-radius: 4px;
-            background-color: #fafafa;
+            min-height: 170px;
+            border: 1px dashed #aaaaaa;
+            border-radius: 2px;
+            background-color: #ffffff;
+            background-image: radial-gradient(#d0d0d0 1px, transparent 1px);
+            background-size: 12px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Panel Derecho Equations Window */
@@ -491,17 +507,21 @@
         .equations-editor {
             width: 100%;
             height: 100%;
-            min-height: 160px;
+            min-height: 170px;
             background-color: #ffffff;
             color: #000000;
-            border: 1px solid #cccccc;
-            border-radius: 3px;
+            border: 2px solid #000000;
+            border-radius: 2px;
             outline: none;
             padding: 10px;
             resize: vertical;
             font-family: monospace, 'Courier New', Courier, Consolas;
-            font-size: 12px;
+            font-size: 13px;
             line-height: 1.5;
+        }
+
+        .equations-editor::placeholder {
+            color: #888888;
         }
 
         body.raw-mode .block-execution .block-body {
@@ -569,10 +589,10 @@
                     <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
                 </div>
 
-                <!-- ESTRUCTURA DE 3 SECCIONES (key window | Vector graphic | Equations window) -->
+                <!-- ESTRUCTURA MEJORADA ADAPTADA AL ENTORNO EN 3 SECCIONES -->
                 <div class="virtual-keyboard-white" id="virtualKeyboard">
                     <div class="vk-top-bar-indicators">
-                        <span class="vk-brand">NATIVE GRAPHIC & EQUATIONS WORKSPACE</span>
+                        <span class="vk-brand">NATIVE GRAPHICS & EQUATIONS WORKSPACE</span>
                         <div class="vk-leds">
                             <span class="vk-led"><i class="led-dot active"></i> Key Window</span>
                             <span class="vk-led"><i class="led-dot active"></i> Vector Graphic</span>
@@ -583,7 +603,7 @@
                     <div class="vk-3panel-container">
                         <!-- Panel 1: key window (Izquierda) -->
                         <div class="vk-panel key-window-panel">
-                            <div class="vk-panel-header">key window</div>
+                            <div class="vk-panel-header-badge">key window</div>
                             <div class="key-window-grid">
                                 <div class="vk-row">
                                     <div class="vk-key" onclick="pressVirtualKey('7')">7</div>
@@ -615,17 +635,17 @@
                         <div class="vk-panel vector-graphic-panel">
                             <div class="vector-outer-frame">
                                 <div class="vector-inner-frame">
-                                    <div class="vector-graphic-title">Vector graphic</div>
-                                    <svg class="vector-canvas" viewBox="0 0 300 200">
-                                        <rect x="0" y="0" width="300" height="200" fill="#fafafa" />
-                                    </svg>
+                                    <div class="vk-panel-header-badge" style="width:100%; margin-bottom:8px;">Vector graphic</div>
+                                    <div class="vector-canvas-wrapper">
+                                        <svg style="width:100%; height:100%;" viewBox="0 0 300 200"></svg>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Panel 3: Equations window (Derecha) -->
                         <div class="vk-panel equations-window-panel">
-                            <div class="vk-panel-header">Equations window</div>
+                            <div class="vk-panel-header-badge">Equations window</div>
                             <div class="equations-editor-container">
                                 <textarea id="equationsEditor" class="equations-editor" placeholder="// Ecuaciones y fórmulas matemáticas..." spellcheck="false"></textarea>
                             </div>

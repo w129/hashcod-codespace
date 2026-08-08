@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Servidor de Ejecución y Comandos</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -14,7 +16,7 @@
         body {
             background-color: #ffffff;
             color: #000000;
-            font-family: monospace, 'Courier New', Courier, Consolas;
+            font-family: 'IBM Plex Mono', monospace, ui-monospace;
             font-size: 13px;
             -webkit-font-smoothing: antialiased;
         }
@@ -109,7 +111,7 @@
             word-break: break-all;
             white-space: pre-wrap;
             line-height: 1.4;
-            font-family: monospace, 'Courier New', Courier;
+            font-family: 'IBM Plex Mono', monospace;
         }
 
         /* Bloque (=) de ejecuciones */
@@ -135,7 +137,7 @@
             border: none;
             outline: none;
             background: transparent;
-            font-family: monospace, 'Courier New', Courier;
+            font-family: 'IBM Plex Mono', monospace;
             font-size: 13px;
             color: #000000;
             padding: 2px 0;
@@ -179,7 +181,7 @@
         .vertical-cmd-row {
             display: flex;
             align-items: center;
-            font-family: monospace, 'Courier New', Courier;
+            font-family: 'IBM Plex Mono', monospace;
             font-size: 13px;
             line-height: 1.5;
         }
@@ -242,7 +244,7 @@
         }
 
         .function-drawer-header {
-            font-family: monospace, 'Courier New', Courier;
+            font-family: 'IBM Plex Mono', monospace;
             font-size: 14px;
             font-weight: bold;
             color: #000000;
@@ -264,7 +266,7 @@
             border: none;
             outline: none;
             resize: vertical;
-            font-family: monospace, 'Courier New', Courier, Consolas;
+            font-family: 'IBM Plex Mono', monospace;
             font-size: 13px;
             line-height: 1.5;
             caret-color: #ffffff;
@@ -274,251 +276,206 @@
             color: #666666;
         }
 
-        /* ESTRUCTURA ADAPTADA AL ENTORNO EN 3 PANELES */
+        /* DISEÑO DE TECLADO Y PANELES (NUEVO SISTEMA IBM PLEX MONO) */
         .virtual-keyboard-white {
             display: none;
             margin-top: 16px;
-            background-color: #ffffff;
-            border: 2px solid #000000;
-            border-radius: 4px;
-            padding: 16px;
+            background: transparent;
             user-select: none;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
             animation: fadeInDrawer 0.25s ease-out;
         }
 
         .virtual-keyboard-white.active {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            display: block;
         }
 
-        .vk-top-bar-indicators {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #000000;
-        }
-
-        .vk-brand {
-            font-family: monospace, 'Courier New', Courier;
-            font-size: 12px;
-            font-weight: bold;
-            color: #000000;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-        }
-
-        .vk-leds {
-            display: flex;
-            gap: 16px;
-        }
-
-        .vk-led {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-family: monospace, 'Courier New', Courier;
-            font-size: 11px;
-            font-weight: bold;
-            color: #000000;
-        }
-
-        .led-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #cccccc;
-            display: inline-block;
-            border: 1px solid #999999;
-        }
-
-        .led-dot.active {
-            background-color: #000000;
-            border-color: #000000;
-            box-shadow: 0 0 4px rgba(0,0,0,0.4);
-        }
-
-        /* Contenedor de 3 Paneles Adaptado */
         .vk-3panel-container {
             display: grid;
-            grid-template-columns: 1fr 1.15fr 1fr;
-            gap: 14px;
+            grid-template-columns: 1.1fr 1.15fr 1fr;
+            gap: 16px;
             align-items: stretch;
             width: 100%;
         }
 
-        .vk-panel {
-            background-color: #ffffff;
-            border: 2px solid #000000;
-            padding: 12px;
+        .vk-card-panel {
+            background: #faf9f6;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
             display: flex;
             flex-direction: column;
-            min-height: 250px;
-            box-shadow: inset 0 0 0 1px #ffffff;
+            min-height: 390px;
         }
 
-        .vk-panel-header-badge {
-            background-color: #000000;
-            color: #ffffff;
-            font-family: monospace, 'Courier New', Courier;
-            font-size: 13px;
-            font-weight: bold;
-            text-align: center;
-            padding: 6px 12px;
-            margin-bottom: 12px;
-            letter-spacing: 0.8px;
-        }
-
-        .key-window-panel {
-            justify-content: flex-start;
-        }
-
-        .key-window-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            height: 100%;
-        }
-
-        .vk-row {
-            display: flex;
-            gap: 6px;
-            width: 100%;
-        }
-
-        /* Teclas 3D Alto Contraste Blanco/Negro */
-        .vk-key {
-            background: #ffffff;
-            color: #000000;
-            border: 2px solid #000000;
-            border-bottom: 4px solid #000000;
-            border-radius: 3px;
-            font-family: monospace, 'Courier New', Courier;
-            font-size: 13px;
-            font-weight: bold;
-            height: 42px;
-            flex: 1;
-            padding: 2px 4px;
+        .vk-card-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            text-align: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-bottom: 1px solid #e6e3dd;
+            background: #faf9f6;
+        }
+
+        .vk-card-title {
+            font: 600 11px/1 'IBM Plex Mono', monospace;
+            letter-spacing: .09em;
+            text-transform: uppercase;
+            color: #141414;
+        }
+
+        .vk-pills {
+            display: flex;
+            gap: 4px;
+        }
+
+        .vk-pill {
+            font: 500 10px/1 'IBM Plex Mono', monospace;
+            padding: 5px 8px;
+            border-radius: 5px;
+            background: #eceae4;
+            color: #7d7a72;
             cursor: pointer;
-            transition: all 0.1s ease;
-            user-select: none;
+            transition: background 0.15s ease, color 0.15s ease;
         }
 
-        .vk-key:hover {
-            background: #f0f0f0;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .vk-key:active {
-            background: #e0e0e0;
-            border-bottom-width: 2px;
-            transform: translateY(2px);
-            box-shadow: none;
-        }
-
-        .key-f {
-            background: #000000;
-            color: #ffffff;
-            border: 2px solid #000000;
-            border-bottom: 4px solid #333333;
-            font-weight: bold;
-        }
-
-        .key-f:hover {
-            background: #222222;
+        .vk-pill.active {
+            background: #141414;
             color: #ffffff;
         }
 
-        .key-enter {
-            background: #000000;
-            color: #ffffff;
-            border-color: #000000;
-            font-size: 15px;
+        .vk-card-body {
+            padding: 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
-        .key-num-zero {
-            flex: 2;
+        .fn-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 14px;
         }
 
-        /* Panel Central Vector Graphic con Doble Marco Rectangular Limpio */
-        .vector-graphic-panel {
-            padding: 0;
+        .keys-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 9px;
+        }
+
+        .fn, .k, .op, .enter {
             border: none;
-            background: transparent;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            transition: box-shadow .06s, transform .06s, background .12s;
+        }
+
+        /* Fila de funciones */
+        .fn {
+            height: 38px;
+            border-radius: 6px;
+            background: #eceae4;
+            color: #4d4a44;
+            font: 400 13px 'IBM Plex Mono', monospace;
+        }
+        .fn:hover { background: #e2dfd7; }
+
+        /* Teclas numéricas — profundidad física */
+        .k {
+            height: 58px;
+            border-radius: 10px;
+            background: #fff;
+            color: #141414;
+            font: 500 19px 'IBM Plex Mono', monospace;
+            box-shadow: 0 2px 0 #ddd9d1, 0 1px 2px rgba(0,0,0,.05);
+        }
+        .k:hover { background: #ffffff; }
+        .k:active { box-shadow: 0 0 0 #ddd9d1; transform: translateY(2px); }
+
+        .k.span-2 {
+            grid-column: span 2;
+        }
+
+        /* Operadores */
+        .op {
+            height: 58px;
+            border-radius: 10px;
+            background: #2f2c26;
+            color: #f5f3ed;
+            font: 500 19px 'IBM Plex Mono', monospace;
+            box-shadow: 0 2px 0 #16140f;
+        }
+        .op:hover { background: #3c3831; }
+        .op:active { box-shadow: 0 0 0 #16140f; transform: translateY(2px); }
+
+        /* Enter */
+        .enter {
+            height: 58px;
+            border-radius: 10px;
+            background: #141414;
+            color: #fff;
+            font: 500 16px 'IBM Plex Mono', monospace;
+            box-shadow: 0 2px 0 #000;
+        }
+        .enter:hover { background: #262626; }
+        .enter:active { box-shadow: 0 0 0 #000; transform: translateY(2px); }
+
+        /* Panel Central Vector Graphic */
+        .vector-body {
+            padding: 12px;
         }
 
         .vector-outer-frame {
-            border: 2px solid #000000;
-            padding: 4px;
-            background-color: #ffffff;
+            border: 2px solid #141414;
+            padding: 3px;
+            background: #ffffff;
             height: 100%;
+            border-radius: 6px;
             display: flex;
             flex-direction: column;
         }
 
         .vector-inner-frame {
-            border: 1px solid #000000;
+            border: 1px solid #141414;
             height: 100%;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            position: relative;
-            background-color: #ffffff;
-        }
-
-        .vector-canvas-wrapper {
-            width: 100%;
-            height: 100%;
-            min-height: 170px;
-            border: 1px dashed #aaaaaa;
-            border-radius: 2px;
-            background-color: #ffffff;
-            background-image: radial-gradient(#d0d0d0 1px, transparent 1px);
-            background-size: 12px 12px;
+            border-radius: 4px;
+            background: #faf9f6;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 8px;
+        }
+
+        .vector-canvas {
+            width: 100%;
+            height: 100%;
+            min-height: 250px;
         }
 
         /* Panel Derecho Equations Window */
-        .equations-window-panel {
-            justify-content: flex-start;
-        }
-
-        .equations-editor-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
+        .equations-body {
+            padding: 14px;
         }
 
         .equations-editor {
             width: 100%;
             height: 100%;
-            min-height: 170px;
-            background-color: #ffffff;
-            color: #000000;
-            border: 2px solid #000000;
-            border-radius: 2px;
+            min-height: 250px;
+            background: #ffffff;
+            color: #141414;
+            border: 1px solid #e6e3dd;
+            border-radius: 8px;
+            padding: 12px;
+            font: 500 13px 'IBM Plex Mono', monospace;
             outline: none;
-            padding: 10px;
-            resize: vertical;
-            font-family: monospace, 'Courier New', Courier, Consolas;
-            font-size: 13px;
-            line-height: 1.5;
+            resize: none;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,.04);
         }
 
         .equations-editor::placeholder {
-            color: #888888;
+            color: #a09d96;
         }
 
         body.raw-mode .block-execution .block-body {
@@ -586,64 +543,81 @@
                     <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
                 </div>
 
-                <!-- ESTRUCTURA MEJORADA ADAPTADA AL ENTORNO EN 3 SECCIONES -->
+                <!-- TECLADO Y PANELES CON EL NUEVO ESTILO ELEGANTE IBM PLEX MONO -->
                 <div class="virtual-keyboard-white" id="virtualKeyboard">
-                    <div class="vk-top-bar-indicators">
-                        <span class="vk-brand">NATIVE GRAPHICS & EQUATIONS WORKSPACE</span>
-                        <div class="vk-leds">
-                            <span class="vk-led"><i class="led-dot active"></i> Key Window</span>
-                            <span class="vk-led"><i class="led-dot active"></i> Vector Graphic</span>
-                            <span class="vk-led"><i class="led-dot active"></i> Equations Window</span>
-                        </div>
-                    </div>
-
                     <div class="vk-3panel-container">
-                        <!-- Panel 1: key window (Izquierda) -->
-                        <div class="vk-panel key-window-panel">
-                            <div class="vk-panel-header-badge">key window</div>
-                            <div class="key-window-grid">
-                                <div class="vk-row">
-                                    <div class="vk-key" onclick="pressVirtualKey('7')">7</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('8')">8</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('9')">9</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('+')">+</div>
+                        <!-- Panel 1: Key Window (Izquierda) -->
+                        <div class="vk-card-panel">
+                            <div class="vk-card-header">
+                                <span class="vk-card-title">Key window</span>
+                                <div class="vk-pills">
+                                    <span class="vk-pill active">123</span>
+                                    <span class="vk-pill">fx</span>
+                                    <span class="vk-pill">αβ</span>
                                 </div>
-                                <div class="vk-row">
-                                    <div class="vk-key" onclick="pressVirtualKey('4')">4</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('5')">5</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('6')">6</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('-')">-</div>
+                            </div>
+                            <div class="vk-card-body">
+                                <!-- Fila de funciones -->
+                                <div class="fn-grid">
+                                    <button class="fn" onclick="pressVirtualKey('x²')">x²</button>
+                                    <button class="fn" onclick="pressVirtualKey('√')">√</button>
+                                    <button class="fn" onclick="pressVirtualKey('π')">π</button>
+                                    <button class="fn" onclick="pressVirtualKey('(')">(</button>
+                                    <button class="fn" onclick="pressVirtualKey(')')">)</button>
                                 </div>
-                                <div class="vk-row">
-                                    <div class="vk-key" onclick="pressVirtualKey('1')">1</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('2')">2</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('3')">3</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('*')">*</div>
-                                </div>
-                                <div class="vk-row">
-                                    <div class="vk-key key-num-zero" onclick="pressVirtualKey('0')">0</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('.')">.</div>
-                                    <div class="vk-key key-enter" onclick="pressVirtualKey('ENTER')">↵</div>
+
+                                <!-- Teclado principal -->
+                                <div class="keys-grid">
+                                    <button class="k" onclick="pressVirtualKey('7')">7</button>
+                                    <button class="k" onclick="pressVirtualKey('8')">8</button>
+                                    <button class="k" onclick="pressVirtualKey('9')">9</button>
+                                    <button class="op" onclick="pressVirtualKey('+')">+</button>
+
+                                    <button class="k" onclick="pressVirtualKey('4')">4</button>
+                                    <button class="k" onclick="pressVirtualKey('5')">5</button>
+                                    <button class="k" onclick="pressVirtualKey('6')">6</button>
+                                    <button class="op" onclick="pressVirtualKey('-')">−</button>
+
+                                    <button class="k" onclick="pressVirtualKey('1')">1</button>
+                                    <button class="k" onclick="pressVirtualKey('2')">2</button>
+                                    <button class="k" onclick="pressVirtualKey('3')">3</button>
+                                    <button class="op" onclick="pressVirtualKey('*')">×</button>
+
+                                    <button class="k span-2" onclick="pressVirtualKey('0')">0</button>
+                                    <button class="k" onclick="pressVirtualKey('.')">.</button>
+                                    <button class="enter" onclick="pressVirtualKey('ENTER')">↵</button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Panel 2: Vector graphic (Centro con doble marco rectangular limpio) -->
-                        <div class="vk-panel vector-graphic-panel">
-                            <div class="vector-outer-frame">
-                                <div class="vector-inner-frame">
-                                    <div class="vk-panel-header-badge" style="width:100%; margin-bottom:8px;">Vector graphic</div>
-                                    <div class="vector-canvas-wrapper">
-                                        <svg style="width:100%; height:100%;" viewBox="0 0 300 200"></svg>
+                        <!-- Panel 2: Vector Graphic (Centro con Doble Marco) -->
+                        <div class="vk-card-panel">
+                            <div class="vk-card-header">
+                                <span class="vk-card-title">Vector graphic</span>
+                                <div class="vk-pills">
+                                    <span class="vk-pill active">SVG</span>
+                                    <span class="vk-pill">CAD</span>
+                                </div>
+                            </div>
+                            <div class="vk-card-body vector-body">
+                                <div class="vector-outer-frame">
+                                    <div class="vector-inner-frame">
+                                        <svg class="vector-canvas" viewBox="0 0 300 200"></svg>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Panel 3: Equations window (Derecha) -->
-                        <div class="vk-panel equations-window-panel">
-                            <div class="vk-panel-header-badge">Equations window</div>
-                            <div class="equations-editor-container">
+                        <!-- Panel 3: Equations Window (Derecha) -->
+                        <div class="vk-card-panel">
+                            <div class="vk-card-header">
+                                <span class="vk-card-title">Equations window</span>
+                                <div class="vk-pills">
+                                    <span class="vk-pill active">Math</span>
+                                    <span class="vk-pill">LaTeX</span>
+                                </div>
+                            </div>
+                            <div class="vk-card-body equations-body">
                                 <textarea id="equationsEditor" class="equations-editor" placeholder="// Ecuaciones y fórmulas matemáticas..." spellcheck="false"></textarea>
                             </div>
                         </div>

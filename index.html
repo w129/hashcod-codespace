@@ -1415,7 +1415,7 @@
                             : `<span class="mime-tag" style="background:#eceae4;color:#444;">GitHub</span>`;
                         const licenseBadge = `<span class="license-badge" title="Licencia SPDX del repositorio"><span class="dot"></span>${escHtml(licLabel)}</span>`;
                         // Gateway (izquierda) + icono código + Guardar / GitHub / Pull
-                        const gatewayBtn = `<button class="action-btn-link action-code-btn action-gateway-btn" style="border:none; background:transparent; cursor:pointer;" onclick="openGatewaySend(decodeURIComponent('${escAttr(r.name)}'), decodeURIComponent('${escAttr(full)}'))" title="Enviar carpeta por gateway a un dispositivo">
+                        const gatewayBtn = `<button class="action-btn-link action-code-btn action-gateway-btn" style="border:none; background:transparent; cursor:pointer;" onclick="openGatewaySend(decodeURIComponent('${escAttr(r.name)}'), decodeURIComponent('${escAttr(full)}'))" title="Compartir carpeta con código gateway">
                                     ${SVG_GATEWAY_BLACK}
                                </button>`;
                         const codeBtn = `<button class="action-btn-link action-code-btn" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'), decodeURIComponent('${escAttr(full)}'))" title="Ver todo el código en la terminal negra">

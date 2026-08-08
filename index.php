@@ -522,6 +522,36 @@
         .gateway-modal-status.ok { color: #137333; font-weight: 600; }
         .gateway-modal-status.err { color: #c5221f; font-weight: 600; }
 
+        .gateway-code-box {
+            display: none;
+            margin: 10px 0 12px;
+            padding: 14px 12px;
+            border: 1px dashed #cfc9bb;
+            border-radius: 8px;
+            background: #faf9f6;
+            text-align: center;
+        }
+
+        .gateway-code-box.visible { display: block; }
+
+        .gateway-code-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .gateway-code-value {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: #111;
+            line-height: 1.2;
+            user-select: all;
+        }
+
         .action-gateway-btn svg {
             width: 16px;
             height: 16px;
@@ -1225,6 +1255,7 @@
             const existing = document.getElementById('gatewayModal');
             if (existing) existing.remove();
             const full = userRepo || repoName || '';
+            const safeFull = String(full).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
             const overlay = document.createElement('div');
             overlay.id = 'gatewayModal';
             overlay.className = 'unlicensed-modal-overlay';
@@ -1236,14 +1267,17 @@
                         <span>l8 codespace</span>
                     </div>
                     <div class="gateway-modal-text">
-                        Enviar <code>${full.replace(/</g,'&lt;')}</code> como carpeta a un dispositivo.
-                        En el teléfono abre <code>/gateway</code>, ingresa el mismo número y espera la notificación de <strong>l8 codespace</strong>.
+                        Compartir <code>${safeFull}</code> como carpeta.
+                        Se generará un código único (ej. <code>JSLA-SAKA</code>). En el otro dispositivo abre <code>/gateway</code> e ingresa ese código para obtenerlo.
                     </div>
-                    <label for="gatewayPhoneInput">Número del dispositivo</label>
-                    <input id="gatewayPhoneInput" type="tel" inputmode="tel" placeholder="+573001234567" autocomplete="tel">
+                    <div class="gateway-code-box" id="gatewayCodeBox">
+                        <div class="gateway-code-label">Código de transferencia</div>
+                        <div class="gateway-code-value" id="gatewayCodeValue">---- ----</div>
+                    </div>
                     <div class="gateway-modal-actions">
-                        <button type="button" class="gateway-modal-btn" id="gatewaySendBtn">Enviar carpeta</button>
-                        <button type="button" class="gateway-modal-btn secondary" id="gatewayOpenReceiveBtn">Abrir receptor</button>
+                        <button type="button" class="gateway-modal-btn" id="gatewaySendBtn">Generar código</button>
+                        <button type="button" class="gateway-modal-btn secondary" id="gatewayCopyBtn" style="display:none;">Copiar código</button>
+                        <button type="button" class="gateway-modal-btn secondary" id="gatewayOpenReceiveBtn">Abrir /gateway</button>
                         <button type="button" class="gateway-modal-btn secondary" id="gatewayCloseBtn">Cerrar</button>
                     </div>
                     <div class="gateway-modal-status" id="gatewayStatus"></div>
@@ -1254,38 +1288,42 @@
             });
             document.body.appendChild(overlay);
 
-            const phoneInput = document.getElementById('gatewayPhoneInput');
             const statusEl = document.getElementById('gatewayStatus');
             const sendBtn = document.getElementById('gatewaySendBtn');
-            const savedPhone = localStorage.getItem('l8_gateway_last_phone') || '';
-            if (savedPhone) phoneInput.value = savedPhone;
-            phoneInput.focus();
+            const copyBtn = document.getElementById('gatewayCopyBtn');
+            const codeBox = document.getElementById('gatewayCodeBox');
+            const codeValue = document.getElementById('gatewayCodeValue');
+            let lastCode = '';
 
             document.getElementById('gatewayCloseBtn').addEventListener('click', () => overlay.remove());
             document.getElementById('gatewayOpenReceiveBtn').addEventListener('click', () => {
-                window.open('/gateway', '_blank', 'noopener');
+                const url = lastCode ? ('/gateway?code=' + encodeURIComponent(lastCode)) : '/gateway';
+                window.open(url, '_blank', 'noopener');
+            });
+            copyBtn.addEventListener('click', () => {
+                if (!lastCode) return;
+                navigator.clipboard.writeText(lastCode).then(() => {
+                    statusEl.textContent = 'Código copiado: ' + lastCode;
+                    statusEl.className = 'gateway-modal-status ok';
+                }).catch(() => {
+                    statusEl.textContent = 'No se pudo copiar. Selecciona el código manualmente.';
+                    statusEl.className = 'gateway-modal-status err';
+                });
             });
 
             const doSend = async () => {
-                const phone = (phoneInput.value || '').trim();
-                if (!phone) {
-                    statusEl.textContent = 'Ingresa el número del dispositivo.';
-                    statusEl.className = 'gateway-modal-status err';
-                    return;
-                }
-                localStorage.setItem('l8_gateway_last_phone', phone);
                 sendBtn.disabled = true;
-                statusEl.textContent = 'Empaquetando carpeta y activando gateway…';
+                statusEl.textContent = 'Empaquetando carpeta y generando código único…';
                 statusEl.className = 'gateway-modal-status';
                 try {
-                    const res = await fetch('/api/gateway/send', {
+                    const res = await fetch('/api/gateway/share', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ repo: full, phone })
+                        body: JSON.stringify({ repo: full })
                     });
                     const data = await res.json();
                     if (!data.ok) {
-                        statusEl.textContent = data.error || 'No se pudo enviar el repositorio.';
+                        statusEl.textContent = data.error || 'No se pudo compartir el repositorio.';
                         statusEl.className = 'gateway-modal-status err';
                         if (data.unlicensed) {
                             showUnlicensedPopup(data.error || 'This repository is unlicensed! Do not use it.', full);
@@ -1293,7 +1331,12 @@
                         sendBtn.disabled = false;
                         return;
                     }
-                    statusEl.textContent = data.message || 'Enviado. Espera la notificación en el teléfono.';
+                    lastCode = data.code || (data.transfer && data.transfer.code) || '';
+                    codeValue.textContent = lastCode;
+                    codeBox.classList.add('visible');
+                    copyBtn.style.display = 'inline-block';
+                    sendBtn.textContent = 'Generar otro código';
+                    statusEl.textContent = data.message || ('Comparte este código: ' + lastCode);
                     statusEl.className = 'gateway-modal-status ok';
                     sendBtn.disabled = false;
                 } catch (err) {
@@ -1304,9 +1347,6 @@
             };
 
             sendBtn.addEventListener('click', doSend);
-            phoneInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') doSend();
-            });
         }
 
         function copyToClipboard(text) {

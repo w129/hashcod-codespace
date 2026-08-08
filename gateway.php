@@ -1,5 +1,5 @@
 <?php
-// gateway.php - Receptor móvil del gateway l8 codespace
+// gateway.php - Canjear código único y descargar carpeta (l8 codespace)
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -39,7 +39,7 @@
             gap: 12px;
             margin-bottom: 22px;
         }
-        .brand img, .brand svg {
+        .brand img {
             width: 40px;
             height: 40px;
             display: block;
@@ -71,13 +71,17 @@
             color: var(--muted);
             margin-bottom: 8px;
         }
-        input[type="tel"] {
+        input[type="text"] {
             width: 100%;
             border: 1px solid #d5d1c7;
             border-radius: 10px;
-            padding: 12px 14px;
+            padding: 14px 14px;
             font: inherit;
-            font-size: 16px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            text-align: center;
             margin-bottom: 12px;
             background: #faf9f6;
         }
@@ -92,6 +96,7 @@
             cursor: pointer;
         }
         .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:disabled { opacity: 0.55; cursor: wait; }
         .btn-secondary { background: #eceae4; color: #111; }
         .status {
             margin-top: 14px;
@@ -101,34 +106,35 @@
         }
         .status.live { color: #137333; font-weight: 600; }
         .status.err { color: #c5221f; font-weight: 600; }
-        .list { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
-        .card {
+        .result {
+            display: none;
+            margin-top: 16px;
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 12px;
             padding: 14px;
-            display: flex;
             gap: 12px;
             align-items: flex-start;
             animation: rise 0.35s ease;
         }
-        .card img {
+        .result.visible { display: flex; }
+        .result img {
             width: 36px;
             height: 36px;
             flex-shrink: 0;
         }
-        .card h3 {
+        .result h3 {
             font-size: 13px;
             font-weight: 700;
             margin-bottom: 4px;
         }
-        .card p {
+        .result p {
             font-size: 12px;
             color: var(--muted);
             line-height: 1.4;
             margin-bottom: 10px;
         }
-        .card a {
+        .result a {
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -140,12 +146,11 @@
             font-size: 12px;
             font-weight: 600;
         }
-        .empty {
-            margin-top: 18px;
-            font-size: 12px;
+        .hint {
+            margin-top: 14px;
+            font-size: 11px;
             color: var(--muted);
-            text-align: center;
-            padding: 18px 8px;
+            line-height: 1.45;
         }
         @keyframes rise {
             from { opacity: 0; transform: translateY(8px); }
@@ -159,134 +164,138 @@
             <img src="/favicon.svg?v=3" alt="l8 codespace">
             <div>
                 <h1>l8 codespace</h1>
-                <p>Gateway · recibe carpetas en este teléfono</p>
+                <p>Gateway · ingresa el código y descarga la carpeta</p>
             </div>
         </div>
 
         <div class="panel">
-            <label for="phoneInput">Tu número</label>
-            <input id="phoneInput" type="tel" inputmode="tel" placeholder="+573001234567" autocomplete="tel">
+            <label for="codeInput">Código de transferencia</label>
+            <input id="codeInput" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="9" placeholder="JSLA-SAKA">
             <div class="actions">
-                <button type="button" class="btn-primary" id="listenBtn">Activar gateway</button>
-                <button type="button" class="btn-secondary" id="notifyBtn">Permitir notificaciones</button>
+                <button type="button" class="btn-primary" id="claimBtn">Obtener carpeta</button>
+                <button type="button" class="btn-secondary" id="clearBtn">Limpiar</button>
             </div>
-            <div class="status" id="statusText">Ingresa tu número y espera el envío desde la plataforma.</div>
+            <div class="status" id="statusText">Pega un código tipo JSLA-SAKA generado en la plataforma.</div>
+            <p class="hint">El código es único y no se reutiliza. Quien lo tenga puede descargar la carpeta del repositorio.</p>
         </div>
 
-        <div class="list" id="transferList"></div>
-        <div class="empty" id="emptyState">Sin transferencias todavía.</div>
+        <div class="result" id="resultCard">
+            <img id="resultIcon" src="/favicon.svg?v=3" alt="l8 codespace">
+            <div>
+                <h3 id="resultTitle">l8 codespace</h3>
+                <p id="resultBody"></p>
+                <a id="resultDownload" href="#" download>Descargar carpeta (.zip)</a>
+            </div>
+        </div>
     </div>
 
     <script>
         const PLATFORM = 'l8 codespace';
         const ICON = '/favicon.svg?v=3';
-        const phoneInput = document.getElementById('phoneInput');
+        const codeInput = document.getElementById('codeInput');
         const statusText = document.getElementById('statusText');
-        const transferList = document.getElementById('transferList');
-        const emptyState = document.getElementById('emptyState');
-        const seen = new Set();
-        let pollTimer = null;
-        let listeningPhone = '';
-
-        const saved = localStorage.getItem('l8_gateway_phone') || '';
-        if (saved) phoneInput.value = saved;
+        const claimBtn = document.getElementById('claimBtn');
+        const resultCard = document.getElementById('resultCard');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultBody = document.getElementById('resultBody');
+        const resultDownload = document.getElementById('resultDownload');
+        const resultIcon = document.getElementById('resultIcon');
 
         function setStatus(msg, cls) {
             statusText.textContent = msg;
             statusText.className = 'status' + (cls ? ' ' + cls : '');
         }
 
-        async function enableNotifications() {
-            if (!('Notification' in window)) {
-                setStatus('Este navegador no soporta notificaciones.', 'err');
-                return false;
+        function formatCodeInput(value) {
+            const letters = String(value || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 8);
+            if (letters.length <= 4) return letters;
+            return letters.slice(0, 4) + '-' + letters.slice(4);
+        }
+
+        codeInput.addEventListener('input', () => {
+            const start = codeInput.selectionStart;
+            const before = codeInput.value;
+            codeInput.value = formatCodeInput(codeInput.value);
+            // crude caret restore
+            if (document.activeElement === codeInput) {
+                const delta = codeInput.value.length - before.length;
+                const pos = Math.max(0, (start || 0) + delta);
+                try { codeInput.setSelectionRange(pos, pos); } catch (e) {}
             }
-            const perm = await Notification.requestPermission();
-            if (perm !== 'granted') {
-                setStatus('Notificaciones bloqueadas. Puedes seguir recibiendo en esta pantalla.', 'err');
-                return false;
-            }
-            setStatus('Notificaciones activadas para l8 codespace.', 'live');
-            return true;
-        }
+        });
 
-        function showBrowserNotification(item) {
-            if (!('Notification' in window) || Notification.permission !== 'granted') return;
-            try {
-                const n = new Notification(item.notification_title || PLATFORM, {
-                    body: item.notification_body || ('Te enviaron ' + (item.user_repo || item.repo_name)),
-                    icon: item.notification_icon || ICON,
-                    badge: item.notification_icon || ICON,
-                    tag: item.id,
-                    data: { url: item.download_url }
-                });
-                n.onclick = () => {
-                    window.focus();
-                    if (item.download_url) window.location.href = item.download_url;
-                    n.close();
-                };
-            } catch (e) {}
-        }
-
-        function renderItem(item) {
-            if (seen.has(item.id)) return;
-            seen.add(item.id);
-            emptyState.style.display = 'none';
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <img src="${item.notification_icon || ICON}" alt="${PLATFORM}">
-                <div>
-                    <h3>${item.notification_title || PLATFORM}</h3>
-                    <p>${item.notification_body || ''}</p>
-                    <a href="${item.download_url}" download>Descargar carpeta (.zip)</a>
-                </div>
-            `;
-            transferList.prepend(card);
-            showBrowserNotification(item);
-        }
-
-        async function registerAndPoll() {
-            const phone = (phoneInput.value || '').trim();
-            if (!phone) {
-                setStatus('Escribe tu número de teléfono.', 'err');
+        async function claimCode() {
+            const code = formatCodeInput(codeInput.value);
+            if (!/^[A-Z]{4}-[A-Z]{4}$/.test(code)) {
+                setStatus('El código debe verse así: JSLA-SAKA', 'err');
+                resultCard.classList.remove('visible');
                 return;
             }
-            localStorage.setItem('l8_gateway_phone', phone);
-            listeningPhone = phone;
+            claimBtn.disabled = true;
+            setStatus('Buscando transferencia…');
+            resultCard.classList.remove('visible');
             try {
-                const reg = await fetch('/api/gateway/register', {
+                const res = await fetch('/api/gateway/claim', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, platform: PLATFORM, user_agent: navigator.userAgent })
+                    body: JSON.stringify({ code })
                 });
-                const regJson = await reg.json();
-                if (!regJson.ok) {
-                    setStatus(regJson.error || 'No se pudo registrar el dispositivo.', 'err');
+                const data = await res.json();
+                if (!data.ok) {
+                    setStatus(data.error || 'Código no válido.', 'err');
+                    claimBtn.disabled = false;
                     return;
                 }
-                setStatus('Gateway activo. Esperando envíos a ' + regJson.phone + '…', 'live');
-                if (pollTimer) clearInterval(pollTimer);
-                const tick = async () => {
+                const t = data.transfer || {};
+                const platformName = (data.platform && data.platform.name) || t.platform || PLATFORM;
+                const icon = (data.platform && data.platform.icon) || t.platform_icon || ICON;
+                resultIcon.src = icon;
+                resultTitle.textContent = platformName;
+                resultBody.textContent = (data.message || '') +
+                    (t.size_formatted ? (' · ' + t.size_formatted) : '');
+                resultDownload.href = data.download_url || t.download_url || ('/api/gateway/download/' + encodeURIComponent(code));
+                resultDownload.setAttribute('download', (t.repo_name || 'repo') + '.zip');
+                resultCard.classList.add('visible');
+                setStatus('Código válido. Ya puedes descargar la carpeta.', 'live');
+
+                if ('Notification' in window && Notification.permission === 'granted') {
                     try {
-                        const res = await fetch('/api/gateway/poll?phone=' + encodeURIComponent(listeningPhone));
-                        const data = await res.json();
-                        if (!data.ok) return;
-                        (data.transfers || []).forEach(renderItem);
+                        new Notification(platformName, {
+                            body: 'Carpeta lista: ' + (t.user_repo || t.repo_name || code),
+                            icon: icon,
+                            tag: code
+                        });
                     } catch (e) {}
-                };
-                await tick();
-                pollTimer = setInterval(tick, 2500);
+                }
             } catch (e) {
                 setStatus('Error de conexión con el gateway.', 'err');
             }
+            claimBtn.disabled = false;
         }
 
-        document.getElementById('listenBtn').addEventListener('click', registerAndPoll);
-        document.getElementById('notifyBtn').addEventListener('click', enableNotifications);
-        phoneInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') registerAndPoll();
+        document.getElementById('claimBtn').addEventListener('click', claimCode);
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            codeInput.value = '';
+            resultCard.classList.remove('visible');
+            setStatus('Pega un código tipo JSLA-SAKA generado en la plataforma.');
+            codeInput.focus();
         });
+        codeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') claimCode();
+        });
+
+        // Prefill from ?code=
+        const params = new URLSearchParams(location.search);
+        if (params.get('code')) {
+            codeInput.value = formatCodeInput(params.get('code'));
+            claimCode();
+        } else {
+            codeInput.focus();
+        }
+
+        if ('Notification' in window && Notification.permission === 'default') {
+            // optional soft ask; no force
+        }
     </script>
 </body>
 </html>

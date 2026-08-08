@@ -1189,7 +1189,7 @@ function formatBytes($bytes, $precision = 2) {
 }
 
 /**
- * GATEWAY: envío de repositorios (carpeta .zip) a dispositivos por número
+ * GATEWAY: compartir repositorios (carpeta .zip) con código único tipo JSLA-SAKA
  */
 function gatewayDirs() {
     global $STORAGE_DIR;
@@ -1201,7 +1201,7 @@ function gatewayDirs() {
         'base' => $base,
         'packs' => $packs,
         'transfers' => $base . '/transfers.json',
-        'devices' => $base . '/devices.json'
+        'codes' => $base . '/codes.json'
     ];
 }
 
@@ -1216,17 +1216,7 @@ function gatewayReadJson($path) {
 function gatewayWriteJson($path, $data) {
     $dir = dirname($path);
     if (!file_exists($dir)) @mkdir($dir, 0777, true);
-    return file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false;
-}
-
-function gatewayNormalizePhone($phone) {
-    $phone = trim((string)$phone);
-    $phone = preg_replace('/[^\d+]/', '', $phone);
-    if ($phone === '') return '';
-    if ($phone[0] === '+') {
-        return '+' . preg_replace('/\D/', '', substr($phone, 1));
-    }
-    return preg_replace('/\D/', '', $phone);
+    return file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX) !== false;
 }
 
 function gatewayPlatformBrand() {
@@ -1236,7 +1226,77 @@ function gatewayPlatformBrand() {
     ];
 }
 
-function gatewayPackRepoFolder($repoFolder) {
+/** Normaliza a formato XXXX-XXXX (A-Z). */
+function gatewayNormalizeCode($code) {
+    $raw = strtoupper(preg_replace('/[^A-Za-z]/', '', (string)$code));
+    if (strlen($raw) !== 8) return '';
+    return substr($raw, 0, 4) . '-' . substr($raw, 4, 4);
+}
+
+function gatewayIsValidCodeFormat($code) {
+    return (bool)preg_match('/^[A-Z]{4}-[A-Z]{4}$/', (string)$code);
+}
+
+/**
+ * Genera un código único no repetido (formato JSLA-SAKA).
+ * Usa alfabeto A-Z sin I/O para legibilidad; verifica transfers + codes index.
+ */
+function gatewayGenerateUniqueCode() {
+    $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // sin I/O
+    $dirs = gatewayDirs();
+    $lockPath = $dirs['base'] . '/codes.lock';
+    $lock = @fopen($lockPath, 'c+');
+    if ($lock) {
+        flock($lock, LOCK_EX);
+    }
+
+    $transfers = gatewayReadJson($dirs['transfers']);
+    $codes = gatewayReadJson($dirs['codes']);
+    $used = [];
+    foreach ($transfers as $item) {
+        if (!empty($item['code'])) $used[$item['code']] = true;
+    }
+    foreach (array_keys($codes) as $c) {
+        $used[$c] = true;
+    }
+
+    $code = '';
+    for ($attempt = 0; $attempt < 80; $attempt++) {
+        $chunk = '';
+        for ($i = 0; $i < 8; $i++) {
+            $chunk .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+        }
+        $candidate = substr($chunk, 0, 4) . '-' . substr($chunk, 4, 4);
+        if (!isset($used[$candidate])) {
+            $code = $candidate;
+            break;
+        }
+    }
+
+    if ($code === '') {
+        if ($lock) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
+        return ['ok' => false, 'error' => 'No se pudo generar un código único'];
+    }
+
+    // Reserva inmediata del código para evitar colisiones concurrentes
+    $codes[$code] = [
+        'code' => $code,
+        'reserved_at' => date('c'),
+        'status' => 'reserved'
+    ];
+    gatewayWriteJson($dirs['codes'], $codes);
+
+    if ($lock) {
+        flock($lock, LOCK_UN);
+        fclose($lock);
+    }
+    return ['ok' => true, 'code' => $code];
+}
+
+function gatewayPackRepoFolder($repoFolder, $transferId = null) {
     global $REPOS_DIR;
     $dirs = gatewayDirs();
     $safeRepo = basename($repoFolder);
@@ -1249,7 +1309,7 @@ function gatewayPackRepoFolder($repoFolder) {
         return ['ok' => false, 'error' => 'ZipArchive no disponible en el servidor'];
     }
 
-    $transferId = bin2hex(random_bytes(12));
+    $transferId = $transferId ?: bin2hex(random_bytes(12));
     $zipName = $safeRepo . '-' . $transferId . '.zip';
     $zipPath = $dirs['packs'] . '/' . $zipName;
 
@@ -1309,34 +1369,12 @@ function gatewayPackRepoFolder($repoFolder) {
     ];
 }
 
-function gatewayRegisterDevice($phone, $meta = []) {
-    $phone = gatewayNormalizePhone($phone);
-    if ($phone === '' || strlen(preg_replace('/\D/', '', $phone)) < 8) {
-        return ['ok' => false, 'error' => 'Número de teléfono inválido'];
-    }
-    $dirs = gatewayDirs();
-    $devices = gatewayReadJson($dirs['devices']);
-    $devices[$phone] = [
-        'phone' => $phone,
-        'platform' => $meta['platform'] ?? 'l8 codespace',
-        'user_agent' => $meta['user_agent'] ?? '',
-        'registered_at' => date('c'),
-        'last_seen' => date('c')
-    ];
-    gatewayWriteJson($dirs['devices'], $devices);
-    return ['ok' => true, 'phone' => $phone, 'device' => $devices[$phone]];
-}
-
-function gatewaySendRepoToPhone($repoTarget, $phone) {
+function gatewayShareRepo($repoTarget) {
     global $REPOS_DIR;
-    $phone = gatewayNormalizePhone($phone);
-    if ($phone === '' || strlen(preg_replace('/\D/', '', $phone)) < 8) {
-        return ['ok' => false, 'error' => 'Ingresa un número de teléfono válido'];
-    }
 
     $clean = trim((string)$repoTarget);
     if ($clean === '') {
-        return ['ok' => false, 'error' => 'Falta el repositorio a enviar'];
+        return ['ok' => false, 'error' => 'Falta el repositorio a compartir'];
     }
 
     $userRepo = $clean;
@@ -1353,101 +1391,131 @@ function gatewaySendRepoToPhone($repoTarget, $phone) {
         if (empty($clone['ok'])) {
             return [
                 'ok' => false,
-                'error' => $clone['raw_output'] ?? ($clone['error'] ?? 'No se pudo clonar el repositorio para enviarlo'),
+                'error' => $clone['raw_output'] ?? ($clone['error'] ?? 'No se pudo clonar el repositorio para compartirlo'),
                 'unlicensed' => !empty($clone['unlicensed'])
             ];
         }
     }
 
+    $codeRes = gatewayGenerateUniqueCode();
+    if (empty($codeRes['ok'])) {
+        return $codeRes;
+    }
+    $code = $codeRes['code'];
+
     $pack = gatewayPackRepoFolder($repoFolder);
     if (empty($pack['ok'])) {
+        // libera reserva del código si el pack falla
+        $dirs = gatewayDirs();
+        $codes = gatewayReadJson($dirs['codes']);
+        unset($codes[$code]);
+        gatewayWriteJson($dirs['codes'], $codes);
         return $pack;
     }
 
     $brand = gatewayPlatformBrand();
     $dirs = gatewayDirs();
     $transfers = gatewayReadJson($dirs['transfers']);
-    $notification = [
-        'title' => $brand['name'],
-        'body' => $brand['name'] . ' te envió la carpeta ' . $userRepo,
-        'icon' => $brand['icon']
-    ];
+    $codes = gatewayReadJson($dirs['codes']);
 
     $item = [
         'id' => $pack['id'],
-        'phone' => $phone,
+        'code' => $code,
         'repo_name' => $repoFolder,
         'user_repo' => $userRepo,
         'zip_name' => $pack['zip_name'],
         'size_formatted' => $pack['size_formatted'],
+        'size_bytes' => $pack['size_bytes'],
         'supabase_object' => $pack['supabase_object'],
-        'download_url' => '/api/gateway/download/' . $pack['id'],
-        'notification_title' => $notification['title'],
-        'notification_body' => $notification['body'],
-        'notification_icon' => $notification['icon'],
+        'download_url' => '/api/gateway/download/' . rawurlencode($code),
         'platform' => $brand['name'],
-        'status' => 'pending',
+        'platform_icon' => $brand['icon'],
+        'status' => 'ready',
         'created_at' => date('c'),
-        'delivered_at' => null
+        'claimed_at' => null,
+        'claim_count' => 0
     ];
 
     $transfers[$pack['id']] = $item;
+    $codes[$code] = [
+        'code' => $code,
+        'transfer_id' => $pack['id'],
+        'status' => 'ready',
+        'created_at' => date('c')
+    ];
     gatewayWriteJson($dirs['transfers'], $transfers);
-
-    $devices = gatewayReadJson($dirs['devices']);
-    $deviceOnline = isset($devices[$phone]);
+    gatewayWriteJson($dirs['codes'], $codes);
 
     return [
         'ok' => true,
-        'type' => 'GATEWAY_SEND_RESULT',
+        'type' => 'GATEWAY_SHARE_RESULT',
+        'code' => $code,
         'transfer' => $item,
-        'device_registered' => $deviceOnline,
-        'message' => $deviceOnline
-            ? 'Gateway listo: el teléfono registrado recibirá la notificación de ' . $brand['name'] . '.'
-            : 'Paquete listo. Abre /gateway en el teléfono, ingresa este mismo número y espera la notificación de ' . $brand['name'] . '.'
+        'message' => 'Código generado. En el otro dispositivo abre /gateway e ingresa ' . $code . ' para obtener la carpeta.'
     ];
 }
 
-function gatewayPollPhone($phone) {
-    $phone = gatewayNormalizePhone($phone);
-    if ($phone === '') {
-        return ['ok' => false, 'error' => 'Número requerido'];
+function gatewayFindByCode($code) {
+    $code = gatewayNormalizeCode($code);
+    if (!gatewayIsValidCodeFormat($code)) {
+        return null;
     }
     $dirs = gatewayDirs();
-    $devices = gatewayReadJson($dirs['devices']);
-    if (isset($devices[$phone])) {
-        $devices[$phone]['last_seen'] = date('c');
-        gatewayWriteJson($dirs['devices'], $devices);
+    $codes = gatewayReadJson($dirs['codes']);
+    $transferId = $codes[$code]['transfer_id'] ?? null;
+    if (!$transferId) {
+        // fallback: buscar en transfers por code
+        $transfers = gatewayReadJson($dirs['transfers']);
+        foreach ($transfers as $item) {
+            if (($item['code'] ?? '') === $code) return $item;
+        }
+        return null;
+    }
+    $transfers = gatewayReadJson($dirs['transfers']);
+    return $transfers[$transferId] ?? null;
+}
+
+function gatewayFindTransfer($idOrCode) {
+    $dirs = gatewayDirs();
+    $transfers = gatewayReadJson($dirs['transfers']);
+    if (isset($transfers[$idOrCode])) {
+        return $transfers[$idOrCode];
+    }
+    return gatewayFindByCode($idOrCode);
+}
+
+function gatewayClaimByCode($code) {
+    $code = gatewayNormalizeCode($code);
+    if (!gatewayIsValidCodeFormat($code)) {
+        return ['ok' => false, 'error' => 'Código inválido. Usa el formato ABCD-EFGH.'];
     }
 
-    $transfers = gatewayReadJson($dirs['transfers']);
-    $pending = [];
-    $changed = false;
-    foreach ($transfers as $id => $item) {
-        if (($item['phone'] ?? '') !== $phone) continue;
-        if (($item['status'] ?? '') === 'pending') {
-            $item['status'] = 'delivered';
-            $item['delivered_at'] = date('c');
-            $transfers[$id] = $item;
-            $changed = true;
-            $pending[] = $item;
-        }
+    $item = gatewayFindByCode($code);
+    if (!$item) {
+        return ['ok' => false, 'error' => 'Código no encontrado o expirado.'];
     }
-    if ($changed) {
+
+    $dirs = gatewayDirs();
+    $transfers = gatewayReadJson($dirs['transfers']);
+    $id = $item['id'];
+    if (isset($transfers[$id])) {
+        $transfers[$id]['claimed_at'] = date('c');
+        $transfers[$id]['claim_count'] = (int)($transfers[$id]['claim_count'] ?? 0) + 1;
+        $transfers[$id]['status'] = 'claimed';
+        $item = $transfers[$id];
         gatewayWriteJson($dirs['transfers'], $transfers);
     }
+
+    $brand = gatewayPlatformBrand();
     return [
         'ok' => true,
-        'phone' => $phone,
-        'platform' => gatewayPlatformBrand(),
-        'transfers' => $pending
+        'type' => 'GATEWAY_CLAIM_RESULT',
+        'code' => $code,
+        'transfer' => $item,
+        'platform' => $brand,
+        'download_url' => $item['download_url'] ?? ('/api/gateway/download/' . rawurlencode($code)),
+        'message' => 'Código válido. Descarga la carpeta de ' . ($item['user_repo'] ?? $item['repo_name']) . '.'
     ];
-}
-
-function gatewayFindTransfer($id) {
-    $dirs = gatewayDirs();
-    $transfers = gatewayReadJson($dirs['transfers']);
-    return $transfers[$id] ?? null;
 }
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -1480,47 +1548,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri
     exit;
 }
 
-// GATEWAY: registrar dispositivo receptor (teléfono)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/gateway/register') {
-    header('Content-Type: application/json; charset=utf-8');
-    $inputData = json_decode(file_get_contents('php://input'), true) ?: [];
-    $res = gatewayRegisterDevice(
-        $inputData['phone'] ?? $_POST['phone'] ?? '',
-        [
-            'platform' => $inputData['platform'] ?? 'l8 codespace',
-            'user_agent' => $inputData['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? '')
-        ]
-    );
-    echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-// GATEWAY: enviar repositorio como carpeta (.zip) a un número
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/gateway/send') {
+// GATEWAY: compartir repo → genera código único (JSLA-SAKA)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/gateway/send' || $uri === '/api/gateway/share')) {
     header('Content-Type: application/json; charset=utf-8');
     $inputData = json_decode(file_get_contents('php://input'), true) ?: [];
     $repo = $inputData['repo'] ?? $_POST['repo'] ?? '';
-    $phone = $inputData['phone'] ?? $_POST['phone'] ?? '';
-    $res = gatewaySendRepoToPhone($repo, $phone);
+    $res = gatewayShareRepo($repo);
     echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// GATEWAY: el teléfono consulta notificaciones / transferencias pendientes
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && $uri === '/api/gateway/poll') {
+// GATEWAY: canjear código y obtener metadatos + URL de descarga
+if (
+    ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/gateway/claim') ||
+    ($_SERVER['REQUEST_METHOD'] === 'GET' && $uri === '/api/gateway/claim')
+) {
     header('Content-Type: application/json; charset=utf-8');
-    $res = gatewayPollPhone($_GET['phone'] ?? '');
+    $inputData = [];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $inputData = json_decode(file_get_contents('php://input'), true) ?: [];
+    }
+    $code = $inputData['code'] ?? $_POST['code'] ?? $_GET['code'] ?? '';
+    $res = gatewayClaimByCode($code);
+    if (empty($res['ok'])) {
+        http_response_code(404);
+    }
     echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// GATEWAY: descarga del paquete carpeta
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/api/gateway/download/([a-f0-9]+)$#', $uri, $gm)) {
-    $item = gatewayFindTransfer($gm[1]);
+// GATEWAY: descarga del paquete carpeta por código (ABCD-EFGH) o id hex
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/api/gateway/download/(.+)$#', $uri, $gm)) {
+    $key = rawurldecode($gm[1]);
+    $item = gatewayFindTransfer($key);
+    if (!$item) {
+        // intentar normalizar como código
+        $item = gatewayFindByCode($key);
+    }
     if (!$item) {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code(404);
-        echo json_encode(['ok' => false, 'error' => 'Transferencia no encontrada']);
+        echo json_encode(['ok' => false, 'error' => 'Código o transferencia no encontrada']);
         exit;
     }
     $dirs = gatewayDirs();

@@ -1,5 +1,5 @@
 <?php
-// api.php - Backend PHP con Super Base de Datos, Dilithium 5 y Conexión SSH a GitHub (ed25519 - servidor-diktatcart)
+// api.php - Backend PHP con Super Base de Datos, Dilithium 5 y Conexión SSH Dinámica a GitHub desde la Plataforma
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
 
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $BROWSER_NAMES = ['chrome', 'brave', 'msedge', 'firefox', 'camoufox', 'opera', 'vivaldi', 'arc'];
 $REGISTERED_COMMANDS = [
     "set_i code"  => "Sube archivos masivos a la super base de datos gigante global protegida con Dilithium 5 y consulta todo el catálogo",
-    "ssh_key"     => "Muestra la clave pública SSH Ed25519 (servidor-diktatcart) para conectar el servidor con GitHub",
+    "ssh_key"     => "Muestra la clave pública SSH Ed25519 generada por esta plataforma para conectar el servidor con GitHub",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
     "status"      => "Consulta el estado del servidor y motores detectados",
@@ -37,21 +37,25 @@ if (!file_exists($STORAGE_DIR)) @mkdir($STORAGE_DIR, 0777, true);
 if (!file_exists($UPLOADS_DIR)) @mkdir($UPLOADS_DIR, 0777, true);
 
 /**
- * GESTOR Y GENERADOR DE CLAVE SSH ED25519 PARA GITHUB
+ * GESTOR Y GENERADOR DINÁMICO DE CLAVE SSH ED25519 DE LA PLATAFORMA
  */
-function getOrGenerateSshKey() {
+function getOrGenerateSshKey($forceRegenerate = false) {
     $homeDir = getenv('HOME') ?: (getenv('USERPROFILE') ?: __DIR__);
     $sshDir = $homeDir . '/.ssh';
     $keyPath = $sshDir . '/id_ed25519_github';
     $pubKeyPath = $keyPath . '.pub';
+    $serverName = gethostname() ?: 'l8-codespace-platform';
+    $comment = 'l8-platform@' . $serverName;
 
     if (!file_exists($sshDir)) {
         @mkdir($sshDir, 0700, true);
     }
 
-    if (!file_exists($keyPath) || !file_exists($pubKeyPath)) {
-        // Ejecutar ssh-keygen -t ed25519 -C "servidor-diktatcart" -f ~/.ssh/id_ed25519_github
-        $cmd = sprintf('ssh-keygen -t ed25519 -C "servidor-diktatcart" -f %s -N "" 2>&1', escapeshellarg($keyPath));
+    if ($forceRegenerate || !file_exists($keyPath) || !file_exists($pubKeyPath)) {
+        if (file_exists($keyPath)) @unlink($keyPath);
+        if (file_exists($pubKeyPath)) @unlink($pubKeyPath);
+
+        $cmd = sprintf('ssh-keygen -t ed25519 -C %s -f %s -N "" 2>&1', escapeshellarg($comment), escapeshellarg($keyPath));
         @shell_exec($cmd);
     }
 
@@ -68,7 +72,8 @@ function getOrGenerateSshKey() {
         'key_path' => $keyPath,
         'pub_key_path' => $pubKeyPath,
         'public_key' => $pubKeyContent,
-        'comment' => 'servidor-diktatcart',
+        'comment' => $comment,
+        'server_hostname' => $serverName,
         'ssh_output' => trim($sshOutput)
     ];
 }
@@ -258,10 +263,11 @@ function formatBytes($bytes, $precision = 2) {
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Endpoint SSH directo para consultar la clave pública
+// Endpoint SSH directo para consultar la clave pública de la plataforma
 if ($uri === '/api/ssh/key') {
     header('Content-Type: application/json; charset=utf-8');
-    $sshInfo = getOrGenerateSshKey();
+    $force = isset($_GET['regenerate']) && $_GET['regenerate'] === '1';
+    $sshInfo = getOrGenerateSshKey($force);
     echo json_encode($sshInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -412,7 +418,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'type' => 'SSH_KEY_DISPLAY',
             'command' => 'ssh_key',
             'key_type' => 'Ed25519',
-            'comment' => 'servidor-diktatcart',
+            'comment' => $sshInfo['comment'],
+            'server_hostname' => $sshInfo['server_hostname'],
             'public_key' => $sshInfo['public_key'],
             'key_path' => $sshInfo['key_path'],
             'github_test_output' => $sshInfo['ssh_output']
@@ -487,7 +494,7 @@ $sshInfo = getOrGenerateSshKey();
 echo json_encode([
     'server' => 'PHP 8.1 Super Database Engine',
     'crypto' => 'CRYSTALS-Dilithium Level 5 Post-Quantum Algorithm',
-    'ssh_key_type' => 'Ed25519 (servidor-diktatcart)',
+    'ssh_key_type' => 'Ed25519 (' . $sshInfo['comment'] . ')',
     'ssh_public_key' => $sshInfo['public_key'],
     'browserState' => $browserState,
     'registeredCommands' => array_keys($REGISTERED_COMMANDS)

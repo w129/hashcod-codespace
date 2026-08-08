@@ -1,5 +1,5 @@
 <?php
-// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Clonación Inteligente (SSH con Fallback HTTPS)
+// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Clonación Ultrarrápida (--depth 1)
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
 
@@ -82,7 +82,7 @@ function getOrGenerateSshKey($forceRegenerate = false) {
 }
 
 /**
- * GESTOR DE REPOSITORIOS GITHUB CON MOTOR DE CLONACIÓN INTELIGENTE (SSH -> HTTPS FALLBACK)
+ * GESTOR DE REPOSITORIOS GITHUB ULTRARRÁPIDO (--depth 1) CON FALLBACK AUTOMÁTICO HTTPS
  */
 function cloneOrUpdateRepository($repoTarget) {
     global $REPOS_DIR;
@@ -94,7 +94,6 @@ function cloneOrUpdateRepository($repoTarget) {
         return ['ok' => false, 'error' => 'Especifica un repositorio para clonar (ej: clone langgenius/dify)'];
     }
 
-    // Normalización inteligente de la ruta del repositorio
     $userRepo = '';
     if (strpos($cleanTarget, 'git@github.com:') === 0) {
         $userRepo = preg_replace('#^git@github\.com:#i', '', $cleanTarget);
@@ -104,7 +103,6 @@ function cloneOrUpdateRepository($repoTarget) {
     } else if (strpos($cleanTarget, '/') !== false) {
         $userRepo = preg_replace('/\.git$/i', '', $cleanTarget);
     } else {
-        // Fallback para nombres simples como "dify" -> "langgenius/dify" o "dify/dify"
         if (strtolower($cleanTarget) === 'dify') {
             $userRepo = "langgenius/dify";
         } else {
@@ -117,7 +115,6 @@ function cloneOrUpdateRepository($repoTarget) {
     $repoFolder = basename($userRepo);
     $targetPath = $REPOS_DIR . '/' . $repoFolder;
 
-    // Configurar GIT_SSH_COMMAND con la clave Ed25519
     $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=no', escapeshellarg($keyPath));
     putenv("GIT_SSH_COMMAND=$gitSshCmd");
 
@@ -130,18 +127,18 @@ function cloneOrUpdateRepository($repoTarget) {
         $output = shell_exec($cmd);
     } else {
         $action = 'clone';
-        // 1. Intentar clonación rápida mediante SSH
-        $cmdSsh = sprintf('git clone %s %s 2>&1', escapeshellarg($sshUrl), escapeshellarg($targetPath));
+        // 1. Intentar clonación optimizada SSH con --depth 1
+        $cmdSsh = sprintf('git clone --depth 1 %s %s 2>&1', escapeshellarg($sshUrl), escapeshellarg($targetPath));
         $outputSsh = shell_exec($cmdSsh);
 
         if (file_exists($targetPath . '/.git')) {
             $output = $outputSsh;
         } else {
-            // 2. Si SSH devuelve Permission Denied, usar automáticamente Fallback HTTPS
+            // 2. Si SSH falla por permisos, ejecutar Fallback HTTPS optimizado con --depth 1
             if (file_exists($targetPath)) {
                 @shell_exec(sprintf('rm -rf %s', escapeshellarg($targetPath)));
             }
-            $cmdHttps = sprintf('git clone %s %s 2>&1', escapeshellarg($httpsUrl), escapeshellarg($targetPath));
+            $cmdHttps = sprintf('git clone --depth 1 %s %s 2>&1', escapeshellarg($httpsUrl), escapeshellarg($targetPath));
             $outputHttps = shell_exec($cmdHttps);
             $output = "SSH Connection Note: SSH Key not registered on GitHub account yet.\nHTTPS Auto-Fallback Execution:\n" . $outputHttps;
         }
@@ -535,7 +532,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isSetICode = ($lowerCmd === 'set_i code' || $lowerCmd === 'set_icode' || $lowerCmd === 'set_i_code' || $cleanCmd === 'seticode');
     $isSshKey = ($lowerCmd === 'ssh_key' || $lowerCmd === 'ssh' || $lowerCmd === 'sshkey' || $lowerCmd === 'ssh-key');
     $isRepos = ($lowerCmd === 'repos' || $lowerCmd === 'repositories' || $lowerCmd === 'repo_list');
-    $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0);
+    $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0 || $cleanCmd === 'clonedify' || $cleanCmd === 'dify');
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
     $isValid = $isSetICode || $isSshKey || $isRepos || $isClone || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
@@ -555,6 +552,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
 
     if ($isClone) {
         $targetRepo = preg_replace('/^(git\s+)?clone\s+/i', '', $rawCmd);
+        if (empty($targetRepo) || strtolower($targetRepo) === 'dify') {
+            $targetRepo = 'langgenius/dify';
+        }
         $cloneRes = cloneOrUpdateRepository($targetRepo);
         $outputResult = [
             'type' => 'REPO_CLONE_RESULT',

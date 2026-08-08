@@ -78,7 +78,6 @@
             gap: 12px;
         }
 
-        /* Estilo de los bloques (=) y (>) adaptados al diseño */
         .block-row {
             display: flex;
             align-items: stretch;
@@ -114,7 +113,6 @@
             font-family: 'IBM Plex Mono', monospace;
         }
 
-        /* Bloque (=) de ejecuciones */
         .block-execution .block-body {
             background-color: #ffffff;
             min-height: 80px;
@@ -123,7 +121,6 @@
             align-items: flex-start;
         }
 
-        /* Bloque (>) de introducción de comandos */
         .block-input-container {
             width: 100%;
             display: flex;
@@ -170,7 +167,6 @@
             display: block;
         }
 
-        /* ESTILOS VECTORIALES PREMIUM PARA EL CATÁLOGO set_I code Y REPOSITORIOS */
         .catalog-card {
             width: 100%;
             background: #faf9f6;
@@ -333,7 +329,6 @@
             text-decoration: underline;
         }
 
-        /* Estilos Tarjeta SSH */
         .ssh-card-container {
             width: 100%;
             background: #faf9f6;
@@ -358,7 +353,6 @@
             border: 1px solid #333;
         }
 
-        /* Filas verticales para el comando mane_list? */
         .vertical-cmd-table {
             display: flex;
             flex-direction: column;
@@ -404,7 +398,6 @@
             background-color: #bbbbbb;
         }
 
-        /* Ventana desplegable de funciones debajo de (>) */
         .function-drawer-wrapper {
             display: flex;
             flex-direction: column;
@@ -429,6 +422,10 @@
         @keyframes fadeInDrawer {
             from { opacity: 0; transform: translateY(-4px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
         }
 
         .function-drawer-header {
@@ -464,7 +461,6 @@
             color: #666666;
         }
 
-        /* DISEÑO DE TECLADO Y PANELES (SISTEMA IBM PLEX MONO) */
         .virtual-keyboard-white {
             display: none;
             margin-top: 16px;
@@ -540,7 +536,6 @@
             flex-direction: column;
         }
 
-        /* Panel Central Vector Graphic */
         .vector-body {
             padding: 12px;
         }
@@ -572,7 +567,6 @@
             min-height: 250px;
         }
 
-        /* Panel Derecho Equations Window */
         .equations-body {
             padding: 14px;
         }
@@ -630,8 +624,7 @@
                     &gt;
                 </div>
                 <div class="block-body block-input-container">
-                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: repos, clone w129/l8-codespace)..." autocomplete="off" onkeydown="handleCommandKey(event)">
-                    <!-- Icono derecho (Insignia circular con documento) que activa/desactiva el teclado de escritorio -->
+                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: repos, clone langgenius/dify)..." autocomplete="off" onkeydown="handleCommandKey(event)">
                     <div class="cell-action-icon" title="Activar/Desactivar Teclado y Entorno Gráfico" onclick="toggleVirtualKeyboard()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="40" fill="#000000" />
@@ -661,10 +654,8 @@
                     <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
                 </div>
 
-                <!-- TECLADO Y PANELES CON EL NUEVO ESTILO ELEGANTE IBM PLEX MONO -->
                 <div class="virtual-keyboard-white" id="virtualKeyboard">
                     <div class="vk-3panel-container">
-                        <!-- Panel 1: Key Window (Izquierda - Limpio a la espera de tus teclas) -->
                         <div class="vk-card-panel">
                             <div class="vk-card-header">
                                 <span class="vk-card-title">Key window</span>
@@ -685,7 +676,6 @@
                             </div>
                         </div>
 
-                        <!-- Panel 2: Vector Graphic (Centro con Doble Marco) -->
                         <div class="vk-card-panel">
                             <div class="vk-card-header">
                                 <span class="vk-card-title">Vector graphic</span>
@@ -703,7 +693,6 @@
                             </div>
                         </div>
 
-                        <!-- Panel 3: Equations Window (Derecha) -->
                         <div class="vk-card-panel">
                             <div class="vk-card-header">
                                 <span class="vk-card-title">Equations window</span>
@@ -783,7 +772,7 @@
         }
 
         function triggerCloneRepo() {
-            const repo = prompt('Ingresa el nombre o URL del repositorio en GitHub (ej: w129/l8-codespace):');
+            const repo = prompt('Ingresa el nombre o URL del repositorio en GitHub (ej: langgenius/dify):');
             if (repo) {
                 submitCommand('clone ' + repo.trim());
             }
@@ -859,9 +848,9 @@
                     const alertBg = cloneResult.ok ? '#e6f4ea' : '#fce8e6';
                     const alertColor = cloneResult.ok ? '#137333' : '#c5221f';
                     cloneBanner = `
-                        <div style="background:${alertBg}; color:${alertColor}; padding:10px 14px; border-radius:6px; font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                        <div style="background:${alertBg}; color:${alertColor}; padding:12px 16px; border-radius:6px; font-size:12px; display:flex; flex-direction:column; gap:4px; margin-bottom:10px;">
                             <strong>${cloneResult.ok ? '✅ Repositorio Procesado Exitosamente (' + cloneResult.action + ')' : '❌ Error al Procesar Repositorio'}</strong>
-                            <span>${cloneResult.raw_output || ''}</span>
+                            <pre style="white-space:pre-wrap; font-family:monospace; font-size:11px; margin-top:4px;">${cloneResult.raw_output || ''}</pre>
                         </div>
                     `;
                 }
@@ -1044,7 +1033,6 @@
                 return;
             }
 
-            // Renderizar filas verticales para el comando mane_list?
             if (dataToDisplay && dataToDisplay.type === "COMMAND_VERTICAL_LIST" && Array.isArray(dataToDisplay.rows)) {
                 const htmlRows = dataToDisplay.rows.map(r => 
                     `<div class="vertical-cmd-row">` +
@@ -1074,6 +1062,12 @@
             if (!cmd) return;
             try {
                 hasExecutedCommand = true;
+                executionContainer.innerHTML = `
+                    <div style="padding:14px; background:#faf9f6; border:1px solid #e6e3dd; border-radius:8px; font-weight:600; color:#0451a5; display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono', monospace;">
+                        <svg style="animation: spin 1s linear infinite; width:20px; height:20px; fill:#0451a5;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+                        <span>⏳ Procesando comando en el servidor... Por favor espera unos segundos...</span>
+                    </div>
+                `;
                 const res = await fetch('/api/command', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

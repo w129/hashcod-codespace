@@ -1032,7 +1032,46 @@
         .boot-cli-enter.ready:hover {
             border-color: #888;
         }
+
+        .boot-cli-stage {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .boot-cli-visual {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 2;
+        }
+
+        .boot-cli-visual.visible {
+            display: block;
+            animation: bootRise 0.45s ease;
+        }
+
+        .boot-cli-visual canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .boot-cli-visual-caption {
+            position: absolute;
+            left: 14px;
+            bottom: 12px;
+            color: rgba(255,255,255,0.72);
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
     </style>
+    <script src="/components/originkit/ui/blackhole-runtime.js"></script>
 </head>
 <body class="boot-locked">
     <div id="bootCliOverlay" class="boot-cli-overlay" role="dialog" aria-modal="true" aria-label="l8 codespace CLI">
@@ -1044,7 +1083,13 @@
                 <div class="boot-cli-title">l8 codespace — bun · CLI</div>
                 <div style="width:52px"></div>
             </div>
-            <div class="boot-cli-body" id="bootCliBody"><span class="muted">booting shell…</span></div>
+            <div class="boot-cli-stage">
+                <div class="boot-cli-body" id="bootCliBody"><span class="muted">booting shell…</span></div>
+                <div class="boot-cli-visual" id="bootCliVisual">
+                    <canvas id="bootBlackholeCanvas"></canvas>
+                    <div class="boot-cli-visual-caption">originkit · blackhole</div>
+                </div>
+            </div>
             <div class="boot-cli-footer">
                 <span id="bootCliHint">Running startup command…</span>
                 <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
@@ -2064,16 +2109,44 @@
                 }, 18);
             }
 
+            let blackholeInstance = null;
+
+            function presentBlackholeVisual() {
+                const visual = document.getElementById('bootCliVisual');
+                const canvas = document.getElementById('bootBlackholeCanvas');
+                if (!visual || !canvas || !window.OriginkitBlackHole) return;
+                visual.classList.add('visible');
+                if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
+                blackholeInstance = window.OriginkitBlackHole.create(canvas, {
+                    showCenter: true,
+                    centre: { radius: 16, x: 50, y: 50 },
+                    background: '#000000',
+                    outerRadius: 78,
+                    particleCount: 1200,
+                    particleSize: 2.1,
+                    trail: 55,
+                    tilt: 22,
+                    tiltSideway: 155,
+                    orbitSpeed: 4.2,
+                    pullSpeed: 0.45,
+                    colors: ['#ffffff', '#ffd6a5', '#ffadad', '#a0c4ff', '#bdb2ff', '#fdffb6', '#caffbf', '#9bf6ff']
+                });
+                // ensure correct size after becoming visible
+                setTimeout(() => blackholeInstance && blackholeInstance.resize && blackholeInstance.resize(), 30);
+            }
+
             function markReady(mode) {
                 finished = true;
                 enterBtn.classList.add('ready');
+                presentBlackholeVisual();
                 hintEl.textContent = mode === 'live'
-                    ? 'Command finished. Press Enter to open l8 codespace.'
-                    : 'Startup CLI ready. Press Enter to open l8 codespace.';
+                    ? 'blackhole ready. Press Enter to open l8 codespace.'
+                    : 'blackhole ready. Press Enter to open l8 codespace.';
             }
 
             function enterPlatform() {
                 if (!finished) return;
+                if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
                 overlay.classList.add('hidden');
                 document.body.classList.remove('boot-locked');
                 try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}

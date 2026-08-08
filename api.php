@@ -1841,6 +1841,25 @@ function runOriginKitBlackhole() {
     $lines[] = '';
     $lines[] = 'l8 codespace · CLI ready';
 
+    // Persistir el componente fuera del volume efímero + Supabase
+    $generated = null;
+    foreach ([
+        $workDir . '/src/components/originkit/ui/blackhole.tsx',
+        $workDir . '/src/components/originkit/ui/blackhole.jsx',
+        $workDir . '/components/originkit/ui/blackhole.tsx',
+    ] as $cand) {
+        if (file_exists($cand)) { $generated = $cand; break; }
+    }
+    $persistPath = __DIR__ . '/components/originkit/ui/blackhole.tsx';
+    if ($generated) {
+        @mkdir(dirname($persistPath), 0777, true);
+        @copy($generated, $persistPath);
+        if (function_exists('supabaseStorageUpload') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
+            @supabaseStorageUpload('originkit/ui/blackhole.tsx', $persistPath, 'text/plain', true);
+        }
+        $lines[] = '√ Presenting blackhole visual from generated source';
+    }
+
     return [
         'ok' => $ok,
         'type' => 'CLI_BLACKHOLE_RESULT',
@@ -1850,6 +1869,8 @@ function runOriginKitBlackhole() {
         'exit_code' => $exitCode,
         'has_bun' => $hasBun,
         'has_api_key' => $apiKey !== '',
+        'component_path' => $generated ?: $persistPath,
+        'visual' => 'blackhole',
         'lines' => $lines,
         'output' => implode("\n", $lines)
     ];
@@ -1861,17 +1882,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/originkit/blackhole'
     header('Content-Type: application/json; charset=utf-8');
     global $STORAGE_DIR;
     $candidates = [
+        __DIR__ . '/components/originkit/ui/blackhole.tsx',
         $STORAGE_DIR . '/originkit-workspace/src/components/originkit/ui/blackhole.tsx',
         $STORAGE_DIR . '/originkit-workspace/src/components/originkit/ui/blackhole.jsx',
         $STORAGE_DIR . '/originkit-workspace/components/originkit/ui/blackhole.tsx',
-        __DIR__ . '/components/originkit/ui/blackhole.tsx',
     ];
     $found = null;
     foreach ($candidates as $p) {
         if (file_exists($p) && is_file($p)) { $found = $p; break; }
     }
+    // hidratar desde Supabase si hace falta
+    if (!$found && function_exists('supabaseStorageDownload') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
+        $remote = @supabaseStorageDownload('originkit/ui/blackhole.tsx');
+        if (!empty($remote['ok']) && !empty($remote['data'])) {
+            $persistPath = __DIR__ . '/components/originkit/ui/blackhole.tsx';
+            @mkdir(dirname($persistPath), 0777, true);
+            file_put_contents($persistPath, $remote['data']);
+            $found = $persistPath;
+        }
+    }
     if (!$found) {
-        echo json_encode(['ok' => false, 'error' => 'blackhole.tsx no encontrado. Ejecuta primero el CLI de arranque.'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode(['ok' => false, 'error' => 'blackhole.tsx no encontrado. Ejecuta primero el CLI de arranque.', 'visual_runtime' => '/components/originkit/ui/blackhole-runtime.js'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         exit;
     }
     $source = file_get_contents($found);
@@ -1880,7 +1911,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/originkit/blackhole'
         'path' => $found,
         'filename' => basename($found),
         'size' => filesize($found),
-        'source' => $source
+        'source' => $source,
+        'visual_runtime' => '/components/originkit/ui/blackhole-runtime.js'
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }

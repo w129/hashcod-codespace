@@ -29,9 +29,21 @@ if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     exit;
 }
 
-// Si se solicita un archivo estático físico existente (imágenes, logo, etc.)
+// Si se solicita un archivo estático físico existente (imágenes, logo, components, etc.)
 $filePath = __DIR__ . $uri;
 if (file_exists($filePath) && !is_dir($filePath)) {
+    // MIME básica para el runtime del blackhole
+    $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    if ($ext === 'js') {
+        header('Content-Type: application/javascript; charset=utf-8');
+        readfile($filePath);
+        exit;
+    }
+    if ($ext === 'tsx' || $ext === 'jsx' || $ext === 'ts') {
+        header('Content-Type: text/plain; charset=utf-8');
+        readfile($filePath);
+        exit;
+    }
     return false;
 }
 

@@ -18,6 +18,9 @@ RUN apt-get update && apt-get install -y \
     && apt-get update \
     && apt-get install -y gh \
     && docker-php-ext-install opcache zip curl \
+    && curl -fsSL https://bun.sh/install | bash \
+    && ln -sf /root/.bun/bin/bun /usr/local/bin/bun \
+    && ln -sf /root/.bun/bin/bunx /usr/local/bin/bunx \
     && rm -rf /var/lib/apt/lists/*
 
 # Configurar directorio SSH y archivo config de GitHub

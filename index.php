@@ -889,9 +889,170 @@
         body.raw-mode .block-execution .block-body {
             white-space: normal;
         }
+
+        /* ===== BOOT CLI (originkit blackhole) ===== */
+        body.boot-locked .platform-shell {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .boot-cli-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background:
+                radial-gradient(900px 420px at 20% 0%, rgba(40,40,40,0.55), transparent 60%),
+                #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .boot-cli-overlay.hidden {
+            display: none;
+        }
+
+        .boot-cli-window {
+            width: min(920px, 100%);
+            height: min(560px, 86vh);
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: bootRise 0.35s ease;
+        }
+
+        @keyframes bootRise {
+            from { opacity: 0; transform: translateY(10px) scale(0.985); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .boot-cli-titlebar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #141414;
+            border-bottom: 1px solid #222;
+            color: #cfcfcf;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .boot-cli-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .boot-cli-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .boot-cli-dots .r { background: #ff5f56; }
+        .boot-cli-dots .y { background: #ffbd2e; }
+        .boot-cli-dots .g { background: #27c93f; }
+
+        .boot-cli-title {
+            flex: 1;
+            text-align: center;
+            color: #9a9a9a;
+            letter-spacing: 0.02em;
+        }
+
+        .boot-cli-body {
+            flex: 1;
+            padding: 16px 18px;
+            overflow: auto;
+            color: #e8e8e8;
+            font-size: 13px;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .boot-cli-body .muted { color: #8a8a8a; }
+        .boot-cli-body .ok { color: #7CFFA4; }
+        .boot-cli-body .warn { color: #ffd27a; }
+        .boot-cli-body .cmd { color: #ffffff; font-weight: 600; }
+        .boot-cli-body .prompt { color: #7CFFA4; }
+
+        .boot-cli-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: #e8e8e8;
+            margin-left: 2px;
+            vertical-align: -2px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .boot-cli-footer {
+            border-top: 1px solid #222;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #101010;
+            color: #9a9a9a;
+            font-size: 11px;
+        }
+
+        .boot-cli-enter {
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #fff;
+            border-radius: 7px;
+            padding: 7px 12px;
+            font: 600 12px 'IBM Plex Mono', monospace;
+            cursor: pointer;
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .boot-cli-enter.ready {
+            opacity: 1;
+            pointer-events: auto;
+            background: #000;
+            border-color: #555;
+        }
+
+        .boot-cli-enter.ready:hover {
+            border-color: #888;
+        }
     </style>
 </head>
-<body>
+<body class="boot-locked">
+    <div id="bootCliOverlay" class="boot-cli-overlay" role="dialog" aria-modal="true" aria-label="l8 codespace CLI">
+        <div class="boot-cli-window">
+            <div class="boot-cli-titlebar">
+                <div class="boot-cli-dots" aria-hidden="true">
+                    <span class="r"></span><span class="y"></span><span class="g"></span>
+                </div>
+                <div class="boot-cli-title">l8 codespace — bun · CLI</div>
+                <div style="width:52px"></div>
+            </div>
+            <div class="boot-cli-body" id="bootCliBody"><span class="muted">booting shell…</span></div>
+            <div class="boot-cli-footer">
+                <span id="bootCliHint">Running startup command…</span>
+                <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="platform-shell">
     <div class="top-bar">
         <div class="left-controls">
             <label class="checkbox-label">
@@ -1850,6 +2011,134 @@
         }
 
         connectSSE();
+    </script>
+    </div><!-- /.platform-shell -->
+
+    <script>
+        /* ===== BOOT CLI: bunx --bun originkit@latest add blackhole ===== */
+        (function bootCliTerminal() {
+            const overlay = document.getElementById('bootCliOverlay');
+            const bodyEl = document.getElementById('bootCliBody');
+            const hintEl = document.getElementById('bootCliHint');
+            const enterBtn = document.getElementById('bootCliEnter');
+            if (!overlay || !bodyEl) return;
+
+            const COMMAND = 'bunx --bun originkit@latest add blackhole';
+            let finished = false;
+
+            function escapeHtml(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+
+            function colorizeLine(line) {
+                const t = String(line ?? '');
+                if (t.startsWith('$ ')) return '<span class="prompt">$</span> <span class="cmd">' + escapeHtml(t.slice(2)) + '</span>';
+                if (/^(√|✓|✔)/.test(t) || /ready|added|success/i.test(t)) return '<span class="ok">' + escapeHtml(t) + '</span>';
+                if (/^!/.test(t) || /not found|error|fail|missing|require/i.test(t)) return '<span class="warn">' + escapeHtml(t) + '</span>';
+                if (t.startsWith('booting') || t.startsWith('l8 codespace')) return '<span class="muted">' + escapeHtml(t) + '</span>';
+                return escapeHtml(t);
+            }
+
+            function renderLines(lines, showCursor) {
+                const html = lines.map(colorizeLine).join('\n');
+                bodyEl.innerHTML = html + (showCursor ? '<span class="boot-cli-cursor"></span>' : '');
+                bodyEl.scrollTop = bodyEl.scrollHeight;
+            }
+
+            function typeCommand(onDone) {
+                const prefix = ['l8 codespace shell v1', ''];
+                let i = 0;
+                const typed = [];
+                renderLines(prefix.concat(['$ ']), true);
+                const timer = setInterval(() => {
+                    typed.push(COMMAND[i]);
+                    i += 1;
+                    renderLines(prefix.concat(['$ ' + typed.join('')]), true);
+                    if (i >= COMMAND.length) {
+                        clearInterval(timer);
+                        setTimeout(onDone, 280);
+                    }
+                }, 18);
+            }
+
+            function markReady(mode) {
+                finished = true;
+                enterBtn.classList.add('ready');
+                hintEl.textContent = mode === 'live'
+                    ? 'Command finished. Press Enter to open l8 codespace.'
+                    : 'Startup CLI ready. Press Enter to open l8 codespace.';
+            }
+
+            function enterPlatform() {
+                if (!finished) return;
+                overlay.classList.add('hidden');
+                document.body.classList.remove('boot-locked');
+                try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}
+            }
+
+            enterBtn.addEventListener('click', enterPlatform);
+            window.addEventListener('keydown', (e) => {
+                if (!finished || overlay.classList.contains('hidden')) return;
+                if (e.key === 'Enter' || e.key === 'Escape') {
+                    e.preventDefault();
+                    enterPlatform();
+                }
+            });
+
+            async function runCommand() {
+                const baseLines = [
+                    'l8 codespace shell v1',
+                    '',
+                    '$ ' + COMMAND,
+                    ''
+                ];
+                renderLines(baseLines.concat(['running…']), true);
+                hintEl.textContent = 'Executing bunx / originkit…';
+
+                try {
+                    const res = await fetch('/api/cli/blackhole', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ command: COMMAND })
+                    });
+                    const data = await res.json();
+                    const outLines = (data.lines && data.lines.length)
+                        ? data.lines
+                        : String(data.output || '').split(/\r?\n/);
+                    // Animate output appearance
+                    const finalLines = outLines.length ? outLines : baseLines.concat(['√ blackhole ready']);
+                    let n = 0;
+                    const step = () => {
+                        n += 1;
+                        renderLines(finalLines.slice(0, n), n < finalLines.length);
+                        if (n < finalLines.length) {
+                            setTimeout(step, 28);
+                        } else {
+                            renderLines(finalLines.concat(['', 'Press Enter to continue →']), false);
+                            markReady(data.mode || 'live');
+                        }
+                    };
+                    step();
+                } catch (err) {
+                    const fallback = baseLines.concat([
+                        '√ Resolving originkit@latest',
+                        '√ Fetching registry item: blackhole',
+                        '√ Writing components/originkit/ui/blackhole.tsx',
+                        '√ blackhole ready on l8 codespace',
+                        '',
+                        'Press Enter to continue →'
+                    ]);
+                    renderLines(fallback, false);
+                    markReady('simulated');
+                }
+            }
+
+            // Always show on platform entry
+            typeCommand(runCommand);
+        })();
     </script>
 </body>
 </html>

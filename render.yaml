@@ -16,4 +16,6 @@ services:
         value: l8-storage
       - key: GITHUB_TOKEN
         sync: false
+      - key: ORIGINKIT_API_KEY
+        sync: false
 

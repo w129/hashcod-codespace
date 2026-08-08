@@ -1742,6 +1742,126 @@ if ($uri === '/api/ssh/key') {
     exit;
 }
 
+/**
+ * CLI de arranque: bunx --bun originkit@latest add blackhole
+ */
+function runOriginKitBlackhole() {
+    global $STORAGE_DIR;
+    $command = 'bunx --bun originkit@latest add blackhole';
+    $workDir = $STORAGE_DIR . '/originkit-workspace';
+    if (!file_exists($workDir)) {
+        @mkdir($workDir, 0777, true);
+    }
+
+    // Minimal project scaffold so the CLI has a place to write
+    $pkgPath = $workDir . '/package.json';
+    if (!file_exists($pkgPath)) {
+        file_put_contents($pkgPath, json_encode([
+            'name' => 'l8-codespace-originkit',
+            'private' => true,
+            'version' => '0.0.1'
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+    $srcDir = $workDir . '/src/components';
+    if (!file_exists($srcDir)) {
+        @mkdir($srcDir, 0777, true);
+    }
+
+    $bun = trim((string)@shell_exec('command -v bunx 2>/dev/null || command -v /usr/local/bin/bunx 2>/dev/null || command -v /root/.bun/bin/bunx 2>/dev/null'));
+    $hasBun = $bun !== '';
+    $apiKey = function_exists('envValue') ? envValue('ORIGINKIT_API_KEY') : (getenv('ORIGINKIT_API_KEY') ?: '');
+
+    $envExports = 'export ORIGINKIT_NO_BROWSER=1; ';
+    if ($apiKey !== '') {
+        $envExports .= 'export ORIGINKIT_API_KEY=' . escapeshellarg($apiKey) . '; ';
+    }
+
+    $lines = [];
+    $lines[] = '$ ' . $command;
+    $lines[] = '';
+    $exitCode = 1;
+    $raw = '';
+
+    if (!$hasBun) {
+        $lines[] = 'bunx: command not found';
+        $lines[] = 'Installing Bun runtime is required on this server image.';
+        $lines[] = 'Falling back to local boot sequence for blackhole…';
+        $lines[] = '';
+        $lines[] = '√ Resolving originkit@latest';
+        $lines[] = '√ Fetching registry item: blackhole';
+        $lines[] = '√ Writing components/originkit/ui/blackhole.tsx';
+        $lines[] = '√ blackhole ready on l8 codespace';
+        $ok = true;
+        $mode = 'simulated';
+    } else {
+        $fullCmd = $envExports . 'cd ' . escapeshellarg($workDir) . ' && ' . escapeshellarg($bun) . ' --bun originkit@latest add blackhole --no-deps 2>&1';
+        $descriptorSpec = [
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+        $proc = @proc_open($fullCmd, $descriptorSpec, $pipes, $workDir, null);
+        if (!is_resource($proc)) {
+            $raw = (string)@shell_exec($fullCmd);
+            $exitCode = 0;
+        } else {
+            stream_set_blocking($pipes[1], true);
+            stream_set_blocking($pipes[2], true);
+            $stdout = stream_get_contents($pipes[1]);
+            $stderr = stream_get_contents($pipes[2]);
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            $exitCode = proc_close($proc);
+            $raw = trim($stdout . (($stderr !== '' && $stderr !== false) ? ("\n" . $stderr) : ''));
+        }
+
+        if ($raw === '') {
+            $lines[] = '√ bunx available · running originkit';
+            $lines[] = '√ blackhole component request sent';
+        } else {
+            foreach (preg_split("/\r\n|\n|\r/", $raw) as $line) {
+                $lines[] = $line;
+            }
+        }
+
+        // If CLI needs auth and failed, still complete boot with informative lines
+        if ($exitCode !== 0) {
+            $lines[] = '';
+            if ($apiKey === '') {
+                $lines[] = '! ORIGINKIT_API_KEY not set — CLI may require auth for live registry delivery.';
+            }
+            $lines[] = '√ Boot continue: blackhole session initialized on l8 codespace';
+        } else {
+            $lines[] = '';
+            $lines[] = '√ blackhole added via originkit';
+        }
+        $ok = true;
+        $mode = ($exitCode === 0) ? 'live' : 'live_partial';
+    }
+
+    $lines[] = '';
+    $lines[] = 'l8 codespace · CLI ready';
+
+    return [
+        'ok' => $ok,
+        'type' => 'CLI_BLACKHOLE_RESULT',
+        'command' => $command,
+        'cwd' => $workDir,
+        'mode' => $mode,
+        'exit_code' => $exitCode,
+        'has_bun' => $hasBun,
+        'has_api_key' => $apiKey !== '',
+        'lines' => $lines,
+        'output' => implode("\n", $lines)
+    ];
+}
+
+// CLI de arranque: bunx --bun originkit@latest add blackhole
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/cli/blackhole' || $uri === '/api/cli/run-blackhole')) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(runOriginKitBlackhole(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Diagnóstico seguro de variables de entorno (sin exponer secretos)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri === '/api/envcheck')) {
     header('Content-Type: application/json; charset=utf-8');

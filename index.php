@@ -910,10 +910,24 @@
         }
 
         function triggerCloneRepo() {
-            const repo = prompt('Ingresa el nombre o URL del repositorio en GitHub (ej: langgenius/dify):');
+            const repo = prompt('Ingresa owner/repo o URL de GitHub (ej: facebook/react):');
             if (repo) {
                 submitCommand('clone ' + repo.trim());
             }
+        }
+
+        function triggerGithubRepoSearch(event) {
+            if (event) event.preventDefault();
+            const input = document.getElementById('githubRepoSearch');
+            const q = (input && input.value ? input.value.trim() : '');
+            submitCommand(q ? ('repos ' + q) : 'repos');
+        }
+
+        function loadGithubReposPage(page) {
+            const input = document.getElementById('githubRepoSearch');
+            const q = (input && input.value ? input.value.trim() : '');
+            const p = Math.max(1, parseInt(page, 10) || 1);
+            submitCommand(q ? ('repos ' + q + ' page ' + p) : ('repos page ' + p));
         }
 
         function copyToClipboard(text) {
@@ -943,44 +957,63 @@
                 return;
             }
 
-            // RENDERIZADO PARA EL CATÁLOGO Y CLONACIÓN DE REPOSITORIOS GITHUB (repos / clone)
+            // RENDERIZADO PARA EL CATÁLOGO GLOBAL DE GITHUB (repos / clone / save)
             if (dataToDisplay && (dataToDisplay.type === "REPOS_CATALOG" || dataToDisplay.type === "REPO_CLONE_RESULT")) {
                 const repos = dataToDisplay.repos || (dataToDisplay.all_repos || []);
                 const cloneResult = dataToDisplay.result;
+                const githubTotal = dataToDisplay.github_total || 0;
+                const savedTotal = dataToDisplay.saved_total || repos.length;
+                const page = dataToDisplay.page || 1;
+                const defaultQueries = ['is:public', 'is:public stars:>50'];
+                const queryVal = (dataToDisplay.query && !defaultQueries.includes(dataToDisplay.query)) ? dataToDisplay.query : '';
+                const escHtml = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                const escAttr = (s) => encodeURIComponent(String(s ?? ''));
 
                 let rowsHtml = '';
                 if (repos.length === 0) {
                     rowsHtml = `
                         <tr>
                             <td colspan="5" style="text-align:center; padding:24px; color:#888;">
-                                <svg style="width:32px; height:32px; fill:#000000; opacity:0.3; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                                No hay repositorios de GitHub clonados guardados en la plataforma aún.<br>Usa el comando <strong>'clone usuario/repo'</strong> o haz clic en 'Clonar Nuevo Repositorio'.
+                                ${dataToDisplay.github_error ? ('Error GitHub: ' + escHtml(dataToDisplay.github_error)) : 'Sin resultados. Prueba otra búsqueda (ej: repos react, repos laravel).'}
                             </td>
                         </tr>`;
                 } else {
                     repos.forEach(r => {
+                        const full = r.user_repo || r.name;
+                        const cloned = !!r.cloned;
+                        const statusBadge = cloned
+                            ? `<span class="mime-tag" style="background:#e6f4ea;color:#137333;">Clonado</span>`
+                            : `<span class="mime-tag" style="background:#eceae4;color:#444;">GitHub</span>`;
+                        const actions = cloned
+                            ? `<button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'))" title="Inspeccionar código">
+                                    ${SVG_CODE_WINDOW_BLACK}<span>Ver Código</span>
+                               </button>
+                               <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ' + decodeURIComponent('${escAttr(full)}'))">
+                                    ${SVG_REFRESH_VECTOR}<span>Git Pull</span>
+                               </button>`
+                            : `<button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('save ' + decodeURIComponent('${escAttr(full)}'))">
+                                    ${SVG_GITHUB_BLACK}<span>Guardar</span>
+                               </button>
+                               <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ' + decodeURIComponent('${escAttr(full)}'))">
+                                    ${SVG_REFRESH_VECTOR}<span>Clonar</span>
+                               </button>`;
                         rowsHtml += `
                             <tr>
                                 <td>
                                     <div class="file-name-cell">
                                         ${SVG_GITHUB_BLACK}
-                                        <span>${r.name}</span>
+                                        <div style="display:flex;flex-direction:column;gap:2px;">
+                                            <span>${escHtml(full)}</span>
+                                            ${statusBadge}
+                                        </div>
                                     </div>
                                 </td>
-                                <td><span class="mime-tag">${r.branch}</span></td>
-                                <td style="color:#666; font-size:11px; font-family:monospace;">${r.last_commit}</td>
-                                <td>${r.size_formatted}</td>
+                                <td><span class="mime-tag">${escHtml(r.branch || 'main')}</span></td>
+                                <td style="color:#666; font-size:11px; font-family:monospace;">${escHtml(r.last_commit || '')}</td>
+                                <td>${escHtml(r.size_formatted || '—')}</td>
                                 <td>
-                                    <div style="display:flex; gap:8px; align-items:center;">
-                                        <!-- BOTÓN DE INSPECCIÓN DE CÓDIGO POR CARPETAS CON EL ICONO DE VENTANA DE CÓDIGO SOLICITADO -->
-                                        <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector('${r.name}')" title="Inspeccionar todo el código por carpetas en la consola">
-                                            ${SVG_CODE_WINDOW_BLACK}
-                                            <span>Ver Código</span>
-                                        </button>
-                                        <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ${r.name}')">
-                                            ${SVG_REFRESH_VECTOR}
-                                            <span>Git Pull</span>
-                                        </button>
+                                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                        ${actions}
                                     </div>
                                 </td>
                             </tr>
@@ -997,9 +1030,9 @@
                         <div style="background:${alertBg}; color:${alertColor}; padding:12px 16px; border-radius:6px; font-size:12px; display:flex; flex-direction:column; gap:4px; margin-bottom:10px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 ${iconHeader}
-                                <strong>${cloneResult.ok ? 'Repositorio Procesado Exitosamente (' + cloneResult.action + ')' : 'Error al Procesar Repositorio'}</strong>
+                                <strong>${cloneResult.ok ? 'Repositorio Procesado Exitosamente (' + escHtml(cloneResult.action) + ')' : 'Error al Procesar Repositorio'}</strong>
                             </div>
-                            <pre style="white-space:pre-wrap; font-family:monospace; font-size:11px; margin-top:4px;">${cloneResult.raw_output || ''}</pre>
+                            <pre style="white-space:pre-wrap; font-family:monospace; font-size:11px; margin-top:4px;">${escHtml(cloneResult.raw_output || '')}</pre>
                         </div>
                     `;
                 }
@@ -1015,8 +1048,16 @@
                                     <span class="metric-badge-black">GitHub SSH Active</span>
                                 </div>
                                 <div class="metric-item">
-                                    <span>Repositorios Guardados:</span>
+                                    <span>En esta página:</span>
                                     <span class="metric-badge-black">${repos.length}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span>Guardados:</span>
+                                    <span class="metric-badge-black">${savedTotal}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span>GitHub match:</span>
+                                    <span class="metric-badge-black">${githubTotal > 0 ? githubTotal.toLocaleString() : '—'}</span>
                                 </div>
                             </div>
                             <button class="btn-upload-vector" onclick="triggerCloneRepo()">
@@ -1024,13 +1065,20 @@
                                 <span>Clonar Nuevo Repositorio</span>
                             </button>
                         </div>
+                        <form onsubmit="triggerGithubRepoSearch(event)" style="display:flex; gap:8px; margin:10px 0 14px; flex-wrap:wrap; align-items:center;">
+                            <input id="githubRepoSearch" type="text" value="${escHtml(queryVal)}" placeholder="Buscar en todo GitHub (ej: react, laravel, langgenius/dify)" style="flex:1; min-width:220px; padding:8px 12px; border:1px solid #d0cdc4; border-radius:6px; font-size:12px; font-family:inherit; background:#fff;" />
+                            <button type="submit" class="btn-upload-vector" style="padding:8px 14px;">Buscar GitHub</button>
+                            <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${Math.max(1, page - 1)})">← Ant.</button>
+                            <span style="font-size:11px; color:#666;">Pág. ${page}</span>
+                            <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${page + 1})">Sig. →</button>
+                        </form>
                         <div class="catalog-table-wrapper">
                             <table class="catalog-table-vector">
                                 <thead>
                                     <tr>
                                         <th>Repositorio</th>
                                         <th>Rama Active</th>
-                                        <th>Último Commit</th>
+                                        <th>Descripción / Commit</th>
                                         <th>Tamaño</th>
                                         <th>Acciones</th>
                                     </tr>

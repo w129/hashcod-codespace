@@ -19,8 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $BROWSER_NAMES = ['chrome', 'brave', 'msedge', 'firefox', 'camoufox', 'opera', 'vivaldi', 'arc'];
 $REGISTERED_COMMANDS = [
     "set_i code"  => "Sube archivos masivos a la super base de datos gigante global protegida con Dilithium 5 y consulta todo el catálogo",
-    "repos"       => "Muestra la lista completa de repositorios de GitHub clonados y guardados en el servidor de la plataforma",
+    "repos"       => "Catálogo global de GitHub: busca y guarda repos de toda la plataforma (ej: repos, repos laravel, repos page 2)",
     "clone <repo>"=> "Clona o actualiza repositorios de GitHub vía SSH/HTTPS en el servidor (ej: clone langgenius/dify)",
+    "save <repo>" => "Guarda un repositorio de GitHub en el catálogo sin clonarlo (ej: save facebook/react)",
     "ssh_key"     => "Muestra la clave pública SSH Ed25519 generada por esta plataforma para conectar el servidor con GitHub",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
@@ -156,16 +157,192 @@ function getOrGenerateSshKey($forceRegenerate = false) {
     ];
 }
 
-function saveRepoIndexEntry($repoMeta) {
+function loadRepoIndex() {
     global $STORAGE_DIR;
     $indexPath = $STORAGE_DIR . '/repos_index.json';
-    $existing = [];
-    if (file_exists($indexPath)) {
-        $raw = file_get_contents($indexPath);
-        $existing = json_decode($raw, true) ?? [];
-    }
-    $existing[$repoMeta['name']] = $repoMeta;
+    if (!file_exists($indexPath)) return [];
+    $raw = file_get_contents($indexPath);
+    return json_decode($raw, true) ?? [];
+}
+
+function writeRepoIndex($existing) {
+    global $STORAGE_DIR;
+    $indexPath = $STORAGE_DIR . '/repos_index.json';
     file_put_contents($indexPath, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+function saveRepoIndexEntry($repoMeta) {
+    $existing = loadRepoIndex();
+    $key = !empty($repoMeta['user_repo']) ? $repoMeta['user_repo'] : $repoMeta['name'];
+    $existing[$key] = $repoMeta;
+    if (!empty($repoMeta['name']) && $repoMeta['name'] !== $key) {
+        unset($existing[$repoMeta['name']]);
+    }
+    writeRepoIndex($existing);
+}
+
+function saveRepoIndexEntriesBatch($metas) {
+    if (empty($metas)) return;
+    $existing = loadRepoIndex();
+    foreach ($metas as $repoMeta) {
+        $key = !empty($repoMeta['user_repo']) ? $repoMeta['user_repo'] : $repoMeta['name'];
+        $existing[$key] = $repoMeta;
+        if (!empty($repoMeta['name']) && $repoMeta['name'] !== $key) {
+            unset($existing[$repoMeta['name']]);
+        }
+    }
+    writeRepoIndex($existing);
+}
+
+function getGhBinary() {
+    $candidates = [
+        'C:\\Program Files\\GitHub CLI\\gh.exe',
+        '/usr/bin/gh',
+        '/usr/local/bin/gh',
+        'gh'
+    ];
+    foreach ($candidates as $bin) {
+        if ($bin === 'gh' || file_exists($bin)) {
+            return $bin;
+        }
+    }
+    return 'gh';
+}
+
+function runGhJson($args) {
+    $gh = escapeshellarg(getGhBinary());
+    $cmd = $gh . ' ' . $args . ' 2>&1';
+    $raw = @shell_exec($cmd);
+    if ($raw === null || $raw === '') {
+        return ['ok' => false, 'error' => 'GitHub CLI no respondió', 'data' => null];
+    }
+    $decoded = json_decode($raw, true);
+    if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+        return ['ok' => false, 'error' => trim($raw), 'data' => null];
+    }
+    return ['ok' => true, 'data' => $decoded, 'error' => null];
+}
+
+/**
+ * Busca repositorios en TODO GitHub (API Search), no solo la cuenta local.
+ */
+function searchGithubRepositories($query = '', $page = 1, $perPage = 30) {
+    $page = max(1, (int)$page);
+    $perPage = max(1, min(100, (int)$perPage));
+    $q = trim($query);
+    $sort = 'updated';
+    if ($q === '') {
+        // Exploración global por defecto (todo GitHub público con tracción)
+        $q = 'is:public stars:>50';
+        $sort = 'stars';
+    }
+
+    $endpoint = sprintf(
+        'search/repositories?q=%s&sort=%s&order=desc&per_page=%d&page=%d',
+        rawurlencode($q),
+        rawurlencode($sort),
+        $perPage,
+        $page
+    );
+    $res = runGhJson('api ' . escapeshellarg($endpoint));
+    if (!$res['ok'] || !is_array($res['data'])) {
+        return [
+            'ok' => false,
+            'error' => $res['error'] ?: 'No se pudo buscar en GitHub',
+            'total_count' => 0,
+            'page' => $page,
+            'query' => $q,
+            'items' => []
+        ];
+    }
+
+    $items = [];
+    foreach (($res['data']['items'] ?? []) as $item) {
+        $fullName = $item['full_name'] ?? '';
+        if ($fullName === '') continue;
+        $diskKb = isset($item['size']) ? (int)$item['size'] : 0;
+        $desc = trim((string)($item['description'] ?? ''));
+        $meta = [
+            'name' => basename($fullName),
+            'user_repo' => $fullName,
+            'branch' => $item['default_branch'] ?? 'main',
+            'remote_url' => $item['html_url'] ?? ('https://github.com/' . $fullName),
+            'last_commit' => ($desc !== '' ? $desc : 'Sin descripción') . ' · ' . ($item['updated_at'] ?? ''),
+            'size_formatted' => formatBytes($diskKb * 1024),
+            'stars' => (int)($item['stargazers_count'] ?? 0),
+            'is_private' => !empty($item['private']),
+            'cloned' => false,
+            'source' => 'github_search',
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        $items[] = $meta;
+    }
+    saveRepoIndexEntriesBatch($items);
+
+    return [
+        'ok' => true,
+        'error' => null,
+        'total_count' => (int)($res['data']['total_count'] ?? count($items)),
+        'page' => $page,
+        'query' => $q,
+        'incomplete_results' => !empty($res['data']['incomplete_results']),
+        'items' => $items
+    ];
+}
+
+/**
+ * Guarda un repo de GitHub en el índice sin clonarlo.
+ */
+function saveGithubRepository($repoTarget) {
+    $clean = trim($repoTarget);
+    if ($clean === '') {
+        return ['ok' => false, 'error' => 'Especifica owner/repo (ej: save facebook/react)'];
+    }
+    if (preg_match('#^https://github\.com/([^/]+/[^/]+)#i', $clean, $m)) {
+        $clean = preg_replace('/\.git$/i', '', $m[1]);
+    } else {
+        $clean = preg_replace('/\.git$/i', '', $clean);
+    }
+    if (strpos($clean, '/') === false) {
+        return ['ok' => false, 'error' => 'Usa el formato owner/repo'];
+    }
+
+    $res = runGhJson('api ' . escapeshellarg('repos/' . $clean));
+    if (!$res['ok'] || empty($res['data']['full_name'])) {
+        // Fallback: guardar referencia mínima
+        $meta = [
+            'name' => basename($clean),
+            'user_repo' => $clean,
+            'branch' => 'main',
+            'remote_url' => 'https://github.com/' . $clean,
+            'last_commit' => 'Guardado desde GitHub (metadata pendiente)',
+            'size_formatted' => '—',
+            'cloned' => false,
+            'source' => 'manual_save',
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        saveRepoIndexEntry($meta);
+        return ['ok' => true, 'repo' => $meta, 'note' => $res['error']];
+    }
+
+    $item = $res['data'];
+    $fullName = $item['full_name'];
+    $diskKb = isset($item['size']) ? (int)$item['size'] : 0;
+    $meta = [
+        'name' => basename($fullName),
+        'user_repo' => $fullName,
+        'branch' => $item['default_branch'] ?? 'main',
+        'remote_url' => $item['html_url'] ?? ('https://github.com/' . $fullName),
+        'last_commit' => trim(($item['description'] ?? '') !== '' ? $item['description'] : 'Sin descripción'),
+        'size_formatted' => formatBytes($diskKb * 1024),
+        'stars' => (int)($item['stargazers_count'] ?? 0),
+        'is_private' => !empty($item['private']),
+        'cloned' => false,
+        'source' => 'manual_save',
+        'updated_at' => date('Y-m-d H:i:s')
+    ];
+    saveRepoIndexEntry($meta);
+    return ['ok' => true, 'repo' => $meta];
 }
 
 function cloneOrUpdateRepository($repoTarget) {
@@ -261,65 +438,194 @@ function cloneOrUpdateRepository($repoTarget) {
     ];
 }
 
-function getStoredRepositories() {
-    global $REPOS_DIR, $STORAGE_DIR;
+/**
+ * Repos clonados localmente (disco). $lightweight=true evita git pesado (solo flags).
+ */
+function getLocalClonedRepositories($lightweight = false) {
+    global $REPOS_DIR;
     $repos = [];
+    if (!file_exists($REPOS_DIR)) {
+        return $repos;
+    }
+
+    $dirs = scandir($REPOS_DIR);
+    $batch = [];
+    foreach ($dirs as $d) {
+        if ($d === '.' || $d === '..') continue;
+        $fullPath = $REPOS_DIR . '/' . $d;
+        if (!is_dir($fullPath) || !file_exists($fullPath . '/.git')) continue;
+
+        $remoteUrl = trim(@shell_exec(sprintf('git -C %s config --get remote.origin.url 2>&1', escapeshellarg($fullPath))) ?? '');
+        $userRepo = $d;
+        if (preg_match('#github\.com[:/]([^/]+/[^/]+?)(?:\.git)?$#i', $remoteUrl, $m)) {
+            $userRepo = preg_replace('/\.git$/i', '', $m[1]);
+        }
+
+        if ($lightweight) {
+            $repoMeta = [
+                'name' => $d,
+                'user_repo' => $userRepo,
+                'branch' => 'main',
+                'remote_url' => $remoteUrl,
+                'last_commit' => 'Clonado localmente',
+                'size_formatted' => '—',
+                'cloned' => true,
+                'source' => 'local_clone',
+                'updated_at' => date('Y-m-d H:i:s', @filemtime($fullPath) ?: time())
+            ];
+        } else {
+            $lastCommit = trim(@shell_exec(sprintf('git -C %s log -1 --pretty=format:"%%h - %%s (%%cr)" 2>&1', escapeshellarg($fullPath))) ?? '');
+            $branch = trim(@shell_exec(sprintf('git -C %s rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($fullPath))) ?? 'main');
+            $sizeBytes = 0;
+            $countObj = trim(@shell_exec(sprintf('git -C %s count-objects -vH 2>&1', escapeshellarg($fullPath))) ?? '');
+            if (preg_match('/size-pack:\s+([\d.]+)\s*([KMG]?i?B)/i', $countObj, $sm)) {
+                $n = (float)$sm[1];
+                $u = strtoupper($sm[2]);
+                if (strpos($u, 'G') !== false) $sizeBytes = (int)($n * 1024 * 1024 * 1024);
+                else if (strpos($u, 'M') !== false) $sizeBytes = (int)($n * 1024 * 1024);
+                else if (strpos($u, 'K') !== false) $sizeBytes = (int)($n * 1024);
+                else $sizeBytes = (int)$n;
+            }
+            $repoMeta = [
+                'name' => $d,
+                'user_repo' => $userRepo,
+                'branch' => $branch !== '' ? $branch : 'main',
+                'remote_url' => $remoteUrl,
+                'last_commit' => $lastCommit,
+                'size_formatted' => formatBytes($sizeBytes),
+                'cloned' => true,
+                'source' => 'local_clone',
+                'updated_at' => date('Y-m-d H:i:s', @filemtime($fullPath) ?: time())
+            ];
+        }
+        $repos[$userRepo] = $repoMeta;
+        $batch[] = $repoMeta;
+    }
+    saveRepoIndexEntriesBatch($batch);
+    return $repos;
+}
+
+/**
+ * Índice guardado + clonados locales (sin auto-clonar).
+ */
+function getStoredRepositories() {
+    global $STORAGE_DIR;
+    $repos = getLocalClonedRepositories();
     $indexPath = $STORAGE_DIR . '/repos_index.json';
-    $indexRepos = [];
 
     if (file_exists($indexPath)) {
-        $raw = file_get_contents($indexPath);
-        $indexRepos = json_decode($raw, true) ?? [];
-    }
-
-    if (file_exists($REPOS_DIR)) {
-        $dirs = scandir($REPOS_DIR);
-        foreach ($dirs as $d) {
-            if ($d === '.' || $d === '..') continue;
-            $fullPath = $REPOS_DIR . '/' . $d;
-            if (is_dir($fullPath) && file_exists($fullPath . '/.git')) {
-                $lastCommit = trim(shell_exec(sprintf('cd %s && git log -1 --pretty=format:"%%h - %%s (%%cr)" 2>&1', escapeshellarg($fullPath))) ?? '');
-                $branch = trim(shell_exec(sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($fullPath))) ?? 'main');
-                $remoteUrl = trim(shell_exec(sprintf('cd %s && git config --get remote.origin.url 2>&1', escapeshellarg($fullPath))) ?? '');
-                
-                $sizeBytes = 0;
-                $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($fullPath, RecursiveDirectoryIterator::SKIP_DOTS));
-                foreach ($files as $file) {
-                    $sizeBytes += $file->getSize();
+        $indexRepos = json_decode(file_get_contents($indexPath), true) ?? [];
+        foreach ($indexRepos as $key => $meta) {
+            $userRepo = !empty($meta['user_repo']) ? $meta['user_repo'] : (string)$key;
+            if (isset($repos[$userRepo])) {
+                continue;
+            }
+            $folder = basename($userRepo);
+            $localHit = null;
+            foreach ($repos as $r) {
+                if (($r['name'] ?? '') === $folder && !empty($r['cloned'])) {
+                    $localHit = $r;
+                    break;
                 }
-
-                $repoMeta = [
-                    'name' => $d,
-                    'branch' => $branch,
-                    'remote_url' => $remoteUrl,
-                    'last_commit' => $lastCommit,
-                    'size_formatted' => formatBytes($sizeBytes),
-                    'updated_at' => date('Y-m-d H:i:s', filemtime($fullPath))
-                ];
-                $repos[$d] = $repoMeta;
-                saveRepoIndexEntry($repoMeta);
             }
-        }
-    }
-
-    foreach ($indexRepos as $name => $meta) {
-        if (!isset($repos[$name])) {
-            $userRepo = !empty($meta['user_repo']) ? $meta['user_repo'] : $name;
-            $res = cloneOrUpdateRepository($userRepo);
-            if ($res['ok']) {
-                $repos[$name] = [
-                    'name' => $name,
-                    'branch' => $res['branch'],
-                    'remote_url' => $res['https_url'],
-                    'last_commit' => $res['last_commit'],
-                    'size_formatted' => formatBytes(15000000),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
+            if ($localHit) {
+                continue;
             }
+            $repos[$userRepo] = [
+                'name' => $meta['name'] ?? $folder,
+                'user_repo' => $userRepo,
+                'branch' => $meta['branch'] ?? 'main',
+                'remote_url' => $meta['remote_url'] ?? ('https://github.com/' . $userRepo),
+                'last_commit' => $meta['last_commit'] ?? 'Guardado en catálogo (sin clonar)',
+                'size_formatted' => $meta['size_formatted'] ?? '—',
+                'stars' => $meta['stars'] ?? null,
+                'is_private' => $meta['is_private'] ?? false,
+                'cloned' => false,
+                'source' => $meta['source'] ?? 'index',
+                'updated_at' => $meta['updated_at'] ?? date('Y-m-d H:i:s')
+            ];
         }
     }
 
     return array_values($repos);
+}
+
+/**
+ * Catálogo global: busca en todo GitHub, guarda resultados y mezcla con locales.
+ */
+function buildGithubReposCatalog($query = '', $page = 1) {
+    $page = max(1, (int)$page);
+    $search = searchGithubRepositories($query, $page, 30);
+    $local = getLocalClonedRepositories(true);
+    $localByName = [];
+    foreach ($local as $lr) {
+        $localByName[$lr['name']] = $lr;
+    }
+
+    $display = [];
+    if (!empty($search['items'])) {
+        foreach ($search['items'] as $item) {
+            $key = $item['user_repo'];
+            if (isset($local[$key])) {
+                $item = array_merge($item, $local[$key]);
+                $item['cloned'] = true;
+            } else if (isset($localByName[$item['name']])) {
+                $lr = $localByName[$item['name']];
+                $item['cloned'] = true;
+                $item['last_commit'] = $lr['last_commit'];
+                $item['size_formatted'] = $lr['size_formatted'];
+                $item['branch'] = $lr['branch'];
+            }
+            $display[] = $item;
+        }
+    } else {
+        $display = array_values(array_merge($local, []));
+        // Añadir índice guardado sin re-escanear tamaño
+        global $STORAGE_DIR;
+        $indexPath = $STORAGE_DIR . '/repos_index.json';
+        if (file_exists($indexPath)) {
+            $indexRepos = json_decode(file_get_contents($indexPath), true) ?? [];
+            $seen = array_flip(array_map(function ($r) { return $r['user_repo'] ?? $r['name']; }, $display));
+            foreach ($indexRepos as $key => $meta) {
+                $userRepo = !empty($meta['user_repo']) ? $meta['user_repo'] : (string)$key;
+                if (isset($seen[$userRepo])) continue;
+                $display[] = [
+                    'name' => $meta['name'] ?? basename($userRepo),
+                    'user_repo' => $userRepo,
+                    'branch' => $meta['branch'] ?? 'main',
+                    'remote_url' => $meta['remote_url'] ?? ('https://github.com/' . $userRepo),
+                    'last_commit' => $meta['last_commit'] ?? 'Guardado en catálogo',
+                    'size_formatted' => $meta['size_formatted'] ?? '—',
+                    'cloned' => false,
+                    'source' => $meta['source'] ?? 'index',
+                    'updated_at' => $meta['updated_at'] ?? date('Y-m-d H:i:s')
+                ];
+            }
+        }
+    }
+
+    global $STORAGE_DIR;
+    $savedTotal = 0;
+    $indexPath = $STORAGE_DIR . '/repos_index.json';
+    if (file_exists($indexPath)) {
+        $idx = json_decode(file_get_contents($indexPath), true);
+        $savedTotal = is_array($idx) ? count($idx) : 0;
+    }
+    $savedTotal = max($savedTotal, count($local));
+
+    return [
+        'type' => 'REPOS_CATALOG',
+        'command' => 'repos',
+        'query' => $search['query'] ?? $query,
+        'page' => $page,
+        'github_total' => $search['total_count'] ?? 0,
+        'github_ok' => !empty($search['ok']),
+        'github_error' => $search['error'] ?? null,
+        'total_repos' => count($display),
+        'saved_total' => $savedTotal,
+        'repos' => $display,
+        'scope' => 'github_global'
+    ];
 }
 
 function generateDilithium5Hash($filePathOrData, $isPath = true) {
@@ -657,11 +963,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
 
     $isSetICode = ($lowerCmd === 'set_i code' || $lowerCmd === 'set_icode' || $lowerCmd === 'set_i_code' || $cleanCmd === 'seticode');
     $isSshKey = ($lowerCmd === 'ssh_key' || $lowerCmd === 'ssh' || $lowerCmd === 'sshkey' || $lowerCmd === 'ssh-key');
-    $isRepos = ($lowerCmd === 'repos' || $lowerCmd === 'repositories' || $lowerCmd === 'repo_list');
+    $isRepos = ($lowerCmd === 'repos' || $lowerCmd === 'repositories' || $lowerCmd === 'repo_list'
+        || strpos($lowerCmd, 'repos ') === 0 || strpos($lowerCmd, 'repositories ') === 0);
+    $isSave = (strpos($lowerCmd, 'save ') === 0);
     $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0 || $cleanCmd === 'clonedify' || $cleanCmd === 'dify');
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isRepos || $isClone || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
+    $isValid = $isSetICode || $isSshKey || $isRepos || $isSave || $isClone || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
 
     if (!$isValid) {
         echo json_encode([
@@ -682,19 +990,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             $targetRepo = 'langgenius/dify';
         }
         $cloneRes = cloneOrUpdateRepository($targetRepo);
-        $outputResult = [
+        $catalog = buildGithubReposCatalog($cloneRes['user_repo'] ?? $targetRepo, 1);
+        $outputResult = array_merge($catalog, [
             'type' => 'REPO_CLONE_RESULT',
             'command' => $rawCmd,
             'result' => $cloneRes,
-            'all_repos' => getStoredRepositories()
-        ];
+            'all_repos' => $catalog['repos']
+        ]);
+    } else if ($isSave) {
+        $targetRepo = trim(preg_replace('/^save\s+/i', '', $rawCmd));
+        $saveRes = saveGithubRepository($targetRepo);
+        $catalog = buildGithubReposCatalog($targetRepo, 1);
+        $outputResult = array_merge($catalog, [
+            'type' => 'REPO_CLONE_RESULT',
+            'command' => $rawCmd,
+            'result' => [
+                'ok' => !empty($saveRes['ok']),
+                'action' => 'save',
+                'raw_output' => !empty($saveRes['ok'])
+                    ? ('Guardado en catálogo: ' . ($saveRes['repo']['user_repo'] ?? $targetRepo))
+                    : ($saveRes['error'] ?? 'Error al guardar')
+            ]
+        ]);
     } else if ($isRepos) {
-        $outputResult = [
-            'type' => 'REPOS_CATALOG',
-            'command' => 'repos',
-            'total_repos' => count(getStoredRepositories()),
-            'repos' => getStoredRepositories()
-        ];
+        $page = 1;
+        $query = '';
+        $rest = trim(preg_replace('/^(repos|repositories|repo_list)\s*/i', '', $rawCmd));
+        if ($rest !== '') {
+            if (preg_match('/^page\s+(\d+)$/i', $rest, $m)) {
+                $page = (int)$m[1];
+            } else if (preg_match('/^(?:search\s+)?(.+?)(?:\s+page\s+(\d+))?$/i', $rest, $m)) {
+                $query = trim($m[1]);
+                if (isset($m[2])) $page = (int)$m[2];
+            }
+        }
+        $outputResult = buildGithubReposCatalog($query, $page);
+        $outputResult['command'] = $rawCmd;
     } else if ($isSshKey) {
         $sshInfo = getOrGenerateSshKey();
         $outputResult = [

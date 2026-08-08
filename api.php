@@ -286,18 +286,74 @@ function fetchGithubLicenseForRepo($userRepo) {
     return 'Unknown';
 }
 
+/** Solo MIT, Apache o BSD están permitidos en el catálogo. */
+function isAllowedRepoLicense($license) {
+    $l = strtoupper(trim((string)$license));
+    if ($l === '' || $l === 'NONE' || $l === 'NOASSERTION' || $l === 'UNKNOWN' || $l === 'OTHER') {
+        return false;
+    }
+    if ($l === 'MIT' || strpos($l, 'MIT') !== false) return true;
+    if (strpos($l, 'APACHE') !== false) return true;
+    if (strpos($l, 'BSD') !== false) return true;
+    return false;
+}
+
+function githubAllowedLicenseQueryFragment() {
+    return '(license:mit OR license:apache-2.0 OR license:bsd-2-clause OR license:bsd-3-clause OR license:bsd-3-clause-clear)';
+}
+
+/**
+ * Si el usuario busca un repo concreto sin licencia permitida, avisa.
+ */
+function checkUnlicensedRepoLookup($query) {
+    $q = trim((string)$query);
+    if ($q === '') return null;
+
+    $userRepo = '';
+    if (preg_match('#^https://github\.com/([^/]+/[^/]+)#i', $q, $m)) {
+        $userRepo = preg_replace('/\.git$/i', '', $m[1]);
+    } else if (preg_match('#^([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)$#', $q, $m)) {
+        $userRepo = $m[1];
+    }
+
+    if ($userRepo === '') {
+        // Búsqueda textual: detectar hits sin licencia permitida para el término
+        return null;
+    }
+
+    $res = runGhJson('api ' . escapeshellarg('repos/' . $userRepo));
+    if (empty($res['ok']) || empty($res['data']['full_name'])) {
+        return null;
+    }
+    $license = extractGithubLicense($res['data']);
+    if (isAllowedRepoLicense($license)) {
+        return null;
+    }
+    return [
+        'show' => true,
+        'message' => 'This repository is unlicensed! Do not use it.',
+        'user_repo' => $res['data']['full_name'],
+        'license' => $license
+    ];
+}
+
 /**
  * Busca repositorios en TODO GitHub (API Search), no solo la cuenta local.
+ * Solo incluye licencias MIT / Apache / BSD.
  */
 function searchGithubRepositories($query = '', $page = 1, $perPage = 30) {
     $page = max(1, (int)$page);
     $perPage = max(1, min(100, (int)$perPage));
-    $q = trim($query);
+    $userQuery = trim($query);
     $sort = 'updated';
-    if ($q === '') {
-        // Exploración global por defecto (todo GitHub público con tracción)
-        $q = 'is:public stars:>50';
+    $licenseFrag = githubAllowedLicenseQueryFragment();
+
+    if ($userQuery === '') {
+        $q = 'is:public stars:>50 ' . $licenseFrag;
         $sort = 'stars';
+    } else {
+        // Quitar filtros de licencia previos del usuario y forzar MIT/Apache/BSD
+        $q = $userQuery . ' ' . $licenseFrag;
     }
 
     $endpoint = sprintf(
@@ -314,8 +370,9 @@ function searchGithubRepositories($query = '', $page = 1, $perPage = 30) {
             'error' => $res['error'] ?: 'No se pudo buscar en GitHub',
             'total_count' => 0,
             'page' => $page,
-            'query' => $q,
-            'items' => []
+            'query' => $userQuery,
+            'items' => [],
+            'unlicensed_warning' => null
         ];
     }
 
@@ -323,6 +380,9 @@ function searchGithubRepositories($query = '', $page = 1, $perPage = 30) {
     foreach (($res['data']['items'] ?? []) as $item) {
         $fullName = $item['full_name'] ?? '';
         if ($fullName === '') continue;
+        $license = extractGithubLicense($item);
+        if (!isAllowedRepoLicense($license)) continue;
+
         $diskKb = isset($item['size']) ? (int)$item['size'] : 0;
         $desc = trim((string)($item['description'] ?? ''));
         $meta = [
@@ -333,7 +393,7 @@ function searchGithubRepositories($query = '', $page = 1, $perPage = 30) {
             'last_commit' => ($desc !== '' ? $desc : 'Sin descripción') . ' · ' . ($item['updated_at'] ?? ''),
             'size_formatted' => formatBytes($diskKb * 1024),
             'stars' => (int)($item['stargazers_count'] ?? 0),
-            'license' => extractGithubLicense($item),
+            'license' => $license,
             'is_private' => !empty($item['private']),
             'cloned' => false,
             'source' => 'github_search',
@@ -343,14 +403,44 @@ function searchGithubRepositories($query = '', $page = 1, $perPage = 30) {
     }
     saveRepoIndexEntriesBatch($items);
 
+    $unlicensedWarning = null;
+    if ($userQuery !== '') {
+        $unlicensedWarning = checkUnlicensedRepoLookup($userQuery);
+        // Si no es owner/repo exacto pero la búsqueda sin filtro de licencia tendría hits no permitidos
+        if ($unlicensedWarning === null && count($items) === 0) {
+            $probe = runGhJson('api ' . escapeshellarg(sprintf(
+                'search/repositories?q=%s&per_page=5',
+                rawurlencode($userQuery)
+            )));
+            if (!empty($probe['ok']) && !empty($probe['data']['items'])) {
+                $allBlocked = true;
+                foreach ($probe['data']['items'] as $hit) {
+                    if (isAllowedRepoLicense(extractGithubLicense($hit))) {
+                        $allBlocked = false;
+                        break;
+                    }
+                }
+                if ($allBlocked) {
+                    $unlicensedWarning = [
+                        'show' => true,
+                        'message' => 'This repository is unlicensed! Do not use it.',
+                        'user_repo' => $probe['data']['items'][0]['full_name'] ?? $userQuery,
+                        'license' => extractGithubLicense($probe['data']['items'][0] ?? [])
+                    ];
+                }
+            }
+        }
+    }
+
     return [
         'ok' => true,
         'error' => null,
         'total_count' => (int)($res['data']['total_count'] ?? count($items)),
         'page' => $page,
-        'query' => $q,
+        'query' => $userQuery,
         'incomplete_results' => !empty($res['data']['incomplete_results']),
-        'items' => $items
+        'items' => $items,
+        'unlicensed_warning' => $unlicensedWarning
     ];
 }
 
@@ -373,25 +463,28 @@ function saveGithubRepository($repoTarget) {
 
     $res = runGhJson('api ' . escapeshellarg('repos/' . $clean));
     if (!$res['ok'] || empty($res['data']['full_name'])) {
-        // Fallback: guardar referencia mínima
-        $meta = [
-            'name' => basename($clean),
-            'user_repo' => $clean,
-            'branch' => 'main',
-            'remote_url' => 'https://github.com/' . $clean,
-            'last_commit' => 'Guardado desde GitHub (metadata pendiente)',
-            'size_formatted' => '—',
+        return [
+            'ok' => false,
+            'error' => 'This repository is unlicensed! Do not use it.',
+            'unlicensed' => true,
             'license' => 'Unknown',
-            'cloned' => false,
-            'source' => 'manual_save',
-            'updated_at' => date('Y-m-d H:i:s')
+            'user_repo' => $clean,
+            'note' => $res['error']
         ];
-        saveRepoIndexEntry($meta);
-        return ['ok' => true, 'repo' => $meta, 'note' => $res['error']];
     }
 
     $item = $res['data'];
     $fullName = $item['full_name'];
+    $license = extractGithubLicense($item);
+    if (!isAllowedRepoLicense($license)) {
+        return [
+            'ok' => false,
+            'error' => 'This repository is unlicensed! Do not use it.',
+            'unlicensed' => true,
+            'license' => $license,
+            'user_repo' => $fullName
+        ];
+    }
     $diskKb = isset($item['size']) ? (int)$item['size'] : 0;
     $meta = [
         'name' => basename($fullName),
@@ -401,7 +494,7 @@ function saveGithubRepository($repoTarget) {
         'last_commit' => trim(($item['description'] ?? '') !== '' ? $item['description'] : 'Sin descripción'),
         'size_formatted' => formatBytes($diskKb * 1024),
         'stars' => (int)($item['stargazers_count'] ?? 0),
-        'license' => extractGithubLicense($item),
+        'license' => $license,
         'is_private' => !empty($item['private']),
         'cloned' => false,
         'source' => 'manual_save',
@@ -442,13 +535,35 @@ function cloneOrUpdateRepository($repoTarget) {
     $repoFolder = basename($userRepo);
     $targetPath = $REPOS_DIR . '/' . $repoFolder;
 
+    $license = 'Unknown';
+    if (strpos($userRepo, '/') !== false) {
+        $license = fetchGithubLicenseForRepo($userRepo);
+    }
+    $alreadyCloned = file_exists($targetPath . '/.git');
+    if (!$alreadyCloned && !isAllowedRepoLicense($license)) {
+        return [
+            'ok' => false,
+            'action' => 'clone',
+            'repo_name' => $repoFolder,
+            'user_repo' => $userRepo,
+            'ssh_url' => $sshUrl,
+            'https_url' => $httpsUrl,
+            'target_path' => $targetPath,
+            'branch' => 'main',
+            'last_commit' => '',
+            'license' => $license,
+            'unlicensed' => true,
+            'raw_output' => 'This repository is unlicensed! Do not use it.'
+        ];
+    }
+
     $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=no', escapeshellarg($keyPath));
     putenv("GIT_SSH_COMMAND=$gitSshCmd");
 
     $output = '';
     $action = '';
 
-    if (file_exists($targetPath . '/.git')) {
+    if ($alreadyCloned) {
         $action = 'pull';
         $cmd = sprintf('cd %s && git pull origin main 2>&1 || git pull origin master 2>&1', escapeshellarg($targetPath));
         $output = shell_exec($cmd);
@@ -473,16 +588,12 @@ function cloneOrUpdateRepository($repoTarget) {
 
     $lastCommit = 'Sin commits';
     $branch = 'main';
-    $license = 'Unknown';
     if ($isSuccess) {
         $commitCmd = sprintf('cd %s && git log -1 --pretty=format:"%%h - %%s (%%cr)" 2>&1', escapeshellarg($targetPath));
         $lastCommit = trim(shell_exec($commitCmd) ?? 'Commit info unavailable');
         $branchCmd = sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($targetPath));
         $branch = trim(shell_exec($branchCmd) ?? 'main');
 
-        if (strpos($userRepo, '/') !== false) {
-            $license = fetchGithubLicenseForRepo($userRepo);
-        }
         $repoMeta = [
             'name' => $repoFolder,
             'user_repo' => $userRepo,
@@ -506,7 +617,7 @@ function cloneOrUpdateRepository($repoTarget) {
         'target_path' => $targetPath,
         'branch' => $branch,
         'last_commit' => $lastCommit,
-        'license' => $license ?? 'Unknown',
+        'license' => $license,
         'raw_output' => trim($output)
     ];
 }
@@ -658,10 +769,12 @@ function buildGithubReposCatalog($query = '', $page = 1) {
     $display = [];
     if (!empty($search['items'])) {
         foreach ($search['items'] as $item) {
+            if (!isAllowedRepoLicense($item['license'] ?? '')) continue;
             $key = $item['user_repo'];
             if (isset($local[$key])) {
                 $item = array_merge($item, $local[$key]);
                 $item['cloned'] = true;
+                $item['license'] = $item['license'] ?? ($local[$key]['license'] ?? 'Unknown');
             } else if (isset($localByName[$item['name']])) {
                 $lr = $localByName[$item['name']];
                 $item['cloned'] = true;
@@ -669,11 +782,14 @@ function buildGithubReposCatalog($query = '', $page = 1) {
                 $item['size_formatted'] = $lr['size_formatted'];
                 $item['branch'] = $lr['branch'];
             }
+            if (!isAllowedRepoLicense($item['license'] ?? '')) continue;
             $display[] = $item;
         }
     } else {
-        $display = array_values(array_merge($local, []));
-        // Añadir índice guardado sin re-escanear tamaño
+        foreach ($local as $lr) {
+            if (!isAllowedRepoLicense($lr['license'] ?? '')) continue;
+            $display[] = $lr;
+        }
         global $STORAGE_DIR;
         $indexPath = $STORAGE_DIR . '/repos_index.json';
         if (file_exists($indexPath)) {
@@ -682,6 +798,8 @@ function buildGithubReposCatalog($query = '', $page = 1) {
             foreach ($indexRepos as $key => $meta) {
                 $userRepo = !empty($meta['user_repo']) ? $meta['user_repo'] : (string)$key;
                 if (isset($seen[$userRepo])) continue;
+                $lic = $meta['license'] ?? 'Unknown';
+                if (!isAllowedRepoLicense($lic)) continue;
                 $display[] = [
                     'name' => $meta['name'] ?? basename($userRepo),
                     'user_repo' => $userRepo,
@@ -689,7 +807,7 @@ function buildGithubReposCatalog($query = '', $page = 1) {
                     'remote_url' => $meta['remote_url'] ?? ('https://github.com/' . $userRepo),
                     'last_commit' => $meta['last_commit'] ?? 'Guardado en catálogo',
                     'size_formatted' => $meta['size_formatted'] ?? '—',
-                    'license' => $meta['license'] ?? 'Unknown',
+                    'license' => $lic,
                     'cloned' => false,
                     'source' => $meta['source'] ?? 'index',
                     'updated_at' => $meta['updated_at'] ?? date('Y-m-d H:i:s')
@@ -702,10 +820,14 @@ function buildGithubReposCatalog($query = '', $page = 1) {
     $savedTotal = 0;
     $indexPath = $STORAGE_DIR . '/repos_index.json';
     if (file_exists($indexPath)) {
-        $idx = json_decode(file_get_contents($indexPath), true);
-        $savedTotal = is_array($idx) ? count($idx) : 0;
+        $idx = json_decode(file_get_contents($indexPath), true) ?? [];
+        foreach ($idx as $meta) {
+            if (isAllowedRepoLicense($meta['license'] ?? '')) $savedTotal++;
+        }
     }
-    $savedTotal = max($savedTotal, count($local));
+    $savedTotal = max($savedTotal, count(array_filter($local, function ($r) {
+        return isAllowedRepoLicense($r['license'] ?? '');
+    })));
 
     return [
         'type' => 'REPOS_CATALOG',
@@ -718,7 +840,9 @@ function buildGithubReposCatalog($query = '', $page = 1) {
         'total_repos' => count($display),
         'saved_total' => $savedTotal,
         'repos' => $display,
-        'scope' => 'github_global'
+        'scope' => 'github_global',
+        'license_policy' => 'MIT | Apache | BSD only',
+        'unlicensed_warning' => $search['unlicensed_warning'] ?? null
     ];
 }
 
@@ -1116,28 +1240,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             $targetRepo = 'langgenius/dify';
         }
         $cloneRes = cloneOrUpdateRepository($targetRepo);
-        $catalog = buildGithubReposCatalog($cloneRes['user_repo'] ?? $targetRepo, 1);
+        $catalogQuery = !empty($cloneRes['unlicensed']) ? '' : ($cloneRes['user_repo'] ?? $targetRepo);
+        $catalog = buildGithubReposCatalog($catalogQuery, 1);
         $outputResult = array_merge($catalog, [
             'type' => 'REPO_CLONE_RESULT',
             'command' => $rawCmd,
             'result' => $cloneRes,
             'all_repos' => $catalog['repos']
         ]);
+        if (!empty($cloneRes['unlicensed'])) {
+            $outputResult['unlicensed_warning'] = [
+                'show' => true,
+                'message' => 'This repository is unlicensed! Do not use it.',
+                'user_repo' => $cloneRes['user_repo'] ?? $targetRepo,
+                'license' => $cloneRes['license'] ?? 'None'
+            ];
+        }
     } else if ($isSave) {
         $targetRepo = trim(preg_replace('/^save\s+/i', '', $rawCmd));
         $saveRes = saveGithubRepository($targetRepo);
-        $catalog = buildGithubReposCatalog($targetRepo, 1);
+        $catalogQuery = !empty($saveRes['unlicensed']) ? '' : $targetRepo;
+        $catalog = buildGithubReposCatalog($catalogQuery, 1);
         $outputResult = array_merge($catalog, [
             'type' => 'REPO_CLONE_RESULT',
             'command' => $rawCmd,
             'result' => [
                 'ok' => !empty($saveRes['ok']),
                 'action' => 'save',
+                'unlicensed' => !empty($saveRes['unlicensed']),
                 'raw_output' => !empty($saveRes['ok'])
                     ? ('Guardado en catálogo: ' . ($saveRes['repo']['user_repo'] ?? $targetRepo))
                     : ($saveRes['error'] ?? 'Error al guardar')
             ]
         ]);
+        if (!empty($saveRes['unlicensed'])) {
+            $outputResult['unlicensed_warning'] = [
+                'show' => true,
+                'message' => 'This repository is unlicensed! Do not use it.',
+                'user_repo' => $saveRes['user_repo'] ?? $targetRepo,
+                'license' => $saveRes['license'] ?? 'None'
+            ];
+        }
     } else if ($isRepos) {
         $page = 1;
         $query = '';

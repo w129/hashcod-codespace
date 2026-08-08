@@ -338,6 +338,57 @@
             flex-shrink: 0;
         }
 
+        .unlicensed-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+        }
+
+        .unlicensed-modal {
+            background: #ffffff;
+            border: 1px solid #e0dcd3;
+            border-radius: 10px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+            max-width: 360px;
+            width: 100%;
+            padding: 18px 20px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .unlicensed-modal-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .unlicensed-modal-text {
+            color: #c5221f;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 14px;
+        }
+
+        .unlicensed-modal-btn {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
         .action-btn-link {
             display: inline-flex;
             align-items: center;
@@ -950,6 +1001,28 @@
             submitCommand(q ? ('repos ' + q + ' page ' + p) : ('repos page ' + p));
         }
 
+        function showUnlicensedPopup(message, repoName) {
+            const existing = document.getElementById('unlicensedModal');
+            if (existing) existing.remove();
+            const msg = message || 'This repository is unlicensed! Do not use it.';
+            const overlay = document.createElement('div');
+            overlay.id = 'unlicensedModal';
+            overlay.className = 'unlicensed-modal-overlay';
+            overlay.innerHTML = `
+                <div class="unlicensed-modal" role="alertdialog" aria-modal="true">
+                    <div class="unlicensed-modal-title">${repoName ? ('Repo: ' + repoName) : 'License check'}</div>
+                    <div class="unlicensed-modal-text">${msg}</div>
+                    <button type="button" class="unlicensed-modal-btn" id="unlicensedModalClose">Cerrar</button>
+                </div>
+            `;
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
+            document.body.appendChild(overlay);
+            const btn = document.getElementById('unlicensedModalClose');
+            if (btn) btn.addEventListener('click', () => overlay.remove());
+        }
+
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 alert('Clave pÃºblica SSH copiada al portapapeles con Ã©xito!');
@@ -985,16 +1058,26 @@
                 const savedTotal = dataToDisplay.saved_total || repos.length;
                 const page = dataToDisplay.page || 1;
                 const defaultQueries = ['is:public', 'is:public stars:>50'];
-                const queryVal = (dataToDisplay.query && !defaultQueries.includes(dataToDisplay.query)) ? dataToDisplay.query : '';
+                let queryVal = (dataToDisplay.query && !defaultQueries.includes(dataToDisplay.query)) ? dataToDisplay.query : '';
+                // No mostrar el fragmento tÃ©cnico de filtros de licencia en la barra
+                queryVal = queryVal.replace(/\s*\(license:mit[\s\S]*?\)\s*/gi, '').trim();
                 const escHtml = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                 const escAttr = (s) => encodeURIComponent(String(s ?? ''));
+                const warn = dataToDisplay.unlicensed_warning || (cloneResult && cloneResult.unlicensed ? {
+                    show: true,
+                    message: 'This repository is unlicensed! Do not use it.',
+                    user_repo: cloneResult.user_repo || ''
+                } : null);
+                if (warn && warn.show) {
+                    setTimeout(() => showUnlicensedPopup(warn.message, warn.user_repo || ''), 30);
+                }
 
                 let rowsHtml = '';
                 if (repos.length === 0) {
                     rowsHtml = `
                         <tr>
                             <td colspan="6" style="text-align:center; padding:24px; color:#888;">
-                                ${dataToDisplay.github_error ? ('Error GitHub: ' + escHtml(dataToDisplay.github_error)) : 'Sin resultados. Prueba otra bÃºsqueda (ej: repos react, repos laravel).'}
+                                ${dataToDisplay.github_error ? ('Error GitHub: ' + escHtml(dataToDisplay.github_error)) : 'Sin resultados con licencia MIT / Apache / BSD. Si el repo no tiene licencia verÃ¡s una alerta en rojo.'}
                             </td>
                         </tr>`;
                 } else {
@@ -1091,7 +1174,7 @@
                             </button>
                         </div>
                         <form onsubmit="triggerGithubRepoSearch(event)" style="display:flex; gap:8px; margin:10px 0 14px; flex-wrap:wrap; align-items:center;">
-                            <input id="githubRepoSearch" type="text" value="${escHtml(queryVal)}" placeholder="Buscar en todo GitHub (ej: react, laravel, langgenius/dify)" style="flex:1; min-width:220px; padding:8px 12px; border:1px solid #d0cdc4; border-radius:6px; font-size:12px; font-family:inherit; background:#fff;" />
+                            <input id="githubRepoSearch" type="text" value="${escHtml(queryVal)}" placeholder="Buscar repos MIT/Apache/BSD (ej: facebook/react)" style="flex:1; min-width:220px; padding:8px 12px; border:1px solid #d0cdc4; border-radius:6px; font-size:12px; font-family:inherit; background:#fff;" />
                             <button type="submit" class="btn-upload-vector" style="padding:8px 14px;">Buscar GitHub</button>
                             <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${Math.max(1, page - 1)})">â† Ant.</button>
                             <span style="font-size:11px; color:#666;">PÃ¡g. ${page}</span>

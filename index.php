@@ -121,7 +121,7 @@
         .block-execution .block-body {
             background-color: #ffffff;
             min-height: 80px;
-            max-height: 550px;
+            max-height: 580px;
             overflow-y: auto;
             align-items: flex-start;
         }
@@ -173,90 +173,166 @@
             display: block;
         }
 
-        /* Tabla de archivos para set_I code */
-        .catalog-container {
+        /* ESTILOS VECTORIALES PREMIUM PARA EL CATÁLOGO set_I code */
+        .catalog-card {
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            font-family: 'IBM Plex Mono', monospace;
-        }
-
-        .catalog-banner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             background: #faf9f6;
             border: 1px solid #e6e3dd;
-            border-radius: 8px;
-            padding: 10px 14px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            font-family: 'IBM Plex Mono', monospace;
+            display: flex;
+            flex-direction: column;
         }
 
-        .catalog-info {
+        .catalog-header-bar {
             display: flex;
-            gap: 14px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: #faf9f6;
+            border-bottom: 1px solid #e6e3dd;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .catalog-metrics {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .metric-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
             font-size: 12px;
             font-weight: 500;
             color: #141414;
         }
 
-        .catalog-badge {
+        .svg-icon-vector {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+            fill: currentColor;
+        }
+
+        .metric-badge-black {
+            background: #141414;
+            color: #ffffff;
+            padding: 4px 9px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-upload-vector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #141414;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-upload-vector:hover {
+            background: #2a2a2a;
+            transform: translateY(-1px);
+        }
+
+        .catalog-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .catalog-table-vector {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .catalog-table-vector th {
+            background: #eceae4;
+            color: #141414;
+            font: 600 11px 'IBM Plex Mono', monospace;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 10px 14px;
+            border-bottom: 1px solid #e6e3dd;
+        }
+
+        .catalog-table-vector td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #eee6de;
+            color: #222222;
+            vertical-align: middle;
+        }
+
+        .catalog-table-vector tr:hover td {
+            background: #f4f2ec;
+        }
+
+        .file-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #141414;
+        }
+
+        .hash-badge-vector {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
             background: #141414;
             color: #ffffff;
             padding: 3px 8px;
             border-radius: 4px;
-            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .upload-btn {
-            background: #141414;
-            color: #ffffff;
-            border: none;
-            padding: 7px 14px;
-            border-radius: 6px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 12px;
+        .mime-tag {
+            font-size: 10px;
+            background: #eceae4;
+            color: #55524c;
+            padding: 3px 7px;
+            border-radius: 4px;
             font-weight: 500;
-            cursor: pointer;
+        }
+
+        .action-btn-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #0451a5;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
             transition: background 0.15s ease;
         }
 
-        .upload-btn:hover {
-            background: #333333;
-        }
-
-        .catalog-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        .catalog-table th {
-            background: #eceae4;
-            color: #141414;
-            font-weight: 600;
-            text-align: left;
-            padding: 8px 10px;
-            border-bottom: 1px solid #d0cdcf;
-        }
-
-        .catalog-table td {
-            padding: 8px 10px;
-            border-bottom: 1px solid #eee;
-            color: #222;
-        }
-
-        .catalog-table tr:hover td {
-            background: #fcfbf9;
-        }
-
-        .file-link {
-            color: #0451a5;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .file-link:hover {
+        .action-btn-link:hover {
+            background: #e6f0ff;
             text-decoration: underline;
         }
 
@@ -366,7 +442,7 @@
             color: #666666;
         }
 
-        /* DISEÑO DE TECLADO Y PANELES (NUEVO SISTEMA IBM PLEX MONO) */
+        /* DISEÑO DE TECLADO Y PANELES (SISTEMA IBM PLEX MONO) */
         .virtual-keyboard-white {
             display: none;
             margin-top: 16px;
@@ -579,7 +655,10 @@
                             <div class="vk-card-body" id="keyWindowBody">
                                 <div class="keys-grid-placeholder" style="flex: 1; border: 1px dashed #d0cdcf; border-radius: 8px; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8c8983; font-size: 12px; font-family: 'IBM Plex Mono', monospace; min-height: 280px; padding: 12px; text-align: center; gap: 12px;">
                                     <span>[ Espacio preparado para tus teclas personalizadas ]</span>
-                                    <button class="upload-btn" onclick="triggerFileUpload()">📤 Subir Archivo (Firma Dilithium 5)</button>
+                                    <button class="btn-upload-vector" onclick="triggerFileUpload()">
+                                        <svg class="svg-icon-vector" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                                        Subir Archivo (Dilithium 5)
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -702,58 +781,106 @@
                 return;
             }
 
-            // RENDERIZADO ESPECIAL PARA EL COMANDO set_I code (SUPER BASE DE DATOS GLOBAL CON FIRMA DILITHIUM 5)
+            // RENDERIZADO VECTORIAL ELEGANTE PARA EL COMANDO set_I code (SUPER BASE DE DATOS GLOBAL)
             if (dataToDisplay && dataToDisplay.type === "GLOBAL_FILES_CATALOG") {
                 const files = dataToDisplay.files || [];
                 const totalStorage = dataToDisplay.total_storage_formatted || "0 B";
 
                 let rowsHtml = '';
                 if (files.length === 0) {
-                    rowsHtml = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#888;">No hay archivos almacenados todavía en la Super Base de Datos. Haz clic en 'Subir Nuevo Archivo' para subir uno.</td></tr>`;
+                    rowsHtml = `
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding:24px; color:#888;">
+                                <svg style="width:32px; height:32px; fill:#cccccc; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                No hay archivos almacenados aún en la Super Base de Datos.<br>Haz clic en <strong>'Subir Nuevo Archivo'</strong> para almacenar uno.
+                            </td>
+                        </tr>`;
                 } else {
                     files.forEach(f => {
-                        const dHash = f.dilithium5_hash ? (f.dilithium5_hash.substring(0, 24) + '...') : 'dilithium5_...';
+                        const dHash = f.dilithium5_hash ? (f.dilithium5_hash.substring(0, 22) + '...') : 'dilithium5_...';
+                        
+                        // Icono vectorial por extensión de archivo
+                        let fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#141414;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
+                        
+                        if (f.filename.endsWith('.zip') || f.filename.endsWith('.rar') || f.filename.endsWith('.7z')) {
+                            fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#0451a5;" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-2 6h-2v2h2v-2zm0-4h-2v2h2V8z"/></svg>';
+                        } else if (f.mime_type.includes('image')) {
+                            fileVectorIcon = '<svg class="svg-icon-vector" style="fill:#098658;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>';
+                        }
+
                         rowsHtml += `
                             <tr>
-                                <td><strong>${f.filename}</strong></td>
-                                <td title="${f.dilithium5_hash}"><span style="font-size:10px; background:#141414; color:#fff; padding:2px 6px; border-radius:4px; font-family:monospace;">${dHash}</span></td>
-                                <td><span style="font-size:10px; background:#eceae4; padding:2px 6px; border-radius:4px; color:#444;">${f.mime_type}</span></td>
-                                <td>${f.size_formatted}</td>
-                                <td style="color:#666; font-size:11px;">${f.upload_date}</td>
-                                <td><a class="file-link" href="${f.url}" target="_blank" download="${f.filename}">⬇️ Descargar / Ver</a></td>
+                                <td>
+                                    <div class="file-name-cell">
+                                        ${fileVectorIcon}
+                                        <span>${f.filename}</span>
+                                    </div>
+                                </td>
+                                <td title="${f.dilithium5_hash}">
+                                    <div class="hash-badge-vector">
+                                        <svg class="svg-icon-vector" style="width:12px; height:12px; fill:#34c759;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                                        <span>${dHash}</span>
+                                    </div>
+                                </td>
+                                <td><span class="mime-tag">${f.mime_type}</span></td>
+                                <td style="font-weight:500;">${f.size_formatted}</td>
+                                <td style="color:#666666; font-size:11px;">${f.upload_date}</td>
+                                <td>
+                                    <a class="action-btn-link" href="${f.url}" target="_blank" download="${f.filename}">
+                                        <svg class="svg-icon-vector" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                        <span>Descargar / Ver</span>
+                                    </a>
+                                </td>
                             </tr>
                         `;
                     });
                 }
 
                 const catalogHtml = `
-                    <div class="catalog-container">
-                        <div class="catalog-banner">
-                            <div class="catalog-info">
-                                <span>🔑 Firma Criptográfica: <span class="catalog-badge">Dilithium 5 (Post-Quantum)</span></span>
-                                <span>📁 Archivos: <span class="catalog-badge">${files.length}</span></span>
-                                <span>💾 Almacenamiento Global: <span class="catalog-badge">${totalStorage}</span></span>
+                    <div class="catalog-card">
+                        <div class="catalog-header-bar">
+                            <div class="catalog-metrics">
+                                <div class="metric-item">
+                                    <svg class="svg-icon-vector" style="fill:#0451a5;" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                                    <span>Firma:</span>
+                                    <span class="metric-badge-black">Dilithium 5 (Post-Quantum)</span>
+                                </div>
+                                <div class="metric-item">
+                                    <svg class="svg-icon-vector" style="fill:#141414;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                    <span>Archivos:</span>
+                                    <span class="metric-badge-black">${files.length}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <svg class="svg-icon-vector" style="fill:#141414;" viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
+                                    <span>Almacenamiento:</span>
+                                    <span class="metric-badge-black">${totalStorage}</span>
+                                </div>
                             </div>
-                            <button class="upload-btn" onclick="triggerFileUpload()">📤 Subir Nuevo Archivo</button>
+                            <button class="btn-upload-vector" onclick="triggerFileUpload()">
+                                <svg class="svg-icon-vector" style="fill:#ffffff; width:14px; height:14px;" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                                <span>Subir Nuevo Archivo</span>
+                            </button>
                         </div>
-                        <table class="catalog-table">
-                            <thead>
-                                <tr>
-                                    <th>Archivo</th>
-                                    <th>Firma Post-Cuántica (Dilithium 5)</th>
-                                    <th>Tipo MIME</th>
-                                    <th>Tamaño</th>
-                                    <th>Fecha de Subida</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${rowsHtml}
-                            </tbody>
-                        </table>
+                        <div class="catalog-table-wrapper">
+                            <table class="catalog-table-vector">
+                                <thead>
+                                    <tr>
+                                        <th>Archivo</th>
+                                        <th>Firma Post-Cuántica (Dilithium 5)</th>
+                                        <th>Tipo MIME</th>
+                                        <th>Tamaño</th>
+                                        <th>Fecha de Subida</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 `;
-                executionContainer.innerHTML = catalogHtml;
+                executionContainer.innerHTML = `<div style="width:100%;">${catalogHtml}</div>`;
                 return;
             }
 

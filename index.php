@@ -1094,6 +1094,37 @@
                 return;
             }
 
+            // RENDERIZADO PARA EL COMANDO supabase
+            if (dataToDisplay && dataToDisplay.type === "SUPABASE_STATUS") {
+                const connected = !!dataToDisplay.connected;
+                const url = dataToDisplay.url || '—';
+                const msg = dataToDisplay.message || dataToDisplay.error || '';
+                const auth = dataToDisplay.auth_health || {};
+                const supabaseHtml = `
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <strong style="font-size:13px; color:#141414;">Conexión Supabase</strong>
+                            </div>
+                            <span class="metric-badge-black">
+                                <svg class="svg-icon-vector" style="fill:${connected ? '#34c759' : '#f5a623'}; width:10px; height:10px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                                <span>${connected ? 'CONECTADO' : 'NO CONECTADO'}</span>
+                            </span>
+                        </div>
+                        <div style="font-size:12px; display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                            <div><strong>URL:</strong> <code>${url}</code></div>
+                            <div><strong>Publishable key:</strong> ${dataToDisplay.has_publishable ? 'configurada' : 'faltante'}</div>
+                            <div><strong>Secret key:</strong> ${dataToDisplay.has_secret ? 'configurada' : 'faltante'}</div>
+                            <div style="background:#eceae4; padding:8px 12px; border-radius:6px; color:#444;">
+                                ${msg}${auth.name ? ' · Auth: ' + auth.name + ' ' + (auth.version || '') : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                executionContainer.innerHTML = `<div style="width:100%;">${supabaseHtml}</div>`;
+                return;
+            }
+
             // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÓN SSH GITHUB)
             if (dataToDisplay && dataToDisplay.type === "SSH_KEY_DISPLAY") {
                 const pubKey = dataToDisplay.public_key || '';

@@ -1,7 +1,10 @@
 <?php
-// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Navegador de Código por Carpetas
+// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub, Supabase y Navegador de Código por Carpetas
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
+
+require_once __DIR__ . '/supabase.php';
+loadEnvFile();
 
 if (!ob_start("ob_gzhandler")) {
     ob_start();
@@ -23,6 +26,7 @@ $REGISTERED_COMMANDS = [
     "clone <repo>"=> "Clona o actualiza repositorios de GitHub vía SSH/HTTPS en el servidor (ej: clone langgenius/dify)",
     "save <repo>" => "Guarda un repositorio de GitHub en el catálogo sin clonarlo (ej: save facebook/react)",
     "ssh_key"     => "Muestra la clave pública SSH Ed25519 generada por esta plataforma para conectar el servidor con GitHub",
+    "supabase"    => "Prueba la conexión con Supabase (URL + keys) y muestra el estado del proyecto",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
     "status"      => "Consulta el estado del servidor y motores detectados",
@@ -963,13 +967,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
 
     $isSetICode = ($lowerCmd === 'set_i code' || $lowerCmd === 'set_icode' || $lowerCmd === 'set_i_code' || $cleanCmd === 'seticode');
     $isSshKey = ($lowerCmd === 'ssh_key' || $lowerCmd === 'ssh' || $lowerCmd === 'sshkey' || $lowerCmd === 'ssh-key');
+    $isSupabase = ($lowerCmd === 'supabase' || $lowerCmd === 'supabase_status' || $lowerCmd === 'sb');
     $isRepos = ($lowerCmd === 'repos' || $lowerCmd === 'repositories' || $lowerCmd === 'repo_list'
         || strpos($lowerCmd, 'repos ') === 0 || strpos($lowerCmd, 'repositories ') === 0);
     $isSave = (strpos($lowerCmd, 'save ') === 0);
     $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0 || $cleanCmd === 'clonedify' || $cleanCmd === 'dify');
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isRepos || $isSave || $isClone || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
 
     if (!$isValid) {
         echo json_encode([
@@ -1038,6 +1043,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'key_path' => $sshInfo['key_path'],
             'github_test_output' => $sshInfo['ssh_output']
         ];
+    } else if ($isSupabase) {
+        $outputResult = supabaseHealthCheck();
+        $outputResult['command'] = $rawCmd;
     } else if ($isSetICode) {
         $rawFiles = $db->getAllFiles();
         $formattedFiles = [];
@@ -1079,9 +1087,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'rows' => $rows
         ];
     } else if ($lowerCmd === 'status' || $lowerCmd === 'browsers') {
-        $outputResult = scanRealBrowsers($BROWSER_NAMES);
+        $browser = scanRealBrowsers($BROWSER_NAMES);
+        $sb = supabaseHealthCheck();
+        $outputResult = array_merge($browser, [
+            'supabase' => [
+                'connected' => !empty($sb['connected']),
+                'url' => $sb['url'] ?? '',
+                'has_publishable' => !empty($sb['has_publishable']),
+                'has_secret' => !empty($sb['has_secret']),
+                'message' => $sb['message'] ?? ($sb['error'] ?? '')
+            ]
+        ]);
     } else if ($lowerCmd === 'ping') {
-        $outputResult = ['pong' => true, 'time' => $timestamp, 'crypto' => 'Dilithium 5 Ready', 'ssh' => 'Ed25519 Ready'];
+        $sb = supabaseConfig();
+        $outputResult = [
+            'pong' => true,
+            'time' => $timestamp,
+            'crypto' => 'Dilithium 5 Ready',
+            'ssh' => 'Ed25519 Ready',
+            'supabase' => $sb['configured'] ? 'configured' : 'missing_env'
+        ];
     } else if ($lowerCmd === 'bigdata') {
         $outputResult = [
             'bigdata_ready' => true,

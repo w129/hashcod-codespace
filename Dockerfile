@@ -3,10 +3,11 @@ FROM php:8.1-cli
 # Instalar librerías del sistema requeridas para opcache, zip, openssh y git
 RUN apt-get update && apt-get install -y \
     libzip-dev \
+    libcurl4-openssl-dev \
     unzip \
     openssh-client \
     git \
-    && docker-php-ext-install opcache zip \
+    && docker-php-ext-install opcache zip curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Configurar directorio SSH y archivo config de GitHub

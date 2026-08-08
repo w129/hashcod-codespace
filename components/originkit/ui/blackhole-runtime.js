@@ -1,32 +1,35 @@
 /**
- * Black Hole runtime (Originkit-compatible canvas renderer)
- * Mirrors the Originkit "Black Hole" component:
- * 3D depth-sorted accretion disk, event horizon, trails, tilt, gravity inflow.
+ * Black Hole runtime — Originkit-style accretion disk
+ * Flattened elliptical spiral of short particle strokes (white / red / ember)
+ * matching the classic Originkit Black Hole look.
  */
 (function (global) {
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
 
   function createBlackHole(canvas, opts) {
     const cfg = Object.assign({
       showCenter: true,
-      centre: { radius: 18, x: 50, y: 50 },
+      centre: { radius: 10, x: 50, y: 52 },
       background: '#000000',
-      outerRadius: 70,
-      particleCount: 1000,
-      particleSize: 2.2,
-      trail: 50,
-      tilt: 20,
-      tiltSideway: 160,
-      orbitSpeed: 4,
-      pullSpeed: 0.35,
-      colors: ['#ffffff', '#ffd6a5', '#ffadad', '#a0c4ff', '#bdb2ff', '#fdffb6', '#caffbf']
+      outerRadius: 92,
+      particleCount: 2800,
+      particleSize: 1.35,
+      trail: 70,
+      tilt: 68,
+      tiltSideway: 18,
+      orbitSpeed: 3.6,
+      pullSpeed: 0.22,
+      armCount: 7,
+      colors: ['#ffffff', '#f5f5f5', '#ff3b30', '#ff2d55', '#ff6b4a', '#c8c8c8', '#8a8a8a', '#ff453a']
     }, opts || {});
 
-    const ctx = canvas.getContext('2d', { alpha: true });
+    const ctx = canvas.getContext('2d', { alpha: false });
     let particles = [];
     let raf = 0;
     let running = true;
     let w = 0, h = 0, dpr = 1;
+    let t0 = performance.now();
 
     function resize() {
       const rect = canvas.getBoundingClientRect();
@@ -38,25 +41,44 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
+    function pickColor(i, rNorm) {
+      // denser core leans white; mid-disk reds; outer gray/white
+      if (rNorm < 0.28) {
+        return i % 3 === 0 ? '#ff3b30' : '#ffffff';
+      }
+      if (rNorm < 0.55) {
+        return cfg.colors[i % cfg.colors.length];
+      }
+      const outer = ['#ffffff', '#d0d0d0', '#ff453a', '#9a9a9a', '#ffffff'];
+      return outer[i % outer.length];
+    }
+
     function seed() {
       particles = [];
       const n = cfg.particleCount;
+      const arms = Math.max(3, cfg.armCount | 0);
       for (let i = 0; i < n; i++) {
-        const rNorm = Math.pow(Math.random(), 0.55);
+        // bias density toward center (matches reference)
+        const rNorm = Math.pow(Math.random(), 0.42);
+        const arm = i % arms;
+        const armOffset = (arm / arms) * Math.PI * 2;
+        // spiral winding: angle tied to radius
+        const spiral = rNorm * 5.8;
         particles.push({
-          angle: Math.random() * Math.PI * 2,
-          radius: 0.18 + rNorm * 0.82,
-          speed: (0.35 + Math.random() * 0.9) * (Math.random() < 0.5 ? 1 : -1),
-          size: 0.5 + Math.random(),
-          color: cfg.colors[i % cfg.colors.length],
+          arm: arm,
+          baseAngle: armOffset + spiral + (Math.random() - 0.5) * 0.55,
+          radius: 0.12 + rNorm * 0.88,
+          speed: 0.55 + Math.random() * 0.85,
+          size: 0.45 + Math.random() * 0.9,
+          color: pickColor(i, rNorm),
+          jitter: (Math.random() - 0.5) * 0.08,
           phase: Math.random() * Math.PI * 2,
-          trail: []
+          stroke: 0.55 + Math.random() * 0.9
         });
       }
     }
 
     function project(x, y, z, tiltX, tiltZ) {
-      // rotate around X then Z
       const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
       const y1 = y * cosX - z * sinX;
       const z1 = y * sinX + z * cosX;
@@ -66,105 +88,123 @@
       return { x: x2, y: y2, z: z1 };
     }
 
-    function frame(t) {
+    function frame(now) {
       if (!running) return;
+      const elapsed = (now - t0) / 1000;
       const cx = (cfg.centre.x / 100) * w;
       const cy = (cfg.centre.y / 100) * h;
       const maxR = (Math.min(w, h) * 0.5) * (cfg.outerRadius / 100);
       const coreR = (Math.min(w, h) * 0.5) * (cfg.centre.radius / 100);
       const tiltX = (cfg.tilt * Math.PI) / 180;
       const tiltZ = (cfg.tiltSideway * Math.PI) / 180;
-      const orbit = cfg.orbitSpeed * 0.012;
-      const pull = cfg.pullSpeed * 0.0015;
-      const trailLen = Math.max(1, Math.floor(cfg.trail / 6));
+      const orbit = cfg.orbitSpeed * 0.55;
+      const trailLen = clamp(cfg.trail / 100, 0.08, 0.95);
 
-      // fade trails via translucent clear
+      // hard black — short motion streaks via stroke length, not screen fade mush
+      ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = cfg.background;
-      ctx.globalAlpha = 0.22;
       ctx.fillRect(0, 0, w, h);
-      ctx.globalAlpha = 1;
 
       const drawn = [];
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
-        p.angle += p.speed * orbit * (0.35 + (1.2 - p.radius));
-        p.radius -= pull * (0.2 + (1 - p.radius));
-        if (p.radius < 0.08) {
-          p.radius = 0.85 + Math.random() * 0.2;
-          p.angle = Math.random() * Math.PI * 2;
-          p.trail = [];
-        }
+        // Kepler-ish: faster near center
+        const angSpeed = orbit * p.speed * (0.35 + (1.35 - p.radius) * (1.35 - p.radius));
+        const angle = p.baseAngle + elapsed * angSpeed + p.jitter;
 
-        const rr = p.radius * maxR;
-        const x = Math.cos(p.angle) * rr;
-        const y = Math.sin(p.angle) * rr;
-        const z = Math.sin(p.angle * 2 + p.phase) * rr * 0.12;
+        // gentle inward drift (respawn at rim)
+        let r = p.radius - cfg.pullSpeed * 0.00035 * (0.4 + (1 - p.radius));
+        // subtle breathing so arms stay lively
+        r += Math.sin(elapsed * 0.7 + p.phase) * 0.004;
+        if (r < 0.1) {
+          r = 0.82 + Math.random() * 0.18;
+          p.baseAngle = Math.random() * Math.PI * 2;
+          p.color = pickColor(i, r);
+        }
+        p.radius = r;
+
+        const rr = r * maxR;
+        const x = Math.cos(angle) * rr;
+        const y = Math.sin(angle) * rr;
+        // thin disk — tiny vertical thickness + inward well near core
+        const well = Math.pow(1 - clamp((r - 0.12) / 0.55, 0, 1), 2) * rr * 0.18;
+        const z = Math.sin(angle * 3 + p.phase) * rr * 0.015 - well;
         const pr = project(x, y, z, tiltX, tiltZ);
+
+        // previous point along orbit for short dashed stroke
+        const back = trailLen * (0.04 + (1.1 - r) * 0.06);
+        const a0 = angle - back * angSpeed * 0.35;
+        const x0 = Math.cos(a0) * rr;
+        const y0 = Math.sin(a0) * rr;
+        const z0 = Math.sin(a0 * 3 + p.phase) * rr * 0.015 - well;
+        const pr0 = project(x0, y0, z0, tiltX, tiltZ);
+
         const sx = cx + pr.x;
         const sy = cy + pr.y;
-        const depth = (pr.z / maxR); // -1..1-ish
-        const scale = 1.15 - depth * 0.45;
-        const alpha = clamp(0.25 + (1 - p.radius) * 0.55 + (0.35 - depth * 0.2), 0.15, 1);
+        const sx0 = cx + pr0.x;
+        const sy0 = cy + pr0.y;
+        const depth = pr.z / maxR;
+        const scale = 1.12 - depth * 0.4;
+        // brighter / denser toward center; far side slightly dimmer
+        const alpha = clamp(0.18 + (1 - r) * 0.7 + (0.2 - depth * 0.25), 0.08, 0.95);
 
-        p.trail.push({ x: sx, y: sy, a: alpha, s: scale });
-        if (p.trail.length > trailLen) p.trail.shift();
-
-        drawn.push({ p, sx, sy, depth, scale, alpha, size: cfg.particleSize * p.size * scale });
+        drawn.push({
+          sx, sy, sx0, sy0, depth, alpha, scale,
+          size: cfg.particleSize * p.size * scale,
+          color: p.color,
+          stroke: p.stroke
+        });
       }
 
-      // depth sort (far → near)
       drawn.sort((a, b) => a.depth - b.depth);
 
-      // soft accretion glow
-      const glow = ctx.createRadialGradient(cx, cy, coreR * 0.2, cx, cy, maxR * 1.05);
-      glow.addColorStop(0, 'rgba(255,220,180,0.16)');
-      glow.addColorStop(0.35, 'rgba(120,90,255,0.08)');
-      glow.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = glow;
+      // faint disk plane (no purple/cream glow — matches reference)
+      const discA = Math.abs(Math.cos(tiltX));
+      const rx = maxR * 1.02;
+      const ry = maxR * lerp(0.18, 0.72, discA);
+      const plane = ctx.createRadialGradient(cx, cy, coreR * 0.4, cx, cy, rx);
+      plane.addColorStop(0, 'rgba(255,255,255,0.06)');
+      plane.addColorStop(0.45, 'rgba(255,40,40,0.035)');
+      plane.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = plane;
       ctx.beginPath();
-      ctx.ellipse(cx, cy, maxR * 1.05, maxR * (0.35 + Math.abs(Math.cos(tiltX)) * 0.55), tiltZ, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy, rx, ry, tiltZ, 0, Math.PI * 2);
       ctx.fill();
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
 
       for (let i = 0; i < drawn.length; i++) {
         const d = drawn[i];
-        // trails
-        const tr = d.p.trail;
-        for (let k = 0; k < tr.length; k++) {
-          const pt = tr[k];
-          const ta = (k / tr.length) * d.alpha * 0.55;
-          ctx.beginPath();
-          ctx.fillStyle = d.p.color;
-          ctx.globalAlpha = ta;
-          ctx.arc(pt.x, pt.y, Math.max(0.4, d.size * 0.35 * (k / tr.length)), 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.strokeStyle = d.color;
         ctx.globalAlpha = d.alpha;
+        ctx.lineWidth = Math.max(0.45, d.size * d.stroke);
         ctx.beginPath();
-        ctx.fillStyle = d.p.color;
-        ctx.arc(d.sx, d.sy, d.size, 0, Math.PI * 2);
+        ctx.moveTo(d.sx0, d.sy0);
+        ctx.lineTo(d.sx, d.sy);
+        ctx.stroke();
+
+        // bright tip
+        ctx.globalAlpha = d.alpha * 0.9;
+        ctx.fillStyle = d.color;
+        ctx.beginPath();
+        ctx.arc(d.sx, d.sy, Math.max(0.35, d.size * 0.45), 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
 
       if (cfg.showCenter) {
-        // event horizon
-        const horizon = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+        // dark event horizon well (no colored photon ring — reference is pure sink)
+        const horizon = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 1.35);
         horizon.addColorStop(0, '#000000');
-        horizon.addColorStop(0.72, '#050505');
-        horizon.addColorStop(0.9, 'rgba(255,180,120,0.55)');
-        horizon.addColorStop(1, 'rgba(255,220,180,0)');
+        horizon.addColorStop(0.55, '#000000');
+        horizon.addColorStop(0.82, 'rgba(0,0,0,0.85)');
+        horizon.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.beginPath();
         ctx.fillStyle = horizon;
-        ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+        ctx.ellipse(cx, cy, coreR * 1.15, coreR * lerp(0.35, 1, discA), tiltZ, 0, Math.PI * 2);
         ctx.fill();
-
-        // photon ring
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgba(255,210,160,0.55)';
-        ctx.lineWidth = Math.max(1, coreR * 0.06);
-        ctx.arc(cx, cy, coreR * 0.98, 0, Math.PI * 2);
-        ctx.stroke();
       }
 
       raf = requestAnimationFrame(frame);
@@ -174,6 +214,7 @@
       resize();
       seed();
       running = true;
+      t0 = performance.now();
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(frame);
     }
@@ -183,9 +224,7 @@
       cancelAnimationFrame(raf);
     }
 
-    window.addEventListener('resize', () => {
-      resize();
-    });
+    window.addEventListener('resize', resize);
 
     start();
     return { start, stop, resize, config: cfg };

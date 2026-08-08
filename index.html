@@ -561,7 +561,7 @@
             width: 100%;
             height: 220px;
             background-color: #000000;
-            color: #34c759;
+            color: #ffffff;
             border: none;
             outline: none;
             resize: vertical;
@@ -572,7 +572,20 @@
         }
 
         .function-editor::placeholder {
-            color: #666666;
+            color: #888888;
+        }
+
+        .action-code-btn {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 6px !important;
+            min-width: 28px;
+        }
+
+        .action-code-btn:hover {
+            background: #eceae4 !important;
+            text-decoration: none !important;
         }
 
         .virtual-keyboard-white {
@@ -878,28 +891,55 @@
             });
         }
 
-        async function openRepoCodeInspector(repoName) {
+        async function openRepoCodeInspector(repoName, userRepo) {
             const drawer = document.getElementById('functionDrawer');
             if (!drawer.classList.contains('open')) {
                 drawer.classList.add('open');
             }
             
-            currentInspectedRepo = repoName;
+            const localName = repoName || (userRepo ? String(userRepo).split('/').pop() : '');
+            const remoteTarget = userRepo || repoName;
+            currentInspectedRepo = localName;
             const toolbar = document.getElementById('repoInspectorBar');
             const selector = document.getElementById('repoFileSelector');
             const headerTitle = document.getElementById('functionDrawerHeader');
             const editor = document.getElementById('functionEditor');
             const pathInfo = document.getElementById('repoFilePathInfo');
 
-            headerTitle.innerHTML = `&gt;/ function to execute &bull; <span style="color:#34c759;">Inspeccionando Repositorio: <strong>${repoName}</strong></span>`;
+            headerTitle.innerHTML = `&gt;/ function to execute &bull; <span style="color:#ffffff;">Inspeccionando Repositorio: <strong>${localName}</strong></span>`;
             toolbar.style.display = 'flex';
             selector.innerHTML = '<option value="">⏳ Cargando estructura de carpetas...</option>';
             pathInfo.textContent = '';
-            editor.value = "// Cargando código completo del repositorio '" + repoName + "' por carpetas...";
+            editor.style.color = '#ffffff';
+            editor.value = "// Cargando código completo del repositorio '" + localName + "' por carpetas...";
 
             try {
-                const res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(repoName));
-                const data = await res.json();
+                let res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(localName));
+                let data = await res.json();
+
+                // Si no está clonado localmente, clonar primero y reintentar
+                if (!data.ok && remoteTarget) {
+                    editor.value = "// Clonando '" + remoteTarget + "' para inspeccionar el código en la terminal negra...";
+                    const cloneRes = await fetch('/api/command', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ command: 'clone ' + remoteTarget })
+                    });
+                    const cloneData = await cloneRes.json();
+                    const cloneOut = cloneData.output || cloneData;
+                    if (cloneOut.result && cloneOut.result.unlicensed) {
+                        showUnlicensedPopup('This repository is unlicensed! Do not use it.', remoteTarget);
+                        editor.value = "// This repository is unlicensed! Do not use it.";
+                        return;
+                    }
+                    if (!cloneOut.result || !cloneOut.result.ok) {
+                        editor.value = "// Error al clonar: " + ((cloneOut.result && cloneOut.result.raw_output) || cloneOut.error || 'falló');
+                        return;
+                    }
+                    currentInspectedRepo = cloneOut.result.repo_name || localName;
+                    res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(currentInspectedRepo));
+                    data = await res.json();
+                }
                 
                 if (!data.ok) {
                     editor.value = "// Error: " + (data.error || "No se pudo leer el repositorio");
@@ -1091,14 +1131,17 @@
                             ? `<span class="mime-tag" style="background:#e6f4ea;color:#137333;">Clonado</span>`
                             : `<span class="mime-tag" style="background:#eceae4;color:#444;">GitHub</span>`;
                         const licenseBadge = `<span class="license-badge" title="Licencia SPDX del repositorio"><span class="dot"></span>${escHtml(licLabel)}</span>`;
+                        // Icono código a la izquierda de Guardar / GitHub / Pull
+                        const codeBtn = `<button class="action-btn-link action-code-btn" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'), decodeURIComponent('${escAttr(full)}'))" title="Ver todo el código en la terminal negra">
+                                    ${SVG_CODE_WINDOW_BLACK}
+                               </button>`;
                         const actions = cloned
-                            ? `<button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'))" title="Inspeccionar código">
-                                    ${SVG_CODE_WINDOW_BLACK}<span>Ver Código</span>
-                               </button>
+                            ? `${codeBtn}
                                <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ' + decodeURIComponent('${escAttr(full)}'))">
                                     ${SVG_REFRESH_VECTOR}<span>Git Pull</span>
                                </button>`
-                            : `<button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('save ' + decodeURIComponent('${escAttr(full)}'))">
+                            : `${codeBtn}
+                               <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('save ' + decodeURIComponent('${escAttr(full)}'))">
                                     ${SVG_GITHUB_BLACK}<span>Guardar</span>
                                </button>
                                <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ' + decodeURIComponent('${escAttr(full)}'))">

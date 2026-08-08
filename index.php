@@ -493,10 +493,14 @@
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
             margin-top: -1px;
             animation: fadeInDrawer 0.25s ease-out;
+            overflow: visible;
+            position: relative;
+            z-index: 30;
         }
 
         .function-drawer.open {
             display: block;
+            overflow: visible;
         }
 
         @keyframes fadeInDrawer {
@@ -532,25 +536,115 @@
             border-radius: 6px 6px 0 0;
             border-bottom: 1px solid #333;
             flex-wrap: wrap;
+            position: relative;
+            z-index: 40;
         }
 
-        .repo-file-selector {
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 6px 10px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 12px;
-            outline: none;
+        .repo-file-picker {
+            position: relative;
             flex: 1;
             min-width: 260px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+        }
+
+        .repo-file-picker-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            text-align: left;
+            font: inherit;
+        }
+
+        .repo-file-picker-btn:hover,
+        .repo-file-picker.open .repo-file-picker-btn {
+            border-color: #888;
+            background: #0a0a0a;
+        }
+
+        .repo-file-picker-label {
+            color: #ffffff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .repo-file-picker-chevron {
+            color: #ffffff;
+            flex-shrink: 0;
+            font-size: 11px;
+        }
+
+        .repo-file-picker-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #111111;
+            border: 1px solid #555;
+            border-radius: 6px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+            z-index: 80;
+        }
+
+        .repo-file-picker.open .repo-file-picker-menu {
+            display: block;
+        }
+
+        .repo-file-picker-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font: inherit;
+            text-align: left;
             cursor: pointer;
         }
 
-        .repo-file-selector option {
-            background: #141414;
+        .repo-file-picker-item:hover,
+        .repo-file-picker-item.active {
+            background: #2a2a2a;
             color: #ffffff;
+        }
+
+        .repo-file-picker-item.folder {
+            color: #cfcfcf;
+            font-weight: 600;
+            cursor: default;
+        }
+
+        .repo-file-picker-item.folder:hover {
+            background: transparent;
+        }
+
+        .repo-file-picker-item.file {
+            padding-left: 22px;
+        }
+
+        .repo-file-picker-empty {
+            padding: 12px;
+            color: #aaaaaa;
+            font-size: 12px;
+        }
+
+        /* select oculto solo para compatibilidad interna */
+        .repo-file-selector {
+            display: none !important;
         }
 
         .function-drawer-inner {
@@ -784,10 +878,17 @@
                 <!-- Barra Navegadora de Código por Carpetas en la Consola Negra -->
                 <div class="repo-inspector-bar" id="repoInspectorBar">
                     <span style="color:#ffffff; font-size:12px; font-weight:600;">Estructura:</span>
-                    <select id="repoFileSelector" class="repo-file-selector" onchange="loadSelectedRepoFile(this.value)">
-                        <option value="">📁 Selecciona un archivo de código por carpeta...</option>
+                    <div class="repo-file-picker" id="repoFilePicker">
+                        <button type="button" class="repo-file-picker-btn" id="repoFilePickerBtn" onclick="toggleRepoFilePicker(event)" title="Seleccionar archivo o carpeta">
+                            <span class="repo-file-picker-label" id="repoFilePickerLabel">Selecciona un archivo por carpeta...</span>
+                            <span class="repo-file-picker-chevron">▼</span>
+                        </button>
+                        <div class="repo-file-picker-menu" id="repoFilePickerMenu" role="listbox"></div>
+                    </div>
+                    <select id="repoFileSelector" class="repo-file-selector" onchange="loadSelectedRepoFile(this.value)" aria-hidden="true" tabindex="-1">
+                        <option value="">Selecciona un archivo de código por carpeta...</option>
                     </select>
-                    <span id="repoFilePathInfo" style="color:#888888; font-size:11px; font-family:monospace;"></span>
+                    <span id="repoFilePathInfo" style="color:#aaaaaa; font-size:11px; font-family:monospace;"></span>
                 </div>
 
                 <div class="function-drawer-inner">
@@ -911,8 +1012,12 @@
 
             headerTitle.innerHTML = `&gt;/ function to execute &bull; <span style="color:#ffffff;">Inspeccionando Repositorio: <strong>${localName}</strong></span>`;
             toolbar.style.display = 'flex';
-            selector.innerHTML = '<option value="">⏳ Cargando estructura de carpetas...</option>';
-            pathInfo.textContent = '';
+            if (selector) selector.innerHTML = '<option value="">Cargando estructura de carpetas...</option>';
+            setRepoFilePickerLabel('Cargando estructura de carpetas...');
+            const menu = document.getElementById('repoFilePickerMenu');
+            if (menu) menu.innerHTML = '<div class="repo-file-picker-empty">Cargando carpetas y archivos...</div>';
+            closeRepoFilePicker();
+            if (pathInfo) pathInfo.textContent = '';
             editor.style.color = '#ffffff';
             editor.value = "// Cargando código completo del repositorio '" + localName + "' por carpetas...";
 
@@ -950,22 +1055,14 @@
                 }
 
                 currentRepoTree = data.tree || [];
-                selector.innerHTML = '<option value="">📁 Selecciona un archivo por carpeta...</option>';
+                populateRepoFilePicker(currentRepoTree);
 
-                currentRepoTree.forEach(item => {
-                    if (item.type === 'file') {
-                        const opt = document.createElement('option');
-                        opt.value = item.path;
-                        opt.textContent = "📄 " + item.path + " (" + item.size_formatted + ")";
-                        selector.appendChild(opt);
-                    }
-                });
-
-                if (selector.options.length > 1) {
-                    selector.selectedIndex = 1;
-                    loadSelectedRepoFile(selector.value);
+                const firstFile = currentRepoTree.find(item => item.type === 'file');
+                if (firstFile) {
+                    selectRepoFile(firstFile.path, firstFile.name || firstFile.path);
                 } else {
                     editor.value = "// Repositorio vacío o sin archivos de código visibles.";
+                    setRepoFilePickerLabel('Sin archivos visibles');
                 }
             } catch (err) {
                 console.error("Error al cargar repositorio:", err);
@@ -973,19 +1070,127 @@
             }
         }
 
+        function toggleRepoFilePicker(event) {
+            if (event) event.stopPropagation();
+            const picker = document.getElementById('repoFilePicker');
+            if (!picker) return;
+            picker.classList.toggle('open');
+        }
+
+        function closeRepoFilePicker() {
+            const picker = document.getElementById('repoFilePicker');
+            if (picker) picker.classList.remove('open');
+        }
+
+        function setRepoFilePickerLabel(text) {
+            const label = document.getElementById('repoFilePickerLabel');
+            if (label) label.textContent = text;
+        }
+
+        function populateRepoFilePicker(tree) {
+            const menu = document.getElementById('repoFilePickerMenu');
+            const selector = document.getElementById('repoFileSelector');
+            if (!menu || !selector) return;
+
+            menu.innerHTML = '';
+            selector.innerHTML = '<option value="">Selecciona un archivo por carpeta...</option>';
+
+            const files = (tree || []).filter(item => item.type === 'file');
+            const folders = (tree || []).filter(item => item.type === 'folder');
+
+            if (files.length === 0 && folders.length === 0) {
+                menu.innerHTML = '<div class="repo-file-picker-empty">No hay carpetas ni archivos para mostrar.</div>';
+                setRepoFilePickerLabel('Sin archivos visibles');
+                return;
+            }
+
+            // Agrupar archivos por carpeta padre
+            const byFolder = {};
+            files.forEach(file => {
+                const path = String(file.path || file.name || '');
+                const slash = path.lastIndexOf('/');
+                const folder = slash >= 0 ? path.slice(0, slash) : '(raíz)';
+                if (!byFolder[folder]) byFolder[folder] = [];
+                byFolder[folder].push(file);
+            });
+
+            // Incluir carpetas vacías del árbol
+            folders.forEach(folder => {
+                const key = folder.path || folder.name || '(raíz)';
+                if (!byFolder[key]) byFolder[key] = [];
+            });
+
+            const folderNames = Object.keys(byFolder).sort((a, b) => {
+                if (a === '(raíz)') return -1;
+                if (b === '(raíz)') return 1;
+                return a.localeCompare(b);
+            });
+
+            folderNames.forEach(folderName => {
+                const folderBtn = document.createElement('div');
+                folderBtn.className = 'repo-file-picker-item folder';
+                folderBtn.textContent = (folderName === '(raíz)' ? '📁 /' : ('📁 ' + folderName));
+                menu.appendChild(folderBtn);
+
+                byFolder[folderName]
+                    .sort((a, b) => String(a.path || '').localeCompare(String(b.path || '')))
+                    .forEach(file => {
+                        const path = file.path || file.name;
+                        const size = file.size_formatted ? (' (' + file.size_formatted + ')') : '';
+                        const opt = document.createElement('option');
+                        opt.value = path;
+                        opt.textContent = path + size;
+                        selector.appendChild(opt);
+
+                        const fileBtn = document.createElement('button');
+                        fileBtn.type = 'button';
+                        fileBtn.className = 'repo-file-picker-item file';
+                        fileBtn.setAttribute('role', 'option');
+                        fileBtn.dataset.path = path;
+                        fileBtn.textContent = '📄 ' + (file.name || path.split('/').pop()) + size;
+                        fileBtn.title = path;
+                        fileBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            selectRepoFile(path, file.name || path.split('/').pop());
+                        });
+                        menu.appendChild(fileBtn);
+                    });
+            });
+
+            setRepoFilePickerLabel('Selecciona un archivo por carpeta...');
+        }
+
+        function selectRepoFile(filePath, displayName) {
+            if (!filePath) return;
+            const selector = document.getElementById('repoFileSelector');
+            if (selector) selector.value = filePath;
+            setRepoFilePickerLabel(displayName ? ('📄 ' + displayName) : filePath);
+            closeRepoFilePicker();
+
+            // Marcar activo en el menú
+            document.querySelectorAll('.repo-file-picker-item.file').forEach(el => {
+                el.classList.toggle('active', el.dataset.path === filePath);
+            });
+            loadSelectedRepoFile(filePath);
+        }
+
         async function loadSelectedRepoFile(filePath) {
             if (!filePath || !currentInspectedRepo) return;
             const editor = document.getElementById('functionEditor');
             const pathInfo = document.getElementById('repoFilePathInfo');
             
-            pathInfo.textContent = currentInspectedRepo + " / " + filePath;
-            editor.value = "// Cargando código de '" + filePath + "'...";
+            if (pathInfo) pathInfo.textContent = currentInspectedRepo + " / " + filePath;
+            if (editor) {
+                editor.style.color = '#ffffff';
+                editor.value = "// Cargando código de '" + filePath + "'...";
+            }
 
             try {
                 const res = await fetch('/api/repo/file?repo=' + encodeURIComponent(currentInspectedRepo) + '&path=' + encodeURIComponent(filePath));
                 const data = await res.json();
                 if (data.ok) {
                     editor.value = data.content;
+                    editor.style.color = '#ffffff';
                 } else {
                     editor.value = "// Error: " + (data.error || "No se pudo leer el archivo");
                 }
@@ -994,6 +1199,12 @@
                 editor.value = "// Error de lectura.";
             }
         }
+
+        document.addEventListener('click', (e) => {
+            const picker = document.getElementById('repoFilePicker');
+            if (!picker) return;
+            if (!picker.contains(e.target)) closeRepoFilePicker();
+        });
 
         function triggerFileUpload() {
             const fileInput = document.createElement('input');

@@ -232,6 +232,61 @@ function runGhJson($args) {
 }
 
 /**
+ * Extrae licencia SPDX legible desde respuesta GitHub API.
+ */
+function extractGithubLicense($item) {
+    if (!is_array($item)) return 'NOASSERTION';
+    $lic = $item['license'] ?? null;
+    if (!is_array($lic) || empty($lic)) {
+        return 'None';
+    }
+    $spdx = trim((string)($lic['spdx_id'] ?? ''));
+    if ($spdx !== '' && strtoupper($spdx) !== 'NOASSERTION' && strtoupper($spdx) !== 'OTHER') {
+        return strtoupper($spdx) === 'MIT' ? 'MIT' : $spdx;
+    }
+    $key = trim((string)($lic['key'] ?? ''));
+    if ($key !== '' && $key !== 'other' && $key !== 'noassertion') {
+        // Normalizar claves comunes
+        $map = [
+            'mit' => 'MIT',
+            'apache-2.0' => 'Apache-2.0',
+            'gpl-3.0' => 'GPL-3.0',
+            'gpl-2.0' => 'GPL-2.0',
+            'agpl-3.0' => 'AGPL-3.0',
+            'lgpl-3.0' => 'LGPL-3.0',
+            'bsd-2-clause' => 'BSD-2-Clause',
+            'bsd-3-clause' => 'BSD-3-Clause',
+            'mpl-2.0' => 'MPL-2.0',
+            'unlicense' => 'Unlicense',
+            'cc0-1.0' => 'CC0-1.0',
+            'isc' => 'ISC',
+            'proprietary' => 'Proprietary'
+        ];
+        $lk = strtolower($key);
+        return $map[$lk] ?? strtoupper($key);
+    }
+    $name = trim((string)($lic['name'] ?? ''));
+    if ($name !== '') {
+        if (stripos($name, 'MIT') !== false) return 'MIT';
+        if (stripos($name, 'Apache') !== false) return 'Apache-2.0';
+        return $name;
+    }
+    return 'Other';
+}
+
+function fetchGithubLicenseForRepo($userRepo) {
+    $userRepo = trim((string)$userRepo);
+    if ($userRepo === '' || strpos($userRepo, '/') === false) {
+        return 'Unknown';
+    }
+    $res = runGhJson('api ' . escapeshellarg('repos/' . $userRepo));
+    if (!empty($res['ok']) && is_array($res['data'])) {
+        return extractGithubLicense($res['data']);
+    }
+    return 'Unknown';
+}
+
+/**
  * Busca repositorios en TODO GitHub (API Search), no solo la cuenta local.
  */
 function searchGithubRepositories($query = '', $page = 1, $perPage = 30) {
@@ -278,6 +333,7 @@ function searchGithubRepositories($query = '', $page = 1, $perPage = 30) {
             'last_commit' => ($desc !== '' ? $desc : 'Sin descripción') . ' · ' . ($item['updated_at'] ?? ''),
             'size_formatted' => formatBytes($diskKb * 1024),
             'stars' => (int)($item['stargazers_count'] ?? 0),
+            'license' => extractGithubLicense($item),
             'is_private' => !empty($item['private']),
             'cloned' => false,
             'source' => 'github_search',
@@ -325,6 +381,7 @@ function saveGithubRepository($repoTarget) {
             'remote_url' => 'https://github.com/' . $clean,
             'last_commit' => 'Guardado desde GitHub (metadata pendiente)',
             'size_formatted' => '—',
+            'license' => 'Unknown',
             'cloned' => false,
             'source' => 'manual_save',
             'updated_at' => date('Y-m-d H:i:s')
@@ -344,6 +401,7 @@ function saveGithubRepository($repoTarget) {
         'last_commit' => trim(($item['description'] ?? '') !== '' ? $item['description'] : 'Sin descripción'),
         'size_formatted' => formatBytes($diskKb * 1024),
         'stars' => (int)($item['stargazers_count'] ?? 0),
+        'license' => extractGithubLicense($item),
         'is_private' => !empty($item['private']),
         'cloned' => false,
         'source' => 'manual_save',
@@ -415,18 +473,24 @@ function cloneOrUpdateRepository($repoTarget) {
 
     $lastCommit = 'Sin commits';
     $branch = 'main';
+    $license = 'Unknown';
     if ($isSuccess) {
         $commitCmd = sprintf('cd %s && git log -1 --pretty=format:"%%h - %%s (%%cr)" 2>&1', escapeshellarg($targetPath));
         $lastCommit = trim(shell_exec($commitCmd) ?? 'Commit info unavailable');
         $branchCmd = sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($targetPath));
         $branch = trim(shell_exec($branchCmd) ?? 'main');
 
+        if (strpos($userRepo, '/') !== false) {
+            $license = fetchGithubLicenseForRepo($userRepo);
+        }
         $repoMeta = [
             'name' => $repoFolder,
             'user_repo' => $userRepo,
             'branch' => $branch,
             'remote_url' => $httpsUrl,
             'last_commit' => $lastCommit,
+            'license' => $license,
+            'cloned' => true,
             'updated_at' => date('Y-m-d H:i:s')
         ];
         saveRepoIndexEntry($repoMeta);
@@ -442,6 +506,7 @@ function cloneOrUpdateRepository($repoTarget) {
         'target_path' => $targetPath,
         'branch' => $branch,
         'last_commit' => $lastCommit,
+        'license' => $license ?? 'Unknown',
         'raw_output' => trim($output)
     ];
 }
@@ -450,10 +515,23 @@ function cloneOrUpdateRepository($repoTarget) {
  * Repos clonados localmente (disco). $lightweight=true evita git pesado (solo flags).
  */
 function getLocalClonedRepositories($lightweight = false) {
-    global $REPOS_DIR;
+    global $REPOS_DIR, $STORAGE_DIR;
     $repos = [];
     if (!file_exists($REPOS_DIR)) {
         return $repos;
+    }
+
+    $indexLicenses = [];
+    $indexPath = $STORAGE_DIR . '/repos_index.json';
+    if (file_exists($indexPath)) {
+        $idx = json_decode(file_get_contents($indexPath), true) ?? [];
+        foreach ($idx as $k => $meta) {
+            $ur = $meta['user_repo'] ?? $k;
+            if (!empty($meta['license'])) {
+                $indexLicenses[$ur] = $meta['license'];
+                $indexLicenses[basename($ur)] = $meta['license'];
+            }
+        }
     }
 
     $dirs = scandir($REPOS_DIR);
@@ -468,6 +546,7 @@ function getLocalClonedRepositories($lightweight = false) {
         if (preg_match('#github\.com[:/]([^/]+/[^/]+?)(?:\.git)?$#i', $remoteUrl, $m)) {
             $userRepo = preg_replace('/\.git$/i', '', $m[1]);
         }
+        $license = $indexLicenses[$userRepo] ?? ($indexLicenses[$d] ?? 'Unknown');
 
         if ($lightweight) {
             $repoMeta = [
@@ -477,6 +556,7 @@ function getLocalClonedRepositories($lightweight = false) {
                 'remote_url' => $remoteUrl,
                 'last_commit' => 'Clonado localmente',
                 'size_formatted' => '—',
+                'license' => $license,
                 'cloned' => true,
                 'source' => 'local_clone',
                 'updated_at' => date('Y-m-d H:i:s', @filemtime($fullPath) ?: time())
@@ -501,6 +581,7 @@ function getLocalClonedRepositories($lightweight = false) {
                 'remote_url' => $remoteUrl,
                 'last_commit' => $lastCommit,
                 'size_formatted' => formatBytes($sizeBytes),
+                'license' => $license,
                 'cloned' => true,
                 'source' => 'local_clone',
                 'updated_at' => date('Y-m-d H:i:s', @filemtime($fullPath) ?: time())
@@ -550,6 +631,7 @@ function getStoredRepositories() {
                 'last_commit' => $meta['last_commit'] ?? 'Guardado en catálogo (sin clonar)',
                 'size_formatted' => $meta['size_formatted'] ?? '—',
                 'stars' => $meta['stars'] ?? null,
+                'license' => $meta['license'] ?? 'Unknown',
                 'is_private' => $meta['is_private'] ?? false,
                 'cloned' => false,
                 'source' => $meta['source'] ?? 'index',
@@ -607,6 +689,7 @@ function buildGithubReposCatalog($query = '', $page = 1) {
                     'remote_url' => $meta['remote_url'] ?? ('https://github.com/' . $userRepo),
                     'last_commit' => $meta['last_commit'] ?? 'Guardado en catálogo',
                     'size_formatted' => $meta['size_formatted'] ?? '—',
+                    'license' => $meta['license'] ?? 'Unknown',
                     'cloned' => false,
                     'source' => $meta['source'] ?? 'index',
                     'updated_at' => $meta['updated_at'] ?? date('Y-m-d H:i:s')

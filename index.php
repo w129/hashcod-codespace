@@ -981,9 +981,15 @@
                     repos.forEach(r => {
                         const full = r.user_repo || r.name;
                         const cloned = !!r.cloned;
+                        const licRaw = (r.license || 'Unknown').toString().trim() || 'Unknown';
+                        const licLabel = licRaw.toUpperCase() === 'NONE' || licRaw.toUpperCase() === 'NOASSERTION' ? 'None' : licRaw;
                         const statusBadge = cloned
                             ? `<span class="mime-tag" style="background:#e6f4ea;color:#137333;">Clonado</span>`
                             : `<span class="mime-tag" style="background:#eceae4;color:#444;">GitHub</span>`;
+                        const licenseBadge = `<span class="mime-tag" title="Licencia del repositorio" style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfcbc3;color:#141414;border-radius:999px;padding:2px 10px;">
+                                <span style="width:7px;height:7px;border-radius:50%;background:#2563eb;display:inline-block;flex-shrink:0;"></span>
+                                <span>${escHtml(licLabel)}</span>
+                            </span>`;
                         const actions = cloned
                             ? `<button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'))" title="Inspeccionar código">
                                     ${SVG_CODE_WINDOW_BLACK}<span>Ver Código</span>
@@ -1002,9 +1008,12 @@
                                 <td>
                                     <div class="file-name-cell">
                                         ${SVG_GITHUB_BLACK}
-                                        <div style="display:flex;flex-direction:column;gap:2px;">
+                                        <div style="display:flex;flex-direction:column;gap:4px;">
                                             <span>${escHtml(full)}</span>
-                                            ${statusBadge}
+                                            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                                                ${statusBadge}
+                                                ${licenseBadge}
+                                            </div>
                                         </div>
                                     </div>
                                 </td>

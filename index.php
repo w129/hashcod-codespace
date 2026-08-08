@@ -261,7 +261,7 @@
 
         .function-editor {
             width: 100%;
-            height: 180px;
+            height: 140px;
             background-color: #000000;
             color: #ffffff;
             border: none;
@@ -277,13 +277,13 @@
             color: #666666;
         }
 
-        /* Teclado Virtual Blanco Adaptado al Entorno */
+        /* NUEVA ESTRUCTURA DE 3 PANELES (key window | Vector graphic | Equations window) */
         .virtual-keyboard-white {
             display: none;
             margin-top: 16px;
             background-color: #ffffff;
             border: 1px solid #d8d8d8;
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 16px;
             user-select: none;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
@@ -339,53 +339,51 @@
             box-shadow: 0 0 6px #34c759;
         }
 
-        .vk-main-chassis {
-            display: flex;
-            gap: 14px;
-            background-color: #f7f7f9;
-            border: 1px solid #e0e0e5;
-            border-radius: 6px;
+        /* Contenedor de 3 Paneles */
+        .vk-3panel-container {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr 1fr;
+            gap: 12px;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        .vk-panel {
+            background-color: #ffffff;
+            border: 2px solid #000000;
             padding: 12px;
-            overflow-x: auto;
-        }
-
-        .vk-block-main {
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            flex: 3;
+            min-height: 240px;
         }
 
-        .vk-block-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-width: 120px;
+        .vk-panel-header, .vector-graphic-title {
+            font-family: monospace, 'Courier New', Courier;
+            font-size: 15px;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
         }
 
-        .vk-block-numpad {
+        .key-window-panel {
+            justify-content: flex-start;
+        }
+
+        .key-window-grid {
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            min-width: 160px;
+            gap: 6px;
+            width: 100%;
+            height: 100%;
         }
 
         .vk-row {
             display: flex;
-            gap: 4px;
+            gap: 5px;
+            width: 100%;
         }
 
-        .vk-f-row {
-            margin-bottom: 6px;
-        }
-
-        .vk-f-group {
-            display: flex;
-            gap: 4px;
-            margin-right: 6px;
-        }
-
-        /* Estilo 3D blanco premium para las teclas */
         .vk-key {
             background: linear-gradient(180deg, #ffffff 0%, #f4f4f7 100%);
             color: #222222;
@@ -393,10 +391,9 @@
             border-bottom: 2px solid #b8b8c0;
             border-radius: 4px;
             font-family: monospace, 'Courier New', Courier;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            height: 34px;
-            min-width: 30px;
+            height: 38px;
             flex: 1;
             padding: 2px 4px;
             display: flex;
@@ -421,73 +418,86 @@
             box-shadow: none;
         }
 
-        /* Teclas de función F1-F12 en ROJO estilo la imagen */
         .key-f {
             background: linear-gradient(180deg, #ff4d4d 0%, #d90000 100%);
             color: #ffffff;
             border: 1px solid #b30000;
             border-bottom: 2px solid #800000;
             font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
-        .key-f:hover {
-            background: linear-gradient(180deg, #ff6666 0%, #e60000 100%);
+        .key-enter {
+            background: linear-gradient(180deg, #e6f0ff 0%, #cce0ff 100%);
+            border-color: #99c2ff;
+            color: #0052cc;
         }
 
-        .key-esc {
-            background: linear-gradient(180deg, #333333 0%, #1a1a1a 100%);
-            color: #ffffff;
-            border-color: #000000;
-            font-weight: bold;
+        .key-num-zero {
+            flex: 2;
         }
 
-        .key-backspace { flex: 1.8; }
-        .key-tab { flex: 1.4; }
-        .key-caps { flex: 1.7; }
-        .key-enter { flex: 2; background: linear-gradient(180deg, #e6f0ff 0%, #cce0ff 100%); border-color: #99c2ff; color: #0052cc; }
-        .key-shift { flex: 1.4; }
-        .key-shift-r { flex: 2.2; }
-        .key-spacebar { flex: 6; }
-        .key-ctrl, .key-alt, .key-win { flex: 1.2; font-size: 10px; }
-
-        .vk-nav-grid-6 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
+        /* Panel Central Vector Graphic con Doble Marco Rectangular */
+        .vector-graphic-panel {
+            padding: 0;
+            border: none;
+            background: transparent;
         }
 
-        .vk-arrows {
+        .vector-outer-frame {
+            border: 2px solid #000000;
+            padding: 4px;
+            background-color: #ffffff;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .vector-inner-frame {
+            border: 1px solid #000000;
+            height: 100%;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            margin-top: auto;
+            justify-content: flex-start;
+            position: relative;
         }
 
-        .vk-numpad-body {
+        .vector-canvas {
+            width: 100%;
+            height: 100%;
+            min-height: 160px;
+            border: 1px dashed #d0d0d0;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+
+        /* Panel Derecho Equations Window */
+        .equations-window-panel {
+            justify-content: flex-start;
+        }
+
+        .equations-editor-container {
+            width: 100%;
+            height: 100%;
             display: flex;
-            gap: 4px;
         }
 
-        .vk-numpad-left {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 3;
+        .equations-editor {
+            width: 100%;
+            height: 100%;
+            min-height: 160px;
+            background-color: #ffffff;
+            color: #000000;
+            border: 1px solid #cccccc;
+            border-radius: 3px;
+            outline: none;
+            padding: 10px;
+            resize: vertical;
+            font-family: monospace, 'Courier New', Courier, Consolas;
+            font-size: 12px;
+            line-height: 1.5;
         }
-
-        .vk-numpad-right {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-        }
-
-        .key-plus { height: 72px; }
-        .key-num-enter { height: 72px; background: linear-gradient(180deg, #e6f0ff 0%, #cce0ff 100%); border-color: #99c2ff; color: #0052cc; }
-        .key-num-zero { flex: 2; }
-        .vk-key.active-toggle { background: #34c759 !important; color: #ffffff !important; border-color: #248a3d !important; }
 
         body.raw-mode .block-execution .block-body {
             white-space: normal;
@@ -525,7 +535,7 @@
                 <div class="block-body block-input-container">
                     <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter..." autocomplete="off" onkeydown="handleCommandKey(event)">
                     <!-- Icono derecho (Insignia circular con documento) que activa/desactiva el teclado de escritorio -->
-                    <div class="cell-action-icon" title="Activar/Desactivar Teclado de Escritorio" onclick="toggleVirtualKeyboard()">
+                    <div class="cell-action-icon" title="Activar/Desactivar Teclado y Entorno Gráfico" onclick="toggleVirtualKeyboard()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="40" fill="#000000" />
                             <circle cx="82" cy="18" r="4.5" fill="#000000" />
@@ -554,184 +564,68 @@
                     <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
                 </div>
 
-                <!-- Teclado Virtual Blanco Adaptado de Escritorio -->
+                <!-- NUEVA ESTRUCTURA DE 3 SECCIONES (key window | Vector graphic | Equations window) -->
                 <div class="virtual-keyboard-white" id="virtualKeyboard">
                     <div class="vk-top-bar-indicators">
-                        <span class="vk-brand">NATIVE DESKTOP KEYBOARD</span>
+                        <span class="vk-brand">NATIVE GRAPHIC & EQUATIONS WORKSPACE</span>
                         <div class="vk-leds">
-                            <span class="vk-led"><i class="led-dot" id="ledNum"></i> Bloq Num</span>
-                            <span class="vk-led"><i class="led-dot" id="ledCaps"></i> Bloq Mayús</span>
-                            <span class="vk-led"><i class="led-dot" id="ledScroll"></i> Bloq Despl</span>
+                            <span class="vk-led"><i class="led-dot active"></i> Key Window</span>
+                            <span class="vk-led"><i class="led-dot active"></i> Vector Graphic</span>
+                            <span class="vk-led"><i class="led-dot active"></i> Equations Window</span>
                         </div>
                     </div>
 
-                    <div class="vk-main-chassis">
-                        <!-- 1. BLOQUE PRINCIPAL (IZQUIERDA) -->
-                        <div class="vk-block-main">
-                            <!-- Fila F1-F12 con Teclas Rojas -->
-                            <div class="vk-row vk-f-row">
-                                <div class="vk-key key-esc" onclick="pressVirtualKey('ESC')">Esc</div>
-                                <div class="vk-f-group">
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F1')">F1</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F2')">F2</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F3')">F3</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F4')">F4</div>
-                                </div>
-                                <div class="vk-f-group">
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F5')">F5</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F6')">F6</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F7')">F7</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F8')">F8</div>
-                                </div>
-                                <div class="vk-f-group">
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F9')">F9</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F10')">F10</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F11')">F11</div>
-                                    <div class="vk-key key-f" onclick="pressVirtualKey('F12')">F12</div>
-                                </div>
-                            </div>
-
-                            <!-- Fila 1: Números -->
-                            <div class="vk-row">
-                                <div class="vk-key" onclick="pressVirtualKey('`')">º<br>\</div>
-                                <div class="vk-key" onclick="pressVirtualKey('1')">1<br>!</div>
-                                <div class="vk-key" onclick="pressVirtualKey('2')">2<br>"</div>
-                                <div class="vk-key" onclick="pressVirtualKey('3')">3<br>·</div>
-                                <div class="vk-key" onclick="pressVirtualKey('4')">4<br>$</div>
-                                <div class="vk-key" onclick="pressVirtualKey('5')">5<br>%</div>
-                                <div class="vk-key" onclick="pressVirtualKey('6')">6<br>&amp;</div>
-                                <div class="vk-key" onclick="pressVirtualKey('7')">7<br>/</div>
-                                <div class="vk-key" onclick="pressVirtualKey('8')">8<br>(</div>
-                                <div class="vk-key" onclick="pressVirtualKey('9')">9<br>)</div>
-                                <div class="vk-key" onclick="pressVirtualKey('0')">0<br>=</div>
-                                <div class="vk-key" onclick="pressVirtualKey('\'')">'<br>?</div>
-                                <div class="vk-key" onclick="pressVirtualKey('¿')">¿<br>¡</div>
-                                <div class="vk-key key-backspace" onclick="pressVirtualKey('BACKSPACE')">←</div>
-                            </div>
-
-                            <!-- Fila 2: QWERTY -->
-                            <div class="vk-row">
-                                <div class="vk-key key-tab" onclick="pressVirtualKey('TAB')">⇥ Tab</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('q')">Q</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('w')">W</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('e')">E</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('r')">R</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('t')">T</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('y')">Y</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('u')">U</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('i')">I</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('o')">O</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('p')">P</div>
-                                <div class="vk-key" onclick="pressVirtualKey('^')">^</div>
-                                <div class="vk-key" onclick="pressVirtualKey('*')">*</div>
-                                <div class="vk-key key-enter" onclick="pressVirtualKey('ENTER')">↵ Enter</div>
-                            </div>
-
-                            <!-- Fila 3: ASDF -->
-                            <div class="vk-row">
-                                <div class="vk-key key-caps" id="vkCapsBtn" onclick="pressVirtualKey('CAPS')">Bloq Mayús</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('a')">A</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('s')">S</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('d')">D</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('f')">F</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('g')">G</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('h')">H</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('j')">J</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('k')">K</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('l')">L</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('ñ')">Ñ</div>
-                                <div class="vk-key" onclick="pressVirtualKey('¨')">¨</div>
-                                <div class="vk-key" onclick="pressVirtualKey('ç')">Ç</div>
-                            </div>
-
-                            <!-- Fila 4: ZXCV -->
-                            <div class="vk-row">
-                                <div class="vk-key key-shift" onclick="pressVirtualKey('CAPS')">⇧ Shift</div>
-                                <div class="vk-key" onclick="pressVirtualKey('<')">&lt;</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('z')">Z</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('x')">X</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('c')">C</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('v')">V</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('b')">B</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('n')">N</div>
-                                <div class="vk-key letter-key" onclick="pressVirtualKey('m')">M</div>
-                                <div class="vk-key" onclick="pressVirtualKey(';')">;</div>
-                                <div class="vk-key" onclick="pressVirtualKey(':')">:</div>
-                                <div class="vk-key" onclick="pressVirtualKey('-')">-</div>
-                                <div class="vk-key key-shift-r" onclick="pressVirtualKey('CAPS')">⇧ Shift</div>
-                            </div>
-
-                            <!-- Fila 5: Modificadores y Atajos -->
-                            <div class="vk-row">
-                                <div class="vk-key key-ctrl" onclick="pressVirtualKey('CTRL')">Control</div>
-                                <div class="vk-key key-win" onclick="pressVirtualKey('WIN')">❖</div>
-                                <div class="vk-key key-alt" onclick="pressVirtualKey('ALT')">Alt</div>
-                                <div class="vk-key key-spacebar" onclick="pressVirtualKey('SPACE')"></div>
-                                <div class="vk-key key-alt" onclick="pressVirtualKey('ALT')">Alt Gr</div>
-                                <div class="vk-key key-win" onclick="pressVirtualKey('WIN')">❖</div>
-                                <div class="vk-key key-ctrl" onclick="pressVirtualKey('CTRL')">Control</div>
-                            </div>
-                        </div>
-
-                        <!-- 2. BLOQUE DE NAVEGACIÓN Y FLECHAS (CENTRO) -->
-                        <div class="vk-block-nav">
-                            <div class="vk-row">
-                                <div class="vk-key" onclick="pressVirtualKey('IMPR')">Impr</div>
-                                <div class="vk-key" onclick="pressVirtualKey('BLOQ')">Bloq</div>
-                                <div class="vk-key" onclick="pressVirtualKey('PAUSA')">Pausa</div>
-                            </div>
-                            <div class="vk-nav-grid-6">
-                                <div class="vk-key" onclick="pressVirtualKey('INS')">Insert</div>
-                                <div class="vk-key" onclick="pressVirtualKey('INICIO')">Inicio</div>
-                                <div class="vk-key" onclick="pressVirtualKey('REPAG')">Re Pág</div>
-                                <div class="vk-key" onclick="pressVirtualKey('SUPR')">Supr</div>
-                                <div class="vk-key" onclick="pressVirtualKey('FIN')">Fin</div>
-                                <div class="vk-key" onclick="pressVirtualKey('AVPAG')">Av Pág</div>
-                            </div>
-                            <div class="vk-arrows">
-                                <div class="vk-row"><div class="vk-key" onclick="pressVirtualKey('UP')">▲</div></div>
+                    <div class="vk-3panel-container">
+                        <!-- Panel 1: key window (Izquierda) -->
+                        <div class="vk-panel key-window-panel">
+                            <div class="vk-panel-header">key window</div>
+                            <div class="key-window-grid">
                                 <div class="vk-row">
-                                    <div class="vk-key" onclick="pressVirtualKey('LEFT')">◄</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('DOWN')">▼</div>
-                                    <div class="vk-key" onclick="pressVirtualKey('RIGHT')">►</div>
+                                    <div class="vk-key" onclick="pressVirtualKey('7')">7</div>
+                                    <div class="vk-key" onclick="pressVirtualKey('8')">8</div>
+                                    <div class="vk-key" onclick="pressVirtualKey('9')">9</div>
+                                    <div class="vk-key key-f" onclick="pressVirtualKey('+')">+</div>
+                                </div>
+                                <div class="vk-row">
+                                    <div class="vk-key" onclick="pressVirtualKey('4')">4</div>
+                                    <div class="vk-key" onclick="pressVirtualKey('5')">5</div>
+                                    <div class="vk-key" onclick="pressVirtualKey('6')">6</div>
+                                    <div class="vk-key key-f" onclick="pressVirtualKey('-')">-</div>
+                                </div>
+                                <div class="vk-row">
+                                    <div class="vk-key" onclick="pressVirtualKey('1')">1</div>
+                                    <div class="vk-key" onclick="pressVirtualKey('2')">2</div>
+                                    <div class="vk-key" onclick="pressVirtualKey('3')">3</div>
+                                    <div class="vk-key key-f" onclick="pressVirtualKey('*')">*</div>
+                                </div>
+                                <div class="vk-row">
+                                    <div class="vk-key key-num-zero" onclick="pressVirtualKey('0')">0</div>
+                                    <div class="vk-key" onclick="pressVirtualKey('.')">.</div>
+                                    <div class="vk-key key-enter" onclick="pressVirtualKey('ENTER')">↵</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 3. BLOQUE NUMÉRICO (DERECHA) -->
-                        <div class="vk-block-numpad">
-                            <div class="vk-row">
-                                <div class="vk-key" onclick="pressVirtualKey('NUM')">Bloq Num</div>
-                                <div class="vk-key" onclick="pressVirtualKey('/')">/</div>
-                                <div class="vk-key" onclick="pressVirtualKey('*')">*</div>
-                                <div class="vk-key" onclick="pressVirtualKey('-')">-</div>
+                        <!-- Panel 2: Vector graphic (Centro con doble marco rectangular) -->
+                        <div class="vk-panel vector-graphic-panel">
+                            <div class="vector-outer-frame">
+                                <div class="vector-inner-frame">
+                                    <div class="vector-graphic-title">Vector graphic</div>
+                                    <svg class="vector-canvas" viewBox="0 0 300 200">
+                                        <line x1="20" y1="180" x2="280" y2="180" stroke="#cccccc" stroke-width="1.5" />
+                                        <line x1="20" y1="20" x2="20" y2="180" stroke="#cccccc" stroke-width="1.5" />
+                                        <path d="M 20 160 Q 80 20, 150 100 T 280 40" fill="none" stroke="#0451a5" stroke-width="2.5" />
+                                        <circle cx="150" cy="100" r="4" fill="#ff0000" />
+                                    </svg>
+                                </div>
                             </div>
-                            <div class="vk-numpad-body">
-                                <div class="vk-numpad-left">
-                                    <div class="vk-row">
-                                        <div class="vk-key" onclick="pressVirtualKey('7')">7</div>
-                                        <div class="vk-key" onclick="pressVirtualKey('8')">8</div>
-                                        <div class="vk-key" onclick="pressVirtualKey('9')">9</div>
-                                    </div>
-                                    <div class="vk-row">
-                                        <div class="vk-key" onclick="pressVirtualKey('4')">4</div>
-                                        <div class="vk-key" onclick="pressVirtualKey('5')">5</div>
-                                        <div class="vk-key" onclick="pressVirtualKey('6')">6</div>
-                                    </div>
-                                    <div class="vk-row">
-                                        <div class="vk-key" onclick="pressVirtualKey('1')">1</div>
-                                        <div class="vk-key" onclick="pressVirtualKey('2')">2</div>
-                                        <div class="vk-key" onclick="pressVirtualKey('3')">3</div>
-                                    </div>
-                                    <div class="vk-row">
-                                        <div class="vk-key key-num-zero" onclick="pressVirtualKey('0')">0</div>
-                                        <div class="vk-key" onclick="pressVirtualKey('.')">.</div>
-                                    </div>
-                                </div>
-                                <div class="vk-numpad-right">
-                                    <div class="vk-key key-plus" onclick="pressVirtualKey('+')">+</div>
-                                    <div class="vk-key key-num-enter" onclick="pressVirtualKey('ENTER')">Intro</div>
-                                </div>
+                        </div>
+
+                        <!-- Panel 3: Equations window (Derecha) -->
+                        <div class="vk-panel equations-window-panel">
+                            <div class="vk-panel-header">Equations window</div>
+                            <div class="equations-editor-container">
+                                <textarea id="equationsEditor" class="equations-editor" placeholder="// Ecuaciones y fórmulas matemáticas..." spellcheck="false"></textarea>
                             </div>
                         </div>
                     </div>
@@ -837,11 +731,11 @@
         }
 
         let activeInputTarget = document.getElementById('cmdInput');
-        let isCapsActive = false;
 
         document.addEventListener('DOMContentLoaded', () => {
             const inputCmd = document.getElementById('cmdInput');
             const editorFunc = document.getElementById('functionEditor');
+            const editorEq = document.getElementById('equationsEditor');
 
             if (inputCmd) {
                 inputCmd.addEventListener('focus', () => { activeInputTarget = inputCmd; });
@@ -850,6 +744,10 @@
             if (editorFunc) {
                 editorFunc.addEventListener('focus', () => { activeInputTarget = editorFunc; });
                 editorFunc.addEventListener('click', () => { activeInputTarget = editorFunc; });
+            }
+            if (editorEq) {
+                editorEq.addEventListener('focus', () => { activeInputTarget = editorEq; });
+                editorEq.addEventListener('click', () => { activeInputTarget = editorEq; });
             }
         });
 
@@ -866,25 +764,6 @@
                 if (!activeInputTarget) activeInputTarget = document.getElementById('cmdInput');
                 activeInputTarget.focus();
             }
-        }
-
-        function updateKeyboardCapsState() {
-            const capsBtn = document.getElementById('vkCapsBtn');
-            const ledCaps = document.getElementById('ledCaps');
-            if (capsBtn) {
-                if (isCapsActive) {
-                    capsBtn.classList.add('active-toggle');
-                    if (ledCaps) ledCaps.classList.add('active');
-                } else {
-                    capsBtn.classList.remove('active-toggle');
-                    if (ledCaps) ledCaps.classList.remove('active');
-                }
-            }
-            const letterKeys = document.querySelectorAll('.letter-key');
-            letterKeys.forEach(key => {
-                const char = key.textContent;
-                key.textContent = isCapsActive ? char.toUpperCase() : char.toLowerCase();
-            });
         }
 
         function pressVirtualKey(keyVal) {
@@ -913,30 +792,9 @@
                     activeInputTarget.value = val.substring(0, start) + "\n" + val.substring(end);
                     activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + 1;
                 }
-            } else if (keyVal === 'TAB') {
-                activeInputTarget.value = val.substring(0, start) + "    " + val.substring(end);
-                activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + 4;
-            } else if (keyVal === 'CAPS') {
-                isCapsActive = !isCapsActive;
-                updateKeyboardCapsState();
-            } else if (keyVal === 'SPACE') {
-                activeInputTarget.value = val.substring(0, start) + " " + val.substring(end);
-                activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + 1;
-            } else if (keyVal.startsWith('CMD:')) {
-                const cmd = keyVal.replace('CMD:', '');
-                const inputCmd = document.getElementById('cmdInput');
-                inputCmd.value = cmd;
-                activeInputTarget = inputCmd;
-                triggerCommandSubmit();
             } else {
-                let charToInsert = keyVal;
-                if (isCapsActive && charToInsert.length === 1 && charToInsert.match(/[a-z]/i)) {
-                    charToInsert = charToInsert.toUpperCase();
-                } else if (!isCapsActive && charToInsert.length === 1 && charToInsert.match(/[A-Z]/i)) {
-                    charToInsert = charToInsert.toLowerCase();
-                }
-                activeInputTarget.value = val.substring(0, start) + charToInsert + val.substring(end);
-                activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + charToInsert.length;
+                activeInputTarget.value = val.substring(0, start) + keyVal + val.substring(end);
+                activeInputTarget.selectionStart = activeInputTarget.selectionEnd = start + keyVal.length;
             }
         }
 
@@ -981,7 +839,6 @@
             eventSource.onmessage = function(event) {
                 try {
                     const payload = JSON.parse(event.data);
-                    // Solo actualizar datos de fondo si vienen ejecuciones válidas activas
                     if (hasExecutedCommand && payload.execution) {
                         latestExecutionData = payload.execution;
                         render();

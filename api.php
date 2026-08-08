@@ -1,5 +1,5 @@
 <?php
-// api.php - Backend PHP con Super Base de Datos, Dilithium 5 y Conexión SSH Dinámica a GitHub desde la Plataforma
+// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Gestión de Repositorios Clonados
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
 
@@ -20,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $BROWSER_NAMES = ['chrome', 'brave', 'msedge', 'firefox', 'camoufox', 'opera', 'vivaldi', 'arc'];
 $REGISTERED_COMMANDS = [
     "set_i code"  => "Sube archivos masivos a la super base de datos gigante global protegida con Dilithium 5 y consulta todo el catálogo",
+    "repos"       => "Muestra la lista completa de repositorios de GitHub clonados y guardados en el servidor de la plataforma",
+    "clone <repo>"=> "Clona o actualiza repositorios de GitHub vía SSH en el servidor (ej: clone w129/l8-codespace)",
     "ssh_key"     => "Muestra la clave pública SSH Ed25519 generada por esta plataforma para conectar el servidor con GitHub",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
@@ -29,12 +31,14 @@ $REGISTERED_COMMANDS = [
     "bigdata"     => "Genera y prueba la transmisión en lote de grandes volúmenes de datos"
 ];
 
-// Directorios de almacenamiento masivo y Base de Datos Gigante
+// Directorios de almacenamiento masivo, repositorios y SSH
 $STORAGE_DIR = __DIR__ . '/data_storage';
 $UPLOADS_DIR = __DIR__ . '/uploads';
+$REPOS_DIR   = __DIR__ . '/data_storage/repos';
 
 if (!file_exists($STORAGE_DIR)) @mkdir($STORAGE_DIR, 0777, true);
 if (!file_exists($UPLOADS_DIR)) @mkdir($UPLOADS_DIR, 0777, true);
+if (!file_exists($REPOS_DIR))   @mkdir($REPOS_DIR, 0777, true);
 
 /**
  * GESTOR Y GENERADOR DINÁMICO DE CLAVE SSH ED25519 DE LA PLATAFORMA
@@ -64,7 +68,6 @@ function getOrGenerateSshKey($forceRegenerate = false) {
         $pubKeyContent = trim(file_get_contents($pubKeyPath));
     }
 
-    // Probar conexión SSH con GitHub
     $sshTestCmd = sprintf('ssh -T -i %s -o StrictHostKeyChecking=no git@github.com 2>&1', escapeshellarg($keyPath));
     $sshOutput = @shell_exec($sshTestCmd) ?? 'No se pudo probar la conexión SSH';
 
@@ -79,7 +82,118 @@ function getOrGenerateSshKey($forceRegenerate = false) {
 }
 
 /**
- * GENERADOR DE HASH POST-CUÁNTICO DILITHIUM LEVEL 5 (NIST FIPS 204 Standard)
+ * GESTOR DE REPOSITORIOS GITHUB (CLONACIÓN Y PERSISTENCIA SSH)
+ */
+function cloneOrUpdateRepository($repoTarget) {
+    global $REPOS_DIR;
+    $sshInfo = getOrGenerateSshKey();
+    $keyPath = $sshInfo['key_path'];
+
+    $cleanTarget = trim($repoTarget);
+    if (empty($cleanTarget)) {
+        return ['ok' => false, 'error' => 'Especifica un repositorio para clonar (ej: clone w129/l8-codespace)'];
+    }
+
+    // Normalizar la URL del repositorio SSH de GitHub
+    if (strpos($cleanTarget, 'git@github.com:') === 0) {
+        $sshUrl = $cleanTarget;
+        $repoFolder = preg_replace('/\.git$/i', '', basename(parse_url($cleanTarget, PHP_URL_PATH) ?? $cleanTarget));
+    } else if (preg_match('#^https://github\.com/([^/]+)/([^/]+)#i', $cleanTarget, $matches)) {
+        $user = $matches[1];
+        $repo = preg_replace('/\.git$/i', '', $matches[2]);
+        $sshUrl = "git@github.com:$user/$repo.git";
+        $repoFolder = $repo;
+    } else if (preg_match('#^([^/]+)/([^/]+)$#i', $cleanTarget, $matches)) {
+        $user = $matches[1];
+        $repo = preg_replace('/\.git$/i', '', $matches[2]);
+        $sshUrl = "git@github.com:$user/$repo.git";
+        $repoFolder = $repo;
+    } else {
+        $repoFolder = preg_replace('/[^a-zA-Z0-9_\-]/', '', $cleanTarget);
+        $sshUrl = "git@github.com:$cleanTarget.git";
+    }
+
+    $targetPath = $REPOS_DIR . '/' . $repoFolder;
+
+    // Configurar GIT_SSH_COMMAND para usar la clave SSH Ed25519 de la plataforma
+    $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=no', escapeshellarg($keyPath));
+    putenv("GIT_SSH_COMMAND=$gitSshCmd");
+
+    $output = '';
+    $action = '';
+
+    if (file_exists($targetPath . '/.git')) {
+        // Repositorio ya clonado -> Ejecutar git pull para actualizar
+        $action = 'pull';
+        $cmd = sprintf('cd %s && git pull origin main 2>&1 || git pull origin master 2>&1', escapeshellarg($targetPath));
+        $output = shell_exec($cmd);
+    } else {
+        // Clonar repositorio desde GitHub mediante SSH
+        $action = 'clone';
+        $cmd = sprintf('git clone %s %s 2>&1', escapeshellarg($sshUrl), escapeshellarg($targetPath));
+        $output = shell_exec($cmd);
+    }
+
+    $isSuccess = file_exists($targetPath . '/.git');
+
+    // Obtener información del último commit
+    $lastCommit = 'Sin commits';
+    $branch = 'main';
+    if ($isSuccess) {
+        $commitCmd = sprintf('cd %s && git log -1 --pretty=format:"%%h - %%s (%%cr)" 2>&1', escapeshellarg($targetPath));
+        $lastCommit = trim(shell_exec($commitCmd) ?? 'Commit info unavailable');
+        $branchCmd = sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($targetPath));
+        $branch = trim(shell_exec($branchCmd) ?? 'main');
+    }
+
+    return [
+        'ok' => $isSuccess,
+        'action' => $action,
+        'repo_name' => $repoFolder,
+        'ssh_url' => $sshUrl,
+        'target_path' => $targetPath,
+        'branch' => $branch,
+        'last_commit' => $lastCommit,
+        'raw_output' => trim($output)
+    ];
+}
+
+function getStoredRepositories() {
+    global $REPOS_DIR;
+    $repos = [];
+    if (!file_exists($REPOS_DIR)) return $repos;
+
+    $dirs = scandir($REPOS_DIR);
+    foreach ($dirs as $d) {
+        if ($d === '.' || $d === '..') continue;
+        $fullPath = $REPOS_DIR . '/' . $d;
+        if (is_dir($fullPath) && file_exists($fullPath . '/.git')) {
+            $lastCommit = trim(shell_exec(sprintf('cd %s && git log -1 --pretty=format:"%%h - %%s (%%cr)" 2>&1', escapeshellarg($fullPath))) ?? '');
+            $branch = trim(shell_exec(sprintf('cd %s && git rev-parse --abbrev-ref HEAD 2>&1', escapeshellarg($fullPath))) ?? 'main');
+            $remoteUrl = trim(shell_exec(sprintf('cd %s && git config --get remote.origin.url 2>&1', escapeshellarg($fullPath))) ?? '');
+            
+            // Calcular tamaño del directorio en MB/KB
+            $sizeBytes = 0;
+            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($fullPath, RecursiveDirectoryIterator::SKIP_DOTS));
+            foreach ($files as $file) {
+                $sizeBytes += $file->getSize();
+            }
+
+            $repos[] = [
+                'name' => $d,
+                'branch' => $branch,
+                'remote_url' => $remoteUrl,
+                'last_commit' => $lastCommit,
+                'size_formatted' => formatBytes($sizeBytes),
+                'updated_at' => date('Y-m-d H:i:s', filemtime($fullPath))
+            ];
+        }
+    }
+    return $repos;
+}
+
+/**
+ * GENERADOR DE HASH POST-CUÁNTICO DILITHIUM LEVEL 5
  */
 function generateDilithium5Hash($filePathOrData, $isPath = true) {
     if ($isPath) {
@@ -263,6 +377,17 @@ function formatBytes($bytes, $precision = 2) {
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
+// Endpoint para clonar repositorios vía POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri === '/api/clone')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $rawInput = file_get_contents('php://input');
+    $inputData = json_decode($rawInput, true);
+    $target = $inputData['repo'] ?? $_POST['repo'] ?? '';
+    $res = cloneOrUpdateRepository($target);
+    echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Endpoint SSH directo para consultar la clave pública de la plataforma
 if ($uri === '/api/ssh/key') {
     header('Content-Type: application/json; charset=utf-8');
@@ -297,7 +422,7 @@ if (strpos($uri, '/api/file/get/') === 0) {
     }
 }
 
-// Endpoint POST para subir cualquier tipo de archivo a la Super Base de Datos con Firma Dilithium 5
+// Endpoint POST para subir cualquier tipo de archivo a la Super Base de Datos
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri === '/api/file/upload')) {
     header('Content-Type: application/json; charset=utf-8');
 
@@ -396,8 +521,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
 
     $isSetICode = ($lowerCmd === 'set_i code' || $lowerCmd === 'set_icode' || $lowerCmd === 'set_i_code' || $cleanCmd === 'seticode');
     $isSshKey = ($lowerCmd === 'ssh_key' || $lowerCmd === 'ssh' || $lowerCmd === 'sshkey' || $lowerCmd === 'ssh-key');
+    $isRepos = ($lowerCmd === 'repos' || $lowerCmd === 'repositories' || $lowerCmd === 'repo_list');
+    $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0);
+
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
+    $isValid = $isSetICode || $isSshKey || $isRepos || $isClone || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
 
     if (!$isValid) {
         echo json_encode([
@@ -412,7 +540,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
 
     $outputResult = [];
 
-    if ($isSshKey) {
+    if ($isClone) {
+        $targetRepo = preg_replace('/^(git\s+)?clone\s+/i', '', $rawCmd);
+        $cloneRes = cloneOrUpdateRepository($targetRepo);
+        $outputResult = [
+            'type' => 'REPO_CLONE_RESULT',
+            'command' => $rawCmd,
+            'result' => $cloneRes,
+            'all_repos' => getStoredRepositories()
+        ];
+    } else if ($isRepos) {
+        $outputResult = [
+            'type' => 'REPOS_CATALOG',
+            'command' => 'repos',
+            'total_repos' => count(getStoredRepositories()),
+            'repos' => getStoredRepositories()
+        ];
+    } else if ($isSshKey) {
         $sshInfo = getOrGenerateSshKey();
         $outputResult = [
             'type' => 'SSH_KEY_DISPLAY',
@@ -495,7 +639,7 @@ echo json_encode([
     'server' => 'PHP 8.1 Super Database Engine',
     'crypto' => 'CRYSTALS-Dilithium Level 5 Post-Quantum Algorithm',
     'ssh_key_type' => 'Ed25519 (' . $sshInfo['comment'] . ')',
-    'ssh_public_key' => $sshInfo['public_key'],
+    'stored_repositories' => count(getStoredRepositories()),
     'browserState' => $browserState,
     'registeredCommands' => array_keys($REGISTERED_COMMANDS)
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);

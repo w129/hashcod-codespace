@@ -170,7 +170,7 @@
             display: block;
         }
 
-        /* ESTILOS VECTORIALES PREMIUM PARA EL CATÁLOGO set_I code */
+        /* ESTILOS VECTORIALES PREMIUM PARA EL CATÁLOGO set_I code Y REPOSITORIOS */
         .catalog-card {
             width: 100%;
             background: #faf9f6;
@@ -478,7 +478,7 @@
         }
 
         .vk-3panel-container {
-            display grid;
+            display: grid;
             grid-template-columns: 1.1fr 1.15fr 1fr;
             gap: 16px;
             align-items: stretch;
@@ -630,7 +630,7 @@
                     &gt;
                 </div>
                 <div class="block-body block-input-container">
-                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: ssh_key o set_I code)..." autocomplete="off" onkeydown="handleCommandKey(event)">
+                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: repos, clone w129/l8-codespace)..." autocomplete="off" onkeydown="handleCommandKey(event)">
                     <!-- Icono derecho (Insignia circular con documento) que activa/desactiva el teclado de escritorio -->
                     <div class="cell-action-icon" title="Activar/Desactivar Teclado y Entorno Gráfico" onclick="toggleVirtualKeyboard()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -782,6 +782,13 @@
             fileInput.click();
         }
 
+        function triggerCloneRepo() {
+            const repo = prompt('Ingresa el nombre o URL del repositorio en GitHub (ej: w129/l8-codespace):');
+            if (repo) {
+                submitCommand('clone ' + repo.trim());
+            }
+        }
+
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 alert('Clave pública SSH copiada al portapapeles con éxito!');
@@ -809,6 +816,98 @@
                 return;
             }
 
+            // RENDERIZADO PARA EL CATÁLOGO Y CLONACIÓN DE REPOSITORIOS GITHUB (repos / clone)
+            if (dataToDisplay && (dataToDisplay.type === "REPOS_CATALOG" || dataToDisplay.type === "REPO_CLONE_RESULT")) {
+                const repos = dataToDisplay.repos || (dataToDisplay.all_repos || []);
+                const cloneResult = dataToDisplay.result;
+
+                let rowsHtml = '';
+                if (repos.length === 0) {
+                    rowsHtml = `
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:24px; color:#888;">
+                                <svg style="width:32px; height:32px; fill:#cccccc; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                No hay repositorios de GitHub clonados guardados en la plataforma aún.<br>Usa el comando <strong>'clone usuario/repo'</strong> o haz clic en 'Clonar Nuevo Repositorio'.
+                            </td>
+                        </tr>`;
+                } else {
+                    repos.forEach(r => {
+                        rowsHtml += `
+                            <tr>
+                                <td>
+                                    <div class="file-name-cell">
+                                        <svg class="svg-icon-vector" style="fill:#0451a5;" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1.0.07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+                                        <span>${r.name}</span>
+                                    </div>
+                                </td>
+                                <td><span class="mime-tag">${r.branch}</span></td>
+                                <td style="color:#666; font-size:11px; font-family:monospace;">${r.last_commit}</td>
+                                <td>${r.size_formatted}</td>
+                                <td>
+                                    <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ${r.name}')">
+                                        <svg class="svg-icon-vector" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                                        <span>Git Pull</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                let cloneBanner = '';
+                if (cloneResult) {
+                    const alertBg = cloneResult.ok ? '#e6f4ea' : '#fce8e6';
+                    const alertColor = cloneResult.ok ? '#137333' : '#c5221f';
+                    cloneBanner = `
+                        <div style="background:${alertBg}; color:${alertColor}; padding:10px 14px; border-radius:6px; font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                            <strong>${cloneResult.ok ? '✅ Repositorio Procesado Exitosamente (' + cloneResult.action + ')' : '❌ Error al Procesar Repositorio'}</strong>
+                            <span>${cloneResult.raw_output || ''}</span>
+                        </div>
+                    `;
+                }
+
+                const reposHtml = `
+                    <div class="catalog-card">
+                        ${cloneBanner}
+                        <div class="catalog-header-bar">
+                            <div class="catalog-metrics">
+                                <div class="metric-item">
+                                    <svg class="svg-icon-vector" style="fill:#0451a5;" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1.0.07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+                                    <span>Conexión SSH:</span>
+                                    <span class="metric-badge-black">GitHub SSH Active</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span>Repositorios Guardados:</span>
+                                    <span class="metric-badge-black">${repos.length}</span>
+                                </div>
+                            </div>
+                            <button class="btn-upload-vector" onclick="triggerCloneRepo()">
+                                <svg class="svg-icon-vector" style="fill:#ffffff; width:14px; height:14px;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                <span>Clonar Nuevo Repositorio</span>
+                            </button>
+                        </div>
+                        <div class="catalog-table-wrapper">
+                            <table class="catalog-table-vector">
+                                <thead>
+                                    <tr>
+                                        <th>Repositorio</th>
+                                        <th>Rama Active</th>
+                                        <th>Último Commit</th>
+                                        <th>Tamaño</th>
+                                        <th>Acción Git</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                executionContainer.innerHTML = `<div style="width:100%;">${reposHtml}</div>`;
+                return;
+            }
+
             // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÓN SSH GITHUB)
             if (dataToDisplay && dataToDisplay.type === "SSH_KEY_DISPLAY") {
                 const pubKey = dataToDisplay.public_key || '';
@@ -820,7 +919,7 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <svg class="svg-icon-vector" style="fill:#0451a5; width:20px; height:20px;" viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-                                <strong style="font-size:13px; color:#141414;">Clave Pública SSH Ed25519 (servidor-diktatcart)</strong>
+                                <strong style="font-size:13px; color:#141414;">Clave Pública SSH Ed25519 del Servidor</strong>
                             </div>
                             <span class="metric-badge-black">${isConnected ? '🟢 CONECTADO CON GITHUB' : '🟡 LISTO PARA AÑADIR A GITHUB'}</span>
                         </div>

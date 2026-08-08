@@ -1,5 +1,5 @@
 <?php
-// index.php - Servidor Native PHP + React TypeScript l8 (Iconos Vectoriales Negros SVG)
+// index.php - Servidor Native PHP + React TypeScript l8 (Inspección de Código por Carpetas en Consola Negra)
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -170,7 +170,6 @@
             display: block;
         }
 
-        /* DISEÑO Y TARJETAS CON ICONOGRAFÍA 100% VECTORIAL EN NEGRO */
         .catalog-card {
             width: 100%;
             background: #faf9f6;
@@ -440,21 +439,58 @@
             font-size: 14px;
             font-weight: bold;
             color: #000000;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* TOOLBAR PARA INSPECIONAR CÓDIGO POR CARPETAS */
+        .repo-inspector-bar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #141414;
+            padding: 8px 12px;
+            border-radius: 6px 6px 0 0;
+            border-bottom: 1px solid #333;
+            flex-wrap: wrap;
+        }
+
+        .repo-file-selector {
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            outline: none;
+            flex: 1;
+            min-width: 260px;
+            cursor: pointer;
+        }
+
+        .repo-file-selector option {
+            background: #141414;
+            color: #ffffff;
         }
 
         .function-drawer-inner {
             background-color: #000000;
             padding: 14px;
             border-radius: 3px;
+            position: relative;
         }
 
         .function-editor {
             width: 100%;
-            height: 140px;
+            height: 220px;
             background-color: #000000;
-            color: #ffffff;
+            color: #34c759;
             border: none;
             outline: none;
             resize: vertical;
@@ -654,11 +690,21 @@
 
             <!-- Ventana desplegable de funciones debajo de (>) -->
             <div class="function-drawer" id="functionDrawer">
-                <div class="function-drawer-header">
-                    &gt;/ function to execute
+                <div class="function-drawer-header" id="functionDrawerHeader">
+                    <span>&gt;/ function to execute</span>
                 </div>
+
+                <!-- Barra Navegadora de Código por Carpetas en la Consola Negra -->
+                <div class="repo-inspector-bar" id="repoInspectorBar">
+                    <span style="color:#ffffff; font-size:12px; font-weight:600;">Estructura:</span>
+                    <select id="repoFileSelector" class="repo-file-selector" onchange="loadSelectedRepoFile(this.value)">
+                        <option value="">📁 Selecciona un archivo de código por carpeta...</option>
+                    </select>
+                    <span id="repoFilePathInfo" style="color:#888888; font-size:11px; font-family:monospace;"></span>
+                </div>
+
                 <div class="function-drawer-inner">
-                    <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
+                    <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí o inspecciona el código de repositorios guardados..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
                 </div>
 
                 <div class="virtual-keyboard-white" id="virtualKeyboard">
@@ -721,12 +767,16 @@
     <script>
         let latestExecutionData = null;
         let hasExecutedCommand = false;
+        let currentInspectedRepo = null;
+        let currentRepoTree = [];
+
         const executionContainer = document.getElementById('executionContent');
         const formatToggle = document.getElementById('formatToggle');
         const cmdInput = document.getElementById('cmdInput');
 
-        // ICONOS VECTORIALES REUTILIZABLES (NEGRO PUSO #000000)
+        // ICONOS VECTORIALES REUTILIZABLES
         const SVG_GITHUB_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:18px; height:18px;" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1.0.07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>';
+        const SVG_CODE_WINDOW_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:16px; height:16px;" viewBox="0 0 32 32"><path d="M 4 5 L 4 27 L 28 27 L 28 5 Z M 6 7 L 26 7 L 26 9 L 6 9 Z M 6 11 L 26 11 L 26 25 L 6 25 Z M 16 13 L 14 23 L 16 23 L 18 13 Z M 11.1875 13.40625 L 8.1875 17.40625 L 7.75 18 L 8.1875 18.59375 L 11.1875 22.59375 L 12.8125 21.40625 L 10.25 18 L 12.8125 14.59375 Z M 20.8125 13.40625 L 19.1875 14.59375 L 21.75 18 L 19.1875 21.40625 L 20.8125 22.59375 L 23.8125 18.59375 L 24.25 18 L 23.8125 17.40625 Z"></path></svg>';
         const SVG_CHECK_VECTOR = '<svg class="svg-icon-vector" style="fill:#137333; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
         const SVG_CROSS_VECTOR = '<svg class="svg-icon-vector" style="fill:#c5221f; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>';
         const SVG_EXT_LINK = '<svg class="svg-icon-vector" style="fill:#000000; width:13px; height:13px;" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>';
@@ -755,6 +805,80 @@
                 }
                 return '<span class="' + cls + '">' + match + '</span>';
             });
+        }
+
+        async function openRepoCodeInspector(repoName) {
+            const drawer = document.getElementById('functionDrawer');
+            if (!drawer.classList.contains('open')) {
+                drawer.classList.add('open');
+            }
+            
+            currentInspectedRepo = repoName;
+            const toolbar = document.getElementById('repoInspectorBar');
+            const selector = document.getElementById('repoFileSelector');
+            const headerTitle = document.getElementById('functionDrawerHeader');
+            const editor = document.getElementById('functionEditor');
+            const pathInfo = document.getElementById('repoFilePathInfo');
+
+            headerTitle.innerHTML = `&gt;/ function to execute &bull; <span style="color:#34c759;">Inspeccionando Repositorio: <strong>${repoName}</strong></span>`;
+            toolbar.style.display = 'flex';
+            selector.innerHTML = '<option value="">⏳ Cargando estructura de carpetas...</option>';
+            pathInfo.textContent = '';
+            editor.value = "// Cargando código completo del repositorio '" + repoName + "' por carpetas...";
+
+            try {
+                const res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(repoName));
+                const data = await res.json();
+                
+                if (!data.ok) {
+                    editor.value = "// Error: " + (data.error || "No se pudo leer el repositorio");
+                    return;
+                }
+
+                currentRepoTree = data.tree || [];
+                selector.innerHTML = '<option value="">📁 Selecciona un archivo por carpeta...</option>';
+
+                currentRepoTree.forEach(item => {
+                    if (item.type === 'file') {
+                        const opt = document.createElement('option');
+                        opt.value = item.path;
+                        opt.textContent = "📄 " + item.path + " (" + item.size_formatted + ")";
+                        selector.appendChild(opt);
+                    }
+                });
+
+                if (selector.options.length > 1) {
+                    selector.selectedIndex = 1;
+                    loadSelectedRepoFile(selector.value);
+                } else {
+                    editor.value = "// Repositorio vacío o sin archivos de código visibles.";
+                }
+            } catch (err) {
+                console.error("Error al cargar repositorio:", err);
+                editor.value = "// Error al conectar con el servidor.";
+            }
+        }
+
+        async function loadSelectedRepoFile(filePath) {
+            if (!filePath || !currentInspectedRepo) return;
+            const editor = document.getElementById('functionEditor');
+            const pathInfo = document.getElementById('repoFilePathInfo');
+            
+            pathInfo.textContent = currentInspectedRepo + " / " + filePath;
+            editor.value = "// Cargando código de '" + filePath + "'...";
+
+            try {
+                const res = await fetch('/api/repo/file?repo=' + encodeURIComponent(currentInspectedRepo) + '&path=' + encodeURIComponent(filePath));
+                const data = await res.json();
+                if (data.ok) {
+                    editor.value = data.content;
+                } else {
+                    editor.value = "// Error: " + (data.error || "No se pudo leer el archivo");
+                }
+            } catch (err) {
+                console.error("Error al leer archivo:", err);
+                editor.value = "// Error de lectura.";
+            }
         }
 
         function triggerFileUpload() {
@@ -847,10 +971,17 @@
                                 <td style="color:#666; font-size:11px; font-family:monospace;">${r.last_commit}</td>
                                 <td>${r.size_formatted}</td>
                                 <td>
-                                    <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ${r.name}')">
-                                        ${SVG_REFRESH_VECTOR}
-                                        <span>Git Pull</span>
-                                    </button>
+                                    <div style="display:flex; gap:8px; align-items:center;">
+                                        <!-- BOTÓN DE INSPECCIÓN DE CÓDIGO POR CARPETAS CON EL ICONO DE VENTANA DE CÓDIGO SOLICITADO -->
+                                        <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector('${r.name}')" title="Inspeccionar todo el código por carpetas en la consola">
+                                            ${SVG_CODE_WINDOW_BLACK}
+                                            <span>Ver Código</span>
+                                        </button>
+                                        <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ${r.name}')">
+                                            ${SVG_REFRESH_VECTOR}
+                                            <span>Git Pull</span>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -901,7 +1032,7 @@
                                         <th>Rama Active</th>
                                         <th>Último Commit</th>
                                         <th>Tamaño</th>
-                                        <th>Acción Git</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -915,7 +1046,7 @@
                 return;
             }
 
-            // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÓN SSH GITHUB CON ICONOS NEGROS)
+            // RENDERIZADO PARA EL COMANDO ssh_key (CONEXIÓN SSH GITHUB)
             if (dataToDisplay && dataToDisplay.type === "SSH_KEY_DISPLAY") {
                 const pubKey = dataToDisplay.public_key || '';
                 const sshOut = dataToDisplay.github_test_output || '';

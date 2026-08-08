@@ -1,9 +1,8 @@
 <?php
-// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Persistencia Automática tras Despliegues de Render
+// api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub y Navegador de Código por Carpetas
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
 
-// Gzip Compression para respuestas masivas
 if (!ob_start("ob_gzhandler")) {
     ob_start();
 }
@@ -31,7 +30,6 @@ $REGISTERED_COMMANDS = [
     "bigdata"     => "Genera y prueba la transmisión en lote de grandes volúmenes de datos"
 ];
 
-// Directorios de almacenamiento masivo, repositorios y SSH
 $STORAGE_DIR = __DIR__ . '/data_storage';
 $UPLOADS_DIR = __DIR__ . '/uploads';
 $REPOS_DIR   = __DIR__ . '/data_storage/repos';
@@ -39,6 +37,83 @@ $REPOS_DIR   = __DIR__ . '/data_storage/repos';
 if (!file_exists($STORAGE_DIR)) @mkdir($STORAGE_DIR, 0777, true);
 if (!file_exists($UPLOADS_DIR)) @mkdir($UPLOADS_DIR, 0777, true);
 if (!file_exists($REPOS_DIR))   @mkdir($REPOS_DIR, 0777, true);
+
+/**
+ * CONSULTA DEL ÁRBOL E ESTRUCTURA DE CARPETAS DE UN REPOSITORIO
+ */
+function getRepoTree($repoName) {
+    global $REPOS_DIR;
+    $safeRepo = basename($repoName);
+    $targetDir = realpath($REPOS_DIR . '/' . $safeRepo);
+    $baseDir = realpath($REPOS_DIR);
+
+    if (!$targetDir || strpos($targetDir, $baseDir) !== 0 || !is_dir($targetDir)) {
+        return ['ok' => false, 'error' => "Repositorio '$repoName' no encontrado"];
+    }
+
+    $tree = [];
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($targetDir, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($iterator as $item) {
+        $relPath = str_replace('\\', '/', substr($item->getPathname(), strlen($targetDir) + 1));
+        if (strpos($relPath, '.git') === 0 || strpos($relPath, '/.git') !== false) continue;
+
+        $tree[] = [
+            'path' => $relPath,
+            'name' => $item->getFilename(),
+            'type' => $item->isDir() ? 'folder' : 'file',
+            'size_formatted' => $item->isFile() ? formatBytes($item->getSize()) : 0
+        ];
+    }
+
+    // Ordenar: Carpetas primero, luego archivos
+    usort($tree, function($a, $b) {
+        if ($a['type'] !== $b['type']) {
+            return $a['type'] === 'folder' ? -1 : 1;
+        }
+        return strnatcasecmp($a['path'], $b['path']);
+    });
+
+    return ['ok' => true, 'repo' => $safeRepo, 'tree' => $tree];
+}
+
+/**
+ * OBTENER EL CONTENIDO COMPLETO DE UN ARCHIVO DE CÓDIGO
+ */
+function getRepoFileContent($repoName, $filePath) {
+    global $REPOS_DIR;
+    $safeRepo = basename($repoName);
+    $targetDir = realpath($REPOS_DIR . '/' . $safeRepo);
+    $baseDir = realpath($REPOS_DIR);
+
+    if (!$targetDir || strpos($targetDir, $baseDir) !== 0 || !is_dir($targetDir)) {
+        return ['ok' => false, 'error' => 'Repositorio no encontrado'];
+    }
+
+    $cleanFilePath = ltrim(str_replace(['..', '\\'], ['', '/'], $filePath), '/');
+    $realFilePath = realpath($targetDir . '/' . $cleanFilePath);
+
+    if (!$realFilePath || strpos($realFilePath, $targetDir) !== 0 || !is_file($realFilePath)) {
+        return ['ok' => false, 'error' => "Archivo '$cleanFilePath' no encontrado"];
+    }
+
+    if (filesize($realFilePath) > 3000000) {
+        return ['ok' => false, 'error' => 'Archivo demasiado grande para mostrar en consola'];
+    }
+
+    $content = file_get_contents($realFilePath);
+    return [
+        'ok' => true,
+        'repo' => $safeRepo,
+        'path' => $cleanFilePath,
+        'filename' => basename($cleanFilePath),
+        'size_formatted' => formatBytes(filesize($realFilePath)),
+        'content' => $content
+    ];
+}
 
 /**
  * GESTOR Y GENERADOR DINÁMICO DE CLAVE SSH ED25519 DE LA PLATAFORMA
@@ -81,9 +156,6 @@ function getOrGenerateSshKey($forceRegenerate = false) {
     ];
 }
 
-/**
- * GUARDADO PERSISTENTE DEL ÍNDICE DE REPOSITORIOS (RESISTENTE A DESPLIEGUES Y REINICIOS DE RENDER)
- */
 function saveRepoIndexEntry($repoMeta) {
     global $STORAGE_DIR;
     $indexPath = $STORAGE_DIR . '/repos_index.json';
@@ -96,9 +168,6 @@ function saveRepoIndexEntry($repoMeta) {
     file_put_contents($indexPath, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
 
-/**
- * GESTOR DE REPOSITORIOS GITHUB CON MOTOR DE AUTO-RESTAURACIÓN AUTOMÁTICA TRAS REINICIOS
- */
 function cloneOrUpdateRepository($repoTarget) {
     global $REPOS_DIR;
     $sshInfo = getOrGenerateSshKey();
@@ -192,9 +261,6 @@ function cloneOrUpdateRepository($repoTarget) {
     ];
 }
 
-/**
- * CONSULTA Y AUTO-RESTAURACIÓN AUTOMÁTICA DE REPOSITORIOS GUARDADOS TRAS DESPLIEGUES
- */
 function getStoredRepositories() {
     global $REPOS_DIR, $STORAGE_DIR;
     $repos = [];
@@ -236,7 +302,6 @@ function getStoredRepositories() {
         }
     }
 
-    // Auto-Restauración transparente si el contenedor fue reiniciado/desplegado en Render
     foreach ($indexRepos as $name => $meta) {
         if (!isset($repos[$name])) {
             $userRepo = !empty($meta['user_repo']) ? $meta['user_repo'] : $name;
@@ -257,9 +322,6 @@ function getStoredRepositories() {
     return array_values($repos);
 }
 
-/**
- * GENERADOR DE HASH POST-CUÁNTICO DILITHIUM LEVEL 5
- */
 function generateDilithium5Hash($filePathOrData, $isPath = true) {
     if ($isPath) {
         $shake512 = file_exists($filePathOrData) ? hash_file('sha3-512', $filePathOrData) : hash('sha3-512', $filePathOrData);
@@ -273,9 +335,6 @@ function generateDilithium5Hash($filePathOrData, $isPath = true) {
     return 'dilithium5_' . substr($shake512, 0, 64) . $latticeVector;
 }
 
-/**
- * MOTOR DE SUPER BASE DE DATOS GIGANTE CON FIRMA DILITHIUM 5
- */
 class SuperGlobalDatabase {
     private $pdo = null;
     private $jsonDbPath;
@@ -436,6 +495,23 @@ function formatBytes($bytes, $precision = 2) {
 }
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Endpoint GET para obtener el árbol de carpetas de un repositorio
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/repo/tree')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $repo = $_GET['repo'] ?? '';
+    echo json_encode(getRepoTree($repo), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Endpoint GET para obtener el contenido completo de un archivo de código
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/repo/file')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $repo = $_GET['repo'] ?? '';
+    $path = $_GET['path'] ?? '';
+    echo json_encode(getRepoFileContent($repo, $path), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // Endpoint para clonar repositorios vía POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri === '/api/clone')) {

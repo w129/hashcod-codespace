@@ -58,93 +58,140 @@ function maybeBootstrapPlatformData($force = false) {
     @file_put_contents($stamp, (string)time());
 }
 
-function repoShouldSkipPath($relPath) {
-    $parts = explode('/', str_replace('\\', '/', $relPath));
-    static $skipDirs = [
+function repoSkipDirName($name) {
+    static $skip = [
         '.git' => true, 'node_modules' => true, 'vendor' => true, '.next' => true,
         'dist' => true, 'build' => true, 'coverage' => true, '.turbo' => true,
         '.cache' => true, '__pycache__' => true, '.venv' => true, 'venv' => true,
-        'target' => true, '.idea' => true, '.vscode' => true
+        'target' => true, '.idea' => true, '.vscode' => true, '.yarn' => true,
+        '.pnpm-store' => true, 'Pods' => true
     ];
-    foreach ($parts as $p) {
-        if ($p === '' ) continue;
-        if (isset($skipDirs[$p])) return true;
-        if ($p[0] === '.' && $p !== '.github' && $p !== '.env.example') {
-            // skip hidden dirs/files except a few useful ones
-            if ($p !== '.gitignore' && $p !== '.gitattributes' && $p !== '.editorconfig') {
-                if (strpos($p, '.') === 0 && !preg_match('/^\.(github|gitignore|gitattributes|editorconfig|env\.example)$/', $p)) {
-                    // allow files like .gitignore at root via explicit check above; skip .DS_Store etc
-                    if ($p === '.DS_Store' || $p === '.env') return true;
-                }
-            }
-        }
+    return isset($skip[$name]);
+}
+
+function repoFormatSize($bytes) {
+    $bytes = max((int)$bytes, 0);
+    $units = ['B', 'KB', 'MB', 'GB'];
+    $pow = (int)floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+    return round($bytes / pow(1024, $pow), 2) . ' ' . $units[$pow];
+}
+
+function repoPathShouldSkip($relPath) {
+    $parts = explode('/', str_replace('\\', '/', (string)$relPath));
+    foreach ($parts as $part) {
+        if ($part === '') continue;
+        if (repoSkipDirName($part)) return true;
     }
     return false;
 }
 
 /**
- * CONSULTA DEL ÁRBOL E ESTRUCTURA DE CARPETAS DE UN REPOSITORIO (con cache)
+ * CONSULTA DEL ÁRBOL E ESTRUCTURA DE CARPETAS DE UN REPOSITORIO (rápido + cache)
  */
 function getRepoTree($repoName) {
     global $REPOS_DIR, $STORAGE_DIR;
-    $safeRepo = basename($repoName);
-    $targetDir = realpath($REPOS_DIR . '/' . $safeRepo);
-    $baseDir = realpath($REPOS_DIR);
+    $safeRepo = basename((string)$repoName);
+    if ($safeRepo === '' || $safeRepo === '.' || $safeRepo === '..') {
+        return ['ok' => false, 'error' => 'Nombre de repositorio inválido', 'missing' => true];
+    }
 
+    $baseDir = realpath($REPOS_DIR);
+    if (!$baseDir) {
+        return ['ok' => false, 'error' => 'Directorio de repos no disponible', 'missing' => true];
+    }
+    $targetDir = realpath($REPOS_DIR . '/' . $safeRepo);
     if (!$targetDir || strpos($targetDir, $baseDir) !== 0 || !is_dir($targetDir)) {
-        return ['ok' => false, 'error' => "Repositorio '$repoName' no encontrado"];
+        return ['ok' => false, 'error' => "Repositorio '$repoName' no encontrado", 'missing' => true];
     }
 
     $cacheDir = rtrim($STORAGE_DIR, '/') . '/repo_tree_cache';
     if (!file_exists($cacheDir)) @mkdir($cacheDir, 0777, true);
     $cacheFile = $cacheDir . '/' . md5($safeRepo) . '.json';
+    $repoMtime = (int)(@filemtime($targetDir) ?: 0);
 
-    // Invalidar cache si el repo cambió (mtime del directorio raíz)
-    $repoMtime = @filemtime($targetDir) ?: 0;
     if (file_exists($cacheFile)) {
         $cached = json_decode((string)@file_get_contents($cacheFile), true);
-        if (is_array($cached) && !empty($cached['ok']) && (int)($cached['repo_mtime'] ?? 0) === (int)$repoMtime) {
+        if (is_array($cached) && !empty($cached['ok']) && isset($cached['tree'])
+            && (int)($cached['repo_mtime'] ?? -1) === $repoMtime) {
             $cached['cached'] = true;
             return $cached;
         }
     }
 
     $tree = [];
-    $dir = new RecursiveDirectoryIterator($targetDir, FilesystemIterator::SKIP_DOTS);
-    $filter = new RecursiveCallbackFilterIterator($dir, function ($current, $key, $iterator) use ($targetDir) {
-        $name = $current->getFilename();
-        if ($name === '.git' || $name === 'node_modules' || $name === 'vendor' || $name === '.next'
-            || $name === 'dist' || $name === 'build' || $name === 'coverage' || $name === '__pycache__'
-            || $name === '.venv' || $name === 'venv' || $name === 'target') {
-            return false;
-        }
-        return true;
-    });
-    $iterator = new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST);
-
     $count = 0;
-    $maxEntries = 8000;
-    foreach ($iterator as $item) {
-        $relPath = str_replace('\\', '/', substr($item->getPathname(), strlen($targetDir) + 1));
-        if ($relPath === '' || repoShouldSkipPath($relPath)) continue;
+    $maxEntries = 6000;
+    $source = 'scan';
 
-        $isFile = $item->isFile();
-        // Solo listamos archivos en el selector (más rápido); carpetas se infieren del path
-        if (!$isFile) continue;
+    // git ls-files es mucho más rápido/estable que recorrer todo el working tree
+    if (is_dir($targetDir . DIRECTORY_SEPARATOR . '.git')) {
+        $cmd = sprintf(
+            'cd %s && git -c core.quotepath=false ls-files -z 2>/dev/null',
+            escapeshellarg($targetDir)
+        );
+        $out = @shell_exec($cmd);
+        if (is_string($out) && $out !== '') {
+            $source = 'git';
+            foreach (explode("\0", $out) as $relPath) {
+                if ($relPath === '') continue;
+                $relPath = str_replace('\\', '/', $relPath);
+                if (repoPathShouldSkip($relPath)) continue;
+                $full = $targetDir . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relPath);
+                if (!is_file($full) || is_link($full)) continue;
+                $size = @filesize($full);
+                if ($size === false || $size > 5000000) continue;
+                $tree[] = [
+                    'path' => $relPath,
+                    'name' => basename($relPath),
+                    'type' => 'file',
+                    'size' => (int)$size,
+                    'size_formatted' => repoFormatSize((int)$size)
+                ];
+                $count++;
+                if ($count >= $maxEntries) break;
+            }
+        }
+    }
 
-        $size = $item->getSize();
-        // omitir binarios enormes del listado
-        if ($size > 5000000) continue;
+    if (!$tree) {
+        $source = 'scan';
+        $stack = [$targetDir];
+        $rootLen = strlen($targetDir) + 1;
+        while ($stack && $count < $maxEntries) {
+            $dir = array_pop($stack);
+            $entries = @scandir($dir);
+            if ($entries === false) continue;
+            foreach ($entries as $name) {
+                if ($name === '.' || $name === '..') continue;
+                if (repoSkipDirName($name)) continue;
 
-        $tree[] = [
-            'path' => $relPath,
-            'name' => $item->getFilename(),
-            'type' => 'file',
-            'size' => (int)$size,
-            'size_formatted' => formatBytes($size)
-        ];
-        $count++;
-        if ($count >= $maxEntries) break;
+                $full = $dir . DIRECTORY_SEPARATOR . $name;
+                if (is_link($full)) continue;
+
+                if (is_dir($full)) {
+                    $stack[] = $full;
+                    continue;
+                }
+                if (!is_file($full)) continue;
+
+                $size = @filesize($full);
+                if ($size === false || $size > 5000000) continue;
+
+                $relPath = str_replace('\\', '/', substr($full, $rootLen));
+                if ($relPath === '') continue;
+
+                $tree[] = [
+                    'path' => $relPath,
+                    'name' => $name,
+                    'type' => 'file',
+                    'size' => (int)$size,
+                    'size_formatted' => repoFormatSize((int)$size)
+                ];
+                $count++;
+                if ($count >= $maxEntries) break 2;
+            }
+        }
     }
 
     usort($tree, function ($a, $b) {
@@ -158,6 +205,7 @@ function getRepoTree($repoName) {
         'count' => count($tree),
         'truncated' => $count >= $maxEntries,
         'repo_mtime' => $repoMtime,
+        'source' => $source,
         'cached' => false
     ];
     @file_put_contents($cacheFile, json_encode($result));
@@ -2045,7 +2093,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/repo/tree')) {
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: private, max-age=30');
     $repo = $_GET['repo'] ?? '';
-    echo json_encode(getRepoTree($repo), JSON_UNESCAPED_UNICODE);
+    $ensureClone = trim((string)($_GET['clone'] ?? $_GET['user_repo'] ?? ''));
+    $tree = getRepoTree($repo);
+
+    // Si falta en disco, clonar aquí (sin /api/command ni bootstrap Supabase) y reintentar
+    if (
+        empty($tree['ok']) && !empty($tree['missing']) && $ensureClone !== ''
+        && function_exists('cloneOrUpdateRepository')
+    ) {
+        $cloneRes = cloneOrUpdateRepository($ensureClone);
+        if (!empty($cloneRes['unlicensed'])) {
+            echo json_encode([
+                'ok' => false,
+                'error' => 'This repository is unlicensed! Do not use it.',
+                'unlicensed' => true,
+                'user_repo' => $cloneRes['user_repo'] ?? $ensureClone,
+                'clone' => $cloneRes
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        if (empty($cloneRes['ok'])) {
+            echo json_encode([
+                'ok' => false,
+                'error' => 'No se pudo clonar el repositorio',
+                'missing' => true,
+                'clone' => $cloneRes
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $repoName = $cloneRes['repo_name'] ?? basename($ensureClone);
+        $tree = getRepoTree($repoName);
+        $tree['cloned'] = true;
+        $tree['repo'] = $repoName;
+    }
+
+    echo json_encode($tree, JSON_UNESCAPED_UNICODE);
     exit;
 }
 

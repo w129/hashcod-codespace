@@ -1405,51 +1405,63 @@
 
         function fillRepoSelector(tree) {
             const selector = document.getElementById('repoFileSelector');
+            if (!selector) return '';
+            const list = Array.isArray(tree) ? tree : [];
             const frag = document.createDocumentFragment();
             const placeholder = document.createElement('option');
             placeholder.value = '';
-            placeholder.textContent = '📁 Selecciona un archivo por carpeta...';
+            placeholder.textContent = list.length
+                ? ('Selecciona un archivo (' + list.length + ')...')
+                : 'Sin archivos visibles';
             frag.appendChild(placeholder);
 
-            // Agrupar por carpeta (optgroup) — navegación más rápida
-            const groups = new Map();
-            for (let i = 0; i < tree.length; i++) {
-                const item = tree[i];
+            // Lista plana (más compatible) + prefijo de carpeta
+            let firstPath = '';
+            for (let i = 0; i < list.length; i++) {
+                const item = list[i];
+                if (!item || !item.path) continue;
                 if (item.type && item.type !== 'file') continue;
-                const path = item.path || '';
-                const slash = path.lastIndexOf('/');
-                const folder = slash === -1 ? '(raíz)' : path.slice(0, slash);
-                const name = slash === -1 ? path : path.slice(slash + 1);
-                if (!groups.has(folder)) groups.set(folder, []);
-                groups.get(folder).push({ path, name, size: item.size_formatted || '' });
-            }
-
-            for (const [folder, files] of groups) {
-                const og = document.createElement('optgroup');
-                og.label = '📂 ' + folder;
-                for (let j = 0; j < files.length; j++) {
-                    const f = files[j];
-                    const opt = document.createElement('option');
-                    opt.value = f.path;
-                    opt.textContent = f.name + (f.size ? ' (' + f.size + ')' : '');
-                    og.appendChild(opt);
-                }
-                frag.appendChild(og);
+                const opt = document.createElement('option');
+                opt.value = item.path;
+                opt.textContent = '📄 ' + item.path + (item.size_formatted ? ' (' + item.size_formatted + ')' : '');
+                frag.appendChild(opt);
+                if (!firstPath) firstPath = item.path;
             }
             selector.innerHTML = '';
             selector.appendChild(frag);
+            return firstPath;
+        }
+
+        async function fetchRepoTree(repo, userRepo) {
+            const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 90000) : null;
+            try {
+                let url = '/api/repo/tree?repo=' + encodeURIComponent(repo || '');
+                if (userRepo) {
+                    url += '&clone=' + encodeURIComponent(userRepo);
+                }
+                const res = await fetch(url, ctrl ? { signal: ctrl.signal } : undefined);
+                const text = await res.text();
+                let data = null;
+                try { data = JSON.parse(text); } catch (e) {
+                    throw new Error('Respuesta inválida del servidor al leer estructura');
+                }
+                return data;
+            } finally {
+                if (timer) clearTimeout(timer);
+            }
         }
 
         async function openRepoCodeInspector(repoName, userRepo) {
             const drawer = document.getElementById('functionDrawer');
-            if (!drawer.classList.contains('open')) {
+            if (drawer && !drawer.classList.contains('open')) {
                 drawer.classList.add('open');
             }
             
             const localName = repoName || (userRepo ? String(userRepo).split('/').pop() : '');
-            const remoteTarget = userRepo || repoName;
+            const remoteTarget = userRepo || (repoName && String(repoName).indexOf('/') !== -1 ? repoName : '');
             currentInspectedRepo = localName;
-            currentInspectedUserRepo = remoteTarget || '';
+            currentInspectedUserRepo = remoteTarget || localName || '';
             currentInspectedFile = null;
             const toolbar = document.getElementById('repoInspectorBar');
             const selector = document.getElementById('repoFileSelector');
@@ -1457,68 +1469,62 @@
             const editor = document.getElementById('functionEditor');
             const pathInfo = document.getElementById('repoFilePathInfo');
 
-            headerTitle.innerHTML = `&gt;/ function to execute &bull; <span style="color:#ffffff;">Inspeccionando Repositorio: <strong>${localName}</strong></span>`;
-            toolbar.style.display = 'flex';
-            selector.innerHTML = '<option value="">⏳ Cargando estructura…</option>';
-            pathInfo.textContent = '';
+            if (!selector || !editor) return;
+
+            if (headerTitle) {
+                headerTitle.innerHTML = `&gt;/ function to execute &bull; <span style="color:#ffffff;">Inspeccionando Repositorio: <strong>${localName || '…'}</strong></span>`;
+            }
+            if (toolbar) toolbar.style.display = 'flex';
+            selector.innerHTML = '<option value="">Cargando estructura…</option>';
+            if (pathInfo) pathInfo.textContent = '';
             editor.style.color = '#ffffff';
-            editor.value = "// Cargando estructura de '" + localName + "'…";
+            editor.value = "// Cargando estructura de '" + (localName || remoteTarget || 'repo') + "'…";
 
             try {
                 let data = null;
-                if (repoTreeCache.repo === localName && repoTreeCache.tree) {
-                    data = { ok: true, tree: repoTreeCache.tree };
+                if (repoTreeCache.repo === localName && Array.isArray(repoTreeCache.tree) && repoTreeCache.tree.length) {
+                    data = { ok: true, tree: repoTreeCache.tree, repo: localName };
                 } else {
-                    let res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(localName));
-                    data = await res.json();
+                    // Un solo request: lee árbol; si falta en disco, clona en el mismo endpoint (sin /api/command)
+                    data = await fetchRepoTree(localName, remoteTarget || undefined);
                 }
 
-                // Si no está clonado localmente, clonar primero y reintentar
-                if (!data.ok && remoteTarget) {
-                    editor.value = "// Clonando '" + remoteTarget + "' para inspeccionar el código en la terminal negra...";
-                    const cloneRes = await fetch('/api/command', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ command: 'clone ' + remoteTarget })
-                    });
-                    const cloneData = await cloneRes.json();
-                    const cloneOut = cloneData.output || cloneData;
-                    if (cloneOut.result && cloneOut.result.unlicensed) {
-                        showUnlicensedPopup('This repository is unlicensed! Do not use it.', remoteTarget);
-                        editor.value = "// This repository is unlicensed! Do not use it.";
-                        return;
-                    }
-                    if (!cloneOut.result || !cloneOut.result.ok) {
-                        editor.value = "// Error al clonar: " + ((cloneOut.result && cloneOut.result.raw_output) || cloneOut.error || 'falló');
-                        return;
-                    }
-                    currentInspectedRepo = cloneOut.result.repo_name || localName;
-                    repoTreeCache = { repo: '', tree: null };
-                    const res2 = await fetch('/api/repo/tree?repo=' + encodeURIComponent(currentInspectedRepo));
-                    data = await res2.json();
+                if (data && data.unlicensed) {
+                    showUnlicensedPopup('This repository is unlicensed! Do not use it.', remoteTarget || localName);
+                    selector.innerHTML = '<option value="">Repositorio sin licencia</option>';
+                    editor.value = "// This repository is unlicensed! Do not use it.";
+                    return;
                 }
                 
-                if (!data.ok) {
-                    editor.value = "// Error: " + (data.error || "No se pudo leer el repositorio");
+                if (!data || !data.ok) {
+                    const detail = (data && data.clone && data.clone.raw_output)
+                        ? data.clone.raw_output
+                        : ((data && data.error) || 'No se pudo leer el repositorio');
+                    selector.innerHTML = '<option value="">No se pudo cargar</option>';
+                    editor.value = "// Error: " + detail;
                     return;
                 }
 
-                currentRepoTree = data.tree || [];
+                if (data.repo) currentInspectedRepo = data.repo;
+                currentRepoTree = Array.isArray(data.tree) ? data.tree : [];
                 repoTreeCache = { repo: currentInspectedRepo, tree: currentRepoTree };
-                fillRepoSelector(currentRepoTree);
+                const firstPath = fillRepoSelector(currentRepoTree);
 
-                if (selector.options.length > 1) {
-                    // primera opción real (salta placeholder)
-                    selector.selectedIndex = 1;
-                    // no await: deja el selector usable al instante
-                    loadSelectedRepoFile(selector.value);
+                if (firstPath) {
+                    selector.value = firstPath;
+                    loadSelectedRepoFile(firstPath);
                 } else {
+                    selector.innerHTML = '<option value="">Sin archivos visibles</option>';
                     editor.value = "// Repositorio vacío o sin archivos de código visibles.";
                 }
                 schedulePersistPlatformState();
             } catch (err) {
                 console.error("Error al cargar repositorio:", err);
-                editor.value = "// Error al conectar con el servidor.";
+                const msg = (err && err.name === 'AbortError')
+                    ? 'tiempo de espera agotado'
+                    : ((err && err.message) ? err.message : 'conexión');
+                selector.innerHTML = '<option value="">Error al cargar estructura</option>';
+                editor.value = "// Error al cargar estructura: " + msg;
             }
         }
 

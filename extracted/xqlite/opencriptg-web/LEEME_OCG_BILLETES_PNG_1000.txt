@@ -1,0 +1,9 @@
+OpencriptG – OCG Code Coins / Billetes PNG
+
+Mejoras aplicadas:
+- Cada moneda interna 5 / 10 / 25 / 50 puede descargarse como billete digital PNG.
+- El billete se genera con diseño tipo OpencriptG: valor, Bill ID, fingerprint, serial y QR.
+- El QR del billete contiene el code completo de la unidad para verificación funcional al escanear.
+- Se agregó creación masiva de hasta 1000 billetes digitales por lote.
+- Cada billete conserva parámetros antifalsificación: payload, salt, nonce, route, vector, matrix, chain hash, unit hash, signature, fingerprint y check.
+- Se conserva base de datos local, verificación, transferencia, bloqueo y certificado/PDF.

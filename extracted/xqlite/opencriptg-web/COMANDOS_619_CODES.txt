@@ -1,0 +1,625 @@
+OPENCRIPTG · 619 CODE COMMANDS
+Uso: code001 5  |  code <numero|id> <cantidad>  |  gen type <numero|id> <cantidad>
+Generar uno de cada tipo: gen all619
+Ver lista dentro del IDE: codes619 [pagina]
+Exportar esta lista dentro del IDE: cmd619
+
+code001 <cantidad>  |  code 1 <cantidad>  |  gen type aes128 <cantidad>  |  AES-128 Key  |  symmetric
+code002 <cantidad>  |  code 2 <cantidad>  |  gen type aes192 <cantidad>  |  AES-192 Key  |  symmetric
+code003 <cantidad>  |  code 3 <cantidad>  |  gen type aes256 <cantidad>  |  AES-256 Key  |  symmetric
+code004 <cantidad>  |  code 4 <cantidad>  |  gen type aesgcm <cantidad>  |  AES-GCM Key  |  symmetric
+code005 <cantidad>  |  code 5 <cantidad>  |  gen type chacha20 <cantidad>  |  ChaCha20 Key  |  symmetric
+code006 <cantidad>  |  code 6 <cantidad>  |  gen type xchacha <cantidad>  |  XChaCha20 Key  |  symmetric
+code007 <cantidad>  |  code 7 <cantidad>  |  gen type poly1305 <cantidad>  |  Poly1305 Key  |  symmetric
+code008 <cantidad>  |  code 8 <cantidad>  |  gen type salsa20 <cantidad>  |  Salsa20 Key  |  symmetric
+code009 <cantidad>  |  code 9 <cantidad>  |  gen type des3 <cantidad>  |  3DES Key  |  symmetric
+code010 <cantidad>  |  code 10 <cantidad>  |  gen type blowfish <cantidad>  |  Blowfish Key  |  symmetric
+code011 <cantidad>  |  code 11 <cantidad>  |  gen type twofish <cantidad>  |  Twofish Key  |  symmetric
+code012 <cantidad>  |  code 12 <cantidad>  |  gen type camellia <cantidad>  |  Camellia Key  |  symmetric
+code013 <cantidad>  |  code 13 <cantidad>  |  gen type aria256 <cantidad>  |  ARIA-256 Key  |  symmetric
+code014 <cantidad>  |  code 14 <cantidad>  |  gen type seed128 <cantidad>  |  SEED-128 Key  |  symmetric
+code015 <cantidad>  |  code 15 <cantidad>  |  gen type sm4 <cantidad>  |  SM4 Key  |  symmetric
+code016 <cantidad>  |  code 16 <cantidad>  |  gen type sm4_gcm <cantidad>  |  SM4-GCM Key  |  symmetric
+code017 <cantidad>  |  code 17 <cantidad>  |  gen type kuznyechik <cantidad>  |  Kuznyechik Key  |  symmetric
+code018 <cantidad>  |  code 18 <cantidad>  |  gen type magma <cantidad>  |  Magma Key  |  symmetric
+code019 <cantidad>  |  code 19 <cantidad>  |  gen type idea <cantidad>  |  IDEA Key  |  symmetric
+code020 <cantidad>  |  code 20 <cantidad>  |  gen type rc6 <cantidad>  |  RC6 Key  |  symmetric
+code021 <cantidad>  |  code 21 <cantidad>  |  gen type mars <cantidad>  |  MARS Key  |  symmetric
+code022 <cantidad>  |  code 22 <cantidad>  |  gen type serpent <cantidad>  |  Serpent Key  |  symmetric
+code023 <cantidad>  |  code 23 <cantidad>  |  gen type cast128 <cantidad>  |  CAST-128 Key  |  symmetric
+code024 <cantidad>  |  code 24 <cantidad>  |  gen type cast256 <cantidad>  |  CAST-256 Key  |  symmetric
+code025 <cantidad>  |  code 25 <cantidad>  |  gen type rc4 <cantidad>  |  RC4 Key  |  symmetric
+code026 <cantidad>  |  code 26 <cantidad>  |  gen type rc5 <cantidad>  |  RC5 Key  |  symmetric
+code027 <cantidad>  |  code 27 <cantidad>  |  gen type tea <cantidad>  |  TEA Key  |  symmetric
+code028 <cantidad>  |  code 28 <cantidad>  |  gen type xtea <cantidad>  |  XTEA Key  |  symmetric
+code029 <cantidad>  |  code 29 <cantidad>  |  gen type xxtea <cantidad>  |  XXTEA Key  |  symmetric
+code030 <cantidad>  |  code 30 <cantidad>  |  gen type speck <cantidad>  |  SPECK Key  |  symmetric
+code031 <cantidad>  |  code 31 <cantidad>  |  gen type simon <cantidad>  |  SIMON Key  |  symmetric
+code032 <cantidad>  |  code 32 <cantidad>  |  gen type ascon <cantidad>  |  Ascon Key  |  symmetric
+code033 <cantidad>  |  code 33 <cantidad>  |  gen type aes_ctr <cantidad>  |  AES-CTR Key  |  symmetric
+code034 <cantidad>  |  code 34 <cantidad>  |  gen type aes_cbc <cantidad>  |  AES-CBC Key  |  symmetric
+code035 <cantidad>  |  code 35 <cantidad>  |  gen type aes_xts <cantidad>  |  AES-XTS Key  |  symmetric
+code036 <cantidad>  |  code 36 <cantidad>  |  gen type aes_ocb <cantidad>  |  AES-OCB Key  |  symmetric
+code037 <cantidad>  |  code 37 <cantidad>  |  gen type aes_eax <cantidad>  |  AES-EAX Key  |  symmetric
+code038 <cantidad>  |  code 38 <cantidad>  |  gen type aes_siv <cantidad>  |  AES-SIV Key  |  symmetric
+code039 <cantidad>  |  code 39 <cantidad>  |  gen type chacha_ietf <cantidad>  |  ChaCha20 IETF Key  |  symmetric
+code040 <cantidad>  |  code 40 <cantidad>  |  gen type chacha_poly <cantidad>  |  ChaCha20-Poly1305  |  symmetric
+code041 <cantidad>  |  code 41 <cantidad>  |  gen type xchacha_poly <cantidad>  |  XChaCha20-Poly1305  |  symmetric
+code042 <cantidad>  |  code 42 <cantidad>  |  gen type morus <cantidad>  |  MORUS-1280 Key  |  symmetric
+code043 <cantidad>  |  code 43 <cantidad>  |  gen type aegis128 <cantidad>  |  AEGIS-128 Key  |  symmetric
+code044 <cantidad>  |  code 44 <cantidad>  |  gen type aegis256 <cantidad>  |  AEGIS-256 Key  |  symmetric
+code045 <cantidad>  |  code 45 <cantidad>  |  gen type deoxys <cantidad>  |  Deoxys-II Key  |  symmetric
+code046 <cantidad>  |  code 46 <cantidad>  |  gen type gift <cantidad>  |  GIFT-128 Key  |  symmetric
+code047 <cantidad>  |  code 47 <cantidad>  |  gen type present <cantidad>  |  PRESENT Key  |  symmetric
+code048 <cantidad>  |  code 48 <cantidad>  |  gen type prince <cantidad>  |  PRINCE Key  |  symmetric
+code049 <cantidad>  |  code 49 <cantidad>  |  gen type lea <cantidad>  |  LEA Key  |  symmetric
+code050 <cantidad>  |  code 50 <cantidad>  |  gen type sosemanuk <cantidad>  |  Sosemanuk Key  |  symmetric
+code051 <cantidad>  |  code 51 <cantidad>  |  gen type rabbit <cantidad>  |  Rabbit Key  |  symmetric
+code052 <cantidad>  |  code 52 <cantidad>  |  gen type hc256 <cantidad>  |  HC-256 Key  |  symmetric
+code053 <cantidad>  |  code 53 <cantidad>  |  gen type trivium <cantidad>  |  Trivium Key  |  symmetric
+code054 <cantidad>  |  code 54 <cantidad>  |  gen type rsa1024 <cantidad>  |  RSA-1024 Seed  |  asymmetric
+code055 <cantidad>  |  code 55 <cantidad>  |  gen type rsa2048 <cantidad>  |  RSA-2048 Seed  |  asymmetric
+code056 <cantidad>  |  code 56 <cantidad>  |  gen type rsa4096 <cantidad>  |  RSA-4096 Seed  |  asymmetric
+code057 <cantidad>  |  code 57 <cantidad>  |  gen type ecdsap256 <cantidad>  |  ECDSA P-256  |  asymmetric
+code058 <cantidad>  |  code 58 <cantidad>  |  gen type ecdsap384 <cantidad>  |  ECDSA P-384  |  asymmetric
+code059 <cantidad>  |  code 59 <cantidad>  |  gen type ecdsap521 <cantidad>  |  ECDSA P-521  |  asymmetric
+code060 <cantidad>  |  code 60 <cantidad>  |  gen type ed25519 <cantidad>  |  Ed25519 Seed  |  asymmetric
+code061 <cantidad>  |  code 61 <cantidad>  |  gen type ed448 <cantidad>  |  Ed448 Seed  |  asymmetric
+code062 <cantidad>  |  code 62 <cantidad>  |  gen type x25519 <cantidad>  |  X25519 Seed  |  asymmetric
+code063 <cantidad>  |  code 63 <cantidad>  |  gen type x448 <cantidad>  |  X448 Seed  |  asymmetric
+code064 <cantidad>  |  code 64 <cantidad>  |  gen type secp256k1 <cantidad>  |  secp256k1 Key  |  asymmetric
+code065 <cantidad>  |  code 65 <cantidad>  |  gen type dsa2048 <cantidad>  |  DSA-2048 Key  |  asymmetric
+code066 <cantidad>  |  code 66 <cantidad>  |  gen type dsa3072 <cantidad>  |  DSA-3072 Key  |  asymmetric
+code067 <cantidad>  |  code 67 <cantidad>  |  gen type rsa3072 <cantidad>  |  RSA-3072 Seed  |  asymmetric
+code068 <cantidad>  |  code 68 <cantidad>  |  gen type rsa8192 <cantidad>  |  RSA-8192 Seed  |  asymmetric
+code069 <cantidad>  |  code 69 <cantidad>  |  gen type elgamal <cantidad>  |  ElGamal Key  |  asymmetric
+code070 <cantidad>  |  code 70 <cantidad>  |  gen type paillier <cantidad>  |  Paillier Key  |  asymmetric
+code071 <cantidad>  |  code 71 <cantidad>  |  gen type bls12_381 <cantidad>  |  BLS12-381 Key  |  asymmetric
+code072 <cantidad>  |  code 72 <cantidad>  |  gen type bn254 <cantidad>  |  BN254 Key  |  asymmetric
+code073 <cantidad>  |  code 73 <cantidad>  |  gen type secp192k1 <cantidad>  |  secp192k1 Key  |  asymmetric
+code074 <cantidad>  |  code 74 <cantidad>  |  gen type secp224k1 <cantidad>  |  secp224k1 Key  |  asymmetric
+code075 <cantidad>  |  code 75 <cantidad>  |  gen type brainpoolP256 <cantidad>  |  BrainpoolP256r1  |  asymmetric
+code076 <cantidad>  |  code 76 <cantidad>  |  gen type brainpoolP384 <cantidad>  |  BrainpoolP384r1  |  asymmetric
+code077 <cantidad>  |  code 77 <cantidad>  |  gen type brainpoolP512 <cantidad>  |  BrainpoolP512r1  |  asymmetric
+code078 <cantidad>  |  code 78 <cantidad>  |  gen type curve41417 <cantidad>  |  Curve41417 Key  |  asymmetric
+code079 <cantidad>  |  code 79 <cantidad>  |  gen type sm2 <cantidad>  |  SM2 Key  |  asymmetric
+code080 <cantidad>  |  code 80 <cantidad>  |  gen type gostecsig <cantidad>  |  GOST EC Key  |  asymmetric
+code081 <cantidad>  |  code 81 <cantidad>  |  gen type ntru <cantidad>  |  NTRU Key  |  asymmetric
+code082 <cantidad>  |  code 82 <cantidad>  |  gen type mceliece348 <cantidad>  |  McEliece-348864  |  asymmetric
+code083 <cantidad>  |  code 83 <cantidad>  |  gen type rsa_pss <cantidad>  |  RSA-PSS Seed  |  asymmetric
+code084 <cantidad>  |  code 84 <cantidad>  |  gen type rsa_oaep <cantidad>  |  RSA-OAEP Seed  |  asymmetric
+code085 <cantidad>  |  code 85 <cantidad>  |  gen type sha224 <cantidad>  |  SHA-224  |  hashes
+code086 <cantidad>  |  code 86 <cantidad>  |  gen type sha256 <cantidad>  |  SHA-256  |  hashes
+code087 <cantidad>  |  code 87 <cantidad>  |  gen type sha384 <cantidad>  |  SHA-384  |  hashes
+code088 <cantidad>  |  code 88 <cantidad>  |  gen type sha512 <cantidad>  |  SHA-512  |  hashes
+code089 <cantidad>  |  code 89 <cantidad>  |  gen type sha512_256 <cantidad>  |  SHA-512/256  |  hashes
+code090 <cantidad>  |  code 90 <cantidad>  |  gen type sha3_256 <cantidad>  |  SHA3-256  |  hashes
+code091 <cantidad>  |  code 91 <cantidad>  |  gen type sha3_384 <cantidad>  |  SHA3-384  |  hashes
+code092 <cantidad>  |  code 92 <cantidad>  |  gen type sha3_512 <cantidad>  |  SHA3-512  |  hashes
+code093 <cantidad>  |  code 93 <cantidad>  |  gen type keccak256 <cantidad>  |  Keccak-256  |  hashes
+code094 <cantidad>  |  code 94 <cantidad>  |  gen type blake2b <cantidad>  |  BLAKE2b-512  |  hashes
+code095 <cantidad>  |  code 95 <cantidad>  |  gen type blake2s <cantidad>  |  BLAKE2s-256  |  hashes
+code096 <cantidad>  |  code 96 <cantidad>  |  gen type blake3 <cantidad>  |  BLAKE3  |  hashes
+code097 <cantidad>  |  code 97 <cantidad>  |  gen type ripemd160 <cantidad>  |  RIPEMD-160  |  hashes
+code098 <cantidad>  |  code 98 <cantidad>  |  gen type whirlpool <cantidad>  |  Whirlpool  |  hashes
+code099 <cantidad>  |  code 99 <cantidad>  |  gen type md5 <cantidad>  |  MD5  |  hashes
+code100 <cantidad>  |  code 100 <cantidad>  |  gen type sha1 <cantidad>  |  SHA-1  |  hashes
+code101 <cantidad>  |  code 101 <cantidad>  |  gen type fnv1a <cantidad>  |  FNV-1a  |  hashes
+code102 <cantidad>  |  code 102 <cantidad>  |  gen type murmur3 <cantidad>  |  MurmurHash3  |  hashes
+code103 <cantidad>  |  code 103 <cantidad>  |  gen type xxh64 <cantidad>  |  xxHash64  |  hashes
+code104 <cantidad>  |  code 104 <cantidad>  |  gen type crc32 <cantidad>  |  CRC-32  |  hashes
+code105 <cantidad>  |  code 105 <cantidad>  |  gen type crc16 <cantidad>  |  CRC-16  |  hashes
+code106 <cantidad>  |  code 106 <cantidad>  |  gen type crc64 <cantidad>  |  CRC-64  |  hashes
+code107 <cantidad>  |  code 107 <cantidad>  |  gen type shake128 <cantidad>  |  SHAKE-128 (XOF)  |  hashes
+code108 <cantidad>  |  code 108 <cantidad>  |  gen type shake256 <cantidad>  |  SHAKE-256 (XOF)  |  hashes
+code109 <cantidad>  |  code 109 <cantidad>  |  gen type cshake128 <cantidad>  |  cSHAKE-128  |  hashes
+code110 <cantidad>  |  code 110 <cantidad>  |  gen type cshake256 <cantidad>  |  cSHAKE-256  |  hashes
+code111 <cantidad>  |  code 111 <cantidad>  |  gen type sm3 <cantidad>  |  SM3  |  hashes
+code112 <cantidad>  |  code 112 <cantidad>  |  gen type streebog256 <cantidad>  |  Streebog-256  |  hashes
+code113 <cantidad>  |  code 113 <cantidad>  |  gen type streebog512 <cantidad>  |  Streebog-512  |  hashes
+code114 <cantidad>  |  code 114 <cantidad>  |  gen type lsh256 <cantidad>  |  LSH-256  |  hashes
+code115 <cantidad>  |  code 115 <cantidad>  |  gen type jh256 <cantidad>  |  JH-256  |  hashes
+code116 <cantidad>  |  code 116 <cantidad>  |  gen type skein256 <cantidad>  |  Skein-256  |  hashes
+code117 <cantidad>  |  code 117 <cantidad>  |  gen type skein512 <cantidad>  |  Skein-512  |  hashes
+code118 <cantidad>  |  code 118 <cantidad>  |  gen type groestl256 <cantidad>  |  Grøstl-256  |  hashes
+code119 <cantidad>  |  code 119 <cantidad>  |  gen type tiger <cantidad>  |  Tiger-192  |  hashes
+code120 <cantidad>  |  code 120 <cantidad>  |  gen type gost94 <cantidad>  |  GOST R 34.11-94  |  hashes
+code121 <cantidad>  |  code 121 <cantidad>  |  gen type haval <cantidad>  |  HAVAL-256  |  hashes
+code122 <cantidad>  |  code 122 <cantidad>  |  gen type md4 <cantidad>  |  MD4  |  hashes
+code123 <cantidad>  |  code 123 <cantidad>  |  gen type md2 <cantidad>  |  MD2  |  hashes
+code124 <cantidad>  |  code 124 <cantidad>  |  gen type siphash <cantidad>  |  SipHash-2-4  |  hashes
+code125 <cantidad>  |  code 125 <cantidad>  |  gen type highway <cantidad>  |  HighwayHash  |  hashes
+code126 <cantidad>  |  code 126 <cantidad>  |  gen type metrohash <cantidad>  |  MetroHash-128  |  hashes
+code127 <cantidad>  |  code 127 <cantidad>  |  gen type cityhash <cantidad>  |  CityHash-128  |  hashes
+code128 <cantidad>  |  code 128 <cantidad>  |  gen type farmhash <cantidad>  |  FarmHash-128  |  hashes
+code129 <cantidad>  |  code 129 <cantidad>  |  gen type spooky <cantidad>  |  SpookyHash-128  |  hashes
+code130 <cantidad>  |  code 130 <cantidad>  |  gen type pearson <cantidad>  |  Pearson-64  |  hashes
+code131 <cantidad>  |  code 131 <cantidad>  |  gen type adler32 <cantidad>  |  Adler-32  |  hashes
+code132 <cantidad>  |  code 132 <cantidad>  |  gen type fletcher <cantidad>  |  Fletcher-64  |  hashes
+code133 <cantidad>  |  code 133 <cantidad>  |  gen type gear <cantidad>  |  GearHash  |  hashes
+code134 <cantidad>  |  code 134 <cantidad>  |  gen type rabin <cantidad>  |  Rabin Fingerprint  |  hashes
+code135 <cantidad>  |  code 135 <cantidad>  |  gen type buzhash <cantidad>  |  Buzhash  |  hashes
+code136 <cantidad>  |  code 136 <cantidad>  |  gen type imohash <cantidad>  |  IMOHash  |  hashes
+code137 <cantidad>  |  code 137 <cantidad>  |  gen type t1ha <cantidad>  |  T1HA-128  |  hashes
+code138 <cantidad>  |  code 138 <cantidad>  |  gen type wyhash <cantidad>  |  WyHash-64  |  hashes
+code139 <cantidad>  |  code 139 <cantidad>  |  gen type komihash <cantidad>  |  Komihash-64  |  hashes
+code140 <cantidad>  |  code 140 <cantidad>  |  gen type hmacsha256 <cantidad>  |  HMAC-SHA256  |  macs
+code141 <cantidad>  |  code 141 <cantidad>  |  gen type hmacsha512 <cantidad>  |  HMAC-SHA512  |  macs
+code142 <cantidad>  |  code 142 <cantidad>  |  gen type hmacsha3 <cantidad>  |  HMAC-SHA3-256  |  macs
+code143 <cantidad>  |  code 143 <cantidad>  |  gen type kmac128 <cantidad>  |  KMAC-128  |  macs
+code144 <cantidad>  |  code 144 <cantidad>  |  gen type kmac256 <cantidad>  |  KMAC-256  |  macs
+code145 <cantidad>  |  code 145 <cantidad>  |  gen type gmac <cantidad>  |  GMAC  |  macs
+code146 <cantidad>  |  code 146 <cantidad>  |  gen type cmac <cantidad>  |  CMAC-AES  |  macs
+code147 <cantidad>  |  code 147 <cantidad>  |  gen type pbkdf2 <cantidad>  |  PBKDF2-SHA256  |  macs
+code148 <cantidad>  |  code 148 <cantidad>  |  gen type scrypt <cantidad>  |  scrypt  |  macs
+code149 <cantidad>  |  code 149 <cantidad>  |  gen type argon2id <cantidad>  |  Argon2id  |  macs
+code150 <cantidad>  |  code 150 <cantidad>  |  gen type hkdf <cantidad>  |  HKDF-SHA256  |  macs
+code151 <cantidad>  |  code 151 <cantidad>  |  gen type bcrypt <cantidad>  |  bcrypt  |  macs
+code152 <cantidad>  |  code 152 <cantidad>  |  gen type argon2i <cantidad>  |  Argon2i  |  macs
+code153 <cantidad>  |  code 153 <cantidad>  |  gen type argon2d <cantidad>  |  Argon2d  |  macs
+code154 <cantidad>  |  code 154 <cantidad>  |  gen type balloon <cantidad>  |  Balloon Hashing  |  macs
+code155 <cantidad>  |  code 155 <cantidad>  |  gen type catena <cantidad>  |  Catena  |  macs
+code156 <cantidad>  |  code 156 <cantidad>  |  gen type lyra2 <cantidad>  |  Lyra2  |  macs
+code157 <cantidad>  |  code 157 <cantidad>  |  gen type yescrypt <cantidad>  |  yescrypt  |  macs
+code158 <cantidad>  |  code 158 <cantidad>  |  gen type pufferfish <cantidad>  |  Pufferfish2  |  macs
+code159 <cantidad>  |  code 159 <cantidad>  |  gen type concat_kdf <cantidad>  |  Concat-KDF  |  macs
+code160 <cantidad>  |  code 160 <cantidad>  |  gen type x963_kdf <cantidad>  |  X9.63 KDF  |  macs
+code161 <cantidad>  |  code 161 <cantidad>  |  gen type kbkdf_ctr <cantidad>  |  KBKDF-CTR  |  macs
+code162 <cantidad>  |  code 162 <cantidad>  |  gen type kbkdf_fb <cantidad>  |  KBKDF-Feedback  |  macs
+code163 <cantidad>  |  code 163 <cantidad>  |  gen type sshkdf <cantidad>  |  SSH-KDF  |  macs
+code164 <cantidad>  |  code 164 <cantidad>  |  gen type tlsprf12 <cantidad>  |  TLS 1.2 PRF  |  macs
+code165 <cantidad>  |  code 165 <cantidad>  |  gen type tlskdf13 <cantidad>  |  TLS 1.3 KDF  |  macs
+code166 <cantidad>  |  code 166 <cantidad>  |  gen type sigmamac <cantidad>  |  SIGMA MAC  |  macs
+code167 <cantidad>  |  code 167 <cantidad>  |  gen type umac <cantidad>  |  UMAC  |  macs
+code168 <cantidad>  |  code 168 <cantidad>  |  gen type vmac <cantidad>  |  VMAC  |  macs
+code169 <cantidad>  |  code 169 <cantidad>  |  gen type cbcmac <cantidad>  |  CBC-MAC  |  macs
+code170 <cantidad>  |  code 170 <cantidad>  |  gen type pmac <cantidad>  |  PMAC  |  macs
+code171 <cantidad>  |  code 171 <cantidad>  |  gen type ocb_mac <cantidad>  |  OCB-MAC  |  macs
+code172 <cantidad>  |  code 172 <cantidad>  |  gen type cha_poly_mac <cantidad>  |  Poly1305-AES  |  macs
+code173 <cantidad>  |  code 173 <cantidad>  |  gen type uuid4 <cantidad>  |  UUID v4  |  identifiers
+code174 <cantidad>  |  code 174 <cantidad>  |  gen type uuid7 <cantidad>  |  UUID v7  |  identifiers
+code175 <cantidad>  |  code 175 <cantidad>  |  gen type uuid1 <cantidad>  |  UUID v1  |  identifiers
+code176 <cantidad>  |  code 176 <cantidad>  |  gen type uuid3 <cantidad>  |  UUID v3  |  identifiers
+code177 <cantidad>  |  code 177 <cantidad>  |  gen type uuid5 <cantidad>  |  UUID v5  |  identifiers
+code178 <cantidad>  |  code 178 <cantidad>  |  gen type ulid <cantidad>  |  ULID  |  identifiers
+code179 <cantidad>  |  code 179 <cantidad>  |  gen type nanoid <cantidad>  |  NanoID  |  identifiers
+code180 <cantidad>  |  code 180 <cantidad>  |  gen type cuid2 <cantidad>  |  CUID2  |  identifiers
+code181 <cantidad>  |  code 181 <cantidad>  |  gen type ksuid <cantidad>  |  KSUID  |  identifiers
+code182 <cantidad>  |  code 182 <cantidad>  |  gen type snowflake <cantidad>  |  Snowflake ID  |  identifiers
+code183 <cantidad>  |  code 183 <cantidad>  |  gen type objectid <cantidad>  |  Mongo ObjectID  |  identifiers
+code184 <cantidad>  |  code 184 <cantidad>  |  gen type shortid <cantidad>  |  Short ID  |  identifiers
+code185 <cantidad>  |  code 185 <cantidad>  |  gen type apikey <cantidad>  |  API Key  |  tokens
+code186 <cantidad>  |  code 186 <cantidad>  |  gen type bearer <cantidad>  |  Bearer Token  |  tokens
+code187 <cantidad>  |  code 187 <cantidad>  |  gen type jwt_secret <cantidad>  |  JWT Secret  |  tokens
+code188 <cantidad>  |  code 188 <cantidad>  |  gen type session <cantidad>  |  Session Token  |  tokens
+code189 <cantidad>  |  code 189 <cantidad>  |  gen type csrf <cantidad>  |  CSRF Token  |  tokens
+code190 <cantidad>  |  code 190 <cantidad>  |  gen type refresh <cantidad>  |  Refresh Token  |  tokens
+code191 <cantidad>  |  code 191 <cantidad>  |  gen type totp <cantidad>  |  TOTP Secret  |  tokens
+code192 <cantidad>  |  code 192 <cantidad>  |  gen type hotp <cantidad>  |  HOTP Secret  |  tokens
+code193 <cantidad>  |  code 193 <cantidad>  |  gen type webhook <cantidad>  |  Webhook Secret  |  tokens
+code194 <cantidad>  |  code 194 <cantidad>  |  gen type recovery <cantidad>  |  Recovery Code  |  tokens
+code195 <cantidad>  |  code 195 <cantidad>  |  gen type invite <cantidad>  |  Invite Code  |  tokens
+code196 <cantidad>  |  code 196 <cantidad>  |  gen type license <cantidad>  |  License Key  |  tokens
+code197 <cantidad>  |  code 197 <cantidad>  |  gen type serial <cantidad>  |  Serial Number  |  tokens
+code198 <cantidad>  |  code 198 <cantidad>  |  gen type pin4 <cantidad>  |  PIN-4  |  tokens
+code199 <cantidad>  |  code 199 <cantidad>  |  gen type pin6 <cantidad>  |  PIN-6  |  tokens
+code200 <cantidad>  |  code 200 <cantidad>  |  gen type pin8 <cantidad>  |  PIN-8  |  tokens
+code201 <cantidad>  |  code 201 <cantidad>  |  gen type pat <cantidad>  |  Personal Access Tok  |  tokens
+code202 <cantidad>  |  code 202 <cantidad>  |  gen type github_pat <cantidad>  |  GitHub-style PAT  |  tokens
+code203 <cantidad>  |  code 203 <cantidad>  |  gen type gitlab_pat <cantidad>  |  GitLab-style PAT  |  tokens
+code204 <cantidad>  |  code 204 <cantidad>  |  gen type slack_bot <cantidad>  |  Slack Bot Token  |  tokens
+code205 <cantidad>  |  code 205 <cantidad>  |  gen type stripe_sk <cantidad>  |  Stripe Secret Key  |  tokens
+code206 <cantidad>  |  code 206 <cantidad>  |  gen type stripe_pk <cantidad>  |  Stripe Pub Key  |  tokens
+code207 <cantidad>  |  code 207 <cantidad>  |  gen type sendgrid <cantidad>  |  SendGrid API Key  |  tokens
+code208 <cantidad>  |  code 208 <cantidad>  |  gen type mailgun <cantidad>  |  Mailgun Key  |  tokens
+code209 <cantidad>  |  code 209 <cantidad>  |  gen type twilio <cantidad>  |  Twilio Auth Token  |  tokens
+code210 <cantidad>  |  code 210 <cantidad>  |  gen type aws_akid <cantidad>  |  AWS Access Key ID  |  tokens
+code211 <cantidad>  |  code 211 <cantidad>  |  gen type aws_secret <cantidad>  |  AWS Secret Key  |  tokens
+code212 <cantidad>  |  code 212 <cantidad>  |  gen type gcp_sa <cantidad>  |  GCP SA Key  |  tokens
+code213 <cantidad>  |  code 213 <cantidad>  |  gen type azure_sas <cantidad>  |  Azure SAS Token  |  tokens
+code214 <cantidad>  |  code 214 <cantidad>  |  gen type do_pat <cantidad>  |  DigitalOcean PAT  |  tokens
+code215 <cantidad>  |  code 215 <cantidad>  |  gen type heroku <cantidad>  |  Heroku API Key  |  tokens
+code216 <cantidad>  |  code 216 <cantidad>  |  gen type firebase <cantidad>  |  Firebase Token  |  tokens
+code217 <cantidad>  |  code 217 <cantidad>  |  gen type supabase <cantidad>  |  Supabase Anon Key  |  tokens
+code218 <cantidad>  |  code 218 <cantidad>  |  gen type oauth_code <cantidad>  |  OAuth Auth Code  |  tokens
+code219 <cantidad>  |  code 219 <cantidad>  |  gen type pkce_ver <cantidad>  |  PKCE Verifier  |  tokens
+code220 <cantidad>  |  code 220 <cantidad>  |  gen type pkce_chal <cantidad>  |  PKCE Challenge  |  tokens
+code221 <cantidad>  |  code 221 <cantidad>  |  gen type magic_link <cantidad>  |  Magic Link Token  |  tokens
+code222 <cantidad>  |  code 222 <cantidad>  |  gen type reset_pwd <cantidad>  |  Password Reset Tok  |  tokens
+code223 <cantidad>  |  code 223 <cantidad>  |  gen type verify_email <cantidad>  |  Email Verify Token  |  tokens
+code224 <cantidad>  |  code 224 <cantidad>  |  gen type totp_uri <cantidad>  |  TOTP otpauth URI  |  tokens
+code225 <cantidad>  |  code 225 <cantidad>  |  gen type webauthn <cantidad>  |  WebAuthn Cred ID  |  tokens
+code226 <cantidad>  |  code 226 <cantidad>  |  gen type fido_chal <cantidad>  |  FIDO Challenge  |  tokens
+code227 <cantidad>  |  code 227 <cantidad>  |  gen type apns_dev <cantidad>  |  APNs Device Token  |  tokens
+code228 <cantidad>  |  code 228 <cantidad>  |  gen type fcm_token <cantidad>  |  FCM Reg Token  |  tokens
+code229 <cantidad>  |  code 229 <cantidad>  |  gen type jwt_full <cantidad>  |  JWT (HS256 mock)  |  tokens
+code230 <cantidad>  |  code 230 <cantidad>  |  gen type paseto_v4 <cantidad>  |  PASETO v4.local  |  tokens
+code231 <cantidad>  |  code 231 <cantidad>  |  gen type paseto_pub <cantidad>  |  PASETO v4.public  |  tokens
+code232 <cantidad>  |  code 232 <cantidad>  |  gen type macaroon <cantidad>  |  Macaroon  |  tokens
+code233 <cantidad>  |  code 233 <cantidad>  |  gen type biscuit <cantidad>  |  Biscuit Token  |  tokens
+code234 <cantidad>  |  code 234 <cantidad>  |  gen type sas_token <cantidad>  |  Generic SAS Token  |  tokens
+code235 <cantidad>  |  code 235 <cantidad>  |  gen type ticket <cantidad>  |  Ticket Token  |  tokens
+code236 <cantidad>  |  code 236 <cantidad>  |  gen type voucher <cantidad>  |  Voucher Code  |  tokens
+code237 <cantidad>  |  code 237 <cantidad>  |  gen type coupon <cantidad>  |  Coupon Code  |  tokens
+code238 <cantidad>  |  code 238 <cantidad>  |  gen type gift_card <cantidad>  |  Gift Card Code  |  tokens
+code239 <cantidad>  |  code 239 <cantidad>  |  gen type tracking <cantidad>  |  Tracking ID  |  tokens
+code240 <cantidad>  |  code 240 <cantidad>  |  gen type order_no <cantidad>  |  Order Number  |  tokens
+code241 <cantidad>  |  code 241 <cantidad>  |  gen type tx_id <cantidad>  |  Transaction ID  |  tokens
+code242 <cantidad>  |  code 242 <cantidad>  |  gen type didkey <cantidad>  |  did:key  |  tokens
+code243 <cantidad>  |  code 243 <cantidad>  |  gen type didweb <cantidad>  |  did:web  |  tokens
+code244 <cantidad>  |  code 244 <cantidad>  |  gen type vc_jwt <cantidad>  |  Verifiable Cred JWT  |  tokens
+code245 <cantidad>  |  code 245 <cantidad>  |  gen type btc_addr <cantidad>  |  BTC Address  |  tokens
+code246 <cantidad>  |  code 246 <cantidad>  |  gen type eth_addr <cantidad>  |  ETH Address  |  tokens
+code247 <cantidad>  |  code 247 <cantidad>  |  gen type sol_addr <cantidad>  |  Solana Address  |  tokens
+code248 <cantidad>  |  code 248 <cantidad>  |  gen type mnemonic12 <cantidad>  |  Mnemonic (12w)  |  tokens
+code249 <cantidad>  |  code 249 <cantidad>  |  gen type mnemonic24 <cantidad>  |  Mnemonic (24w)  |  tokens
+code250 <cantidad>  |  code 250 <cantidad>  |  gen type qr_secret <cantidad>  |  QR Auth Secret  |  tokens
+code251 <cantidad>  |  code 251 <cantidad>  |  gen type one_time <cantidad>  |  One-time Use Token  |  tokens
+code252 <cantidad>  |  code 252 <cantidad>  |  gen type device_id <cantidad>  |  Device Token  |  tokens
+code253 <cantidad>  |  code 253 <cantidad>  |  gen type install_id <cantidad>  |  Install ID  |  tokens
+code254 <cantidad>  |  code 254 <cantidad>  |  gen type password <cantidad>  |  Strong Password  |  passwords
+code255 <cantidad>  |  code 255 <cantidad>  |  gen type pwd_pron <cantidad>  |  Pronounceable PW  |  passwords
+code256 <cantidad>  |  code 256 <cantidad>  |  gen type passphrase <cantidad>  |  Passphrase  |  passwords
+code257 <cantidad>  |  code 257 <cantidad>  |  gen type passphrase_b <cantidad>  |  BIP-39 Phrase  |  passwords
+code258 <cantidad>  |  code 258 <cantidad>  |  gen type pwd_alpha <cantidad>  |  Alpha Only  |  passwords
+code259 <cantidad>  |  code 259 <cantidad>  |  gen type pwd_alphanum <cantidad>  |  Alphanumeric  |  passwords
+code260 <cantidad>  |  code 260 <cantidad>  |  gen type pwd_numeric <cantidad>  |  Numeric Code  |  passwords
+code261 <cantidad>  |  code 261 <cantidad>  |  gen type pwd_xkcd <cantidad>  |  XKCD Style  |  passwords
+code262 <cantidad>  |  code 262 <cantidad>  |  gen type pwd_emoji <cantidad>  |  Mixed-Symbol PW  |  passwords
+code263 <cantidad>  |  code 263 <cantidad>  |  gen type wifi_wpa2 <cantidad>  |  Wi-Fi WPA2/3  |  passwords
+code264 <cantidad>  |  code 264 <cantidad>  |  gen type random_hex <cantidad>  |  Random Hex  |  encoding
+code265 <cantidad>  |  code 265 <cantidad>  |  gen type random_b64 <cantidad>  |  Base64  |  encoding
+code266 <cantidad>  |  code 266 <cantidad>  |  gen type random_b64u <cantidad>  |  Base64URL  |  encoding
+code267 <cantidad>  |  code 267 <cantidad>  |  gen type random_b32 <cantidad>  |  Base32  |  encoding
+code268 <cantidad>  |  code 268 <cantidad>  |  gen type random_b32c <cantidad>  |  Crockford B32  |  encoding
+code269 <cantidad>  |  code 269 <cantidad>  |  gen type random_b58 <cantidad>  |  Base58  |  encoding
+code270 <cantidad>  |  code 270 <cantidad>  |  gen type random_b62 <cantidad>  |  Base62  |  encoding
+code271 <cantidad>  |  code 271 <cantidad>  |  gen type random_b85 <cantidad>  |  Base85 (Z85)  |  encoding
+code272 <cantidad>  |  code 272 <cantidad>  |  gen type random_bin <cantidad>  |  Binary String  |  encoding
+code273 <cantidad>  |  code 273 <cantidad>  |  gen type random_oct <cantidad>  |  Octal  |  encoding
+code274 <cantidad>  |  code 274 <cantidad>  |  gen type random_bytes <cantidad>  |  Raw Bytes (\x..)  |  encoding
+code275 <cantidad>  |  code 275 <cantidad>  |  gen type random_emoji <cantidad>  |  Emoji Hash  |  encoding
+code276 <cantidad>  |  code 276 <cantidad>  |  gen type kyber512 <cantidad>  |  Kyber-512 Seed  |  pq
+code277 <cantidad>  |  code 277 <cantidad>  |  gen type kyber768 <cantidad>  |  Kyber-768 Seed  |  pq
+code278 <cantidad>  |  code 278 <cantidad>  |  gen type kyber1024 <cantidad>  |  Kyber-1024 Seed  |  pq
+code279 <cantidad>  |  code 279 <cantidad>  |  gen type dilithium2 <cantidad>  |  Dilithium-2  |  pq
+code280 <cantidad>  |  code 280 <cantidad>  |  gen type dilithium3 <cantidad>  |  Dilithium-3  |  pq
+code281 <cantidad>  |  code 281 <cantidad>  |  gen type dilithium5 <cantidad>  |  Dilithium-5  |  pq
+code282 <cantidad>  |  code 282 <cantidad>  |  gen type falcon512 <cantidad>  |  Falcon-512  |  pq
+code283 <cantidad>  |  code 283 <cantidad>  |  gen type falcon1024 <cantidad>  |  Falcon-1024  |  pq
+code284 <cantidad>  |  code 284 <cantidad>  |  gen type sphincs <cantidad>  |  SPHINCS+ Seed  |  pq
+code285 <cantidad>  |  code 285 <cantidad>  |  gen type frodo640 <cantidad>  |  FrodoKEM-640  |  pq
+code286 <cantidad>  |  code 286 <cantidad>  |  gen type frodo976 <cantidad>  |  FrodoKEM-976  |  pq
+code287 <cantidad>  |  code 287 <cantidad>  |  gen type classic_mc <cantidad>  |  Classic McEliece  |  pq
+code288 <cantidad>  |  code 288 <cantidad>  |  gen type bike1 <cantidad>  |  BIKE-1  |  pq
+code289 <cantidad>  |  code 289 <cantidad>  |  gen type hqc128 <cantidad>  |  HQC-128  |  pq
+code290 <cantidad>  |  code 290 <cantidad>  |  gen type mlkem512_hyb <cantidad>  |  ML-KEM-512 + X25519  |  modern
+code291 <cantidad>  |  code 291 <cantidad>  |  gen type mlkem768_hyb <cantidad>  |  ML-KEM-768 + X25519  |  modern
+code292 <cantidad>  |  code 292 <cantidad>  |  gen type mlkem1024_hyb <cantidad>  |  ML-KEM-1024 + X448  |  modern
+code293 <cantidad>  |  code 293 <cantidad>  |  gen type mldsa44_hyb <cantidad>  |  ML-DSA-44 + Ed25519  |  modern
+code294 <cantidad>  |  code 294 <cantidad>  |  gen type mldsa65_hyb <cantidad>  |  ML-DSA-65 + Ed25519  |  modern
+code295 <cantidad>  |  code 295 <cantidad>  |  gen type mldsa87_hyb <cantidad>  |  ML-DSA-87 + Ed448  |  modern
+code296 <cantidad>  |  code 296 <cantidad>  |  gen type slhdsa128s <cantidad>  |  SLH-DSA-128s  |  modern
+code297 <cantidad>  |  code 297 <cantidad>  |  gen type slhdsa128f <cantidad>  |  SLH-DSA-128f  |  modern
+code298 <cantidad>  |  code 298 <cantidad>  |  gen type slhdsa192s <cantidad>  |  SLH-DSA-192s  |  modern
+code299 <cantidad>  |  code 299 <cantidad>  |  gen type slhdsa256s <cantidad>  |  SLH-DSA-256s  |  modern
+code300 <cantidad>  |  code 300 <cantidad>  |  gen type xmss <cantidad>  |  XMSS Seed  |  modern
+code301 <cantidad>  |  code 301 <cantidad>  |  gen type lms <cantidad>  |  LMS Key  |  modern
+code302 <cantidad>  |  code 302 <cantidad>  |  gen type xmssmt <cantidad>  |  XMSS-MT Key  |  modern
+code303 <cantidad>  |  code 303 <cantidad>  |  gen type hsslms <cantidad>  |  HSS/LMS Key  |  modern
+code304 <cantidad>  |  code 304 <cantidad>  |  gen type kyber_x448 <cantidad>  |  Kyber768 + X448  |  modern
+code305 <cantidad>  |  code 305 <cantidad>  |  gen type pqxdh <cantidad>  |  PQXDH Pre-key  |  modern
+code306 <cantidad>  |  code 306 <cantidad>  |  gen type shamir3of5 <cantidad>  |  Shamir 3-of-5 Share  |  modern
+code307 <cantidad>  |  code 307 <cantidad>  |  gen type shamir5of9 <cantidad>  |  Shamir 5-of-9 Share  |  modern
+code308 <cantidad>  |  code 308 <cantidad>  |  gen type feldman_vss <cantidad>  |  Feldman VSS Share  |  modern
+code309 <cantidad>  |  code 309 <cantidad>  |  gen type pedersen_vss <cantidad>  |  Pedersen VSS Share  |  modern
+code310 <cantidad>  |  code 310 <cantidad>  |  gen type frost <cantidad>  |  FROST Signing Share  |  modern
+code311 <cantidad>  |  code 311 <cantidad>  |  gen type gg20 <cantidad>  |  GG20 ECDSA Share  |  modern
+code312 <cantidad>  |  code 312 <cantidad>  |  gen type cgg21 <cantidad>  |  CGG21 ECDSA Share  |  modern
+code313 <cantidad>  |  code 313 <cantidad>  |  gen type mpc_seed <cantidad>  |  MPC Wallet Seed  |  modern
+code314 <cantidad>  |  code 314 <cantidad>  |  gen type tss_dkg <cantidad>  |  TSS DKG Share  |  modern
+code315 <cantidad>  |  code 315 <cantidad>  |  gen type spdz_share <cantidad>  |  SPDZ MAC Share  |  modern
+code316 <cantidad>  |  code 316 <cantidad>  |  gen type bgw_share <cantidad>  |  BGW Share  |  modern
+code317 <cantidad>  |  code 317 <cantidad>  |  gen type beaver_triple <cantidad>  |  Beaver Triple  |  modern
+code318 <cantidad>  |  code 318 <cantidad>  |  gen type gg18 <cantidad>  |  GG18 Threshold Sig  |  modern
+code319 <cantidad>  |  code 319 <cantidad>  |  gen type lindell17 <cantidad>  |  Lindell17 Share  |  modern
+code320 <cantidad>  |  code 320 <cantidad>  |  gen type doerner18 <cantidad>  |  Doerner18 Share  |  modern
+code321 <cantidad>  |  code 321 <cantidad>  |  gen type zk_groth16_pk <cantidad>  |  Groth16 Proving Key  |  modern
+code322 <cantidad>  |  code 322 <cantidad>  |  gen type zk_plonk_pk <cantidad>  |  PLONK Proving Key  |  modern
+code323 <cantidad>  |  code 323 <cantidad>  |  gen type zk_halo2_pk <cantidad>  |  Halo2 Proving Key  |  modern
+code324 <cantidad>  |  code 324 <cantidad>  |  gen type zk_stark_seed <cantidad>  |  STARK Seed  |  modern
+code325 <cantidad>  |  code 325 <cantidad>  |  gen type zk_bulletproof <cantidad>  |  Bulletproof Range  |  modern
+code326 <cantidad>  |  code 326 <cantidad>  |  gen type zk_nova <cantidad>  |  Nova Folding Seed  |  modern
+code327 <cantidad>  |  code 327 <cantidad>  |  gen type zk_sonic <cantidad>  |  Sonic SRS  |  modern
+code328 <cantidad>  |  code 328 <cantidad>  |  gen type zk_marlin <cantidad>  |  Marlin SRS  |  modern
+code329 <cantidad>  |  code 329 <cantidad>  |  gen type zk_aurora <cantidad>  |  Aurora Seed  |  modern
+code330 <cantidad>  |  code 330 <cantidad>  |  gen type zk_ligero <cantidad>  |  Ligero Seed  |  modern
+code331 <cantidad>  |  code 331 <cantidad>  |  gen type zk_spartan <cantidad>  |  Spartan Seed  |  modern
+code332 <cantidad>  |  code 332 <cantidad>  |  gen type zk_brakedown <cantidad>  |  Brakedown Seed  |  modern
+code333 <cantidad>  |  code 333 <cantidad>  |  gen type zk_binius <cantidad>  |  Binius Seed  |  modern
+code334 <cantidad>  |  code 334 <cantidad>  |  gen type zk_lasso <cantidad>  |  Lasso Lookup Seed  |  modern
+code335 <cantidad>  |  code 335 <cantidad>  |  gen type zk_jolt <cantidad>  |  Jolt zkVM Seed  |  modern
+code336 <cantidad>  |  code 336 <cantidad>  |  gen type ascon128a <cantidad>  |  Ascon-128a Key  |  modern
+code337 <cantidad>  |  code 337 <cantidad>  |  gen type ascon80pq <cantidad>  |  Ascon-80pq Key  |  modern
+code338 <cantidad>  |  code 338 <cantidad>  |  gen type isap <cantidad>  |  ISAP-A-128a Key  |  modern
+code339 <cantidad>  |  code 339 <cantidad>  |  gen type photon_beetle <cantidad>  |  Photon-Beetle Key  |  modern
+code340 <cantidad>  |  code 340 <cantidad>  |  gen type romulus <cantidad>  |  Romulus-N Key  |  modern
+code341 <cantidad>  |  code 341 <cantidad>  |  gen type tinyjambu <cantidad>  |  TinyJAMBU Key  |  modern
+code342 <cantidad>  |  code 342 <cantidad>  |  gen type sparkle <cantidad>  |  SPARKLE Key  |  modern
+code343 <cantidad>  |  code 343 <cantidad>  |  gen type hbsh <cantidad>  |  HBSH Tweakable Key  |  modern
+code344 <cantidad>  |  code 344 <cantidad>  |  gen type adiantum <cantidad>  |  Adiantum Key  |  modern
+code345 <cantidad>  |  code 345 <cantidad>  |  gen type hctr2 <cantidad>  |  HCTR2 Key  |  modern
+code346 <cantidad>  |  code 346 <cantidad>  |  gen type morus_aead <cantidad>  |  MORUS-1280 AEAD  |  modern
+code347 <cantidad>  |  code 347 <cantidad>  |  gen type colm <cantidad>  |  COLM Key  |  modern
+code348 <cantidad>  |  code 348 <cantidad>  |  gen type jambu <cantidad>  |  JAMBU-AES Key  |  modern
+code349 <cantidad>  |  code 349 <cantidad>  |  gen type acorn <cantidad>  |  ACORN-128 Key  |  modern
+code350 <cantidad>  |  code 350 <cantidad>  |  gen type norx <cantidad>  |  NORX-32-4-1 Key  |  modern
+code351 <cantidad>  |  code 351 <cantidad>  |  gen type blake3_keyed <cantidad>  |  BLAKE3 (keyed)  |  modern
+code352 <cantidad>  |  code 352 <cantidad>  |  gen type blake3_xof <cantidad>  |  BLAKE3 XOF  |  modern
+code353 <cantidad>  |  code 353 <cantidad>  |  gen type blake3_kdf <cantidad>  |  BLAKE3 KDF  |  modern
+code354 <cantidad>  |  code 354 <cantidad>  |  gen type k12 <cantidad>  |  KangarooTwelve  |  modern
+code355 <cantidad>  |  code 355 <cantidad>  |  gen type m14 <cantidad>  |  MarsupilamiFourteen  |  modern
+code356 <cantidad>  |  code 356 <cantidad>  |  gen type turboshake128 <cantidad>  |  TurboSHAKE-128  |  modern
+code357 <cantidad>  |  code 357 <cantidad>  |  gen type turboshake256 <cantidad>  |  TurboSHAKE-256  |  modern
+code358 <cantidad>  |  code 358 <cantidad>  |  gen type kmac_xof <cantidad>  |  KMAC-XOF-256  |  modern
+code359 <cantidad>  |  code 359 <cantidad>  |  gen type parallelhash <cantidad>  |  ParallelHash-256  |  modern
+code360 <cantidad>  |  code 360 <cantidad>  |  gen type tuplehash <cantidad>  |  TupleHash-256  |  modern
+code361 <cantidad>  |  code 361 <cantidad>  |  gen type rescue_prime <cantidad>  |  Rescue-Prime  |  modern
+code362 <cantidad>  |  code 362 <cantidad>  |  gen type poseidon2 <cantidad>  |  Poseidon2  |  modern
+code363 <cantidad>  |  code 363 <cantidad>  |  gen type mimc <cantidad>  |  MiMC  |  modern
+code364 <cantidad>  |  code 364 <cantidad>  |  gen type griffin <cantidad>  |  Griffin  |  modern
+code365 <cantidad>  |  code 365 <cantidad>  |  gen type tip5 <cantidad>  |  Tip5  |  modern
+code366 <cantidad>  |  code 366 <cantidad>  |  gen type reinforced_concrete <cantidad>  |  Reinforced Concrete  |  modern
+code367 <cantidad>  |  code 367 <cantidad>  |  gen type anemoi <cantidad>  |  Anemoi  |  modern
+code368 <cantidad>  |  code 368 <cantidad>  |  gen type vrf_ed25519 <cantidad>  |  Ed25519 VRF  |  modern
+code369 <cantidad>  |  code 369 <cantidad>  |  gen type vrf_ristretto <cantidad>  |  Ristretto VRF  |  modern
+code370 <cantidad>  |  code 370 <cantidad>  |  gen type vrf_secp256k1 <cantidad>  |  secp256k1 VRF  |  modern
+code371 <cantidad>  |  code 371 <cantidad>  |  gen type bls_sig <cantidad>  |  BLS Signature Key  |  modern
+code372 <cantidad>  |  code 372 <cantidad>  |  gen type bls_agg <cantidad>  |  BLS Aggregate Sig  |  modern
+code373 <cantidad>  |  code 373 <cantidad>  |  gen type bn_sig <cantidad>  |  BN254 Signature  |  modern
+code374 <cantidad>  |  code 374 <cantidad>  |  gen type schnorr_sig <cantidad>  |  Schnorr Signature  |  modern
+code375 <cantidad>  |  code 375 <cantidad>  |  gen type musig2 <cantidad>  |  MuSig2 Share  |  modern
+code376 <cantidad>  |  code 376 <cantidad>  |  gen type frost_sec <cantidad>  |  FROST-SECP256K1  |  modern
+code377 <cantidad>  |  code 377 <cantidad>  |  gen type taproot <cantidad>  |  Taproot Output Key  |  modern
+code378 <cantidad>  |  code 378 <cantidad>  |  gen type silent_payment <cantidad>  |  Silent Payment Key  |  modern
+code379 <cantidad>  |  code 379 <cantidad>  |  gen type ecvrf <cantidad>  |  ECVRF-EDWARDS25519  |  modern
+code380 <cantidad>  |  code 380 <cantidad>  |  gen type ring_sig <cantidad>  |  Ring Signature  |  modern
+code381 <cantidad>  |  code 381 <cantidad>  |  gen type group_sig <cantidad>  |  Group Signature  |  modern
+code382 <cantidad>  |  code 382 <cantidad>  |  gen type blind_sig <cantidad>  |  Blind Signature  |  modern
+code383 <cantidad>  |  code 383 <cantidad>  |  gen type bbs_plus <cantidad>  |  BBS+ Signature  |  modern
+code384 <cantidad>  |  code 384 <cantidad>  |  gen type ps_sig <cantidad>  |  Pointcheval-Sanders  |  modern
+code385 <cantidad>  |  code 385 <cantidad>  |  gen type cl_sig <cantidad>  |  Camenisch-Lysyanskaya  |  modern
+code386 <cantidad>  |  code 386 <cantidad>  |  gen type pop_sig <cantidad>  |  Proof of Possession  |  modern
+code387 <cantidad>  |  code 387 <cantidad>  |  gen type cwt <cantidad>  |  CWT (CBOR Web Token)  |  modern
+code388 <cantidad>  |  code 388 <cantidad>  |  gen type macaroon_v2 <cantidad>  |  Macaroon v2  |  modern
+code389 <cantidad>  |  code 389 <cantidad>  |  gen type biscuit_v3 <cantidad>  |  Biscuit v3  |  modern
+code390 <cantidad>  |  code 390 <cantidad>  |  gen type paseto_v3 <cantidad>  |  PASETO v3.local  |  modern
+code391 <cantidad>  |  code 391 <cantidad>  |  gen type paseto_v3_pub <cantidad>  |  PASETO v3.public  |  modern
+code392 <cantidad>  |  code 392 <cantidad>  |  gen type oprf <cantidad>  |  OPRF Output  |  modern
+code393 <cantidad>  |  code 393 <cantidad>  |  gen type opaque <cantidad>  |  OPAQUE Envelope  |  modern
+code394 <cantidad>  |  code 394 <cantidad>  |  gen type spake2 <cantidad>  |  SPAKE2 Share  |  modern
+code395 <cantidad>  |  code 395 <cantidad>  |  gen type cpace <cantidad>  |  CPace Element  |  modern
+code396 <cantidad>  |  code 396 <cantidad>  |  gen type srp6a <cantidad>  |  SRP-6a Verifier  |  modern
+code397 <cantidad>  |  code 397 <cantidad>  |  gen type attest_passkey <cantidad>  |  Passkey Attest. Obj  |  modern
+code398 <cantidad>  |  code 398 <cantidad>  |  gen type card_payment <cantidad>  |  Payment Card  |  token_cards
+code399 <cantidad>  |  code 399 <cantidad>  |  gen type card_loyalty <cantidad>  |  Loyalty Card  |  token_cards
+code400 <cantidad>  |  code 400 <cantidad>  |  gen type card_access <cantidad>  |  Access Card  |  token_cards
+code401 <cantidad>  |  code 401 <cantidad>  |  gen type card_transit <cantidad>  |  Transit Card  |  token_cards
+code402 <cantidad>  |  code 402 <cantidad>  |  gen type card_id <cantidad>  |  Digital ID Card  |  token_cards
+code403 <cantidad>  |  code 403 <cantidad>  |  gen type card_health <cantidad>  |  Health Card  |  token_cards
+code404 <cantidad>  |  code 404 <cantidad>  |  gen type card_membership <cantidad>  |  Membership Card  |  token_cards
+code405 <cantidad>  |  code 405 <cantidad>  |  gen type card_event <cantidad>  |  Event Ticket Card  |  token_cards
+code406 <cantidad>  |  code 406 <cantidad>  |  gen type card_gift <cantidad>  |  Gift Card (full)  |  token_cards
+code407 <cantidad>  |  code 407 <cantidad>  |  gen type card_vehicle <cantidad>  |  Vehicle Key Card  |  token_cards
+code408 <cantidad>  |  code 408 <cantidad>  |  gen type card_crypto <cantidad>  |  Crypto Wallet Card  |  token_cards
+code409 <cantidad>  |  code 409 <cantidad>  |  gen type card_vc <cantidad>  |  Verifiable Cred Card  |  token_cards
+code410 <cantidad>  |  code 410 <cantidad>  |  gen type card_tpl_001 <cantidad>  |  Founder Access  |  token_cards
+code411 <cantidad>  |  code 411 <cantidad>  |  gen type card_tpl_002 <cantidad>  |  Developer Pass  |  token_cards
+code412 <cantidad>  |  code 412 <cantidad>  |  gen type card_tpl_003 <cantidad>  |  Cyber Vault  |  token_cards
+code413 <cantidad>  |  code 413 <cantidad>  |  gen type card_tpl_004 <cantidad>  |  AI Agent  |  token_cards
+code414 <cantidad>  |  code 414 <cantidad>  |  gen type card_tpl_005 <cantidad>  |  Cloud Console  |  token_cards
+code415 <cantidad>  |  code 415 <cantidad>  |  gen type card_tpl_006 <cantidad>  |  API Credential  |  token_cards
+code416 <cantidad>  |  code 416 <cantidad>  |  gen type card_tpl_007 <cantidad>  |  Launch Ticket  |  token_cards
+code417 <cantidad>  |  code 417 <cantidad>  |  gen type card_tpl_008 <cantidad>  |  Beta Invite  |  token_cards
+code418 <cantidad>  |  code 418 <cantidad>  |  gen type card_tpl_009 <cantidad>  |  Creator License  |  token_cards
+code419 <cantidad>  |  code 419 <cantidad>  |  gen type card_tpl_010 <cantidad>  |  Research Badge  |  token_cards
+code420 <cantidad>  |  code 420 <cantidad>  |  gen type card_tpl_011 <cantidad>  |  Secure Note  |  token_cards
+code421 <cantidad>  |  code 421 <cantidad>  |  gen type card_tpl_012 <cantidad>  |  Hardware Pass  |  token_cards
+code422 <cantidad>  |  code 422 <cantidad>  |  gen type card_tpl_013 <cantidad>  |  Data Room  |  token_cards
+code423 <cantidad>  |  code 423 <cantidad>  |  gen type card_tpl_014 <cantidad>  |  Crypto Pass  |  token_cards
+code424 <cantidad>  |  code 424 <cantidad>  |  gen type card_tpl_015 <cantidad>  |  DevOps Key  |  token_cards
+code425 <cantidad>  |  code 425 <cantidad>  |  gen type card_tpl_016 <cantidad>  |  Product Key  |  token_cards
+code426 <cantidad>  |  code 426 <cantidad>  |  gen type card_tpl_017 <cantidad>  |  Service Token  |  token_cards
+code427 <cantidad>  |  code 427 <cantidad>  |  gen type card_tpl_018 <cantidad>  |  Studio Pass  |  token_cards
+code428 <cantidad>  |  code 428 <cantidad>  |  gen type card_tpl_019 <cantidad>  |  Client Card  |  token_cards
+code429 <cantidad>  |  code 429 <cantidad>  |  gen type card_tpl_020 <cantidad>  |  Project Badge  |  token_cards
+code430 <cantidad>  |  code 430 <cantidad>  |  gen type card_tpl_021 <cantidad>  |  Identity Pass  |  token_cards
+code431 <cantidad>  |  code 431 <cantidad>  |  gen type card_tpl_022 <cantidad>  |  Access Token  |  token_cards
+code432 <cantidad>  |  code 432 <cantidad>  |  gen type card_tpl_023 <cantidad>  |  Private Vault  |  token_cards
+code433 <cantidad>  |  code 433 <cantidad>  |  gen type card_tpl_024 <cantidad>  |  Team License  |  token_cards
+code434 <cantidad>  |  code 434 <cantidad>  |  gen type card_tpl_025 <cantidad>  |  Operator Card  |  token_cards
+code435 <cantidad>  |  code 435 <cantidad>  |  gen type card_tpl_026 <cantidad>  |  Admin Console  |  token_cards
+code436 <cantidad>  |  code 436 <cantidad>  |  gen type card_tpl_027 <cantidad>  |  Database Pass  |  token_cards
+code437 <cantidad>  |  code 437 <cantidad>  |  gen type card_tpl_028 <cantidad>  |  Server Ticket  |  token_cards
+code438 <cantidad>  |  code 438 <cantidad>  |  gen type card_tpl_029 <cantidad>  |  Backup Token  |  token_cards
+code439 <cantidad>  |  code 439 <cantidad>  |  gen type card_tpl_030 <cantidad>  |  Deploy Card  |  token_cards
+code440 <cantidad>  |  code 440 <cantidad>  |  gen type card_tpl_031 <cantidad>  |  Audit Badge  |  token_cards
+code441 <cantidad>  |  code 441 <cantidad>  |  gen type card_tpl_032 <cantidad>  |  Webhook Card  |  token_cards
+code442 <cantidad>  |  code 442 <cantidad>  |  gen type card_tpl_033 <cantidad>  |  Secret Card  |  token_cards
+code443 <cantidad>  |  code 443 <cantidad>  |  gen type card_tpl_034 <cantidad>  |  Encryption Card  |  token_cards
+code444 <cantidad>  |  code 444 <cantidad>  |  gen type card_tpl_035 <cantidad>  |  Signature Pass  |  token_cards
+code445 <cantidad>  |  code 445 <cantidad>  |  gen type card_tpl_036 <cantidad>  |  Session Card  |  token_cards
+code446 <cantidad>  |  code 446 <cantidad>  |  gen type card_tpl_037 <cantidad>  |  Invite Card  |  token_cards
+code447 <cantidad>  |  code 447 <cantidad>  |  gen type card_tpl_038 <cantidad>  |  Premium Pass  |  token_cards
+code448 <cantidad>  |  code 448 <cantidad>  |  gen type card_tpl_039 <cantidad>  |  Enterprise Key  |  token_cards
+code449 <cantidad>  |  code 449 <cantidad>  |  gen type card_tpl_040 <cantidad>  |  Root Card  |  token_cards
+code450 <cantidad>  |  code 450 <cantidad>  |  gen type card_tpl_041 <cantidad>  |  Edge Worker  |  token_cards
+code451 <cantidad>  |  code 451 <cantidad>  |  gen type card_tpl_042 <cantidad>  |  Mobile Pass  |  token_cards
+code452 <cantidad>  |  code 452 <cantidad>  |  gen type card_tpl_043 <cantidad>  |  Desktop License  |  token_cards
+code453 <cantidad>  |  code 453 <cantidad>  |  gen type card_tpl_044 <cantidad>  |  Game Pass  |  token_cards
+code454 <cantidad>  |  code 454 <cantidad>  |  gen type card_tpl_045 <cantidad>  |  E-commerce Key  |  token_cards
+code455 <cantidad>  |  code 455 <cantidad>  |  gen type card_tpl_046 <cantidad>  |  Marketplace Card  |  token_cards
+code456 <cantidad>  |  code 456 <cantidad>  |  gen type card_tpl_047 <cantidad>  |  SaaS License  |  token_cards
+code457 <cantidad>  |  code 457 <cantidad>  |  gen type card_tpl_048 <cantidad>  |  Student ID  |  token_cards
+code458 <cantidad>  |  code 458 <cantidad>  |  gen type card_tpl_049 <cantidad>  |  Library Card  |  token_cards
+code459 <cantidad>  |  code 459 <cantidad>  |  gen type card_tpl_050 <cantidad>  |  Hotel Key  |  token_cards
+code460 <cantidad>  |  code 460 <cantidad>  |  gen type card_tpl_051 <cantidad>  |  Airline Pass  |  token_cards
+code461 <cantidad>  |  code 461 <cantidad>  |  gen type card_tpl_052 <cantidad>  |  VIP Access  |  token_cards
+code462 <cantidad>  |  code 462 <cantidad>  |  gen type card_tpl_053 <cantidad>  |  Conference Pass  |  token_cards
+code463 <cantidad>  |  code 463 <cantidad>  |  gen type card_tpl_054 <cantidad>  |  Course Card  |  token_cards
+code464 <cantidad>  |  code 464 <cantidad>  |  gen type card_tpl_055 <cantidad>  |  Clinic Card  |  token_cards
+code465 <cantidad>  |  code 465 <cantidad>  |  gen type card_tpl_056 <cantidad>  |  Gym Pass  |  token_cards
+code466 <cantidad>  |  code 466 <cantidad>  |  gen type card_tpl_057 <cantidad>  |  Club Card  |  token_cards
+code467 <cantidad>  |  code 467 <cantidad>  |  gen type card_tpl_058 <cantidad>  |  Museum Pass  |  token_cards
+code468 <cantidad>  |  code 468 <cantidad>  |  gen type card_tpl_059 <cantidad>  |  Parking Card  |  token_cards
+code469 <cantidad>  |  code 469 <cantidad>  |  gen type card_tpl_060 <cantidad>  |  Transit Plus  |  token_cards
+code470 <cantidad>  |  code 470 <cantidad>  |  gen type card_tpl_061 <cantidad>  |  Wallet Card  |  token_cards
+code471 <cantidad>  |  code 471 <cantidad>  |  gen type card_tpl_062 <cantidad>  |  Gift Voucher  |  token_cards
+code472 <cantidad>  |  code 472 <cantidad>  |  gen type card_tpl_063 <cantidad>  |  Coupon Code  |  token_cards
+code473 <cantidad>  |  code 473 <cantidad>  |  gen type card_tpl_064 <cantidad>  |  Subscription Card  |  token_cards
+code474 <cantidad>  |  code 474 <cantidad>  |  gen type card_tpl_065 <cantidad>  |  Streaming Pass  |  token_cards
+code475 <cantidad>  |  code 475 <cantidad>  |  gen type card_tpl_066 <cantidad>  |  Music Pass  |  token_cards
+code476 <cantidad>  |  code 476 <cantidad>  |  gen type card_tpl_067 <cantidad>  |  Photo License  |  token_cards
+code477 <cantidad>  |  code 477 <cantidad>  |  gen type card_tpl_068 <cantidad>  |  Video License  |  token_cards
+code478 <cantidad>  |  code 478 <cantidad>  |  gen type card_tpl_069 <cantidad>  |  Design Pass  |  token_cards
+code479 <cantidad>  |  code 479 <cantidad>  |  gen type card_tpl_070 <cantidad>  |  Brand Card  |  token_cards
+code480 <cantidad>  |  code 480 <cantidad>  |  gen type card_tpl_071 <cantidad>  |  Legal Vault  |  token_cards
+code481 <cantidad>  |  code 481 <cantidad>  |  gen type card_tpl_072 <cantidad>  |  Invoice Card  |  token_cards
+code482 <cantidad>  |  code 482 <cantidad>  |  gen type card_tpl_073 <cantidad>  |  Receipt Token  |  token_cards
+code483 <cantidad>  |  code 483 <cantidad>  |  gen type card_tpl_074 <cantidad>  |  Order Card  |  token_cards
+code484 <cantidad>  |  code 484 <cantidad>  |  gen type card_tpl_075 <cantidad>  |  Shipping Pass  |  token_cards
+code485 <cantidad>  |  code 485 <cantidad>  |  gen type card_tpl_076 <cantidad>  |  Support Badge  |  token_cards
+code486 <cantidad>  |  code 486 <cantidad>  |  gen type card_tpl_077 <cantidad>  |  Helpdesk Key  |  token_cards
+code487 <cantidad>  |  code 487 <cantidad>  |  gen type card_tpl_078 <cantidad>  |  CRM Card  |  token_cards
+code488 <cantidad>  |  code 488 <cantidad>  |  gen type card_tpl_079 <cantidad>  |  ERP License  |  token_cards
+code489 <cantidad>  |  code 489 <cantidad>  |  gen type card_tpl_080 <cantidad>  |  Analytics Pass  |  token_cards
+code490 <cantidad>  |  code 490 <cantidad>  |  gen type card_tpl_081 <cantidad>  |  AI Prompt Card  |  token_cards
+code491 <cantidad>  |  code 491 <cantidad>  |  gen type card_tpl_082 <cantidad>  |  Model Access  |  token_cards
+code492 <cantidad>  |  code 492 <cantidad>  |  gen type card_tpl_083 <cantidad>  |  Dataset Key  |  token_cards
+code493 <cantidad>  |  code 493 <cantidad>  |  gen type card_tpl_084 <cantidad>  |  Notebook Pass  |  token_cards
+code494 <cantidad>  |  code 494 <cantidad>  |  gen type card_tpl_085 <cantidad>  |  Lab Credential  |  token_cards
+code495 <cantidad>  |  code 495 <cantidad>  |  gen type card_tpl_086 <cantidad>  |  Experiment Card  |  token_cards
+code496 <cantidad>  |  code 496 <cantidad>  |  gen type card_tpl_087 <cantidad>  |  IoT Device  |  token_cards
+code497 <cantidad>  |  code 497 <cantidad>  |  gen type card_tpl_088 <cantidad>  |  Smart Home Key  |  token_cards
+code498 <cantidad>  |  code 498 <cantidad>  |  gen type card_tpl_089 <cantidad>  |  Vehicle Pass  |  token_cards
+code499 <cantidad>  |  code 499 <cantidad>  |  gen type card_tpl_090 <cantidad>  |  Drone License  |  token_cards
+code500 <cantidad>  |  code 500 <cantidad>  |  gen type card_tpl_091 <cantidad>  |  Robotics Card  |  token_cards
+code501 <cantidad>  |  code 501 <cantidad>  |  gen type card_tpl_092 <cantidad>  |  VR Access  |  token_cards
+code502 <cantidad>  |  code 502 <cantidad>  |  gen type card_tpl_093 <cantidad>  |  AR Pass  |  token_cards
+code503 <cantidad>  |  code 503 <cantidad>  |  gen type card_tpl_094 <cantidad>  |  Metaverse ID  |  token_cards
+code504 <cantidad>  |  code 504 <cantidad>  |  gen type card_tpl_095 <cantidad>  |  Forum Badge  |  token_cards
+code505 <cantidad>  |  code 505 <cantidad>  |  gen type card_tpl_096 <cantidad>  |  Community Pass  |  token_cards
+code506 <cantidad>  |  code 506 <cantidad>  |  gen type card_tpl_097 <cantidad>  |  Creator Badge  |  token_cards
+code507 <cantidad>  |  code 507 <cantidad>  |  gen type card_tpl_098 <cantidad>  |  Partner Card  |  token_cards
+code508 <cantidad>  |  code 508 <cantidad>  |  gen type card_tpl_099 <cantidad>  |  Investor Pass  |  token_cards
+code509 <cantidad>  |  code 509 <cantidad>  |  gen type card_tpl_100 <cantidad>  |  Executive Card  |  token_cards
+code510 <cantidad>  |  code 510 <cantidad>  |  gen type adv_code_001 <cantidad>  |  Obsidian Quantum Vault Key  |  advanced_codes_100
+code511 <cantidad>  |  code 511 <cantidad>  |  gen type adv_code_002 <cantidad>  |  Astra Zero-Knowledge Proof Seed  |  advanced_codes_100
+code512 <cantidad>  |  code 512 <cantidad>  |  gen type adv_code_003 <cantidad>  |  Helix Post-Quantum Session Key  |  advanced_codes_100
+code513 <cantidad>  |  code 513 <cantidad>  |  gen type adv_code_004 <cantidad>  |  Nova Threshold Recovery Share  |  advanced_codes_100
+code514 <cantidad>  |  code 514 <cantidad>  |  gen type adv_code_005 <cantidad>  |  Cipher Hardware Root Token  |  advanced_codes_100
+code515 <cantidad>  |  code 515 <cantidad>  |  gen type adv_code_006 <cantidad>  |  Orion DID Identity Anchor  |  advanced_codes_100
+code516 <cantidad>  |  code 516 <cantidad>  |  gen type adv_code_007 <cantidad>  |  Vertex Secure Enclave Ticket  |  advanced_codes_100
+code517 <cantidad>  |  code 517 <cantidad>  |  gen type adv_code_008 <cantidad>  |  Axiom Hardened API Capsule  |  advanced_codes_100
+code518 <cantidad>  |  code 518 <cantidad>  |  gen type adv_code_009 <cantidad>  |  Nexus Mesh Node Credential  |  advanced_codes_100
+code519 <cantidad>  |  code 519 <cantidad>  |  gen type adv_code_010 <cantidad>  |  Vanta Certificate Code Seal  |  advanced_codes_100
+code520 <cantidad>  |  code 520 <cantidad>  |  gen type adv_code_011 <cantidad>  |  Omega Quantum Vault Key  |  advanced_codes_100
+code521 <cantidad>  |  code 521 <cantidad>  |  gen type adv_code_012 <cantidad>  |  Kairo Zero-Knowledge Proof Seed  |  advanced_codes_100
+code522 <cantidad>  |  code 522 <cantidad>  |  gen type adv_code_013 <cantidad>  |  Spectra Post-Quantum Session Key  |  advanced_codes_100
+code523 <cantidad>  |  code 523 <cantidad>  |  gen type adv_code_014 <cantidad>  |  Titan Threshold Recovery Share  |  advanced_codes_100
+code524 <cantidad>  |  code 524 <cantidad>  |  gen type adv_code_015 <cantidad>  |  Argon Hardware Root Token  |  advanced_codes_100
+code525 <cantidad>  |  code 525 <cantidad>  |  gen type adv_code_016 <cantidad>  |  Vector DID Identity Anchor  |  advanced_codes_100
+code526 <cantidad>  |  code 526 <cantidad>  |  gen type adv_code_017 <cantidad>  |  Halo Secure Enclave Ticket  |  advanced_codes_100
+code527 <cantidad>  |  code 527 <cantidad>  |  gen type adv_code_018 <cantidad>  |  Prism Hardened API Capsule  |  advanced_codes_100
+code528 <cantidad>  |  code 528 <cantidad>  |  gen type adv_code_019 <cantidad>  |  Cobalt Mesh Node Credential  |  advanced_codes_100
+code529 <cantidad>  |  code 529 <cantidad>  |  gen type adv_code_020 <cantidad>  |  Zenith Certificate Code Seal  |  advanced_codes_100
+code530 <cantidad>  |  code 530 <cantidad>  |  gen type adv_code_021 <cantidad>  |  Atlas Quantum Vault Key  |  advanced_codes_100
+code531 <cantidad>  |  code 531 <cantidad>  |  gen type adv_code_022 <cantidad>  |  Monolith Zero-Knowledge Proof Seed  |  advanced_codes_100
+code532 <cantidad>  |  code 532 <cantidad>  |  gen type adv_code_023 <cantidad>  |  Quasar Post-Quantum Session Key  |  advanced_codes_100
+code533 <cantidad>  |  code 533 <cantidad>  |  gen type adv_code_024 <cantidad>  |  Nebula Threshold Recovery Share  |  advanced_codes_100
+code534 <cantidad>  |  code 534 <cantidad>  |  gen type adv_code_025 <cantidad>  |  Pulse Hardware Root Token  |  advanced_codes_100
+code535 <cantidad>  |  code 535 <cantidad>  |  gen type adv_code_026 <cantidad>  |  Mirage DID Identity Anchor  |  advanced_codes_100
+code536 <cantidad>  |  code 536 <cantidad>  |  gen type adv_code_027 <cantidad>  |  Sable Secure Enclave Ticket  |  advanced_codes_100
+code537 <cantidad>  |  code 537 <cantidad>  |  gen type adv_code_028 <cantidad>  |  Ion Hardened API Capsule  |  advanced_codes_100
+code538 <cantidad>  |  code 538 <cantidad>  |  gen type adv_code_029 <cantidad>  |  Forge Mesh Node Credential  |  advanced_codes_100
+code539 <cantidad>  |  code 539 <cantidad>  |  gen type adv_code_030 <cantidad>  |  Crown Certificate Code Seal  |  advanced_codes_100
+code540 <cantidad>  |  code 540 <cantidad>  |  gen type adv_code_031 <cantidad>  |  Delta Quantum Vault Key  |  advanced_codes_100
+code541 <cantidad>  |  code 541 <cantidad>  |  gen type adv_code_032 <cantidad>  |  Eclipse Zero-Knowledge Proof Seed  |  advanced_codes_100
+code542 <cantidad>  |  code 542 <cantidad>  |  gen type adv_code_033 <cantidad>  |  Aurora Post-Quantum Session Key  |  advanced_codes_100
+code543 <cantidad>  |  code 543 <cantidad>  |  gen type adv_code_034 <cantidad>  |  Vortex Threshold Recovery Share  |  advanced_codes_100
+code544 <cantidad>  |  code 544 <cantidad>  |  gen type adv_code_035 <cantidad>  |  Beacon Hardware Root Token  |  advanced_codes_100
+code545 <cantidad>  |  code 545 <cantidad>  |  gen type adv_code_036 <cantidad>  |  Summit DID Identity Anchor  |  advanced_codes_100
+code546 <cantidad>  |  code 546 <cantidad>  |  gen type adv_code_037 <cantidad>  |  Onyx Secure Enclave Ticket  |  advanced_codes_100
+code547 <cantidad>  |  code 547 <cantidad>  |  gen type adv_code_038 <cantidad>  |  Jade Hardened API Capsule  |  advanced_codes_100
+code548 <cantidad>  |  code 548 <cantidad>  |  gen type adv_code_039 <cantidad>  |  Quartz Mesh Node Credential  |  advanced_codes_100
+code549 <cantidad>  |  code 549 <cantidad>  |  gen type adv_code_040 <cantidad>  |  Phantom Certificate Code Seal  |  advanced_codes_100
+code550 <cantidad>  |  code 550 <cantidad>  |  gen type adv_code_041 <cantidad>  |  Sentinel Quantum Vault Key  |  advanced_codes_100
+code551 <cantidad>  |  code 551 <cantidad>  |  gen type adv_code_042 <cantidad>  |  Lattice Zero-Knowledge Proof Seed  |  advanced_codes_100
+code552 <cantidad>  |  code 552 <cantidad>  |  gen type adv_code_043 <cantidad>  |  Hermes Post-Quantum Session Key  |  advanced_codes_100
+code553 <cantidad>  |  code 553 <cantidad>  |  gen type adv_code_044 <cantidad>  |  Apollo Threshold Recovery Share  |  advanced_codes_100
+code554 <cantidad>  |  code 554 <cantidad>  |  gen type adv_code_045 <cantidad>  |  Genesis Hardware Root Token  |  advanced_codes_100
+code555 <cantidad>  |  code 555 <cantidad>  |  gen type adv_code_046 <cantidad>  |  Signal DID Identity Anchor  |  advanced_codes_100
+code556 <cantidad>  |  code 556 <cantidad>  |  gen type adv_code_047 <cantidad>  |  Matrix Secure Enclave Ticket  |  advanced_codes_100
+code557 <cantidad>  |  code 557 <cantidad>  |  gen type adv_code_048 <cantidad>  |  Binary Hardened API Capsule  |  advanced_codes_100
+code558 <cantidad>  |  code 558 <cantidad>  |  gen type adv_code_049 <cantidad>  |  Lambda Mesh Node Credential  |  advanced_codes_100
+code559 <cantidad>  |  code 559 <cantidad>  |  gen type adv_code_050 <cantidad>  |  Radius Certificate Code Seal  |  advanced_codes_100
+code560 <cantidad>  |  code 560 <cantidad>  |  gen type adv_code_051 <cantidad>  |  Krypton Quantum Vault Key  |  advanced_codes_100
+code561 <cantidad>  |  code 561 <cantidad>  |  gen type adv_code_052 <cantidad>  |  Solstice Zero-Knowledge Proof Seed  |  advanced_codes_100
+code562 <cantidad>  |  code 562 <cantidad>  |  gen type adv_code_053 <cantidad>  |  Equinox Post-Quantum Session Key  |  advanced_codes_100
+code563 <cantidad>  |  code 563 <cantidad>  |  gen type adv_code_054 <cantidad>  |  Pioneer Threshold Recovery Share  |  advanced_codes_100
+code564 <cantidad>  |  code 564 <cantidad>  |  gen type adv_code_055 <cantidad>  |  Echo Hardware Root Token  |  advanced_codes_100
+code565 <cantidad>  |  code 565 <cantidad>  |  gen type adv_code_056 <cantidad>  |  Falcon DID Identity Anchor  |  advanced_codes_100
+code566 <cantidad>  |  code 566 <cantidad>  |  gen type adv_code_057 <cantidad>  |  Rhombus Secure Enclave Ticket  |  advanced_codes_100
+code567 <cantidad>  |  code 567 <cantidad>  |  gen type adv_code_058 <cantidad>  |  Vega Hardened API Capsule  |  advanced_codes_100
+code568 <cantidad>  |  code 568 <cantidad>  |  gen type adv_code_059 <cantidad>  |  Lyra Mesh Node Credential  |  advanced_codes_100
+code569 <cantidad>  |  code 569 <cantidad>  |  gen type adv_code_060 <cantidad>  |  Aether Certificate Code Seal  |  advanced_codes_100
+code570 <cantidad>  |  code 570 <cantidad>  |  gen type adv_code_061 <cantidad>  |  Mercury Quantum Vault Key  |  advanced_codes_100
+code571 <cantidad>  |  code 571 <cantidad>  |  gen type adv_code_062 <cantidad>  |  Neon Zero-Knowledge Proof Seed  |  advanced_codes_100
+code572 <cantidad>  |  code 572 <cantidad>  |  gen type adv_code_063 <cantidad>  |  Gravity Post-Quantum Session Key  |  advanced_codes_100
+code573 <cantidad>  |  code 573 <cantidad>  |  gen type adv_code_064 <cantidad>  |  Bastion Threshold Recovery Share  |  advanced_codes_100
+code574 <cantidad>  |  code 574 <cantidad>  |  gen type adv_code_065 <cantidad>  |  Citadel Hardware Root Token  |  advanced_codes_100
+code575 <cantidad>  |  code 575 <cantidad>  |  gen type adv_code_066 <cantidad>  |  Oracle DID Identity Anchor  |  advanced_codes_100
+code576 <cantidad>  |  code 576 <cantidad>  |  gen type adv_code_067 <cantidad>  |  Vault Secure Enclave Ticket  |  advanced_codes_100
+code577 <cantidad>  |  code 577 <cantidad>  |  gen type adv_code_068 <cantidad>  |  Rune Hardened API Capsule  |  advanced_codes_100
+code578 <cantidad>  |  code 578 <cantidad>  |  gen type adv_code_069 <cantidad>  |  Glyph Mesh Node Credential  |  advanced_codes_100
+code579 <cantidad>  |  code 579 <cantidad>  |  gen type adv_code_070 <cantidad>  |  Boreal Certificate Code Seal  |  advanced_codes_100
+code580 <cantidad>  |  code 580 <cantidad>  |  gen type adv_code_071 <cantidad>  |  Carbon Quantum Vault Key  |  advanced_codes_100
+code581 <cantidad>  |  code 581 <cantidad>  |  gen type adv_code_072 <cantidad>  |  Umbra Zero-Knowledge Proof Seed  |  advanced_codes_100
+code582 <cantidad>  |  code 582 <cantidad>  |  gen type adv_code_073 <cantidad>  |  Sierra Post-Quantum Session Key  |  advanced_codes_100
+code583 <cantidad>  |  code 583 <cantidad>  |  gen type adv_code_074 <cantidad>  |  Quartzite Threshold Recovery Share  |  advanced_codes_100
+code584 <cantidad>  |  code 584 <cantidad>  |  gen type adv_code_075 <cantidad>  |  Vectorial Hardware Root Token  |  advanced_codes_100
+code585 <cantidad>  |  code 585 <cantidad>  |  gen type adv_code_076 <cantidad>  |  Celest DID Identity Anchor  |  advanced_codes_100
+code586 <cantidad>  |  code 586 <cantidad>  |  gen type adv_code_077 <cantidad>  |  Parallax Secure Enclave Ticket  |  advanced_codes_100
+code587 <cantidad>  |  code 587 <cantidad>  |  gen type adv_code_078 <cantidad>  |  Keystone Hardened API Capsule  |  advanced_codes_100
+code588 <cantidad>  |  code 588 <cantidad>  |  gen type adv_code_079 <cantidad>  |  Horizon Mesh Node Credential  |  advanced_codes_100
+code589 <cantidad>  |  code 589 <cantidad>  |  gen type adv_code_080 <cantidad>  |  Noble Certificate Code Seal  |  advanced_codes_100
+code590 <cantidad>  |  code 590 <cantidad>  |  gen type adv_code_081 <cantidad>  |  DeltaX Quantum Vault Key  |  advanced_codes_100
+code591 <cantidad>  |  code 591 <cantidad>  |  gen type adv_code_082 <cantidad>  |  Artemis Zero-Knowledge Proof Seed  |  advanced_codes_100
+code592 <cantidad>  |  code 592 <cantidad>  |  gen type adv_code_083 <cantidad>  |  Zen Post-Quantum Session Key  |  advanced_codes_100
+code593 <cantidad>  |  code 593 <cantidad>  |  gen type adv_code_084 <cantidad>  |  Polar Threshold Recovery Share  |  advanced_codes_100
+code594 <cantidad>  |  code 594 <cantidad>  |  gen type adv_code_085 <cantidad>  |  Raptor Hardware Root Token  |  advanced_codes_100
+code595 <cantidad>  |  code 595 <cantidad>  |  gen type adv_code_086 <cantidad>  |  Silver DID Identity Anchor  |  advanced_codes_100
+code596 <cantidad>  |  code 596 <cantidad>  |  gen type adv_code_087 <cantidad>  |  Copper Secure Enclave Ticket  |  advanced_codes_100
+code597 <cantidad>  |  code 597 <cantidad>  |  gen type adv_code_088 <cantidad>  |  Iris Hardened API Capsule  |  advanced_codes_100
+code598 <cantidad>  |  code 598 <cantidad>  |  gen type adv_code_089 <cantidad>  |  NovaX Mesh Node Credential  |  advanced_codes_100
+code599 <cantidad>  |  code 599 <cantidad>  |  gen type adv_code_090 <cantidad>  |  Terra Certificate Code Seal  |  advanced_codes_100
+code600 <cantidad>  |  code 600 <cantidad>  |  gen type adv_code_091 <cantidad>  |  Chronos Quantum Vault Key  |  advanced_codes_100
+code601 <cantidad>  |  code 601 <cantidad>  |  gen type adv_code_092 <cantidad>  |  Mantis Zero-Knowledge Proof Seed  |  advanced_codes_100
+code602 <cantidad>  |  code 602 <cantidad>  |  gen type adv_code_093 <cantidad>  |  Opal Post-Quantum Session Key  |  advanced_codes_100
+code603 <cantidad>  |  code 603 <cantidad>  |  gen type adv_code_094 <cantidad>  |  Fenix Threshold Recovery Share  |  advanced_codes_100
+code604 <cantidad>  |  code 604 <cantidad>  |  gen type adv_code_095 <cantidad>  |  Dragon Hardware Root Token  |  advanced_codes_100
+code605 <cantidad>  |  code 605 <cantidad>  |  gen type adv_code_096 <cantidad>  |  Apex DID Identity Anchor  |  advanced_codes_100
+code606 <cantidad>  |  code 606 <cantidad>  |  gen type adv_code_097 <cantidad>  |  Dorado Secure Enclave Ticket  |  advanced_codes_100
+code607 <cantidad>  |  code 607 <cantidad>  |  gen type adv_code_098 <cantidad>  |  Helio Hardened API Capsule  |  advanced_codes_100
+code608 <cantidad>  |  code 608 <cantidad>  |  gen type adv_code_099 <cantidad>  |  Mosaic Mesh Node Credential  |  advanced_codes_100
+code609 <cantidad>  |  code 609 <cantidad>  |  gen type adv_code_100 <cantidad>  |  Crest Certificate Code Seal  |  advanced_codes_100
+code610 <cantidad>  |  code 610 <cantidad>  |  gen type adv_code_101 <cantidad>  |  Astra Ascon AEAD Key Capsule  |  advanced_codes_200
+code611 <cantidad>  |  code 611 <cantidad>  |  gen type adv_code_102 <cantidad>  |  Borealis Kuznyechik Vault Seal  |  advanced_codes_200
+code612 <cantidad>  |  code 612 <cantidad>  |  gen type adv_code_103 <cantidad>  |  Cerberus Kyber Hybrid Exchange Seed  |  advanced_codes_200
+code613 <cantidad>  |  code 613 <cantidad>  |  gen type adv_code_104 <cantidad>  |  Daedalus Dilithium Signature Ticket  |  advanced_codes_200
+code614 <cantidad>  |  code 614 <cantidad>  |  gen type adv_code_105 <cantidad>  |  Eclipse BLAKE3 Integrity Root  |  advanced_codes_200
+code615 <cantidad>  |  code 615 <cantidad>  |  gen type adv_code_106 <cantidad>  |  Falkor XTS Storage Lock Key  |  advanced_codes_200
+code616 <cantidad>  |  code 616 <cantidad>  |  gen type adv_code_107 <cantidad>  |  Gaia OPAQUE Auth Envelope  |  advanced_codes_200
+code617 <cantidad>  |  code 617 <cantidad>  |  gen type adv_code_108 <cantidad>  |  Hyperion FIDO Attestation Binder  |  advanced_codes_200
+code618 <cantidad>  |  code 618 <cantidad>  |  gen type adv_code_109 <cantidad>  |  Ion HSM Rotation Slot  |  advanced_codes_200
+code619 <cantidad>  |  code 619 <cantidad>  |  gen type adv_code_110 <cantidad>  |  Juno Merkle DAG Anchor  |  advanced_codes_200

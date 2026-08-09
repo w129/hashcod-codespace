@@ -1,0 +1,32 @@
+OPENCRIPTG · DESK
+
+Nueva ventana agregada al lado de P - ANDORA.
+
+Nombre:
+- DESK
+
+Objetivo:
+- Servir como escritorio central para futuras herramientas.
+- Mantener espacios reservados para nuevos módulos que se irán agregando después.
+
+Funciones incluidas:
+- menú superior DESK
+- ventana adaptada al diseño de OpencriptG
+- lanzadores rápidos para:
+  * Base de datos
+  * QR Vault
+  * Text Lab
+  * Disco Lab / Drive Lab
+  * P - ANDORA
+- notas rápidas del escritorio
+- cambio de nombre del Desk
+- creación de espacios o módulos reservados
+- eliminación de módulos
+- guardado local automático
+
+Uso:
+1. Abre DESK desde la barra superior.
+2. Cambia el nombre del Desk si quieres.
+3. Escribe notas rápidas.
+4. Crea espacios nuevos donde luego se puedan integrar herramientas futuras.
+5. Usa los lanzadores rápidos para abrir módulos existentes.

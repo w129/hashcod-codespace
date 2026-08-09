@@ -1,0 +1,33 @@
+OPENCRIPTG · VERSION VISUAL SIN CMD/CLI
+
+Esta versión restaura la interfaz visual original de OpencriptG.
+
+Cambios realizados:
+- Se eliminó el modo principal IDE/CMD.
+- Se eliminó la barra de comandos como pantalla inicial.
+- Se eliminó el formulario/manual de comandos de la interfaz.
+- Se eliminaron accesos visibles a comandos/CLI.
+- La plataforma vuelve a manejarse por botones, menús, paneles y ventanas.
+
+Se conservan las herramientas visuales principales:
+- Generador de codes
+- Base de datos
+- QR Vault
+- Text Lab
+- Disco Lab / Drive Lab
+- P - ANDORA
+- DESK
+- OSDG -rest
+- Markdown Desk
+- sequence - A
+- Certificados
+- Catálogo y codes agregados previamente
+
+Ejecución:
+1. Descomprime el ZIP.
+2. Abre terminal en la carpeta.
+3. Ejecuta:
+   npm install
+   npm start
+4. Abre:
+   http://127.0.0.1:2340

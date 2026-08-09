@@ -1,0 +1,40 @@
+OPENCRIPTG · 200 ADVANCED CODES
+
+Se agregaron otros 100 codes criptográficos nuevos y diferentes a los 100 anteriores.
+
+Nueva categoría:
+- Advanced Codes 200
+
+Rango agregado:
+- adv_code_101 hasta adv_code_200
+
+Perfiles incluidos:
+- Ascon AEAD Key Capsule
+- Kuznyechik Vault Seal
+- Kyber Hybrid Exchange Seed
+- Dilithium Signature Ticket
+- BLAKE3 Integrity Root
+- XTS Storage Lock Key
+- OPAQUE Auth Envelope
+- FIDO Attestation Binder
+- HSM Rotation Slot
+- Merkle DAG Anchor
+
+Cada code genera:
+- prefijo OCG
+- familia criptográfica
+- serial único
+- payload aleatorio de 48 bytes
+- salt
+- nonce
+- fecha de emisión
+- uso sugerido
+- checksum CRC32 de integridad
+
+Integración funcional:
+- Base de datos
+- QR Vault
+- Certificados
+- sequence - A
+- OSDG -rest
+- Herramientas conectadas a codes copiados o guardados

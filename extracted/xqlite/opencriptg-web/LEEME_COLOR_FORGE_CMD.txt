@@ -1,0 +1,32 @@
+OPENCRIPTG · COLOR FORGE
+
+Nueva herramienta de creación de colores por comandos.
+
+Comandos principales dentro de Color Forge:
+- color help
+- color #2F6BFF
+- palette analogous #2F6BFF 8
+- palette mono #2F6BFF 10
+- palette complement #00A676 8
+- palette triadic #7D3CFF 9
+- palette tetradic #FA7A1A 12
+- gradient #111111 #F2F2F2 10
+- contrast #111111 #FFFFFF
+- export css
+- export json
+- copy
+
+Comandos desde el IDE/CMD principal:
+- open color
+- color help
+- palette analogous #2F6BFF 8
+- gradient #111111 #F2F2F2 10
+- contrast #111111 #FFFFFF
+
+Funciones:
+- genera paletas para diseñadores y desarrolladores
+- calcula RGB, HSL y contraste
+- recomienda texto blanco o negro según contraste
+- exporta variables CSS
+- exporta JSON con metadata
+- funciona por comandos y está integrada al DESK

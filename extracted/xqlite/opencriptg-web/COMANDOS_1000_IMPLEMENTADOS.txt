@@ -1,0 +1,1000 @@
+OPENCRIPTG IDE/CMD · 1000 COMMAND SYSTEM IMPLEMENTADO
+Formato: ocg <modulo> <accion> [opciones]
+
+001 ocg code gen aes256 --qty 10 --save
+002 ocg code gen aes512 --qty 10 --save
+003 ocg code gen chacha20 --qty 10 --save
+004 ocg code gen xchacha20 --qty 10 --save
+005 ocg code gen ascon-key --qty 10 --save
+006 ocg code gen ascon-nonce --qty 10 --save
+007 ocg code gen kuznyechik-key --qty 10 --save
+008 ocg code gen sm4-key --qty 10 --save
+009 ocg code gen camellia-key --qty 10 --save
+010 ocg code gen serpent-key --qty 10 --save
+011 ocg code gen twofish-key --qty 10 --save
+012 ocg code gen seed-phrase --qty 10 --save
+013 ocg code gen recovery-code --qty 10 --save
+014 ocg code gen license-key --qty 10 --save
+015 ocg code gen api-key --qty 10 --save
+016 ocg code gen jwt-secret --qty 10 --save
+017 ocg code gen csrf-token --qty 10 --save
+018 ocg code gen hmac-key --qty 10 --save
+019 ocg code gen blake3-hash --qty 10 --save
+020 ocg code gen keccak-hash --qty 10 --save
+021 ocg code gen zk-seed --qty 10 --save
+022 ocg code gen pq-session-key --qty 10 --save
+023 ocg code gen kyber-seed --qty 10 --save
+024 ocg code gen dilithium-ticket --qty 10 --save
+025 ocg code gen threshold-share --qty 10 --save
+026 ocg code gen hsm-slot-key --qty 10 --save
+027 ocg code gen secure-enclave-ticket --qty 10 --save
+028 ocg code gen did-anchor --qty 10 --save
+029 ocg code gen certificate-seal --qty 10 --save
+030 ocg code gen vault-master-key --qty 10 --save
+031 ocg code gen qr-bundle-secret --qty 10 --save
+032 ocg code gen storage-lock-key --qty 10 --save
+033 ocg code gen webdav-access-key --qty 10 --save
+034 ocg code gen deploy-token --qty 10 --save
+035 ocg code gen webhook-secret --qty 10 --save
+036 ocg code gen database-password --qty 10 --save
+037 ocg code gen audit-session-id --qty 10 --save
+038 ocg code gen backup-chain-key --qty 10 --save
+039 ocg code gen cold-storage-key --qty 10 --save
+040 ocg code gen universal-secure-code --qty 10 --save
+101 ocg code001 gen --qty 1
+102 ocg code002 gen --qty 1
+103 ocg code003 gen --qty 1
+104 ocg code004 gen --qty 1
+105 ocg code005 gen --qty 1
+106 ocg code006 gen --qty 1
+107 ocg code007 gen --qty 1
+108 ocg code008 gen --qty 1
+109 ocg code009 gen --qty 1
+110 ocg code010 gen --qty 1
+111 ocg code011 gen --qty 1
+112 ocg code012 gen --qty 1
+113 ocg code013 gen --qty 1
+114 ocg code014 gen --qty 1
+115 ocg code015 gen --qty 1
+116 ocg code016 gen --qty 1
+117 ocg code017 gen --qty 1
+118 ocg code018 gen --qty 1
+119 ocg code019 gen --qty 1
+120 ocg code020 gen --qty 1
+121 ocg code021 gen --qty 1
+122 ocg code022 gen --qty 1
+123 ocg code023 gen --qty 1
+124 ocg code024 gen --qty 1
+125 ocg code025 gen --qty 1
+126 ocg code026 gen --qty 1
+127 ocg code027 gen --qty 1
+128 ocg code028 gen --qty 1
+129 ocg code029 gen --qty 1
+130 ocg code030 gen --qty 1
+131 ocg code031 gen --qty 1
+132 ocg code032 gen --qty 1
+133 ocg code033 gen --qty 1
+134 ocg code034 gen --qty 1
+135 ocg code035 gen --qty 1
+136 ocg code036 gen --qty 1
+137 ocg code037 gen --qty 1
+138 ocg code038 gen --qty 1
+139 ocg code039 gen --qty 1
+140 ocg code040 gen --qty 1
+141 ocg code041 gen --qty 1
+142 ocg code042 gen --qty 1
+143 ocg code043 gen --qty 1
+144 ocg code044 gen --qty 1
+145 ocg code045 gen --qty 1
+146 ocg code046 gen --qty 1
+147 ocg code047 gen --qty 1
+148 ocg code048 gen --qty 1
+149 ocg code049 gen --qty 1
+150 ocg code050 gen --qty 1
+151 ocg code051 gen --qty 1
+152 ocg code052 gen --qty 1
+153 ocg code053 gen --qty 1
+154 ocg code054 gen --qty 1
+155 ocg code055 gen --qty 1
+156 ocg code056 gen --qty 1
+157 ocg code057 gen --qty 1
+158 ocg code058 gen --qty 1
+159 ocg code059 gen --qty 1
+160 ocg code060 gen --qty 1
+161 ocg code061 gen --qty 1
+162 ocg code062 gen --qty 1
+163 ocg code063 gen --qty 1
+164 ocg code064 gen --qty 1
+165 ocg code065 gen --qty 1
+166 ocg code066 gen --qty 1
+167 ocg code067 gen --qty 1
+168 ocg code068 gen --qty 1
+169 ocg code069 gen --qty 1
+170 ocg code070 gen --qty 1
+171 ocg code071 gen --qty 1
+172 ocg code072 gen --qty 1
+173 ocg code073 gen --qty 1
+174 ocg code074 gen --qty 1
+175 ocg code075 gen --qty 1
+176 ocg code076 gen --qty 1
+177 ocg code077 gen --qty 1
+178 ocg code078 gen --qty 1
+179 ocg code079 gen --qty 1
+180 ocg code080 gen --qty 1
+181 ocg code081 gen --qty 1
+182 ocg code082 gen --qty 1
+183 ocg code083 gen --qty 1
+184 ocg code084 gen --qty 1
+185 ocg code085 gen --qty 1
+186 ocg code086 gen --qty 1
+187 ocg code087 gen --qty 1
+188 ocg code088 gen --qty 1
+189 ocg code089 gen --qty 1
+190 ocg code090 gen --qty 1
+191 ocg code091 gen --qty 1
+192 ocg code092 gen --qty 1
+193 ocg code093 gen --qty 1
+194 ocg code094 gen --qty 1
+195 ocg code095 gen --qty 1
+196 ocg code096 gen --qty 1
+197 ocg code097 gen --qty 1
+198 ocg code098 gen --qty 1
+199 ocg code099 gen --qty 1
+200 ocg code100 gen --qty 1
+201 ocg code101 gen --qty 1
+202 ocg code102 gen --qty 1
+203 ocg code103 gen --qty 1
+204 ocg code104 gen --qty 1
+205 ocg code105 gen --qty 1
+206 ocg code106 gen --qty 1
+207 ocg code107 gen --qty 1
+208 ocg code108 gen --qty 1
+209 ocg code109 gen --qty 1
+210 ocg code110 gen --qty 1
+211 ocg code111 gen --qty 1
+212 ocg code112 gen --qty 1
+213 ocg code113 gen --qty 1
+214 ocg code114 gen --qty 1
+215 ocg code115 gen --qty 1
+216 ocg code116 gen --qty 1
+217 ocg code117 gen --qty 1
+218 ocg code118 gen --qty 1
+219 ocg code119 gen --qty 1
+220 ocg code120 gen --qty 1
+221 ocg code121 gen --qty 1
+222 ocg code122 gen --qty 1
+223 ocg code123 gen --qty 1
+224 ocg code124 gen --qty 1
+225 ocg code125 gen --qty 1
+226 ocg code126 gen --qty 1
+227 ocg code127 gen --qty 1
+228 ocg code128 gen --qty 1
+229 ocg code129 gen --qty 1
+230 ocg code130 gen --qty 1
+231 ocg code131 gen --qty 1
+232 ocg code132 gen --qty 1
+233 ocg code133 gen --qty 1
+234 ocg code134 gen --qty 1
+235 ocg code135 gen --qty 1
+236 ocg code136 gen --qty 1
+237 ocg code137 gen --qty 1
+238 ocg code138 gen --qty 1
+239 ocg code139 gen --qty 1
+240 ocg code140 gen --qty 1
+241 ocg code141 gen --qty 1
+242 ocg code142 gen --qty 1
+243 ocg code143 gen --qty 1
+244 ocg code144 gen --qty 1
+245 ocg code145 gen --qty 1
+246 ocg code146 gen --qty 1
+247 ocg code147 gen --qty 1
+248 ocg code148 gen --qty 1
+249 ocg code149 gen --qty 1
+250 ocg code150 gen --qty 1
+251 ocg code151 gen --qty 1
+252 ocg code152 gen --qty 1
+253 ocg code153 gen --qty 1
+254 ocg code154 gen --qty 1
+255 ocg code155 gen --qty 1
+256 ocg code156 gen --qty 1
+257 ocg code157 gen --qty 1
+258 ocg code158 gen --qty 1
+259 ocg code159 gen --qty 1
+260 ocg code160 gen --qty 1
+261 ocg code161 gen --qty 1
+262 ocg code162 gen --qty 1
+263 ocg code163 gen --qty 1
+264 ocg code164 gen --qty 1
+265 ocg code165 gen --qty 1
+266 ocg code166 gen --qty 1
+267 ocg code167 gen --qty 1
+268 ocg code168 gen --qty 1
+269 ocg code169 gen --qty 1
+270 ocg code170 gen --qty 1
+271 ocg code171 gen --qty 1
+272 ocg code172 gen --qty 1
+273 ocg code173 gen --qty 1
+274 ocg code174 gen --qty 1
+275 ocg code175 gen --qty 1
+276 ocg code176 gen --qty 1
+277 ocg code177 gen --qty 1
+278 ocg code178 gen --qty 1
+279 ocg code179 gen --qty 1
+280 ocg code180 gen --qty 1
+281 ocg code181 gen --qty 1
+282 ocg code182 gen --qty 1
+283 ocg code183 gen --qty 1
+284 ocg code184 gen --qty 1
+285 ocg code185 gen --qty 1
+286 ocg code186 gen --qty 1
+287 ocg code187 gen --qty 1
+288 ocg code188 gen --qty 1
+289 ocg code189 gen --qty 1
+290 ocg code190 gen --qty 1
+291 ocg code191 gen --qty 1
+292 ocg code192 gen --qty 1
+293 ocg code193 gen --qty 1
+294 ocg code194 gen --qty 1
+295 ocg code195 gen --qty 1
+296 ocg code196 gen --qty 1
+297 ocg code197 gen --qty 1
+298 ocg code198 gen --qty 1
+299 ocg code199 gen --qty 1
+300 ocg code200 gen --qty 1
+301 ocg code201 gen --qty 1
+302 ocg code202 gen --qty 1
+303 ocg code203 gen --qty 1
+304 ocg code204 gen --qty 1
+305 ocg code205 gen --qty 1
+306 ocg code206 gen --qty 1
+307 ocg code207 gen --qty 1
+308 ocg code208 gen --qty 1
+309 ocg code209 gen --qty 1
+310 ocg code210 gen --qty 1
+311 ocg code211 gen --qty 1
+312 ocg code212 gen --qty 1
+313 ocg code213 gen --qty 1
+314 ocg code214 gen --qty 1
+315 ocg code215 gen --qty 1
+316 ocg code216 gen --qty 1
+317 ocg code217 gen --qty 1
+318 ocg code218 gen --qty 1
+319 ocg code219 gen --qty 1
+320 ocg code220 gen --qty 1
+321 ocg code221 gen --qty 1
+322 ocg code222 gen --qty 1
+323 ocg code223 gen --qty 1
+324 ocg code224 gen --qty 1
+325 ocg code225 gen --qty 1
+326 ocg code226 gen --qty 1
+327 ocg code227 gen --qty 1
+328 ocg code228 gen --qty 1
+329 ocg code229 gen --qty 1
+330 ocg code230 gen --qty 1
+331 ocg code231 gen --qty 1
+332 ocg code232 gen --qty 1
+333 ocg code233 gen --qty 1
+334 ocg code234 gen --qty 1
+335 ocg code235 gen --qty 1
+336 ocg code236 gen --qty 1
+337 ocg code237 gen --qty 1
+338 ocg code238 gen --qty 1
+339 ocg code239 gen --qty 1
+340 ocg code240 gen --qty 1
+341 ocg code241 gen --qty 1
+342 ocg code242 gen --qty 1
+343 ocg code243 gen --qty 1
+344 ocg code244 gen --qty 1
+345 ocg code245 gen --qty 1
+346 ocg code246 gen --qty 1
+347 ocg code247 gen --qty 1
+348 ocg code248 gen --qty 1
+349 ocg code249 gen --qty 1
+350 ocg code250 gen --qty 1
+351 ocg code251 gen --qty 1
+352 ocg code252 gen --qty 1
+353 ocg code253 gen --qty 1
+354 ocg code254 gen --qty 1
+355 ocg code255 gen --qty 1
+356 ocg code256 gen --qty 1
+357 ocg code257 gen --qty 1
+358 ocg code258 gen --qty 1
+359 ocg code259 gen --qty 1
+360 ocg code260 gen --qty 1
+361 ocg code261 gen --qty 1
+362 ocg code262 gen --qty 1
+363 ocg code263 gen --qty 1
+364 ocg code264 gen --qty 1
+365 ocg code265 gen --qty 1
+366 ocg code266 gen --qty 1
+367 ocg code267 gen --qty 1
+368 ocg code268 gen --qty 1
+369 ocg code269 gen --qty 1
+370 ocg code270 gen --qty 1
+371 ocg code271 gen --qty 1
+372 ocg code272 gen --qty 1
+373 ocg code273 gen --qty 1
+374 ocg code274 gen --qty 1
+375 ocg code275 gen --qty 1
+376 ocg code276 gen --qty 1
+377 ocg code277 gen --qty 1
+378 ocg code278 gen --qty 1
+379 ocg code279 gen --qty 1
+380 ocg code280 gen --qty 1
+381 ocg code281 gen --qty 1
+382 ocg code282 gen --qty 1
+383 ocg code283 gen --qty 1
+384 ocg code284 gen --qty 1
+385 ocg code285 gen --qty 1
+386 ocg code286 gen --qty 1
+387 ocg code287 gen --qty 1
+388 ocg code288 gen --qty 1
+389 ocg code289 gen --qty 1
+390 ocg code290 gen --qty 1
+391 ocg code291 gen --qty 1
+392 ocg code292 gen --qty 1
+393 ocg code293 gen --qty 1
+394 ocg code294 gen --qty 1
+395 ocg code295 gen --qty 1
+396 ocg code296 gen --qty 1
+397 ocg code297 gen --qty 1
+398 ocg code298 gen --qty 1
+399 ocg code299 gen --qty 1
+400 ocg code300 gen --qty 1
+401 ocg code301 gen --qty 1
+402 ocg code302 gen --qty 1
+403 ocg code303 gen --qty 1
+404 ocg code304 gen --qty 1
+405 ocg code305 gen --qty 1
+406 ocg code306 gen --qty 1
+407 ocg code307 gen --qty 1
+408 ocg code308 gen --qty 1
+409 ocg code309 gen --qty 1
+410 ocg code310 gen --qty 1
+411 ocg code311 gen --qty 1
+412 ocg code312 gen --qty 1
+413 ocg code313 gen --qty 1
+414 ocg code314 gen --qty 1
+415 ocg code315 gen --qty 1
+416 ocg code316 gen --qty 1
+417 ocg code317 gen --qty 1
+418 ocg code318 gen --qty 1
+419 ocg code319 gen --qty 1
+420 ocg code320 gen --qty 1
+421 ocg code321 gen --qty 1
+422 ocg code322 gen --qty 1
+423 ocg code323 gen --qty 1
+424 ocg code324 gen --qty 1
+425 ocg code325 gen --qty 1
+426 ocg code326 gen --qty 1
+427 ocg code327 gen --qty 1
+428 ocg code328 gen --qty 1
+429 ocg code329 gen --qty 1
+430 ocg code330 gen --qty 1
+431 ocg code331 gen --qty 1
+432 ocg code332 gen --qty 1
+433 ocg code333 gen --qty 1
+434 ocg code334 gen --qty 1
+435 ocg code335 gen --qty 1
+436 ocg code336 gen --qty 1
+437 ocg code337 gen --qty 1
+438 ocg code338 gen --qty 1
+439 ocg code339 gen --qty 1
+440 ocg code340 gen --qty 1
+441 ocg code341 gen --qty 1
+442 ocg code342 gen --qty 1
+443 ocg code343 gen --qty 1
+444 ocg code344 gen --qty 1
+445 ocg code345 gen --qty 1
+446 ocg code346 gen --qty 1
+447 ocg code347 gen --qty 1
+448 ocg code348 gen --qty 1
+449 ocg code349 gen --qty 1
+450 ocg code350 gen --qty 1
+451 ocg code351 gen --qty 1
+452 ocg code352 gen --qty 1
+453 ocg code353 gen --qty 1
+454 ocg code354 gen --qty 1
+455 ocg code355 gen --qty 1
+456 ocg code356 gen --qty 1
+457 ocg code357 gen --qty 1
+458 ocg code358 gen --qty 1
+459 ocg code359 gen --qty 1
+460 ocg code360 gen --qty 1
+461 ocg code361 gen --qty 1
+462 ocg code362 gen --qty 1
+463 ocg code363 gen --qty 1
+464 ocg code364 gen --qty 1
+465 ocg code365 gen --qty 1
+466 ocg code366 gen --qty 1
+467 ocg code367 gen --qty 1
+468 ocg code368 gen --qty 1
+469 ocg code369 gen --qty 1
+470 ocg code370 gen --qty 1
+471 ocg code371 gen --qty 1
+472 ocg code372 gen --qty 1
+473 ocg code373 gen --qty 1
+474 ocg code374 gen --qty 1
+475 ocg code375 gen --qty 1
+476 ocg code376 gen --qty 1
+477 ocg code377 gen --qty 1
+478 ocg code378 gen --qty 1
+479 ocg code379 gen --qty 1
+480 ocg code380 gen --qty 1
+481 ocg code381 gen --qty 1
+482 ocg code382 gen --qty 1
+483 ocg code383 gen --qty 1
+484 ocg code384 gen --qty 1
+485 ocg code385 gen --qty 1
+486 ocg code386 gen --qty 1
+487 ocg code387 gen --qty 1
+488 ocg code388 gen --qty 1
+489 ocg code389 gen --qty 1
+490 ocg code390 gen --qty 1
+491 ocg code391 gen --qty 1
+492 ocg code392 gen --qty 1
+493 ocg code393 gen --qty 1
+494 ocg code394 gen --qty 1
+495 ocg code395 gen --qty 1
+496 ocg code396 gen --qty 1
+497 ocg code397 gen --qty 1
+498 ocg code398 gen --qty 1
+499 ocg code399 gen --qty 1
+500 ocg code400 gen --qty 1
+501 ocg code401 gen --qty 1
+502 ocg code402 gen --qty 1
+503 ocg code403 gen --qty 1
+504 ocg code404 gen --qty 1
+505 ocg code405 gen --qty 1
+506 ocg code406 gen --qty 1
+507 ocg code407 gen --qty 1
+508 ocg code408 gen --qty 1
+509 ocg code409 gen --qty 1
+510 ocg code410 gen --qty 1
+511 ocg code411 gen --qty 1
+512 ocg code412 gen --qty 1
+513 ocg code413 gen --qty 1
+514 ocg code414 gen --qty 1
+515 ocg code415 gen --qty 1
+516 ocg code416 gen --qty 1
+517 ocg code417 gen --qty 1
+518 ocg code418 gen --qty 1
+519 ocg code419 gen --qty 1
+520 ocg code420 gen --qty 1
+521 ocg code421 gen --qty 1
+522 ocg code422 gen --qty 1
+523 ocg code423 gen --qty 1
+524 ocg code424 gen --qty 1
+525 ocg code425 gen --qty 1
+526 ocg code426 gen --qty 1
+527 ocg code427 gen --qty 1
+528 ocg code428 gen --qty 1
+529 ocg code429 gen --qty 1
+530 ocg code430 gen --qty 1
+531 ocg code431 gen --qty 1
+532 ocg code432 gen --qty 1
+533 ocg code433 gen --qty 1
+534 ocg code434 gen --qty 1
+535 ocg code435 gen --qty 1
+536 ocg code436 gen --qty 1
+537 ocg code437 gen --qty 1
+538 ocg code438 gen --qty 1
+539 ocg code439 gen --qty 1
+540 ocg code440 gen --qty 1
+541 ocg code441 gen --qty 1
+542 ocg code442 gen --qty 1
+543 ocg code443 gen --qty 1
+544 ocg code444 gen --qty 1
+545 ocg code445 gen --qty 1
+546 ocg code446 gen --qty 1
+547 ocg code447 gen --qty 1
+548 ocg code448 gen --qty 1
+549 ocg code449 gen --qty 1
+550 ocg code450 gen --qty 1
+551 ocg code451 gen --qty 1
+552 ocg code452 gen --qty 1
+553 ocg code453 gen --qty 1
+554 ocg code454 gen --qty 1
+555 ocg code455 gen --qty 1
+556 ocg code456 gen --qty 1
+557 ocg code457 gen --qty 1
+558 ocg code458 gen --qty 1
+559 ocg code459 gen --qty 1
+560 ocg code460 gen --qty 1
+561 ocg code461 gen --qty 1
+562 ocg code462 gen --qty 1
+563 ocg code463 gen --qty 1
+564 ocg code464 gen --qty 1
+565 ocg code465 gen --qty 1
+566 ocg code466 gen --qty 1
+567 ocg code467 gen --qty 1
+568 ocg code468 gen --qty 1
+569 ocg code469 gen --qty 1
+570 ocg code470 gen --qty 1
+571 ocg code471 gen --qty 1
+572 ocg code472 gen --qty 1
+573 ocg code473 gen --qty 1
+574 ocg code474 gen --qty 1
+575 ocg code475 gen --qty 1
+576 ocg code476 gen --qty 1
+577 ocg code477 gen --qty 1
+578 ocg code478 gen --qty 1
+579 ocg code479 gen --qty 1
+580 ocg code480 gen --qty 1
+581 ocg code481 gen --qty 1
+582 ocg code482 gen --qty 1
+583 ocg code483 gen --qty 1
+584 ocg code484 gen --qty 1
+585 ocg code485 gen --qty 1
+586 ocg code486 gen --qty 1
+587 ocg code487 gen --qty 1
+588 ocg code488 gen --qty 1
+589 ocg code489 gen --qty 1
+590 ocg code490 gen --qty 1
+591 ocg code491 gen --qty 1
+592 ocg code492 gen --qty 1
+593 ocg code493 gen --qty 1
+594 ocg code494 gen --qty 1
+595 ocg code495 gen --qty 1
+596 ocg code496 gen --qty 1
+597 ocg code497 gen --qty 1
+598 ocg code498 gen --qty 1
+599 ocg code499 gen --qty 1
+600 ocg code500 gen --qty 1
+601 ocg code501 gen --qty 1
+602 ocg code502 gen --qty 1
+603 ocg code503 gen --qty 1
+604 ocg code504 gen --qty 1
+605 ocg code505 gen --qty 1
+606 ocg code506 gen --qty 1
+607 ocg code507 gen --qty 1
+608 ocg code508 gen --qty 1
+609 ocg code509 gen --qty 1
+610 ocg code510 gen --qty 1
+611 ocg code511 gen --qty 1
+612 ocg code512 gen --qty 1
+613 ocg code513 gen --qty 1
+614 ocg code514 gen --qty 1
+615 ocg code515 gen --qty 1
+616 ocg code516 gen --qty 1
+617 ocg code517 gen --qty 1
+618 ocg code518 gen --qty 1
+619 ocg code519 gen --qty 1
+620 ocg code520 gen --qty 1
+621 ocg code521 gen --qty 1
+622 ocg code522 gen --qty 1
+623 ocg code523 gen --qty 1
+624 ocg code524 gen --qty 1
+625 ocg code525 gen --qty 1
+626 ocg code526 gen --qty 1
+627 ocg code527 gen --qty 1
+628 ocg code528 gen --qty 1
+629 ocg code529 gen --qty 1
+630 ocg code530 gen --qty 1
+631 ocg code531 gen --qty 1
+632 ocg code532 gen --qty 1
+633 ocg code533 gen --qty 1
+634 ocg code534 gen --qty 1
+635 ocg code535 gen --qty 1
+636 ocg code536 gen --qty 1
+637 ocg code537 gen --qty 1
+638 ocg code538 gen --qty 1
+639 ocg code539 gen --qty 1
+640 ocg code540 gen --qty 1
+641 ocg code541 gen --qty 1
+642 ocg code542 gen --qty 1
+643 ocg code543 gen --qty 1
+644 ocg code544 gen --qty 1
+645 ocg code545 gen --qty 1
+646 ocg code546 gen --qty 1
+647 ocg code547 gen --qty 1
+648 ocg code548 gen --qty 1
+649 ocg code549 gen --qty 1
+650 ocg code550 gen --qty 1
+651 ocg code551 gen --qty 1
+652 ocg code552 gen --qty 1
+653 ocg code553 gen --qty 1
+654 ocg code554 gen --qty 1
+655 ocg code555 gen --qty 1
+656 ocg code556 gen --qty 1
+657 ocg code557 gen --qty 1
+658 ocg code558 gen --qty 1
+659 ocg code559 gen --qty 1
+660 ocg code560 gen --qty 1
+661 ocg code561 gen --qty 1
+662 ocg code562 gen --qty 1
+663 ocg code563 gen --qty 1
+664 ocg code564 gen --qty 1
+665 ocg code565 gen --qty 1
+666 ocg code566 gen --qty 1
+667 ocg code567 gen --qty 1
+668 ocg code568 gen --qty 1
+669 ocg code569 gen --qty 1
+670 ocg code570 gen --qty 1
+671 ocg code571 gen --qty 1
+672 ocg code572 gen --qty 1
+673 ocg code573 gen --qty 1
+674 ocg code574 gen --qty 1
+675 ocg code575 gen --qty 1
+676 ocg code576 gen --qty 1
+677 ocg code577 gen --qty 1
+678 ocg code578 gen --qty 1
+679 ocg code579 gen --qty 1
+680 ocg code580 gen --qty 1
+681 ocg code581 gen --qty 1
+682 ocg code582 gen --qty 1
+683 ocg code583 gen --qty 1
+684 ocg code584 gen --qty 1
+685 ocg code585 gen --qty 1
+686 ocg code586 gen --qty 1
+687 ocg code587 gen --qty 1
+688 ocg code588 gen --qty 1
+689 ocg code589 gen --qty 1
+690 ocg code590 gen --qty 1
+691 ocg code591 gen --qty 1
+692 ocg code592 gen --qty 1
+693 ocg code593 gen --qty 1
+694 ocg code594 gen --qty 1
+695 ocg code595 gen --qty 1
+696 ocg code596 gen --qty 1
+697 ocg code597 gen --qty 1
+698 ocg code598 gen --qty 1
+699 ocg code599 gen --qty 1
+700 ocg code600 gen --qty 1
+701 ocg code601 gen --qty 1
+702 ocg code602 gen --qty 1
+703 ocg code603 gen --qty 1
+704 ocg code604 gen --qty 1
+705 ocg code605 gen --qty 1
+706 ocg code606 gen --qty 1
+707 ocg code607 gen --qty 1
+708 ocg code608 gen --qty 1
+709 ocg code609 gen --qty 1
+710 ocg code610 gen --qty 1
+711 ocg code611 gen --qty 1
+712 ocg code612 gen --qty 1
+713 ocg code613 gen --qty 1
+714 ocg code614 gen --qty 1
+715 ocg code615 gen --qty 1
+716 ocg code616 gen --qty 1
+717 ocg code617 gen --qty 1
+718 ocg code618 gen --qty 1
+719 ocg code619 gen --qty 1
+720 ocg db open
+721 ocg db list
+722 ocg db create
+723 ocg db export
+724 ocg db verify
+725 ocg db audit
+726 ocg db help
+727 ocg db status
+728 ocg db clear
+729 ocg db download
+730 ocg db print
+731 ocg db copy
+732 ocg db save
+733 ocg db load
+734 ocg db reset
+735 ocg db guide
+736 ocg db json
+737 ocg db pdf
+738 ocg db html
+739 ocg db txt
+740 ocg db csv
+741 ocg db manifest
+740 ocg qr open
+741 ocg qr list
+742 ocg qr create
+743 ocg qr export
+744 ocg qr verify
+745 ocg qr audit
+746 ocg qr help
+747 ocg qr status
+748 ocg qr clear
+749 ocg qr download
+750 ocg qr print
+751 ocg qr copy
+752 ocg qr save
+753 ocg qr load
+754 ocg qr reset
+755 ocg qr guide
+756 ocg qr json
+757 ocg qr pdf
+758 ocg qr html
+759 ocg qr txt
+760 ocg qr csv
+761 ocg qr manifest
+760 ocg cert open
+761 ocg cert list
+762 ocg cert create
+763 ocg cert export
+764 ocg cert verify
+765 ocg cert audit
+766 ocg cert help
+767 ocg cert status
+768 ocg cert clear
+769 ocg cert download
+770 ocg cert print
+771 ocg cert copy
+772 ocg cert save
+773 ocg cert load
+774 ocg cert reset
+775 ocg cert guide
+776 ocg cert json
+777 ocg cert pdf
+778 ocg cert html
+779 ocg cert txt
+780 ocg cert csv
+781 ocg cert manifest
+780 ocg osdg open
+781 ocg osdg list
+782 ocg osdg create
+783 ocg osdg export
+784 ocg osdg verify
+785 ocg osdg audit
+786 ocg osdg help
+787 ocg osdg status
+788 ocg osdg clear
+789 ocg osdg download
+790 ocg osdg print
+791 ocg osdg copy
+792 ocg osdg save
+793 ocg osdg load
+794 ocg osdg reset
+795 ocg osdg guide
+796 ocg osdg json
+797 ocg osdg pdf
+798 ocg osdg html
+799 ocg osdg txt
+800 ocg osdg csv
+801 ocg osdg manifest
+800 ocg sequence open
+801 ocg sequence list
+802 ocg sequence create
+803 ocg sequence export
+804 ocg sequence verify
+805 ocg sequence audit
+806 ocg sequence help
+807 ocg sequence status
+808 ocg sequence clear
+809 ocg sequence download
+810 ocg sequence print
+811 ocg sequence copy
+812 ocg sequence save
+813 ocg sequence load
+814 ocg sequence reset
+815 ocg sequence guide
+816 ocg sequence json
+817 ocg sequence pdf
+818 ocg sequence html
+819 ocg sequence txt
+820 ocg sequence csv
+821 ocg sequence manifest
+820 ocg color open
+821 ocg color list
+822 ocg color create
+823 ocg color export
+824 ocg color verify
+825 ocg color audit
+826 ocg color help
+827 ocg color status
+828 ocg color clear
+829 ocg color download
+830 ocg color print
+831 ocg color copy
+832 ocg color save
+833 ocg color load
+834 ocg color reset
+835 ocg color guide
+836 ocg color json
+837 ocg color pdf
+838 ocg color html
+839 ocg color txt
+840 ocg color csv
+841 ocg color manifest
+840 ocg markdown open
+841 ocg markdown list
+842 ocg markdown create
+843 ocg markdown export
+844 ocg markdown verify
+845 ocg markdown audit
+846 ocg markdown help
+847 ocg markdown status
+848 ocg markdown clear
+849 ocg markdown download
+850 ocg markdown print
+851 ocg markdown copy
+852 ocg markdown save
+853 ocg markdown load
+854 ocg markdown reset
+855 ocg markdown guide
+856 ocg markdown json
+857 ocg markdown pdf
+858 ocg markdown html
+859 ocg markdown txt
+860 ocg markdown csv
+861 ocg markdown manifest
+860 ocg desk open
+861 ocg desk list
+862 ocg desk create
+863 ocg desk export
+864 ocg desk verify
+865 ocg desk audit
+866 ocg desk help
+867 ocg desk status
+868 ocg desk clear
+869 ocg desk download
+870 ocg desk print
+871 ocg desk copy
+872 ocg desk save
+873 ocg desk load
+874 ocg desk reset
+875 ocg desk guide
+876 ocg desk json
+877 ocg desk pdf
+878 ocg desk html
+879 ocg desk txt
+880 ocg desk csv
+881 ocg desk manifest
+880 ocg pandora open
+881 ocg pandora list
+882 ocg pandora create
+883 ocg pandora export
+884 ocg pandora verify
+885 ocg pandora audit
+886 ocg pandora help
+887 ocg pandora status
+888 ocg pandora clear
+889 ocg pandora download
+890 ocg pandora print
+891 ocg pandora copy
+892 ocg pandora save
+893 ocg pandora load
+894 ocg pandora reset
+895 ocg pandora guide
+896 ocg pandora json
+897 ocg pandora pdf
+898 ocg pandora html
+899 ocg pandora txt
+900 ocg pandora csv
+901 ocg pandora manifest
+900 ocg text open
+901 ocg text list
+902 ocg text create
+903 ocg text export
+904 ocg text verify
+905 ocg text audit
+906 ocg text help
+907 ocg text status
+908 ocg text clear
+909 ocg text download
+910 ocg text print
+911 ocg text copy
+912 ocg text save
+913 ocg text load
+914 ocg text reset
+915 ocg text guide
+916 ocg text json
+917 ocg text pdf
+918 ocg text html
+919 ocg text txt
+920 ocg text csv
+921 ocg text manifest
+920 ocg drive open
+921 ocg drive list
+922 ocg drive create
+923 ocg drive export
+924 ocg drive verify
+925 ocg drive audit
+926 ocg drive help
+927 ocg drive status
+928 ocg drive clear
+929 ocg drive download
+930 ocg drive print
+931 ocg drive copy
+932 ocg drive save
+933 ocg drive load
+934 ocg drive reset
+935 ocg drive guide
+936 ocg drive json
+937 ocg drive pdf
+938 ocg drive html
+939 ocg drive txt
+940 ocg drive csv
+941 ocg drive manifest
+940 ocg report open
+941 ocg report list
+942 ocg report create
+943 ocg report export
+944 ocg report verify
+945 ocg report audit
+946 ocg report help
+947 ocg report status
+948 ocg report clear
+949 ocg report download
+950 ocg report print
+951 ocg report copy
+952 ocg report save
+953 ocg report load
+954 ocg report reset
+955 ocg report guide
+956 ocg report json
+957 ocg report pdf
+958 ocg report html
+959 ocg report txt
+960 ocg report csv
+961 ocg report manifest
+960 ocg audit open
+961 ocg audit list
+962 ocg audit create
+963 ocg audit export
+964 ocg audit verify
+965 ocg audit audit
+966 ocg audit help
+967 ocg audit status
+968 ocg audit clear
+969 ocg audit download
+970 ocg audit print
+971 ocg audit copy
+972 ocg audit save
+973 ocg audit load
+974 ocg audit reset
+975 ocg audit guide
+976 ocg audit json
+977 ocg audit pdf
+978 ocg audit html
+979 ocg audit txt
+980 ocg audit csv
+981 ocg audit manifest
+980 ocg backup open
+981 ocg backup list
+982 ocg backup create
+983 ocg backup export
+984 ocg backup verify
+985 ocg backup audit
+986 ocg backup help
+987 ocg backup status
+988 ocg backup clear
+989 ocg backup download
+990 ocg backup print
+991 ocg backup copy
+992 ocg backup save
+993 ocg backup load
+994 ocg backup reset
+995 ocg backup guide
+996 ocg backup json
+997 ocg backup pdf
+998 ocg backup html
+999 ocg backup txt
+1000 ocg backup csv
+1001 ocg backup manifest
+1000 ocg workflow open
+1001 ocg workflow list
+1002 ocg workflow create
+1003 ocg workflow export
+1004 ocg workflow verify
+1005 ocg workflow audit
+1006 ocg workflow help
+1007 ocg workflow status
+1008 ocg workflow clear
+1009 ocg workflow download
+1010 ocg workflow print
+1011 ocg workflow copy
+1012 ocg workflow save
+1013 ocg workflow load
+1014 ocg workflow reset
+1015 ocg workflow guide
+1016 ocg workflow json
+1017 ocg workflow pdf
+1018 ocg workflow html
+1019 ocg workflow txt
+1020 ocg workflow csv
+1021 ocg workflow manifest
+1020 ocg legal open
+1021 ocg legal list
+1022 ocg legal create
+1023 ocg legal export
+1024 ocg legal verify
+1025 ocg legal audit
+1026 ocg legal help
+1027 ocg legal status

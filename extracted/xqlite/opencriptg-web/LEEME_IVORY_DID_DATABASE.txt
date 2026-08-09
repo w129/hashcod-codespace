@@ -1,0 +1,35 @@
+OpencriptG – Ivory DID Idea Vault Database
+
+Mejora aplicada:
+- Se agregó una base de datos interna dentro de la herramienta IVORY DID IDEA VAULT.
+- Todos los registros de ideas guardadas quedan almacenados en localStorage.
+- La base permite buscar por ID, colaborador, DID, estado, título o code asociado.
+- Cada registro puede cargarse nuevamente para editarlo o revisarlo.
+- Cada registro puede eliminarse individualmente.
+- La base completa puede exportarse en JSON o CSV.
+- También existe botón para limpiar todos los registros.
+
+Datos guardados por registro:
+- ID de idea
+- fecha de registro
+- colaborador
+- contacto
+- Ivory DID Verification
+- título
+- estado
+- módulo relacionado
+- categoría
+- dificultad
+- problema
+- descripción
+- funcionamiento
+- monetización
+- originalidad/referencias
+- firma
+- revisión OpencriptG
+- snapshot del code usado para QR
+- payload verificable
+
+Archivo actualizado:
+- app/app.jsx
+- app/styles.css

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hashcod - Cryptographic Platform</title>
+  <script>
+    (function () {
+      var baseTitle = 'Hashcod - Cryptographic Platform';
+      function two(value) {
+        return String(value).padStart(2, '0');
+      }
+      function updateHashcodClockTitle() {
+        var now = new Date();
+        var clock = two(now.getHours()) + ':' + two(now.getMinutes()) + ':' + two(now.getSeconds());
+        document.title = 'Hashcod · ' + clock + ' · Cryptographic Platform';
+      }
+      updateHashcodClockTitle();
+      window.__hashcodTitleClock = window.__hashcodTitleClock || {};
+      if (window.__hashcodTitleClock.timer) window.clearInterval(window.__hashcodTitleClock.timer);
+      window.__hashcodTitleClock.baseTitle = baseTitle;
+      window.__hashcodTitleClock.update = updateHashcodClockTitle;
+      window.__hashcodTitleClock.timer = window.setInterval(updateHashcodClockTitle, 1000);
+    })();
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="app/hashcod-platform-icon.svg?v=hashcod-classic-1" />
+  <link rel="apple-touch-icon" href="app/hashcod-platform-icon.svg?v=hashcod-classic-1" />
+
+  <link rel="stylesheet" href="vendor/bootstrap.min.css?v=5.3.8" />
+  <link rel="stylesheet" href="app/styles.css?v=hashcod-reference-skin-20260605-9" />
+  <link rel="stylesheet" href="app/vault.css?v=v12-siphash-2" />
+  <link rel="stylesheet" href="app/tour.css?v=enterprise-tour-1" />
+</head>
+<body>
+  <script>
+    window.addEventListener('error', function(e){
+      console.error('[Hashcod]', e.message, e.error || '');
+      var root = document.getElementById('root');
+      if(root && !root.dataset.mounted){
+        root.innerHTML = '<div class="boot-screen"><div class="boot-card"><div class="boot-logo"><img src="app/hashcod-platform-icon.svg?v=hashcod-classic-1" alt=""><div>Hashcod <span>Cryptographic Platform</span></div></div><div class="boot-text">Error cargando el software. Ejecuta con <b>npm start</b> en localhost y revisa la consola.</div><pre class="boot-error">'+String(e.message).replace(/[<>&]/g,function(c){return {"<":"&lt;",">":"&gt;","&":"&amp;"}[c]})+'</pre></div></div>';
+      }
+    });
+  </script>
+  <div id="root">
+    <div class="instant-boot" role="status" aria-live="polite">
+      <div class="instant-boot-card">
+        <img src="app/hashcod-platform-icon.svg?v=hashcod-classic-1" alt="" />
+        <div>
+          <b>Hashcod</b>
+          <span>Opening secure platform...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- React runtime -->
+  <script src="vendor/react.production.min.js?v=18.3.1"></script>
+  <script src="vendor/react-dom.production.min.js?v=18.3.1"></script>
+
+  <!-- Data layer -->
+  <script src="data/icons.js?v=hashcod-classic-2"></script>
+  <script src="data/catalog.js?v=hashcod-mobile-pattern-100-1"></script>
+  <script src="data/generators.js?v=hashcod-mobile-pattern-100-1"></script>
+
+  <!-- Security core -->
+  <script src="app/security.js"></script>
+  <script src="app/enterprise.js?v=hashcod-mobile-pattern-100-1"></script>
+
+  <!-- Tweaks shell -->
+  <script src="app/build/tweaks-panel.js?v=hashcod-classic-runtime-2"></script>
+
+  <!-- App -->
+  <script src="app/build/tech-info.js?v=hashcod-classic-runtime-2"></script>
+  <script src="app/build/vault.js?v=hashcod-classic-1"></script>
+  <script src="app/build/tour.js?v=hashcod-classic-runtime-2"></script>
+  <script src="vendor/pdf-lib.min.js?v=1.17.1"></script>
+  <script src="public-source/hashcod-docuseal-tool/app/hashcod-docuseal-adapter.js?v=1.0.0"></script>
+  <script src="public-source/hashcod-warp-tool/app/hashcod-warp-workspace.js?v=1.1.0"></script>
+  <script src="app/build/app.js?v=hashcod-reference-skin-20260605-9"></script>
+
+  <script src="app/build/root.js?v=hashcod-classic-1"></script>
+  <script async src="vendor/qrcode.min.js?v=1.0.0"></script>
+  <script async src="vendor/html2canvas.min.js?v=1.4.1"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" fill="none">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset=".42" stop-color="#ffffff" stop-opacity=".05"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".98"/>
+    </linearGradient>
+    <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(63)">
+      <path d="M0 0H7" stroke="#111" stroke-opacity=".13" stroke-width=".7"/>
+    </pattern>
+    <style>
+      .a{stroke:#111;stroke-opacity:.30;stroke-width:1.4;vector-effect:non-scaling-stroke}
+      .b{stroke:#111;stroke-opacity:.22;stroke-width:.9;vector-effect:non-scaling-stroke}
+      .c{stroke:#111;stroke-opacity:.13;stroke-width:.7;vector-effect:non-scaling-stroke}
+      .d{stroke:#111;stroke-opacity:.38;stroke-width:1.8;vector-effect:non-scaling-stroke}
+      .e{fill:url(#hatch);opacity:.45}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#fff" fill-opacity="0"/>
+  <g transform="translate(642 -36)">
+    <path class="c" d="M0 744 520 38 1090 250 430 890Z"/>
+    <path class="a" d="M72 744 540 108 1097 309 496 896Z"/>
+    <path class="d" d="M162 742 572 170 1104 362 586 895Z"/>
+    <path class="a" d="M210 744 594 226 1110 420 656 900Z"/>
+    <path class="b" d="M316 744 640 308 1120 512 780 900Z"/>
+    <path class="b" d="M430 744 688 386 1127 612 910 900Z"/>
+    <path class="c" d="M560 744 748 482 1136 712 1040 900Z"/>
+    <path class="d" d="M274 370 1030 613"/>
+    <path class="d" d="M232 427 1010 684"/>
+    <path class="a" d="M190 486 984 744"/>
+    <path class="a" d="M146 548 944 805"/>
+    <path class="b" d="M104 606 900 860"/>
+    <path class="b" d="M382 202 1120 442"/>
+    <path class="b" d="M424 146 1120 370"/>
+    <path class="c" d="M474 78 1120 278"/>
+    <path class="c" d="M75 744 1125 744"/>
+    <path class="c" d="M28 805 1038 805"/>
+    <path class="c" d="M190 894 1036 894"/>
+    <g>
+      <path class="d" d="M546 126V574"/>
+      <path class="a" d="M610 148V606"/>
+      <path class="d" d="M686 174V642"/>
+      <path class="a" d="M756 198V680"/>
+      <path class="d" d="M830 224V720"/>
+      <path class="a" d="M908 252V760"/>
+      <path class="d" d="M986 278V818"/>
+      <path class="a" d="M1060 302V860"/>
+      <path class="b" d="M498 188V535"/>
+      <path class="b" d="M458 244V512"/>
+      <path class="b" d="M418 298V496"/>
+    </g>
+    <g>
+      <path class="d" d="M540 126 626 154 626 298 540 270Z"/>
+      <path class="a" d="M650 160 760 196 760 344 650 308Z"/>
+      <path class="d" d="M792 206 920 250 920 404 792 362Z"/>
+      <path class="a" d="M952 262 1118 314 1118 474 952 422Z"/>
+      <path class="a" d="M432 310 546 346 546 492 432 456Z"/>
+      <path class="d" d="M586 360 728 406 728 558 586 514Z"/>
+      <path class="a" d="M760 420 928 476 928 636 760 580Z"/>
+      <path class="d" d="M964 488 1135 548 1135 714 964 654Z"/>
+      <path class="b" d="M302 492 430 532 430 680 302 640Z"/>
+      <path class="a" d="M466 544 626 594 626 750 466 700Z"/>
+      <path class="b" d="M664 606 840 664 840 820 664 764Z"/>
+    </g>
+    <g class="e">
+      <path d="M540 126 626 154 626 298 540 270Z"/>
+      <path d="M650 160 760 196 760 344 650 308Z"/>
+      <path d="M792 206 920 250 920 404 792 362Z"/>
+      <path d="M952 262 1118 314 1118 474 952 422Z"/>
+      <path d="M586 360 728 406 728 558 586 514Z"/>
+      <path d="M964 488 1135 548 1135 714 964 654Z"/>
+    </g>
+    <g>
+      <path class="c" d="M545 126 545 60"/>
+      <path class="c" d="M626 154 640 70"/>
+      <path class="c" d="M760 196 790 90"/>
+      <path class="c" d="M920 250 954 120"/>
+      <path class="c" d="M1118 314 1166 160"/>
+      <path class="c" d="M430 680 216 840"/>
+      <path class="c" d="M626 750 438 904"/>
+      <path class="c" d="M840 820 700 930"/>
+    </g>
+    <path class="b" d="M530 120 1165 316"/>
+    <path class="b" d="M520 142 1160 342"/>
+    <path class="b" d="M508 164 1156 368"/>
+    <path class="b" d="M488 208 1150 414"/>
+    <path class="b" d="M468 252 1146 462"/>
+    <path class="b" d="M444 302 1140 518"/>
+    <path class="b" d="M414 360 1136 590"/>
+    <path class="b" d="M374 430 1132 668"/>
+    <path class="b" d="M330 502 1110 744"/>
+    <path class="b" d="M286 574 1040 812"/>
+  </g>
+  <rect width="1600" height="900" fill="url(#fade)"/>
+</svg>

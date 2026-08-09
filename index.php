@@ -980,8 +980,7 @@
         .boot-brand-text {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
+            gap: 4px;
             min-width: 0;
         }
 
@@ -996,16 +995,13 @@
             white-space: nowrap;
         }
 
-        .boot-creator-mark {
-            display: block;
-            width: clamp(34px, 4.2vw, 48px);
-            height: auto;
-            margin-left: 2px;
-            opacity: 0.92;
-        }
-
         .boot-brand-tag {
-            display: none;
+            margin: 0;
+            color: #6a6a6a;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: clamp(11px, 1.2vw, 13px);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         .boot-cli-footer {
@@ -1092,7 +1088,7 @@
                         <img class="boot-brand-icon" src="/favicon.svg?v=3" alt="" width="64" height="64">
                         <div class="boot-brand-text">
                             <p class="boot-brand-name">l8 codespace</p>
-                            <img class="boot-creator-mark" src="/creator-mark.svg?v=1" alt="Creator mark" width="48" height="37">
+                            <p class="boot-brand-tag">platform</p>
                         </div>
                     </div>
                 </div>

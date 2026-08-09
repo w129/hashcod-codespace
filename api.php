@@ -26,7 +26,7 @@ $REGISTERED_COMMANDS = [
     "clone <repo>"=> "Clona o actualiza repositorios de GitHub vía SSH/HTTPS en el servidor (ej: clone langgenius/dify)",
     "save <repo>" => "Guarda un repositorio de GitHub en el catálogo sin clonarlo (ej: save facebook/react)",
     "ssh_key"     => "Muestra la clave pública SSH Ed25519 generada por esta plataforma para conectar el servidor con GitHub",
-    "supabase"    => "Estado de Supabase Storage: conecta y almacena archivos, repos_index y catálogo global en la nube",
+    "supabase"    => "Estado de Supabase: Storage + sesión persistente (repos, archivos y último comando sobreviven al recargar)",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
     "status"      => "Consulta el estado del servidor y motores detectados",
@@ -42,6 +42,11 @@ $REPOS_DIR   = __DIR__ . '/data_storage/repos';
 if (!file_exists($STORAGE_DIR)) @mkdir($STORAGE_DIR, 0777, true);
 if (!file_exists($UPLOADS_DIR)) @mkdir($UPLOADS_DIR, 0777, true);
 if (!file_exists($REPOS_DIR))   @mkdir($REPOS_DIR, 0777, true);
+
+// Disco Render es efímero: hidratar catálogos desde Supabase antes de servir
+if (function_exists('supabaseBootstrapPlatformData')) {
+    @supabaseBootstrapPlatformData($STORAGE_DIR);
+}
 
 /**
  * CONSULTA DEL ÁRBOL E ESTRUCTURA DE CARPETAS DE UN REPOSITORIO
@@ -176,6 +181,28 @@ function writeRepoIndex($existing) {
     // Persistencia remota en Supabase Storage
     if (function_exists('supabaseSyncMetaFile')) {
         @supabaseSyncMetaFile($indexPath, 'repos_index.json');
+    }
+    // Espejo opcional en Postgres (si existe supabase/schema.sql aplicado)
+    if (function_exists('supabaseDbUpsert') && is_array($existing)) {
+        $rows = [];
+        foreach ($existing as $key => $meta) {
+            if (!is_array($meta)) continue;
+            $userRepo = !empty($meta['user_repo']) ? $meta['user_repo'] : (string)$key;
+            $rows[] = [
+                'id' => substr(sha1($userRepo), 0, 32),
+                'user_repo' => $userRepo,
+                'name' => $meta['name'] ?? basename($userRepo),
+                'branch' => $meta['branch'] ?? 'main',
+                'remote_url' => $meta['remote_url'] ?? ('https://github.com/' . $userRepo),
+                'license' => $meta['license'] ?? null,
+                'stars' => isset($meta['stars']) ? (int)$meta['stars'] : null,
+                'is_private' => !empty($meta['is_private']),
+                'cloned' => !empty($meta['cloned']),
+                'meta' => $meta,
+                'updated_at' => $meta['updated_at'] ?? date('c')
+            ];
+        }
+        if ($rows) @supabaseDbUpsert('l8_repos', $rows, 'id');
     }
 }
 
@@ -873,7 +900,7 @@ function getStoredRepositories() {
     $repos = getLocalClonedRepositories(true);
     $indexPath = $STORAGE_DIR . '/repos_index.json';
     if (function_exists('supabaseHydrateMetaFile')) {
-        @supabaseHydrateMetaFile($indexPath, 'repos_index.json', false);
+        @supabaseHydrateMetaFile($indexPath, 'repos_index.json', true);
     }
 
     if (file_exists($indexPath)) {
@@ -1091,17 +1118,57 @@ class SuperGlobalDatabase {
         if (function_exists('supabaseSyncMetaFile')) {
             @supabaseSyncMetaFile($this->jsonDbPath, 'global_database_index.json');
         }
+        if (function_exists('supabaseDbUpsert')) {
+            @supabaseDbUpsert('l8_files', [[
+                'id' => $id,
+                'filename' => $filename,
+                'mime_type' => $mimeType,
+                'size_bytes' => (int)$sizeBytes,
+                'hash' => $hash,
+                'storage_path' => $storagePath,
+                'supabase_object' => $supabaseObject,
+                'upload_date' => $uploadDate
+            ]], 'id');
+        }
     }
 
     public function getAllFiles() {
         if (function_exists('supabaseHydrateMetaFile')) {
-            @supabaseHydrateMetaFile($this->jsonDbPath, 'global_database_index.json', false);
+            @supabaseHydrateMetaFile($this->jsonDbPath, 'global_database_index.json', true);
         }
         if (!file_exists($this->jsonDbPath)) return [];
         $raw = file_get_contents($this->jsonDbPath);
         $files = json_decode($raw, true) ?? [];
         return array_values($files);
     }
+}
+
+/**
+ * Persiste / restaura el estado de UI de la plataforma en Supabase.
+ */
+function platformSanitizeStatePayload($input) {
+    if (!is_array($input)) return [];
+    $out = [];
+    if (isset($input['last_command'])) {
+        $out['last_command'] = substr((string)$input['last_command'], 0, 500);
+    }
+    if (array_key_exists('has_executed', $input)) {
+        $out['has_executed'] = !empty($input['has_executed']);
+    }
+    if (isset($input['inspected_repo'])) {
+        $out['inspected_repo'] = substr((string)$input['inspected_repo'], 0, 200);
+    }
+    if (isset($input['inspected_user_repo'])) {
+        $out['inspected_user_repo'] = substr((string)$input['inspected_user_repo'], 0, 300);
+    }
+    if (isset($input['inspected_file'])) {
+        $out['inspected_file'] = substr((string)$input['inspected_file'], 0, 500);
+    }
+    // No guardamos catálogos enormes; el cliente re-ejecuta el comando al restaurar.
+    if (isset($input['execution_type'])) {
+        $out['execution_type'] = substr((string)$input['execution_type'], 0, 80);
+    }
+    return $out;
 }
 
 $db = new SuperGlobalDatabase($STORAGE_DIR);
@@ -1918,6 +1985,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/originkit/blackhole'
 }
 
 // CLI de arranque: bunx --bun originkit@latest add blackhole
+// Estado persistente de la plataforma (sobrevive al reload vía Supabase)
+if ($uri === '/api/platform/state' || $uri === '/api/session/state') {
+    header('Content-Type: application/json; charset=utf-8');
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $loaded = function_exists('supabaseLoadPlatformState')
+            ? supabaseLoadPlatformState()
+            : ['ok' => false, 'error' => 'supabase helpers missing', 'state' => null];
+        echo json_encode([
+            'ok' => !empty($loaded['ok']),
+            'state' => $loaded['state'] ?? null,
+            'error' => $loaded['error'] ?? null,
+            'source' => !empty($loaded['ok']) ? 'supabase' : null
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?? [];
+        $state = platformSanitizeStatePayload($input);
+        $saved = function_exists('supabaseSavePlatformState')
+            ? supabaseSavePlatformState($state)
+            : ['ok' => false, 'error' => 'supabase helpers missing'];
+        echo json_encode([
+            'ok' => !empty($saved['ok']),
+            'state' => $state,
+            'error' => $saved['error'] ?? null
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/cli/blackhole' || $uri === '/api/cli/run-blackhole')) {
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(runOriginKitBlackhole(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);

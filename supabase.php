@@ -356,19 +356,145 @@ function supabaseSyncMetaFile($localPath, $metaName) {
     return supabaseStorageUpload('meta/' . ltrim($metaName, '/'), $raw, 'application/json', false);
 }
 
-/** Descarga meta de Supabase y la escribe en disco local si hace falta */
+/**
+ * Descarga meta de Supabase Storage.
+ * Fuente de verdad = remoto (disco Render / seed del repo son efímeros).
+ * $force=false aún prefiere remoto si existe; solo conserva local si remoto falla.
+ */
 function supabaseHydrateMetaFile($localPath, $metaName, $force = false) {
-    if (!$force && file_exists($localPath) && filesize($localPath) > 2) {
-        return ['ok' => true, 'hydrated' => false, 'source' => 'local'];
-    }
     $res = supabaseStorageDownload('meta/' . ltrim($metaName, '/'));
     if (empty($res['ok']) || $res['data'] === null || $res['data'] === '') {
+        if (file_exists($localPath) && filesize($localPath) > 2) {
+            return ['ok' => true, 'hydrated' => false, 'source' => 'local', 'error' => $res['error'] ?? 'sin meta remota'];
+        }
         return ['ok' => false, 'hydrated' => false, 'error' => $res['error'] ?? 'sin meta remota'];
     }
+
+    // Merge object maps: remoto gana en conflictos; se conservan claves solo-locales
+    $remoteData = json_decode($res['data'], true);
+    $localData = null;
+    if (file_exists($localPath) && filesize($localPath) > 2) {
+        $localData = json_decode((string)file_get_contents($localPath), true);
+    }
+    $outRaw = $res['data'];
+    if (is_array($remoteData) && is_array($localData) && supabaseIsAssoc($remoteData) && supabaseIsAssoc($localData)) {
+        if ($force) {
+            $merged = $remoteData;
+        } else {
+            $merged = array_replace($localData, $remoteData);
+        }
+        $outRaw = json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+
     $dir = dirname($localPath);
     if (!file_exists($dir)) @mkdir($dir, 0777, true);
-    file_put_contents($localPath, $res['data']);
+    file_put_contents($localPath, $outRaw);
     return ['ok' => true, 'hydrated' => true, 'source' => 'supabase'];
+}
+
+function supabaseIsAssoc($arr) {
+    if (!is_array($arr) || $arr === []) return false;
+    return array_keys($arr) !== range(0, count($arr) - 1);
+}
+
+/** Estado de sesión de la plataforma (comandos / inspector) en Storage */
+function supabasePlatformStatePath() {
+    return 'meta/platform_session.json';
+}
+
+function supabaseLoadPlatformState() {
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) {
+        return ['ok' => false, 'error' => 'Supabase no configurado', 'state' => null];
+    }
+    $res = supabaseStorageDownloadJson(supabasePlatformStatePath());
+    if (empty($res['ok'])) {
+        return ['ok' => false, 'error' => $res['error'] ?? 'sin sesión', 'state' => null];
+    }
+    return ['ok' => true, 'state' => $res['data'], 'error' => null];
+}
+
+function supabaseSavePlatformState(array $state) {
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) {
+        return ['ok' => false, 'error' => 'Supabase no configurado'];
+    }
+    $state['version'] = 1;
+    $state['updated_at'] = date('c');
+    return supabaseStorageUploadJson(supabasePlatformStatePath(), $state);
+}
+
+/**
+ * PostgREST helpers (DB). Si las tablas no existen, fallan en silencio;
+ * ver supabase/schema.sql para crearlas en el SQL Editor.
+ */
+function supabaseDbRequest($tablePath, $options = []) {
+    $path = 'rest/v1/' . ltrim($tablePath, '/');
+    $opts = $options;
+    if (!isset($opts['headers'])) $opts['headers'] = [];
+    $opts['headers'][] = 'Prefer: resolution=merge-duplicates,return=representation';
+    if (empty($opts['method']) || strtoupper($opts['method']) === 'GET') {
+        // no Prefer needed for GET
+        $opts['headers'] = array_values(array_filter($opts['headers'], function ($h) {
+            return stripos($h, 'Prefer:') !== 0;
+        }));
+    }
+    return supabaseRequest($path, $opts);
+}
+
+function supabaseDbUpsert($table, array $rows, $onConflict = 'id') {
+    if ($rows === []) return ['ok' => true, 'skipped' => true];
+    return supabaseDbRequest($table . '?on_conflict=' . rawurlencode($onConflict), [
+        'method' => 'POST',
+        'use_secret' => true,
+        'headers' => [
+            'Prefer: resolution=merge-duplicates,return=minimal'
+        ],
+        'body' => array_values($rows)
+    ]);
+}
+
+function supabaseDbSelect($table, $query = '') {
+    $q = $query !== '' ? ('?' . ltrim($query, '?')) : '';
+    return supabaseDbRequest($table . $q, [
+        'method' => 'GET',
+        'use_secret' => true
+    ]);
+}
+
+/** Hidrata índices críticos desde Supabase (una vez por request PHP). */
+function supabaseBootstrapPlatformData($storageDir) {
+    static $done = false;
+    if ($done) return ['ok' => true, 'skipped' => true];
+    $done = true;
+
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) {
+        return ['ok' => false, 'error' => 'Supabase no configurado'];
+    }
+
+    $results = [];
+    $results['repos_index'] = supabaseHydrateMetaFile(
+        rtrim($storageDir, '/') . '/repos_index.json',
+        'repos_index.json',
+        true
+    );
+    $results['global_database_index'] = supabaseHydrateMetaFile(
+        rtrim($storageDir, '/') . '/global_database_index.json',
+        'global_database_index.json',
+        true
+    );
+    $results['gateway_codes'] = supabaseHydrateMetaFile(
+        rtrim($storageDir, '/') . '/gateway/codes.json',
+        'gateway_codes.json',
+        true
+    );
+    $results['gateway_transfers'] = supabaseHydrateMetaFile(
+        rtrim($storageDir, '/') . '/gateway/transfers.json',
+        'gateway_transfers.json',
+        true
+    );
+    return ['ok' => true, 'results' => $results];
 }
 
 function supabaseHealthCheck() {
@@ -403,6 +529,9 @@ function supabaseHealthCheck() {
     $res = supabaseRequest('auth/v1/health', ['use_secret' => false]);
     $bucket = supabaseEnsureBucket();
     $connected = !empty($res['ok']);
+    $session = supabaseLoadPlatformState();
+    $dbProbe = supabaseDbSelect('l8_repos', 'select=id&limit=1');
+    $dbReady = !empty($dbProbe['ok']);
     return [
         'type' => 'SUPABASE_STATUS',
         'ok' => $connected,
@@ -412,12 +541,15 @@ function supabaseHealthCheck() {
         'has_secret' => $cfg['secret_key'] !== '',
         'storage_bucket' => $cfg['bucket'],
         'storage_ready' => !empty($bucket['ok']),
+        'db_ready' => $dbReady,
+        'session_persisted' => !empty($session['ok']),
         'http_status' => $res['status'],
         'error' => $res['error'],
         'auth_health' => $res['body'],
         'env_probe' => $probe,
         'message' => $connected
-            ? ('Supabase conectado · Storage: ' . $cfg['bucket'] . (!empty($bucket['ok']) ? ' listo' : ' no disponible'))
+            ? ('Supabase conectado · Storage: ' . $cfg['bucket'] . (!empty($bucket['ok']) ? ' listo' : ' no disponible')
+                . ($dbReady ? ' · DB lista' : ' · DB opcional (ejecuta supabase/schema.sql)'))
             : ('Fallo de conexión: ' . ($res['error'] ?: 'HTTP ' . $res['status']))
     ];
 }

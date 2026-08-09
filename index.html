@@ -1066,12 +1066,18 @@
             letter-spacing: 0.02em;
         }
 
-        .boot-linux-logo {
+        .boot-linux-logo,
+        .boot-github-logo {
             width: 26px;
             height: 30px;
             flex: 0 0 auto;
             display: block;
             object-fit: contain;
+        }
+
+        .boot-github-logo {
+            width: 24px;
+            height: 24px;
         }
 
         @media (max-width: 720px) {
@@ -1117,6 +1123,7 @@
                 <div class="boot-cli-hint-wrap">
                     <span id="bootCliHint">Loading blackhole…</span>
                     <img class="boot-linux-logo" src="/linux-tux-gray.svg?v=1" alt="Linux" title="Linux" width="26" height="30">
+                    <img class="boot-github-logo" src="/github-mark-gray.svg?v=1" alt="GitHub" title="GitHub" width="24" height="24">
                 </div>
                 <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
             </div>

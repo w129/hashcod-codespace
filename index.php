@@ -89,22 +89,33 @@
 
         .icon-globe svg,
         .icon-gateway svg,
-        .icon-ubuntu-cli svg {
+        .icon-ubuntu-cli svg,
+        .icon-ubuntu-cli img {
             height: 20px;
             width: 20px;
             max-width: 20px;
             max-height: 20px;
             display: block;
             fill: currentColor;
+            object-fit: contain;
+        }
+
+        .icon-ubuntu-cli {
+            width: 22px;
+            height: 24px;
+            margin-left: 4px;
+        }
+
+        .icon-ubuntu-cli img {
+            width: 18px;
+            height: 22px;
+            max-width: 18px;
+            max-height: 22px;
         }
 
         .icon-gateway:hover,
         .icon-ubuntu-cli:hover {
             opacity: 0.75;
-        }
-
-        .icon-ubuntu-cli {
-            margin-left: 4px;
         }
 
         .main-container {

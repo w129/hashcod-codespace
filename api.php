@@ -1516,6 +1516,334 @@ function ubuntuBootSession() {
 }
 
 /**
+ * ===== Claude Code externa (recursos anthropics/claude-code-action + OAuth) =====
+ */
+function claudeCliDirs() {
+    global $STORAGE_DIR;
+    $root = rtrim($STORAGE_DIR, '/') . '/claude-cli';
+    return [
+        'root' => $root,
+        'repo' => $root . '/claude-code-action',
+        'home' => $root . '/home',
+        'workspace' => $root . '/workspace',
+        'creds' => $root . '/credentials.json',
+        'config' => $root . '/config'
+    ];
+}
+
+function claudeEnsureDirs() {
+    $d = claudeCliDirs();
+    foreach (['root', 'home', 'workspace', 'config'] as $k) {
+        if (!file_exists($d[$k])) @mkdir($d[$k], 0777, true);
+    }
+    $link = $d['workspace'] . '/claude-code-action';
+    if (!file_exists($link) && file_exists($d['repo'])) {
+        @symlink($d['repo'], $link);
+    }
+    return $d;
+}
+
+function claudeEnsureActionRepo() {
+    $d = claudeEnsureDirs();
+    $repo = $d['repo'];
+    if (file_exists($repo . '/.git') || file_exists($repo . '/action.yml') || file_exists($repo . '/README.md')) {
+        $link = $d['workspace'] . '/claude-code-action';
+        if (!file_exists($link)) @symlink($repo, $link);
+        return ['ok' => true, 'path' => $repo, 'cloned' => false];
+    }
+    if (!file_exists(dirname($repo))) @mkdir(dirname($repo), 0777, true);
+    $url = 'https://github.com/anthropics/claude-code-action.git';
+    $cmd = 'git clone --depth 1 ' . escapeshellarg($url) . ' ' . escapeshellarg($repo) . ' 2>&1';
+    $out = [];
+    $code = 0;
+    @exec($cmd, $out, $code);
+    if ($code !== 0 || !file_exists($repo)) {
+        return [
+            'ok' => false,
+            'error' => 'No se pudo clonar anthropics/claude-code-action: ' . trim(implode("\n", $out)),
+            'path' => $repo
+        ];
+    }
+    $link = $d['workspace'] . '/claude-code-action';
+    if (!file_exists($link)) @symlink($repo, $link);
+    return ['ok' => true, 'path' => $repo, 'cloned' => true, 'output' => trim(implode("\n", $out))];
+}
+
+function claudeFindBinary() {
+    $candidates = [
+        trim((string)@shell_exec('command -v claude 2>/dev/null')),
+        '/root/.local/bin/claude',
+        '/usr/local/bin/claude',
+        getenv('HOME') ? rtrim(getenv('HOME'), '/') . '/.local/bin/claude' : '',
+    ];
+    foreach ($candidates as $bin) {
+        if ($bin !== '' && is_file($bin) && is_executable($bin)) {
+            return $bin;
+        }
+    }
+    return '';
+}
+
+function claudeEnsureBinary() {
+    $bin = claudeFindBinary();
+    if ($bin !== '') {
+        return ['ok' => true, 'bin' => $bin, 'installed' => false];
+    }
+    // Instalar CLI nativo si falta (misma vía que docs Anthropic)
+    $install = 'curl -fsSL https://claude.ai/install.sh | bash 2>&1';
+    $out = [];
+    $code = 0;
+    @exec($install, $out, $code);
+    $bin = claudeFindBinary();
+    if ($bin === '') {
+        return [
+            'ok' => false,
+            'error' => 'Claude Code CLI no instalado. Instala con: curl -fsSL https://claude.ai/install.sh | bash',
+            'output' => trim(implode("\n", $out))
+        ];
+    }
+    return ['ok' => true, 'bin' => $bin, 'installed' => true, 'output' => trim(implode("\n", $out))];
+}
+
+function claudeLoadCredentials() {
+    $d = claudeEnsureDirs();
+    $path = $d['creds'];
+    $file = [];
+    if (file_exists($path)) {
+        $raw = @file_get_contents($path);
+        $decoded = json_decode((string)$raw, true);
+        if (is_array($decoded)) $file = $decoded;
+    }
+    $oauth = '';
+    $apiKey = '';
+    if (!empty($file['oauth_token'])) $oauth = trim((string)$file['oauth_token']);
+    if (!empty($file['api_key'])) $apiKey = trim((string)$file['api_key']);
+
+    if ($oauth === '' && function_exists('envValue')) {
+        $oauth = trim((string)envValue('CLAUDE_CODE_OAUTH_TOKEN', ''));
+    }
+    if ($apiKey === '' && function_exists('envValue')) {
+        $apiKey = trim((string)envValue('ANTHROPIC_API_KEY', ''));
+    }
+    if ($oauth === '') {
+        $oauth = trim((string)(getenv('CLAUDE_CODE_OAUTH_TOKEN') ?: ($_ENV['CLAUDE_CODE_OAUTH_TOKEN'] ?? '')));
+    }
+    if ($apiKey === '') {
+        $apiKey = trim((string)(getenv('ANTHROPIC_API_KEY') ?: ($_ENV['ANTHROPIC_API_KEY'] ?? '')));
+    }
+
+    $method = '';
+    if ($oauth !== '') $method = 'oauth';
+    else if ($apiKey !== '') $method = 'api_key';
+
+    return [
+        'oauth_token' => $oauth,
+        'api_key' => $apiKey,
+        'authenticated' => $method !== '',
+        'auth_method' => $method,
+        'from_file' => !empty($file),
+        'path' => $path
+    ];
+}
+
+function claudeSaveCredentials($oauthToken, $apiKey) {
+    $d = claudeEnsureDirs();
+    $payload = [
+        'oauth_token' => trim((string)$oauthToken),
+        'api_key' => trim((string)$apiKey),
+        'updated_at' => date('c')
+    ];
+    if ($payload['oauth_token'] === '' && $payload['api_key'] === '') {
+        return ['ok' => false, 'error' => 'Se requiere CLAUDE_CODE_OAUTH_TOKEN o ANTHROPIC_API_KEY'];
+    }
+    $ok = @file_put_contents($d['creds'], json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    if ($ok === false) {
+        return ['ok' => false, 'error' => 'No se pudieron guardar las credenciales'];
+    }
+    @chmod($d['creds'], 0600);
+    return ['ok' => true, 'auth_method' => $payload['oauth_token'] !== '' ? 'oauth' : 'api_key'];
+}
+
+function claudeClearCredentials() {
+    $d = claudeEnsureDirs();
+    if (file_exists($d['creds'])) @unlink($d['creds']);
+    return ['ok' => true, 'logged_out' => true];
+}
+
+function claudeBuildProcEnv($creds) {
+    $d = claudeEnsureDirs();
+    $home = realpath($d['home']) ?: $d['home'];
+    $config = realpath($d['config']) ?: $d['config'];
+    $env = $_ENV;
+    foreach ($_SERVER as $k => $v) {
+        if (is_string($k) && is_string($v) && preg_match('/^[A-Z_][A-Z0-9_]*$/', $k)) {
+            if (!isset($env[$k])) $env[$k] = $v;
+        }
+    }
+    $env['HOME'] = $home;
+    $env['CLAUDE_CONFIG_DIR'] = $config;
+    $env['TERM'] = 'xterm-256color';
+    $env['CI'] = '1';
+    // Prefer OAuth (subscription) como en claude-code-action
+    if (!empty($creds['oauth_token'])) {
+        $env['CLAUDE_CODE_OAUTH_TOKEN'] = $creds['oauth_token'];
+        unset($env['ANTHROPIC_API_KEY']);
+    } else if (!empty($creds['api_key'])) {
+        $env['ANTHROPIC_API_KEY'] = $creds['api_key'];
+        unset($env['CLAUDE_CODE_OAUTH_TOKEN']);
+    }
+    $path = $env['PATH'] ?? (getenv('PATH') ?: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin');
+    foreach (['/root/.local/bin', $home . '/.local/bin', '/usr/local/bin'] as $extra) {
+        if ($extra && strpos($path, $extra) === false) {
+            $path = $extra . ':' . $path;
+        }
+    }
+    $env['PATH'] = $path;
+    return $env;
+}
+
+function claudeBootSession() {
+    $ensureRepo = claudeEnsureActionRepo();
+    $ensureBin = claudeEnsureBinary();
+    $creds = claudeLoadCredentials();
+    $dirs = claudeEnsureDirs();
+    $version = '';
+    if (!empty($ensureBin['ok']) && !empty($ensureBin['bin'])) {
+        $version = trim((string)@shell_exec(escapeshellarg($ensureBin['bin']) . ' --version 2>/dev/null'));
+    }
+    $msgParts = [];
+    if (!empty($ensureRepo['cloned'])) $msgParts[] = 'Cloned anthropics/claude-code-action into workspace.';
+    else if (!empty($ensureRepo['ok'])) $msgParts[] = 'claude-code-action resources ready.';
+    else $msgParts[] = 'Warning: ' . ($ensureRepo['error'] ?? 'action repo unavailable');
+    if (empty($ensureBin['ok'])) $msgParts[] = $ensureBin['error'] ?? 'CLI missing';
+    else if (!empty($ensureBin['installed'])) $msgParts[] = 'Installed Claude Code CLI.';
+
+    return [
+        'ok' => true,
+        'authenticated' => !empty($creds['authenticated']),
+        'auth_method' => $creds['auth_method'] ?: null,
+        'needs_auth' => empty($creds['authenticated']),
+        'cli_ready' => !empty($ensureBin['ok']),
+        'cli_bin' => $ensureBin['bin'] ?? '',
+        'cli_version' => $version !== '' ? $version : 'claude',
+        'resource' => 'anthropics/claude-code-action',
+        'repo_path' => $dirs['repo'],
+        'workspace' => $dirs['workspace'],
+        'cwd_display' => '~/workspace',
+        'repo_ready' => !empty($ensureRepo['ok']),
+        'message' => implode(' ', $msgParts) . (empty($creds['authenticated'])
+            ? ' Inicia sesión OAuth con Claude para continuar.'
+            : '')
+    ];
+}
+
+function claudeRunPrompt($prompt) {
+    $prompt = trim((string)$prompt);
+    $creds = claudeLoadCredentials();
+    $dirs = claudeEnsureDirs();
+    $workspace = realpath($dirs['workspace']) ?: $dirs['workspace'];
+
+    if ($prompt === '') {
+        return ['ok' => false, 'error' => 'empty prompt', 'needs_auth' => false];
+    }
+    if ($prompt === 'help') {
+        $help = implode("\n", [
+            'Claude Code on l8 codespace',
+            'Resource: https://github.com/anthropics/claude-code-action',
+            '',
+            'Auth (required):',
+            '  1) Open OAuth login (claude.ai)',
+            '  2) Paste CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`',
+            '     or ANTHROPIC_API_KEY from console.anthropic.com',
+            '',
+            'Commands:',
+            '  help                 Show this help',
+            '  status               Auth / CLI / resource status',
+            '  about                Session paths',
+            '  logout               Clear saved OAuth/API credentials',
+            '  <any prompt>         Run Claude Code non-interactive (-p)',
+            '',
+            'Workspace: ' . $workspace,
+            'Action repo symlink: ~/workspace/claude-code-action'
+        ]);
+        return ['ok' => true, 'stdout' => $help, 'stderr' => ''];
+    }
+    if ($prompt === 'logout') {
+        claudeClearCredentials();
+        return ['ok' => true, 'stdout' => 'Logged out. OAuth required again.', 'stderr' => '', 'needs_auth' => true];
+    }
+    if ($prompt === 'status' || $prompt === 'about') {
+        $boot = claudeBootSession();
+        $lines = [
+            'authenticated: ' . (!empty($boot['authenticated']) ? 'yes (' . ($boot['auth_method'] ?: '?') . ')' : 'no'),
+            'cli: ' . ($boot['cli_bin'] ?: 'missing') . ' ' . ($boot['cli_version'] ?: ''),
+            'resource: ' . ($boot['resource'] ?? 'claude-code-action'),
+            'repo: ' . ($boot['repo_path'] ?? ''),
+            'workspace: ' . ($boot['workspace'] ?? ''),
+        ];
+        return ['ok' => true, 'stdout' => implode("\n", $lines), 'stderr' => ''];
+    }
+
+    if (empty($creds['authenticated'])) {
+        return [
+            'ok' => false,
+            'error' => 'OAuth required. Inicia sesión con Claude (CLAUDE_CODE_OAUTH_TOKEN) antes de ejecutar prompts.',
+            'needs_auth' => true
+        ];
+    }
+
+    $binInfo = claudeEnsureBinary();
+    if (empty($binInfo['ok'])) {
+        return ['ok' => false, 'error' => $binInfo['error'] ?? 'Claude CLI missing', 'needs_auth' => false];
+    }
+
+    if (!is_dir($workspace)) @mkdir($workspace, 0777, true);
+    $env = claudeBuildProcEnv($creds);
+    // Modo print (no interactivo), como pipelines de claude-code-action
+    $cmd = escapeshellarg($binInfo['bin'])
+        . ' -p --output-format text --'
+        . ' ' . escapeshellarg($prompt);
+
+    $descriptors = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w']
+    ];
+    $proc = @proc_open(['bash', '-lc', $cmd], $descriptors, $pipes, $workspace, $env);
+    if (!is_resource($proc)) {
+        return ['ok' => false, 'error' => 'Unable to start Claude Code', 'needs_auth' => false];
+    }
+    fclose($pipes[0]);
+    stream_set_blocking($pipes[1], true);
+    stream_set_blocking($pipes[2], true);
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $code = proc_close($proc);
+    if (strlen((string)$stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
+    if (strlen((string)$stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
+
+    $needsAuth = false;
+    $combined = strtolower((string)$stdout . "\n" . (string)$stderr);
+    if (strpos($combined, 'login') !== false && (strpos($combined, 'required') !== false || strpos($combined, 'expired') !== false)) {
+        $needsAuth = true;
+    }
+    if (strpos($combined, 'authentication') !== false && strpos($combined, 'fail') !== false) {
+        $needsAuth = true;
+    }
+
+    return [
+        'ok' => $code === 0,
+        'exit_code' => $code,
+        'stdout' => rtrim((string)$stdout),
+        'stderr' => rtrim((string)$stderr),
+        'needs_auth' => $needsAuth,
+        'auth_method' => $creds['auth_method']
+    ];
+}
+
+/**
  * Persiste / restaura el estado de UI de la plataforma en Supabase.
  */
 function platformSanitizeStatePayload($input) {
@@ -2407,6 +2735,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/ubuntu/exec' || $ur
     $command = $input['command'] ?? '';
     $cwd = $input['cwd'] ?? '~';
     echo json_encode(ubuntuRunCommand($command, $cwd), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Claude Code externa (OAuth + anthropics/claude-code-action)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/claude/session' || $uri === '/api/claude/boot')) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(claudeBootSession(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if ($uri === '/api/claude/auth' || $uri === '/api/claude/login') {
+    header('Content-Type: application/json; charset=utf-8');
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $creds = claudeLoadCredentials();
+        echo json_encode([
+            'ok' => true,
+            'authenticated' => !empty($creds['authenticated']),
+            'auth_method' => $creds['auth_method'] ?: null
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?? [];
+        if (!empty($input['logout'])) {
+            echo json_encode(claudeClearCredentials(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $oauth = $input['oauth_token'] ?? $input['claude_code_oauth_token'] ?? $input['token'] ?? '';
+        $apiKey = $input['api_key'] ?? $input['anthropic_api_key'] ?? '';
+        $saved = claudeSaveCredentials($oauth, $apiKey);
+        echo json_encode($saved, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/claude/exec' || $uri === '/api/claude/run')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true) ?? [];
+    $prompt = $input['prompt'] ?? $input['command'] ?? $input['message'] ?? '';
+    echo json_encode(claudeRunPrompt($prompt), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 

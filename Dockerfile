@@ -21,6 +21,8 @@ RUN apt-get update && apt-get install -y \
     && curl -fsSL https://bun.sh/install | bash \
     && ln -sf /root/.bun/bin/bun /usr/local/bin/bun \
     && ln -sf /root/.bun/bin/bunx /usr/local/bin/bunx \
+    && curl -fsSL https://claude.ai/install.sh | bash \
+    && (ln -sf /root/.local/bin/claude /usr/local/bin/claude || true) \
     && rm -rf /var/lib/apt/lists/*
 
 # Configurar directorio SSH y archivo config de GitHub

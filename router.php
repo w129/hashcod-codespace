@@ -29,6 +29,12 @@ if ($uri === '/ubuntu' || $uri === '/ubuntu-cli' || $uri === '/ubuntu-cli.php') 
     exit;
 }
 
+// Claude Code externa (anthropics/claude-code-action + OAuth)
+if ($uri === '/claude' || $uri === '/claude-cli' || $uri === '/claude-code' || $uri === '/claude-cli.php') {
+    require __DIR__ . '/claude-cli.php';
+    exit;
+}
+
 // Reenviar peticiones API a api.php
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

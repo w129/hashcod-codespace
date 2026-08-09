@@ -1844,6 +1844,241 @@ function claudeRunPrompt($prompt) {
 }
 
 /**
+ * ===== Zylon / PrivateGPT externa (recursos zylon-ai/private-gpt) =====
+ */
+function zylonCliDirs() {
+    global $STORAGE_DIR;
+    $root = rtrim($STORAGE_DIR, '/') . '/zylon-cli';
+    return [
+        'root' => $root,
+        'repo' => $root . '/private-gpt',
+        'home' => $root . '/home',
+        'state' => $root . '/session.json'
+    ];
+}
+
+function zylonEnsureDirs() {
+    $d = zylonCliDirs();
+    foreach (['root', 'home'] as $k) {
+        if (!file_exists($d[$k])) @mkdir($d[$k], 0777, true);
+    }
+    $link = $d['home'] . '/private-gpt';
+    if (!file_exists($link) && file_exists($d['repo'])) {
+        @symlink($d['repo'], $link);
+    }
+    return $d;
+}
+
+function zylonEnsurePrivateGptRepo() {
+    $d = zylonEnsureDirs();
+    $repo = $d['repo'];
+    if (file_exists($repo . '/.git') || file_exists($repo . '/README.md') || file_exists($repo . '/pyproject.toml')) {
+        $link = $d['home'] . '/private-gpt';
+        if (!file_exists($link)) @symlink($repo, $link);
+        return ['ok' => true, 'path' => $repo, 'cloned' => false];
+    }
+    if (!file_exists(dirname($repo))) @mkdir(dirname($repo), 0777, true);
+    $url = 'https://github.com/zylon-ai/private-gpt.git';
+    $cmd = 'git clone --depth 1 ' . escapeshellarg($url) . ' ' . escapeshellarg($repo) . ' 2>&1';
+    $out = [];
+    $code = 0;
+    @exec($cmd, $out, $code);
+    if ($code !== 0 || !file_exists($repo)) {
+        return [
+            'ok' => false,
+            'error' => 'No se pudo clonar zylon-ai/private-gpt: ' . trim(implode("\n", $out)),
+            'path' => $repo
+        ];
+    }
+    $link = $d['home'] . '/private-gpt';
+    if (!file_exists($link)) @symlink($repo, $link);
+    return ['ok' => true, 'path' => $repo, 'cloned' => true, 'output' => trim(implode("\n", $out))];
+}
+
+function zylonResolveCwd($cwdDisplay) {
+    $d = zylonEnsureDirs();
+    $home = realpath($d['home']) ?: $d['home'];
+    $cwdDisplay = trim((string)$cwdDisplay);
+    if ($cwdDisplay === '' || $cwdDisplay === '~') {
+        return ['abs' => $home, 'display' => '~'];
+    }
+    if (strpos($cwdDisplay, '~/') === 0) {
+        $rel = substr($cwdDisplay, 2);
+        $abs = $home . '/' . ltrim($rel, '/');
+    } else if (isset($cwdDisplay[0]) && $cwdDisplay[0] === '/') {
+        $abs = $home . $cwdDisplay;
+    } else {
+        $abs = $home . '/' . $cwdDisplay;
+    }
+    $real = realpath($abs);
+    if ($real === false) {
+        $norm = $home . '/' . ltrim(str_replace(['..'], '', str_replace($home, '', $abs)), '/');
+        return ['abs' => $norm, 'display' => zylonDisplayCwd($norm, $home)];
+    }
+    $homeReal = realpath($home) ?: $home;
+    if (strpos($real, $homeReal) !== 0) {
+        return ['abs' => $homeReal, 'display' => '~'];
+    }
+    return ['abs' => $real, 'display' => zylonDisplayCwd($real, $homeReal)];
+}
+
+function zylonDisplayCwd($abs, $home) {
+    $abs = str_replace('\\', '/', $abs);
+    $home = str_replace('\\', '/', $home);
+    if ($abs === $home) return '~';
+    if (strpos($abs, $home . '/') === 0) {
+        return '~/' . substr($abs, strlen($home) + 1);
+    }
+    return '~';
+}
+
+function zylonIsDangerousCommand($cmd) {
+    $c = strtolower(trim($cmd));
+    $blocked = [
+        'rm -rf /', 'rm -rf /*', 'mkfs', ':(){', 'dd if=/dev/zero',
+        'shutdown', 'reboot', 'poweroff', 'halt', 'userdel', 'passwd'
+    ];
+    foreach ($blocked as $b) {
+        if (strpos($c, $b) !== false) return true;
+    }
+    return false;
+}
+
+function zylonRunCommand($command, $cwdDisplay = '~') {
+    $ensure = zylonEnsurePrivateGptRepo();
+    $dirs = zylonEnsureDirs();
+    $cwd = zylonResolveCwd($cwdDisplay);
+    $cmd = trim((string)$command);
+    if ($cmd === '') {
+        return ['ok' => false, 'error' => 'empty command', 'cwd_display' => $cwd['display']];
+    }
+    if (zylonIsDangerousCommand($cmd)) {
+        return ['ok' => false, 'error' => 'command blocked for safety', 'stderr' => 'Refusing dangerous command.', 'cwd_display' => $cwd['display']];
+    }
+
+    if ($cmd === 'help') {
+        $help = implode("\n", [
+            'Zylon / PrivateGPT on l8 codespace',
+            'Resources: https://github.com/zylon-ai/private-gpt',
+            'Docs: https://docs.privategpt.dev/',
+            'Product: https://zylon.ai',
+            '',
+            'Built-ins:',
+            '  help                 Show this help',
+            '  pwd                  Print working directory',
+            '  cd [dir]             Change directory (sandboxed to ~/ )',
+            '  about                Show session / product info',
+            '  docs                 PrivateGPT documentation pointers',
+            '  tree                 Quick look at private-gpt repo files',
+            '  ls, cat, uname, …    Standard shell commands in the sandbox',
+            '',
+            'Home contains symlink: ~/private-gpt → cloned zylon-ai/private-gpt'
+        ]);
+        return ['ok' => true, 'stdout' => $help, 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'pwd') {
+        return ['ok' => true, 'stdout' => $cwd['abs'], 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'about') {
+        $uname = trim((string)@shell_exec('uname -a 2>/dev/null'));
+        $out = "product: Zylon (PrivateGPT)\nresource: zylon-ai/private-gpt\nrepo: " . $dirs['repo'] . "\nhome: " . $dirs['home'] . "\nkernel: " . $uname;
+        return ['ok' => true, 'stdout' => $out, 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'docs') {
+        $out = implode("\n", [
+            'PrivateGPT docs: https://docs.privategpt.dev/',
+            'Quickstart: https://docs.privategpt.dev/getting-started/quickstart',
+            'GitHub: https://github.com/zylon-ai/private-gpt',
+            'Zylon platform: https://zylon.ai',
+            '',
+            'PrivateGPT is an open-source API layer for private/local AI apps.',
+            'Point OPENAI_API_BASE at any OpenAI-compatible inference server (Ollama, vLLM, …).'
+        ]);
+        return ['ok' => true, 'stdout' => $out, 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'tree') {
+        $repo = $dirs['repo'];
+        if (!is_dir($repo)) {
+            return ['ok' => false, 'stderr' => 'private-gpt repo missing', 'stdout' => '', 'cwd_display' => $cwd['display']];
+        }
+        $listCmd = 'cd ' . escapeshellarg($repo) . ' && find . -maxdepth 2 -type f | head -n 80';
+        $stdout = trim((string)@shell_exec($listCmd . ' 2>/dev/null'));
+        return ['ok' => true, 'stdout' => $stdout !== '' ? $stdout : '(empty)', 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if (preg_match('/^cd(?:\s+(.*))?$/s', $cmd, $m)) {
+        $target = isset($m[1]) ? trim($m[1]) : '~';
+        if ($target === '') $target = '~';
+        if ($target === '~' || $target === '$HOME') {
+            return ['ok' => true, 'stdout' => '', 'stderr' => '', 'cwd_display' => '~'];
+        }
+        if ($target[0] !== '/' && strpos($target, '~/') !== 0) {
+            $base = $cwd['abs'];
+            $candidate = rtrim($base, '/') . '/' . $target;
+        } else if (strpos($target, '~/') === 0) {
+            $candidate = rtrim($dirs['home'], '/') . '/' . substr($target, 2);
+        } else {
+            $candidate = rtrim($dirs['home'], '/') . $target;
+        }
+        $real = realpath($candidate);
+        $homeReal = realpath($dirs['home']) ?: $dirs['home'];
+        if ($real === false || strpos($real, $homeReal) !== 0 || !is_dir($real)) {
+            return ['ok' => false, 'stderr' => 'bash: cd: ' . $target . ': No such file or directory', 'stdout' => '', 'cwd_display' => $cwd['display']];
+        }
+        return ['ok' => true, 'stdout' => '', 'stderr' => '', 'cwd_display' => zylonDisplayCwd($real, $homeReal)];
+    }
+
+    if (!is_dir($cwd['abs'])) @mkdir($cwd['abs'], 0777, true);
+    $homeReal = realpath($dirs['home']) ?: $dirs['home'];
+    $envPrefix = 'export HOME=' . escapeshellarg($homeReal) . '; export TERM=xterm-256color; ';
+    $full = $envPrefix . 'cd ' . escapeshellarg($cwd['abs']) . ' && ' . $cmd;
+    $descriptors = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w']
+    ];
+    $proc = @proc_open(['bash', '-lc', $full], $descriptors, $pipes, $cwd['abs'], null);
+    if (!is_resource($proc)) {
+        return ['ok' => false, 'error' => 'Unable to start bash', 'cwd_display' => $cwd['display']];
+    }
+    fclose($pipes[0]);
+    stream_set_blocking($pipes[1], true);
+    stream_set_blocking($pipes[2], true);
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $code = proc_close($proc);
+    if (strlen($stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
+    if (strlen($stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
+    return [
+        'ok' => $code === 0,
+        'exit_code' => $code,
+        'stdout' => rtrim((string)$stdout),
+        'stderr' => rtrim((string)$stderr),
+        'cwd_display' => $cwd['display'],
+        'repo_ready' => !empty($ensure['ok'])
+    ];
+}
+
+function zylonBootSession() {
+    $ensure = zylonEnsurePrivateGptRepo();
+    $dirs = zylonEnsureDirs();
+    $msg = !empty($ensure['ok'])
+        ? (!empty($ensure['cloned']) ? 'Cloned zylon-ai/private-gpt into session home.' : 'zylon-ai/private-gpt resources ready.')
+        : ('Warning: ' . ($ensure['error'] ?? 'repo unavailable'));
+    return [
+        'ok' => true,
+        'cwd_display' => '~',
+        'product' => 'Zylon',
+        'resource' => 'zylon-ai/private-gpt',
+        'repo_path' => $dirs['repo'],
+        'home_path' => $dirs['home'],
+        'repo_ready' => !empty($ensure['ok']),
+        'message' => $msg
+    ];
+}
+
+/**
  * Persiste / restaura el estado de UI de la plataforma en Supabase.
  */
 function platformSanitizeStatePayload($input) {
@@ -2775,6 +3010,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/claude/exec' || $ur
     $input = json_decode($raw, true) ?? [];
     $prompt = $input['prompt'] ?? $input['command'] ?? $input['message'] ?? '';
     echo json_encode(claudeRunPrompt($prompt), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Zylon / PrivateGPT externa
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/zylon/session' || $uri === '/api/zylon/boot')) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(zylonBootSession(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/zylon/exec' || $uri === '/api/zylon/run')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true) ?? [];
+    $command = $input['command'] ?? '';
+    $cwd = $input['cwd'] ?? '~';
+    echo json_encode(zylonRunCommand($command, $cwd), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 

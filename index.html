@@ -67,7 +67,8 @@
         .icon-globe,
         .icon-gateway,
         .icon-ubuntu-cli,
-        .icon-claude-cli {
+        .icon-claude-cli,
+        .icon-zylon-cli {
             height: 22px;
             width: 22px;
             display: flex;
@@ -82,7 +83,8 @@
 
         .icon-gateway,
         .icon-ubuntu-cli,
-        .icon-claude-cli {
+        .icon-claude-cli,
+        .icon-zylon-cli {
             cursor: pointer;
         }
 
@@ -91,7 +93,9 @@
         .icon-ubuntu-cli svg,
         .icon-ubuntu-cli img,
         .icon-claude-cli svg,
-        .icon-claude-cli img {
+        .icon-claude-cli img,
+        .icon-zylon-cli svg,
+        .icon-zylon-cli img {
             height: 20px;
             width: 20px;
             max-width: 20px;
@@ -114,13 +118,15 @@
             max-height: 22px;
         }
 
-        .icon-claude-cli {
+        .icon-claude-cli,
+        .icon-zylon-cli {
             width: 22px;
             height: 24px;
             margin-left: 2px;
         }
 
-        .icon-claude-cli img {
+        .icon-claude-cli img,
+        .icon-zylon-cli img {
             width: 18px;
             height: 18px;
             max-width: 18px;
@@ -129,7 +135,8 @@
 
         .icon-gateway:hover,
         .icon-ubuntu-cli:hover,
-        .icon-claude-cli:hover {
+        .icon-claude-cli:hover,
+        .icon-zylon-cli:hover {
             opacity: 0.75;
         }
 
@@ -1097,7 +1104,8 @@
 
         .boot-linux-logo,
         .boot-github-logo,
-        .boot-claude-logo {
+        .boot-claude-logo,
+        .boot-zylon-logo {
             width: 26px;
             height: 30px;
             flex: 0 0 auto;
@@ -1107,13 +1115,15 @@
         }
 
         .boot-github-logo,
-        .boot-claude-logo {
+        .boot-claude-logo,
+        .boot-zylon-logo {
             width: 24px;
             height: 24px;
         }
 
         .boot-github-logo svg,
-        .boot-claude-logo img {
+        .boot-claude-logo img,
+        .boot-zylon-logo img {
             width: 100%;
             height: 100%;
             display: block;
@@ -1170,6 +1180,7 @@
                         </svg>
                     </span>
                     <img class="boot-claude-logo" src="/claude-mark-gray.svg?v=2" alt="Claude" title="Claude" width="24" height="24">
+                    <img class="boot-zylon-logo" src="/zylon-mark-gray.svg?v=1" alt="Zylon" title="Zylon" width="24" height="24">
                 </div>
                 <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
             </div>
@@ -1188,6 +1199,9 @@
             </button>
             <button type="button" class="icon-claude-cli" title="Claude Code" aria-label="Abrir Claude Code externa" onclick="openClaudeCli()">
                 <img src="/claude-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
+            </button>
+            <button type="button" class="icon-zylon-cli" title="Zylon / PrivateGPT" aria-label="Abrir Zylon externa" onclick="openZylonCli()">
+                <img src="/zylon-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
             </button>
         </div>
         <div class="top-bar-right">
@@ -2176,6 +2190,17 @@
             const url = '/claude';
             const features = 'noopener,noreferrer,width=1100,height=720';
             const win = window.open(url, 'l8-claude-cli', features);
+            if (!win) {
+                window.location.href = url;
+            } else {
+                try { win.focus(); } catch (e) {}
+            }
+        }
+
+        function openZylonCli() {
+            const url = '/zylon';
+            const features = 'noopener,noreferrer,width=1100,height=720';
+            const win = window.open(url, 'l8-zylon-cli', features);
             if (!win) {
                 window.location.href = url;
             } else {

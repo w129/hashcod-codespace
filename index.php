@@ -1224,7 +1224,7 @@
                     <img class="boot-claude-logo" src="/claude-mark-gray.svg?v=2" alt="Claude" title="Claude" width="24" height="24">
                     <img class="boot-zylon-logo" src="/zylon-mark-gray.svg?v=1" alt="Zylon" title="Zylon" width="24" height="24">
                     <span class="boot-hashcod-logo" title="Created by Hashcod" aria-label="Created by Hashcod">
-                        <img src="/hashcod-created-by-gray.svg?v=6" alt="Created by Hashcod" height="14">
+                        <img src="/hashcod-created-by-gray.svg?v=7" alt="Created by Hashcod" height="14">
                     </span>
                 </div>
                 <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
@@ -1249,7 +1249,7 @@
                 <img src="/zylon-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
             </button>
             <span class="hashcod-created-by" title="Created by Hashcod" aria-label="Created by Hashcod">
-                <img src="/hashcod-created-by-gray.svg?v=6" alt="Created by Hashcod" height="14">
+                <img src="/hashcod-created-by-gray.svg?v=7" alt="Created by Hashcod" height="14">
             </span>
         </div>
         <div class="top-bar-right">

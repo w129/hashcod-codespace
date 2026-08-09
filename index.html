@@ -1358,6 +1358,9 @@
             }
         }
         let currentRepoTree = [];
+        const repoFileCache = new Map(); // key: repo::path -> content
+        let repoFileAbort = null;
+        let repoTreeCache = { repo: '', tree: null };
 
         const executionContainer = document.getElementById('executionContent');
         const formatToggle = document.getElementById('formatToggle');
@@ -1397,6 +1400,43 @@
             });
         }
 
+        function fillRepoSelector(tree) {
+            const selector = document.getElementById('repoFileSelector');
+            const frag = document.createDocumentFragment();
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = '📁 Selecciona un archivo por carpeta...';
+            frag.appendChild(placeholder);
+
+            // Agrupar por carpeta (optgroup) — navegación más rápida
+            const groups = new Map();
+            for (let i = 0; i < tree.length; i++) {
+                const item = tree[i];
+                if (item.type && item.type !== 'file') continue;
+                const path = item.path || '';
+                const slash = path.lastIndexOf('/');
+                const folder = slash === -1 ? '(raíz)' : path.slice(0, slash);
+                const name = slash === -1 ? path : path.slice(slash + 1);
+                if (!groups.has(folder)) groups.set(folder, []);
+                groups.get(folder).push({ path, name, size: item.size_formatted || '' });
+            }
+
+            for (const [folder, files] of groups) {
+                const og = document.createElement('optgroup');
+                og.label = '📂 ' + folder;
+                for (let j = 0; j < files.length; j++) {
+                    const f = files[j];
+                    const opt = document.createElement('option');
+                    opt.value = f.path;
+                    opt.textContent = f.name + (f.size ? ' (' + f.size + ')' : '');
+                    og.appendChild(opt);
+                }
+                frag.appendChild(og);
+            }
+            selector.innerHTML = '';
+            selector.appendChild(frag);
+        }
+
         async function openRepoCodeInspector(repoName, userRepo) {
             const drawer = document.getElementById('functionDrawer');
             if (!drawer.classList.contains('open')) {
@@ -1416,14 +1456,19 @@
 
             headerTitle.innerHTML = `&gt;/ function to execute &bull; <span style="color:#ffffff;">Inspeccionando Repositorio: <strong>${localName}</strong></span>`;
             toolbar.style.display = 'flex';
-            selector.innerHTML = '<option value="">⏳ Cargando estructura de carpetas...</option>';
+            selector.innerHTML = '<option value="">⏳ Cargando estructura…</option>';
             pathInfo.textContent = '';
             editor.style.color = '#ffffff';
-            editor.value = "// Cargando código completo del repositorio '" + localName + "' por carpetas...";
+            editor.value = "// Cargando estructura de '" + localName + "'…";
 
             try {
-                let res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(localName));
-                let data = await res.json();
+                let data = null;
+                if (repoTreeCache.repo === localName && repoTreeCache.tree) {
+                    data = { ok: true, tree: repoTreeCache.tree };
+                } else {
+                    let res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(localName));
+                    data = await res.json();
+                }
 
                 // Si no está clonado localmente, clonar primero y reintentar
                 if (!data.ok && remoteTarget) {
@@ -1445,8 +1490,9 @@
                         return;
                     }
                     currentInspectedRepo = cloneOut.result.repo_name || localName;
-                    res = await fetch('/api/repo/tree?repo=' + encodeURIComponent(currentInspectedRepo));
-                    data = await res.json();
+                    repoTreeCache = { repo: '', tree: null };
+                    const res2 = await fetch('/api/repo/tree?repo=' + encodeURIComponent(currentInspectedRepo));
+                    data = await res2.json();
                 }
                 
                 if (!data.ok) {
@@ -1455,20 +1501,14 @@
                 }
 
                 currentRepoTree = data.tree || [];
-                selector.innerHTML = '<option value="">📁 Selecciona un archivo por carpeta...</option>';
-
-                currentRepoTree.forEach(item => {
-                    if (item.type === 'file') {
-                        const opt = document.createElement('option');
-                        opt.value = item.path;
-                        opt.textContent = "📄 " + item.path + " (" + item.size_formatted + ")";
-                        selector.appendChild(opt);
-                    }
-                });
+                repoTreeCache = { repo: currentInspectedRepo, tree: currentRepoTree };
+                fillRepoSelector(currentRepoTree);
 
                 if (selector.options.length > 1) {
+                    // primera opción real (salta placeholder)
                     selector.selectedIndex = 1;
-                    await loadSelectedRepoFile(selector.value);
+                    // no await: deja el selector usable al instante
+                    loadSelectedRepoFile(selector.value);
                 } else {
                     editor.value = "// Repositorio vacío o sin archivos de código visibles.";
                 }
@@ -1483,23 +1523,48 @@
             if (!filePath || !currentInspectedRepo) return;
             const editor = document.getElementById('functionEditor');
             const pathInfo = document.getElementById('repoFilePathInfo');
-            
+            const cacheKey = currentInspectedRepo + '::' + filePath;
+
             pathInfo.textContent = currentInspectedRepo + " / " + filePath;
-            editor.value = "// Cargando código de '" + filePath + "'...";
             currentInspectedFile = filePath;
 
+            if (repoFileCache.has(cacheKey)) {
+                editor.value = repoFileCache.get(cacheKey);
+                return;
+            }
+
+            editor.value = "// Cargando '" + filePath + "'…";
+
+            if (repoFileAbort) {
+                try { repoFileAbort.abort(); } catch (e) {}
+            }
+            repoFileAbort = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+
             try {
-                const res = await fetch('/api/repo/file?repo=' + encodeURIComponent(currentInspectedRepo) + '&path=' + encodeURIComponent(filePath));
+                const res = await fetch(
+                    '/api/repo/file?repo=' + encodeURIComponent(currentInspectedRepo) + '&path=' + encodeURIComponent(filePath),
+                    repoFileAbort ? { signal: repoFileAbort.signal } : undefined
+                );
                 const data = await res.json();
                 if (data.ok) {
-                    editor.value = data.content;
-                    schedulePersistPlatformState();
-                } else {
+                    repoFileCache.set(cacheKey, data.content);
+                    // limitar memoria del cache
+                    if (repoFileCache.size > 80) {
+                        const first = repoFileCache.keys().next().value;
+                        repoFileCache.delete(first);
+                    }
+                    if (currentInspectedFile === filePath) {
+                        editor.value = data.content;
+                    }
+                } else if (currentInspectedFile === filePath) {
                     editor.value = "// Error: " + (data.error || "No se pudo leer el archivo");
                 }
             } catch (err) {
+                if (err && err.name === 'AbortError') return;
                 console.error("Error al leer archivo:", err);
-                editor.value = "// Error de lectura.";
+                if (currentInspectedFile === filePath) {
+                    editor.value = "// Error de lectura.";
+                }
             }
         }
 

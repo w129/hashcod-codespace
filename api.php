@@ -43,16 +43,50 @@ if (!file_exists($STORAGE_DIR)) @mkdir($STORAGE_DIR, 0777, true);
 if (!file_exists($UPLOADS_DIR)) @mkdir($UPLOADS_DIR, 0777, true);
 if (!file_exists($REPOS_DIR))   @mkdir($REPOS_DIR, 0777, true);
 
-// Disco Render es efímero: hidratar catálogos desde Supabase antes de servir
-if (function_exists('supabaseBootstrapPlatformData')) {
+/**
+ * Bootstrap Supabase solo cuando hace falta (no en lecturas rápidas del inspector).
+ * Cache local 90s para no rehidratar en cada request PHP.
+ */
+function maybeBootstrapPlatformData($force = false) {
+    global $STORAGE_DIR;
+    if (!function_exists('supabaseBootstrapPlatformData')) return;
+    $stamp = rtrim($STORAGE_DIR, '/') . '/.supabase_bootstrapped';
+    if (!$force && file_exists($stamp) && (time() - (int)@filemtime($stamp)) < 90) {
+        return;
+    }
     @supabaseBootstrapPlatformData($STORAGE_DIR);
+    @file_put_contents($stamp, (string)time());
+}
+
+function repoShouldSkipPath($relPath) {
+    $parts = explode('/', str_replace('\\', '/', $relPath));
+    static $skipDirs = [
+        '.git' => true, 'node_modules' => true, 'vendor' => true, '.next' => true,
+        'dist' => true, 'build' => true, 'coverage' => true, '.turbo' => true,
+        '.cache' => true, '__pycache__' => true, '.venv' => true, 'venv' => true,
+        'target' => true, '.idea' => true, '.vscode' => true
+    ];
+    foreach ($parts as $p) {
+        if ($p === '' ) continue;
+        if (isset($skipDirs[$p])) return true;
+        if ($p[0] === '.' && $p !== '.github' && $p !== '.env.example') {
+            // skip hidden dirs/files except a few useful ones
+            if ($p !== '.gitignore' && $p !== '.gitattributes' && $p !== '.editorconfig') {
+                if (strpos($p, '.') === 0 && !preg_match('/^\.(github|gitignore|gitattributes|editorconfig|env\.example)$/', $p)) {
+                    // allow files like .gitignore at root via explicit check above; skip .DS_Store etc
+                    if ($p === '.DS_Store' || $p === '.env') return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 /**
- * CONSULTA DEL ÁRBOL E ESTRUCTURA DE CARPETAS DE UN REPOSITORIO
+ * CONSULTA DEL ÁRBOL E ESTRUCTURA DE CARPETAS DE UN REPOSITORIO (con cache)
  */
 function getRepoTree($repoName) {
-    global $REPOS_DIR;
+    global $REPOS_DIR, $STORAGE_DIR;
     $safeRepo = basename($repoName);
     $targetDir = realpath($REPOS_DIR . '/' . $safeRepo);
     $baseDir = realpath($REPOS_DIR);
@@ -61,33 +95,73 @@ function getRepoTree($repoName) {
         return ['ok' => false, 'error' => "Repositorio '$repoName' no encontrado"];
     }
 
-    $tree = [];
-    $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($targetDir, RecursiveDirectoryIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::SELF_FIRST
-    );
+    $cacheDir = rtrim($STORAGE_DIR, '/') . '/repo_tree_cache';
+    if (!file_exists($cacheDir)) @mkdir($cacheDir, 0777, true);
+    $cacheFile = $cacheDir . '/' . md5($safeRepo) . '.json';
 
+    // Invalidar cache si el repo cambió (mtime del directorio raíz)
+    $repoMtime = @filemtime($targetDir) ?: 0;
+    if (file_exists($cacheFile)) {
+        $cached = json_decode((string)@file_get_contents($cacheFile), true);
+        if (is_array($cached) && !empty($cached['ok']) && (int)($cached['repo_mtime'] ?? 0) === (int)$repoMtime) {
+            $cached['cached'] = true;
+            return $cached;
+        }
+    }
+
+    $tree = [];
+    $dir = new RecursiveDirectoryIterator($targetDir, FilesystemIterator::SKIP_DOTS);
+    $filter = new RecursiveCallbackFilterIterator($dir, function ($current, $key, $iterator) use ($targetDir) {
+        $name = $current->getFilename();
+        if ($name === '.git' || $name === 'node_modules' || $name === 'vendor' || $name === '.next'
+            || $name === 'dist' || $name === 'build' || $name === 'coverage' || $name === '__pycache__'
+            || $name === '.venv' || $name === 'venv' || $name === 'target') {
+            return false;
+        }
+        return true;
+    });
+    $iterator = new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST);
+
+    $count = 0;
+    $maxEntries = 8000;
     foreach ($iterator as $item) {
         $relPath = str_replace('\\', '/', substr($item->getPathname(), strlen($targetDir) + 1));
-        if (strpos($relPath, '.git') === 0 || strpos($relPath, '/.git') !== false) continue;
+        if ($relPath === '' || repoShouldSkipPath($relPath)) continue;
+
+        $isFile = $item->isFile();
+        // Solo listamos archivos en el selector (más rápido); carpetas se infieren del path
+        if (!$isFile) continue;
+
+        $size = $item->getSize();
+        // omitir binarios enormes del listado
+        if ($size > 5000000) continue;
 
         $tree[] = [
             'path' => $relPath,
             'name' => $item->getFilename(),
-            'type' => $item->isDir() ? 'folder' : 'file',
-            'size_formatted' => $item->isFile() ? formatBytes($item->getSize()) : 0
+            'type' => 'file',
+            'size' => (int)$size,
+            'size_formatted' => formatBytes($size)
         ];
+        $count++;
+        if ($count >= $maxEntries) break;
     }
 
-    // Ordenar: Carpetas primero, luego archivos
-    usort($tree, function($a, $b) {
-        if ($a['type'] !== $b['type']) {
-            return $a['type'] === 'folder' ? -1 : 1;
-        }
+    usort($tree, function ($a, $b) {
         return strnatcasecmp($a['path'], $b['path']);
     });
 
-    return ['ok' => true, 'repo' => $safeRepo, 'tree' => $tree];
+    $result = [
+        'ok' => true,
+        'repo' => $safeRepo,
+        'tree' => $tree,
+        'count' => count($tree),
+        'truncated' => $count >= $maxEntries,
+        'repo_mtime' => $repoMtime,
+        'cached' => false
+    ];
+    @file_put_contents($cacheFile, json_encode($result));
+    return $result;
 }
 
 /**
@@ -110,7 +184,8 @@ function getRepoFileContent($repoName, $filePath) {
         return ['ok' => false, 'error' => "Archivo '$cleanFilePath' no encontrado"];
     }
 
-    if (filesize($realFilePath) > 3000000) {
+    $size = filesize($realFilePath);
+    if ($size > 1500000) {
         return ['ok' => false, 'error' => 'Archivo demasiado grande para mostrar en consola'];
     }
 
@@ -120,7 +195,7 @@ function getRepoFileContent($repoName, $filePath) {
         'repo' => $safeRepo,
         'path' => $cleanFilePath,
         'filename' => basename($cleanFilePath),
-        'size_formatted' => formatBytes(filesize($realFilePath)),
+        'size_formatted' => formatBytes($size),
         'content' => $content
     ];
 }
@@ -792,6 +867,11 @@ function cloneOrUpdateRepository($repoTarget) {
             'updated_at' => date('Y-m-d H:i:s')
         ];
         saveRepoIndexEntry($repoMeta);
+        // invalidar cache del inspector
+        global $STORAGE_DIR;
+        $cacheFile = rtrim($STORAGE_DIR, '/') . '/repo_tree_cache/' . md5($repoFolder) . '.json';
+        if (file_exists($cacheFile)) @unlink($cacheFile);
+        @touch($targetPath);
     }
 
     return [
@@ -1960,20 +2040,22 @@ function gatewayResolveZipPath($item) {
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Endpoint GET para obtener el árbol de carpetas de un repositorio
+// Endpoint GET para obtener el árbol de carpetas de un repositorio (rápido: sin bootstrap remoto)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/repo/tree')) {
     header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: private, max-age=30');
     $repo = $_GET['repo'] ?? '';
-    echo json_encode(getRepoTree($repo), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    echo json_encode(getRepoTree($repo), JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// Endpoint GET para obtener el contenido completo de un archivo de código
+// Endpoint GET para obtener el contenido de un archivo (rápido: sin bootstrap remoto)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/repo/file')) {
     header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: private, max-age=60');
     $repo = $_GET['repo'] ?? '';
     $path = $_GET['path'] ?? '';
-    echo json_encode(getRepoFileContent($repo, $path), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    echo json_encode(getRepoFileContent($repo, $path), JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -2437,6 +2519,7 @@ if ($uri === '/api/stream') {
 
 // Procesador de Comandos
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri === '/cmd')) {
+    maybeBootstrapPlatformData();
     header('Content-Type: application/json; charset=utf-8');
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true) ?? [];

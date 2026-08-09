@@ -7,6 +7,7 @@ node_modules/
 uploads/
 data_storage/repos/
 data_storage/gateway/
+data_storage/ubuntu-cli/
 data_storage/originkit-workspace/
 data_storage/*.sqlite
 data_storage/*.sqlite-*

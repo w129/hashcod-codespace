@@ -140,6 +140,25 @@
             opacity: 0.75;
         }
 
+        .hashcod-created-by {
+            display: inline-flex;
+            align-items: center;
+            flex: 0 0 auto;
+            height: 18px;
+            margin-left: 6px;
+            line-height: 0;
+            background: transparent;
+        }
+
+        .hashcod-created-by img {
+            display: block;
+            height: 18px;
+            width: auto;
+            max-width: min(190px, 42vw);
+            object-fit: contain;
+            background: transparent;
+        }
+
         .main-container {
             padding: 12px;
             display: flex;
@@ -1131,6 +1150,26 @@
             object-fit: contain;
         }
 
+        .boot-hashcod-logo {
+            display: inline-flex;
+            align-items: center;
+            flex: 0 0 auto;
+            height: 18px;
+            margin-left: 2px;
+            line-height: 0;
+            background: transparent;
+            color: #8a8a8a;
+        }
+
+        .boot-hashcod-logo img {
+            display: block;
+            height: 18px;
+            width: auto;
+            max-width: min(200px, 48vw);
+            object-fit: contain;
+            background: transparent;
+        }
+
         @media (max-width: 720px) {
             .boot-brand {
                 top: auto;
@@ -1181,6 +1220,9 @@
                     </span>
                     <img class="boot-claude-logo" src="/claude-mark-gray.svg?v=2" alt="Claude" title="Claude" width="24" height="24">
                     <img class="boot-zylon-logo" src="/zylon-mark-gray.svg?v=1" alt="Zylon" title="Zylon" width="24" height="24">
+                    <span class="boot-hashcod-logo" title="Created by Hashcod" aria-label="Created by Hashcod">
+                        <img src="/hashcod-created-by-gray.svg?v=1" alt="Created by Hashcod" height="18">
+                    </span>
                 </div>
                 <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
             </div>
@@ -1203,6 +1245,9 @@
             <button type="button" class="icon-zylon-cli" title="Zylon / PrivateGPT" aria-label="Abrir Zylon externa" onclick="openZylonCli()">
                 <img src="/zylon-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
             </button>
+            <span class="hashcod-created-by" title="Created by Hashcod" aria-label="Created by Hashcod">
+                <img src="/hashcod-created-by-gray.svg?v=1" alt="Created by Hashcod" height="18">
+            </span>
         </div>
         <div class="top-bar-right">
             <button type="button" class="icon-gateway" title="Gateway l8 codespace" aria-label="Gateway l8 codespace" onclick="openPlatformGateway()">

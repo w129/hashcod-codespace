@@ -1,5 +1,6 @@
 /**
  * Black Hole runtime — readable black/gray spiral on white.
+ * Same visual design as before; slower spin with no temporal speed ramp.
  */
 (function (global) {
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -16,9 +17,9 @@
       trail: 82,
       tilt: 70,
       tiltSideway: 12,
-      // Constant, calm spin — no inward pull / no speed ramp
-      orbitSpeed: 0.85,
-      pullSpeed: 0,
+      // slower than original 2.8 — design motion preserved
+      orbitSpeed: 1.15,
+      pullSpeed: 0.06,
       armCount: 9,
       colors: ['#111111', '#1a1a1a', '#2e2e2e', '#3d3d3d', '#555555', '#6a6a6a', '#888888', '#222222']
     }, opts || {});
@@ -28,7 +29,7 @@
     let raf = 0;
     let running = true;
     let w = 0, h = 0, dpr = 1;
-    let lastNow = performance.now();
+    let t0 = performance.now();
 
     function resize() {
       const rect = canvas.getBoundingClientRect();
@@ -62,13 +63,16 @@
         const armOffset = (arm / arms) * Math.PI * 2;
         const spiral = rNorm * 6.2;
         const dash = (Math.floor(i / arms) % 15) / 15;
+        const homeR = 0.1 + rNorm * 0.9;
         particles.push({
-          angle: armOffset + spiral + dash * 0.4 + (Math.random() - 0.5) * 0.1,
-          radius: 0.1 + rNorm * 0.9,
-          // slight per-particle variation only — never grows over time
-          speed: 0.9 + Math.random() * 0.25,
+          baseAngle: armOffset + spiral + dash * 0.4 + (Math.random() - 0.5) * 0.1,
+          radius: homeR,
+          // locked orbit band — Kepler look without speeding up as it falls in
+          homeR: homeR,
+          speed: 0.48 + Math.random() * 0.7 + (1 - rNorm) * 0.3,
           size: 0.55 + Math.random() * 0.95,
           color: pickColor(i, rNorm),
+          jitter: (Math.random() - 0.5) * 0.035,
           phase: Math.random() * Math.PI * 2,
           stroke: 0.7 + Math.random() * 0.9,
           len: 0.85 + Math.random() * 1.5
@@ -90,16 +94,14 @@
 
     function frame(now) {
       if (!running) return;
-      const dt = Math.min(0.05, Math.max(0, (now - lastNow) / 1000));
-      lastNow = now;
+      const elapsed = (now - t0) / 1000;
       const cx = (cfg.centre.x / 100) * w;
       const cy = (cfg.centre.y / 100) * h;
       const maxR = (Math.min(w, h) * 0.5) * (cfg.outerRadius / 100);
       const coreR = (Math.min(w, h) * 0.5) * (cfg.centre.radius / 100);
       const tiltX = (cfg.tilt * Math.PI) / 180;
       const tiltZ = (cfg.tiltSideway * Math.PI) / 180;
-      // constant rad/s — no radius-based Kepler boost
-      const orbit = cfg.orbitSpeed * 0.22;
+      const orbit = cfg.orbitSpeed * 0.5;
       const trailLen = clamp(cfg.trail / 100, 0.12, 0.95);
 
       ctx.globalCompositeOperation = 'source-over';
@@ -110,10 +112,18 @@
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
-        // fixed angular velocity for the whole life of the particle
-        p.angle += orbit * p.speed * dt;
-        const angle = p.angle;
-        const r = p.radius;
+        // same Kepler design as before, keyed to homeR so speed never ramps over time
+        const angSpeed = orbit * p.speed * (0.28 + Math.pow(1.4 - p.homeR, 2));
+        const angle = p.baseAngle + elapsed * angSpeed + p.jitter;
+
+        let r = p.radius - cfg.pullSpeed * 0.00028 * (0.35 + (1 - p.radius));
+        r += Math.sin(elapsed * 0.5 + p.phase) * 0.0025;
+        if (r < 0.08) {
+          r = p.homeR;
+          p.baseAngle = Math.random() * Math.PI * 2;
+          p.color = pickColor(i, p.homeR);
+        }
+        p.radius = r;
 
         const rr = r * maxR;
         const x = Math.cos(angle) * rr;
@@ -134,7 +144,6 @@
 
         const depth = pr.z / maxR;
         const scale = 1.12 - depth * 0.35;
-        // higher alpha on white for readability
         const alpha = clamp(0.28 + (1 - r) * 0.65 + (0.15 - depth * 0.18), 0.18, 0.95);
 
         drawn.push({
@@ -196,7 +205,7 @@
       resize();
       seed();
       running = true;
-      lastNow = performance.now();
+      t0 = performance.now();
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(frame);
     }

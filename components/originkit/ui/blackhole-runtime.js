@@ -16,8 +16,9 @@
       trail: 82,
       tilt: 70,
       tiltSideway: 12,
-      orbitSpeed: 2.8,
-      pullSpeed: 0.1,
+      // Constant, calm spin — no inward pull / no speed ramp
+      orbitSpeed: 0.85,
+      pullSpeed: 0,
       armCount: 9,
       colors: ['#111111', '#1a1a1a', '#2e2e2e', '#3d3d3d', '#555555', '#6a6a6a', '#888888', '#222222']
     }, opts || {});
@@ -27,7 +28,7 @@
     let raf = 0;
     let running = true;
     let w = 0, h = 0, dpr = 1;
-    let t0 = performance.now();
+    let lastNow = performance.now();
 
     function resize() {
       const rect = canvas.getBoundingClientRect();
@@ -62,12 +63,12 @@
         const spiral = rNorm * 6.2;
         const dash = (Math.floor(i / arms) % 15) / 15;
         particles.push({
-          baseAngle: armOffset + spiral + dash * 0.4 + (Math.random() - 0.5) * 0.1,
+          angle: armOffset + spiral + dash * 0.4 + (Math.random() - 0.5) * 0.1,
           radius: 0.1 + rNorm * 0.9,
-          speed: 0.48 + Math.random() * 0.7 + (1 - rNorm) * 0.3,
+          // slight per-particle variation only — never grows over time
+          speed: 0.9 + Math.random() * 0.25,
           size: 0.55 + Math.random() * 0.95,
           color: pickColor(i, rNorm),
-          jitter: (Math.random() - 0.5) * 0.035,
           phase: Math.random() * Math.PI * 2,
           stroke: 0.7 + Math.random() * 0.9,
           len: 0.85 + Math.random() * 1.5
@@ -89,14 +90,16 @@
 
     function frame(now) {
       if (!running) return;
-      const elapsed = (now - t0) / 1000;
+      const dt = Math.min(0.05, Math.max(0, (now - lastNow) / 1000));
+      lastNow = now;
       const cx = (cfg.centre.x / 100) * w;
       const cy = (cfg.centre.y / 100) * h;
       const maxR = (Math.min(w, h) * 0.5) * (cfg.outerRadius / 100);
       const coreR = (Math.min(w, h) * 0.5) * (cfg.centre.radius / 100);
       const tiltX = (cfg.tilt * Math.PI) / 180;
       const tiltZ = (cfg.tiltSideway * Math.PI) / 180;
-      const orbit = cfg.orbitSpeed * 0.5;
+      // constant rad/s — no radius-based Kepler boost
+      const orbit = cfg.orbitSpeed * 0.22;
       const trailLen = clamp(cfg.trail / 100, 0.12, 0.95);
 
       ctx.globalCompositeOperation = 'source-over';
@@ -107,17 +110,10 @@
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
-        const angSpeed = orbit * p.speed * (0.28 + Math.pow(1.4 - p.radius, 2));
-        const angle = p.baseAngle + elapsed * angSpeed + p.jitter;
-
-        let r = p.radius - cfg.pullSpeed * 0.00028 * (0.35 + (1 - p.radius));
-        r += Math.sin(elapsed * 0.5 + p.phase) * 0.0025;
-        if (r < 0.08) {
-          r = 0.78 + Math.random() * 0.22;
-          p.baseAngle = Math.random() * Math.PI * 2;
-          p.color = pickColor(i, r);
-        }
-        p.radius = r;
+        // fixed angular velocity for the whole life of the particle
+        p.angle += orbit * p.speed * dt;
+        const angle = p.angle;
+        const r = p.radius;
 
         const rr = r * maxR;
         const x = Math.cos(angle) * rr;
@@ -200,7 +196,7 @@
       resize();
       seed();
       running = true;
-      t0 = performance.now();
+      lastNow = performance.now();
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(frame);
     }

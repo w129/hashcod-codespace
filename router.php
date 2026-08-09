@@ -23,6 +23,12 @@ if ($uri === '/gateway' || $uri === '/gateway.php') {
     exit;
 }
 
+// Ubuntu CLI externa (boxcutter/ubuntu)
+if ($uri === '/ubuntu' || $uri === '/ubuntu-cli' || $uri === '/ubuntu-cli.php') {
+    require __DIR__ . '/ubuntu-cli.php';
+    exit;
+}
+
 // Reenviar peticiones API a api.php
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

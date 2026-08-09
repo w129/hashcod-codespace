@@ -2072,6 +2072,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri
 
 // GATEWAY: compartir repo → genera código único (JSLA-SAKA)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/gateway/send' || $uri === '/api/gateway/share')) {
+    maybeBootstrapPlatformData();
     header('Content-Type: application/json; charset=utf-8');
     $inputData = json_decode(file_get_contents('php://input'), true) ?: [];
     $repo = $inputData['repo'] ?? $_POST['repo'] ?? '';
@@ -2432,6 +2433,7 @@ if (strpos($uri, '/api/file/get/') === 0) {
 
 // Endpoint POST para subir cualquier tipo de archivo a la Super Base de Datos
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri === '/api/file/upload')) {
+    maybeBootstrapPlatformData();
     header('Content-Type: application/json; charset=utf-8');
 
     if (!empty($_FILES['file'])) {

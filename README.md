@@ -12,6 +12,17 @@ Para desplegar este proyecto en **Render**:
 4. Render detectará automáticamente el archivo `Dockerfile` y `render.yaml`.
 5. Haz clic en **Create Web Service**. ¡Listo! Tu servidor estará en vivo en pocos segundos.
 
+## Persistencia con Supabase
+
+El disco de Render es efímero. La plataforma usa **Supabase Storage** como fuente de verdad para:
+
+- catálogo de repos (`meta/repos_index.json`)
+- archivos globales (`meta/global_database_index.json` + `files/…`)
+- sesión de UI (`meta/platform_session.json` — último comando / inspector)
+- gateway (códigos y zips)
+
+Configura en Render las variables de `.env.example`. Opcional: ejecuta `supabase/schema.sql` en el SQL Editor para espejo en Postgres.
+
 ## 💻 Ejecución Local
 
 Doble clic en el archivo `run.bat` o desde la consola:

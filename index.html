@@ -1241,6 +1241,63 @@
         let latestExecutionData = null;
         let hasExecutedCommand = false;
         let currentInspectedRepo = null;
+        let currentInspectedUserRepo = null;
+        let currentInspectedFile = null;
+        let lastCommandText = '';
+        let platformRestoreDone = false;
+        let persistTimer = null;
+
+        async function persistPlatformState(extra) {
+            try {
+                const payload = Object.assign({
+                    last_command: lastCommandText || '',
+                    has_executed: !!hasExecutedCommand,
+                    inspected_repo: currentInspectedRepo || '',
+                    inspected_user_repo: currentInspectedUserRepo || '',
+                    inspected_file: currentInspectedFile || '',
+                    execution_type: (latestExecutionData && (latestExecutionData.output || latestExecutionData).type) || ''
+                }, extra || {});
+                await fetch('/api/platform/state', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                console.warn('No se pudo persistir estado en Supabase', e);
+            }
+        }
+
+        function schedulePersistPlatformState(extra) {
+            clearTimeout(persistTimer);
+            persistTimer = setTimeout(() => persistPlatformState(extra), 400);
+        }
+
+        async function restorePlatformState() {
+            if (platformRestoreDone) return;
+            platformRestoreDone = true;
+            try {
+                const res = await fetch('/api/platform/state');
+                const data = await res.json();
+                if (!data || !data.ok || !data.state) return;
+                const st = data.state;
+                if (st.last_command) {
+                    lastCommandText = st.last_command;
+                    await submitCommand(st.last_command);
+                }
+                if (st.inspected_repo || st.inspected_user_repo) {
+                    await openRepoCodeInspector(st.inspected_repo || '', st.inspected_user_repo || '');
+                    if (st.inspected_file) {
+                        const selector = document.getElementById('repoFileSelector');
+                        if (selector) {
+                            selector.value = st.inspected_file;
+                            await loadSelectedRepoFile(st.inspected_file);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('No se pudo restaurar estado desde Supabase', e);
+            }
+        }
         let currentRepoTree = [];
 
         const executionContainer = document.getElementById('executionContent');
@@ -1290,6 +1347,8 @@
             const localName = repoName || (userRepo ? String(userRepo).split('/').pop() : '');
             const remoteTarget = userRepo || repoName;
             currentInspectedRepo = localName;
+            currentInspectedUserRepo = remoteTarget || '';
+            currentInspectedFile = null;
             const toolbar = document.getElementById('repoInspectorBar');
             const selector = document.getElementById('repoFileSelector');
             const headerTitle = document.getElementById('functionDrawerHeader');
@@ -1350,10 +1409,11 @@
 
                 if (selector.options.length > 1) {
                     selector.selectedIndex = 1;
-                    loadSelectedRepoFile(selector.value);
+                    await loadSelectedRepoFile(selector.value);
                 } else {
                     editor.value = "// Repositorio vacío o sin archivos de código visibles.";
                 }
+                schedulePersistPlatformState();
             } catch (err) {
                 console.error("Error al cargar repositorio:", err);
                 editor.value = "// Error al conectar con el servidor.";
@@ -1367,12 +1427,14 @@
             
             pathInfo.textContent = currentInspectedRepo + " / " + filePath;
             editor.value = "// Cargando código de '" + filePath + "'...";
+            currentInspectedFile = filePath;
 
             try {
                 const res = await fetch('/api/repo/file?repo=' + encodeURIComponent(currentInspectedRepo) + '&path=' + encodeURIComponent(filePath));
                 const data = await res.json();
                 if (data.ok) {
                     editor.value = data.content;
+                    schedulePersistPlatformState();
                 } else {
                     editor.value = "// Error: " + (data.error || "No se pudo leer el archivo");
                 }
@@ -1764,10 +1826,12 @@
                             <div><strong>Publishable key:</strong> ${dataToDisplay.has_publishable ? 'configurada' : 'faltante'}</div>
                             <div><strong>Secret key:</strong> ${dataToDisplay.has_secret ? 'configurada' : 'faltante'}</div>
                             <div><strong>Storage bucket:</strong> ${dataToDisplay.storage_bucket || 'l8-storage'} · ${dataToDisplay.storage_ready ? 'listo' : 'pendiente'}</div>
+                            <div><strong>DB (Postgres):</strong> ${dataToDisplay.db_ready ? 'lista' : 'opcional — ejecuta supabase/schema.sql'}</div>
+                            <div><strong>Sesión persistente:</strong> ${dataToDisplay.session_persisted ? 'sí' : 'aún vacía (usa un comando y recarga)'}</div>
                             <div style="background:#eceae4; padding:8px 12px; border-radius:6px; color:#444;">
                                 ${msg}${auth.name ? ' · Auth: ' + auth.name + ' ' + (auth.version || '') : ''}
                             </div>
-                            <div style="font-size:11px; color:#666;">Almacenamiento remoto activo: archivos (set_i code), índices de repos y catálogo global se sincronizan a Supabase Storage.</div>
+                            <div style="font-size:11px; color:#666;">Fuente de verdad remota: repos, archivos (set_i code), gateway y último comando se guardan en Supabase para sobrevivir al reload en Render.</div>
                         </div>
                     </div>
                 `;
@@ -1944,6 +2008,7 @@
             if (!cmd) return;
             try {
                 hasExecutedCommand = true;
+                lastCommandText = cmd;
                 executionContainer.innerHTML = `
                     <div style="padding:14px; background:#faf9f6; border:1px solid #e6e3dd; border-radius:8px; font-weight:600; color:#000000; display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono', monospace;">
                         <svg style="animation: spin 1s linear infinite; width:20px; height:20px; fill:#000000;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
@@ -1958,6 +2023,7 @@
                 const result = await res.json();
                 latestExecutionData = result;
                 render();
+                schedulePersistPlatformState();
             } catch (e) {
                 console.error("Error al enviar comando:", e);
             }
@@ -2107,6 +2173,10 @@
                 overlay.classList.add('hidden');
                 document.body.classList.remove('boot-locked');
                 try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}
+                // Restaurar catálogo / último comando / inspector desde Supabase
+                if (typeof restorePlatformState === 'function') {
+                    restorePlatformState();
+                }
             }
 
             enterBtn.addEventListener('click', enterPlatform);

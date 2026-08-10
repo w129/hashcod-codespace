@@ -19,3 +19,4 @@ data_storage/auth/
 data_storage/prs_pastes.json
 data_storage/*.sqlite
 data_storage/*.sqlite-*
+data_storage/tokens/

@@ -3304,7 +3304,11 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Auth gate: registro / login / sesión (Dilithium-5 mensual solo vía env)
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/tokens.php';
 if (function_exists('authHandleApi') && authHandleApi($uri)) {
+    exit;
+}
+if (function_exists('tokensHandleApi') && tokensHandleApi($uri)) {
     exit;
 }
 
@@ -4147,6 +4151,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         exit;
     }
 
+    // Cupo mensual: cada comando válido cuesta 5 tokens
+    if (function_exists('tokensConsume')) {
+        $tokenCharge = tokensConsume('command');
+        if (empty($tokenCharge['ok'])) {
+            echo json_encode([
+                'ok' => false,
+                'isError' => true,
+                'command' => $rawCmd,
+                'timestamp' => $timestamp,
+                'error' => $tokenCharge['error'] ?? 'Tokens insuficientes',
+                'code' => $tokenCharge['code'] ?? 'insufficient_tokens',
+                'tokens' => $tokenCharge['status'] ?? null
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+
     $outputResult = [];
 
     if ($isClone) {
@@ -4351,12 +4372,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         ];
     }
 
+    $tokenStatus = function_exists('tokensStatus') ? tokensStatus() : null;
     echo json_encode([
         'ok' => true,
         'isError' => false,
         'timestamp' => $timestamp,
         'lastCommand' => $rawCmd,
-        'output' => $outputResult
+        'output' => $outputResult,
+        'tokens' => $tokenStatus
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }

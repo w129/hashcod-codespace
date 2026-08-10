@@ -59,6 +59,9 @@ function maybeBootstrapPlatformData($force = false) {
         return;
     }
     @supabaseBootstrapPlatformData($STORAGE_DIR);
+    if (function_exists('tokensEnsureHydrated')) {
+        @tokensEnsureHydrated();
+    }
     @file_put_contents($stamp, (string)time());
 }
 
@@ -3373,7 +3376,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri
     $target = $inputData['repo'] ?? $_POST['repo'] ?? '';
 
     if (function_exists('tokensConsume')) {
-        $tokenCharge = tokensConsume('clone');
+        $tokenCharge = tokensConsume('clone', 'clone ' . (string)$target);
         if (empty($tokenCharge['ok'])) {
             http_response_code(402);
             echo json_encode([
@@ -4169,10 +4172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         exit;
     }
 
-    // Cupo mensual: comando −5 · clone GitHub −625
+    // Cupo mensual: comando −5 · clone GitHub −625 (persistente + ledger)
     if (function_exists('tokensConsume')) {
         $tokenKind = $isClone ? 'clone' : 'command';
-        $tokenCharge = tokensConsume($tokenKind);
+        $tokenCharge = tokensConsume($tokenKind, $rawCmd);
         if (empty($tokenCharge['ok'])) {
             echo json_encode([
                 'ok' => false,

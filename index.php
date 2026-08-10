@@ -105,7 +105,9 @@
             position: absolute;
             top: calc(100% + 8px);
             right: 0;
-            width: min(320px, calc(100vw - 24px));
+            width: min(360px, calc(100vw - 24px));
+            max-height: min(70vh, 520px);
+            overflow: auto;
             background: #ffffff;
             border: 1px solid #d0d0d0;
             border-radius: 10px;
@@ -174,6 +176,57 @@
             font-size: 11px;
             color: #444;
             line-height: 1.45;
+        }
+
+        .tokens-section-title {
+            margin: 12px 0 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .tokens-history,
+        .tokens-ledger {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            font-size: 11px;
+            color: #333;
+        }
+
+        .tokens-history li,
+        .tokens-ledger li {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 0;
+            border-top: 1px solid #eee;
+            line-height: 1.35;
+        }
+
+        .tokens-history li:first-child,
+        .tokens-ledger li:first-child {
+            border-top: none;
+        }
+
+        .tokens-history .muted,
+        .tokens-ledger .muted {
+            color: #777;
+        }
+
+        .tokens-empty {
+            font-size: 11px;
+            color: #888;
+            margin: 0;
+        }
+
+        .tokens-persist-note {
+            margin-top: 10px;
+            font-size: 10px;
+            color: #888;
+            line-height: 1.4;
         }
 
 
@@ -1619,6 +1672,13 @@
                     <div>Clones<strong id="tokensClones">—</strong></div>
                 </div>
                 <div class="tokens-legend" id="tokensLegend">Cupo mensual 10.000 · Comando −5 · Ventana externa −25 · Clone GitHub −625</div>
+                <div class="tokens-section-title">Meses anteriores</div>
+                <ul class="tokens-history" id="tokensHistoryList"></ul>
+                <p class="tokens-empty" id="tokensHistoryEmpty">Sin gastos de meses previos aún.</p>
+                <div class="tokens-section-title">Gastos recientes</div>
+                <ul class="tokens-ledger" id="tokensLedgerList"></ul>
+                <p class="tokens-empty" id="tokensLedgerEmpty">Aún no hay movimientos guardados.</p>
+                <p class="tokens-persist-note">El consumo se guarda en el servidor (y Supabase si está configurado) para no perderse al actualizar la plataforma.</p>
             </div>
         </div>
     </div>
@@ -2671,18 +2731,98 @@
 
         let latestTokensStatus = null;
 
+        function ensureTokensGuestId() {
+            const key = 'l8_tokens_guest';
+            try {
+                let id = localStorage.getItem(key) || '';
+                id = String(id).replace(/[^a-zA-Z0-9_-]/g, '');
+                if (!id || id.length < 8) {
+                    const rand = (window.crypto && crypto.getRandomValues)
+                        ? Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('')
+                        : String(Math.random()).slice(2) + String(Date.now());
+                    id = 'guest_' + rand.slice(0, 16);
+                    localStorage.setItem(key, id);
+                }
+                return id;
+            } catch (e) {
+                return '';
+            }
+        }
+
         function authHeaders(extra) {
             const headers = Object.assign({ 'Content-Type': 'application/json' }, extra || {});
             try {
                 const tok = (typeof window.l8GetAuthToken === 'function') ? window.l8GetAuthToken() : '';
                 if (tok) headers['Authorization'] = 'Bearer ' + tok;
             } catch (e) {}
+            const guest = ensureTokensGuestId();
+            if (guest) headers['X-L8-Tokens-Guest'] = guest;
             return headers;
         }
 
         function formatTokenCount(n) {
             const v = Number(n || 0);
             return v.toLocaleString('es-ES');
+        }
+
+        function tokenKindLabel(kind) {
+            const k = String(kind || '').toLowerCase();
+            if (k === 'clone') return 'Clone';
+            if (k === 'external') return 'Externa';
+            return 'Comando';
+        }
+
+        function renderTokensHistory(status) {
+            const list = document.getElementById('tokensHistoryList');
+            const empty = document.getElementById('tokensHistoryEmpty');
+            if (!list) return;
+            const history = Array.isArray(status && status.history) ? status.history : [];
+            list.innerHTML = '';
+            if (!history.length) {
+                if (empty) empty.style.display = 'block';
+                return;
+            }
+            if (empty) empty.style.display = 'none';
+            history.slice(0, 8).forEach((row) => {
+                const li = document.createElement('li');
+                const left = document.createElement('span');
+                left.innerHTML = '<strong>' + String(row.period || '—') + '</strong><br><span class="muted">' +
+                    formatTokenCount(row.commands) + ' cmd · ' +
+                    formatTokenCount(row.externals) + ' ext · ' +
+                    formatTokenCount(row.clones) + ' clone</span>';
+                const right = document.createElement('span');
+                right.textContent = formatTokenCount(row.used) + ' / ' + formatTokenCount(row.allowance || status.allowance);
+                li.appendChild(left);
+                li.appendChild(right);
+                list.appendChild(li);
+            });
+        }
+
+        function renderTokensLedger(status) {
+            const list = document.getElementById('tokensLedgerList');
+            const empty = document.getElementById('tokensLedgerEmpty');
+            if (!list) return;
+            const ledger = Array.isArray(status && status.ledger) ? status.ledger : [];
+            list.innerHTML = '';
+            if (!ledger.length) {
+                if (empty) empty.style.display = 'block';
+                return;
+            }
+            if (empty) empty.style.display = 'none';
+            ledger.slice(0, 12).forEach((row) => {
+                const li = document.createElement('li');
+                const left = document.createElement('span');
+                const when = row.created_at ? String(row.created_at).replace('T', ' ').slice(0, 16) : (row.period || '');
+                const detail = row.detail ? String(row.detail).slice(0, 42) : tokenKindLabel(row.kind);
+                left.innerHTML = '<strong>−' + formatTokenCount(row.cost) + '</strong> ' + tokenKindLabel(row.kind) +
+                    '<br><span class="muted">' + when + (detail ? ' · ' + detail.replace(/</g, '&lt;') : '') + '</span>';
+                const right = document.createElement('span');
+                right.className = 'muted';
+                right.textContent = row.period || '';
+                li.appendChild(left);
+                li.appendChild(right);
+                list.appendChild(li);
+            });
         }
 
         function applyTokensStatus(status) {
@@ -2702,7 +2842,7 @@
             if (cmds) cmds.textContent = formatTokenCount(status.commands);
             if (exts) exts.textContent = formatTokenCount(status.externals);
             if (clones) clones.textContent = formatTokenCount(status.clones);
-            if (period) period.textContent = 'Periodo ' + (status.period || '—') + ' · cupo mensual';
+            if (period) period.textContent = 'Periodo ' + (status.period || '—') + ' · cupo mensual (guardado)';
             const pct = Math.max(0, Math.min(100, Number(status.percent_used || 0)));
             if (fill) {
                 fill.style.width = pct + '%';
@@ -2720,11 +2860,14 @@
                     ' · Ventana externa −' + status.costs.external +
                     ' · Clone GitHub −' + status.costs.clone;
             }
+            renderTokensHistory(status);
+            renderTokensLedger(status);
         }
 
-        async function refreshTokensStatus() {
+        async function refreshTokensStatus(sync) {
             try {
-                const res = await fetch('/api/tokens/status', { headers: authHeaders() });
+                const q = sync ? '?sync=1' : '';
+                const res = await fetch('/api/tokens/status' + q, { headers: authHeaders() });
                 const data = await res.json();
                 applyTokensStatus(data);
                 return data;
@@ -2733,12 +2876,12 @@
             }
         }
 
-        async function consumeTokens(kind) {
+        async function consumeTokens(kind, detail) {
             try {
                 const res = await fetch('/api/tokens/consume', {
                     method: 'POST',
                     headers: authHeaders(),
-                    body: JSON.stringify({ kind: kind })
+                    body: JSON.stringify({ kind: kind, detail: detail || kind })
                 });
                 const data = await res.json();
                 if (data && data.status) applyTokensStatus(data.status);
@@ -2756,11 +2899,11 @@
             const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
             panel.classList.toggle('open', open);
             btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-            if (open) refreshTokensStatus();
+            if (open) refreshTokensStatus(true);
         }
 
         async function openExternalWithTokens(url, windowName, features) {
-            const charge = await consumeTokens('external');
+            const charge = await consumeTokens('external', url || windowName || 'external');
             if (!charge || !charge.ok) {
                 const msg = (charge && charge.error) ? charge.error : 'Tokens insuficientes para abrir la ventana externa (−25).';
                 if (executionContainer) {
@@ -2853,7 +2996,7 @@
                 if (tokensPanel.contains(e.target) || (tokensBtn && tokensBtn.contains(e.target))) return;
                 toggleTokensPanel(false);
             });
-            refreshTokensStatus();
+            refreshTokensStatus(true);
 
             if (inputCmd) {
                 inputCmd.addEventListener('focus', () => { activeInputTarget = inputCmd; });

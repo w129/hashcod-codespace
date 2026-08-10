@@ -57,11 +57,45 @@ create table if not exists public.l8_auth_identities (
 create index if not exists l8_auth_identities_account_idx on public.l8_auth_identities(account_id);
 create index if not exists l8_auth_identities_kind_idx on public.l8_auth_identities(kind);
 
+-- Cupo mensual de tokens + historial de gastos (sobrevive redeploys de Render)
+create table if not exists public.l8_token_accounts (
+  account_key text primary key,
+  current_period text not null default '',
+  allowance integer not null default 10000,
+  used integer not null default 0,
+  commands integer not null default 0,
+  externals integer not null default 0,
+  clones integer not null default 0,
+  periods jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_token_accounts_updated_at_idx
+  on public.l8_token_accounts (updated_at desc);
+
+create table if not exists public.l8_token_ledger (
+  id text primary key,
+  account_key text not null,
+  period text not null default '',
+  kind text not null default 'command',
+  cost integer not null default 0,
+  detail text not null default '',
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_token_ledger_account_created_idx
+  on public.l8_token_ledger (account_key, created_at desc);
+
+create index if not exists l8_token_ledger_account_period_idx
+  on public.l8_token_ledger (account_key, period);
+
 alter table public.l8_repos enable row level security;
 alter table public.l8_files enable row level security;
 alter table public.l8_sessions enable row level security;
 alter table public.l8_auth_accounts enable row level security;
 alter table public.l8_auth_identities enable row level security;
+alter table public.l8_token_accounts enable row level security;
+alter table public.l8_token_ledger enable row level security;
 
 -- Service role bypasses RLS; keep policies locked for anon by default.
 drop policy if exists "service only repos" on public.l8_repos;
@@ -69,3 +103,5 @@ drop policy if exists "service only files" on public.l8_files;
 drop policy if exists "service only sessions" on public.l8_sessions;
 drop policy if exists "service only auth accounts" on public.l8_auth_accounts;
 drop policy if exists "service only auth identities" on public.l8_auth_identities;
+drop policy if exists "service only token accounts" on public.l8_token_accounts;
+drop policy if exists "service only token ledger" on public.l8_token_ledger;

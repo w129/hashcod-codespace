@@ -508,6 +508,19 @@ function supabaseBootstrapPlatformData($storageDir) {
         'auth_users.json',
         true
     );
+
+    // Tokens: merge inteligente (local ↔ Storage ↔ Postgres ledger). No sobrescribir a ciegas.
+    if (function_exists('tokensEnsureHydrated')) {
+        @tokensEnsureHydrated();
+        $results['tokens_usage'] = ['ok' => true, 'merged' => true, 'source' => 'tokensEnsureHydrated'];
+    } else {
+        $results['tokens_usage'] = supabaseHydrateMetaFile(
+            rtrim($storageDir, '/') . '/tokens/usage.json',
+            'tokens_usage.json',
+            false
+        );
+    }
+
     return ['ok' => true, 'results' => $results];
 }
 

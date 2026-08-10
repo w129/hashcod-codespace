@@ -2994,7 +2994,7 @@
                 if (tokensPanel.contains(e.target) || (tokensBtn && tokensBtn.contains(e.target))) return;
                 toggleTokensPanel(false);
             });
-            refreshTokensStatus();
+            refreshTokensStatus(true);
 
             if (inputCmd) {
                 inputCmd.addEventListener('focus', () => { activeInputTarget = inputCmd; });

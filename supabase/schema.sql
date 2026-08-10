@@ -32,11 +32,40 @@ create table if not exists public.l8_sessions (
   updated_at timestamptz default now()
 );
 
+-- Cuentas auth (solo hashes; nunca claves en claro)
+create table if not exists public.l8_auth_accounts (
+  id text primary key,
+  aes256_hash text not null,
+  identity_hash text not null,
+  recovery_hash text,
+  backup_codes jsonb not null default '{}'::jsonb,
+  created_at timestamptz,
+  recovered_at timestamptz,
+  updated_at timestamptz default now(),
+  meta jsonb not null default '{}'::jsonb
+);
+
+-- Índice de identidades / recuperación (hash → cuenta)
+create table if not exists public.l8_auth_identities (
+  hash text primary key,
+  account_id text not null references public.l8_auth_accounts(id) on delete cascade,
+  kind text not null check (kind in ('aes256', 'identity', 'recovery_key', 'backup_code')),
+  used boolean default false,
+  updated_at timestamptz default now()
+);
+
+create index if not exists l8_auth_identities_account_idx on public.l8_auth_identities(account_id);
+create index if not exists l8_auth_identities_kind_idx on public.l8_auth_identities(kind);
+
 alter table public.l8_repos enable row level security;
 alter table public.l8_files enable row level security;
 alter table public.l8_sessions enable row level security;
+alter table public.l8_auth_accounts enable row level security;
+alter table public.l8_auth_identities enable row level security;
 
 -- Service role bypasses RLS; keep policies locked for anon by default.
 drop policy if exists "service only repos" on public.l8_repos;
 drop policy if exists "service only files" on public.l8_files;
 drop policy if exists "service only sessions" on public.l8_sessions;
+drop policy if exists "service only auth accounts" on public.l8_auth_accounts;
+drop policy if exists "service only auth identities" on public.l8_auth_identities;

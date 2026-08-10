@@ -1450,7 +1450,7 @@
             </div>
 
             <p class="auth-msg" id="authMsg"></p>
-            <p class="auth-foot">Sin correo de recuperación: el kit L8REC + códigos es tu único salvavidas si pierdes AES o L8ID.</p>
+            <p class="auth-foot">Las identidades (hashes) se guardan en Supabase. Sin correo: el kit L8REC + códigos recupera la cuenta aunque Render se reinicie.</p>
         </div>
     </div>
 
@@ -2809,13 +2809,25 @@
                     if (document.getElementById('authDilithiumInput')) {
                         document.getElementById('authDilithiumInput').value = '';
                     }
-                    setMsg(data.warning || 'Cuenta creada. Guarda el kit completo.', true);
+                    setMsg(formatPersistMsg(data, data.warning || 'Cuenta creada. Guarda el kit completo.'), true);
                 } catch (e) {
                     setMsg('Error de red al registrar.');
                 } finally {
                     if (btn) btn.disabled = false;
                 }
             });
+
+            function formatPersistMsg(data, base) {
+                const p = data && data.persisted;
+                if (!p) return base;
+                const bits = [];
+                if (p.storage) bits.push('Storage');
+                if (p.db) bits.push('DB');
+                if (!bits.length) {
+                    return base + ' (aviso: aún no se reflejó en Supabase; revisa schema.sql / keys)';
+                }
+                return base + ' · Supabase: ' + bits.join('+');
+            }
 
             document.getElementById('authRecoverBtn')?.addEventListener('click', async () => {
                 const material = (document.getElementById('authRecoverInput')?.value || '').trim();
@@ -2841,7 +2853,7 @@
                     if (document.getElementById('authRecoverInput')) {
                         document.getElementById('authRecoverInput').value = '';
                     }
-                    setMsg(data.warning || 'Claves regeneradas. Guarda el nuevo kit.', true);
+                    setMsg(formatPersistMsg(data, data.warning || 'Claves regeneradas. Guarda el nuevo kit.'), true);
                 } catch (e) {
                     setMsg('Error de red al recuperar.');
                 } finally {

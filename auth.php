@@ -22,21 +22,58 @@ function authUsersPath() {
 }
 
 function authPepper() {
+    static $cached = null;
+    if (is_string($cached) && $cached !== '') {
+        return $cached;
+    }
+
+    // 1) Env / secret file (recomendado en Render)
     $pepper = envValue('L8_AUTH_PEPPER', '');
     if ($pepper !== '') {
-        return $pepper;
+        $cached = $pepper;
+        return $cached;
     }
+
     $pepperFile = authStorageDir() . '/.pepper';
+
+    // 2) Supabase Storage (sobrevive redeploy si no hay env)
+    if (function_exists('supabaseConfig') && function_exists('supabaseStorageDownload')) {
+        $cfg = supabaseConfig();
+        if (!empty($cfg['configured'])) {
+            $remote = @supabaseStorageDownload('meta/auth_pepper');
+            if (!empty($remote['ok']) && is_string($remote['data'])) {
+                $fromRemote = trim($remote['data']);
+                if ($fromRemote !== '') {
+                    @file_put_contents($pepperFile, $fromRemote);
+                    @chmod($pepperFile, 0600);
+                    $cached = $fromRemote;
+                    return $cached;
+                }
+            }
+        }
+    }
+
+    // 3) Local
     if (is_readable($pepperFile)) {
         $existing = trim((string)@file_get_contents($pepperFile));
         if ($existing !== '') {
-            return $existing;
+            $cached = $existing;
+            // intenta subir a Supabase para no perderlo en el próximo deploy
+            if (function_exists('supabaseConfig') && function_exists('supabaseStorageUpload') && !empty(supabaseConfig()['configured'])) {
+                @supabaseStorageUpload('meta/auth_pepper', $existing, 'text/plain', false);
+            }
+            return $cached;
         }
     }
+
     $generated = bin2hex(random_bytes(32));
     @file_put_contents($pepperFile, $generated);
     @chmod($pepperFile, 0600);
-    return $generated;
+    if (function_exists('supabaseConfig') && function_exists('supabaseStorageUpload') && !empty(supabaseConfig()['configured'])) {
+        @supabaseStorageUpload('meta/auth_pepper', $generated, 'text/plain', false);
+    }
+    $cached = $generated;
+    return $cached;
 }
 
 function authHashKey($plaintext) {
@@ -83,24 +120,19 @@ function authVerifyDilithium($provided) {
     return ['ok' => true];
 }
 
-function authLoadStore() {
-    $path = authUsersPath();
-    if (function_exists('supabaseHydrateMetaFile')) {
-        @supabaseHydrateMetaFile($path, 'auth_users.json', true);
-    }
-    $empty = [
+function authEmptyStore() {
+    return [
         'version' => 1,
         'users' => [],
         'key_hashes' => [],
         'recovery_hashes' => [],
         'sessions' => []
     ];
-    if (!is_readable($path)) {
-        return $empty;
-    }
-    $data = json_decode((string)@file_get_contents($path), true);
+}
+
+function authNormalizeStore($data) {
     if (!is_array($data)) {
-        return $empty;
+        return authEmptyStore();
     }
     $data['users'] = is_array($data['users'] ?? null) ? $data['users'] : [];
     $data['key_hashes'] = is_array($data['key_hashes'] ?? null) ? $data['key_hashes'] : [];
@@ -109,10 +141,244 @@ function authLoadStore() {
     return $data;
 }
 
+/** Fusiona store A con B (B gana en conflictos de usuario/hash). */
+function authMergeStores(array $base, array $overlay) {
+    $out = authNormalizeStore($base);
+    $over = authNormalizeStore($overlay);
+    foreach ($over['users'] as $id => $user) {
+        if (!is_array($user)) continue;
+        $prev = $out['users'][$id] ?? null;
+        if (!is_array($prev)) {
+            $out['users'][$id] = $user;
+            continue;
+        }
+        // gana el más reciente por recovered_at / updated_at / created_at
+        $prevTs = strtotime($prev['recovered_at'] ?? $prev['updated_at'] ?? $prev['created_at'] ?? '') ?: 0;
+        $newTs = strtotime($user['recovered_at'] ?? $user['updated_at'] ?? $user['created_at'] ?? '') ?: 0;
+        $out['users'][$id] = ($newTs >= $prevTs) ? array_replace($prev, $user) : array_replace($user, $prev);
+    }
+    $out['key_hashes'] = array_replace($out['key_hashes'], $over['key_hashes']);
+    $out['recovery_hashes'] = array_replace($out['recovery_hashes'], $over['recovery_hashes']);
+    // sesiones: conservar unión; no crítico para recuperación
+    $out['sessions'] = array_replace($out['sessions'], $over['sessions']);
+    return $out;
+}
+
+function authStoreFromDbRows(array $accounts, array $identities) {
+    $store = authEmptyStore();
+    foreach ($accounts as $row) {
+        if (!is_array($row) || empty($row['id'])) continue;
+        $id = (string)$row['id'];
+        $backup = $row['backup_codes'] ?? [];
+        if (is_string($backup)) {
+            $backup = json_decode($backup, true) ?: [];
+        }
+        if (!is_array($backup)) $backup = [];
+        $store['users'][$id] = [
+            'id' => $id,
+            'created_at' => $row['created_at'] ?? null,
+            'recovered_at' => $row['recovered_at'] ?? null,
+            'updated_at' => $row['updated_at'] ?? null,
+            'aes256_hash' => $row['aes256_hash'] ?? '',
+            'identity_hash' => $row['identity_hash'] ?? '',
+            'recovery_hash' => $row['recovery_hash'] ?? '',
+            'backup_codes' => $backup
+        ];
+        if (!empty($row['aes256_hash'])) {
+            $store['key_hashes'][$row['aes256_hash']] = $id;
+        }
+        if (!empty($row['identity_hash'])) {
+            $store['key_hashes'][$row['identity_hash']] = $id;
+        }
+    }
+    foreach ($identities as $row) {
+        if (!is_array($row) || empty($row['hash']) || empty($row['account_id'])) continue;
+        $hash = (string)$row['hash'];
+        $accountId = (string)$row['account_id'];
+        $kind = (string)($row['kind'] ?? '');
+        if ($kind === 'aes256' || $kind === 'identity') {
+            $store['key_hashes'][$hash] = $accountId;
+        } elseif ($kind === 'recovery_key' || $kind === 'backup_code') {
+            $store['recovery_hashes'][$hash] = [
+                'user_id' => $accountId,
+                'type' => $kind
+            ];
+            if ($kind === 'backup_code' && isset($store['users'][$accountId])) {
+                if (!isset($store['users'][$accountId]['backup_codes']) || !is_array($store['users'][$accountId]['backup_codes'])) {
+                    $store['users'][$accountId]['backup_codes'] = [];
+                }
+                if (!isset($store['users'][$accountId]['backup_codes'][$hash])) {
+                    $store['users'][$accountId]['backup_codes'][$hash] = [
+                        'used' => !empty($row['used']),
+                        'created_at' => $row['updated_at'] ?? date('c')
+                    ];
+                }
+            }
+        }
+    }
+    return $store;
+}
+
+function authPullStoreFromSupabaseDb() {
+    if (!function_exists('supabaseDbSelect') || !function_exists('supabaseConfig')) {
+        return ['ok' => false, 'error' => 'DB helper ausente', 'store' => null];
+    }
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) {
+        return ['ok' => false, 'error' => 'Supabase no configurado', 'store' => null];
+    }
+    $accountsRes = supabaseDbSelect('l8_auth_accounts', 'select=*');
+    if (empty($accountsRes['ok'])) {
+        return ['ok' => false, 'error' => $accountsRes['error'] ?? 'sin tabla l8_auth_accounts', 'store' => null];
+    }
+    $identRes = supabaseDbSelect('l8_auth_identities', 'select=*');
+    $accounts = is_array($accountsRes['body'] ?? null) ? $accountsRes['body'] : [];
+    $identities = (!empty($identRes['ok']) && is_array($identRes['body'] ?? null)) ? $identRes['body'] : [];
+    return [
+        'ok' => true,
+        'store' => authStoreFromDbRows($accounts, $identities),
+        'accounts' => count($accounts),
+        'identities' => count($identities)
+    ];
+}
+
+function authPushStoreToSupabaseDb(array $store) {
+    if (!function_exists('supabaseDbUpsert') || !function_exists('supabaseConfig')) {
+        return ['ok' => false, 'error' => 'DB helper ausente'];
+    }
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) {
+        return ['ok' => false, 'error' => 'Supabase no configurado'];
+    }
+
+    $store = authNormalizeStore($store);
+    $accountRows = [];
+    $identityRows = [];
+    $now = date('c');
+
+    foreach ($store['users'] as $id => $user) {
+        if (!is_array($user)) continue;
+        $accountId = (string)($user['id'] ?? $id);
+        $backup = is_array($user['backup_codes'] ?? null) ? $user['backup_codes'] : [];
+        $accountRows[] = [
+            'id' => $accountId,
+            'aes256_hash' => (string)($user['aes256_hash'] ?? ''),
+            'identity_hash' => (string)($user['identity_hash'] ?? ''),
+            'recovery_hash' => (string)($user['recovery_hash'] ?? ''),
+            'backup_codes' => $backup,
+            'created_at' => $user['created_at'] ?? $now,
+            'recovered_at' => $user['recovered_at'] ?? null,
+            'updated_at' => $now,
+            'meta' => ['source' => 'l8-auth']
+        ];
+
+        if (!empty($user['aes256_hash'])) {
+            $identityRows[] = [
+                'hash' => $user['aes256_hash'],
+                'account_id' => $accountId,
+                'kind' => 'aes256',
+                'used' => false,
+                'updated_at' => $now
+            ];
+        }
+        if (!empty($user['identity_hash'])) {
+            $identityRows[] = [
+                'hash' => $user['identity_hash'],
+                'account_id' => $accountId,
+                'kind' => 'identity',
+                'used' => false,
+                'updated_at' => $now
+            ];
+        }
+        if (!empty($user['recovery_hash'])) {
+            $identityRows[] = [
+                'hash' => $user['recovery_hash'],
+                'account_id' => $accountId,
+                'kind' => 'recovery_key',
+                'used' => false,
+                'updated_at' => $now
+            ];
+        }
+        foreach ($backup as $codeHash => $meta) {
+            $identityRows[] = [
+                'hash' => (string)$codeHash,
+                'account_id' => $accountId,
+                'kind' => 'backup_code',
+                'used' => !empty($meta['used']),
+                'updated_at' => $now
+            ];
+        }
+
+        // Limpia identidades previas de esta cuenta y reescribe (evita hashes huérfanos tras rotate)
+        if (function_exists('supabaseDbDelete')) {
+            @supabaseDbDelete('l8_auth_identities', 'account_id=eq.' . rawurlencode($accountId));
+        }
+    }
+
+    $accUpsert = ['ok' => true];
+    $idUpsert = ['ok' => true];
+    if ($accountRows) {
+        $accUpsert = supabaseDbUpsert('l8_auth_accounts', $accountRows, 'id');
+    }
+    if ($identityRows) {
+        $idUpsert = supabaseDbUpsert('l8_auth_identities', $identityRows, 'hash');
+    }
+
+    $ok = !empty($accUpsert['ok']) && !empty($idUpsert['ok']);
+    return [
+        'ok' => $ok,
+        'accounts_upserted' => count($accountRows),
+        'identities_upserted' => count($identityRows),
+        'error' => $ok ? null : (($accUpsert['error'] ?? null) ?: ($idUpsert['error'] ?? 'DB upsert falló'))
+    ];
+}
+
+function authLoadStore($forceRemote = true) {
+    // Asegura pepper estable antes de hashear/comparar
+    authPepper();
+
+    $path = authUsersPath();
+    $storageHydrated = false;
+    if (function_exists('supabaseHydrateMetaFile')) {
+        $hyd = @supabaseHydrateMetaFile($path, 'auth_users.json', $forceRemote);
+        $storageHydrated = !empty($hyd['hydrated']);
+    }
+
+    $local = authEmptyStore();
+    if (is_readable($path)) {
+        $decoded = json_decode((string)@file_get_contents($path), true);
+        $local = authNormalizeStore($decoded);
+    }
+
+    $dbPull = authPullStoreFromSupabaseDb();
+    if (!empty($dbPull['ok']) && is_array($dbPull['store'] ?? null)) {
+        $local = authMergeStores($local, $dbPull['store']);
+        // Si DB tenía datos y local quedó enriquecido, persiste espejo local
+        @file_put_contents(
+            $path,
+            json_encode($local, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            LOCK_EX
+        );
+    }
+
+    $local['_meta'] = [
+        'storage_hydrated' => $storageHydrated,
+        'db_pulled' => !empty($dbPull['ok']),
+        'db_accounts' => $dbPull['accounts'] ?? 0,
+        'db_identities' => $dbPull['identities'] ?? 0,
+        'db_error' => $dbPull['error'] ?? null
+    ];
+    return $local;
+}
+
 function authSaveStore(array $store) {
     $path = authUsersPath();
+    $meta = $store['_meta'] ?? null;
+    unset($store['_meta']);
+    $store = authNormalizeStore($store);
     $store['version'] = 1;
     $store['updated_at'] = date('c');
+
     $ok = @file_put_contents(
         $path,
         json_encode($store, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
@@ -121,10 +387,37 @@ function authSaveStore(array $store) {
     if ($ok === false) {
         return ['ok' => false, 'error' => 'No se pudo guardar el registro de cuentas'];
     }
+
+    $storage = ['ok' => false, 'error' => 'no intentado'];
     if (function_exists('supabaseSyncMetaFile')) {
-        @supabaseSyncMetaFile($path, 'auth_users.json');
+        $storage = @supabaseSyncMetaFile($path, 'auth_users.json') ?: ['ok' => false, 'error' => 'sync falló'];
     }
-    return ['ok' => true];
+
+    $db = authPushStoreToSupabaseDb($store);
+
+    // pepper a Storage por si no hay env
+    if (function_exists('supabaseConfig') && function_exists('supabaseStorageUpload') && !empty(supabaseConfig()['configured'])) {
+        $pepperFile = authStorageDir() . '/.pepper';
+        if (is_readable($pepperFile) && envValue('L8_AUTH_PEPPER', '') === '') {
+            @supabaseStorageUpload('meta/auth_pepper', (string)@file_get_contents($pepperFile), 'text/plain', false);
+        }
+    }
+
+    $persisted = [
+        'local' => true,
+        'storage' => !empty($storage['ok']),
+        'db' => !empty($db['ok']),
+        'storage_error' => $storage['error'] ?? null,
+        'db_error' => $db['error'] ?? null,
+        'db_accounts' => $db['accounts_upserted'] ?? 0,
+        'db_identities' => $db['identities_upserted'] ?? 0
+    ];
+
+    // Éxito si al menos local + (storage o db). Si Supabase está caído, no bloqueamos registro.
+    return [
+        'ok' => true,
+        'persisted' => $persisted
+    ];
 }
 
 function authGenerateAes256Key() {
@@ -326,7 +619,8 @@ function authRegister($dilithium5) {
             'recovery' => $kit['recovery_key'],
             'backup_codes' => $kit['backup_codes']
         ],
-        'warning' => 'Guarda AES-256, L8ID y el kit de recuperación (L8REC + códigos). Sin el kit, perder la AES/L8ID deja la cuenta irrecuperable.'
+        'persisted' => $saved['persisted'] ?? null,
+        'warning' => 'Guarda AES-256, L8ID y el kit de recuperación (L8REC + códigos). La identidad queda en Supabase para recuperar con L8REC/códigos.'
     ];
 }
 
@@ -340,9 +634,30 @@ function authRecover($recoveryMaterial) {
         return ['ok' => false, 'error' => 'Introduce tu clave L8REC o un código de respaldo'];
     }
 
-    $store = authLoadStore();
+    // Siempre hidrata identidades desde Supabase (Storage + DB) antes de buscar
+    $store = authLoadStore(true);
     $hash = authHashKey($material);
     $entry = $store['recovery_hashes'][$hash] ?? null;
+
+    // Fallback directo a Postgres por hash de recuperación
+    if ((!is_array($entry) || empty($entry['user_id'])) && function_exists('supabaseDbSelect') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
+        $q = 'select=*&hash=eq.' . rawurlencode($hash) . '&limit=1';
+        $hit = supabaseDbSelect('l8_auth_identities', $q);
+        if (!empty($hit['ok']) && is_array($hit['body']) && !empty($hit['body'][0]['account_id'])) {
+            $row = $hit['body'][0];
+            $entry = [
+                'user_id' => $row['account_id'],
+                'type' => $row['kind'] ?? 'recovery_key'
+            ];
+            // Asegura usuario en store desde DB
+            $acc = supabaseDbSelect('l8_auth_accounts', 'select=*&id=eq.' . rawurlencode($row['account_id']) . '&limit=1');
+            if (!empty($acc['ok']) && is_array($acc['body'][0] ?? null)) {
+                $dbStore = authStoreFromDbRows([$acc['body'][0]], [$row]);
+                $store = authMergeStores($store, $dbStore);
+            }
+        }
+    }
+
     if (!is_array($entry) || empty($entry['user_id'])) {
         return ['ok' => false, 'error' => 'Material de recuperación inválido'];
     }
@@ -424,7 +739,9 @@ function authRecover($recoveryMaterial) {
             'recovery' => $kit['recovery_key'],
             'backup_codes' => $kit['backup_codes']
         ],
-        'warning' => 'Acceso recuperado. Las claves AES/L8ID anteriores ya no sirven. Guarda el nuevo kit de recuperación.'
+        'persisted' => $saved['persisted'] ?? null,
+        'from_supabase' => !empty($store['_meta']['db_pulled']) || !empty($store['_meta']['storage_hydrated']),
+        'warning' => 'Acceso recuperado desde identidades en Supabase. Las AES/L8ID anteriores ya no sirven. Guarda el nuevo kit.'
     ];
 }
 
@@ -438,7 +755,8 @@ function authLogin($aes256, $identity) {
         return ['ok' => false, 'error' => 'Las dos claves deben ser distintas'];
     }
 
-    $store = authLoadStore();
+    // Identidades desde Supabase (sobrevive redeploy de Render)
+    $store = authLoadStore(true);
     $aesHash = authHashKey($aes256);
     $idHash = authHashKey($identity);
 
@@ -515,12 +833,26 @@ function authLogout($token) {
 }
 
 function authStatusPublic() {
-    $store = authLoadStore();
+    $store = authLoadStore(true);
+    $cfg = function_exists('supabaseConfig') ? supabaseConfig() : ['configured' => false];
+    $dbProbe = ['ok' => false];
+    if (!empty($cfg['configured']) && function_exists('supabaseDbSelect')) {
+        $dbProbe = supabaseDbSelect('l8_auth_accounts', 'select=id&limit=1');
+    }
     return [
         'ok' => true,
         'register_gate_configured' => authDilithiumConfigured(),
         'accounts' => count($store['users']),
-        'period_hint' => envValue('L8_DILITHIUM5_REGISTER_PERIOD', date('Y-m'))
+        'period_hint' => envValue('L8_DILITHIUM5_REGISTER_PERIOD', date('Y-m')),
+        'supabase' => [
+            'configured' => !empty($cfg['configured']),
+            'storage_hydrated' => !empty($store['_meta']['storage_hydrated']),
+            'db_ready' => !empty($dbProbe['ok']),
+            'db_pulled' => !empty($store['_meta']['db_pulled']),
+            'db_accounts' => $store['_meta']['db_accounts'] ?? 0,
+            'db_identities' => $store['_meta']['db_identities'] ?? 0,
+            'db_error' => $store['_meta']['db_error'] ?? ($dbProbe['error'] ?? null)
+        ]
     ];
 }
 

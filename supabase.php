@@ -462,6 +462,15 @@ function supabaseDbSelect($table, $query = '') {
     ]);
 }
 
+function supabaseDbDelete($table, $query = '') {
+    $q = $query !== '' ? ('?' . ltrim($query, '?')) : '';
+    return supabaseDbRequest($table . $q, [
+        'method' => 'DELETE',
+        'use_secret' => true,
+        'headers' => ['Prefer: return=minimal']
+    ]);
+}
+
 /** Hidrata índices críticos desde Supabase (una vez por request PHP). */
 function supabaseBootstrapPlatformData($storageDir) {
     static $done = false;
@@ -492,6 +501,11 @@ function supabaseBootstrapPlatformData($storageDir) {
     $results['gateway_transfers'] = supabaseHydrateMetaFile(
         rtrim($storageDir, '/') . '/gateway/transfers.json',
         'gateway_transfers.json',
+        true
+    );
+    $results['auth_users'] = supabaseHydrateMetaFile(
+        rtrim($storageDir, '/') . '/auth/users.json',
+        'auth_users.json',
         true
     );
     return ['ok' => true, 'results' => $results];

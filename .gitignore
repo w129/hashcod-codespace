@@ -13,5 +13,6 @@ data_storage/zylon-cli/
 data_storage/repo_tree_cache/
 data_storage/.supabase_bootstrapped
 data_storage/originkit-workspace/
+data_storage/auth/
 data_storage/*.sqlite
 data_storage/*.sqlite-*

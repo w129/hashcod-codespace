@@ -1614,8 +1614,9 @@
                     <div>Usados<strong id="tokensUsed">—</strong></div>
                     <div>Comandos<strong id="tokensCommands">—</strong></div>
                     <div>Externas<strong id="tokensExternals">—</strong></div>
+                    <div>Clones<strong id="tokensClones">—</strong></div>
                 </div>
-                <div class="tokens-legend" id="tokensLegend">Cupo mensual 200.000 · Comando −5 · Ventana externa −25</div>
+                <div class="tokens-legend" id="tokensLegend">Cupo mensual 200.000 · Comando −5 · Ventana externa −25 · Clone GitHub −625</div>
             </div>
         </div>
     </div>
@@ -2689,6 +2690,7 @@
             const used = document.getElementById('tokensUsed');
             const cmds = document.getElementById('tokensCommands');
             const exts = document.getElementById('tokensExternals');
+            const clones = document.getElementById('tokensClones');
             const period = document.getElementById('tokensPeriodLabel');
             const fill = document.getElementById('tokensMeterFill');
             const btn = document.getElementById('tokensMeterBtn');
@@ -2697,6 +2699,7 @@
             if (used) used.textContent = formatTokenCount(status.used) + ' / ' + formatTokenCount(status.allowance);
             if (cmds) cmds.textContent = formatTokenCount(status.commands);
             if (exts) exts.textContent = formatTokenCount(status.externals);
+            if (clones) clones.textContent = formatTokenCount(status.clones);
             if (period) period.textContent = 'Periodo ' + (status.period || '—') + ' · cupo mensual';
             const pct = Math.max(0, Math.min(100, Number(status.percent_used || 0)));
             if (fill) {
@@ -2712,7 +2715,8 @@
             if (legend && status.costs) {
                 legend.textContent = 'Cupo mensual ' + formatTokenCount(status.allowance) +
                     ' · Comando −' + status.costs.command +
-                    ' · Ventana externa −' + status.costs.external;
+                    ' · Ventana externa −' + status.costs.external +
+                    ' · Clone GitHub −' + status.costs.clone;
             }
         }
 

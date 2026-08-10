@@ -3371,7 +3371,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri
     $rawInput = file_get_contents('php://input');
     $inputData = json_decode($rawInput, true);
     $target = $inputData['repo'] ?? $_POST['repo'] ?? '';
+
+    if (function_exists('tokensConsume')) {
+        $tokenCharge = tokensConsume('clone');
+        if (empty($tokenCharge['ok'])) {
+            http_response_code(402);
+            echo json_encode([
+                'ok' => false,
+                'error' => $tokenCharge['error'] ?? 'Tokens insuficientes',
+                'code' => $tokenCharge['code'] ?? 'insufficient_tokens',
+                'tokens' => $tokenCharge['status'] ?? null
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+
     $res = cloneOrUpdateRepository($target);
+    if (function_exists('tokensStatus')) {
+        $res['tokens'] = tokensStatus();
+    }
     echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -4151,9 +4169,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         exit;
     }
 
-    // Cupo mensual: cada comando válido cuesta 5 tokens
+    // Cupo mensual: comando −5 · clone GitHub −625
     if (function_exists('tokensConsume')) {
-        $tokenCharge = tokensConsume('command');
+        $tokenKind = $isClone ? 'clone' : 'command';
+        $tokenCharge = tokensConsume($tokenKind);
         if (empty($tokenCharge['ok'])) {
             echo json_encode([
                 'ok' => false,

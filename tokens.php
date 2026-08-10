@@ -5,6 +5,7 @@
  * - Allowance: 200_000 tokens / mes (periodo YYYY-MM)
  * - Comando: -5
  * - Ventana externa: -25
+ * - Clone de repositorio GitHub: -625
  */
 
 require_once __DIR__ . '/supabase.php';
@@ -22,6 +23,10 @@ function tokensCostCommand() {
 
 function tokensCostExternal() {
     return 25;
+}
+
+function tokensCostClone() {
+    return 625;
 }
 
 function tokensStorageDir() {
@@ -145,6 +150,7 @@ function tokensNormalizeBucket(array $bucket = null) {
             'used' => 0,
             'commands' => 0,
             'externals' => 0,
+            'clones' => 0,
             'updated_at' => date('c')
         ];
     }
@@ -152,6 +158,7 @@ function tokensNormalizeBucket(array $bucket = null) {
     $bucket['used'] = max(0, (int)($bucket['used'] ?? 0));
     $bucket['commands'] = max(0, (int)($bucket['commands'] ?? 0));
     $bucket['externals'] = max(0, (int)($bucket['externals'] ?? 0));
+    $bucket['clones'] = max(0, (int)($bucket['clones'] ?? 0));
     return $bucket;
 }
 
@@ -177,9 +184,11 @@ function tokensStatusForKey($accountKey) {
         'percent_used' => $pctUsed,
         'commands' => (int)$bucket['commands'],
         'externals' => (int)$bucket['externals'],
+        'clones' => (int)$bucket['clones'],
         'costs' => [
             'command' => tokensCostCommand(),
-            'external' => tokensCostExternal()
+            'external' => tokensCostExternal(),
+            'clone' => tokensCostClone()
         ],
         'exhausted' => $remaining <= 0,
         'updated_at' => $bucket['updated_at'] ?? date('c')
@@ -198,8 +207,11 @@ function tokensConsume($kind) {
     } else if ($kind === 'external' || $kind === 'externals' || $kind === 'window' || $kind === 'platform') {
         $kind = 'external';
         $cost = tokensCostExternal();
+    } else if ($kind === 'clone' || $kind === 'clones' || $kind === 'repo_clone' || $kind === 'github_clone') {
+        $kind = 'clone';
+        $cost = tokensCostClone();
     } else {
-        return ['ok' => false, 'error' => 'Unknown token kind. Use command|external', 'code' => 'bad_kind'];
+        return ['ok' => false, 'error' => 'Unknown token kind. Use command|external|clone', 'code' => 'bad_kind'];
     }
 
     $accountKey = tokensResolveAccountKey();
@@ -220,8 +232,10 @@ function tokensConsume($kind) {
     $bucket['used'] = (int)$bucket['used'] + $cost;
     if ($kind === 'command') {
         $bucket['commands'] = (int)$bucket['commands'] + 1;
-    } else {
+    } else if ($kind === 'external') {
         $bucket['externals'] = (int)$bucket['externals'] + 1;
+    } else if ($kind === 'clone') {
+        $bucket['clones'] = (int)$bucket['clones'] + 1;
     }
     $bucket['updated_at'] = date('c');
     $store['accounts'][$accountKey] = $bucket;

@@ -41,6 +41,12 @@ if ($uri === '/zylon' || $uri === '/zylon-cli' || $uri === '/private-gpt' || $ur
     exit;
 }
 
+// PRS Code — IDE paste/share externo (thin client)
+if ($uri === '/prs-code' || $uri === '/prs_code' || $uri === '/prs' || $uri === '/prs-code.php') {
+    require __DIR__ . '/prs-code.php';
+    exit;
+}
+
 // Reenviar peticiones API a api.php
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

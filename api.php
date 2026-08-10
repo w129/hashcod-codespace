@@ -33,7 +33,8 @@ $REGISTERED_COMMANDS = [
     "status"      => "Consulta el estado del servidor y motores detectados",
     "browsers"    => "Muestra los procesos reales de navegadores en ejecución",
     "ping"        => "Comprueba la conectividad y latencia con el servidor",
-    "bigdata"     => "Genera y prueba la transmisión en lote de grandes volúmenes de datos"
+    "bigdata"     => "Genera y prueba la transmisión en lote de grandes volúmenes de datos",
+    "prs_code"    => "Abre el IDE externo PRS Code (paste/share por selección, thin client en cluster)"
 ];
 
 $STORAGE_DIR = __DIR__ . '/data_storage';
@@ -2963,7 +2964,191 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/originkit/blackhole'
     exit;
 }
 
+
+// PRS Code — paste/share IDE (thin client)
+function prsPastesPath() {
+    global $STORAGE_DIR;
+    return rtrim($STORAGE_DIR, '/') . '/prs_pastes.json';
+}
+
+function prsLoadPastes() {
+    $path = prsPastesPath();
+    if (!is_file($path)) return [];
+    $raw = @file_get_contents($path);
+    $data = json_decode($raw ?: '[]', true);
+    return is_array($data) ? $data : [];
+}
+
+function prsSavePastes($pastes) {
+    $path = prsPastesPath();
+    @file_put_contents($path, json_encode($pastes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+function prsGenerateShareCode() {
+    $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    $chunk = function ($n) use ($alphabet) {
+        $out = '';
+        $len = strlen($alphabet);
+        for ($i = 0; $i < $n; $i++) {
+            $out .= $alphabet[random_int(0, $len - 1)];
+        }
+        return $out;
+    };
+    return 'PRS-' . $chunk(4) . '-' . $chunk(4);
+}
+
+function prsBootSession() {
+    return [
+        'ok' => true,
+        'product' => 'PRS Code',
+        'cluster' => 'prs-cloud-v1',
+        'mode' => 'thin-client',
+        'capabilities' => ['paste', 'share-selection', 'analyze', 'lint-lite'],
+        'message' => 'Cluster listo. Compilador, indexador y linters en servidores virtuales; este cliente solo renderiza.',
+        'advantage' => 'El backend del IDE (compilador, indexador, linters) corre en un cluster de servidores virtuales ultrarrápidos en la nube, mientras que tu laptop solo actúa como una pantalla fluida ("thin client"), eliminando el consumo de batería y calentamiento.'
+    ];
+}
+
+function prsSharePaste($content, $language = 'text', $selectionOnly = true, $title = '') {
+    $content = (string)$content;
+    if (trim($content) === '') {
+        return ['ok' => false, 'error' => 'Empty paste'];
+    }
+    if (strlen($content) > 512000) {
+        return ['ok' => false, 'error' => 'Paste too large (max 500KB)'];
+    }
+    $pastes = prsLoadPastes();
+    $code = prsGenerateShareCode();
+    // Avoid collisions
+    for ($i = 0; $i < 5 && isset($pastes[$code]); $i++) {
+        $code = prsGenerateShareCode();
+    }
+    $pastes[$code] = [
+        'share_code' => $code,
+        'content' => $content,
+        'language' => $language ?: 'text',
+        'selection_only' => (bool)$selectionOnly,
+        'title' => $title ?: ($selectionOnly ? 'selection' : 'full'),
+        'created_at' => date('c'),
+        'bytes' => strlen($content)
+    ];
+    // Keep last 200 pastes
+    if (count($pastes) > 200) {
+        $pastes = array_slice($pastes, -200, null, true);
+    }
+    prsSavePastes($pastes);
+    return [
+        'ok' => true,
+        'share_code' => $code,
+        'url_path' => '/prs-code?code=' . rawurlencode($code),
+        'selection_only' => (bool)$selectionOnly,
+        'language' => $language ?: 'text',
+        'bytes' => strlen($content)
+    ];
+}
+
+function prsGetPaste($code) {
+    $code = strtoupper(trim((string)$code));
+    $code = preg_replace('/\s+/', '', $code);
+    if ($code === '') {
+        return ['ok' => false, 'error' => 'Missing share code'];
+    }
+    if (strpos($code, 'PRS-') !== 0) {
+        $code = 'PRS-' . ltrim($code, '-');
+    }
+    $pastes = prsLoadPastes();
+    if (!isset($pastes[$code])) {
+        return ['ok' => false, 'error' => 'Paste not found: ' . $code];
+    }
+    $p = $pastes[$code];
+    return [
+        'ok' => true,
+        'share_code' => $code,
+        'content' => $p['content'] ?? '',
+        'language' => $p['language'] ?? 'text',
+        'selection_only' => !empty($p['selection_only']),
+        'title' => $p['title'] ?? '',
+        'created_at' => $p['created_at'] ?? '',
+        'bytes' => $p['bytes'] ?? strlen($p['content'] ?? '')
+    ];
+}
+
+function prsAnalyzeCode($content, $language = 'text') {
+    $content = (string)$content;
+    $language = strtolower(trim((string)$language)) ?: 'text';
+    $lines = $content === '' ? 0 : substr_count($content, "\n") + 1;
+    $notes = [];
+    if ($content === '') {
+        $notes[] = 'Editor vacío';
+    } else {
+        if (strlen($content) > 100000) {
+            $notes[] = 'Archivo grande: el análisis pesado se descarga al cluster';
+        }
+        if ($language === 'javascript' || $language === 'typescript') {
+            if (preg_match('/\beval\s*\(/', $content)) $notes[] = 'Uso de eval() detectado';
+            if (preg_match('/\bvar\b/', $content)) $notes[] = 'Preferir let/const en lugar de var';
+        }
+        if ($language === 'python') {
+            if (preg_match('/\bexcept\s*:/', $content)) $notes[] = 'except: demasiado amplio';
+        }
+        if ($language === 'php') {
+            if (preg_match('/\beval\s*\(/i', $content)) $notes[] = 'eval() en PHP no recomendado';
+        }
+        if ($language === 'json') {
+            json_decode($content);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $notes[] = 'JSON inválido: ' . json_last_error_msg();
+            } else {
+                $notes[] = 'JSON válido';
+            }
+        }
+        if (!$notes) $notes[] = 'Sin hallazgos críticos en lint-lite';
+    }
+    return [
+        'ok' => true,
+        'language' => $language,
+        'lines' => $lines,
+        'bytes' => strlen($content),
+        'engine' => 'prs-cluster-lint-lite',
+        'notes' => $notes,
+        'thin_client' => true
+    ];
+}
+
 // CLI de arranque: bunx --bun originkit@latest add blackhole
+
+// PRS Code IDE externa
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/prs/session' || $uri === '/api/prs/boot')) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(prsBootSession(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/prs/share' || $uri === '/api/prs/paste')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true) ?? [];
+    $content = $input['code'] ?? $input['content'] ?? $input['text'] ?? '';
+    $language = $input['language'] ?? 'text';
+    $selectionOnly = array_key_exists('selection_only', $input) ? (bool)$input['selection_only'] : true;
+    $title = $input['title'] ?? '';
+    echo json_encode(prsSharePaste($content, $language, $selectionOnly, $title), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/api/prs/paste/([^/]+)$#', $uri, $m)) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(prsGetPaste(rawurldecode($m[1])), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/prs/analyze' || $uri === '/api/prs/lint')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true) ?? [];
+    $content = $input['code'] ?? $input['content'] ?? '';
+    $language = $input['language'] ?? 'text';
+    echo json_encode(prsAnalyzeCode($content, $language), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Ubuntu CLI externa
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/ubuntu/session' || $uri === '/api/ubuntu/boot')) {
     header('Content-Type: application/json; charset=utf-8');
@@ -3246,9 +3431,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isSave = (strpos($lowerCmd, 'save ') === 0);
     $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0 || $cleanCmd === 'clonedify' || $cleanCmd === 'dify');
     $isDilFs = ($lowerCmd === 'dil_fs' || $lowerCmd === 'dil-fs' || $cleanCmd === 'dilfs');
+    $isPrsCode = ($lowerCmd === 'prs_code' || $lowerCmd === 'prs-code' || $lowerCmd === 'prscode' || $cleanCmd === 'prscode');
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
 
     if (!$isValid) {
         echo json_encode([
@@ -3375,6 +3561,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'type' => 'CLEAR_BLACK_TERMINAL',
             'command' => 'dil_fs',
             'message' => 'Terminal negra limpiada'
+        ];
+    } else if ($isPrsCode) {
+        $boot = prsBootSession();
+        $outputResult = [
+            'type' => 'PRS_CODE_LAUNCH',
+            'command' => 'prs_code',
+            'open_url' => '/prs-code',
+            'window_name' => 'l8-prs-code',
+            'product' => 'PRS Code',
+            'mode' => 'thin-client',
+            'advantage' => $boot['advantage'],
+            'message' => 'Abriendo IDE externo PRS Code (paste/share por selección)'
         ];
     } else if ($lowerCmd === 'mane_list?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?') {
         $rows = [];

@@ -232,7 +232,8 @@
         .icon-gateway,
         .icon-ubuntu-cli,
         .icon-claude-cli,
-        .icon-zylon-cli {
+        .icon-zylon-cli,
+        .icon-notepad {
             height: 22px;
             width: 22px;
             display: flex;
@@ -248,7 +249,8 @@
         .icon-gateway,
         .icon-ubuntu-cli,
         .icon-claude-cli,
-        .icon-zylon-cli {
+        .icon-zylon-cli,
+        .icon-notepad {
             cursor: pointer;
         }
 
@@ -260,7 +262,8 @@
         .icon-claude-cli svg,
         .icon-claude-cli img,
         .icon-zylon-cli svg,
-        .icon-zylon-cli img {
+        .icon-zylon-cli img,
+        .icon-notepad svg {
             height: 20px;
             width: 20px;
             max-width: 20px;
@@ -301,8 +304,16 @@
         .icon-gateway:hover,
         .icon-ubuntu-cli:hover,
         .icon-claude-cli:hover,
-        .icon-zylon-cli:hover {
+        .icon-zylon-cli:hover,
+        .icon-notepad:hover {
             opacity: 0.75;
+        }
+
+        .icon-notepad {
+            width: 22px;
+            height: 22px;
+            margin-left: 4px;
+            margin-right: 2px;
         }
 
         .hashcod-created-by {
@@ -310,7 +321,7 @@
             align-items: center;
             flex: 0 0 auto;
             height: 14px;
-            margin-left: 8px;
+            margin-left: 4px;
             line-height: 0;
             background: transparent;
         }
@@ -322,6 +333,272 @@
             max-width: min(170px, 46vw);
             object-fit: contain;
             background: transparent;
+        }
+
+        /* ===== Bloc de notas / super editor (en plataforma) ===== */
+        .notepad-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            background: rgba(20, 20, 20, 0.28);
+            align-items: stretch;
+            justify-content: center;
+            padding: 28px 16px 16px;
+        }
+
+        .notepad-overlay.open {
+            display: flex;
+        }
+
+        .notepad-shell {
+            width: min(1120px, 100%);
+            height: min(820px, calc(100vh - 44px));
+            background: #f6f6f6;
+            border: 1px solid #cccccc;
+            border-radius: 2px;
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            color: #111;
+        }
+
+        .notepad-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: #e5e5e5;
+            border-bottom: 1px solid #d0d0d0;
+            flex-shrink: 0;
+        }
+
+        .notepad-brand {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #222;
+            white-space: nowrap;
+        }
+
+        .notepad-title {
+            flex: 1;
+            min-width: 0;
+            height: 30px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            padding: 0 10px;
+            font: inherit;
+            font-size: 13px;
+            color: #111;
+            outline: none;
+        }
+
+        .notepad-title:focus {
+            border-color: #999999;
+        }
+
+        .notepad-close {
+            height: 30px;
+            padding: 0 12px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            color: #111;
+            font: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .notepad-close:hover {
+            background: #f0f0f0;
+        }
+
+        .notepad-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 8px 10px;
+            background: #ececec;
+            border-bottom: 1px solid #d0d0d0;
+            flex-shrink: 0;
+        }
+
+        .notepad-tool {
+            height: 28px;
+            min-width: 28px;
+            padding: 0 8px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            color: #111;
+            font: inherit;
+            font-size: 11px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .notepad-tool:hover {
+            background: #f7f7f7;
+        }
+
+        .notepad-tool.active {
+            background: #111111;
+            color: #ffffff;
+            border-color: #111111;
+        }
+
+        .notepad-tool-sep {
+            width: 1px;
+            align-self: stretch;
+            background: #d0d0d0;
+            margin: 2px 4px;
+        }
+
+        .notepad-find {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .notepad-find.open {
+            display: flex;
+        }
+
+        .notepad-find input {
+            flex: 1;
+            height: 28px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            padding: 0 8px;
+            font: inherit;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .notepad-main {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            background: #ffffff;
+        }
+
+        .notepad-sidebar {
+            border-right: 1px solid #d0d0d0;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .notepad-sidebar-head {
+            padding: 8px;
+            border-bottom: 1px solid #d0d0d0;
+            display: flex;
+            gap: 6px;
+        }
+
+        .notepad-sidebar-head .notepad-tool {
+            flex: 1;
+        }
+
+        .notepad-list {
+            list-style: none;
+            margin: 0;
+            padding: 6px;
+            overflow: auto;
+            flex: 1;
+        }
+
+        .notepad-list li {
+            padding: 8px 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            margin-bottom: 4px;
+            background: transparent;
+        }
+
+        .notepad-list li:hover {
+            background: #e8e8e8;
+        }
+
+        .notepad-list li.active {
+            background: #ffffff;
+            border-color: #cccccc;
+        }
+
+        .notepad-list .note-name {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #111;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notepad-list .note-meta {
+            display: block;
+            margin-top: 2px;
+            font-size: 10px;
+            color: #777;
+        }
+
+        .notepad-editor-wrap {
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .notepad-editor {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 16px 18px;
+            outline: none;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 13px;
+            line-height: 1.55;
+            color: #111;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .notepad-editor:empty:before {
+            content: attr(data-placeholder);
+            color: #999;
+            pointer-events: none;
+        }
+
+        .notepad-status {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 6px 10px;
+            background: #e5e5e5;
+            border-top: 1px solid #d0d0d0;
+            font-size: 11px;
+            color: #555;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 760px) {
+            .notepad-main {
+                grid-template-columns: 1fr;
+            }
+            .notepad-sidebar {
+                max-height: 160px;
+                border-right: none;
+                border-bottom: 1px solid #d0d0d0;
+            }
         }
 
         .main-container {
@@ -1683,6 +1960,11 @@
             </button>
             <button type="button" class="icon-zylon-cli" title="Zylon / PrivateGPT" aria-label="Abrir Zylon externa" onclick="openZylonCli()">
                 <img src="/zylon-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
+            </button>
+            <button type="button" class="icon-notepad" id="notepadOpenBtn" title="Bloc de notas" aria-label="Abrir bloc de notas" aria-expanded="false" aria-controls="notepadOverlay" onclick="toggleNotepadEditor()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                    <path d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 19 C 3 20.105 3.895 21 5 21 L 15 21 L 21 15 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 5 5 L 19 5 L 19 14 L 14 14 L 14 19 L 5 19 L 5 5 z M 7 7 L 7 9 L 17 9 L 17 7 L 7 7 z M 7 11 L 7 13 L 12 13 L 12 11 L 7 11 z"></path>
+                </svg>
             </button>
             <span class="hashcod-created-by" title="Created by Hashcod" aria-label="Created by Hashcod">
                 <img src="/hashcod-created-by-gray.svg?v=7" alt="Created by Hashcod" height="14">
@@ -3310,8 +3592,456 @@
             };
         }
 
+        /* ===== Bloc de notas único (editor en plataforma) ===== */
+        const NOTEPAD_STORE_KEY = 'l8_notepad_notes_v1';
+        let notepadState = { notes: [], activeId: null, dirty: false, saveTimer: null, findIndex: 0 };
+
+        function notepadUid() {
+            if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+            return 'note_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+        }
+
+        function notepadNow() {
+            return new Date().toISOString();
+        }
+
+        function notepadLoadStore() {
+            try {
+                const raw = localStorage.getItem(NOTEPAD_STORE_KEY);
+                const data = raw ? JSON.parse(raw) : null;
+                if (data && Array.isArray(data.notes)) {
+                    notepadState.notes = data.notes;
+                    notepadState.activeId = data.activeId || (data.notes[0] && data.notes[0].id) || null;
+                    return;
+                }
+            } catch (e) {}
+            const id = notepadUid();
+            notepadState.notes = [{
+                id: id,
+                title: 'Nota 1',
+                html: '',
+                createdAt: notepadNow(),
+                updatedAt: notepadNow()
+            }];
+            notepadState.activeId = id;
+            notepadPersist(false);
+        }
+
+        function notepadPersist(flash) {
+            try {
+                localStorage.setItem(NOTEPAD_STORE_KEY, JSON.stringify({
+                    version: 1,
+                    activeId: notepadState.activeId,
+                    notes: notepadState.notes,
+                    updatedAt: notepadNow()
+                }));
+                notepadState.dirty = false;
+                if (flash !== false) notepadSetStatusRight('guardado · ' + new Date().toLocaleTimeString('es-ES'));
+            } catch (e) {
+                notepadSetStatusRight('no se pudo guardar en este navegador');
+            }
+        }
+
+        function notepadActive() {
+            return notepadState.notes.find((n) => n.id === notepadState.activeId) || null;
+        }
+
+        function notepadSetStatusRight(text) {
+            const el = document.getElementById('notepadStatusRight');
+            if (el) el.textContent = text || '';
+        }
+
+        function notepadUpdateCounts() {
+            const editor = document.getElementById('notepadEditor');
+            const left = document.getElementById('notepadStatusLeft');
+            if (!editor || !left) return;
+            const text = (editor.innerText || '').replace(/\u00a0/g, ' ');
+            const trimmed = text.trim();
+            const words = trimmed ? trimmed.split(/\s+/).length : 0;
+            const chars = text.length;
+            left.textContent = words.toLocaleString('es-ES') + ' palabras · ' + chars.toLocaleString('es-ES') + ' caracteres';
+        }
+
+        function notepadRenderList() {
+            const list = document.getElementById('notepadList');
+            if (!list) return;
+            list.innerHTML = '';
+            notepadState.notes
+                .slice()
+                .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')))
+                .forEach((note) => {
+                    const li = document.createElement('li');
+                    li.className = note.id === notepadState.activeId ? 'active' : '';
+                    li.dataset.id = note.id;
+                    const name = document.createElement('span');
+                    name.className = 'note-name';
+                    name.textContent = note.title || 'Sin título';
+                    const meta = document.createElement('span');
+                    meta.className = 'note-meta';
+                    meta.textContent = note.updatedAt ? String(note.updatedAt).replace('T', ' ').slice(0, 16) : '';
+                    li.appendChild(name);
+                    li.appendChild(meta);
+                    li.addEventListener('click', () => notepadSelect(note.id));
+                    list.appendChild(li);
+                });
+        }
+
+        function notepadFlushActiveFromDom() {
+            const note = notepadActive();
+            const editor = document.getElementById('notepadEditor');
+            const title = document.getElementById('notepadTitle');
+            if (!note || !editor) return;
+            note.html = editor.innerHTML;
+            note.title = (title && title.value.trim()) ? title.value.trim() : (note.title || 'Sin título');
+            note.updatedAt = notepadNow();
+        }
+
+        function notepadSelect(id, force) {
+            if (!force && id === notepadState.activeId) return;
+            notepadFlushActiveFromDom();
+            notepadPersist(false);
+            const note = notepadState.notes.find((n) => n.id === id);
+            if (!note) return;
+            notepadState.activeId = id;
+            const editor = document.getElementById('notepadEditor');
+            const title = document.getElementById('notepadTitle');
+            if (editor) editor.innerHTML = note.html || '';
+            if (title) title.value = note.title || '';
+            notepadRenderList();
+            notepadUpdateCounts();
+            notepadPersist(false);
+            notepadSetStatusRight('nota activa');
+            if (editor) {
+                try { editor.focus(); } catch (e) {}
+            }
+        }
+
+        function notepadCreate() {
+            notepadFlushActiveFromDom();
+            const id = notepadUid();
+            const n = notepadState.notes.length + 1;
+            notepadState.notes.unshift({
+                id: id,
+                title: 'Nota ' + n,
+                html: '',
+                createdAt: notepadNow(),
+                updatedAt: notepadNow()
+            });
+            notepadState.activeId = id;
+            const editor = document.getElementById('notepadEditor');
+            const title = document.getElementById('notepadTitle');
+            if (editor) editor.innerHTML = '';
+            if (title) title.value = 'Nota ' + n;
+            notepadRenderList();
+            notepadUpdateCounts();
+            notepadPersist(true);
+            if (editor) try { editor.focus(); } catch (e) {}
+        }
+
+        function notepadDeleteActive() {
+            if (notepadState.notes.length <= 1) {
+                const note = notepadActive();
+                const editor = document.getElementById('notepadEditor');
+                const title = document.getElementById('notepadTitle');
+                if (note) {
+                    note.html = '';
+                    note.title = 'Nota 1';
+                    note.updatedAt = notepadNow();
+                }
+                if (editor) editor.innerHTML = '';
+                if (title) title.value = 'Nota 1';
+                notepadRenderList();
+                notepadUpdateCounts();
+                notepadPersist(true);
+                notepadSetStatusRight('nota vaciada');
+                return;
+            }
+            const id = notepadState.activeId;
+            notepadState.notes = notepadState.notes.filter((n) => n.id !== id);
+            notepadState.activeId = notepadState.notes[0].id;
+            notepadSelect(notepadState.activeId, true);
+            notepadPersist(true);
+            notepadSetStatusRight('nota eliminada');
+        }
+
+        function notepadExec(cmd, value) {
+            const editor = document.getElementById('notepadEditor');
+            if (!editor) return;
+            editor.focus();
+            try {
+                if (cmd === 'formatBlock') {
+                    document.execCommand('formatBlock', false, value || 'p');
+                } else {
+                    document.execCommand(cmd, false, value || null);
+                }
+            } catch (e) {}
+            notepadMarkDirty();
+        }
+
+        function notepadMarkDirty() {
+            notepadState.dirty = true;
+            notepadSetStatusRight('sin guardar…');
+            notepadUpdateCounts();
+            if (notepadState.saveTimer) clearTimeout(notepadState.saveTimer);
+            notepadState.saveTimer = setTimeout(() => {
+                notepadFlushActiveFromDom();
+                notepadRenderList();
+                notepadPersist(true);
+            }, 650);
+        }
+
+        function notepadHtmlToMarkdown(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html || '';
+            const walk = (node) => {
+                if (node.nodeType === 3) return node.nodeValue || '';
+                if (node.nodeType !== 1) return '';
+                const tag = node.tagName.toLowerCase();
+                const inner = Array.from(node.childNodes).map(walk).join('');
+                if (tag === 'br') return '\n';
+                if (tag === 'strong' || tag === 'b') return '**' + inner + '**';
+                if (tag === 'em' || tag === 'i') return '*' + inner + '*';
+                if (tag === 'u') return inner;
+                if (tag === 's' || tag === 'strike') return '~~' + inner + '~~';
+                if (tag === 'h1') return '# ' + inner.trim() + '\n\n';
+                if (tag === 'h2') return '## ' + inner.trim() + '\n\n';
+                if (tag === 'h3') return '### ' + inner.trim() + '\n\n';
+                if (tag === 'pre' || tag === 'code') return '```\n' + (node.innerText || inner).trim() + '\n```\n\n';
+                if (tag === 'li') return '- ' + inner.trim() + '\n';
+                if (tag === 'p' || tag === 'div') return inner.trim() + '\n\n';
+                return inner;
+            };
+            return walk(tmp).replace(/\n{3,}/g, '\n\n').trim() + '\n';
+        }
+
+        function notepadSafeName(title, ext) {
+            const base = String(title || 'nota')
+                .replace(/[\\/:*?"<>|]+/g, '_')
+                .replace(/\s+/g, '_')
+                .slice(0, 60) || 'nota';
+            return base + '.' + ext;
+        }
+
+        function notepadDownload(kind) {
+            notepadFlushActiveFromDom();
+            const note = notepadActive();
+            if (!note) return;
+            const title = note.title || 'nota';
+            let body = '';
+            let mime = 'text/plain;charset=utf-8';
+            let ext = 'txt';
+            if (kind === 'html') {
+                ext = 'html';
+                mime = 'text/html;charset=utf-8';
+                body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
+                    String(title).replace(/</g, '&lt;') +
+                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style></head><body><h1>' +
+                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '</body></html>';
+            } else if (kind === 'md') {
+                ext = 'md';
+                mime = 'text/markdown;charset=utf-8';
+                body = '# ' + title + '\n\n' + notepadHtmlToMarkdown(note.html || '');
+            } else {
+                const editor = document.getElementById('notepadEditor');
+                body = (editor ? editor.innerText : '') || '';
+            }
+            const blob = new Blob([body], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = notepadSafeName(title, ext);
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1200);
+            notepadSetStatusRight('descargado · .' + ext);
+        }
+
+        function notepadFindNext() {
+            const input = document.getElementById('notepadFindInput');
+            const editor = document.getElementById('notepadEditor');
+            if (!input || !editor) return;
+            const q = String(input.value || '');
+            if (!q) return;
+            const text = editor.innerText || '';
+            const from = notepadState.findIndex || 0;
+            let idx = text.toLowerCase().indexOf(q.toLowerCase(), from);
+            if (idx < 0 && from > 0) idx = text.toLowerCase().indexOf(q.toLowerCase(), 0);
+            if (idx < 0) {
+                notepadSetStatusRight('sin coincidencias');
+                return;
+            }
+            notepadState.findIndex = idx + q.length;
+            try {
+                const sel = window.getSelection();
+                const range = document.createRange();
+                // fallback highlight via window.find when available
+                if (window.find) {
+                    sel.removeAllRanges();
+                    window.find(q, false, false, true, false, false, false);
+                }
+            } catch (e) {}
+            notepadSetStatusRight('encontrado');
+        }
+
+        function toggleNotepadEditor(force) {
+            const overlay = document.getElementById('notepadOverlay');
+            const btn = document.getElementById('notepadOpenBtn');
+            if (!overlay) return;
+            const open = typeof force === 'boolean' ? force : !overlay.classList.contains('open');
+            overlay.classList.toggle('open', open);
+            overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+            if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) {
+                if (!notepadState.notes.length) notepadLoadStore();
+                notepadSelect(notepadState.activeId || (notepadState.notes[0] && notepadState.notes[0].id), true);
+                const editor = document.getElementById('notepadEditor');
+                setTimeout(() => { try { editor && editor.focus(); } catch (e) {} }, 30);
+            } else {
+                notepadFlushActiveFromDom();
+                notepadPersist(true);
+            }
+        }
+
+        function initNotepadEditor() {
+            if (window.__l8NotepadReady) return;
+            const overlay = document.getElementById('notepadOverlay');
+            const editor = document.getElementById('notepadEditor');
+            const title = document.getElementById('notepadTitle');
+            const closeBtn = document.getElementById('notepadCloseBtn');
+            if (!overlay || !editor) return;
+            window.__l8NotepadReady = true;
+            notepadLoadStore();
+
+            if (closeBtn) closeBtn.addEventListener('click', () => toggleNotepadEditor(false));
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) toggleNotepadEditor(false);
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay.classList.contains('open')) {
+                    toggleNotepadEditor(false);
+                }
+            });
+
+            editor.addEventListener('input', () => notepadMarkDirty());
+            if (title) {
+                title.addEventListener('input', () => {
+                    const note = notepadActive();
+                    if (note) note.title = title.value;
+                    notepadMarkDirty();
+                    notepadRenderList();
+                });
+            }
+
+            overlay.querySelectorAll('[data-cmd]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    notepadExec(btn.getAttribute('data-cmd'), btn.getAttribute('data-value'));
+                });
+            });
+
+            overlay.querySelectorAll('[data-action]').forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                    const action = btn.getAttribute('data-action');
+                    if (action === 'new') notepadCreate();
+                    else if (action === 'delete') notepadDeleteActive();
+                    else if (action === 'save') {
+                        notepadFlushActiveFromDom();
+                        notepadRenderList();
+                        notepadPersist(true);
+                    } else if (action === 'copy') {
+                        try {
+                            await navigator.clipboard.writeText(editor.innerText || '');
+                            notepadSetStatusRight('copiado');
+                        } catch (e) {
+                            notepadSetStatusRight('no se pudo copiar');
+                        }
+                    } else if (action === 'download-md') notepadDownload('md');
+                    else if (action === 'download-html') notepadDownload('html');
+                    else if (action === 'download-txt') notepadDownload('txt');
+                    else if (action === 'find') {
+                        const bar = document.getElementById('notepadFindBar');
+                        if (bar) {
+                            bar.classList.add('open');
+                            const input = document.getElementById('notepadFindInput');
+                            if (input) input.focus();
+                        }
+                    } else if (action === 'find-next') notepadFindNext();
+                    else if (action === 'find-close') {
+                        const bar = document.getElementById('notepadFindBar');
+                        if (bar) bar.classList.remove('open');
+                    }
+                });
+            });
+
+            const findInput = document.getElementById('notepadFindInput');
+            if (findInput) {
+                findInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        notepadFindNext();
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initNotepadEditor);
+
         connectSSE();
     </script>
+
+    <div class="notepad-overlay" id="notepadOverlay" aria-hidden="true">
+        <div class="notepad-shell" role="dialog" aria-modal="true" aria-labelledby="notepadBrandLabel">
+            <div class="notepad-top">
+                <div class="notepad-brand" id="notepadBrandLabel">= / notepad</div>
+                <input type="text" class="notepad-title" id="notepadTitle" maxlength="120" placeholder="Título de la nota" autocomplete="off">
+                <button type="button" class="notepad-close" id="notepadCloseBtn" title="Cerrar">Cerrar</button>
+            </div>
+            <div class="notepad-toolbar" id="notepadToolbar">
+                <button type="button" class="notepad-tool" data-cmd="undo" title="Deshacer">↩</button>
+                <button type="button" class="notepad-tool" data-cmd="redo" title="Rehacer">↪</button>
+                <span class="notepad-tool-sep" aria-hidden="true"></span>
+                <button type="button" class="notepad-tool" data-cmd="bold" title="Negrita"><strong>B</strong></button>
+                <button type="button" class="notepad-tool" data-cmd="italic" title="Cursiva"><em>I</em></button>
+                <button type="button" class="notepad-tool" data-cmd="underline" title="Subrayado"><u>U</u></button>
+                <button type="button" class="notepad-tool" data-cmd="strikeThrough" title="Tachado"><s>S</s></button>
+                <span class="notepad-tool-sep" aria-hidden="true"></span>
+                <button type="button" class="notepad-tool" data-cmd="formatBlock" data-value="h2" title="Título">H</button>
+                <button type="button" class="notepad-tool" data-cmd="insertUnorderedList" title="Lista">• List</button>
+                <button type="button" class="notepad-tool" data-cmd="insertOrderedList" title="Lista numerada">1. List</button>
+                <button type="button" class="notepad-tool" data-cmd="formatBlock" data-value="pre" title="Código">Code</button>
+                <button type="button" class="notepad-tool" data-cmd="removeFormat" title="Quitar formato">Clear</button>
+                <span class="notepad-tool-sep" aria-hidden="true"></span>
+                <button type="button" class="notepad-tool" data-action="find" title="Buscar">Buscar</button>
+                <button type="button" class="notepad-tool" data-action="copy" title="Copiar">Copiar</button>
+                <button type="button" class="notepad-tool" data-action="download-md" title="Descargar Markdown">.md</button>
+                <button type="button" class="notepad-tool" data-action="download-html" title="Descargar HTML">.html</button>
+                <button type="button" class="notepad-tool" data-action="download-txt" title="Descargar texto">.txt</button>
+                <button type="button" class="notepad-tool" data-action="save" title="Guardar">Guardar</button>
+                <div class="notepad-find" id="notepadFindBar">
+                    <input type="text" id="notepadFindInput" placeholder="Buscar en la nota…" autocomplete="off">
+                    <button type="button" class="notepad-tool" data-action="find-next">Siguiente</button>
+                    <button type="button" class="notepad-tool" data-action="find-close">Cerrar</button>
+                </div>
+            </div>
+            <div class="notepad-main">
+                <aside class="notepad-sidebar">
+                    <div class="notepad-sidebar-head">
+                        <button type="button" class="notepad-tool" data-action="new" title="Nueva nota">+ Nueva</button>
+                        <button type="button" class="notepad-tool" data-action="delete" title="Eliminar nota">Eliminar</button>
+                    </div>
+                    <ul class="notepad-list" id="notepadList"></ul>
+                </aside>
+                <div class="notepad-editor-wrap">
+                    <div class="notepad-editor" id="notepadEditor" contenteditable="true" spellcheck="true" data-placeholder="Escribe aquí… bloc de notas único de l8 codespace." role="textbox" aria-multiline="true"></div>
+                </div>
+            </div>
+            <div class="notepad-status">
+                <span id="notepadStatusLeft">0 palabras · 0 caracteres</span>
+                <span id="notepadStatusRight">listo</span>
+            </div>
+        </div>
+    </div>
+
     </div><!-- /.platform-shell -->
 
     <script>

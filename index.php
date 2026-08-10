@@ -2130,8 +2130,9 @@
                     <div>Comandos<strong id="tokensCommands">—</strong></div>
                     <div>Externas<strong id="tokensExternals">—</strong></div>
                     <div>Clones<strong id="tokensClones">—</strong></div>
+                    <div>Notas<strong id="tokensNotepads">—</strong></div>
                 </div>
-                <div class="tokens-legend" id="tokensLegend">Cupo mensual 10.000 · Comando −5 · Ventana externa −25 · Clone GitHub −625</div>
+                <div class="tokens-legend" id="tokensLegend">Cupo mensual 10.000 · Comando −5 · Ventana externa −25 · Clone GitHub −625 · Bloc de notas −1000</div>
                 <div class="tokens-section-title">Meses anteriores</div>
                 <ul class="tokens-history" id="tokensHistoryList"></ul>
                 <p class="tokens-empty" id="tokensHistoryEmpty">Sin gastos de meses previos aún.</p>
@@ -3382,6 +3383,7 @@
             const k = String(kind || '').toLowerCase();
             if (k === 'clone') return 'Clone';
             if (k === 'external') return 'Externa';
+            if (k === 'notepad' || k === 'notepads' || k === 'notes') return 'Notas';
             return 'Comando';
         }
 
@@ -3402,7 +3404,8 @@
                 left.innerHTML = '<strong>' + String(row.period || '—') + '</strong><br><span class="muted">' +
                     formatTokenCount(row.commands) + ' cmd · ' +
                     formatTokenCount(row.externals) + ' ext · ' +
-                    formatTokenCount(row.clones) + ' clone</span>';
+                    formatTokenCount(row.clones) + ' clone · ' +
+                    formatTokenCount(row.notepads) + ' notas</span>';
                 const right = document.createElement('span');
                 right.textContent = formatTokenCount(row.used) + ' / ' + formatTokenCount(row.allowance || status.allowance);
                 li.appendChild(left);
@@ -3446,6 +3449,7 @@
             const cmds = document.getElementById('tokensCommands');
             const exts = document.getElementById('tokensExternals');
             const clones = document.getElementById('tokensClones');
+            const notepads = document.getElementById('tokensNotepads');
             const period = document.getElementById('tokensPeriodLabel');
             const fill = document.getElementById('tokensMeterFill');
             const btn = document.getElementById('tokensMeterBtn');
@@ -3455,6 +3459,7 @@
             if (cmds) cmds.textContent = formatTokenCount(status.commands);
             if (exts) exts.textContent = formatTokenCount(status.externals);
             if (clones) clones.textContent = formatTokenCount(status.clones);
+            if (notepads) notepads.textContent = formatTokenCount(status.notepads);
             if (period) period.textContent = 'Periodo ' + (status.period || '—') + ' · cupo mensual (guardado)';
             const pct = Math.max(0, Math.min(100, Number(status.percent_used || 0)));
             if (fill) {
@@ -3471,7 +3476,8 @@
                 legend.textContent = 'Cupo mensual ' + formatTokenCount(status.allowance) +
                     ' · Comando −' + status.costs.command +
                     ' · Ventana externa −' + status.costs.external +
-                    ' · Clone GitHub −' + status.costs.clone;
+                    ' · Clone GitHub −' + status.costs.clone +
+                    ' · Bloc de notas −' + (status.costs.notepad || 1000);
             }
             renderTokensHistory(status);
             renderTokensLedger(status);
@@ -4027,11 +4033,37 @@
             notepadSetStatusRight('encontrado');
         }
 
-        function toggleNotepadEditor(force) {
+        let notepadOpenBusy = false;
+
+        async function toggleNotepadEditor(force) {
             const overlay = document.getElementById('notepadOverlay');
             const btn = document.getElementById('notepadOpenBtn');
-            if (!overlay) return;
-            const open = typeof force === 'boolean' ? force : !overlay.classList.contains('open');
+            if (!overlay || notepadOpenBusy) return;
+            const currentlyOpen = overlay.classList.contains('open');
+            const open = typeof force === 'boolean' ? force : !currentlyOpen;
+
+            if (open && !currentlyOpen) {
+                notepadOpenBusy = true;
+                if (btn) btn.disabled = true;
+                try {
+                    const charge = await consumeTokens('notepad', 'bloc de notas');
+                    if (!charge || !charge.ok) {
+                        const msg = (charge && charge.error)
+                            ? charge.error
+                            : 'Tokens insuficientes para abrir el bloc de notas (−1000).';
+                        if (typeof executionContainer !== 'undefined' && executionContainer) {
+                            executionContainer.innerHTML = '<span style="color:#c5221f; font-weight:600; font-family:\'IBM Plex Mono\', monospace;">' +
+                                String(msg).replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
+                        }
+                        if (typeof toggleTokensPanel === 'function') toggleTokensPanel(true);
+                        return;
+                    }
+                } finally {
+                    notepadOpenBusy = false;
+                    if (btn) btn.disabled = false;
+                }
+            }
+
             overlay.classList.toggle('open', open);
             overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
             if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');

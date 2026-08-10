@@ -6,6 +6,7 @@
  * - Comando: -5
  * - Ventana externa: -25
  * - Clone de repositorio GitHub: -625
+ * - Bloc de notas: -1000
  *
  * Persistencia (sobrevive redeploy / updates):
  * 1) data_storage/tokens/usage.json (local)
@@ -35,6 +36,10 @@ function tokensCostExternal() {
 
 function tokensCostClone() {
     return 625;
+}
+
+function tokensCostNotepad() {
+    return 1000;
 }
 
 function tokensLedgerMax() {
@@ -73,6 +78,7 @@ function tokensEmptyPeriodBucket($period = null) {
         'commands' => 0,
         'externals' => 0,
         'clones' => 0,
+        'notepads' => 0,
         'updated_at' => date('c')
     ];
 }
@@ -87,6 +93,7 @@ function tokensEmptyAccount($accountKey) {
         'commands' => 0,
         'externals' => 0,
         'clones' => 0,
+        'notepads' => 0,
         'periods' => [],
         'ledger' => [],
         'updated_at' => date('c')
@@ -105,6 +112,7 @@ function tokensNormalizePeriodBucket($bucket, $period = null) {
         'commands' => max(0, (int)($bucket['commands'] ?? 0)),
         'externals' => max(0, (int)($bucket['externals'] ?? 0)),
         'clones' => max(0, (int)($bucket['clones'] ?? 0)),
+        'notepads' => max(0, (int)($bucket['notepads'] ?? 0)),
         'updated_at' => (string)($bucket['updated_at'] ?? date('c'))
     ];
 }
@@ -117,6 +125,7 @@ function tokensSnapshotCurrent(array $acct) {
         'commands' => max(0, (int)($acct['commands'] ?? 0)),
         'externals' => max(0, (int)($acct['externals'] ?? 0)),
         'clones' => max(0, (int)($acct['clones'] ?? 0)),
+        'notepads' => max(0, (int)($acct['notepads'] ?? 0)),
         'updated_at' => (string)($acct['updated_at'] ?? date('c'))
     ];
 }
@@ -132,6 +141,7 @@ function tokensMergePeriodBuckets($a, $b) {
         'commands' => max($a['commands'], $b['commands']),
         'externals' => max($a['externals'], $b['externals']),
         'clones' => max($a['clones'], $b['clones']),
+        'notepads' => max($a['notepads'], $b['notepads']),
         'updated_at' => strcmp((string)$a['updated_at'], (string)$b['updated_at']) >= 0 ? $a['updated_at'] : $b['updated_at']
     ];
 }
@@ -198,6 +208,7 @@ function tokensNormalizeAccount($accountKey, $acct) {
             'commands' => $acct['commands'] ?? ($periods[$currentPeriod]['commands'] ?? 0),
             'externals' => $acct['externals'] ?? ($periods[$currentPeriod]['externals'] ?? 0),
             'clones' => $acct['clones'] ?? ($periods[$currentPeriod]['clones'] ?? 0),
+            'notepads' => $acct['notepads'] ?? ($periods[$currentPeriod]['notepads'] ?? 0),
             'updated_at' => $acct['updated_at'] ?? date('c')
         ], $currentPeriod);
     } else {
@@ -222,6 +233,7 @@ function tokensNormalizeAccount($accountKey, $acct) {
         'commands' => $current['commands'],
         'externals' => $current['externals'],
         'clones' => $current['clones'],
+        'notepads' => $current['notepads'],
         'periods' => $periods,
         'ledger' => $ledger,
         'updated_at' => $current['updated_at']
@@ -258,6 +270,7 @@ function tokensMergeAccounts($a, $b) {
         'commands' => $current['commands'],
         'externals' => $current['externals'],
         'clones' => $current['clones'],
+        'notepads' => $current['notepads'],
         'periods' => $periods,
         'ledger' => tokensMergeLedgers($a['ledger'], $b['ledger']),
         'updated_at' => strcmp((string)$a['updated_at'], (string)$b['updated_at']) >= 0 ? $a['updated_at'] : $b['updated_at']
@@ -337,6 +350,7 @@ function tokensPullStoreFromDb() {
             'commands' => $row['commands'] ?? 0,
             'externals' => $row['externals'] ?? 0,
             'clones' => $row['clones'] ?? 0,
+            'notepads' => $row['notepads'] ?? 0,
             'periods' => is_array($periods) ? $periods : [],
             'ledger' => [],
             'updated_at' => $row['updated_at'] ?? date('c')
@@ -387,6 +401,7 @@ function tokensPushStoreToDb(array $store) {
             'commands' => $acct['commands'],
             'externals' => $acct['externals'],
             'clones' => $acct['clones'],
+            'notepads' => $acct['notepads'],
             'periods' => $acct['periods'],
             'updated_at' => $now
         ];
@@ -405,6 +420,18 @@ function tokensPushStoreToDb(array $store) {
     }
 
     $accPush = supabaseDbUpsert('l8_token_accounts', $accountRows, 'account_key');
+    // Compat: DBs sin columna notepads aún (schema antiguo)
+    if (empty($accPush['ok'])) {
+        $fallbackRows = [];
+        foreach ($accountRows as $row) {
+            unset($row['notepads']);
+            $fallbackRows[] = $row;
+        }
+        $accPush = supabaseDbUpsert('l8_token_accounts', $fallbackRows, 'account_key');
+        if (!empty($accPush['ok'])) {
+            $accPush['notepads_column_missing'] = true;
+        }
+    }
     $ledPush = $ledgerRows ? supabaseDbUpsert('l8_token_ledger', $ledgerRows, 'id') : ['ok' => true, 'skipped' => true];
     return [
         'ok' => !empty($accPush['ok']) && !empty($ledPush['ok']),
@@ -586,6 +613,7 @@ function tokensArchiveIfNeeded(array $acct) {
     $acct['commands'] = 0;
     $acct['externals'] = 0;
     $acct['clones'] = 0;
+    $acct['notepads'] = 0;
     $acct['updated_at'] = date('c');
     return $acct;
 }
@@ -621,6 +649,7 @@ function tokensStatusForKey($accountKey, $includeHistory = true) {
                 'commands' => (int)($bucket['commands'] ?? 0),
                 'externals' => (int)($bucket['externals'] ?? 0),
                 'clones' => (int)($bucket['clones'] ?? 0),
+                'notepads' => (int)($bucket['notepads'] ?? 0),
                 'updated_at' => $bucket['updated_at'] ?? null
             ];
         }
@@ -642,10 +671,12 @@ function tokensStatusForKey($accountKey, $includeHistory = true) {
         'commands' => (int)$acct['commands'],
         'externals' => (int)$acct['externals'],
         'clones' => (int)$acct['clones'],
+        'notepads' => (int)($acct['notepads'] ?? 0),
         'costs' => [
             'command' => tokensCostCommand(),
             'external' => tokensCostExternal(),
-            'clone' => tokensCostClone()
+            'clone' => tokensCostClone(),
+            'notepad' => tokensCostNotepad()
         ],
         'history' => $history,
         'ledger' => $ledger,
@@ -670,8 +701,11 @@ function tokensConsume($kind, $detail = '') {
     } else if ($kind === 'clone' || $kind === 'clones' || $kind === 'repo_clone' || $kind === 'github_clone') {
         $kind = 'clone';
         $cost = tokensCostClone();
+    } else if ($kind === 'notepad' || $kind === 'notepads' || $kind === 'notes' || $kind === 'bloc') {
+        $kind = 'notepad';
+        $cost = tokensCostNotepad();
     } else {
-        return ['ok' => false, 'error' => 'Unknown token kind. Use command|external|clone', 'code' => 'bad_kind'];
+        return ['ok' => false, 'error' => 'Unknown token kind. Use command|external|clone|notepad', 'code' => 'bad_kind'];
     }
 
     $accountKey = tokensResolveAccountKey();
@@ -696,6 +730,7 @@ function tokensConsume($kind, $detail = '') {
     if ($kind === 'command') $acct['commands'] = (int)$acct['commands'] + 1;
     if ($kind === 'external') $acct['externals'] = (int)$acct['externals'] + 1;
     if ($kind === 'clone') $acct['clones'] = (int)$acct['clones'] + 1;
+    if ($kind === 'notepad') $acct['notepads'] = (int)($acct['notepads'] ?? 0) + 1;
     $acct['updated_at'] = date('c');
 
     $entry = [

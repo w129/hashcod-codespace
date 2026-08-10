@@ -2169,6 +2169,28 @@
             }
 
 
+            if (dataToDisplay && dataToDisplay.type === "CHROMEOS_PLAY_LAUNCH") {
+                const url = dataToDisplay.open_url || '/chromeos';
+                const lic = dataToDisplay.license || {};
+                const resource = dataToDisplay.resource_url || 'https://github.com/dockur/chromeos.git';
+                const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                executionContainer.innerHTML = `
+                    <div style="padding:18px 16px; background:#faf9f6; border:1px solid #e6e3dd; border-radius:8px; font-family:'IBM Plex Mono', monospace; color:#000;">
+                        <div style="display:flex; flex-direction:column; align-items:flex-start; gap:12px;">
+                            <div style="font-weight:700; font-size:15px;">ChromeOS play</div>
+                            <div style="font-size:12px; color:#444; line-height:1.45; max-width:760px;">
+                                Desplegando sistema operativo externo con <a href="${esc(resource)}" target="_blank" rel="noopener" style="color:#0b57d0;">dockur/chromeos</a>.
+                                Licencia incluida en el apartado <strong>License</strong> del SO: ${esc(lic.spdx || 'MIT')} (${esc(lic.source || 'license.md')}).
+                            </div>
+                            <button type="button" onclick="openChromeosPlay('${esc(url)}')" style="border:1px solid #ccc; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:12px;">Reabrir ventana externa</button>
+                        </div>
+                    </div>
+                `;
+                setTimeout(() => openChromeosPlay(url), 80);
+                return;
+            }
+
+
             // RENDERIZADO PARA EL CATÁLOGO GLOBAL DE GITHUB (repos / clone / save)
             if (dataToDisplay && (dataToDisplay.type === "REPOS_CATALOG" || dataToDisplay.type === "REPO_CLONE_RESULT")) {
                 const repos = dataToDisplay.repos || (dataToDisplay.all_repos || []);
@@ -2579,6 +2601,18 @@
             const target = url || '/macos';
             const features = 'noopener,noreferrer,width=1180,height=780';
             const win = window.open(target, 'l8-macos-inside', features);
+            if (!win) {
+                window.location.href = target;
+            } else {
+                try { win.focus(); } catch (e) {}
+            }
+        }
+
+
+        function openChromeosPlay(url) {
+            const target = url || '/chromeos';
+            const features = 'noopener,noreferrer,width=1180,height=780';
+            const win = window.open(target, 'l8-chromeos-play', features);
             if (!win) {
                 window.location.href = target;
             } else {

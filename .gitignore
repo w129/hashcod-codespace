@@ -11,6 +11,7 @@ data_storage/ubuntu-cli/
 data_storage/claude-cli/
 data_storage/zylon-cli/
 data_storage/macos-cli/
+data_storage/chromeos-cli/
 data_storage/repo_tree_cache/
 data_storage/.supabase_bootstrapped
 data_storage/originkit-workspace/

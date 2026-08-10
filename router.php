@@ -53,6 +53,12 @@ if ($uri === '/macos' || $uri === '/macos-cli' || $uri === '/macos_inside' || $u
     exit;
 }
 
+// ChromeOS play externa (dockur/chromeos)
+if ($uri === '/chromeos' || $uri === '/chromeos-cli' || $uri === '/chromeos_play' || $uri === '/chromeOS_play' || $uri === '/chromeos-cli.php') {
+    require __DIR__ . '/chromeos-cli.php';
+    exit;
+}
+
 // Reenviar peticiones API a api.php
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

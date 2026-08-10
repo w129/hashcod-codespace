@@ -3308,10 +3308,14 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 // Auth gate: registro / login / sesión (Dilithium-5 mensual solo vía env)
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/tokens.php';
+require_once __DIR__ . '/ai-chat.php';
 if (function_exists('authHandleApi') && authHandleApi($uri)) {
     exit;
 }
 if (function_exists('tokensHandleApi') && tokensHandleApi($uri)) {
+    exit;
+}
+if (function_exists('aiChatHandleApi') && aiChatHandleApi($uri)) {
     exit;
 }
 

@@ -604,6 +604,82 @@
             }
         }
 
+        .notepad-tool.iconic {
+            width: 28px;
+            padding: 0;
+        }
+
+        .notepad-tool.iconic svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+            fill: currentColor;
+        }
+
+        .notepad-ai-panel {
+            display: none;
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .notepad-ai-panel.open {
+            display: flex;
+        }
+
+        .notepad-ai-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .notepad-ai-select,
+        .notepad-ai-input {
+            height: 30px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            font: inherit;
+            font-size: 12px;
+            color: #111;
+            outline: none;
+            padding: 0 8px;
+        }
+
+        .notepad-ai-select {
+            min-width: 150px;
+        }
+
+        .notepad-ai-input {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .notepad-ai-status {
+            font-size: 11px;
+            color: #666;
+            min-height: 14px;
+        }
+
+        .notepad-ai-status.err { color: #c5221f; }
+        .notepad-ai-status.ok { color: #137333; }
+
+        .notepad-ai-login {
+            display: none;
+            gap: 6px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .notepad-ai-login.open {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
         .main-container {
             padding: 12px;
             display: flex;
@@ -3907,6 +3983,291 @@
             }
         }
 
+        /* ===== Chat IA (inserta contenido puro en la selección) ===== */
+        let notepadAiProviders = [];
+        let notepadAiBusy = false;
+
+        function notepadAiHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            try {
+                const tok = (typeof window.l8GetAuthToken === 'function') ? window.l8GetAuthToken() : '';
+                if (tok) headers['Authorization'] = 'Bearer ' + tok;
+            } catch (e) {}
+            try {
+                const guest = localStorage.getItem('l8_tokens_guest') || '';
+                if (guest) headers['X-L8-Tokens-Guest'] = guest;
+            } catch (e) {}
+            return headers;
+        }
+
+        function notepadAiSelectedProvider() {
+            const sel = document.getElementById('notepadAiModel');
+            return sel ? sel.value : 'gpt-5.6';
+        }
+
+        function notepadAiSetConnStatus(text, kind) {
+            const el = document.getElementById('notepadAiConnStatus');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.toggle('err', kind === 'err');
+            el.classList.toggle('ok', kind === 'ok');
+        }
+
+        function notepadAiSetRunStatus(text, kind) {
+            const el = document.getElementById('notepadAiRunStatus');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.toggle('err', kind === 'err');
+            el.classList.toggle('ok', kind === 'ok');
+        }
+
+        function notepadAiUpdateConnUi() {
+            const id = notepadAiSelectedProvider();
+            const row = notepadAiProviders.find((p) => p.id === id);
+            const loginBox = document.getElementById('notepadAiLoginBox');
+            if (!row) {
+                notepadAiSetConnStatus('modelo no disponible', 'err');
+                return;
+            }
+            if (row.connected) {
+                notepadAiSetConnStatus(row.label + ' · conectado' + (row.oauth_ready ? ' (OAuth)' : ''), 'ok');
+                if (loginBox) loginBox.classList.remove('open');
+            } else if (row.oauth_ready) {
+                notepadAiSetConnStatus(row.label + ' · inicia sesión OAuth', 'err');
+            } else if (row.configured) {
+                notepadAiSetConnStatus(row.label + ' · usa token / API key', 'err');
+                if (loginBox) loginBox.classList.add('open');
+            } else {
+                notepadAiSetConnStatus(row.label + ' · configura OAuth en el servidor o pega token', 'err');
+                if (loginBox) loginBox.classList.add('open');
+            }
+        }
+
+        async function notepadAiRefreshStatus() {
+            try {
+                const res = await fetch('/api/ai/status', { headers: notepadAiHeaders() });
+                const data = await res.json();
+                if (data && data.ok && Array.isArray(data.providers)) {
+                    notepadAiProviders = data.providers;
+                    notepadAiUpdateConnUi();
+                    return data;
+                }
+            } catch (e) {}
+            notepadAiSetConnStatus('no se pudo leer estado IA', 'err');
+            return null;
+        }
+
+        function toggleNotepadAiPanel(force) {
+            const panel = document.getElementById('notepadAiPanel');
+            const btn = document.getElementById('notepadAiToggleBtn');
+            if (!panel) return;
+            const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
+            panel.classList.toggle('open', open);
+            if (btn) {
+                btn.classList.toggle('active', open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+            if (open) notepadAiRefreshStatus();
+        }
+
+        function notepadGetSelectionContext() {
+            const editor = document.getElementById('notepadEditor');
+            if (!editor) return '';
+            try {
+                const sel = window.getSelection();
+                if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
+                    const selected = String(sel.toString() || '');
+                    if (selected.trim()) return selected;
+                }
+            } catch (e) {}
+            const text = editor.innerText || '';
+            return text.slice(0, 1200);
+        }
+
+        function notepadInsertAtSelection(content) {
+            const editor = document.getElementById('notepadEditor');
+            if (!editor) return false;
+            editor.focus();
+            const text = String(content || '');
+            let ok = false;
+            try {
+                ok = document.execCommand('insertText', false, text);
+            } catch (e) {
+                ok = false;
+            }
+            if (!ok) {
+                try {
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
+                        const range = sel.getRangeAt(0);
+                        range.deleteContents();
+                        range.insertNode(document.createTextNode(text));
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                        ok = true;
+                    } else {
+                        editor.appendChild(document.createTextNode(text));
+                        ok = true;
+                    }
+                } catch (e) {
+                    editor.textContent = (editor.textContent || '') + text;
+                    ok = true;
+                }
+            }
+            notepadMarkDirty();
+            notepadUpdateCounts();
+            return ok;
+        }
+
+        async function notepadAiStartOauth() {
+            const provider = notepadAiSelectedProvider();
+            notepadAiSetRunStatus('abriendo OAuth…');
+            try {
+                const res = await fetch('/api/ai/oauth/start', {
+                    method: 'POST',
+                    headers: notepadAiHeaders(),
+                    body: JSON.stringify({ provider: provider })
+                });
+                const data = await res.json();
+                if (data && data.ok && data.authorize_url) {
+                    const w = window.open(data.authorize_url, 'l8-ai-oauth', 'width=560,height=720');
+                    if (!w) {
+                        notepadAiSetRunStatus('permite ventanas emergentes para OAuth', 'err');
+                        const box = document.getElementById('notepadAiLoginBox');
+                        if (box) box.classList.add('open');
+                        return;
+                    }
+                    notepadAiSetRunStatus('completa el inicio de sesión en la ventana OAuth…');
+                    return;
+                }
+                if (data && data.allow_token_login) {
+                    const box = document.getElementById('notepadAiLoginBox');
+                    if (box) box.classList.add('open');
+                }
+                notepadAiSetRunStatus((data && data.error) || 'OAuth no disponible', 'err');
+            } catch (e) {
+                notepadAiSetRunStatus(e.message || String(e), 'err');
+            }
+        }
+
+        async function notepadAiSaveToken() {
+            const provider = notepadAiSelectedProvider();
+            const input = document.getElementById('notepadAiTokenInput');
+            const token = input ? input.value.trim() : '';
+            if (!token) {
+                notepadAiSetRunStatus('pega un access token o API key', 'err');
+                return;
+            }
+            try {
+                const res = await fetch('/api/ai/login', {
+                    method: 'POST',
+                    headers: notepadAiHeaders(),
+                    body: JSON.stringify({
+                        provider: provider,
+                        token: token,
+                        kind: /^sk-|^AIza|^sk-ant-|^manus/i.test(token) ? 'api_key' : 'access_token'
+                    })
+                });
+                const data = await res.json();
+                if (data && data.ok) {
+                    if (input) input.value = '';
+                    await notepadAiRefreshStatus();
+                    notepadAiSetRunStatus('sesión guardada en servidor', 'ok');
+                } else {
+                    notepadAiSetRunStatus((data && data.error) || 'no se pudo guardar', 'err');
+                }
+            } catch (e) {
+                notepadAiSetRunStatus(e.message || String(e), 'err');
+            }
+        }
+
+        async function notepadAiLogout() {
+            const provider = notepadAiSelectedProvider();
+            try {
+                await fetch('/api/ai/logout', {
+                    method: 'POST',
+                    headers: notepadAiHeaders(),
+                    body: JSON.stringify({ provider: provider })
+                });
+                await notepadAiRefreshStatus();
+                notepadAiSetRunStatus('sesión cerrada', 'ok');
+            } catch (e) {
+                notepadAiSetRunStatus(e.message || String(e), 'err');
+            }
+        }
+
+        async function notepadAiSend() {
+            if (notepadAiBusy) return;
+            const promptEl = document.getElementById('notepadAiPrompt');
+            const prompt = promptEl ? promptEl.value.trim() : '';
+            if (!prompt) {
+                notepadAiSetRunStatus('escribe qué contenido quieres insertar', 'err');
+                return;
+            }
+            const provider = notepadAiSelectedProvider();
+            notepadAiBusy = true;
+            const sendBtn = document.getElementById('notepadAiSendBtn');
+            if (sendBtn) sendBtn.disabled = true;
+            notepadAiSetRunStatus('generando con ' + provider + '…');
+            try {
+                const res = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: notepadAiHeaders(),
+                    body: JSON.stringify({
+                        provider: provider,
+                        prompt: prompt,
+                        context: notepadGetSelectionContext()
+                    })
+                });
+                const data = await res.json();
+                if (data && data.ok && typeof data.content === 'string') {
+                    notepadInsertAtSelection(data.content);
+                    if (promptEl) promptEl.value = '';
+                    notepadAiSetRunStatus('insertado · ' + (data.label || provider), 'ok');
+                } else {
+                    if (data && data.code === 'not_authenticated') {
+                        const box = document.getElementById('notepadAiLoginBox');
+                        if (box) box.classList.add('open');
+                    }
+                    notepadAiSetRunStatus((data && data.error) || 'falló la generación', 'err');
+                }
+            } catch (e) {
+                notepadAiSetRunStatus(e.message || String(e), 'err');
+            } finally {
+                notepadAiBusy = false;
+                if (sendBtn) sendBtn.disabled = false;
+            }
+        }
+
+        function initNotepadAiChat() {
+            const model = document.getElementById('notepadAiModel');
+            const oauthBtn = document.getElementById('notepadAiOauthBtn');
+            const logoutBtn = document.getElementById('notepadAiLogoutBtn');
+            const tokenBtn = document.getElementById('notepadAiTokenBtn');
+            const sendBtn = document.getElementById('notepadAiSendBtn');
+            const prompt = document.getElementById('notepadAiPrompt');
+            if (model) model.addEventListener('change', () => notepadAiUpdateConnUi());
+            if (oauthBtn) oauthBtn.addEventListener('click', () => notepadAiStartOauth());
+            if (logoutBtn) logoutBtn.addEventListener('click', () => notepadAiLogout());
+            if (tokenBtn) tokenBtn.addEventListener('click', () => notepadAiSaveToken());
+            if (sendBtn) sendBtn.addEventListener('click', () => notepadAiSend());
+            if (prompt) {
+                prompt.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        notepadAiSend();
+                    }
+                });
+            }
+            window.addEventListener('message', (ev) => {
+                const data = ev && ev.data;
+                if (!data || data.type !== 'l8-ai-oauth') return;
+                notepadAiRefreshStatus();
+                notepadAiSetRunStatus(data.ok ? 'OAuth completado' : 'OAuth falló', data.ok ? 'ok' : 'err');
+            });
+        }
+
         function initNotepadEditor() {
             if (window.__l8NotepadReady) return;
             const overlay = document.getElementById('notepadOverlay');
@@ -3916,6 +4277,7 @@
             if (!overlay || !editor) return;
             window.__l8NotepadReady = true;
             notepadLoadStore();
+            initNotepadAiChat();
 
             if (closeBtn) closeBtn.addEventListener('click', () => toggleNotepadEditor(false));
             overlay.addEventListener('click', (e) => {
@@ -3948,6 +4310,7 @@
                     const action = btn.getAttribute('data-action');
                     if (action === 'new') notepadCreate();
                     else if (action === 'delete') notepadDeleteActive();
+                    else if (action === 'ai-toggle') toggleNotepadAiPanel();
                     else if (action === 'save') {
                         notepadFlushActiveFromDom();
                         notepadRenderList();
@@ -4015,12 +4378,40 @@
                 <button type="button" class="notepad-tool" data-cmd="formatBlock" data-value="pre" title="Código">Code</button>
                 <button type="button" class="notepad-tool" data-cmd="removeFormat" title="Quitar formato">Clear</button>
                 <span class="notepad-tool-sep" aria-hidden="true"></span>
+                <button type="button" class="notepad-tool iconic" id="notepadAiToggleBtn" data-action="ai-toggle" title="Chat IA" aria-label="Abrir chat IA" aria-expanded="false" aria-controls="notepadAiPanel">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M 2 2 L 2 18 L 10 18 L 10 16 L 10 13 L 7 13 L 7 16 L 4 16 L 4 13 L 7 13 L 7 10 L 4 10 L 4 7 L 7 7 L 7 4 L 10 4 L 10 6 L 13 6 L 13 4 L 16 4 L 16 6 L 18 6 L 18 4 L 18 3 L 18 2 L 2 2 z M 7 7 L 7 10 L 10 10 L 10 7 L 7 7 z M 12 8 L 12 9 L 12 15 L 15.341797 15 L 14.113281 18.505859 C 12.858545 19.357587 12 20.695357 12 22.236328 L 12 24 L 24 24 L 24 22.236328 C 24 20.695357 23.141455 19.357587 21.886719 18.505859 L 20.658203 15 L 24 15 L 24 8 L 12 8 z M 14 10 L 15 10 L 15 12 L 17 12 L 17 10 L 19 10 L 19 12 L 21 12 L 21 10 L 22 10 L 22 13 L 19.958984 13 L 16.041016 13 L 14 13 L 14 10 z M 17.458984 15 L 18.541016 15 L 20.189453 19.712891 L 20.552734 19.894531 C 21.36554 20.300934 21.8476 21.108372 21.933594 22 L 14.066406 22 C 14.152396 21.108372 14.63446 20.300934 15.447266 19.894531 L 15.810547 19.712891 L 17.458984 15 z"></path>
+                    </svg>
+                </button>
+                <span class="notepad-tool-sep" aria-hidden="true"></span>
                 <button type="button" class="notepad-tool" data-action="find" title="Buscar">Buscar</button>
                 <button type="button" class="notepad-tool" data-action="copy" title="Copiar">Copiar</button>
                 <button type="button" class="notepad-tool" data-action="download-md" title="Descargar Markdown">.md</button>
                 <button type="button" class="notepad-tool" data-action="download-html" title="Descargar HTML">.html</button>
                 <button type="button" class="notepad-tool" data-action="download-txt" title="Descargar texto">.txt</button>
                 <button type="button" class="notepad-tool" data-action="save" title="Guardar">Guardar</button>
+                <div class="notepad-ai-panel" id="notepadAiPanel" aria-label="Chat IA del bloc de notas">
+                    <div class="notepad-ai-row">
+                        <select class="notepad-ai-select" id="notepadAiModel" title="Modelo IA" aria-label="Modelo IA">
+                            <option value="gpt-5.6">GPT 5.6</option>
+                            <option value="gemini-3.6">Gemini 3.6</option>
+                            <option value="claude-fable-5">Claude Fable 5</option>
+                            <option value="manus">Manus</option>
+                        </select>
+                        <button type="button" class="notepad-tool" id="notepadAiOauthBtn" title="Iniciar sesión OAuth">Iniciar sesión</button>
+                        <button type="button" class="notepad-tool" id="notepadAiLogoutBtn" title="Cerrar sesión del modelo">Salir</button>
+                        <span class="notepad-ai-status" id="notepadAiConnStatus">elige modelo e inicia sesión</span>
+                    </div>
+                    <div class="notepad-ai-login" id="notepadAiLoginBox">
+                        <input type="password" class="notepad-ai-input" id="notepadAiTokenInput" placeholder="Access token / API key (solo servidor)" autocomplete="off">
+                        <button type="button" class="notepad-tool" id="notepadAiTokenBtn">Guardar token</button>
+                    </div>
+                    <div class="notepad-ai-row">
+                        <input type="text" class="notepad-ai-input" id="notepadAiPrompt" placeholder="Pide el contenido (sin saludos: se inserta en la selección)…" autocomplete="off">
+                        <button type="button" class="notepad-tool" id="notepadAiSendBtn">Insertar</button>
+                    </div>
+                    <div class="notepad-ai-status" id="notepadAiRunStatus"></div>
+                </div>
                 <div class="notepad-find" id="notepadFindBar">
                     <input type="text" id="notepadFindInput" placeholder="Buscar en la nota…" autocomplete="off">
                     <button type="button" class="notepad-tool" data-action="find-next">Siguiente</button>

@@ -29,6 +29,7 @@ $REGISTERED_COMMANDS = [
     "supabase"    => "Estado de Supabase: Storage + sesión persistente (repos, archivos y último comando sobreviven al recargar)",
     "mane_list?"  => "Muestra la lista de comandos creados y su funcionalidad",
     "crl"         => "Deja la celda de ejecución (=) totalmente vacía",
+    "dil_fs"      => "Limpia la terminal negra y deja la vista vacía (sin código ni inspector)",
     "status"      => "Consulta el estado del servidor y motores detectados",
     "browsers"    => "Muestra los procesos reales de navegadores en ejecución",
     "ping"        => "Comprueba la conectividad y latencia con el servidor",
@@ -3238,9 +3239,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         || strpos($lowerCmd, 'repos ') === 0 || strpos($lowerCmd, 'repositories ') === 0);
     $isSave = (strpos($lowerCmd, 'save ') === 0);
     $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0 || $cleanCmd === 'clonedify' || $cleanCmd === 'dify');
+    $isDilFs = ($lowerCmd === 'dil_fs' || $lowerCmd === 'dil-fs' || $cleanCmd === 'dilfs');
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
 
     if (!$isValid) {
         echo json_encode([
@@ -3362,6 +3364,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         ];
     } else if ($lowerCmd === 'crl' || $lowerCmd === 'crl?') {
         $outputResult = ['type' => 'EMPTY_CELL'];
+    } else if ($isDilFs) {
+        $outputResult = [
+            'type' => 'CLEAR_BLACK_TERMINAL',
+            'command' => 'dil_fs',
+            'message' => 'Terminal negra limpiada'
+        ];
     } else if ($lowerCmd === 'mane_list?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?') {
         $rows = [];
         foreach ($REGISTERED_COMMANDS as $cmd => $desc) {

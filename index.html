@@ -1534,6 +1534,39 @@
             }
         }
 
+        /** Limpia la terminal negra (editor + inspector) — comando servidor dil_fs */
+        function clearBlackTerminal() {
+            const editor = document.getElementById('functionEditor');
+            const selector = document.getElementById('repoFileSelector');
+            const pathInfo = document.getElementById('repoFilePathInfo');
+            const headerTitle = document.getElementById('functionDrawerHeader');
+            if (editor) {
+                editor.value = '';
+                editor.style.color = '#ffffff';
+            }
+            if (selector) {
+                selector.innerHTML = '<option value="">📁 Selecciona un archivo de código por carpeta...</option>';
+                selector.value = '';
+            }
+            if (pathInfo) pathInfo.textContent = '';
+            if (headerTitle) {
+                headerTitle.innerHTML = '&gt;/ function to execute';
+            }
+            currentInspectedRepo = '';
+            currentInspectedUserRepo = '';
+            currentInspectedFile = null;
+            currentRepoTree = [];
+            repoTreeCache = { repo: '', tree: [] };
+            if (typeof repoFileCache !== 'undefined' && repoFileCache && typeof repoFileCache.clear === 'function') {
+                repoFileCache.clear();
+            }
+            if (repoFileAbort) {
+                try { repoFileAbort.abort(); } catch (e) {}
+                repoFileAbort = null;
+            }
+            schedulePersistPlatformState();
+        }
+
         async function openRepoCodeInspector(repoName, userRepo) {
             const drawer = document.getElementById('functionDrawer');
             if (drawer && !drawer.classList.contains('open')) {
@@ -1856,6 +1889,12 @@
             const dataToDisplay = latestExecutionData.output !== undefined ? latestExecutionData.output : latestExecutionData;
 
             if (!dataToDisplay || dataToDisplay.type === "EMPTY_CELL" || (dataToDisplay.execution === null && dataToDisplay.browserState)) {
+                executionContainer.textContent = '';
+                return;
+            }
+
+            if (dataToDisplay.type === "CLEAR_BLACK_TERMINAL") {
+                clearBlackTerminal();
                 executionContainer.textContent = '';
                 return;
             }

@@ -2652,6 +2652,12 @@ function gatewayResolveZipPath($item) {
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
+// Auth gate: registro / login / sesión (Dilithium-5 mensual solo vía env)
+require_once __DIR__ . '/auth.php';
+if (function_exists('authHandleApi') && authHandleApi($uri)) {
+    exit;
+}
+
 // Endpoint GET para obtener el árbol de carpetas de un repositorio (rápido: sin bootstrap remoto)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/repo/tree')) {
     header('Content-Type: application/json; charset=utf-8');

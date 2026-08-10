@@ -954,9 +954,179 @@
         }
 
         /* ===== BOOT CLI (originkit blackhole) ===== */
-        body.boot-locked .platform-shell {
+        body.boot-locked .platform-shell,
+        body.auth-locked .platform-shell {
             visibility: hidden;
             pointer-events: none;
+        }
+
+        /* ===== AUTH GATE (post-Enter) ===== */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            background:
+                radial-gradient(1200px 600px at 12% 0%, rgba(20, 20, 20, 0.06), transparent 55%),
+                radial-gradient(900px 500px at 90% 100%, rgba(20, 20, 20, 0.05), transparent 50%),
+                #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .auth-overlay.hidden {
+            display: none;
+        }
+
+        .auth-card {
+            width: min(440px, 100%);
+            background: #ffffff;
+            border: 1px solid #d8d5cf;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
+            padding: 28px 26px 24px;
+            animation: authCardIn 0.45s ease both;
+        }
+
+        @keyframes authCardIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-card h1 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111;
+            letter-spacing: -0.02em;
+        }
+
+        .auth-card .auth-sub {
+            margin: 0 0 18px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.45;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0;
+            border: 1px solid #d8d5cf;
+            margin-bottom: 18px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            border: none;
+            background: #f7f6f3;
+            color: #555;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 10px 8px;
+            cursor: pointer;
+        }
+
+        .auth-tab.active {
+            background: #111;
+            color: #fff;
+        }
+
+        .auth-panel { display: none; }
+        .auth-panel.active { display: block; }
+
+        .auth-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 6px;
+        }
+
+        .auth-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #cfcbc3;
+            background: #faf9f6;
+            color: #111;
+            font: inherit;
+            font-size: 12px;
+            padding: 11px 12px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .auth-input:focus {
+            border-color: #111;
+            background: #fff;
+        }
+
+        .auth-btn {
+            width: 100%;
+            border: none;
+            background: #111;
+            color: #fff;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 12px;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.55;
+            cursor: wait;
+        }
+
+        .auth-btn.secondary {
+            background: #fff;
+            color: #111;
+            border: 1px solid #111;
+            margin-top: 10px;
+        }
+
+        .auth-msg {
+            min-height: 18px;
+            margin: 10px 0 0;
+            font-size: 11px;
+            color: #a10;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .auth-msg.ok { color: #137333; }
+
+        .auth-keys-box {
+            display: none;
+            margin-top: 14px;
+            padding: 12px;
+            border: 1px dashed #111;
+            background: #faf9f6;
+            font-size: 11px;
+            color: #111;
+            line-height: 1.5;
+        }
+
+        .auth-keys-box.visible { display: block; }
+
+        .auth-keys-box code {
+            display: block;
+            margin: 4px 0 10px;
+            padding: 8px;
+            background: #111;
+            color: #f3f3f3;
+            word-break: break-all;
+            font-size: 10px;
+        }
+
+        .auth-foot {
+            margin-top: 16px;
+            font-size: 10px;
+            color: #888;
+            line-height: 1.4;
         }
 
         .boot-cli-overlay {
@@ -1229,6 +1399,45 @@
                 </div>
                 <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Bloqueo: registro / inicio de sesión (después de Enter) -->
+    <div id="authOverlay" class="auth-overlay hidden" role="dialog" aria-modal="true" aria-label="Acceso l8 codespace">
+        <div class="auth-card">
+            <h1>l8 codespace</h1>
+            <p class="auth-sub">Accede o crea una cuenta. La plataforma permanece oculta hasta autenticarte.</p>
+
+            <div class="auth-tabs" role="tablist">
+                <button type="button" class="auth-tab active" id="authTabLogin" data-tab="login">Iniciar sesión</button>
+                <button type="button" class="auth-tab" id="authTabRegister" data-tab="register">Registrarse</button>
+            </div>
+
+            <div class="auth-panel active" id="authPanelLogin">
+                <label class="auth-label" for="authAesInput">Clave AES-256</label>
+                <input class="auth-input" id="authAesInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave AES-256 de tu cuenta">
+                <label class="auth-label" for="authIdentityInput">Clave identificador (L8ID)</label>
+                <input class="auth-input" id="authIdentityInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave L8ID-… de tu cuenta">
+                <button type="button" class="auth-btn" id="authLoginBtn">Entrar a la plataforma</button>
+            </div>
+
+            <div class="auth-panel" id="authPanelRegister">
+                <label class="auth-label" for="authDilithiumInput">Dilithium-5 de registro (mensual)</label>
+                <input class="auth-input" id="authDilithiumInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave Dilithium-5 del mes">
+                <button type="button" class="auth-btn" id="authRegisterBtn">Crear cuenta</button>
+                <div class="auth-keys-box" id="authKeysBox">
+                    <strong>Guarda estas 2 claves ahora</strong> — no se vuelven a mostrar.
+                    <div style="margin-top:8px;">AES-256</div>
+                    <code id="authKeyAesOut"></code>
+                    <div>Identificador L8ID</div>
+                    <code id="authKeyIdOut"></code>
+                    <button type="button" class="auth-btn secondary" id="authCopyKeysBtn">Copiar ambas claves</button>
+                    <button type="button" class="auth-btn" id="authEnterAfterRegisterBtn">Ya las guardé — entrar</button>
+                </div>
+            </div>
+
+            <p class="auth-msg" id="authMsg"></p>
+            <p class="auth-foot">Cada cuenta es única. Las dos claves generadas identifican solo a ese usuario. Sin ellas no hay acceso.</p>
         </div>
     </div>
 
@@ -2417,6 +2626,193 @@
     </div><!-- /.platform-shell -->
 
     <script>
+        /* ===== AUTH GATE (registro / login) ===== */
+        (function authGate() {
+            const AUTH_TOKEN_KEY = 'l8_auth_token';
+            const AUTH_ACCOUNT_KEY = 'l8_auth_account';
+            const overlay = document.getElementById('authOverlay');
+            const msgEl = document.getElementById('authMsg');
+            const keysBox = document.getElementById('authKeysBox');
+            let pendingSessionToken = '';
+            let pendingKeysText = '';
+
+            function setMsg(text, ok) {
+                if (!msgEl) return;
+                msgEl.textContent = text || '';
+                msgEl.classList.toggle('ok', !!ok);
+            }
+
+            function getToken() {
+                try { return sessionStorage.getItem(AUTH_TOKEN_KEY) || ''; } catch (e) { return ''; }
+            }
+
+            function saveSession(token, accountId) {
+                try {
+                    sessionStorage.setItem(AUTH_TOKEN_KEY, token || '');
+                    if (accountId) sessionStorage.setItem(AUTH_ACCOUNT_KEY, accountId);
+                } catch (e) {}
+            }
+
+            function clearSession() {
+                try {
+                    sessionStorage.removeItem(AUTH_TOKEN_KEY);
+                    sessionStorage.removeItem(AUTH_ACCOUNT_KEY);
+                } catch (e) {}
+            }
+
+            function unlockPlatform() {
+                if (overlay) overlay.classList.add('hidden');
+                document.body.classList.remove('boot-locked');
+                document.body.classList.remove('auth-locked');
+                if (typeof restorePlatformState === 'function') {
+                    restorePlatformState();
+                }
+            }
+
+            function showAuthGate() {
+                document.body.classList.add('auth-locked');
+                document.body.classList.remove('boot-locked');
+                if (overlay) overlay.classList.remove('hidden');
+                setMsg('');
+            }
+
+            window.l8ShowAuthGate = showAuthGate;
+            window.l8UnlockPlatform = unlockPlatform;
+            window.l8GetAuthToken = getToken;
+
+            async function checkSession() {
+                const token = getToken();
+                if (!token) return false;
+                try {
+                    const res = await fetch('/api/auth/session', {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    const data = await res.json();
+                    return !!(data && data.ok && data.authenticated);
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            window.l8CheckAuthSession = checkSession;
+
+            function switchTab(name) {
+                const loginTab = document.getElementById('authTabLogin');
+                const regTab = document.getElementById('authTabRegister');
+                const loginPanel = document.getElementById('authPanelLogin');
+                const regPanel = document.getElementById('authPanelRegister');
+                const isLogin = name === 'login';
+                if (loginTab) loginTab.classList.toggle('active', isLogin);
+                if (regTab) regTab.classList.toggle('active', !isLogin);
+                if (loginPanel) loginPanel.classList.toggle('active', isLogin);
+                if (regPanel) regPanel.classList.toggle('active', !isLogin);
+                setMsg('');
+            }
+
+            document.getElementById('authTabLogin')?.addEventListener('click', () => switchTab('login'));
+            document.getElementById('authTabRegister')?.addEventListener('click', () => switchTab('register'));
+
+            document.getElementById('authLoginBtn')?.addEventListener('click', async () => {
+                const aes = (document.getElementById('authAesInput')?.value || '').trim();
+                const identity = (document.getElementById('authIdentityInput')?.value || '').trim();
+                const btn = document.getElementById('authLoginBtn');
+                if (!aes || !identity) {
+                    setMsg('Introduce las 2 claves de tu cuenta.');
+                    return;
+                }
+                if (btn) btn.disabled = true;
+                setMsg('Verificando…');
+                try {
+                    const res = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ aes256: aes, identity: identity })
+                    });
+                    const data = await res.json();
+                    if (!data || !data.ok) {
+                        setMsg((data && data.error) || 'Acceso denegado.');
+                        return;
+                    }
+                    saveSession(data.session_token, data.account_id);
+                    setMsg('Acceso concedido.', true);
+                    unlockPlatform();
+                } catch (e) {
+                    setMsg('Error de red al iniciar sesión.');
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            });
+
+            document.getElementById('authRegisterBtn')?.addEventListener('click', async () => {
+                const dil = (document.getElementById('authDilithiumInput')?.value || '').trim();
+                const btn = document.getElementById('authRegisterBtn');
+                if (!dil) {
+                    setMsg('Introduce la Dilithium-5 de registro del mes.');
+                    return;
+                }
+                if (btn) btn.disabled = true;
+                setMsg('Creando cuenta…');
+                try {
+                    const res = await fetch('/api/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ dilithium5: dil })
+                    });
+                    const data = await res.json();
+                    if (!data || !data.ok) {
+                        setMsg((data && data.error) || 'No se pudo registrar.');
+                        return;
+                    }
+                    pendingSessionToken = data.session_token || '';
+                    const aes = (data.keys && data.keys.aes256) || '';
+                    const identity = (data.keys && data.keys.identity) || '';
+                    pendingKeysText = 'AES-256:\n' + aes + '\n\nL8ID:\n' + identity;
+                    const aesOut = document.getElementById('authKeyAesOut');
+                    const idOut = document.getElementById('authKeyIdOut');
+                    if (aesOut) aesOut.textContent = aes;
+                    if (idOut) idOut.textContent = identity;
+                    if (keysBox) keysBox.classList.add('visible');
+                    if (document.getElementById('authDilithiumInput')) {
+                        document.getElementById('authDilithiumInput').value = '';
+                    }
+                    setMsg(data.warning || 'Cuenta creada. Guarda tus 2 claves.', true);
+                } catch (e) {
+                    setMsg('Error de red al registrar.');
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            });
+
+            document.getElementById('authCopyKeysBtn')?.addEventListener('click', async () => {
+                if (!pendingKeysText) return;
+                try {
+                    await navigator.clipboard.writeText(pendingKeysText);
+                    setMsg('Claves copiadas al portapapeles.', true);
+                } catch (e) {
+                    setMsg('No se pudo copiar automáticamente. Selecciónalas y copia manualmente.');
+                }
+            });
+
+            document.getElementById('authEnterAfterRegisterBtn')?.addEventListener('click', () => {
+                if (!pendingSessionToken) {
+                    setMsg('Primero crea la cuenta y guarda las claves.');
+                    return;
+                }
+                saveSession(pendingSessionToken, '');
+                unlockPlatform();
+            });
+
+            // Enter en inputs
+            ['authAesInput', 'authIdentityInput'].forEach((id) => {
+                document.getElementById(id)?.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') document.getElementById('authLoginBtn')?.click();
+                });
+            });
+            document.getElementById('authDilithiumInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') document.getElementById('authRegisterBtn')?.click();
+            });
+        })();
+
         /* ===== BOOT: blackhole visual only (CLI hidden) ===== */
         (function bootBlackholeVisual() {
             const overlay = document.getElementById('bootCliOverlay');
@@ -2458,15 +2854,29 @@
                 hintEl.textContent = 'Press Enter to open l8 codespace';
             }
 
-            function enterPlatform() {
+            async function enterPlatform() {
                 if (!finished) return;
                 if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
                 overlay.classList.add('hidden');
-                document.body.classList.remove('boot-locked');
                 try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}
-                // Restaurar catálogo / último comando / inspector desde Supabase
-                if (typeof restorePlatformState === 'function') {
-                    restorePlatformState();
+
+                // Tras Enter: auth gate. Plataforma oculta hasta login/registro.
+                const ok = (typeof window.l8CheckAuthSession === 'function')
+                    ? await window.l8CheckAuthSession()
+                    : false;
+                if (ok) {
+                    if (typeof window.l8UnlockPlatform === 'function') window.l8UnlockPlatform();
+                    else {
+                        document.body.classList.remove('boot-locked');
+                        document.body.classList.remove('auth-locked');
+                        if (typeof restorePlatformState === 'function') restorePlatformState();
+                    }
+                    return;
+                }
+                if (typeof window.l8ShowAuthGate === 'function') {
+                    window.l8ShowAuthGate();
+                } else {
+                    document.body.classList.add('auth-locked');
                 }
             }
 

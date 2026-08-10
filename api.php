@@ -3203,6 +3203,221 @@ function gatewayShareRepo($repoTarget) {
     ];
 }
 
+/**
+ * Comparte contenido arbitrario de la plataforma (bloc de notas, terminal, …)
+ * como zip + código único, misma tubería que los repos.
+ *
+ * $input:
+ *  - files: [{ name, content, encoding?: utf-8|base64, folder?: string }]
+ *  - o content + filename (+ encoding)
+ *  - label / title / sources (metadatos)
+ */
+function gatewaySanitizeShareFilename($name, $fallback = 'file.txt') {
+    $name = str_replace('\\', '/', (string)$name);
+    $name = basename($name);
+    $name = preg_replace('/[^\w.\- ()\[\]]+/u', '_', $name);
+    $name = trim((string)$name, " .\t\n\r\0\x0B");
+    if ($name === '' || $name === '.' || $name === '..') {
+        $name = $fallback;
+    }
+    if (strlen($name) > 120) {
+        $ext = pathinfo($name, PATHINFO_EXTENSION);
+        $base = substr(pathinfo($name, PATHINFO_FILENAME), 0, 100);
+        $name = $ext !== '' ? ($base . '.' . $ext) : $base;
+    }
+    return $name;
+}
+
+function gatewaySanitizeShareFolder($folder) {
+    $folder = str_replace('\\', '/', (string)$folder);
+    $folder = trim($folder, '/');
+    $folder = preg_replace('/[^a-zA-Z0-9_\-]+/', '-', $folder);
+    $folder = trim((string)$folder, '-');
+    if ($folder === '' || strlen($folder) > 40) {
+        return '';
+    }
+    return $folder;
+}
+
+function gatewaySharePlatformPayload(array $input) {
+    if (!gatewaySupabaseReady()) {
+        return [
+            'ok' => false,
+            'error' => 'Gateway requiere Supabase Storage para compartir entre dispositivos. Configura SUPABASE_URL / SUPABASE_SECRET_KEY en Render.'
+        ];
+    }
+    if (!class_exists('ZipArchive')) {
+        return ['ok' => false, 'error' => 'ZipArchive no disponible en el servidor'];
+    }
+
+    $files = [];
+    if (!empty($input['files']) && is_array($input['files'])) {
+        $files = $input['files'];
+    } elseif (isset($input['content'])) {
+        $files[] = [
+            'name' => $input['filename'] ?? $input['name'] ?? 'payload.txt',
+            'content' => $input['content'],
+            'encoding' => $input['encoding'] ?? 'utf-8',
+            'folder' => $input['folder'] ?? ''
+        ];
+    }
+
+    if (!$files) {
+        return ['ok' => false, 'error' => 'No hay contenido para enviar por el gateway'];
+    }
+    if (count($files) > 40) {
+        return ['ok' => false, 'error' => 'Máximo 40 archivos por envío'];
+    }
+
+    $prepared = [];
+    $totalBytes = 0;
+    foreach ($files as $idx => $file) {
+        if (!is_array($file)) {
+            continue;
+        }
+        $name = gatewaySanitizeShareFilename(
+            $file['name'] ?? $file['filename'] ?? ('file-' . ($idx + 1) . '.txt'),
+            'file-' . ($idx + 1) . '.txt'
+        );
+        $folder = gatewaySanitizeShareFolder($file['folder'] ?? '');
+        $encoding = strtolower((string)($file['encoding'] ?? 'utf-8'));
+        $raw = $file['content'] ?? $file['data'] ?? '';
+        if ($encoding === 'base64') {
+            $bin = base64_decode((string)$raw, true);
+            if ($bin === false) {
+                return ['ok' => false, 'error' => 'Contenido base64 inválido en ' . $name];
+            }
+        } else {
+            $bin = (string)$raw;
+        }
+        $len = strlen($bin);
+        if ($len === 0) {
+            continue;
+        }
+        if ($len > 8000000) {
+            return ['ok' => false, 'error' => 'Archivo demasiado grande (>8MB): ' . $name];
+        }
+        $totalBytes += $len;
+        if ($totalBytes > 20000000) {
+            return ['ok' => false, 'error' => 'El envío supera 20MB'];
+        }
+        $entry = ($folder !== '' ? ($folder . '/') : '') . $name;
+        $prepared[] = ['entry' => $entry, 'bytes' => $bin];
+    }
+
+    if (!$prepared) {
+        return ['ok' => false, 'error' => 'El contenido a enviar está vacío'];
+    }
+
+    $sources = [];
+    if (!empty($input['sources']) && is_array($input['sources'])) {
+        foreach ($input['sources'] as $src) {
+            $src = preg_replace('/[^a-z0-9_\-]/i', '', (string)$src);
+            if ($src !== '') $sources[] = strtolower($src);
+        }
+        $sources = array_values(array_unique($sources));
+    }
+    if (!$sources) {
+        $sources = ['platform'];
+    }
+
+    $label = trim((string)($input['label'] ?? $input['title'] ?? ''));
+    if ($label === '') {
+        $label = 'l8-' . implode('+', $sources);
+    }
+    $label = substr(preg_replace('/\s+/', ' ', $label), 0, 120);
+    $bundleName = gatewaySanitizeShareFilename(
+        preg_replace('/\s+/', '-', strtolower($label)),
+        'l8-platform'
+    );
+    $bundleName = preg_replace('/\.[^.]+$/', '', $bundleName) ?: 'l8-platform';
+
+    $codeRes = gatewayGenerateUniqueCode();
+    if (empty($codeRes['ok'])) {
+        return $codeRes;
+    }
+    $code = $codeRes['code'];
+
+    $dirs = gatewayDirs();
+    $transferId = bin2hex(random_bytes(12));
+    $codeKey = gatewayCodeStorageKey($code);
+    $zipName = $bundleName . '-' . $codeKey . '.zip';
+    $zipPath = $dirs['packs'] . '/' . $zipName;
+
+    $zip = new ZipArchive();
+    if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+        return ['ok' => false, 'error' => 'No se pudo crear el paquete zip'];
+    }
+    $root = $bundleName . '/';
+    $zip->addEmptyDir(rtrim($root, '/'));
+    foreach ($prepared as $row) {
+        $zip->addFromString($root . $row['entry'], $row['bytes']);
+    }
+    $zip->close();
+
+    if (!file_exists($zipPath) || filesize($zipPath) < 22) {
+        @unlink($zipPath);
+        $codes = gatewayReadJson($dirs['codes']);
+        unset($codes[$code]);
+        gatewayWriteJson($dirs['codes'], $codes);
+        return ['ok' => false, 'error' => 'El paquete quedó vacío o inválido'];
+    }
+
+    $object = gatewayPackObjectPath($code);
+    $up = @supabaseStorageUpload($object, $zipPath, 'application/zip', true);
+    if (empty($up['ok'])) {
+        @unlink($zipPath);
+        $codes = gatewayReadJson($dirs['codes']);
+        unset($codes[$code]);
+        gatewayWriteJson($dirs['codes'], $codes);
+        return [
+            'ok' => false,
+            'error' => 'No se pudo subir el paquete a Supabase Storage: ' . ($up['error'] ?? 'error')
+        ];
+    }
+
+    $brand = gatewayPlatformBrand();
+    $size = filesize($zipPath);
+    $item = [
+        'id' => $transferId,
+        'code' => $code,
+        'repo_name' => $bundleName,
+        'user_repo' => $label,
+        'zip_name' => $zipName,
+        'size_formatted' => formatBytes($size),
+        'size_bytes' => $size,
+        'supabase_object' => $object,
+        'download_url' => '/api/gateway/download/' . rawurlencode($code),
+        'platform' => $brand['name'],
+        'platform_icon' => $brand['icon'],
+        'source_kind' => 'platform',
+        'sources' => $sources,
+        'file_count' => count($prepared),
+        'status' => 'ready',
+        'created_at' => date('c'),
+        'claimed_at' => null,
+        'claim_count' => 0
+    ];
+
+    gatewayCacheShareLocal($item);
+    $persist = gatewayPersistShareRemote($item);
+    if (empty($persist['ok'])) {
+        return [
+            'ok' => false,
+            'error' => $persist['error'] ?? 'No se pudo publicar el código en Supabase'
+        ];
+    }
+
+    return [
+        'ok' => true,
+        'type' => 'GATEWAY_SHARE_RESULT',
+        'code' => $code,
+        'transfer' => $item,
+        'persisted' => true,
+        'message' => 'Código generado. En el otro dispositivo abre /gateway e ingresa ' . $code . ' para obtener el paquete (' . implode(', ', $sources) . ').'
+    ];
+}
+
 function gatewayFindByCode($code) {
     $code = gatewayNormalizeCode($code);
     if (!gatewayIsValidCodeFormat($code)) {
@@ -3265,7 +3480,7 @@ function gatewayClaimByCode($code) {
         'transfer' => $item,
         'platform' => $brand,
         'download_url' => $item['download_url'] ?? ('/api/gateway/download/' . rawurlencode($code)),
-        'message' => 'Código válido. Descarga la carpeta de ' . ($item['user_repo'] ?? $item['repo_name']) . '.'
+        'message' => 'Código válido. Descarga el paquete de ' . ($item['user_repo'] ?? $item['repo_name']) . '.'
     ];
 }
 
@@ -3405,13 +3620,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri
     exit;
 }
 
-// GATEWAY: compartir repo → genera código único (JSLA-SAKA)
+// GATEWAY: compartir repo o contenido de plataforma → código único (JSLA-SAKA)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/gateway/send' || $uri === '/api/gateway/share')) {
     maybeBootstrapPlatformData();
     header('Content-Type: application/json; charset=utf-8');
     $inputData = json_decode(file_get_contents('php://input'), true) ?: [];
-    $repo = $inputData['repo'] ?? $_POST['repo'] ?? '';
-    $res = gatewayShareRepo($repo);
+    if (!$inputData && !empty($_POST)) {
+        $inputData = $_POST;
+    }
+
+    $kind = strtolower(trim((string)($inputData['kind'] ?? $inputData['type'] ?? '')));
+    if ($kind === '' && !empty($inputData['repo'])) {
+        $kind = 'repo';
+    }
+    if ($kind === '' && (!empty($inputData['files']) || isset($inputData['content']))) {
+        $kind = 'platform';
+    }
+    if ($kind === 'github' || $kind === 'repository' || $kind === 'folder') {
+        $kind = 'repo';
+    }
+    if (in_array($kind, ['text', 'file', 'files', 'bundle', 'notepad', 'terminal', 'payload'], true)) {
+        $kind = 'platform';
+    }
+
+    if ($kind === 'repo') {
+        $repo = $inputData['repo'] ?? '';
+        $res = gatewayShareRepo($repo);
+    } elseif ($kind === 'platform') {
+        $res = gatewaySharePlatformPayload($inputData);
+    } else {
+        $res = [
+            'ok' => false,
+            'error' => 'Indica kind=repo o kind=platform (notepad/terminal/contenido)'
+        ];
+    }
+
+    if (empty($res['ok'])) {
+        http_response_code(!empty($res['unlicensed']) ? 403 : 400);
+    }
     echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }

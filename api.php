@@ -34,7 +34,8 @@ $REGISTERED_COMMANDS = [
     "browsers"    => "Muestra los procesos reales de navegadores en ejecución",
     "ping"        => "Comprueba la conectividad y latencia con el servidor",
     "bigdata"     => "Genera y prueba la transmisión en lote de grandes volúmenes de datos",
-    "prs_code"    => "Abre el IDE externo PRS Code (paste/share por selección, thin client en cluster)"
+    "prs_code"    => "Abre el IDE externo PRS Code (paste/share por selección, thin client en cluster)",
+    "macOS_inside"=> "Despliega macOS externo vía dockur/macos (System + License MIT)"
 ];
 
 $STORAGE_DIR = __DIR__ . '/data_storage';
@@ -2080,6 +2081,330 @@ function zylonBootSession() {
     ];
 }
 
+
+/**
+ * ===== macOS inside externa (recursos dockur/macos) =====
+ */
+function macosCliDirs() {
+    global $STORAGE_DIR;
+    $root = rtrim($STORAGE_DIR, '/') . '/macos-cli';
+    return [
+        'root' => $root,
+        'repo' => $root . '/dockur-macos',
+        'home' => $root . '/home',
+        'state' => $root . '/session.json'
+    ];
+}
+
+function macosEnsureDirs() {
+    $d = macosCliDirs();
+    foreach (['root', 'home'] as $k) {
+        if (!file_exists($d[$k])) @mkdir($d[$k], 0777, true);
+    }
+    $link = $d['home'] . '/dockur-macos';
+    if (!file_exists($link) && file_exists($d['repo'])) {
+        @symlink($d['repo'], $link);
+    }
+    return $d;
+}
+
+function macosFallbackLicenseText() {
+    return <<<LIC
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+LIC;
+}
+
+function macosEnsureDockurRepo() {
+    $d = macosEnsureDirs();
+    $repo = $d['repo'];
+    if (file_exists($repo . '/.git') || file_exists($repo . '/readme.md') || file_exists($repo . '/compose.yml')) {
+        $link = $d['home'] . '/dockur-macos';
+        if (!file_exists($link)) @symlink($repo, $link);
+        return ['ok' => true, 'path' => $repo, 'cloned' => false];
+    }
+    if (!file_exists(dirname($repo))) @mkdir(dirname($repo), 0777, true);
+    $url = 'https://github.com/dockur/macos.git';
+    $cmd = 'git clone --depth 1 ' . escapeshellarg($url) . ' ' . escapeshellarg($repo) . ' 2>&1';
+    $out = [];
+    $code = 0;
+    @exec($cmd, $out, $code);
+    if ($code !== 0 || !file_exists($repo)) {
+        return [
+            'ok' => false,
+            'error' => 'No se pudo clonar dockur/macos: ' . trim(implode("\n", $out)),
+            'path' => $repo
+        ];
+    }
+    $link = $d['home'] . '/dockur-macos';
+    if (!file_exists($link)) @symlink($repo, $link);
+    return ['ok' => true, 'path' => $repo, 'cloned' => true, 'output' => trim(implode("\n", $out))];
+}
+
+function macosReadLicense() {
+    $ensure = macosEnsureDockurRepo();
+    $dirs = macosEnsureDirs();
+    $candidates = [
+        $dirs['repo'] . '/license.md',
+        $dirs['repo'] . '/LICENSE',
+        $dirs['repo'] . '/LICENSE.md',
+        $dirs['repo'] . '/License.md'
+    ];
+    foreach ($candidates as $path) {
+        if (is_file($path)) {
+            $text = (string)@file_get_contents($path);
+            if (trim($text) !== '') {
+                return [
+                    'ok' => true,
+                    'spdx' => 'MIT',
+                    'name' => 'MIT License',
+                    'source' => basename($path),
+                    'path' => $path,
+                    'text' => $text,
+                    'repo_ready' => !empty($ensure['ok']),
+                    'resource' => 'dockur/macos',
+                    'url' => 'https://github.com/dockur/macos/blob/master/license.md'
+                ];
+            }
+        }
+    }
+    // Si el clone falló, aún mostramos la licencia MIT del proyecto en el apartado License
+    return [
+        'ok' => true,
+        'spdx' => 'MIT',
+        'name' => 'MIT License',
+        'source' => 'fallback:dockur/macos license.md',
+        'path' => null,
+        'text' => macosFallbackLicenseText(),
+        'repo_ready' => !empty($ensure['ok']),
+        'resource' => 'dockur/macos',
+        'url' => 'https://github.com/dockur/macos/blob/master/license.md',
+        'warning' => empty($ensure['ok']) ? ($ensure['error'] ?? 'repo unavailable') : null
+    ];
+}
+
+function macosResolveCwd($cwdDisplay) {
+    $d = macosEnsureDirs();
+    $home = realpath($d['home']) ?: $d['home'];
+    $cwdDisplay = trim((string)$cwdDisplay);
+    if ($cwdDisplay === '' || $cwdDisplay === '~') {
+        return ['abs' => $home, 'display' => '~'];
+    }
+    if (strpos($cwdDisplay, '~/') === 0) {
+        $rel = substr($cwdDisplay, 2);
+        $abs = $home . '/' . ltrim($rel, '/');
+    } else if (isset($cwdDisplay[0]) && $cwdDisplay[0] === '/') {
+        $abs = $home . $cwdDisplay;
+    } else {
+        $abs = $home . '/' . $cwdDisplay;
+    }
+    $real = realpath($abs);
+    if ($real === false) {
+        $norm = $home . '/' . ltrim(str_replace(['..'], '', str_replace($home, '', $abs)), '/');
+        return ['abs' => $norm, 'display' => macosDisplayCwd($norm, $home)];
+    }
+    $homeReal = realpath($home) ?: $home;
+    if (strpos($real, $homeReal) !== 0) {
+        return ['abs' => $homeReal, 'display' => '~'];
+    }
+    return ['abs' => $real, 'display' => macosDisplayCwd($real, $homeReal)];
+}
+
+function macosDisplayCwd($abs, $home) {
+    $abs = str_replace('\\', '/', $abs);
+    $home = str_replace('\\', '/', $home);
+    if ($abs === $home) return '~';
+    if (strpos($abs, $home . '/') === 0) {
+        return '~/' . substr($abs, strlen($home) + 1);
+    }
+    return '~';
+}
+
+function macosIsDangerousCommand($cmd) {
+    $c = strtolower(trim($cmd));
+    $blocked = [
+        'rm -rf /', 'rm -rf /*', 'mkfs', ':(){', 'dd if=/dev/zero',
+        'shutdown', 'reboot', 'poweroff', 'halt', 'userdel', 'passwd'
+    ];
+    foreach ($blocked as $b) {
+        if (strpos($c, $b) !== false) return true;
+    }
+    return false;
+}
+
+function macosRunCommand($command, $cwdDisplay = '~') {
+    $ensure = macosEnsureDockurRepo();
+    $dirs = macosEnsureDirs();
+    $cwd = macosResolveCwd($cwdDisplay);
+    $cmd = trim((string)$command);
+    if ($cmd === '') {
+        return ['ok' => false, 'error' => 'empty command', 'cwd_display' => $cwd['display']];
+    }
+    if (macosIsDangerousCommand($cmd)) {
+        return ['ok' => false, 'error' => 'command blocked for safety', 'stderr' => 'Refusing dangerous command.', 'cwd_display' => $cwd['display']];
+    }
+
+    if ($cmd === 'help') {
+        $help = implode("\n", [
+            'macOS inside on l8 codespace',
+            'Resources: https://github.com/dockur/macos',
+            'Image: dockurr/macos (Docker)',
+            '',
+            'Built-ins:',
+            '  help                 Show this help',
+            '  pwd                  Print working directory',
+            '  cd [dir]             Change directory (sandboxed to ~/ )',
+            '  about                Show session / distro info',
+            '  license              Open License panel (also via UI tab)',
+            '  compose              Show compose.yml from dockur/macos',
+            '  tree                 Quick look at dockur/macos repo files',
+            '  deploy               Show how to run dockurr/macos container',
+            '  ls, cat, uname, …    Standard shell commands in the sandbox',
+            '',
+            'Home contains symlink: ~/dockur-macos → cloned dockur/macos'
+        ]);
+        return ['ok' => true, 'stdout' => $help, 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'pwd') {
+        return ['ok' => true, 'stdout' => $cwd['abs'], 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'about') {
+        $uname = trim((string)@shell_exec('uname -a 2>/dev/null'));
+        $lic = macosReadLicense();
+        $out = "distro: macOS inside (l8)\nresource: dockur/macos\nrepo: " . $dirs['repo'] . "\nhome: " . $dirs['home'] . "\nlicense: " . ($lic['spdx'] ?? 'MIT') . "\nkernel: " . $uname;
+        return ['ok' => true, 'stdout' => $out, 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'compose') {
+        $path = $dirs['repo'] . '/compose.yml';
+        if (!is_file($path)) {
+            return ['ok' => false, 'stderr' => 'compose.yml missing — clone dockur/macos first', 'stdout' => '', 'cwd_display' => $cwd['display']];
+        }
+        $text = (string)@file_get_contents($path);
+        return ['ok' => true, 'stdout' => $text, 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'deploy') {
+        $out = implode("\n", [
+            'Deploy macOS (dockur/macos) externally:',
+            '',
+            '1) Resource cloned at: ' . $dirs['repo'],
+            '2) From that folder run:',
+            '   docker compose up -d',
+            '3) Open web viewer: http://localhost:8006',
+            '4) Optional VNC: localhost:5900',
+            '',
+            'Requires KVM (/dev/kvm) and Docker on the host.',
+            'Compose file: https://github.com/dockur/macos/blob/master/compose.yml',
+            'License: MIT (see License tab / `license` command)'
+        ]);
+        return ['ok' => true, 'stdout' => $out, 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if ($cmd === 'tree') {
+        $repo = $dirs['repo'];
+        if (!is_dir($repo)) {
+            return ['ok' => false, 'stderr' => 'dockur/macos repo missing', 'stdout' => '', 'cwd_display' => $cwd['display']];
+        }
+        $listCmd = 'cd ' . escapeshellarg($repo) . ' && find . -maxdepth 2 -type f | head -n 80';
+        $stdout = trim((string)@shell_exec($listCmd . ' 2>/dev/null'));
+        return ['ok' => true, 'stdout' => $stdout !== '' ? $stdout : '(empty)', 'stderr' => '', 'cwd_display' => $cwd['display']];
+    }
+    if (preg_match('/^cd(?:\s+(.*))?$/s', $cmd, $m)) {
+        $target = isset($m[1]) ? trim($m[1]) : '~';
+        if ($target === '') $target = '~';
+        if ($target === '~' || $target === '$HOME') {
+            return ['ok' => true, 'stdout' => '', 'stderr' => '', 'cwd_display' => '~'];
+        }
+        if ($target[0] !== '/' && strpos($target, '~/') !== 0) {
+            $base = $cwd['abs'];
+            $candidate = rtrim($base, '/') . '/' . $target;
+        } else if (strpos($target, '~/') === 0) {
+            $candidate = rtrim($dirs['home'], '/') . '/' . substr($target, 2);
+        } else {
+            $candidate = rtrim($dirs['home'], '/') . $target;
+        }
+        $real = realpath($candidate);
+        $homeReal = realpath($dirs['home']) ?: $dirs['home'];
+        if ($real === false || strpos($real, $homeReal) !== 0 || !is_dir($real)) {
+            return ['ok' => false, 'stderr' => 'bash: cd: ' . $target . ': No such file or directory', 'stdout' => '', 'cwd_display' => $cwd['display']];
+        }
+        return ['ok' => true, 'stdout' => '', 'stderr' => '', 'cwd_display' => macosDisplayCwd($real, $homeReal)];
+    }
+
+    if (!is_dir($cwd['abs'])) @mkdir($cwd['abs'], 0777, true);
+    $homeReal = realpath($dirs['home']) ?: $dirs['home'];
+    $envPrefix = 'export HOME=' . escapeshellarg($homeReal) . '; export TERM=xterm-256color; ';
+    $full = $envPrefix . 'cd ' . escapeshellarg($cwd['abs']) . ' && ' . $cmd;
+    $descriptors = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w']
+    ];
+    $proc = @proc_open(['bash', '-lc', $full], $descriptors, $pipes, $cwd['abs'], null);
+    if (!is_resource($proc)) {
+        return ['ok' => false, 'error' => 'Unable to start bash', 'cwd_display' => $cwd['display']];
+    }
+    fclose($pipes[0]);
+    stream_set_blocking($pipes[1], true);
+    stream_set_blocking($pipes[2], true);
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $code = proc_close($proc);
+    if (strlen($stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
+    if (strlen($stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
+    return [
+        'ok' => $code === 0,
+        'exit_code' => $code,
+        'stdout' => rtrim((string)$stdout),
+        'stderr' => rtrim((string)$stderr),
+        'cwd_display' => $cwd['display'],
+        'repo_ready' => !empty($ensure['ok'])
+    ];
+}
+
+function macosBootSession() {
+    $ensure = macosEnsureDockurRepo();
+    $dirs = macosEnsureDirs();
+    $license = macosReadLicense();
+    $composeReady = is_file($dirs['repo'] . '/compose.yml');
+    $msg = !empty($ensure['ok'])
+        ? (!empty($ensure['cloned']) ? 'Cloned dockur/macos into session home.' : 'dockur/macos resources ready.')
+        : ('Warning: ' . ($ensure['error'] ?? 'repo unavailable'));
+    return [
+        'ok' => true,
+        'cwd_display' => '~',
+        'distro' => 'macOS inside',
+        'resource' => 'dockur/macos',
+        'repo_path' => $dirs['repo'],
+        'home_path' => $dirs['home'],
+        'repo_ready' => !empty($ensure['ok']),
+        'compose_ready' => $composeReady,
+        'license' => [
+            'spdx' => $license['spdx'] ?? 'MIT',
+            'name' => $license['name'] ?? 'MIT License',
+            'source' => $license['source'] ?? 'license.md'
+        ],
+        'message' => $msg
+    ];
+}
+
 /**
  * Persiste / restaura el estado de UI de la plataforma en Supabase.
  */
@@ -3221,6 +3546,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/zylon/exec' || $uri
     exit;
 }
 
+
+// macOS inside externa (dockur/macos)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/macos/session' || $uri === '/api/macos/boot')) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(macosBootSession(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/macos/exec' || $uri === '/api/macos/run')) {
+    header('Content-Type: application/json; charset=utf-8');
+    $raw = file_get_contents('php://input');
+    $input = json_decode($raw, true) ?? [];
+    $command = $input['command'] ?? '';
+    $cwd = $input['cwd'] ?? '~';
+    echo json_encode(macosRunCommand($command, $cwd), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/macos/license' || $uri === '/api/macos/licence')) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(macosReadLicense(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Estado persistente de la plataforma (sobrevive al reload vía Supabase)
 if ($uri === '/api/platform/state' || $uri === '/api/session/state') {
     header('Content-Type: application/json; charset=utf-8');
@@ -3432,9 +3779,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0 || $cleanCmd === 'clonedify' || $cleanCmd === 'dify');
     $isDilFs = ($lowerCmd === 'dil_fs' || $lowerCmd === 'dil-fs' || $cleanCmd === 'dilfs');
     $isPrsCode = ($lowerCmd === 'prs_code' || $lowerCmd === 'prs-code' || $lowerCmd === 'prscode' || $cleanCmd === 'prscode');
+    $isMacosInside = (
+        $lowerCmd === 'macos_inside' || $lowerCmd === 'macos-inside' || $lowerCmd === 'macosinside'
+        || $lowerCmd === 'mac_os_inside' || $cleanCmd === 'macosinside'
+    );
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
 
     if (!$isValid) {
         echo json_encode([
@@ -3573,6 +3924,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'mode' => 'thin-client',
             'advantage' => $boot['advantage'],
             'message' => 'Abriendo IDE externo PRS Code (paste/share por selección)'
+        ];
+    } else if ($isMacosInside) {
+        $boot = macosBootSession();
+        $lic = macosReadLicense();
+        $outputResult = [
+            'type' => 'MACOS_INSIDE_LAUNCH',
+            'command' => 'macOS_inside',
+            'open_url' => '/macos',
+            'window_name' => 'l8-macos-inside',
+            'product' => 'macOS inside',
+            'resource' => 'dockur/macos',
+            'resource_url' => 'https://github.com/dockur/macos.git',
+            'license' => [
+                'spdx' => $lic['spdx'] ?? 'MIT',
+                'name' => $lic['name'] ?? 'MIT License',
+                'source' => $lic['source'] ?? 'license.md'
+            ],
+            'repo_ready' => !empty($boot['repo_ready']),
+            'message' => 'Abriendo macOS externo (dockur/macos) con apartado License'
         ];
     } else if ($lowerCmd === 'mane_list?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?') {
         $rows = [];

@@ -47,6 +47,12 @@ if ($uri === '/prs-code' || $uri === '/prs_code' || $uri === '/prs' || $uri === 
     exit;
 }
 
+// macOS inside externa (dockur/macos)
+if ($uri === '/macos' || $uri === '/macos-cli' || $uri === '/macos_inside' || $uri === '/macOS_inside' || $uri === '/macos-cli.php') {
+    require __DIR__ . '/macos-cli.php';
+    exit;
+}
+
 // Reenviar peticiones API a api.php
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

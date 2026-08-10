@@ -88,25 +88,23 @@ function authLoadStore() {
     if (function_exists('supabaseHydrateMetaFile')) {
         @supabaseHydrateMetaFile($path, 'auth_users.json', true);
     }
+    $empty = [
+        'version' => 1,
+        'users' => [],
+        'key_hashes' => [],
+        'recovery_hashes' => [],
+        'sessions' => []
+    ];
     if (!is_readable($path)) {
-        return [
-            'version' => 1,
-            'users' => [],
-            'key_hashes' => [],
-            'sessions' => []
-        ];
+        return $empty;
     }
     $data = json_decode((string)@file_get_contents($path), true);
     if (!is_array($data)) {
-        return [
-            'version' => 1,
-            'users' => [],
-            'key_hashes' => [],
-            'sessions' => []
-        ];
+        return $empty;
     }
     $data['users'] = is_array($data['users'] ?? null) ? $data['users'] : [];
     $data['key_hashes'] = is_array($data['key_hashes'] ?? null) ? $data['key_hashes'] : [];
+    $data['recovery_hashes'] = is_array($data['recovery_hashes'] ?? null) ? $data['recovery_hashes'] : [];
     $data['sessions'] = is_array($data['sessions'] ?? null) ? $data['sessions'] : [];
     return $data;
 }
@@ -140,6 +138,81 @@ function authGenerateIdentityKey() {
     $raw = random_bytes(48);
     $b64 = rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
     return 'L8ID-' . $b64;
+}
+
+function authGenerateRecoveryKey() {
+    // Clave maestra de recuperación (offline). Formato: L8REC-<base64url 40 bytes>
+    $raw = random_bytes(40);
+    $b64 = rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
+    return 'L8REC-' . $b64;
+}
+
+function authGenerateBackupCodes($count = 8) {
+    $codes = [];
+    for ($i = 0; $i < $count; $i++) {
+        // Grupos legibles: XXXX-XXXX-XXXX
+        $hex = strtoupper(bin2hex(random_bytes(6)));
+        $codes[] = substr($hex, 0, 4) . '-' . substr($hex, 4, 4) . '-' . substr($hex, 8, 4);
+    }
+    return $codes;
+}
+
+function authBuildRecoveryKit(array &$store) {
+    for ($attempt = 0; $attempt < 12; $attempt++) {
+        $recovery = authGenerateRecoveryKey();
+        $recoveryHash = authHashKey($recovery);
+        if (isset($store['recovery_hashes'][$recoveryHash])) {
+            continue;
+        }
+        $codes = authGenerateBackupCodes(8);
+        $codeHashes = [];
+        $collision = false;
+        foreach ($codes as $code) {
+            $h = authHashKey($code);
+            if (isset($store['recovery_hashes'][$h]) || isset($codeHashes[$h])) {
+                $collision = true;
+                break;
+            }
+            $codeHashes[$h] = [
+                'used' => false,
+                'created_at' => date('c')
+            ];
+        }
+        if ($collision) {
+            continue;
+        }
+        return [
+            'ok' => true,
+            'recovery_key' => $recovery,
+            'recovery_hash' => $recoveryHash,
+            'backup_codes' => $codes,
+            'backup_code_hashes' => $codeHashes
+        ];
+    }
+    return ['ok' => false, 'error' => 'No se pudo generar kit de recuperación; reintenta'];
+}
+
+function authRevokeUserLoginKeys(array &$store, $userId) {
+    $user = $store['users'][$userId] ?? null;
+    if (!is_array($user)) {
+        return;
+    }
+    $aesHash = $user['aes256_hash'] ?? '';
+    $idHash = $user['identity_hash'] ?? '';
+    if ($aesHash !== '' && isset($store['key_hashes'][$aesHash])) {
+        unset($store['key_hashes'][$aesHash]);
+    }
+    if ($idHash !== '' && isset($store['key_hashes'][$idHash])) {
+        unset($store['key_hashes'][$idHash]);
+    }
+}
+
+function authInvalidateUserSessions(array &$store, $userId) {
+    foreach ($store['sessions'] as $h => $sess) {
+        if (is_array($sess) && ($sess['user_id'] ?? '') === $userId) {
+            unset($store['sessions'][$h]);
+        }
+    }
 }
 
 function authGenerateUniqueKeyPair(array &$store) {
@@ -206,6 +279,10 @@ function authRegister($dilithium5) {
     if (empty($pair['ok'])) {
         return $pair;
     }
+    $kit = authBuildRecoveryKit($store);
+    if (empty($kit['ok'])) {
+        return $kit;
+    }
 
     $userId = authNewAccountId();
     while (isset($store['users'][$userId])) {
@@ -216,10 +293,22 @@ function authRegister($dilithium5) {
         'id' => $userId,
         'created_at' => date('c'),
         'aes256_hash' => $pair['aes256_hash'],
-        'identity_hash' => $pair['identity_hash']
+        'identity_hash' => $pair['identity_hash'],
+        'recovery_hash' => $kit['recovery_hash'],
+        'backup_codes' => $kit['backup_code_hashes']
     ];
     $store['key_hashes'][$pair['aes256_hash']] = $userId;
     $store['key_hashes'][$pair['identity_hash']] = $userId;
+    $store['recovery_hashes'][$kit['recovery_hash']] = [
+        'user_id' => $userId,
+        'type' => 'recovery_key'
+    ];
+    foreach ($kit['backup_code_hashes'] as $codeHash => $_meta) {
+        $store['recovery_hashes'][$codeHash] = [
+            'user_id' => $userId,
+            'type' => 'backup_code'
+        ];
+    }
 
     $token = authCreateSession($store, $userId);
     $saved = authSaveStore($store);
@@ -233,9 +322,109 @@ function authRegister($dilithium5) {
         'session_token' => $token,
         'keys' => [
             'aes256' => $pair['aes256'],
-            'identity' => $pair['identity']
+            'identity' => $pair['identity'],
+            'recovery' => $kit['recovery_key'],
+            'backup_codes' => $kit['backup_codes']
         ],
-        'warning' => 'Guarda estas 2 claves ahora. No se volverán a mostrar. Las necesitas para iniciar sesión.'
+        'warning' => 'Guarda AES-256, L8ID y el kit de recuperación (L8REC + códigos). Sin el kit, perder la AES/L8ID deja la cuenta irrecuperable.'
+    ];
+}
+
+/**
+ * Recupera acceso con L8REC-… o un código de respaldo XXXX-XXXX-XXXX.
+ * Revoca las claves AES/L8ID anteriores y emite un juego nuevo + kit nuevo.
+ */
+function authRecover($recoveryMaterial) {
+    $material = trim((string)$recoveryMaterial);
+    if ($material === '') {
+        return ['ok' => false, 'error' => 'Introduce tu clave L8REC o un código de respaldo'];
+    }
+
+    $store = authLoadStore();
+    $hash = authHashKey($material);
+    $entry = $store['recovery_hashes'][$hash] ?? null;
+    if (!is_array($entry) || empty($entry['user_id'])) {
+        return ['ok' => false, 'error' => 'Material de recuperación inválido'];
+    }
+
+    $userId = $entry['user_id'];
+    $user = $store['users'][$userId] ?? null;
+    if (!is_array($user)) {
+        return ['ok' => false, 'error' => 'Cuenta no encontrada'];
+    }
+
+    $type = $entry['type'] ?? '';
+    if ($type === 'backup_code') {
+        $codeMeta = $user['backup_codes'][$hash] ?? null;
+        if (!is_array($codeMeta) || !empty($codeMeta['used'])) {
+            return ['ok' => false, 'error' => 'Este código de respaldo ya fue usado o no es válido'];
+        }
+    } elseif ($type === 'recovery_key') {
+        if (!authTimingSafeEqual($user['recovery_hash'] ?? '', $hash)) {
+            return ['ok' => false, 'error' => 'Clave de recuperación inválida'];
+        }
+    } else {
+        return ['ok' => false, 'error' => 'Material de recuperación inválido'];
+    }
+
+    $pair = authGenerateUniqueKeyPair($store);
+    if (empty($pair['ok'])) {
+        return $pair;
+    }
+    $kit = authBuildRecoveryKit($store);
+    if (empty($kit['ok'])) {
+        return $kit;
+    }
+
+    // Revocar login anterior + índices de recuperación viejos
+    authRevokeUserLoginKeys($store, $userId);
+    authInvalidateUserSessions($store, $userId);
+
+    $oldRecoveryHash = $user['recovery_hash'] ?? '';
+    if ($oldRecoveryHash !== '') {
+        unset($store['recovery_hashes'][$oldRecoveryHash]);
+    }
+    foreach (($user['backup_codes'] ?? []) as $oldCodeHash => $_m) {
+        unset($store['recovery_hashes'][$oldCodeHash]);
+    }
+
+    $store['users'][$userId]['aes256_hash'] = $pair['aes256_hash'];
+    $store['users'][$userId]['identity_hash'] = $pair['identity_hash'];
+    $store['users'][$userId]['recovery_hash'] = $kit['recovery_hash'];
+    $store['users'][$userId]['backup_codes'] = $kit['backup_code_hashes'];
+    $store['users'][$userId]['recovered_at'] = date('c');
+
+    $store['key_hashes'][$pair['aes256_hash']] = $userId;
+    $store['key_hashes'][$pair['identity_hash']] = $userId;
+    $store['recovery_hashes'][$kit['recovery_hash']] = [
+        'user_id' => $userId,
+        'type' => 'recovery_key'
+    ];
+    foreach ($kit['backup_code_hashes'] as $codeHash => $_meta) {
+        $store['recovery_hashes'][$codeHash] = [
+            'user_id' => $userId,
+            'type' => 'backup_code'
+        ];
+    }
+
+    $token = authCreateSession($store, $userId);
+    $saved = authSaveStore($store);
+    if (empty($saved['ok'])) {
+        return $saved;
+    }
+
+    return [
+        'ok' => true,
+        'account_id' => $userId,
+        'session_token' => $token,
+        'rotated' => true,
+        'keys' => [
+            'aes256' => $pair['aes256'],
+            'identity' => $pair['identity'],
+            'recovery' => $kit['recovery_key'],
+            'backup_codes' => $kit['backup_codes']
+        ],
+        'warning' => 'Acceso recuperado. Las claves AES/L8ID anteriores ya no sirven. Guarda el nuevo kit de recuperación.'
     ];
 }
 
@@ -399,6 +588,17 @@ function authHandleApi($uri) {
     if ($uri === '/api/auth/logout' && $method === 'POST') {
         $token = authBearerTokenFromRequest();
         echo json_encode(authLogout($token), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if ($uri === '/api/auth/recover' && $method === 'POST') {
+        $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
+        $material = $input['recovery'] ?? $input['recovery_key'] ?? $input['backup_code'] ?? $input['code'] ?? '';
+        $res = authRecover($material);
+        if (empty($res['ok'])) {
+            http_response_code(401);
+        }
+        echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         return true;
     }
 

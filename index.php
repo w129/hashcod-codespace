@@ -981,12 +981,14 @@
         }
 
         .auth-card {
-            width: min(440px, 100%);
+            width: min(480px, 100%);
             background: #ffffff;
             border: 1px solid #d8d5cf;
             box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
             padding: 28px 26px 24px;
             animation: authCardIn 0.45s ease both;
+            max-height: min(92vh, 900px);
+            overflow: auto;
         }
 
         @keyframes authCardIn {
@@ -1411,6 +1413,7 @@
             <div class="auth-tabs" role="tablist">
                 <button type="button" class="auth-tab active" id="authTabLogin" data-tab="login">Iniciar sesión</button>
                 <button type="button" class="auth-tab" id="authTabRegister" data-tab="register">Registrarse</button>
+                <button type="button" class="auth-tab" id="authTabRecover" data-tab="recover">Recuperar</button>
             </div>
 
             <div class="auth-panel active" id="authPanelLogin">
@@ -1425,19 +1428,31 @@
                 <label class="auth-label" for="authDilithiumInput">Dilithium-5 de registro (mensual)</label>
                 <input class="auth-input" id="authDilithiumInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave Dilithium-5 del mes">
                 <button type="button" class="auth-btn" id="authRegisterBtn">Crear cuenta</button>
-                <div class="auth-keys-box" id="authKeysBox">
-                    <strong>Guarda estas 2 claves ahora</strong> — no se vuelven a mostrar.
-                    <div style="margin-top:8px;">AES-256</div>
-                    <code id="authKeyAesOut"></code>
-                    <div>Identificador L8ID</div>
-                    <code id="authKeyIdOut"></code>
-                    <button type="button" class="auth-btn secondary" id="authCopyKeysBtn">Copiar ambas claves</button>
-                    <button type="button" class="auth-btn" id="authEnterAfterRegisterBtn">Ya las guardé — entrar</button>
-                </div>
+            </div>
+
+            <div class="auth-panel" id="authPanelRecover">
+                <label class="auth-label" for="authRecoverInput">Clave L8REC o código de respaldo</label>
+                <input class="auth-input" id="authRecoverInput" type="password" autocomplete="off" spellcheck="false" placeholder="L8REC-… o XXXX-XXXX-XXXX">
+                <button type="button" class="auth-btn" id="authRecoverBtn">Recuperar y regenerar claves</button>
+                <p class="auth-foot" style="margin-top:10px;">Si perdiste AES/L8ID pero guardaste el kit, aquí emites claves nuevas. Las anteriores quedan invalidadas.</p>
+            </div>
+
+            <div class="auth-keys-box" id="authKeysBox">
+                <strong>Guarda todo el kit ahora</strong> — no se vuelve a mostrar.
+                <div style="margin-top:8px;">AES-256</div>
+                <code id="authKeyAesOut"></code>
+                <div>Identificador L8ID</div>
+                <code id="authKeyIdOut"></code>
+                <div>Clave de recuperación L8REC</div>
+                <code id="authKeyRecOut"></code>
+                <div>Códigos de respaldo (1 uso c/u)</div>
+                <code id="authKeyBackupOut"></code>
+                <button type="button" class="auth-btn secondary" id="authCopyKeysBtn">Copiar kit completo</button>
+                <button type="button" class="auth-btn" id="authEnterAfterRegisterBtn">Ya lo guardé — entrar</button>
             </div>
 
             <p class="auth-msg" id="authMsg"></p>
-            <p class="auth-foot">Cada cuenta es única. Las dos claves generadas identifican solo a ese usuario. Sin ellas no hay acceso.</p>
+            <p class="auth-foot">Sin correo de recuperación: el kit L8REC + códigos es tu único salvavidas si pierdes AES o L8ID.</p>
         </div>
     </div>
 
@@ -2697,20 +2712,49 @@
             window.l8CheckAuthSession = checkSession;
 
             function switchTab(name) {
-                const loginTab = document.getElementById('authTabLogin');
-                const regTab = document.getElementById('authTabRegister');
-                const loginPanel = document.getElementById('authPanelLogin');
-                const regPanel = document.getElementById('authPanelRegister');
-                const isLogin = name === 'login';
-                if (loginTab) loginTab.classList.toggle('active', isLogin);
-                if (regTab) regTab.classList.toggle('active', !isLogin);
-                if (loginPanel) loginPanel.classList.toggle('active', isLogin);
-                if (regPanel) regPanel.classList.toggle('active', !isLogin);
+                const tabs = {
+                    login: document.getElementById('authTabLogin'),
+                    register: document.getElementById('authTabRegister'),
+                    recover: document.getElementById('authTabRecover')
+                };
+                const panels = {
+                    login: document.getElementById('authPanelLogin'),
+                    register: document.getElementById('authPanelRegister'),
+                    recover: document.getElementById('authPanelRecover')
+                };
+                Object.keys(tabs).forEach((k) => {
+                    if (tabs[k]) tabs[k].classList.toggle('active', k === name);
+                    if (panels[k]) panels[k].classList.toggle('active', k === name);
+                });
                 setMsg('');
+            }
+
+            function showKeyKit(data) {
+                const aes = (data.keys && data.keys.aes256) || '';
+                const identity = (data.keys && data.keys.identity) || '';
+                const recovery = (data.keys && data.keys.recovery) || '';
+                const backups = Array.isArray(data.keys && data.keys.backup_codes) ? data.keys.backup_codes : [];
+                pendingSessionToken = data.session_token || '';
+                pendingKeysText = [
+                    'AES-256:', aes, '',
+                    'L8ID:', identity, '',
+                    'L8REC (recuperación):', recovery, '',
+                    'Códigos de respaldo:', backups.join('\n')
+                ].join('\n');
+                const aesOut = document.getElementById('authKeyAesOut');
+                const idOut = document.getElementById('authKeyIdOut');
+                const recOut = document.getElementById('authKeyRecOut');
+                const bakOut = document.getElementById('authKeyBackupOut');
+                if (aesOut) aesOut.textContent = aes;
+                if (idOut) idOut.textContent = identity;
+                if (recOut) recOut.textContent = recovery;
+                if (bakOut) bakOut.textContent = backups.join('\n');
+                if (keysBox) keysBox.classList.add('visible');
             }
 
             document.getElementById('authTabLogin')?.addEventListener('click', () => switchTab('login'));
             document.getElementById('authTabRegister')?.addEventListener('click', () => switchTab('register'));
+            document.getElementById('authTabRecover')?.addEventListener('click', () => switchTab('recover'));
 
             document.getElementById('authLoginBtn')?.addEventListener('click', async () => {
                 const aes = (document.getElementById('authAesInput')?.value || '').trim();
@@ -2763,21 +2807,45 @@
                         setMsg((data && data.error) || 'No se pudo registrar.');
                         return;
                     }
-                    pendingSessionToken = data.session_token || '';
-                    const aes = (data.keys && data.keys.aes256) || '';
-                    const identity = (data.keys && data.keys.identity) || '';
-                    pendingKeysText = 'AES-256:\n' + aes + '\n\nL8ID:\n' + identity;
-                    const aesOut = document.getElementById('authKeyAesOut');
-                    const idOut = document.getElementById('authKeyIdOut');
-                    if (aesOut) aesOut.textContent = aes;
-                    if (idOut) idOut.textContent = identity;
-                    if (keysBox) keysBox.classList.add('visible');
+                    showKeyKit(data);
                     if (document.getElementById('authDilithiumInput')) {
                         document.getElementById('authDilithiumInput').value = '';
                     }
-                    setMsg(data.warning || 'Cuenta creada. Guarda tus 2 claves.', true);
+                    setMsg(data.warning || 'Cuenta creada. Guarda el kit completo.', true);
                 } catch (e) {
                     setMsg('Error de red al registrar.');
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            });
+
+            document.getElementById('authRecoverBtn')?.addEventListener('click', async () => {
+                const material = (document.getElementById('authRecoverInput')?.value || '').trim();
+                const btn = document.getElementById('authRecoverBtn');
+                if (!material) {
+                    setMsg('Introduce L8REC o un código de respaldo.');
+                    return;
+                }
+                if (btn) btn.disabled = true;
+                setMsg('Recuperando cuenta…');
+                try {
+                    const res = await fetch('/api/auth/recover', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ recovery: material })
+                    });
+                    const data = await res.json();
+                    if (!data || !data.ok) {
+                        setMsg((data && data.error) || 'No se pudo recuperar.');
+                        return;
+                    }
+                    showKeyKit(data);
+                    if (document.getElementById('authRecoverInput')) {
+                        document.getElementById('authRecoverInput').value = '';
+                    }
+                    setMsg(data.warning || 'Claves regeneradas. Guarda el nuevo kit.', true);
+                } catch (e) {
+                    setMsg('Error de red al recuperar.');
                 } finally {
                     if (btn) btn.disabled = false;
                 }
@@ -2787,15 +2855,15 @@
                 if (!pendingKeysText) return;
                 try {
                     await navigator.clipboard.writeText(pendingKeysText);
-                    setMsg('Claves copiadas al portapapeles.', true);
+                    setMsg('Kit copiado al portapapeles.', true);
                 } catch (e) {
-                    setMsg('No se pudo copiar automáticamente. Selecciónalas y copia manualmente.');
+                    setMsg('No se pudo copiar automáticamente. Selecciónalo y copia manualmente.');
                 }
             });
 
             document.getElementById('authEnterAfterRegisterBtn')?.addEventListener('click', () => {
                 if (!pendingSessionToken) {
-                    setMsg('Primero crea la cuenta y guarda las claves.');
+                    setMsg('Primero crea o recupera la cuenta y guarda el kit.');
                     return;
                 }
                 saveSession(pendingSessionToken, '');
@@ -2810,6 +2878,9 @@
             });
             document.getElementById('authDilithiumInput')?.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') document.getElementById('authRegisterBtn')?.click();
+            });
+            document.getElementById('authRecoverInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') document.getElementById('authRecoverBtn')?.click();
             });
         })();
 

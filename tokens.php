@@ -2,7 +2,7 @@
 /**
  * Cupo mensual de tokens l8 codespace.
  *
- * - Allowance: 200_000 tokens / mes (periodo YYYY-MM)
+ * - Allowance: 10_000 tokens / mes (periodo YYYY-MM)
  * - Comando: -5
  * - Ventana externa: -25
  * - Clone de repositorio GitHub: -625
@@ -14,7 +14,7 @@ if (!function_exists('authValidateSession')) {
 }
 
 function tokensMonthlyAllowance() {
-    return 200000;
+    return 10000;
 }
 
 function tokensCostCommand() {

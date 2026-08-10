@@ -1618,7 +1618,7 @@
                     <div>Externas<strong id="tokensExternals">—</strong></div>
                     <div>Clones<strong id="tokensClones">—</strong></div>
                 </div>
-                <div class="tokens-legend" id="tokensLegend">Cupo mensual 200.000 · Comando −5 · Ventana externa −25 · Clone GitHub −625</div>
+                <div class="tokens-legend" id="tokensLegend">Cupo mensual 10.000 · Comando −5 · Ventana externa −25 · Clone GitHub −625</div>
             </div>
         </div>
     </div>

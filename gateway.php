@@ -164,7 +164,7 @@
             <img src="/favicon.svg?v=3" alt="l8 codespace">
             <div>
                 <h1>l8 codespace</h1>
-                <p>Gateway · ingresa el código y descarga la carpeta</p>
+                <p>Gateway · ingresa el código y descarga el paquete</p>
             </div>
         </div>
 
@@ -172,11 +172,11 @@
             <label for="codeInput">Código de transferencia</label>
             <input id="codeInput" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="9" placeholder="JSLA-SAKA">
             <div class="actions">
-                <button type="button" class="btn-primary" id="claimBtn">Obtener carpeta</button>
+                <button type="button" class="btn-primary" id="claimBtn">Obtener paquete</button>
                 <button type="button" class="btn-secondary" id="clearBtn">Limpiar</button>
             </div>
             <div class="status" id="statusText">Pega un código tipo JSLA-SAKA generado en la plataforma.</div>
-            <p class="hint">El código es único y no se reutiliza. Quien lo tenga puede descargar la carpeta del repositorio.</p>
+            <p class="hint">El código es único. Puede traer un repo, el bloc de notas, la terminal u otro contenido enviado desde la plataforma.</p>
         </div>
 
         <div class="result" id="resultCard">
@@ -184,7 +184,7 @@
             <div>
                 <h3 id="resultTitle">l8 codespace</h3>
                 <p id="resultBody"></p>
-                <a id="resultDownload" href="#" download>Descargar carpeta (.zip)</a>
+                <a id="resultDownload" href="#" download>Descargar paquete (.zip)</a>
             </div>
         </div>
     </div>
@@ -254,14 +254,14 @@
                 resultBody.textContent = (data.message || '') +
                     (t.size_formatted ? (' · ' + t.size_formatted) : '');
                 resultDownload.href = data.download_url || t.download_url || ('/api/gateway/download/' + encodeURIComponent(code));
-                resultDownload.setAttribute('download', (t.repo_name || 'repo') + '.zip');
+                resultDownload.setAttribute('download', (t.repo_name || 'paquete') + '.zip');
                 resultCard.classList.add('visible');
-                setStatus('Código válido. Ya puedes descargar la carpeta.', 'live');
+                setStatus('Código válido. Ya puedes descargar el paquete.', 'live');
 
                 if ('Notification' in window && Notification.permission === 'granted') {
                     try {
                         new Notification(platformName, {
-                            body: 'Carpeta lista: ' + (t.user_repo || t.repo_name || code),
+                            body: 'Paquete listo: ' + (t.user_repo || t.repo_name || code),
                             icon: icon,
                             tag: code
                         });

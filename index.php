@@ -966,10 +966,49 @@
             font-size: 13px;
             line-height: 1.5;
             caret-color: #ffffff;
+            padding-bottom: 36px;
+            box-sizing: border-box;
         }
 
         .function-editor::placeholder {
             color: #888888;
+        }
+
+        .terminal-download-btn {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            opacity: 0.85;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+
+        .terminal-download-btn:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .terminal-download-btn:focus-visible {
+            outline: 1px solid #ffffff;
+            outline-offset: 2px;
+        }
+
+        .terminal-download-btn svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+            fill: currentColor;
+            pointer-events: none;
         }
 
         .action-code-btn {
@@ -1723,6 +1762,15 @@
 
                 <div class="function-drawer-inner">
                     <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí o inspecciona el código de repositorios guardados..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
+                    <button type="button" class="terminal-download-btn" id="terminalDownloadBtn" title="Descargar contenido de la terminal" aria-label="Descargar contenido de la terminal" onclick="downloadBlackTerminalContent()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true">
+                            <g fill="currentColor" fill-rule="nonzero">
+                                <g transform="scale(10.66667,10.66667)">
+                                    <path d="M11,2c-0.552,0 -1,0.448 -1,1v8h-3.5c-0.27614,0 -0.5,0.22386 -0.5,0.5c0.00002,0.1326 0.05271,0.25976 0.14648,0.35352c0.00999,0.01021 0.02042,0.01998 0.03125,0.0293l5.10547,4.81445l0.0332,0.03125c0.1851,0.17405 0.42951,0.27112 0.68359,0.27148c0.25408,-0.00036 0.49849,-0.09743 0.68359,-0.27148l0.01367,-0.01172c0.00328,-0.00388 0.00654,-0.00779 0.00976,-0.01172l5.10352,-4.8125c0.01013,-0.00872 0.0199,-0.01784 0.0293,-0.02734l0.00781,-0.00586c0.00197,-0.00194 0.00392,-0.00389 0.00586,-0.00586c0.09377,-0.09375 0.14646,-0.22092 0.14648,-0.35352c0,-0.27614 -0.22386,-0.5 -0.5,-0.5h-3.5v-8c0,-0.552 -0.448,-1 -1,-1h-1zM3,20c-0.36064,-0.0051 -0.69608,0.18438 -0.87789,0.49587c-0.18181,0.3115 -0.18181,0.69676 0,1.00825c0.18181,0.3115 0.51725,0.50097 0.87789,0.49587h18c0.36064,0.0051 0.69608,-0.18438 0.87789,-0.49587c0.18181,-0.3115 0.18181,-0.69676 0,-1.00825c-0.18181,-0.3115 -0.51725,-0.50097 -0.87789,-0.49587z"></path>
+                                </g>
+                            </g>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -2091,6 +2139,193 @@
                 if (currentInspectedFile === filePath) {
                     editor.value = "// Error de lectura.";
                 }
+            }
+        }
+
+        function terminalEscapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function terminalSafeFilename(name, ext) {
+            const base = String(name || 'terminal')
+                .replace(/[\\/:*?"<>|]+/g, '_')
+                .replace(/\s+/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^\.+/, '')
+                .slice(0, 80) || 'terminal';
+            const cleanExt = String(ext || '').replace(/^\./, '');
+            if (!cleanExt) return base;
+            if (new RegExp('\\.' + cleanExt + '$', 'i').test(base)) return base;
+            return base + '.' + cleanExt;
+        }
+
+        function terminalGuessLanguage(filePath, content) {
+            const path = String(filePath || '');
+            const ext = (path.includes('.') ? path.split('.').pop() : '').toLowerCase();
+            const map = {
+                js: 'javascript', mjs: 'javascript', cjs: 'javascript', jsx: 'javascript',
+                ts: 'typescript', tsx: 'typescript',
+                py: 'python', rb: 'ruby', php: 'php', go: 'go', rs: 'rust',
+                java: 'java', kt: 'kotlin', swift: 'swift', cs: 'csharp',
+                c: 'c', h: 'c', cpp: 'cpp', hpp: 'cpp', cc: 'cpp',
+                css: 'css', scss: 'scss', less: 'less',
+                html: 'html', htm: 'html', xml: 'xml', svg: 'xml',
+                json: 'json', yaml: 'yaml', yml: 'yaml', toml: 'toml',
+                sh: 'bash', bash: 'bash', zsh: 'bash', ps1: 'powershell',
+                sql: 'sql', r: 'r', lua: 'lua', dart: 'dart',
+                vue: 'vue', svelte: 'svelte', md: 'markdown', markdown: 'markdown',
+                txt: 'text', conf: 'ini', ini: 'ini', env: 'bash'
+            };
+            if (map[ext]) return map[ext];
+            const sample = String(content || '').slice(0, 4000);
+            if (/^\s*<(!DOCTYPE|html|svg)\b/i.test(sample)) return 'html';
+            if (/^\s*\{[\s\S]*\}\s*$/.test(sample.trim()) || /^\s*\[[\s\S]*\]\s*$/.test(sample.trim())) return 'json';
+            if (/\b(function|const|let|var|=>|import\s+|export\s+)\b/.test(sample)) return 'javascript';
+            if (/\b(def\s+\w+\s*\(|import\s+\w+|from\s+\w+\s+import)\b/.test(sample)) return 'python';
+            if (/<\?php\b/.test(sample)) return 'php';
+            return 'text';
+        }
+
+        function terminalIsCodeContent(content, filePath) {
+            const path = String(filePath || currentInspectedFile || '');
+            const ext = (path.includes('.') ? path.split('.').pop() : '').toLowerCase();
+            const textExts = {
+                md: true, markdown: true, txt: true, text: true, rst: true,
+                log: true, csv: true, tsv: true, asciidoc: true, adoc: true
+            };
+            const codeExts = {
+                js: true, mjs: true, cjs: true, jsx: true, ts: true, tsx: true,
+                py: true, rb: true, php: true, go: true, rs: true, java: true,
+                kt: true, swift: true, cs: true, c: true, h: true, cpp: true,
+                hpp: true, cc: true, css: true, scss: true, less: true,
+                html: true, htm: true, xml: true, svg: true, json: true,
+                yaml: true, yml: true, toml: true, sh: true, bash: true,
+                zsh: true, ps1: true, sql: true, r: true, lua: true, dart: true,
+                vue: true, svelte: true, conf: true, ini: true, env: true,
+                dockerfile: true, makefile: true
+            };
+            const base = path.split('/').pop() || '';
+            if (/^(Dockerfile|Makefile|Gemfile|Procfile)$/i.test(base)) return true;
+            if (textExts[ext]) return false;
+            if (codeExts[ext]) return true;
+
+            const text = String(content || '');
+            if (!text.trim()) return false;
+            const lines = text.split(/\r?\n/);
+            const sampleLines = lines.slice(0, 80);
+            let codeSignals = 0;
+            sampleLines.forEach((line) => {
+                if (/[{};]$/.test(line.trim())) codeSignals += 1;
+                if (/^\s*(function|class|def|import|export|const|let|var|public|private|return|if\s*\(|for\s*\(|while\s*\()/.test(line)) codeSignals += 2;
+                if (/^\s*#include\b|<\?php\b|#!\//.test(line)) codeSignals += 2;
+                if (/^\s*\/\*|\*\/|\/\/|<!--/.test(line)) codeSignals += 1;
+            });
+            const avgLen = text.length / Math.max(lines.length, 1);
+            if (codeSignals >= 4) return true;
+            if (codeSignals >= 2 && avgLen < 90) return true;
+            // Texto narrativo / markdown suelto
+            if (/^#{1,6}\s+\S/m.test(text) && codeSignals < 2) return false;
+            if (codeSignals === 0 && avgLen > 60) return false;
+            return codeSignals > 0;
+        }
+
+        function terminalBuildCodeHtml(content, filePath) {
+            const lang = terminalGuessLanguage(filePath, content);
+            const title = terminalEscapeHtml(filePath || 'terminal-code');
+            const body = terminalEscapeHtml(content);
+            return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: #f2f2f2;
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  header {
+    padding: 14px 18px;
+    border-bottom: 1px solid #2a2a2a;
+    font-size: 12px;
+    color: #a8a8a8;
+    letter-spacing: 0.02em;
+  }
+  header strong { color: #ffffff; font-weight: 600; }
+  pre {
+    margin: 0;
+    padding: 18px;
+    overflow: auto;
+    white-space: pre;
+    line-height: 1.55;
+    font-size: 13px;
+  }
+  code { font-family: inherit; }
+</style>
+</head>
+<body>
+<header>l8 codespace · <strong>${title}</strong> · <span>${terminalEscapeHtml(lang)}</span></header>
+<pre><code class="language-${terminalEscapeHtml(lang)}">${body}</code></pre>
+</body>
+</html>
+`;
+        }
+
+        function terminalBuildMarkdown(content, filePath) {
+            const text = String(content || '');
+            const name = filePath || 'terminal-text';
+            // Si ya parece markdown, conservar tal cual; si no, envolver con título
+            if (/^#{1,6}\s+\S/m.test(text) || /^\s*[-*+]\s+\S/m.test(text) || /```/.test(text)) {
+                return text.endsWith('\n') ? text : (text + '\n');
+            }
+            return '# ' + name + '\n\n' + text.replace(/\s+$/, '') + '\n';
+        }
+
+        function terminalTriggerDownload(filename, mime, body) {
+            const blob = new Blob([body], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1500);
+        }
+
+        function downloadBlackTerminalContent() {
+            const editor = document.getElementById('functionEditor');
+            if (!editor) return;
+            const content = editor.value || '';
+            if (!String(content).trim()) {
+                try { editor.focus(); } catch (e) {}
+                return;
+            }
+            const filePath = currentInspectedFile || '';
+            const baseName = filePath
+                ? filePath.split('/').pop()
+                : ('terminal-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-'));
+            const asCode = terminalIsCodeContent(content, filePath);
+
+            if (asCode) {
+                const html = terminalBuildCodeHtml(content, filePath || baseName);
+                const outName = terminalSafeFilename(baseName.replace(/\.[^.]+$/, '') + '-code', 'html');
+                terminalTriggerDownload(outName, 'text/html;charset=utf-8', html);
+            } else {
+                const md = terminalBuildMarkdown(content, filePath || baseName);
+                const outName = terminalSafeFilename(baseName.replace(/\.[^.]+$/, '') || 'terminal-text', 'md');
+                terminalTriggerDownload(outName, 'text/markdown;charset=utf-8', md);
             }
         }
 

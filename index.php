@@ -680,6 +680,69 @@
             flex-wrap: wrap;
         }
 
+        .notepad-ocg-panel {
+            display: none;
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .notepad-ocg-panel.open {
+            display: flex;
+        }
+
+        .notepad-ocg-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .notepad-ocg-select,
+        .notepad-ocg-input {
+            height: 30px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            font: inherit;
+            font-size: 12px;
+            color: #111;
+            outline: none;
+            padding: 0 8px;
+        }
+
+        .notepad-ocg-select {
+            min-width: 160px;
+            max-width: 100%;
+        }
+
+        .notepad-ocg-select.type {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .notepad-ocg-input {
+            width: 72px;
+        }
+
+        .notepad-ocg-input.filter {
+            flex: 1;
+            min-width: 160px;
+            width: auto;
+        }
+
+        .notepad-ocg-status {
+            font-size: 11px;
+            color: #666;
+            min-height: 14px;
+        }
+
+        .notepad-ocg-status.err { color: #c5221f; }
+        .notepad-ocg-status.ok { color: #137333; }
+
         .main-container {
             padding: 12px;
             display: flex;
@@ -4268,6 +4331,279 @@
             });
         }
 
+        let notepadOcgBusy = false;
+        let notepadOcgLoadPromise = null;
+        let notepadOcgCatalogReady = false;
+
+        function notepadOcgSetStatus(text, kind) {
+            const el = document.getElementById('notepadOcgStatus');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.toggle('err', kind === 'err');
+            el.classList.toggle('ok', kind === 'ok');
+        }
+
+        function notepadOcgLoadScript(src) {
+            return new Promise((resolve, reject) => {
+                const existing = document.querySelector('script[data-ocg-src="' + src + '"]');
+                if (existing) {
+                    if (existing.getAttribute('data-loaded') === '1') {
+                        resolve();
+                        return;
+                    }
+                    existing.addEventListener('load', () => resolve(), { once: true });
+                    existing.addEventListener('error', () => reject(new Error('No se pudo cargar ' + src)), { once: true });
+                    return;
+                }
+                const s = document.createElement('script');
+                s.src = src;
+                s.async = false;
+                s.setAttribute('data-ocg-src', src);
+                s.onload = () => {
+                    s.setAttribute('data-loaded', '1');
+                    resolve();
+                };
+                s.onerror = () => reject(new Error('No se pudo cargar ' + src));
+                document.head.appendChild(s);
+            });
+        }
+
+        function notepadOcgEnsureLoaded() {
+            if (window.OCG_GEN && window.OCG_CATALOG) {
+                return Promise.resolve();
+            }
+            if (notepadOcgLoadPromise) return notepadOcgLoadPromise;
+            notepadOcgLoadPromise = notepadOcgLoadScript('/opencryptg/data/catalog.js?v=ocg-10100-1')
+                .then(() => notepadOcgLoadScript('/opencryptg/data/generators.js?v=ocg-10100-1'))
+                .then(() => {
+                    if (!window.OCG_GEN || !window.OCG_CATALOG) {
+                        throw new Error('Inventario OpenCriptG no disponible');
+                    }
+                })
+                .catch((err) => {
+                    notepadOcgLoadPromise = null;
+                    throw err;
+                });
+            return notepadOcgLoadPromise;
+        }
+
+        function notepadOcgTypeLabel(type) {
+            if (!type) return '';
+            const variant = type.hashcodVariant ? (type.hashcodVariant + ' · ') : '';
+            return variant + (type.originalLabel || type.label || type.id);
+        }
+
+        function notepadOcgPopulateCategories() {
+            const catSel = document.getElementById('notepadOcgCategory');
+            if (!catSel || !window.OCG_CATALOG) return;
+            const prev = catSel.value;
+            catSel.innerHTML = '';
+            const all = document.createElement('option');
+            all.value = '__all__';
+            all.textContent = 'Todas las categorías (10.100)';
+            catSel.appendChild(all);
+            (window.OCG_CATALOG || []).forEach((cat) => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                const n = (cat.types || []).length;
+                opt.textContent = (cat.label || cat.id) + ' (' + n + ')';
+                catSel.appendChild(opt);
+            });
+            if (prev && [...catSel.options].some((o) => o.value === prev)) {
+                catSel.value = prev;
+            }
+        }
+
+        function notepadOcgFilteredTypes() {
+            const catSel = document.getElementById('notepadOcgCategory');
+            const filterEl = document.getElementById('notepadOcgFilter');
+            const catId = catSel ? catSel.value : '__all__';
+            const q = (filterEl ? filterEl.value : '').trim().toLowerCase();
+            const out = [];
+            (window.OCG_CATALOG || []).forEach((cat) => {
+                if (catId !== '__all__' && cat.id !== catId) return;
+                (cat.types || []).forEach((type) => {
+                    const hay = [
+                        type.id,
+                        type.label,
+                        type.originalLabel,
+                        type.hashcodVariant,
+                        type.badge,
+                        type.engine,
+                        cat.label
+                    ].join(' ').toLowerCase();
+                    if (q && hay.indexOf(q) === -1) return;
+                    out.push({ cat: cat, type: type });
+                });
+            });
+            return out;
+        }
+
+        function notepadOcgPopulateTypes() {
+            const typeSel = document.getElementById('notepadOcgType');
+            if (!typeSel) return;
+            const prev = typeSel.value;
+            const rows = notepadOcgFilteredTypes();
+            const maxOpts = 800;
+            typeSel.innerHTML = '';
+            const shown = rows.slice(0, maxOpts);
+            shown.forEach((row) => {
+                const opt = document.createElement('option');
+                opt.value = row.type.id;
+                opt.textContent = notepadOcgTypeLabel(row.type);
+                opt.title = (row.cat.label || '') + ' · ' + (row.type.engine || '');
+                typeSel.appendChild(opt);
+            });
+            if (!shown.length) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'Sin coincidencias';
+                typeSel.appendChild(opt);
+            } else if (prev && [...typeSel.options].some((o) => o.value === prev)) {
+                typeSel.value = prev;
+            }
+            const extra = rows.length > maxOpts ? (' · mostrando ' + maxOpts + ' de ' + rows.length) : '';
+            notepadOcgSetStatus('inventario OpenCriptG · ' + rows.length + ' tipos filtrados' + extra + ' · códigos únicos');
+        }
+
+        async function toggleNotepadOcgPanel(force) {
+            const panel = document.getElementById('notepadOcgPanel');
+            const btn = document.getElementById('notepadOcgToggleBtn');
+            if (!panel) return;
+            const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
+            panel.classList.toggle('open', open);
+            if (btn) {
+                btn.classList.toggle('active', open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+            if (open) {
+                toggleNotepadAiPanel(false);
+                notepadOcgSetStatus('cargando inventario OpenCriptG (10.100)…');
+                try {
+                    await notepadOcgEnsureLoaded();
+                    if (!notepadOcgCatalogReady) {
+                        notepadOcgPopulateCategories();
+                        notepadOcgCatalogReady = true;
+                    }
+                    notepadOcgPopulateTypes();
+                    try {
+                        const res = await fetch('/api/opencrypt/status');
+                        const data = await res.json();
+                        if (data && data.ok) {
+                            notepadOcgSetStatus(
+                                'inventario 10.100 tipos · ledger únicos: ' + (data.ledger_count || 0),
+                                'ok'
+                            );
+                        }
+                    } catch (e) {}
+                } catch (e) {
+                    notepadOcgSetStatus(e.message || String(e), 'err');
+                }
+            }
+        }
+
+        async function notepadOcgClaim(codes) {
+            const res = await fetch('/api/opencrypt/claim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codes: codes })
+            });
+            const data = await res.json();
+            if (!data || !data.ok) {
+                throw new Error((data && data.error) || 'No se pudo registrar unicidad');
+            }
+            return data;
+        }
+
+        async function notepadOcgGenerateUnique(typeId, label, qty) {
+            const accepted = [];
+            const maxAttempts = Math.max(20, qty * 8);
+            let attempts = 0;
+            while (accepted.length < qty && attempts < maxAttempts) {
+                const batch = [];
+                const need = qty - accepted.length;
+                for (let i = 0; i < need; i++) {
+                    attempts++;
+                    const raw = await window.OCG_GEN.generate(typeId);
+                    const code = String(raw == null ? '' : raw);
+                    if (!code) continue;
+                    batch.push({ type_id: typeId, label: label, code: code });
+                }
+                if (!batch.length) continue;
+                const claim = await notepadOcgClaim(batch);
+                (claim.accepted || []).forEach((row) => accepted.push(row));
+            }
+            if (accepted.length < qty) {
+                throw new Error('No se pudieron obtener ' + qty + ' códigos únicos (colisiones o generador)');
+            }
+            return accepted;
+        }
+
+        async function notepadOcgGenerateAndInsert() {
+            if (notepadOcgBusy) return;
+            const typeSel = document.getElementById('notepadOcgType');
+            const qtyEl = document.getElementById('notepadOcgQty');
+            const typeId = typeSel ? typeSel.value : '';
+            let qty = qtyEl ? parseInt(qtyEl.value, 10) : 1;
+            if (!typeId) {
+                notepadOcgSetStatus('elige un tipo del inventario', 'err');
+                return;
+            }
+            if (!Number.isFinite(qty) || qty < 1) qty = 1;
+            if (qty > 25) qty = 25;
+            if (qtyEl) qtyEl.value = String(qty);
+
+            notepadOcgBusy = true;
+            const btn = document.getElementById('notepadOcgGenerateBtn');
+            if (btn) btn.disabled = true;
+            notepadOcgSetStatus('generando códigos únicos…');
+            try {
+                await notepadOcgEnsureLoaded();
+                let label = typeId;
+                const opt = typeSel && typeSel.selectedOptions && typeSel.selectedOptions[0];
+                if (opt) label = opt.textContent || typeId;
+                const rows = await notepadOcgGenerateUnique(typeId, label, qty);
+                const block = rows.map((row, idx) => {
+                    const head = '[' + (idx + 1) + '/' + rows.length + '] ' + (row.label || row.type_id);
+                    return head + '\n' + row.code;
+                }).join('\n\n');
+                notepadInsertAtSelection(block + (block.endsWith('\n') ? '' : '\n'));
+                notepadOcgSetStatus(
+                    'insertados ' + rows.length + ' código(s) únicos · ledger ' + (rows[0] ? '' : '') + 'ok',
+                    'ok'
+                );
+                try {
+                    const st = await fetch('/api/opencrypt/status').then((r) => r.json());
+                    if (st && st.ok) {
+                        notepadOcgSetStatus(
+                            'insertados ' + rows.length + ' · ledger únicos: ' + (st.ledger_count || 0),
+                            'ok'
+                        );
+                    }
+                } catch (e) {}
+            } catch (e) {
+                notepadOcgSetStatus(e.message || String(e), 'err');
+            } finally {
+                notepadOcgBusy = false;
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function initNotepadOcgTool() {
+            const cat = document.getElementById('notepadOcgCategory');
+            const filter = document.getElementById('notepadOcgFilter');
+            const genBtn = document.getElementById('notepadOcgGenerateBtn');
+            if (cat) cat.addEventListener('change', () => notepadOcgPopulateTypes());
+            if (filter) {
+                let t = null;
+                filter.addEventListener('input', () => {
+                    clearTimeout(t);
+                    t = setTimeout(() => notepadOcgPopulateTypes(), 120);
+                });
+            }
+            if (genBtn) genBtn.addEventListener('click', () => notepadOcgGenerateAndInsert());
+        }
+
         function initNotepadEditor() {
             if (window.__l8NotepadReady) return;
             const overlay = document.getElementById('notepadOverlay');
@@ -4278,6 +4614,7 @@
             window.__l8NotepadReady = true;
             notepadLoadStore();
             initNotepadAiChat();
+            initNotepadOcgTool();
 
             if (closeBtn) closeBtn.addEventListener('click', () => toggleNotepadEditor(false));
             overlay.addEventListener('click', (e) => {
@@ -4310,7 +4647,11 @@
                     const action = btn.getAttribute('data-action');
                     if (action === 'new') notepadCreate();
                     else if (action === 'delete') notepadDeleteActive();
-                    else if (action === 'ai-toggle') toggleNotepadAiPanel();
+                    else if (action === 'ai-toggle') {
+                        toggleNotepadOcgPanel(false);
+                        toggleNotepadAiPanel();
+                    }
+                    else if (action === 'ocg-toggle') toggleNotepadOcgPanel();
                     else if (action === 'save') {
                         notepadFlushActiveFromDom();
                         notepadRenderList();
@@ -4383,6 +4724,11 @@
                         <path d="M 2 2 L 2 18 L 10 18 L 10 16 L 10 13 L 7 13 L 7 16 L 4 16 L 4 13 L 7 13 L 7 10 L 4 10 L 4 7 L 7 7 L 7 4 L 10 4 L 10 6 L 13 6 L 13 4 L 16 4 L 16 6 L 18 6 L 18 4 L 18 3 L 18 2 L 2 2 z M 7 7 L 7 10 L 10 10 L 10 7 L 7 7 z M 12 8 L 12 9 L 12 15 L 15.341797 15 L 14.113281 18.505859 C 12.858545 19.357587 12 20.695357 12 22.236328 L 12 24 L 24 24 L 24 22.236328 C 24 20.695357 23.141455 19.357587 21.886719 18.505859 L 20.658203 15 L 24 15 L 24 8 L 12 8 z M 14 10 L 15 10 L 15 12 L 17 12 L 17 10 L 19 10 L 19 12 L 21 12 L 21 10 L 22 10 L 22 13 L 19.958984 13 L 16.041016 13 L 14 13 L 14 10 z M 17.458984 15 L 18.541016 15 L 20.189453 19.712891 L 20.552734 19.894531 C 21.36554 20.300934 21.8476 21.108372 21.933594 22 L 14.066406 22 C 14.152396 21.108372 14.63446 20.300934 15.447266 19.894531 L 15.810547 19.712891 L 17.458984 15 z"></path>
                     </svg>
                 </button>
+                <button type="button" class="notepad-tool iconic" id="notepadOcgToggleBtn" data-action="ocg-toggle" title="OpenCriptG · códigos únicos" aria-label="Generar códigos OpenCriptG" aria-expanded="false" aria-controls="notepadOcgPanel">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" aria-hidden="true">
+                        <path d="M 4 0 A 4 4 0 0 0 0 4 L 0 52 A 4 4 0 0 0 4 56 L 26 56 A 4 4 0 0 0 30 60 L 56 60 A 4 4 0 0 0 60 56 L 60 36 A 4 4 0 0 0 56 32 L 52 32 L 52 4 A 4 4 0 0 0 48 0 L 4 0 z M 4 2 L 48 2 A 2 2 0 0 1 50 4 L 50 8 L 2 8 L 2 4 A 2 2 0 0 1 4 2 z M 5 4 A 1 1 0 0 0 5 6 L 6 6 A 1 1 0 0 0 6 4 L 5 4 z M 10 4 A 1 1 0 0 0 10 6 L 11 6 A 1 1 0 0 0 11 4 L 10 4 z M 15 4 A 1 1 0 0 0 15 6 L 16 6 A 1 1 0 0 0 16 4 L 15 4 z M 41 4 A 1 1 0 0 0 41 6 L 47 6 A 1 1 0 0 0 47 4 L 41 4 z M 2 10 L 50 10 L 50 32 L 41.242188 32 A 2.015 2.015 0 0 1 39.828125 31.414062 L 39.585938 31.171875 A 4.024 4.024 0 0 0 36.757812 30 L 30 30 A 4 4 0 0 0 26 34 L 26 54 L 4 54 A 2 2 0 0 1 2 52 L 2 10 z M 12 12 A 1 1 0 0 0 11 13 L 11 51 A 1 1 0 0 0 13 51 L 13 13 A 1 1 0 0 0 12 12 z M 6 13 A 1 1 0 0 0 6 15 L 8 15 A 1 1 0 0 0 8 13 L 6 13 z M 16 13 A 1 1 0 0 0 16 15 L 24 15 A 1 1 0 0 0 24 13 L 16 13 z M 6 17 A 1 1 0 0 0 6 19 L 8 19 A 1 1 0 0 0 8 17 L 6 17 z M 16 17 A 1 1 0 0 0 16 19 L 26 19 A 1 1 0 0 0 26 17 L 16 17 z M 6 21 A 1 1 0 0 0 6 23 L 8 23 A 1 1 0 0 0 8 21 L 6 21 z M 19 21 A 1 1 0 0 0 19 23 L 25 23 A 1 1 0 0 0 26 22 A 1 1 0 0 0 25 21 L 19 21 z M 29 21 A 1 1 0 0 0 29 23 L 38 23 A 1 1 0 0 0 38 21 L 29 21 z M 42 21 A 1 1 0 0 0 42 23 L 46 23 A 1 1 0 0 0 46 21 L 42 21 z M 6 25 A 1 1 0 0 0 6 27 L 8 27 A 1 1 0 0 0 8 25 L 6 25 z M 18 25 A 1 1 0 0 0 18 27 L 24 27 A 1 1 0 0 0 24 25 L 18 25 z M 28 25 A 1 1 0 0 0 28 27 L 37 27 A 1 1 0 0 0 37 25 L 28 25 z M 41 25 A 1 1 0 0 0 41 27 L 45 27 A 1 1 0 0 0 45 25 L 41 25 z M 6 29 A 1 1 0 0 0 6 31 L 8 31 A 1 1 0 0 0 8 29 L 6 29 z M 19 29 A 1 1 0 0 0 19 31 L 25 31 A 1 1 0 0 0 25 29 L 19 29 z M 30 32 L 36.757812 32 A 2.015 2.015 0 0 1 38.171875 32.585938 L 38.414062 32.828125 A 4.024 4.024 0 0 0 41.242188 34 L 56 34 A 2 2 0 0 1 58 36 L 58 40.556641 A 3.959 3.959 0 0 0 56 40 L 55 40 L 55 39 A 3 3 0 0 0 52 36 L 34 36 A 3 3 0 0 0 31 39 L 31 40 L 30 40 A 3.959 3.959 0 0 0 28 40.556641 L 28 34 A 2 2 0 0 1 30 32 z M 6 33 A 1 1 0 0 0 6 35 L 8 35 A 1 1 0 0 0 8 33 L 6 33 z M 16 33 A 1 1 0 0 0 16 35 L 23 35 A 1 1 0 0 0 23 33 L 16 33 z M 6 37 A 1 1 0 0 0 6 39 L 8 39 A 1 1 0 0 0 8 37 L 6 37 z M 16 37 A 1 1 0 0 0 16 39 L 23 39 A 1 1 0 0 0 23 37 L 16 37 z M 34 38 L 52 38 A 1 1 0 0 1 53 39 L 53 40 L 33 40 L 33 39 A 1 1 0 0 1 34 38 z M 6 41 A 1 1 0 0 0 6 43 L 8 43 A 1 1 0 0 0 8 41 L 6 41 z M 19 41 A 1 1 0 0 0 19 43 L 23 43 A 1 1 0 0 0 23 41 L 19 41 z M 30 42 L 56 42 A 2 2 0 0 1 58 44 L 58 56 A 2 2 0 0 1 56 58 L 30 58 A 2 2 0 0 1 28 56 L 28 44 A 2 2 0 0 1 30 42 z M 6 45 A 1 1 0 0 0 6 47 L 8 47 A 1 1 0 0 0 8 45 L 6 45 z M 18 45 A 1 1 0 0 0 18 47 L 23 47 A 1 1 0 0 0 23 45 L 18 45 z M 6 49 A 1 1 0 0 0 6 51 L 8 51 A 1 1 0 0 0 8 49 L 6 49 z M 19 49 A 1 1 0 0 0 19 51 L 23 51 A 1 1 0 0 0 23 49 L 19 49 z"></path>
+                    </svg>
+                </button>
                 <span class="notepad-tool-sep" aria-hidden="true"></span>
                 <button type="button" class="notepad-tool" data-action="find" title="Buscar">Buscar</button>
                 <button type="button" class="notepad-tool" data-action="copy" title="Copiar">Copiar</button>
@@ -4411,6 +4757,18 @@
                         <button type="button" class="notepad-tool" id="notepadAiSendBtn">Insertar</button>
                     </div>
                     <div class="notepad-ai-status" id="notepadAiRunStatus"></div>
+                </div>
+                <div class="notepad-ocg-panel" id="notepadOcgPanel" aria-label="Generador OpenCriptG">
+                    <div class="notepad-ocg-row">
+                        <select class="notepad-ocg-select" id="notepadOcgCategory" title="Categoría" aria-label="Categoría OpenCriptG"></select>
+                        <input type="text" class="notepad-ocg-input filter" id="notepadOcgFilter" placeholder="Filtrar tipo (10.100)…" autocomplete="off">
+                        <input type="number" class="notepad-ocg-input" id="notepadOcgQty" min="1" max="25" value="1" title="Cantidad" aria-label="Cantidad de códigos">
+                        <button type="button" class="notepad-tool" id="notepadOcgGenerateBtn" title="Generar e insertar en la nota">Generar e insertar</button>
+                    </div>
+                    <div class="notepad-ocg-row">
+                        <select class="notepad-ocg-select type" id="notepadOcgType" title="Tipo criptográfico" aria-label="Tipo criptográfico OpenCriptG"></select>
+                    </div>
+                    <div class="notepad-ocg-status" id="notepadOcgStatus">inventario OpenCriptG · 10.100 tipos · códigos únicos</div>
                 </div>
                 <div class="notepad-find" id="notepadFindBar">
                     <input type="text" id="notepadFindInput" placeholder="Buscar en la nota…" autocomplete="off">

@@ -3309,6 +3309,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/tokens.php';
 require_once __DIR__ . '/ai-chat.php';
+require_once __DIR__ . '/opencrypt-gen.php';
 if (function_exists('authHandleApi') && authHandleApi($uri)) {
     exit;
 }
@@ -3316,6 +3317,9 @@ if (function_exists('tokensHandleApi') && tokensHandleApi($uri)) {
     exit;
 }
 if (function_exists('aiChatHandleApi') && aiChatHandleApi($uri)) {
+    exit;
+}
+if (function_exists('ocgHandleApi') && ocgHandleApi($uri)) {
     exit;
 }
 

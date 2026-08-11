@@ -256,7 +256,7 @@
             position: fixed;
             inset: 0;
             z-index: 90;
-            background: rgba(20, 20, 20, 0.32);
+            background: rgba(18, 18, 22, 0.55);
             align-items: center;
             justify-content: center;
             padding: 20px 12px;
@@ -267,51 +267,56 @@
         }
 
         .tokens-unlock-shell {
-            width: min(720px, 100%);
+            width: min(560px, 100%);
             max-height: min(86vh, 720px);
             overflow: auto;
             background: #fff;
-            border: 2px solid #111;
-            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
+            border: none;
+            border-radius: 22px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
             font-family: 'IBM Plex Mono', ui-monospace, monospace;
-            color: #111;
+            color: #14141a;
         }
 
         .tokens-unlock-top {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 12px;
-            border-bottom: 2px solid #111;
-            background: #f7f7f7;
+            padding: 16px 20px 12px;
+            border-bottom: none;
+            background: transparent;
         }
 
         .tokens-unlock-brand {
             font-weight: 700;
             font-size: 13px;
             flex: 1;
+            letter-spacing: -0.02em;
         }
 
         .tokens-unlock-uses-pill {
             font-size: 11px;
-            border: 1.5px solid #111;
-            padding: 3px 8px;
-            background: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 5px 10px;
+            background: #f0f0f3;
+            color: #333;
             white-space: nowrap;
         }
 
         .tokens-unlock-close {
-            border: 1.5px solid #111;
-            background: #fff;
-            color: #111;
+            border: none;
+            border-radius: 999px;
+            background: #f0f0f3;
+            color: #14141a;
             font-family: inherit;
             font-size: 11px;
-            padding: 4px 10px;
+            padding: 5px 12px;
             cursor: pointer;
         }
 
         .tokens-unlock-close:hover {
-            background: #111;
+            background: #14141a;
             color: #fff;
         }
 
@@ -319,45 +324,82 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-            font-size: 11px;
+            font-size: 13px;
+            margin: 0 0 4px;
         }
 
         .tokens-unlock-table th,
         .tokens-unlock-table td {
-            border: 1.5px solid #111;
-            padding: 10px 8px;
-            text-align: center;
+            border: none;
+            border-bottom: 1px solid #ececf0;
+            padding: 16px 18px;
+            text-align: left;
             vertical-align: middle;
         }
 
-        .tokens-unlock-table th {
-            background: #f3f3f3;
+        .tokens-unlock-table thead th {
+            background: transparent;
             font-weight: 700;
+            font-size: 12px;
+            color: #1a1a22;
+            padding-top: 8px;
+            padding-bottom: 12px;
         }
 
-        .tokens-unlock-table .ico {
-            width: 56px;
+        .tokens-unlock-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .tokens-unlock-table .amt {
             width: 22%;
             font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: #14141a;
+            font-size: 15px;
         }
 
         .tokens-unlock-table .area {
-            width: 34%;
+            width: 43%;
+        }
+
+        .tokens-unlock-table .act {
+            width: 35%;
+            text-align: right;
+        }
+
+        .tokens-unlock-th-token {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            color: #14141a;
+        }
+
+        .tokens-unlock-th-token svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+
+        .tokens-unlock-area-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
         }
 
         .tokens-unlock-ico {
             width: 28px;
             height: 28px;
+            flex: 0 0 auto;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 1.5px solid #111;
-            background: #111;
+            border: none;
+            border-radius: 8px;
+            background: #14141a;
             color: #fff;
-            margin: 0 auto;
         }
 
         .tokens-unlock-ico svg {
@@ -366,55 +408,114 @@
             fill: currentColor;
         }
 
+        .tokens-unlock-ico img {
+            width: 16px;
+            height: 16px;
+            display: block;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
+
+        .tokens-unlock-area-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1a1a22;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .tokens-unlock-keyrow {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 4px 18px 8px;
+        }
+
+        .tokens-unlock-keylabel {
+            font-size: 11px;
+            font-weight: 600;
+            color: #555;
+        }
+
         .tokens-unlock-input {
             width: 100%;
             box-sizing: border-box;
-            border: 1px solid #888;
-            background: #fff;
+            border: 1px solid #d8d8de;
+            border-radius: 12px;
+            background: #fafafb;
             font-family: inherit;
-            font-size: 10px;
-            padding: 7px 8px;
-            color: #111;
+            font-size: 12px;
+            padding: 11px 14px;
+            color: #14141a;
         }
 
         .tokens-unlock-input:focus {
-            outline: 2px solid #111;
-            border-color: #111;
+            outline: 2px solid #14141a;
+            border-color: #14141a;
+            background: #fff;
         }
 
         .tokens-unlock-btn {
-            margin-top: 6px;
-            width: 100%;
-            border: 1.5px solid #111;
-            background: #fff;
-            color: #111;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin: 0;
+            width: auto;
+            border: none;
+            border-radius: 999px;
+            background: #ececf0;
+            color: #2a2a32;
             font-family: inherit;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 6px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 9px 14px;
             cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tokens-unlock-btn svg {
+            width: 14px;
+            height: 14px;
+            flex: 0 0 auto;
         }
 
         .tokens-unlock-btn:hover:not(:disabled) {
-            background: #111;
+            background: #14141a;
             color: #fff;
         }
 
         .tokens-unlock-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             cursor: default;
         }
 
         .tokens-unlock-msg {
-            padding: 8px 12px 12px;
+            padding: 8px 20px 18px;
             font-size: 11px;
-            color: #444;
-            line-height: 1.4;
-            border-top: 1px solid #ddd;
+            color: #666;
+            line-height: 1.45;
+            border-top: none;
         }
 
         .tokens-unlock-msg.ok { color: #1a7f37; }
         .tokens-unlock-msg.err { color: #c5221f; }
+
+        @media (max-width: 520px) {
+            .tokens-unlock-table th,
+            .tokens-unlock-table td {
+                padding: 12px 12px;
+            }
+
+            .tokens-unlock-btn {
+                padding: 8px 11px;
+                font-size: 11px;
+            }
+
+            .tokens-unlock-area-title {
+                font-size: 12px;
+            }
+        }
 
         .icon-globe,
         .icon-tokens,
@@ -3214,21 +3315,30 @@
     <div class="tokens-unlock-overlay" id="tokensUnlockOverlay" aria-hidden="true">
         <div class="tokens-unlock-shell" role="dialog" aria-modal="true" aria-labelledby="tokensUnlockBrand">
             <div class="tokens-unlock-top">
-                <div class="tokens-unlock-brand" id="tokensUnlockBrand">= / desbloquear tokens</div>
+                <div class="tokens-unlock-brand" id="tokensUnlockBrand">Desbloquear tokens</div>
                 <div class="tokens-unlock-uses-pill" id="tokensUnlockUsesPill">Usos: x0 · próxima x1</div>
                 <button type="button" class="tokens-unlock-close" id="tokensUnlockCloseBtn" title="Cerrar">Cerrar</button>
             </div>
             <table class="tokens-unlock-table" aria-label="Desbloqueo de tokens por área">
                 <thead>
                     <tr>
-                        <th class="ico">Icono</th>
-                        <th colspan="2">Título · cantidad de tokens</th>
+                        <th class="amt" scope="col">
+                            <span class="tokens-unlock-th-token" title="Tokens" aria-label="Tokens">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" aria-hidden="true"><path fill="currentColor" d="M 25 1 C 11.759318 1 1 11.759318 1 25 C 1 38.240682 11.759318 49 25 49 C 38.240682 49 49 38.240682 49 25 C 49 11.759318 38.240682 1 25 1 z M 25 3 C 25.674908 3 26.340665 3.0344009 27 3.09375 L 27 10.150391 C 26.343779 10.061616 25.67941 10 25 10 C 24.32059 10 23.656221 10.061616 23 10.150391 L 23 3.09375 C 23.659335 3.0344009 24.325092 3 25 3 z M 21 3.3691406 L 21 10.5625 C 18.526728 11.253462 16.303389 12.556571 14.515625 14.310547 L 8.2851562 10.699219 C 11.494966 6.9501434 15.942328 4.2971349 21 3.3691406 z M 29 3.3691406 C 34.075199 4.3003509 38.535748 6.968611 41.748047 10.738281 L 35.523438 14.347656 C 33.729128 12.57475 31.491005 11.258416 29 10.5625 L 29 3.3691406 z M 25 12 C 32.154545 12 38 17.845455 38 25 C 38 32.154545 32.154545 38 25 38 C 17.845455 38 12 32.154545 12 25 C 12 17.845455 17.845455 12 25 12 z M 7.0410156 12.291016 L 13.164062 15.839844 C 12.346687 16.891853 11.658077 18.047361 11.140625 19.292969 L 5.0351562 15.753906 C 5.6001328 14.534853 6.2717605 13.376539 7.0410156 12.291016 z M 42.988281 12.332031 C 43.754883 13.419078 44.424192 14.578638 44.986328 15.798828 L 38.876953 19.341797 C 38.363597 18.09385 37.67931 16.935832 36.865234 15.880859 L 42.988281 12.332031 z M 4.2695312 17.623047 L 10.501953 21.234375 C 10.185979 22.441056 10 23.698294 10 25 C 10 26.301706 10.185979 27.558944 10.501953 28.765625 L 4.2695312 32.376953 C 3.4499789 30.070945 3 27.588809 3 25 C 3 22.411191 3.4499789 19.929055 4.2695312 17.623047 z M 45.746094 17.669922 C 46.55516 19.962815 47 22.428571 47 25 C 47 27.571429 46.55516 30.037185 45.746094 32.330078 L 39.511719 28.714844 C 39.819154 27.523527 40 26.283406 40 25 C 40 23.716594 39.819154 22.476473 39.511719 21.285156 L 45.746094 17.669922 z M 38.876953 30.658203 L 44.986328 34.201172 C 44.424192 35.421362 43.754883 36.580922 42.988281 37.667969 L 36.865234 34.119141 C 37.67931 33.064168 38.363597 31.90615 38.876953 30.658203 z M 11.140625 30.707031 C 11.658077 31.952639 12.346687 33.108147 13.164062 34.160156 L 7.0410156 37.708984 C 6.2717605 36.623461 5.6001328 35.465147 5.0351562 34.246094 L 11.140625 30.707031 z M 35.523438 35.652344 L 41.748047 39.261719 C 38.535748 43.031389 34.075199 45.699649 29 46.630859 L 29 39.4375 C 31.491005 38.741584 33.729128 37.42525 35.523438 35.652344 z M 14.515625 35.689453 C 16.303389 37.443429 18.526728 38.746538 21 39.4375 L 21 46.630859 C 15.942328 45.702865 11.494966 43.049857 8.2851562 39.300781 L 14.515625 35.689453 z M 23 39.849609 C 23.656221 39.938384 24.32059 40 25 40 C 25.67941 40 26.343779 39.938384 27 39.849609 L 27 46.90625 C 26.340665 46.965599 25.674908 47 25 47 C 24.325092 47 23.659335 46.965599 23 46.90625 L 23 39.849609 z"/></svg>
+                            </span>
+                        </th>
+                        <th class="area" scope="col">Área</th>
+                        <th class="act" scope="col">Acción</th>
                     </tr>
                 </thead>
                 <tbody id="tokensUnlockRows">
                     <tr><td colspan="3">Cargando áreas…</td></tr>
                 </tbody>
             </table>
+            <div class="tokens-unlock-keyrow">
+                <label class="tokens-unlock-keylabel" for="tokensUnlockSharedCode">Clave Dilithium-5</label>
+                <input type="password" class="tokens-unlock-input" id="tokensUnlockSharedCode" autocomplete="off" spellcheck="false" placeholder="dilithium5_…">
+            </div>
             <div class="tokens-unlock-msg" id="tokensUnlockMsg">Introduce la clave Dilithium-5 de la próxima vez (xN). Tras un uso válido, la clave cambia.</div>
         </div>
     </div>
@@ -4837,16 +4947,29 @@
 
         function tokensUnlockIconSvg(kind) {
             const k = String(kind || '');
-            if (k === 'ext') {
-                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"/></svg>';
+            // Iconos reales de la plataforma según el área
+            if (k === 'ext' || k === 'external' || k === 'gateway') {
+                // Gateway (ventanas externas / envío)
+                return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" aria-hidden="true"><path fill="currentColor" d="M 9.875 0.0625 C 9.617188 0.0976563 9.378906 0.230469 9.21875 0.4375 C 6.585938 3.582031 5 7.644531 5 12.0625 C 5 16.429688 6.542969 20.433594 9.125 23.5625 C 9.480469 23.992188 10.117188 24.058594 10.546875 23.703125 C 10.976563 23.347656 11.042969 22.710938 10.6875 22.28125 C 8.390625 19.496094 7 15.957031 7 12.0625 C 7 8.125 8.40625 4.515625 10.75 1.71875 C 11.027344 1.40625 11.082031 0.957031 10.886719 0.585938 C 10.691406 0.21875 10.289063 0.0078125 9.875 0.0625 Z M 39.8125 0.0625 C 39.453125 0.128906 39.160156 0.378906 39.042969 0.726563 C 38.925781 1.070313 39.003906 1.449219 39.25 1.71875 C 41.59375 4.515625 43 8.125 43 12.0625 C 43 15.957031 41.609375 19.496094 39.3125 22.28125 C 38.957031 22.710938 39.023438 23.347656 39.453125 23.703125 C 39.882813 24.058594 40.519531 23.992188 40.875 23.5625 C 43.457031 20.433594 45 16.429688 45 12.0625 C 45 7.644531 43.414063 3.582031 40.78125 0.4375 C 40.570313 0.171875 40.242188 0.03125 39.90625 0.0625 C 39.875 0.0625 39.84375 0.0625 39.8125 0.0625 Z M 15.6875 3.34375 C 15.429688 3.378906 15.191406 3.511719 15.03125 3.71875 C 13.140625 5.976563 12 8.890625 12 12.0625 C 12 15.234375 13.140625 18.148438 15.03125 20.40625 C 15.253906 20.707031 15.621094 20.855469 15.988281 20.800781 C 16.355469 20.742188 16.660156 20.488281 16.78125 20.136719 C 16.902344 19.785156 16.816406 19.394531 16.5625 19.125 C 14.960938 17.214844 14 14.753906 14 12.0625 C 14 9.371094 14.960938 6.914063 16.5625 5 C 16.839844 4.6875 16.894531 4.238281 16.699219 3.867188 C 16.503906 3.5 16.101563 3.289063 15.6875 3.34375 Z M 34 3.34375 C 33.640625 3.410156 33.347656 3.660156 33.230469 4.007813 C 33.113281 4.351563 33.191406 4.730469 33.4375 5 C 35.039063 6.914063 36 9.371094 36 12.0625 C 36 14.753906 35.039063 17.214844 33.4375 19.125 C 33.183594 19.394531 33.097656 19.785156 33.21875 20.136719 C 33.339844 20.488281 33.644531 20.742188 34.011719 20.800781 C 34.378906 20.855469 34.746094 20.707031 34.96875 20.40625 C 36.859375 18.148438 38 15.234375 38 12.0625 C 38 8.890625 36.859375 5.976563 34.96875 3.71875 C 34.757813 3.453125 34.429688 3.3125 34.09375 3.34375 C 34.0625 3.34375 34.03125 3.34375 34 3.34375 Z M 25 8 C 22.789063 8 21 9.789063 21 12 C 21 13.324219 21.632813 14.492188 22.625 15.21875 L 10.5 47.28125 C 10.113281 48.316406 10.636719 49.472656 11.671875 49.859375 C 12.707031 50.246094 13.863281 49.722656 14.25 48.6875 L 15.53125 45.34375 L 32.6875 40.5625 L 35.75 48.6875 C 36.136719 49.722656 37.292969 50.246094 38.328125 49.859375 C 39.363281 49.472656 39.886719 48.316406 39.5 47.28125 L 27.375 15.21875 C 28.367188 14.492188 29 13.324219 29 12 C 29 9.789063 27.210938 8 25 8 Z M 25 20.3125 L 27.5625 27.0625 L 21.59375 29.3125 Z M 28.96875 30.78125 L 30.5625 35.03125 L 24.1875 32.625 Z M 19.40625 35.09375 L 27.03125 37.96875 L 17.28125 40.6875 Z"></path></svg>';
             }
-            if (k === 'clone') {
-                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6V2zm8 1.5V8h4.5L14 3.5zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>';
+            if (k === 'clone' || k === 'github') {
+                // Marca GitHub (clones)
+                return '<img src="/github-mark-gray.svg?v=1" alt="" aria-hidden="true">';
             }
-            if (k === 'kit') {
-                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7zm9 1.2L6.2 11 12 13.8 17.8 11 12 8.2zM5 12.7v3.6l6 2.7v-3.6l-6-2.7zm14 0l-6 2.7v3.6l6-2.7v-3.6z"/></svg>';
+            if (k === 'kit' || k === 'toolkit') {
+                // Cubo isométrico del Toolkit
+                return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" aria-hidden="true"><path fill="currentColor" d="M 28 4.7929688 L 27.5 5.0820312 L 7.5 16.628906 L 7 16.917969 L 7 17.494141 L 7 22.689453 L 3.5 24.710938 L 3 25 L 3 25.576172 L 3 33.646484 L 3 34.224609 L 3.5 34.513672 L 21.5 44.900391 L 22 45.189453 L 22.5 44.902344 L 46.5 31.060547 L 47 30.771484 L 47 30.193359 L 47 27.886719 L 47 27.310547 L 46.501953 27.021484 L 45 26.154297 L 46.5 25.287109 L 47 24.998047 L 47 24.421875 L 47 22.113281 L 47 21.537109 L 46.5 21.248047 L 41.001953 18.074219 L 42.5 17.208984 L 43 16.919922 L 43 16.34375 L 43 14.029297 L 43 13.453125 L 42.5 13.164062 L 28.5 5.0800781 L 28 4.7929688 z M 28 6.2363281 L 41.501953 14.03125 L 22 25.291016 L 8.5 17.494141 L 28 6.2363281 z M 26.980469 9.7382812 A 0.250025 0.250025 0 0 0 26.875 9.7734375 L 24.875 10.927734 A 0.250025 0.250025 0 0 0 24.875 11.361328 L 32.875 15.978516 A 0.250025 0.250025 0 0 0 33.125 15.978516 L 35.125 14.824219 A 0.250025 0.250025 0 0 0 35.125 14.390625 L 27.125 9.7734375 A 0.250025 0.250025 0 0 0 27.005859 9.7382812 A 0.250025 0.250025 0 0 0 26.980469 9.7382812 z M 27 10.277344 L 34.5 14.607422 L 33 15.472656 L 25.5 11.144531 L 27 10.277344 z M 41.75 14.462891 L 41.75 16.197266 L 39.890625 17.273438 A 0.250025 0.250025 0 0 0 39.875 17.28125 A 0.250025 0.250025 0 0 0 39.853516 17.294922 L 22.25 27.455078 L 22.25 25.722656 L 41.75 14.462891 z M 8.25 17.927734 L 21.75 25.722656 L 21.75 27.455078 L 11.158203 21.337891 A 0.250025 0.250025 0 0 0 11.087891 21.298828 L 10.125 20.742188 A 0.250025 0.250025 0 0 0 9.75 20.958984 L 9.75 24.380859 A 0.250025 0.250025 0 0 0 9.9082031 24.654297 A 0.250025 0.250025 0 0 0 9.9140625 24.65625 L 21.75 31.496094 L 21.75 33.226562 L 8.25 25.431641 L 8.25 23.279297 A 0.250025 0.250025 0 0 0 8.25 23.267578 A 0.250025 0.250025 0 0 0 8.25 23.242188 L 8.25 17.927734 z M 39.75 17.929688 L 39.75 18.630859 A 0.250025 0.250025 0 0 0 39.75 18.648438 L 39.75 19.662109 L 22.25 29.761719 L 22.25 28.033203 L 39.75 17.929688 z M 40.25 19.082031 L 41.501953 19.804688 L 22.25 30.917969 L 22.25 30.339844 L 40.125 20.023438 A 0.250025 0.250025 0 0 0 40.25 19.806641 L 40.25 19.082031 z M 42.25 20.236328 L 45.5 22.113281 L 22 35.681641 L 4.4980469 25.578125 L 7.75 23.701172 L 7.75 25.574219 A 0.250025 0.250025 0 0 0 7.875 25.791016 L 21.84375 33.859375 A 0.250025 0.250025 0 0 0 22.150391 33.861328 L 42.125 22.330078 A 0.250025 0.250025 0 0 0 42.25 22.113281 L 42.25 20.236328 z M 41.75 20.240234 L 41.75 21.96875 L 22.25 33.226562 L 22.25 31.496094 L 41.75 20.240234 z M 10.25 21.392578 L 10.75 21.681641 L 10.75 23.701172 L 10.25 23.988281 L 10.25 21.392578 z M 11.25 21.970703 L 21.75 28.033203 L 21.75 29.761719 L 11.25 23.701172 L 11.25 21.970703 z M 45.75 22.546875 L 45.75 24.277344 L 43.890625 25.351562 A 0.250025 0.250025 0 0 0 43.875 25.359375 A 0.250025 0.250025 0 0 0 43.853516 25.373047 L 22.25 37.845703 L 22.25 36.113281 L 45.75 22.546875 z M 11.001953 24.132812 L 21.75 30.339844 L 21.75 30.917969 L 10.501953 24.419922 L 11.001953 24.132812 z M 4.25 26.009766 L 21.75 36.113281 L 21.75 37.845703 L 7.1582031 29.421875 A 0.250025 0.250025 0 0 0 7.09375 29.384766 L 6.125 28.824219 A 0.250025 0.250025 0 0 0 5.75 29.041016 L 5.75 32.494141 A 0.25025175 0.25025175 0 0 0 5.75 32.519531 A 0.250025 0.250025 0 0 0 5.7519531 32.53125 A 0.25025175 0.25025175 0 0 0 5.7578125 32.568359 A 0.250025 0.250025 0 0 0 5.7617188 32.580078 A 0.25025175 0.25025175 0 0 0 5.765625 32.591797 A 0.250025 0.250025 0 0 0 5.7734375 32.611328 A 0.25025175 0.25025175 0 0 0 5.7753906 32.615234 A 0.250025 0.250025 0 0 0 5.78125 32.625 A 0.25025175 0.25025175 0 0 0 5.7910156 32.642578 A 0.250025 0.250025 0 0 0 5.7949219 32.650391 A 0.25025175 0.25025175 0 0 0 5.8007812 32.658203 A 0.250025 0.250025 0 0 0 5.8085938 32.667969 A 0.25025175 0.25025175 0 0 0 5.8164062 32.677734 A 0.250025 0.250025 0 0 0 5.8261719 32.685547 A 0.25025175 0.25025175 0 0 0 5.8359375 32.693359 A 0.250025 0.250025 0 0 0 5.84375 32.701172 A 0.25025175 0.25025175 0 0 0 5.8554688 32.708984 A 0.250025 0.250025 0 0 0 5.8652344 32.716797 A 0.25025175 0.25025175 0 0 0 5.875 32.722656 L 21.75 41.886719 L 21.75 43.601562 L 4.25 33.501953 L 4.25 26.009766 z M 43.75 26.009766 L 43.75 26.712891 A 0.250025 0.250025 0 0 0 43.75 26.730469 L 43.75 27.740234 L 22.25 40.154297 L 22.25 38.423828 L 43.75 26.009766 z M 44.25 27.164062 L 45.5 27.886719 L 22.25 41.310547 L 22.25 40.732422 L 44.125 28.101562 A 0.250025 0.250025 0 0 0 44.25 27.884766 L 44.25 27.164062 z M 45.75 28.320312 L 45.75 30.050781 L 22.25 43.601562 L 22.25 41.886719 L 45.75 28.320312 z M 6.25 29.474609 L 6.75 29.763672 L 6.75 31.783203 L 6.25 32.072266 L 6.25 29.474609 z M 7.25 30.052734 L 21.75 38.423828 L 21.75 40.154297 L 7.25 31.783203 L 7.25 30.052734 z M 7 32.216797 L 21.75 40.732422 L 21.75 41.310547 L 6.5 32.505859 L 7 32.216797 z"></path></svg>';
             }
-            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg>';
+            if (k === 'notepad' || k === 'notes') {
+                // Bloc de notas
+                return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 19 C 3 20.105 3.895 21 5 21 L 15 21 L 21 15 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 5 5 L 19 5 L 19 14 L 14 14 L 14 19 L 5 19 L 5 5 z M 7 7 L 7 9 L 17 9 L 17 7 L 7 7 z M 7 11 L 7 13 L 12 13 L 12 11 L 7 11 z"></path></svg>';
+            }
+            // Comandos / celda (=) · marca l8 codespace
+            return '<img src="/favicon.svg?v=3" alt="" aria-hidden="true">';
+        }
+
+        function tokensUnlockLockSvg() {
+            return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 7a1.75 1.75 0 0 1 .75 3.33V19h-1.5v-1.67A1.75 1.75 0 0 1 12 14z"/></svg>';
         }
 
         function renderTokensUnlock(status) {
@@ -4865,33 +4988,28 @@
                 tbody.innerHTML = '<tr><td colspan="3">Sin áreas de desbloqueo</td></tr>';
                 return;
             }
+            const lockSvg = tokensUnlockLockSvg();
             tbody.innerHTML = areas.map((area) => {
                 const id = String(area.id || '').replace(/"/g, '&quot;');
                 const title = String(area.title || area.id || '').replace(/</g, '&lt;');
                 const amount = formatTokenCount(area.amount || 0);
                 return '<tr data-area="' + id + '">' +
-                    '<td class="ico"><div class="tokens-unlock-ico" title="' + title + '">' + tokensUnlockIconSvg(area.icon) + '</div></td>' +
-                    '<td class="amt">+' + amount + '</td>' +
-                    '<td class="area"><div><strong>' + title + '</strong></div>' +
-                    '<div style="margin-top:6px;text-align:left;">Para qué área · ingresa clave Dilithium-5 (' + nextLabel + ')</div>' +
-                    '<input type="password" class="tokens-unlock-input" data-unlock-input="' + id + '" autocomplete="off" spellcheck="false" placeholder="dilithium5_…">' +
-                    '<button type="button" class="tokens-unlock-btn" data-unlock-btn="' + id + '">Desbloquear</button>' +
+                    '<td class="amt">' + amount + '</td>' +
+                    '<td class="area"><div class="tokens-unlock-area-cell">' +
+                    '<div class="tokens-unlock-ico" title="' + title + '">' + tokensUnlockIconSvg(area.icon) + '</div>' +
+                    '<span class="tokens-unlock-area-title">' + title + '</span>' +
+                    '</div></td>' +
+                    '<td class="act">' +
+                    '<button type="button" class="tokens-unlock-btn" data-unlock-btn="' + id + '">' +
+                    lockSvg + ' Desbloquear</button>' +
                     '</td></tr>';
             }).join('');
 
             tbody.querySelectorAll('[data-unlock-btn]').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     const area = btn.getAttribute('data-unlock-btn');
-                    const input = tbody.querySelector('[data-unlock-input="' + area + '"]');
-                    submitTokensUnlock(area, input ? input.value : '');
-                });
-            });
-            tbody.querySelectorAll('[data-unlock-input]').forEach((input) => {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        submitTokensUnlock(input.getAttribute('data-unlock-input'), input.value);
-                    }
+                    const shared = document.getElementById('tokensUnlockSharedCode');
+                    submitTokensUnlock(area, shared ? shared.value : '');
                 });
             });
         }
@@ -4915,18 +5033,31 @@
                 refreshTokensStatus(true).then((st) => {
                     if (st) renderTokensUnlock(st);
                     const next = (st && st.unlock && st.unlock.next_label) ? st.unlock.next_label : 'x1';
-                    tokensUnlockSetMsg('Clave Dilithium-5 para la próxima vez (' + next + '). Tras usarla una vez, cambia a la siguiente x.');
+                    tokensUnlockSetMsg('Escribe la clave Dilithium-5 (' + next + ') y pulsa Desbloquear en el área. Tras un uso válido, la clave cambia.');
+                    const shared = document.getElementById('tokensUnlockSharedCode');
+                    if (shared) {
+                        try { shared.focus(); } catch (e) {}
+                    }
                 });
             }
         }
 
         async function submitTokensUnlock(area, code) {
+            const trimmed = String(code || '').trim();
+            if (!trimmed) {
+                tokensUnlockSetMsg('Introduce la clave Dilithium-5 antes de desbloquear.', 'err');
+                const shared = document.getElementById('tokensUnlockSharedCode');
+                if (shared) {
+                    try { shared.focus(); } catch (e) {}
+                }
+                return { ok: false, error: 'missing_code' };
+            }
             tokensUnlockSetMsg('Verificando Dilithium-5…');
             try {
                 const res = await fetch('/api/tokens/unlock', {
                     method: 'POST',
                     headers: authHeaders(),
-                    body: JSON.stringify({ area: area, code: code })
+                    body: JSON.stringify({ area: area, code: trimmed })
                 });
                 const data = await res.json();
                 if (data && data.status) applyTokensStatus(data.status);
@@ -4935,6 +5066,8 @@
                     tokensUnlockSetMsg((data && data.error) || 'No se pudo desbloquear', 'err');
                     return data;
                 }
+                const shared = document.getElementById('tokensUnlockSharedCode');
+                if (shared) shared.value = '';
                 tokensUnlockSetMsg(
                     'Desbloqueado +' + formatTokenCount(data.granted) + ' en ' + (data.area_title || data.area) +
                     ' · uso ' + (data.use_label || '') + ' consumido. Próxima clave: ' +

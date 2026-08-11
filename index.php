@@ -3679,7 +3679,7 @@
                 <input class="hashcod-keys-input" id="hashcodKeysCode" type="text" name="key_code" maxlength="4000" placeholder="Ej: 0xA3F8...B2C1" spellcheck="false">
                 <button type="submit" class="hashcod-keys-save" id="hashcodKeysSaveBtn">Guardar Clave</button>
             </form>
-            <p class="hashcod-keys-msg" id="hashcodKeysMsg">Guarda contraseñas y códigos criptográficos en este dispositivo.</p>
+            <p class="hashcod-keys-msg" id="hashcodKeysMsg">Las claves se guardan en tu cuenta (Supabase).</p>
             <div class="hashcod-keys-list-wrap">
                 <div class="hashcod-keys-list-title">Guardadas</div>
                 <ul class="hashcod-keys-list" id="hashcodKeysList"></ul>
@@ -5598,15 +5598,25 @@
         }
 
         const HASHCOD_KEYS_STORE = 'l8_hashcod_keys_v1';
+        let hashcodKeysCache = [];
+        let hashcodKeysAccountKey = '';
+        let hashcodKeysBusy = false;
 
-        function hashcodKeysStorageKey() {
+        function hashcodKeysLocalStorageKey() {
+            let account = '';
+            try { account = sessionStorage.getItem('l8_auth_account') || ''; } catch (e) {}
+            account = String(account).replace(/[^a-zA-Z0-9_-]/g, '') || 'pending';
+            return HASHCOD_KEYS_STORE + ':acct:' + account;
+        }
+
+        function hashcodKeysGuestLocalKey() {
             const guest = ensureTokensGuestId() || 'local';
             return HASHCOD_KEYS_STORE + ':' + guest;
         }
 
-        function loadHashcodKeys() {
+        function readHashcodKeysLocalCache() {
             try {
-                const raw = localStorage.getItem(hashcodKeysStorageKey());
+                const raw = localStorage.getItem(hashcodKeysLocalStorageKey());
                 if (!raw) return [];
                 const data = JSON.parse(raw);
                 return Array.isArray(data && data.entries) ? data.entries : [];
@@ -5615,10 +5625,11 @@
             }
         }
 
-        function saveHashcodKeys(entries) {
+        function writeHashcodKeysLocalCache(entries, accountKey) {
             try {
-                localStorage.setItem(hashcodKeysStorageKey(), JSON.stringify({
+                localStorage.setItem(hashcodKeysLocalStorageKey(), JSON.stringify({
                     version: 1,
+                    account_key: accountKey || hashcodKeysAccountKey || '',
                     updated_at: new Date().toISOString(),
                     entries: Array.isArray(entries) ? entries.slice(0, 200) : []
                 }));
@@ -5626,6 +5637,21 @@
             } catch (e) {
                 return false;
             }
+        }
+
+        function readHashcodKeysGuestLocal() {
+            try {
+                const raw = localStorage.getItem(hashcodKeysGuestLocalKey());
+                if (!raw) return [];
+                const data = JSON.parse(raw);
+                return Array.isArray(data && data.entries) ? data.entries : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function clearHashcodKeysGuestLocal() {
+            try { localStorage.removeItem(hashcodKeysGuestLocalKey()); } catch (e) {}
         }
 
         function maskHashcodSecret(secret) {
@@ -5644,14 +5670,25 @@
             if (tone === 'err') el.classList.add('err');
         }
 
-        function renderHashcodKeysList() {
+        function setHashcodKeysFormEnabled(enabled) {
+            ['hashcodKeysName', 'hashcodKeysSecret', 'hashcodKeysCode', 'hashcodKeysSaveBtn'].forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !enabled;
+            });
+        }
+
+        function renderHashcodKeysList(entries) {
             const list = document.getElementById('hashcodKeysList');
             const empty = document.getElementById('hashcodKeysEmpty');
             if (!list) return;
-            const entries = loadHashcodKeys();
-            if (!entries.length) {
+            const rows = Array.isArray(entries) ? entries : hashcodKeysCache;
+            hashcodKeysCache = rows;
+            if (!rows.length) {
                 list.innerHTML = '';
-                if (empty) empty.style.display = '';
+                if (empty) {
+                    empty.style.display = '';
+                    empty.textContent = 'Aún no hay claves guardadas en esta cuenta.';
+                }
                 return;
             }
             if (empty) empty.style.display = 'none';
@@ -5659,7 +5696,7 @@
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/"/g, '&quot;');
-            list.innerHTML = entries.map((row) => {
+            list.innerHTML = rows.map((row) => {
                 const id = esc(row.id);
                 const name = esc(row.name || 'Sin nombre');
                 const secret = esc(maskHashcodSecret(row.secret));
@@ -5675,13 +5712,75 @@
             }).join('');
             list.querySelectorAll('[data-key-del]').forEach((btn) => {
                 btn.addEventListener('click', () => {
-                    const id = btn.getAttribute('data-key-del');
-                    const next = loadHashcodKeys().filter((row) => String(row.id) !== String(id));
-                    saveHashcodKeys(next);
-                    renderHashcodKeysList();
-                    hashcodKeysSetMsg('Clave eliminada.', 'ok');
+                    deleteHashcodKey(btn.getAttribute('data-key-del'));
                 });
             });
+        }
+
+        async function migrateHashcodKeysGuestIfNeeded() {
+            const guestEntries = readHashcodKeysGuestLocal();
+            if (!guestEntries.length) return 0;
+            try {
+                const res = await fetch('/api/hashcod/keys', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ entries: guestEntries })
+                });
+                const data = await res.json();
+                if (data && data.ok) {
+                    clearHashcodKeysGuestLocal();
+                    if (Array.isArray(data.entries)) {
+                        hashcodKeysCache = data.entries;
+                        hashcodKeysAccountKey = data.account_key || hashcodKeysAccountKey;
+                        writeHashcodKeysLocalCache(hashcodKeysCache, hashcodKeysAccountKey);
+                    }
+                    return Number(data.migrated || guestEntries.length) || guestEntries.length;
+                }
+            } catch (e) {}
+            return 0;
+        }
+
+        async function refreshHashcodKeysFromServer() {
+            const tok = (typeof window.l8GetAuthToken === 'function') ? window.l8GetAuthToken() : '';
+            if (!tok) {
+                setHashcodKeysFormEnabled(false);
+                hashcodKeysCache = [];
+                renderHashcodKeysList([]);
+                hashcodKeysSetMsg('Inicia sesión para guardar claves en tu cuenta (Supabase).', 'err');
+                return { ok: false, code: 'not_authenticated' };
+            }
+            setHashcodKeysFormEnabled(true);
+            hashcodKeysSetMsg('Sincronizando claves de tu cuenta…');
+            try {
+                const migrated = await migrateHashcodKeysGuestIfNeeded();
+                const res = await fetch('/api/hashcod/keys', { headers: authHeaders() });
+                const data = await res.json();
+                if (!data || !data.ok) {
+                    if (data && data.code === 'not_authenticated') {
+                        setHashcodKeysFormEnabled(false);
+                        hashcodKeysSetMsg('Inicia sesión para guardar claves en tu cuenta (Supabase).', 'err');
+                        return data;
+                    }
+                    // fallback a cache local
+                    const cached = readHashcodKeysLocalCache();
+                    renderHashcodKeysList(cached);
+                    hashcodKeysSetMsg((data && data.error) || 'No se pudo sincronizar con Supabase. Mostrando caché local.', 'err');
+                    return data || { ok: false };
+                }
+                hashcodKeysAccountKey = data.account_key || '';
+                hashcodKeysCache = Array.isArray(data.entries) ? data.entries : [];
+                writeHashcodKeysLocalCache(hashcodKeysCache, hashcodKeysAccountKey);
+                renderHashcodKeysList(hashcodKeysCache);
+                let msg = 'Claves de tu cuenta sincronizadas con Supabase.';
+                if (migrated > 0) msg = 'Migradas ' + migrated + ' claves locales a tu cuenta · sincronizado con Supabase.';
+                hashcodKeysSetMsg(msg, 'ok');
+                return data;
+            } catch (e) {
+                const cached = readHashcodKeysLocalCache();
+                renderHashcodKeysList(cached);
+                hashcodKeysSetMsg(e.message || String(e), 'err');
+                return { ok: false, error: e.message || String(e) };
+            }
         }
 
         function toggleHashcodKeys(force) {
@@ -5697,8 +5796,8 @@
             }
             if (open) {
                 try { toggleHashcodClock(false); } catch (e) {}
-                renderHashcodKeysList();
-                hashcodKeysSetMsg('Guarda contraseñas y códigos criptográficos en este dispositivo.');
+                renderHashcodKeysList(readHashcodKeysLocalCache());
+                refreshHashcodKeysFromServer();
                 const name = document.getElementById('hashcodKeysName');
                 if (name) {
                     try { name.focus(); } catch (e) {}
@@ -5706,8 +5805,9 @@
             }
         }
 
-        function submitHashcodKey(e) {
+        async function submitHashcodKey(e) {
             if (e && e.preventDefault) e.preventDefault();
+            if (hashcodKeysBusy) return false;
             const nameEl = document.getElementById('hashcodKeysName');
             const secretEl = document.getElementById('hashcodKeysSecret');
             const codeEl = document.getElementById('hashcodKeysCode');
@@ -5723,25 +5823,80 @@
                 hashcodKeysSetMsg('Introduce una contraseña/clave o un código criptográfico.', 'err');
                 return false;
             }
-            const entries = loadHashcodKeys();
-            const id = 'k_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
-            entries.unshift({
-                id: id,
-                name: name.slice(0, 120),
-                secret: secret.slice(0, 4000),
-                code: code.slice(0, 4000),
-                created_at: new Date().toISOString()
-            });
-            if (!saveHashcodKeys(entries)) {
-                hashcodKeysSetMsg('No se pudo guardar (almacenamiento lleno o bloqueado).', 'err');
+            const tok = (typeof window.l8GetAuthToken === 'function') ? window.l8GetAuthToken() : '';
+            if (!tok) {
+                hashcodKeysSetMsg('Inicia sesión para guardar en tu cuenta.', 'err');
                 return false;
             }
-            if (nameEl) nameEl.value = '';
-            if (secretEl) secretEl.value = '';
-            if (codeEl) codeEl.value = '';
-            renderHashcodKeysList();
-            hashcodKeysSetMsg('Clave guardada.', 'ok');
-            return false;
+            hashcodKeysBusy = true;
+            hashcodKeysSetMsg('Guardando en tu cuenta (Supabase)…');
+            try {
+                const res = await fetch('/api/hashcod/keys', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({
+                        name: name.slice(0, 120),
+                        secret: secret.slice(0, 4000),
+                        code: code.slice(0, 4000)
+                    })
+                });
+                const data = await res.json();
+                if (!data || !data.ok) {
+                    hashcodKeysSetMsg((data && data.error) || 'No se pudo guardar', 'err');
+                    return false;
+                }
+                hashcodKeysAccountKey = data.account_key || hashcodKeysAccountKey;
+                hashcodKeysCache = Array.isArray(data.entries) ? data.entries : hashcodKeysCache;
+                writeHashcodKeysLocalCache(hashcodKeysCache, hashcodKeysAccountKey);
+                if (nameEl) nameEl.value = '';
+                if (secretEl) secretEl.value = '';
+                if (codeEl) codeEl.value = '';
+                renderHashcodKeysList(hashcodKeysCache);
+                const sb = data.supabase || {};
+                const remoteOk = !!(sb.storage || sb.db);
+                hashcodKeysSetMsg(
+                    remoteOk
+                        ? 'Clave guardada en tu cuenta (Supabase).'
+                        : 'Clave guardada en la cuenta (espejo remoto pendiente).',
+                    remoteOk ? 'ok' : 'ok'
+                );
+                return false;
+            } catch (err) {
+                hashcodKeysSetMsg(err.message || String(err), 'err');
+                return false;
+            } finally {
+                hashcodKeysBusy = false;
+            }
+        }
+
+        async function deleteHashcodKey(id) {
+            if (!id || hashcodKeysBusy) return;
+            const tok = (typeof window.l8GetAuthToken === 'function') ? window.l8GetAuthToken() : '';
+            if (!tok) {
+                hashcodKeysSetMsg('Inicia sesión para gestionar claves de tu cuenta.', 'err');
+                return;
+            }
+            hashcodKeysBusy = true;
+            hashcodKeysSetMsg('Eliminando…');
+            try {
+                const res = await fetch('/api/hashcod/keys?id=' + encodeURIComponent(id), {
+                    method: 'DELETE',
+                    headers: authHeaders()
+                });
+                const data = await res.json();
+                if (!data || !data.ok) {
+                    hashcodKeysSetMsg((data && data.error) || 'No se pudo eliminar', 'err');
+                    return;
+                }
+                hashcodKeysCache = Array.isArray(data.entries) ? data.entries : hashcodKeysCache.filter((r) => String(r.id) !== String(id));
+                writeHashcodKeysLocalCache(hashcodKeysCache, data.account_key || hashcodKeysAccountKey);
+                renderHashcodKeysList(hashcodKeysCache);
+                hashcodKeysSetMsg('Clave eliminada de tu cuenta.', 'ok');
+            } catch (err) {
+                hashcodKeysSetMsg(err.message || String(err), 'err');
+            } finally {
+                hashcodKeysBusy = false;
+            }
         }
 
         async function openUbuntuCli() {

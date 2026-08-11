@@ -105,6 +105,22 @@ alter table public.l8_auth_identities enable row level security;
 alter table public.l8_token_accounts enable row level security;
 alter table public.l8_token_ledger enable row level security;
 
+-- Registro de Claves Hashcod (contraseñas / códigos por cuenta)
+create table if not exists public.l8_hashcod_keys (
+  id text primary key,
+  account_key text not null,
+  name text not null default '',
+  secret text not null default '',
+  code text not null default '',
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_hashcod_keys_account_created_idx
+  on public.l8_hashcod_keys (account_key, created_at desc);
+
+alter table public.l8_hashcod_keys enable row level security;
+
 -- Service role bypasses RLS; keep policies locked for anon by default.
 drop policy if exists "service only repos" on public.l8_repos;
 drop policy if exists "service only files" on public.l8_files;
@@ -113,3 +129,4 @@ drop policy if exists "service only auth accounts" on public.l8_auth_accounts;
 drop policy if exists "service only auth identities" on public.l8_auth_identities;
 drop policy if exists "service only token accounts" on public.l8_token_accounts;
 drop policy if exists "service only token ledger" on public.l8_token_ledger;
+drop policy if exists "service only hashcod keys" on public.l8_hashcod_keys;

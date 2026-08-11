@@ -769,10 +769,10 @@
             }
         }
 
-        /* ===== FLY RAIL — fijo, negro, centro del borde derecho ===== */
+        /* ===== FLY: barrita negra (cerrada) → barra de herramientas (abierta) ===== */
         #flyRail.fly-rail {
             position: fixed !important;
-            right: 0 !important;
+            right: 10px !important;
             left: auto !important;
             top: 50% !important;
             bottom: auto !important;
@@ -781,12 +781,12 @@
             display: flex !important;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            gap: 0;
             margin: 0;
             padding: 0;
             width: auto;
             height: auto;
-            max-height: none;
             opacity: 1 !important;
             visibility: visible !important;
             pointer-events: none;
@@ -796,57 +796,57 @@
         body.boot-locked #flyRail.fly-rail,
         body.auth-locked #flyRail.fly-rail {
             display: none !important;
-            opacity: 0 !important;
             visibility: hidden !important;
             pointer-events: none !important;
         }
 
+        /* Barrita Fly: solo esto se ve cuando está cerrado */
         #flyRail .fly-handle {
             pointer-events: auto;
             appearance: none;
             -webkit-appearance: none;
             border: none;
             margin: 0;
-            padding: 18px 18px 16px;
-            min-width: 64px;
+            padding: 0;
+            width: 6px;
+            height: 72px;
+            min-width: 6px;
+            min-height: 72px;
             background: #000000 !important;
-            color: #ffffff !important;
+            color: transparent;
             cursor: pointer;
-            display: flex !important;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            border-radius: 16px 0 0 16px;
-            box-shadow: -6px 0 22px rgba(0, 0, 0, 0.45);
-            transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), background 160ms ease;
+            display: block !important;
+            border-radius: 999px;
+            box-shadow: none;
+            transition: opacity 200ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+                        width 220ms ease, height 220ms ease;
         }
 
         #flyRail .fly-handle:hover {
-            background: #111111 !important;
+            transform: scaleY(1.06);
+            background: #000000 !important;
         }
 
         #flyRail .fly-handle:focus-visible {
-            outline: 2px solid #ffffff;
-            outline-offset: -3px;
+            outline: 2px solid #111111;
+            outline-offset: 3px;
         }
 
-        #flyRail .fly-handle-label {
-            font-family: 'IBM Plex Mono', ui-monospace, monospace;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            line-height: 1;
-            color: #ffffff !important;
-            user-select: none;
-        }
-
+        #flyRail .fly-handle-label,
         #flyRail .fly-handle-line {
-            display: block;
-            width: 34px;
-            height: 2px;
-            border-radius: 999px;
-            background: #ffffff !important;
+            display: none !important;
+        }
+
+        /* Al abrir: la barrita se guarda y sale la barra de herramientas */
+        #flyRail.is-open .fly-handle {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: scaleY(0.4);
+            width: 0;
+            min-width: 0;
+            height: 0;
+            min-height: 0;
         }
 
         #flyRail .fly-rail-panel {
@@ -859,10 +859,10 @@
             margin: 0;
             background: #000000 !important;
             border-radius: 999px;
-            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
             opacity: 0;
             visibility: hidden;
-            transform: translateX(20px) scale(0.96);
+            transform: translateX(16px) scale(0.94);
             transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
                         visibility 0s linear 240ms;
         }
@@ -874,10 +874,6 @@
             transform: translateX(0) scale(1);
             transition: opacity 260ms ease, transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
                         visibility 0s linear 0s;
-        }
-
-        #flyRail.is-open .fly-handle {
-            transform: translateX(-2px);
         }
 
         #flyRail .fly-slot {
@@ -5780,7 +5776,7 @@
             }
         }
 
-        /* ===== FLY RAIL (solo borde derecho, centro) ===== */
+        /* ===== FLY: barrita → barra (estado guardado) ===== */
         const FLY_STORE_KEY = 'l8_fly_rail_v1';
 
         function flyRailLoadOpen() {
@@ -5796,7 +5792,7 @@
 
         function flyRailSaveOpen(open) {
             try {
-                localStorage.setItem(FLY_STORE_KEY, JSON.stringify({ open: !!open, edge: 'right', corner: 'middle' }));
+                localStorage.setItem(FLY_STORE_KEY, JSON.stringify({ open: !!open }));
             } catch (e) {}
         }
 
@@ -5805,19 +5801,20 @@
             const handle = document.getElementById('flyHandleBtn');
             const panel = document.getElementById('flyRailPanel');
             if (!rail || !handle || !panel) return;
-            rail.classList.toggle('is-open', !!open);
-            handle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            panel.setAttribute('aria-hidden', open ? 'false' : 'true');
-            // Mantener siempre centro-derecha aunque el panel abra/cierre
+            const isOpen = !!open;
+            rail.classList.toggle('is-open', isOpen);
+            handle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            handle.setAttribute('aria-label', isOpen ? 'Cerrar barra Fly' : 'Abrir barra Fly');
+            panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
             rail.style.position = 'fixed';
-            rail.style.right = '0';
+            rail.style.right = '10px';
             rail.style.left = 'auto';
             rail.style.top = '50%';
             rail.style.bottom = 'auto';
             rail.style.transform = 'translateY(-50%)';
             rail.style.zIndex = '9990';
             rail.style.display = 'flex';
-            flyRailSaveOpen(!!open);
+            flyRailSaveOpen(isOpen);
         }
 
         function toggleFlyRail(force) {
@@ -5825,11 +5822,6 @@
             if (!rail) return;
             const next = typeof force === 'boolean' ? force : !rail.classList.contains('is-open');
             setFlyRailOpen(next);
-        }
-
-        function setFlyRailCorner() {
-            // Fijo: centro del lateral derecho
-            setFlyRailOpen(document.getElementById('flyRail')?.classList.contains('is-open'));
         }
 
         function bindFlySlot(slotEl, handler) {
@@ -5849,12 +5841,12 @@
 
         window.toggleFlyRail = toggleFlyRail;
         window.setFlyRailOpen = setFlyRailOpen;
-        window.setFlyRailCorner = setFlyRailCorner;
         window.bindFlySlot = bindFlySlot;
 
         function initFlyRail() {
             const rail = document.getElementById('flyRail');
             const handle = document.getElementById('flyHandleBtn');
+            const panel = document.getElementById('flyRailPanel');
             if (!rail || !handle) return;
 
             setFlyRailOpen(flyRailLoadOpen());
@@ -5862,8 +5854,16 @@
             handle.addEventListener('click', function (ev) {
                 ev.preventDefault();
                 ev.stopPropagation();
-                toggleFlyRail();
+                setFlyRailOpen(true);
             });
+
+            // Tocar la barra abierta (fondo) también puede cerrar con Esc / fuera
+            if (panel) {
+                panel.addEventListener('click', function (ev) {
+                    // no cerrar al tocar slots
+                    if (ev.target && ev.target.classList && ev.target.classList.contains('fly-slot')) return;
+                });
+            }
 
             document.addEventListener('keydown', function (ev) {
                 if (ev.key === 'Escape' && rail.classList.contains('is-open')) {
@@ -8154,26 +8154,23 @@
 
     </div><!-- /.platform-shell -->
 
-    <!-- Fly: negro, siempre en el centro del borde derecho -->
+    <!-- Fly: barrita negra; al tocarla se guarda y sale la barra de herramientas -->
     <aside
         id="flyRail"
         class="fly-rail"
         aria-label="Fly"
-        style="position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:9990;display:flex;flex-direction:column;align-items:center;gap:12px;"
+        style="position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:9990;display:flex;flex-direction:column;align-items:center;"
     >
         <button
             type="button"
             class="fly-handle"
             id="flyHandleBtn"
             title="Fly"
-            aria-label="Fly · mostrar u ocultar herramientas"
+            aria-label="Abrir barra Fly"
             aria-expanded="false"
             aria-controls="flyRailPanel"
-            style="background:#000;color:#fff;border:none;border-radius:16px 0 0 16px;padding:18px 18px 16px;min-width:64px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;"
-        >
-            <span class="fly-handle-label" style="color:#fff;font-weight:700;letter-spacing:0.1em;">Fly</span>
-            <span class="fly-handle-line" aria-hidden="true" style="display:block;width:34px;height:2px;background:#fff;border-radius:999px;"></span>
-        </button>
+            style="width:6px;height:72px;background:#000;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
+        ></button>
         <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
             <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>

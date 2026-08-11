@@ -641,6 +641,7 @@
             border: 1px solid #e6e6ea;
             border-radius: 999px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            position: relative;
         }
 
         .hashcod-dock-slot {
@@ -680,6 +681,11 @@
             border-color: #2a2a32;
         }
 
+        .hashcod-dock-slot.is-active {
+            border-color: #14141a;
+            box-shadow: inset 0 0 0 1px #14141a;
+        }
+
         .hashcod-dock-slot:disabled {
             cursor: default;
             opacity: 1;
@@ -699,6 +705,44 @@
             color: #14141a;
         }
 
+        .hashcod-clock-pop {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 28px;
+            z-index: 40;
+            min-width: 132px;
+            padding: 10px 12px 11px;
+            background: #ffffff;
+            border: 1px solid #e0e0e6;
+            border-radius: 12px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            color: #14141a;
+            text-align: center;
+        }
+
+        .hashcod-clock-pop.open {
+            display: block;
+        }
+
+        .hashcod-clock-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #6a6a72;
+            margin-bottom: 4px;
+        }
+
+        .hashcod-clock-time {
+            font-size: 20px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
         @media (max-width: 720px) {
             .hashcod-tools-dock {
                 margin-left: 4px;
@@ -716,6 +760,10 @@
             .hashcod-dock-slot svg {
                 width: 11px;
                 height: 11px;
+            }
+
+            .hashcod-clock-pop {
+                left: 0;
             }
         }
 
@@ -3369,7 +3417,7 @@
                 <button type="button" class="hashcod-dock-slot is-filled is-ready" data-dock-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (pendiente)">
                     <img src="/hashcod-dock-cube.svg?v=1" alt="" width="13" height="13">
                 </button>
-                <button type="button" class="hashcod-dock-slot is-ready" data-dock-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (pendiente)">
+                <button type="button" class="hashcod-dock-slot is-ready" id="hashcodDockClockBtn" data-dock-slot="2" title="Hora actual" aria-label="Mostrar hora actual" aria-expanded="false" aria-controls="hashcodClockPop" onclick="toggleHashcodClock()">
                     <img src="/hashcod-dock-hourglass.svg?v=1" alt="" width="13" height="13">
                 </button>
                 <button type="button" class="hashcod-dock-slot is-ready" data-dock-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (pendiente)">
@@ -3378,6 +3426,10 @@
                 <button type="button" class="hashcod-dock-slot" data-dock-slot="4" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
                 <button type="button" class="hashcod-dock-slot" data-dock-slot="5" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
                 <button type="button" class="hashcod-dock-slot is-filled" data-dock-slot="6" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
+                <div class="hashcod-clock-pop" id="hashcodClockPop" role="dialog" aria-label="Hora actual" aria-hidden="true">
+                    <div class="hashcod-clock-label">Hora actual</div>
+                    <div class="hashcod-clock-time" id="hashcodClockTime">00:00:00</div>
+                </div>
             </nav>
         </div>
         <div class="top-bar-right">
@@ -5289,6 +5341,40 @@
         }
 
 
+        let hashcodClockTimer = null;
+
+        function formatHashcodClock(date) {
+            const d = date || new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        }
+
+        function tickHashcodClock() {
+            const el = document.getElementById('hashcodClockTime');
+            if (el) el.textContent = formatHashcodClock(new Date());
+        }
+
+        function toggleHashcodClock(force) {
+            const pop = document.getElementById('hashcodClockPop');
+            const btn = document.getElementById('hashcodDockClockBtn');
+            if (!pop) return;
+            const open = typeof force === 'boolean' ? force : !pop.classList.contains('open');
+            pop.classList.toggle('open', open);
+            pop.setAttribute('aria-hidden', open ? 'false' : 'true');
+            if (btn) {
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                btn.classList.toggle('is-active', open);
+            }
+            if (hashcodClockTimer) {
+                clearInterval(hashcodClockTimer);
+                hashcodClockTimer = null;
+            }
+            if (open) {
+                tickHashcodClock();
+                hashcodClockTimer = setInterval(tickHashcodClock, 250);
+            }
+        }
+
         async function openUbuntuCli() {
             await openExternalWithTokens('/ubuntu', 'l8-ubuntu-cli', 'width=1100,height=720');
         }
@@ -5378,8 +5464,19 @@
                 if (e.key === 'Escape' && unlockOverlay && unlockOverlay.classList.contains('open')) {
                     toggleTokensUnlock(false);
                 }
+                if (e.key === 'Escape') {
+                    const clockPop = document.getElementById('hashcodClockPop');
+                    if (clockPop && clockPop.classList.contains('open')) toggleHashcodClock(false);
+                }
             });
             document.addEventListener('click', (e) => {
+                const clockPop = document.getElementById('hashcodClockPop');
+                const clockBtn = document.getElementById('hashcodDockClockBtn');
+                if (clockPop && clockPop.classList.contains('open')) {
+                    if (!clockPop.contains(e.target) && !(clockBtn && clockBtn.contains(e.target))) {
+                        toggleHashcodClock(false);
+                    }
+                }
                 if (!tokensPanel || !tokensPanel.classList.contains('open')) return;
                 if (tokensPanel.contains(e.target) || (tokensBtn && tokensBtn.contains(e.target))) return;
                 if (unlockOverlay && unlockOverlay.contains(e.target)) return;

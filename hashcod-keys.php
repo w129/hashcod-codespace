@@ -314,7 +314,7 @@ function hashcodKeysHandleApi($uri) {
     }
 
     if ($uri === '/api/hashcod/keys' && $method === 'POST') {
-        $input = json_decode((string)file_get_contents('php://input'), true);
+        $input = json_decode((string)l8RequestBody(), true);
         if (!is_array($input)) $input = [];
 
         // Bulk migrate: { entries: [...] }
@@ -406,7 +406,7 @@ function hashcodKeysHandleApi($uri) {
         if ($id === '' && isset($_GET['id'])) {
             $id = (string)$_GET['id'];
         }
-        $input = json_decode((string)file_get_contents('php://input'), true);
+        $input = json_decode((string)l8RequestBody(), true);
         if ($id === '' && is_array($input) && !empty($input['id'])) {
             $id = (string)$input['id'];
         }

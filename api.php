@@ -7,12 +7,19 @@ set_time_limit(300); // 5 Minutos para grandes cargas
 
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/dilithium-transport.php';
 loadEnvFile();
 securityBootstrap('api');
+
+$d5tUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+if (is_string($d5tUri) && strpos($d5tUri, '/api/d5t') === 0 && d5tHandleApi($d5tUri)) {
+    exit;
+}
 
 if (!ob_start("ob_gzhandler")) {
     ob_start();
 }
+d5tEnableResponseEncryption();
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -3526,6 +3533,9 @@ require_once __DIR__ . '/tokens.php';
 require_once __DIR__ . '/hashcod-keys.php';
 require_once __DIR__ . '/ai-chat.php';
 require_once __DIR__ . '/opencrypt-gen.php';
+if (function_exists('d5tHandleApi') && d5tHandleApi($uri)) {
+    exit;
+}
 if (function_exists('authHandleApi') && authHandleApi($uri)) {
     exit;
 }

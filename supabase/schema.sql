@@ -67,12 +67,16 @@ create table if not exists public.l8_token_accounts (
   externals integer not null default 0,
   clones integer not null default 0,
   notepads integer not null default 0,
+  toolkits integer not null default 0,
   periods jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default timezone('utc', now())
 );
 
 alter table public.l8_token_accounts
   add column if not exists notepads integer not null default 0;
+
+alter table public.l8_token_accounts
+  add column if not exists toolkits integer not null default 0;
 
 create index if not exists l8_token_accounts_updated_at_idx
   on public.l8_token_accounts (updated_at desc);

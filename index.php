@@ -258,7 +258,7 @@
             position: fixed;
             inset: 0;
             z-index: 90;
-            background: rgba(20, 20, 20, 0.32);
+            background: rgba(18, 18, 22, 0.55);
             align-items: center;
             justify-content: center;
             padding: 20px 12px;
@@ -269,51 +269,56 @@
         }
 
         .tokens-unlock-shell {
-            width: min(720px, 100%);
+            width: min(560px, 100%);
             max-height: min(86vh, 720px);
             overflow: auto;
             background: #fff;
-            border: 2px solid #111;
-            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
+            border: none;
+            border-radius: 22px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
             font-family: 'IBM Plex Mono', ui-monospace, monospace;
-            color: #111;
+            color: #14141a;
         }
 
         .tokens-unlock-top {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 12px;
-            border-bottom: 2px solid #111;
-            background: #f7f7f7;
+            padding: 16px 20px 12px;
+            border-bottom: none;
+            background: transparent;
         }
 
         .tokens-unlock-brand {
             font-weight: 700;
             font-size: 13px;
             flex: 1;
+            letter-spacing: -0.02em;
         }
 
         .tokens-unlock-uses-pill {
             font-size: 11px;
-            border: 1.5px solid #111;
-            padding: 3px 8px;
-            background: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 5px 10px;
+            background: #f0f0f3;
+            color: #333;
             white-space: nowrap;
         }
 
         .tokens-unlock-close {
-            border: 1.5px solid #111;
-            background: #fff;
-            color: #111;
+            border: none;
+            border-radius: 999px;
+            background: #f0f0f3;
+            color: #14141a;
             font-family: inherit;
             font-size: 11px;
-            padding: 4px 10px;
+            padding: 5px 12px;
             cursor: pointer;
         }
 
         .tokens-unlock-close:hover {
-            background: #111;
+            background: #14141a;
             color: #fff;
         }
 
@@ -321,110 +326,198 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-            font-size: 11px;
+            font-size: 13px;
+            margin: 0 0 4px;
         }
 
         .tokens-unlock-table th,
         .tokens-unlock-table td {
-            border: 1.5px solid #111;
-            padding: 10px 8px;
-            text-align: center;
+            border: none;
+            border-bottom: 1px solid #ececf0;
+            padding: 16px 18px;
+            text-align: left;
             vertical-align: middle;
         }
 
-        .tokens-unlock-table th {
-            background: #f3f3f3;
+        .tokens-unlock-table thead th {
+            background: transparent;
             font-weight: 700;
+            font-size: 12px;
+            color: #1a1a22;
+            padding-top: 8px;
+            padding-bottom: 12px;
         }
 
-        .tokens-unlock-table .ico {
-            width: 56px;
+        .tokens-unlock-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .tokens-unlock-table .amt {
             width: 22%;
             font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: #14141a;
+            font-size: 15px;
         }
 
         .tokens-unlock-table .area {
-            width: 34%;
+            width: 43%;
         }
 
-        .tokens-unlock-ico {
-            width: 32px;
-            height: 32px;
+        .tokens-unlock-table .act {
+            width: 35%;
+            text-align: right;
+        }
+
+        .tokens-unlock-th-token {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 1.5px solid #111;
-            background: #111;
+            width: 28px;
+            height: 28px;
+            color: #14141a;
+        }
+
+        .tokens-unlock-th-token svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+
+        .tokens-unlock-area-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .tokens-unlock-ico {
+            width: 28px;
+            height: 28px;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 8px;
+            background: #14141a;
             color: #fff;
-            margin: 0 auto;
         }
 
         .tokens-unlock-ico svg {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             fill: currentColor;
         }
 
         .tokens-unlock-ico img {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             display: block;
             object-fit: contain;
             filter: brightness(0) invert(1);
         }
 
+        .tokens-unlock-area-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1a1a22;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .tokens-unlock-keyrow {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 4px 18px 8px;
+        }
+
+        .tokens-unlock-keylabel {
+            font-size: 11px;
+            font-weight: 600;
+            color: #555;
+        }
+
         .tokens-unlock-input {
             width: 100%;
             box-sizing: border-box;
-            border: 1px solid #888;
-            background: #fff;
+            border: 1px solid #d8d8de;
+            border-radius: 12px;
+            background: #fafafb;
             font-family: inherit;
-            font-size: 10px;
-            padding: 7px 8px;
-            color: #111;
+            font-size: 12px;
+            padding: 11px 14px;
+            color: #14141a;
         }
 
         .tokens-unlock-input:focus {
-            outline: 2px solid #111;
-            border-color: #111;
+            outline: 2px solid #14141a;
+            border-color: #14141a;
+            background: #fff;
         }
 
         .tokens-unlock-btn {
-            margin-top: 6px;
-            width: 100%;
-            border: 1.5px solid #111;
-            background: #fff;
-            color: #111;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin: 0;
+            width: auto;
+            border: none;
+            border-radius: 999px;
+            background: #ececf0;
+            color: #2a2a32;
             font-family: inherit;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 6px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 9px 14px;
             cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tokens-unlock-btn svg {
+            width: 14px;
+            height: 14px;
+            flex: 0 0 auto;
         }
 
         .tokens-unlock-btn:hover:not(:disabled) {
-            background: #111;
+            background: #14141a;
             color: #fff;
         }
 
         .tokens-unlock-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             cursor: default;
         }
 
         .tokens-unlock-msg {
-            padding: 8px 12px 12px;
+            padding: 8px 20px 18px;
             font-size: 11px;
-            color: #444;
-            line-height: 1.4;
-            border-top: 1px solid #ddd;
+            color: #666;
+            line-height: 1.45;
+            border-top: none;
         }
 
         .tokens-unlock-msg.ok { color: #1a7f37; }
         .tokens-unlock-msg.err { color: #c5221f; }
+
+        @media (max-width: 520px) {
+            .tokens-unlock-table th,
+            .tokens-unlock-table td {
+                padding: 12px 12px;
+            }
+
+            .tokens-unlock-btn {
+                padding: 8px 11px;
+                font-size: 11px;
+            }
+
+            .tokens-unlock-area-title {
+                font-size: 12px;
+            }
+        }
 
         .icon-globe,
         .icon-tokens,
@@ -3228,21 +3321,30 @@
     <div class="tokens-unlock-overlay" id="tokensUnlockOverlay" aria-hidden="true">
         <div class="tokens-unlock-shell" role="dialog" aria-modal="true" aria-labelledby="tokensUnlockBrand">
             <div class="tokens-unlock-top">
-                <div class="tokens-unlock-brand" id="tokensUnlockBrand">= / desbloquear tokens</div>
+                <div class="tokens-unlock-brand" id="tokensUnlockBrand">Desbloquear tokens</div>
                 <div class="tokens-unlock-uses-pill" id="tokensUnlockUsesPill">Usos: x0 · próxima x1</div>
                 <button type="button" class="tokens-unlock-close" id="tokensUnlockCloseBtn" title="Cerrar">Cerrar</button>
             </div>
             <table class="tokens-unlock-table" aria-label="Desbloqueo de tokens por área">
                 <thead>
                     <tr>
-                        <th class="ico">Icono</th>
-                        <th colspan="2">Título · cantidad de tokens</th>
+                        <th class="amt" scope="col">
+                            <span class="tokens-unlock-th-token" title="Tokens" aria-label="Tokens">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" aria-hidden="true"><path fill="currentColor" d="M 25 1 C 11.759318 1 1 11.759318 1 25 C 1 38.240682 11.759318 49 25 49 C 38.240682 49 49 38.240682 49 25 C 49 11.759318 38.240682 1 25 1 z M 25 3 C 25.674908 3 26.340665 3.0344009 27 3.09375 L 27 10.150391 C 26.343779 10.061616 25.67941 10 25 10 C 24.32059 10 23.656221 10.061616 23 10.150391 L 23 3.09375 C 23.659335 3.0344009 24.325092 3 25 3 z M 21 3.3691406 L 21 10.5625 C 18.526728 11.253462 16.303389 12.556571 14.515625 14.310547 L 8.2851562 10.699219 C 11.494966 6.9501434 15.942328 4.2971349 21 3.3691406 z M 29 3.3691406 C 34.075199 4.3003509 38.535748 6.968611 41.748047 10.738281 L 35.523438 14.347656 C 33.729128 12.57475 31.491005 11.258416 29 10.5625 L 29 3.3691406 z M 25 12 C 32.154545 12 38 17.845455 38 25 C 38 32.154545 32.154545 38 25 38 C 17.845455 38 12 32.154545 12 25 C 12 17.845455 17.845455 12 25 12 z M 7.0410156 12.291016 L 13.164062 15.839844 C 12.346687 16.891853 11.658077 18.047361 11.140625 19.292969 L 5.0351562 15.753906 C 5.6001328 14.534853 6.2717605 13.376539 7.0410156 12.291016 z M 42.988281 12.332031 C 43.754883 13.419078 44.424192 14.578638 44.986328 15.798828 L 38.876953 19.341797 C 38.363597 18.09385 37.67931 16.935832 36.865234 15.880859 L 42.988281 12.332031 z M 4.2695312 17.623047 L 10.501953 21.234375 C 10.185979 22.441056 10 23.698294 10 25 C 10 26.301706 10.185979 27.558944 10.501953 28.765625 L 4.2695312 32.376953 C 3.4499789 30.070945 3 27.588809 3 25 C 3 22.411191 3.4499789 19.929055 4.2695312 17.623047 z M 45.746094 17.669922 C 46.55516 19.962815 47 22.428571 47 25 C 47 27.571429 46.55516 30.037185 45.746094 32.330078 L 39.511719 28.714844 C 39.819154 27.523527 40 26.283406 40 25 C 40 23.716594 39.819154 22.476473 39.511719 21.285156 L 45.746094 17.669922 z M 38.876953 30.658203 L 44.986328 34.201172 C 44.424192 35.421362 43.754883 36.580922 42.988281 37.667969 L 36.865234 34.119141 C 37.67931 33.064168 38.363597 31.90615 38.876953 30.658203 z M 11.140625 30.707031 C 11.658077 31.952639 12.346687 33.108147 13.164062 34.160156 L 7.0410156 37.708984 C 6.2717605 36.623461 5.6001328 35.465147 5.0351562 34.246094 L 11.140625 30.707031 z M 35.523438 35.652344 L 41.748047 39.261719 C 38.535748 43.031389 34.075199 45.699649 29 46.630859 L 29 39.4375 C 31.491005 38.741584 33.729128 37.42525 35.523438 35.652344 z M 14.515625 35.689453 C 16.303389 37.443429 18.526728 38.746538 21 39.4375 L 21 46.630859 C 15.942328 45.702865 11.494966 43.049857 8.2851562 39.300781 L 14.515625 35.689453 z M 23 39.849609 C 23.656221 39.938384 24.32059 40 25 40 C 25.67941 40 26.343779 39.938384 27 39.849609 L 27 46.90625 C 26.340665 46.965599 25.674908 47 25 47 C 24.325092 47 23.659335 46.965599 23 46.90625 L 23 39.849609 z"/></svg>
+                            </span>
+                        </th>
+                        <th class="area" scope="col">Área</th>
+                        <th class="act" scope="col">Acción</th>
                     </tr>
                 </thead>
                 <tbody id="tokensUnlockRows">
                     <tr><td colspan="3">Cargando áreas…</td></tr>
                 </tbody>
             </table>
+            <div class="tokens-unlock-keyrow">
+                <label class="tokens-unlock-keylabel" for="tokensUnlockSharedCode">Clave Dilithium-5</label>
+                <input type="password" class="tokens-unlock-input" id="tokensUnlockSharedCode" autocomplete="off" spellcheck="false" placeholder="dilithium5_…">
+            </div>
             <div class="tokens-unlock-msg" id="tokensUnlockMsg">Introduce la clave Dilithium-5 de la próxima vez (xN). Tras un uso válido, la clave cambia.</div>
         </div>
     </div>
@@ -4874,6 +4976,10 @@
             return '<img src="/favicon.svg?v=3" alt="" aria-hidden="true">';
         }
 
+        function tokensUnlockLockSvg() {
+            return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 7a1.75 1.75 0 0 1 .75 3.33V19h-1.5v-1.67A1.75 1.75 0 0 1 12 14z"/></svg>';
+        }
+
         function renderTokensUnlock(status) {
             const unlock = (status && status.unlock) || {};
             const nextLabel = unlock.next_label || ('x' + (Number(unlock.next_use || 1)));
@@ -4890,33 +4996,28 @@
                 tbody.innerHTML = '<tr><td colspan="3">Sin áreas de desbloqueo</td></tr>';
                 return;
             }
+            const lockSvg = tokensUnlockLockSvg();
             tbody.innerHTML = areas.map((area) => {
                 const id = String(area.id || '').replace(/"/g, '&quot;');
                 const title = String(area.title || area.id || '').replace(/</g, '&lt;');
                 const amount = formatTokenCount(area.amount || 0);
                 return '<tr data-area="' + id + '">' +
-                    '<td class="ico"><div class="tokens-unlock-ico" title="' + title + '">' + tokensUnlockIconSvg(area.icon) + '</div></td>' +
-                    '<td class="amt">+' + amount + '</td>' +
-                    '<td class="area"><div><strong>' + title + '</strong></div>' +
-                    '<div style="margin-top:6px;text-align:left;">Para qué área · ingresa clave Dilithium-5 (' + nextLabel + ')</div>' +
-                    '<input type="password" class="tokens-unlock-input" data-unlock-input="' + id + '" autocomplete="off" spellcheck="false" placeholder="dilithium5_…">' +
-                    '<button type="button" class="tokens-unlock-btn" data-unlock-btn="' + id + '">Desbloquear</button>' +
+                    '<td class="amt">' + amount + '</td>' +
+                    '<td class="area"><div class="tokens-unlock-area-cell">' +
+                    '<div class="tokens-unlock-ico" title="' + title + '">' + tokensUnlockIconSvg(area.icon) + '</div>' +
+                    '<span class="tokens-unlock-area-title">' + title + '</span>' +
+                    '</div></td>' +
+                    '<td class="act">' +
+                    '<button type="button" class="tokens-unlock-btn" data-unlock-btn="' + id + '">' +
+                    lockSvg + ' Desbloquear</button>' +
                     '</td></tr>';
             }).join('');
 
             tbody.querySelectorAll('[data-unlock-btn]').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     const area = btn.getAttribute('data-unlock-btn');
-                    const input = tbody.querySelector('[data-unlock-input="' + area + '"]');
-                    submitTokensUnlock(area, input ? input.value : '');
-                });
-            });
-            tbody.querySelectorAll('[data-unlock-input]').forEach((input) => {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        submitTokensUnlock(input.getAttribute('data-unlock-input'), input.value);
-                    }
+                    const shared = document.getElementById('tokensUnlockSharedCode');
+                    submitTokensUnlock(area, shared ? shared.value : '');
                 });
             });
         }
@@ -4940,18 +5041,31 @@
                 refreshTokensStatus(true).then((st) => {
                     if (st) renderTokensUnlock(st);
                     const next = (st && st.unlock && st.unlock.next_label) ? st.unlock.next_label : 'x1';
-                    tokensUnlockSetMsg('Clave Dilithium-5 para la próxima vez (' + next + '). Tras usarla una vez, cambia a la siguiente x.');
+                    tokensUnlockSetMsg('Escribe la clave Dilithium-5 (' + next + ') y pulsa Desbloquear en el área. Tras un uso válido, la clave cambia.');
+                    const shared = document.getElementById('tokensUnlockSharedCode');
+                    if (shared) {
+                        try { shared.focus(); } catch (e) {}
+                    }
                 });
             }
         }
 
         async function submitTokensUnlock(area, code) {
+            const trimmed = String(code || '').trim();
+            if (!trimmed) {
+                tokensUnlockSetMsg('Introduce la clave Dilithium-5 antes de desbloquear.', 'err');
+                const shared = document.getElementById('tokensUnlockSharedCode');
+                if (shared) {
+                    try { shared.focus(); } catch (e) {}
+                }
+                return { ok: false, error: 'missing_code' };
+            }
             tokensUnlockSetMsg('Verificando Dilithium-5…');
             try {
                 const res = await fetch('/api/tokens/unlock', {
                     method: 'POST',
                     headers: authHeaders(),
-                    body: JSON.stringify({ area: area, code: code })
+                    body: JSON.stringify({ area: area, code: trimmed })
                 });
                 const data = await res.json();
                 if (data && data.status) applyTokensStatus(data.status);
@@ -4960,6 +5074,8 @@
                     tokensUnlockSetMsg((data && data.error) || 'No se pudo desbloquear', 'err');
                     return data;
                 }
+                const shared = document.getElementById('tokensUnlockSharedCode');
+                if (shared) shared.value = '';
                 tokensUnlockSetMsg(
                     'Desbloqueado +' + formatTokenCount(data.granted) + ' en ' + (data.area_title || data.area) +
                     ' · uso ' + (data.use_label || '') + ' consumido. Próxima clave: ' +

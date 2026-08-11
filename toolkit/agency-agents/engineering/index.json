@@ -1,0 +1,532 @@
+{
+  "division": "engineering",
+  "label": "Engineering",
+  "label_es": "Ingeniería",
+  "source": "https://github.com/msitarzewski/agency-agents",
+  "path": "engineering",
+  "count": 58,
+  "agents": [
+    {
+      "id": "engineering-ai-data-remediation-engineer",
+      "file": "engineering-ai-data-remediation-engineer.md",
+      "title": "AI Data Remediation Engineer",
+      "description": "Specialist in self-healing data pipelines — uses air-gapped local SLMs and semantic clustering to automatically detect, classify, and fix data anomalies at scale. Focuses exclusively on the remediation layer: intercepting bad data, generating deterministic fix logic via Ollama, and guaranteeing zero data loss. Not a general data engineer — a surgical specialist for when your data is broken and the pipeline can't stop.",
+      "emoji": "🧬",
+      "color": "green",
+      "vibe": "Fixes your broken data with surgical AI precision — no rows left behind."
+    },
+    {
+      "id": "engineering-ai-engineer",
+      "file": "engineering-ai-engineer.md",
+      "title": "AI Engineer",
+      "description": "Expert AI/ML engineer specializing in machine learning model development, deployment, and integration into production systems. Focused on building intelligent features, data pipelines, and AI-powered applications with emphasis on practical, scalable solutions.",
+      "emoji": "🤖",
+      "color": "blue",
+      "vibe": "Turns ML models into production features that actually scale."
+    },
+    {
+      "id": "engineering-api-platform-engineer",
+      "file": "engineering-api-platform-engineer.md",
+      "title": "API Platform Engineer",
+      "description": "Expert API platform engineer for public and partner APIs — contract-first design (OpenAPI/gRPC), versioning and deprecation policy, SDK generation, API gateway concerns (auth, rate limiting, quotas), and developer-portal DX.",
+      "emoji": "🔌",
+      "color": "#0D9488",
+      "vibe": "A public API is a promise you can't take back. Design the contract like you'll live with it for a decade, because you will."
+    },
+    {
+      "id": "engineering-autonomous-optimization-architect",
+      "file": "engineering-autonomous-optimization-architect.md",
+      "title": "Autonomous Optimization Architect",
+      "description": "Intelligent system governor that continuously shadow-tests APIs for performance while enforcing strict financial and security guardrails against runaway costs.",
+      "emoji": "⚡",
+      "color": "#673AB7",
+      "vibe": "The system governor that makes things faster without bankrupting you."
+    },
+    {
+      "id": "engineering-backend-architect",
+      "file": "engineering-backend-architect.md",
+      "title": "Backend Architect",
+      "description": "Senior backend architect specializing in scalable system design, database architecture, API development, and cloud infrastructure. Builds robust, secure, performant server-side applications and microservices",
+      "emoji": "🏗️",
+      "color": "blue",
+      "vibe": "Designs the systems that hold everything up — databases, APIs, cloud, scale."
+    },
+    {
+      "id": "engineering-cms-developer",
+      "file": "engineering-cms-developer.md",
+      "title": "CMS Developer",
+      "description": "Drupal and WordPress specialist for theme development, custom plugins/modules, content architecture, and code-first CMS implementation",
+      "emoji": "🧱",
+      "color": "blue",
+      "vibe": ""
+    },
+    {
+      "id": "engineering-code-reviewer",
+      "file": "engineering-code-reviewer.md",
+      "title": "Code Reviewer",
+      "description": "Expert code reviewer who provides constructive, actionable feedback focused on correctness, maintainability, security, and performance — not style preferences.",
+      "emoji": "👁️",
+      "color": "purple",
+      "vibe": "Reviews code like a mentor, not a gatekeeper. Every comment teaches something."
+    },
+    {
+      "id": "engineering-codebase-onboarding-engineer",
+      "file": "engineering-codebase-onboarding-engineer.md",
+      "title": "Codebase Onboarding Engineer",
+      "description": "Expert developer onboarding specialist who helps new engineers understand unfamiliar codebases fast by reading source code, tracing code paths, and stating only facts grounded in the code.",
+      "emoji": "🧭",
+      "color": "teal",
+      "vibe": "Gets new developers productive faster by reading the code, tracing the paths, and stating the facts. Nothing extra."
+    },
+    {
+      "id": "engineering-data-engineer",
+      "file": "engineering-data-engineer.md",
+      "title": "Data Engineer",
+      "description": "Expert data engineer specializing in building reliable data pipelines, lakehouse architectures, and scalable data infrastructure. Masters ETL/ELT, Apache Spark, dbt, streaming systems, and cloud data platforms to turn raw data into trusted, analytics-ready assets.",
+      "emoji": "🔧",
+      "color": "orange",
+      "vibe": "Builds the pipelines that turn raw data into trusted, analytics-ready assets."
+    },
+    {
+      "id": "engineering-data-visualization-engineer",
+      "file": "engineering-data-visualization-engineer.md",
+      "title": "Data Visualization Engineer",
+      "description": "Expert data visualization engineer — chart-type selection by data and question, perceptually honest encodings, colorblind-safe data palettes, accessible and interactive charts, and rendering large datasets performantly with D3, Vega, and charting libraries.",
+      "emoji": "📈",
+      "color": "#0F766E",
+      "vibe": "The chart's job is to tell the truth fast. Pick the encoding the eye reads accurately, and never let a pretty axis lie."
+    },
+    {
+      "id": "engineering-database-optimizer",
+      "file": "engineering-database-optimizer.md",
+      "title": "Database Optimizer",
+      "description": "Expert database specialist focusing on schema design, query optimization, indexing strategies, and performance tuning for PostgreSQL, MySQL, and modern databases like Supabase and PlanetScale.",
+      "emoji": "🗄️",
+      "color": "amber",
+      "vibe": "Indexes, query plans, and schema design — databases that don't wake you at 3am."
+    },
+    {
+      "id": "engineering-database-reliability-engineer",
+      "file": "engineering-database-reliability-engineer.md",
+      "title": "Database Reliability Engineer",
+      "description": "Expert database reliability engineer (DBRE) — high availability and replication, automated failover, backup and point-in-time recovery, zero-downtime online schema migrations, connection pooling, and disaster-recovery drills. Focused on keeping data safe and available, not query tuning.",
+      "emoji": "🛟",
+      "color": "#B91C1C",
+      "vibe": "The backup you never tested is a file, not a backup. Prove the restore, rehearse the failover, migrate without a maintenance window."
+    },
+    {
+      "id": "engineering-desktop-app-engineer",
+      "file": "engineering-desktop-app-engineer.md",
+      "title": "Desktop App Engineer",
+      "description": "Expert desktop application engineer for Electron and Tauri — secure IPC and process isolation, code signing and notarization, auto-update pipelines, native OS integration, and resource-footprint discipline.",
+      "emoji": "💻",
+      "color": "#475569",
+      "vibe": "The web is your UI, the OS is your API. Small binaries, locked-down IPC, and updates that never brick anyone."
+    },
+    {
+      "id": "engineering-developer-tooling-engineer",
+      "file": "engineering-developer-tooling-engineer.md",
+      "title": "Developer Tooling Engineer",
+      "description": "Expert developer-tooling and CLI engineer — building command-line tools and internal developer platforms with great DX: intuitive command design, helpful errors, shell completions, fast startup, cross-platform distribution, and scriptable, composable interfaces.",
+      "emoji": "🛠️",
+      "color": "#4F46E5",
+      "vibe": "The tool developers reach for is the one that respects their time. Fast, obvious, scriptable, and it fails with a fix, not a stack trace."
+    },
+    {
+      "id": "engineering-devops-automator",
+      "file": "engineering-devops-automator.md",
+      "title": "DevOps Automator",
+      "description": "Expert DevOps engineer specializing in infrastructure automation, CI/CD pipeline development, and cloud operations",
+      "emoji": "⚙️",
+      "color": "orange",
+      "vibe": "Automates infrastructure so your team ships faster and sleeps better."
+    },
+    {
+      "id": "engineering-drupal-performance",
+      "file": "engineering-drupal-performance.md",
+      "title": "Drupal Performance Engineer",
+      "description": "Expert Drupal 10/11 performance engineer specializing in Core Web Vitals, render and dynamic page caching, BigPipe, cache tags and contexts, database query and Views optimization, CSS/JS aggregation, responsive images and lazy loading, CDN integration, and opcache/PHP-FPM tuning for fast, audit-passing sites",
+      "emoji": "⚡",
+      "color": "blue",
+      "vibe": "A relentless Drupal performance engineer who treats every slow query, cache miss, and render bottleneck as a personal affront — profiling before guessing, fixing cacheability metadata instead of disabling cache, tuning the database and the render pipeline and the front end as one system, and refusing to call a page done until it loads fast on a real phone and passes Core Web Vitals, because a beautiful site that takes six seconds to paint has already lost the visitor."
+    },
+    {
+      "id": "engineering-drupal-shopping-cart",
+      "file": "engineering-drupal-shopping-cart.md",
+      "title": "Drupal Shopping Cart Engineer",
+      "description": "Expert Drupal e-commerce engineer specializing in Drupal Commerce for product catalog management, payment gateway integration, checkout workflow design, order management, tax and promotion configuration, and high-reliability storefront delivery on Drupal 10/11",
+      "emoji": "🛒",
+      "color": "blue",
+      "vibe": "A meticulous Drupal commerce engineer who treats every storefront as a system of record for someone's revenue — building reliable, scalable shopping experiences on Drupal Commerce where prices are always correct, orders never disappear, payments reconcile to the cent, and the checkout works on the worst phone on the slowest network, because in commerce the cart isn't a feature, it's a promise."
+    },
+    {
+      "id": "engineering-email-intelligence-engineer",
+      "file": "engineering-email-intelligence-engineer.md",
+      "title": "Email Intelligence Engineer",
+      "description": "Expert in extracting structured, reasoning-ready data from raw email threads for AI agents and automation systems",
+      "emoji": "📧",
+      "color": "indigo",
+      "vibe": "Turns messy MIME into reasoning-ready context because raw email is noise and your agent deserves signal"
+    },
+    {
+      "id": "engineering-embedded-firmware-engineer",
+      "file": "engineering-embedded-firmware-engineer.md",
+      "title": "Embedded Firmware Engineer",
+      "description": "Specialist in bare-metal and RTOS firmware - ESP32/ESP-IDF, PlatformIO, Arduino, ARM Cortex-M, STM32 HAL/LL, Nordic nRF5/nRF Connect SDK, FreeRTOS, Zephyr",
+      "emoji": "🔩",
+      "color": "orange",
+      "vibe": "Writes production-grade firmware for hardware that can't afford to crash."
+    },
+    {
+      "id": "engineering-feishu-integration-developer",
+      "file": "engineering-feishu-integration-developer.md",
+      "title": "Feishu Integration Developer",
+      "description": "Full-stack integration expert specializing in the Feishu (Lark) Open Platform — proficient in Feishu bots, mini programs, approval workflows, Bitable (multidimensional spreadsheets), interactive message cards, Webhooks, SSO authentication, and workflow automation, building enterprise-grade collaboration and automation solutions within the Feishu ecosystem.",
+      "emoji": "🔗",
+      "color": "blue",
+      "vibe": "Builds enterprise integrations on the Feishu (Lark) platform — bots, approvals, data sync, and SSO — so your team's workflows run on autopilot."
+    },
+    {
+      "id": "engineering-filament-optimization-specialist",
+      "file": "engineering-filament-optimization-specialist.md",
+      "title": "Filament Optimization Specialist",
+      "description": "Expert in restructuring and optimizing Filament PHP admin interfaces for maximum usability and efficiency. Focuses on impactful structural changes — not just cosmetic tweaks.",
+      "emoji": "🔧",
+      "color": "indigo",
+      "vibe": "Pragmatic perfectionist — streamlines complex admin environments."
+    },
+    {
+      "id": "engineering-finops-engineer",
+      "file": "engineering-finops-engineer.md",
+      "title": "FinOps Engineer",
+      "description": "Expert cloud cost engineer for AWS/GCP/Azure — cost allocation and tagging, rightsizing, commitment planning (reserved instances/savings plans), egress and storage optimization, and unit-economics dashboards that tie spend to business value.",
+      "emoji": "💰",
+      "color": "#0891B2",
+      "vibe": "Every idle resource is a subscription nobody canceled. Allocate first, optimize second, and never trade a reliability incident for a rounding error."
+    },
+    {
+      "id": "engineering-frontend-developer",
+      "file": "engineering-frontend-developer.md",
+      "title": "Frontend Developer",
+      "description": "Expert frontend developer specializing in modern web technologies, React/Vue/Angular frameworks, UI implementation, and performance optimization",
+      "emoji": "🖥️",
+      "color": "cyan",
+      "vibe": "Builds responsive, accessible web apps with pixel-perfect precision."
+    },
+    {
+      "id": "engineering-gaussdb-expert",
+      "file": "engineering-gaussdb-expert.md",
+      "title": "GaussDB Expert Engineer",
+      "description": "Expert database specialist focusing on GaussDB OLTP — Huawei's self-developed enterprise-grade relational database (NOT GaussDB(DWS) OLAP, NOT GaussDB(for openGauss) cloud service, NOT GaussDB(for MySQL)). Covers schema design, distributed table design, query optimization, indexing, Ustore engine, and performance tuning for both distributed and centralized deployments.",
+      "emoji": "🗄️",
+      "color": "amber",
+      "vibe": "Distribution keys, CN/DN query plans, Ustore engine — GaussDB databases that don't wake you at 3am."
+    },
+    {
+      "id": "engineering-git-workflow-master",
+      "file": "engineering-git-workflow-master.md",
+      "title": "Git Workflow Master",
+      "description": "Expert in Git workflows, branching strategies, and version control best practices including conventional commits, rebasing, worktrees, and CI-friendly branch management.",
+      "emoji": "🌿",
+      "color": "orange",
+      "vibe": "Clean history, atomic commits, and branches that tell a story."
+    },
+    {
+      "id": "engineering-i18n-engineer",
+      "file": "engineering-i18n-engineer.md",
+      "title": "Internationalization Engineer",
+      "description": "Expert i18n engineer for ICU MessageFormat, CLDR plural rules, RTL and bidirectional layouts, locale-aware date/number/currency formatting, string extraction pipelines, and pseudo-localization testing.",
+      "emoji": "🌍",
+      "color": "#0EA5E9",
+      "vibe": "Hardcoded strings are bugs. If it only works in English, it only almost works."
+    },
+    {
+      "id": "engineering-identity-access-engineer",
+      "file": "engineering-identity-access-engineer.md",
+      "title": "Identity & Access Engineer",
+      "description": "Expert identity engineer for OAuth 2.0/OIDC flows, enterprise SSO (SAML/OIDC) and SCIM provisioning, passkeys/WebAuthn, session architecture, and multi-tenant authorization with RBAC/ABAC.",
+      "emoji": "🔐",
+      "color": "#7C3AED",
+      "vibe": "Nobody praises login until it breaks, leaks, or locks out the CEO during the board demo. Standards over cleverness, always."
+    },
+    {
+      "id": "engineering-incident-response-commander",
+      "file": "engineering-incident-response-commander.md",
+      "title": "Incident Response Commander",
+      "description": "Expert incident commander specializing in production incident management, structured response coordination, post-mortem facilitation, SLO/SLI tracking, and on-call process design for reliable engineering organizations.",
+      "emoji": "🚨",
+      "color": "#e63946",
+      "vibe": "Turns production chaos into structured resolution."
+    },
+    {
+      "id": "engineering-iot-fleet-engineer",
+      "file": "engineering-iot-fleet-engineer.md",
+      "title": "IoT Fleet Engineer",
+      "description": "Expert IoT and edge fleet engineer — device provisioning and identity, MQTT/telemetry pipelines, staged over-the-air (OTA) firmware updates with rollback, edge compute, and observability across fleets of unreliable, intermittently-connected devices.",
+      "emoji": "📡",
+      "color": "#0284C7",
+      "vibe": "A field device is a computer you can't reboot, on a network that isn't there, that you shipped a year ago. Update it carefully or brick a thousand at once."
+    },
+    {
+      "id": "engineering-it-service-manager",
+      "file": "engineering-it-service-manager.md",
+      "title": "IT Service Manager",
+      "description": "Expert IT service management specialist using ITIL 4 framework for service catalog design, incident and problem management, change control, SLA governance, CMDB maintenance, and continual service improvement — ensuring IT delivers reliable, measurable business value across any organization size",
+      "emoji": "🖧",
+      "color": "blue",
+      "vibe": "IT exists to serve the business — not the other way around. Every ticket, every SLA, every change window is a promise made to the people who depend on technology to do their jobs. Keep the promises. Measure everything. Improve continuously."
+    },
+    {
+      "id": "engineering-llm-post-training-engineer",
+      "file": "engineering-llm-post-training-engineer.md",
+      "title": "LLM Post-Training Engineer",
+      "description": "Evidence-driven owner for SFT, preference optimization, RLHF/RLVR, MoE post-training, and the release gates that turn a checkpoint into a defensible model change.",
+      "emoji": "🧪",
+      "color": "#0F766E",
+      "vibe": "Treats every run as a controlled behavioral change; loss, reward, throughput, an exit code, or a checkpoint directory is never sufficient evidence by itself."
+    },
+    {
+      "id": "engineering-minimal-change-engineer",
+      "file": "engineering-minimal-change-engineer.md",
+      "title": "Minimal Change Engineer",
+      "description": "Engineering specialist focused on minimum-viable diffs — fixes only what was asked, refuses scope creep, prefers three similar lines over a premature abstraction. The discipline that prevents bug-fix PRs from becoming refactor avalanches.",
+      "emoji": "🪡",
+      "color": "slate",
+      "vibe": "The smallest diff that solves the problem — every extra line is a liability."
+    },
+    {
+      "id": "engineering-mobile-app-builder",
+      "file": "engineering-mobile-app-builder.md",
+      "title": "Mobile App Builder",
+      "description": "Specialized mobile application developer with expertise in native iOS/Android development and cross-platform frameworks",
+      "emoji": "📲",
+      "color": "purple",
+      "vibe": "Ships native-quality apps on iOS and Android, fast."
+    },
+    {
+      "id": "engineering-mobile-release-engineer",
+      "file": "engineering-mobile-release-engineer.md",
+      "title": "Mobile Release Engineer",
+      "description": "Expert mobile release and distribution engineer for iOS and Android — code signing, provisioning, fastlane pipelines, App Store Connect and Play Console submission, phased rollouts, and crash-triaged release health.",
+      "emoji": "🚀",
+      "color": "#16A34A",
+      "vibe": "Building the app is half the job. Shipping it — signed, reviewed, rolled out, and rollback-ready — is the half that pages you at midnight."
+    },
+    {
+      "id": "engineering-multi-agent-systems-architect",
+      "file": "engineering-multi-agent-systems-architect.md",
+      "title": "Multi-Agent Systems Architect",
+      "description": "Systems architect specializing in the design, coordination, and governance of multi-agent AI pipelines — covering topology selection, context management, inter-agent trust, failure recovery, human-in-the-loop gating, and observability for production-grade agent systems.",
+      "emoji": "🕸️",
+      "color": "cyan",
+      "vibe": "Treats a team of AI agents like a distributed system — if it only survives the demo and not production load, ambiguous inputs, and cascading failures, it isn't architecture yet."
+    },
+    {
+      "id": "engineering-network-engineer",
+      "file": "engineering-network-engineer.md",
+      "title": "Network Engineer",
+      "description": "Expert network engineer for Cisco IOS/IOS-XE, Cisco ASA/FTD, Juniper Junos, and Palo Alto PAN-OS routing, switching, firewalling, and troubleshooting.",
+      "emoji": "🌐",
+      "color": "#008c95",
+      "vibe": "Packets do not care about intent. Verify the path, prove the state, then change the config."
+    },
+    {
+      "id": "engineering-orgscript-engineer",
+      "file": "engineering-orgscript-engineer.md",
+      "title": "OrgScript Engineer",
+      "description": "Expert in designing, parsing, and implementing OrgScript grammar, AST validation, and business logic definitions.",
+      "emoji": "📜",
+      "color": "green",
+      "vibe": "Process-oriented, strict on semantics, focused on turning human processes into AI-friendly logic."
+    },
+    {
+      "id": "engineering-payments-billing-engineer",
+      "file": "engineering-payments-billing-engineer.md",
+      "title": "Payments & Billing Engineer",
+      "description": "Expert payments engineer for PSP integrations (Stripe, Adyen, Braintree, PayPal), idempotent payment flows, webhook processing, subscription billing, SCA/3DS, PCI scope reduction, and financial reconciliation.",
+      "emoji": "💳",
+      "color": "#2E7D32",
+      "vibe": "Money moves exactly once, or not at all. Idempotency first, webhooks as truth, reconciliation always."
+    },
+    {
+      "id": "engineering-privacy-engineer",
+      "file": "engineering-privacy-engineer.md",
+      "title": "Privacy Engineer",
+      "description": "Expert privacy engineer who implements privacy in code — PII discovery and classification, data minimization, consent enforcement at the API layer, automated DSAR and deletion across services, pseudonymization/tokenization, and retention automation. Builds the technical controls a privacy policy only promises.",
+      "emoji": "🕵️",
+      "color": "#7E22CE",
+      "vibe": "A privacy policy is a promise; the code is whether you kept it. Delete means deleted, everywhere, provably."
+    },
+    {
+      "id": "engineering-prompt-engineer",
+      "file": "engineering-prompt-engineer.md",
+      "title": "Prompt Engineer",
+      "description": "Specialist in crafting, testing, and systematically optimizing prompts for LLMs — turning vague instructions into reliable, production-grade AI behaviors.",
+      "emoji": "🧬",
+      "color": "violet",
+      "vibe": "I don't write prompts, I write contracts between humans and models."
+    },
+    {
+      "id": "engineering-rag-pipeline-engineer",
+      "file": "engineering-rag-pipeline-engineer.md",
+      "title": "RAG Pipeline Engineer",
+      "description": "Production RAG specialist focused on chunking strategy, retrieval quality, hybrid search, re-ranking, and eval-driven iteration. Builds pipelines that actually retrieve the right context — not just pipelines that run.",
+      "emoji": "🔍",
+      "color": "#F97316",
+      "vibe": "The LLM gets the blame. The retrieval is the crime scene. I have the evals to prove otherwise."
+    },
+    {
+      "id": "engineering-rapid-prototyper",
+      "file": "engineering-rapid-prototyper.md",
+      "title": "Rapid Prototyper",
+      "description": "Specialized in ultra-fast proof-of-concept development and MVP creation using efficient tools and frameworks",
+      "emoji": "⚡",
+      "color": "green",
+      "vibe": "Turns an idea into a working prototype before the meeting's over."
+    },
+    {
+      "id": "engineering-realtime-collaboration-engineer",
+      "file": "engineering-realtime-collaboration-engineer.md",
+      "title": "Realtime Collaboration Engineer",
+      "description": "Expert realtime systems engineer for WebSocket/SSE infrastructure, presence, CRDT and OT-based collaborative editing, offline-first sync engines, and fan-out scaling with reconnect-safe protocols.",
+      "emoji": "🤝",
+      "color": "#E11D48",
+      "vibe": "Every keystroke is a distributed system. Converge, don't collide — and assume the network just dropped."
+    },
+    {
+      "id": "engineering-rust-refactoring-specialist",
+      "file": "engineering-rust-refactoring-specialist.md",
+      "title": "Rust Refactoring Specialist",
+      "description": "Expert Rust engineer for repository-scale refactoring, safe renames, module restructuring, duplication removal, panic hardening, ownership improvements, and compiler or Clippy remediation.",
+      "emoji": "🦀",
+      "color": "#991B1B",
+      "vibe": "Complete the coherent refactor, prove its safety, and leave no half-migration behind."
+    },
+    {
+      "id": "engineering-search-relevance-engineer",
+      "file": "engineering-search-relevance-engineer.md",
+      "title": "Search Relevance Engineer",
+      "description": "Expert search engineer for Elasticsearch and OpenSearch — index and analyzer design, BM25 query tuning, hybrid lexical+vector retrieval, and judgment-based relevance evaluation with nDCG and online experiments.",
+      "emoji": "🔎",
+      "color": "#00BFB3",
+      "vibe": "Recall finds it, precision ranks it, evaluation proves it. Untested relevance changes are just vibes with a deploy button."
+    },
+    {
+      "id": "engineering-section-508-specialist",
+      "file": "engineering-section-508-specialist.md",
+      "title": "Section 508 Accessibility Specialist",
+      "description": "Expert U.S. federal Section 508 accessibility engineer (the 508 legal baseline is WCAG 2.0 Level AA; WCAG 2.1/2.2 AA are recommended best practice, and ADA Title II requires WCAG 2.1 AA for state/local government) specializing in accessible web development, ARIA implementation, screen reader testing (JAWS/NVDA/VoiceOver), keyboard navigation, color contrast, accessible forms and PDFs, VPAT/ACR authoring, automated and manual auditing (axe/WAVE/Lighthouse), and remediation for government and enterprise sites",
+      "emoji": "♿",
+      "color": "blue",
+      "vibe": "A meticulous accessibility engineer who makes sure every user — regardless of ability — can perceive, navigate, understand, and operate a site, holding the line on the Section 508 legal baseline of WCAG 2.0 Level AA while targeting WCAG 2.1/2.2 AA as best practice (and WCAG 2.1 AA where ADA Title II applies to state and local government), testing with real assistive technology instead of trusting a green automated score, because the 30% of barriers a scanner can't catch are exactly the ones that lock a screen reader user out of a government service they have a legal right to use."
+    },
+    {
+      "id": "engineering-senior-developer",
+      "file": "engineering-senior-developer.md",
+      "title": "Senior Developer",
+      "description": "Premium implementation specialist - Masters Laravel/Livewire/FluxUI, advanced CSS, Three.js integration",
+      "emoji": "💎",
+      "color": "green",
+      "vibe": "Premium full-stack craftsperson — Laravel, Livewire, Three.js, advanced CSS."
+    },
+    {
+      "id": "engineering-software-architect",
+      "file": "engineering-software-architect.md",
+      "title": "Software Architect",
+      "description": "Expert software architect specializing in system design, domain-driven design, architectural patterns, and technical decision-making for scalable, maintainable systems.",
+      "emoji": "🏛️",
+      "color": "indigo",
+      "vibe": "Designs systems that survive the team that built them. Every decision has a trade-off — name it."
+    },
+    {
+      "id": "engineering-solidity-smart-contract-engineer",
+      "file": "engineering-solidity-smart-contract-engineer.md",
+      "title": "Solidity Smart Contract Engineer",
+      "description": "Expert Solidity developer specializing in EVM smart contract architecture, gas optimization, upgradeable proxy patterns, DeFi protocol development, and security-first contract design across Ethereum and L2 chains.",
+      "emoji": "⛓️",
+      "color": "orange",
+      "vibe": "Battle-hardened Solidity developer who lives and breathes the EVM."
+    },
+    {
+      "id": "engineering-sre",
+      "file": "engineering-sre.md",
+      "title": "SRE (Site Reliability Engineer)",
+      "description": "Expert site reliability engineer specializing in SLOs, error budgets, observability, chaos engineering, and toil reduction for production systems at scale.",
+      "emoji": "🛡️",
+      "color": "#e63946",
+      "vibe": "Reliability is a feature. Error budgets fund velocity — spend them wisely."
+    },
+    {
+      "id": "engineering-technical-writer",
+      "file": "engineering-technical-writer.md",
+      "title": "Technical Writer",
+      "description": "Expert technical writer specializing in developer documentation, API references, README files, and tutorials. Transforms complex engineering concepts into clear, accurate, and engaging docs that developers actually read and use.",
+      "emoji": "📚",
+      "color": "teal",
+      "vibe": "Writes the docs that developers actually read and use."
+    },
+    {
+      "id": "engineering-uswds-developer",
+      "file": "engineering-uswds-developer.md",
+      "title": "USWDS Developer",
+      "description": "Expert U.S. Web Design System frontend developer specializing in USWDS components and design tokens, accessible-by-default patterns, responsive government UI, Sass settings/theming, the federal design language, integration into CMS platforms (Drupal/WordPress), and compliance with 21st Century IDEA and the Federal Website Standards",
+      "emoji": "🏛️",
+      "color": "blue",
+      "vibe": "A government-focused frontend developer who builds trustworthy, accessible, consistent federal interfaces with the U.S. Web Design System — theming through design tokens and Sass settings instead of overriding the framework, reaching for the maintained USWDS component before hand-rolling a custom one, and treating accessibility and 21st Century IDEA conformance as the baseline rather than a later phase, because a federal site that looks official but locks users out has failed the public it exists to serve."
+    },
+    {
+      "id": "engineering-video-streaming-engineer",
+      "file": "engineering-video-streaming-engineer.md",
+      "title": "Video Streaming Engineer",
+      "description": "Expert video streaming engineer for adaptive bitrate delivery — HLS/DASH packaging, ffmpeg transcode ladders, CMAF low-latency, DRM, CDN delivery, and QoE-driven player tuning.",
+      "emoji": "🎬",
+      "color": "#DC2626",
+      "vibe": "Every buffering spinner is a user leaving. Encode once, adapt to every network, measure the rebuffer."
+    },
+    {
+      "id": "engineering-voice-ai-integration-engineer",
+      "file": "engineering-voice-ai-integration-engineer.md",
+      "title": "Voice AI Integration Engineer",
+      "description": "Expert in building end-to-end speech transcription pipelines using Whisper-style models and cloud ASR services — from raw audio ingestion through preprocessing, transcript cleanup, subtitle generation, speaker diarization, and structured downstream integration into apps, APIs, and CMS platforms.",
+      "emoji": "🎙️",
+      "color": "violet",
+      "vibe": "Turns raw audio into structured, production-ready text that machines and humans can actually use."
+    },
+    {
+      "id": "engineering-webassembly-engineer",
+      "file": "engineering-webassembly-engineer.md",
+      "title": "WebAssembly Engineer",
+      "description": "Expert WebAssembly engineer — compiling Rust/C++/Go to Wasm, JS interop and the boundary marshalling cost, WASI and server-side runtimes (Wasmtime/Wasmer), the component model, and near-native performance tuning.",
+      "emoji": "🧩",
+      "color": "#6D28D9",
+      "vibe": "The boundary is where performance goes to die. Keep the hot loop inside the module and stop copying strings across it."
+    },
+    {
+      "id": "engineering-wechat-mini-program-developer",
+      "file": "engineering-wechat-mini-program-developer.md",
+      "title": "WeChat Mini Program Developer",
+      "description": "Expert WeChat Mini Program developer specializing in 小程序 development with WXML/WXSS/WXS, WeChat API integration, payment systems, subscription messaging, and the full WeChat ecosystem.",
+      "emoji": "💬",
+      "color": "green",
+      "vibe": "Builds performant Mini Programs that thrive in the WeChat ecosystem."
+    },
+    {
+      "id": "engineering-wordpress-performance",
+      "file": "engineering-wordpress-performance.md",
+      "title": "WordPress Performance Engineer",
+      "description": "Expert WordPress performance engineer specializing in Core Web Vitals, object caching (Redis/Memcached), page caching, database and WP_Query optimization, the Transients API, asset minification/deferral/critical CSS, image optimization and lazy loading, CDN integration, plugin performance auditing, and PHP-FPM/opcache tuning for fast, audit-passing sites",
+      "emoji": "⚡",
+      "color": "purple",
+      "vibe": "A pragmatic WordPress performance engineer who turns sluggish sites into fast, Core-Web-Vitals-passing storefronts through smart caching and query discipline — profiling with Query Monitor before touching anything, killing the autoloaded-options bloat and the plugin that fires forty queries per request, layering object cache and page cache and CDN so they reinforce instead of fight, and refusing to call a page done until it loads fast on a real phone, because a plugin-heavy site that looks fine on the developer's fiber connection is still losing the customer on 4G."
+    },
+    {
+      "id": "engineering-wordpress-shopping-cart",
+      "file": "engineering-wordpress-shopping-cart.md",
+      "title": "WordPress Shopping Cart Engineer",
+      "description": "Expert WordPress e-commerce engineer specializing in WooCommerce for product catalog management, payment gateway integration, checkout customization, order management, tax and coupon configuration, and conversion-optimized storefront delivery on WordPress",
+      "emoji": "🛍️",
+      "color": "purple",
+      "vibe": "A pragmatic WordPress commerce engineer who turns WooCommerce into powerful, conversion-optimized storefronts — shipping fast without shipping fragile, customizing through hooks instead of hacking core, keeping the checkout fast and frictionless on real phones, and treating every order, payment, and tax line as money that has to reconcile, because a storefront that converts but miscounts is worse than one that never launched."
+    }
+  ]
+}

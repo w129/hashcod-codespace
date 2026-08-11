@@ -996,6 +996,17 @@
             }
         }
 
+
+        .toolkit-tool-btn[data-tool="engineering"] {
+            background: #111;
+            color: #fff;
+        }
+
+        .toolkit-tool-btn[data-tool="engineering"]:hover {
+            background: #333;
+            color: #fff;
+        }
+
         /* ===== Bloc de notas / super editor (en plataforma) ===== */
         .notepad-overlay {
             display: none;
@@ -5872,25 +5883,27 @@
         const TOOLKIT_SLOT_COUNT = 6;
 
         /** Plantillas de fichas. tools[] se irá llenando cuando indiques las herramientas. */
+        function toolkitBuiltinEngineeringTool() {
+            return {
+                id: 'engineering',
+                title: 'Ingeniería',
+                iconHtml: toolkitEngineeringIconHtml(),
+                onClick: function () { openToolkitEngineering(); }
+            };
+        }
+
         const TOOLKIT_FICHAS_DEFAULT = [
             {
                 id: 'platform',
                 title: 'l8 codespace',
                 icon: '/favicon.svg?v=3',
-                tools: [
-                    {
-                        id: 'engineering',
-                        title: 'Ingeniería',
-                        iconHtml: toolkitEngineeringIconHtml(),
-                        onClick: function () { openToolkitEngineering(); }
-                    }
-                ]
+                tools: [toolkitBuiltinEngineeringTool()]
             },
             {
                 id: 'workspace',
                 title: 'workspace',
                 icon: '/favicon.svg?v=3',
-                tools: []
+                tools: [toolkitBuiltinEngineeringTool()]
             }
         ];
 
@@ -5914,6 +5927,19 @@
             }
         }
 
+        function toolkitEnsureEngineeringTool(ficha) {
+            const tools = Array.isArray(ficha.tools) ? ficha.tools.slice() : [];
+            if (!tools.some((t) => t && t.id === 'engineering')) {
+                tools.unshift(toolkitBuiltinEngineeringTool());
+            } else {
+                // refrescar icono/handler por si la ficha venía de un estado viejo
+                tools.forEach((t, i) => {
+                    if (t && t.id === 'engineering') tools[i] = toolkitBuiltinEngineeringTool();
+                });
+            }
+            return Object.assign({}, ficha, { tools: tools });
+        }
+
         function toolkitRebuildFichas() {
             const removed = new Set(
                 Array.isArray(toolkitStore.removedIds)
@@ -5922,7 +5948,30 @@
             );
             toolkitFichas = TOOLKIT_FICHAS_DEFAULT
                 .filter((f) => !removed.has(String(f.id)))
-                .map((f) => Object.assign({}, f, { tools: (f.tools || []).slice() }));
+                .map((f) => toolkitEnsureEngineeringTool(Object.assign({}, f, { tools: (f.tools || []).slice() })));
+
+            // Si se borró la ficha platform (donde nació Ingeniería), restaurarla
+            // para que la herramienta no desaparezca del toolkit.
+            if (!toolkitFichas.some((f) => f.id === 'platform')) {
+                const platform = TOOLKIT_FICHAS_DEFAULT.find((f) => f.id === 'platform');
+                if (platform) {
+                    toolkitFichas.unshift(toolkitEnsureEngineeringTool(Object.assign({}, platform, {
+                        tools: (platform.tools || []).slice()
+                    })));
+                    toolkitStore.removedIds = (toolkitStore.removedIds || []).filter((id) => String(id) !== 'platform');
+                    toolkitPersist();
+                }
+            }
+
+            if (!toolkitFichas.length) {
+                const platform = TOOLKIT_FICHAS_DEFAULT[0];
+                toolkitFichas = [toolkitEnsureEngineeringTool(Object.assign({}, platform, {
+                    tools: (platform.tools || []).slice()
+                }))];
+                toolkitStore.removedIds = [];
+                toolkitPersist();
+            }
+
             if (window.l8Toolkit) window.l8Toolkit.fichas = toolkitFichas;
         }
 
@@ -6066,9 +6115,12 @@
                     '" data-tool="' + String(tool.id || '').replace(/"/g, '&quot;') +
                     '" title="' + title + '" aria-label="' + title + '">' + icon + '</button>';
             });
-            const emptySlots = Math.max(TOOLKIT_SLOT_COUNT - tools.length, tools.length ? 1 : TOOLKIT_SLOT_COUNT);
+            const emptySlots = Math.max(0, TOOLKIT_SLOT_COUNT - tools.length);
             for (let i = 0; i < emptySlots; i++) {
-                toolsHtml += '<span class="toolkit-tool-slot" title="Herramienta pendiente" aria-hidden="true"></span>';
+                toolsHtml += '<span class="toolkit-tool-slot" title="Espacio libre" aria-hidden="true"></span>';
+            }
+            if (!tools.length && !emptySlots) {
+                toolsHtml += '<span class="toolkit-empty">Sin herramientas en esta ficha.</span>';
             }
 
             const deleteBtn =

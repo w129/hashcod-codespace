@@ -1113,6 +1113,44 @@
             margin-bottom: 10px;
         }
 
+        .toolkit-pdf-html.toolkit-md {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #1a1a1a;
+            margin-bottom: 14px;
+        }
+
+        .toolkit-pdf-html.toolkit-md h1,
+        .toolkit-pdf-html.toolkit-md h2,
+        .toolkit-pdf-html.toolkit-md h3 {
+            margin: 0.8em 0 0.35em;
+            line-height: 1.25;
+            color: #111;
+        }
+
+        .toolkit-pdf-html.toolkit-md p {
+            margin: 0 0 0.75em;
+        }
+
+        .toolkit-pdf-html.toolkit-md ul,
+        .toolkit-pdf-html.toolkit-md ol {
+            margin: 0 0 0.85em 1.2em;
+        }
+
+        .toolkit-pdf-raw-wrap {
+            margin-top: 8px;
+            border-top: 1px solid #e2e2e2;
+            padding-top: 8px;
+        }
+
+        .toolkit-pdf-raw-wrap summary {
+            cursor: pointer;
+            font-size: 11px;
+            color: #555;
+            user-select: none;
+            margin-bottom: 8px;
+        }
+
         .toolkit-pdf-output {
             white-space: pre-wrap;
             word-break: break-word;
@@ -1120,16 +1158,12 @@
             font-size: 12px;
             line-height: 1.5;
             color: #111;
-            margin: 0 0 16px;
+            margin: 0;
             padding: 12px;
             background: #f7f7f7;
             border: 1px solid #e2e2e2;
-        }
-
-        .toolkit-pdf-html.toolkit-md {
-            font-size: 13px;
-            line-height: 1.55;
-            color: #222;
+            max-height: 280px;
+            overflow: auto;
         }
 
         @media (max-width: 820px) {
@@ -3101,7 +3135,7 @@
         </div>
     </div>
 
-    <script src="/toolkit/pdf-inspector/toolkit-pdf-md.js?v=1"></script>
+    <script src="/toolkit/pdf-inspector/toolkit-pdf-md.js?v=2"></script>
 
     <script>
         let latestExecutionData = null;
@@ -6476,8 +6510,11 @@
                     <div class="md-status" id="toolkitPdfEmpty">El markdown aparecerá aquí tras convertir el PDF.</div>
                     <div id="toolkitPdfPreview" hidden>
                         <div class="toolkit-pdf-meta" id="toolkitPdfMeta"></div>
-                        <pre class="toolkit-pdf-output" id="toolkitPdfOutput"></pre>
                         <div class="toolkit-pdf-html toolkit-md" id="toolkitPdfHtml"></div>
+                        <details class="toolkit-pdf-raw-wrap" id="toolkitPdfRawWrap" hidden>
+                            <summary>Ver markdown en bruto</summary>
+                            <pre class="toolkit-pdf-output" id="toolkitPdfOutput"></pre>
+                        </details>
                     </div>
                 </div>
             </div>

@@ -6178,6 +6178,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', initToolkit);
+        document.addEventListener('DOMContentLoaded', initToolkitEngineering);
 
         connectSSE();
     </script>

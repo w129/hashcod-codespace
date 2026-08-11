@@ -805,28 +805,40 @@
             border: none;
             margin: 0;
             padding: 0;
-            width: 6px;
-            height: 72px;
-            min-width: 6px;
-            min-height: 72px;
-            background: #000000 !important;
+            width: 22px;
+            height: 88px;
+            min-width: 22px;
+            min-height: 88px;
+            background: transparent !important;
             color: transparent;
             cursor: pointer;
             display: block !important;
+            position: relative;
             border-radius: 999px;
             box-shadow: none;
-            transition: opacity 200ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
-                        width 220ms ease, height 220ms ease;
+            transition: opacity 200ms ease, transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        #flyRail .fly-handle:hover {
-            transform: scaleY(1.06);
-            background: #000000 !important;
+        #flyRail .fly-handle::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 72px;
+            background: #000000;
+            border-radius: 999px;
+            transition: transform 200ms ease;
+        }
+
+        #flyRail .fly-handle:hover::before {
+            transform: translate(-50%, -50%) scaleY(1.06);
         }
 
         #flyRail .fly-handle:focus-visible {
             outline: 2px solid #111111;
-            outline-offset: 3px;
+            outline-offset: 2px;
         }
 
         #flyRail .fly-handle-label,
@@ -839,7 +851,7 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transform: scaleY(0.4);
+            transform: scaleY(0.5);
             width: 0;
             min-width: 0;
             height: 0;
@@ -8166,7 +8178,7 @@
             aria-label="Abrir barra Fly"
             aria-expanded="false"
             aria-controls="flyRailPanel"
-            style="width:6px;height:72px;background:#000;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
+            style="width:22px;height:88px;background:transparent;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;position:relative;"
         ></button>
         <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
             <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>

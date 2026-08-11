@@ -771,19 +771,29 @@
 
         /* ===== FLY RAIL (barra lateral ocultable) ===== */
         .fly-rail {
-            --fly-ink: #f5f5f5;
-            --fly-line: #cfcfcf;
-            --fly-surface: #141414;
+            --fly-ink: #ffffff;
+            --fly-line: #e8e8e8;
+            --fly-surface: #000000;
             position: fixed;
-            z-index: 70;
+            z-index: 96;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 12px;
             pointer-events: none;
+            opacity: 1;
+            visibility: visible;
             transition: top 280ms cubic-bezier(0.22, 1, 0.36, 1),
                         bottom 280ms cubic-bezier(0.22, 1, 0.36, 1),
-                        transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+                        transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        opacity 200ms ease;
+        }
+
+        body.boot-locked .fly-rail,
+        body.auth-locked .fly-rail {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .fly-rail[data-edge="right"] {
@@ -815,33 +825,36 @@
         .fly-handle {
             pointer-events: auto;
             appearance: none;
-            border: none;
+            border: 1px solid #000000;
             margin: 0;
-            padding: 14px 14px 12px;
-            min-width: 52px;
-            background: var(--fly-surface);
-            color: var(--fly-ink);
+            padding: 16px 16px 14px;
+            min-width: 58px;
+            background: #000000;
+            color: #ffffff;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 9px;
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+            gap: 10px;
+            box-shadow: -4px 0 18px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.22);
             transition: background 180ms ease, transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
                         border-radius 220ms ease;
         }
 
         .fly-rail[data-edge="right"] .fly-handle {
             border-radius: 14px 0 0 14px;
+            border-right: none;
         }
 
         .fly-rail[data-edge="left"] .fly-handle {
             border-radius: 0 14px 14px 0;
+            border-left: none;
+            box-shadow: 4px 0 18px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.22);
         }
 
         .fly-handle:hover {
-            background: #1c1c1c;
+            background: #0a0a0a;
         }
 
         .fly-handle:focus-visible {
@@ -851,20 +864,21 @@
 
         .fly-handle-label {
             font-family: 'IBM Plex Mono', ui-monospace, monospace;
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0.06em;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
             line-height: 1;
-            color: var(--fly-ink);
+            color: #ffffff;
             user-select: none;
         }
 
         .fly-handle-line {
             display: block;
-            width: 30px;
+            width: 32px;
             height: 2px;
             border-radius: 999px;
-            background: var(--fly-line);
+            background: #ffffff;
+            opacity: 0.85;
         }
 
         .fly-rail-panel {
@@ -874,9 +888,10 @@
             align-items: center;
             gap: 16px;
             padding: 18px 11px;
-            background: var(--fly-surface);
+            background: #000000;
+            border: 1px solid #000000;
             border-radius: 999px;
-            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
             opacity: 0;
             visibility: hidden;
             transform: translateX(18px) scale(0.96);
@@ -8230,7 +8245,9 @@
         </div>
     </div>
 
-    <!-- Fly rail: al ocultarse solo queda el handle lateral -->
+    </div><!-- /.platform-shell -->
+
+    <!-- Fly rail: negro, fijo al borde; solo se oculta en boot/auth -->
     <aside
         id="flyRail"
         class="fly-rail"
@@ -8258,8 +8275,6 @@
             <button type="button" class="fly-slot" data-fly-slot="5" title="Herramienta 5" aria-label="Herramienta 5 (próximamente)" disabled></button>
         </nav>
     </aside>
-
-    </div><!-- /.platform-shell -->
 
     <script>
         /* ===== AUTH GATE (registro / login) ===== */

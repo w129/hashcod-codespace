@@ -630,6 +630,96 @@
             background: transparent;
         }
 
+        .hashcod-tools-dock {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex: 0 0 auto;
+            margin-left: 8px;
+            padding: 4px 6px;
+            height: 30px;
+            box-sizing: border-box;
+            background: #ffffff;
+            border: 1px solid #e6e6ea;
+            border-radius: 999px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .hashcod-dock-slot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid #e4e4e8;
+            background: #ffffff;
+            color: #14141a;
+            padding: 0;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            flex: 0 0 auto;
+            line-height: 0;
+            overflow: hidden;
+        }
+
+        .hashcod-dock-slot.is-filled {
+            background: #14141a;
+            border-color: #14141a;
+            color: #ffffff;
+        }
+
+        .hashcod-dock-slot.is-ready {
+            cursor: pointer;
+        }
+
+        .hashcod-dock-slot.is-ready:hover {
+            border-color: #b8b8c0;
+        }
+
+        .hashcod-dock-slot.is-filled.is-ready:hover {
+            background: #2a2a32;
+            border-color: #2a2a32;
+        }
+
+        .hashcod-dock-slot:disabled {
+            cursor: default;
+            opacity: 1;
+        }
+
+        .hashcod-dock-slot img,
+        .hashcod-dock-slot svg {
+            width: 13px;
+            height: 13px;
+            display: block;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .hashcod-dock-slot:not(.is-filled) img,
+        .hashcod-dock-slot:not(.is-filled) svg {
+            color: #14141a;
+        }
+
+        @media (max-width: 720px) {
+            .hashcod-tools-dock {
+                margin-left: 4px;
+                gap: 4px;
+                padding: 3px 5px;
+                height: 28px;
+            }
+
+            .hashcod-dock-slot {
+                width: 20px;
+                height: 20px;
+            }
+
+            .hashcod-dock-slot img,
+            .hashcod-dock-slot svg {
+                width: 11px;
+                height: 11px;
+            }
+        }
 
         .icon-toolkit {
             height: 22px;
@@ -3280,6 +3370,20 @@
             <span class="hashcod-created-by" title="Created by Hashcod" aria-label="Created by Hashcod">
                 <img src="/hashcod-created-by-gray.svg?v=7" alt="Created by Hashcod" height="14">
             </span>
+            <nav class="hashcod-tools-dock" id="hashcodToolsDock" aria-label="Barra de herramientas Hashcod">
+                <button type="button" class="hashcod-dock-slot is-filled is-ready" data-dock-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (pendiente)">
+                    <img src="/hashcod-dock-cube.svg?v=1" alt="" width="13" height="13">
+                </button>
+                <button type="button" class="hashcod-dock-slot is-ready" data-dock-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (pendiente)">
+                    <img src="/hashcod-dock-hourglass.svg?v=1" alt="" width="13" height="13">
+                </button>
+                <button type="button" class="hashcod-dock-slot is-ready" data-dock-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (pendiente)">
+                    <img src="/hashcod-dock-doc.svg?v=1" alt="" width="13" height="13">
+                </button>
+                <button type="button" class="hashcod-dock-slot" data-dock-slot="4" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
+                <button type="button" class="hashcod-dock-slot" data-dock-slot="5" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
+                <button type="button" class="hashcod-dock-slot is-filled" data-dock-slot="6" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
+            </nav>
         </div>
         <div class="top-bar-right">
             <button type="button" class="icon-gateway" title="Gateway · abrir y enviar (notas, terminal…)" aria-label="Gateway · abrir y enviar" onclick="openPlatformGateway()">

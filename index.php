@@ -451,6 +451,7 @@
         }
 
         .toolkit-ficha {
+            position: relative;
             display: grid;
             grid-template-columns: minmax(84px, 110px) minmax(0, 1fr) minmax(0, 1fr);
             grid-template-rows: minmax(140px, 1fr) 78px;
@@ -459,6 +460,56 @@
             border: 2.5px solid #111111;
             box-shadow: 0 1px 0 rgba(0,0,0,0.04);
         }
+
+        .toolkit-ficha {
+            position: relative;
+        }
+
+        .toolkit-ficha-delete {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 3;
+            width: 30px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-left: 1px solid #d0d0d0;
+            border-bottom: 1px solid #d0d0d0;
+            background: #e8e8e8;
+            color: #111111;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .toolkit-ficha-delete svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            fill: currentColor;
+        }
+
+        .toolkit-ficha-delete:hover {
+            background: #111111;
+            color: #ffffff;
+        }
+
+        .toolkit-ficha-files .toolkit-pane-head {
+            padding-right: 36px;
+        }
+
+        .toolkit-board-empty {
+            border: 2.5px dashed #bbbbbb;
+            background: #fafafa;
+            color: #777;
+            font-size: 12px;
+            padding: 28px 16px;
+            text-align: center;
+            line-height: 1.45;
+        }
+
 
         .toolkit-ficha-icon {
             grid-column: 1;
@@ -5375,8 +5426,8 @@
         const TOOLKIT_STORE_KEY = 'l8_toolkit_v1';
         const TOOLKIT_SLOT_COUNT = 6;
 
-        /** Registro de fichas. tools[] se irá llenando cuando indiques las herramientas. */
-        const TOOLKIT_FICHAS = [
+        /** Plantillas de fichas. tools[] se irá llenando cuando indiques las herramientas. */
+        const TOOLKIT_FICHAS_DEFAULT = [
             {
                 id: 'platform',
                 title: 'l8 codespace',
@@ -5391,7 +5442,8 @@
             }
         ];
 
-        let toolkitStore = { history: {}, files: {} };
+        let toolkitFichas = TOOLKIT_FICHAS_DEFAULT.map((f) => Object.assign({}, f, { tools: (f.tools || []).slice() }));
+        let toolkitStore = { history: {}, files: {}, removedIds: [] };
 
         function toolkitNow() {
             return new Date().toISOString();
@@ -5410,21 +5462,36 @@
             }
         }
 
+        function toolkitRebuildFichas() {
+            const removed = new Set(
+                Array.isArray(toolkitStore.removedIds)
+                    ? toolkitStore.removedIds.map(String)
+                    : []
+            );
+            toolkitFichas = TOOLKIT_FICHAS_DEFAULT
+                .filter((f) => !removed.has(String(f.id)))
+                .map((f) => Object.assign({}, f, { tools: (f.tools || []).slice() }));
+            if (window.l8Toolkit) window.l8Toolkit.fichas = toolkitFichas;
+        }
+
         function toolkitLoadStore() {
             try {
                 const raw = localStorage.getItem(TOOLKIT_STORE_KEY);
                 if (!raw) {
-                    toolkitStore = { history: {}, files: {} };
+                    toolkitStore = { history: {}, files: {}, removedIds: [] };
+                    toolkitRebuildFichas();
                     return;
                 }
                 const data = JSON.parse(raw);
                 toolkitStore = {
                     history: (data && typeof data.history === 'object' && data.history) ? data.history : {},
-                    files: (data && typeof data.files === 'object' && data.files) ? data.files : {}
+                    files: (data && typeof data.files === 'object' && data.files) ? data.files : {},
+                    removedIds: Array.isArray(data && data.removedIds) ? data.removedIds.map(String) : []
                 };
             } catch (e) {
-                toolkitStore = { history: {}, files: {} };
+                toolkitStore = { history: {}, files: {}, removedIds: [] };
             }
+            toolkitRebuildFichas();
         }
 
         function toolkitPersist() {
@@ -5450,8 +5517,12 @@
             return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6V2zm2 2v16h10V8h-4V4H8zm6 0v2h2l-2-2z"/></svg>';
         }
 
+        function toolkitTrashSvg() {
+            return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M 10 2 L 9 3 L 4 3 L 4 5 L 7 5 L 17 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 5 7 L 5 20 C 5 21.1 5.9 22 7 22 L 17 22 C 18.1 22 19 21.1 19 20 L 19 7 L 5 7 z"></path></svg>';
+        }
+
         function toolkitLogUse(fichaId, toolId, label) {
-            const fid = String(fichaId || 'platform');
+            const fid = String(fichaId || (toolkitFichas[0] && toolkitFichas[0].id) || 'platform');
             if (!toolkitStore.history[fid]) toolkitStore.history[fid] = [];
             toolkitStore.history[fid].unshift({
                 id: 'h_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
@@ -5464,13 +5535,13 @@
             }
             toolkitPersist();
             const board = document.getElementById('toolkitBoard');
-            if (board && document.getElementById('toolkitOverlay')?.classList.contains('open')) {
+            if (board && document.getElementById('toolkitOverlay') && document.getElementById('toolkitOverlay').classList.contains('open')) {
                 toolkitRenderBoard();
             }
         }
 
         function toolkitCurateFile(fichaId, file) {
-            const fid = String(fichaId || 'platform');
+            const fid = String(fichaId || (toolkitFichas[0] && toolkitFichas[0].id) || 'platform');
             if (!file || !file.name) return false;
             if (!toolkitStore.files[fid]) toolkitStore.files[fid] = [];
             toolkitStore.files[fid].unshift({
@@ -5484,9 +5555,24 @@
                 toolkitStore.files[fid] = toolkitStore.files[fid].slice(0, 60);
             }
             toolkitPersist();
-            if (document.getElementById('toolkitOverlay')?.classList.contains('open')) {
+            if (document.getElementById('toolkitOverlay') && document.getElementById('toolkitOverlay').classList.contains('open')) {
                 toolkitRenderBoard();
             }
+            return true;
+        }
+
+        function toolkitRemoveFicha(fichaId) {
+            const fid = String(fichaId || '');
+            if (!fid) return false;
+            const exists = toolkitFichas.some((f) => f.id === fid);
+            if (!exists) return false;
+            if (!Array.isArray(toolkitStore.removedIds)) toolkitStore.removedIds = [];
+            if (toolkitStore.removedIds.indexOf(fid) === -1) toolkitStore.removedIds.push(fid);
+            if (toolkitStore.history && toolkitStore.history[fid]) delete toolkitStore.history[fid];
+            if (toolkitStore.files && toolkitStore.files[fid]) delete toolkitStore.files[fid];
+            toolkitPersist();
+            toolkitRebuildFichas();
+            toolkitRenderBoard();
             return true;
         }
 
@@ -5533,9 +5619,16 @@
                 toolsHtml += '<span class="toolkit-tool-slot" title="Herramienta pendiente" aria-hidden="true"></span>';
             }
 
+            const deleteBtn =
+                '<button type="button" class="toolkit-ficha-delete" data-ficha-delete="' + ficha.id +
+                '" title="Eliminar tablilla" aria-label="Eliminar tablilla ' +
+                String(ficha.title || ficha.id).replace(/"/g, '&quot;') + '">' +
+                toolkitTrashSvg() + '</button>';
+
             return (
                 '<article class="toolkit-ficha" data-ficha-id="' + ficha.id + '" aria-label="Ficha ' +
                 String(ficha.title).replace(/"/g, '&quot;') + '">' +
+                deleteBtn +
                 '<div class="toolkit-ficha-icon">' +
                 '<img src="' + String(ficha.icon || '/favicon.svg?v=3').replace(/"/g, '&quot;') +
                 '" alt="" class="platform">' +
@@ -5555,17 +5648,32 @@
         function toolkitRenderBoard() {
             const board = document.getElementById('toolkitBoard');
             if (!board) return;
-            board.innerHTML = TOOLKIT_FICHAS.map(toolkitRenderFicha).join('');
+            if (!toolkitFichas.length) {
+                board.innerHTML = '<div class="toolkit-board-empty">No hay tablillas. Las nuevas fichas aparecerán aquí cuando las agregues.</div>';
+                return;
+            }
+            board.innerHTML = toolkitFichas.map(toolkitRenderFicha).join('');
             board.querySelectorAll('.toolkit-tool-btn').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     const fichaId = btn.getAttribute('data-ficha');
                     const toolId = btn.getAttribute('data-tool');
-                    const ficha = TOOLKIT_FICHAS.find((f) => f.id === fichaId);
+                    const ficha = toolkitFichas.find((f) => f.id === fichaId);
                     const tool = ficha && (ficha.tools || []).find((t) => t.id === toolId);
                     toolkitLogUse(fichaId, toolId, (tool && (tool.title || tool.id)) || toolId);
                     if (tool && typeof tool.onClick === 'function') {
                         try { tool.onClick(); } catch (e) {}
                     }
+                });
+            });
+            board.querySelectorAll('[data-ficha-delete]').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const fichaId = btn.getAttribute('data-ficha-delete');
+                    const ficha = toolkitFichas.find((f) => f.id === fichaId);
+                    const name = (ficha && ficha.title) || fichaId || 'tablilla';
+                    if (!window.confirm('¿Eliminar la tablilla «' + name + '»?')) return;
+                    toolkitRemoveFicha(fichaId);
                 });
             });
         }
@@ -5580,8 +5688,11 @@
             if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
             if (open) {
                 toolkitLoadStore();
-                toolkitLogUse('platform', 'toolkit-open', 'Abrir toolkit');
-                toolkitRenderBoard();
+                if (toolkitFichas.length) {
+                    toolkitLogUse(toolkitFichas[0].id, 'toolkit-open', 'Abrir toolkit');
+                } else {
+                    toolkitRenderBoard();
+                }
             }
         }
 
@@ -5607,7 +5718,8 @@
                 close: () => toggleToolkit(false),
                 logUse: toolkitLogUse,
                 curateFile: toolkitCurateFile,
-                fichas: TOOLKIT_FICHAS,
+                removeFicha: toolkitRemoveFicha,
+                fichas: toolkitFichas,
                 render: toolkitRenderBoard
             };
         }

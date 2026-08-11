@@ -769,6 +769,189 @@
             }
         }
 
+        /* ===== FLY RAIL — fijo, negro, centro del borde derecho ===== */
+        #flyRail.fly-rail {
+            position: fixed !important;
+            right: 0 !important;
+            left: auto !important;
+            top: 50% !important;
+            bottom: auto !important;
+            transform: translateY(-50%) !important;
+            z-index: 9990 !important;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            width: auto;
+            height: auto;
+            max-height: none;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        body.boot-locked #flyRail.fly-rail,
+        body.auth-locked #flyRail.fly-rail {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        #flyRail .fly-handle {
+            pointer-events: auto;
+            appearance: none;
+            -webkit-appearance: none;
+            border: none;
+            margin: 0;
+            padding: 18px 18px 16px;
+            min-width: 64px;
+            background: #000000 !important;
+            color: #ffffff !important;
+            cursor: pointer;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-radius: 16px 0 0 16px;
+            box-shadow: -6px 0 22px rgba(0, 0, 0, 0.45);
+            transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), background 160ms ease;
+        }
+
+        #flyRail .fly-handle:hover {
+            background: #111111 !important;
+        }
+
+        #flyRail .fly-handle:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: -3px;
+        }
+
+        #flyRail .fly-handle-label {
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            line-height: 1;
+            color: #ffffff !important;
+            user-select: none;
+        }
+
+        #flyRail .fly-handle-line {
+            display: block;
+            width: 34px;
+            height: 2px;
+            border-radius: 999px;
+            background: #ffffff !important;
+        }
+
+        #flyRail .fly-rail-panel {
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 12px;
+            margin: 0;
+            background: #000000 !important;
+            border-radius: 999px;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(20px) scale(0.96);
+            transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 240ms;
+        }
+
+        #flyRail.is-open .fly-rail-panel {
+            pointer-events: auto;
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0) scale(1);
+            transition: opacity 260ms ease, transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 0s;
+        }
+
+        #flyRail.is-open .fly-handle {
+            transform: translateX(-2px);
+        }
+
+        #flyRail .fly-slot {
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ffffff;
+            flex: 0 0 auto;
+            transition: transform 160ms ease, opacity 160ms ease;
+        }
+
+        #flyRail .fly-slot::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1.5px solid currentColor;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+
+        #flyRail .fly-slot::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+            position: relative;
+            z-index: 1;
+        }
+
+        #flyRail .fly-slot:hover:not(:disabled) {
+            transform: scale(1.08);
+        }
+
+        #flyRail .fly-slot:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: 2px;
+        }
+
+        #flyRail .fly-slot:disabled {
+            cursor: default;
+            opacity: 0.55;
+        }
+
+        #flyRail .fly-slot.is-ready {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        #flyRail .fly-slot.is-ready::after {
+            display: none;
+        }
+
+        #flyRail .fly-slot img,
+        #flyRail .fly-slot svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            object-fit: contain;
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
         .hashcod-keys-overlay {
             display: none;
             position: fixed;
@@ -5597,6 +5780,110 @@
             }
         }
 
+        /* ===== FLY RAIL (solo borde derecho, centro) ===== */
+        const FLY_STORE_KEY = 'l8_fly_rail_v1';
+
+        function flyRailLoadOpen() {
+            try {
+                const raw = localStorage.getItem(FLY_STORE_KEY);
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                return !!(data && data.open);
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function flyRailSaveOpen(open) {
+            try {
+                localStorage.setItem(FLY_STORE_KEY, JSON.stringify({ open: !!open, edge: 'right', corner: 'middle' }));
+            } catch (e) {}
+        }
+
+        function setFlyRailOpen(open) {
+            const rail = document.getElementById('flyRail');
+            const handle = document.getElementById('flyHandleBtn');
+            const panel = document.getElementById('flyRailPanel');
+            if (!rail || !handle || !panel) return;
+            rail.classList.toggle('is-open', !!open);
+            handle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+            // Mantener siempre centro-derecha aunque el panel abra/cierre
+            rail.style.position = 'fixed';
+            rail.style.right = '0';
+            rail.style.left = 'auto';
+            rail.style.top = '50%';
+            rail.style.bottom = 'auto';
+            rail.style.transform = 'translateY(-50%)';
+            rail.style.zIndex = '9990';
+            rail.style.display = 'flex';
+            flyRailSaveOpen(!!open);
+        }
+
+        function toggleFlyRail(force) {
+            const rail = document.getElementById('flyRail');
+            if (!rail) return;
+            const next = typeof force === 'boolean' ? force : !rail.classList.contains('is-open');
+            setFlyRailOpen(next);
+        }
+
+        function setFlyRailCorner() {
+            // Fijo: centro del lateral derecho
+            setFlyRailOpen(document.getElementById('flyRail')?.classList.contains('is-open'));
+        }
+
+        function bindFlySlot(slotEl, handler) {
+            if (!slotEl) return;
+            slotEl.disabled = false;
+            slotEl.classList.add('is-ready');
+            slotEl.onclick = function (ev) {
+                ev.preventDefault();
+                if (typeof handler === 'function') handler(ev);
+                try {
+                    window.dispatchEvent(new CustomEvent('l8:fly-tool', {
+                        detail: { slot: Number(slotEl.getAttribute('data-fly-slot') || 0) }
+                    }));
+                } catch (e) {}
+            };
+        }
+
+        window.toggleFlyRail = toggleFlyRail;
+        window.setFlyRailOpen = setFlyRailOpen;
+        window.setFlyRailCorner = setFlyRailCorner;
+        window.bindFlySlot = bindFlySlot;
+
+        function initFlyRail() {
+            const rail = document.getElementById('flyRail');
+            const handle = document.getElementById('flyHandleBtn');
+            if (!rail || !handle) return;
+
+            setFlyRailOpen(flyRailLoadOpen());
+
+            handle.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                toggleFlyRail();
+            });
+
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && rail.classList.contains('is-open')) {
+                    setFlyRailOpen(false);
+                }
+            });
+
+            document.addEventListener('pointerdown', function (ev) {
+                if (!rail.classList.contains('is-open')) return;
+                if (rail.contains(ev.target)) return;
+                setFlyRailOpen(false);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initFlyRail);
+        } else {
+            initFlyRail();
+        }
+
         const HASHCOD_KEYS_STORE = 'l8_hashcod_keys_v1';
         let hashcodKeysCache = [];
         let hashcodKeysAccountKey = '';
@@ -7866,6 +8153,35 @@
     </div>
 
     </div><!-- /.platform-shell -->
+
+    <!-- Fly: negro, siempre en el centro del borde derecho -->
+    <aside
+        id="flyRail"
+        class="fly-rail"
+        aria-label="Fly"
+        style="position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:9990;display:flex;flex-direction:column;align-items:center;gap:12px;"
+    >
+        <button
+            type="button"
+            class="fly-handle"
+            id="flyHandleBtn"
+            title="Fly"
+            aria-label="Fly · mostrar u ocultar herramientas"
+            aria-expanded="false"
+            aria-controls="flyRailPanel"
+            style="background:#000;color:#fff;border:none;border-radius:16px 0 0 16px;padding:18px 18px 16px;min-width:64px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;"
+        >
+            <span class="fly-handle-label" style="color:#fff;font-weight:700;letter-spacing:0.1em;">Fly</span>
+            <span class="fly-handle-line" aria-hidden="true" style="display:block;width:34px;height:2px;background:#fff;border-radius:999px;"></span>
+        </button>
+        <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
+            <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="4" title="Herramienta 4" aria-label="Herramienta 4 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="5" title="Herramienta 5" aria-label="Herramienta 5 (próximamente)" disabled></button>
+        </nav>
+    </aside>
 
     <script>
         /* ===== AUTH GATE (registro / login) ===== */

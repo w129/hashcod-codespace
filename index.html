@@ -226,7 +226,6 @@
             line-height: 1.4;
         }
 
-
         .tokens-unlock-open {
             display: block;
             width: 100%;
@@ -767,6 +766,189 @@
             }
         }
 
+        /* ===== FLY RAIL — fijo, negro, centro del borde derecho ===== */
+        #flyRail.fly-rail {
+            position: fixed !important;
+            right: 0 !important;
+            left: auto !important;
+            top: 50% !important;
+            bottom: auto !important;
+            transform: translateY(-50%) !important;
+            z-index: 9990 !important;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            width: auto;
+            height: auto;
+            max-height: none;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        body.boot-locked #flyRail.fly-rail,
+        body.auth-locked #flyRail.fly-rail {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        #flyRail .fly-handle {
+            pointer-events: auto;
+            appearance: none;
+            -webkit-appearance: none;
+            border: none;
+            margin: 0;
+            padding: 18px 18px 16px;
+            min-width: 64px;
+            background: #000000 !important;
+            color: #ffffff !important;
+            cursor: pointer;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-radius: 16px 0 0 16px;
+            box-shadow: -6px 0 22px rgba(0, 0, 0, 0.45);
+            transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), background 160ms ease;
+        }
+
+        #flyRail .fly-handle:hover {
+            background: #111111 !important;
+        }
+
+        #flyRail .fly-handle:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: -3px;
+        }
+
+        #flyRail .fly-handle-label {
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            line-height: 1;
+            color: #ffffff !important;
+            user-select: none;
+        }
+
+        #flyRail .fly-handle-line {
+            display: block;
+            width: 34px;
+            height: 2px;
+            border-radius: 999px;
+            background: #ffffff !important;
+        }
+
+        #flyRail .fly-rail-panel {
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 12px;
+            margin: 0;
+            background: #000000 !important;
+            border-radius: 999px;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(20px) scale(0.96);
+            transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 240ms;
+        }
+
+        #flyRail.is-open .fly-rail-panel {
+            pointer-events: auto;
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0) scale(1);
+            transition: opacity 260ms ease, transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 0s;
+        }
+
+        #flyRail.is-open .fly-handle {
+            transform: translateX(-2px);
+        }
+
+        #flyRail .fly-slot {
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ffffff;
+            flex: 0 0 auto;
+            transition: transform 160ms ease, opacity 160ms ease;
+        }
+
+        #flyRail .fly-slot::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1.5px solid currentColor;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+
+        #flyRail .fly-slot::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+            position: relative;
+            z-index: 1;
+        }
+
+        #flyRail .fly-slot:hover:not(:disabled) {
+            transform: scale(1.08);
+        }
+
+        #flyRail .fly-slot:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: 2px;
+        }
+
+        #flyRail .fly-slot:disabled {
+            cursor: default;
+            opacity: 0.55;
+        }
+
+        #flyRail .fly-slot.is-ready {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        #flyRail .fly-slot.is-ready::after {
+            display: none;
+        }
+
+        #flyRail .fly-slot img,
+        #flyRail .fly-slot svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            object-fit: contain;
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
         .hashcod-keys-overlay {
             display: none;
             position: fixed;
@@ -959,7 +1141,6 @@
             font-size: 11px;
             color: #888;
         }
-
 
         .icon-toolkit {
             height: 22px;
@@ -1618,6 +1799,11 @@
 
         .toolkit-tool-btn[data-tool="engineering"] {
             background: #111;
+            color: #fff;
+        }
+
+        .toolkit-tool-btn[data-tool="engineering"]:hover {
+            background: #333;
             color: #fff;
         }
 
@@ -3251,7 +3437,6 @@
             line-height: 1.4;
         }
 
-
         .boot-cli-overlay {
             position: fixed;
             inset: 0;
@@ -4222,6 +4407,7 @@
             const avgLen = text.length / Math.max(lines.length, 1);
             if (codeSignals >= 4) return true;
             if (codeSignals >= 2 && avgLen < 90) return true;
+            // Texto narrativo / markdown suelto
             if (/^#{1,6}\s+\S/m.test(text) && codeSignals < 2) return false;
             if (codeSignals === 0 && avgLen > 60) return false;
             return codeSignals > 0;
@@ -4277,6 +4463,7 @@
         function terminalBuildMarkdown(content, filePath) {
             const text = String(content || '');
             const name = filePath || 'terminal-text';
+            // Si ya parece markdown, conservar tal cual; si no, envolver con título
             if (/^#{1,6}\s+\S/m.test(text) || /^\s*[-*+]\s+\S/m.test(text) || /```/.test(text)) {
                 return text.endsWith('\n') ? text : (text + '\n');
             }
@@ -5590,6 +5777,110 @@
             }
         }
 
+        /* ===== FLY RAIL (solo borde derecho, centro) ===== */
+        const FLY_STORE_KEY = 'l8_fly_rail_v1';
+
+        function flyRailLoadOpen() {
+            try {
+                const raw = localStorage.getItem(FLY_STORE_KEY);
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                return !!(data && data.open);
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function flyRailSaveOpen(open) {
+            try {
+                localStorage.setItem(FLY_STORE_KEY, JSON.stringify({ open: !!open, edge: 'right', corner: 'middle' }));
+            } catch (e) {}
+        }
+
+        function setFlyRailOpen(open) {
+            const rail = document.getElementById('flyRail');
+            const handle = document.getElementById('flyHandleBtn');
+            const panel = document.getElementById('flyRailPanel');
+            if (!rail || !handle || !panel) return;
+            rail.classList.toggle('is-open', !!open);
+            handle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+            // Mantener siempre centro-derecha aunque el panel abra/cierre
+            rail.style.position = 'fixed';
+            rail.style.right = '0';
+            rail.style.left = 'auto';
+            rail.style.top = '50%';
+            rail.style.bottom = 'auto';
+            rail.style.transform = 'translateY(-50%)';
+            rail.style.zIndex = '9990';
+            rail.style.display = 'flex';
+            flyRailSaveOpen(!!open);
+        }
+
+        function toggleFlyRail(force) {
+            const rail = document.getElementById('flyRail');
+            if (!rail) return;
+            const next = typeof force === 'boolean' ? force : !rail.classList.contains('is-open');
+            setFlyRailOpen(next);
+        }
+
+        function setFlyRailCorner() {
+            // Fijo: centro del lateral derecho
+            setFlyRailOpen(document.getElementById('flyRail')?.classList.contains('is-open'));
+        }
+
+        function bindFlySlot(slotEl, handler) {
+            if (!slotEl) return;
+            slotEl.disabled = false;
+            slotEl.classList.add('is-ready');
+            slotEl.onclick = function (ev) {
+                ev.preventDefault();
+                if (typeof handler === 'function') handler(ev);
+                try {
+                    window.dispatchEvent(new CustomEvent('l8:fly-tool', {
+                        detail: { slot: Number(slotEl.getAttribute('data-fly-slot') || 0) }
+                    }));
+                } catch (e) {}
+            };
+        }
+
+        window.toggleFlyRail = toggleFlyRail;
+        window.setFlyRailOpen = setFlyRailOpen;
+        window.setFlyRailCorner = setFlyRailCorner;
+        window.bindFlySlot = bindFlySlot;
+
+        function initFlyRail() {
+            const rail = document.getElementById('flyRail');
+            const handle = document.getElementById('flyHandleBtn');
+            if (!rail || !handle) return;
+
+            setFlyRailOpen(flyRailLoadOpen());
+
+            handle.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                toggleFlyRail();
+            });
+
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && rail.classList.contains('is-open')) {
+                    setFlyRailOpen(false);
+                }
+            });
+
+            document.addEventListener('pointerdown', function (ev) {
+                if (!rail.classList.contains('is-open')) return;
+                if (rail.contains(ev.target)) return;
+                setFlyRailOpen(false);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initFlyRail);
+        } else {
+            initFlyRail();
+        }
+
         const HASHCOD_KEYS_STORE = 'l8_hashcod_keys_v1';
         let hashcodKeysCache = [];
         let hashcodKeysAccountKey = '';
@@ -6438,6 +6729,291 @@
             }
         }
 
+        /* ===== Chat IA (inserta contenido puro en la selección) ===== */
+        let notepadAiProviders = [];
+        let notepadAiBusy = false;
+
+        function notepadAiHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            try {
+                const tok = (typeof window.l8GetAuthToken === 'function') ? window.l8GetAuthToken() : '';
+                if (tok) headers['Authorization'] = 'Bearer ' + tok;
+            } catch (e) {}
+            try {
+                const guest = localStorage.getItem('l8_tokens_guest') || '';
+                if (guest) headers['X-L8-Tokens-Guest'] = guest;
+            } catch (e) {}
+            return headers;
+        }
+
+        function notepadAiSelectedProvider() {
+            const sel = document.getElementById('notepadAiModel');
+            return sel ? sel.value : 'gpt-5.6';
+        }
+
+        function notepadAiSetConnStatus(text, kind) {
+            const el = document.getElementById('notepadAiConnStatus');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.toggle('err', kind === 'err');
+            el.classList.toggle('ok', kind === 'ok');
+        }
+
+        function notepadAiSetRunStatus(text, kind) {
+            const el = document.getElementById('notepadAiRunStatus');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.toggle('err', kind === 'err');
+            el.classList.toggle('ok', kind === 'ok');
+        }
+
+        function notepadAiUpdateConnUi() {
+            const id = notepadAiSelectedProvider();
+            const row = notepadAiProviders.find((p) => p.id === id);
+            const loginBox = document.getElementById('notepadAiLoginBox');
+            if (!row) {
+                notepadAiSetConnStatus('modelo no disponible', 'err');
+                return;
+            }
+            if (row.connected) {
+                notepadAiSetConnStatus(row.label + ' · conectado' + (row.oauth_ready ? ' (OAuth)' : ''), 'ok');
+                if (loginBox) loginBox.classList.remove('open');
+            } else if (row.oauth_ready) {
+                notepadAiSetConnStatus(row.label + ' · inicia sesión OAuth', 'err');
+            } else if (row.configured) {
+                notepadAiSetConnStatus(row.label + ' · usa token / API key', 'err');
+                if (loginBox) loginBox.classList.add('open');
+            } else {
+                notepadAiSetConnStatus(row.label + ' · configura OAuth en el servidor o pega token', 'err');
+                if (loginBox) loginBox.classList.add('open');
+            }
+        }
+
+        async function notepadAiRefreshStatus() {
+            try {
+                const res = await fetch('/api/ai/status', { headers: notepadAiHeaders() });
+                const data = await res.json();
+                if (data && data.ok && Array.isArray(data.providers)) {
+                    notepadAiProviders = data.providers;
+                    notepadAiUpdateConnUi();
+                    return data;
+                }
+            } catch (e) {}
+            notepadAiSetConnStatus('no se pudo leer estado IA', 'err');
+            return null;
+        }
+
+        function toggleNotepadAiPanel(force) {
+            const panel = document.getElementById('notepadAiPanel');
+            const btn = document.getElementById('notepadAiToggleBtn');
+            if (!panel) return;
+            const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
+            panel.classList.toggle('open', open);
+            if (btn) {
+                btn.classList.toggle('active', open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+            if (open) notepadAiRefreshStatus();
+        }
+
+        function notepadGetSelectionContext() {
+            const editor = document.getElementById('notepadEditor');
+            if (!editor) return '';
+            try {
+                const sel = window.getSelection();
+                if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
+                    const selected = String(sel.toString() || '');
+                    if (selected.trim()) return selected;
+                }
+            } catch (e) {}
+            const text = editor.innerText || '';
+            return text.slice(0, 1200);
+        }
+
+        function notepadInsertAtSelection(content) {
+            const editor = document.getElementById('notepadEditor');
+            if (!editor) return false;
+            editor.focus();
+            const text = String(content || '');
+            let ok = false;
+            try {
+                ok = document.execCommand('insertText', false, text);
+            } catch (e) {
+                ok = false;
+            }
+            if (!ok) {
+                try {
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
+                        const range = sel.getRangeAt(0);
+                        range.deleteContents();
+                        range.insertNode(document.createTextNode(text));
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                        ok = true;
+                    } else {
+                        editor.appendChild(document.createTextNode(text));
+                        ok = true;
+                    }
+                } catch (e) {
+                    editor.textContent = (editor.textContent || '') + text;
+                    ok = true;
+                }
+            }
+            notepadMarkDirty();
+            notepadUpdateCounts();
+            return ok;
+        }
+
+        async function notepadAiStartOauth() {
+            const provider = notepadAiSelectedProvider();
+            notepadAiSetRunStatus('abriendo OAuth…');
+            try {
+                const res = await fetch('/api/ai/oauth/start', {
+                    method: 'POST',
+                    headers: notepadAiHeaders(),
+                    body: JSON.stringify({ provider: provider })
+                });
+                const data = await res.json();
+                if (data && data.ok && data.authorize_url) {
+                    const w = window.open(data.authorize_url, 'l8-ai-oauth', 'width=560,height=720');
+                    if (!w) {
+                        notepadAiSetRunStatus('permite ventanas emergentes para OAuth', 'err');
+                        const box = document.getElementById('notepadAiLoginBox');
+                        if (box) box.classList.add('open');
+                        return;
+                    }
+                    notepadAiSetRunStatus('completa el inicio de sesión en la ventana OAuth…');
+                    return;
+                }
+                if (data && data.allow_token_login) {
+                    const box = document.getElementById('notepadAiLoginBox');
+                    if (box) box.classList.add('open');
+                }
+                notepadAiSetRunStatus((data && data.error) || 'OAuth no disponible', 'err');
+            } catch (e) {
+                notepadAiSetRunStatus(e.message || String(e), 'err');
+            }
+        }
+
+        async function notepadAiSaveToken() {
+            const provider = notepadAiSelectedProvider();
+            const input = document.getElementById('notepadAiTokenInput');
+            const token = input ? input.value.trim() : '';
+            if (!token) {
+                notepadAiSetRunStatus('pega un access token o API key', 'err');
+                return;
+            }
+            try {
+                const res = await fetch('/api/ai/login', {
+                    method: 'POST',
+                    headers: notepadAiHeaders(),
+                    body: JSON.stringify({
+                        provider: provider,
+                        token: token,
+                        kind: /^sk-|^AIza|^sk-ant-|^manus/i.test(token) ? 'api_key' : 'access_token'
+                    })
+                });
+                const data = await res.json();
+                if (data && data.ok) {
+                    if (input) input.value = '';
+                    await notepadAiRefreshStatus();
+                    notepadAiSetRunStatus('sesión guardada en servidor', 'ok');
+                } else {
+                    notepadAiSetRunStatus((data && data.error) || 'no se pudo guardar', 'err');
+                }
+            } catch (e) {
+                notepadAiSetRunStatus(e.message || String(e), 'err');
+            }
+        }
+
+        async function notepadAiLogout() {
+            const provider = notepadAiSelectedProvider();
+            try {
+                await fetch('/api/ai/logout', {
+                    method: 'POST',
+                    headers: notepadAiHeaders(),
+                    body: JSON.stringify({ provider: provider })
+                });
+                await notepadAiRefreshStatus();
+                notepadAiSetRunStatus('sesión cerrada', 'ok');
+            } catch (e) {
+                notepadAiSetRunStatus(e.message || String(e), 'err');
+            }
+        }
+
+        async function notepadAiSend() {
+            if (notepadAiBusy) return;
+            const promptEl = document.getElementById('notepadAiPrompt');
+            const prompt = promptEl ? promptEl.value.trim() : '';
+            if (!prompt) {
+                notepadAiSetRunStatus('escribe qué contenido quieres insertar', 'err');
+                return;
+            }
+            const provider = notepadAiSelectedProvider();
+            notepadAiBusy = true;
+            const sendBtn = document.getElementById('notepadAiSendBtn');
+            if (sendBtn) sendBtn.disabled = true;
+            notepadAiSetRunStatus('generando con ' + provider + '…');
+            try {
+                const res = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: notepadAiHeaders(),
+                    body: JSON.stringify({
+                        provider: provider,
+                        prompt: prompt,
+                        context: notepadGetSelectionContext()
+                    })
+                });
+                const data = await res.json();
+                if (data && data.ok && typeof data.content === 'string') {
+                    notepadInsertAtSelection(data.content);
+                    if (promptEl) promptEl.value = '';
+                    notepadAiSetRunStatus('insertado · ' + (data.label || provider), 'ok');
+                } else {
+                    if (data && data.code === 'not_authenticated') {
+                        const box = document.getElementById('notepadAiLoginBox');
+                        if (box) box.classList.add('open');
+                    }
+                    notepadAiSetRunStatus((data && data.error) || 'falló la generación', 'err');
+                }
+            } catch (e) {
+                notepadAiSetRunStatus(e.message || String(e), 'err');
+            } finally {
+                notepadAiBusy = false;
+                if (sendBtn) sendBtn.disabled = false;
+            }
+        }
+
+        function initNotepadAiChat() {
+            const model = document.getElementById('notepadAiModel');
+            const oauthBtn = document.getElementById('notepadAiOauthBtn');
+            const logoutBtn = document.getElementById('notepadAiLogoutBtn');
+            const tokenBtn = document.getElementById('notepadAiTokenBtn');
+            const sendBtn = document.getElementById('notepadAiSendBtn');
+            const prompt = document.getElementById('notepadAiPrompt');
+            if (model) model.addEventListener('change', () => notepadAiUpdateConnUi());
+            if (oauthBtn) oauthBtn.addEventListener('click', () => notepadAiStartOauth());
+            if (logoutBtn) logoutBtn.addEventListener('click', () => notepadAiLogout());
+            if (tokenBtn) tokenBtn.addEventListener('click', () => notepadAiSaveToken());
+            if (sendBtn) sendBtn.addEventListener('click', () => notepadAiSend());
+            if (prompt) {
+                prompt.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        notepadAiSend();
+                    }
+                });
+            }
+            window.addEventListener('message', (ev) => {
+                const data = ev && ev.data;
+                if (!data || data.type !== 'l8-ai-oauth') return;
+                notepadAiRefreshStatus();
+                notepadAiSetRunStatus(data.ok ? 'OAuth completado' : 'OAuth falló', data.ok ? 'ok' : 'err');
+            });
+        }
+
         let notepadOcgBusy = false;
         let notepadOcgLoadPromise = null;
         let notepadOcgCatalogReady = false;
@@ -6720,6 +7296,8 @@
             if (!overlay || !editor) return;
             window.__l8NotepadReady = true;
             notepadLoadStore();
+            initNotepadAiChat();
+            initNotepadOcgTool();
 
             if (closeBtn) closeBtn.addEventListener('click', () => toggleNotepadEditor(false));
             overlay.addEventListener('click', (e) => {
@@ -6752,6 +7330,11 @@
                     const action = btn.getAttribute('data-action');
                     if (action === 'new') notepadCreate();
                     else if (action === 'delete') notepadDeleteActive();
+                    else if (action === 'ai-toggle') {
+                        toggleNotepadOcgPanel(false);
+                        toggleNotepadAiPanel();
+                    }
+                    else if (action === 'ocg-toggle') toggleNotepadOcgPanel();
                     else if (action === 'save') {
                         notepadFlushActiveFromDom();
                         notepadRenderList();
@@ -7401,383 +7984,6 @@
         connectSSE();
     </script>
 
-        /* ===== Chat IA (inserta contenido puro en la selección) ===== */
-        let notepadAiProviders = [];
-        let notepadAiBusy = false;
-
-        function notepadAiHeaders() {
-            const headers = { 'Content-Type': 'application/json' };
-            try {
-                const tok = (typeof window.l8GetAuthToken === 'function') ? window.l8GetAuthToken() : '';
-                if (tok) headers['Authorization'] = 'Bearer ' + tok;
-            } catch (e) {}
-            try {
-                const guest = localStorage.getItem('l8_tokens_guest') || '';
-                if (guest) headers['X-L8-Tokens-Guest'] = guest;
-            } catch (e) {}
-            return headers;
-        }
-
-        function notepadAiSelectedProvider() {
-            const sel = document.getElementById('notepadAiModel');
-            return sel ? sel.value : 'gpt-5.6';
-        }
-
-        function notepadAiSetConnStatus(text, kind) {
-            const el = document.getElementById('notepadAiConnStatus');
-            if (!el) return;
-            el.textContent = text || '';
-            el.classList.toggle('err', kind === 'err');
-            el.classList.toggle('ok', kind === 'ok');
-        }
-
-        function notepadAiSetRunStatus(text, kind) {
-            const el = document.getElementById('notepadAiRunStatus');
-            if (!el) return;
-            el.textContent = text || '';
-            el.classList.toggle('err', kind === 'err');
-            el.classList.toggle('ok', kind === 'ok');
-        }
-
-        function notepadAiUpdateConnUi() {
-            const id = notepadAiSelectedProvider();
-            const row = notepadAiProviders.find((p) => p.id === id);
-            const loginBox = document.getElementById('notepadAiLoginBox');
-            if (!row) {
-                notepadAiSetConnStatus('modelo no disponible', 'err');
-                return;
-            }
-            if (row.connected) {
-                notepadAiSetConnStatus(row.label + ' · conectado' + (row.oauth_ready ? ' (OAuth)' : ''), 'ok');
-                if (loginBox) loginBox.classList.remove('open');
-            } else if (row.oauth_ready) {
-                notepadAiSetConnStatus(row.label + ' · inicia sesión OAuth', 'err');
-            } else if (row.configured) {
-                notepadAiSetConnStatus(row.label + ' · usa token / API key', 'err');
-                if (loginBox) loginBox.classList.add('open');
-            } else {
-                notepadAiSetConnStatus(row.label + ' · configura OAuth en el servidor o pega token', 'err');
-                if (loginBox) loginBox.classList.add('open');
-            }
-        }
-
-        async function notepadAiRefreshStatus() {
-            try {
-                const res = await fetch('/api/ai/status', { headers: notepadAiHeaders() });
-                const data = await res.json();
-                if (data && data.ok && Array.isArray(data.providers)) {
-                    notepadAiProviders = data.providers;
-                    notepadAiUpdateConnUi();
-                    return data;
-                }
-            } catch (e) {}
-            notepadAiSetConnStatus('no se pudo leer estado IA', 'err');
-            return null;
-        }
-
-        function toggleNotepadAiPanel(force) {
-            const panel = document.getElementById('notepadAiPanel');
-            const btn = document.getElementById('notepadAiToggleBtn');
-            if (!panel) return;
-            const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
-            panel.classList.toggle('open', open);
-            if (btn) {
-                btn.classList.toggle('active', open);
-                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-            }
-            if (open) notepadAiRefreshStatus();
-        }
-
-        function notepadGetSelectionContext() {
-            const editor = document.getElementById('notepadEditor');
-            if (!editor) return '';
-            try {
-                const sel = window.getSelection();
-                if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
-                    const selected = String(sel.toString() || '');
-                    if (selected.trim()) return selected;
-                }
-            } catch (e) {}
-            const text = editor.innerText || '';
-            return text.slice(0, 1200);
-        }
-
-        function notepadInsertAtSelection(content) {
-            const editor = document.getElementById('notepadEditor');
-            if (!editor) return false;
-            editor.focus();
-            const text = String(content || '');
-            let ok = false;
-            try {
-                ok = document.execCommand('insertText', false, text);
-            } catch (e) {
-                ok = false;
-            }
-            if (!ok) {
-                try {
-                    const sel = window.getSelection();
-                    if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
-                        const range = sel.getRangeAt(0);
-                        range.deleteContents();
-                        range.insertNode(document.createTextNode(text));
-                        range.collapse(false);
-                        sel.removeAllRanges();
-                        sel.addRange(range);
-                        ok = true;
-                    } else {
-                        editor.appendChild(document.createTextNode(text));
-                        ok = true;
-                    }
-                } catch (e) {
-                    editor.textContent = (editor.textContent || '') + text;
-                    ok = true;
-                }
-            }
-            notepadMarkDirty();
-            notepadUpdateCounts();
-            return ok;
-        }
-
-        async function notepadAiStartOauth() {
-            const provider = notepadAiSelectedProvider();
-            notepadAiSetRunStatus('abriendo OAuth…');
-            try {
-                const res = await fetch('/api/ai/oauth/start', {
-                    method: 'POST',
-                    headers: notepadAiHeaders(),
-                    body: JSON.stringify({ provider: provider })
-                });
-                const data = await res.json();
-                if (data && data.ok && data.authorize_url) {
-                    const w = window.open(data.authorize_url, 'l8-ai-oauth', 'width=560,height=720');
-                    if (!w) {
-                        notepadAiSetRunStatus('permite ventanas emergentes para OAuth', 'err');
-                        const box = document.getElementById('notepadAiLoginBox');
-                        if (box) box.classList.add('open');
-                        return;
-                    }
-                    notepadAiSetRunStatus('completa el inicio de sesión en la ventana OAuth…');
-                    return;
-                }
-                if (data && data.allow_token_login) {
-                    const box = document.getElementById('notepadAiLoginBox');
-                    if (box) box.classList.add('open');
-                }
-                notepadAiSetRunStatus((data && data.error) || 'OAuth no disponible', 'err');
-            } catch (e) {
-                notepadAiSetRunStatus(e.message || String(e), 'err');
-            }
-        }
-
-        async function notepadAiSaveToken() {
-            const provider = notepadAiSelectedProvider();
-            const input = document.getElementById('notepadAiTokenInput');
-            const token = input ? input.value.trim() : '';
-            if (!token) {
-                notepadAiSetRunStatus('pega un access token o API key', 'err');
-                return;
-            }
-            try {
-                const res = await fetch('/api/ai/login', {
-                    method: 'POST',
-                    headers: notepadAiHeaders(),
-                    body: JSON.stringify({
-                        provider: provider,
-                        token: token,
-                        kind: /^sk-|^AIza|^sk-ant-|^manus/i.test(token) ? 'api_key' : 'access_token'
-                    })
-                });
-                const data = await res.json();
-                if (data && data.ok) {
-                    if (input) input.value = '';
-                    await notepadAiRefreshStatus();
-                    notepadAiSetRunStatus('sesión guardada en servidor', 'ok');
-                } else {
-                    notepadAiSetRunStatus((data && data.error) || 'no se pudo guardar', 'err');
-                }
-            } catch (e) {
-                notepadAiSetRunStatus(e.message || String(e), 'err');
-            }
-        }
-
-        async function notepadAiLogout() {
-            const provider = notepadAiSelectedProvider();
-            try {
-                await fetch('/api/ai/logout', {
-                    method: 'POST',
-                    headers: notepadAiHeaders(),
-                    body: JSON.stringify({ provider: provider })
-                });
-                await notepadAiRefreshStatus();
-                notepadAiSetRunStatus('sesión cerrada', 'ok');
-            } catch (e) {
-                notepadAiSetRunStatus(e.message || String(e), 'err');
-            }
-        }
-
-        async function notepadAiSend() {
-            if (notepadAiBusy) return;
-            const promptEl = document.getElementById('notepadAiPrompt');
-            const prompt = promptEl ? promptEl.value.trim() : '';
-            if (!prompt) {
-                notepadAiSetRunStatus('escribe qué contenido quieres insertar', 'err');
-                return;
-            }
-            const provider = notepadAiSelectedProvider();
-            notepadAiBusy = true;
-            const sendBtn = document.getElementById('notepadAiSendBtn');
-            if (sendBtn) sendBtn.disabled = true;
-            notepadAiSetRunStatus('generando con ' + provider + '…');
-            try {
-                const res = await fetch('/api/ai/chat', {
-                    method: 'POST',
-                    headers: notepadAiHeaders(),
-                    body: JSON.stringify({
-                        provider: provider,
-                        prompt: prompt,
-                        context: notepadGetSelectionContext()
-                    })
-                });
-                const data = await res.json();
-                if (data && data.ok && typeof data.content === 'string') {
-                    notepadInsertAtSelection(data.content);
-                    if (promptEl) promptEl.value = '';
-                    notepadAiSetRunStatus('insertado · ' + (data.label || provider), 'ok');
-                } else {
-                    if (data && data.code === 'not_authenticated') {
-                        const box = document.getElementById('notepadAiLoginBox');
-                        if (box) box.classList.add('open');
-                    }
-                    notepadAiSetRunStatus((data && data.error) || 'falló la generación', 'err');
-                }
-            } catch (e) {
-                notepadAiSetRunStatus(e.message || String(e), 'err');
-            } finally {
-                notepadAiBusy = false;
-                if (sendBtn) sendBtn.disabled = false;
-            }
-        }
-
-        function initNotepadAiChat() {
-            const model = document.getElementById('notepadAiModel');
-            const oauthBtn = document.getElementById('notepadAiOauthBtn');
-            const logoutBtn = document.getElementById('notepadAiLogoutBtn');
-            const tokenBtn = document.getElementById('notepadAiTokenBtn');
-            const sendBtn = document.getElementById('notepadAiSendBtn');
-            const prompt = document.getElementById('notepadAiPrompt');
-            if (model) model.addEventListener('change', () => notepadAiUpdateConnUi());
-            if (oauthBtn) oauthBtn.addEventListener('click', () => notepadAiStartOauth());
-            if (logoutBtn) logoutBtn.addEventListener('click', () => notepadAiLogout());
-            if (tokenBtn) tokenBtn.addEventListener('click', () => notepadAiSaveToken());
-            if (sendBtn) sendBtn.addEventListener('click', () => notepadAiSend());
-            if (prompt) {
-                prompt.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        notepadAiSend();
-                    }
-                });
-            }
-            window.addEventListener('message', (ev) => {
-                const data = ev && ev.data;
-                if (!data || data.type !== 'l8-ai-oauth') return;
-                notepadAiRefreshStatus();
-                notepadAiSetRunStatus(data.ok ? 'OAuth completado' : 'OAuth falló', data.ok ? 'ok' : 'err');
-            });
-        }
-
-        function initNotepadEditor() {
-            if (window.__l8NotepadReady) return;
-            const overlay = document.getElementById('notepadOverlay');
-            const editor = document.getElementById('notepadEditor');
-            const title = document.getElementById('notepadTitle');
-            const closeBtn = document.getElementById('notepadCloseBtn');
-            if (!overlay || !editor) return;
-            window.__l8NotepadReady = true;
-            notepadLoadStore();
-            initNotepadAiChat();
-            initNotepadOcgTool();
-
-            if (closeBtn) closeBtn.addEventListener('click', () => toggleNotepadEditor(false));
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) toggleNotepadEditor(false);
-            });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && overlay.classList.contains('open')) {
-                    toggleNotepadEditor(false);
-                }
-            });
-
-            editor.addEventListener('input', () => notepadMarkDirty());
-            if (title) {
-                title.addEventListener('input', () => {
-                    const note = notepadActive();
-                    if (note) note.title = title.value;
-                    notepadMarkDirty();
-                    notepadRenderList();
-                });
-            }
-
-            overlay.querySelectorAll('[data-cmd]').forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    notepadExec(btn.getAttribute('data-cmd'), btn.getAttribute('data-value'));
-                });
-            });
-
-            overlay.querySelectorAll('[data-action]').forEach((btn) => {
-                btn.addEventListener('click', async () => {
-                    const action = btn.getAttribute('data-action');
-                    if (action === 'new') notepadCreate();
-                    else if (action === 'delete') notepadDeleteActive();
-                    else if (action === 'ai-toggle') {
-                        toggleNotepadOcgPanel(false);
-                        toggleNotepadAiPanel();
-                    }
-                    else if (action === 'ocg-toggle') toggleNotepadOcgPanel();
-                    else if (action === 'save') {
-                        notepadFlushActiveFromDom();
-                        notepadRenderList();
-                        notepadPersist(true);
-                    } else if (action === 'copy') {
-                        try {
-                            await navigator.clipboard.writeText(editor.innerText || '');
-                            notepadSetStatusRight('copiado');
-                        } catch (e) {
-                            notepadSetStatusRight('no se pudo copiar');
-                        }
-                    } else if (action === 'download-md') notepadDownload('md');
-                    else if (action === 'download-html') notepadDownload('html');
-                    else if (action === 'download-txt') notepadDownload('txt');
-                    else if (action === 'find') {
-                        const bar = document.getElementById('notepadFindBar');
-                        if (bar) {
-                            bar.classList.add('open');
-                            const input = document.getElementById('notepadFindInput');
-                            if (input) input.focus();
-                        }
-                    } else if (action === 'find-next') notepadFindNext();
-                    else if (action === 'find-close') {
-                        const bar = document.getElementById('notepadFindBar');
-                        if (bar) bar.classList.remove('open');
-                    }
-                });
-            });
-
-            const findInput = document.getElementById('notepadFindInput');
-            if (findInput) {
-                findInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        notepadFindNext();
-                    }
-                });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', initNotepadEditor);
-
-        connectSSE();
-    </script>
 
 
 
@@ -7944,6 +8150,35 @@
     </div>
 
     </div><!-- /.platform-shell -->
+
+    <!-- Fly: negro, siempre en el centro del borde derecho -->
+    <aside
+        id="flyRail"
+        class="fly-rail"
+        aria-label="Fly"
+        style="position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:9990;display:flex;flex-direction:column;align-items:center;gap:12px;"
+    >
+        <button
+            type="button"
+            class="fly-handle"
+            id="flyHandleBtn"
+            title="Fly"
+            aria-label="Fly · mostrar u ocultar herramientas"
+            aria-expanded="false"
+            aria-controls="flyRailPanel"
+            style="background:#000;color:#fff;border:none;border-radius:16px 0 0 16px;padding:18px 18px 16px;min-width:64px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;"
+        >
+            <span class="fly-handle-label" style="color:#fff;font-weight:700;letter-spacing:0.1em;">Fly</span>
+            <span class="fly-handle-line" aria-hidden="true" style="display:block;width:34px;height:2px;background:#fff;border-radius:999px;"></span>
+        </button>
+        <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
+            <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="4" title="Herramienta 4" aria-label="Herramienta 4 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="5" title="Herramienta 5" aria-label="Herramienta 5 (próximamente)" disabled></button>
+        </nav>
+    </aside>
 
     <script>
         /* ===== AUTH GATE (registro / login) ===== */

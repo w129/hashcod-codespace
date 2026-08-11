@@ -769,141 +769,105 @@
             }
         }
 
-        /* ===== FLY RAIL (barra lateral ocultable) ===== */
-        .fly-rail {
-            --fly-ink: #ffffff;
-            --fly-line: #e8e8e8;
-            --fly-surface: #000000;
-            position: fixed;
-            z-index: 96;
-            display: flex;
+        /* ===== FLY RAIL — fijo, negro, centro del borde derecho ===== */
+        #flyRail.fly-rail {
+            position: fixed !important;
+            right: 0 !important;
+            left: auto !important;
+            top: 50% !important;
+            bottom: auto !important;
+            transform: translateY(-50%) !important;
+            z-index: 9990 !important;
+            display: flex !important;
             flex-direction: column;
             align-items: center;
             gap: 12px;
+            margin: 0;
+            padding: 0;
+            width: auto;
+            height: auto;
+            max-height: none;
+            opacity: 1 !important;
+            visibility: visible !important;
             pointer-events: none;
-            opacity: 1;
-            visibility: visible;
-            transition: top 280ms cubic-bezier(0.22, 1, 0.36, 1),
-                        bottom 280ms cubic-bezier(0.22, 1, 0.36, 1),
-                        transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
-                        opacity 200ms ease;
+            box-sizing: border-box;
         }
 
-        body.boot-locked .fly-rail,
-        body.auth-locked .fly-rail {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+        body.boot-locked #flyRail.fly-rail,
+        body.auth-locked #flyRail.fly-rail {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
         }
 
-        .fly-rail[data-edge="right"] {
-            right: 0;
-            left: auto;
-        }
-
-        .fly-rail[data-edge="left"] {
-            left: 0;
-            right: auto;
-        }
-
-        .fly-rail[data-corner="top"] {
-            top: max(72px, 8vh);
-            transform: none;
-        }
-
-        .fly-rail[data-corner="middle"] {
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .fly-rail[data-corner="bottom"] {
-            top: auto;
-            bottom: max(24px, 4vh);
-            transform: none;
-        }
-
-        .fly-handle {
+        #flyRail .fly-handle {
             pointer-events: auto;
             appearance: none;
-            border: 1px solid #000000;
+            -webkit-appearance: none;
+            border: none;
             margin: 0;
-            padding: 16px 16px 14px;
-            min-width: 58px;
-            background: #000000;
-            color: #ffffff;
+            padding: 18px 18px 16px;
+            min-width: 64px;
+            background: #000000 !important;
+            color: #ffffff !important;
             cursor: pointer;
-            display: flex;
+            display: flex !important;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: -4px 0 18px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.22);
-            transition: background 180ms ease, transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
-                        border-radius 220ms ease;
+            border-radius: 16px 0 0 16px;
+            box-shadow: -6px 0 22px rgba(0, 0, 0, 0.45);
+            transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), background 160ms ease;
         }
 
-        .fly-rail[data-edge="right"] .fly-handle {
-            border-radius: 14px 0 0 14px;
-            border-right: none;
+        #flyRail .fly-handle:hover {
+            background: #111111 !important;
         }
 
-        .fly-rail[data-edge="left"] .fly-handle {
-            border-radius: 0 14px 14px 0;
-            border-left: none;
-            box-shadow: 4px 0 18px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.22);
-        }
-
-        .fly-handle:hover {
-            background: #0a0a0a;
-        }
-
-        .fly-handle:focus-visible {
+        #flyRail .fly-handle:focus-visible {
             outline: 2px solid #ffffff;
             outline-offset: -3px;
         }
 
-        .fly-handle-label {
+        #flyRail .fly-handle-label {
             font-family: 'IBM Plex Mono', ui-monospace, monospace;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
             line-height: 1;
-            color: #ffffff;
+            color: #ffffff !important;
             user-select: none;
         }
 
-        .fly-handle-line {
+        #flyRail .fly-handle-line {
             display: block;
-            width: 32px;
+            width: 34px;
             height: 2px;
             border-radius: 999px;
-            background: #ffffff;
-            opacity: 0.85;
+            background: #ffffff !important;
         }
 
-        .fly-rail-panel {
+        #flyRail .fly-rail-panel {
             pointer-events: none;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 16px;
-            padding: 18px 11px;
-            background: #000000;
-            border: 1px solid #000000;
+            padding: 18px 12px;
+            margin: 0;
+            background: #000000 !important;
             border-radius: 999px;
-            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
             opacity: 0;
             visibility: hidden;
-            transform: translateX(18px) scale(0.96);
+            transform: translateX(20px) scale(0.96);
             transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
                         visibility 0s linear 240ms;
         }
 
-        .fly-rail[data-edge="left"] .fly-rail-panel {
-            transform: translateX(-18px) scale(0.96);
-        }
-
-        .fly-rail.is-open .fly-rail-panel {
+        #flyRail.is-open .fly-rail-panel {
             pointer-events: auto;
             opacity: 1;
             visibility: visible;
@@ -912,11 +876,11 @@
                         visibility 0s linear 0s;
         }
 
-        .fly-rail.is-open .fly-handle {
-            transform: translateY(-2px);
+        #flyRail.is-open .fly-handle {
+            transform: translateX(-2px);
         }
 
-        .fly-slot {
+        #flyRail .fly-slot {
             appearance: none;
             width: 28px;
             height: 28px;
@@ -935,17 +899,16 @@
             transition: transform 160ms ease, opacity 160ms ease;
         }
 
-        .fly-slot::before {
+        #flyRail .fly-slot::before {
             content: '';
             position: absolute;
             inset: 3px;
             border: 1.5px solid currentColor;
             border-radius: 50%;
-            opacity: 0.95;
             box-sizing: border-box;
         }
 
-        .fly-slot::after {
+        #flyRail .fly-slot::after {
             content: '';
             width: 4px;
             height: 4px;
@@ -955,31 +918,31 @@
             z-index: 1;
         }
 
-        .fly-slot:hover:not(:disabled) {
+        #flyRail .fly-slot:hover:not(:disabled) {
             transform: scale(1.08);
         }
 
-        .fly-slot:focus-visible {
+        #flyRail .fly-slot:focus-visible {
             outline: 2px solid #ffffff;
             outline-offset: 2px;
         }
 
-        .fly-slot:disabled {
+        #flyRail .fly-slot:disabled {
             cursor: default;
             opacity: 0.55;
         }
 
-        .fly-slot.is-ready {
+        #flyRail .fly-slot.is-ready {
             opacity: 1;
             cursor: pointer;
         }
 
-        .fly-slot.is-ready::after {
+        #flyRail .fly-slot.is-ready::after {
             display: none;
         }
 
-        .fly-slot img,
-        .fly-slot svg {
+        #flyRail .fly-slot img,
+        #flyRail .fly-slot svg {
             width: 14px;
             height: 14px;
             display: block;
@@ -987,27 +950,6 @@
             position: relative;
             z-index: 1;
             pointer-events: none;
-        }
-
-        @media (max-width: 720px) {
-            .fly-handle {
-                min-width: 46px;
-                padding: 12px 11px 10px;
-            }
-
-            .fly-handle-label {
-                font-size: 12px;
-            }
-
-            .fly-rail-panel {
-                padding: 14px 9px;
-                gap: 12px;
-            }
-
-            .fly-slot {
-                width: 26px;
-                height: 26px;
-            }
         }
 
         .hashcod-keys-overlay {
@@ -5838,41 +5780,24 @@
             }
         }
 
-        /* ===== FLY RAIL ===== */
+        /* ===== FLY RAIL (solo borde derecho, centro) ===== */
         const FLY_STORE_KEY = 'l8_fly_rail_v1';
 
-        function flyRailLoadPrefs() {
+        function flyRailLoadOpen() {
             try {
                 const raw = localStorage.getItem(FLY_STORE_KEY);
-                if (!raw) return { open: false, edge: 'right', corner: 'middle' };
+                if (!raw) return false;
                 const data = JSON.parse(raw);
-                return {
-                    open: !!data.open,
-                    edge: data.edge === 'left' ? 'left' : 'right',
-                    corner: (data.corner === 'top' || data.corner === 'bottom') ? data.corner : 'middle'
-                };
+                return !!(data && data.open);
             } catch (e) {
-                return { open: false, edge: 'right', corner: 'middle' };
+                return false;
             }
         }
 
-        function flyRailSavePrefs(prefs) {
+        function flyRailSaveOpen(open) {
             try {
-                localStorage.setItem(FLY_STORE_KEY, JSON.stringify(prefs));
+                localStorage.setItem(FLY_STORE_KEY, JSON.stringify({ open: !!open, edge: 'right', corner: 'middle' }));
             } catch (e) {}
-        }
-
-        function flyRailGetState() {
-            const rail = document.getElementById('flyRail');
-            if (!rail) return flyRailLoadPrefs();
-            return {
-                open: rail.classList.contains('is-open'),
-                edge: rail.getAttribute('data-edge') === 'left' ? 'left' : 'right',
-                corner: (function () {
-                    const c = rail.getAttribute('data-corner');
-                    return (c === 'top' || c === 'bottom') ? c : 'middle';
-                })()
-            };
         }
 
         function setFlyRailOpen(open) {
@@ -5883,9 +5808,16 @@
             rail.classList.toggle('is-open', !!open);
             handle.setAttribute('aria-expanded', open ? 'true' : 'false');
             panel.setAttribute('aria-hidden', open ? 'false' : 'true');
-            const prefs = flyRailGetState();
-            prefs.open = !!open;
-            flyRailSavePrefs(prefs);
+            // Mantener siempre centro-derecha aunque el panel abra/cierre
+            rail.style.position = 'fixed';
+            rail.style.right = '0';
+            rail.style.left = 'auto';
+            rail.style.top = '50%';
+            rail.style.bottom = 'auto';
+            rail.style.transform = 'translateY(-50%)';
+            rail.style.zIndex = '9990';
+            rail.style.display = 'flex';
+            flyRailSaveOpen(!!open);
         }
 
         function toggleFlyRail(force) {
@@ -5895,33 +5827,9 @@
             setFlyRailOpen(next);
         }
 
-        function setFlyRailCorner(edge, corner) {
-            const rail = document.getElementById('flyRail');
-            if (!rail) return;
-            const e = edge === 'left' ? 'left' : 'right';
-            const c = (corner === 'top' || corner === 'bottom') ? corner : 'middle';
-            rail.setAttribute('data-edge', e);
-            rail.setAttribute('data-corner', c);
-            const prefs = flyRailGetState();
-            prefs.edge = e;
-            prefs.corner = c;
-            flyRailSavePrefs(prefs);
-        }
-
-        function cycleFlyRailCorner() {
-            const prefs = flyRailGetState();
-            const order = [
-                ['right', 'top'],
-                ['right', 'middle'],
-                ['right', 'bottom'],
-                ['left', 'top'],
-                ['left', 'middle'],
-                ['left', 'bottom']
-            ];
-            let idx = order.findIndex((p) => p[0] === prefs.edge && p[1] === prefs.corner);
-            if (idx < 0) idx = 1;
-            const next = order[(idx + 1) % order.length];
-            setFlyRailCorner(next[0], next[1]);
+        function setFlyRailCorner() {
+            // Fijo: centro del lateral derecho
+            setFlyRailOpen(document.getElementById('flyRail')?.classList.contains('is-open'));
         }
 
         function bindFlySlot(slotEl, handler) {
@@ -5948,17 +5856,13 @@
             const rail = document.getElementById('flyRail');
             const handle = document.getElementById('flyHandleBtn');
             if (!rail || !handle) return;
-            const prefs = flyRailLoadPrefs();
-            rail.setAttribute('data-edge', prefs.edge);
-            rail.setAttribute('data-corner', prefs.corner);
-            setFlyRailOpen(!!prefs.open);
 
-            handle.addEventListener('click', function () {
-                toggleFlyRail();
-            });
-            handle.addEventListener('dblclick', function (ev) {
+            setFlyRailOpen(flyRailLoadOpen());
+
+            handle.addEventListener('click', function (ev) {
                 ev.preventDefault();
-                cycleFlyRailCorner();
+                ev.stopPropagation();
+                toggleFlyRail();
             });
 
             document.addEventListener('keydown', function (ev) {
@@ -5967,7 +5871,6 @@
                 }
             });
 
-            // Clic fuera cierra el panel; el handle Fly sigue visible
             document.addEventListener('pointerdown', function (ev) {
                 if (!rail.classList.contains('is-open')) return;
                 if (rail.contains(ev.target)) return;
@@ -5975,7 +5878,11 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', initFlyRail);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initFlyRail);
+        } else {
+            initFlyRail();
+        }
 
         const HASHCOD_KEYS_STORE = 'l8_hashcod_keys_v1';
         let hashcodKeysCache = [];
@@ -8247,13 +8154,12 @@
 
     </div><!-- /.platform-shell -->
 
-    <!-- Fly rail: negro, fijo al borde; solo se oculta en boot/auth -->
+    <!-- Fly: negro, siempre en el centro del borde derecho -->
     <aside
         id="flyRail"
         class="fly-rail"
-        data-edge="right"
-        data-corner="middle"
         aria-label="Fly"
+        style="position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:9990;display:flex;flex-direction:column;align-items:center;gap:12px;"
     >
         <button
             type="button"
@@ -8263,9 +8169,10 @@
             aria-label="Fly · mostrar u ocultar herramientas"
             aria-expanded="false"
             aria-controls="flyRailPanel"
+            style="background:#000;color:#fff;border:none;border-radius:16px 0 0 16px;padding:18px 18px 16px;min-width:64px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;"
         >
-            <span class="fly-handle-label">Fly</span>
-            <span class="fly-handle-line" aria-hidden="true"></span>
+            <span class="fly-handle-label" style="color:#fff;font-weight:700;letter-spacing:0.1em;">Fly</span>
+            <span class="fly-handle-line" aria-hidden="true" style="display:block;width:34px;height:2px;background:#fff;border-radius:999px;"></span>
         </button>
         <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
             <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>

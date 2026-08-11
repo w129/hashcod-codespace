@@ -75,6 +75,12 @@ if (file_exists($filePath) && !is_dir($filePath)) {
         readfile($filePath);
         exit;
     }
+    if ($ext === 'wasm') {
+        header('Content-Type: application/wasm');
+        header('Cache-Control: public, max-age=86400');
+        readfile($filePath);
+        exit;
+    }
     if ($ext === 'json') {
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: public, max-age=300');

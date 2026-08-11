@@ -1007,6 +1007,142 @@
             color: #fff;
         }
 
+        .toolkit-tool-btn[data-tool="pdf-md"] {
+            background: #111;
+            color: #fff;
+        }
+
+        .toolkit-tool-btn[data-tool="pdf-md"]:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        .toolkit-pdf-main {
+            display: grid;
+            grid-template-columns: minmax(240px, 34%) 1fr;
+            min-height: 0;
+            flex: 1;
+        }
+
+        .toolkit-pdf-side {
+            border-right: 1px solid #d0d0d0;
+            padding: 14px;
+            overflow: auto;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toolkit-pdf-drop {
+            border: 1.5px dashed #888;
+            background: #fff;
+            padding: 22px 14px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #333;
+            user-select: none;
+        }
+
+        .toolkit-pdf-drop:hover,
+        .toolkit-pdf-drop.dragging {
+            border-color: #111;
+            background: #f3f3f3;
+        }
+
+        .toolkit-pdf-drop strong {
+            display: block;
+            color: #111;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .toolkit-pdf-file {
+            font-size: 11px;
+            color: #444;
+            word-break: break-all;
+        }
+
+        .toolkit-pdf-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .toolkit-pdf-actions button {
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 11px;
+            border: 1px solid #111;
+            background: #fff;
+            color: #111;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .toolkit-pdf-actions button:hover:not(:disabled) {
+            background: #111;
+            color: #fff;
+        }
+
+        .toolkit-pdf-actions button:disabled {
+            opacity: 0.45;
+            cursor: default;
+        }
+
+        .toolkit-pdf-status {
+            font-size: 11px;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .toolkit-pdf-status.ok { color: #1a7f37; }
+        .toolkit-pdf-status.err { color: #c5221f; }
+
+        .toolkit-pdf-view {
+            min-height: 0;
+            overflow: auto;
+            padding: 14px 16px 18px;
+            background: #fff;
+        }
+
+        .toolkit-pdf-meta {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .toolkit-pdf-output {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #111;
+            margin: 0 0 16px;
+            padding: 12px;
+            background: #f7f7f7;
+            border: 1px solid #e2e2e2;
+        }
+
+        .toolkit-pdf-html.toolkit-md {
+            font-size: 13px;
+            line-height: 1.55;
+            color: #222;
+        }
+
+        @media (max-width: 820px) {
+            .toolkit-pdf-main {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+            .toolkit-pdf-side {
+                border-right: none;
+                border-bottom: 1px solid #d0d0d0;
+            }
+        }
+
         /* ===== Bloc de notas / super editor (en plataforma) ===== */
         .notepad-overlay {
             display: none;
@@ -2964,6 +3100,8 @@
             </div>
         </div>
     </div>
+
+    <script src="/toolkit/pdf-inspector/toolkit-pdf-md.js?v=1"></script>
 
     <script>
         let latestExecutionData = null;
@@ -5719,6 +5857,7 @@
             });
             return toolkitEngineeringMarkedReady;
         }
+        window.toolkitEnsureMarked = toolkitEnsureMarked;
 
         function toolkitStripFrontmatter(md) {
             const text = String(md || '');
@@ -5898,18 +6037,31 @@
             };
         }
 
+        function toolkitBuiltinPdfMdTool() {
+            return {
+                id: 'pdf-md',
+                title: 'PDF → Markdown',
+                iconHtml: (typeof toolkitPdfIconHtml === 'function'
+                    ? toolkitPdfIconHtml()
+                    : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" aria-hidden="true"><path d="M15 2 L35 48 L8 32 Z"/></svg>'),
+                onClick: function () {
+                    if (typeof openToolkitPdfMd === 'function') openToolkitPdfMd();
+                }
+            };
+        }
+
         const TOOLKIT_FICHAS_DEFAULT = [
             {
                 id: 'platform',
                 title: 'l8 codespace',
                 icon: '/favicon.svg?v=3',
-                tools: [toolkitBuiltinEngineeringTool()]
+                tools: [toolkitBuiltinEngineeringTool(), toolkitBuiltinPdfMdTool()]
             },
             {
                 id: 'workspace',
                 title: 'workspace',
                 icon: '/favicon.svg?v=3',
-                tools: [toolkitBuiltinEngineeringTool()]
+                tools: [toolkitBuiltinEngineeringTool(), toolkitBuiltinPdfMdTool()]
             }
         ];
 
@@ -5935,15 +6087,21 @@
 
         function toolkitEnsureEngineeringTool(ficha) {
             const tools = Array.isArray(ficha.tools) ? ficha.tools.slice() : [];
-            if (!tools.some((t) => t && t.id === 'engineering')) {
-                tools.unshift(toolkitBuiltinEngineeringTool());
-            } else {
-                // refrescar icono/handler por si la ficha venía de un estado viejo
-                tools.forEach((t, i) => {
-                    if (t && t.id === 'engineering') tools[i] = toolkitBuiltinEngineeringTool();
-                });
-            }
-            return Object.assign({}, ficha, { tools: tools });
+            const byId = {};
+            tools.forEach((t) => {
+                if (t && t.id) byId[t.id] = t;
+            });
+            byId.engineering = toolkitBuiltinEngineeringTool();
+            byId['pdf-md'] = toolkitBuiltinPdfMdTool();
+            const ordered = [];
+            ['engineering', 'pdf-md'].forEach((id) => {
+                if (byId[id]) {
+                    ordered.push(byId[id]);
+                    delete byId[id];
+                }
+            });
+            Object.keys(byId).forEach((id) => ordered.push(byId[id]));
+            return Object.assign({}, ficha, { tools: ordered });
         }
 
         function toolkitRebuildFichas() {
@@ -6046,6 +6204,7 @@
                 toolkitRenderBoard();
             }
         }
+        window.toolkitLogUse = toolkitLogUse;
 
         function toolkitCurateFile(fichaId, file) {
             const fid = String(fichaId || (toolkitFichas[0] && toolkitFichas[0].id) || 'platform');
@@ -6067,6 +6226,7 @@
             }
             return true;
         }
+        window.toolkitCurateFile = toolkitCurateFile;
 
         function toolkitRemoveFicha(fichaId) {
             const fid = String(fichaId || '');
@@ -6257,15 +6417,20 @@
                 removeFicha: toolkitRemoveFicha,
                 fichas: toolkitFichas,
                 render: toolkitRenderBoard,
-                openEngineering: openToolkitEngineering
+                openEngineering: openToolkitEngineering,
+                openPdfMd: typeof openToolkitPdfMd === 'function' ? openToolkitPdfMd : function () {}
             };
         }
 
         document.addEventListener('DOMContentLoaded', initToolkit);
         document.addEventListener('DOMContentLoaded', initToolkitEngineering);
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof initToolkitPdfMd === 'function') initToolkitPdfMd();
+        });
 
         connectSSE();
     </script>
+
 
 
 
@@ -6280,6 +6445,40 @@
                 <aside class="toolkit-agent-list" id="toolkitEngineeringList" aria-label="Agentes de ingeniería"></aside>
                 <div class="toolkit-agent-view" id="toolkitEngineeringView">
                     <div class="md-status">Elige un agente del foro para verlo en markdown.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toolkit-agent-overlay" id="toolkitPdfOverlay" aria-hidden="true">
+        <div class="toolkit-agent-shell" role="dialog" aria-modal="true" aria-labelledby="toolkitPdfBrand">
+            <div class="toolkit-agent-top">
+                <div class="toolkit-agent-brand" id="toolkitPdfBrand">= / pdf → markdown</div>
+                <div class="toolkit-agent-sub" id="toolkitPdfSub">pdf-inspector · conversión local (WASM)</div>
+                <button type="button" class="toolkit-agent-close" id="toolkitPdfCloseBtn" title="Cerrar">Cerrar</button>
+            </div>
+            <div class="toolkit-pdf-main">
+                <aside class="toolkit-pdf-side" aria-label="Cargar PDF">
+                    <div class="toolkit-pdf-drop" id="toolkitPdfDrop" role="button" tabindex="0" aria-label="Elegir o soltar PDF">
+                        <strong>Arrastra un PDF aquí</strong>
+                        o haz clic para elegir · máx. 25 MB
+                    </div>
+                    <input type="file" id="toolkitPdfInput" accept="application/pdf,.pdf" hidden>
+                    <div class="toolkit-pdf-file" id="toolkitPdfFileInfo" hidden></div>
+                    <div class="toolkit-pdf-actions">
+                        <button type="button" id="toolkitPdfClearBtn">Limpiar</button>
+                        <button type="button" id="toolkitPdfCopyBtn" disabled>Copiar MD</button>
+                        <button type="button" id="toolkitPdfDownloadBtn" disabled>Descargar .md</button>
+                    </div>
+                    <div class="toolkit-pdf-status" id="toolkitPdfStatus">Elige un PDF para convertirlo a Markdown (local, pdf-inspector).</div>
+                </aside>
+                <div class="toolkit-pdf-view" id="toolkitPdfView">
+                    <div class="md-status" id="toolkitPdfEmpty">El markdown aparecerá aquí tras convertir el PDF.</div>
+                    <div id="toolkitPdfPreview" hidden>
+                        <div class="toolkit-pdf-meta" id="toolkitPdfMeta"></div>
+                        <pre class="toolkit-pdf-output" id="toolkitPdfOutput"></pre>
+                        <div class="toolkit-pdf-html toolkit-md" id="toolkitPdfHtml"></div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -2,17 +2,17 @@
 // api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub, Supabase y Navegador de Código por Carpetas
 ini_set('memory_limit', '1024M'); // 1GB Memory Limit
 set_time_limit(300); // 5 Minutos para grandes cargas
+@ini_set('display_errors', '0');
+@ini_set('expose_php', '0');
 
 require_once __DIR__ . '/supabase.php';
+require_once __DIR__ . '/security.php';
 loadEnvFile();
+securityBootstrap('api');
 
 if (!ob_start("ob_gzhandler")) {
     ob_start();
 }
-
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: *');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -3712,12 +3712,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/api/gateway/download/
     exit;
 }
 
-// Endpoint SSH directo para consultar la clave pública de la plataforma
+// Endpoint SSH: solo sesión autenticada; sin rutas de disco ni hostname
 if ($uri === '/api/ssh/key') {
     header('Content-Type: application/json; charset=utf-8');
+    $token = function_exists('authBearerTokenFromRequest') ? authBearerTokenFromRequest() : '';
+    $sess = ($token !== '' && function_exists('authValidateSession')) ? authValidateSession($token) : ['ok' => false];
+    if (empty($sess['ok'])) {
+        http_response_code(401);
+        echo json_encode(['ok' => false, 'error' => 'Unauthorized'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    if (!securityRateAllow('ssh_key', 10, 60)) {
+        securityRateDenyJson(60);
+    }
     $force = isset($_GET['regenerate']) && $_GET['regenerate'] === '1';
+    if ($force && !securityAdminAuthorized()) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'Forbidden'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
     $sshInfo = getOrGenerateSshKey($force);
-    echo json_encode($sshInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        'ok' => true,
+        'public_key' => $sshInfo['public_key'] ?? ($sshInfo['pubkey'] ?? null),
+        'fingerprint' => $sshInfo['fingerprint'] ?? null,
+        'type' => 'ed25519'
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -4233,9 +4253,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/cli/blackhole' || $
     exit;
 }
 
-// Diagnóstico seguro de variables de entorno (sin exponer secretos)
+// Diagnóstico de entorno: solo con L8_ADMIN_DIAG_SECRET
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri === '/api/envcheck')) {
     header('Content-Type: application/json; charset=utf-8');
+    if (!securityAdminAuthorized()) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'error' => 'Not found'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
     $probe = function_exists('envProbeKeys') ? envProbeKeys([
         'SUPABASE_URL',
         'SUPABASE_PUBLISHABLE_KEY',
@@ -4251,11 +4276,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri 
         'ok' => true,
         'supabase_configured' => !empty($cfg['configured']),
         'storage_bucket' => $cfg['bucket'] ?? null,
-        'probe' => $probe,
-        'hint' => empty($cfg['configured'])
-            ? 'PHP no ve SUPABASE_URL / keys. En Render: Environment → verifica el servicio correcto → Manual Deploy (Clear build cache).'
-            : 'Supabase env detectado.'
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        'probe' => $probe
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -4521,11 +4543,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'type' => 'SSH_KEY_DISPLAY',
             'command' => 'ssh_key',
             'key_type' => 'Ed25519',
-            'comment' => $sshInfo['comment'],
-            'server_hostname' => $sshInfo['server_hostname'],
-            'public_key' => $sshInfo['public_key'],
-            'key_path' => $sshInfo['key_path'],
-            'github_test_output' => $sshInfo['ssh_output']
+            'public_key' => $sshInfo['public_key'] ?? null
         ];
     } else if ($isSupabase) {
         $outputResult = supabaseHealthCheck();
@@ -4629,30 +4647,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     } else if ($lowerCmd === 'status' || $lowerCmd === 'browsers') {
         $browser = scanRealBrowsers($BROWSER_NAMES);
         $sb = supabaseHealthCheck();
-        $outputResult = array_merge($browser, [
+        $outputResult = [
+            'type' => 'STATUS',
+            'ok' => true,
+            'browsers_running' => !empty($browser['running']) ? count((array)$browser['running']) : 0,
             'supabase' => [
                 'connected' => !empty($sb['connected']),
-                'url' => $sb['url'] ?? '',
-                'has_publishable' => !empty($sb['has_publishable']),
-                'has_secret' => !empty($sb['has_secret']),
-                'message' => $sb['message'] ?? ($sb['error'] ?? '')
+                'storage_ready' => !empty($sb['storage_ready']),
+                'db_ready' => !empty($sb['db_ready'])
             ]
-        ]);
+        ];
     } else if ($lowerCmd === 'ping') {
-        $sb = supabaseConfig();
         $outputResult = [
             'pong' => true,
-            'time' => $timestamp,
-            'crypto' => 'Dilithium 5 Ready',
-            'ssh' => 'Ed25519 Ready',
-            'supabase' => $sb['configured'] ? 'configured' : 'missing_env'
+            'time' => $timestamp
         ];
     } else if ($lowerCmd === 'bigdata') {
         $outputResult = [
-            'bigdata_ready' => true,
-            'crypto_algorithm' => 'Dilithium 5',
-            'super_database' => 'WAL_MODE_ACTIVE',
-            'compression' => 'GZIP_ENABLED'
+            'bigdata_ready' => true
         ];
     }
 
@@ -4668,15 +4680,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     exit;
 }
 
-// Información de estado predeterminada
+// Ruta API desconocida — sin fingerprint del stack
 header('Content-Type: application/json; charset=utf-8');
-$browserState = scanRealBrowsers($BROWSER_NAMES);
-$sshInfo = getOrGenerateSshKey();
+http_response_code(404);
 echo json_encode([
-    'server' => 'PHP 8.1 Super Database Engine',
-    'crypto' => 'CRYSTALS-Dilithium Level 5 Post-Quantum Algorithm',
-    'ssh_key_type' => 'Ed25519 (' . $sshInfo['comment'] . ')',
-    'stored_repositories' => count(getStoredRepositories()),
-    'browserState' => $browserState,
-    'registeredCommands' => array_keys($REGISTERED_COMMANDS)
-], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    'ok' => false,
+    'error' => 'Not found'
+], JSON_UNESCAPED_UNICODE);

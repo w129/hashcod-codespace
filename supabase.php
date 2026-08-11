@@ -526,57 +526,26 @@ function supabaseBootstrapPlatformData($storageDir) {
 
 function supabaseHealthCheck() {
     $cfg = supabaseConfig();
-    $probe = envProbeKeys([
-        'SUPABASE_URL',
-        'SUPABASE_PUBLISHABLE_KEY',
-        'SUPABASE_SECRET_KEY',
-        'SUPABASE_ANON_KEY',
-        'SUPABASE_SERVICE_ROLE_KEY',
-        'SUPABASE_STORAGE_BUCKET',
-        'GITHUB_TOKEN',
-        'GH_TOKEN'
-    ]);
-
     if (!$cfg['configured']) {
         return [
             'type' => 'SUPABASE_STATUS',
             'ok' => false,
             'connected' => false,
-            'url' => $cfg['url'],
-            'has_publishable' => $cfg['publishable_key'] !== '',
-            'has_secret' => $cfg['secret_key'] !== '',
-            'storage_bucket' => $cfg['bucket'],
             'storage_ready' => false,
-            'error' => 'Variables de entorno no configuradas (PHP no las ve en el contenedor). Revisa Render → Environment y haz Manual Deploy.',
-            'env_probe' => $probe,
-            'auth_health' => null
+            'db_ready' => false
         ];
     }
 
     $res = supabaseRequest('auth/v1/health', ['use_secret' => false]);
     $bucket = supabaseEnsureBucket();
     $connected = !empty($res['ok']);
-    $session = supabaseLoadPlatformState();
     $dbProbe = supabaseDbSelect('l8_repos', 'select=id&limit=1');
     $dbReady = !empty($dbProbe['ok']);
     return [
         'type' => 'SUPABASE_STATUS',
         'ok' => $connected,
         'connected' => $connected,
-        'url' => $cfg['url'],
-        'has_publishable' => $cfg['publishable_key'] !== '',
-        'has_secret' => $cfg['secret_key'] !== '',
-        'storage_bucket' => $cfg['bucket'],
         'storage_ready' => !empty($bucket['ok']),
-        'db_ready' => $dbReady,
-        'session_persisted' => !empty($session['ok']),
-        'http_status' => $res['status'],
-        'error' => $res['error'],
-        'auth_health' => $res['body'],
-        'env_probe' => $probe,
-        'message' => $connected
-            ? ('Supabase conectado · Storage: ' . $cfg['bucket'] . (!empty($bucket['ok']) ? ' listo' : ' no disponible')
-                . ($dbReady ? ' · DB lista' : ' · DB opcional (ejecuta supabase/schema.sql)'))
-            : ('Fallo de conexión: ' . ($res['error'] ?: 'HTTP ' . $res['status']))
+        'db_ready' => $dbReady
     ];
 }

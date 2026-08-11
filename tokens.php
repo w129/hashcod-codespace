@@ -1050,6 +1050,12 @@ function tokensHandleApi($uri) {
     }
 
     if (($uri === '/api/tokens/unlock' || $uri === '/api/tokens/dilithium-unlock') && $method === 'POST') {
+        if (!function_exists('securityRateAllow')) {
+            require_once __DIR__ . '/security.php';
+        }
+        if (!securityRateAllow('tokens_unlock', 8, 60)) {
+            securityRateDenyJson(60);
+        }
         $raw = file_get_contents('php://input');
         $input = json_decode($raw, true) ?? [];
         $area = $input['area'] ?? $input['area_id'] ?? $input['id'] ?? '';

@@ -46,6 +46,88 @@ function tokensCostToolkit() {
     return 1000;
 }
 
+/** Áreas de la plataforma que pueden recibir tokens extra vía Dilithium-5. */
+function tokensUnlockAreas() {
+    return [
+        [
+            'id' => 'commands',
+            'title' => 'Comandos / celda (=)',
+            'amount' => 2000,
+            'icon' => 'cmd'
+        ],
+        [
+            'id' => 'external',
+            'title' => 'Ventanas externas',
+            'amount' => 1500,
+            'icon' => 'ext'
+        ],
+        [
+            'id' => 'clone',
+            'title' => 'Clones GitHub',
+            'amount' => 2500,
+            'icon' => 'clone'
+        ],
+        [
+            'id' => 'toolkit',
+            'title' => 'Toolkit + Notas',
+            'amount' => 2000,
+            'icon' => 'kit'
+        ]
+    ];
+}
+
+/**
+ * Semilla solo servidor (nunca se expone al cliente).
+ * Preferir L8_TOKENS_UNLOCK_SEED; si no, semilla de plataforma.
+ */
+function tokensUnlockMasterSecret() {
+    if (function_exists('envValue')) {
+        $env = envValue('L8_TOKENS_UNLOCK_SEED', '');
+        if ($env !== '') return $env;
+    }
+    $g = getenv('L8_TOKENS_UNLOCK_SEED');
+    if (is_string($g) && $g !== '') return $g;
+    return 'l8-dilithium5-unlock-seed-v1-blackhole-platform';
+}
+
+/** Clave Dilithium-5 para el uso N (1-based). Cambia tras cada desbloqueo exitoso. */
+function tokensUnlockCodeForUse($useNumber) {
+    $n = max(1, (int)$useNumber);
+    $material = 'l8|tokens-unlock|dilithium5|x' . $n;
+    $raw = hash_hmac('sha3-512', $material, tokensUnlockMasterSecret());
+    return 'dilithium5_' . substr($raw, 0, 40);
+}
+
+function tokensCountUnlockUses(array $acct) {
+    $n = 0;
+    foreach ((isset($acct['ledger']) && is_array($acct['ledger'])) ? $acct['ledger'] : [] as $row) {
+        if (!is_array($row)) continue;
+        if (($row['kind'] ?? '') === 'unlock') $n++;
+    }
+    return $n;
+}
+
+function tokensUnlockPublicInfo(array $acct) {
+    $uses = tokensCountUnlockUses($acct);
+    $next = $uses + 1;
+    $areas = [];
+    foreach (tokensUnlockAreas() as $area) {
+        $areas[] = [
+            'id' => $area['id'],
+            'title' => $area['title'],
+            'amount' => (int)$area['amount'],
+            'icon' => $area['icon']
+        ];
+    }
+    return [
+        'uses' => $uses,
+        'next_use' => $next,
+        'next_label' => 'x' . $next,
+        'used_label' => $uses > 0 ? ('x' . $uses) : 'x0',
+        'areas' => $areas
+    ];
+}
+
 function tokensLedgerMax() {
     return 500; // por cuenta, en el JSON local/remoto
 }
@@ -100,6 +182,7 @@ function tokensEmptyAccount($accountKey) {
         'clones' => 0,
         'notepads' => 0,
         'toolkits' => 0,
+        'bonus' => 0,
         'periods' => [],
         'ledger' => [],
         'updated_at' => date('c')
@@ -195,7 +278,7 @@ function tokensNormalizeAccount($accountKey, $acct) {
     if (isset($acct['periods']) && is_array($acct['periods'])) {
         foreach ($acct['periods'] as $p => $bucket) {
             $p = (string)$p;
-            if ($p === '') continue;
+            if ($p === '' || $p === '_meta') continue;
             $periods[$p] = tokensNormalizePeriodBucket($bucket, $p);
         }
     }
@@ -234,6 +317,12 @@ function tokensNormalizeAccount($accountKey, $acct) {
     }
 
     $ledger = tokensMergeLedgers($acct['ledger'] ?? [], []);
+    $bonus = max(0, (int)($acct['bonus'] ?? 0));
+    // Meta persistida dentro de periods en DB/storage antiguos
+    if (isset($periods['_meta']) && is_array($periods['_meta'])) {
+        $bonus = max($bonus, (int)($periods['_meta']['bonus'] ?? 0));
+        unset($periods['_meta']);
+    }
 
     return [
         'account_key' => $accountKey,
@@ -245,6 +334,7 @@ function tokensNormalizeAccount($accountKey, $acct) {
         'clones' => $current['clones'],
         'notepads' => $current['notepads'],
         'toolkits' => $current['toolkits'],
+        'bonus' => $bonus,
         'periods' => $periods,
         'ledger' => $ledger,
         'updated_at' => $current['updated_at']
@@ -258,6 +348,8 @@ function tokensMergeAccounts($a, $b) {
 
     $periods = [];
     foreach (array_unique(array_merge(array_keys($a['periods']), array_keys($b['periods']))) as $p) {
+        $p = (string)$p;
+        if ($p === '' || $p === '_meta') continue;
         $periods[$p] = tokensMergePeriodBuckets($a['periods'][$p] ?? null, $b['periods'][$p] ?? null);
     }
 
@@ -283,6 +375,7 @@ function tokensMergeAccounts($a, $b) {
         'clones' => $current['clones'],
         'notepads' => $current['notepads'],
         'toolkits' => $current['toolkits'],
+        'bonus' => max((int)($a['bonus'] ?? 0), (int)($b['bonus'] ?? 0)),
         'periods' => $periods,
         'ledger' => tokensMergeLedgers($a['ledger'], $b['ledger']),
         'updated_at' => strcmp((string)$a['updated_at'], (string)$b['updated_at']) >= 0 ? $a['updated_at'] : $b['updated_at']
@@ -406,6 +499,8 @@ function tokensPushStoreToDb(array $store) {
     $now = date('c');
     foreach ($store['accounts'] as $key => $acct) {
         $acct = tokensNormalizeAccount($key, $acct);
+        $periodsOut = is_array($acct['periods']) ? $acct['periods'] : [];
+        $periodsOut['_meta'] = ['bonus' => (int)($acct['bonus'] ?? 0)];
         $accountRows[] = [
             'account_key' => $acct['account_key'],
             'current_period' => $acct['period'],
@@ -416,7 +511,7 @@ function tokensPushStoreToDb(array $store) {
             'clones' => $acct['clones'],
             'notepads' => $acct['notepads'],
             'toolkits' => $acct['toolkits'],
-            'periods' => $acct['periods'],
+            'periods' => $periodsOut,
             'updated_at' => $now
         ];
         foreach ($acct['ledger'] as $row) {
@@ -702,8 +797,9 @@ function tokensStatusForKey($accountKey, $includeHistory = true) {
 
     $used = (int)$acct['used'];
     $allowance = (int)$acct['allowance'];
-    $remaining = max(0, $allowance - $used);
-    $pctUsed = $allowance > 0 ? min(100, round(($used / $allowance) * 100, 2)) : 0;
+    $bonus = max(0, (int)($acct['bonus'] ?? 0));
+    $remaining = max(0, $allowance + $bonus - $used);
+    $pctUsed = ($allowance + $bonus) > 0 ? min(100, round(($used / ($allowance + $bonus)) * 100, 2)) : 0;
 
     $history = [];
     if ($includeHistory) {
@@ -732,6 +828,7 @@ function tokensStatusForKey($accountKey, $includeHistory = true) {
         'account_key' => $accountKey,
         'period' => $acct['period'],
         'allowance' => $allowance,
+        'bonus' => $bonus,
         'used' => $used,
         'remaining' => $remaining,
         'percent_used' => $pctUsed,
@@ -747,6 +844,7 @@ function tokensStatusForKey($accountKey, $includeHistory = true) {
             'notepad' => tokensCostNotepad(),
             'toolkit' => tokensCostToolkit()
         ],
+        'unlock' => tokensUnlockPublicInfo($acct),
         'history' => $history,
         'ledger' => $ledger,
         'persistent' => true,
@@ -785,7 +883,7 @@ function tokensConsume($kind, $detail = '') {
     $store = tokensLoadStore(false);
     $acct = tokensNormalizeAccount($accountKey, $store['accounts'][$accountKey] ?? null);
     $acct = tokensArchiveIfNeeded($acct);
-    $remaining = max(0, (int)$acct['allowance'] - (int)$acct['used']);
+    $remaining = max(0, (int)$acct['allowance'] + (int)($acct['bonus'] ?? 0) - (int)$acct['used']);
 
     if ($remaining < $cost) {
         $store['accounts'][$accountKey] = $acct;
@@ -828,6 +926,72 @@ function tokensConsume($kind, $detail = '') {
         'kind' => $kind,
         'entry' => $entry,
         'status' => tokensStatusForKey($accountKey)
+    ];
+}
+
+function tokensUnlock($areaId, $code) {
+    $areaId = strtolower(trim((string)$areaId));
+    $code = trim((string)$code);
+    $area = null;
+    foreach (tokensUnlockAreas() as $row) {
+        if ($row['id'] === $areaId) {
+            $area = $row;
+            break;
+        }
+    }
+    if (!$area) {
+        return ['ok' => false, 'error' => 'Área desconocida', 'code' => 'bad_area'];
+    }
+    if ($code === '') {
+        return ['ok' => false, 'error' => 'Introduce la clave Dilithium-5', 'code' => 'missing_code'];
+    }
+
+    $accountKey = tokensResolveAccountKey();
+    $store = tokensLoadStore(false);
+    $acct = tokensNormalizeAccount($accountKey, $store['accounts'][$accountKey] ?? null);
+    $acct = tokensArchiveIfNeeded($acct);
+
+    $uses = tokensCountUnlockUses($acct);
+    $nextUse = $uses + 1;
+    $expected = tokensUnlockCodeForUse($nextUse);
+    if (!hash_equals($expected, $code)) {
+        return [
+            'ok' => false,
+            'error' => 'Clave Dilithium-5 incorrecta para el uso ' . ('x' . $nextUse),
+            'code' => 'bad_dilithium',
+            'unlock' => tokensUnlockPublicInfo($acct),
+            'status' => tokensStatusForKey($accountKey)
+        ];
+    }
+
+    $grant = (int)$area['amount'];
+    $acct['bonus'] = max(0, (int)($acct['bonus'] ?? 0)) + $grant;
+    $acct['updated_at'] = date('c');
+
+    $entry = [
+        'id' => 'tx_' . bin2hex(random_bytes(8)),
+        'account_key' => $accountKey,
+        'period' => $acct['period'],
+        'kind' => 'unlock',
+        'cost' => 0,
+        'detail' => substr('+' . $grant . ' · ' . $area['title'] . ' · x' . $nextUse, 0, 240),
+        'created_at' => date('c')
+    ];
+    $acct['ledger'] = tokensMergeLedgers([$entry], $acct['ledger'] ?? []);
+    $store['accounts'][$accountKey] = $acct;
+    tokensSaveStore($store, 'defer');
+
+    $status = tokensStatusForKey($accountKey);
+    return [
+        'ok' => true,
+        'granted' => $grant,
+        'area' => $area['id'],
+        'area_title' => $area['title'],
+        'use' => $nextUse,
+        'use_label' => 'x' . $nextUse,
+        'entry' => $entry,
+        'unlock' => $status['unlock'] ?? tokensUnlockPublicInfo($acct),
+        'status' => $status
     ];
 }
 
@@ -882,6 +1046,29 @@ function tokensHandleApi($uri) {
             http_response_code(402);
         }
         echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if (($uri === '/api/tokens/unlock' || $uri === '/api/tokens/dilithium-unlock') && $method === 'POST') {
+        $raw = file_get_contents('php://input');
+        $input = json_decode($raw, true) ?? [];
+        $area = $input['area'] ?? $input['area_id'] ?? $input['id'] ?? '';
+        $code = $input['code'] ?? $input['dilithium5'] ?? $input['key'] ?? $input['dilithium'] ?? '';
+        $result = tokensUnlock($area, $code);
+        if (empty($result['ok'])) {
+            http_response_code(403);
+        }
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if (($uri === '/api/tokens/unlock' || $uri === '/api/tokens/unlock/areas') && $method === 'GET') {
+        $status = tokensStatus();
+        echo json_encode([
+            'ok' => true,
+            'unlock' => $status['unlock'] ?? tokensUnlockPublicInfo([]),
+            'status' => $status
+        ], JSON_UNESCAPED_UNICODE);
         return true;
     }
 

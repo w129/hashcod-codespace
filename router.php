@@ -75,6 +75,18 @@ if (file_exists($filePath) && !is_dir($filePath)) {
         readfile($filePath);
         exit;
     }
+    if ($ext === 'json') {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: public, max-age=300');
+        readfile($filePath);
+        exit;
+    }
+    if ($ext === 'md' || $ext === 'markdown') {
+        header('Content-Type: text/markdown; charset=utf-8');
+        header('Cache-Control: public, max-age=300');
+        readfile($filePath);
+        exit;
+    }
     if ($ext === 'svg') {
         header('Content-Type: image/svg+xml; charset=utf-8');
         header('Cache-Control: public, max-age=3600');

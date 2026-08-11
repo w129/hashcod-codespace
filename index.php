@@ -769,20 +769,20 @@
             }
         }
 
-        /* ===== FLY: ancla única en el borde derecho (barrita = misma posición que la ventana) ===== */
+        /* ===== FLY: franja derecha a pantalla completa; barrita y ventana en el mismo centro ===== */
         #flyRail.fly-rail {
             position: fixed !important;
+            top: 0 !important;
             right: 0 !important;
+            bottom: 0 !important;
             left: auto !important;
-            top: 50% !important;
-            bottom: auto !important;
-            transform: translateY(-50%) !important;
+            transform: none !important;
             z-index: 9990 !important;
             display: block !important;
             margin: 0 !important;
             padding: 0 !important;
             width: 0 !important;
-            height: 0 !important;
+            height: auto !important;
             overflow: visible !important;
             opacity: 1 !important;
             visibility: visible !important;
@@ -797,7 +797,7 @@
             pointer-events: none !important;
         }
 
-        /* Barrita pegada al borde derecho (mismo ancla que el panel) */
+        /* Barrita negra (pill) pegada al borde derecho, centro vertical = ventana */
         #flyRail .fly-handle {
             pointer-events: auto;
             appearance: none;
@@ -809,6 +809,7 @@
             right: 0 !important;
             top: 50% !important;
             left: auto !important;
+            bottom: auto !important;
             transform: translateY(-50%);
             width: 6px !important;
             height: 72px !important;
@@ -818,18 +819,17 @@
             color: transparent;
             cursor: pointer;
             display: block !important;
-            border-radius: 999px 0 0 999px;
+            border-radius: 999px;
             box-shadow: none;
             transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
             z-index: 2;
         }
 
-        /* Área táctil más amplia hacia la izquierda, sin mover la barrita */
         #flyRail .fly-handle::after {
             content: '';
             position: absolute;
-            top: -12px;
-            bottom: -12px;
+            top: -14px;
+            bottom: -14px;
             right: 0;
             width: 28px;
         }
@@ -853,7 +853,6 @@
             display: none !important;
         }
 
-        /* Al abrir: barrita se guarda; ventana/barra en el mismo borde derecho + centro */
         #flyRail.is-open .fly-handle {
             opacity: 0;
             visibility: hidden;
@@ -861,13 +860,16 @@
             transform: translateY(-50%) scaleY(0.5);
         }
 
+        /* Ventana/barra: misma ancla right:0 + top:50% que la barrita */
         #flyRail .fly-rail-panel {
             pointer-events: none;
             position: absolute !important;
             right: 0 !important;
             top: 50% !important;
             left: auto !important;
+            bottom: auto !important;
             transform: translateY(-50%) scale(0.96);
+            transform-origin: right center;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -875,7 +877,7 @@
             padding: 18px 12px;
             margin: 0;
             background: #000000 !important;
-            border-radius: 999px 0 0 999px;
+            border-radius: 999px;
             box-shadow: -8px 0 28px rgba(0, 0, 0, 0.28);
             opacity: 0;
             visibility: hidden;
@@ -883,7 +885,6 @@
                         visibility 0s linear 240ms;
             z-index: 1;
             box-sizing: border-box;
-            transform-origin: right center;
         }
 
         #flyRail.is-open .fly-rail-panel {
@@ -5826,15 +5827,15 @@
             handle.setAttribute('aria-label', isOpen ? 'Cerrar barra Fly' : 'Abrir barra Fly');
             panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
             rail.style.position = 'fixed';
+            rail.style.top = '0';
             rail.style.right = '0';
+            rail.style.bottom = '0';
             rail.style.left = 'auto';
-            rail.style.top = '50%';
-            rail.style.bottom = 'auto';
-            rail.style.transform = 'translateY(-50%)';
+            rail.style.transform = 'none';
             rail.style.zIndex = '9990';
             rail.style.display = 'block';
             rail.style.width = '0';
-            rail.style.height = '0';
+            rail.style.height = 'auto';
             rail.style.margin = '0';
             rail.style.padding = '0';
             flyRailSaveOpen(isOpen);
@@ -8182,7 +8183,7 @@
         id="flyRail"
         class="fly-rail"
         aria-label="Fly"
-        style="position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:9990;display:block;width:0;height:0;margin:0;padding:0;overflow:visible;"
+        style="position:fixed;top:0;right:0;bottom:0;left:auto;z-index:9990;display:block;width:0;margin:0;padding:0;overflow:visible;"
     >
         <button
             type="button"
@@ -8192,7 +8193,7 @@
             aria-label="Abrir barra Fly"
             aria-expanded="false"
             aria-controls="flyRailPanel"
-            style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#000;border:none;border-radius:999px 0 0 999px;padding:0;cursor:pointer;display:block;"
+            style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#000;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
         ></button>
         <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
             <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>

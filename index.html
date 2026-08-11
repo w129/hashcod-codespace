@@ -4571,9 +4571,9 @@
                 hasExecutedCommand = true;
                 lastCommandText = cmd;
                 executionContainer.innerHTML = `
-                    <div style="padding:14px; background:#faf9f6; border:1px solid #e6e3dd; border-radius:8px; font-weight:600; color:#000000; display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono', monospace;">
-                        <svg style="animation: spin 1s linear infinite; width:20px; height:20px; fill:#000000;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
-                        <span>Procesando comando en el servidor... Por favor espera unos segundos...</span>
+                    <div style="padding:8px 10px; background:#faf9f6; border:1px solid #e6e3dd; border-radius:8px; font-weight:600; color:#000000; display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:12px;">
+                        <svg style="animation: spin 0.7s linear infinite; width:16px; height:16px; fill:#000000; flex-shrink:0;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+                        <span>Procesando…</span>
                     </div>
                 `;
                 const res = await fetch('/api/command', {

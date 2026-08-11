@@ -526,7 +526,7 @@ function tokensLoadStore($forceRemote = true) {
     return $store;
 }
 
-function tokensSaveStore(array $store) {
+function tokensSaveStore(array $store, $pushRemote = true) {
     $merged = tokensEmptyStore();
     foreach (($store['accounts'] ?? []) as $key => $acct) {
         $merged['accounts'][(string)$key] = tokensNormalizeAccount((string)$key, $acct);
@@ -537,15 +537,54 @@ function tokensSaveStore(array $store) {
     @file_put_contents(tokensStorePath(), json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     tokensStoreCache('set', $merged);
 
+    if ($pushRemote === 'defer') {
+        tokensScheduleRemotePush($merged);
+        return true;
+    }
+
+    if ($pushRemote) {
+        tokensPushStoreRemote($merged);
+    }
+
+    return true;
+}
+
+function tokensPushStoreRemote(array $store) {
     if (function_exists('supabaseConfig') && function_exists('supabaseStorageUploadJson')) {
         $cfg = supabaseConfig();
         if (!empty($cfg['configured'])) {
-            @supabaseStorageUploadJson('meta/tokens_usage.json', $merged);
+            @supabaseStorageUploadJson('meta/tokens_usage.json', $store);
         }
     }
-    @tokensPushStoreToDb($merged);
-
+    @tokensPushStoreToDb($store);
     return true;
+}
+
+/** Empuja a Supabase después de responder al cliente (la UI no espera la red). */
+function tokensScheduleRemotePush(array $store) {
+    static $queued = null;
+    static $registered = false;
+    $queued = $store;
+    if ($registered) {
+        return;
+    }
+    $registered = true;
+    register_shutdown_function(function () use (&$queued) {
+        if (!is_array($queued)) {
+            return;
+        }
+        $payload = $queued;
+        $queued = null;
+        if (function_exists('fastcgi_finish_request')) {
+            @fastcgi_finish_request();
+        } else {
+            while (ob_get_level() > 0) {
+                @ob_end_flush();
+            }
+            @flush();
+        }
+        @tokensPushStoreRemote($payload);
+    });
 }
 
 function tokensEnsureHydrated() {
@@ -742,14 +781,15 @@ function tokensConsume($kind, $detail = '') {
     }
 
     $accountKey = tokensResolveAccountKey();
-    $store = tokensLoadStore(true); // merge remoto antes de cobrar
+    // Local-first: no bloquear el comando esperando merge remoto (Storage/DB).
+    $store = tokensLoadStore(false);
     $acct = tokensNormalizeAccount($accountKey, $store['accounts'][$accountKey] ?? null);
     $acct = tokensArchiveIfNeeded($acct);
     $remaining = max(0, (int)$acct['allowance'] - (int)$acct['used']);
 
     if ($remaining < $cost) {
         $store['accounts'][$accountKey] = $acct;
-        tokensSaveStore($store);
+        tokensSaveStore($store, 'defer');
         return [
             'ok' => false,
             'error' => 'Tokens insuficientes para este mes. Cupo: ' . number_format((int)$acct['allowance']) . ' · Restantes: ' . number_format($remaining) . ' · Necesarios: ' . $cost,
@@ -779,7 +819,8 @@ function tokensConsume($kind, $detail = '') {
     $acct['ledger'] = tokensMergeLedgers([$entry], $acct['ledger'] ?? []);
 
     $store['accounts'][$accountKey] = $acct;
-    tokensSaveStore($store);
+    // Guarda en disco ya; Supabase se sincroniza al cerrar la request.
+    tokensSaveStore($store, 'defer');
 
     return [
         'ok' => true,

@@ -4385,7 +4385,6 @@ if ($uri === '/api/stream') {
 
 // Procesador de Comandos
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri === '/cmd')) {
-    maybeBootstrapPlatformData();
     header('Content-Type: application/json; charset=utf-8');
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true) ?? [];
@@ -4422,8 +4421,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'command' => $rawCmd,
             'timestamp' => $timestamp,
             'error' => "Your command does not exist...."
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        ], JSON_UNESCAPED_UNICODE);
         exit;
+    }
+
+    // Bootstrap pesado solo cuando el comando toca catálogo/repos/archivos
+    if ($isClone || $isSave || $isRepos || $isSetICode || $isSupabase) {
+        maybeBootstrapPlatformData();
     }
 
     // Cupo mensual: comando −5 · clone GitHub −625 (persistente + ledger)
@@ -4656,7 +4660,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         'lastCommand' => $rawCmd,
         'output' => $outputResult,
         'tokens' => $tokenStatus
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

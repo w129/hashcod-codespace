@@ -236,6 +236,7 @@
         .icon-ubuntu-cli,
         .icon-claude-cli,
         .icon-zylon-cli,
+        .icon-toolkit,
         .icon-notepad {
             height: 22px;
             width: 22px;
@@ -266,6 +267,7 @@
         .icon-claude-cli img,
         .icon-zylon-cli svg,
         .icon-zylon-cli img,
+        .icon-toolkit svg,
         .icon-notepad svg {
             height: 20px;
             width: 20px;
@@ -308,6 +310,7 @@
         .icon-ubuntu-cli:hover,
         .icon-claude-cli:hover,
         .icon-zylon-cli:hover,
+        .icon-toolkit:hover,
         .icon-notepad:hover {
             opacity: 0.75;
         }
@@ -336,6 +339,362 @@
             max-width: min(170px, 46vw);
             object-fit: contain;
             background: transparent;
+        }
+
+
+        .icon-toolkit {
+            height: 22px;
+            width: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111111;
+            background: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+
+        .icon-toolkit svg {
+            height: 20px;
+            width: 20px;
+            display: block;
+            fill: currentColor;
+        }
+
+        .icon-toolkit:hover {
+            opacity: 0.75;
+        }
+
+        /* ===== Toolkit / fichas de herramientas ===== */
+        .toolkit-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 82;
+            background: rgba(20, 20, 20, 0.28);
+            align-items: stretch;
+            justify-content: center;
+            padding: 28px 16px 16px;
+        }
+
+        .toolkit-overlay.open {
+            display: flex;
+        }
+
+        .toolkit-shell {
+            width: min(1080px, 100%);
+            height: min(780px, calc(100vh - 44px));
+            background: #f6f6f6;
+            border: 1px solid #cccccc;
+            border-radius: 2px;
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            color: #111;
+        }
+
+        .toolkit-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: #e5e5e5;
+            border-bottom: 1px solid #d0d0d0;
+            flex-shrink: 0;
+        }
+
+        .toolkit-brand {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        .toolkit-sub {
+            flex: 1;
+            font-size: 11px;
+            color: #666;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .toolkit-close {
+            border: 1px solid #bbbbbb;
+            background: #f0f0f0;
+            color: #111;
+            font: inherit;
+            font-size: 12px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+
+        .toolkit-close:hover {
+            background: #e4e4e4;
+        }
+
+        .toolkit-board {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background:
+                linear-gradient(180deg, #fafafa 0%, #f3f3f3 100%);
+        }
+
+        .toolkit-ficha {
+            display: grid;
+            grid-template-columns: minmax(84px, 110px) minmax(0, 1fr) minmax(0, 1fr);
+            grid-template-rows: minmax(140px, 1fr) 78px;
+            min-height: 230px;
+            background: #ffffff;
+            border: 2.5px solid #111111;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+        }
+
+        .toolkit-ficha-icon {
+            grid-column: 1;
+            grid-row: 1 / span 2;
+            border-right: 2.5px solid #111111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 10px;
+            background: #f7f7f7;
+        }
+
+        .toolkit-ficha-icon img,
+        .toolkit-ficha-icon svg.platform {
+            width: 44px;
+            height: 44px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .toolkit-ficha-icon .ficha-mark {
+            font-size: 10px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.25;
+            color: #222;
+            max-width: 90px;
+            word-break: break-word;
+        }
+
+        .toolkit-ficha-history {
+            grid-column: 2;
+            grid-row: 1;
+            border-right: 2.5px solid #111111;
+            border-bottom: 2.5px solid #111111;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .toolkit-ficha-files {
+            grid-column: 3;
+            grid-row: 1;
+            border-bottom: 2.5px solid #111111;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .toolkit-ficha-tools {
+            grid-column: 2 / span 2;
+            grid-row: 2;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            overflow-x: auto;
+            background: #fafafa;
+        }
+
+        .toolkit-pane-head {
+            flex-shrink: 0;
+            padding: 7px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #555;
+            border-bottom: 1px solid #e2e2e2;
+            background: #f3f3f3;
+        }
+
+        .toolkit-pane-body {
+            flex: 1;
+            overflow: auto;
+            padding: 8px;
+            min-height: 0;
+        }
+
+        .toolkit-history-list,
+        .toolkit-files-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .toolkit-history-list li {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: baseline;
+            padding: 6px 8px;
+            border: 1px solid #e8e8e8;
+            background: #fcfcfc;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .toolkit-history-list li strong {
+            font-weight: 600;
+            color: #111;
+        }
+
+        .toolkit-history-list li .when {
+            color: #777;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .toolkit-files-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+            gap: 6px;
+        }
+
+        .toolkit-file {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 8px;
+            border: 1px solid #e5e5e5;
+            background: #fcfcfc;
+            min-width: 0;
+            cursor: default;
+        }
+
+        .toolkit-file .file-ico {
+            width: 18px;
+            height: 18px;
+            flex: 0 0 auto;
+            color: #111;
+        }
+
+        .toolkit-file .file-ico svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+            fill: currentColor;
+        }
+
+        .toolkit-file .file-name {
+            font-size: 11px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .toolkit-empty {
+            font-size: 11px;
+            color: #888;
+            padding: 10px 6px;
+            line-height: 1.4;
+        }
+
+        .toolkit-tool-btn {
+            width: 40px;
+            height: 40px;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #111;
+            background: #ffffff;
+            color: #111;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .toolkit-tool-btn svg,
+        .toolkit-tool-btn img {
+            width: 20px;
+            height: 20px;
+            display: block;
+            fill: currentColor;
+            object-fit: contain;
+        }
+
+        .toolkit-tool-btn:hover:not(:disabled) {
+            background: #111;
+            color: #fff;
+        }
+
+        .toolkit-tool-btn:hover:not(:disabled) img {
+            filter: invert(1);
+        }
+
+        .toolkit-tool-btn:disabled,
+        .toolkit-tool-slot {
+            opacity: 0.35;
+            cursor: default;
+            border-style: dashed;
+            background: #f5f5f5;
+        }
+
+        .toolkit-tool-slot {
+            width: 40px;
+            height: 40px;
+            flex: 0 0 auto;
+            border: 1.5px dashed #888;
+            background: #f5f5f5;
+        }
+
+        @media (max-width: 720px) {
+            .toolkit-ficha {
+                grid-template-columns: 72px 1fr;
+                grid-template-rows: auto auto auto;
+                min-height: 0;
+            }
+            .toolkit-ficha-icon {
+                grid-column: 1;
+                grid-row: 1 / span 3;
+            }
+            .toolkit-ficha-history {
+                grid-column: 2;
+                grid-row: 1;
+                border-right: none;
+                min-height: 120px;
+            }
+            .toolkit-ficha-files {
+                grid-column: 2;
+                grid-row: 2;
+                border-right: none;
+                min-height: 120px;
+            }
+            .toolkit-ficha-tools {
+                grid-column: 2;
+                grid-row: 3;
+            }
         }
 
         /* ===== Bloc de notas / super editor (en plataforma) ===== */
@@ -2142,6 +2501,11 @@
             <button type="button" class="icon-notepad" id="notepadOpenBtn" title="Bloc de notas" aria-label="Abrir bloc de notas" aria-expanded="false" aria-controls="notepadOverlay" onclick="toggleNotepadEditor()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
                     <path d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 19 C 3 20.105 3.895 21 5 21 L 15 21 L 21 15 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 5 5 L 19 5 L 19 14 L 14 14 L 14 19 L 5 19 L 5 5 z M 7 7 L 7 9 L 17 9 L 17 7 L 7 7 z M 7 11 L 7 13 L 12 13 L 12 11 L 7 11 z"></path>
+                </svg>
+            </button>
+            <button type="button" class="icon-toolkit" id="toolkitOpenBtn" title="Toolkit" aria-label="Abrir toolkit" aria-expanded="false" aria-controls="toolkitOverlay" onclick="toggleToolkit()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                    <path d="M 12 1.3203125 L 11.470703 1.6523438 L 3 6.9453125 L 3 21 L 7 21 L 17 21 L 21 21 L 21 6.9453125 L 12 1.3203125 z M 12 3.6777344 L 19 8.0546875 L 19 19 L 17 19 L 17 15 L 17 13 L 17 9 L 9 9 L 9 10 L 9 13 L 7 13 L 7 14 L 7 19 L 5 19 L 5 8.0546875 L 12 3.6777344 z M 11 11 L 15 11 L 15 13 L 13 13 L 11 13 L 11 11 z M 9 15 L 11 15 L 11 19 L 9 19 L 9 15 z M 13 15 L 15 15 L 15 19 L 13 19 L 13 15 z"></path>
                 </svg>
             </button>
             <span class="hashcod-created-by" title="Created by Hashcod" aria-label="Created by Hashcod">
@@ -5006,8 +5370,264 @@
 
         document.addEventListener('DOMContentLoaded', initNotepadEditor);
 
+
+        /* ===== Toolkit (fichas) ===== */
+        const TOOLKIT_STORE_KEY = 'l8_toolkit_v1';
+        const TOOLKIT_SLOT_COUNT = 6;
+
+        /** Registro de fichas. tools[] se irá llenando cuando indiques las herramientas. */
+        const TOOLKIT_FICHAS = [
+            {
+                id: 'platform',
+                title: 'l8 codespace',
+                icon: '/favicon.svg?v=3',
+                tools: []
+            },
+            {
+                id: 'workspace',
+                title: 'workspace',
+                icon: '/favicon.svg?v=3',
+                tools: []
+            }
+        ];
+
+        let toolkitStore = { history: {}, files: {} };
+
+        function toolkitNow() {
+            return new Date().toISOString();
+        }
+
+        function toolkitFormatWhen(iso) {
+            if (!iso) return '—';
+            try {
+                const d = new Date(iso);
+                if (Number.isNaN(d.getTime())) return String(iso);
+                const pad = (n) => String(n).padStart(2, '0');
+                return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+                    ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            } catch (e) {
+                return String(iso);
+            }
+        }
+
+        function toolkitLoadStore() {
+            try {
+                const raw = localStorage.getItem(TOOLKIT_STORE_KEY);
+                if (!raw) {
+                    toolkitStore = { history: {}, files: {} };
+                    return;
+                }
+                const data = JSON.parse(raw);
+                toolkitStore = {
+                    history: (data && typeof data.history === 'object' && data.history) ? data.history : {},
+                    files: (data && typeof data.files === 'object' && data.files) ? data.files : {}
+                };
+            } catch (e) {
+                toolkitStore = { history: {}, files: {} };
+            }
+        }
+
+        function toolkitPersist() {
+            try {
+                localStorage.setItem(TOOLKIT_STORE_KEY, JSON.stringify(toolkitStore));
+            } catch (e) {}
+        }
+
+        function toolkitFileIconSvg(kind) {
+            const k = String(kind || '').toLowerCase();
+            if (k === 'md' || k === 'markdown') {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3V5zm2 2v10h14V7H5zm2 2h2.2l1.3 3.2L12 9h2v6h-1.6V11l-1.5 3.4h-.8L8.6 11V15H7V9zm8 0h1.5l2 3.2V9H20v6h-1.5l-2-3.2V15H15V9z"/></svg>';
+            }
+            if (k === 'html' || k === 'htm') {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>';
+            }
+            if (k === 'zip' || k === 'pack') {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h5l5 5v15H8V2zm2 2v2h2V4h-2zm0 4v2h2V8h-2zm0 4v2h2v-2h-2zm3-8.5V8h4.5L13 3.5z"/></svg>';
+            }
+            if (k === 'json' || k === 'js' || k === 'ts' || k === 'code') {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 7L4 12l4.5 5 1.4-1.3L6.7 12l3.2-3.7L8.5 7zm7 0l-1.4 1.3L17.3 12l-3.2 3.7 1.4 1.3L20 12l-4.5-5z"/></svg>';
+            }
+            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6V2zm2 2v16h10V8h-4V4H8zm6 0v2h2l-2-2z"/></svg>';
+        }
+
+        function toolkitLogUse(fichaId, toolId, label) {
+            const fid = String(fichaId || 'platform');
+            if (!toolkitStore.history[fid]) toolkitStore.history[fid] = [];
+            toolkitStore.history[fid].unshift({
+                id: 'h_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+                toolId: String(toolId || 'toolkit'),
+                label: String(label || toolId || 'Uso'),
+                at: toolkitNow()
+            });
+            if (toolkitStore.history[fid].length > 80) {
+                toolkitStore.history[fid] = toolkitStore.history[fid].slice(0, 80);
+            }
+            toolkitPersist();
+            const board = document.getElementById('toolkitBoard');
+            if (board && document.getElementById('toolkitOverlay')?.classList.contains('open')) {
+                toolkitRenderBoard();
+            }
+        }
+
+        function toolkitCurateFile(fichaId, file) {
+            const fid = String(fichaId || 'platform');
+            if (!file || !file.name) return false;
+            if (!toolkitStore.files[fid]) toolkitStore.files[fid] = [];
+            toolkitStore.files[fid].unshift({
+                id: 'f_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+                name: String(file.name).slice(0, 120),
+                kind: String(file.kind || file.ext || 'txt').slice(0, 24),
+                at: toolkitNow(),
+                meta: file.meta || null
+            });
+            if (toolkitStore.files[fid].length > 60) {
+                toolkitStore.files[fid] = toolkitStore.files[fid].slice(0, 60);
+            }
+            toolkitPersist();
+            if (document.getElementById('toolkitOverlay')?.classList.contains('open')) {
+                toolkitRenderBoard();
+            }
+            return true;
+        }
+
+        function toolkitRenderFicha(ficha) {
+            const history = toolkitStore.history[ficha.id] || [];
+            const files = toolkitStore.files[ficha.id] || [];
+            const tools = Array.isArray(ficha.tools) ? ficha.tools : [];
+
+            let historyHtml;
+            if (!history.length) {
+                historyHtml = '<div class="toolkit-empty">Sin usos aún. El historial aparecerá aquí con fecha al usar las herramientas de esta ficha.</div>';
+            } else {
+                historyHtml = '<ul class="toolkit-history-list">' + history.slice(0, 24).map((row) => {
+                    return '<li><strong>' + String(row.label || row.toolId || 'Uso').replace(/</g, '&lt;') +
+                        '</strong><span class="when">' + toolkitFormatWhen(row.at) + '</span></li>';
+                }).join('') + '</ul>';
+            }
+
+            let filesHtml;
+            if (!files.length) {
+                filesHtml = '<div class="toolkit-empty">Sin archivos curados. Aquí se listarán con el icono del tipo de archivo.</div>';
+            } else {
+                filesHtml = '<div class="toolkit-files-list">' + files.slice(0, 24).map((file) => {
+                    return '<div class="toolkit-file" title="' + String(file.name).replace(/"/g, '&quot;') + '">' +
+                        '<span class="file-ico">' + toolkitFileIconSvg(file.kind) + '</span>' +
+                        '<span class="file-name">' + String(file.name).replace(/</g, '&lt;') + '</span></div>';
+                }).join('') + '</div>';
+            }
+
+            let toolsHtml = '';
+            tools.forEach((tool) => {
+                const title = String(tool.title || tool.id || 'Herramienta').replace(/"/g, '&quot;');
+                const icon = tool.iconHtml
+                    ? tool.iconHtml
+                    : (tool.icon
+                        ? '<img src="' + String(tool.icon).replace(/"/g, '&quot;') + '" alt="">'
+                        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg>');
+                toolsHtml += '<button type="button" class="toolkit-tool-btn" data-ficha="' + ficha.id +
+                    '" data-tool="' + String(tool.id || '').replace(/"/g, '&quot;') +
+                    '" title="' + title + '" aria-label="' + title + '">' + icon + '</button>';
+            });
+            const emptySlots = Math.max(TOOLKIT_SLOT_COUNT - tools.length, tools.length ? 1 : TOOLKIT_SLOT_COUNT);
+            for (let i = 0; i < emptySlots; i++) {
+                toolsHtml += '<span class="toolkit-tool-slot" title="Herramienta pendiente" aria-hidden="true"></span>';
+            }
+
+            return (
+                '<article class="toolkit-ficha" data-ficha-id="' + ficha.id + '" aria-label="Ficha ' +
+                String(ficha.title).replace(/"/g, '&quot;') + '">' +
+                '<div class="toolkit-ficha-icon">' +
+                '<img src="' + String(ficha.icon || '/favicon.svg?v=3').replace(/"/g, '&quot;') +
+                '" alt="" class="platform">' +
+                '<div class="ficha-mark">' + String(ficha.title || ficha.id).replace(/</g, '&lt;') + '</div>' +
+                '</div>' +
+                '<section class="toolkit-ficha-history">' +
+                '<div class="toolkit-pane-head">Historial de uso</div>' +
+                '<div class="toolkit-pane-body">' + historyHtml + '</div></section>' +
+                '<section class="toolkit-ficha-files">' +
+                '<div class="toolkit-pane-head">Archivos curados</div>' +
+                '<div class="toolkit-pane-body">' + filesHtml + '</div></section>' +
+                '<section class="toolkit-ficha-tools" aria-label="Herramientas">' + toolsHtml + '</section>' +
+                '</article>'
+            );
+        }
+
+        function toolkitRenderBoard() {
+            const board = document.getElementById('toolkitBoard');
+            if (!board) return;
+            board.innerHTML = TOOLKIT_FICHAS.map(toolkitRenderFicha).join('');
+            board.querySelectorAll('.toolkit-tool-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const fichaId = btn.getAttribute('data-ficha');
+                    const toolId = btn.getAttribute('data-tool');
+                    const ficha = TOOLKIT_FICHAS.find((f) => f.id === fichaId);
+                    const tool = ficha && (ficha.tools || []).find((t) => t.id === toolId);
+                    toolkitLogUse(fichaId, toolId, (tool && (tool.title || tool.id)) || toolId);
+                    if (tool && typeof tool.onClick === 'function') {
+                        try { tool.onClick(); } catch (e) {}
+                    }
+                });
+            });
+        }
+
+        function toggleToolkit(force) {
+            const overlay = document.getElementById('toolkitOverlay');
+            const btn = document.getElementById('toolkitOpenBtn');
+            if (!overlay) return;
+            const open = typeof force === 'boolean' ? force : !overlay.classList.contains('open');
+            overlay.classList.toggle('open', open);
+            overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+            if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) {
+                toolkitLoadStore();
+                toolkitLogUse('platform', 'toolkit-open', 'Abrir toolkit');
+                toolkitRenderBoard();
+            }
+        }
+
+        function initToolkit() {
+            if (window.__l8ToolkitReady) return;
+            window.__l8ToolkitReady = true;
+            toolkitLoadStore();
+            const overlay = document.getElementById('toolkitOverlay');
+            const closeBtn = document.getElementById('toolkitCloseBtn');
+            if (closeBtn) closeBtn.addEventListener('click', () => toggleToolkit(false));
+            if (overlay) {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) toggleToolkit(false);
+                });
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
+                    toggleToolkit(false);
+                }
+            });
+            window.l8Toolkit = {
+                open: () => toggleToolkit(true),
+                close: () => toggleToolkit(false),
+                logUse: toolkitLogUse,
+                curateFile: toolkitCurateFile,
+                fichas: TOOLKIT_FICHAS,
+                render: toolkitRenderBoard
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', initToolkit);
+
         connectSSE();
     </script>
+
+
+    <div class="toolkit-overlay" id="toolkitOverlay" aria-hidden="true">
+        <div class="toolkit-shell" role="dialog" aria-modal="true" aria-labelledby="toolkitBrandLabel">
+            <div class="toolkit-top">
+                <div class="toolkit-brand" id="toolkitBrandLabel">= / toolkit</div>
+                <div class="toolkit-sub">Fichas de herramientas · historial · archivos curados</div>
+                <button type="button" class="toolkit-close" id="toolkitCloseBtn" title="Cerrar">Cerrar</button>
+            </div>
+            <div class="toolkit-board" id="toolkitBoard" aria-live="polite"></div>
+        </div>
+    </div>
 
     <div class="notepad-overlay" id="notepadOverlay" aria-hidden="true">
         <div class="notepad-shell" role="dialog" aria-modal="true" aria-labelledby="notepadBrandLabel">

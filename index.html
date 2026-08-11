@@ -767,6 +767,232 @@
             }
         }
 
+        /* ===== FLY RAIL (barra lateral ocultable) ===== */
+        .fly-rail {
+            --fly-ink: #f5f5f5;
+            --fly-line: #cfcfcf;
+            --fly-surface: #141414;
+            position: fixed;
+            z-index: 70;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            pointer-events: none;
+            transition: top 280ms cubic-bezier(0.22, 1, 0.36, 1),
+                        bottom 280ms cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .fly-rail[data-edge="right"] {
+            right: 0;
+            left: auto;
+        }
+
+        .fly-rail[data-edge="left"] {
+            left: 0;
+            right: auto;
+        }
+
+        .fly-rail[data-corner="top"] {
+            top: max(72px, 8vh);
+            transform: none;
+        }
+
+        .fly-rail[data-corner="middle"] {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .fly-rail[data-corner="bottom"] {
+            top: auto;
+            bottom: max(24px, 4vh);
+            transform: none;
+        }
+
+        .fly-handle {
+            pointer-events: auto;
+            appearance: none;
+            border: none;
+            margin: 0;
+            padding: 14px 14px 12px;
+            min-width: 52px;
+            background: var(--fly-surface);
+            color: var(--fly-ink);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+            transition: background 180ms ease, transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+                        border-radius 220ms ease;
+        }
+
+        .fly-rail[data-edge="right"] .fly-handle {
+            border-radius: 14px 0 0 14px;
+        }
+
+        .fly-rail[data-edge="left"] .fly-handle {
+            border-radius: 0 14px 14px 0;
+        }
+
+        .fly-handle:hover {
+            background: #1c1c1c;
+        }
+
+        .fly-handle:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: -3px;
+        }
+
+        .fly-handle-label {
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            line-height: 1;
+            color: var(--fly-ink);
+            user-select: none;
+        }
+
+        .fly-handle-line {
+            display: block;
+            width: 30px;
+            height: 2px;
+            border-radius: 999px;
+            background: var(--fly-line);
+        }
+
+        .fly-rail-panel {
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 11px;
+            background: var(--fly-surface);
+            border-radius: 999px;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(18px) scale(0.96);
+            transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 240ms;
+        }
+
+        .fly-rail[data-edge="left"] .fly-rail-panel {
+            transform: translateX(-18px) scale(0.96);
+        }
+
+        .fly-rail.is-open .fly-rail-panel {
+            pointer-events: auto;
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0) scale(1);
+            transition: opacity 260ms ease, transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 0s;
+        }
+
+        .fly-rail.is-open .fly-handle {
+            transform: translateY(-2px);
+        }
+
+        .fly-slot {
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ffffff;
+            flex: 0 0 auto;
+            transition: transform 160ms ease, opacity 160ms ease;
+        }
+
+        .fly-slot::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1.5px solid currentColor;
+            border-radius: 50%;
+            opacity: 0.95;
+            box-sizing: border-box;
+        }
+
+        .fly-slot::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+            position: relative;
+            z-index: 1;
+        }
+
+        .fly-slot:hover:not(:disabled) {
+            transform: scale(1.08);
+        }
+
+        .fly-slot:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: 2px;
+        }
+
+        .fly-slot:disabled {
+            cursor: default;
+            opacity: 0.55;
+        }
+
+        .fly-slot.is-ready {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .fly-slot.is-ready::after {
+            display: none;
+        }
+
+        .fly-slot img,
+        .fly-slot svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            object-fit: contain;
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @media (max-width: 720px) {
+            .fly-handle {
+                min-width: 46px;
+                padding: 12px 11px 10px;
+            }
+
+            .fly-handle-label {
+                font-size: 12px;
+            }
+
+            .fly-rail-panel {
+                padding: 14px 9px;
+                gap: 12px;
+            }
+
+            .fly-slot {
+                width: 26px;
+                height: 26px;
+            }
+        }
+
         .hashcod-keys-overlay {
             display: none;
             position: fixed;
@@ -5590,6 +5816,145 @@
             }
         }
 
+        /* ===== FLY RAIL ===== */
+        const FLY_STORE_KEY = 'l8_fly_rail_v1';
+
+        function flyRailLoadPrefs() {
+            try {
+                const raw = localStorage.getItem(FLY_STORE_KEY);
+                if (!raw) return { open: false, edge: 'right', corner: 'middle' };
+                const data = JSON.parse(raw);
+                return {
+                    open: !!data.open,
+                    edge: data.edge === 'left' ? 'left' : 'right',
+                    corner: (data.corner === 'top' || data.corner === 'bottom') ? data.corner : 'middle'
+                };
+            } catch (e) {
+                return { open: false, edge: 'right', corner: 'middle' };
+            }
+        }
+
+        function flyRailSavePrefs(prefs) {
+            try {
+                localStorage.setItem(FLY_STORE_KEY, JSON.stringify(prefs));
+            } catch (e) {}
+        }
+
+        function flyRailGetState() {
+            const rail = document.getElementById('flyRail');
+            if (!rail) return flyRailLoadPrefs();
+            return {
+                open: rail.classList.contains('is-open'),
+                edge: rail.getAttribute('data-edge') === 'left' ? 'left' : 'right',
+                corner: (function () {
+                    const c = rail.getAttribute('data-corner');
+                    return (c === 'top' || c === 'bottom') ? c : 'middle';
+                })()
+            };
+        }
+
+        function setFlyRailOpen(open) {
+            const rail = document.getElementById('flyRail');
+            const handle = document.getElementById('flyHandleBtn');
+            const panel = document.getElementById('flyRailPanel');
+            if (!rail || !handle || !panel) return;
+            rail.classList.toggle('is-open', !!open);
+            handle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+            const prefs = flyRailGetState();
+            prefs.open = !!open;
+            flyRailSavePrefs(prefs);
+        }
+
+        function toggleFlyRail(force) {
+            const rail = document.getElementById('flyRail');
+            if (!rail) return;
+            const next = typeof force === 'boolean' ? force : !rail.classList.contains('is-open');
+            setFlyRailOpen(next);
+        }
+
+        function setFlyRailCorner(edge, corner) {
+            const rail = document.getElementById('flyRail');
+            if (!rail) return;
+            const e = edge === 'left' ? 'left' : 'right';
+            const c = (corner === 'top' || corner === 'bottom') ? corner : 'middle';
+            rail.setAttribute('data-edge', e);
+            rail.setAttribute('data-corner', c);
+            const prefs = flyRailGetState();
+            prefs.edge = e;
+            prefs.corner = c;
+            flyRailSavePrefs(prefs);
+        }
+
+        function cycleFlyRailCorner() {
+            const prefs = flyRailGetState();
+            const order = [
+                ['right', 'top'],
+                ['right', 'middle'],
+                ['right', 'bottom'],
+                ['left', 'top'],
+                ['left', 'middle'],
+                ['left', 'bottom']
+            ];
+            let idx = order.findIndex((p) => p[0] === prefs.edge && p[1] === prefs.corner);
+            if (idx < 0) idx = 1;
+            const next = order[(idx + 1) % order.length];
+            setFlyRailCorner(next[0], next[1]);
+        }
+
+        function bindFlySlot(slotEl, handler) {
+            if (!slotEl) return;
+            slotEl.disabled = false;
+            slotEl.classList.add('is-ready');
+            slotEl.onclick = function (ev) {
+                ev.preventDefault();
+                if (typeof handler === 'function') handler(ev);
+                try {
+                    window.dispatchEvent(new CustomEvent('l8:fly-tool', {
+                        detail: { slot: Number(slotEl.getAttribute('data-fly-slot') || 0) }
+                    }));
+                } catch (e) {}
+            };
+        }
+
+        window.toggleFlyRail = toggleFlyRail;
+        window.setFlyRailOpen = setFlyRailOpen;
+        window.setFlyRailCorner = setFlyRailCorner;
+        window.bindFlySlot = bindFlySlot;
+
+        function initFlyRail() {
+            const rail = document.getElementById('flyRail');
+            const handle = document.getElementById('flyHandleBtn');
+            if (!rail || !handle) return;
+            const prefs = flyRailLoadPrefs();
+            rail.setAttribute('data-edge', prefs.edge);
+            rail.setAttribute('data-corner', prefs.corner);
+            setFlyRailOpen(!!prefs.open);
+
+            handle.addEventListener('click', function () {
+                toggleFlyRail();
+            });
+            handle.addEventListener('dblclick', function (ev) {
+                ev.preventDefault();
+                cycleFlyRailCorner();
+            });
+
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && rail.classList.contains('is-open')) {
+                    setFlyRailOpen(false);
+                }
+            });
+
+            // Clic fuera cierra el panel; el handle Fly sigue visible
+            document.addEventListener('pointerdown', function (ev) {
+                if (!rail.classList.contains('is-open')) return;
+                if (rail.contains(ev.target)) return;
+                setFlyRailOpen(false);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initFlyRail);
+
         const HASHCOD_KEYS_STORE = 'l8_hashcod_keys_v1';
         let hashcodKeysCache = [];
         let hashcodKeysAccountKey = '';
@@ -7942,6 +8307,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Fly rail: al ocultarse solo queda el handle lateral -->
+    <aside
+        id="flyRail"
+        class="fly-rail"
+        data-edge="right"
+        data-corner="middle"
+        aria-label="Fly"
+    >
+        <button
+            type="button"
+            class="fly-handle"
+            id="flyHandleBtn"
+            title="Fly"
+            aria-label="Fly · mostrar u ocultar herramientas"
+            aria-expanded="false"
+            aria-controls="flyRailPanel"
+        >
+            <span class="fly-handle-label">Fly</span>
+            <span class="fly-handle-line" aria-hidden="true"></span>
+        </button>
+        <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
+            <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="4" title="Herramienta 4" aria-label="Herramienta 4 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot" data-fly-slot="5" title="Herramienta 5" aria-label="Herramienta 5 (próximamente)" disabled></button>
+        </nav>
+    </aside>
 
     </div><!-- /.platform-shell -->
 

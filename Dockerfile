@@ -37,6 +37,14 @@ RUN { \
     echo 'upload_max_filesize = 100M'; \
     echo 'post_max_size = 100M'; \
     echo 'variables_order = "EGPCS"'; \
+    echo 'expose_php = Off'; \
+    echo 'display_errors = Off'; \
+    echo 'display_startup_errors = Off'; \
+    echo 'log_errors = On'; \
+    echo 'allow_url_fopen = Off'; \
+    echo 'allow_url_include = Off'; \
+    echo 'session.cookie_httponly = 1'; \
+    echo 'session.cookie_samesite = Lax'; \
     echo 'opcache.enable=1'; \
     echo 'opcache.enable_cli=1'; \
     echo 'opcache.memory_consumption=128'; \

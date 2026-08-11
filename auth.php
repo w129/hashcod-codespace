@@ -833,26 +833,9 @@ function authLogout($token) {
 }
 
 function authStatusPublic() {
-    $store = authLoadStore(true);
-    $cfg = function_exists('supabaseConfig') ? supabaseConfig() : ['configured' => false];
-    $dbProbe = ['ok' => false];
-    if (!empty($cfg['configured']) && function_exists('supabaseDbSelect')) {
-        $dbProbe = supabaseDbSelect('l8_auth_accounts', 'select=id&limit=1');
-    }
     return [
         'ok' => true,
-        'register_gate_configured' => authDilithiumConfigured(),
-        'accounts' => count($store['users']),
-        'period_hint' => envValue('L8_DILITHIUM5_REGISTER_PERIOD', date('Y-m')),
-        'supabase' => [
-            'configured' => !empty($cfg['configured']),
-            'storage_hydrated' => !empty($store['_meta']['storage_hydrated']),
-            'db_ready' => !empty($dbProbe['ok']),
-            'db_pulled' => !empty($store['_meta']['db_pulled']),
-            'db_accounts' => $store['_meta']['db_accounts'] ?? 0,
-            'db_identities' => $store['_meta']['db_identities'] ?? 0,
-            'db_error' => $store['_meta']['db_error'] ?? ($dbProbe['error'] ?? null)
-        ]
+        'register_gate_configured' => authDilithiumConfigured()
     ];
 }
 
@@ -880,61 +863,93 @@ function authHandleApi($uri) {
         return false;
     }
 
+    if (!function_exists('securityRateAllow')) {
+        require_once __DIR__ . '/security.php';
+    }
+
     header('Content-Type: application/json; charset=utf-8');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
     if ($uri === '/api/auth/status' && $method === 'GET') {
-        echo json_encode(authStatusPublic(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode(authStatusPublic(), JSON_UNESCAPED_UNICODE);
         return true;
     }
 
     if ($uri === '/api/auth/session' && $method === 'GET') {
+        if (!securityRateAllow('auth_session', 60, 60)) {
+            securityRateDenyJson(30);
+        }
         $token = authBearerTokenFromRequest();
-        echo json_encode(authValidateSession($token), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $res = authValidateSession($token);
+        if (empty($res['ok'])) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'authenticated' => false], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
+        echo json_encode([
+            'ok' => true,
+            'authenticated' => true,
+            'account_id' => $res['account_id'] ?? ($res['user_id'] ?? null)
+        ], JSON_UNESCAPED_UNICODE);
         return true;
     }
 
     if ($uri === '/api/auth/register' && $method === 'POST') {
+        if (!securityRateAllow('auth_register', 5, 3600)) {
+            securityRateDenyJson(3600);
+        }
         $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
         $dil = $input['dilithium5'] ?? $input['dilithium_5'] ?? $input['d5'] ?? '';
         $res = authRegister($dil);
         if (empty($res['ok'])) {
             http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'Registration failed'], JSON_UNESCAPED_UNICODE);
+            return true;
         }
-        echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
     }
 
     if ($uri === '/api/auth/login' && $method === 'POST') {
+        if (!securityRateAllow('auth_login', 8, 60)) {
+            securityRateDenyJson(60);
+        }
         $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
         $aes = $input['aes256'] ?? $input['aes_256'] ?? $input['key_aes'] ?? '';
         $identity = $input['identity'] ?? $input['identity_key'] ?? $input['key_identity'] ?? '';
         $res = authLogin($aes, $identity);
         if (empty($res['ok'])) {
             http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'Invalid credentials'], JSON_UNESCAPED_UNICODE);
+            return true;
         }
-        echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
     }
 
     if ($uri === '/api/auth/logout' && $method === 'POST') {
         $token = authBearerTokenFromRequest();
-        echo json_encode(authLogout($token), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode(authLogout($token), JSON_UNESCAPED_UNICODE);
         return true;
     }
 
     if ($uri === '/api/auth/recover' && $method === 'POST') {
+        if (!securityRateAllow('auth_recover', 5, 600)) {
+            securityRateDenyJson(600);
+        }
         $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
         $material = $input['recovery'] ?? $input['recovery_key'] ?? $input['backup_code'] ?? $input['code'] ?? '';
         $res = authRecover($material);
         if (empty($res['ok'])) {
             http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'Recovery failed'], JSON_UNESCAPED_UNICODE);
+            return true;
         }
-        echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
     }
 
     http_response_code(404);
-    echo json_encode(['ok' => false, 'error' => 'Ruta auth desconocida'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['ok' => false, 'error' => 'Not found'], JSON_UNESCAPED_UNICODE);
     return true;
 }

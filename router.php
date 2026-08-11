@@ -1,8 +1,7 @@
 <?php
-// router.php - Enrutador PHP nativo robusto para servidor local y producción
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: *');
+// router.php — front controller endurecido (sin servir fuente ni data_storage)
+require_once __DIR__ . '/security.php';
+securityBootstrap('web');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -10,103 +9,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = is_string($uri) ? $uri : '/';
 
-// Si se solicita la raíz '/', '/index.php' o '/index.html', servir siempre la app principal
+// Raíz / app principal
 if ($uri === '/' || $uri === '/index.php' || $uri === '/index.html') {
     require __DIR__ . '/index.php';
     exit;
 }
 
-// Gateway receptor (teléfono / dispositivo)
-if ($uri === '/gateway' || $uri === '/gateway.php') {
-    require __DIR__ . '/gateway.php';
+// Páginas HTML enrutadas (nunca servir el .php crudo por allowlist)
+$routedPages = [
+    '/gateway' => 'gateway.php',
+    '/gateway.php' => 'gateway.php',
+    '/ubuntu' => 'ubuntu-cli.php',
+    '/ubuntu-cli' => 'ubuntu-cli.php',
+    '/ubuntu-cli.php' => 'ubuntu-cli.php',
+    '/claude' => 'claude-cli.php',
+    '/claude-cli' => 'claude-cli.php',
+    '/claude-code' => 'claude-cli.php',
+    '/claude-cli.php' => 'claude-cli.php',
+    '/zylon' => 'zylon-cli.php',
+    '/zylon-cli' => 'zylon-cli.php',
+    '/private-gpt' => 'zylon-cli.php',
+    '/zylon-cli.php' => 'zylon-cli.php',
+    '/prs-code' => 'prs-code.php',
+    '/prs_code' => 'prs-code.php',
+    '/prs' => 'prs-code.php',
+    '/prs-code.php' => 'prs-code.php',
+    '/macos' => 'macos-cli.php',
+    '/macos-cli' => 'macos-cli.php',
+    '/macos_inside' => 'macos-cli.php',
+    '/macOS_inside' => 'macos-cli.php',
+    '/macos-cli.php' => 'macos-cli.php',
+    '/chromeos' => 'chromeos-cli.php',
+    '/chromeos-cli' => 'chromeos-cli.php',
+    '/chromeos_play' => 'chromeos-cli.php',
+    '/chromeOS_play' => 'chromeos-cli.php',
+    '/chromeos-cli.php' => 'chromeos-cli.php',
+];
+if (isset($routedPages[$uri])) {
+    require __DIR__ . '/' . $routedPages[$uri];
     exit;
 }
 
-// Ubuntu CLI externa (boxcutter/ubuntu)
-if ($uri === '/ubuntu' || $uri === '/ubuntu-cli' || $uri === '/ubuntu-cli.php') {
-    require __DIR__ . '/ubuntu-cli.php';
-    exit;
-}
-
-// Claude Code externa (anthropics/claude-code-action + OAuth)
-if ($uri === '/claude' || $uri === '/claude-cli' || $uri === '/claude-code' || $uri === '/claude-cli.php') {
-    require __DIR__ . '/claude-cli.php';
-    exit;
-}
-
-// Zylon / PrivateGPT externa (zylon-ai/private-gpt)
-if ($uri === '/zylon' || $uri === '/zylon-cli' || $uri === '/private-gpt' || $uri === '/zylon-cli.php') {
-    require __DIR__ . '/zylon-cli.php';
-    exit;
-}
-
-// PRS Code — IDE paste/share externo (thin client)
-if ($uri === '/prs-code' || $uri === '/prs_code' || $uri === '/prs' || $uri === '/prs-code.php') {
-    require __DIR__ . '/prs-code.php';
-    exit;
-}
-
-// macOS inside externa (dockur/macos)
-if ($uri === '/macos' || $uri === '/macos-cli' || $uri === '/macos_inside' || $uri === '/macOS_inside' || $uri === '/macos-cli.php') {
-    require __DIR__ . '/macos-cli.php';
-    exit;
-}
-
-// ChromeOS play externa (dockur/chromeos)
-if ($uri === '/chromeos' || $uri === '/chromeos-cli' || $uri === '/chromeos_play' || $uri === '/chromeOS_play' || $uri === '/chromeos-cli.php') {
-    require __DIR__ . '/chromeos-cli.php';
-    exit;
-}
-
-// Reenviar peticiones API a api.php
+// API
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';
     exit;
 }
 
-// Si se solicita un archivo estático físico existente (imágenes, logo, components, etc.)
-$filePath = __DIR__ . $uri;
-if (file_exists($filePath) && !is_dir($filePath)) {
-    // MIME básica para assets de la plataforma
-    $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-    if ($ext === 'js') {
-        header('Content-Type: application/javascript; charset=utf-8');
-        readfile($filePath);
-        exit;
-    }
-    if ($ext === 'wasm') {
-        header('Content-Type: application/wasm');
-        header('Cache-Control: public, max-age=86400');
-        readfile($filePath);
-        exit;
-    }
-    if ($ext === 'json') {
-        header('Content-Type: application/json; charset=utf-8');
-        header('Cache-Control: public, max-age=300');
-        readfile($filePath);
-        exit;
-    }
-    if ($ext === 'md' || $ext === 'markdown') {
-        header('Content-Type: text/markdown; charset=utf-8');
-        header('Cache-Control: public, max-age=300');
-        readfile($filePath);
-        exit;
-    }
-    if ($ext === 'svg') {
-        header('Content-Type: image/svg+xml; charset=utf-8');
-        header('Cache-Control: public, max-age=3600');
-        readfile($filePath);
-        exit;
-    }
-    if ($ext === 'tsx' || $ext === 'jsx' || $ext === 'ts') {
-        header('Content-Type: text/plain; charset=utf-8');
-        readfile($filePath);
-        exit;
-    }
-    return false;
+// Denegado / probes
+if (securityIsDeniedPath($uri) || securityIsProbePath($uri)) {
+    securityNotFoundQuiet();
 }
 
-// Cargar por defecto index.php para cualquier otra ruta
+// Solo assets allowlist
+$filePath = realpath(__DIR__ . $uri);
+$rootReal = realpath(__DIR__);
+if (
+    $filePath !== false
+    && $rootReal !== false
+    && strpos($filePath, $rootReal) === 0
+    && is_file($filePath)
+    && securityIsAllowedStatic($uri)
+) {
+    $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $mimes = [
+        'js' => 'application/javascript; charset=utf-8',
+        'mjs' => 'application/javascript; charset=utf-8',
+        'css' => 'text/css; charset=utf-8',
+        'wasm' => 'application/wasm',
+        'svg' => 'image/svg+xml; charset=utf-8',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'ico' => 'image/x-icon',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+        'map' => 'application/json; charset=utf-8',
+    ];
+    if (isset($mimes[$ext])) {
+        header('Content-Type: ' . $mimes[$ext]);
+        if (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'ico', 'svg', 'woff', 'woff2', 'ttf', 'wasm'], true)) {
+            header('Cache-Control: public, max-age=86400');
+        } else {
+            header('Cache-Control: public, max-age=300');
+        }
+        readfile($filePath);
+        exit;
+    }
+}
+
+// SPA fallback — HTML genérico sin filtrar existencia de rutas internas
 require __DIR__ . '/index.php';
 exit;

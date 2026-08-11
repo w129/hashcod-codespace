@@ -102,8 +102,8 @@
             position: absolute;
             top: calc(100% + 8px);
             right: 0;
-            width: min(360px, calc(100vw - 24px));
-            max-height: min(70vh, 520px);
+            width: min(440px, calc(100vw - 24px));
+            max-height: min(78vh, 640px);
             overflow: auto;
             background: #ffffff;
             border: 1px solid #d0d0d0;
@@ -226,6 +226,195 @@
             line-height: 1.4;
         }
 
+
+        .tokens-unlock-open {
+            display: block;
+            width: 100%;
+            margin: 10px 0 4px;
+            padding: 8px 10px;
+            border: 1.5px solid #111;
+            background: #111;
+            color: #fff;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .tokens-unlock-open:hover {
+            background: #333;
+        }
+
+        .tokens-unlock-open .xu {
+            opacity: 0.85;
+            font-weight: 600;
+        }
+
+        .tokens-unlock-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            background: rgba(20, 20, 20, 0.32);
+            align-items: center;
+            justify-content: center;
+            padding: 20px 12px;
+        }
+
+        .tokens-unlock-overlay.open {
+            display: flex;
+        }
+
+        .tokens-unlock-shell {
+            width: min(720px, 100%);
+            max-height: min(86vh, 720px);
+            overflow: auto;
+            background: #fff;
+            border: 2px solid #111;
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            color: #111;
+        }
+
+        .tokens-unlock-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-bottom: 2px solid #111;
+            background: #f7f7f7;
+        }
+
+        .tokens-unlock-brand {
+            font-weight: 700;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .tokens-unlock-uses-pill {
+            font-size: 11px;
+            border: 1.5px solid #111;
+            padding: 3px 8px;
+            background: #fff;
+            white-space: nowrap;
+        }
+
+        .tokens-unlock-close {
+            border: 1.5px solid #111;
+            background: #fff;
+            color: #111;
+            font-family: inherit;
+            font-size: 11px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+
+        .tokens-unlock-close:hover {
+            background: #111;
+            color: #fff;
+        }
+
+        .tokens-unlock-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 11px;
+        }
+
+        .tokens-unlock-table th,
+        .tokens-unlock-table td {
+            border: 1.5px solid #111;
+            padding: 10px 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .tokens-unlock-table th {
+            background: #f3f3f3;
+            font-weight: 700;
+        }
+
+        .tokens-unlock-table .ico {
+            width: 56px;
+        }
+
+        .tokens-unlock-table .amt {
+            width: 22%;
+            font-weight: 700;
+        }
+
+        .tokens-unlock-table .area {
+            width: 34%;
+        }
+
+        .tokens-unlock-ico {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #111;
+            background: #111;
+            color: #fff;
+            margin: 0 auto;
+        }
+
+        .tokens-unlock-ico svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .tokens-unlock-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #888;
+            background: #fff;
+            font-family: inherit;
+            font-size: 10px;
+            padding: 7px 8px;
+            color: #111;
+        }
+
+        .tokens-unlock-input:focus {
+            outline: 2px solid #111;
+            border-color: #111;
+        }
+
+        .tokens-unlock-btn {
+            margin-top: 6px;
+            width: 100%;
+            border: 1.5px solid #111;
+            background: #fff;
+            color: #111;
+            font-family: inherit;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 6px 8px;
+            cursor: pointer;
+        }
+
+        .tokens-unlock-btn:hover:not(:disabled) {
+            background: #111;
+            color: #fff;
+        }
+
+        .tokens-unlock-btn:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .tokens-unlock-msg {
+            padding: 8px 12px 12px;
+            font-size: 11px;
+            color: #444;
+            line-height: 1.4;
+            border-top: 1px solid #ddd;
+        }
+
+        .tokens-unlock-msg.ok { color: #1a7f37; }
+        .tokens-unlock-msg.err { color: #c5221f; }
 
         .icon-globe,
         .icon-tokens,
@@ -3011,11 +3200,36 @@
                 <div class="tokens-section-title">Meses anteriores</div>
                 <ul class="tokens-history" id="tokensHistoryList"></ul>
                 <p class="tokens-empty" id="tokensHistoryEmpty">Sin gastos de meses previos aún.</p>
+                <button type="button" class="tokens-unlock-open" id="tokensUnlockOpenBtn" title="Desbloquear más tokens con Dilithium-5">
+                    Desbloquear tokens · Dilithium-5 · <span class="xu" id="tokensUnlockUsesHint">x1</span>
+                </button>
                 <div class="tokens-section-title">Gastos recientes</div>
                 <ul class="tokens-ledger" id="tokensLedgerList"></ul>
                 <p class="tokens-empty" id="tokensLedgerEmpty">Aún no hay movimientos guardados.</p>
                 <p class="tokens-persist-note">El consumo se guarda en el servidor (y Supabase si está configurado) para no perderse al actualizar la plataforma.</p>
             </div>
+        </div>
+    </div>
+
+    <div class="tokens-unlock-overlay" id="tokensUnlockOverlay" aria-hidden="true">
+        <div class="tokens-unlock-shell" role="dialog" aria-modal="true" aria-labelledby="tokensUnlockBrand">
+            <div class="tokens-unlock-top">
+                <div class="tokens-unlock-brand" id="tokensUnlockBrand">= / desbloquear tokens</div>
+                <div class="tokens-unlock-uses-pill" id="tokensUnlockUsesPill">Usos: x0 · próxima x1</div>
+                <button type="button" class="tokens-unlock-close" id="tokensUnlockCloseBtn" title="Cerrar">Cerrar</button>
+            </div>
+            <table class="tokens-unlock-table" aria-label="Desbloqueo de tokens por área">
+                <thead>
+                    <tr>
+                        <th class="ico">Icono</th>
+                        <th colspan="2">Título · cantidad de tokens</th>
+                    </tr>
+                </thead>
+                <tbody id="tokensUnlockRows">
+                    <tr><td colspan="3">Cargando áreas…</td></tr>
+                </tbody>
+            </table>
+            <div class="tokens-unlock-msg" id="tokensUnlockMsg">Introduce la clave Dilithium-5 de la próxima vez (xN). Tras un uso válido, la clave cambia.</div>
         </div>
     </div>
 
@@ -4503,6 +4717,7 @@
             if (k === 'external') return 'Externa';
             if (k === 'notepad' || k === 'notepads' || k === 'notes') return 'Notas';
             if (k === 'toolkit' || k === 'toolkits' || k === 'tools') return 'Toolkit';
+            if (k === 'unlock' || k === 'dilithium' || k === 'credit') return 'Desbloqueo';
             return 'Comando';
         }
 
@@ -4550,8 +4765,12 @@
                 const left = document.createElement('span');
                 const when = row.created_at ? String(row.created_at).replace('T', ' ').slice(0, 16) : (row.period || '');
                 const detail = row.detail ? String(row.detail).slice(0, 42) : tokenKindLabel(row.kind);
-                left.innerHTML = '<strong>−' + formatTokenCount(row.cost) + '</strong> ' + tokenKindLabel(row.kind) +
-                    '<br><span class="muted">' + when + (detail ? ' · ' + detail.replace(/</g, '&lt;') : '') + '</span>';
+                const isUnlock = String(row.kind || '').toLowerCase() === 'unlock';
+                const costLabel = isUnlock
+                    ? (row.detail ? String(row.detail).split(' · ')[0] : '+0')
+                    : ('−' + formatTokenCount(row.cost));
+                left.innerHTML = '<strong>' + costLabel.replace(/</g, '&lt;') + '</strong> ' + tokenKindLabel(row.kind) +
+                    '<br><span class="muted">' + when + (detail && !isUnlock ? ' · ' + detail.replace(/</g, '&lt;') : (isUnlock && row.detail ? ' · ' + String(row.detail).replace(/</g, '&lt;') : '')) + '</span>';
                 const right = document.createElement('span');
                 right.className = 'muted';
                 right.textContent = row.period || '';
@@ -4576,13 +4795,21 @@
             const btn = document.getElementById('tokensMeterBtn');
             const legend = document.getElementById('tokensLegend');
             if (rem) rem.textContent = formatTokenCount(status.remaining);
-            if (used) used.textContent = formatTokenCount(status.used) + ' / ' + formatTokenCount(status.allowance);
+            if (used) {
+                const cap = Number(status.allowance || 0) + Number(status.bonus || 0);
+                used.textContent = formatTokenCount(status.used) + ' / ' + formatTokenCount(cap);
+            }
             if (cmds) cmds.textContent = formatTokenCount(status.commands);
             if (exts) exts.textContent = formatTokenCount(status.externals);
             if (clones) clones.textContent = formatTokenCount(status.clones);
             if (notepads) notepads.textContent = formatTokenCount(status.notepads);
             if (toolkits) toolkits.textContent = formatTokenCount(status.toolkits);
-            if (period) period.textContent = 'Periodo ' + (status.period || '—') + ' · cupo mensual (guardado)';
+            if (period) {
+                const bonus = Number(status.bonus || 0);
+                period.textContent = 'Periodo ' + (status.period || '—') +
+                    ' · cupo ' + formatTokenCount(status.allowance) +
+                    (bonus > 0 ? (' + bonus ' + formatTokenCount(bonus)) : '');
+            }
             const pct = Math.max(0, Math.min(100, Number(status.percent_used || 0)));
             if (fill) {
                 fill.style.width = pct + '%';
@@ -4592,10 +4819,11 @@
             if (btn) {
                 btn.classList.toggle('low', pct >= 70 && pct < 100);
                 btn.classList.toggle('exhausted', !!status.exhausted || (status.remaining || 0) <= 0);
-                btn.title = 'Tokens: ' + formatTokenCount(status.remaining) + ' restantes';
+                btn.title = 'Tokens: ' + formatTokenCount(status.remaining) + ' restantes · Dilithium unlock';
             }
             if (legend && status.costs) {
                 legend.textContent = 'Cupo mensual ' + formatTokenCount(status.allowance) +
+                    (status.bonus ? (' + bonus ' + formatTokenCount(status.bonus)) : '') +
                     ' · Comando −' + status.costs.command +
                     ' · Ventana externa −' + status.costs.external +
                     ' · Clone GitHub −' + status.costs.clone +
@@ -4604,6 +4832,120 @@
             }
             renderTokensHistory(status);
             renderTokensLedger(status);
+            renderTokensUnlock(status);
+        }
+
+        function tokensUnlockIconSvg(kind) {
+            const k = String(kind || '');
+            if (k === 'ext') {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"/></svg>';
+            }
+            if (k === 'clone') {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6V2zm8 1.5V8h4.5L14 3.5zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>';
+            }
+            if (k === 'kit') {
+                return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7zm9 1.2L6.2 11 12 13.8 17.8 11 12 8.2zM5 12.7v3.6l6 2.7v-3.6l-6-2.7zm14 0l-6 2.7v3.6l6-2.7v-3.6z"/></svg>';
+            }
+            return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg>';
+        }
+
+        function renderTokensUnlock(status) {
+            const unlock = (status && status.unlock) || {};
+            const nextLabel = unlock.next_label || ('x' + (Number(unlock.next_use || 1)));
+            const usedLabel = unlock.used_label || 'x0';
+            const hint = document.getElementById('tokensUnlockUsesHint');
+            const pill = document.getElementById('tokensUnlockUsesPill');
+            if (hint) hint.textContent = nextLabel;
+            if (pill) pill.textContent = 'Usos: ' + usedLabel + ' · próxima ' + nextLabel;
+
+            const tbody = document.getElementById('tokensUnlockRows');
+            if (!tbody) return;
+            const areas = Array.isArray(unlock.areas) ? unlock.areas : [];
+            if (!areas.length) {
+                tbody.innerHTML = '<tr><td colspan="3">Sin áreas de desbloqueo</td></tr>';
+                return;
+            }
+            tbody.innerHTML = areas.map((area) => {
+                const id = String(area.id || '').replace(/"/g, '&quot;');
+                const title = String(area.title || area.id || '').replace(/</g, '&lt;');
+                const amount = formatTokenCount(area.amount || 0);
+                return '<tr data-area="' + id + '">' +
+                    '<td class="ico"><div class="tokens-unlock-ico" title="' + title + '">' + tokensUnlockIconSvg(area.icon) + '</div></td>' +
+                    '<td class="amt">+' + amount + '</td>' +
+                    '<td class="area"><div><strong>' + title + '</strong></div>' +
+                    '<div style="margin-top:6px;text-align:left;">Para qué área · ingresa clave Dilithium-5 (' + nextLabel + ')</div>' +
+                    '<input type="password" class="tokens-unlock-input" data-unlock-input="' + id + '" autocomplete="off" spellcheck="false" placeholder="dilithium5_…">' +
+                    '<button type="button" class="tokens-unlock-btn" data-unlock-btn="' + id + '">Desbloquear</button>' +
+                    '</td></tr>';
+            }).join('');
+
+            tbody.querySelectorAll('[data-unlock-btn]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const area = btn.getAttribute('data-unlock-btn');
+                    const input = tbody.querySelector('[data-unlock-input="' + area + '"]');
+                    submitTokensUnlock(area, input ? input.value : '');
+                });
+            });
+            tbody.querySelectorAll('[data-unlock-input]').forEach((input) => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        submitTokensUnlock(input.getAttribute('data-unlock-input'), input.value);
+                    }
+                });
+            });
+        }
+
+        function tokensUnlockSetMsg(text, tone) {
+            const el = document.getElementById('tokensUnlockMsg');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.remove('ok', 'err');
+            if (tone === 'ok') el.classList.add('ok');
+            if (tone === 'err') el.classList.add('err');
+        }
+
+        function toggleTokensUnlock(force) {
+            const overlay = document.getElementById('tokensUnlockOverlay');
+            if (!overlay) return;
+            const open = typeof force === 'boolean' ? force : !overlay.classList.contains('open');
+            overlay.classList.toggle('open', open);
+            overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+            if (open) {
+                refreshTokensStatus(true).then((st) => {
+                    if (st) renderTokensUnlock(st);
+                    const next = (st && st.unlock && st.unlock.next_label) ? st.unlock.next_label : 'x1';
+                    tokensUnlockSetMsg('Clave Dilithium-5 para la próxima vez (' + next + '). Tras usarla una vez, cambia a la siguiente x.');
+                });
+            }
+        }
+
+        async function submitTokensUnlock(area, code) {
+            tokensUnlockSetMsg('Verificando Dilithium-5…');
+            try {
+                const res = await fetch('/api/tokens/unlock', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ area: area, code: code })
+                });
+                const data = await res.json();
+                if (data && data.status) applyTokensStatus(data.status);
+                else if (data && data.unlock) renderTokensUnlock({ unlock: data.unlock, ok: true });
+                if (!data || !data.ok) {
+                    tokensUnlockSetMsg((data && data.error) || 'No se pudo desbloquear', 'err');
+                    return data;
+                }
+                tokensUnlockSetMsg(
+                    'Desbloqueado +' + formatTokenCount(data.granted) + ' en ' + (data.area_title || data.area) +
+                    ' · uso ' + (data.use_label || '') + ' consumido. Próxima clave: ' +
+                    ((data.unlock && data.unlock.next_label) || '') + '.',
+                    'ok'
+                );
+                return data;
+            } catch (e) {
+                tokensUnlockSetMsg(e.message || String(e), 'err');
+                return { ok: false, error: e.message || String(e) };
+            }
         }
 
         async function refreshTokensStatus(sync) {
@@ -4641,7 +4983,11 @@
             const open = typeof force === 'boolean' ? force : !panel.classList.contains('open');
             panel.classList.toggle('open', open);
             btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-            if (open) refreshTokensStatus(true);
+            if (open) {
+                refreshTokensStatus(true);
+                // Ventana de desbloqueo debajo del historial (flujo tokens)
+                toggleTokensUnlock(true);
+            }
         }
 
         async function openExternalWithTokens(url, windowName, features) {
@@ -4766,6 +5112,9 @@
             const editorEq = document.getElementById('equationsEditor');
             const tokensBtn = document.getElementById('tokensMeterBtn');
             const tokensPanel = document.getElementById('tokensPanel');
+            const unlockOpenBtn = document.getElementById('tokensUnlockOpenBtn');
+            const unlockCloseBtn = document.getElementById('tokensUnlockCloseBtn');
+            const unlockOverlay = document.getElementById('tokensUnlockOverlay');
 
             if (tokensBtn) {
                 tokensBtn.addEventListener('click', (e) => {
@@ -4773,9 +5122,29 @@
                     toggleTokensPanel();
                 });
             }
+            if (unlockOpenBtn) {
+                unlockOpenBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleTokensUnlock(true);
+                });
+            }
+            if (unlockCloseBtn) {
+                unlockCloseBtn.addEventListener('click', () => toggleTokensUnlock(false));
+            }
+            if (unlockOverlay) {
+                unlockOverlay.addEventListener('click', (e) => {
+                    if (e.target === unlockOverlay) toggleTokensUnlock(false);
+                });
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && unlockOverlay && unlockOverlay.classList.contains('open')) {
+                    toggleTokensUnlock(false);
+                }
+            });
             document.addEventListener('click', (e) => {
                 if (!tokensPanel || !tokensPanel.classList.contains('open')) return;
                 if (tokensPanel.contains(e.target) || (tokensBtn && tokensBtn.contains(e.target))) return;
+                if (unlockOverlay && unlockOverlay.contains(e.target)) return;
                 toggleTokensPanel(false);
             });
             refreshTokensStatus(true);

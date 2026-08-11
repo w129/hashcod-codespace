@@ -769,6 +769,199 @@
             }
         }
 
+        .hashcod-keys-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 92;
+            background: rgba(18, 18, 22, 0.45);
+            align-items: center;
+            justify-content: center;
+            padding: 20px 14px;
+        }
+
+        .hashcod-keys-overlay.open {
+            display: flex;
+        }
+
+        .hashcod-keys-card {
+            width: min(380px, 100%);
+            max-height: min(86vh, 640px);
+            overflow: auto;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 22px 56px rgba(0, 0, 0, 0.22);
+            padding: 22px 22px 20px;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            color: #14141a;
+            box-sizing: border-box;
+        }
+
+        .hashcod-keys-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .hashcod-keys-title {
+            flex: 1;
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #14141a;
+        }
+
+        .hashcod-keys-close {
+            border: none;
+            background: #f0f0f3;
+            color: #14141a;
+            border-radius: 999px;
+            font-family: inherit;
+            font-size: 11px;
+            padding: 5px 11px;
+            cursor: pointer;
+        }
+
+        .hashcod-keys-close:hover {
+            background: #14141a;
+            color: #fff;
+        }
+
+        .hashcod-keys-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hashcod-keys-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #d8d8de;
+            border-radius: 12px;
+            background: #fff;
+            font-family: inherit;
+            font-size: 13px;
+            padding: 12px 14px;
+            color: #14141a;
+        }
+
+        .hashcod-keys-input::placeholder {
+            color: #a0a0a8;
+        }
+
+        .hashcod-keys-input:focus {
+            outline: 2px solid #14141a;
+            border-color: #14141a;
+        }
+
+        .hashcod-keys-save {
+            margin-top: 4px;
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            background: #14141a;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 13px 16px;
+            cursor: pointer;
+        }
+
+        .hashcod-keys-save:hover {
+            background: #2a2a32;
+        }
+
+        .hashcod-keys-msg {
+            margin: 8px 0 0;
+            min-height: 1.2em;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.35;
+        }
+
+        .hashcod-keys-msg.ok { color: #1a7f37; }
+        .hashcod-keys-msg.err { color: #c5221f; }
+
+        .hashcod-keys-list-wrap {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #ececf0;
+        }
+
+        .hashcod-keys-list-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #555;
+            margin: 0 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .hashcod-keys-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 180px;
+            overflow: auto;
+        }
+
+        .hashcod-keys-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 10px 11px;
+            border: 1px solid #ececf0;
+            border-radius: 12px;
+            background: #fafafb;
+        }
+
+        .hashcod-keys-item-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .hashcod-keys-item-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #14141a;
+            word-break: break-word;
+        }
+
+        .hashcod-keys-item-meta {
+            margin-top: 3px;
+            font-size: 10px;
+            color: #666;
+            word-break: break-all;
+            line-height: 1.35;
+        }
+
+        .hashcod-keys-item-del {
+            border: none;
+            background: transparent;
+            color: #888;
+            font-family: inherit;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 2px 4px;
+            flex: 0 0 auto;
+        }
+
+        .hashcod-keys-item-del:hover {
+            color: #c5221f;
+        }
+
+        .hashcod-keys-empty {
+            margin: 0;
+            font-size: 11px;
+            color: #888;
+        }
+
         .icon-toolkit {
             height: 22px;
             width: 22px;
@@ -3425,7 +3618,7 @@
                 <button type="button" class="hashcod-dock-slot is-ready" id="hashcodDockClockBtn" data-dock-slot="2" title="Hora actual" aria-label="Mostrar hora actual" aria-expanded="false" aria-controls="hashcodClockPop" onclick="toggleHashcodClock()">
                     <img src="/hashcod-dock-hourglass.svg?v=1" alt="" width="13" height="13">
                 </button>
-                <button type="button" class="hashcod-dock-slot is-ready" data-dock-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (pendiente)">
+                <button type="button" class="hashcod-dock-slot is-ready" id="hashcodDockKeysBtn" data-dock-slot="3" title="Registro de Claves" aria-label="Abrir registro de claves" aria-expanded="false" aria-controls="hashcodKeysOverlay" onclick="toggleHashcodKeys()">
                     <img src="/hashcod-dock-doc.svg?v=1" alt="" width="13" height="13">
                 </button>
                 <button type="button" class="hashcod-dock-slot" data-dock-slot="4" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
@@ -3470,6 +3663,27 @@
                 <ul class="tokens-ledger" id="tokensLedgerList"></ul>
                 <p class="tokens-empty" id="tokensLedgerEmpty">Aún no hay movimientos guardados.</p>
                 <p class="tokens-persist-note">El consumo se guarda en el servidor (y Supabase si está configurado) para no perderse al actualizar la plataforma.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="hashcod-keys-overlay" id="hashcodKeysOverlay" aria-hidden="true">
+        <div class="hashcod-keys-card" role="dialog" aria-modal="true" aria-labelledby="hashcodKeysTitle">
+            <div class="hashcod-keys-top">
+                <h2 class="hashcod-keys-title" id="hashcodKeysTitle">Registro de Claves</h2>
+                <button type="button" class="hashcod-keys-close" id="hashcodKeysCloseBtn" title="Cerrar">Cerrar</button>
+            </div>
+            <form class="hashcod-keys-form" id="hashcodKeysForm" autocomplete="off">
+                <input class="hashcod-keys-input" id="hashcodKeysName" type="text" name="key_name" maxlength="120" placeholder="Ej: API Key Principal" spellcheck="false">
+                <input class="hashcod-keys-input" id="hashcodKeysSecret" type="password" name="key_secret" maxlength="4000" placeholder="••••••••••••••••" spellcheck="false" autocomplete="new-password">
+                <input class="hashcod-keys-input" id="hashcodKeysCode" type="text" name="key_code" maxlength="4000" placeholder="Ej: 0xA3F8...B2C1" spellcheck="false">
+                <button type="submit" class="hashcod-keys-save" id="hashcodKeysSaveBtn">Guardar Clave</button>
+            </form>
+            <p class="hashcod-keys-msg" id="hashcodKeysMsg">Guarda contraseñas y códigos criptográficos en este dispositivo.</p>
+            <div class="hashcod-keys-list-wrap">
+                <div class="hashcod-keys-list-title">Guardadas</div>
+                <ul class="hashcod-keys-list" id="hashcodKeysList"></ul>
+                <p class="hashcod-keys-empty" id="hashcodKeysEmpty">Aún no hay claves guardadas.</p>
             </div>
         </div>
     </div>
@@ -5377,9 +5591,157 @@
                 hashcodClockTimer = null;
             }
             if (open) {
+                try { toggleHashcodKeys(false); } catch (e) {}
                 tickHashcodClock();
                 hashcodClockTimer = setInterval(tickHashcodClock, 250);
             }
+        }
+
+        const HASHCOD_KEYS_STORE = 'l8_hashcod_keys_v1';
+
+        function hashcodKeysStorageKey() {
+            const guest = ensureTokensGuestId() || 'local';
+            return HASHCOD_KEYS_STORE + ':' + guest;
+        }
+
+        function loadHashcodKeys() {
+            try {
+                const raw = localStorage.getItem(hashcodKeysStorageKey());
+                if (!raw) return [];
+                const data = JSON.parse(raw);
+                return Array.isArray(data && data.entries) ? data.entries : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveHashcodKeys(entries) {
+            try {
+                localStorage.setItem(hashcodKeysStorageKey(), JSON.stringify({
+                    version: 1,
+                    updated_at: new Date().toISOString(),
+                    entries: Array.isArray(entries) ? entries.slice(0, 200) : []
+                }));
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function maskHashcodSecret(secret) {
+            const s = String(secret || '');
+            if (!s) return '—';
+            if (s.length <= 4) return '••••';
+            return '••••••••' + s.slice(-4);
+        }
+
+        function hashcodKeysSetMsg(text, tone) {
+            const el = document.getElementById('hashcodKeysMsg');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.remove('ok', 'err');
+            if (tone === 'ok') el.classList.add('ok');
+            if (tone === 'err') el.classList.add('err');
+        }
+
+        function renderHashcodKeysList() {
+            const list = document.getElementById('hashcodKeysList');
+            const empty = document.getElementById('hashcodKeysEmpty');
+            if (!list) return;
+            const entries = loadHashcodKeys();
+            if (!entries.length) {
+                list.innerHTML = '';
+                if (empty) empty.style.display = '';
+                return;
+            }
+            if (empty) empty.style.display = 'none';
+            const esc = (s) => String(s || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/"/g, '&quot;');
+            list.innerHTML = entries.map((row) => {
+                const id = esc(row.id);
+                const name = esc(row.name || 'Sin nombre');
+                const secret = esc(maskHashcodSecret(row.secret));
+                const code = esc(row.code || '');
+                return '<li class="hashcod-keys-item" data-key-id="' + id + '">' +
+                    '<div class="hashcod-keys-item-body">' +
+                    '<div class="hashcod-keys-item-name">' + name + '</div>' +
+                    '<div class="hashcod-keys-item-meta">Clave: ' + secret +
+                    (code ? '<br>Código: ' + code : '') +
+                    '</div></div>' +
+                    '<button type="button" class="hashcod-keys-item-del" data-key-del="' + id + '" title="Eliminar">Eliminar</button>' +
+                    '</li>';
+            }).join('');
+            list.querySelectorAll('[data-key-del]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-key-del');
+                    const next = loadHashcodKeys().filter((row) => String(row.id) !== String(id));
+                    saveHashcodKeys(next);
+                    renderHashcodKeysList();
+                    hashcodKeysSetMsg('Clave eliminada.', 'ok');
+                });
+            });
+        }
+
+        function toggleHashcodKeys(force) {
+            const overlay = document.getElementById('hashcodKeysOverlay');
+            const btn = document.getElementById('hashcodDockKeysBtn');
+            if (!overlay) return;
+            const open = typeof force === 'boolean' ? force : !overlay.classList.contains('open');
+            overlay.classList.toggle('open', open);
+            overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+            if (btn) {
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                btn.classList.toggle('is-active', open);
+            }
+            if (open) {
+                try { toggleHashcodClock(false); } catch (e) {}
+                renderHashcodKeysList();
+                hashcodKeysSetMsg('Guarda contraseñas y códigos criptográficos en este dispositivo.');
+                const name = document.getElementById('hashcodKeysName');
+                if (name) {
+                    try { name.focus(); } catch (e) {}
+                }
+            }
+        }
+
+        function submitHashcodKey(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const nameEl = document.getElementById('hashcodKeysName');
+            const secretEl = document.getElementById('hashcodKeysSecret');
+            const codeEl = document.getElementById('hashcodKeysCode');
+            const name = nameEl ? String(nameEl.value || '').trim() : '';
+            const secret = secretEl ? String(secretEl.value || '') : '';
+            const code = codeEl ? String(codeEl.value || '').trim() : '';
+            if (!name) {
+                hashcodKeysSetMsg('Escribe un nombre para la clave.', 'err');
+                if (nameEl) nameEl.focus();
+                return false;
+            }
+            if (!secret && !code) {
+                hashcodKeysSetMsg('Introduce una contraseña/clave o un código criptográfico.', 'err');
+                return false;
+            }
+            const entries = loadHashcodKeys();
+            const id = 'k_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+            entries.unshift({
+                id: id,
+                name: name.slice(0, 120),
+                secret: secret.slice(0, 4000),
+                code: code.slice(0, 4000),
+                created_at: new Date().toISOString()
+            });
+            if (!saveHashcodKeys(entries)) {
+                hashcodKeysSetMsg('No se pudo guardar (almacenamiento lleno o bloqueado).', 'err');
+                return false;
+            }
+            if (nameEl) nameEl.value = '';
+            if (secretEl) secretEl.value = '';
+            if (codeEl) codeEl.value = '';
+            renderHashcodKeysList();
+            hashcodKeysSetMsg('Clave guardada.', 'ok');
+            return false;
         }
 
         async function openUbuntuCli() {
@@ -5467,6 +5829,20 @@
                     if (e.target === unlockOverlay) toggleTokensUnlock(false);
                 });
             }
+            const keysOverlay = document.getElementById('hashcodKeysOverlay');
+            const keysCloseBtn = document.getElementById('hashcodKeysCloseBtn');
+            const keysForm = document.getElementById('hashcodKeysForm');
+            if (keysCloseBtn) {
+                keysCloseBtn.addEventListener('click', () => toggleHashcodKeys(false));
+            }
+            if (keysOverlay) {
+                keysOverlay.addEventListener('click', (e) => {
+                    if (e.target === keysOverlay) toggleHashcodKeys(false);
+                });
+            }
+            if (keysForm) {
+                keysForm.addEventListener('submit', submitHashcodKey);
+            }
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && unlockOverlay && unlockOverlay.classList.contains('open')) {
                     toggleTokensUnlock(false);
@@ -5474,6 +5850,7 @@
                 if (e.key === 'Escape') {
                     const clockPop = document.getElementById('hashcodClockPop');
                     if (clockPop && clockPop.classList.contains('open')) toggleHashcodClock(false);
+                    if (keysOverlay && keysOverlay.classList.contains('open')) toggleHashcodKeys(false);
                 }
             });
             document.addEventListener('click', (e) => {
@@ -5487,6 +5864,7 @@
                 if (!tokensPanel || !tokensPanel.classList.contains('open')) return;
                 if (tokensPanel.contains(e.target) || (tokensBtn && tokensBtn.contains(e.target))) return;
                 if (unlockOverlay && unlockOverlay.contains(e.target)) return;
+                if (keysOverlay && keysOverlay.contains(e.target)) return;
                 toggleTokensPanel(false);
             });
             refreshTokensStatus(true);

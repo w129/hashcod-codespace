@@ -1144,18 +1144,35 @@
         .indices-bank-table-wrap {
             border: 1px solid var(--ib-line);
             border-radius: 16px;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: scroll;
             max-height: min(48vh, 420px);
+            min-height: 220px;
             background: #ffffff;
+            scrollbar-gutter: stable;
+            scrollbar-width: thin;
+            scrollbar-color: var(--ib-green) #ecefed;
         }
 
         .indices-bank-table-wrap::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
+        }
+
+        .indices-bank-table-wrap::-webkit-scrollbar-track {
+            background: #ecefed;
+            border-radius: 0 14px 14px 0;
+            margin: 6px 2px 6px 0;
         }
 
         .indices-bank-table-wrap::-webkit-scrollbar-thumb {
             background: var(--ib-green);
             border-radius: 999px;
+            border: 2px solid #ecefed;
+            min-height: 48px;
+        }
+
+        .indices-bank-table-wrap::-webkit-scrollbar-thumb:hover {
+            background: var(--ib-green-soft);
         }
 
         .indices-bank-table {
@@ -1168,6 +1185,7 @@
         .indices-bank-table thead th {
             position: sticky;
             top: 0;
+            z-index: 1;
             background: var(--ib-wash);
             color: #7a8580;
             font-weight: 700;
@@ -1179,6 +1197,7 @@
 
         .indices-bank-table thead th:last-child {
             text-align: right;
+            padding-right: 18px;
         }
 
         .indices-bank-table tbody td {
@@ -1186,6 +1205,12 @@
             border-bottom: 1px solid var(--ib-line);
             color: var(--ib-green);
             height: 22px;
+            vertical-align: middle;
+        }
+
+        .indices-bank-table tbody td:last-child {
+            text-align: right;
+            padding-right: 18px;
         }
 
         .indices-bank-table tbody tr:last-child td {
@@ -4177,7 +4202,7 @@
             <div class="indices-bank-body">
                 <h2 class="indices-bank-title" id="indicesBankTitle">Indices PI</h2>
                 <p class="indices-bank-subtitle">Lista de indices</p>
-                <div class="indices-bank-table-wrap">
+                <div class="indices-bank-table-wrap" id="indicesBankTableWrap" role="region" aria-label="Tabla de índices con desplazamiento vertical">
                     <table class="indices-bank-table" aria-label="Lista de índices">
                         <thead>
                             <tr>
@@ -6278,10 +6303,12 @@
                     '<td>' + escapeIndicesHtml(row.porcentaje) + '</td>' +
                     '<td>' + escapeIndicesHtml(row.prestamo) + '</td>' +
                     '<td>' + escapeIndicesHtml(row.retorno) + '</td>' +
-                    '<td style="text-align:right">' + escapeIndicesHtml(row.periodo) + '</td>' +
+                    '<td>' + escapeIndicesHtml(row.periodo) + '</td>' +
                     '</tr>';
             }).join('');
             if (empty) empty.hidden = true;
+            const wrap = document.getElementById('indicesBankTableWrap');
+            if (wrap) wrap.scrollTop = 0;
         }
 
         function escapeIndicesHtml(value) {

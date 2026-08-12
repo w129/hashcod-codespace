@@ -1142,73 +1142,96 @@
         }
 
         .indices-bank-table-wrap {
-            border: 1px solid var(--ib-line);
-            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
             overflow-x: auto;
             overflow-y: scroll;
             max-height: min(48vh, 420px);
-            min-height: 220px;
+            min-height: 236px;
             background: #ffffff;
+            padding-right: 2px;
+            box-sizing: border-box;
             scrollbar-gutter: stable;
             scrollbar-width: thin;
-            scrollbar-color: var(--ib-green) #ecefed;
+            scrollbar-color: #3b5a46 #e8e8e8;
         }
 
+        /* Barra desplazadora: track gris claro + thumb verde oscuro (pill) */
         .indices-bank-table-wrap::-webkit-scrollbar {
-            width: 10px;
+            width: 6px;
+        }
+
+        .indices-bank-table-wrap::-webkit-scrollbar-button {
+            display: none;
+            width: 0;
+            height: 0;
         }
 
         .indices-bank-table-wrap::-webkit-scrollbar-track {
-            background: #ecefed;
-            border-radius: 0 14px 14px 0;
-            margin: 6px 2px 6px 0;
+            background: #e8e8e8;
+            border-radius: 999px;
+            margin: 10px 0;
         }
 
         .indices-bank-table-wrap::-webkit-scrollbar-thumb {
-            background: var(--ib-green);
+            background: #3b5a46;
             border-radius: 999px;
-            border: 2px solid #ecefed;
-            min-height: 48px;
+            min-height: 56px;
+            border: none;
         }
 
         .indices-bank-table-wrap::-webkit-scrollbar-thumb:hover {
-            background: var(--ib-green-soft);
+            background: #0b3d2e;
         }
 
         .indices-bank-table {
             width: 100%;
             border-collapse: collapse;
+            border-spacing: 0;
             font-size: 13px;
-            min-width: 640px;
+            min-width: 680px;
+            table-layout: fixed;
         }
+
+        .indices-bank-table col.col-index { width: 16%; }
+        .indices-bank-table col.col-porcentaje { width: 22%; }
+        .indices-bank-table col.col-prestamo { width: 18%; }
+        .indices-bank-table col.col-retorno { width: 18%; }
+        .indices-bank-table col.col-periodo { width: 26%; }
 
         .indices-bank-table thead th {
             position: sticky;
             top: 0;
             z-index: 1;
-            background: var(--ib-wash);
-            color: #7a8580;
-            font-weight: 700;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-weight: 600;
             text-align: left;
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--ib-line);
-            white-space: nowrap;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            border-right: none;
+            line-height: 1.25;
+            vertical-align: middle;
         }
 
-        .indices-bank-table thead th:last-child {
+        .indices-bank-table thead th.col-periodo {
             text-align: right;
+            white-space: normal;
             padding-right: 18px;
         }
 
         .indices-bank-table tbody td {
-            padding: 14px;
-            border-bottom: 1px solid var(--ib-line);
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            border-right: none;
             color: var(--ib-green);
-            height: 22px;
+            height: 20px;
+            min-height: 48px;
             vertical-align: middle;
+            background: #ffffff;
         }
 
-        .indices-bank-table tbody td:last-child {
+        .indices-bank-table tbody td.col-periodo {
             text-align: right;
             padding-right: 18px;
         }
@@ -4204,20 +4227,51 @@
                 <p class="indices-bank-subtitle">Lista de indices</p>
                 <div class="indices-bank-table-wrap" id="indicesBankTableWrap" role="region" aria-label="Tabla de índices con desplazamiento vertical">
                     <table class="indices-bank-table" aria-label="Lista de índices">
+                        <colgroup>
+                            <col class="col-index">
+                            <col class="col-porcentaje">
+                            <col class="col-prestamo">
+                            <col class="col-retorno">
+                            <col class="col-periodo">
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th scope="col">Index</th>
-                                <th scope="col">Porcentaje actual</th>
-                                <th scope="col">Prestamo</th>
-                                <th scope="col">Retorno</th>
-                                <th scope="col">Periodo de entrega</th>
+                                <th scope="col" class="col-index">Index</th>
+                                <th scope="col" class="col-porcentaje">Porcentaje actual</th>
+                                <th scope="col" class="col-prestamo">Prestamo</th>
+                                <th scope="col" class="col-retorno">Retorno</th>
+                                <th scope="col" class="col-periodo">Periodo de<br>entrega</th>
                             </tr>
                         </thead>
                         <tbody id="indicesBankTableBody">
-                            <tr><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+                            <tr>
+                                <td class="col-index" data-col="index"></td>
+                                <td class="col-porcentaje" data-col="porcentaje"></td>
+                                <td class="col-prestamo" data-col="prestamo"></td>
+                                <td class="col-retorno" data-col="retorno"></td>
+                                <td class="col-periodo" data-col="periodo"></td>
+                            </tr>
+                            <tr>
+                                <td class="col-index" data-col="index"></td>
+                                <td class="col-porcentaje" data-col="porcentaje"></td>
+                                <td class="col-prestamo" data-col="prestamo"></td>
+                                <td class="col-retorno" data-col="retorno"></td>
+                                <td class="col-periodo" data-col="periodo"></td>
+                            </tr>
+                            <tr>
+                                <td class="col-index" data-col="index"></td>
+                                <td class="col-porcentaje" data-col="porcentaje"></td>
+                                <td class="col-prestamo" data-col="prestamo"></td>
+                                <td class="col-retorno" data-col="retorno"></td>
+                                <td class="col-periodo" data-col="periodo"></td>
+                            </tr>
+                            <tr>
+                                <td class="col-index" data-col="index"></td>
+                                <td class="col-porcentaje" data-col="porcentaje"></td>
+                                <td class="col-prestamo" data-col="prestamo"></td>
+                                <td class="col-retorno" data-col="retorno"></td>
+                                <td class="col-periodo" data-col="periodo"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -6284,10 +6338,11 @@
             }
 
             if (!rows.length) {
-                body.innerHTML = '<tr><td></td><td></td><td></td><td></td><td></td></tr>' +
-                    '<tr><td></td><td></td><td></td><td></td><td></td></tr>' +
-                    '<tr><td></td><td></td><td></td><td></td><td></td></tr>' +
-                    '<tr><td></td><td></td><td></td><td></td><td></td></tr>';
+                body.innerHTML =
+                    emptyIndicesBankRow() +
+                    emptyIndicesBankRow() +
+                    emptyIndicesBankRow() +
+                    emptyIndicesBankRow();
                 if (empty) {
                     empty.hidden = false;
                     empty.textContent = q
@@ -6299,16 +6354,26 @@
 
             body.innerHTML = rows.map(function (row) {
                 return '<tr>' +
-                    '<td>' + escapeIndicesHtml(row.index) + '</td>' +
-                    '<td>' + escapeIndicesHtml(row.porcentaje) + '</td>' +
-                    '<td>' + escapeIndicesHtml(row.prestamo) + '</td>' +
-                    '<td>' + escapeIndicesHtml(row.retorno) + '</td>' +
-                    '<td>' + escapeIndicesHtml(row.periodo) + '</td>' +
+                    '<td class="col-index" data-col="index">' + escapeIndicesHtml(row.index) + '</td>' +
+                    '<td class="col-porcentaje" data-col="porcentaje">' + escapeIndicesHtml(row.porcentaje) + '</td>' +
+                    '<td class="col-prestamo" data-col="prestamo">' + escapeIndicesHtml(row.prestamo) + '</td>' +
+                    '<td class="col-retorno" data-col="retorno">' + escapeIndicesHtml(row.retorno) + '</td>' +
+                    '<td class="col-periodo" data-col="periodo">' + escapeIndicesHtml(row.periodo) + '</td>' +
                     '</tr>';
             }).join('');
             if (empty) empty.hidden = true;
             const wrap = document.getElementById('indicesBankTableWrap');
             if (wrap) wrap.scrollTop = 0;
+        }
+
+        function emptyIndicesBankRow() {
+            return '<tr>' +
+                '<td class="col-index" data-col="index"></td>' +
+                '<td class="col-porcentaje" data-col="porcentaje"></td>' +
+                '<td class="col-prestamo" data-col="prestamo"></td>' +
+                '<td class="col-retorno" data-col="retorno"></td>' +
+                '<td class="col-periodo" data-col="periodo"></td>' +
+                '</tr>';
         }
 
         function escapeIndicesHtml(value) {

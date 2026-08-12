@@ -1,6 +1,6 @@
 {
     "name": "laragon/l8-server",
-    "description": "Servidor Native PHP + React TypeScript l8",
+    "description": "l8 codespace — servidor Native PHP HTML (sin Vite/React SPA)",
     "type": "project",
     "require": {
         "php": ">=8.1"

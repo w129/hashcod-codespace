@@ -1,5 +1,11 @@
 <?php
-// index.php - Servidor Native PHP + React TypeScript l8 (Inspección de Código por Carpetas en Consola Negra)
+// index.php — plataforma servidor HTML nativo (PHP). No Vite / no React SPA.
+require_once __DIR__ . '/l8-html.php';
+$L8_BASE = l8_public_base_path();
+if (!headers_sent()) {
+    header('Content-Type: text/html; charset=utf-8');
+    header('X-L8-Serve: php-html');
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -7,9 +13,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>l8 codespace</title>
-    <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
-    <link rel="shortcut icon" href="/favicon.svg?v=3" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/favicon.svg?v=3">
+    <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
+    <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
+    <link rel="icon" href="favicon.svg?v=3" type="image/svg+xml">
+    <link rel="shortcut icon" href="favicon.svg?v=3" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="favicon.svg?v=3">
     <meta name="application-name" content="l8 codespace">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
@@ -4093,7 +4101,7 @@
             }
         }
     </style>
-    <script src="/components/originkit/ui/blackhole-runtime.js"></script>
+    <script src="components/originkit/ui/blackhole-runtime.js"></script>
 </head>
 <body class="boot-locked">
     <div id="bootCliOverlay" class="boot-cli-overlay" role="dialog" aria-modal="true" aria-label="l8 codespace blackhole">
@@ -4103,7 +4111,7 @@
                 <div class="boot-cli-visual" id="bootCliVisual">
                     <canvas id="bootBlackholeCanvas"></canvas>
                     <div class="boot-brand" aria-label="l8 codespace">
-                        <img class="boot-brand-icon" src="/favicon.svg?v=3" alt="" width="64" height="64">
+                        <img class="boot-brand-icon" src="favicon.svg?v=3" alt="" width="64" height="64">
                         <div class="boot-brand-text">
                             <p class="boot-brand-name">l8 codespace</p>
                             <p class="boot-brand-tag">platform</p>
@@ -4114,16 +4122,16 @@
             <div class="boot-cli-footer">
                 <div class="boot-cli-hint-wrap">
                     <span id="bootCliHint">Loading blackhole…</span>
-                    <img class="boot-linux-logo" src="/linux-tux-gray.svg?v=2" alt="Linux" title="Linux" width="26" height="30">
+                    <img class="boot-linux-logo" src="linux-tux-gray.svg?v=2" alt="Linux" title="Linux" width="26" height="30">
                     <span class="boot-github-logo" title="GitHub" aria-label="GitHub" role="img">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 96" aria-hidden="true">
                             <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/>
                         </svg>
                     </span>
-                    <img class="boot-claude-logo" src="/claude-mark-gray.svg?v=2" alt="Claude" title="Claude" width="24" height="24">
-                    <img class="boot-zylon-logo" src="/zylon-mark-gray.svg?v=1" alt="Zylon" title="Zylon" width="24" height="24">
+                    <img class="boot-claude-logo" src="claude-mark-gray.svg?v=2" alt="Claude" title="Claude" width="24" height="24">
+                    <img class="boot-zylon-logo" src="zylon-mark-gray.svg?v=1" alt="Zylon" title="Zylon" width="24" height="24">
                     <span class="boot-hashcod-logo" title="Created by Hashcod" aria-label="Created by Hashcod">
-                        <img src="/hashcod-created-by-gray.svg?v=7" alt="Created by Hashcod" height="14">
+                        <img src="hashcod-created-by-gray.svg?v=7" alt="Created by Hashcod" height="14">
                     </span>
                 </div>
                 <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
@@ -4191,13 +4199,13 @@
                 <span>Dar formato al texto</span>
             </label>
             <button type="button" class="icon-ubuntu-cli" title="Ubuntu CLI (Linux)" aria-label="Abrir Ubuntu CLI externa" onclick="openUbuntuCli()">
-                <img src="/linux-tux-gray.svg?v=3" alt="" width="18" height="22" aria-hidden="true">
+                <img src="linux-tux-gray.svg?v=3" alt="" width="18" height="22" aria-hidden="true">
             </button>
             <button type="button" class="icon-claude-cli" title="Claude Code" aria-label="Abrir Claude Code externa" onclick="openClaudeCli()">
-                <img src="/claude-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
+                <img src="claude-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
             </button>
             <button type="button" class="icon-zylon-cli" title="Zylon / PrivateGPT" aria-label="Abrir Zylon externa" onclick="openZylonCli()">
-                <img src="/zylon-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
+                <img src="zylon-mark-gray.svg?v=1" alt="" width="18" height="18" aria-hidden="true">
             </button>
             <button type="button" class="icon-notepad" id="notepadOpenBtn" title="Bloc de notas" aria-label="Abrir bloc de notas" aria-expanded="false" aria-controls="notepadOverlay" onclick="toggleNotepadEditor()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
@@ -4210,17 +4218,17 @@
                 </svg>
             </button>
             <span class="hashcod-created-by" title="Created by Hashcod" aria-label="Created by Hashcod">
-                <img src="/hashcod-created-by-gray.svg?v=7" alt="Created by Hashcod" height="14">
+                <img src="hashcod-created-by-gray.svg?v=7" alt="Created by Hashcod" height="14">
             </span>
             <nav class="hashcod-tools-dock" id="hashcodToolsDock" aria-label="Barra de herramientas Hashcod">
                 <button type="button" class="hashcod-dock-slot is-filled is-ready" data-dock-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (pendiente)">
-                    <img src="/hashcod-dock-cube.svg?v=1" alt="" width="13" height="13">
+                    <img src="hashcod-dock-cube.svg?v=1" alt="" width="13" height="13">
                 </button>
                 <button type="button" class="hashcod-dock-slot is-ready" id="hashcodDockClockBtn" data-dock-slot="2" title="Hora actual" aria-label="Mostrar hora actual" aria-expanded="false" aria-controls="hashcodClockPop" onclick="toggleHashcodClock()">
-                    <img src="/hashcod-dock-hourglass.svg?v=1" alt="" width="13" height="13">
+                    <img src="hashcod-dock-hourglass.svg?v=1" alt="" width="13" height="13">
                 </button>
                 <button type="button" class="hashcod-dock-slot is-ready" id="hashcodDockKeysBtn" data-dock-slot="3" title="Registro de Claves" aria-label="Abrir registro de claves" aria-expanded="false" aria-controls="hashcodKeysOverlay" onclick="toggleHashcodKeys()">
-                    <img src="/hashcod-dock-doc.svg?v=1" alt="" width="13" height="13">
+                    <img src="hashcod-dock-doc.svg?v=1" alt="" width="13" height="13">
                 </button>
                 <button type="button" class="hashcod-dock-slot" data-dock-slot="4" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
                 <button type="button" class="hashcod-dock-slot" data-dock-slot="5" title="Espacio reservado" aria-label="Espacio reservado" disabled></button>
@@ -4478,7 +4486,7 @@
         </div>
     </div>
 
-    <script src="/toolkit/pdf-inspector/toolkit-pdf-md.js?v=2"></script>
+    <script src="toolkit/pdf-inspector/toolkit-pdf-md.js?v=2"></script>
 
     <script>
         let latestExecutionData = null;
@@ -5144,7 +5152,7 @@
                 <div class="gateway-modal" role="dialog" aria-modal="true" aria-labelledby="gatewayModalTitle" style="max-width:460px;">
                     <div class="gateway-modal-title" id="gatewayModalTitle">Gateway</div>
                     <div class="gateway-modal-brand">
-                        <img src="/favicon.svg?v=3" alt="l8 codespace">
+                        <img src="favicon.svg?v=3" alt="l8 codespace">
                         <span>l8 codespace</span>
                     </div>
                     <div class="gateway-modal-text">
@@ -5308,7 +5316,7 @@
                 <div class="gateway-modal" role="dialog" aria-modal="true" aria-labelledby="gatewayModalTitle">
                     <div class="gateway-modal-title" id="gatewayModalTitle">Gateway</div>
                     <div class="gateway-modal-brand">
-                        <img src="/favicon.svg?v=3" alt="l8 codespace">
+                        <img src="favicon.svg?v=3" alt="l8 codespace">
                         <span>l8 codespace</span>
                     </div>
                     <div class="gateway-modal-text">
@@ -5982,7 +5990,7 @@
             }
             if (k === 'clone' || k === 'github') {
                 // Marca GitHub (clones)
-                return '<img src="/github-mark-gray.svg?v=1" alt="" aria-hidden="true">';
+                return '<img src="github-mark-gray.svg?v=1" alt="" aria-hidden="true">';
             }
             if (k === 'kit' || k === 'toolkit') {
                 // Cubo isométrico del Toolkit
@@ -5993,7 +6001,7 @@
                 return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 19 C 3 20.105 3.895 21 5 21 L 15 21 L 21 15 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 5 5 L 19 5 L 19 14 L 14 14 L 14 19 L 5 19 L 5 5 z M 7 7 L 7 9 L 17 9 L 17 7 L 7 7 z M 7 11 L 7 13 L 12 13 L 12 11 L 7 11 z"></path></svg>';
             }
             // Comandos / celda (=) · marca l8 codespace
-            return '<img src="/favicon.svg?v=3" alt="" aria-hidden="true">';
+            return '<img src="favicon.svg?v=3" alt="" aria-hidden="true">';
         }
 
         function tokensUnlockLockSvg() {
@@ -8179,7 +8187,7 @@
 
 
         /* ===== Toolkit tool: Ingeniería (agency-agents/engineering) ===== */
-        const TOOLKIT_ENGINEERING_BASE = '/toolkit/agency-agents/engineering';
+        const TOOLKIT_ENGINEERING_BASE = l8Asset('toolkit/agency-agents/engineering');
         let toolkitEngineeringIndex = null;
         let toolkitEngineeringMarkedReady = null;
         let toolkitEngineeringActiveId = '';
@@ -8195,7 +8203,7 @@
             if (toolkitEngineeringMarkedReady) return toolkitEngineeringMarkedReady;
             toolkitEngineeringMarkedReady = new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = '/toolkit/vendor/marked.min.js?v=15.0.7';
+                s.src = l8Asset('toolkit/vendor/marked.min.js?v=15.0.7');
                 s.async = true;
                 s.onload = () => {
                     if (window.marked && typeof window.marked.parse === 'function') resolve(window.marked);
@@ -8406,13 +8414,13 @@
             {
                 id: 'platform',
                 title: 'l8 codespace',
-                icon: '/favicon.svg?v=3',
+                icon: l8Asset('favicon.svg?v=3'),
                 tools: [toolkitBuiltinEngineeringTool(), toolkitBuiltinPdfMdTool()]
             },
             {
                 id: 'workspace',
                 title: 'workspace',
-                icon: '/favicon.svg?v=3',
+                icon: l8Asset('favicon.svg?v=3'),
                 tools: [toolkitBuiltinEngineeringTool(), toolkitBuiltinPdfMdTool()]
             }
         ];
@@ -8652,7 +8660,7 @@
                 String(ficha.title).replace(/"/g, '&quot;') + '">' +
                 deleteBtn +
                 '<div class="toolkit-ficha-icon">' +
-                '<img src="' + String(ficha.icon || '/favicon.svg?v=3').replace(/"/g, '&quot;') +
+                '<img src="' + String(ficha.icon || l8Asset('favicon.svg?v=3')).replace(/"/g, '&quot;') +
                 '" alt="" class="platform">' +
                 '<div class="ficha-mark">' + String(ficha.title || ficha.id).replace(/</g, '&lt;') + '</div>' +
                 '</div>' +
@@ -9233,6 +9241,17 @@
                 if (e.key === 'Enter') document.getElementById('authRecoverBtn')?.click();
             });
         })();
+
+
+        window.l8Asset = function (path) {
+            var p = String(path == null ? '' : path);
+            if (!p) return p;
+            if (/^(https?:|data:|blob:)/i.test(p)) return p;
+            var base = window.L8_BASE_PATH || '/';
+            if (p.charAt(0) === '/') p = p.slice(1);
+            if (!base || base === '/') return '/' + p;
+            return base.replace(/\/+$/, '/') + p;
+        };
 
         /* ===== BOOT: blackhole visual only (CLI hidden) ===== */
         (function bootBlackholeVisual() {

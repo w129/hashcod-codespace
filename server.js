@@ -248,8 +248,17 @@ const server = http.createServer((req, res) => {
 
     fs.readFile(filePath, (err, content) => {
         if (err) {
-            res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ error: 404, message: "Recurso no encontrado" }));
+            // Soft-landing al HTML nativo (no JSON 404 / no shell Vite vacío)
+            const fallback = path.join(PUBLIC_DIR, 'index.html');
+            fs.readFile(fallback, (err2, html) => {
+                if (err2) {
+                    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+                    res.end('<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>l8 codespace</title></head><body><h1>l8 codespace</h1><p>Plataforma HTML nativa. Arranca el servidor PHP: php -S localhost:8000 router.php</p></body></html>');
+                    return;
+                }
+                res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'X-L8-Serve': 'node-html' });
+                res.end(html, 'utf-8');
+            });
         } else {
             res.writeHead(200, { 'Content-Type': contentType + '; charset=utf-8' });
             res.end(content, 'utf-8');
@@ -259,6 +268,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
     console.log(`\n==================================================`);
-    console.log(`🚀 SERVIDOR CON COMANDO (crl) EN PUERTO ${PORT}`);
+    console.log(`l8 codespace — legado Node (preferir PHP router.php)`);
+    console.log(`Puerto ${PORT} — HTML nativo, no Vite/React SPA`);
     console.log(`==================================================\n`);
 });

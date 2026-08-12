@@ -8196,9 +8196,9 @@
             aria-label="Abrir barra Fly"
             aria-expanded="false"
             aria-controls="flyRailPanel"
-            style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#000;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
+            style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#0b3d2e;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
         ></button>
-        <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
+        <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true" style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:#0b3d2e;">
             <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>

@@ -1004,7 +1004,7 @@
             --ib-wash: #f7f8f8;
             --ib-scroll: #3b5a46;
             --ib-track: #e8e8e8;
-            width: min(860px, 100%);
+            width: min(920px, 100%);
             max-height: min(92vh, 720px);
             overflow: hidden;
             display: flex;
@@ -1197,15 +1197,15 @@
             border-collapse: collapse;
             border-spacing: 0;
             font-size: 13px;
-            min-width: 700px;
+            min-width: 760px;
             table-layout: fixed;
         }
 
-        .indices-bank-table col.col-index { width: 16%; }
-        .indices-bank-table col.col-porcentaje { width: 22%; }
-        .indices-bank-table col.col-prestamo { width: 18%; }
-        .indices-bank-table col.col-retorno { width: 18%; }
-        .indices-bank-table col.col-periodo { width: 26%; }
+        .indices-bank-table col.col-index { width: 34%; }
+        .indices-bank-table col.col-porcentaje { width: 16%; }
+        .indices-bank-table col.col-prestamo { width: 14%; }
+        .indices-bank-table col.col-retorno { width: 14%; }
+        .indices-bank-table col.col-periodo { width: 22%; }
 
         .indices-bank-table thead th {
             position: sticky;
@@ -1235,26 +1235,34 @@
         }
 
         .indices-bank-table tbody td {
-            padding: 18px 16px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 16px 14px;
+            border-bottom: 1px solid #ececec;
             border-right: none;
-            color: var(--ib-green);
-            height: 18px;
-            min-height: 52px;
+            color: #111111;
+            min-height: 64px;
             vertical-align: middle;
             background: #ffffff;
             font-weight: 500;
+            font-size: 14px;
+        }
+
+        .indices-bank-table tbody td.col-index {
+            padding-left: 16px;
         }
 
         .indices-bank-table tbody td.col-porcentaje,
         .indices-bank-table tbody td.col-prestamo,
         .indices-bank-table tbody td.col-retorno {
             text-align: center;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
         }
 
         .indices-bank-table tbody td.col-periodo {
             text-align: right;
             padding-right: 20px;
+            white-space: nowrap;
+            color: #111111;
         }
 
         .indices-bank-table tbody tr:last-child td {
@@ -1264,6 +1272,76 @@
         .indices-bank-table tbody tr.is-empty td {
             color: transparent;
             user-select: none;
+        }
+
+        .ib-index-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .ib-index-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px solid #d5d8d6;
+            background: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            overflow: hidden;
+            color: #6b7280;
+        }
+
+        .ib-index-icon img,
+        .ib-index-icon svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+
+        .ib-index-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .ib-index-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111111;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ib-index-desc {
+            font-size: 12px;
+            font-weight: 400;
+            color: #888888;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ib-metric-up {
+            color: #22a06b;
+            font-weight: 600;
+        }
+
+        .ib-metric-down {
+            color: #e34935;
+            font-weight: 600;
+        }
+
+        .ib-metric-flat {
+            color: #111111;
+            font-weight: 600;
         }
 
         .indices-bank-empty {
@@ -6238,27 +6316,86 @@
         window.bindFlySlot = bindFlySlot;
 
         /* ===== BANCO DE ÍNDICES / Indices PI ===== */
-        const INDICES_BANK_STORE = 'l8_indices_bank_v1';
+        const INDICES_BANK_STORE = 'l8_indices_bank_v2';
+        const INDICES_BANK_STORE_LEGACY = 'l8_indices_bank_v1';
 
         function indicesBankSeedEntries() {
             return [
-                { index: 'PI-01', porcentaje: '12.40%', prestamo: '$1,200', retorno: '8.20%', periodo: '30 días' },
-                { index: 'PI-02', porcentaje: '9.85%', prestamo: '$2,500', retorno: '7.10%', periodo: '45 días' },
-                { index: 'PI-03', porcentaje: '15.20%', prestamo: '$800', retorno: '11.40%', periodo: '21 días' },
-                { index: 'PI-04', porcentaje: '6.75%', prestamo: '$4,000', retorno: '5.90%', periodo: '60 días' },
-                { index: 'PI-05', porcentaje: '18.10%', prestamo: '$1,050', retorno: '13.25%', periodo: '14 días' },
-                { index: 'PI-06', porcentaje: '11.05%', prestamo: '$3,200', retorno: '9.60%', periodo: '40 días' },
-                { index: 'PI-07', porcentaje: '7.40%', prestamo: '$5,500', retorno: '6.35%', periodo: '90 días' },
-                { index: 'PI-08', porcentaje: '13.65%', prestamo: '$1,780', retorno: '10.05%', periodo: '28 días' },
-                { index: 'PI-09', porcentaje: '10.20%', prestamo: '$2,150', retorno: '8.80%', periodo: '35 días' },
-                { index: 'PI-10', porcentaje: '16.50%', prestamo: '$950', retorno: '12.70%', periodo: '18 días' }
+                {
+                    id: 'btc',
+                    name: 'BTC Index',
+                    desc: 'Bitcoin Standard',
+                    icon: '',
+                    porcentaje: '+12.4%',
+                    prestamo: '4.5%',
+                    retorno: '5.2%',
+                    periodo: '30 días'
+                },
+                {
+                    id: 'eth',
+                    name: 'ETH Index',
+                    desc: 'Ethereum Network',
+                    icon: '',
+                    porcentaje: '-3.2%',
+                    prestamo: '2.1%',
+                    retorno: '1.8%',
+                    periodo: '15 días'
+                },
+                {
+                    id: 'defi',
+                    name: 'DeFi Index',
+                    desc: 'Finanzas Descentralizadas',
+                    icon: '',
+                    porcentaje: '+8.7%',
+                    prestamo: '6.3%',
+                    retorno: '3.4%',
+                    periodo: '60 días'
+                },
+                {
+                    id: 'sol',
+                    name: 'SOL Index',
+                    desc: 'Solana High Throughput',
+                    icon: '',
+                    porcentaje: '+5.1%',
+                    prestamo: '3.8%',
+                    retorno: '4.0%',
+                    periodo: '21 días'
+                },
+                {
+                    id: 'ai',
+                    name: 'AI Index',
+                    desc: 'Agentes y Modelos',
+                    icon: '',
+                    porcentaje: '-1.4%',
+                    prestamo: '4.9%',
+                    retorno: '2.6%',
+                    periodo: '45 días'
+                },
+                {
+                    id: 'rwa',
+                    name: 'RWA Index',
+                    desc: 'Activos del Mundo Real',
+                    icon: '',
+                    porcentaje: '+2.9%',
+                    prestamo: '5.5%',
+                    retorno: '3.1%',
+                    periodo: '90 días'
+                }
             ];
         }
 
         function indicesBankNormalizeEntry(row) {
             if (!row || typeof row !== 'object') return null;
+            const name = String(
+                row.name != null ? row.name
+                    : (row.index != null ? row.index : '')
+            );
+            const desc = String(row.desc != null ? row.desc : (row.description != null ? row.description : ''));
             return {
-                index: String(row.index == null ? '' : row.index),
+                id: String(row.id != null ? row.id : name).toLowerCase().replace(/\s+/g, '-'),
+                name: name,
+                desc: desc,
+                icon: String(row.icon != null ? row.icon : ''),
                 porcentaje: String(row.porcentaje == null ? '' : row.porcentaje),
                 prestamo: String(row.prestamo == null ? '' : row.prestamo),
                 retorno: String(row.retorno == null ? '' : row.retorno),
@@ -6266,19 +6403,31 @@
             };
         }
 
+        function indicesBankEntriesLookLegacy(entries) {
+            if (!entries || !entries.length) return true;
+            return entries.every(function (row) {
+                return !row.desc && /^PI-\d+/i.test(String(row.name || row.index || ''));
+            });
+        }
+
         function indicesBankLoadState() {
             try {
-                const raw = localStorage.getItem(INDICES_BANK_STORE);
+                let raw = localStorage.getItem(INDICES_BANK_STORE);
                 if (!raw) {
+                    try { localStorage.removeItem(INDICES_BANK_STORE_LEGACY); } catch (e) {}
                     return { entries: indicesBankSeedEntries(), query: '', seeded: true };
                 }
                 const data = JSON.parse(raw);
                 let entries = Array.isArray(data && data.entries)
                     ? data.entries.map(indicesBankNormalizeEntry).filter(Boolean)
                     : [];
-                if (!entries.length) {
+                if (!entries.length || indicesBankEntriesLookLegacy(entries)) {
                     entries = indicesBankSeedEntries();
-                    return { entries: entries, query: typeof (data && data.query) === 'string' ? data.query : '', seeded: true };
+                    return {
+                        entries: entries,
+                        query: typeof (data && data.query) === 'string' ? data.query : '',
+                        seeded: true
+                    };
                 }
                 return {
                     entries: entries,
@@ -6295,7 +6444,7 @@
                 const cur = indicesBankLoadState();
                 const next = Object.assign({}, cur, partial || {});
                 localStorage.setItem(INDICES_BANK_STORE, JSON.stringify({
-                    version: 1,
+                    version: 2,
                     updated_at: new Date().toISOString(),
                     entries: next.entries || [],
                     query: next.query || ''
@@ -6309,6 +6458,40 @@
                 indicesBankSaveState({ entries: st.entries, query: st.query || '' });
             }
             return st;
+        }
+
+        function indicesBankMetricClass(value) {
+            const raw = String(value == null ? '' : value).trim();
+            if (!raw) return 'ib-metric-flat';
+            if (/^-/.test(raw) || /\(\s*-/.test(raw)) return 'ib-metric-down';
+            if (/^\+/.test(raw)) return 'ib-metric-up';
+            const num = parseFloat(raw.replace(/[^0-9.+-]/g, ''));
+            if (!isFinite(num) || num === 0) return 'ib-metric-flat';
+            return num > 0 ? 'ib-metric-up' : 'ib-metric-down';
+        }
+
+        function indicesBankIconHtml(row) {
+            const icon = String(row && row.icon ? row.icon : '').trim();
+            if (!icon) {
+                return '<span class="ib-index-icon" aria-hidden="true"></span>';
+            }
+            if (/^https?:\/\//i.test(icon) || icon.indexOf('/') === 0 || /\.(svg|png|jpe?g|webp|gif)(\?|$)/i.test(icon)) {
+                return '<span class="ib-index-icon" aria-hidden="true"><img src="' + escapeIndicesHtml(icon) + '" alt=""></span>';
+            }
+            if (icon.charAt(0) === '<') {
+                return '<span class="ib-index-icon" aria-hidden="true">' + icon + '</span>';
+            }
+            return '<span class="ib-index-icon" aria-hidden="true"><span>' + escapeIndicesHtml(icon) + '</span></span>';
+        }
+
+        function indicesBankIndexCellHtml(row) {
+            return '<div class="ib-index-cell">' +
+                indicesBankIconHtml(row) +
+                '<span class="ib-index-meta">' +
+                    '<span class="ib-index-name">' + escapeIndicesHtml(row.name) + '</span>' +
+                    '<span class="ib-index-desc">' + escapeIndicesHtml(row.desc) + '</span>' +
+                '</span>' +
+            '</div>';
         }
 
         function setIndicesBankOpen(open) {
@@ -6349,7 +6532,7 @@
             if (q) {
                 rows = rows.filter(function (row) {
                     const blob = [
-                        row.index, row.porcentaje, row.prestamo, row.retorno, row.periodo
+                        row.name, row.desc, row.porcentaje, row.prestamo, row.retorno, row.periodo, row.id
                     ].map(function (v) { return String(v == null ? '' : v).toLowerCase(); }).join(' ');
                     return blob.indexOf(q) !== -1;
                 });
@@ -6369,9 +6552,10 @@
             }
 
             body.innerHTML = rows.map(function (row) {
-                return '<tr>' +
-                    '<td class="col-index" data-col="index">' + escapeIndicesHtml(row.index) + '</td>' +
-                    '<td class="col-porcentaje" data-col="porcentaje">' + escapeIndicesHtml(row.porcentaje) + '</td>' +
+                const pctClass = indicesBankMetricClass(row.porcentaje);
+                return '<tr data-index-id="' + escapeIndicesHtml(row.id) + '">' +
+                    '<td class="col-index" data-col="index">' + indicesBankIndexCellHtml(row) + '</td>' +
+                    '<td class="col-porcentaje ' + pctClass + '" data-col="porcentaje">' + escapeIndicesHtml(row.porcentaje) + '</td>' +
                     '<td class="col-prestamo" data-col="prestamo">' + escapeIndicesHtml(row.prestamo) + '</td>' +
                     '<td class="col-retorno" data-col="retorno">' + escapeIndicesHtml(row.retorno) + '</td>' +
                     '<td class="col-periodo" data-col="periodo">' + escapeIndicesHtml(row.periodo) + '</td>' +
@@ -6387,7 +6571,15 @@
 
         function emptyIndicesBankRow() {
             return '<tr class="is-empty">' +
-                '<td class="col-index" data-col="index">&nbsp;</td>' +
+                '<td class="col-index" data-col="index">' +
+                    '<div class="ib-index-cell">' +
+                        '<span class="ib-index-icon" aria-hidden="true"></span>' +
+                        '<span class="ib-index-meta">' +
+                            '<span class="ib-index-name">&nbsp;</span>' +
+                            '<span class="ib-index-desc">&nbsp;</span>' +
+                        '</span>' +
+                    '</div>' +
+                '</td>' +
                 '<td class="col-porcentaje" data-col="porcentaje">&nbsp;</td>' +
                 '<td class="col-prestamo" data-col="prestamo">&nbsp;</td>' +
                 '<td class="col-retorno" data-col="retorno">&nbsp;</td>' +

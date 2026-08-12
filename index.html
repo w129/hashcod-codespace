@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="/favicon.svg?v=3">
     <meta name="application-name" content="l8 codespace">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
         * {
             box-sizing: border-box;
@@ -953,8 +953,13 @@
             cursor: pointer;
         }
 
-        #flyRail .fly-slot.is-ready::after {
+        #flyRail .fly-slot.is-ready::after,
+        #flyRail .fly-slot.has-icon::after {
             display: none;
+        }
+
+        #flyRail .fly-slot.has-icon {
+            color: #ffffff;
         }
 
         #flyRail .fly-slot img,
@@ -966,6 +971,270 @@
             position: relative;
             z-index: 1;
             pointer-events: none;
+        }
+
+        #flyRail .fly-slot svg [fill="#ffffff"],
+        #flyRail .fly-slot svg [fill="#fff"] {
+            fill: currentColor;
+        }
+
+        /* ===== BANCO DE ÍNDICES (Fly tool 1) ===== */
+        .indices-bank-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9992;
+            background: rgba(20, 24, 22, 0.55);
+            align-items: center;
+            justify-content: center;
+            padding: 18px 14px;
+            box-sizing: border-box;
+        }
+
+        .indices-bank-overlay.open {
+            display: flex;
+        }
+
+        .indices-bank-shell {
+            --ib-green: #0b3d2e;
+            --ib-green-soft: #124f3c;
+            --ib-muted: #6f7a74;
+            --ib-line: #e4e8e5;
+            --ib-wash: #f4f6f5;
+            width: min(920px, 100%);
+            max-height: min(90vh, 760px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            border-radius: 22px;
+            box-shadow: 0 24px 64px rgba(8, 28, 20, 0.28);
+            font-family: 'IBM Plex Sans', 'IBM Plex Mono', ui-sans-serif, sans-serif;
+            color: var(--ib-green);
+            box-sizing: border-box;
+        }
+
+        .indices-bank-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 22px 14px;
+            flex: 0 0 auto;
+        }
+
+        .indices-bank-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 0 0 auto;
+            min-width: 0;
+        }
+
+        .indices-bank-brand-mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: var(--ib-green);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+
+        .indices-bank-brand-mark svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        .indices-bank-brand-name {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            color: var(--ib-green);
+            white-space: nowrap;
+        }
+
+        .indices-bank-search {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 40px;
+            padding: 0 14px;
+            border: 1px solid var(--ib-line);
+            border-radius: 999px;
+            background: #ffffff;
+            color: var(--ib-muted);
+        }
+
+        .indices-bank-search svg {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 auto;
+            opacity: 0.7;
+        }
+
+        .indices-bank-search input {
+            flex: 1 1 auto;
+            min-width: 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            font: inherit;
+            font-size: 14px;
+            color: var(--ib-green);
+        }
+
+        .indices-bank-search input::placeholder {
+            color: #9aa49e;
+        }
+
+        .indices-bank-wallet-btn {
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: var(--ib-green);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex: 0 0 auto;
+            padding: 0;
+        }
+
+        .indices-bank-wallet-btn svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        .indices-bank-wallet-btn:hover {
+            background: var(--ib-green-soft);
+        }
+
+        .indices-bank-body {
+            padding: 6px 22px 22px;
+            overflow: auto;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .indices-bank-title {
+            margin: 0;
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--ib-green);
+            line-height: 1.15;
+        }
+
+        .indices-bank-subtitle {
+            margin: 6px 0 18px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--ib-muted);
+        }
+
+        .indices-bank-table-wrap {
+            border: 1px solid var(--ib-line);
+            border-radius: 16px;
+            overflow: auto;
+            max-height: min(48vh, 420px);
+            background: #ffffff;
+        }
+
+        .indices-bank-table-wrap::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .indices-bank-table-wrap::-webkit-scrollbar-thumb {
+            background: var(--ib-green);
+            border-radius: 999px;
+        }
+
+        .indices-bank-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 640px;
+        }
+
+        .indices-bank-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--ib-wash);
+            color: #7a8580;
+            font-weight: 700;
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--ib-line);
+            white-space: nowrap;
+        }
+
+        .indices-bank-table thead th:last-child {
+            text-align: right;
+        }
+
+        .indices-bank-table tbody td {
+            padding: 14px;
+            border-bottom: 1px solid var(--ib-line);
+            color: var(--ib-green);
+            height: 22px;
+        }
+
+        .indices-bank-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .indices-bank-empty {
+            margin: 14px 2px 0;
+            font-size: 12px;
+            color: var(--ib-muted);
+        }
+
+        .indices-bank-foot {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 0 22px 18px;
+            flex: 0 0 auto;
+        }
+
+        .indices-bank-close {
+            appearance: none;
+            border: 1px solid var(--ib-line);
+            background: #ffffff;
+            color: var(--ib-green);
+            border-radius: 999px;
+            padding: 8px 14px;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .indices-bank-close:hover {
+            background: var(--ib-wash);
+        }
+
+        @media (max-width: 720px) {
+            .indices-bank-head {
+                flex-wrap: wrap;
+            }
+
+            .indices-bank-title {
+                font-size: 28px;
+            }
+
+            .indices-bank-brand-name {
+                font-size: 13px;
+            }
         }
 
         .hashcod-keys-overlay {
@@ -3887,6 +4156,54 @@
         </div>
     </div>
 
+    <!-- Banco de índices (Fly tool 1) — base UI; lógica operativa después -->
+    <div class="indices-bank-overlay" id="indicesBankOverlay" aria-hidden="true">
+        <div class="indices-bank-shell" role="dialog" aria-modal="true" aria-labelledby="indicesBankTitle">
+            <div class="indices-bank-head">
+                <div class="indices-bank-brand" title="Forest Wallet">
+                    <span class="indices-bank-brand-mark" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M8.0332,1c-0.32534,-0.01113 -0.63574,0.13679 -0.83203,0.39648l-5.28516,7c-0.22915,0.30288 -0.26697,0.70942 -0.09762,1.04937c0.16935,0.33995 0.51665,0.55463 0.89645,0.55415h1.54102l-2.04688,3.49414c-0.18116,0.30904 -0.18319,0.69136 -0.00533,1.00231c0.17786,0.31095 0.50844,0.50302 0.86666,0.50355h3.92969v2h-3c-0.552,0 -1,0.448 -1,1c0,0.304 0.14342,0.567 0.35742,0.75l-0.01758,0.00195c0,0 2.92758,2.04072 4.14258,2.88672c0.337,0.236 0.73939,0.36133 1.15039,0.36133h11.37891c1.098,0 1.98828,-0.89028 1.98828,-1.98828v-12.07813c0,-0.592 -0.26184,-1.1532 -0.71484,-1.5332c-1.51596,-1.27196 -4.38467,-3.67936 -5.29297,-4.44141c-0.55596,-0.54131 -0.99609,-0.82812 -0.99609,-0.82812c-0.14541,-0.0828 -0.30926,-0.12779 -0.47656,-0.13086c-0.18054,-0.00373 -0.35872,0.04149 -0.51562,0.13086c0,0 -1.10528,0.65597 -2.08594,2.12695c-0.25771,0.38656 -0.5106,0.83689 -0.74609,1.34766l-2.36719,-3.19922c-0.18149,-0.24629 -0.46572,-0.39596 -0.77148,-0.40625zM14.5,3.39453c0.25211,0.19418 0.41849,0.22344 0.91797,0.97266c0.76934,1.15401 1.58203,3.0623 1.58203,6.13281c0,1.39094 -1.10906,2.5 -2.5,2.5c-1.39094,0 -2.5,-1.10906 -2.5,-2.5c0,-3.07051 0.81269,-4.9788 1.58203,-6.13281c0.49948,-0.74922 0.66586,-0.77847 0.91797,-0.97266zM7.99219,3.67188l2.40039,3.24609c-0.24032,1.03354 -0.39258,2.21797 -0.39258,3.58203c0,0.92335 0.28279,1.7833 0.76563,2.5h-2.76562h-3.18359l2.04688,-3.49414c0.18133,-0.30934 0.18318,-0.69208 0.00485,-1.00316c-0.17833,-0.31108 -0.50956,-0.50288 -0.86813,-0.5027h-1.27734zM9,15h5v2h-5z"/></svg>
+                    </span>
+                    <span class="indices-bank-brand-name">フォレストウォレット</span>
+                </div>
+                <label class="indices-bank-search" for="indicesBankSearch">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input id="indicesBankSearch" type="search" placeholder="Busca indices" autocomplete="off" spellcheck="false">
+                </label>
+                <button type="button" class="indices-bank-wallet-btn" id="indicesBankWalletBtn" title="Wallet" aria-label="Wallet">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8.0332,1c-0.32534,-0.01113 -0.63574,0.13679 -0.83203,0.39648l-5.28516,7c-0.22915,0.30288 -0.26697,0.70942 -0.09762,1.04937c0.16935,0.33995 0.51665,0.55463 0.89645,0.55415h1.54102l-2.04688,3.49414c-0.18116,0.30904 -0.18319,0.69136 -0.00533,1.00231c0.17786,0.31095 0.50844,0.50302 0.86666,0.50355h3.92969v2h-3c-0.552,0 -1,0.448 -1,1c0,0.304 0.14342,0.567 0.35742,0.75l-0.01758,0.00195c0,0 2.92758,2.04072 4.14258,2.88672c0.337,0.236 0.73939,0.36133 1.15039,0.36133h11.37891c1.098,0 1.98828,-0.89028 1.98828,-1.98828v-12.07813c0,-0.592 -0.26184,-1.1532 -0.71484,-1.5332c-1.51596,-1.27196 -4.38467,-3.67936 -5.29297,-4.44141c-0.55596,-0.54131 -0.99609,-0.82812 -0.99609,-0.82812c-0.14541,-0.0828 -0.30926,-0.12779 -0.47656,-0.13086c-0.18054,-0.00373 -0.35872,0.04149 -0.51562,0.13086c0,0 -1.10528,0.65597 -2.08594,2.12695c-0.25771,0.38656 -0.5106,0.83689 -0.74609,1.34766l-2.36719,-3.19922c-0.18149,-0.24629 -0.46572,-0.39596 -0.77148,-0.40625zM14.5,3.39453c0.25211,0.19418 0.41849,0.22344 0.91797,0.97266c0.76934,1.15401 1.58203,3.0623 1.58203,6.13281c0,1.39094 -1.10906,2.5 -2.5,2.5c-1.39094,0 -2.5,-1.10906 -2.5,-2.5c0,-3.07051 0.81269,-4.9788 1.58203,-6.13281c0.49948,-0.74922 0.66586,-0.77847 0.91797,-0.97266zM7.99219,3.67188l2.40039,3.24609c-0.24032,1.03354 -0.39258,2.21797 -0.39258,3.58203c0,0.92335 0.28279,1.7833 0.76563,2.5h-2.76562h-3.18359l2.04688,-3.49414c0.18133,-0.30934 0.18318,-0.69208 0.00485,-1.00316c-0.17833,-0.31108 -0.50956,-0.50288 -0.86813,-0.5027h-1.27734zM9,15h5v2h-5z"/></svg>
+                </button>
+            </div>
+            <div class="indices-bank-body">
+                <h2 class="indices-bank-title" id="indicesBankTitle">Indices PI</h2>
+                <p class="indices-bank-subtitle">Lista de indices</p>
+                <div class="indices-bank-table-wrap">
+                    <table class="indices-bank-table" aria-label="Lista de índices">
+                        <thead>
+                            <tr>
+                                <th scope="col">Index</th>
+                                <th scope="col">Porcentaje actual</th>
+                                <th scope="col">Prestamo</th>
+                                <th scope="col">Retorno</th>
+                                <th scope="col">Periodo de entrega</th>
+                            </tr>
+                        </thead>
+                        <tbody id="indicesBankTableBody">
+                            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td></td><td></td><td></td><td></td><td></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="indices-bank-empty" id="indicesBankEmpty">Base lista. El sistema operativo de índices se conectará aquí.</p>
+            </div>
+            <div class="indices-bank-foot">
+                <button type="button" class="indices-bank-close" id="indicesBankCloseBtn" title="Cerrar">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="tokens-unlock-overlay" id="tokensUnlockOverlay" aria-hidden="true">
         <div class="tokens-unlock-shell" role="dialog" aria-modal="true" aria-labelledby="tokensUnlockBrand">
             <div class="tokens-unlock-top">
@@ -5867,6 +6184,156 @@
         window.setFlyRailOpen = setFlyRailOpen;
         window.bindFlySlot = bindFlySlot;
 
+        /* ===== BANCO DE ÍNDICES (base UI) ===== */
+        const INDICES_BANK_STORE = 'l8_indices_bank_v1';
+
+        function indicesBankLoadState() {
+            try {
+                const raw = localStorage.getItem(INDICES_BANK_STORE);
+                if (!raw) return { entries: [], query: '' };
+                const data = JSON.parse(raw);
+                return {
+                    entries: Array.isArray(data && data.entries) ? data.entries : [],
+                    query: typeof (data && data.query) === 'string' ? data.query : ''
+                };
+            } catch (e) {
+                return { entries: [], query: '' };
+            }
+        }
+
+        function indicesBankSaveState(partial) {
+            try {
+                const cur = indicesBankLoadState();
+                const next = Object.assign({}, cur, partial || {});
+                localStorage.setItem(INDICES_BANK_STORE, JSON.stringify({
+                    version: 1,
+                    updated_at: new Date().toISOString(),
+                    entries: next.entries || [],
+                    query: next.query || ''
+                }));
+            } catch (e) {}
+        }
+
+        function setIndicesBankOpen(open) {
+            const overlay = document.getElementById('indicesBankOverlay');
+            const btn = document.getElementById('flySlotIndicesBank');
+            if (!overlay) return;
+            const isOpen = !!open;
+            overlay.classList.toggle('open', isOpen);
+            overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (isOpen) {
+                try { setFlyRailOpen(false); } catch (e) {}
+                const search = document.getElementById('indicesBankSearch');
+                if (search) {
+                    const st = indicesBankLoadState();
+                    if (!search.value && st.query) search.value = st.query;
+                    setTimeout(function () { try { search.focus(); } catch (e) {} }, 30);
+                }
+                renderIndicesBankTable();
+            }
+        }
+
+        function toggleIndicesBank(force) {
+            const overlay = document.getElementById('indicesBankOverlay');
+            if (!overlay) return;
+            const next = typeof force === 'boolean' ? force : !overlay.classList.contains('open');
+            setIndicesBankOpen(next);
+        }
+
+        function renderIndicesBankTable() {
+            const body = document.getElementById('indicesBankTableBody');
+            const empty = document.getElementById('indicesBankEmpty');
+            const search = document.getElementById('indicesBankSearch');
+            if (!body) return;
+            const st = indicesBankLoadState();
+            const q = String((search && search.value) || st.query || '').trim().toLowerCase();
+            let rows = st.entries.slice();
+            if (q) {
+                rows = rows.filter(function (row) {
+                    const blob = [
+                        row.index, row.porcentaje, row.prestamo, row.retorno, row.periodo
+                    ].map(function (v) { return String(v == null ? '' : v).toLowerCase(); }).join(' ');
+                    return blob.indexOf(q) !== -1;
+                });
+            }
+
+            if (!rows.length) {
+                body.innerHTML = '<tr><td></td><td></td><td></td><td></td><td></td></tr>' +
+                    '<tr><td></td><td></td><td></td><td></td><td></td></tr>' +
+                    '<tr><td></td><td></td><td></td><td></td><td></td></tr>' +
+                    '<tr><td></td><td></td><td></td><td></td><td></td></tr>';
+                if (empty) {
+                    empty.hidden = false;
+                    empty.textContent = q
+                        ? 'Sin resultados para “' + q + '”.'
+                        : 'Base lista. El sistema operativo de índices se conectará aquí.';
+                }
+                return;
+            }
+
+            body.innerHTML = rows.map(function (row) {
+                return '<tr>' +
+                    '<td>' + escapeIndicesHtml(row.index) + '</td>' +
+                    '<td>' + escapeIndicesHtml(row.porcentaje) + '</td>' +
+                    '<td>' + escapeIndicesHtml(row.prestamo) + '</td>' +
+                    '<td>' + escapeIndicesHtml(row.retorno) + '</td>' +
+                    '<td style="text-align:right">' + escapeIndicesHtml(row.periodo) + '</td>' +
+                    '</tr>';
+            }).join('');
+            if (empty) empty.hidden = true;
+        }
+
+        function escapeIndicesHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        window.toggleIndicesBank = toggleIndicesBank;
+        window.setIndicesBankOpen = setIndicesBankOpen;
+        window.renderIndicesBankTable = renderIndicesBankTable;
+
+        function initIndicesBank() {
+            const overlay = document.getElementById('indicesBankOverlay');
+            const closeBtn = document.getElementById('indicesBankCloseBtn');
+            const search = document.getElementById('indicesBankSearch');
+            const slot = document.getElementById('flySlotIndicesBank');
+            if (!overlay) return;
+
+            if (slot) {
+                bindFlySlot(slot, function () {
+                    toggleIndicesBank(true);
+                });
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function () {
+                    setIndicesBankOpen(false);
+                });
+            }
+
+            overlay.addEventListener('pointerdown', function (ev) {
+                if (ev.target === overlay) setIndicesBankOpen(false);
+            });
+
+            if (search) {
+                search.addEventListener('input', function () {
+                    indicesBankSaveState({ query: search.value || '' });
+                    renderIndicesBankTable();
+                });
+            }
+
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && overlay.classList.contains('open')) {
+                    setIndicesBankOpen(false);
+                    ev.stopPropagation();
+                }
+            }, true);
+        }
+
         function initFlyRail() {
             const rail = document.getElementById('flyRail');
             const handle = document.getElementById('flyHandleBtn');
@@ -5881,16 +6348,16 @@
                 setFlyRailOpen(true);
             });
 
-            // Tocar la barra abierta (fondo) también puede cerrar con Esc / fuera
             if (panel) {
                 panel.addEventListener('click', function (ev) {
-                    // no cerrar al tocar slots
                     if (ev.target && ev.target.classList && ev.target.classList.contains('fly-slot')) return;
                 });
             }
 
             document.addEventListener('keydown', function (ev) {
                 if (ev.key === 'Escape' && rail.classList.contains('is-open')) {
+                    const ib = document.getElementById('indicesBankOverlay');
+                    if (ib && ib.classList.contains('open')) return;
                     setFlyRailOpen(false);
                 }
             });
@@ -5898,8 +6365,12 @@
             document.addEventListener('pointerdown', function (ev) {
                 if (!rail.classList.contains('is-open')) return;
                 if (rail.contains(ev.target)) return;
+                const ib = document.getElementById('indicesBankOverlay');
+                if (ib && ib.contains(ev.target)) return;
                 setFlyRailOpen(false);
             });
+
+            initIndicesBank();
         }
 
         if (document.readyState === 'loading') {
@@ -8196,7 +8667,9 @@
             style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#0b3d2e;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
         ></button>
         <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true" style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:#0b3d2e;">
-            <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot is-ready has-icon" id="flySlotIndicesBank" data-fly-slot="1" title="Banco de índices" aria-label="Abrir Banco de índices" aria-expanded="false" aria-controls="indicesBankOverlay">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffffff" d="M8.0332,1c-0.32534,-0.01113 -0.63574,0.13679 -0.83203,0.39648l-5.28516,7c-0.22915,0.30288 -0.26697,0.70942 -0.09762,1.04937c0.16935,0.33995 0.51665,0.55463 0.89645,0.55415h1.54102l-2.04688,3.49414c-0.18116,0.30904 -0.18319,0.69136 -0.00533,1.00231c0.17786,0.31095 0.50844,0.50302 0.86666,0.50355h3.92969v2h-3c-0.552,0 -1,0.448 -1,1c0,0.304 0.14342,0.567 0.35742,0.75l-0.01758,0.00195c0,0 2.92758,2.04072 4.14258,2.88672c0.337,0.236 0.73939,0.36133 1.15039,0.36133h11.37891c1.098,0 1.98828,-0.89028 1.98828,-1.98828v-12.07813c0,-0.592 -0.26184,-1.1532 -0.71484,-1.5332c-1.51596,-1.27196 -4.38467,-3.67936 -5.29297,-4.44141c-0.55596,-0.54131 -0.99609,-0.82812 -0.99609,-0.82812c-0.14541,-0.0828 -0.30926,-0.12779 -0.47656,-0.13086c-0.18054,-0.00373 -0.35872,0.04149 -0.51562,0.13086c0,0 -1.10528,0.65597 -2.08594,2.12695c-0.25771,0.38656 -0.5106,0.83689 -0.74609,1.34766l-2.36719,-3.19922c-0.18149,-0.24629 -0.46572,-0.39596 -0.77148,-0.40625zM14.5,3.39453c0.25211,0.19418 0.41849,0.22344 0.91797,0.97266c0.76934,1.15401 1.58203,3.0623 1.58203,6.13281c0,1.39094 -1.10906,2.5 -2.5,2.5c-1.39094,0 -2.5,-1.10906 -2.5,-2.5c0,-3.07051 0.81269,-4.9788 1.58203,-6.13281c0.49948,-0.74922 0.66586,-0.77847 0.91797,-0.97266zM7.99219,3.67188l2.40039,3.24609c-0.24032,1.03354 -0.39258,2.21797 -0.39258,3.58203c0,0.92335 0.28279,1.7833 0.76563,2.5h-2.76562h-3.18359l2.04688,-3.49414c0.18133,-0.30934 0.18318,-0.69208 0.00485,-1.00316c-0.17833,-0.31108 -0.50956,-0.50288 -0.86813,-0.5027h-1.27734zM9,15h5v2h-5z"/></svg>
+            </button>
             <button type="button" class="fly-slot" data-fly-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="4" title="Herramienta 4" aria-label="Herramienta 4 (próximamente)" disabled></button>

@@ -771,6 +771,9 @@
 
         /* ===== FLY: franja derecha a pantalla completa; barrita y ventana en el mismo centro ===== */
         #flyRail.fly-rail {
+            --fly-green: #0b3d2e;
+            --fly-green-hover: #0f4a38;
+            --fly-ink: #e8f2ec;
             position: fixed !important;
             top: 0 !important;
             right: 0 !important;
@@ -815,13 +818,13 @@
             height: 72px !important;
             min-width: 6px !important;
             min-height: 72px !important;
-            background: #000000 !important;
+            background: var(--fly-green) !important;
             color: transparent;
             cursor: pointer;
             display: block !important;
             border-radius: 999px;
             box-shadow: none;
-            transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+            transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1), background 160ms ease;
             z-index: 2;
         }
 
@@ -840,7 +843,7 @@
 
         #flyRail .fly-handle:hover {
             transform: translateY(-50%) scaleY(1.05);
-            background: #000000 !important;
+            background: var(--fly-green-hover) !important;
         }
 
         #flyRail .fly-handle:focus-visible {
@@ -876,9 +879,9 @@
             gap: 16px;
             padding: 18px 12px;
             margin: 0;
-            background: #000000 !important;
+            background: var(--fly-green) !important;
             border-radius: 999px;
-            box-shadow: -8px 0 28px rgba(0, 0, 0, 0.28);
+            box-shadow: -8px 0 28px rgba(11, 61, 46, 0.35);
             opacity: 0;
             visibility: hidden;
             transition: opacity 240ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -910,7 +913,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: #ffffff;
+            color: var(--fly-ink);
             flex: 0 0 auto;
             transition: transform 160ms ease, opacity 160ms ease;
         }
@@ -8193,9 +8196,9 @@
             aria-label="Abrir barra Fly"
             aria-expanded="false"
             aria-controls="flyRailPanel"
-            style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#000;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
+            style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#0b3d2e;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
         ></button>
-        <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true">
+        <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true" style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:#0b3d2e;">
             <button type="button" class="fly-slot" data-fly-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>

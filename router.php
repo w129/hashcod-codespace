@@ -1,6 +1,7 @@
 <?php
-// router.php — front controller endurecido (sin servir fuente ni data_storage)
+// router.php — front controller PHP (HTML nativo, no Vite/React SPA)
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/l8-html.php';
 securityBootstrap('web');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -11,10 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = is_string($uri) ? $uri : '/';
 
-// Raíz / app principal
+// Raíz / app principal — HTML completo en view-source (index.php)
 if ($uri === '/' || $uri === '/index.php' || $uri === '/index.html') {
-    require __DIR__ . '/index.php';
-    exit;
+    l8_require_html_page('index.php', true);
 }
 
 // Páginas HTML enrutadas (nunca servir el .php crudo por allowlist)
@@ -48,8 +48,12 @@ $routedPages = [
     '/chromeos-cli.php' => 'chromeos-cli.php',
 ];
 if (isset($routedPages[$uri])) {
-    require __DIR__ . '/' . $routedPages[$uri];
-    exit;
+    $page = $routedPages[$uri];
+    if (!is_file(__DIR__ . '/' . $page)) {
+        // Página declarada pero ausente: volver al HTML principal (sin 404 vacío)
+        l8_require_html_page('index.php', true);
+    }
+    l8_require_html_page($page, true);
 }
 
 // API
@@ -103,6 +107,6 @@ if (
     }
 }
 
-// SPA fallback — HTML genérico sin filtrar existencia de rutas internas
-require __DIR__ . '/index.php';
-exit;
+// Soft-landing: rutas desconocidas → HTML nativo de la plataforma (view-source completo).
+// No es un fallback estilo Vite/React SPA: es la página PHP principal.
+l8_require_html_page('index.php', true);

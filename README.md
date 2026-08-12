@@ -1,34 +1,36 @@
-# Servidor Native PHP + React TypeScript (l8)
+# l8 codespace — plataforma servidor HTML nativo (PHP)
 
-Servidor web nativo desarrollado con **PHP 8.1**, **React 18**, **TypeScript**, **HTML5** y un enrutador PHP nativo.
+Servidor web nativo con **PHP 8.1**, HTML/CSS/JS en página completa (view-source real) y enrutador PHP. **No es una app Vite/React SPA**: la primera respuesta de `/` es HTML generado/servido por PHP.
 
-## 🚀 Despliegue en Render (render.com)
+## Despliegue en Render
 
-Para desplegar este proyecto en **Render**:
+1. Cuenta en [render.com](https://render.com).
+2. **New + → Web Service** y conecta este repo.
+3. Usa el `Dockerfile` / `render.yaml` (CMD: `php -S 0.0.0.0:8000 router.php`).
+4. Configura las variables de `.env.example` (Supabase, etc.).
 
-1. Crea una cuenta gratuita en [render.com](https://render.com).
-2. Haz clic en **New +** -> **Web Service**.
-3. Conecta tu repositorio de GitHub `l8`.
-4. Render detectará automáticamente el archivo `Dockerfile` y `render.yaml`.
-5. Haz clic en **Create Web Service**. ¡Listo! Tu servidor estará en vivo en pocos segundos.
+> Si el servicio está suspendido en Render, reactívalo: sin PHP en vivo las rutas `/api/*` y páginas como `/gateway` no pueden funcionar solo con GitHub Pages.
 
 ## Persistencia con Supabase
 
-El disco de Render es efímero. La plataforma usa **Supabase Storage** como fuente de verdad para:
+El disco de Render es efímero. La plataforma usa **Supabase Storage** como fuente de verdad para repos, archivos, sesión de UI y gateway. Opcional: `supabase/schema.sql`.
 
-- catálogo de repos (`meta/repos_index.json`)
-- archivos globales (`meta/global_database_index.json` + `files/…`)
-- sesión de UI (`meta/platform_session.json` — último comando / inspector)
-- gateway (códigos y zips)
-
-Configura en Render las variables de `.env.example`. Opcional: ejecuta `supabase/schema.sql` en el SQL Editor para espejo en Postgres.
-
-## 💻 Ejecución Local
-
-Doble clic en el archivo `run.bat` o desde la consola:
+## Ejecución local
 
 ```bash
-"D:\laragon\bin\php\php-8.1.10-Win32-vs16-x64\php.exe" -S localhost:8000 router.php
+php -S localhost:8000 router.php
 ```
 
-Abre [http://localhost:8000](http://localhost:8000) en tu navegador.
+Abre [http://localhost:8000](http://localhost:8000) — el view-source debe mostrar `<!DOCTYPE html>` completo, no un `#root` vacío.
+
+En Windows (Laragon) también puedes usar `run.bat`.
+
+## Rutas HTML
+
+| Ruta | Página |
+|------|--------|
+| `/` | plataforma principal (`index.php`) |
+| `/gateway` | Gateway |
+| `/ubuntu`, `/claude`, `/zylon`, `/prs-code`, `/macos`, `/chromeos` | CLIs / herramientas |
+
+Rutas desconocidas hacen **soft-landing** al HTML principal (sin página 404 vacía ni shell Vite).

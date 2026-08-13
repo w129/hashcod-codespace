@@ -1011,29 +1011,37 @@ if (!headers_sent()) {
             --ib-green-soft: #124f3c;
             --ib-muted: #8a9390;
             --ib-text: #1f2a26;
-            --ib-line: #e6e8e7;
-            --ib-wash: #f7f8f8;
+            --ib-line: #E5E7EB;
+            --ib-wash: #f8f9fa;
             --ib-scroll: #3b5a46;
             --ib-track: #e8e8e8;
-            width: min(920px, 100%);
-            max-height: min(92vh, 720px);
-            overflow: hidden;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            background: #ffffff;
-            border-radius: 18px;
-            box-shadow: 0 22px 60px rgba(10, 18, 14, 0.3);
+            align-items: stretch;
+            padding: 32px;
+            gap: 24px;
+            isolation: isolate;
+            position: relative;
+            width: min(883px, 100%);
+            min-height: min(456px, 92vh);
+            max-height: min(92vh, 720px);
+            overflow: hidden;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0px 8px 24px -4px rgba(0, 0, 0, 0.0509804);
+            border-radius: 16px;
             font-family: 'IBM Plex Sans', ui-sans-serif, sans-serif;
             color: var(--ib-text);
-            box-sizing: border-box;
         }
 
         .indices-bank-head {
             display: flex;
             align-items: center;
             gap: 16px;
-            padding: 20px 24px 12px;
+            padding: 0;
             flex: 0 0 auto;
+            width: 100%;
         }
 
         .indices-bank-brand {
@@ -1145,14 +1153,22 @@ if (!headers_sent()) {
         }
 
         .indices-bank-body {
-            padding: 8px 24px 28px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0;
+            gap: 24px;
+            isolation: isolate;
+            position: relative;
+            width: 100%;
             overflow: auto;
             flex: 1 1 auto;
             min-height: 0;
         }
 
         .indices-bank-title {
-            margin: 8px 0 0;
+            margin: 0;
             font-size: 40px;
             font-weight: 700;
             letter-spacing: -0.03em;
@@ -1160,22 +1176,39 @@ if (!headers_sent()) {
             line-height: 1.1;
         }
 
+        .indices-bank-heading {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+            flex: 0 0 auto;
+        }
+
         .indices-bank-subtitle {
-            margin: 8px 0 22px;
+            margin: 0;
             font-size: 15px;
             font-weight: 400;
             color: var(--ib-muted);
         }
 
         .indices-bank-table-wrap {
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            isolation: isolate;
+            position: relative;
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 220px;
+            max-height: min(46vh, 320px);
+            border: 1px solid #E5E7EB;
+            border-radius: 16px;
             overflow-x: auto;
             overflow-y: scroll;
-            max-height: min(46vh, 380px);
-            min-height: 248px;
-            background: #ffffff;
-            box-sizing: border-box;
+            background: #FFFFFF;
+            box-shadow: 0px 8px 24px -4px rgba(0, 0, 0, 0.0509804);
             scrollbar-width: thin;
             scrollbar-color: var(--ib-scroll) var(--ib-track);
         }
@@ -1222,12 +1255,12 @@ if (!headers_sent()) {
             position: sticky;
             top: 0;
             z-index: 1;
-            background: #f8f9fa;
-            color: #6c757d;
+            background: #F9FAFB;
+            color: #6B7280;
             font-weight: 600;
             text-align: left;
             padding: 14px 16px;
-            border-bottom: 1px solid #eef0ef;
+            border-bottom: 1px solid #E5E7EB;
             border-right: none;
             line-height: 1.25;
             vertical-align: middle;
@@ -1247,12 +1280,12 @@ if (!headers_sent()) {
 
         .indices-bank-table tbody td {
             padding: 16px 14px;
-            border-bottom: 1px solid #ececec;
+            border-bottom: 1px solid #E5E7EB;
             border-right: none;
             color: #111111;
             min-height: 64px;
             vertical-align: middle;
-            background: #ffffff;
+            background: #FFFFFF;
             font-weight: 500;
             font-size: 14px;
         }
@@ -4318,8 +4351,10 @@ if (!headers_sent()) {
                 </div>
             </div>
             <div class="indices-bank-body">
-                <h2 class="indices-bank-title" id="indicesBankTitle">Indices PI</h2>
-                <p class="indices-bank-subtitle">Lista de indices</p>
+                <div class="indices-bank-heading">
+                    <h2 class="indices-bank-title" id="indicesBankTitle">Indices PI</h2>
+                    <p class="indices-bank-subtitle">Lista de indices</p>
+                </div>
                 <div class="indices-bank-table-wrap" id="indicesBankTableWrap" role="region" aria-label="Tabla de índices con desplazamiento vertical">
                     <table class="indices-bank-table" aria-label="Lista de índices">
                         <colgroup>

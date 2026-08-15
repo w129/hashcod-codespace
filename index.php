@@ -989,6 +989,229 @@ if (!headers_sent()) {
             fill: currentColor;
         }
 
+        /* ===== DOCK TOOLBAR (abajo) — mismas reglas que Fly ===== */
+        #dockBar.dock-bar {
+            position: fixed !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            top: auto !important;
+            transform: none !important;
+            z-index: 9989 !important;
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: auto !important;
+            height: 0 !important;
+            overflow: visible !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        body.boot-locked #dockBar.dock-bar,
+        body.auth-locked #dockBar.dock-bar {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        /* swipe-indicator: barrita negra centrada en el borde inferior */
+        #dockBar .dock-swipe {
+            pointer-events: auto;
+            appearance: none;
+            -webkit-appearance: none;
+            border: none;
+            margin: 0;
+            padding: 0;
+            position: absolute !important;
+            left: 50% !important;
+            bottom: 0 !important;
+            right: auto !important;
+            top: auto !important;
+            transform: translateX(-50%);
+            width: 200px !important;
+            height: 8px !important;
+            min-width: 200px !important;
+            min-height: 8px !important;
+            background: #000000 !important;
+            color: transparent;
+            cursor: pointer;
+            display: block !important;
+            border-radius: 4px;
+            box-shadow: none;
+            transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 2;
+        }
+
+        #dockBar .dock-swipe::after {
+            content: '';
+            position: absolute;
+            left: -24px;
+            right: -24px;
+            bottom: 0;
+            height: 28px;
+        }
+
+        #dockBar .dock-swipe:hover {
+            transform: translateX(-50%) scaleX(1.04);
+        }
+
+        #dockBar .dock-swipe:focus-visible {
+            outline: 2px solid #111111;
+            outline-offset: 3px;
+        }
+
+        #dockBar.is-open .dock-swipe {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateX(-50%) scaleX(0.5);
+        }
+
+        /* toolbar: misma ancla bottom:0 + left:50% que la barrita */
+        #dockBar .dock-toolbar {
+            pointer-events: none;
+            box-sizing: border-box;
+            position: absolute !important;
+            left: 50% !important;
+            bottom: 0 !important;
+            right: auto !important;
+            top: auto !important;
+            transform: translateX(-50%) scale(0.96);
+            transform-origin: center bottom;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 0 100px;
+            gap: 80px;
+            width: min(1720px, calc(100vw - 24px));
+            height: min(306px, 42vh);
+            margin: 0;
+            background: #000000;
+            border-radius: 20px;
+            box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.28);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 240ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 240ms;
+            z-index: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        #dockBar .dock-toolbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        #dockBar.is-open .dock-toolbar {
+            pointer-events: auto;
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) scale(1);
+            transition: opacity 260ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 0s;
+        }
+
+        #dockBar .dock-slot {
+            box-sizing: border-box;
+            appearance: none;
+            -webkit-appearance: none;
+            width: 120px;
+            height: 120px;
+            margin: 0;
+            padding: 0;
+            flex: none;
+            flex-grow: 0;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid #FFFFFF;
+            border-radius: 50%;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #FFFFFF;
+            transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+        }
+
+        #dockBar .dock-slot:hover:not(:disabled) {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        #dockBar .dock-slot:focus-visible {
+            outline: 2px solid #FFFFFF;
+            outline-offset: 4px;
+        }
+
+        #dockBar .dock-slot:disabled {
+            cursor: default;
+            opacity: 0.55;
+        }
+
+        #dockBar .dock-slot.is-ready {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        #dockBar .dock-slot img,
+        #dockBar .dock-slot svg {
+            width: 48px;
+            height: 48px;
+            display: block;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        @media (max-width: 1400px) {
+            #dockBar .dock-toolbar {
+                padding: 0 48px;
+                gap: 40px;
+                height: min(240px, 38vh);
+            }
+
+            #dockBar .dock-slot {
+                width: 88px;
+                height: 88px;
+            }
+
+            #dockBar .dock-slot img,
+            #dockBar .dock-slot svg {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            #dockBar .dock-swipe {
+                width: 140px !important;
+                min-width: 140px !important;
+            }
+
+            #dockBar .dock-toolbar {
+                padding: 0 20px;
+                gap: 18px;
+                height: min(168px, 32vh);
+                border-radius: 16px;
+            }
+
+            #dockBar .dock-slot {
+                width: 64px;
+                height: 64px;
+            }
+
+            #dockBar .dock-slot img,
+            #dockBar .dock-slot svg {
+                width: 26px;
+                height: 26px;
+            }
+        }
+
         /* ===== BANCO DE ÍNDICES / Indices PI ===== */
         .indices-bank-overlay {
             display: none;
@@ -6333,6 +6556,9 @@ if (!headers_sent()) {
             rail.style.margin = '0';
             rail.style.padding = '0';
             flyRailSaveOpen(isOpen);
+            if (isOpen) {
+                try { setDockBarOpen(false); } catch (e) {}
+            }
         }
 
         function toggleFlyRail(force) {
@@ -6360,6 +6586,80 @@ if (!headers_sent()) {
         window.toggleFlyRail = toggleFlyRail;
         window.setFlyRailOpen = setFlyRailOpen;
         window.bindFlySlot = bindFlySlot;
+
+        /* ===== DOCK TOOLBAR (abajo) ===== */
+        const DOCK_STORE_KEY = 'l8_dock_bar_v1';
+
+        function dockBarLoadOpen() {
+            try {
+                const raw = localStorage.getItem(DOCK_STORE_KEY);
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                return !!(data && data.open);
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function dockBarSaveOpen(open) {
+            try {
+                localStorage.setItem(DOCK_STORE_KEY, JSON.stringify({ open: !!open }));
+            } catch (e) {}
+        }
+
+        function setDockBarOpen(open) {
+            const dock = document.getElementById('dockBar');
+            const swipe = document.getElementById('dockSwipeBtn');
+            const panel = document.getElementById('dockToolbar');
+            if (!dock || !swipe || !panel) return;
+            const isOpen = !!open;
+            dock.classList.toggle('is-open', isOpen);
+            swipe.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            swipe.setAttribute('aria-label', isOpen ? 'Cerrar toolbar inferior' : 'Abrir toolbar inferior');
+            panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            dock.style.position = 'fixed';
+            dock.style.left = '0';
+            dock.style.right = '0';
+            dock.style.bottom = '0';
+            dock.style.top = 'auto';
+            dock.style.transform = 'none';
+            dock.style.zIndex = '9989';
+            dock.style.display = 'block';
+            dock.style.width = 'auto';
+            dock.style.height = '0';
+            dock.style.margin = '0';
+            dock.style.padding = '0';
+            dockBarSaveOpen(isOpen);
+            if (isOpen) {
+                try { setFlyRailOpen(false); } catch (e) {}
+            }
+        }
+
+        function toggleDockBar(force) {
+            const dock = document.getElementById('dockBar');
+            if (!dock) return;
+            const next = typeof force === 'boolean' ? force : !dock.classList.contains('is-open');
+            setDockBarOpen(next);
+        }
+
+        function bindDockSlot(slotEl, handler) {
+            if (!slotEl) return;
+            slotEl.disabled = false;
+            slotEl.classList.add('is-ready');
+            slotEl.onclick = function (ev) {
+                ev.preventDefault();
+                if (typeof handler === 'function') handler(ev);
+                try {
+                    window.dispatchEvent(new CustomEvent('l8:dock-tool', {
+                        detail: { slot: Number(slotEl.getAttribute('data-dock-slot') || 0) }
+                    }));
+                } catch (e) {}
+            };
+        }
+
+        window.toggleDockBar = toggleDockBar;
+        window.setDockBarOpen = setDockBarOpen;
+        window.bindDockSlot = bindDockSlot;
 
         /* ===== BANCO DE ÍNDICES / Indices PI ===== */
         const INDICES_BANK_STORE = 'l8_indices_bank_v2';
@@ -6678,6 +6978,37 @@ if (!headers_sent()) {
             }, true);
         }
 
+        function initDockBar() {
+            const dock = document.getElementById('dockBar');
+            const swipe = document.getElementById('dockSwipeBtn');
+            const panel = document.getElementById('dockToolbar');
+            if (!dock || !swipe) return;
+
+            setDockBarOpen(dockBarLoadOpen());
+
+            swipe.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                setDockBarOpen(true);
+            });
+
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && dock.classList.contains('is-open')) {
+                    const ib = document.getElementById('indicesBankOverlay');
+                    if (ib && ib.classList.contains('open')) return;
+                    setDockBarOpen(false);
+                }
+            });
+
+            document.addEventListener('pointerdown', function (ev) {
+                if (!dock.classList.contains('is-open')) return;
+                if (dock.contains(ev.target)) return;
+                const ib = document.getElementById('indicesBankOverlay');
+                if (ib && ib.contains(ev.target)) return;
+                setDockBarOpen(false);
+            });
+        }
+
         function initFlyRail() {
             const rail = document.getElementById('flyRail');
             const handle = document.getElementById('flyHandleBtn');
@@ -6711,10 +7042,13 @@ if (!headers_sent()) {
                 if (rail.contains(ev.target)) return;
                 const ib = document.getElementById('indicesBankOverlay');
                 if (ib && ib.contains(ev.target)) return;
+                const dock = document.getElementById('dockBar');
+                if (dock && dock.contains(ev.target)) return;
                 setFlyRailOpen(false);
             });
 
             initIndicesBank();
+            initDockBar();
         }
 
         if (document.readyState === 'loading') {
@@ -9018,6 +9352,41 @@ if (!headers_sent()) {
             <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="4" title="Herramienta 4" aria-label="Herramienta 4 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="5" title="Herramienta 5" aria-label="Herramienta 5 (próximamente)" disabled></button>
+        </nav>
+    </aside>
+
+    <!-- Dock toolbar inferior (swipe → 8 tools), mismas reglas que Fly -->
+    <aside
+        id="dockBar"
+        class="dock-bar"
+        aria-label="Dock"
+        style="position:fixed;left:0;right:0;bottom:0;top:auto;z-index:9989;display:block;width:auto;height:0;margin:0;padding:0;overflow:visible;"
+    >
+        <button
+            type="button"
+            class="dock-swipe"
+            id="dockSwipeBtn"
+            title="Dock"
+            aria-label="Abrir toolbar inferior"
+            aria-expanded="false"
+            aria-controls="dockToolbar"
+            style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:200px;height:8px;background:#000000;border:none;border-radius:4px;padding:0;cursor:pointer;display:block;"
+        ></button>
+        <nav
+            class="dock-toolbar"
+            id="dockToolbar"
+            aria-label="Herramientas Dock"
+            aria-hidden="true"
+            style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);background:#000000;"
+        >
+            <button type="button" class="dock-slot" data-dock-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
+            <button type="button" class="dock-slot" data-dock-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
+            <button type="button" class="dock-slot" data-dock-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>
+            <button type="button" class="dock-slot" data-dock-slot="4" title="Herramienta 4" aria-label="Herramienta 4 (próximamente)" disabled></button>
+            <button type="button" class="dock-slot" data-dock-slot="5" title="Herramienta 5" aria-label="Herramienta 5 (próximamente)" disabled></button>
+            <button type="button" class="dock-slot" data-dock-slot="6" title="Herramienta 6" aria-label="Herramienta 6 (próximamente)" disabled></button>
+            <button type="button" class="dock-slot" data-dock-slot="7" title="Herramienta 7" aria-label="Herramienta 7 (próximamente)" disabled></button>
+            <button type="button" class="dock-slot" data-dock-slot="8" title="Herramienta 8" aria-label="Herramienta 8 (próximamente)" disabled></button>
         </nav>
     </aside>
 

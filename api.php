@@ -537,7 +537,7 @@ function fetchGithubLicenseForRepo($userRepo) {
     return 'Unknown';
 }
 
-/** Solo MIT, Apache o BSD están permitidos en el catálogo. */
+/** Licencias FOSS permitidas en el catálogo / clone. */
 function isAllowedRepoLicense($license) {
     $l = strtoupper(trim((string)$license));
     if ($l === '' || $l === 'NONE' || $l === 'NOASSERTION' || $l === 'UNKNOWN' || $l === 'OTHER') {
@@ -546,6 +546,11 @@ function isAllowedRepoLicense($license) {
     if ($l === 'MIT' || strpos($l, 'MIT') !== false) return true;
     if (strpos($l, 'APACHE') !== false) return true;
     if (strpos($l, 'BSD') !== false) return true;
+    // LibreOffice y otros FOSS frecuentes
+    if (strpos($l, 'MPL') !== false) return true;
+    if (strpos($l, 'LGPL') !== false) return true;
+    if ($l === 'GPL' || strpos($l, 'GPL-') !== false || strpos($l, 'GPLV') !== false) return true;
+    if (strpos($l, 'EUPL') !== false) return true;
     return false;
 }
 
@@ -822,14 +827,49 @@ function saveGithubRepository($repoTarget) {
     return ['ok' => true, 'repo' => $meta];
 }
 
-function cloneOrUpdateRepository($repoTarget) {
-    global $REPOS_DIR;
-    $sshInfo = getOrGenerateSshKey();
-    $keyPath = $sshInfo['key_path'];
+/**
+ * Resuelve owner/repo de GitHub o URL git genérica (p.ej. FreeDesktop LibreOffice).
+ * @return array{ok:bool,kind?:string,user_repo?:string,clone_url?:string,folder?:string,license_hint?:string,error?:string}
+ */
+function resolveCloneTarget($repoTarget) {
+    $cleanTarget = trim((string)$repoTarget);
+    if ($cleanTarget === '') {
+        return ['ok' => false, 'error' => 'Especifica un repositorio para clonar'];
+    }
 
-    $cleanTarget = trim($repoTarget);
-    if (empty($cleanTarget)) {
-        return ['ok' => false, 'error' => 'Especifica un repositorio para clonar (ej: clone langgenius/dify)'];
+    // URL git genérica (http/https/git://) — LibreOffice anongit, GitLab, etc.
+    if (preg_match('#^(https?|git)://.+#i', $cleanTarget)) {
+        $url = preg_replace('#^http://#i', 'https://', $cleanTarget);
+        $url = rtrim($url, '/');
+        if (!preg_match('/\.git$/i', $url)) {
+            $url .= '.git';
+        }
+        $path = parse_url($url, PHP_URL_PATH);
+        $path = is_string($path) ? trim($path, '/') : '';
+        $parts = array_values(array_filter(explode('/', $path)));
+        $leaf = preg_replace('/\.git$/i', '', (string)end($parts));
+        $owner = count($parts) >= 2 ? preg_replace('/\.git$/i', '', $parts[count($parts) - 2]) : 'external';
+        $userRepo = $owner . '/' . $leaf;
+        $folder = $owner . '-' . $leaf;
+        $licenseHint = 'External';
+        if (stripos($url, 'libreoffice') !== false) {
+            $licenseHint = 'MPL-2.0';
+            $folder = 'libreoffice-core';
+            $userRepo = 'libreoffice/core';
+            // anongit.freedesktop a veces rechaza shallow ("not our ref");
+            // el mirror oficial GitHub/LibreOffice/core es el mismo código.
+            if (stripos($url, 'anongit.freedesktop.org') !== false) {
+                $url = 'https://github.com/LibreOffice/core.git';
+            }
+        }
+        return [
+            'ok' => true,
+            'kind' => 'giturl',
+            'user_repo' => $userRepo,
+            'clone_url' => $url,
+            'folder' => preg_replace('/[^A-Za-z0-9._-]+/', '-', $folder),
+            'license_hint' => $licenseHint,
+        ];
     }
 
     $userRepo = '';
@@ -842,19 +882,48 @@ function cloneOrUpdateRepository($repoTarget) {
         $userRepo = preg_replace('/\.git$/i', '', $cleanTarget);
     } else {
         if (strtolower($cleanTarget) === 'dify') {
-            $userRepo = "langgenius/dify";
+            $userRepo = 'langgenius/dify';
+        } else if (in_array(strtolower($cleanTarget), ['libreoffice', 'libreoffice/core'], true)) {
+            return resolveCloneTarget('https://anongit.freedesktop.org/git/libreoffice/core.git');
         } else {
             $userRepo = $cleanTarget;
         }
     }
 
-    $sshUrl   = "git@github.com:$userRepo.git";
-    $httpsUrl = "https://github.com/$userRepo.git";
-    $repoFolder = basename($userRepo);
-    $targetPath = $REPOS_DIR . '/' . $repoFolder;
+    if ($userRepo === '' || strpos($userRepo, '/') === false) {
+        return ['ok' => false, 'error' => 'Usa owner/repo o una URL git completa'];
+    }
 
-    $license = 'Unknown';
-    if (strpos($userRepo, '/') !== false) {
+    return [
+        'ok' => true,
+        'kind' => 'github',
+        'user_repo' => $userRepo,
+        'clone_url' => 'https://github.com/' . $userRepo . '.git',
+        'ssh_url' => 'git@github.com:' . $userRepo . '.git',
+        'folder' => basename($userRepo),
+        'license_hint' => null,
+    ];
+}
+
+function cloneOrUpdateRepository($repoTarget) {
+    global $REPOS_DIR;
+    $sshInfo = getOrGenerateSshKey();
+    $keyPath = $sshInfo['key_path'];
+
+    $resolved = resolveCloneTarget($repoTarget);
+    if (empty($resolved['ok'])) {
+        return ['ok' => false, 'error' => $resolved['error'] ?? 'Destino de clone inválido'];
+    }
+
+    $kind = $resolved['kind'];
+    $userRepo = $resolved['user_repo'];
+    $httpsUrl = $resolved['clone_url'];
+    $sshUrl = $resolved['ssh_url'] ?? '';
+    $repoFolder = $resolved['folder'];
+    $targetPath = rtrim($REPOS_DIR, '/') . '/' . $repoFolder;
+
+    $license = $resolved['license_hint'] ?? 'Unknown';
+    if ($kind === 'github' && strpos($userRepo, '/') !== false) {
         $license = fetchGithubLicenseForRepo($userRepo);
     }
     $alreadyCloned = file_exists($targetPath . '/.git');
@@ -877,28 +946,50 @@ function cloneOrUpdateRepository($repoTarget) {
 
     $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=no', escapeshellarg($keyPath));
     putenv("GIT_SSH_COMMAND=$gitSshCmd");
+    putenv('GIT_TERMINAL_PROMPT=0');
 
     $output = '';
     $action = '';
 
     if ($alreadyCloned) {
         $action = 'pull';
-        $cmd = sprintf('cd %s && git pull origin main 2>&1 || git pull origin master 2>&1', escapeshellarg($targetPath));
+        $cmd = sprintf(
+            'cd %s && git pull --ff-only 2>&1 || git pull origin HEAD 2>&1 || git pull origin master 2>&1 || git pull origin main 2>&1',
+            escapeshellarg($targetPath)
+        );
         $output = shell_exec($cmd);
     } else {
         $action = 'clone';
-        $cmdSsh = sprintf('git clone --depth 1 %s %s 2>&1', escapeshellarg($sshUrl), escapeshellarg($targetPath));
-        $outputSsh = shell_exec($cmdSsh);
-
-        if (file_exists($targetPath . '/.git')) {
-            $output = $outputSsh;
+        @mkdir($REPOS_DIR, 0700, true);
+        // depth 1: todo el código en HEAD (el historial completo de LO es enorme)
+        if ($kind === 'giturl' && stripos($httpsUrl, 'libreoffice') !== false) {
+            $cmdHttps = sprintf(
+                'git clone --depth 1 --single-branch %s %s 2>&1',
+                escapeshellarg($httpsUrl),
+                escapeshellarg($targetPath)
+            );
         } else {
-            if (file_exists($targetPath)) {
-                @shell_exec(sprintf('rm -rf %s', escapeshellarg($targetPath)));
+            $cmdHttps = sprintf(
+                'git clone --depth 1 %s %s 2>&1',
+                escapeshellarg($httpsUrl),
+                escapeshellarg($targetPath)
+            );
+        }
+
+        if ($kind === 'github' && $sshUrl !== '') {
+            $cmdSsh = sprintf('git clone --depth 1 %s %s 2>&1', escapeshellarg($sshUrl), escapeshellarg($targetPath));
+            $outputSsh = shell_exec($cmdSsh);
+            if (file_exists($targetPath . '/.git')) {
+                $output = $outputSsh;
+            } else {
+                if (file_exists($targetPath)) {
+                    @shell_exec(sprintf('rm -rf %s', escapeshellarg($targetPath)));
+                }
+                $outputHttps = shell_exec($cmdHttps);
+                $output = "SSH Connection Note: SSH Key not registered on GitHub account yet.\nHTTPS Auto-Fallback Execution:\n" . $outputHttps;
             }
-            $cmdHttps = sprintf('git clone --depth 1 %s %s 2>&1', escapeshellarg($httpsUrl), escapeshellarg($targetPath));
-            $outputHttps = shell_exec($cmdHttps);
-            $output = "SSH Connection Note: SSH Key not registered on GitHub account yet.\nHTTPS Auto-Fallback Execution:\n" . $outputHttps;
+        } else {
+            $output = shell_exec($cmdHttps);
         }
     }
 
@@ -923,7 +1014,6 @@ function cloneOrUpdateRepository($repoTarget) {
             'updated_at' => date('Y-m-d H:i:s')
         ];
         saveRepoIndexEntry($repoMeta);
-        // invalidar cache del inspector
         global $STORAGE_DIR;
         $cacheFile = rtrim($STORAGE_DIR, '/') . '/repo_tree_cache/' . md5($repoFolder) . '.json';
         if (file_exists($cacheFile)) @unlink($cacheFile);
@@ -941,7 +1031,7 @@ function cloneOrUpdateRepository($repoTarget) {
         'branch' => $branch,
         'last_commit' => $lastCommit,
         'license' => $license,
-        'raw_output' => trim($output)
+        'raw_output' => trim((string)$output)
     ];
 }
 

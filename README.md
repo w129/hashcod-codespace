@@ -27,10 +27,11 @@ En Windows (Laragon) también puedes usar `run.bat`.
 
 ## Herramientas Streamlit (dock inferior)
 
-Los círculos del dock inferior abren un editor para pegar apps **Python Streamlit**.
-En Docker/Render la imagen incluye Python + Streamlit + Caddy:
+Los círculos del dock inferior abren un editor para apps **Python Streamlit** (alternativa usable a Tkinter en el navegador).
+En Docker/Render la imagen incluye Python + Streamlit + pandas/numpy + Caddy:
 
-- API: `/api/streamlit/*`
-- Apps en vivo: `/st/{1-8}/` (proxy con websockets)
+- API: `/api/streamlit/*` (status, tools, templates, run, stop)
+- Apps en vivo: `/st/{1-8}/` (reverse proxy con websockets)
+- Plantillas: `streamlit_tools/` (calculadora, charts, notas)
 
-Flujo: tocar slot → pegar código → **Guardar y abrir** → ventana externa con la app.
+Flujo: tocar slot → plantilla o código propio → **Guardar y abrir** / vista previa → ventana externa o iframe.

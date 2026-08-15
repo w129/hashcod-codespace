@@ -4308,7 +4308,25 @@ if ($uri === '/api/streamlit/tools' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $slot = isset($body['slot']) ? $body['slot'] : ($body['id'] ?? 0);
     $title = isset($body['title']) ? $body['title'] : '';
     $code = isset($body['code']) ? $body['code'] : '';
-    echo json_encode(streamlitSaveTool($slot, $title, $code), JSON_UNESCAPED_UNICODE);
+    $template = isset($body['template']) ? $body['template'] : '';
+    echo json_encode(streamlitSaveTool($slot, $title, $code, $template), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/streamlit/templates' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    header('Content-Type: application/json; charset=utf-8');
+    $id = isset($_GET['id']) ? (string) $_GET['id'] : '';
+    if ($id !== '') {
+        $t = streamlitTemplateById($id);
+        if (!$t) {
+            http_response_code(404);
+            echo json_encode(['ok' => false, 'error' => 'Plantilla no encontrada'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        echo json_encode(['ok' => true, 'template' => $t], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    echo json_encode(['ok' => true, 'templates' => streamlitTemplates()], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

@@ -25,7 +25,7 @@
     <link rel="apple-touch-icon" href="favicon.svg?v=3">
     <meta name="application-name" content="l8 codespace">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap');
 
         * {
             box-sizing: border-box;
@@ -1195,7 +1195,7 @@
             pointer-events: none;
         }
 
-        /* ===== STREAMLIT DOCK EDITOR ===== */
+        /* ===== STREAMLIT DOCK EDITOR (Figma panel-body) ===== */
         .st-dock-overlay {
             display: none;
             position: fixed;
@@ -1213,66 +1213,37 @@
         }
 
         .st-dock-shell {
-            width: min(880px, 100%);
+            width: min(1707px, 100%);
             max-height: min(92vh, 920px);
             overflow: auto;
-            background: #ffffff;
+            background: #FFFFFF;
             border: 1px solid #E5E7EB;
             border-radius: 16px;
             box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
-            padding: 22px;
+            padding: 0;
             box-sizing: border-box;
-            font-family: 'IBM Plex Sans', ui-sans-serif, sans-serif;
-            color: #111;
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            color: #111827;
             display: flex;
             flex-direction: column;
-            gap: 12px;
         }
 
-        .st-dock-top {
+        .st-dock-headbar {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: space-between;
             gap: 12px;
+            padding: 14px 24px 0;
+            box-sizing: border-box;
         }
 
         .st-dock-title {
-            margin: 0 0 8px;
-            font-size: 20px;
+            margin: 0;
+            font-size: 18px;
             font-weight: 700;
-            color: #0b3d2e;
-        }
-
-        .st-dock-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .st-dock-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1px solid #E5E7EB;
-            background: #F9FAFB;
-            color: #374151;
-        }
-
-        .st-dock-badge.on {
-            background: #ecfdf5;
-            border-color: #a7f3d0;
-            color: #047857;
-        }
-
-        .st-dock-badge.off {
-            background: #fef2f2;
-            border-color: #fecaca;
-            color: #b91c1c;
+            line-height: 22px;
+            color: #111827;
+            letter-spacing: -0.01em;
         }
 
         .st-dock-close {
@@ -1283,41 +1254,138 @@
             padding: 6px 12px;
             font: inherit;
             font-size: 12px;
+            font-weight: 600;
+            color: #374151;
             cursor: pointer;
+        }
+
+        .st-dock-body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 16px 24px;
+            gap: 16px;
+            box-sizing: border-box;
+            width: 100%;
+            flex: 1 1 auto;
+            align-self: stretch;
+            background: #FFFFFF;
+        }
+
+        .st-dock-badges {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 0;
+            gap: 10px;
+            width: 100%;
+            min-height: 28px;
+            align-self: stretch;
+        }
+
+        .st-dock-badge {
+            box-sizing: border-box;
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0 10px;
+            height: 28px;
+            border-radius: 999px;
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 15px;
+            border: 1px solid #E5E7EB;
+            background: #F3F4F6;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        .st-dock-badge.runtime {
+            background: #DBEAFE;
+            border-color: #BFDBFE;
+            color: #1D4ED8;
+        }
+
+        .st-dock-badge.active {
+            background: #D1FAE5;
+            border-color: #A7F3D0;
+            color: #047857;
+        }
+
+        .st-dock-badge.idle {
+            background: #F3F4F6;
+            border-color: #E5E7EB;
+            color: #6B7280;
+        }
+
+        .st-dock-badge.code {
+            background: #F3F4F6;
+            border-color: #E5E7EB;
+            color: #374151;
+        }
+
+        .st-dock-badge.template {
+            background: #F3F4F6;
+            border-color: #E5E7EB;
+            color: #6B7280;
+        }
+
+        .st-dock-badge.off {
+            background: #FEF2F2;
+            border-color: #FECACA;
+            color: #B91C1C;
+        }
+
+        .st-dock-field {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0;
+            gap: 8px;
+            width: 100%;
+            align-self: stretch;
         }
 
         .st-dock-label {
             display: block;
-            font-size: 12px;
-            color: #6B7280;
-            margin: 0 0 6px;
+            margin: 0;
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
             font-weight: 600;
+            font-size: 12px;
+            line-height: 15px;
+            color: #6B7280;
         }
 
-        .st-dock-input,
-        .st-dock-code {
-            width: 100%;
+        .st-dock-input {
             box-sizing: border-box;
+            width: 100%;
+            height: 44px;
+            padding: 0 12px;
+            background: #FFFFFF;
             border: 1px solid #E5E7EB;
             border-radius: 10px;
-            padding: 10px 12px;
-            font: inherit;
-            font-size: 13px;
-            background: #fff;
-            color: #111;
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 17px;
+            color: #111827;
+            align-self: stretch;
         }
 
-        .st-dock-code {
-            min-height: 260px;
-            resize: vertical;
-            font-family: 'IBM Plex Mono', ui-monospace, monospace;
-            line-height: 1.45;
+        .st-dock-input:focus {
+            outline: none;
+            border-color: #93C5FD;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
         .st-dock-templates {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            width: 100%;
         }
 
         .st-dock-chip {
@@ -1325,51 +1393,220 @@
             border: 1px solid #E5E7EB;
             background: #fff;
             border-radius: 999px;
-            padding: 7px 12px;
-            font: inherit;
+            padding: 6px 10px;
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            color: #111;
+            color: #374151;
         }
 
         .st-dock-chip:hover,
         .st-dock-chip.active {
-            border-color: #0b3d2e;
-            color: #0b3d2e;
-            background: #f0f7f4;
+            border-color: #BFDBFE;
+            color: #1D4ED8;
+            background: #EFF6FF;
+        }
+
+        .st-dock-editor {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0;
+            width: 100%;
+            min-height: 320px;
+            height: min(420px, 48vh);
+            background: #0B0F1A;
+            border: 1px solid #1F2937;
+            border-radius: 12px;
+            align-self: stretch;
+            overflow: hidden;
+        }
+
+        .st-dock-editor-header {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            width: 100%;
+            height: 36px;
+            background: #0F172A;
+            border-bottom: 1px solid #1F2937;
+            align-self: stretch;
+            flex: none;
+        }
+
+        .st-dock-editor-left,
+        .st-dock-editor-right {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .st-dock-editor-right { gap: 8px; }
+
+        .st-dock-file-chip {
+            box-sizing: border-box;
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 6px 10px;
+            gap: 6px;
+            height: 27px;
+            background: #111827;
+            border: 1px solid #1F2937;
+            border-radius: 999px;
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 15px;
+            color: #E5E7EB;
+        }
+
+        .st-dock-lang {
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 15px;
+            color: #9CA3AF;
+        }
+
+        .st-dock-ready-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: #10B981;
+            flex: none;
+        }
+
+        .st-dock-ready-dot.is-busy {
+            background: #F59E0B;
+        }
+
+        .st-dock-ready-dot.is-off {
+            background: #6B7280;
+        }
+
+        .st-dock-ready-label {
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 15px;
+            color: #9CA3AF;
+        }
+
+        .st-dock-code-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 12px;
+            width: 100%;
+            flex: 1 1 auto;
+            align-self: stretch;
+            background: #0B0F1A;
+            box-sizing: border-box;
+            min-height: 0;
+        }
+
+        .st-dock-code {
+            width: 100%;
+            height: 100%;
+            min-height: 240px;
+            box-sizing: border-box;
+            resize: none;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: #E5E7EB;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 20px;
+            padding: 0;
+            align-self: stretch;
+            caret-color: #93C5FD;
+        }
+
+        .st-dock-code::placeholder {
+            color: #6B7280;
+        }
+
+        .st-dock-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0;
+            gap: 12px;
+            width: 100%;
+            align-self: stretch;
         }
 
         .st-dock-actions {
             display: flex;
+            flex-direction: row;
             flex-wrap: wrap;
-            gap: 8px;
+            align-items: center;
+            padding: 0;
+            gap: 12px;
+            width: 100%;
+            min-height: 40px;
+            align-self: stretch;
         }
 
         .st-dock-btn {
+            box-sizing: border-box;
             appearance: none;
-            border: none;
-            border-radius: 999px;
-            padding: 9px 14px;
-            font: inherit;
+            display: inline-flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 0 16px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #E5E7EB;
+            background: #FFFFFF;
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            font-weight: 700;
             font-size: 13px;
-            font-weight: 600;
+            line-height: 16px;
+            color: #111827;
             cursor: pointer;
-            background: #0b3d2e;
-            color: #fff;
         }
 
-        .st-dock-btn.secondary { background: #111; }
-        .st-dock-btn.ghost {
-            background: #fff;
-            color: #111;
-            border: 1px solid #E5E7EB;
+        .st-dock-btn.primary {
+            background: #0D8040;
+            border-color: transparent;
+            color: #FFFFFF;
+            box-shadow: 0 8px 18px -6px rgba(13, 128, 64, 0.2);
         }
+
+        .st-dock-btn.secondary {
+            background: #111827;
+            border-color: transparent;
+            color: #FFFFFF;
+            box-shadow: none;
+        }
+
         .st-dock-btn.danger {
-            background: #fff;
-            color: #b91c1c;
-            border: 1px solid #fecaca;
+            background: #FFFFFF;
+            border-color: #FCA5A5;
+            color: #B91C1C;
         }
+
+        .st-dock-btn:hover:not(:disabled) {
+            filter: brightness(0.98);
+        }
+
+        .st-dock-btn.primary:hover:not(:disabled),
+        .st-dock-btn.secondary:hover:not(:disabled) {
+            filter: brightness(1.06);
+        }
+
         .st-dock-btn:disabled {
             opacity: 0.55;
             cursor: default;
@@ -1377,18 +1614,26 @@
 
         .st-dock-msg {
             margin: 0;
+            width: 100%;
+            font-family: Inter, 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            font-weight: 400;
             font-size: 12px;
+            line-height: 15px;
             color: #6B7280;
-            min-height: 1.2em;
+            min-height: 15px;
+            align-self: stretch;
         }
-        .st-dock-msg.ok { color: #15803d; }
-        .st-dock-msg.err { color: #b91c1c; }
+
+        .st-dock-msg.ok { color: #047857; }
+        .st-dock-msg.err { color: #B91C1C; }
 
         .st-dock-url {
             margin: 0;
             font-size: 12px;
-            color: #0b3d2e;
+            line-height: 15px;
+            color: #1D4ED8;
             word-break: break-all;
+            width: 100%;
         }
         .st-dock-url[hidden] { display: none !important; }
         .st-dock-url a { color: inherit; font-weight: 600; }
@@ -1397,8 +1642,9 @@
             border: 1px solid #E5E7EB;
             border-radius: 12px;
             overflow: hidden;
-            background: #0b0b0b;
+            background: #0B0F1A;
             min-height: 220px;
+            width: 100%;
             display: none;
         }
         .st-dock-preview-wrap.show { display: block; }
@@ -1407,6 +1653,24 @@
             height: min(42vh, 360px);
             border: 0;
             background: #fff;
+        }
+
+        @media (max-width: 720px) {
+            .st-dock-body,
+            .st-dock-headbar {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+            .st-dock-editor {
+                height: min(360px, 50vh);
+            }
+            .st-dock-actions {
+                gap: 8px;
+            }
+            .st-dock-btn {
+                height: 36px;
+                padding: 0 12px;
+            }
         }
 
         /* ===== BANCO DE ÍNDICES / Indices PI ===== */
@@ -6885,17 +7149,45 @@
             const avail = !!(status && status.available);
             const running = !!(tool && tool.running);
             const hasCode = !!(tool && tool.has_code);
+            const ver = (status && status.version) ? String(status.version) : '';
             const bits = [];
-            bits.push('<span class="st-dock-badge ' + (avail ? 'on' : 'off') + '">' +
-                (avail ? ('Streamlit' + (status.version ? ' ' + status.version : ' listo')) : 'Streamlit no instalado') +
+            // Blue runtime badge (Figma: badge-Tkinter style → Streamlit version)
+            bits.push('<span class="st-dock-badge ' + (avail ? 'runtime' : 'off') + '">' +
+                (avail ? ('Streamlit' + (ver ? ' ' + ver : '')) : 'Streamlit offline') +
                 '</span>');
-            bits.push('<span class="st-dock-badge ' + (running ? 'on' : 'off') + '">' +
-                (running ? 'En ejecución' : 'Detenida') + '</span>');
-            bits.push('<span class="st-dock-badge">' + (hasCode ? 'Con código' : 'Vacío') + '</span>');
+            bits.push('<span class="st-dock-badge ' + (running ? 'active' : 'idle') + '">' +
+                (running ? 'Active' : 'Idle') + '</span>');
+            bits.push('<span class="st-dock-badge code">' + (hasCode ? 'With code' : 'Empty') + '</span>');
             if (tool && tool.template) {
-                bits.push('<span class="st-dock-badge">Plantilla · ' + String(tool.template).replace(/</g, '') + '</span>');
+                bits.push('<span class="st-dock-badge template">Template · ' +
+                    String(tool.template).replace(/</g, '') + '</span>');
             }
             wrap.innerHTML = bits.join('');
+
+            const fileChip = document.getElementById('stDockFileChip');
+            if (fileChip) {
+                const tpl = (tool && tool.template) ? String(tool.template) : '';
+                fileChip.textContent = tpl ? (tpl.replace(/[^a-z0-9_\-]/gi, '_') + '.py') : 'app.py';
+            }
+
+            const readyDot = document.getElementById('stDockReadyDot');
+            const readyLabel = document.getElementById('stDockReadyLabel');
+            if (readyDot && readyLabel) {
+                readyDot.classList.remove('is-busy', 'is-off');
+                if (!avail) {
+                    readyDot.classList.add('is-off');
+                    readyLabel.textContent = 'Offline';
+                } else if (running) {
+                    readyDot.classList.add('is-busy');
+                    readyLabel.textContent = 'Running';
+                } else if (hasCode) {
+                    readyLabel.textContent = 'Ready';
+                } else {
+                    readyDot.classList.add('is-off');
+                    readyLabel.textContent = 'Empty';
+                }
+            }
+
             const urlEl = document.getElementById('stDockUrl');
             if (urlEl) {
                 const url = (tool && tool.url) ? tool.url : ('/st/' + stDockActiveSlot + '/');
@@ -6916,7 +7208,7 @@
             if (wrap) wrap.classList.remove('show');
             if (iframe) iframe.removeAttribute('src');
             const btn = document.getElementById('stDockPreviewBtn');
-            if (btn) btn.textContent = 'Vista previa';
+            if (btn) btn.textContent = 'Preview';
         }
 
         function stDockShowPreview(url) {
@@ -6927,7 +7219,7 @@
             wrap.classList.add('show');
             iframe.src = url;
             const btn = document.getElementById('stDockPreviewBtn');
-            if (btn) btn.textContent = 'Ocultar vista';
+            if (btn) btn.textContent = 'Hide preview';
         }
 
         function stDockRenderTemplates(activeId) {
@@ -7071,8 +7363,8 @@
             }
             stDockSetMsg(
                 data.running
-                    ? 'App en ejecución. Ábrela, previsualiza o detén.'
-                    : (data.has_code ? 'Código listo. Guarda y abre para desplegarla.' : 'Slot vacío: elige una plantilla o pega código.'),
+                    ? 'App running. Open, preview, or stop.'
+                    : (data.has_code ? 'Code is ready. Save and open to deploy.' : 'Empty slot: pick a template or paste code.'),
                 data.running ? 'ok' : null
             );
         }
@@ -10036,35 +10328,54 @@
         </nav>
     </aside>
 
-    <!-- Editor Streamlit (dock slots) -->
+    <!-- Editor Streamlit (dock slots) — Figma panel-body -->
     <div class="st-dock-overlay" id="stDockOverlay" aria-hidden="true">
         <div class="st-dock-shell" role="dialog" aria-modal="true" aria-labelledby="stDockTitle">
-            <div class="st-dock-top">
-                <div>
-                    <h2 class="st-dock-title" id="stDockTitle">Streamlit · Slot 1</h2>
-                    <div class="st-dock-badges" id="stDockBadges" aria-live="polite"></div>
+            <div class="st-dock-headbar">
+                <h2 class="st-dock-title" id="stDockTitle">Streamlit · Slot 1</h2>
+                <button type="button" class="st-dock-close" id="stDockCloseBtn">Close</button>
+            </div>
+            <div class="st-dock-body">
+                <div class="st-dock-badges" id="stDockBadges" aria-live="polite"></div>
+                <p class="st-dock-url" id="stDockUrl" hidden></p>
+                <div class="st-dock-field">
+                    <label class="st-dock-label" for="stDockTitleInput">Name</label>
+                    <input class="st-dock-input" id="stDockTitleInput" type="text" maxlength="80" placeholder="My Streamlit tool" autocomplete="off">
                 </div>
-                <button type="button" class="st-dock-close" id="stDockCloseBtn">Cerrar</button>
+                <div class="st-dock-field">
+                    <div class="st-dock-label">Templates</div>
+                    <div class="st-dock-templates" id="stDockTemplates" aria-label="Streamlit templates"></div>
+                </div>
+                <div class="st-dock-editor">
+                    <div class="st-dock-editor-header">
+                        <div class="st-dock-editor-left">
+                            <span class="st-dock-file-chip" id="stDockFileChip">app.py</span>
+                            <span class="st-dock-lang">Python</span>
+                        </div>
+                        <div class="st-dock-editor-right">
+                            <span class="st-dock-ready-dot" id="stDockReadyDot" aria-hidden="true"></span>
+                            <span class="st-dock-ready-label" id="stDockReadyLabel">Ready</span>
+                        </div>
+                    </div>
+                    <div class="st-dock-code-wrap">
+                        <textarea class="st-dock-code" id="stDockCode" spellcheck="false" placeholder="import streamlit as st&#10;st.title('Hello l8')"></textarea>
+                    </div>
+                </div>
+                <div class="st-dock-footer">
+                    <div class="st-dock-actions">
+                        <button type="button" class="st-dock-btn" id="stDockSaveBtn">Save</button>
+                        <button type="button" class="st-dock-btn primary" id="stDockSaveRunBtn">Save and open</button>
+                        <button type="button" class="st-dock-btn secondary" id="stDockOpenBtn">Open</button>
+                        <button type="button" class="st-dock-btn" id="stDockPreviewBtn">Preview</button>
+                        <button type="button" class="st-dock-btn" id="stDockStopBtn">Stop</button>
+                        <button type="button" class="st-dock-btn danger" id="stDockClearBtn">Clear slot</button>
+                    </div>
+                    <div class="st-dock-preview-wrap" id="stDockPreviewWrap">
+                        <iframe id="stDockIframe" title="Streamlit preview" loading="lazy"></iframe>
+                    </div>
+                    <p class="st-dock-msg" id="stDockMsg">Code is ready. Save and open to deploy.</p>
+                </div>
             </div>
-            <p class="st-dock-url" id="stDockUrl" hidden></p>
-            <label class="st-dock-label" for="stDockTitleInput">Nombre</label>
-            <input class="st-dock-input" id="stDockTitleInput" type="text" maxlength="80" placeholder="Mi herramienta Streamlit" autocomplete="off">
-            <div class="st-dock-label">Plantillas</div>
-            <div class="st-dock-templates" id="stDockTemplates" aria-label="Plantillas Streamlit"></div>
-            <label class="st-dock-label" for="stDockCode">Código Python (Streamlit)</label>
-            <textarea class="st-dock-code" id="stDockCode" spellcheck="false" placeholder="import streamlit as st&#10;st.title('Hola l8')"></textarea>
-            <div class="st-dock-actions">
-                <button type="button" class="st-dock-btn ghost" id="stDockSaveBtn">Guardar</button>
-                <button type="button" class="st-dock-btn" id="stDockSaveRunBtn">Guardar y abrir</button>
-                <button type="button" class="st-dock-btn secondary" id="stDockOpenBtn">Abrir</button>
-                <button type="button" class="st-dock-btn ghost" id="stDockPreviewBtn">Vista previa</button>
-                <button type="button" class="st-dock-btn ghost" id="stDockStopBtn">Detener</button>
-                <button type="button" class="st-dock-btn danger" id="stDockClearBtn">Vaciar slot</button>
-            </div>
-            <div class="st-dock-preview-wrap" id="stDockPreviewWrap">
-                <iframe id="stDockIframe" title="Vista previa Streamlit" loading="lazy"></iframe>
-            </div>
-            <p class="st-dock-msg" id="stDockMsg">Elige una plantilla o pega tu app. Ctrl/Cmd+Enter guarda y abre.</p>
         </div>
     </div>
 

@@ -4396,6 +4396,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri 
 }
 
 require_once __DIR__ . '/streamlit.php';
+require_once __DIR__ . '/libreoffice.php';
+
+// ===== LIBREOFFICE (dock slot 8 → plataforma servidor) =====
+if ($uri === '/api/libreoffice/status' || $uri === '/api/libreoffice') {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(libreofficeStatusPayload(), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/libreoffice/ensure' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('libreoffice_ensure', 4, 60)) {
+        securityRateDenyJson(60);
+    }
+    securityRequireMutationAuthIfEnabled();
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(libreofficeEnsure(), JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // ===== STREAMLIT DOCK TOOLS =====
 if ($uri === '/api/streamlit/status' || $uri === '/api/streamlit') {

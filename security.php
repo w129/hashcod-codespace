@@ -309,7 +309,7 @@ function securityIsDeniedPath($uri) {
         '/composer.json', '/composer.lock', '/package.json', '/package-lock.json',
         '/dockerfile', '/docker-entrypoint.sh', '/render.yaml', '/readme.md', '/security.md',
         '/server.js', '/router.php', '/api.php', '/security.php', '/supabase.php', '/secrets.php',
-        '/l8-html.php', '/streamlit.php', '/auth.php', '/tokens.php', '/hashcod-keys.php', '/ai-chat.php',
+        '/l8-html.php', '/streamlit.php', '/libreoffice.php', '/auth.php', '/tokens.php', '/hashcod-keys.php', '/ai-chat.php',
         '/opencrypt-gen.php', '/.gitignore', '/.dockerignore', '/.cursor',
         '/caddyfile', '/requirements-streamlit.txt', '/dockerfile',
         '/phpinfo.php', '/info.php', '/test.php', '/debug.php'

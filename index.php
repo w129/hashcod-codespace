@@ -1190,6 +1190,61 @@ if (!headers_sent()) {
             pointer-events: none;
         }
 
+        /* Herramientas aparte de los slots Streamlit (mismo círculo) */
+        #dockBar .dock-tool-sep {
+            flex: 0 0 auto;
+            width: 1px;
+            height: 18px;
+            margin: 0 2px;
+            background: rgba(255, 255, 255, 0.35);
+            border-radius: 1px;
+            pointer-events: none;
+        }
+
+        #dockBar .dock-tool {
+            box-sizing: border-box;
+            appearance: none;
+            -webkit-appearance: none;
+            width: 28px;
+            height: 28px;
+            margin: 0;
+            padding: 0;
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1.5px solid #FFFFFF;
+            border-radius: 50%;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #FFFFFF;
+            transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+        }
+
+        #dockBar .dock-tool:hover:not(:disabled) {
+            transform: scale(1.08);
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        #dockBar .dock-tool:focus-visible {
+            outline: 2px solid #FFFFFF;
+            outline-offset: 2px;
+        }
+
+        #dockBar .dock-tool.is-filled {
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        #dockBar .dock-tool img,
+        #dockBar .dock-tool svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
         /* ===== STREAMLIT DOCK EDITOR (Figma panel-body) ===== */
         .st-dock-overlay {
             display: none;
@@ -7312,6 +7367,33 @@ if (!headers_sent()) {
             return ST_SLOT_ICON_SVG;
         }
 
+        const LO_DOCK_ICON_SVG =
+            '<svg class="lo-tool-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+            '<path fill="currentColor" d="M6.5 2.75A1.75 1.75 0 0 0 4.75 4.5v15c0 .966.784 1.75 1.75 1.75h11c.966 0 1.75-.784 1.75-1.75V8.414a1.75 1.75 0 0 0-.513-1.238L14.324 3.263A1.75 1.75 0 0 0 13.086 2.75H6.5zm0 1.5h6.25v3.25c0 .966.784 1.75 1.75 1.75h3.25V19.5h-11V4.25zm7.75.81 2.69 2.69h-2.69V5.06z"/>' +
+            '<path fill="currentColor" d="M8.25 11.25h4.1c1.55 0 2.65.88 2.65 2.2 0 .92-.5 1.62-1.28 1.95.98.36 1.58 1.18 1.58 2.22 0 1.48-1.18 2.38-2.95 2.38H8.25v-8.75zm1.55 1.35v2.2h2.35c.72 0 1.18-.38 1.18-1.05s-.46-1.15-1.2-1.15H9.8zm0 3.5v2.55h2.7c.85 0 1.35-.42 1.35-1.2 0-.78-.5-1.35-1.4-1.35H9.8z"/>' +
+            '</svg>';
+
+        async function openLibreOfficePlatform() {
+            await openExternalWithTokens('/libreoffice', 'l8-libreoffice', 'width=1100,height=760');
+        }
+
+        function loDockBindTool() {
+            const btn = document.getElementById('dockLibreOfficeBtn');
+            if (!btn) return;
+            btn.disabled = false;
+            btn.classList.add('is-ready', 'is-filled', 'has-icon');
+            if (!btn.querySelector('svg.lo-tool-ico')) btn.innerHTML = LO_DOCK_ICON_SVG;
+            btn.title = 'LibreOffice';
+            btn.setAttribute('aria-label', 'Abrir LibreOffice en la plataforma servidor');
+            btn.onclick = function (ev) {
+                ev.preventDefault();
+                openLibreOfficePlatform();
+                try {
+                    window.dispatchEvent(new CustomEvent('l8:dock-tool', { detail: { tool: 'libreoffice' } }));
+                } catch (e) {}
+            };
+        }
+
         async function stDockRefreshSlots() {
             const data = await stDockApi('/api/streamlit/status');
             stDockStatusCache = data;
@@ -7341,6 +7423,7 @@ if (!headers_sent()) {
                     setStDockOpen(true, i);
                 });
             }
+            loDockBindTool();
             return data;
         }
 
@@ -7595,6 +7678,8 @@ if (!headers_sent()) {
             }, true);
             window.setStDockOpen = setStDockOpen;
             window.stDockRefreshSlots = stDockRefreshSlots;
+            window.openLibreOfficePlatform = openLibreOfficePlatform;
+            window.loDockBindTool = loDockBindTool;
         }
 
         function initDockBar() {
@@ -7605,6 +7690,7 @@ if (!headers_sent()) {
 
             setDockBarOpen(dockBarLoadOpen());
             initStDockEditor();
+            loDockBindTool();
             stDockRefreshSlots().catch(function () {});
 
             swipe.addEventListener('click', function (ev) {
@@ -10300,7 +10386,7 @@ if (!headers_sent()) {
         </nav>
     </aside>
 
-    <!-- Dock toolbar inferior (swipe → 8 tools), mismas reglas que Fly -->
+    <!-- Dock toolbar inferior (swipe → Streamlit slots + herramientas aparte), mismas reglas que Fly -->
     <aside
         id="dockBar"
         class="dock-bar"
@@ -10324,6 +10410,13 @@ if (!headers_sent()) {
             aria-hidden="true"
             style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);background:#000000;"
         >
+            <button type="button" class="dock-tool is-ready is-filled has-icon" id="dockLibreOfficeBtn" title="LibreOffice" aria-label="Abrir LibreOffice en la plataforma servidor">
+                <svg class="lo-tool-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M6.5 2.75A1.75 1.75 0 0 0 4.75 4.5v15c0 .966.784 1.75 1.75 1.75h11c.966 0 1.75-.784 1.75-1.75V8.414a1.75 1.75 0 0 0-.513-1.238L14.324 3.263A1.75 1.75 0 0 0 13.086 2.75H6.5zm0 1.5h6.25v3.25c0 .966.784 1.75 1.75 1.75h3.25V19.5h-11V4.25zm7.75.81 2.69 2.69h-2.69V5.06z"/>
+                    <path fill="currentColor" d="M8.25 11.25h4.1c1.55 0 2.65.88 2.65 2.2 0 .92-.5 1.62-1.28 1.95.98.36 1.58 1.18 1.58 2.22 0 1.48-1.18 2.38-2.95 2.38H8.25v-8.75zm1.55 1.35v2.2h2.35c.72 0 1.18-.38 1.18-1.05s-.46-1.15-1.2-1.15H9.8zm0 3.5v2.55h2.7c.85 0 1.35-.42 1.35-1.2 0-.78-.5-1.35-1.4-1.35H9.8z"/>
+                </svg>
+            </button>
+            <span class="dock-tool-sep" aria-hidden="true"></span>
             <button type="button" class="dock-slot" data-dock-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>
             <button type="button" class="dock-slot" data-dock-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
             <button type="button" class="dock-slot" data-dock-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>

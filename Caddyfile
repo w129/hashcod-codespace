@@ -1,0 +1,39 @@
+{
+	"admin": false,
+	"auto_https": "off"
+}
+
+{$PORT:8000} {
+	encode gzip
+
+	# Streamlit slots (websockets vía reverse_proxy)
+	handle /st/1* {
+		reverse_proxy 127.0.0.1:8501
+	}
+	handle /st/2* {
+		reverse_proxy 127.0.0.1:8502
+	}
+	handle /st/3* {
+		reverse_proxy 127.0.0.1:8503
+	}
+	handle /st/4* {
+		reverse_proxy 127.0.0.1:8504
+	}
+	handle /st/5* {
+		reverse_proxy 127.0.0.1:8505
+	}
+	handle /st/6* {
+		reverse_proxy 127.0.0.1:8506
+	}
+	handle /st/7* {
+		reverse_proxy 127.0.0.1:8507
+	}
+	handle /st/8* {
+		reverse_proxy 127.0.0.1:8508
+	}
+
+	# Plataforma PHP
+	handle {
+		reverse_proxy 127.0.0.1:8001
+	}
+}

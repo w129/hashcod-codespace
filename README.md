@@ -25,12 +25,12 @@ Abre [http://localhost:8000](http://localhost:8000) — el view-source debe most
 
 En Windows (Laragon) también puedes usar `run.bat`.
 
-## Rutas HTML
+## Herramientas Streamlit (dock inferior)
 
-| Ruta | Página |
-|------|--------|
-| `/` | plataforma principal (`index.php`) |
-| `/gateway` | Gateway |
-| `/ubuntu`, `/claude`, `/zylon`, `/prs-code`, `/macos`, `/chromeos` | CLIs / herramientas |
+Los círculos del dock inferior abren un editor para pegar apps **Python Streamlit**.
+En Docker/Render la imagen incluye Python + Streamlit + Caddy:
 
-Rutas desconocidas hacen **soft-landing** al HTML principal (sin página 404 vacía ni shell Vite).
+- API: `/api/streamlit/*`
+- Apps en vivo: `/st/{1-8}/` (proxy con websockets)
+
+Flujo: tocar slot → pegar código → **Guardar y abrir** → ventana externa con la app.

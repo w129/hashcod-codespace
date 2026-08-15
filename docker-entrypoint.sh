@@ -20,10 +20,40 @@ else
   echo "[l8] bun = MISSING"
 fi
 
+if [ -x /opt/l8-py/bin/python ]; then
+  echo "[l8] python = $(/opt/l8-py/bin/python --version 2>&1 || echo present)"
+else
+  echo "[l8] python = MISSING"
+fi
+
+if [ -x /opt/l8-py/bin/streamlit ]; then
+  echo "[l8] streamlit = $(/opt/l8-py/bin/streamlit --version 2>&1 | head -n1 || echo present)"
+else
+  echo "[l8] streamlit = MISSING"
+fi
+
+if command -v caddy >/dev/null 2>&1; then
+  echo "[l8] caddy = $(caddy version 2>/dev/null | head -n1 || echo present)"
+else
+  echo "[l8] caddy = MISSING"
+fi
+
 # Secret files de Render (si se usaron en vez de Environment Variables)
 if [ -d /etc/secrets ]; then
   echo "[l8] /etc/secrets present:"
   ls -1 /etc/secrets 2>/dev/null | sed 's/^/[l8]   secretfile /' || true
+fi
+
+# Render inyecta PORT; Caddy escucha ahí y PHP queda interno
+export PORT="${PORT:-8000}"
+echo "[l8] public PORT=${PORT}"
+
+# Si el CMD es caddy (producción Docker), levantar PHP interno primero
+first="${1-}"
+if [ "$first" = "caddy" ] || [ "$first" = "/usr/local/bin/caddy" ]; then
+  echo "[l8] starting PHP router on 127.0.0.1:8001"
+  php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
+  echo "[l8] php pid=$!"
 fi
 
 exec "$@"

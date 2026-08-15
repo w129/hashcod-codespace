@@ -1,7 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="l8 Streamlit Demo", page_icon="🟢", layout="centered")
-
+st.set_page_config(page_title="l8 · Demo", page_icon="🟢", layout="centered")
 st.title("l8 · Streamlit Dock")
 st.caption("Herramienta demo en el círculo del dock inferior.")
 
@@ -19,6 +18,6 @@ if st.button("Calcular", type="primary"):
         result = a * b
     else:
         result = (a / b) if b != 0 else "∞"
-    st.success(f"Hola {name}: resultado = {result}")
+    st.success(f"Hola {name}: resultado = **{result}**")
 
-st.info("Edita este código desde el slot del dock o pega tu propia app Streamlit.")
+st.info("Edita este código desde el slot del dock o elige otra plantilla.")

@@ -1188,6 +1188,13 @@
             box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.85);
         }
 
+        #dockBar .dock-slot.has-icon svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            pointer-events: none;
+        }
+
         /* ===== STREAMLIT DOCK EDITOR ===== */
         .st-dock-overlay {
             display: none;
@@ -1206,8 +1213,8 @@
         }
 
         .st-dock-shell {
-            width: min(720px, 100%);
-            max-height: min(90vh, 860px);
+            width: min(880px, 100%);
+            max-height: min(92vh, 920px);
             overflow: auto;
             background: #ffffff;
             border: 1px solid #E5E7EB;
@@ -1217,21 +1224,55 @@
             box-sizing: border-box;
             font-family: 'IBM Plex Sans', ui-sans-serif, sans-serif;
             color: #111;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .st-dock-top {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             gap: 12px;
-            margin-bottom: 14px;
         }
 
         .st-dock-title {
-            margin: 0;
+            margin: 0 0 8px;
             font-size: 20px;
             font-weight: 700;
             color: #0b3d2e;
+        }
+
+        .st-dock-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .st-dock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid #E5E7EB;
+            background: #F9FAFB;
+            color: #374151;
+        }
+
+        .st-dock-badge.on {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+            color: #047857;
+        }
+
+        .st-dock-badge.off {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #b91c1c;
         }
 
         .st-dock-close {
@@ -1249,7 +1290,7 @@
             display: block;
             font-size: 12px;
             color: #6B7280;
-            margin: 10px 0 6px;
+            margin: 0 0 6px;
             font-weight: 600;
         }
 
@@ -1267,17 +1308,42 @@
         }
 
         .st-dock-code {
-            min-height: 280px;
+            min-height: 260px;
             resize: vertical;
             font-family: 'IBM Plex Mono', ui-monospace, monospace;
             line-height: 1.45;
+        }
+
+        .st-dock-templates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .st-dock-chip {
+            appearance: none;
+            border: 1px solid #E5E7EB;
+            background: #fff;
+            border-radius: 999px;
+            padding: 7px 12px;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #111;
+        }
+
+        .st-dock-chip:hover,
+        .st-dock-chip.active {
+            border-color: #0b3d2e;
+            color: #0b3d2e;
+            background: #f0f7f4;
         }
 
         .st-dock-actions {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 14px;
         }
 
         .st-dock-btn {
@@ -1293,30 +1359,55 @@
             color: #fff;
         }
 
-        .st-dock-btn.secondary {
-            background: #111;
-        }
-
+        .st-dock-btn.secondary { background: #111; }
         .st-dock-btn.ghost {
             background: #fff;
             color: #111;
             border: 1px solid #E5E7EB;
         }
-
+        .st-dock-btn.danger {
+            background: #fff;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
         .st-dock-btn:disabled {
             opacity: 0.55;
             cursor: default;
         }
 
         .st-dock-msg {
-            margin-top: 12px;
+            margin: 0;
             font-size: 12px;
             color: #6B7280;
             min-height: 1.2em;
         }
-
         .st-dock-msg.ok { color: #15803d; }
         .st-dock-msg.err { color: #b91c1c; }
+
+        .st-dock-url {
+            margin: 0;
+            font-size: 12px;
+            color: #0b3d2e;
+            word-break: break-all;
+        }
+        .st-dock-url[hidden] { display: none !important; }
+        .st-dock-url a { color: inherit; font-weight: 600; }
+
+        .st-dock-preview-wrap {
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0b0b0b;
+            min-height: 220px;
+            display: none;
+        }
+        .st-dock-preview-wrap.show { display: block; }
+        .st-dock-preview-wrap iframe {
+            width: 100%;
+            height: min(42vh, 360px);
+            border: 0;
+            background: #fff;
+        }
 
         /* ===== BANCO DE ÍNDICES / Indices PI ===== */
         .indices-bank-overlay {
@@ -6770,6 +6861,14 @@
         /* ===== STREAMLIT DOCK TOOLS ===== */
         let stDockActiveSlot = 1;
         let stDockBusy = false;
+        let stDockActiveTemplate = '';
+        let stDockTemplatesCache = [];
+        let stDockStatusCache = null;
+        let stDockPreviewOn = false;
+        const ST_SLOT_ICON_SVG =
+            '<svg class="st-slot-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+            '<path fill="currentColor" d="M4.5 4.5h6.75v6.75H4.5V4.5zm8.25 0H19.5v6.75h-6.75V4.5zM4.5 12.75H11.25V19.5H4.5v-6.75zm11.25 3.375a3.375 3.375 0 1 0 0 6.75 3.375 3.375 0 0 0 0-6.75z"/>' +
+            '</svg>';
 
         function stDockSetMsg(text, kind) {
             const el = document.getElementById('stDockMsg');
@@ -6778,6 +6877,110 @@
             el.classList.remove('ok', 'err');
             if (kind === 'ok') el.classList.add('ok');
             if (kind === 'err') el.classList.add('err');
+        }
+
+        function stDockSetBadges(status, tool) {
+            const wrap = document.getElementById('stDockBadges');
+            if (!wrap) return;
+            const avail = !!(status && status.available);
+            const running = !!(tool && tool.running);
+            const hasCode = !!(tool && tool.has_code);
+            const bits = [];
+            bits.push('<span class="st-dock-badge ' + (avail ? 'on' : 'off') + '">' +
+                (avail ? ('Streamlit' + (status.version ? ' ' + status.version : ' listo')) : 'Streamlit no instalado') +
+                '</span>');
+            bits.push('<span class="st-dock-badge ' + (running ? 'on' : 'off') + '">' +
+                (running ? 'En ejecución' : 'Detenida') + '</span>');
+            bits.push('<span class="st-dock-badge">' + (hasCode ? 'Con código' : 'Vacío') + '</span>');
+            if (tool && tool.template) {
+                bits.push('<span class="st-dock-badge">Plantilla · ' + String(tool.template).replace(/</g, '') + '</span>');
+            }
+            wrap.innerHTML = bits.join('');
+            const urlEl = document.getElementById('stDockUrl');
+            if (urlEl) {
+                const url = (tool && tool.url) ? tool.url : ('/st/' + stDockActiveSlot + '/');
+                if (running) {
+                    urlEl.hidden = false;
+                    urlEl.innerHTML = 'URL · <a href="' + url + '" target="_blank" rel="noopener">' + url + '</a>';
+                } else {
+                    urlEl.hidden = true;
+                    urlEl.textContent = '';
+                }
+            }
+        }
+
+        function stDockHidePreview() {
+            stDockPreviewOn = false;
+            const wrap = document.getElementById('stDockPreviewWrap');
+            const iframe = document.getElementById('stDockIframe');
+            if (wrap) wrap.classList.remove('show');
+            if (iframe) iframe.removeAttribute('src');
+            const btn = document.getElementById('stDockPreviewBtn');
+            if (btn) btn.textContent = 'Vista previa';
+        }
+
+        function stDockShowPreview(url) {
+            const wrap = document.getElementById('stDockPreviewWrap');
+            const iframe = document.getElementById('stDockIframe');
+            if (!wrap || !iframe || !url) return;
+            stDockPreviewOn = true;
+            wrap.classList.add('show');
+            iframe.src = url;
+            const btn = document.getElementById('stDockPreviewBtn');
+            if (btn) btn.textContent = 'Ocultar vista';
+        }
+
+        function stDockRenderTemplates(activeId) {
+            const box = document.getElementById('stDockTemplates');
+            if (!box) return;
+            if (!stDockTemplatesCache.length) {
+                box.innerHTML = '<span class="st-dock-msg">Sin plantillas en el servidor.</span>';
+                return;
+            }
+            box.innerHTML = stDockTemplatesCache.map(function (t) {
+                const active = t.id === activeId ? ' active' : '';
+                const title = String(t.title || t.id).replace(/</g, '');
+                const blurb = String(t.blurb || '').replace(/"/g, '&quot;');
+                return '<button type="button" class="st-dock-chip' + active + '" data-st-tpl="' +
+                    String(t.id).replace(/"/g, '') + '" title="' + blurb + '">' + title + '</button>';
+            }).join('');
+            Array.prototype.forEach.call(box.querySelectorAll('[data-st-tpl]'), function (chip) {
+                chip.addEventListener('click', function () {
+                    stDockApplyTemplate(chip.getAttribute('data-st-tpl'));
+                });
+            });
+        }
+
+        async function stDockEnsureTemplates() {
+            const hasCode = stDockTemplatesCache.some(function (t) { return !!(t && t.code); });
+            if (hasCode) return stDockTemplatesCache;
+            const data = await stDockApi('/api/streamlit/templates');
+            stDockTemplatesCache = (data && data.templates) ? data.templates : stDockTemplatesCache;
+            return stDockTemplatesCache;
+        }
+
+        async function stDockApplyTemplate(id) {
+            if (!id) return;
+            stDockSetMsg('Cargando plantilla…');
+            let tpl = null;
+            const local = stDockTemplatesCache.find(function (t) { return t.id === id && t.code; });
+            if (local) {
+                tpl = local;
+            } else {
+                const data = await stDockApi('/api/streamlit/templates?id=' + encodeURIComponent(id));
+                tpl = data && data.template ? data.template : null;
+            }
+            if (!tpl || !tpl.code) {
+                stDockSetMsg('No se pudo cargar la plantilla', 'err');
+                return;
+            }
+            stDockActiveTemplate = tpl.id || id;
+            const titleInput = document.getElementById('stDockTitleInput');
+            const codeInput = document.getElementById('stDockCode');
+            if (titleInput) titleInput.value = tpl.title || titleInput.value;
+            if (codeInput) codeInput.value = tpl.code;
+            stDockRenderTemplates(stDockActiveTemplate);
+            stDockSetMsg('Plantilla «' + (tpl.title || id) + '» lista. Guarda y abre.', 'ok');
         }
 
         function setStDockOpen(open, slot) {
@@ -6789,10 +6992,12 @@
             overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
             const title = document.getElementById('stDockTitle');
             if (title) title.textContent = 'Streamlit · Slot ' + stDockActiveSlot;
-            if (isOpen) {
-                try { setDockBarOpen(false); } catch (e) {}
-                stDockLoadSlot(stDockActiveSlot);
+            if (!isOpen) {
+                stDockHidePreview();
+                return;
             }
+            try { setDockBarOpen(false); } catch (e) {}
+            stDockLoadSlot(stDockActiveSlot);
         }
 
         async function stDockApi(path, opts) {
@@ -6804,8 +7009,16 @@
             return data || { ok: false, error: 'Respuesta inválida' };
         }
 
+        function stDockSlotIconHtml() {
+            return ST_SLOT_ICON_SVG;
+        }
+
         async function stDockRefreshSlots() {
             const data = await stDockApi('/api/streamlit/status');
+            stDockStatusCache = data;
+            if (data && data.templates && data.templates.length && !stDockTemplatesCache.length) {
+                stDockTemplatesCache = data.templates;
+            }
             const tools = (data && data.tools) ? data.tools : [];
             const bySlot = {};
             tools.forEach(function (t) { bySlot[t.slot] = t; });
@@ -6817,7 +7030,13 @@
                 btn.classList.add('is-ready');
                 btn.classList.toggle('is-filled', !!t.has_code);
                 btn.classList.toggle('is-running', !!t.running);
-                btn.title = (t.title || ('Streamlit ' + i)) + (t.running ? ' · en ejecución' : '');
+                btn.classList.toggle('has-icon', !!t.has_code);
+                if (t.has_code) {
+                    if (!btn.querySelector('svg.st-slot-ico')) btn.innerHTML = stDockSlotIconHtml();
+                } else {
+                    btn.innerHTML = '';
+                }
+                btn.title = (t.title || ('Streamlit ' + i)) + (t.running ? ' · en ejecución' : (t.has_code ? ' · con código' : ''));
                 btn.setAttribute('aria-label', 'Abrir editor Streamlit slot ' + i);
                 bindDockSlot(btn, function () {
                     setStDockOpen(true, i);
@@ -6828,39 +7047,95 @@
 
         async function stDockLoadSlot(slot) {
             stDockSetMsg('Cargando slot…');
-            const data = await stDockApi('/api/streamlit/tools?slot=' + encodeURIComponent(slot));
+            stDockHidePreview();
+            await stDockEnsureTemplates();
+            const [status, data] = await Promise.all([
+                stDockStatusCache ? Promise.resolve(stDockStatusCache) : stDockApi('/api/streamlit/status'),
+                stDockApi('/api/streamlit/tools?slot=' + encodeURIComponent(slot))
+            ]);
+            stDockStatusCache = status;
             const titleInput = document.getElementById('stDockTitleInput');
             const codeInput = document.getElementById('stDockCode');
             if (titleInput) titleInput.value = (data && data.title) ? data.title : ('Streamlit ' + slot);
             if (codeInput) codeInput.value = (data && data.code) ? data.code : '';
+            stDockActiveTemplate = (data && data.template) ? data.template : '';
+            stDockRenderTemplates(stDockActiveTemplate);
+            stDockSetBadges(status, data);
             if (!data || !data.ok) {
                 stDockSetMsg((data && data.error) || 'No se pudo cargar el slot', 'err');
                 return;
             }
+            if (status && status.available === false) {
+                stDockSetMsg(status.error || 'Streamlit no está en este servidor (usa la imagen Docker en Render).', 'err');
+                return;
+            }
             stDockSetMsg(
                 data.running
-                    ? 'App en ejecución. Puedes abrirla o detenerla.'
-                    : (data.has_code ? 'Código listo. Guarda y abre para desplegarla.' : 'Slot vacío: pega código Streamlit o carga la demo.'),
+                    ? 'App en ejecución. Ábrela, previsualiza o detén.'
+                    : (data.has_code ? 'Código listo. Guarda y abre para desplegarla.' : 'Slot vacío: elige una plantilla o pega código.'),
                 data.running ? 'ok' : null
             );
+        }
+
+        function stDockPayload() {
+            const titleInput = document.getElementById('stDockTitleInput');
+            const codeInput = document.getElementById('stDockCode');
+            return {
+                slot: stDockActiveSlot,
+                title: titleInput ? titleInput.value : '',
+                code: codeInput ? codeInput.value : '',
+                template: stDockActiveTemplate || ''
+            };
+        }
+
+        async function stDockSaveOnly() {
+            if (stDockBusy) return;
+            stDockBusy = true;
+            const saveBtn = document.getElementById('stDockSaveBtn');
+            if (saveBtn) saveBtn.disabled = true;
+            stDockSetMsg('Guardando…');
+            try {
+                const saved = await stDockApi('/api/streamlit/tools', {
+                    method: 'POST',
+                    body: JSON.stringify(stDockPayload())
+                });
+                if (!saved || !saved.ok) {
+                    stDockSetMsg((saved && saved.error) || 'No se pudo guardar', 'err');
+                    return;
+                }
+                if (saved.warning) stDockSetMsg(saved.warning, null);
+                else stDockSetMsg(saved.restarted ? 'Guardado y reiniciado.' : 'Guardado.', 'ok');
+                stDockStatusCache = null;
+                await stDockRefreshSlots();
+                await stDockLoadSlot(stDockActiveSlot);
+            } finally {
+                stDockBusy = false;
+                if (saveBtn) saveBtn.disabled = false;
+            }
+        }
+
+        async function stDockOpenExternal(url) {
+            try {
+                if (typeof openExternalWithTokens === 'function') {
+                    await openExternalWithTokens(url, 'l8_streamlit_' + stDockActiveSlot, 'width=1100,height=760');
+                } else {
+                    window.open(url, '_blank');
+                }
+            } catch (e) {
+                window.open(url, '_blank');
+            }
         }
 
         async function stDockSaveAndRun() {
             if (stDockBusy) return;
             stDockBusy = true;
-            const titleInput = document.getElementById('stDockTitleInput');
-            const codeInput = document.getElementById('stDockCode');
             const saveBtn = document.getElementById('stDockSaveRunBtn');
             if (saveBtn) saveBtn.disabled = true;
             stDockSetMsg('Guardando y arrancando Streamlit…');
             try {
                 const saved = await stDockApi('/api/streamlit/tools', {
                     method: 'POST',
-                    body: JSON.stringify({
-                        slot: stDockActiveSlot,
-                        title: titleInput ? titleInput.value : '',
-                        code: codeInput ? codeInput.value : ''
-                    })
+                    body: JSON.stringify(stDockPayload())
                 });
                 if (!saved || !saved.ok) {
                     stDockSetMsg((saved && saved.error) || 'No se pudo guardar', 'err');
@@ -6874,22 +7149,23 @@
                     });
                 }
                 if (!run || !run.ok) {
-                    stDockSetMsg((run && run.error) || 'No se pudo iniciar Streamlit (¿Python instalado en el servidor?)', 'err');
+                    const tail = run && run.log_tail ? ' Revisa el log del slot.' : '';
+                    stDockSetMsg(((run && run.error) || 'No se pudo iniciar Streamlit') + tail, 'err');
+                    stDockStatusCache = null;
                     await stDockRefreshSlots();
                     return;
                 }
                 const url = run.url || ('/st/' + stDockActiveSlot + '/');
                 stDockSetMsg('Abierta en ventana externa: ' + url, 'ok');
+                stDockStatusCache = null;
                 await stDockRefreshSlots();
-                try {
-                    if (typeof openExternalWithTokens === 'function') {
-                        await openExternalWithTokens(url, 'l8_streamlit_' + stDockActiveSlot, 'width=1100,height=760');
-                    } else {
-                        window.open(url, '_blank');
-                    }
-                } catch (e) {
-                    window.open(url, '_blank');
-                }
+                stDockSetBadges(stDockStatusCache || { available: true }, {
+                    running: true,
+                    has_code: true,
+                    url: url,
+                    template: stDockActiveTemplate
+                });
+                await stDockOpenExternal(url);
             } finally {
                 stDockBusy = false;
                 if (saveBtn) saveBtn.disabled = false;
@@ -6908,16 +7184,43 @@
             }
             const url = run.url || ('/st/' + stDockActiveSlot + '/');
             stDockSetMsg('Abierta: ' + url, 'ok');
+            stDockStatusCache = null;
             await stDockRefreshSlots();
-            try {
-                if (typeof openExternalWithTokens === 'function') {
-                    await openExternalWithTokens(url, 'l8_streamlit_' + stDockActiveSlot, 'width=1100,height=760');
-                } else {
-                    window.open(url, '_blank');
-                }
-            } catch (e) {
-                window.open(url, '_blank');
+            stDockSetBadges(stDockStatusCache || { available: true }, {
+                running: true,
+                has_code: true,
+                url: url,
+                template: stDockActiveTemplate
+            });
+            await stDockOpenExternal(url);
+        }
+
+        async function stDockTogglePreview() {
+            if (stDockPreviewOn) {
+                stDockHidePreview();
+                stDockSetMsg('Vista previa oculta.');
+                return;
             }
+            stDockSetMsg('Preparando vista previa…');
+            const run = await stDockApi('/api/streamlit/run', {
+                method: 'POST',
+                body: JSON.stringify({ slot: stDockActiveSlot })
+            });
+            if (!run || !run.ok) {
+                stDockSetMsg((run && run.error) || 'No se pudo previsualizar', 'err');
+                return;
+            }
+            const url = run.url || ('/st/' + stDockActiveSlot + '/');
+            stDockShowPreview(url);
+            stDockStatusCache = null;
+            await stDockRefreshSlots();
+            stDockSetBadges(stDockStatusCache || { available: true }, {
+                running: true,
+                has_code: true,
+                url: url,
+                template: stDockActiveTemplate
+            });
+            stDockSetMsg('Vista previa embebida · ' + url, 'ok');
         }
 
         async function stDockStop() {
@@ -6925,40 +7228,35 @@
                 method: 'POST',
                 body: JSON.stringify({ slot: stDockActiveSlot })
             });
+            stDockHidePreview();
             stDockSetMsg((stop && stop.ok) ? 'Detenida.' : ((stop && stop.error) || 'No se pudo detener'), stop && stop.ok ? 'ok' : 'err');
+            stDockStatusCache = null;
             await stDockRefreshSlots();
+            await stDockLoadSlot(stDockActiveSlot);
         }
 
-        async function stDockLoadDemo() {
-            const demo = await stDockApi('/api/streamlit/tools?slot=1');
-            // Prefer server demo file via save of known starter if slot1 empty content differs —
-            // fetch status won't return demo source if overwritten; use embedded fallback
-            const codeInput = document.getElementById('stDockCode');
-            const titleInput = document.getElementById('stDockTitleInput');
-            if (titleInput) titleInput.value = 'Demo calculadora';
-            if (codeInput) {
-                codeInput.value =
-                    'import streamlit as st\n\n' +
-                    'st.set_page_config(page_title="l8 Streamlit Demo", page_icon="🟢", layout="centered")\n' +
-                    'st.title("l8 · Streamlit Dock")\n' +
-                    'st.caption("Herramienta demo en el círculo del dock inferior.")\n' +
-                    'name = st.text_input("Tu nombre", value="Hashcod")\n' +
-                    'a = st.number_input("Número A", value=12.0)\n' +
-                    'b = st.number_input("Número B", value=8.0)\n' +
-                    'op = st.selectbox("Operación", ["sumar", "restar", "multiplicar", "dividir"])\n' +
-                    'if st.button("Calcular", type="primary"):\n' +
-                    '    if op == "sumar":\n' +
-                    '        result = a + b\n' +
-                    '    elif op == "restar":\n' +
-                    '        result = a - b\n' +
-                    '    elif op == "multiplicar":\n' +
-                    '        result = a * b\n' +
-                    '    else:\n' +
-                    '        result = (a / b) if b != 0 else "∞"\n' +
-                    '    st.success(f"Hola {name}: resultado = {result}")\n';
+        async function stDockClear() {
+            if (stDockBusy) return;
+            if (!window.confirm('¿Vaciar el slot ' + stDockActiveSlot + '? Se detendrá la app y se borrará el código.')) return;
+            stDockBusy = true;
+            try {
+                const cleared = await stDockApi('/api/streamlit/tools', {
+                    method: 'DELETE',
+                    body: JSON.stringify({ slot: stDockActiveSlot })
+                });
+                if (!cleared || !cleared.ok) {
+                    stDockSetMsg((cleared && cleared.error) || 'No se pudo vaciar', 'err');
+                    return;
+                }
+                stDockHidePreview();
+                stDockActiveTemplate = '';
+                stDockSetMsg(stDockActiveSlot === 1 ? 'Slot vaciado (demo reseedeada).' : 'Slot vaciado.', 'ok');
+                stDockStatusCache = null;
+                await stDockRefreshSlots();
+                await stDockLoadSlot(stDockActiveSlot);
+            } finally {
+                stDockBusy = false;
             }
-            stDockSetMsg('Demo cargada en el editor. Pulsa Guardar y abrir.', 'ok');
-            void demo;
         }
 
         function initStDockEditor() {
@@ -6969,14 +7267,27 @@
             overlay.addEventListener('pointerdown', function (ev) {
                 if (ev.target === overlay) setStDockOpen(false);
             });
+            const saveOnly = document.getElementById('stDockSaveBtn');
             const saveRun = document.getElementById('stDockSaveRunBtn');
             const openBtn = document.getElementById('stDockOpenBtn');
+            const previewBtn = document.getElementById('stDockPreviewBtn');
             const stopBtn = document.getElementById('stDockStopBtn');
-            const demoBtn = document.getElementById('stDockLoadDemoBtn');
+            const clearBtn = document.getElementById('stDockClearBtn');
+            const codeInput = document.getElementById('stDockCode');
+            if (saveOnly) saveOnly.addEventListener('click', function () { stDockSaveOnly(); });
             if (saveRun) saveRun.addEventListener('click', function () { stDockSaveAndRun(); });
             if (openBtn) openBtn.addEventListener('click', function () { stDockOpenOnly(); });
+            if (previewBtn) previewBtn.addEventListener('click', function () { stDockTogglePreview(); });
             if (stopBtn) stopBtn.addEventListener('click', function () { stDockStop(); });
-            if (demoBtn) demoBtn.addEventListener('click', function () { stDockLoadDemo(); });
+            if (clearBtn) clearBtn.addEventListener('click', function () { stDockClear(); });
+            if (codeInput) {
+                codeInput.addEventListener('keydown', function (ev) {
+                    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+                        ev.preventDefault();
+                        stDockSaveAndRun();
+                    }
+                });
+            }
             document.addEventListener('keydown', function (ev) {
                 if (ev.key === 'Escape' && overlay.classList.contains('open')) {
                     setStDockOpen(false);
@@ -9729,20 +10040,31 @@
     <div class="st-dock-overlay" id="stDockOverlay" aria-hidden="true">
         <div class="st-dock-shell" role="dialog" aria-modal="true" aria-labelledby="stDockTitle">
             <div class="st-dock-top">
-                <h2 class="st-dock-title" id="stDockTitle">Streamlit · Slot 1</h2>
+                <div>
+                    <h2 class="st-dock-title" id="stDockTitle">Streamlit · Slot 1</h2>
+                    <div class="st-dock-badges" id="stDockBadges" aria-live="polite"></div>
+                </div>
                 <button type="button" class="st-dock-close" id="stDockCloseBtn">Cerrar</button>
             </div>
+            <p class="st-dock-url" id="stDockUrl" hidden></p>
             <label class="st-dock-label" for="stDockTitleInput">Nombre</label>
             <input class="st-dock-input" id="stDockTitleInput" type="text" maxlength="80" placeholder="Mi herramienta Streamlit" autocomplete="off">
+            <div class="st-dock-label">Plantillas</div>
+            <div class="st-dock-templates" id="stDockTemplates" aria-label="Plantillas Streamlit"></div>
             <label class="st-dock-label" for="stDockCode">Código Python (Streamlit)</label>
             <textarea class="st-dock-code" id="stDockCode" spellcheck="false" placeholder="import streamlit as st&#10;st.title('Hola l8')"></textarea>
             <div class="st-dock-actions">
+                <button type="button" class="st-dock-btn ghost" id="stDockSaveBtn">Guardar</button>
                 <button type="button" class="st-dock-btn" id="stDockSaveRunBtn">Guardar y abrir</button>
                 <button type="button" class="st-dock-btn secondary" id="stDockOpenBtn">Abrir</button>
+                <button type="button" class="st-dock-btn ghost" id="stDockPreviewBtn">Vista previa</button>
                 <button type="button" class="st-dock-btn ghost" id="stDockStopBtn">Detener</button>
-                <button type="button" class="st-dock-btn ghost" id="stDockLoadDemoBtn">Cargar demo</button>
+                <button type="button" class="st-dock-btn danger" id="stDockClearBtn">Vaciar slot</button>
             </div>
-            <p class="st-dock-msg" id="stDockMsg">Pega tu app Streamlit y ábrela en una ventana de la plataforma.</p>
+            <div class="st-dock-preview-wrap" id="stDockPreviewWrap">
+                <iframe id="stDockIframe" title="Vista previa Streamlit" loading="lazy"></iframe>
+            </div>
+            <p class="st-dock-msg" id="stDockMsg">Elige una plantilla o pega tu app. Ctrl/Cmd+Enter guarda y abre.</p>
         </div>
     </div>
 

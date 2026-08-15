@@ -46,6 +46,9 @@ $routedPages = [
     '/chromeos_play' => 'chromeos-cli.php',
     '/chromeOS_play' => 'chromeos-cli.php',
     '/chromeos-cli.php' => 'chromeos-cli.php',
+    '/libreoffice' => 'libreoffice-cli.php',
+    '/libreoffice-cli' => 'libreoffice-cli.php',
+    '/libreoffice-cli.php' => 'libreoffice-cli.php',
 ];
 if (isset($routedPages[$uri])) {
     $page = $routedPages[$uri];

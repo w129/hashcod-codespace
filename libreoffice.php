@@ -65,7 +65,7 @@ function libreofficeStatusPayload() {
     ];
 }
 
-/** Asegura el clone (usa cloneOrUpdateRepository si existe). */
+/** Asegura el clone (usa cloneOrUpdateRepository si existe; mirror GitHub si anongit falla). */
 function libreofficeEnsure() {
     if (libreofficeIsCloned()) {
         $st = libreofficeStatusPayload();
@@ -81,8 +81,17 @@ function libreofficeEnsure() {
         ];
     }
     $res = cloneOrUpdateRepository(libreofficeCloneUrl());
+    if (empty($res['ok']) || !libreofficeIsCloned()) {
+        $mirror = cloneOrUpdateRepository(libreofficeMirrorUrl());
+        if (!empty($mirror['ok']) || libreofficeIsCloned()) {
+            $res = $mirror;
+            $res['used_mirror'] = true;
+        } else {
+            $res['mirror'] = $mirror;
+        }
+    }
     $st = libreofficeStatusPayload();
-    $st['ok'] = !empty($res['ok']) && !empty($st['cloned']);
+    $st['ok'] = !empty($st['cloned']);
     $st['ensure'] = $res;
     $st['message'] = !empty($st['ok'])
         ? 'LibreOffice core desplegado en el servidor.'

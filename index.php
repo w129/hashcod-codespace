@@ -19,6 +19,7 @@ if (!headers_sent()) {
     <link rel="shortcut icon" href="favicon.svg?v=3" type="image/svg+xml">
     <link rel="apple-touch-icon" href="favicon.svg?v=3">
     <meta name="application-name" content="l8 codespace">
+    <script src="/d5t-client.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 

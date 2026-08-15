@@ -802,7 +802,7 @@ function aiChatHandleApi($uri) {
     if ($uri === '/api/ai/oauth/start' && ($method === 'GET' || $method === 'POST')) {
         $provider = $_GET['provider'] ?? '';
         if ($method === 'POST') {
-            $raw = json_decode((string)file_get_contents('php://input'), true) ?: [];
+            $raw = json_decode((string)l8RequestBody(), true) ?: [];
             $provider = $raw['provider'] ?? $provider;
         }
         $res = aiChatStartOauth($provider);
@@ -812,7 +812,7 @@ function aiChatHandleApi($uri) {
     }
 
     if ($uri === '/api/ai/login' && $method === 'POST') {
-        $raw = json_decode((string)file_get_contents('php://input'), true) ?: [];
+        $raw = json_decode((string)l8RequestBody(), true) ?: [];
         $res = aiChatLoginWithToken(
             $raw['provider'] ?? '',
             $raw['token'] ?? $raw['access_token'] ?? $raw['api_key'] ?? '',
@@ -824,13 +824,13 @@ function aiChatHandleApi($uri) {
     }
 
     if ($uri === '/api/ai/logout' && $method === 'POST') {
-        $raw = json_decode((string)file_get_contents('php://input'), true) ?: [];
+        $raw = json_decode((string)l8RequestBody(), true) ?: [];
         echo json_encode(aiChatLogout($raw['provider'] ?? null), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         return true;
     }
 
     if (($uri === '/api/ai/chat' || $uri === '/api/ai/complete') && $method === 'POST') {
-        $raw = json_decode((string)file_get_contents('php://input'), true) ?: [];
+        $raw = json_decode((string)l8RequestBody(), true) ?: [];
         $res = aiChatComplete(
             $raw['provider'] ?? $raw['model'] ?? '',
             $raw['prompt'] ?? $raw['message'] ?? $raw['text'] ?? '',

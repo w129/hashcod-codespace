@@ -163,7 +163,7 @@ function ocgHandleApi($uri) {
     }
 
     if (($uri === '/api/opencrypt/claim' || $uri === '/api/opencrypt/register') && $method === 'POST') {
-        $raw = json_decode((string)file_get_contents('php://input'), true) ?: [];
+        $raw = json_decode((string)l8RequestBody(), true) ?: [];
         $items = $raw['codes'] ?? $raw['items'] ?? [];
         $res = ocgClaimCodes($items);
         if (empty($res['ok'])) {

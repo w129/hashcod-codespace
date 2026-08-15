@@ -1037,7 +1037,7 @@ function tokensHandleApi($uri) {
     }
 
     if (($uri === '/api/tokens/consume' || $uri === '/api/tokens/charge') && $method === 'POST') {
-        $raw = file_get_contents('php://input');
+        $raw = l8RequestBody();
         $input = json_decode($raw, true) ?? [];
         $kind = $input['kind'] ?? $input['type'] ?? '';
         $detail = $input['detail'] ?? $input['command'] ?? $input['url'] ?? '';
@@ -1056,7 +1056,7 @@ function tokensHandleApi($uri) {
         if (!securityRateAllow('tokens_unlock', 8, 60)) {
             securityRateDenyJson(60);
         }
-        $raw = file_get_contents('php://input');
+        $raw = l8RequestBody();
         $input = json_decode($raw, true) ?? [];
         $area = $input['area'] ?? $input['area_id'] ?? $input['id'] ?? '';
         $code = $input['code'] ?? $input['dilithium5'] ?? $input['key'] ?? $input['dilithium'] ?? '';

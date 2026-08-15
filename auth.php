@@ -844,7 +844,7 @@ function authBearerTokenFromRequest() {
     if (preg_match('/Bearer\s+(\S+)/i', $hdr, $m)) {
         return $m[1];
     }
-    $input = json_decode((string)file_get_contents('php://input'), true);
+    $input = json_decode((string)l8RequestBody(), true);
     if (is_array($input) && !empty($input['session_token'])) {
         return (string)$input['session_token'];
     }
@@ -898,7 +898,7 @@ function authHandleApi($uri) {
         if (!securityRateAllow('auth_register', 5, 3600)) {
             securityRateDenyJson(3600);
         }
-        $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
+        $input = json_decode((string)l8RequestBody(), true) ?? [];
         $dil = $input['dilithium5'] ?? $input['dilithium_5'] ?? $input['d5'] ?? '';
         $res = authRegister($dil);
         if (empty($res['ok'])) {
@@ -914,7 +914,7 @@ function authHandleApi($uri) {
         if (!securityRateAllow('auth_login', 8, 60)) {
             securityRateDenyJson(60);
         }
-        $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
+        $input = json_decode((string)l8RequestBody(), true) ?? [];
         $aes = $input['aes256'] ?? $input['aes_256'] ?? $input['key_aes'] ?? '';
         $identity = $input['identity'] ?? $input['identity_key'] ?? $input['key_identity'] ?? '';
         $res = authLogin($aes, $identity);
@@ -937,7 +937,7 @@ function authHandleApi($uri) {
         if (!securityRateAllow('auth_recover', 5, 600)) {
             securityRateDenyJson(600);
         }
-        $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
+        $input = json_decode((string)l8RequestBody(), true) ?? [];
         $material = $input['recovery'] ?? $input['recovery_key'] ?? $input['backup_code'] ?? $input['code'] ?? '';
         $res = authRecover($material);
         if (empty($res['ok'])) {

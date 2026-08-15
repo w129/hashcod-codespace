@@ -1175,6 +1175,144 @@ if (!headers_sent()) {
             }
         }
 
+        #dockBar .dock-slot.is-filled {
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        #dockBar .dock-slot.is-running {
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.85);
+        }
+
+        /* ===== STREAMLIT DOCK EDITOR ===== */
+        .st-dock-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9993;
+            background: rgba(20, 22, 24, 0.58);
+            align-items: center;
+            justify-content: center;
+            padding: 18px 12px;
+            box-sizing: border-box;
+        }
+
+        .st-dock-overlay.open {
+            display: flex;
+        }
+
+        .st-dock-shell {
+            width: min(720px, 100%);
+            max-height: min(90vh, 860px);
+            overflow: auto;
+            background: #ffffff;
+            border: 1px solid #E5E7EB;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+            padding: 22px;
+            box-sizing: border-box;
+            font-family: 'IBM Plex Sans', ui-sans-serif, sans-serif;
+            color: #111;
+        }
+
+        .st-dock-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .st-dock-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #0b3d2e;
+        }
+
+        .st-dock-close {
+            appearance: none;
+            border: 1px solid #E5E7EB;
+            background: #fff;
+            border-radius: 999px;
+            padding: 6px 12px;
+            font: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .st-dock-label {
+            display: block;
+            font-size: 12px;
+            color: #6B7280;
+            margin: 10px 0 6px;
+            font-weight: 600;
+        }
+
+        .st-dock-input,
+        .st-dock-code {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font: inherit;
+            font-size: 13px;
+            background: #fff;
+            color: #111;
+        }
+
+        .st-dock-code {
+            min-height: 280px;
+            resize: vertical;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            line-height: 1.45;
+        }
+
+        .st-dock-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .st-dock-btn {
+            appearance: none;
+            border: none;
+            border-radius: 999px;
+            padding: 9px 14px;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #0b3d2e;
+            color: #fff;
+        }
+
+        .st-dock-btn.secondary {
+            background: #111;
+        }
+
+        .st-dock-btn.ghost {
+            background: #fff;
+            color: #111;
+            border: 1px solid #E5E7EB;
+        }
+
+        .st-dock-btn:disabled {
+            opacity: 0.55;
+            cursor: default;
+        }
+
+        .st-dock-msg {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #6B7280;
+            min-height: 1.2em;
+        }
+
+        .st-dock-msg.ok { color: #15803d; }
+        .st-dock-msg.err { color: #b91c1c; }
+
         /* ===== BANCO DE ÍNDICES / Indices PI ===== */
         .indices-bank-overlay {
             display: none;
@@ -6624,6 +6762,266 @@ if (!headers_sent()) {
         window.setDockBarOpen = setDockBarOpen;
         window.bindDockSlot = bindDockSlot;
 
+        /* ===== STREAMLIT DOCK TOOLS ===== */
+        let stDockActiveSlot = 1;
+        let stDockBusy = false;
+
+        function stDockSetMsg(text, kind) {
+            const el = document.getElementById('stDockMsg');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.remove('ok', 'err');
+            if (kind === 'ok') el.classList.add('ok');
+            if (kind === 'err') el.classList.add('err');
+        }
+
+        function setStDockOpen(open, slot) {
+            const overlay = document.getElementById('stDockOverlay');
+            if (!overlay) return;
+            const isOpen = !!open;
+            if (typeof slot === 'number' && slot >= 1) stDockActiveSlot = slot;
+            overlay.classList.toggle('open', isOpen);
+            overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            const title = document.getElementById('stDockTitle');
+            if (title) title.textContent = 'Streamlit · Slot ' + stDockActiveSlot;
+            if (isOpen) {
+                try { setDockBarOpen(false); } catch (e) {}
+                stDockLoadSlot(stDockActiveSlot);
+            }
+        }
+
+        async function stDockApi(path, opts) {
+            const res = await fetch(path, Object.assign({
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            }, opts || {}));
+            let data = null;
+            try { data = await res.json(); } catch (e) { data = null; }
+            return data || { ok: false, error: 'Respuesta inválida' };
+        }
+
+        async function stDockRefreshSlots() {
+            const data = await stDockApi('/api/streamlit/status');
+            const tools = (data && data.tools) ? data.tools : [];
+            const bySlot = {};
+            tools.forEach(function (t) { bySlot[t.slot] = t; });
+            for (let i = 1; i <= 8; i++) {
+                const btn = document.querySelector('#dockToolbar .dock-slot[data-dock-slot="' + i + '"]');
+                if (!btn) continue;
+                const t = bySlot[i] || { has_code: false, running: false, title: 'Streamlit ' + i };
+                btn.disabled = false;
+                btn.classList.add('is-ready');
+                btn.classList.toggle('is-filled', !!t.has_code);
+                btn.classList.toggle('is-running', !!t.running);
+                btn.title = (t.title || ('Streamlit ' + i)) + (t.running ? ' · en ejecución' : '');
+                btn.setAttribute('aria-label', 'Abrir editor Streamlit slot ' + i);
+                bindDockSlot(btn, function () {
+                    setStDockOpen(true, i);
+                });
+            }
+            return data;
+        }
+
+        async function stDockLoadSlot(slot) {
+            stDockSetMsg('Cargando slot…');
+            const data = await stDockApi('/api/streamlit/tools?slot=' + encodeURIComponent(slot));
+            const titleInput = document.getElementById('stDockTitleInput');
+            const codeInput = document.getElementById('stDockCode');
+            if (titleInput) titleInput.value = (data && data.title) ? data.title : ('Streamlit ' + slot);
+            if (codeInput) codeInput.value = (data && data.code) ? data.code : '';
+            if (!data || !data.ok) {
+                stDockSetMsg((data && data.error) || 'No se pudo cargar el slot', 'err');
+                return;
+            }
+            stDockSetMsg(
+                data.running
+                    ? 'App en ejecución. Puedes abrirla o detenerla.'
+                    : (data.has_code ? 'Código listo. Guarda y abre para desplegarla.' : 'Slot vacío: pega código Streamlit o carga la demo.'),
+                data.running ? 'ok' : null
+            );
+        }
+
+        async function stDockSaveAndRun() {
+            if (stDockBusy) return;
+            stDockBusy = true;
+            const titleInput = document.getElementById('stDockTitleInput');
+            const codeInput = document.getElementById('stDockCode');
+            const saveBtn = document.getElementById('stDockSaveRunBtn');
+            if (saveBtn) saveBtn.disabled = true;
+            stDockSetMsg('Guardando y arrancando Streamlit…');
+            try {
+                const saved = await stDockApi('/api/streamlit/tools', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        slot: stDockActiveSlot,
+                        title: titleInput ? titleInput.value : '',
+                        code: codeInput ? codeInput.value : ''
+                    })
+                });
+                if (!saved || !saved.ok) {
+                    stDockSetMsg((saved && saved.error) || 'No se pudo guardar', 'err');
+                    return;
+                }
+                let run = saved;
+                if (!saved.restarted) {
+                    run = await stDockApi('/api/streamlit/run', {
+                        method: 'POST',
+                        body: JSON.stringify({ slot: stDockActiveSlot })
+                    });
+                }
+                if (!run || !run.ok) {
+                    stDockSetMsg((run && run.error) || 'No se pudo iniciar Streamlit (¿Python instalado en el servidor?)', 'err');
+                    await stDockRefreshSlots();
+                    return;
+                }
+                const url = run.url || ('/st/' + stDockActiveSlot + '/');
+                stDockSetMsg('Abierta en ventana externa: ' + url, 'ok');
+                await stDockRefreshSlots();
+                try {
+                    if (typeof openExternalWithTokens === 'function') {
+                        await openExternalWithTokens(url, 'l8_streamlit_' + stDockActiveSlot, 'width=1100,height=760');
+                    } else {
+                        window.open(url, '_blank');
+                    }
+                } catch (e) {
+                    window.open(url, '_blank');
+                }
+            } finally {
+                stDockBusy = false;
+                if (saveBtn) saveBtn.disabled = false;
+            }
+        }
+
+        async function stDockOpenOnly() {
+            stDockSetMsg('Arrancando si hace falta…');
+            const run = await stDockApi('/api/streamlit/run', {
+                method: 'POST',
+                body: JSON.stringify({ slot: stDockActiveSlot })
+            });
+            if (!run || !run.ok) {
+                stDockSetMsg((run && run.error) || 'No se pudo abrir', 'err');
+                return;
+            }
+            const url = run.url || ('/st/' + stDockActiveSlot + '/');
+            stDockSetMsg('Abierta: ' + url, 'ok');
+            await stDockRefreshSlots();
+            try {
+                if (typeof openExternalWithTokens === 'function') {
+                    await openExternalWithTokens(url, 'l8_streamlit_' + stDockActiveSlot, 'width=1100,height=760');
+                } else {
+                    window.open(url, '_blank');
+                }
+            } catch (e) {
+                window.open(url, '_blank');
+            }
+        }
+
+        async function stDockStop() {
+            const stop = await stDockApi('/api/streamlit/stop', {
+                method: 'POST',
+                body: JSON.stringify({ slot: stDockActiveSlot })
+            });
+            stDockSetMsg((stop && stop.ok) ? 'Detenida.' : ((stop && stop.error) || 'No se pudo detener'), stop && stop.ok ? 'ok' : 'err');
+            await stDockRefreshSlots();
+        }
+
+        async function stDockLoadDemo() {
+            const demo = await stDockApi('/api/streamlit/tools?slot=1');
+            // Prefer server demo file via save of known starter if slot1 empty content differs —
+            // fetch status won't return demo source if overwritten; use embedded fallback
+            const codeInput = document.getElementById('stDockCode');
+            const titleInput = document.getElementById('stDockTitleInput');
+            if (titleInput) titleInput.value = 'Demo calculadora';
+            if (codeInput) {
+                codeInput.value =
+                    'import streamlit as st\n\n' +
+                    'st.set_page_config(page_title="l8 Streamlit Demo", page_icon="🟢", layout="centered")\n' +
+                    'st.title("l8 · Streamlit Dock")\n' +
+                    'st.caption("Herramienta demo en el círculo del dock inferior.")\n' +
+                    'name = st.text_input("Tu nombre", value="Hashcod")\n' +
+                    'a = st.number_input("Número A", value=12.0)\n' +
+                    'b = st.number_input("Número B", value=8.0)\n' +
+                    'op = st.selectbox("Operación", ["sumar", "restar", "multiplicar", "dividir"])\n' +
+                    'if st.button("Calcular", type="primary"):\n' +
+                    '    if op == "sumar":\n' +
+                    '        result = a + b\n' +
+                    '    elif op == "restar":\n' +
+                    '        result = a - b\n' +
+                    '    elif op == "multiplicar":\n' +
+                    '        result = a * b\n' +
+                    '    else:\n' +
+                    '        result = (a / b) if b != 0 else "∞"\n' +
+                    '    st.success(f"Hola {name}: resultado = {result}")\n';
+            }
+            stDockSetMsg('Demo cargada en el editor. Pulsa Guardar y abrir.', 'ok');
+            void demo;
+        }
+
+        function initStDockEditor() {
+            const overlay = document.getElementById('stDockOverlay');
+            const closeBtn = document.getElementById('stDockCloseBtn');
+            if (!overlay) return;
+            if (closeBtn) closeBtn.addEventListener('click', function () { setStDockOpen(false); });
+            overlay.addEventListener('pointerdown', function (ev) {
+                if (ev.target === overlay) setStDockOpen(false);
+            });
+            const saveRun = document.getElementById('stDockSaveRunBtn');
+            const openBtn = document.getElementById('stDockOpenBtn');
+            const stopBtn = document.getElementById('stDockStopBtn');
+            const demoBtn = document.getElementById('stDockLoadDemoBtn');
+            if (saveRun) saveRun.addEventListener('click', function () { stDockSaveAndRun(); });
+            if (openBtn) openBtn.addEventListener('click', function () { stDockOpenOnly(); });
+            if (stopBtn) stopBtn.addEventListener('click', function () { stDockStop(); });
+            if (demoBtn) demoBtn.addEventListener('click', function () { stDockLoadDemo(); });
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && overlay.classList.contains('open')) {
+                    setStDockOpen(false);
+                    ev.stopPropagation();
+                }
+            }, true);
+            window.setStDockOpen = setStDockOpen;
+            window.stDockRefreshSlots = stDockRefreshSlots;
+        }
+
+        function initDockBar() {
+            const dock = document.getElementById('dockBar');
+            const swipe = document.getElementById('dockSwipeBtn');
+            const panel = document.getElementById('dockToolbar');
+            if (!dock || !swipe) return;
+
+            setDockBarOpen(dockBarLoadOpen());
+            initStDockEditor();
+            stDockRefreshSlots().catch(function () {});
+
+            swipe.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                setDockBarOpen(true);
+                stDockRefreshSlots().catch(function () {});
+            });
+
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && dock.classList.contains('is-open')) {
+                    const ib = document.getElementById('indicesBankOverlay');
+                    if (ib && ib.classList.contains('open')) return;
+                    const st = document.getElementById('stDockOverlay');
+                    if (st && st.classList.contains('open')) return;
+                    setDockBarOpen(false);
+                }
+            });
+
+            document.addEventListener('pointerdown', function (ev) {
+                if (!dock.classList.contains('is-open')) return;
+                if (dock.contains(ev.target)) return;
+                const ib = document.getElementById('indicesBankOverlay');
+                if (ib && ib.contains(ev.target)) return;
+                const st = document.getElementById('stDockOverlay');
+                if (st && st.contains(ev.target)) return;
+                setDockBarOpen(false);
+            });
+
+            void panel;
+        }
+
         /* ===== BANCO DE ÍNDICES / Indices PI ===== */
         const INDICES_BANK_STORE = 'l8_indices_bank_v2';
         const INDICES_BANK_STORE_LEGACY = 'l8_indices_bank_v1';
@@ -6939,37 +7337,6 @@ if (!headers_sent()) {
                     ev.stopPropagation();
                 }
             }, true);
-        }
-
-        function initDockBar() {
-            const dock = document.getElementById('dockBar');
-            const swipe = document.getElementById('dockSwipeBtn');
-            const panel = document.getElementById('dockToolbar');
-            if (!dock || !swipe) return;
-
-            setDockBarOpen(dockBarLoadOpen());
-
-            swipe.addEventListener('click', function (ev) {
-                ev.preventDefault();
-                ev.stopPropagation();
-                setDockBarOpen(true);
-            });
-
-            document.addEventListener('keydown', function (ev) {
-                if (ev.key === 'Escape' && dock.classList.contains('is-open')) {
-                    const ib = document.getElementById('indicesBankOverlay');
-                    if (ib && ib.classList.contains('open')) return;
-                    setDockBarOpen(false);
-                }
-            });
-
-            document.addEventListener('pointerdown', function (ev) {
-                if (!dock.classList.contains('is-open')) return;
-                if (dock.contains(ev.target)) return;
-                const ib = document.getElementById('indicesBankOverlay');
-                if (ib && ib.contains(ev.target)) return;
-                setDockBarOpen(false);
-            });
         }
 
         function initFlyRail() {
@@ -9352,6 +9719,27 @@ if (!headers_sent()) {
             <button type="button" class="dock-slot" data-dock-slot="8" title="Herramienta 8" aria-label="Herramienta 8 (próximamente)" disabled></button>
         </nav>
     </aside>
+
+    <!-- Editor Streamlit (dock slots) -->
+    <div class="st-dock-overlay" id="stDockOverlay" aria-hidden="true">
+        <div class="st-dock-shell" role="dialog" aria-modal="true" aria-labelledby="stDockTitle">
+            <div class="st-dock-top">
+                <h2 class="st-dock-title" id="stDockTitle">Streamlit · Slot 1</h2>
+                <button type="button" class="st-dock-close" id="stDockCloseBtn">Cerrar</button>
+            </div>
+            <label class="st-dock-label" for="stDockTitleInput">Nombre</label>
+            <input class="st-dock-input" id="stDockTitleInput" type="text" maxlength="80" placeholder="Mi herramienta Streamlit" autocomplete="off">
+            <label class="st-dock-label" for="stDockCode">Código Python (Streamlit)</label>
+            <textarea class="st-dock-code" id="stDockCode" spellcheck="false" placeholder="import streamlit as st&#10;st.title('Hola l8')"></textarea>
+            <div class="st-dock-actions">
+                <button type="button" class="st-dock-btn" id="stDockSaveRunBtn">Guardar y abrir</button>
+                <button type="button" class="st-dock-btn secondary" id="stDockOpenBtn">Abrir</button>
+                <button type="button" class="st-dock-btn ghost" id="stDockStopBtn">Detener</button>
+                <button type="button" class="st-dock-btn ghost" id="stDockLoadDemoBtn">Cargar demo</button>
+            </div>
+            <p class="st-dock-msg" id="stDockMsg">Pega tu app Streamlit y ábrela en una ventana de la plataforma.</p>
+        </div>
+    </div>
 
     <script>
         /* ===== AUTH GATE (registro / login) ===== */

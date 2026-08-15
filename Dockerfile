@@ -1,6 +1,6 @@
 FROM php:8.1-cli
 
-# Instalar librerías del sistema + GitHub CLI (gh) para Render
+# Sistema + GitHub CLI + Python/Streamlit + Caddy (proxy websockets /st/*)
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     openssh-client \
     git \
+    python3 \
+    python3-pip \
+    python3-venv \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
       | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -23,6 +26,10 @@ RUN apt-get update && apt-get install -y \
     && ln -sf /root/.bun/bin/bunx /usr/local/bin/bunx \
     && curl -fsSL https://claude.ai/install.sh | bash \
     && (ln -sf /root/.local/bin/claude /usr/local/bin/claude || true) \
+    && curl -fsSL "https://caddyserver.com/api/download?os=linux&arch=amd64" -o /usr/local/bin/caddy \
+    && chmod +x /usr/local/bin/caddy \
+    && python3 -m venv /opt/l8-py \
+    && /opt/l8-py/bin/pip install --no-cache-dir --upgrade pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Configurar directorio SSH y archivo config de GitHub
@@ -56,6 +63,12 @@ RUN { \
 
 WORKDIR /var/www/html
 
+COPY requirements-streamlit.txt /tmp/requirements-streamlit.txt
+RUN /opt/l8-py/bin/pip install --no-cache-dir -r /tmp/requirements-streamlit.txt \
+    && ln -sf /opt/l8-py/bin/streamlit /usr/local/bin/streamlit \
+    && ln -sf /opt/l8-py/bin/python /usr/local/bin/l8-python \
+    && rm -f /tmp/requirements-streamlit.txt
+
 COPY . /var/www/html
 
 # Entrypoint: confirma qué vars de entorno llegan al contenedor (sin secretos)
@@ -67,4 +80,4 @@ VOLUME ["/var/www/html/data_storage", "/var/www/html/uploads"]
 EXPOSE 8000
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["php", "-S", "0.0.0.0:8000", "router.php"]
+CMD ["caddy", "run", "--config", "/var/www/html/Caddyfile", "--adapter", "caddyfile"]

@@ -23,3 +23,5 @@ data_storage/tokens/
 data_storage/opencrypt/
 data_storage/hashcod_keys/
 data_storage/security/
+data_storage/streamlit/
+NUL

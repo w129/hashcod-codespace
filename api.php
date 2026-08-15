@@ -4281,6 +4281,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri 
     exit;
 }
 
+require_once __DIR__ . '/streamlit.php';
+
+// ===== STREAMLIT DOCK TOOLS =====
+if ($uri === '/api/streamlit/status' || $uri === '/api/streamlit') {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(streamlitStatusPayload(), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/streamlit/tools' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    header('Content-Type: application/json; charset=utf-8');
+    $slot = isset($_GET['slot']) ? (int) $_GET['slot'] : 0;
+    if ($slot > 0) {
+        echo json_encode(streamlitLoadTool($slot), JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode(['ok' => true, 'tools' => streamlitListTools()], JSON_UNESCAPED_UNICODE);
+    }
+    exit;
+}
+
+if ($uri === '/api/streamlit/tools' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json; charset=utf-8');
+    $body = json_decode((string) file_get_contents('php://input'), true);
+    if (!is_array($body)) $body = [];
+    $slot = isset($body['slot']) ? $body['slot'] : ($body['id'] ?? 0);
+    $title = isset($body['title']) ? $body['title'] : '';
+    $code = isset($body['code']) ? $body['code'] : '';
+    echo json_encode(streamlitSaveTool($slot, $title, $code), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/streamlit/tools' && $_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    header('Content-Type: application/json; charset=utf-8');
+    $slot = isset($_GET['slot']) ? (int) $_GET['slot'] : 0;
+    if (!$slot) {
+        $body = json_decode((string) file_get_contents('php://input'), true);
+        if (is_array($body) && isset($body['slot'])) $slot = (int) $body['slot'];
+    }
+    echo json_encode(streamlitClearTool($slot), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/streamlit/run' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json; charset=utf-8');
+    $body = json_decode((string) file_get_contents('php://input'), true);
+    if (!is_array($body)) $body = [];
+    $slot = isset($body['slot']) ? $body['slot'] : 0;
+    echo json_encode(streamlitStart($slot), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/streamlit/stop' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json; charset=utf-8');
+    $body = json_decode((string) file_get_contents('php://input'), true);
+    if (!is_array($body)) $body = [];
+    $slot = isset($body['slot']) ? $body['slot'] : 0;
+    echo json_encode(streamlitStop($slot), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Endpoint para descarga/servido directo de archivos
 if (strpos($uri, '/api/file/get/') === 0) {
     $fileId = basename($uri);

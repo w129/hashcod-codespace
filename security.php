@@ -391,6 +391,10 @@ function securitySanitizeFilename($name) {
 function securityValidateRepoSlug($repo) {
     $repo = trim((string)$repo);
     if ($repo === '') return ['ok' => false, 'error' => 'Repo vacío'];
+    // URL git genérica (LibreOffice anongit, etc.)
+    if (preg_match('#^(https?|git)://[^\s]+#i', $repo)) {
+        return ['ok' => true, 'slug' => $repo];
+    }
     // owner/name or URL github
     if (preg_match('#^https?://(www\.)?github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?/?$#i', $repo, $m)) {
         return ['ok' => true, 'slug' => $m[2] . '/' . $m[3]];
@@ -400,6 +404,9 @@ function securityValidateRepoSlug($repo) {
     }
     if (preg_match('#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#', $repo)) {
         return ['ok' => true, 'slug' => $repo];
+    }
+    if (strcasecmp($repo, 'libreoffice') === 0) {
+        return ['ok' => true, 'slug' => 'https://anongit.freedesktop.org/git/libreoffice/core.git'];
     }
     return ['ok' => false, 'error' => 'Formato de repo inválido'];
 }

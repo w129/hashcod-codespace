@@ -1245,6 +1245,159 @@ if (!headers_sent()) {
             pointer-events: none;
         }
 
+        /* LibreOffice — panel en la plataforma (no popup) */
+        .lo-dock-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9994;
+            background: rgba(15, 20, 25, 0.72);
+            align-items: stretch;
+            justify-content: center;
+            padding: 12px;
+        }
+        .lo-dock-overlay.open {
+            display: flex;
+        }
+        .lo-dock-shell {
+            width: min(960px, 100%);
+            height: min(860px, 100%);
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            background: #121820;
+            border: 1px solid #2a3644;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+            color: #e8eef4;
+            font-family: 'IBM Plex Sans', system-ui, sans-serif;
+        }
+        .lo-dock-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #18202a;
+            border-bottom: 1px solid #2a3644;
+            flex: 0 0 auto;
+        }
+        .lo-dock-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .lo-dock-brand svg {
+            width: 22px;
+            height: 22px;
+            flex: 0 0 auto;
+            color: #fff;
+        }
+        .lo-dock-brand h2 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .lo-dock-brand p {
+            margin: 2px 0 0;
+            font-size: 11px;
+            color: #8b9aab;
+        }
+        .lo-dock-head-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .lo-dock-btn {
+            appearance: none;
+            border: 1px solid #2a3644;
+            background: #18202a;
+            color: #e8eef4;
+            border-radius: 8px;
+            padding: 7px 12px;
+            font: 600 12px/1.2 'IBM Plex Sans', system-ui, sans-serif;
+            cursor: pointer;
+        }
+        .lo-dock-btn:hover { background: #1f2a36; }
+        .lo-dock-btn.primary {
+            background: #18a303;
+            border-color: #18a303;
+            color: #fff;
+        }
+        .lo-dock-btn.primary:hover { filter: brightness(1.06); }
+        .lo-dock-btn:disabled { opacity: 0.55; cursor: default; }
+        .lo-dock-body {
+            flex: 1 1 auto;
+            overflow: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background:
+                radial-gradient(ellipse 80% 50% at 12% 0%, rgba(24,163,3,0.14), transparent 55%),
+                #0f1419;
+        }
+        .lo-dock-msg {
+            min-height: 1.2em;
+            font-size: 13px;
+            color: #8b9aab;
+        }
+        .lo-dock-msg.ok { color: #3dd68c; }
+        .lo-dock-msg.err { color: #f07178; }
+        .lo-dock-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .lo-dock-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #1a2430;
+            border: 1px solid #2a3644;
+            color: #c5d0db;
+        }
+        .lo-dock-badge.ok { border-color: #18a303; color: #3dd68c; }
+        .lo-dock-meta {
+            display: grid;
+            gap: 8px;
+            font-size: 12px;
+            color: #c5d0db;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        }
+        .lo-dock-meta strong { color: #fff; font-weight: 600; }
+        .lo-dock-tree {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 6px;
+        }
+        .lo-dock-tree span {
+            font-size: 11px;
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: #18202a;
+            border: 1px solid #2a3644;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .lo-dock-log {
+            margin: 0;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #0a0e12;
+            border: 1px solid #2a3644;
+            color: #9fb0c0;
+            font: 11px/1.4 'IBM Plex Mono', ui-monospace, monospace;
+            white-space: pre-wrap;
+            max-height: 180px;
+            overflow: auto;
+        }
+
         /* ===== STREAMLIT DOCK EDITOR (Figma panel-body) ===== */
         .st-dock-overlay {
             display: none;
@@ -6936,21 +7089,7 @@ if (!headers_sent()) {
         }
 
         async function openExternalWithTokens(url, windowName, features) {
-            const charge = await consumeTokens('external', url || windowName || 'external');
-            if (!charge || !charge.ok) {
-                const msg = (charge && charge.error) ? charge.error : 'Tokens insuficientes para abrir la ventana externa (−25).';
-                if (executionContainer) {
-                    executionContainer.innerHTML = '<span style="color:#c5221f; font-weight:600; font-family:\'IBM Plex Mono\', monospace;">' +
-                        String(msg).replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
-                }
-                toggleTokensPanel(true);
-                return null;
-            }
-
-            // Solo ventana externa: nunca navegar la plataforma servidor.
-            // No poner noopener/noreferrer en features — en varios navegadores hace que
-            // window.open devuelva null aunque la ventana sí abrió, y el fallback
-            // antiguo (location.href) cargaba la app también aquí.
+            // Abrir en el gesto del usuario ANTES del await (si no, el navegador bloquea el popup).
             const target = windowName || '_blank';
             const feat = String(features || 'width=1100,height=720')
                 .split(',')
@@ -6962,9 +7101,36 @@ if (!headers_sent()) {
                 .join(',');
             let win = null;
             try {
-                win = window.open(url, target, feat || 'width=1100,height=720');
+                win = window.open('about:blank', target, feat || 'width=1100,height=720');
             } catch (e) {
                 win = null;
+            }
+
+            const charge = await consumeTokens('external', url || windowName || 'external');
+            if (!charge || !charge.ok) {
+                if (win) { try { win.close(); } catch (e) {} }
+                const msg = (charge && charge.error) ? charge.error : 'Tokens insuficientes para abrir la ventana externa (−25).';
+                if (executionContainer) {
+                    executionContainer.innerHTML = '<span style="color:#c5221f; font-weight:600; font-family:\'IBM Plex Mono\', monospace;">' +
+                        String(msg).replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
+                }
+                toggleTokensPanel(true);
+                return null;
+            }
+
+            // Solo ventana externa: nunca navegar la plataforma servidor.
+            if (win) {
+                try { win.location.href = url; } catch (e) {
+                    try { win.close(); } catch (e2) {}
+                    win = null;
+                }
+            }
+            if (!win) {
+                try {
+                    win = window.open(url, target, feat || 'width=1100,height=720');
+                } catch (e) {
+                    win = null;
+                }
             }
             if (win) {
                 try { win.opener = null; } catch (e) {}
@@ -7373,8 +7539,113 @@ if (!headers_sent()) {
             '<path fill="currentColor" d="M8.25 11.25h4.1c1.55 0 2.65.88 2.65 2.2 0 .92-.5 1.62-1.28 1.95.98.36 1.58 1.18 1.58 2.22 0 1.48-1.18 2.38-2.95 2.38H8.25v-8.75zm1.55 1.35v2.2h2.35c.72 0 1.18-.38 1.18-1.05s-.46-1.15-1.2-1.15H9.8zm0 3.5v2.55h2.7c.85 0 1.35-.42 1.35-1.2 0-.78-.5-1.35-1.4-1.35H9.8z"/>' +
             '</svg>';
 
-        async function openLibreOfficePlatform() {
-            await openExternalWithTokens('/libreoffice', 'l8-libreoffice', 'width=1100,height=760');
+        function loDockFmtBytes(n) {
+            n = Number(n) || 0;
+            if (n < 1024) return n + ' B';
+            if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+            if (n < 1073741824) return (n / 1048576).toFixed(1) + ' MB';
+            return (n / 1073741824).toFixed(2) + ' GB';
+        }
+
+        function loDockSetMsg(text, kind) {
+            const el = document.getElementById('loDockMsg');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.remove('ok', 'err');
+            if (kind === 'ok') el.classList.add('ok');
+            if (kind === 'err') el.classList.add('err');
+        }
+
+        function loDockRender(st) {
+            const badges = document.getElementById('loDockBadges');
+            const meta = document.getElementById('loDockMeta');
+            const tree = document.getElementById('loDockTree');
+            if (!badges || !meta || !tree) return;
+            const ready = !!(st && st.cloned);
+            badges.innerHTML =
+                '<span class="lo-dock-badge ' + (ready ? 'ok' : '') + '">' + (ready ? 'Listo en servidor' : 'Sin clone') + '</span>' +
+                '<span class="lo-dock-badge">MPL-2.0</span>' +
+                (st && st.branch ? '<span class="lo-dock-badge">' + String(st.branch).replace(/</g, '') + '</span>' : '') +
+                (st && st.files != null ? '<span class="lo-dock-badge">' + Number(st.files).toLocaleString('es-ES') + ' archivos</span>' : '');
+            meta.innerHTML =
+                '<div><strong>Ruta</strong> · ' + ((st && st.path) || '—') + '</div>' +
+                '<div><strong>Commit</strong> · ' + ((st && st.last_commit) || '—') + '</div>' +
+                '<div><strong>Tamaño</strong> · ' + (st && st.bytes != null ? loDockFmtBytes(st.bytes) : '—') + '</div>' +
+                '<div><strong>Mirror</strong> · ' + ((st && st.mirror_url) || '—') + '</div>';
+            const tops = (st && Array.isArray(st.top_level)) ? st.top_level : [];
+            tree.innerHTML = tops.length
+                ? tops.map(function (n) {
+                    return '<span title="' + String(n).replace(/"/g, '') + '">' + String(n).replace(/</g, '') + '</span>';
+                }).join('')
+                : '<span style="grid-column:1/-1;opacity:.7">Sin árbol aún. Pulsa Desplegar en servidor.</span>';
+        }
+
+        async function loDockApi(path, opts) {
+            const baseHeaders = (typeof authHeaders === 'function')
+                ? authHeaders({ 'X-Requested-With': 'XMLHttpRequest' })
+                : { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
+            const merged = Object.assign({ headers: baseHeaders }, opts || {});
+            if (opts && opts.headers) merged.headers = Object.assign({}, baseHeaders, opts.headers);
+            const res = await fetch(path, merged);
+            try { return await res.json(); } catch (e) { return { ok: false, error: 'Respuesta inválida' }; }
+        }
+
+        async function loDockRefresh() {
+            loDockSetMsg('Consultando estado en el servidor…');
+            const st = await loDockApi('/api/libreoffice/status');
+            loDockRender(st);
+            loDockSetMsg(
+                st && st.cloned ? 'LibreOffice core listo en el servidor.' : 'Aún no hay clone. Pulsa Desplegar.',
+                st && st.cloned ? 'ok' : null
+            );
+            return st;
+        }
+
+        async function loDockDeploy() {
+            const btn = document.getElementById('loDockDeployBtn');
+            const log = document.getElementById('loDockLog');
+            if (btn) btn.disabled = true;
+            loDockSetMsg('Desplegando LibreOffice core en el servidor…');
+            if (log) {
+                log.hidden = false;
+                log.textContent = 'ensure…\n';
+            }
+            try {
+                const st = await loDockApi('/api/libreoffice/ensure', { method: 'POST', body: '{}' });
+                loDockRender(st);
+                if (log) {
+                    log.textContent = (st && st.ensure && st.ensure.raw_output)
+                        ? String(st.ensure.raw_output).slice(-4000)
+                        : JSON.stringify(st, null, 2).slice(0, 4000);
+                }
+                loDockSetMsg(
+                    st && st.ok ? (st.message || 'Listo.') : (st && st.error) || 'Falló el despliegue',
+                    st && st.ok ? 'ok' : 'err'
+                );
+            } catch (e) {
+                loDockSetMsg('Error de red al desplegar', 'err');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function setLibreOfficeOpen(open) {
+            const overlay = document.getElementById('loDockOverlay');
+            if (!overlay) return;
+            const isOpen = !!open;
+            overlay.classList.toggle('open', isOpen);
+            overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            const btn = document.getElementById('dockLibreOfficeBtn');
+            if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (isOpen) {
+                try { setDockBarOpen(false); } catch (e) {}
+                loDockRefresh();
+            }
+        }
+
+        function openLibreOfficePlatform() {
+            // Siempre en la plataforma (panel), sin depender de popups del navegador.
+            setLibreOfficeOpen(true);
         }
 
         function loDockBindTool() {
@@ -7385,13 +7656,40 @@ if (!headers_sent()) {
             if (!btn.querySelector('svg.lo-tool-ico')) btn.innerHTML = LO_DOCK_ICON_SVG;
             btn.title = 'LibreOffice';
             btn.setAttribute('aria-label', 'Abrir LibreOffice en la plataforma servidor');
+            btn.setAttribute('aria-controls', 'loDockOverlay');
+            btn.setAttribute('aria-expanded', 'false');
             btn.onclick = function (ev) {
                 ev.preventDefault();
+                ev.stopPropagation();
                 openLibreOfficePlatform();
                 try {
                     window.dispatchEvent(new CustomEvent('l8:dock-tool', { detail: { tool: 'libreoffice' } }));
                 } catch (e) {}
             };
+        }
+
+        function initLibreOfficeDock() {
+            loDockBindTool();
+            const closeBtn = document.getElementById('loDockCloseBtn');
+            const refreshBtn = document.getElementById('loDockRefreshBtn');
+            const deployBtn = document.getElementById('loDockDeployBtn');
+            const overlay = document.getElementById('loDockOverlay');
+            if (closeBtn) closeBtn.addEventListener('click', function () { setLibreOfficeOpen(false); });
+            if (refreshBtn) refreshBtn.addEventListener('click', function () { loDockRefresh(); });
+            if (deployBtn) deployBtn.addEventListener('click', function () { loDockDeploy(); });
+            if (overlay) {
+                overlay.addEventListener('pointerdown', function (ev) {
+                    if (ev.target === overlay) setLibreOfficeOpen(false);
+                });
+            }
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && overlay && overlay.classList.contains('open')) {
+                    setLibreOfficeOpen(false);
+                    ev.stopPropagation();
+                }
+            }, true);
+            window.setLibreOfficeOpen = setLibreOfficeOpen;
+            window.openLibreOfficePlatform = openLibreOfficePlatform;
         }
 
         async function stDockRefreshSlots() {
@@ -7678,7 +7976,6 @@ if (!headers_sent()) {
             }, true);
             window.setStDockOpen = setStDockOpen;
             window.stDockRefreshSlots = stDockRefreshSlots;
-            window.openLibreOfficePlatform = openLibreOfficePlatform;
             window.loDockBindTool = loDockBindTool;
         }
 
@@ -7690,7 +7987,7 @@ if (!headers_sent()) {
 
             setDockBarOpen(dockBarLoadOpen());
             initStDockEditor();
-            loDockBindTool();
+            initLibreOfficeDock();
             stDockRefreshSlots().catch(function () {});
 
             swipe.addEventListener('click', function (ev) {
@@ -7706,6 +8003,8 @@ if (!headers_sent()) {
                     if (ib && ib.classList.contains('open')) return;
                     const st = document.getElementById('stDockOverlay');
                     if (st && st.classList.contains('open')) return;
+                    const lo = document.getElementById('loDockOverlay');
+                    if (lo && lo.classList.contains('open')) return;
                     setDockBarOpen(false);
                 }
             });
@@ -7717,6 +8016,8 @@ if (!headers_sent()) {
                 if (ib && ib.contains(ev.target)) return;
                 const st = document.getElementById('stDockOverlay');
                 if (st && st.contains(ev.target)) return;
+                const lo = document.getElementById('loDockOverlay');
+                if (lo && lo.contains(ev.target)) return;
                 setDockBarOpen(false);
             });
 
@@ -10427,6 +10728,36 @@ if (!headers_sent()) {
             <button type="button" class="dock-slot" data-dock-slot="8" title="Herramienta 8" aria-label="Herramienta 8 (próximamente)" disabled></button>
         </nav>
     </aside>
+
+    <!-- LibreOffice — panel en plataforma servidor -->
+    <div class="lo-dock-overlay" id="loDockOverlay" aria-hidden="true">
+        <div class="lo-dock-shell" role="dialog" aria-modal="true" aria-labelledby="loDockTitle">
+            <div class="lo-dock-head">
+                <div class="lo-dock-brand">
+                    <svg class="lo-tool-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path fill="currentColor" d="M6.5 2.75A1.75 1.75 0 0 0 4.75 4.5v15c0 .966.784 1.75 1.75 1.75h11c.966 0 1.75-.784 1.75-1.75V8.414a1.75 1.75 0 0 0-.513-1.238L14.324 3.263A1.75 1.75 0 0 0 13.086 2.75H6.5zm0 1.5h6.25v3.25c0 .966.784 1.75 1.75 1.75h3.25V19.5h-11V4.25zm7.75.81 2.69 2.69h-2.69V5.06z"/>
+                        <path fill="currentColor" d="M8.25 11.25h4.1c1.55 0 2.65.88 2.65 2.2 0 .92-.5 1.62-1.28 1.95.98.36 1.58 1.18 1.58 2.22 0 1.48-1.18 2.38-2.95 2.38H8.25v-8.75zm1.55 1.35v2.2h2.35c.72 0 1.18-.38 1.18-1.05s-.46-1.15-1.2-1.15H9.8zm0 3.5v2.55h2.7c.85 0 1.35-.42 1.35-1.2 0-.78-.5-1.35-1.4-1.35H9.8z"/>
+                    </svg>
+                    <div>
+                        <h2 id="loDockTitle">LibreOffice</h2>
+                        <p>Core en la plataforma servidor</p>
+                    </div>
+                </div>
+                <div class="lo-dock-head-actions">
+                    <button type="button" class="lo-dock-btn" id="loDockRefreshBtn">Actualizar</button>
+                    <button type="button" class="lo-dock-btn primary" id="loDockDeployBtn">Desplegar</button>
+                    <button type="button" class="lo-dock-btn" id="loDockCloseBtn">Cerrar</button>
+                </div>
+            </div>
+            <div class="lo-dock-body">
+                <div class="lo-dock-msg" id="loDockMsg" aria-live="polite"></div>
+                <div class="lo-dock-badges" id="loDockBadges"></div>
+                <div class="lo-dock-meta" id="loDockMeta"></div>
+                <div class="lo-dock-tree" id="loDockTree"></div>
+                <pre class="lo-dock-log" id="loDockLog" hidden></pre>
+            </div>
+        </div>
+    </div>
 
     <!-- Editor Streamlit (dock slots) — Figma panel-body -->
     <div class="st-dock-overlay" id="stDockOverlay" aria-hidden="true">

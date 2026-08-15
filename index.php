@@ -989,7 +989,7 @@ if (!headers_sent()) {
             fill: currentColor;
         }
 
-        /* ===== DOCK TOOLBAR (abajo) — mismas reglas que Fly ===== */
+        /* ===== DOCK TOOLBAR (abajo) — mismas magnitudes que Fly ===== */
         #dockBar.dock-bar {
             position: fixed !important;
             left: 0 !important;
@@ -1017,7 +1017,7 @@ if (!headers_sent()) {
             pointer-events: none !important;
         }
 
-        /* swipe-indicator: barrita negra centrada en el borde inferior */
+        /* swipe-indicator = rotación de la barrita Fly (6×72 → 72×6) */
         #dockBar .dock-swipe {
             pointer-events: auto;
             appearance: none;
@@ -1031,15 +1031,15 @@ if (!headers_sent()) {
             right: auto !important;
             top: auto !important;
             transform: translateX(-50%);
-            width: 200px !important;
-            height: 8px !important;
-            min-width: 200px !important;
-            min-height: 8px !important;
+            width: 72px !important;
+            height: 6px !important;
+            min-width: 72px !important;
+            min-height: 6px !important;
             background: #000000 !important;
             color: transparent;
             cursor: pointer;
             display: block !important;
-            border-radius: 4px;
+            border-radius: 999px;
             box-shadow: none;
             transition: opacity 180ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
             z-index: 2;
@@ -1048,19 +1048,19 @@ if (!headers_sent()) {
         #dockBar .dock-swipe::after {
             content: '';
             position: absolute;
-            left: -24px;
-            right: -24px;
+            left: -14px;
+            right: -14px;
             bottom: 0;
             height: 28px;
         }
 
         #dockBar .dock-swipe:hover {
-            transform: translateX(-50%) scaleX(1.04);
+            transform: translateX(-50%) scaleX(1.05);
         }
 
         #dockBar .dock-swipe:focus-visible {
             outline: 2px solid #111111;
-            outline-offset: 3px;
+            outline-offset: 2px;
         }
 
         #dockBar.is-open .dock-swipe {
@@ -1070,7 +1070,7 @@ if (!headers_sent()) {
             transform: translateX(-50%) scaleX(0.5);
         }
 
-        /* toolbar: misma ancla bottom:0 + left:50% que la barrita */
+        /* toolbar: misma ancla bottom:0 + left:50%; tamaño tipo Fly (compacto) */
         #dockBar .dock-toolbar {
             pointer-events: none;
             box-sizing: border-box;
@@ -1085,14 +1085,15 @@ if (!headers_sent()) {
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            padding: 0 100px;
-            gap: 80px;
-            width: min(1720px, calc(100vw - 24px));
-            height: min(306px, 42vh);
+            padding: 12px 18px;
+            gap: 16px;
+            width: max-content;
+            max-width: calc(100vw - 24px);
+            height: auto;
             margin: 0;
             background: #000000;
-            border-radius: 20px;
-            box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.28);
+            border-radius: 999px;
+            box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.35);
             opacity: 0;
             visibility: hidden;
             transition: opacity 240ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -1121,14 +1122,13 @@ if (!headers_sent()) {
             box-sizing: border-box;
             appearance: none;
             -webkit-appearance: none;
-            width: 120px;
-            height: 120px;
+            width: 28px;
+            height: 28px;
             margin: 0;
             padding: 0;
-            flex: none;
-            flex-grow: 0;
+            flex: 0 0 auto;
             background: rgba(255, 255, 255, 0.15);
-            border: 2px solid #FFFFFF;
+            border: 1.5px solid #FFFFFF;
             border-radius: 50%;
             position: relative;
             display: inline-flex;
@@ -1140,13 +1140,13 @@ if (!headers_sent()) {
         }
 
         #dockBar .dock-slot:hover:not(:disabled) {
-            transform: scale(1.05);
+            transform: scale(1.08);
             background: rgba(255, 255, 255, 0.22);
         }
 
         #dockBar .dock-slot:focus-visible {
             outline: 2px solid #FFFFFF;
-            outline-offset: 4px;
+            outline-offset: 2px;
         }
 
         #dockBar .dock-slot:disabled {
@@ -1161,54 +1161,17 @@ if (!headers_sent()) {
 
         #dockBar .dock-slot img,
         #dockBar .dock-slot svg {
-            width: 48px;
-            height: 48px;
+            width: 14px;
+            height: 14px;
             display: block;
             object-fit: contain;
             pointer-events: none;
         }
 
-        @media (max-width: 1400px) {
+        @media (max-width: 520px) {
             #dockBar .dock-toolbar {
-                padding: 0 48px;
-                gap: 40px;
-                height: min(240px, 38vh);
-            }
-
-            #dockBar .dock-slot {
-                width: 88px;
-                height: 88px;
-            }
-
-            #dockBar .dock-slot img,
-            #dockBar .dock-slot svg {
-                width: 36px;
-                height: 36px;
-            }
-        }
-
-        @media (max-width: 900px) {
-            #dockBar .dock-swipe {
-                width: 140px !important;
-                min-width: 140px !important;
-            }
-
-            #dockBar .dock-toolbar {
-                padding: 0 20px;
-                gap: 18px;
-                height: min(168px, 32vh);
-                border-radius: 16px;
-            }
-
-            #dockBar .dock-slot {
-                width: 64px;
-                height: 64px;
-            }
-
-            #dockBar .dock-slot img,
-            #dockBar .dock-slot svg {
-                width: 26px;
-                height: 26px;
+                padding: 10px 12px;
+                gap: 12px;
             }
         }
 
@@ -9370,7 +9333,7 @@ if (!headers_sent()) {
             aria-label="Abrir toolbar inferior"
             aria-expanded="false"
             aria-controls="dockToolbar"
-            style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:200px;height:8px;background:#000000;border:none;border-radius:4px;padding:0;cursor:pointer;display:block;"
+            style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:72px;height:6px;background:#000000;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
         ></button>
         <nav
             class="dock-toolbar"

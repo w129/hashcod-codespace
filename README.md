@@ -39,3 +39,13 @@ En Docker/Render la imagen incluye Python + Streamlit + pandas/numpy + Caddy:
 - Plantillas: `streamlit_tools/` (calculadora, charts, notas)
 
 Flujo: tocar slot → plantilla o código propio → **Guardar y abrir** / vista previa → ventana externa o iframe.
+
+## Clone de repos (incl. LibreOffice)
+
+Además de `owner/repo` de GitHub, el comando `clone` acepta URLs git HTTP(S):
+
+```text
+clone http://anongit.freedesktop.org/git/libreoffice/core.git
+```
+
+LibreOffice (MPL-2.0) queda en `data_storage/repos/libreoffice-core`. El mirror anongit a veces rechaza shallow clone; la plataforma usa el mirror `https://github.com/LibreOffice/core.git` (mismo código) y registra también el remote FreeDesktop.

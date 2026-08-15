@@ -8,6 +8,9 @@ require_once __DIR__ . '/supabase.php';
 if (!function_exists('authBearerTokenFromRequest')) {
     require_once __DIR__ . '/auth.php';
 }
+if (!function_exists('secretsEncrypt')) {
+    require_once __DIR__ . '/secrets.php';
+}
 
 function hashcodKeysJson($payload, $code = 200) {
     http_response_code($code);
@@ -18,9 +21,55 @@ function hashcodKeysJson($payload, $code = 200) {
 function hashcodKeysDir() {
     $dir = __DIR__ . '/data_storage/hashcod_keys';
     if (!is_dir($dir)) {
-        @mkdir($dir, 0777, true);
+        @mkdir($dir, 0700, true);
     }
+    @chmod($dir, 0700);
     return $dir;
+}
+
+function hashcodKeysSealField($value) {
+    $value = (string)$value;
+    if ($value === '') return '';
+    if (strpos($value, 'l8e1:') === 0 || strpos($value, 'l8e0:') === 0) {
+        return $value;
+    }
+    return function_exists('secretsEncrypt') ? secretsEncrypt($value) : $value;
+}
+
+function hashcodKeysOpenField($value) {
+    $value = (string)$value;
+    if ($value === '') return '';
+    if (function_exists('secretsDecrypt')) {
+        return secretsDecrypt($value);
+    }
+    return $value;
+}
+
+function hashcodKeysSealBundle(array $bundle) {
+    $out = $bundle;
+    $entries = [];
+    foreach ((isset($bundle['entries']) && is_array($bundle['entries'])) ? $bundle['entries'] : [] as $row) {
+        if (!is_array($row)) continue;
+        $row['secret'] = hashcodKeysSealField($row['secret'] ?? '');
+        $row['code'] = hashcodKeysSealField($row['code'] ?? '');
+        $entries[] = $row;
+    }
+    $out['entries'] = $entries;
+    $out['enc'] = 'aes-256-gcm';
+    return $out;
+}
+
+function hashcodKeysOpenBundle(array $bundle) {
+    $out = $bundle;
+    $entries = [];
+    foreach ((isset($bundle['entries']) && is_array($bundle['entries'])) ? $bundle['entries'] : [] as $row) {
+        if (!is_array($row)) continue;
+        $row['secret'] = hashcodKeysOpenField($row['secret'] ?? '');
+        $row['code'] = hashcodKeysOpenField($row['code'] ?? '');
+        $entries[] = $row;
+    }
+    $out['entries'] = $entries;
+    return $out;
 }
 
 function hashcodKeysSafeAccountKey($accountKey) {
@@ -127,18 +176,21 @@ function hashcodKeysReadLocal($accountKey) {
     }
     $raw = @file_get_contents($path);
     $data = json_decode((string)$raw, true);
-    return hashcodKeysNormalizeBundle($accountKey, is_array($data) ? $data : []);
+    $bundle = hashcodKeysNormalizeBundle($accountKey, is_array($data) ? $data : []);
+    return hashcodKeysOpenBundle($bundle);
 }
 
 function hashcodKeysWriteLocal($accountKey, array $bundle) {
     $bundle = hashcodKeysNormalizeBundle($accountKey, $bundle);
     $bundle['updated_at'] = date('c');
+    $sealed = hashcodKeysSealBundle($bundle);
     $path = hashcodKeysLocalPath($accountKey);
     $ok = @file_put_contents(
         $path,
-        json_encode($bundle, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+        json_encode($sealed, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
         LOCK_EX
     );
+    if ($ok !== false) @chmod($path, 0600);
     return $ok !== false ? $bundle : null;
 }
 
@@ -150,7 +202,8 @@ function hashcodKeysPullStorage($accountKey) {
     if (empty($cfg['configured'])) return null;
     $res = supabaseStorageDownloadJson('meta/' . hashcodKeysStorageObject($accountKey));
     if (empty($res['ok']) || !is_array($res['data'])) return null;
-    return hashcodKeysNormalizeBundle($accountKey, $res['data']);
+    $bundle = hashcodKeysNormalizeBundle($accountKey, $res['data']);
+    return hashcodKeysOpenBundle($bundle);
 }
 
 function hashcodKeysPushStorage($accountKey, array $bundle) {
@@ -162,7 +215,8 @@ function hashcodKeysPushStorage($accountKey, array $bundle) {
         return ['ok' => false, 'error' => 'Supabase no configurado'];
     }
     $bundle = hashcodKeysNormalizeBundle($accountKey, $bundle);
-    return supabaseStorageUploadJson('meta/' . hashcodKeysStorageObject($accountKey), $bundle);
+    $sealed = hashcodKeysSealBundle($bundle);
+    return supabaseStorageUploadJson('meta/' . hashcodKeysStorageObject($accountKey), $sealed);
 }
 
 function hashcodKeysPullDb($accountKey) {
@@ -181,7 +235,8 @@ function hashcodKeysPullDb($accountKey) {
     if ($rows !== [] && array_keys($rows) !== range(0, count($rows) - 1) && isset($rows['id'])) {
         $rows = [$rows];
     }
-    return hashcodKeysNormalizeBundle($accountKey, ['entries' => $rows, 'updated_at' => date('c')]);
+    $bundle = hashcodKeysNormalizeBundle($accountKey, ['entries' => $rows, 'updated_at' => date('c')]);
+    return hashcodKeysOpenBundle($bundle);
 }
 
 function hashcodKeysPushDb($accountKey, array $bundle) {
@@ -193,8 +248,9 @@ function hashcodKeysPushDb($accountKey, array $bundle) {
         return ['ok' => false, 'error' => 'Supabase no configurado'];
     }
     $bundle = hashcodKeysNormalizeBundle($accountKey, $bundle);
+    $sealed = hashcodKeysSealBundle($bundle);
     $rows = [];
-    foreach ($bundle['entries'] as $entry) {
+    foreach ($sealed['entries'] as $entry) {
         $n = hashcodKeysNormalizeEntry($entry, $accountKey);
         if (!$n) continue;
         $rows[] = [

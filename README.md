@@ -13,7 +13,11 @@ Servidor web nativo con **PHP 8.1**, HTML/CSS/JS en página completa (view-sourc
 
 ## Persistencia con Supabase
 
-El disco de Render es efímero. La plataforma usa **Supabase Storage** como fuente de verdad para repos, archivos, sesión de UI y gateway. Opcional: `supabase/schema.sql`.
+El disco de Render es efímero. La plataforma usa **Supabase Storage** como fuente de verdad para repos, archivos, sesión de UI y gateway. Opcional: `supabase/schema.sql` (incluye **RLS** deny-all para anon/authenticated; el backend usa service role).
+
+## Seguridad (backend)
+
+Rate limit + IP bans, CORS allowlist, validación de input, mutaciones con sesión de cuenta, bóveda de secretos (env + `/etc/secrets` + `vault.enc`), cifrado AES-GCM de Hashcod, cookies HttpOnly de sesión separadas del guest. Detalle: [SECURITY.md](SECURITY.md) y `.env.example`.
 
 ## Ejecución local
 

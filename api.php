@@ -7,6 +7,7 @@ set_time_limit(300); // 5 Minutos para grandes cargas
 
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/secrets.php';
 loadEnvFile();
 securityBootstrap('api');
 
@@ -3597,10 +3598,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/repo/file')) {
 
 // Endpoint para clonar repositorios vía POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri === '/api/clone')) {
+    if (!securityRateAllow('repo_clone', 8, 60)) {
+        securityRateDenyJson(60);
+    }
+    securityRequireMutationAuthIfEnabled();
     header('Content-Type: application/json; charset=utf-8');
-    $rawInput = file_get_contents('php://input');
-    $inputData = json_decode($rawInput, true);
+    $body = securityReadJsonBody(8192);
+    if (empty($body['ok'])) {
+        securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
+    }
+    $inputData = $body['data'] ?? [];
     $target = $inputData['repo'] ?? $_POST['repo'] ?? '';
+    $repoCheck = securityValidateRepoSlug($target);
+    if (empty($repoCheck['ok'])) {
+        securityBadRequestJson($repoCheck['error'] ?? 'Repo inválido', 'bad_repo');
+    }
+    $target = $repoCheck['slug'];
 
     if (function_exists('tokensConsume')) {
         $tokenCharge = tokensConsume('clone', 'clone ' . (string)$target);
@@ -3626,9 +3639,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri
 
 // GATEWAY: compartir repo o contenido de plataforma → código único (JSLA-SAKA)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/gateway/send' || $uri === '/api/gateway/share')) {
+    if (!securityRateAllow('gateway_send', 20, 60)) {
+        securityRateDenyJson(30);
+    }
+    securityRequireMutationAuthIfEnabled();
     maybeBootstrapPlatformData();
     header('Content-Type: application/json; charset=utf-8');
-    $inputData = json_decode(file_get_contents('php://input'), true) ?: [];
+    $body = securityReadJsonBody(524288);
+    $inputData = (!empty($body['ok']) && is_array($body['data'] ?? null)) ? $body['data'] : [];
     if (!$inputData && !empty($_POST)) {
         $inputData = $_POST;
     }
@@ -4232,9 +4250,15 @@ if ($uri === '/api/platform/state' || $uri === '/api/session/state') {
         exit;
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $raw = file_get_contents('php://input');
-        $input = json_decode($raw, true) ?? [];
-        $state = platformSanitizeStatePayload($input);
+        if (!securityRateAllow('platform_state_write', 30, 60)) {
+            securityRateDenyJson(30);
+        }
+        securityRequireMutationAuthIfEnabled();
+        $body = securityReadJsonBody(65536);
+        if (empty($body['ok'])) {
+            securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
+        }
+        $state = platformSanitizeStatePayload($body['data'] ?? []);
         $saved = function_exists('supabaseSavePlatformState')
             ? supabaseSavePlatformState($state)
             : ['ok' => false, 'error' => 'supabase helpers missing'];
@@ -4302,13 +4326,20 @@ if ($uri === '/api/streamlit/tools' && $_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($uri === '/api/streamlit/tools' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('streamlit_write', 20, 60)) {
+        securityRateDenyJson(30);
+    }
+    securityRequireMutationAuthIfEnabled();
     header('Content-Type: application/json; charset=utf-8');
-    $body = json_decode((string) file_get_contents('php://input'), true);
-    if (!is_array($body)) $body = [];
-    $slot = isset($body['slot']) ? $body['slot'] : ($body['id'] ?? 0);
-    $title = isset($body['title']) ? $body['title'] : '';
-    $code = isset($body['code']) ? $body['code'] : '';
-    $template = isset($body['template']) ? $body['template'] : '';
+    $body = securityReadJsonBody(450000);
+    if (empty($body['ok'])) {
+        securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
+    }
+    $bodyData = $body['data'] ?? [];
+    $slot = isset($bodyData['slot']) ? $bodyData['slot'] : ($bodyData['id'] ?? 0);
+    $title = isset($bodyData['title']) ? $bodyData['title'] : '';
+    $code = isset($bodyData['code']) ? $bodyData['code'] : '';
+    $template = isset($bodyData['template']) ? $bodyData['template'] : '';
     echo json_encode(streamlitSaveTool($slot, $title, $code, $template), JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -4331,30 +4362,43 @@ if ($uri === '/api/streamlit/templates' && $_SERVER['REQUEST_METHOD'] === 'GET')
 }
 
 if ($uri === '/api/streamlit/tools' && $_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    if (!securityRateAllow('streamlit_write', 20, 60)) {
+        securityRateDenyJson(30);
+    }
+    securityRequireMutationAuthIfEnabled();
     header('Content-Type: application/json; charset=utf-8');
     $slot = isset($_GET['slot']) ? (int) $_GET['slot'] : 0;
     if (!$slot) {
-        $body = json_decode((string) file_get_contents('php://input'), true);
-        if (is_array($body) && isset($body['slot'])) $slot = (int) $body['slot'];
+        $body = securityReadJsonBody(4096);
+        $bodyData = (!empty($body['ok']) && is_array($body['data'] ?? null)) ? $body['data'] : [];
+        if (isset($bodyData['slot'])) $slot = (int) $bodyData['slot'];
     }
     echo json_encode(streamlitClearTool($slot), JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 if ($uri === '/api/streamlit/run' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('streamlit_run', 12, 60)) {
+        securityRateDenyJson(30);
+    }
+    securityRequireMutationAuthIfEnabled();
     header('Content-Type: application/json; charset=utf-8');
-    $body = json_decode((string) file_get_contents('php://input'), true);
-    if (!is_array($body)) $body = [];
-    $slot = isset($body['slot']) ? $body['slot'] : 0;
+    $body = securityReadJsonBody(4096);
+    $bodyData = (!empty($body['ok']) && is_array($body['data'] ?? null)) ? $body['data'] : [];
+    $slot = isset($bodyData['slot']) ? $bodyData['slot'] : 0;
     echo json_encode(streamlitStart($slot), JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 if ($uri === '/api/streamlit/stop' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('streamlit_run', 12, 60)) {
+        securityRateDenyJson(30);
+    }
+    securityRequireMutationAuthIfEnabled();
     header('Content-Type: application/json; charset=utf-8');
-    $body = json_decode((string) file_get_contents('php://input'), true);
-    if (!is_array($body)) $body = [];
-    $slot = isset($body['slot']) ? $body['slot'] : 0;
+    $body = securityReadJsonBody(4096);
+    $bodyData = (!empty($body['ok']) && is_array($body['data'] ?? null)) ? $body['data'] : [];
+    $slot = isset($bodyData['slot']) ? $bodyData['slot'] : 0;
     echo json_encode(streamlitStop($slot), JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -4401,21 +4445,32 @@ if (strpos($uri, '/api/file/get/') === 0) {
 
 // Endpoint POST para subir cualquier tipo de archivo a la Super Base de Datos
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri === '/api/file/upload')) {
+    if (!securityRateAllow('upload', 20, 60)) {
+        securityRateDenyJson(30);
+    }
+    securityRequireMutationAuthIfEnabled();
     maybeBootstrapPlatformData();
     header('Content-Type: application/json; charset=utf-8');
 
     if (!empty($_FILES['file'])) {
         $file = $_FILES['file'];
-        $origName = basename($file['name']);
+        $origName = securitySanitizeFilename($file['name'] ?? 'file.bin');
         $tmpPath = $file['tmp_name'];
         $size = $file['size'];
         $mime = $file['type'] ?: 'application/octet-stream';
+        if (!securityUploadMimeAllowed($mime, $origName)) {
+            securityBadRequestJson('Tipo de archivo no permitido', 'bad_upload_type');
+        }
+        if ((int)$size <= 0 || (int)$size > 100 * 1024 * 1024) {
+            securityBadRequestJson('Tamaño de archivo inválido', 'bad_upload_size');
+        }
         $dilithium5Hash = generateDilithium5Hash($tmpPath, true);
         $ext = pathinfo($origName, PATHINFO_EXTENSION);
         $fileId = 'file_' . substr(md5($dilithium5Hash), 0, 10) . '_' . time();
         $targetPath = $UPLOADS_DIR . '/' . $fileId . ($ext ? '.' . $ext : '');
 
         if (move_uploaded_file($tmpPath, $targetPath)) {
+            @chmod($targetPath, 0600);
             $db->insertFile($fileId, $origName, $mime, $size, $dilithium5Hash, $targetPath);
             echo json_encode([
                 'ok' => true,
@@ -4489,10 +4544,17 @@ if ($uri === '/api/stream') {
 
 // Procesador de Comandos
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri === '/cmd')) {
+    if (!securityRateAllow('command', 60, 60)) {
+        securityRateDenyJson(20);
+    }
+    securityRequireMutationAuthIfEnabled();
     header('Content-Type: application/json; charset=utf-8');
-    $rawInput = file_get_contents('php://input');
-    $input = json_decode($rawInput, true) ?? [];
-    $rawCmd = trim($input['command'] ?? '');
+    $body = securityReadJsonBody(65536);
+    if (empty($body['ok'])) {
+        securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
+    }
+    $input = $body['data'] ?? [];
+    $rawCmd = securitySanitizeString($input['command'] ?? '', 2000);
     $lowerCmd = strtolower($rawCmd);
     $cleanCmd = str_replace(['_', ' '], '', $lowerCmd);
     $timestamp = date('c');

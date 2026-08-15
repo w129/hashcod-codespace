@@ -1,6 +1,6 @@
 {
-	"admin": false,
-	"auto_https": "off"
+	admin off
+	auto_https off
 }
 
 {$PORT:8000} {

@@ -107,16 +107,19 @@ function envProbeKeys(array $keys) {
 
 function supabaseConfig() {
     loadEnvFile();
-    $url = rtrim(envValue('SUPABASE_URL'), '/');
-    $publishable = envValue('SUPABASE_PUBLISHABLE_KEY');
-    $secret = envValue('SUPABASE_SECRET_KEY');
+    if (!function_exists('secretGet')) {
+        require_once __DIR__ . '/secrets.php';
+    }
+    $url = rtrim(secretGet('SUPABASE_URL', envValue('SUPABASE_URL')), '/');
+    $publishable = secretGet('SUPABASE_PUBLISHABLE_KEY', envValue('SUPABASE_PUBLISHABLE_KEY'));
+    $secret = secretGet('SUPABASE_SECRET_KEY', envValue('SUPABASE_SECRET_KEY'));
     if ($publishable === '') {
-        $publishable = envValue('SUPABASE_ANON_KEY');
+        $publishable = secretGet('SUPABASE_ANON_KEY', envValue('SUPABASE_ANON_KEY'));
     }
     if ($secret === '') {
-        $secret = envValue('SUPABASE_SERVICE_ROLE_KEY');
+        $secret = secretGet('SUPABASE_SERVICE_ROLE_KEY', envValue('SUPABASE_SERVICE_ROLE_KEY'));
     }
-    $bucket = envValue('SUPABASE_STORAGE_BUCKET', 'l8-storage');
+    $bucket = secretGet('SUPABASE_STORAGE_BUCKET', envValue('SUPABASE_STORAGE_BUCKET', 'l8-storage'));
     return [
         'url' => $url,
         'publishable_key' => $publishable,

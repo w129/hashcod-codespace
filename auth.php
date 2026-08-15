@@ -8,12 +8,16 @@
  */
 
 require_once __DIR__ . '/supabase.php';
+if (!function_exists('secretGet')) {
+    require_once __DIR__ . '/secrets.php';
+}
 
 function authStorageDir() {
     $dir = __DIR__ . '/data_storage/auth';
     if (!is_dir($dir)) {
-        @mkdir($dir, 0777, true);
+        @mkdir($dir, 0700, true);
     }
+    @chmod($dir, 0700);
     return $dir;
 }
 
@@ -27,8 +31,8 @@ function authPepper() {
         return $cached;
     }
 
-    // 1) Env / secret file (recomendado en Render)
-    $pepper = envValue('L8_AUTH_PEPPER', '');
+    // 1) Env / secret file / bóveda (recomendado en Render)
+    $pepper = function_exists('secretGet') ? secretGet('L8_AUTH_PEPPER', '') : envValue('L8_AUTH_PEPPER', '');
     if ($pepper !== '') {
         $cached = $pepper;
         return $cached;
@@ -97,8 +101,11 @@ function authTimingSafeEqual($a, $b) {
 }
 
 function authDilithiumRegisterKey() {
-    // Única fuente: entorno / secret file. Jamás hardcode.
-    return envValue('L8_DILITHIUM5_REGISTER_KEY', '');
+    // Única fuente: entorno / secret file / bóveda. Jamás hardcode.
+    if (function_exists('secretGet')) {
+        return trim((string) secretGet('L8_DILITHIUM5_REGISTER_KEY', ''));
+    }
+    return trim((string) envValue('L8_DILITHIUM5_REGISTER_KEY', ''));
 }
 
 function authDilithiumConfigured() {
@@ -556,9 +563,88 @@ function authCreateSession(array &$store, $userId) {
     $store['sessions'][$tokenHash] = [
         'user_id' => $userId,
         'created_at' => date('c'),
-        'expires_at' => $now + (60 * 60 * 24 * 30) // 30 días
+        'expires_at' => $now + (60 * 60 * 24 * 30), // 30 días
+        'kind' => 'account', // separación: nunca guest
+        'ip_hash' => substr(hash('sha256', function_exists('securityClientIp') ? securityClientIp() : ''), 0, 16),
     ];
     return $token;
+}
+
+/** Cookie HttpOnly de sesión de cuenta (separada del guest l8_tokens_guest). */
+function authSessionCookieName() {
+    return 'l8_auth_session';
+}
+
+function authIssueSessionCookie($token) {
+    $token = trim((string)$token);
+    if ($token === '' || headers_sent()) return false;
+    $secure = function_exists('securityIsHttps') ? securityIsHttps() : (
+        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+    );
+    return setcookie(authSessionCookieName(), $token, [
+        'expires' => time() + (60 * 60 * 24 * 30),
+        'path' => '/',
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function authClearSessionCookie() {
+    if (headers_sent()) return false;
+    $secure = function_exists('securityIsHttps') ? securityIsHttps() : false;
+    return setcookie(authSessionCookieName(), '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+/** Flags de origen de token para CSRF (cookie vs Bearer). */
+function &authSessionRequestFlags() {
+    static $flags = null;
+    if (!is_array($flags)) {
+        $flags = ['bearer' => false, 'cookie' => false, 'body' => false, 'query' => false];
+    }
+    return $flags;
+}
+
+function authSessionUsedBearer() {
+    $f = authSessionRequestFlags();
+    return !empty($f['bearer']);
+}
+
+function authSessionUsedCookie() {
+    $f = authSessionRequestFlags();
+    return !empty($f['cookie']);
+}
+
+/**
+ * Token de sesión de cuenta: Bearer > cookie HttpOnly > query (legacy).
+ * Guest cookie (l8_tokens_guest) NUNCA se usa aquí.
+ * Nota: no lee php://input (solo se puede leer una vez); el body session_token
+ * lo resuelven los handlers que ya parsean JSON.
+ */
+function authSessionTokenFromRequest() {
+    $flags = &authSessionRequestFlags();
+    $hdr = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if (preg_match('/Bearer\s+(\S+)/i', $hdr, $m)) {
+        $flags['bearer'] = true;
+        return $m[1];
+    }
+    $cookieName = authSessionCookieName();
+    if (!empty($_COOKIE[$cookieName])) {
+        $flags['cookie'] = true;
+        return (string)$_COOKIE[$cookieName];
+    }
+    if (!empty($_GET['token'])) {
+        $flags['query'] = true;
+        return (string)$_GET['token'];
+    }
+    return '';
 }
 
 function authRegister($dilithium5) {
@@ -840,18 +926,7 @@ function authStatusPublic() {
 }
 
 function authBearerTokenFromRequest() {
-    $hdr = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-    if (preg_match('/Bearer\s+(\S+)/i', $hdr, $m)) {
-        return $m[1];
-    }
-    $input = json_decode((string)file_get_contents('php://input'), true);
-    if (is_array($input) && !empty($input['session_token'])) {
-        return (string)$input['session_token'];
-    }
-    if (!empty($_GET['token'])) {
-        return (string)$_GET['token'];
-    }
-    return '';
+    return authSessionTokenFromRequest();
 }
 
 /**
@@ -898,13 +973,23 @@ function authHandleApi($uri) {
         if (!securityRateAllow('auth_register', 5, 3600)) {
             securityRateDenyJson(3600);
         }
-        $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(8192) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        if (empty($body['ok'])) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => $body['error'] ?? 'Bad request'], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
+        $input = $body['data'] ?? [];
         $dil = $input['dilithium5'] ?? $input['dilithium_5'] ?? $input['d5'] ?? '';
         $res = authRegister($dil);
         if (empty($res['ok'])) {
+            if (function_exists('securityIpStrike')) securityIpStrike('auth_register_fail', 8, 3600, 3600);
             http_response_code(401);
             echo json_encode(['ok' => false, 'error' => 'Registration failed'], JSON_UNESCAPED_UNICODE);
             return true;
+        }
+        if (!empty($res['session_token'])) {
+            authIssueSessionCookie($res['session_token']);
         }
         echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
@@ -914,14 +999,24 @@ function authHandleApi($uri) {
         if (!securityRateAllow('auth_login', 8, 60)) {
             securityRateDenyJson(60);
         }
-        $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(8192) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        if (empty($body['ok'])) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => $body['error'] ?? 'Bad request'], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
+        $input = $body['data'] ?? [];
         $aes = $input['aes256'] ?? $input['aes_256'] ?? $input['key_aes'] ?? '';
         $identity = $input['identity'] ?? $input['identity_key'] ?? $input['key_identity'] ?? '';
         $res = authLogin($aes, $identity);
         if (empty($res['ok'])) {
+            if (function_exists('securityIpStrike')) securityIpStrike('auth_login_fail', 10, 600, 1800);
             http_response_code(401);
             echo json_encode(['ok' => false, 'error' => 'Invalid credentials'], JSON_UNESCAPED_UNICODE);
             return true;
+        }
+        if (!empty($res['session_token'])) {
+            authIssueSessionCookie($res['session_token']);
         }
         echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
@@ -929,7 +1024,9 @@ function authHandleApi($uri) {
 
     if ($uri === '/api/auth/logout' && $method === 'POST') {
         $token = authBearerTokenFromRequest();
-        echo json_encode(authLogout($token), JSON_UNESCAPED_UNICODE);
+        $res = authLogout($token);
+        authClearSessionCookie();
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
     }
 
@@ -937,13 +1034,23 @@ function authHandleApi($uri) {
         if (!securityRateAllow('auth_recover', 5, 600)) {
             securityRateDenyJson(600);
         }
-        $input = json_decode((string)file_get_contents('php://input'), true) ?? [];
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(8192) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        if (empty($body['ok'])) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => $body['error'] ?? 'Bad request'], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
+        $input = $body['data'] ?? [];
         $material = $input['recovery'] ?? $input['recovery_key'] ?? $input['backup_code'] ?? $input['code'] ?? '';
         $res = authRecover($material);
         if (empty($res['ok'])) {
+            if (function_exists('securityIpStrike')) securityIpStrike('auth_recover_fail', 6, 600, 1800);
             http_response_code(401);
             echo json_encode(['ok' => false, 'error' => 'Recovery failed'], JSON_UNESCAPED_UNICODE);
             return true;
+        }
+        if (!empty($res['session_token'])) {
+            authIssueSessionCookie($res['session_token']);
         }
         echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;

@@ -78,16 +78,21 @@ function tokensUnlockAreas() {
 
 /**
  * Semilla solo servidor (nunca se expone al cliente).
- * Preferir L8_TOKENS_UNLOCK_SEED; si no, semilla de plataforma.
+ * Preferir L8_TOKENS_UNLOCK_SEED (env / secret file / bóveda).
+ * Compat: si no hay valor, usa la semilla legacy una vez y la guarda en bóveda
+ * (así las claves xN ya emitidas siguen valiendo hasta rotar en Render).
  */
 function tokensUnlockMasterSecret() {
-    if (function_exists('envValue')) {
-        $env = envValue('L8_TOKENS_UNLOCK_SEED', '');
-        if ($env !== '') return $env;
+    if (!function_exists('secretGet')) {
+        require_once __DIR__ . '/secrets.php';
     }
-    $g = getenv('L8_TOKENS_UNLOCK_SEED');
-    if (is_string($g) && $g !== '') return $g;
-    return 'l8-dilithium5-unlock-seed-v1-blackhole-platform';
+    $v = secretGet('L8_TOKENS_UNLOCK_SEED', '');
+    if ($v !== '') return $v;
+    $legacy = 'l8-dilithium5-unlock-seed-v1-blackhole-platform';
+    if (function_exists('secretPutVault')) {
+        @secretPutVault('L8_TOKENS_UNLOCK_SEED', $legacy);
+    }
+    return $legacy;
 }
 
 /** Clave Dilithium-5 para el uso N (1-based). Cambia tras cada desbloqueo exitoso. */

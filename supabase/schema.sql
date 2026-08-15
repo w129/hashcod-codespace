@@ -106,6 +106,7 @@ alter table public.l8_token_accounts enable row level security;
 alter table public.l8_token_ledger enable row level security;
 
 -- Registro de Claves Hashcod (contraseñas / códigos por cuenta)
+-- secret/code se almacenan cifrados (AES-256-GCM) desde el backend PHP.
 create table if not exists public.l8_hashcod_keys (
   id text primary key,
   account_key text not null,
@@ -121,7 +122,11 @@ create index if not exists l8_hashcod_keys_account_created_idx
 
 alter table public.l8_hashcod_keys enable row level security;
 
--- Service role bypasses RLS; keep policies locked for anon by default.
+-- =====================================================================
+-- RLS: deny-by-default para anon + authenticated (JWT).
+-- El backend PHP usa SUPABASE_SECRET_KEY / service_role, que BYPASSEA RLS.
+-- Nunca uses la publishable/anon key para leer estas tablas desde el cliente.
+-- =====================================================================
 drop policy if exists "service only repos" on public.l8_repos;
 drop policy if exists "service only files" on public.l8_files;
 drop policy if exists "service only sessions" on public.l8_sessions;
@@ -130,3 +135,61 @@ drop policy if exists "service only auth identities" on public.l8_auth_identitie
 drop policy if exists "service only token accounts" on public.l8_token_accounts;
 drop policy if exists "service only token ledger" on public.l8_token_ledger;
 drop policy if exists "service only hashcod keys" on public.l8_hashcod_keys;
+
+drop policy if exists "deny all anon repos" on public.l8_repos;
+drop policy if exists "deny all authenticated repos" on public.l8_repos;
+drop policy if exists "deny all anon files" on public.l8_files;
+drop policy if exists "deny all authenticated files" on public.l8_files;
+drop policy if exists "deny all anon sessions" on public.l8_sessions;
+drop policy if exists "deny all authenticated sessions" on public.l8_sessions;
+drop policy if exists "deny all anon auth accounts" on public.l8_auth_accounts;
+drop policy if exists "deny all authenticated auth accounts" on public.l8_auth_accounts;
+drop policy if exists "deny all anon auth identities" on public.l8_auth_identities;
+drop policy if exists "deny all authenticated auth identities" on public.l8_auth_identities;
+drop policy if exists "deny all anon token accounts" on public.l8_token_accounts;
+drop policy if exists "deny all authenticated token accounts" on public.l8_token_accounts;
+drop policy if exists "deny all anon token ledger" on public.l8_token_ledger;
+drop policy if exists "deny all authenticated token ledger" on public.l8_token_ledger;
+drop policy if exists "deny all anon hashcod keys" on public.l8_hashcod_keys;
+drop policy if exists "deny all authenticated hashcod keys" on public.l8_hashcod_keys;
+
+-- Políticas explícitas USING (false): bloquean SELECT/INSERT/UPDATE/DELETE a roles cliente.
+create policy "deny all anon repos" on public.l8_repos
+  for all to anon using (false) with check (false);
+create policy "deny all authenticated repos" on public.l8_repos
+  for all to authenticated using (false) with check (false);
+
+create policy "deny all anon files" on public.l8_files
+  for all to anon using (false) with check (false);
+create policy "deny all authenticated files" on public.l8_files
+  for all to authenticated using (false) with check (false);
+
+create policy "deny all anon sessions" on public.l8_sessions
+  for all to anon using (false) with check (false);
+create policy "deny all authenticated sessions" on public.l8_sessions
+  for all to authenticated using (false) with check (false);
+
+create policy "deny all anon auth accounts" on public.l8_auth_accounts
+  for all to anon using (false) with check (false);
+create policy "deny all authenticated auth accounts" on public.l8_auth_accounts
+  for all to authenticated using (false) with check (false);
+
+create policy "deny all anon auth identities" on public.l8_auth_identities
+  for all to anon using (false) with check (false);
+create policy "deny all authenticated auth identities" on public.l8_auth_identities
+  for all to authenticated using (false) with check (false);
+
+create policy "deny all anon token accounts" on public.l8_token_accounts
+  for all to anon using (false) with check (false);
+create policy "deny all authenticated token accounts" on public.l8_token_accounts
+  for all to authenticated using (false) with check (false);
+
+create policy "deny all anon token ledger" on public.l8_token_ledger
+  for all to anon using (false) with check (false);
+create policy "deny all authenticated token ledger" on public.l8_token_ledger
+  for all to authenticated using (false) with check (false);
+
+create policy "deny all anon hashcod keys" on public.l8_hashcod_keys
+  for all to anon using (false) with check (false);
+create policy "deny all authenticated hashcod keys" on public.l8_hashcod_keys
+  for all to authenticated using (false) with check (false);

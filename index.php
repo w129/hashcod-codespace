@@ -5224,7 +5224,7 @@ if (!headers_sent()) {
                 }, extra || {});
                 await fetch('/api/platform/state', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authHeaders(),
                     body: JSON.stringify(payload)
                 });
             } catch (e) {
@@ -5711,8 +5711,15 @@ if (!headers_sent()) {
                 formData.append('file', file);
 
                 try {
+                    const upHeaders = {};
+                    try {
+                        const tok = (typeof window.l8GetAuthToken === 'function') ? window.l8GetAuthToken() : '';
+                        if (tok) upHeaders['Authorization'] = 'Bearer ' + tok;
+                    } catch (e) {}
+                    upHeaders['X-Requested-With'] = 'XMLHttpRequest';
                     const res = await fetch('/api/upload', {
                         method: 'POST',
+                        headers: upHeaders,
                         body: formData
                     });
                     const data = await res.json();
@@ -5985,7 +5992,7 @@ if (!headers_sent()) {
                 try {
                     const res = await fetch('/api/gateway/share', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders(),
                         body: JSON.stringify({
                             kind: 'platform',
                             sources: sources,
@@ -6086,7 +6093,7 @@ if (!headers_sent()) {
                 try {
                     const res = await fetch('/api/gateway/share', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders(),
                         body: JSON.stringify({ repo: full })
                     });
                     const data = await res.json();
@@ -7288,9 +7295,14 @@ if (!headers_sent()) {
         }
 
         async function stDockApi(path, opts) {
-            const res = await fetch(path, Object.assign({
-                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-            }, opts || {}));
+            const baseHeaders = (typeof authHeaders === 'function')
+                ? authHeaders({ 'X-Requested-With': 'XMLHttpRequest' })
+                : { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
+            const merged = Object.assign({ headers: baseHeaders }, opts || {});
+            if (opts && opts.headers) {
+                merged.headers = Object.assign({}, baseHeaders, opts.headers);
+            }
+            const res = await fetch(path, merged);
             let data = null;
             try { data = await res.json(); } catch (e) { data = null; }
             return data || { ok: false, error: 'Respuesta inválida' };

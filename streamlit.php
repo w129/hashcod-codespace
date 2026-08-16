@@ -233,17 +233,33 @@ function streamlitDemoCode() {
     return "import streamlit as st\nst.title('SoroOtbedit')\nst.write('Editor no encontrado en streamlit_tools.')\n";
 }
 
+/** Copia assets del proyecto (favicon SVG) al directorio del slot. */
+function streamlitCopyProjectAssets($slot) {
+    $slot = streamlitNormalizeSlot($slot);
+    if (!$slot) return false;
+    $dir = streamlitSlotDir($slot);
+    if ($dir === '') return false;
+    $src = __DIR__ . '/streamlit_tools/soro_otbedit_icon.svg';
+    $dst = $dir . '/soro_otbedit_icon.svg';
+    if (!is_readable($src)) return false;
+    return @copy($src, $dst);
+}
+
 function streamlitEnsureSeeded() {
     $slot = 1;
     $app = streamlitAppPath($slot);
     if ($app === '') return;
 
     $code = streamlitDemoCode();
+    $icon = streamlitSlotDir($slot) . '/soro_otbedit_icon.svg';
     $need = !is_readable($app) || (int) @filesize($app) === 0;
     if (!$need) {
         $existing = (string) @file_get_contents($app);
-        // Migrar demos antiguas → proyecto único SoroOtbedit
-        if (strpos($existing, 'SoroOtbedit') === false) {
+        // Migrar demos antiguas / favicon viejo → proyecto único SoroOtbedit
+        if (strpos($existing, 'SoroOtbedit') === false || strpos($existing, '_page_icon') === false) {
+            $need = true;
+        }
+        if (!is_readable($icon)) {
             $need = true;
         }
         $meta = function_exists('streamlitReadMeta') ? streamlitReadMeta($slot) : [];
@@ -253,11 +269,13 @@ function streamlitEnsureSeeded() {
         }
     }
     if (!$need) {
+        streamlitCopyProjectAssets($slot);
         streamlitEnsureConfig($slot);
         return;
     }
 
     @file_put_contents($app, $code, LOCK_EX);
+    streamlitCopyProjectAssets($slot);
     streamlitWriteMeta($slot, [
         'title' => 'SoroOtbedit',
         'template' => 'soro_otbedit',

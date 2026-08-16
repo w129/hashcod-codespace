@@ -96,10 +96,11 @@ http://:{$PORT:8000} {
 		reverse_proxy 127.0.0.1:8001
 	}
 
-	# 502 de Streamlit idle → página clara (no parece caída total de la plataforma)
+	# 502 de Streamlit idle → página clara (CEL sin librería strings: Caddy de Render no la trae)
 	handle_errors {
 		@st_offline {
-			expression `{err.status_code} == 502 && strings.HasPrefix({http.request.uri.path}, "/st/")`
+			expression `{err.status_code} == 502`
+			path_regexp st ^/st/
 		}
 		handle @st_offline {
 			root * /var/www/html

@@ -1,4 +1,8 @@
-"""Streamlit custom component: wangEditor for SoroOtbedit."""
+"""Streamlit custom component: wangEditor for SoroOtbedit.
+
+https://github.com/wangeditor-team/wangEditor — HTML toolbar with markdown bridge.
+Supports outline jump (Yohaku) via jump_line / jump_text.
+"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -22,6 +26,9 @@ def wang_editor(
     read_only: bool = False,
     key: str | None = None,
     key_nonce: str | None = None,
+    jump_line: int | None = None,
+    jump_text: str | None = None,
+    jump_token: str | None = None,
 ) -> str:
     """Rich HTML editor; returns markdown for SoroOtbedit columns."""
     value = _wang_editor(
@@ -30,6 +37,9 @@ def wang_editor(
         placeholder=placeholder,
         read_only=bool(read_only),
         key_nonce=key_nonce or key or "",
+        jump_line=-1 if jump_line is None else int(jump_line),
+        jump_text=jump_text or "",
+        jump_token=jump_token or "",
         key=key,
         default=markdown or "",
     )

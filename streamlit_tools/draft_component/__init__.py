@@ -2,6 +2,7 @@
 
 Based on Facebook's archived Draft.js (https://github.com/facebookarchive/draft-js).
 Markdown in/out via draft-js-import-markdown / draft-js-export-markdown.
+Supports outline jump (Yohaku) via jump_line / jump_text.
 """
 from __future__ import annotations
 
@@ -26,6 +27,9 @@ def draft_editor(
     read_only: bool = False,
     key: str | None = None,
     key_nonce: str | None = None,
+    jump_line: int | None = None,
+    jump_text: str | None = None,
+    jump_token: str | None = None,
 ) -> str:
     """Rich text editor (Draft.js); returns markdown for SoroOtbedit columns."""
     value = _draft_editor(
@@ -34,6 +38,9 @@ def draft_editor(
         placeholder=placeholder,
         read_only=bool(read_only),
         key_nonce=key_nonce or key or "",
+        jump_line=-1 if jump_line is None else int(jump_line),
+        jump_text=jump_text or "",
+        jump_token=jump_token or "",
         key=key,
         default=markdown or "",
     )

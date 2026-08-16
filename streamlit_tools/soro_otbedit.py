@@ -20,7 +20,7 @@ ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_DRAFTJS_EDITOR_V1"
+SORO_HEADER_MARK = "SORO_EDITORS_FULL_V1"
 NARRATOR_ID = "narrator"
 DEFAULT_CAST = [
     {"id": "char_prota", "name": "Protagonista", "color": "#2c5aa0", "preset": "Protagonista", "group": "main"},
@@ -672,7 +672,7 @@ def main() -> None:
 </style>
 <div class="soro-banner">
   <h1>{APP_MARK}</h1>
-  <span>otbedit · Soro · Yohaku outline · VoiScripter guion/voz</span>
+  <span>otbedit · Soro · Yohaku outline · VoiScripter · Draft.js · wang · MDX</span>
 </div>
 """,
         unsafe_allow_html=True,
@@ -761,7 +761,11 @@ def main() -> None:
             }.get(v, v),
             index=_ed_opts.index(_ed_cur),
             horizontal=True,
-            help="wang/Draft.js: rico→markdown. MDX: Notion-like. Clásico: textarea.",
+            help=(
+                "wangEditor: toolbar HTML→MD. Draft.js (Facebook): entidades/atajos→MD. "
+                "MDXEditor: markdown nativo + fuente. Clásico: textarea. "
+                "Outline Yohaku salta en todos."
+            ),
         )
         n_cols = st.slider("Nº de columnas", MIN_COLS, MAX_COLS, int(doc.get("n_cols") or DEFAULT_COLS))
         if n_cols != doc["n_cols"]:
@@ -1367,6 +1371,16 @@ def main() -> None:
                             f" · ◀ L{int(this_jump['line']) + 1}" if jumped else ""
                         )
                         current = doc["columns"][ci] if ci < len(doc["columns"]) else ""
+                        jump_kwargs = {}
+                        if jumped and this_jump:
+                            jump_kwargs = {
+                                "jump_line": int(this_jump["line"]),
+                                "jump_text": str(this_jump.get("text") or ""),
+                                "jump_token": (
+                                    f"{this_jump.get('doc_id')}_{ci}_"
+                                    f"{this_jump['line']}_{this_jump.get('text') or ''}"
+                                ),
+                            }
                         if use_wang and wang_fn is not None:
                             st.caption(label + " · wangEditor")
                             text = wang_fn(
@@ -1374,16 +1388,18 @@ def main() -> None:
                                 height=420,
                                 placeholder="Escribe con wangEditor…",
                                 key=f"wang_{doc['id']}_{ci}",
-                                key_nonce=f"{doc['id']}_{ci}",
+                                key_nonce=f"{doc['id']}_{ci}_{jump_kwargs.get('jump_token', '')}",
+                                **jump_kwargs,
                             )
                         elif use_draft and draft_fn is not None:
                             st.caption(label + " · Draft.js")
                             text = draft_fn(
                                 current,
                                 height=420,
-                                placeholder="Escribe con Draft.js…",
+                                placeholder="# Título  |  atajos: # espacio · ⌘B/I/U/K",
                                 key=f"draft_{doc['id']}_{ci}",
-                                key_nonce=f"{doc['id']}_{ci}",
+                                key_nonce=f"{doc['id']}_{ci}_{jump_kwargs.get('jump_token', '')}",
+                                **jump_kwargs,
                             )
                         elif use_mdx and mdx_fn is not None:
                             st.caption(label + " · MDX")
@@ -1392,7 +1408,8 @@ def main() -> None:
                                 height=420,
                                 placeholder="# Título\n\nEscribe markdown…",
                                 key=f"mdx_{doc['id']}_{ci}",
-                                key_nonce=f"{doc['id']}_{ci}",
+                                key_nonce=f"{doc['id']}_{ci}_{jump_kwargs.get('jump_token', '')}",
+                                **jump_kwargs,
                             )
                         else:
                             text = st.text_area(

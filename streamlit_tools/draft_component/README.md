@@ -2,7 +2,15 @@
 
 Wraps [Draft.js](https://github.com/facebookarchive/draft-js) (Facebook archive) for SoroOtbedit.
 
-Column content stays **markdown** via `draft-js-import-markdown` / `draft-js-export-markdown`.
+Uses Draft.js primitives end-to-end:
+
+- `Editor` + `RichUtils` (inline/block)
+- `CompositeDecorator` + LINK entities
+- `EditorState.undo` / `redo`
+- `AtomicBlockUtils` for horizontal rules
+- `handleBeforeInput` markdown shortcuts (`#`, `-`, `>`, …)
+- Markdown I/O via `draft-js-import-markdown` / `draft-js-export-markdown`
+- Outline jump (`jump_line` / `jump_text`) for Yohaku
 
 ## Build
 

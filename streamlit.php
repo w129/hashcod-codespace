@@ -317,7 +317,7 @@ function streamlitEnsureSeeded() {
         if (
             strpos($existing, 'SoroOtbedit') === false
             || strpos($existing, '_page_icon') === false
-            || strpos($existing, 'SORO_DRAFTJS_EDITOR_V1') === false
+            || strpos($existing, 'SORO_EDITORS_FULL_V1') === false
             || preg_match('/^\s*st\.logo\s*\(/m', $existing)
         ) {
             $need = true;

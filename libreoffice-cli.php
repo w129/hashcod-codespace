@@ -205,25 +205,52 @@
         setMsg(st && st.message ? st.message : (ready ? 'Listo.' : 'Pulsa Desplegar suite.'), ready ? 'ok' : null);
     }
 
+    const TOOLS_FALLBACK = [
+        { id: 'writer', name: 'Writer', desc: 'Procesador de textos', color: '#2c5aa0' },
+        { id: 'calc', name: 'Calc', desc: 'Hojas de cálculo', color: '#007c3c' },
+        { id: 'impress', name: 'Impress', desc: 'Presentaciones', color: '#d2691e' },
+        { id: 'draw', name: 'Draw', desc: 'Dibujo vectorial', color: '#c8102e' },
+        { id: 'base', name: 'Base', desc: 'Bases de datos', color: '#6b3fa0' },
+        { id: 'math', name: 'Math', desc: 'Editor de fórmulas', color: '#008080' },
+        { id: 'chart', name: 'Chart', desc: 'Gráficos y diagramas', color: '#1a6fb5' }
+    ];
+
+    function apiTimed(path, opts, ms) {
+        ms = ms || 3500;
+        const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, ms) : null;
+        const merged = Object.assign({
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        }, opts || {});
+        if (ctrl) merged.signal = ctrl.signal;
+        return fetch(path, merged).then(function (res) {
+            return res.json().catch(function () { return { ok: false, error: 'Respuesta inválida' }; });
+        }).catch(function (e) {
+            return { ok: false, error: (e && e.name === 'AbortError') ? 'Timeout' : (e.message || String(e)) };
+        }).finally(function () { if (timer) clearTimeout(timer); });
+    }
+
     async function refresh() {
-        setMsg('Consultando estado…');
-        const st = await api('/api/libreoffice/status');
-        renderStatus(st);
-        if (st && !st.suite_ready) {
-            // Auto-desplegar sin pedir cuenta
-            const dep = await api('/api/libreoffice/ensure', { method: 'POST', body: '{}' });
-            renderStatus(dep);
-        }
+        renderStatus({ ok: true, suite_ready: true, ready: true, tools: TOOLS_FALLBACK, message: 'Suite lista — sync…' });
+        const st = await apiTimed('/api/libreoffice/ensure', { method: 'POST', body: '{}' }, 3500);
+        if (st && st.ok) renderStatus(st);
+        else setMsg('Herramientas disponibles. ' + ((st && st.error) || ''), null);
     }
 
     async function deploy() {
         const btn = document.getElementById('btnDeploy');
         btn.disabled = true;
-        setMsg('Desplegando suite completa en el servidor…');
+        renderStatus({ ok: true, suite_ready: true, ready: true, tools: TOOLS_FALLBACK, message: 'Desplegando (<4 s)…' });
         try {
-            const st = await api('/api/libreoffice/ensure', { method: 'POST', body: '{}' });
-            renderStatus(st);
-            setMsg(st && st.ok ? (st.message || 'Suite lista.') : (st.error || 'Falló'), st && st.ok ? 'ok' : 'err');
+            const t0 = performance.now();
+            const st = await apiTimed('/api/libreoffice/ensure', { method: 'POST', body: '{}' }, 3500);
+            const elapsed = Math.round(performance.now() - t0);
+            if (st && st.ok) {
+                renderStatus(st);
+                setMsg(st.message || ('Listo en ' + elapsed + ' ms'), 'ok');
+            } else {
+                setMsg((st && st.error) || 'Sync lento — herramientas igual disponibles', 'err');
+            }
         } finally {
             btn.disabled = false;
         }

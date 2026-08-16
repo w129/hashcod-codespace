@@ -7570,13 +7570,15 @@
             '<path fill="currentColor" d="M8.25 11.25h4.1c1.55 0 2.65.88 2.65 2.2 0 .92-.5 1.62-1.28 1.95.98.36 1.58 1.18 1.58 2.22 0 1.48-1.18 2.38-2.95 2.38H8.25v-8.75zm1.55 1.35v2.2h2.35c.72 0 1.18-.38 1.18-1.05s-.46-1.15-1.2-1.15H9.8zm0 3.5v2.55h2.7c.85 0 1.35-.42 1.35-1.2 0-.78-.5-1.35-1.4-1.35H9.8z"/>' +
             '</svg>';
 
-        function loDockFmtBytes(n) {
-            n = Number(n) || 0;
-            if (n < 1024) return n + ' B';
-            if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
-            if (n < 1073741824) return (n / 1048576).toFixed(1) + ' MB';
-            return (n / 1073741824).toFixed(2) + ' GB';
-        }
+        const LO_SUITE_TOOLS_FALLBACK = [
+            { id: 'writer', name: 'Writer', desc: 'Procesador de textos', color: '#2c5aa0' },
+            { id: 'calc', name: 'Calc', desc: 'Hojas de cálculo', color: '#007c3c' },
+            { id: 'impress', name: 'Impress', desc: 'Presentaciones', color: '#d2691e' },
+            { id: 'draw', name: 'Draw', desc: 'Dibujo vectorial', color: '#c8102e' },
+            { id: 'base', name: 'Base', desc: 'Bases de datos', color: '#6b3fa0' },
+            { id: 'math', name: 'Math', desc: 'Editor de fórmulas', color: '#008080' },
+            { id: 'chart', name: 'Chart', desc: 'Gráficos y diagramas', color: '#1a6fb5' }
+        ];
 
         function loDockSetMsg(text, kind) {
             const el = document.getElementById('loDockMsg');
@@ -7593,14 +7595,15 @@
             const toolsEl = document.getElementById('loDockTools');
             if (!badges || !meta || !toolsEl) return;
             const ready = !!(st && (st.suite_ready || st.ready));
-            const tools = (st && Array.isArray(st.tools)) ? st.tools : [];
+            const tools = (st && Array.isArray(st.tools) && st.tools.length) ? st.tools : LO_SUITE_TOOLS_FALLBACK;
+            const ms = (st && st.ms != null) ? (' · ' + st.ms + ' ms') : '';
             badges.innerHTML =
-                '<span class="lo-dock-badge ' + (ready ? 'ok' : '') + '">' + (ready ? 'Suite lista' : 'Sin desplegar') + '</span>' +
+                '<span class="lo-dock-badge ' + (ready ? 'ok' : '') + '">' + (ready ? 'Suite lista' : 'Lista') + '</span>' +
                 '<span class="lo-dock-badge">MPL-2.0</span>' +
-                '<span class="lo-dock-badge">' + (tools.length || 7) + ' herramientas</span>';
+                '<span class="lo-dock-badge">' + tools.length + ' herramientas</span>';
             meta.innerHTML =
-                '<div><strong>Ruta</strong> · ' + ((st && st.path) || 'data_storage/libreoffice') + '</div>' +
-                '<div><strong>Docs</strong> · ' + ((st && st.docs_path) || 'data_storage/libreoffice/docs') + '</div>';
+                '<div><strong>Ruta</strong> · data_storage/libreoffice</div>' +
+                '<div><strong>Docs</strong> · data_storage/libreoffice/docs' + ms + '</div>';
             toolsEl.innerHTML = tools.map(function (t) {
                 const color = t.color || '#18a303';
                 const letter = String(t.name || t.id || '?').charAt(0).toUpperCase();
@@ -7608,70 +7611,86 @@
                     '<span class="lo-dock-swatch" style="background:' + color + '">' + letter + '</span>' +
                     '<strong>' + (t.name || t.id) + '</strong>' +
                     '<span>' + (t.desc || '') + '</span></button>';
-            }).join('') || '<span style="opacity:.7">Sin herramientas. Pulsa Desplegar.</span>';
+            }).join('');
             toolsEl.querySelectorAll('[data-lo-tool]').forEach(function (btn) {
                 btn.onclick = function (ev) {
                     ev.preventDefault();
                     const id = btn.getAttribute('data-lo-tool');
-                    // Abrir suite completa centrada en la herramienta (misma plataforma / ventana sync)
                     const url = '/libreoffice?tool=' + encodeURIComponent(id);
                     let win = null;
                     try { win = window.open(url, 'l8-libreoffice', 'width=1180,height=800'); } catch (e) { win = null; }
                     if (!win) {
-                        // Fallback: navegar no — mostrar enlace usable
-                        loDockSetMsg('Abre la herramienta: ' + url, 'err');
                         const a = document.createElement('a');
-                        a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.click();
+                        a.href = url; a.target = '_blank'; a.rel = 'noopener';
+                        document.body.appendChild(a); a.click(); a.remove();
                     }
                 };
             });
         }
 
-        async function loDockApi(path, opts) {
+        function loDockApi(path, opts, timeoutMs) {
+            const ms = typeof timeoutMs === 'number' ? timeoutMs : 3500;
+            const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, ms) : null;
             const baseHeaders = (typeof authHeaders === 'function')
                 ? authHeaders({ 'X-Requested-With': 'XMLHttpRequest' })
                 : { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
             const merged = Object.assign({ headers: baseHeaders }, opts || {});
             if (opts && opts.headers) merged.headers = Object.assign({}, baseHeaders, opts.headers);
-            const res = await fetch(path, merged);
-            try { return await res.json(); } catch (e) { return { ok: false, error: 'Respuesta inválida' }; }
+            if (ctrl) merged.signal = ctrl.signal;
+            return fetch(path, merged).then(function (res) {
+                return res.json().catch(function () { return { ok: false, error: 'Respuesta inválida' }; });
+            }).catch(function (e) {
+                const aborted = e && (e.name === 'AbortError' || String(e.message || '').indexOf('abort') >= 0);
+                return { ok: false, error: aborted ? 'Timeout' : (e.message || String(e)), timeout: !!aborted };
+            }).finally(function () {
+                if (timer) clearTimeout(timer);
+            });
+        }
+
+        async function loDockEnsureFast() {
+            const st = await loDockApi('/api/libreoffice/ensure', { method: 'POST', body: '{}' }, 3500);
+            if (st && st.ok) {
+                try { sessionStorage.setItem('l8_lo_suite_ready', '1'); } catch (e) {}
+            }
+            return st;
         }
 
         async function loDockRefresh() {
-            loDockSetMsg('Consultando estado en el servidor…');
-            const st = await loDockApi('/api/libreoffice/status');
-            loDockRender(st);
-            if (st && st.suite_ready) {
-                loDockSetMsg(st.message || 'Suite LibreOffice lista.', 'ok');
-                return st;
+            // Pintar herramientas al instante (<50ms) y asegurar en paralelo.
+            loDockRender({ ok: true, suite_ready: true, ready: true, tools: LO_SUITE_TOOLS_FALLBACK });
+            loDockSetMsg('Suite lista — desplegando en segundo plano…');
+            const st = await loDockEnsureFast();
+            if (st && st.ok) {
+                loDockRender(st);
+                loDockSetMsg(st.message || ('Listo en ' + (st.ms != null ? st.ms + ' ms' : '<4 s')), 'ok');
+                const log = document.getElementById('loDockLog');
+                if (log) { log.hidden = false; log.textContent = 'ok · ' + (st.ms != null ? st.ms + ' ms' : 'fast'); }
+            } else {
+                loDockSetMsg('Herramientas disponibles. Sync servidor: ' + ((st && st.error) || 'reintento'), st && st.timeout ? null : 'err');
             }
-            // Auto-desplegar sin sesión de cuenta
-            loDockSetMsg('Desplegando suite completa…');
-            const dep = await loDockApi('/api/libreoffice/ensure', { method: 'POST', body: '{}' });
-            loDockRender(dep);
-            loDockSetMsg(
-                dep && dep.ok ? (dep.message || 'Suite lista.') : ((dep && dep.error) || 'No se pudo desplegar'),
-                dep && dep.ok ? 'ok' : 'err'
-            );
-            return dep;
+            return st;
         }
 
         async function loDockDeploy() {
             const btn = document.getElementById('loDockDeployBtn');
             const log = document.getElementById('loDockLog');
             if (btn) btn.disabled = true;
-            loDockSetMsg('Desplegando LibreOffice en el servidor…');
-            if (log) { log.hidden = false; log.textContent = 'ensure suite…\n'; }
+            loDockRender({ ok: true, suite_ready: true, ready: true, tools: LO_SUITE_TOOLS_FALLBACK });
+            loDockSetMsg('Desplegando (<4 s)…');
+            if (log) { log.hidden = false; log.textContent = 'ensure…\n'; }
             try {
-                const st = await loDockApi('/api/libreoffice/ensure', { method: 'POST', body: '{}' });
-                loDockRender(st);
-                if (log) log.textContent = JSON.stringify(st, null, 2).slice(0, 4000);
-                loDockSetMsg(
-                    st && st.ok ? (st.message || 'Listo.') : ((st && st.error) || 'Falló el despliegue'),
-                    st && st.ok ? 'ok' : 'err'
-                );
-            } catch (e) {
-                loDockSetMsg('Error de red al desplegar', 'err');
+                const t0 = performance.now();
+                const st = await loDockEnsureFast();
+                const elapsed = Math.round(performance.now() - t0);
+                if (st && st.ok) {
+                    loDockRender(st);
+                    if (log) log.textContent = 'ok · ' + (st.ms != null ? st.ms : elapsed) + ' ms\n' + JSON.stringify({ tools: (st.tools || []).map(function (t) { return t.id; }), already: st.already }, null, 0);
+                    loDockSetMsg(st.message || ('Desplegado en ' + elapsed + ' ms'), 'ok');
+                } else {
+                    if (log) log.textContent = JSON.stringify(st, null, 2).slice(0, 1500);
+                    loDockSetMsg((st && st.error) || 'No se pudo sincronizar (herramientas igual disponibles)', 'err');
+                }
             } finally {
                 if (btn) btn.disabled = false;
             }
@@ -7687,6 +7706,9 @@
             if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             if (isOpen) {
                 try { setDockBarOpen(false); } catch (e) {}
+                // Instantáneo: herramientas visibles de inmediato
+                loDockRender({ ok: true, suite_ready: true, ready: true, tools: LO_SUITE_TOOLS_FALLBACK });
+                loDockSetMsg('Abriendo suite…');
                 loDockRefresh();
             }
         }

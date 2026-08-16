@@ -20,7 +20,7 @@ ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_ICON_SVG_ONLY_V2"
+SORO_HEADER_MARK = "SORO_SIDEBAR_SVG_V1"
 
 
 def _asset(*names: str) -> str | None:
@@ -167,8 +167,7 @@ def _load_project(raw: bytes | str) -> None:
 def main() -> None:
     # {SORO_HEADER_MARK}
     favicon = _page_icon()
-    # SVG completo en el banner de la app (el logo del chrome se veía como rallita)
-    banner_src = _asset(ICON_SVG, ICON_PNG, LOGO_PNG, FAVICON_PNG)
+    icon_src = _asset(ICON_SVG, ICON_PNG, LOGO_PNG, FAVICON_PNG)
 
     st.set_page_config(
         page_title=APP_TITLE,
@@ -176,27 +175,22 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
-    # Sin logo en el chrome: Streamlit lo recorta a un fragmento.
 
     _ensure_state()
 
     icon_data_uri = ""
-    if banner_src:
+    if icon_src:
         try:
             import base64
             import mimetypes
 
-            raw = Path(banner_src).read_bytes()
-            mime = mimetypes.guess_type(banner_src)[0] or "image/svg+xml"
+            raw = Path(icon_src).read_bytes()
+            mime = mimetypes.guess_type(icon_src)[0] or "image/svg+xml"
+            if icon_src.endswith(".svg"):
+                mime = "image/svg+xml"
             icon_data_uri = f"data:{mime};base64," + base64.b64encode(raw).decode("ascii")
         except Exception:
             icon_data_uri = ""
-
-    banner_img = (
-        f'<img class="soro-logo" src="{icon_data_uri}" width="32" height="32" alt="SoroOtbedit" />'
-        if icon_data_uri
-        else ""
-    )
 
     st.markdown(
         f"""
@@ -211,23 +205,39 @@ def main() -> None:
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
     margin-bottom: 0.35rem;
   }}
-  .soro-banner .soro-logo {{
-    width: 32px; height: 32px; display:block; flex: 0 0 auto;
-    object-fit: contain;
-  }}
   .soro-banner h1 {{ font-size: 1.35rem; margin: 0; }}
   .soro-banner span {{ color:#5b6b7a; font-size: 0.9rem; }}
-  /* Quitar la rallita del logo recortado de Streamlit */
+  .soro-side-brand {{
+    display:flex; align-items:center; gap:10px;
+    margin: 0 0 0.85rem 0; padding: 0;
+  }}
+  .soro-side-brand img {{
+    width: 40px; height: 40px; display:block; flex: 0 0 auto;
+    object-fit: contain;
+  }}
+  .soro-side-brand .soro-side-name {{
+    font-size: 1.05rem; font-weight: 700; color: #111; line-height: 1.2;
+  }}
+  /* Eliminar la rallita del logo del chrome de Streamlit */
   [data-testid="stLogo"],
-  [data-testid="stLogo"] img,
+  [data-testid="stLogo"] *,
+  [data-testid="stLogoLink"],
+  [data-testid="stSidebarHeader"] [data-testid="stLogo"],
   [data-testid="stSidebarCollapsedControl"] img,
   [data-testid="stHeader"] img[alt="Logo"],
-  header img[alt="Logo"] {{
+  header img[alt="Logo"],
+  section[data-testid="stSidebar"] > div:first-child img[alt="Logo"],
+  section[data-testid="stSidebar"] a[href] img {{
     display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
   }}
 </style>
 <div class="soro-banner">
-  {banner_img}
   <h1>{APP_MARK}</h1>
   <span>tabs tipo otbedit · columnas alineadas tipo SoroEditor · Streamlit en servidor</span>
 </div>
@@ -235,8 +245,16 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
-    # —— Sidebar: proyecto / archivos (otbedit) ——
+    # —— Sidebar: icono completo a la izquierda + proyecto ——
     with st.sidebar:
+        if icon_data_uri:
+            st.markdown(
+                f'<div class="soro-side-brand">'
+                f'<img src="{icon_data_uri}" width="40" height="40" alt="SoroOtbedit" />'
+                f'<div class="soro-side-name">{APP_MARK}</div>'
+                f"</div>",
+                unsafe_allow_html=True,
+            )
         st.subheader("Proyecto")
         st.caption("Abrir / guardar en el servidor (sesión + archivo .cep)")
 

@@ -4522,6 +4522,25 @@ if ($uri === '/api/tiptap/doc' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
+// Spanish → English (oomol-lab/epub-translator prompt + Python / OpenAI / AI chat)
+if ($uri === '/api/tiptap/translate' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('tiptap_translate', 20, 60)) {
+        securityRateDenyJson(15);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    $body = securityReadJsonBody(130000);
+    if (empty($body['ok'])) {
+        securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
+    }
+    $data = is_array($body['data'] ?? null) ? $body['data'] : $body;
+    $text = (string) ($data['text'] ?? '');
+    $mode = (string) ($data['mode'] ?? 'replace');
+    $result = tiptapTranslateEsEn($text, $mode);
+    http_response_code(!empty($result['ok']) ? 200 : 502);
+    echo json_encode($result, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // ===== STREAMLIT DOCK TOOLS =====
 if ($uri === '/api/streamlit/status' || $uri === '/api/streamlit') {
     header('Content-Type: application/json; charset=utf-8');

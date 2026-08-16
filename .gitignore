@@ -25,8 +25,10 @@ data_storage/hashcod_keys/
 data_storage/security/
 data_storage/streamlit/
 data_storage/libreoffice/
+data_storage/tiptap/
 data_storage/agent_browser/
 NUL
 streamlit_tools/mdx_component/frontend/node_modules/
 __pycache__/
 streamlit_tools/wang_component/frontend/node_modules/
+tiptap_editor/frontend/node_modules/

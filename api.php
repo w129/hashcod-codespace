@@ -4397,6 +4397,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri 
 
 require_once __DIR__ . '/streamlit.php';
 require_once __DIR__ . '/libreoffice.php';
+require_once __DIR__ . '/tiptap.php';
 require_once __DIR__ . '/agent_browser.php';
 
 // ===== AGENT-BROWSER (Google pages; vercel-labs/agent-browser) =====
@@ -4489,6 +4490,35 @@ if ($uri === '/api/libreoffice/doc' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = $body['data'] ?? [];
     $tool = isset($data['tool']) ? (string) $data['tool'] : '';
     echo json_encode(libreofficeSaveDoc($tool, $data), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// ===== TIPTAP DOCUMENT EDITOR =====
+if ($uri === '/api/tiptap/status' || $uri === '/api/tiptap') {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(tiptapStatusPayload(), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/tiptap/doc' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    header('Content-Type: application/json; charset=utf-8');
+    $id = isset($_GET['id']) ? (string) $_GET['id'] : 'main';
+    echo json_encode(tiptapLoadDoc($id), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/tiptap/doc' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('tiptap_doc', 40, 60)) {
+        securityRateDenyJson(20);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    $body = securityReadJsonBody(950000);
+    if (empty($body['ok'])) {
+        securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
+    }
+    // Accept either {data:{...}} or flat body after securityReadJsonBody unwrap
+    $data = is_array($body['data'] ?? null) ? $body['data'] : $body;
+    echo json_encode(tiptapSaveDoc($data), JSON_UNESCAPED_UNICODE);
     exit;
 }
 

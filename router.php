@@ -49,6 +49,11 @@ $routedPages = [
     '/libreoffice' => 'libreoffice-cli.php',
     '/libreoffice-cli' => 'libreoffice-cli.php',
     '/libreoffice-cli.php' => 'libreoffice-cli.php',
+    '/tiptap' => 'tiptap-editor.php',
+    '/tiptap-editor' => 'tiptap-editor.php',
+    '/tiptap-editor.php' => 'tiptap-editor.php',
+    '/word' => 'tiptap-editor.php',
+    '/documento' => 'tiptap-editor.php',
 ];
 if (isset($routedPages[$uri])) {
     $page = $routedPages[$uri];

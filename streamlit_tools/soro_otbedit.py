@@ -161,15 +161,9 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
-    # Logo en barra superior / sidebar (también al colapsar el panel)
-    try:
-        if icon and icon != "🧠":
-            st.logo(icon, icon_image=icon)
-    except Exception:
-        pass
     _ensure_state()
 
-    # Icono inline en el banner (data URI) para que se vea junto al título
+    # Icono en el banner (no st.logo: Streamlit recorta mal el SVG en el chrome)
     icon_data_uri = ""
     if icon and icon != "🧠":
         try:
@@ -204,10 +198,10 @@ def main() -> None:
   }}
   .soro-banner h1 {{ font-size: 1.35rem; margin: 0; }}
   .soro-banner span {{ color:#5b6b7a; font-size: 0.9rem; }}
-  /* Refuerzo del logo en el header colapsado de Streamlit */
-  [data-testid="stSidebarCollapsedControl"] img,
-  [data-testid="stLogo"] img {{
-    max-height: 28px !important;
+  /* Ocultar restos rotos del logo Streamlit si quedó cacheado */
+  [data-testid="stLogo"],
+  [data-testid="stSidebarCollapsedControl"] img {{
+    display: none !important;
   }}
 </style>
 <div class="soro-banner">

@@ -256,7 +256,8 @@ function streamlitEnsureSeeded() {
     if (!$need) {
         $existing = (string) @file_get_contents($app);
         // Migrar demos antiguas / favicon viejo → proyecto único SoroOtbedit
-        if (strpos($existing, 'SoroOtbedit') === false || strpos($existing, '_page_icon') === false || strpos($existing, 'st.logo') === false) {
+        // Migrar demos / logo roto (st.logo(...) recorta mal el SVG) → versión limpia
+        if (strpos($existing, 'SoroOtbedit') === false || strpos($existing, '_page_icon') === false || preg_match('/\bst\.logo\s*\(/', $existing)) {
             $need = true;
         }
         if (!is_readable($icon)) {

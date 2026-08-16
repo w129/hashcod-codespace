@@ -530,6 +530,7 @@ if (!headers_sent()) {
         .icon-globe,
         .icon-tokens,
         .icon-gateway,
+        .icon-mobile,
         .icon-ubuntu-cli,
         .icon-claude-cli,
         .icon-zylon-cli,
@@ -558,6 +559,7 @@ if (!headers_sent()) {
         .icon-globe svg,
         .icon-tokens svg,
         .icon-gateway svg,
+        .icon-mobile svg,
         .icon-ubuntu-cli svg,
         .icon-ubuntu-cli img,
         .icon-claude-cli svg,
@@ -604,12 +606,27 @@ if (!headers_sent()) {
         }
 
         .icon-gateway:hover,
+        .icon-mobile:hover,
         .icon-ubuntu-cli:hover,
         .icon-claude-cli:hover,
         .icon-zylon-cli:hover,
         .icon-toolkit:hover,
         .icon-notepad:hover {
             opacity: 0.75;
+        }
+
+        .icon-mobile {
+            margin-left: 2px;
+        }
+
+        .icon-mobile[aria-pressed="true"] {
+            opacity: 1;
+            color: #0b3d2e;
+        }
+
+        .icon-mobile svg {
+            /* keep white phone body readable on gray bar */
+            overflow: visible;
         }
 
         .icon-notepad {
@@ -5046,10 +5063,239 @@ if (!headers_sent()) {
                 white-space: normal;
             }
         }
+
+        /* ===== MOBILE MODE (toggle icono teléfono) ===== */
+        html.mobile-mode,
+        body.mobile-mode {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body.mobile-mode {
+            overflow-x: hidden;
+        }
+
+        body.mobile-mode .platform-shell {
+            width: 100%;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            min-height: 100dvh;
+            box-shadow: 0 0 0 1px #e8e8e8;
+            background: #ffffff;
+            position: relative;
+            padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+        }
+
+        body.mobile-mode .top-bar {
+            flex-wrap: wrap;
+            gap: 8px 6px;
+            padding: 8px 10px;
+            padding-top: calc(8px + env(safe-area-inset-top, 0px));
+            align-items: flex-start;
+            row-gap: 10px;
+        }
+
+        body.mobile-mode .left-controls {
+            flex: 1 1 auto;
+            flex-wrap: wrap;
+            gap: 6px 8px;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        body.mobile-mode .checkbox-label span {
+            font-size: 12px;
+        }
+
+        body.mobile-mode .hashcod-created-by {
+            display: none;
+        }
+
+        body.mobile-mode .hashcod-tools-dock {
+            margin-left: 0;
+            order: 5;
+            width: 100%;
+            justify-content: space-between;
+            max-width: 100%;
+        }
+
+        body.mobile-mode .top-bar-right {
+            flex: 0 0 auto;
+            margin-left: auto;
+            gap: 10px;
+            padding-right: 0;
+            align-self: flex-start;
+            padding-top: 2px;
+        }
+
+        body.mobile-mode .tokens-panel {
+            right: 0;
+            width: min(100vw - 16px, 400px);
+            max-height: min(70vh, 560px);
+        }
+
+        body.mobile-mode .main-container {
+            padding: 10px 10px 24px;
+            gap: 10px;
+        }
+
+        body.mobile-mode .block-symbol {
+            width: 32px;
+            min-width: 32px;
+            font-size: 16px;
+        }
+
+        body.mobile-mode .block-body {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        body.mobile-mode .cmd-input {
+            font-size: 16px; /* evita zoom iOS al enfocar */
+        }
+
+        body.mobile-mode .block-execution .block-body {
+            max-height: min(42vh, 360px);
+        }
+
+        body.mobile-mode .function-drawer {
+            padding: 12px 12px;
+        }
+
+        body.mobile-mode .function-editor {
+            height: min(42vh, 260px);
+            font-size: 13px;
+        }
+
+        body.mobile-mode .repo-inspector-bar {
+            gap: 8px;
+            padding: 8px;
+        }
+
+        body.mobile-mode .repo-file-selector {
+            min-width: 0;
+            width: 100%;
+            flex: 1 1 100%;
+            font-size: 16px;
+        }
+
+        body.mobile-mode .virtual-keyboard-white {
+            padding: 12px;
+        }
+
+        body.mobile-mode .vk-3panel-container {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        body.mobile-mode .vk-card-panel {
+            min-height: 0;
+        }
+
+        body.mobile-mode .catalog-header-bar {
+            padding: 10px 12px;
+            gap: 8px;
+        }
+
+        body.mobile-mode .catalog-metrics {
+            gap: 10px;
+            width: 100%;
+        }
+
+        body.mobile-mode .catalog-table-vector {
+            font-size: 11px;
+        }
+
+        body.mobile-mode .notepad-overlay {
+            padding: 0;
+        }
+
+        body.mobile-mode .notepad-main {
+            grid-template-columns: 1fr;
+        }
+
+        body.mobile-mode .notepad-sidebar {
+            max-height: 140px;
+            border-right: none;
+            border-bottom: 1px solid #d0d0d0;
+        }
+
+        body.mobile-mode .toolkit-ficha {
+            grid-template-columns: 64px 1fr;
+        }
+
+        body.mobile-mode .toolkit-agent-main,
+        body.mobile-mode .toolkit-pdf-main {
+            grid-template-columns: 1fr;
+        }
+
+        body.mobile-mode .auth-card {
+            width: min(100%, 430px);
+            padding: 22px 16px 18px;
+            border-radius: 0;
+            max-height: 100vh;
+            max-height: 100dvh;
+        }
+
+        body.mobile-mode .indices-bank-title {
+            font-size: 28px;
+        }
+
+        body.mobile-mode .indices-bank-head {
+            flex-wrap: wrap;
+        }
+
+        body.mobile-mode .indices-bank-actions {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        /* Fly / dock: targets más cómodos en móvil */
+        body.mobile-mode #flyRail .fly-handle {
+            width: 10px !important;
+            min-width: 10px !important;
+            height: 88px !important;
+            min-height: 88px !important;
+        }
+
+        body.mobile-mode #flyRail .fly-handle::after {
+            width: 36px;
+        }
+
+        body.mobile-mode #dockBar .dock-swipe {
+            height: 10px !important;
+            min-height: 10px !important;
+            width: 88px !important;
+            min-width: 88px !important;
+        }
+
+        body.mobile-mode #dockBar .dock-toolbar {
+            padding: 10px 14px;
+            gap: 12px;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        }
+
+        @media (max-width: 430px) {
+            body.mobile-mode .platform-shell {
+                max-width: 100%;
+                box-shadow: none;
+            }
+        }
+
     </style>
     <script src="components/originkit/ui/blackhole-runtime.js"></script>
 </head>
 <body class="boot-locked">
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('l8_mobile_mode') === '1') {
+                    document.body.classList.add('mobile-mode');
+                }
+            } catch (e) {}
+        })();
+    </script>
     <div id="bootCliOverlay" class="boot-cli-overlay" role="dialog" aria-modal="true" aria-label="l8 codespace blackhole">
         <div class="boot-cli-window">
             <div class="boot-cli-stage">
@@ -5219,6 +5465,16 @@ if (!headers_sent()) {
                 <p class="tokens-empty" id="tokensLedgerEmpty">Aún no hay movimientos guardados.</p>
                 <p class="tokens-persist-note">El consumo se guarda en el servidor (y Supabase si está configurado) para no perderse al actualizar la plataforma.</p>
             </div>
+            <button type="button" class="icon-mobile" id="mobileModeBtn" title="Versión móvil" aria-label="Activar versión móvil" aria-pressed="false" onclick="toggleMobileMode()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" role="img" aria-hidden="true">
+                    <path d="M28.957,7.628C28.813,1,23.806,1,21.919,1c-0.593,0-1.207,0.025-1.801,0.048 c-0.465,0.018-0.94,0.038-1.417,0.045l-0.163,0.004c-1.67,0.04-5.57,0.132-7.1,0.173c-0.045-0.001-0.09-0.001-0.134-0.001 c-5.201,0-5.252,5.412-5.277,8.013C6.023,9.686,6.02,10.065,6.003,10.4L6,10.449v0.049c-0.005,5.539,0.248,11.295,0.775,17.597h0 c0.021,0.239,0.125,1.117,0.558,1.781c0.664,1.098,1.962,1.788,3.761,1.999l0.027,0.003l0.027,0.002 c0.904,0.081,1.809,0.12,2.766,0.12c2.234,0,4.31-0.214,6.508-0.439l1.062-0.108l0.026-0.002l0.026-0.003l2.433-0.308l0.077-0.01 l0.076-0.016c0.029-0.004,0.073-0.008,0.121-0.013c0.355-0.036,0.947-0.098,1.747-0.43c1.429-0.562,2.447-2.179,2.374-3.749 l0.335-9.486c0.031-0.991,0.081-1.983,0.132-2.979C28.947,12.223,29.065,9.913,28.957,7.628z" opacity=".3"></path>
+                    <path fill="#fff" d="M27.957,6.628C27.813,0,22.806,0,20.92,0c-0.593,0-1.207,0.025-1.801,0.048 c-0.465,0.018-0.94,0.038-1.417,0.045l-0.163,0.004c-1.67,0.04-5.57,0.132-7.1,0.173c-0.045-0.001-0.09-0.001-0.134-0.001 c-5.201,0-5.252,5.412-5.277,8.013C5.023,8.686,5.02,9.065,5.003,9.4L5,9.449v0.049c-0.005,5.539,0.248,11.295,0.775,17.597h0 c0.021,0.239,0.125,1.117,0.558,1.781c0.664,1.098,1.962,1.788,3.761,1.999l0.027,0.003l0.027,0.002 c0.904,0.081,1.809,0.12,2.766,0.12c2.234,0,4.31-0.214,6.508-0.439l1.062-0.108l0.026-0.002l0.026-0.003l2.433-0.308l0.077-0.01 l0.076-0.016c0.029-0.004,0.073-0.008,0.121-0.013c0.355-0.036,0.947-0.098,1.747-0.43c1.429-0.562,2.447-2.179,2.374-3.749 l0.335-9.486c0.031-0.991,0.081-1.983,0.132-2.979C27.947,11.223,28.066,8.913,27.957,6.628z"></path>
+                    <path fill="currentColor" d="M25.978,6.249c-0.113-5.828-4.155-4.889-8.441-4.821c-1.625,0.039-5.876,0.141-7.445,0.184 C6.049,1.492,6.672,6.538,6.536,9.149c-0.006,6.008,0.29,12.032,0.785,18.017c0.009,0.175,0.123,0.746,0.273,0.943 c0.466,0.835,1.786,1.071,2.379,1.141c3.553,0.321,6.729-0.091,10.173-0.44l2.484-0.318c0.359-0.075,0.792-0.024,1.562-0.353 c0.698-0.267,1.245-1.215,1.177-1.994l0.345-9.899C25.815,12.948,26.134,9.551,25.978,6.249z M9.654,4.691 C9.694,4.538,9.75,4.43,9.78,4.372c1.224-0.093,3.406-0.218,5.298-0.329C15.032,4.188,15,4.34,15,4.5C15,5.328,15.672,6,16.5,6 S18,5.328,18,4.5c0-0.223-0.052-0.432-0.138-0.622c1.293-0.054,3.411-0.314,4.459-0.184c1.417,0.173,1.405,1.397,1.559,2.675 c0.363,5.01-0.41,12.118-0.751,17.654L10.046,24.77c-0.209-3.568-0.343-7.182-0.47-10.731C9.529,11.026,9.271,7.613,9.654,4.691z"></path>
+                    <path fill="currentColor" d="M19.684,14.835l0.829-1.02c0.175-0.215,0.142-0.529-0.072-0.703c-0.213-0.176-0.53-0.142-0.703,0.072l-0.827,1.018 c-0.697-0.443-1.523-0.703-2.41-0.703c-0.992,0-1.899,0.334-2.643,0.878l-0.97-1.193c-0.176-0.215-0.49-0.247-0.703-0.072 c-0.214,0.174-0.247,0.488-0.072,0.703l1.009,1.242c-0.635,0.728-1.053,1.649-1.113,2.676C12,17.877,12.121,18,12.265,18h8.471 c0.144,0,0.265-0.123,0.257-0.267C20.926,16.602,20.434,15.59,19.684,14.835z"></path>
+                    <circle cx="14.5" cy="16.5" r=".5" fill="#fff"></circle>
+                    <circle cx="18.5" cy="16.5" r=".5" fill="#fff"></circle>
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -6769,6 +7025,48 @@ if (!headers_sent()) {
                 document.body.classList.add('raw-mode');
                 executionContainer.textContent = JSON.stringify(dataToDisplay);
             }
+        }
+
+
+        const MOBILE_MODE_KEY = 'l8_mobile_mode';
+
+        function isMobileModeEnabled() {
+            return document.body.classList.contains('mobile-mode');
+        }
+
+        function syncMobileModeButton(on) {
+            const btn = document.getElementById('mobileModeBtn');
+            if (!btn) return;
+            const active = !!on;
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+            btn.title = active ? 'Salir de versión móvil' : 'Versión móvil';
+            btn.setAttribute('aria-label', active ? 'Desactivar versión móvil' : 'Activar versión móvil');
+        }
+
+        function setMobileMode(on, persist) {
+            const active = !!on;
+            document.body.classList.toggle('mobile-mode', active);
+            syncMobileModeButton(active);
+            if (persist !== false) {
+                try {
+                    localStorage.setItem(MOBILE_MODE_KEY, active ? '1' : '0');
+                } catch (e) {}
+            }
+            try {
+                window.dispatchEvent(new CustomEvent('l8:mobile-mode', { detail: { on: active } }));
+            } catch (e) {}
+        }
+
+        function toggleMobileMode(force) {
+            const next = typeof force === 'boolean' ? force : !isMobileModeEnabled();
+            setMobileMode(next, true);
+        }
+
+        function initMobileMode() {
+            let stored = null;
+            try { stored = localStorage.getItem(MOBILE_MODE_KEY); } catch (e) {}
+            const on = stored === '1' || (stored === null && document.body.classList.contains('mobile-mode'));
+            setMobileMode(on, stored === null ? false : true);
         }
 
         function toggleFormat() {
@@ -8819,6 +9117,8 @@ if (!headers_sent()) {
             const unlockOpenBtn = document.getElementById('tokensUnlockOpenBtn');
             const unlockCloseBtn = document.getElementById('tokensUnlockCloseBtn');
             const unlockOverlay = document.getElementById('tokensUnlockOverlay');
+
+            initMobileMode();
 
             if (tokensBtn) {
                 tokensBtn.addEventListener('click', (e) => {

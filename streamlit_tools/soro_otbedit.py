@@ -20,7 +20,7 @@ ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_GOOGLE_AB_V1"
+SORO_HEADER_MARK = "SORO_OUTLINE_V1"
 
 
 def _asset(*names: str) -> str | None:
@@ -98,6 +98,82 @@ def _ab_status() -> dict:
     return _ab_request("GET", "/api/agent-browser/status", None, timeout=30)
 
 
+def _parse_headings(content: str, char: str) -> list[dict]:
+    """Yohaku-style heading parse: lines starting with repeated `char` + space/EOL."""
+    if not content or not char:
+        return []
+    char = char[0]
+    headings: list[dict] = []
+    for i, line in enumerate(content.split("\n")):
+        if not line.startswith(char):
+            continue
+        level = 0
+        while level < len(line) and line[level] == char:
+            level += 1
+        if level < len(line) and line[level] != " ":
+            continue
+        text = line[level:].strip()
+        if not text:
+            continue
+        headings.append({"level": level, "text": text, "line": i})
+    return headings
+
+
+def _build_heading_tree(headings: list[dict]) -> list[dict]:
+    root: list[dict] = []
+    stack: list[dict] = [{"level": 0, "children": root}]
+    for heading in headings:
+        node = {**heading, "children": []}
+        while len(stack) > 1 and stack[-1]["level"] >= heading["level"]:
+            stack.pop()
+        stack[-1]["children"].append(node)
+        stack.append(node)
+    return root
+
+
+def _doc_outline(doc: dict, char: str) -> list[dict]:
+    """Headings of every column in the active document, tagged with col index."""
+    out: list[dict] = []
+    cols = doc.get("columns") or []
+    for ci, col in enumerate(cols):
+        for h in _parse_headings(str(col or ""), char):
+            out.append({**h, "col": ci})
+    return out
+
+
+def _flatten_outline_tree(nodes: list[dict], col: int, acc: list[dict] | None = None) -> list[dict]:
+    acc = acc if acc is not None else []
+    for n in nodes:
+        acc.append(
+            {
+                "level": n["level"],
+                "text": n["text"],
+                "line": n["line"],
+                "col": col,
+                "has_children": bool(n.get("children")),
+            }
+        )
+        if n.get("children"):
+            _flatten_outline_tree(n["children"], col, acc)
+    return acc
+
+
+def _outline_jump_context(doc: dict, col: int, line: int, radius: int = 2) -> str:
+    cols = doc.get("columns") or []
+    if col < 0 or col >= len(cols):
+        return ""
+    lines = str(cols[col] or "").split("\n")
+    if line < 0 or line >= len(lines):
+        return ""
+    lo = max(0, line - radius)
+    hi = min(len(lines), line + radius + 1)
+    chunks = []
+    for i in range(lo, hi):
+        mark = ">>> " if i == line else "    "
+        chunks.append(f"{mark}L{i + 1}: {lines[i]}")
+    return "\n".join(chunks)
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -118,11 +194,11 @@ def _ensure_state() -> None:
         st.session_state.docs = [
             _new_doc("Documento 1", DEFAULT_COLS),
         ]
-        # Semilla estilo Soro (guion / columnas)
+        # Semilla estilo Soro + headings (outline tipo Yohaku)
         st.session_state.docs[0]["columns"] = [
-            "Escena\n1\n2\n3",
-            "Acción / diálogo\nINT. OFICINA — DÍA\nProtagonista entra.\n— Hola.",
-            "Notas\nEstablecer tono\nBeat emocional\nCortar si sobra",
+            "# Escenas\n## Bloque A\n1\n2\n## Bloque B\n3",
+            "# Acción / diálogo\n## INT. OFICINA — DÍA\nProtagonista entra.\n— Hola.\n## EXT. CALLE — NOCHE\nCorte a negro.",
+            "# Notas\n## Tono\nEstablecer tono\n## Beats\nBeat emocional\nCortar si sobra",
         ]
     if "active_tab" not in st.session_state:
         st.session_state.active_tab = 0
@@ -143,6 +219,10 @@ def _ensure_state() -> None:
         st.session_state.bookmarks = []
     if "status_msg" not in st.session_state:
         st.session_state.status_msg = "Listo."
+    if "heading_char" not in st.session_state:
+        st.session_state.heading_char = "#"
+    if "outline_jump" not in st.session_state:
+        st.session_state.outline_jump = None
 
 
 def _active_doc() -> dict:
@@ -391,6 +471,77 @@ def main() -> None:
             st.rerun()
 
         st.divider()
+        st.subheader("Outline")
+        st.caption("Estilo Yohaku · encabezados clicables para saltar de línea")
+        hchar_in = st.text_input(
+            "Carácter de encabezado",
+            value=st.session_state.heading_char or "#",
+            max_chars=1,
+            key="heading_char_input",
+            help="Por defecto # (Markdown). Ejemplos: #, ■, ※",
+        )
+        if hchar_in and hchar_in != st.session_state.heading_char:
+            st.session_state.heading_char = hchar_in[0]
+        hchar = st.session_state.heading_char or "#"
+
+        outline_scope = st.radio(
+            "Alcance",
+            ["Documento activo", "Todas las pestañas"],
+            horizontal=True,
+            key="outline_scope",
+        )
+
+        docs_for_outline = (
+            [doc]
+            if outline_scope.startswith("Documento")
+            else list(st.session_state.docs)
+        )
+        flat_items: list[dict] = []
+        for d in docs_for_outline:
+            for ci, col_txt in enumerate(d.get("columns") or []):
+                tree = _build_heading_tree(_parse_headings(str(col_txt or ""), hchar))
+                for item in _flatten_outline_tree(tree, ci):
+                    item["doc_id"] = d.get("id")
+                    item["doc_title"] = d.get("title") or "Doc"
+                    flat_items.append(item)
+
+        if not flat_items:
+            st.caption(f"Sin encabezados ({hchar} …) en el alcance actual.")
+        else:
+            st.caption(f"{len(flat_items)} encabezado(s)")
+            max_show = 60
+            for oi, item in enumerate(flat_items[:max_show]):
+                pad = " " * max(0, int(item["level"]) - 1)
+                label = f"{pad}{hchar * int(item['level'])} {item['text']}"
+                meta = f" · C{item['col'] + 1} L{item['line'] + 1}"
+                if outline_scope.startswith("Todas"):
+                    meta = f" · {item['doc_title']}{meta}"
+                if st.button(
+                    f"{label}{meta}",
+                    key=f"outline_go_{item.get('doc_id')}_{item['col']}_{item['line']}_{oi}",
+                    use_container_width=True,
+                ):
+                    # Activar pestaña del documento si hace falta
+                    for di, dd in enumerate(st.session_state.docs):
+                        if dd.get("id") == item.get("doc_id"):
+                            st.session_state.active_tab = di
+                            break
+                    st.session_state.outline_jump = {
+                        "doc_id": item.get("doc_id"),
+                        "col": int(item["col"]),
+                        "line": int(item["line"]),
+                        "text": item["text"],
+                        "level": int(item["level"]),
+                    }
+                    st.session_state.status_msg = (
+                        f"Outline → {item.get('doc_title')} · "
+                        f"col {item['col'] + 1} · L{item['line'] + 1}"
+                    )
+                    st.rerun()
+            if len(flat_items) > max_show:
+                st.caption(f"… y {len(flat_items) - max_show} más")
+
+        st.divider()
         st.subheader("Plantillas rápidas")
         tkey = st.selectbox("Slot plantilla", list(st.session_state.templates.keys()), format_func=lambda k: f"Ctrl+{k}")
         tval = st.text_input("Texto", value=st.session_state.templates.get(tkey, ""))
@@ -550,12 +701,35 @@ def main() -> None:
         st.caption(st.session_state.status_msg)
 
     # —— Tabs de documentos (otbedit) ——
+    jump = st.session_state.get("outline_jump")
+    if jump:
+        # Banner global (Streamlit no selecciona pestaña por API)
+        target_title = next(
+            (d.get("title") for d in st.session_state.docs if d.get("id") == jump.get("doc_id")),
+            "documento",
+        )
+        target_doc = next(
+            (d for d in st.session_state.docs if d.get("id") == jump.get("doc_id")),
+            None,
+        )
+        st.success(
+            f"Outline · {target_title} · col {int(jump['col']) + 1} · "
+            f"L{int(jump['line']) + 1} · {jump.get('text', '')}"
+        )
+        if target_doc is not None:
+            st.code(
+                _outline_jump_context(target_doc, int(jump["col"]), int(jump["line"])),
+                language="text",
+            )
+        if st.button("Limpiar salto del outline", key="outline_clear_global"):
+            st.session_state.outline_jump = None
+            st.rerun()
+
     titles = [d.get("title") or f"Doc {i+1}" for i, d in enumerate(st.session_state.docs)]
     tab_objs = st.tabs(titles)
 
     for ti, tab in enumerate(tab_objs):
         with tab:
-            st.session_state.active_tab = ti
             doc = st.session_state.docs[ti]
             head_l, head_r = st.columns([3, 1])
             with head_l:
@@ -567,22 +741,59 @@ def main() -> None:
                 if new_title != doc.get("title"):
                     doc["title"] = new_title or "Sin título"
                     doc["updated_at"] = _now()
+                    st.session_state.active_tab = ti
             with head_r:
                 st.caption(f"Act. {doc.get('updated_at', '—')}")
                 find = st.text_input("Buscar", key=f"find_{doc['id']}", placeholder="texto…")
+
+            this_jump = (
+                jump
+                if jump and jump.get("doc_id") == doc.get("id")
+                else None
+            )
+            if this_jump:
+                st.markdown(
+                    f"""
+<script>
+(function () {{
+  const col = {int(this_jump["col"])};
+  const line = {int(this_jump["line"])};
+  const root = window.parent.document;
+  const areas = root.querySelectorAll('textarea');
+  if (!areas || !areas.length) return;
+  const big = Array.from(areas).filter((t) => (t.rows || 0) >= 8 || (t.clientHeight || 0) > 200);
+  const target = big[col] || areas[col];
+  if (!target) return;
+  const text = target.value || "";
+  const lines = text.split("\\n");
+  let start = 0;
+  for (let i = 0; i < line && i < lines.length; i++) start += lines[i].length + 1;
+  const end = start + (lines[line] ? lines[line].length : 0);
+  target.focus();
+  try {{ target.setSelectionRange(start, end); }} catch (e) {{}}
+  const ratio = lines.length ? line / lines.length : 0;
+  target.scrollTop = Math.max(0, (target.scrollHeight * ratio) - 40);
+}})();
+</script>
+""",
+                    unsafe_allow_html=True,
+                )
 
             n = int(doc.get("n_cols") or DEFAULT_COLS)
             cols_ui = st.columns(n)
             updated_cols = []
             for ci, col in enumerate(cols_ui):
                 with col:
-                    label = f"Columna {ci + 1}"
+                    jumped = this_jump and int(this_jump["col"]) == ci
+                    label = f"Columna {ci + 1}" + (f" · ◀ L{int(this_jump['line']) + 1}" if jumped else "")
                     text = st.text_area(
                         label,
                         value=doc["columns"][ci] if ci < len(doc["columns"]) else "",
                         height=420,
                         key=f"col_{doc['id']}_{ci}",
                     )
+                    if text != (doc["columns"][ci] if ci < len(doc["columns"]) else ""):
+                        st.session_state.active_tab = ti
                     if find:
                         hits = text.lower().count(find.lower()) if find else 0
                         st.caption(f"{len(text.splitlines())} líneas · {hits} coincidencias")
@@ -595,6 +806,7 @@ def main() -> None:
 
             # Export texto plano alineado (Soro-style)
             if st.button("Exportar texto alineado", key=f"exp_{doc['id']}"):
+                st.session_state.active_tab = ti
                 _sync_line_counts(doc)
                 lines_per_col = [c.split("\n") for c in doc["columns"]]
                 max_l = max((len(x) for x in lines_per_col), default=0)
@@ -608,7 +820,7 @@ def main() -> None:
 
     st.markdown("---")
     st.caption(
-        f"{APP_MARK} · inspirado en otbedit (pestañas/guardar) y SoroEditor (columnas paralelas). "
+        f"{APP_MARK} · inspirado en otbedit, SoroEditor y Yohaku (outline). "
         "Proyecto único Streamlit de la plataforma l8."
     )
 

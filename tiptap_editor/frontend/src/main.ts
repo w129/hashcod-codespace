@@ -49,7 +49,11 @@ if (!root) throw new Error('Missing #app')
 root.innerHTML = `
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark" aria-hidden="true">Tt</div>
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="22" height="22" focusable="false">
+          <path fill="currentColor" fill-rule="nonzero" d="M2.5,1c-0.82253,0 -1.5,0.67747 -1.5,1.5v10c0,0.82253 0.67747,1.5 1.5,1.5h10c0.82253,0 1.5,-0.67747 1.5,-1.5v-10c0,-0.82253 -0.67747,-1.5 -1.5,-1.5zM2.5,2h10c0.28147,0 0.5,0.21853 0.5,0.5v10c0,0.28147 -0.21853,0.5 -0.5,0.5h-10c-0.28147,0 -0.5,-0.21853 -0.5,-0.5v-10c0,-0.28147 0.21853,-0.5 0.5,-0.5zM4,5v1h7v-1zM5,7v1h5v-1zM4,9v1h7v-1z"/>
+        </svg>
+      </div>
       <div>
         <h1>TipTap · Documento</h1>
         <p>Hoja directa · TipTap · 300 fuentes · Vivid Vector Alphabet</p>

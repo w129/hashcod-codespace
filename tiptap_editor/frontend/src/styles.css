@@ -60,13 +60,16 @@ button, input, select { font: inherit; }
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: linear-gradient(145deg, #1a5f4a, #0d3d30);
+  background: linear-gradient(145deg, #114013, #0a2a0c);
   color: #f5faf7;
   display: grid;
   place-items: center;
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.brand-mark svg {
+  display: block;
+  width: 20px;
+  height: 20px;
 }
 .brand h1 {
   margin: 0;

@@ -26,6 +26,7 @@ import Superscript from '@tiptap/extension-superscript'
 import Typography from '@tiptap/extension-typography'
 import { FontSize } from './fontSize'
 import { FONT_CATALOG, ensureFontLoaded, prefetchStarterFonts } from './fonts'
+import { VividVector, normalizeVividText } from './vividVector'
 
 const DOC_ID = 'main'
 const DEFAULT_HTML = `<h1>Documento nuevo</h1>
@@ -51,7 +52,7 @@ root.innerHTML = `
       <div class="brand-mark" aria-hidden="true">Tt</div>
       <div>
         <h1>TipTap · Documento</h1>
-        <p>Hoja directa · TipTap · Tailwind Typography · 300 fuentes</p>
+        <p>Hoja directa · TipTap · 300 fuentes · Vivid Vector Alphabet</p>
       </div>
     </div>
     <input class="title-input" id="docTitle" type="text" maxlength="120" value="Documento sin título" aria-label="Título del documento" />
@@ -129,6 +130,7 @@ const editor = new Editor({
     Subscript,
     Superscript,
     Typography,
+    VividVector,
   ],
   content: DEFAULT_HTML,
   onUpdate: ({ editor: ed }) => {
@@ -351,7 +353,43 @@ function buildRibbon() {
     btn('delTable', '✕Tabla', 'Eliminar tabla', () => editor.chain().focus().deleteTable().run()),
   ])
 
-  ;[history, inline, fonts, blocks, align, insert].forEach((g) => ribbon.appendChild(g))
+  const vivid = group('Vivid Vector', [
+    btn('vvInsert', 'VV', 'Insertar tipografía Vivid Vector (SVG)', () => {
+      const selected = editor.state.doc.textBetween(
+        editor.state.selection.from,
+        editor.state.selection.to,
+        ' '
+      )
+      const raw =
+        window.prompt(
+          'Vivid Vector Alphabet — texto (A–Z, 0–9, espacio . ,)\nEstilo tipográfico ilustrado (neodigm/vivid_vector_alphabet)',
+          selected.trim() || 'VIVID VECTOR'
+        ) || ''
+      const text = normalizeVividText(raw)
+      if (!text) return
+      editor.chain().focus().insertVividVector({ text, animate: false }).run()
+    }),
+    btn('vvAnim', '▶VV', 'Insertar Vivid Vector animado (ticker)', () => {
+      const raw =
+        window.prompt(
+          'Vivid Vector animado — mensaje que rota como en el demo original',
+          'VIVID VECTOR SKULLDUGGERY'
+        ) || ''
+      const text = normalizeVividText(raw)
+      if (!text) return
+      editor.chain().focus().insertVividVector({ text, animate: true }).run()
+    }),
+    btn('vvToggle', 'VV⇄', 'Alternar animación del bloque Vivid seleccionado', () => {
+      if (!editor.isActive('vividVector')) {
+        setStatus('Selecciona un bloque Vivid Vector', 'err')
+        return
+      }
+      const cur = editor.getAttributes('vividVector')
+      editor.chain().focus().updateVividVector({ animate: !cur.animate }).run()
+    }),
+  ])
+
+  ;[history, inline, fonts, blocks, align, insert, vivid].forEach((g) => ribbon.appendChild(g))
   syncRibbon(editor)
 }
 

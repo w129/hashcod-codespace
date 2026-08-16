@@ -354,4 +354,54 @@ button, input, select { font: inherit; }
     padding: 0;
     animation: none;
   }
+  .vv-meta { display: none; }
+}
+
+/* —— Vivid Vector Alphabet (neodigm) — tipografía ilustrada SVG —— */
+.vivid-vector-block {
+  margin: 1.1em 0;
+  padding: 12px 12px 8px;
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(244, 220, 94, 0.12), transparent 55%),
+    linear-gradient(180deg, #3a0806 0%, #120000 100%);
+  border: 1px solid #5c1a12;
+  user-select: none;
+}
+.vivid-vector-block.ProseMirror-selectednode {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.vv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 56px));
+  gap: 6px 8px;
+  justify-content: center;
+  align-items: center;
+}
+.vv-glyph {
+  width: 100%;
+  max-width: 72px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+.vivid-vector-block.is-animating .vv-glyph {
+  transition: opacity 0.15s ease;
+}
+.vv-meta {
+  margin-top: 8px;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #d4b45a;
+}
+.vv-meta a {
+  color: #f4dc5e;
+  text-decoration: underline;
+}
+.page.prose .vivid-vector-block a {
+  color: #f4dc5e;
 }

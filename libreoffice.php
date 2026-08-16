@@ -174,6 +174,14 @@ function libreofficeDocPath($toolId) {
 
 function libreofficeSeedDocs() {
     libreofficeEnsureDirs();
+    if (libreofficeSuiteReady()) {
+        // Ya desplegado: no reescribir (arranque <50ms).
+        $all = true;
+        foreach (libreofficeSuiteTools() as $tool) {
+            if (!is_file(libreofficeDocPath($tool['id']))) { $all = false; break; }
+        }
+        if ($all) return [];
+    }
     $seeded = [];
     foreach (libreofficeSuiteTools() as $tool) {
         $path = libreofficeDocPath($tool['id']);
@@ -277,24 +285,8 @@ function libreofficeSaveDoc($toolId, $payload) {
     return ['ok' => $ok, 'tool' => $toolId, 'saved' => $ok];
 }
 
-function libreofficeStatusPayload() {
+function libreofficeStatusPayload($detail = false) {
     $suiteReady = libreofficeSuiteReady();
-    $cloned = libreofficeIsCloned();
-    $dir = libreofficeRepoDir();
-    $branch = null;
-    $commit = null;
-    $files = null;
-    $bytes = null;
-    if ($cloned) {
-        $branch = trim((string) @shell_exec('git -C ' . escapeshellarg($dir) . ' rev-parse --abbrev-ref HEAD 2>/dev/null'));
-        $commit = trim((string) @shell_exec('git -C ' . escapeshellarg($dir) . ' log -1 --pretty=format:"%h — %s (%cr)" 2>/dev/null'));
-        $countOut = trim((string) @shell_exec('find ' . escapeshellarg($dir) . ' -type f ! -path "*/.git/*" 2>/dev/null | wc -l'));
-        $files = is_numeric($countOut) ? (int) $countOut : null;
-        $sizeOut = trim((string) @shell_exec('du -sb ' . escapeshellarg($dir) . ' 2>/dev/null'));
-        if (preg_match('/^(\d+)/', $sizeOut, $m)) {
-            $bytes = (int) $m[1];
-        }
-    }
     $tools = [];
     foreach (libreofficeSuiteTools() as $t) {
         $path = libreofficeDocPath($t['id']);
@@ -303,57 +295,65 @@ function libreofficeStatusPayload() {
             'has_doc' => is_file($path),
         ]);
     }
-    return [
+    $out = [
         'ok' => true,
         'suite_ready' => $suiteReady,
-        'cloned' => $cloned,
+        'cloned' => false,
         'ready' => $suiteReady,
         'path' => 'data_storage/libreoffice',
         'docs_path' => 'data_storage/libreoffice/docs',
         'core_path' => 'data_storage/repos/libreoffice-core',
         'absolute_path' => libreofficeRootDir(),
-        'branch' => $branch !== '' ? $branch : null,
-        'last_commit' => $commit !== '' ? $commit : null,
-        'files' => $files,
-        'bytes' => $bytes,
+        'branch' => null,
+        'last_commit' => null,
+        'files' => null,
+        'bytes' => null,
         'license' => 'MPL-2.0',
         'remote_url' => libreofficeCloneUrl(),
         'mirror_url' => libreofficeMirrorUrl(),
         'platform_url' => '/libreoffice',
         'tools' => $tools,
+        'fast' => true,
         'message' => $suiteReady
-            ? 'Suite LibreOffice lista en el servidor.'
-            : 'Suite aún no desplegada. Pulsa Desplegar.',
+            ? 'Suite LibreOffice lista.'
+            : 'Suite lista para desplegar (instantáneo).',
     ];
+    // Detalle del core solo bajo demanda (find/du son lentos en repos grandes).
+    if ($detail && libreofficeIsCloned()) {
+        $dir = libreofficeRepoDir();
+        $out['cloned'] = true;
+        $out['branch'] = trim((string) @shell_exec('git -C ' . escapeshellarg($dir) . ' rev-parse --abbrev-ref HEAD 2>/dev/null')) ?: null;
+        $out['last_commit'] = trim((string) @shell_exec('git -C ' . escapeshellarg($dir) . ' log -1 --pretty=format:"%h — %s (%cr)" 2>/dev/null')) ?: null;
+    }
+    return $out;
 }
 
 /**
- * Despliega la suite completa (tools + docs). No exige cuenta.
- * El clone del core es opcional y no bloquea la suite.
+ * Despliega la suite completa en <1s (solo dirs + docs seed).
+ * No clona el core (eso tarda minutos); no exige cuenta.
  */
 function libreofficeEnsure($opts = []) {
-    $wantCore = !empty($opts['core']);
+    $t0 = microtime(true);
     if (!libreofficeEnsureDirs()) {
         return [
             'ok' => false,
             'error' => 'No se pudo crear data_storage/libreoffice',
             'suite_ready' => false,
+            'ms' => (int) round((microtime(true) - $t0) * 1000),
         ];
     }
     $seeded = libreofficeSeedDocs();
-    $st = libreofficeStatusPayload();
+    $st = libreofficeStatusPayload(false);
     $st['ok'] = true;
     $st['suite_ready'] = true;
     $st['ready'] = true;
     $st['seeded'] = $seeded;
-    $st['already'] = empty($seeded) && libreofficeSuiteReady();
-    $st['message'] = 'LibreOffice desplegado: Writer, Calc, Impress, Draw, Base, Math y Chart listos.';
-
-    if ($wantCore && !libreofficeIsCloned() && function_exists('cloneOrUpdateRepository')) {
-        $res = cloneOrUpdateRepository(libreofficeMirrorUrl());
-        $st['core_ensure'] = $res;
-        $st['cloned'] = libreofficeIsCloned();
-    }
-
+    $st['already'] = empty($seeded);
+    $st['ms'] = (int) round((microtime(true) - $t0) * 1000);
+    $st['message'] = $st['already']
+        ? 'Suite ya estaba lista (' . $st['ms'] . ' ms).'
+        : 'LibreOffice listo: Writer, Calc, Impress, Draw, Base, Math y Chart (' . $st['ms'] . ' ms).';
+    // Nunca clonar core aquí — bloquea la UI. Solo si se pide explícitamente en otro endpoint.
+    unset($opts);
     return $st;
 }

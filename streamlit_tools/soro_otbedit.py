@@ -15,12 +15,12 @@ MAX_COLS = 6
 MIN_COLS = 1
 DEFAULT_COLS = 3
 DEFAULT_COL_PCT = [20, 50, 30]
-# PNG para header/favicon (el SVG se recorta mal en el chrome de Streamlit)
+# Favicon PNG (pestaña). Banner usa SVG completo. NO usar st.logo (recorta a una rallita).
 ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_HEADER_PNG_V1"
+SORO_HEADER_MARK = "SORO_ICON_SVG_ONLY_V1"
 
 
 def _asset(*names: str) -> str | None:
@@ -40,7 +40,7 @@ def _asset(*names: str) -> str | None:
 
 
 def _page_icon():
-    """Favicon de pestaña: preferir PNG pequeño."""
+    """Favicon de pestaña: PNG pequeño (el chrome de Streamlit maneja mal SVG ahí)."""
     return _asset(FAVICON_PNG, ICON_PNG, ICON_SVG) or "🧠"
 
 
@@ -167,8 +167,8 @@ def _load_project(raw: bytes | str) -> None:
 def main() -> None:
     # {SORO_HEADER_MARK}
     favicon = _page_icon()
-    logo = _asset(LOGO_PNG, ICON_PNG, ICON_SVG)
-    icon_small = _asset(ICON_PNG, FAVICON_PNG, LOGO_PNG, ICON_SVG)
+    # SVG completo en el banner de la app (no en st.logo — se ve como rallita)
+    banner_src = _asset(ICON_SVG, ICON_PNG, LOGO_PNG, FAVICON_PNG)
 
     st.set_page_config(
         page_title=APP_TITLE,
@@ -176,30 +176,18 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
-    # Logo visible en sidebar y en la barra al colapsar (PNG, no SVG)
-    try:
-        if logo:
-            st.logo(logo, size="large", icon_image=icon_small or logo)
-    except TypeError:
-        try:
-            if logo:
-                st.logo(logo, icon_image=icon_small or logo)
-        except Exception:
-            pass
-    except Exception:
-        pass
+    # Sin st.logo: el chrome de Streamlit recorta el icono a un fragmento.
 
     _ensure_state()
 
-    banner_src = icon_small or logo or favicon
     icon_data_uri = ""
-    if banner_src and banner_src != "🧠":
+    if banner_src:
         try:
             import base64
             import mimetypes
 
             raw = Path(banner_src).read_bytes()
-            mime = mimetypes.guess_type(banner_src)[0] or "image/png"
+            mime = mimetypes.guess_type(banner_src)[0] or "image/svg+xml"
             icon_data_uri = f"data:{mime};base64," + base64.b64encode(raw).decode("ascii")
         except Exception:
             icon_data_uri = ""
@@ -229,26 +217,13 @@ def main() -> None:
   }}
   .soro-banner h1 {{ font-size: 1.35rem; margin: 0; }}
   .soro-banner span {{ color:#5b6b7a; font-size: 0.9rem; }}
-  /* Evitar el recorte del chrome de Streamlit (solo se veía un fragmento) */
+  /* Quitar la rallita del logo recortado de Streamlit */
   [data-testid="stLogo"],
-  [data-testid="stSidebarCollapsedControl"] {{
-    overflow: visible !important;
-  }}
   [data-testid="stLogo"] img,
   [data-testid="stSidebarCollapsedControl"] img,
   [data-testid="stHeader"] img[alt="Logo"],
   header img[alt="Logo"] {{
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    width: 2rem !important;
-    height: 2rem !important;
-    max-width: 2rem !important;
-    max-height: 2rem !important;
-    clip: auto !important;
-    clip-path: none !important;
+    display: none !important;
   }}
 </style>
 <div class="soro-banner">

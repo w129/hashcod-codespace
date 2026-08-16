@@ -1,11 +1,10 @@
 # TipTap · Documento (l8)
 
-Ventana de hoja directa tipo Word, basada en [ueberdosis/tiptap](https://github.com/ueberdosis/tiptap).
+Ventana de hoja directa tipo Word con:
 
-- Ribbon de formato (negrita, tipografías, tablas, tareas, enlaces, imágenes…)
-- Página A4 sobre escritorio
-- Guardado en servidor (`/api/tiptap/doc`)
-- Export HTML / JSON TipTap + imprimir
+- [TipTap](https://github.com/ueberdosis/tiptap)
+- [Tailwind CSS Typography](https://github.com/tailwindlabs/tailwindcss-typography) (`prose`) para ritmo tipográfico de la hoja
+- **300 tipografías únicas** (Google Fonts, carga bajo demanda) en el selector Fuente
 
 ## Build
 

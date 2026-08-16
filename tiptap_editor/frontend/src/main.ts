@@ -4,21 +4,28 @@
  */
 import './styles.css'
 import { Editor } from '@tiptap/core'
-import { StarterKit } from '@tiptap/starter-kit'
-import { Underline } from '@tiptap/extension-underline'
-import { TextAlign } from '@tiptap/extension-text-align'
-import { TextStyleKit } from '@tiptap/extension-text-style'
-import { Highlight } from '@tiptap/extension-highlight'
-import { Link } from '@tiptap/extension-link'
-import { Image } from '@tiptap/extension-image'
-import { TableKit } from '@tiptap/extension-table'
-import { TaskList } from '@tiptap/extension-task-list'
-import { TaskItem } from '@tiptap/extension-task-item'
-import { Placeholder } from '@tiptap/extension-placeholder'
-import { CharacterCount } from '@tiptap/extension-character-count'
-import { Subscript } from '@tiptap/extension-subscript'
-import { Superscript } from '@tiptap/extension-superscript'
-import { Typography } from '@tiptap/extension-typography'
+import StarterKit from '@tiptap/starter-kit'
+import Underline from '@tiptap/extension-underline'
+import TextAlign from '@tiptap/extension-text-align'
+import TextStyle from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
+import FontFamily from '@tiptap/extension-font-family'
+import Highlight from '@tiptap/extension-highlight'
+import Link from '@tiptap/extension-link'
+import Image from '@tiptap/extension-image'
+import Table from '@tiptap/extension-table'
+import TableRow from '@tiptap/extension-table-row'
+import TableCell from '@tiptap/extension-table-cell'
+import TableHeader from '@tiptap/extension-table-header'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
+import Placeholder from '@tiptap/extension-placeholder'
+import CharacterCount from '@tiptap/extension-character-count'
+import Subscript from '@tiptap/extension-subscript'
+import Superscript from '@tiptap/extension-superscript'
+import Typography from '@tiptap/extension-typography'
+import { FontSize } from './fontSize'
+import { FONT_CATALOG, ensureFontLoaded, prefetchStarterFonts } from './fonts'
 
 const DOC_ID = 'main'
 const DEFAULT_HTML = `<h1>Documento nuevo</h1>
@@ -44,7 +51,7 @@ root.innerHTML = `
       <div class="brand-mark" aria-hidden="true">Tt</div>
       <div>
         <h1>TipTap · Documento</h1>
-        <p>Hoja directa · ueberdosis/tiptap · l8</p>
+        <p>Hoja directa · TipTap · Tailwind Typography · 300 fuentes</p>
       </div>
     </div>
     <input class="title-input" id="docTitle" type="text" maxlength="120" value="Documento sin título" aria-label="Título del documento" />
@@ -64,11 +71,11 @@ root.innerHTML = `
   </div>
   <div class="ribbon" id="ribbon" role="toolbar" aria-label="Formato"></div>
   <main class="desk">
-    <article class="page"><div id="editor"></div></article>
+    <article class="page prose prose-stone prose-lg max-w-none"><div id="editor"></div></article>
   </main>
   <footer class="statusbar">
     <span id="statusMsg">Listo</span>
-    <span id="statusCounts"><strong>0</strong> palabras · <strong>0</strong> caracteres</span>
+    <span id="statusCounts"><strong>0</strong> palabras · <strong>0</strong> caracteres · 300 fuentes</span>
   </footer>
 `
 
@@ -90,7 +97,7 @@ function updateCounts(editor: Editor) {
   }
   const chars = storage.characterCount?.characters() ?? 0
   const words = storage.characterCount?.words() ?? 0
-  statusCounts.innerHTML = `<strong>${words}</strong> palabras · <strong>${chars}</strong> caracteres`
+  statusCounts.innerHTML = `<strong>${words}</strong> palabras · <strong>${chars}</strong> caracteres · <strong>${FONT_CATALOG.length}</strong> fuentes`
 }
 
 const editor = new Editor({
@@ -100,7 +107,10 @@ const editor = new Editor({
       heading: { levels: [1, 2, 3, 4] },
     }),
     Underline,
-    TextStyleKit,
+    TextStyle,
+    Color,
+    FontFamily,
+    FontSize,
     Highlight.configure({ multicolor: true }),
     TextAlign.configure({ types: ['heading', 'paragraph'] }),
     Link.configure({
@@ -108,9 +118,10 @@ const editor = new Editor({
       HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
     }),
     Image.configure({ allowBase64: true }),
-    TableKit.configure({
-      table: { resizable: true },
-    }),
+    Table.configure({ resizable: true }),
+    TableRow,
+    TableHeader,
+    TableCell,
     TaskList,
     TaskItem.configure({ nested: true }),
     Placeholder.configure({ placeholder: 'Empieza a escribir en la hoja…' }),
@@ -206,28 +217,54 @@ function buildRibbon() {
 
   const fontSel = document.createElement('select')
   fontSel.className = 'tb-select'
-  fontSel.title = 'Familia tipográfica'
-  ;[
-    ['', 'Fuente'],
-    ['Literata, Georgia, serif', 'Literata'],
-    ['Source Sans 3, Segoe UI, sans-serif', 'Source Sans'],
-    ['Georgia, serif', 'Georgia'],
-    ['"Times New Roman", Times, serif', 'Times'],
-    ['Arial, Helvetica, sans-serif', 'Arial'],
-    ['"Courier New", monospace', 'Courier'],
-  ].forEach(([v, t]) => {
-    const o = document.createElement('option')
-    o.value = v
-    o.textContent = t
-    fontSel.appendChild(o)
-  })
+  fontSel.title = `Familia tipográfica (${FONT_CATALOG.length} únicas)`
+  fontSel.style.maxWidth = '180px'
+  const placeholder = document.createElement('option')
+  placeholder.value = ''
+  placeholder.textContent = `Fuente (${FONT_CATALOG.length})`
+  fontSel.appendChild(placeholder)
+
+  const kindLabel: Record<string, string> = {
+    serif: 'Serif',
+    sans: 'Sans',
+    display: 'Display',
+    hand: 'Script / mano',
+    mono: 'Mono',
+  }
+  const byKind = new Map<string, typeof FONT_CATALOG>()
+  for (const f of FONT_CATALOG) {
+    const list = byKind.get(f.kind) || []
+    list.push(f)
+    byKind.set(f.kind, list)
+  }
+  for (const kind of ['serif', 'sans', 'display', 'hand', 'mono'] as const) {
+    const list = byKind.get(kind) || []
+    if (!list.length) continue
+    const og = document.createElement('optgroup')
+    og.label = `${kindLabel[kind]} (${list.length})`
+    for (const f of list) {
+      const o = document.createElement('option')
+      o.value = f.css
+      o.textContent = f.name
+      o.dataset.fontName = f.name
+      og.appendChild(o)
+    }
+    fontSel.appendChild(og)
+  }
   fontSel.addEventListener('change', () => {
     const chain = editor.chain().focus() as ReturnType<Editor['chain']> & {
       unsetFontFamily?: () => ReturnType<Editor['chain']>
       setFontFamily?: (f: string) => ReturnType<Editor['chain']>
     }
-    if (!fontSel.value) chain.unsetFontFamily?.().run()
-    else chain.setFontFamily?.(fontSel.value).run()
+    if (!fontSel.value) {
+      chain.unsetFontFamily?.().run()
+      return
+    }
+    const opt = fontSel.selectedOptions[0]
+    const name = opt?.dataset.fontName || opt?.textContent || ''
+    const entry = FONT_CATALOG.find((f) => f.name === name)
+    if (entry) ensureFontLoaded(entry)
+    chain.setFontFamily?.(fontSel.value).run()
   })
 
   const sizeSel = document.createElement('select')
@@ -353,9 +390,9 @@ async function loadDoc() {
     }
     if (data.title) titleEl.value = data.title
     if (data.html && data.html.trim()) {
-      editor.commands.setContent(data.html, { emitUpdate: false })
+      editor.commands.setContent(data.html, false)
     } else if (data.json) {
-      editor.commands.setContent(data.json as never, { emitUpdate: false })
+      editor.commands.setContent(data.json as never, false)
     }
     updateCounts(editor)
     setStatus(data.updated_at ? `Cargado · ${data.updated_at}` : 'Cargado', 'ok')
@@ -455,10 +492,11 @@ document.addEventListener('keydown', (e) => {
   }
 })
 
-const fonts = document.createElement('link')
-fonts.rel = 'stylesheet'
-fonts.href =
+const fontsLink = document.createElement('link')
+fontsLink.rel = 'stylesheet'
+fontsLink.href =
   'https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Source+Sans+3:wght@400;600;700&display=swap'
-document.head.appendChild(fonts)
+document.head.appendChild(fontsLink)
+prefetchStarterFonts()
 
 void loadDoc()

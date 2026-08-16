@@ -9,6 +9,36 @@
 http://:{$PORT:8000} {
 	encode gzip
 
+	# SEO estático: robots + sitemap (sin PHP / sin headers CORP que confunden a crawlers)
+	handle /robots.txt {
+		root * /var/www/html
+		rewrite * /robots.txt
+		file_server
+		header {
+			Content-Type "text/plain; charset=utf-8"
+			Cache-Control "public, max-age=3600, s-maxage=86400"
+			X-Content-Type-Options "nosniff"
+			-Cross-Origin-Resource-Policy
+			-Cross-Origin-Opener-Policy
+			-Content-Security-Policy
+			-X-Frame-Options
+		}
+	}
+	handle /sitemap.xml {
+		root * /var/www/html
+		rewrite * /sitemap.xml
+		file_server
+		header {
+			Content-Type "application/xml; charset=utf-8"
+			Cache-Control "public, max-age=3600, s-maxage=86400"
+			X-Content-Type-Options "nosniff"
+			-Cross-Origin-Resource-Policy
+			-Cross-Origin-Opener-Policy
+			-Content-Security-Policy
+			-X-Frame-Options
+		}
+	}
+
 	# Streamlit slots (websockets vía reverse_proxy)
 	@st1 path /st/1 /st/1/*
 	handle @st1 {

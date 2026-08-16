@@ -78,21 +78,18 @@ if (preg_match('#^/google[a-z0-9]+\.html$#i', $uri)) {
 }
 
 // SEO: robots.txt + sitemap.xml (raíz pública; no pasan por allowlist de assets)
-if ($uri === '/robots.txt') {
-    $robotsPath = __DIR__ . '/robots.txt';
-    if (is_file($robotsPath)) {
-        header('Content-Type: text/plain; charset=utf-8');
-        header('Cache-Control: public, max-age=300');
-        readfile($robotsPath);
-        exit;
-    }
-}
-if ($uri === '/sitemap.xml') {
-    $sitemapPath = __DIR__ . '/sitemap.xml';
-    if (is_file($sitemapPath)) {
-        header('Content-Type: application/xml; charset=utf-8');
-        header('Cache-Control: public, max-age=300');
-        readfile($sitemapPath);
+// En Docker/Caddy también se sirven estáticos; esto cubre PHP built-in / fallback.
+if ($uri === '/robots.txt' || $uri === '/sitemap.xml') {
+    $isRobots = ($uri === '/robots.txt');
+    $path = __DIR__ . ($isRobots ? '/robots.txt' : '/sitemap.xml');
+    if (is_file($path)) {
+        // Cabeceras ligeras para crawlers (evitar CORP/COOP que a veces rompen fetch de GSC)
+        header_remove('Cross-Origin-Resource-Policy');
+        header_remove('Cross-Origin-Opener-Policy');
+        header('Content-Type: ' . ($isRobots ? 'text/plain; charset=utf-8' : 'application/xml; charset=utf-8'));
+        header('Cache-Control: public, max-age=3600, s-maxage=86400');
+        header('X-Robots-Tag: noindex'); // el propio robots/sitemap no deben rankear
+        readfile($path);
         exit;
     }
 }

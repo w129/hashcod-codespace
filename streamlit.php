@@ -353,6 +353,7 @@ function streamlitSaveTool($slot, $title, $code, $template = '') {
     if (@file_put_contents($app, $code, LOCK_EX) === false) {
         return ['ok' => false, 'error' => 'No se pudo guardar app.py'];
     }
+    streamlitCopyProjectAssets($slot);
     streamlitEnsureConfig($slot);
     streamlitWriteMeta($slot, [
         'title' => trim((string) $title) !== '' ? trim((string) $title) : ('Streamlit ' . $slot),

@@ -154,13 +154,37 @@ def _load_project(raw: bytes | str) -> None:
 
 
 def main() -> None:
+    icon = _page_icon()
     st.set_page_config(
         page_title=APP_TITLE,
-        page_icon=_page_icon(),
+        page_icon=icon,
         layout="wide",
         initial_sidebar_state="expanded",
     )
+    # Logo en barra superior / sidebar (también al colapsar el panel)
+    try:
+        if icon and icon != "🧠":
+            st.logo(icon, icon_image=icon)
+    except Exception:
+        pass
     _ensure_state()
+
+    # Icono inline en el banner (data URI) para que se vea junto al título
+    icon_data_uri = ""
+    if icon and icon != "🧠":
+        try:
+            import base64
+
+            raw = Path(icon).read_bytes()
+            icon_data_uri = "data:image/svg+xml;base64," + base64.b64encode(raw).decode("ascii")
+        except Exception:
+            icon_data_uri = ""
+
+    banner_img = (
+        f'<img class="soro-logo" src="{icon_data_uri}" width="28" height="28" alt="" />'
+        if icon_data_uri
+        else ""
+    )
 
     st.markdown(
         f"""
@@ -172,13 +196,22 @@ def main() -> None:
     line-height: 1.45;
   }}
   .soro-banner {{
-    display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
     margin-bottom: 0.35rem;
+  }}
+  .soro-banner .soro-logo {{
+    width: 28px; height: 28px; display:block; flex: 0 0 auto;
   }}
   .soro-banner h1 {{ font-size: 1.35rem; margin: 0; }}
   .soro-banner span {{ color:#5b6b7a; font-size: 0.9rem; }}
+  /* Refuerzo del logo en el header colapsado de Streamlit */
+  [data-testid="stSidebarCollapsedControl"] img,
+  [data-testid="stLogo"] img {{
+    max-height: 28px !important;
+  }}
 </style>
 <div class="soro-banner">
+  {banner_img}
   <h1>{APP_MARK}</h1>
   <span>tabs tipo otbedit · columnas alineadas tipo SoroEditor · Streamlit en servidor</span>
 </div>

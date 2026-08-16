@@ -4398,7 +4398,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri 
 require_once __DIR__ . '/streamlit.php';
 require_once __DIR__ . '/libreoffice.php';
 
-// ===== LIBREOFFICE (dock slot 8 → plataforma servidor) =====
+// ===== LIBREOFFICE suite (plataforma servidor; sin exigir cuenta) =====
 if ($uri === '/api/libreoffice/status' || $uri === '/api/libreoffice') {
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(libreofficeStatusPayload(), JSON_UNESCAPED_UNICODE);
@@ -4406,12 +4406,42 @@ if ($uri === '/api/libreoffice/status' || $uri === '/api/libreoffice') {
 }
 
 if ($uri === '/api/libreoffice/ensure' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!securityRateAllow('libreoffice_ensure', 4, 60)) {
-        securityRateDenyJson(60);
+    if (!securityRateAllow('libreoffice_ensure', 12, 60)) {
+        securityRateDenyJson(30);
     }
-    securityRequireMutationAuthIfEnabled();
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(libreofficeEnsure(), JSON_UNESCAPED_UNICODE);
+    $body = securityReadJsonBody(8192);
+    $opts = (!empty($body['ok']) && is_array($body['data'] ?? null)) ? $body['data'] : [];
+    echo json_encode(libreofficeEnsure($opts), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/libreoffice/tools' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    header('Content-Type: application/json; charset=utf-8');
+    $st = libreofficeStatusPayload();
+    echo json_encode(['ok' => true, 'tools' => $st['tools'] ?? libreofficeSuiteTools()], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/libreoffice/doc' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    header('Content-Type: application/json; charset=utf-8');
+    $tool = isset($_GET['tool']) ? (string) $_GET['tool'] : '';
+    echo json_encode(libreofficeLoadDoc($tool), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/libreoffice/doc' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('libreoffice_doc', 40, 60)) {
+        securityRateDenyJson(20);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    $body = securityReadJsonBody(950000);
+    if (empty($body['ok'])) {
+        securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
+    }
+    $data = $body['data'] ?? [];
+    $tool = isset($data['tool']) ? (string) $data['tool'] : '';
+    echo json_encode(libreofficeSaveDoc($tool, $data), JSON_UNESCAPED_UNICODE);
     exit;
 }
 

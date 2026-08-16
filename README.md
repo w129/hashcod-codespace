@@ -31,14 +31,19 @@ En Windows (Laragon) también puedes usar `run.bat`.
 
 ## Herramientas Streamlit (dock inferior)
 
-Los círculos del dock inferior abren un editor para apps **Python Streamlit** (alternativa usable a Tkinter en el navegador).
-En Docker/Render la imagen incluye Python + Streamlit + pandas/numpy + Caddy:
+Los círculos del dock inferior abren apps **Python Streamlit**. El **proyecto único** de la plataforma es **SoroOtbedit** (slot 1):
+
+- Pestañas de documentos (inspirado en otbedit)
+- Columnas de texto alineadas (inspirado en SoroEditor)
+- Abrir / guardar proyecto `.cep.json`
+
+En Docker/Render la imagen incluye Python + Streamlit + Caddy:
 
 - API: `/api/streamlit/*` (status, tools, templates, run, stop)
-- Apps en vivo: `/st/{1-8}/` (reverse proxy con websockets)
-- Plantillas: `streamlit_tools/` (calculadora, charts, notas)
+- App en vivo: `/st/1/` (y slots 2–8 libres)
+- Código: `streamlit_tools/soro_otbedit.py`
 
-Flujo: tocar slot → plantilla o código propio → **Guardar y abrir** / vista previa → ventana externa o iframe.
+Flujo: tocar slot 1 → **Guardar y abrir** / vista previa → `/st/1/`.
 
 ## Clone de repos (incl. LibreOffice)
 

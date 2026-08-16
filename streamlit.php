@@ -198,22 +198,10 @@ function streamlitTemplates() {
     $base = __DIR__ . '/streamlit_tools';
     $defs = [
         [
-            'id' => 'demo_hello',
-            'title' => 'Demo calculadora',
-            'blurb' => 'Inputs + resultado — ideal para probar el dock.',
-            'file' => 'demo_hello.py',
-        ],
-        [
-            'id' => 'demo_charts',
-            'title' => 'Demo charts',
-            'blurb' => 'Pandas/Numpy con line/area chart.',
-            'file' => 'demo_charts.py',
-        ],
-        [
-            'id' => 'demo_notes',
-            'title' => 'Demo notas',
-            'blurb' => 'Formulario de notas rápidas.',
-            'file' => 'demo_notes.py',
+            'id' => 'soro_otbedit',
+            'title' => 'SoroOtbedit',
+            'blurb' => 'Editor con pestañas (otbedit) y columnas alineadas (SoroEditor). Proyecto único Streamlit.',
+            'file' => 'soro_otbedit.py',
         ],
     ];
     $out = [];
@@ -240,24 +228,39 @@ function streamlitTemplateById($id) {
 }
 
 function streamlitDemoCode() {
-    $t = streamlitTemplateById('demo_hello');
+    $t = streamlitTemplateById('soro_otbedit');
     if ($t && $t['code'] !== '') return $t['code'];
-    return "import streamlit as st\nst.title('l8 Streamlit')\nst.write('Demo')\n";
+    return "import streamlit as st\nst.title('SoroOtbedit')\nst.write('Editor no encontrado en streamlit_tools.')\n";
 }
 
 function streamlitEnsureSeeded() {
     $slot = 1;
     $app = streamlitAppPath($slot);
     if ($app === '') return;
-    if (is_readable($app) && filesize($app) > 0) {
+
+    $code = streamlitDemoCode();
+    $need = !is_readable($app) || (int) @filesize($app) === 0;
+    if (!$need) {
+        $existing = (string) @file_get_contents($app);
+        // Migrar demos antiguas → proyecto único SoroOtbedit
+        if (strpos($existing, 'SoroOtbedit') === false) {
+            $need = true;
+        }
+        $meta = function_exists('streamlitReadMeta') ? streamlitReadMeta($slot) : [];
+        $tpl = is_array($meta) ? (string) ($meta['template'] ?? '') : '';
+        if (in_array($tpl, ['demo_hello', 'demo_charts', 'demo_notes', ''], true) && strpos($existing, 'SoroOtbedit') === false) {
+            $need = true;
+        }
+    }
+    if (!$need) {
         streamlitEnsureConfig($slot);
         return;
     }
-    $code = streamlitDemoCode();
+
     @file_put_contents($app, $code, LOCK_EX);
     streamlitWriteMeta($slot, [
-        'title' => 'Demo calculadora',
-        'template' => 'demo_hello',
+        'title' => 'SoroOtbedit',
+        'template' => 'soro_otbedit',
         'bytes' => strlen($code),
     ]);
     streamlitEnsureConfig($slot);

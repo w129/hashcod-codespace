@@ -77,6 +77,26 @@ if (preg_match('#^/google[a-z0-9]+\.html$#i', $uri)) {
     }
 }
 
+// SEO: robots.txt + sitemap.xml (raíz pública; no pasan por allowlist de assets)
+if ($uri === '/robots.txt') {
+    $robotsPath = __DIR__ . '/robots.txt';
+    if (is_file($robotsPath)) {
+        header('Content-Type: text/plain; charset=utf-8');
+        header('Cache-Control: public, max-age=300');
+        readfile($robotsPath);
+        exit;
+    }
+}
+if ($uri === '/sitemap.xml') {
+    $sitemapPath = __DIR__ . '/sitemap.xml';
+    if (is_file($sitemapPath)) {
+        header('Content-Type: application/xml; charset=utf-8');
+        header('Cache-Control: public, max-age=300');
+        readfile($sitemapPath);
+        exit;
+    }
+}
+
 // Denegado / probes
 if (securityIsDeniedPath($uri) || securityIsProbePath($uri)) {
     securityNotFoundQuiet();

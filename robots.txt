@@ -1,0 +1,13 @@
+# l8 codespace — crawlers
+User-agent: *
+Allow: /
+
+# APIs y datos internos (no indexar)
+Disallow: /api/
+Disallow: /cmd
+Disallow: /json
+Disallow: /data_storage/
+Disallow: /uploads/
+
+# Sitemap
+Sitemap: https://l8-codespace-1.onrender.com/sitemap.xml

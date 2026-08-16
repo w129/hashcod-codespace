@@ -13,6 +13,9 @@ if (!headers_sent()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>l8 codespace</title>
+    <meta name="description" content="l8 codespace — plataforma de códigospace con terminal, toolkit, gateway y herramientas en el navegador.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://l8-codespace-1.onrender.com/">
     <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
     <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
     <link rel="icon" href="favicon.svg?v=3" type="image/svg+xml">

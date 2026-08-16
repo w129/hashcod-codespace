@@ -20,7 +20,7 @@ ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_MDX_EDITOR_V1"
+SORO_HEADER_MARK = "SORO_WANG_EDITOR_V1"
 NARRATOR_ID = "narrator"
 DEFAULT_CAST = [
     {"id": "char_prota", "name": "Protagonista", "color": "#2c5aa0", "preset": "Protagonista", "group": "main"},
@@ -66,6 +66,30 @@ def _mdx_editor_fn():
             from mdx_component import mdx_editor  # type: ignore
 
             return mdx_editor
+        except Exception:
+            continue
+    return None
+
+
+def _wang_editor_fn():
+    """Lazy import of wangEditor Streamlit component."""
+    import sys
+
+    here = Path(__file__).resolve().parent
+    roots = [
+        here,
+        here / "streamlit_tools",
+        Path("/var/www/html/streamlit_tools"),
+        Path(__file__).resolve().parents[1] / "streamlit_tools",
+    ]
+    for root in roots:
+        s = str(root)
+        if root.is_dir() and s not in sys.path:
+            sys.path.insert(0, s)
+        try:
+            from wang_component import wang_editor  # type: ignore
+
+            return wang_editor
         except Exception:
             continue
     return None
@@ -417,7 +441,7 @@ def _ensure_state() -> None:
     if "voice_sep" not in st.session_state:
         st.session_state.voice_sep = "＞"
     if "column_editor" not in st.session_state:
-        st.session_state.column_editor = "mdx"  # mdx | classic
+        st.session_state.column_editor = "wang"  # wang | mdx | classic
 
 
 def _active_doc() -> dict:
@@ -698,13 +722,21 @@ def main() -> None:
         st.divider()
         st.subheader("Columnas (Soro)")
         doc = _active_doc()
+        _ed_opts = ["wang", "mdx", "classic"]
+        _ed_cur = st.session_state.get("column_editor") or "wang"
+        if _ed_cur not in _ed_opts:
+            _ed_cur = "wang"
         st.session_state.column_editor = st.radio(
             "Editor de columnas",
-            options=["mdx", "classic"],
-            format_func=lambda v: "MDX (Notion-like)" if v == "mdx" else "Clásico (texto)",
-            index=0 if st.session_state.get("column_editor") != "classic" else 1,
+            options=_ed_opts,
+            format_func=lambda v: {
+                "wang": "wangEditor (rico)",
+                "mdx": "MDX (Notion-like)",
+                "classic": "Clásico (texto)",
+            }.get(v, v),
+            index=_ed_opts.index(_ed_cur),
             horizontal=True,
-            help="MDX usa @mdxeditor/editor: títulos, listas, tablas y código con vista enriquecida.",
+            help="wangEditor: HTML enriquecido. MDX: markdown Notion-like. Clásico: textarea.",
         )
         n_cols = st.slider("Nº de columnas", MIN_COLS, MAX_COLS, int(doc.get("n_cols") or DEFAULT_COLS))
         if n_cols != doc["n_cols"]:
@@ -1276,8 +1308,17 @@ def main() -> None:
             else:
                 # Columnas (Soro / otbedit) — MDXEditor o textarea clásico
                 n = int(doc.get("n_cols") or DEFAULT_COLS)
-                use_mdx = st.session_state.get("column_editor") != "classic"
+                ed_mode = st.session_state.get("column_editor") or "wang"
+                use_wang = ed_mode == "wang"
+                use_mdx = ed_mode == "mdx"
+                wang_fn = _wang_editor_fn() if use_wang else None
                 mdx_fn = _mdx_editor_fn() if use_mdx else None
+                if use_wang and wang_fn is None:
+                    st.warning(
+                        "wangEditor no está disponible en este slot (falta wang_component). "
+                        "Usando editor clásico."
+                    )
+                    use_wang = False
                 if use_mdx and mdx_fn is None:
                     st.warning(
                         "MDX Editor no está disponible en este slot (falta mdx_component). "
@@ -1293,7 +1334,16 @@ def main() -> None:
                             f" · ◀ L{int(this_jump['line']) + 1}" if jumped else ""
                         )
                         current = doc["columns"][ci] if ci < len(doc["columns"]) else ""
-                        if use_mdx and mdx_fn is not None:
+                        if use_wang and wang_fn is not None:
+                            st.caption(label + " · wangEditor")
+                            text = wang_fn(
+                                current,
+                                height=420,
+                                placeholder="Escribe con wangEditor…",
+                                key=f"wang_{doc['id']}_{ci}",
+                                key_nonce=f"{doc['id']}_{ci}",
+                            )
+                        elif use_mdx and mdx_fn is not None:
                             st.caption(label + " · MDX")
                             text = mdx_fn(
                                 current,
@@ -1338,7 +1388,7 @@ def main() -> None:
     st.markdown("---")
     st.caption(
         f"{APP_MARK} · otbedit · SoroEditor · Yohaku (outline) · "
-        "VoiScripter · MDXEditor (@mdxeditor/editor). Proyecto Streamlit de l8."
+        "VoiScripter · MDXEditor · wangEditor. Proyecto Streamlit de l8."
     )
 
 

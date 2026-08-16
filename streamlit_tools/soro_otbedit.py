@@ -1300,7 +1300,7 @@ def main() -> None:
                                 height=420,
                                 placeholder="# Título\n\nEscribe markdown…",
                                 key=f"mdx_{doc['id']}_{ci}",
-                                key_nonce=f"{doc['id']}_{ci}_{doc.get('updated_at') or ''}",
+                                key_nonce=f"{doc['id']}_{ci}",
                             )
                         else:
                             text = st.text_area(

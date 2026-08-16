@@ -28,3 +28,4 @@ data_storage/libreoffice/
 data_storage/agent_browser/
 NUL
 streamlit_tools/mdx_component/frontend/node_modules/
+__pycache__/

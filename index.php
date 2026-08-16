@@ -10835,11 +10835,11 @@ if (!headers_sent()) {
                 <p class="st-dock-url" id="stDockUrl" hidden></p>
                 <div class="st-dock-field">
                     <label class="st-dock-label" for="stDockTitleInput">Name</label>
-                    <input class="st-dock-input" id="stDockTitleInput" type="text" maxlength="80" placeholder="My Streamlit tool" autocomplete="off">
+                    <input class="st-dock-input" id="stDockTitleInput" type="text" maxlength="80" placeholder="SoroOtbedit" autocomplete="off">
                 </div>
                 <div class="st-dock-field">
-                    <div class="st-dock-label">Templates</div>
-                    <div class="st-dock-templates" id="stDockTemplates" aria-label="Streamlit templates"></div>
+                    <div class="st-dock-label">Proyecto</div>
+                    <div class="st-dock-templates" id="stDockTemplates" aria-label="Proyecto Streamlit SoroOtbedit"></div>
                 </div>
                 <div class="st-dock-editor">
                     <div class="st-dock-editor-header">

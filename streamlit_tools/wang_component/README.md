@@ -2,7 +2,9 @@
 
 Wraps [`wangEditor`](https://github.com/wangeditor-team/wangEditor) for SoroOtbedit.
 
-Stores column content as **markdown** (HTML ↔ markdown via marked/turndown) so outline/exports keep working.
+- Full rich toolbar (media uploads excluded)
+- HTML ↔ markdown via marked + turndown (ATX headings, GFM strike)
+- Outline jump (`jump_line` / `jump_text`) for Yohaku
 
 ## Build
 

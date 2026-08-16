@@ -1,4 +1,7 @@
-"""Streamlit custom component: MDXEditor (@mdxeditor/editor) for SoroOtbedit."""
+"""Streamlit custom component: MDXEditor (@mdxeditor/editor) for SoroOtbedit.
+
+https://github.com/mdx-editor/editor — native markdown, source toggle, outline jump.
+"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -23,6 +26,9 @@ def mdx_editor(
     read_only: bool = False,
     key: str | None = None,
     key_nonce: str | None = None,
+    jump_line: int | None = None,
+    jump_text: str | None = None,
+    jump_token: str | None = None,
 ) -> str:
     """Rich markdown editor. Returns the current markdown string."""
     value = _mdx_editor(
@@ -31,6 +37,9 @@ def mdx_editor(
         placeholder=placeholder,
         read_only=bool(read_only),
         key_nonce=key_nonce or key or "",
+        jump_line=-1 if jump_line is None else int(jump_line),
+        jump_text=jump_text or "",
+        jump_token=jump_token or "",
         key=key,
         default=markdown or "",
     )

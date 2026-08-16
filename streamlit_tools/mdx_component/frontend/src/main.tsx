@@ -1,3 +1,7 @@
+/**
+ * MDXEditor column editor for SoroOtbedit.
+ * @mdxeditor/editor — native markdown, Notion-like toolbar, source mode, outline jump.
+ */
 import React, { useEffect, useMemo, useRef } from 'react'
 import {
   MDXEditor,
@@ -11,14 +15,18 @@ import {
   tablePlugin,
   codeBlockPlugin,
   codeMirrorPlugin,
+  diffSourcePlugin,
   toolbarPlugin,
   UndoRedo,
   BoldItalicUnderlineToggles,
+  StrikeThroughSupSubToggles,
   CodeToggle,
   BlockTypeSelect,
   CreateLink,
   InsertTable,
+  InsertThematicBreak,
   ListsToggle,
+  DiffSourceToggleWrapper,
   Separator,
   type MDXEditorMethods,
 } from '@mdxeditor/editor'
@@ -35,6 +43,9 @@ type Args = {
   placeholder?: string
   read_only?: boolean
   key_nonce?: string
+  jump_line?: number
+  jump_text?: string
+  jump_token?: string
 }
 
 function EditorApp({ args, disabled, theme }: ComponentProps) {
@@ -44,13 +55,18 @@ function EditorApp({ args, disabled, theme }: ComponentProps) {
   const placeholder = a.placeholder || 'Escribe markdown…'
   const readOnly = !!(a.read_only || disabled)
   const nonce = String(a.key_nonce || '')
+  const jumpLine = Number.isFinite(Number(a.jump_line)) ? Number(a.jump_line) : -1
+  const jumpText = typeof a.jump_text === 'string' ? a.jump_text.trim() : ''
+  const jumpToken = String(a.jump_token || '')
   const editorRef = useRef<MDXEditorMethods | null>(null)
+  const wrapRef = useRef<HTMLDivElement | null>(null)
   const lastSent = useRef(markdown)
   const bootstrapped = useRef(false)
+  const lastJump = useRef('')
 
   const plugins = useMemo(
     () => [
-      headingsPlugin(),
+      headingsPlugin({ allowedHeadingLevels: [1, 2, 3, 4, 5, 6] }),
       listsPlugin(),
       quotePlugin(),
       thematicBreakPlugin(),
@@ -71,20 +87,23 @@ function EditorApp({ args, disabled, theme }: ComponentProps) {
           css: 'CSS',
         },
       }),
+      diffSourcePlugin({ viewMode: 'rich-text', diffMarkdown: '' }),
       toolbarPlugin({
         toolbarContents: () => (
-          <>
+          <DiffSourceToggleWrapper>
             <UndoRedo />
             <Separator />
             <BoldItalicUnderlineToggles />
+            <StrikeThroughSupSubToggles options={['Strikethrough']} />
             <CodeToggle />
             <Separator />
             <BlockTypeSelect />
             <Separator />
             <CreateLink />
             <InsertTable />
+            <InsertThematicBreak />
             <ListsToggle />
-          </>
+          </DiffSourceToggleWrapper>
         ),
       }),
     ],
@@ -108,8 +127,46 @@ function EditorApp({ args, disabled, theme }: ComponentProps) {
     }
   }, [markdown, nonce])
 
+  // Outline jump (Yohaku)
+  useEffect(() => {
+    if (jumpLine < 0 && !jumpText) return
+    const token = jumpToken || `${jumpLine}:${jumpText}`
+    if (!token || token === lastJump.current) return
+    lastJump.current = token
+
+    requestAnimationFrame(() => {
+      const root = wrapRef.current?.querySelector('.l8-mdx-content') as HTMLElement | null
+      if (!root) return
+      const nodes = Array.from(
+        root.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li')
+      ) as HTMLElement[]
+      let target: HTMLElement | null = null
+      if (jumpText) {
+        const needle = jumpText.toLowerCase()
+        target =
+          nodes.find((el) => (el.textContent || '').toLowerCase().includes(needle)) || null
+      }
+      if (!target && jumpLine >= 0) {
+        const lines = (lastSent.current || '').split('\n')
+        const lineText = (lines[jumpLine] || '').replace(/^#+\s*/, '').trim()
+        if (lineText) {
+          const needle = lineText.toLowerCase()
+          target =
+            nodes.find((el) => (el.textContent || '').toLowerCase().includes(needle)) || null
+        }
+      }
+      target?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      try {
+        editorRef.current?.focus?.()
+      } catch {
+        /* ignore */
+      }
+    })
+  }, [jumpLine, jumpText, jumpToken, markdown, nonce])
+
   return (
     <div
+      ref={wrapRef}
       className="l8-mdx-wrap"
       style={{
         height,

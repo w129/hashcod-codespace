@@ -30,3 +30,4 @@ NUL
 streamlit_tools/mdx_component/frontend/node_modules/
 __pycache__/
 streamlit_tools/wang_component/frontend/node_modules/
+streamlit_tools/draft_component/frontend/node_modules/

@@ -269,6 +269,14 @@ function streamlitCopyProjectAssets($slot) {
     )) {
         $ok = true;
     }
+    // Paquete Streamlit custom component: Draft.js (facebookarchive/draft-js)
+    if (streamlitCopyTree(
+        $base . '/draft_component',
+        $dir . '/draft_component',
+        ['node_modules', '.git']
+    )) {
+        $ok = true;
+    }
     return $ok;
 }
 
@@ -309,7 +317,7 @@ function streamlitEnsureSeeded() {
         if (
             strpos($existing, 'SoroOtbedit') === false
             || strpos($existing, '_page_icon') === false
-            || strpos($existing, 'SORO_WANG_EDITOR_V1') === false
+            || strpos($existing, 'SORO_EDITORS_FULL_V1') === false
             || preg_match('/^\s*st\.logo\s*\(/m', $existing)
         ) {
             $need = true;
@@ -324,6 +332,9 @@ function streamlitEnsureSeeded() {
             $need = true;
         }
         if (!is_dir($dir . '/wang_component/frontend/build')) {
+            $need = true;
+        }
+        if (!is_dir($dir . '/draft_component/frontend/build')) {
             $need = true;
         }
         $meta = function_exists('streamlitReadMeta') ? streamlitReadMeta($slot) : [];

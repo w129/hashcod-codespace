@@ -20,7 +20,7 @@ ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_WANG_EDITOR_V1"
+SORO_HEADER_MARK = "SORO_EDITORS_FULL_V1"
 NARRATOR_ID = "narrator"
 DEFAULT_CAST = [
     {"id": "char_prota", "name": "Protagonista", "color": "#2c5aa0", "preset": "Protagonista", "group": "main"},
@@ -90,6 +90,30 @@ def _wang_editor_fn():
             from wang_component import wang_editor  # type: ignore
 
             return wang_editor
+        except Exception:
+            continue
+    return None
+
+
+def _draft_editor_fn():
+    """Lazy import of Draft.js Streamlit component (facebookarchive/draft-js)."""
+    import sys
+
+    here = Path(__file__).resolve().parent
+    roots = [
+        here,
+        here / "streamlit_tools",
+        Path("/var/www/html/streamlit_tools"),
+        Path(__file__).resolve().parents[1] / "streamlit_tools",
+    ]
+    for root in roots:
+        s = str(root)
+        if root.is_dir() and s not in sys.path:
+            sys.path.insert(0, s)
+        try:
+            from draft_component import draft_editor  # type: ignore
+
+            return draft_editor
         except Exception:
             continue
     return None
@@ -441,7 +465,7 @@ def _ensure_state() -> None:
     if "voice_sep" not in st.session_state:
         st.session_state.voice_sep = "＞"
     if "column_editor" not in st.session_state:
-        st.session_state.column_editor = "wang"  # wang | mdx | classic
+        st.session_state.column_editor = "wang"  # wang | draft | mdx | classic
 
 
 def _active_doc() -> dict:
@@ -648,7 +672,7 @@ def main() -> None:
 </style>
 <div class="soro-banner">
   <h1>{APP_MARK}</h1>
-  <span>otbedit · Soro · Yohaku outline · VoiScripter guion/voz</span>
+  <span>otbedit · Soro · Yohaku outline · VoiScripter · Draft.js · wang · MDX</span>
 </div>
 """,
         unsafe_allow_html=True,
@@ -722,7 +746,7 @@ def main() -> None:
         st.divider()
         st.subheader("Columnas (Soro)")
         doc = _active_doc()
-        _ed_opts = ["wang", "mdx", "classic"]
+        _ed_opts = ["wang", "draft", "mdx", "classic"]
         _ed_cur = st.session_state.get("column_editor") or "wang"
         if _ed_cur not in _ed_opts:
             _ed_cur = "wang"
@@ -731,12 +755,17 @@ def main() -> None:
             options=_ed_opts,
             format_func=lambda v: {
                 "wang": "wangEditor (rico)",
+                "draft": "Draft.js (rico)",
                 "mdx": "MDX (Notion-like)",
                 "classic": "Clásico (texto)",
             }.get(v, v),
             index=_ed_opts.index(_ed_cur),
             horizontal=True,
-            help="wangEditor: HTML enriquecido. MDX: markdown Notion-like. Clásico: textarea.",
+            help=(
+                "wangEditor: toolbar HTML→MD. Draft.js (Facebook): entidades/atajos→MD. "
+                "MDXEditor: markdown nativo + fuente. Clásico: textarea. "
+                "Outline Yohaku salta en todos."
+            ),
         )
         n_cols = st.slider("Nº de columnas", MIN_COLS, MAX_COLS, int(doc.get("n_cols") or DEFAULT_COLS))
         if n_cols != doc["n_cols"]:
@@ -1310,8 +1339,10 @@ def main() -> None:
                 n = int(doc.get("n_cols") or DEFAULT_COLS)
                 ed_mode = st.session_state.get("column_editor") or "wang"
                 use_wang = ed_mode == "wang"
+                use_draft = ed_mode == "draft"
                 use_mdx = ed_mode == "mdx"
                 wang_fn = _wang_editor_fn() if use_wang else None
+                draft_fn = _draft_editor_fn() if use_draft else None
                 mdx_fn = _mdx_editor_fn() if use_mdx else None
                 if use_wang and wang_fn is None:
                     st.warning(
@@ -1319,6 +1350,12 @@ def main() -> None:
                         "Usando editor clásico."
                     )
                     use_wang = False
+                if use_draft and draft_fn is None:
+                    st.warning(
+                        "Draft.js no está disponible en este slot (falta draft_component). "
+                        "Usando editor clásico."
+                    )
+                    use_draft = False
                 if use_mdx and mdx_fn is None:
                     st.warning(
                         "MDX Editor no está disponible en este slot (falta mdx_component). "
@@ -1334,6 +1371,16 @@ def main() -> None:
                             f" · ◀ L{int(this_jump['line']) + 1}" if jumped else ""
                         )
                         current = doc["columns"][ci] if ci < len(doc["columns"]) else ""
+                        jump_kwargs = {}
+                        if jumped and this_jump:
+                            jump_kwargs = {
+                                "jump_line": int(this_jump["line"]),
+                                "jump_text": str(this_jump.get("text") or ""),
+                                "jump_token": (
+                                    f"{this_jump.get('doc_id')}_{ci}_"
+                                    f"{this_jump['line']}_{this_jump.get('text') or ''}"
+                                ),
+                            }
                         if use_wang and wang_fn is not None:
                             st.caption(label + " · wangEditor")
                             text = wang_fn(
@@ -1341,7 +1388,18 @@ def main() -> None:
                                 height=420,
                                 placeholder="Escribe con wangEditor…",
                                 key=f"wang_{doc['id']}_{ci}",
-                                key_nonce=f"{doc['id']}_{ci}",
+                                key_nonce=f"{doc['id']}_{ci}_{jump_kwargs.get('jump_token', '')}",
+                                **jump_kwargs,
+                            )
+                        elif use_draft and draft_fn is not None:
+                            st.caption(label + " · Draft.js")
+                            text = draft_fn(
+                                current,
+                                height=420,
+                                placeholder="# Título  |  atajos: # espacio · ⌘B/I/U/K",
+                                key=f"draft_{doc['id']}_{ci}",
+                                key_nonce=f"{doc['id']}_{ci}_{jump_kwargs.get('jump_token', '')}",
+                                **jump_kwargs,
                             )
                         elif use_mdx and mdx_fn is not None:
                             st.caption(label + " · MDX")
@@ -1350,7 +1408,8 @@ def main() -> None:
                                 height=420,
                                 placeholder="# Título\n\nEscribe markdown…",
                                 key=f"mdx_{doc['id']}_{ci}",
-                                key_nonce=f"{doc['id']}_{ci}",
+                                key_nonce=f"{doc['id']}_{ci}_{jump_kwargs.get('jump_token', '')}",
+                                **jump_kwargs,
                             )
                         else:
                             text = st.text_area(
@@ -1388,7 +1447,7 @@ def main() -> None:
     st.markdown("---")
     st.caption(
         f"{APP_MARK} · otbedit · SoroEditor · Yohaku (outline) · "
-        "VoiScripter · MDXEditor · wangEditor. Proyecto Streamlit de l8."
+        "VoiScripter · MDXEditor · wangEditor · Draft.js. Proyecto Streamlit de l8."
     )
 
 

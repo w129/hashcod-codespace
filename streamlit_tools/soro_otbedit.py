@@ -20,7 +20,13 @@ ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_OUTLINE_V1"
+SORO_HEADER_MARK = "SORO_VOISCRIPTER_V1"
+NARRATOR_ID = "narrator"
+DEFAULT_CAST = [
+    {"id": "char_prota", "name": "Protagonista", "color": "#2c5aa0", "preset": "Protagonista", "group": "main"},
+    {"id": "char_otro", "name": "Otro", "color": "#c8102e", "preset": "Otro", "group": "main"},
+    {"id": NARRATOR_ID, "name": "ト書き", "color": "#5b6b7a", "preset": "", "group": "stage"},
+]
 
 
 def _asset(*names: str) -> str | None:
@@ -174,6 +180,152 @@ def _outline_jump_context(doc: dict, col: int, line: int, radius: int = 2) -> st
     return "\n".join(chunks)
 
 
+def _new_character(name: str = "Personaje", color: str = "#334155", preset: str = "", group: str = "main") -> dict:
+    return {
+        "id": "char_" + uuid.uuid4().hex[:8],
+        "name": (name or "Personaje").strip(),
+        "color": color or "#334155",
+        "preset": (preset or name or "").strip(),
+        "group": (group or "main").strip(),
+    }
+
+
+def _new_block(character_id: str = NARRATOR_ID, text: str = "", emotion: str = "normal") -> dict:
+    return {
+        "id": "blk_" + uuid.uuid4().hex[:8],
+        "character_id": character_id or NARRATOR_ID,
+        "emotion": emotion or "normal",
+        "text": text or "",
+    }
+
+
+def _char_by_id(cid: str) -> dict | None:
+    for c in st.session_state.get("characters") or []:
+        if c.get("id") == cid:
+            return c
+    return None
+
+
+def _char_label(cid: str) -> str:
+    c = _char_by_id(cid)
+    return (c.get("name") if c else None) or "¿?"
+
+
+def _ensure_doc_blocks(doc: dict) -> list[dict]:
+    blocks = doc.get("blocks")
+    if not isinstance(blocks, list):
+        blocks = []
+        doc["blocks"] = blocks
+    return blocks
+
+
+def _csv_encode(rows: list[list[str]]) -> str:
+    out = []
+    for row in rows:
+        cells = []
+        for cell in row:
+            s = str(cell).replace("\r\n", "\n").replace("\r", "\n")
+            if any(ch in s for ch in [",", '"', "\n"]):
+                cells.append('"' + s.replace('"', '""') + '"')
+            else:
+                cells.append(s)
+        out.append(",".join(cells))
+    return "\r\n".join(out)
+
+
+def _export_speaker_csv(docs: list[dict]) -> str:
+    rows = [["speaker", "emotion", "text", "document"]]
+    for d in docs:
+        title = d.get("title") or "Doc"
+        for b in d.get("blocks") or []:
+            rows.append(
+                [
+                    _char_label(str(b.get("character_id") or "")),
+                    str(b.get("emotion") or "normal"),
+                    str(b.get("text") or "").replace("\n", "\\n"),
+                    title,
+                ]
+            )
+    return _csv_encode(rows)
+
+
+def _export_preset_separator(docs: list[dict], sep: str = "＞") -> str:
+    """Formato VOICEROID / A.I.VOICE: preset＞texto"""
+    lines = []
+    for d in docs:
+        for b in d.get("blocks") or []:
+            text = str(b.get("text") or "").replace("\n", "\\n")
+            cid = str(b.get("character_id") or "")
+            if cid == NARRATOR_ID or not cid:
+                lines.append(text)
+                continue
+            ch = _char_by_id(cid)
+            name = (ch.get("preset") if ch and ch.get("preset") else None) or _char_label(cid)
+            lines.append(f"{name}{sep}{text}")
+    return "\r\n".join(lines)
+
+
+def _export_cevio_columns(docs: list[dict]) -> str:
+    """Formato tipo CeVIO: nombre, emoción/preset, texto (TSV)."""
+    rows = [["name", "emotion", "text"]]
+    for d in docs:
+        for b in d.get("blocks") or []:
+            cid = str(b.get("character_id") or "")
+            ch = _char_by_id(cid)
+            name = (ch.get("preset") if ch and ch.get("preset") else None) or _char_label(cid)
+            if cid == NARRATOR_ID:
+                name = ""
+            rows.append(
+                [
+                    name,
+                    str(b.get("emotion") or "normal"),
+                    str(b.get("text") or "").replace("\n", "\\n"),
+                ]
+            )
+    return "\r\n".join("\t".join(r) for r in rows)
+
+
+def _export_dialogue_only(docs: list[dict]) -> str:
+    lines = []
+    for d in docs:
+        for b in d.get("blocks") or []:
+            t = str(b.get("text") or "").strip()
+            if t:
+                lines.append(t.replace("\n", "\\n"))
+    return "\r\n".join(lines)
+
+
+def _blocks_to_chat_html(blocks: list[dict]) -> str:
+    parts = ['<div class="soro-chat">']
+    for b in blocks:
+        cid = str(b.get("character_id") or "")
+        ch = _char_by_id(cid)
+        name = (ch.get("name") if ch else None) or "¿?"
+        color = (ch.get("color") if ch else None) or "#334155"
+        text = (
+            str(b.get("text") or "")
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\n", "<br/>")
+        )
+        side = "right" if ch and ch.get("group") == "main" and cid != NARRATOR_ID and name.lower().startswith(("otro", "antag")) else "left"
+        if cid == NARRATOR_ID:
+            parts.append(
+                f'<div class="soro-chat-narr">{text or "&nbsp;"}</div>'
+            )
+        else:
+            parts.append(
+                f'<div class="soro-chat-row {side}">'
+                f'<div class="soro-chat-bubble" style="border-left:4px solid {color}">'
+                f'<div class="soro-chat-name" style="color:{color}">{name}</div>'
+                f'<div class="soro-chat-text">{text or "&nbsp;"}</div>'
+                f"</div></div>"
+            )
+    parts.append("</div>")
+    return "\n".join(parts)
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -185,11 +337,14 @@ def _new_doc(title: str = "Sin título", n_cols: int = DEFAULT_COLS) -> dict:
         "title": title or "Sin título",
         "n_cols": n_cols,
         "columns": ["" for _ in range(n_cols)],
+        "blocks": [],
         "updated_at": _now(),
     }
 
 
 def _ensure_state() -> None:
+    if "characters" not in st.session_state:
+        st.session_state.characters = [dict(c) for c in DEFAULT_CAST]
     if "docs" not in st.session_state:
         st.session_state.docs = [
             _new_doc("Documento 1", DEFAULT_COLS),
@@ -200,6 +355,16 @@ def _ensure_state() -> None:
             "# Acción / diálogo\n## INT. OFICINA — DÍA\nProtagonista entra.\n— Hola.\n## EXT. CALLE — NOCHE\nCorte a negro.",
             "# Notas\n## Tono\nEstablecer tono\n## Beats\nBeat emocional\nCortar si sobra",
         ]
+        # Semilla bloques estilo VoiScripter (guion para voz sintética)
+        st.session_state.docs[0]["blocks"] = [
+            _new_block(NARRATOR_ID, "INT. OFICINA — DÍA"),
+            _new_block("char_prota", "Hola."),
+            _new_block("char_otro", "¿Llegaste temprano?"),
+            _new_block(NARRATOR_ID, "EXT. CALLE — NOCHE"),
+            _new_block("char_prota", "Corte a negro."),
+        ]
+    for d in st.session_state.docs:
+        _ensure_doc_blocks(d)
     if "active_tab" not in st.session_state:
         st.session_state.active_tab = 0
     if "templates" not in st.session_state:
@@ -223,6 +388,8 @@ def _ensure_state() -> None:
         st.session_state.heading_char = "#"
     if "outline_jump" not in st.session_state:
         st.session_state.outline_jump = None
+    if "voice_sep" not in st.session_state:
+        st.session_state.voice_sep = "＞"
 
 
 def _active_doc() -> dict:
@@ -255,12 +422,14 @@ def _sync_line_counts(doc: dict) -> None:
 def _project_payload() -> dict:
     return {
         "format": "soro_otbedit.cep",
-        "version": 1,
+        "version": 2,
         "app": APP_MARK,
         "exported_at": _now(),
         "docs": st.session_state.docs,
+        "characters": st.session_state.characters,
         "templates": st.session_state.templates,
         "bookmarks": st.session_state.bookmarks,
+        "voice_sep": st.session_state.get("voice_sep") or "＞",
     }
 
 
@@ -278,12 +447,25 @@ def _load_project(raw: bytes | str) -> None:
         while len(cols) < n:
             cols.append("")
         cols = cols[:n]
+        blocks = []
+        for b in d.get("blocks") or []:
+            if not isinstance(b, dict):
+                continue
+            blocks.append(
+                {
+                    "id": b.get("id") or ("blk_" + uuid.uuid4().hex[:8]),
+                    "character_id": b.get("character_id") or NARRATOR_ID,
+                    "emotion": b.get("emotion") or "normal",
+                    "text": str(b.get("text") or ""),
+                }
+            )
         cleaned.append(
             {
                 "id": d.get("id") or uuid.uuid4().hex[:10],
                 "title": d.get("title") or "Sin título",
                 "n_cols": n,
                 "columns": cols,
+                "blocks": blocks,
                 "updated_at": d.get("updated_at") or _now(),
             }
         )
@@ -291,10 +473,29 @@ def _load_project(raw: bytes | str) -> None:
         cleaned = [_new_doc()]
     st.session_state.docs = cleaned
     st.session_state.active_tab = 0
+    chars = []
+    for c in data.get("characters") or []:
+        if not isinstance(c, dict):
+            continue
+        chars.append(
+            {
+                "id": c.get("id") or ("char_" + uuid.uuid4().hex[:8]),
+                "name": c.get("name") or "Personaje",
+                "color": c.get("color") or "#334155",
+                "preset": c.get("preset") or c.get("name") or "",
+                "group": c.get("group") or "main",
+            }
+        )
+    if chars:
+        st.session_state.characters = chars
+    elif "characters" not in st.session_state:
+        st.session_state.characters = [dict(x) for x in DEFAULT_CAST]
     if isinstance(data.get("templates"), dict):
         st.session_state.templates = {str(k): str(v) for k, v in data["templates"].items()}
     if isinstance(data.get("bookmarks"), list):
         st.session_state.bookmarks = [str(x) for x in data["bookmarks"] if str(x).strip()]
+    if data.get("voice_sep"):
+        st.session_state.voice_sep = str(data.get("voice_sep"))
     st.session_state.status_msg = f"Proyecto cargado · {len(cleaned)} documento(s)"
 
 
@@ -360,6 +561,20 @@ def main() -> None:
   .soro-side-brand .soro-side-name {{
     font-size: 1.05rem; font-weight: 700; color: #111; line-height: 1.2;
   }}
+  .soro-chat {{ display:flex; flex-direction:column; gap:10px; padding: 0.25rem 0 1rem; }}
+  .soro-chat-row {{ display:flex; }}
+  .soro-chat-row.left {{ justify-content:flex-start; }}
+  .soro-chat-row.right {{ justify-content:flex-end; }}
+  .soro-chat-bubble {{
+    max-width: min(520px, 92%);
+    background:#f3f4f6; border-radius:10px; padding:8px 12px;
+  }}
+  .soro-chat-name {{ font-size:0.78rem; font-weight:700; margin-bottom:2px; }}
+  .soro-chat-text {{ font-size:0.95rem; line-height:1.4; color:#111; }}
+  .soro-chat-narr {{
+    text-align:center; color:#5b6b7a; font-size:0.88rem; font-style:italic;
+    padding: 4px 8px;
+  }}
   /* Eliminar la rallita del logo del chrome de Streamlit */
   [data-testid="stLogo"],
   [data-testid="stLogo"] *,
@@ -381,7 +596,7 @@ def main() -> None:
 </style>
 <div class="soro-banner">
   <h1>{APP_MARK}</h1>
-  <span>tabs tipo otbedit · columnas alineadas tipo SoroEditor · Streamlit en servidor</span>
+  <span>otbedit · Soro · Yohaku outline · VoiScripter guion/voz</span>
 </div>
 """,
         unsafe_allow_html=True,
@@ -469,6 +684,103 @@ def main() -> None:
             _sync_line_counts(doc)
             st.session_state.status_msg = "Filas alineadas (sync Soro)"
             st.rerun()
+
+        st.divider()
+        st.subheader("Elenco · voz")
+        st.caption(
+            "Personajes y export para locución sintética "
+            "([VoiScripter](https://github.com/bluemistel/VoiScripter))."
+        )
+        with st.expander("Gestionar elenco", expanded=False):
+            new_name = st.text_input("Nombre personaje", key="cast_new_name")
+            nc1, nc2 = st.columns(2)
+            with nc1:
+                new_color = st.color_picker("Color", "#2c5aa0", key="cast_new_color")
+            with nc2:
+                new_preset = st.text_input("Preset voz", key="cast_new_preset", placeholder="Nombre en VOICEROID/CeVIO")
+            if st.button("＋ Personaje", use_container_width=True, key="cast_add"):
+                if new_name.strip():
+                    st.session_state.characters.append(
+                        _new_character(new_name.strip(), new_color, new_preset.strip() or new_name.strip())
+                    )
+                    st.session_state.status_msg = f"Personaje {new_name.strip()} añadido"
+                    st.rerun()
+            for ci, ch in enumerate(list(st.session_state.characters)):
+                c1, c2, c3 = st.columns([3, 2, 1])
+                with c1:
+                    nm = st.text_input("Nombre", value=ch.get("name") or "", key=f"cast_nm_{ch['id']}")
+                with c2:
+                    pr = st.text_input("Preset", value=ch.get("preset") or "", key=f"cast_pr_{ch['id']}")
+                with c3:
+                    if st.button("✕", key=f"cast_del_{ch['id']}"):
+                        if ch.get("id") == NARRATOR_ID:
+                            st.session_state.status_msg = "No se puede borrar ト書き / narración"
+                        else:
+                            st.session_state.characters.pop(ci)
+                            st.session_state.status_msg = "Personaje eliminado"
+                            st.rerun()
+                if nm != ch.get("name") or pr != ch.get("preset"):
+                    ch["name"] = nm or ch.get("name")
+                    ch["preset"] = pr
+            # color pickers separately to avoid overcrowding
+            for ch in st.session_state.characters:
+                ch["color"] = st.color_picker(
+                    f"Color · {ch.get('name')}",
+                    ch.get("color") or "#334155",
+                    key=f"cast_col_{ch['id']}",
+                )
+
+        st.session_state.voice_sep = st.text_input(
+            "Separador VOICEROID / A.I.VOICE",
+            value=st.session_state.get("voice_sep") or "＞",
+            max_chars=4,
+            key="voice_sep_input",
+            help="Ejemplo: ＞  →  Protagonista＞Hola.",
+        )
+        export_scope = st.radio(
+            "Exportar",
+            ["Documento activo", "Todo el proyecto"],
+            horizontal=True,
+            key="voice_export_scope",
+        )
+        docs_export = (
+            [_active_doc()]
+            if export_scope.startswith("Documento")
+            else list(st.session_state.docs)
+        )
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        st.download_button(
+            "⬇ CSV hablante + texto",
+            data=_export_speaker_csv(docs_export).encode("utf-8"),
+            file_name=f"soro_voice_{stamp}.csv",
+            mime="text/csv",
+            use_container_width=True,
+            key="exp_csv_voice",
+        )
+        st.download_button(
+            "⬇ TXT preset＋separador (VOICEROID)",
+            data=_export_preset_separator(docs_export, st.session_state.voice_sep or "＞").encode("utf-8"),
+            file_name=f"soro_voice_preset_{stamp}.txt",
+            mime="text/plain",
+            use_container_width=True,
+            key="exp_preset_voice",
+        )
+        st.download_button(
+            "⬇ TSV CeVIO (nombre · emoción · texto)",
+            data=_export_cevio_columns(docs_export).encode("utf-8"),
+            file_name=f"soro_voice_cevio_{stamp}.tsv",
+            mime="text/tab-separated-values",
+            use_container_width=True,
+            key="exp_cevio_voice",
+        )
+        st.download_button(
+            "⬇ Solo diálogos",
+            data=_export_dialogue_only(docs_export).encode("utf-8"),
+            file_name=f"soro_voice_lines_{stamp}.txt",
+            mime="text/plain",
+            use_container_width=True,
+            key="exp_lines_voice",
+        )
 
         st.divider()
         st.subheader("Outline")
@@ -746,12 +1058,20 @@ def main() -> None:
                 st.caption(f"Act. {doc.get('updated_at', '—')}")
                 find = st.text_input("Buscar", key=f"find_{doc['id']}", placeholder="texto…")
 
+            view_mode = st.radio(
+                "Vista",
+                ["Columnas", "Bloques (voz)", "Chat"],
+                horizontal=True,
+                key=f"view_{doc['id']}",
+                help="Columnas = Soro/otbedit · Bloques/Chat = flujo VoiScripter",
+            )
+
             this_jump = (
                 jump
                 if jump and jump.get("doc_id") == doc.get("id")
                 else None
             )
-            if this_jump:
+            if this_jump and view_mode == "Columnas":
                 st.markdown(
                     f"""
 <script>
@@ -779,49 +1099,191 @@ def main() -> None:
                     unsafe_allow_html=True,
                 )
 
-            n = int(doc.get("n_cols") or DEFAULT_COLS)
-            cols_ui = st.columns(n)
-            updated_cols = []
-            for ci, col in enumerate(cols_ui):
-                with col:
-                    jumped = this_jump and int(this_jump["col"]) == ci
-                    label = f"Columna {ci + 1}" + (f" · ◀ L{int(this_jump['line']) + 1}" if jumped else "")
-                    text = st.text_area(
-                        label,
-                        value=doc["columns"][ci] if ci < len(doc["columns"]) else "",
-                        height=420,
-                        key=f"col_{doc['id']}_{ci}",
-                    )
-                    if text != (doc["columns"][ci] if ci < len(doc["columns"]) else ""):
-                        st.session_state.active_tab = ti
-                    if find:
-                        hits = text.lower().count(find.lower()) if find else 0
-                        st.caption(f"{len(text.splitlines())} líneas · {hits} coincidencias")
-                    else:
-                        st.caption(f"{len(text.splitlines())} líneas · {len(text)} chars")
-                    updated_cols.append(text)
-            doc["columns"] = updated_cols
-            doc["n_cols"] = n
-            doc["updated_at"] = _now()
+            blocks = _ensure_doc_blocks(doc)
+            char_options = {c["id"]: c.get("name") or c["id"] for c in st.session_state.characters}
+            if NARRATOR_ID not in char_options:
+                char_options[NARRATOR_ID] = "ト書き"
 
-            # Export texto plano alineado (Soro-style)
-            if st.button("Exportar texto alineado", key=f"exp_{doc['id']}"):
-                st.session_state.active_tab = ti
-                _sync_line_counts(doc)
-                lines_per_col = [c.split("\n") for c in doc["columns"]]
-                max_l = max((len(x) for x in lines_per_col), default=0)
-                out_lines = []
-                for r in range(max_l):
-                    row = []
-                    for c in lines_per_col:
-                        row.append(c[r] if r < len(c) else "")
-                    out_lines.append(" | ".join(row))
-                st.code("\n".join(out_lines), language="text")
+            if view_mode == "Bloques (voz)":
+                st.caption(
+                    f"{len(blocks)} bloque(s) · guion por hablante (VoiScripter). "
+                    "Úsalos para exportar a VOICEROID / A.I.VOICE / CeVIO."
+                )
+                b_add1, b_add2, b_add3 = st.columns([2, 2, 1])
+                with b_add1:
+                    add_who = st.selectbox(
+                        "Hablante nuevo",
+                        list(char_options.keys()),
+                        format_func=lambda k: char_options.get(k, k),
+                        key=f"blk_add_who_{doc['id']}",
+                    )
+                with b_add2:
+                    add_txt = st.text_input("Texto", key=f"blk_add_txt_{doc['id']}")
+                with b_add3:
+                    st.write("")
+                    st.write("")
+                    if st.button("＋", key=f"blk_add_{doc['id']}", use_container_width=True):
+                        blocks.append(_new_block(add_who, add_txt))
+                        doc["updated_at"] = _now()
+                        st.session_state.active_tab = ti
+                        st.session_state.status_msg = "Bloque añadido"
+                        st.rerun()
+
+                if find:
+                    shown = [
+                        (i, b)
+                        for i, b in enumerate(blocks)
+                        if find.lower() in str(b.get("text") or "").lower()
+                        or find.lower() in _char_label(str(b.get("character_id") or "")).lower()
+                    ]
+                else:
+                    shown = list(enumerate(blocks))
+
+                for i, b in shown:
+                    ch_id = str(b.get("character_id") or NARRATOR_ID)
+                    r1, r2, r3, r4 = st.columns([2, 5, 1, 1])
+                    with r1:
+                        new_cid = st.selectbox(
+                            "Quién",
+                            list(char_options.keys()),
+                            index=list(char_options.keys()).index(ch_id)
+                            if ch_id in char_options
+                            else 0,
+                            format_func=lambda k: char_options.get(k, k),
+                            key=f"blk_who_{doc['id']}_{b['id']}",
+                        )
+                    with r2:
+                        new_txt = st.text_area(
+                            "Diálogo",
+                            value=str(b.get("text") or ""),
+                            height=68,
+                            key=f"blk_txt_{doc['id']}_{b['id']}",
+                        )
+                    with r3:
+                        st.write("")
+                        if st.button("↑", key=f"blk_up_{doc['id']}_{b['id']}", disabled=i <= 0):
+                            blocks[i - 1], blocks[i] = blocks[i], blocks[i - 1]
+                            doc["updated_at"] = _now()
+                            st.rerun()
+                        if st.button("↓", key=f"blk_dn_{doc['id']}_{b['id']}", disabled=i >= len(blocks) - 1):
+                            blocks[i + 1], blocks[i] = blocks[i], blocks[i + 1]
+                            doc["updated_at"] = _now()
+                            st.rerun()
+                    with r4:
+                        st.write("")
+                        if st.button("✕", key=f"blk_del_{doc['id']}_{b['id']}"):
+                            blocks.pop(i)
+                            doc["updated_at"] = _now()
+                            st.rerun()
+                    emo = st.text_input(
+                        "Emoción",
+                        value=str(b.get("emotion") or "normal"),
+                        key=f"blk_emo_{doc['id']}_{b['id']}",
+                    )
+                    if new_cid != b.get("character_id") or new_txt != b.get("text") or emo != b.get("emotion"):
+                        b["character_id"] = new_cid
+                        b["text"] = new_txt
+                        b["emotion"] = emo or "normal"
+                        doc["updated_at"] = _now()
+                        st.session_state.active_tab = ti
+
+                if st.button(
+                    "Volcar bloques → columna 2 (diálogo)",
+                    key=f"blk_to_col_{doc['id']}",
+                    use_container_width=True,
+                ):
+                    lines = []
+                    for b in blocks:
+                        who = _char_label(str(b.get("character_id") or ""))
+                        txt = str(b.get("text") or "")
+                        if str(b.get("character_id") or "") == NARRATOR_ID:
+                            lines.append(txt)
+                        else:
+                            lines.append(f"{who}: {txt}")
+                    cols = list(doc.get("columns") or [])
+                    while len(cols) < 2:
+                        cols.append("")
+                    cols[1] = "\n".join(lines)
+                    doc["columns"] = cols
+                    doc["n_cols"] = max(int(doc.get("n_cols") or 2), 2)
+                    doc["updated_at"] = _now()
+                    st.session_state.status_msg = "Bloques volcados a columna 2"
+                    st.rerun()
+
+            elif view_mode == "Chat":
+                if not blocks:
+                    st.info("No hay bloques. Crea algunos en la vista Bloques (voz).")
+                else:
+                    filtered = blocks
+                    if find:
+                        filtered = [
+                            b
+                            for b in blocks
+                            if find.lower() in str(b.get("text") or "").lower()
+                            or find.lower() in _char_label(str(b.get("character_id") or "")).lower()
+                        ]
+                    st.markdown(_blocks_to_chat_html(filtered), unsafe_allow_html=True)
+                    # Pasada por personaje (VoiScripter: comprobar diálogos de un personaje)
+                    who_ids = list(char_options.keys())
+                    pass_who = st.selectbox(
+                        "Pasada por personaje",
+                        ["(todos)"] + who_ids,
+                        format_func=lambda k: "(todos)" if k == "(todos)" else char_options.get(k, k),
+                        key=f"chat_pass_{doc['id']}",
+                    )
+                    if pass_who != "(todos)":
+                        only = [b for b in blocks if str(b.get("character_id") or "") == pass_who]
+                        st.subheader(_char_label(pass_who))
+                        for b in only:
+                            st.markdown(f"- {b.get('text') or ''}")
+
+            else:
+                # Columnas (Soro / otbedit)
+                n = int(doc.get("n_cols") or DEFAULT_COLS)
+                cols_ui = st.columns(n)
+                updated_cols = []
+                for ci, col in enumerate(cols_ui):
+                    with col:
+                        jumped = this_jump and int(this_jump["col"]) == ci
+                        label = f"Columna {ci + 1}" + (
+                            f" · ◀ L{int(this_jump['line']) + 1}" if jumped else ""
+                        )
+                        text = st.text_area(
+                            label,
+                            value=doc["columns"][ci] if ci < len(doc["columns"]) else "",
+                            height=420,
+                            key=f"col_{doc['id']}_{ci}",
+                        )
+                        if text != (doc["columns"][ci] if ci < len(doc["columns"]) else ""):
+                            st.session_state.active_tab = ti
+                        if find:
+                            hits = text.lower().count(find.lower()) if find else 0
+                            st.caption(f"{len(text.splitlines())} líneas · {hits} coincidencias")
+                        else:
+                            st.caption(f"{len(text.splitlines())} líneas · {len(text)} chars")
+                        updated_cols.append(text)
+                doc["columns"] = updated_cols
+                doc["n_cols"] = n
+                doc["updated_at"] = _now()
+
+                # Export texto plano alineado (Soro-style)
+                if st.button("Exportar texto alineado", key=f"exp_{doc['id']}"):
+                    st.session_state.active_tab = ti
+                    _sync_line_counts(doc)
+                    lines_per_col = [c.split("\n") for c in doc["columns"]]
+                    max_l = max((len(x) for x in lines_per_col), default=0)
+                    out_lines = []
+                    for r in range(max_l):
+                        row = []
+                        for c in lines_per_col:
+                            row.append(c[r] if r < len(c) else "")
+                        out_lines.append(" | ".join(row))
+                    st.code("\n".join(out_lines), language="text")
 
     st.markdown("---")
     st.caption(
-        f"{APP_MARK} · inspirado en otbedit, SoroEditor y Yohaku (outline). "
-        "Proyecto único Streamlit de la plataforma l8."
+        f"{APP_MARK} · otbedit · SoroEditor · Yohaku (outline) · "
+        "VoiScripter (bloques/elenco/export voz). Proyecto Streamlit de l8."
     )
 
 

@@ -65,6 +65,18 @@ if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     exit;
 }
 
+// Google Search Console — HTML file verification (raíz pública)
+if (preg_match('#^/google[a-z0-9]+\.html$#i', $uri)) {
+    $verifyPath = __DIR__ . '/' . basename($uri);
+    if (is_file($verifyPath)) {
+        header('Content-Type: text/html; charset=utf-8');
+        header('Cache-Control: public, max-age=300');
+        header('X-Robots-Tag: noindex');
+        readfile($verifyPath);
+        exit;
+    }
+}
+
 // Denegado / probes
 if (securityIsDeniedPath($uri) || securityIsProbePath($uri)) {
     securityNotFoundQuiet();

@@ -15,12 +15,12 @@ MAX_COLS = 6
 MIN_COLS = 1
 DEFAULT_COLS = 3
 DEFAULT_COL_PCT = [20, 50, 30]
-# Favicon PNG (pestaña). Banner usa SVG completo. NO usar st.logo (recorta a una rallita).
+# Favicon PNG (pestaña). Banner usa SVG completo. No usar logo del chrome (recorta a una rallita).
 ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_ICON_SVG_ONLY_V1"
+SORO_HEADER_MARK = "SORO_ICON_SVG_ONLY_V2"
 
 
 def _asset(*names: str) -> str | None:
@@ -167,7 +167,7 @@ def _load_project(raw: bytes | str) -> None:
 def main() -> None:
     # {SORO_HEADER_MARK}
     favicon = _page_icon()
-    # SVG completo en el banner de la app (no en st.logo — se ve como rallita)
+    # SVG completo en el banner de la app (el logo del chrome se veía como rallita)
     banner_src = _asset(ICON_SVG, ICON_PNG, LOGO_PNG, FAVICON_PNG)
 
     st.set_page_config(
@@ -176,7 +176,7 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
-    # Sin st.logo: el chrome de Streamlit recorta el icono a un fragmento.
+    # Sin logo en el chrome: Streamlit lo recorta a un fragmento.
 
     _ensure_state()
 

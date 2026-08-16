@@ -266,12 +266,12 @@ function streamlitEnsureSeeded() {
     $need = !is_readable($app) || (int) @filesize($app) === 0;
     if (!$need) {
         $existing = (string) @file_get_contents($app);
-        // Migrar demos / rallita de st.logo → solo SVG completo en banner
+        // Migrar demos / rallita del chrome → solo SVG completo en banner
         if (
             strpos($existing, 'SoroOtbedit') === false
             || strpos($existing, '_page_icon') === false
-            || strpos($existing, 'SORO_ICON_SVG_ONLY_V1') === false
-            || preg_match('/\bst\.logo\s*\(/', $existing)
+            || strpos($existing, 'SORO_ICON_SVG_ONLY_V2') === false
+            || preg_match('/^\s*st\.logo\s*\(/m', $existing)
         ) {
             $need = true;
         }

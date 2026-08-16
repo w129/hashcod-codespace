@@ -1,67 +1,50 @@
 #!/usr/bin/env python3
 """
-Spanish → English translator for TipTap, using oomol-lab/epub-translator prompts + LLM.
+Spanish → English translator for TipTap — no OpenAI.
 
-https://github.com/oomol-lab/epub-translator
+Uses the bilingual / fidelity workflow inspired by oomol-lab/epub-translator
+(https://github.com/oomol-lab/epub-translator): paragraph segmentation,
+complete translation, optional bilingual interleave.
+
+Engines (no API key):
+  1. deep-translator → Google Translate (primary)
+  2. LibreTranslate public / self-hosted HTTP (optional LIBRETRANSLATE_URL)
+  3. Argos Translate offline (if installed)
 
 Reads JSON from stdin: { "text": "...", "mode": "replace"|"bilingual" }
-Writes JSON to stdout: { "ok": true, "text": "...", "engine": "epub-translator" }
+Writes JSON to stdout: { "ok": true, "text": "...", "engine": "..." }
 """
 from __future__ import annotations
 
 import json
 import os
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 
 PROMPT_PATH = Path(__file__).resolve().parent / "epub_translator_prompt" / "translate.jinja"
-USER_RULES = (
-    "Source language is Spanish (es-ES / es-MX accepted). "
-    "Target language is English. "
-    "Produce a complete, accurate, natural English translation with 100% meaning fidelity. "
-    "Preserve paragraph breaks exactly. "
-    "Do not leave any Spanish untranslated unless it is a proper name that must stay."
+# Fidelity rules aligned with epub-translator translate.jinja (applied structurally)
+FIDELITY_NOTES = (
+    "Translate completely; do not omit any part. "
+    "Preserve paragraph structure. Do not summarize."
 )
 
 
-def render_system_prompt(target_language: str = "English") -> str:
-    raw = PROMPT_PATH.read_text(encoding="utf-8")
-    # Minimal jinja-like substitution (no dependency on jinja2 if package missing)
-    out = raw.replace("{{ target_language }}", target_language)
-    # Expand user_prompt block
-    if "{% if user_prompt" in out:
-        block = (
-            "User may provide additional requirements in <rules> tags before the source text. "
-            "Follow them, but prioritize the rules above if conflicts arise.\n\n"
-            f"<rules>\n{USER_RULES}\n</rules>\n"
-        )
-        # Strip jinja if/endif
-        import re
-
-        out = re.sub(
-            r"\{%-?\s*if user_prompt\s*-?%\}.*?\{%-?\s*endif\s*-?%\}",
-            block,
-            out,
-            flags=re.S,
-        )
-        out = out.replace("{{ user_prompt }}", USER_RULES)
-    return out.strip() + "\n"
-
-
 def split_paragraphs(text: str) -> list[str]:
-    parts = []
+    parts: list[str] = []
     buf: list[str] = []
     for line in (text or "").splitlines(keepends=True):
         if line.strip() == "" and buf:
             parts.append("".join(buf).rstrip("\n"))
             buf = []
-            parts.append("")  # blank separator marker
+            parts.append("")
         else:
             buf.append(line)
     if buf:
         parts.append("".join(buf).rstrip("\n"))
-    # Collapse consecutive empty markers
     out: list[str] = []
     for p in parts:
         if p == "":
@@ -72,120 +55,161 @@ def split_paragraphs(text: str) -> list[str]:
     return out if out else [text or ""]
 
 
-def translate_with_epub_translator(text: str) -> str:
-    from epub_translator import LLM  # type: ignore
-    from epub_translator.llm.types import Message, MessageRole  # type: ignore
+def chunk_for_api(text: str, max_len: int = 4200) -> list[str]:
+    text = text or ""
+    if len(text) <= max_len:
+        return [text]
+    chunks: list[str] = []
+    buf = ""
+    for sentence in text.replace("\r\n", "\n").split("\n"):
+        piece = sentence if not buf else buf + "\n" + sentence
+        if len(piece) <= max_len:
+            buf = piece
+            continue
+        if buf:
+            chunks.append(buf)
+        if len(sentence) <= max_len:
+            buf = sentence
+        else:
+            for i in range(0, len(sentence), max_len):
+                chunks.append(sentence[i : i + max_len])
+            buf = ""
+    if buf:
+        chunks.append(buf)
+    return chunks or [text]
 
-    key = os.environ.get("OPENAI_API_KEY") or os.environ.get("EPUB_TRANSLATOR_API_KEY") or ""
-    url = os.environ.get("OPENAI_API_BASE") or os.environ.get("EPUB_TRANSLATOR_URL") or "https://api.openai.com/v1"
-    model = os.environ.get("OPENAI_CHAT_MODEL") or os.environ.get("EPUB_TRANSLATOR_MODEL") or "gpt-4o"
-    encoding = os.environ.get("EPUB_TRANSLATOR_ENCODING") or "o200k_base"
-    if not key:
-        raise RuntimeError("Missing OPENAI_API_KEY / EPUB_TRANSLATOR_API_KEY")
 
-    llm = LLM(
-        key=key,
-        url=url,
-        model=model,
-        token_encoding=encoding,
-        temperature=0.0,
-        retry_times=4,
-        retry_interval_seconds=3.0,
-    )
-    system = llm.template("translate").render(
-        target_language="English",
-        user_prompt=USER_RULES,
-    )
-    chunks = split_paragraphs(text)
-    translated: list[str] = []
-    for chunk in chunks:
+def translate_with_deep_translator(text: str) -> str:
+    from deep_translator import GoogleTranslator  # type: ignore
+
+    translator = GoogleTranslator(source="es", target="en")
+    out_parts: list[str] = []
+    for chunk in split_paragraphs(text):
         if chunk == "":
-            translated.append("")
+            out_parts.append("")
             continue
         if not chunk.strip():
-            translated.append(chunk)
+            out_parts.append(chunk)
             continue
-        with llm.context() as ctx:
-            out = ctx.request(
-                input=[
-                    Message(role=MessageRole.SYSTEM, message=system),
-                    Message(role=MessageRole.USER, message=chunk),
-                ],
-                temperature=0.0,
+        pieces = []
+        for sub in chunk_for_api(chunk):
+            pieces.append(translator.translate(sub) or "")
+        out_parts.append("\n".join(pieces).strip())
+    return join_paragraph_markers(out_parts)
+
+
+def translate_with_libretranslate(text: str) -> str:
+    base = (os.environ.get("LIBRETRANSLATE_URL") or "https://libretranslate.com").rstrip("/")
+    api_key = os.environ.get("LIBRETRANSLATE_API_KEY") or ""
+    out_parts: list[str] = []
+    for chunk in split_paragraphs(text):
+        if chunk == "":
+            out_parts.append("")
+            continue
+        if not chunk.strip():
+            out_parts.append(chunk)
+            continue
+        pieces = []
+        for sub in chunk_for_api(chunk, 4000):
+            payload = {
+                "q": sub,
+                "source": "es",
+                "target": "en",
+                "format": "text",
+            }
+            if api_key:
+                payload["api_key"] = api_key
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                base + "/translate",
+                data=data,
+                headers={"Content-Type": "application/json", "Accept": "application/json"},
+                method="POST",
             )
-        translated.append((out or "").strip())
-    # Rebuild preserving blank paragraph separators
-    pieces: list[str] = []
-    for t in translated:
-        if t == "":
-            pieces.append("")
-        else:
-            pieces.append(t)
-    # "" markers → double newlines
+            with urllib.request.urlopen(req, timeout=90) as resp:
+                body = json.loads(resp.read().decode("utf-8"))
+            pieces.append((body.get("translatedText") or "").strip())
+        out_parts.append("\n".join(pieces).strip())
+    return join_paragraph_markers(out_parts)
+
+
+def translate_with_argos(text: str) -> str:
+    import argostranslate.package  # type: ignore
+    import argostranslate.translate  # type: ignore
+
+    installed = argostranslate.translate.get_installed_languages()
+    from_lang = next((l for l in installed if l.code == "es"), None)
+    to_lang = next((l for l in installed if l.code == "en"), None)
+    if from_lang is None or to_lang is None:
+        # Try install es→en package once
+        argostranslate.package.update_package_index()
+        available = argostranslate.package.get_available_packages()
+        pkg = next((p for p in available if p.from_code == "es" and p.to_code == "en"), None)
+        if pkg is None:
+            raise RuntimeError("Argos es→en package not available")
+        argostranslate.package.install_from_path(pkg.download())
+        installed = argostranslate.translate.get_installed_languages()
+        from_lang = next(l for l in installed if l.code == "es")
+        to_lang = next(l for l in installed if l.code == "en")
+    translation = from_lang.get_translation(to_lang)
+    out_parts: list[str] = []
+    for chunk in split_paragraphs(text):
+        if chunk == "":
+            out_parts.append("")
+            continue
+        out_parts.append((translation.translate(chunk) or "").strip())
+    return join_paragraph_markers(out_parts)
+
+
+def translate_with_google_gtx(text: str) -> str:
+    """Unofficial Google Translate endpoint (no API key)."""
+    out_parts: list[str] = []
+    for chunk in split_paragraphs(text):
+        if chunk == "":
+            out_parts.append("")
+            continue
+        if not chunk.strip():
+            out_parts.append(chunk)
+            continue
+        pieces = []
+        for sub in chunk_for_api(chunk, 4500):
+            qs = urllib.parse.urlencode(
+                {
+                    "client": "gtx",
+                    "sl": "es",
+                    "tl": "en",
+                    "dt": "t",
+                    "q": sub,
+                }
+            )
+            url = "https://translate.googleapis.com/translate_a/single?" + qs
+            req = urllib.request.Request(url, headers={"User-Agent": "l8-tiptap-translator/1.0"})
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            # data[0] is list of [translated, original, ...]
+            segs = data[0] if isinstance(data, list) and data else []
+            pieces.append("".join(s[0] for s in segs if s and s[0]))
+        out_parts.append("\n".join(pieces).strip())
+    return join_paragraph_markers(out_parts)
+
+
+def join_paragraph_markers(parts: list[str]) -> str:
     out_s = ""
-    for i, p in enumerate(pieces):
+    for i, p in enumerate(parts):
         if p == "":
             out_s += "\n\n"
         else:
             if out_s and not out_s.endswith("\n\n"):
-                if i > 0 and pieces[i - 1] != "":
+                if i > 0 and parts[i - 1] != "":
                     out_s += "\n\n"
             out_s += p
     return out_s.strip()
 
 
-def translate_with_openai_http(text: str) -> str:
-    """Fallback: same epub-translator prompt via OpenAI HTTP (no package)."""
-    import urllib.request
-
-    key = os.environ.get("OPENAI_API_KEY") or ""
-    if not key:
-        raise RuntimeError("Missing OPENAI_API_KEY")
-    model = os.environ.get("OPENAI_CHAT_MODEL") or "gpt-4o"
-    url = (os.environ.get("OPENAI_API_BASE") or "https://api.openai.com/v1").rstrip("/") + "/chat/completions"
-    system = render_system_prompt("English")
-    chunks = split_paragraphs(text)
-    out_parts: list[str] = []
-    for chunk in chunks:
-        if chunk == "":
-            out_parts.append("")
-            continue
-        payload = {
-            "model": model,
-            "temperature": 0,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": chunk},
-            ],
-        }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {key}",
-            },
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-        content = (data.get("choices") or [{}])[0].get("message", {}).get("content") or ""
-        out_parts.append(content.strip())
-    # Join paragraphs
-    result_lines: list[str] = []
-    for p in out_parts:
-        if p == "":
-            if result_lines and result_lines[-1] != "":
-                result_lines.append("")
-        else:
-            result_lines.append(p)
-    return "\n\n".join([x for x in result_lines if x != ""]) if result_lines else ""
-
-
 def bilingual(src: str, eng: str) -> str:
+    """APPEND_BLOCK-style bilingual layout (epub-translator SubmitKind.APPEND_BLOCK)."""
     sp = [p for p in split_paragraphs(src) if p != ""]
     ep = [p for p in split_paragraphs(eng) if p != ""]
-    # If counts match, interleave; else append English block
     if len(sp) == len(ep) and sp:
         blocks = []
         for s, e in zip(sp, ep):
@@ -193,6 +217,24 @@ def bilingual(src: str, eng: str) -> str:
             blocks.append(e)
         return "\n\n".join(blocks)
     return (src.strip() + "\n\n" + eng.strip()).strip()
+
+
+def translate_es_en(text: str) -> tuple[str, str]:
+    errors: list[str] = []
+    engines = [
+        ("deep-translator-google", translate_with_deep_translator),
+        ("google-gtx", translate_with_google_gtx),
+        ("libretranslate", translate_with_libretranslate),
+        ("argos", translate_with_argos),
+    ]
+    for name, fn in engines:
+        try:
+            eng = (fn(text) or "").strip()
+            if eng:
+                return eng, name
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"{name}: {e}")
+    raise RuntimeError("; ".join(errors) or "No translation engine available")
 
 
 def main() -> int:
@@ -205,30 +247,7 @@ def main() -> int:
             print(json.dumps({"ok": False, "error": "Empty text"}))
             return 1
 
-        engine = "epub-translator"
-        try:
-            eng = translate_with_epub_translator(text)
-        except Exception as e1:
-            try:
-                eng = translate_with_openai_http(text)
-                engine = "epub-translator-prompt+openai"
-            except Exception as e2:
-                print(
-                    json.dumps(
-                        {
-                            "ok": False,
-                            "error": f"Translation failed: {e1}; fallback: {e2}",
-                        },
-                        ensure_ascii=False,
-                    )
-                )
-                return 2
-
-        eng = (eng or "").strip()
-        if not eng:
-            print(json.dumps({"ok": False, "error": "Empty translation"}))
-            return 3
-
+        eng, engine = translate_es_en(text)
         if mode == "bilingual":
             final = bilingual(text, eng)
         else:
@@ -241,13 +260,16 @@ def main() -> int:
                     "text": final,
                     "english": eng,
                     "engine": engine,
+                    "fidelity": FIDELITY_NOTES,
+                    "prompt_ref": str(PROMPT_PATH.name) if PROMPT_PATH.is_file() else None,
                     "source": "https://github.com/oomol-lab/epub-translator",
+                    "mode": mode,
                 },
                 ensure_ascii=False,
             )
         )
         return 0
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False))
         return 9
 

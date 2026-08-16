@@ -119,6 +119,7 @@ function tiptapStatusPayload() {
         'source' => 'https://github.com/ueberdosis/tiptap',
         'translator' => 'https://github.com/oomol-lab/epub-translator',
         'translate_es_en' => true,
+        'translate_no_openai' => true,
         'platform_url' => '/tiptap',
         'has_doc' => is_file($path),
         'docs_path' => 'data_storage/tiptap/docs',
@@ -126,7 +127,8 @@ function tiptapStatusPayload() {
 }
 
 /**
- * Spanish → English using oomol-lab/epub-translator prompt + LLM.
+ * Spanish → English without OpenAI.
+ * Workflow (paragraph / bilingual) inspired by oomol-lab/epub-translator.
  * @see https://github.com/oomol-lab/epub-translator
  */
 function tiptapEpubTranslatorSystemPrompt() {
@@ -178,27 +180,27 @@ function tiptapTranslateViaPython($text, $mode = 'replace') {
         2 => ['pipe', 'w'],
     ];
     $env = $_ENV;
-    foreach (['OPENAI_API_KEY', 'OPENAI_API_BASE', 'OPENAI_CHAT_MODEL', 'EPUB_TRANSLATOR_API_KEY', 'EPUB_TRANSLATOR_URL', 'EPUB_TRANSLATOR_MODEL', 'PATH', 'HOME', 'LANG'] as $k) {
+    foreach (['LIBRETRANSLATE_URL', 'LIBRETRANSLATE_API_KEY', 'PATH', 'HOME', 'LANG', 'PYTHONPATH'] as $k) {
         $v = getenv($k);
         if ($v !== false && $v !== '') {
             $env[$k] = $v;
         }
     }
-    $pythonBins = [];
-    foreach (['/opt/l8-py/bin/python', '/usr/local/bin/l8-python', 'python3', 'python'] as $bin) {
-        $pythonBins[] = $bin;
+    // Ensure user-site packages (deep-translator) are visible
+    $userSite = getenv('HOME') ? (getenv('HOME') . '/.local/lib/python3.12/site-packages') : '';
+    if ($userSite !== '' && is_dir($userSite)) {
+        $env['PYTHONPATH'] = isset($env['PYTHONPATH']) && $env['PYTHONPATH'] !== ''
+            ? $userSite . PATH_SEPARATOR . $env['PYTHONPATH']
+            : $userSite;
     }
     $proc = null;
     $pipes = [];
     $lastErr = 'Could not start python translator';
-    foreach ($pythonBins as $bin) {
-        $cmd = is_file($bin) || $bin === 'python3' || $bin === 'python'
-            ? [$bin, $script]
-            : null;
-        if ($cmd === null) {
+    foreach (['/opt/l8-py/bin/python', '/usr/local/bin/l8-python', 'python3', 'python'] as $bin) {
+        if ($bin !== 'python3' && $bin !== 'python' && !is_file($bin)) {
             continue;
         }
-        $try = @proc_open($cmd, $descriptors, $pipes, __DIR__, $env);
+        $try = @proc_open([$bin, $script], $descriptors, $pipes, __DIR__, $env);
         if (is_resource($try)) {
             $proc = $try;
             break;
@@ -228,18 +230,9 @@ function tiptapTranslateViaPython($text, $mode = 'replace') {
 }
 
 /**
- * Direct OpenAI HTTP using the vendored epub-translator system prompt
- * (same path as translate_es_en.py when the Python package is missing).
+ * PHP fallback: Google Translate gtx endpoint (no API key / no OpenAI).
  */
-function tiptapTranslateViaOpenAiEnv($text, $mode = 'replace') {
-    $key = getenv('OPENAI_API_KEY') ?: getenv('EPUB_TRANSLATOR_API_KEY') ?: '';
-    if ($key === '') {
-        return ['ok' => false, 'error' => 'Missing OPENAI_API_KEY'];
-    }
-    $model = getenv('OPENAI_CHAT_MODEL') ?: getenv('EPUB_TRANSLATOR_MODEL') ?: 'gpt-4o';
-    $base = rtrim(getenv('OPENAI_API_BASE') ?: getenv('EPUB_TRANSLATOR_URL') ?: 'https://api.openai.com/v1', '/');
-    $url = $base . '/chat/completions';
-    $system = tiptapEpubTranslatorSystemPrompt();
+function tiptapTranslateViaGoogleGtx($text, $mode = 'replace') {
     $paras = preg_split("/\n\s*\n/", (string) $text) ?: [(string) $text];
     $englishParts = [];
     foreach ($paras as $para) {
@@ -248,41 +241,51 @@ function tiptapTranslateViaOpenAiEnv($text, $mode = 'replace') {
             $englishParts[] = '';
             continue;
         }
-        $payload = json_encode([
-            'model' => $model,
-            'temperature' => 0,
-            'messages' => [
-                ['role' => 'system', 'content' => $system],
-                ['role' => 'user', 'content' => $para],
-            ],
-        ], JSON_UNESCAPED_UNICODE);
-        if ($payload === false) {
-            return ['ok' => false, 'error' => 'JSON encode failed'];
+        $chunks = [];
+        $len = strlen($para);
+        $max = 4200;
+        if ($len <= $max) {
+            $chunks[] = $para;
+        } else {
+            for ($i = 0; $i < $len; $i += $max) {
+                $chunks[] = substr($para, $i, $max);
+            }
         }
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $key,
-            ],
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 120,
-        ]);
-        $raw = curl_exec($ch);
-        $err = curl_error($ch);
-        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($raw === false) {
-            return ['ok' => false, 'error' => 'OpenAI curl: ' . $err];
+        $translated = [];
+        foreach ($chunks as $chunk) {
+            $url = 'https://translate.googleapis.com/translate_a/single?' . http_build_query([
+                'client' => 'gtx',
+                'sl' => 'es',
+                'tl' => 'en',
+                'dt' => 't',
+                'q' => $chunk,
+            ]);
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 60,
+                CURLOPT_HTTPHEADER => ['User-Agent: l8-tiptap-translator/1.0'],
+            ]);
+            $raw = curl_exec($ch);
+            $err = curl_error($ch);
+            $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($raw === false || $code >= 400) {
+                return ['ok' => false, 'error' => 'Google gtx failed: ' . ($err ?: ('HTTP ' . $code))];
+            }
+            $data = json_decode((string) $raw, true);
+            if (!is_array($data) || !isset($data[0]) || !is_array($data[0])) {
+                return ['ok' => false, 'error' => 'Google gtx invalid response'];
+            }
+            $piece = '';
+            foreach ($data[0] as $seg) {
+                if (is_array($seg) && isset($seg[0]) && is_string($seg[0])) {
+                    $piece .= $seg[0];
+                }
+            }
+            $translated[] = $piece;
         }
-        $data = json_decode((string) $raw, true);
-        if ($code >= 400 || !is_array($data)) {
-            $msg = is_array($data) ? ($data['error']['message'] ?? 'HTTP ' . $code) : ('HTTP ' . $code);
-            return ['ok' => false, 'error' => 'OpenAI: ' . $msg];
-        }
-        $englishParts[] = trim((string) ($data['choices'][0]['message']['content'] ?? ''));
+        $englishParts[] = trim(implode("\n", $translated));
     }
     $english = '';
     foreach ($englishParts as $i => $p) {
@@ -293,9 +296,9 @@ function tiptapTranslateViaOpenAiEnv($text, $mode = 'replace') {
     }
     $english = trim($english);
     if ($english === '') {
-        return ['ok' => false, 'error' => 'Empty translation from OpenAI'];
+        return ['ok' => false, 'error' => 'Empty translation from Google gtx'];
     }
-    return tiptapTranslateFormatResult($text, $english, $mode, 'epub-translator-prompt+openai-http');
+    return tiptapTranslateFormatResult($text, $english, $mode, 'google-gtx');
 }
 
 function tiptapTranslateFormatResult($source, $english, $mode, $engine) {
@@ -330,67 +333,6 @@ function tiptapTranslateFormatResult($source, $english, $mode, $engine) {
     ];
 }
 
-function tiptapTranslateViaAiChat($text, $mode = 'replace') {
-    if (!function_exists('aiChatComplete')) {
-        @require_once __DIR__ . '/ai-chat.php';
-    }
-    if (!function_exists('aiChatComplete') || !function_exists('aiChatLoadSession') || !function_exists('aiChatIsAuthed')) {
-        return ['ok' => false, 'error' => 'AI chat stack unavailable'];
-    }
-    $session = aiChatLoadSession();
-    $provider = null;
-    foreach (['gpt-5.6', 'claude-fable-5', 'gemini-3.6', 'manus'] as $id) {
-        if (aiChatIsAuthed($session, $id)) {
-            $provider = $id;
-            break;
-        }
-    }
-    if ($provider === null) {
-        return [
-            'ok' => false,
-            'error' => 'No LLM credentials. Configure OPENAI_API_KEY (epub-translator) or AI chat auth.',
-        ];
-    }
-
-    $system = tiptapEpubTranslatorSystemPrompt();
-    $paras = preg_split("/\n\s*\n/", (string) $text) ?: [(string) $text];
-    $englishParts = [];
-    foreach ($paras as $para) {
-        $para = (string) $para;
-        if (trim($para) === '') {
-            $englishParts[] = '';
-            continue;
-        }
-        // aiChatComplete uses its own system prompt — embed epub-translator rules in user message.
-        $userMsg =
-            "[epub-translator system rules]\n" . $system
-            . "\n[source Spanish text]\n" . $para;
-        $res = aiChatComplete($provider, $userMsg, '');
-        if (empty($res['ok'])) {
-            return [
-                'ok' => false,
-                'error' => $res['error'] ?? 'LLM translation failed',
-                'provider' => $provider,
-            ];
-        }
-        $englishParts[] = trim((string) ($res['content'] ?? ''));
-    }
-    $english = '';
-    foreach ($englishParts as $i => $p) {
-        if ($i > 0) {
-            $english .= "\n\n";
-        }
-        $english .= $p;
-    }
-    $english = trim($english);
-    if ($english === '') {
-        return ['ok' => false, 'error' => 'Empty translation from LLM'];
-    }
-    $out = tiptapTranslateFormatResult($text, $english, $mode, 'epub-translator-prompt+' . $provider);
-    $out['provider'] = $provider;
-    return $out;
-}
-
 function tiptapTranslateEsEn($text, $mode = 'replace') {
     $text = (string) $text;
     $mode = $mode === 'bilingual' ? 'bilingual' : 'replace';
@@ -401,39 +343,26 @@ function tiptapTranslateEsEn($text, $mode = 'replace') {
         return ['ok' => false, 'error' => 'Texto demasiado largo (máx. ~120k)'];
     }
 
-    // Prefer Python + epub-translator package / OpenAI (same prompts as upstream)
+    // Python: deep-translator / Google gtx / LibreTranslate / Argos (no OpenAI)
     $py = tiptapTranslateViaPython($text, $mode);
     if (!empty($py['ok'])) {
         return $py;
     }
 
-    // Direct OpenAI with vendored epub-translator prompt (no Python required)
-    $oa = tiptapTranslateViaOpenAiEnv($text, $mode);
-    if (!empty($oa['ok'])) {
+    // PHP fallback: Google Translate gtx (no API key)
+    $gtx = tiptapTranslateViaGoogleGtx($text, $mode);
+    if (!empty($gtx['ok'])) {
         if (!empty($py['error'])) {
-            $oa['python_error'] = $py['error'];
+            $gtx['python_error'] = $py['error'];
         }
-        return $oa;
-    }
-
-    // Fallback: platform AI chat OAuth session with the same prompt
-    $ai = tiptapTranslateViaAiChat($text, $mode);
-    if (!empty($ai['ok'])) {
-        if (!empty($py['error'])) {
-            $ai['python_error'] = $py['error'];
-        }
-        if (!empty($oa['error'])) {
-            $ai['openai_error'] = $oa['error'];
-        }
-        return $ai;
+        return $gtx;
     }
 
     return [
         'ok' => false,
-        'error' => ($ai['error'] ?? null) ?: ($oa['error'] ?? null) ?: ($py['error'] ?? 'Translation unavailable'),
+        'error' => ($gtx['error'] ?? null) ?: ($py['error'] ?? 'Translation unavailable'),
         'python_error' => $py['error'] ?? null,
-        'openai_error' => $oa['error'] ?? null,
-        'hint' => 'Install epub-translator (pip install epub-translator) + OPENAI_API_KEY, or configure AI chat credentials.',
+        'hint' => 'pip install deep-translator (no OpenAI). Optional: LIBRETRANSLATE_URL or argostranslate.',
         'source' => 'https://github.com/oomol-lab/epub-translator',
     ];
 }

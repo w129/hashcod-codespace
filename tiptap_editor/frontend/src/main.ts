@@ -394,7 +394,7 @@ function buildRibbon() {
   ])
 
   const translate = group('Traducir ES→EN', [
-    btn('trSel', 'ES→EN', 'Traducir selección (o todo) al inglés — epub-translator', () => {
+    btn('trSel', 'ES→EN', 'Traducir selección (o todo) al inglés — sin OpenAI', () => {
       void runTranslate('replace', false)
     }),
     btn('trDoc', 'Doc→EN', 'Traducir documento completo al inglés', () => {
@@ -447,7 +447,7 @@ async function runTranslate(mode: 'replace' | 'bilingual', forceWhole: boolean) 
     return
   }
   try {
-    setStatus('Traduciendo ES→EN (epub-translator)…')
+        setStatus('Traduciendo ES→EN…')
     const res = await fetch('/api/tiptap/translate', {
       method: 'POST',
       credentials: 'same-origin',
@@ -473,7 +473,7 @@ async function runTranslate(mode: 'replace' | 'bilingual', forceWhole: boolean) 
       editor.commands.setContent(html, false)
     }
     updateCounts(editor)
-    setStatus(`Traducido · ${data.engine || 'epub-translator'}`, 'ok')
+    setStatus(`Traducido · ${data.engine || 'ES→EN'}`, 'ok')
   } catch {
     setStatus('Error de red al traducir', 'err')
   }

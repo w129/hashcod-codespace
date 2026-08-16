@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
 import streamlit as st
 
@@ -14,6 +15,22 @@ MAX_COLS = 6
 MIN_COLS = 1
 DEFAULT_COLS = 3
 DEFAULT_COL_PCT = [20, 50, 30]
+ICON_NAME = "soro_otbedit_icon.svg"
+
+
+def _page_icon():
+    """Favicon de pestaña: SVG junto a app.py (copiado al seed/save del slot)."""
+    here = Path(__file__).resolve().parent
+    candidates = [
+        here / ICON_NAME,
+        here / "streamlit_tools" / ICON_NAME,
+        Path("/var/www/html/streamlit_tools") / ICON_NAME,
+        Path(__file__).resolve().parents[3] / "streamlit_tools" / ICON_NAME,
+    ]
+    for p in candidates:
+        if p.is_file():
+            return str(p)
+    return "🧠"
 
 
 def _now() -> str:
@@ -139,7 +156,7 @@ def _load_project(raw: bytes | str) -> None:
 def main() -> None:
     st.set_page_config(
         page_title=APP_TITLE,
-        page_icon="📝",
+        page_icon=_page_icon(),
         layout="wide",
         initial_sidebar_state="expanded",
     )

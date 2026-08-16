@@ -39,42 +39,97 @@ http://:{$PORT:8000} {
 		}
 	}
 
-	# Streamlit slots (websockets vía reverse_proxy)
+	# Streamlit slots (websockets vía reverse_proxy).
+	# Si el proceso no está arrancado → connection refused (normal en idle / post-redeploy).
 	@st1 path /st/1 /st/1/*
 	handle @st1 {
-		reverse_proxy 127.0.0.1:8501
+		reverse_proxy 127.0.0.1:8501 {
+			transport http {
+				dial_timeout 800ms
+				response_header_timeout 120s
+			}
+		}
 	}
 	@st2 path /st/2 /st/2/*
 	handle @st2 {
-		reverse_proxy 127.0.0.1:8502
+		reverse_proxy 127.0.0.1:8502 {
+			transport http {
+				dial_timeout 800ms
+				response_header_timeout 120s
+			}
+		}
 	}
 	@st3 path /st/3 /st/3/*
 	handle @st3 {
-		reverse_proxy 127.0.0.1:8503
+		reverse_proxy 127.0.0.1:8503 {
+			transport http {
+				dial_timeout 800ms
+				response_header_timeout 120s
+			}
+		}
 	}
 	@st4 path /st/4 /st/4/*
 	handle @st4 {
-		reverse_proxy 127.0.0.1:8504
+		reverse_proxy 127.0.0.1:8504 {
+			transport http {
+				dial_timeout 800ms
+				response_header_timeout 120s
+			}
+		}
 	}
 	@st5 path /st/5 /st/5/*
 	handle @st5 {
-		reverse_proxy 127.0.0.1:8505
+		reverse_proxy 127.0.0.1:8505 {
+			transport http {
+				dial_timeout 800ms
+				response_header_timeout 120s
+			}
+		}
 	}
 	@st6 path /st/6 /st/6/*
 	handle @st6 {
-		reverse_proxy 127.0.0.1:8506
+		reverse_proxy 127.0.0.1:8506 {
+			transport http {
+				dial_timeout 800ms
+				response_header_timeout 120s
+			}
+		}
 	}
 	@st7 path /st/7 /st/7/*
 	handle @st7 {
-		reverse_proxy 127.0.0.1:8507
+		reverse_proxy 127.0.0.1:8507 {
+			transport http {
+				dial_timeout 800ms
+				response_header_timeout 120s
+			}
+		}
 	}
 	@st8 path /st/8 /st/8/*
 	handle @st8 {
-		reverse_proxy 127.0.0.1:8508
+		reverse_proxy 127.0.0.1:8508 {
+			transport http {
+				dial_timeout 800ms
+				response_header_timeout 120s
+			}
+		}
 	}
 
 	# Plataforma PHP
 	handle {
 		reverse_proxy 127.0.0.1:8001
+	}
+
+	# 502 de Streamlit idle → página clara (no parece caída total de la plataforma)
+	handle_errors {
+		@st_offline {
+			expression `{err.status_code} == 502 && strings.HasPrefix({http.request.uri.path}, "/st/")`
+		}
+		handle @st_offline {
+			root * /var/www/html
+			rewrite * /public-st-offline.html
+			file_server
+			header Content-Type "text/html; charset=utf-8"
+			header Cache-Control "no-store"
+		}
 	}
 }

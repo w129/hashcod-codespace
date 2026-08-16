@@ -1,8 +1,17 @@
 <?php
 /**
- * LibreOffice core — estado / ensure clone en el servidor.
- * Código: data_storage/repos/libreoffice-core (MPL-2.0).
+ * LibreOffice suite en la plataforma servidor (MPL-2.0).
+ * Despliega un workspace con Writer, Calc, Impress, Draw, Base, Math y Chart.
+ * El clone del core es opcional (muy pesado); la suite funciona sin él.
  */
+
+function libreofficeRootDir() {
+    return __DIR__ . '/data_storage/libreoffice';
+}
+
+function libreofficeDocsDir() {
+    return libreofficeRootDir() . '/docs';
+}
 
 function libreofficeRepoDir() {
     return __DIR__ . '/data_storage/repos/libreoffice-core';
@@ -20,9 +29,258 @@ function libreofficeIsCloned() {
     return is_dir(libreofficeRepoDir() . '/.git');
 }
 
+function libreofficeSuiteTools() {
+    return [
+        [
+            'id' => 'writer',
+            'name' => 'Writer',
+            'label' => 'Documentos',
+            'ext' => 'odt.html',
+            'color' => '#2c5aa0',
+            'desc' => 'Procesador de textos',
+        ],
+        [
+            'id' => 'calc',
+            'name' => 'Calc',
+            'label' => 'Hojas de cálculo',
+            'ext' => 'ods.json',
+            'color' => '#007c3c',
+            'desc' => 'Hojas de cálculo',
+        ],
+        [
+            'id' => 'impress',
+            'name' => 'Impress',
+            'label' => 'Presentaciones',
+            'ext' => 'odp.json',
+            'color' => '#d2691e',
+            'desc' => 'Presentaciones',
+        ],
+        [
+            'id' => 'draw',
+            'name' => 'Draw',
+            'label' => 'Dibujos',
+            'ext' => 'odg.json',
+            'color' => '#c8102e',
+            'desc' => 'Dibujo vectorial',
+        ],
+        [
+            'id' => 'base',
+            'name' => 'Base',
+            'label' => 'Bases de datos',
+            'ext' => 'odb.json',
+            'color' => '#6b3fa0',
+            'desc' => 'Bases de datos',
+        ],
+        [
+            'id' => 'math',
+            'name' => 'Math',
+            'label' => 'Fórmulas',
+            'ext' => 'odf.txt',
+            'color' => '#008080',
+            'desc' => 'Editor de fórmulas',
+        ],
+        [
+            'id' => 'chart',
+            'name' => 'Chart',
+            'label' => 'Gráficos',
+            'ext' => 'chart.json',
+            'color' => '#1a6fb5',
+            'desc' => 'Gráficos y diagramas',
+        ],
+    ];
+}
+
+function libreofficeEnsureDirs() {
+    $root = libreofficeRootDir();
+    $docs = libreofficeDocsDir();
+    if (!is_dir($root)) {
+        @mkdir($root, 0775, true);
+    }
+    if (!is_dir($docs)) {
+        @mkdir($docs, 0775, true);
+    }
+    return is_dir($root) && is_dir($docs);
+}
+
+function libreofficeDefaultDoc($toolId) {
+    switch ($toolId) {
+        case 'writer':
+            return [
+                'title' => 'Documento Writer',
+                'html' => '<h1>LibreOffice Writer</h1><p>Escribe aquí tu documento. Formato enriquecido en la plataforma servidor.</p>',
+            ];
+        case 'calc':
+            return [
+                'title' => 'Hoja Calc',
+                'rows' => 12,
+                'cols' => 8,
+                'cells' => [
+                    'A1' => 'Mes', 'B1' => 'Ingresos', 'C1' => 'Gastos',
+                    'A2' => 'Enero', 'B2' => '1200', 'C2' => '800',
+                    'A3' => 'Febrero', 'B3' => '1350', 'C3' => '920',
+                ],
+            ];
+        case 'impress':
+            return [
+                'title' => 'Presentación Impress',
+                'slides' => [
+                    ['title' => 'LibreOffice Impress', 'body' => 'Presentación en la plataforma l8'],
+                    ['title' => 'Diapositiva 2', 'body' => 'Edita el título y el contenido'],
+                ],
+            ];
+        case 'draw':
+            return [
+                'title' => 'Dibujo Draw',
+                'width' => 800,
+                'height' => 500,
+                'strokes' => [],
+            ];
+        case 'base':
+            return [
+                'title' => 'Base de datos',
+                'fields' => ['id', 'nombre', 'nota'],
+                'rows' => [
+                    ['1', 'Registro A', 'Ejemplo'],
+                    ['2', 'Registro B', 'Ejemplo'],
+                ],
+            ];
+        case 'math':
+            return [
+                'title' => 'Fórmula Math',
+                'formula' => 'E = m c^2',
+            ];
+        case 'chart':
+            return [
+                'title' => 'Gráfico Chart',
+                'labels' => ['A', 'B', 'C', 'D'],
+                'values' => [12, 19, 8, 15],
+            ];
+        default:
+            return ['title' => $toolId, 'data' => null];
+    }
+}
+
+function libreofficeDocPath($toolId) {
+    $tools = libreofficeSuiteTools();
+    $ext = 'json';
+    foreach ($tools as $t) {
+        if ($t['id'] === $toolId) {
+            $ext = $t['ext'];
+            break;
+        }
+    }
+    return libreofficeDocsDir() . '/' . preg_replace('/[^a-z0-9_-]/i', '', $toolId) . '.' . $ext;
+}
+
+function libreofficeSeedDocs() {
+    libreofficeEnsureDirs();
+    $seeded = [];
+    foreach (libreofficeSuiteTools() as $tool) {
+        $path = libreofficeDocPath($tool['id']);
+        if (!is_file($path)) {
+            $payload = libreofficeDefaultDoc($tool['id']);
+            $payload['tool'] = $tool['id'];
+            $payload['updated_at'] = gmdate('c');
+            if (substr($path, -5) === '.html' || substr($path, -4) === '.txt') {
+                if ($tool['id'] === 'writer') {
+                    @file_put_contents($path, (string)($payload['html'] ?? ''));
+                } else {
+                    @file_put_contents($path, (string)($payload['formula'] ?? ''));
+                }
+            } else {
+                @file_put_contents($path, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            }
+            $seeded[] = $tool['id'];
+        }
+    }
+    $marker = libreofficeRootDir() . '/suite.json';
+    @file_put_contents($marker, json_encode([
+        'ok' => true,
+        'deployed_at' => gmdate('c'),
+        'tools' => array_map(function ($t) { return $t['id']; }, libreofficeSuiteTools()),
+        'license' => 'MPL-2.0',
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    return $seeded;
+}
+
+function libreofficeSuiteReady() {
+    return is_file(libreofficeRootDir() . '/suite.json') && is_dir(libreofficeDocsDir());
+}
+
+function libreofficeLoadDoc($toolId) {
+    $toolId = strtolower(preg_replace('/[^a-z0-9_-]/i', '', (string)$toolId));
+    $valid = false;
+    foreach (libreofficeSuiteTools() as $t) {
+        if ($t['id'] === $toolId) { $valid = true; break; }
+    }
+    if (!$valid) {
+        return ['ok' => false, 'error' => 'Herramienta desconocida'];
+    }
+    libreofficeEnsureDirs();
+    $path = libreofficeDocPath($toolId);
+    if (!is_file($path)) {
+        libreofficeSeedDocs();
+    }
+    if ($toolId === 'writer') {
+        $html = is_file($path) ? (string)@file_get_contents($path) : '';
+        return ['ok' => true, 'tool' => 'writer', 'title' => 'Documento Writer', 'html' => $html];
+    }
+    if ($toolId === 'math') {
+        $formula = is_file($path) ? (string)@file_get_contents($path) : 'E = m c^2';
+        return ['ok' => true, 'tool' => 'math', 'title' => 'Fórmula Math', 'formula' => $formula];
+    }
+    $raw = is_file($path) ? (string)@file_get_contents($path) : '';
+    $data = json_decode($raw, true);
+    if (!is_array($data)) {
+        $data = libreofficeDefaultDoc($toolId);
+        $data['tool'] = $toolId;
+    }
+    $data['ok'] = true;
+    $data['tool'] = $toolId;
+    return $data;
+}
+
+function libreofficeSaveDoc($toolId, $payload) {
+    $toolId = strtolower(preg_replace('/[^a-z0-9_-]/i', '', (string)$toolId));
+    $valid = false;
+    foreach (libreofficeSuiteTools() as $t) {
+        if ($t['id'] === $toolId) { $valid = true; break; }
+    }
+    if (!$valid) {
+        return ['ok' => false, 'error' => 'Herramienta desconocida'];
+    }
+    if (!is_array($payload)) {
+        return ['ok' => false, 'error' => 'Payload inválido'];
+    }
+    libreofficeEnsureDirs();
+    $path = libreofficeDocPath($toolId);
+    $payload['tool'] = $toolId;
+    $payload['updated_at'] = gmdate('c');
+    if ($toolId === 'writer') {
+        $html = (string)($payload['html'] ?? '');
+        if (strlen($html) > 800000) {
+            return ['ok' => false, 'error' => 'Documento demasiado grande'];
+        }
+        $ok = @file_put_contents($path, $html) !== false;
+        return ['ok' => $ok, 'tool' => 'writer', 'saved' => $ok];
+    }
+    if ($toolId === 'math') {
+        $formula = substr((string)($payload['formula'] ?? ''), 0, 20000);
+        $ok = @file_put_contents($path, $formula) !== false;
+        return ['ok' => $ok, 'tool' => 'math', 'saved' => $ok];
+    }
+    $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    if ($json === false || strlen($json) > 900000) {
+        return ['ok' => false, 'error' => 'Documento demasiado grande'];
+    }
+    $ok = @file_put_contents($path, $json) !== false;
+    return ['ok' => $ok, 'tool' => $toolId, 'saved' => $ok];
+}
+
 function libreofficeStatusPayload() {
-    $dir = libreofficeRepoDir();
+    $suiteReady = libreofficeSuiteReady();
     $cloned = libreofficeIsCloned();
+    $dir = libreofficeRepoDir();
     $branch = null;
     $commit = null;
     $files = null;
@@ -37,21 +295,23 @@ function libreofficeStatusPayload() {
             $bytes = (int) $m[1];
         }
     }
-    $top = [];
-    if ($cloned && is_dir($dir)) {
-        $entries = @scandir($dir) ?: [];
-        foreach ($entries as $e) {
-            if ($e === '.' || $e === '..' || $e === '.git') continue;
-            $top[] = $e;
-            if (count($top) >= 40) break;
-        }
-        sort($top);
+    $tools = [];
+    foreach (libreofficeSuiteTools() as $t) {
+        $path = libreofficeDocPath($t['id']);
+        $tools[] = array_merge($t, [
+            'ready' => is_file($path) || $suiteReady,
+            'has_doc' => is_file($path),
+        ]);
     }
     return [
         'ok' => true,
+        'suite_ready' => $suiteReady,
         'cloned' => $cloned,
-        'path' => 'data_storage/repos/libreoffice-core',
-        'absolute_path' => $dir,
+        'ready' => $suiteReady,
+        'path' => 'data_storage/libreoffice',
+        'docs_path' => 'data_storage/libreoffice/docs',
+        'core_path' => 'data_storage/repos/libreoffice-core',
+        'absolute_path' => libreofficeRootDir(),
         'branch' => $branch !== '' ? $branch : null,
         'last_commit' => $commit !== '' ? $commit : null,
         'files' => $files,
@@ -60,44 +320,40 @@ function libreofficeStatusPayload() {
         'remote_url' => libreofficeCloneUrl(),
         'mirror_url' => libreofficeMirrorUrl(),
         'platform_url' => '/libreoffice',
-        'top_level' => $top,
-        'ready' => $cloned,
+        'tools' => $tools,
+        'message' => $suiteReady
+            ? 'Suite LibreOffice lista en el servidor.'
+            : 'Suite aún no desplegada. Pulsa Desplegar.',
     ];
 }
 
-/** Asegura el clone (usa cloneOrUpdateRepository si existe; mirror GitHub si anongit falla). */
-function libreofficeEnsure() {
-    if (libreofficeIsCloned()) {
-        $st = libreofficeStatusPayload();
-        $st['already'] = true;
-        $st['message'] = 'LibreOffice core ya está en el servidor.';
-        return $st;
-    }
-    if (!function_exists('cloneOrUpdateRepository')) {
+/**
+ * Despliega la suite completa (tools + docs). No exige cuenta.
+ * El clone del core es opcional y no bloquea la suite.
+ */
+function libreofficeEnsure($opts = []) {
+    $wantCore = !empty($opts['core']);
+    if (!libreofficeEnsureDirs()) {
         return [
             'ok' => false,
-            'error' => 'cloneOrUpdateRepository no disponible',
-            'cloned' => false,
+            'error' => 'No se pudo crear data_storage/libreoffice',
+            'suite_ready' => false,
         ];
     }
-    $res = cloneOrUpdateRepository(libreofficeCloneUrl());
-    if (empty($res['ok']) || !libreofficeIsCloned()) {
-        $mirror = cloneOrUpdateRepository(libreofficeMirrorUrl());
-        if (!empty($mirror['ok']) || libreofficeIsCloned()) {
-            $res = $mirror;
-            $res['used_mirror'] = true;
-        } else {
-            $res['mirror'] = $mirror;
-        }
-    }
+    $seeded = libreofficeSeedDocs();
     $st = libreofficeStatusPayload();
-    $st['ok'] = !empty($st['cloned']);
-    $st['ensure'] = $res;
-    $st['message'] = !empty($st['ok'])
-        ? 'LibreOffice core desplegado en el servidor.'
-        : ($res['error'] ?? $res['raw_output'] ?? 'No se pudo clonar LibreOffice');
-    if (empty($st['ok'])) {
-        $st['error'] = $st['message'];
+    $st['ok'] = true;
+    $st['suite_ready'] = true;
+    $st['ready'] = true;
+    $st['seeded'] = $seeded;
+    $st['already'] = empty($seeded) && libreofficeSuiteReady();
+    $st['message'] = 'LibreOffice desplegado: Writer, Calc, Impress, Draw, Base, Math y Chart listos.';
+
+    if ($wantCore && !libreofficeIsCloned() && function_exists('cloneOrUpdateRepository')) {
+        $res = cloneOrUpdateRepository(libreofficeMirrorUrl());
+        $st['core_ensure'] = $res;
+        $st['cloned'] = libreofficeIsCloned();
     }
+
     return $st;
 }

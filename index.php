@@ -1397,6 +1397,32 @@ if (!headers_sent()) {
             max-height: 180px;
             overflow: auto;
         }
+        .lo-dock-tools {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .lo-dock-tool {
+            appearance: none;
+            border: 1px solid #2a3644;
+            background: #121820;
+            color: #e8eef4;
+            border-radius: 12px;
+            padding: 12px 10px;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 96px;
+        }
+        .lo-dock-tool:hover { border-color: #3d5166; background: #16202b; }
+        .lo-dock-swatch {
+            width: 28px; height: 28px; border-radius: 8px;
+            display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 12px;
+        }
+        .lo-dock-tool strong { font-size: 13px; }
+        .lo-dock-tool span:last-child { font-size: 11px; color: #8b9aab; }
 
         /* ===== STREAMLIT DOCK EDITOR (Figma panel-body) ===== */
         .st-dock-overlay {
@@ -7559,25 +7585,41 @@ if (!headers_sent()) {
         function loDockRender(st) {
             const badges = document.getElementById('loDockBadges');
             const meta = document.getElementById('loDockMeta');
-            const tree = document.getElementById('loDockTree');
-            if (!badges || !meta || !tree) return;
-            const ready = !!(st && st.cloned);
+            const toolsEl = document.getElementById('loDockTools');
+            if (!badges || !meta || !toolsEl) return;
+            const ready = !!(st && (st.suite_ready || st.ready));
+            const tools = (st && Array.isArray(st.tools)) ? st.tools : [];
             badges.innerHTML =
-                '<span class="lo-dock-badge ' + (ready ? 'ok' : '') + '">' + (ready ? 'Listo en servidor' : 'Sin clone') + '</span>' +
+                '<span class="lo-dock-badge ' + (ready ? 'ok' : '') + '">' + (ready ? 'Suite lista' : 'Sin desplegar') + '</span>' +
                 '<span class="lo-dock-badge">MPL-2.0</span>' +
-                (st && st.branch ? '<span class="lo-dock-badge">' + String(st.branch).replace(/</g, '') + '</span>' : '') +
-                (st && st.files != null ? '<span class="lo-dock-badge">' + Number(st.files).toLocaleString('es-ES') + ' archivos</span>' : '');
+                '<span class="lo-dock-badge">' + (tools.length || 7) + ' herramientas</span>';
             meta.innerHTML =
-                '<div><strong>Ruta</strong> · ' + ((st && st.path) || '—') + '</div>' +
-                '<div><strong>Commit</strong> · ' + ((st && st.last_commit) || '—') + '</div>' +
-                '<div><strong>Tamaño</strong> · ' + (st && st.bytes != null ? loDockFmtBytes(st.bytes) : '—') + '</div>' +
-                '<div><strong>Mirror</strong> · ' + ((st && st.mirror_url) || '—') + '</div>';
-            const tops = (st && Array.isArray(st.top_level)) ? st.top_level : [];
-            tree.innerHTML = tops.length
-                ? tops.map(function (n) {
-                    return '<span title="' + String(n).replace(/"/g, '') + '">' + String(n).replace(/</g, '') + '</span>';
-                }).join('')
-                : '<span style="grid-column:1/-1;opacity:.7">Sin árbol aún. Pulsa Desplegar en servidor.</span>';
+                '<div><strong>Ruta</strong> · ' + ((st && st.path) || 'data_storage/libreoffice') + '</div>' +
+                '<div><strong>Docs</strong> · ' + ((st && st.docs_path) || 'data_storage/libreoffice/docs') + '</div>';
+            toolsEl.innerHTML = tools.map(function (t) {
+                const color = t.color || '#18a303';
+                const letter = String(t.name || t.id || '?').charAt(0).toUpperCase();
+                return '<button type="button" class="lo-dock-tool" data-lo-tool="' + t.id + '" title="' + (t.desc || t.name || '') + '">' +
+                    '<span class="lo-dock-swatch" style="background:' + color + '">' + letter + '</span>' +
+                    '<strong>' + (t.name || t.id) + '</strong>' +
+                    '<span>' + (t.desc || '') + '</span></button>';
+            }).join('') || '<span style="opacity:.7">Sin herramientas. Pulsa Desplegar.</span>';
+            toolsEl.querySelectorAll('[data-lo-tool]').forEach(function (btn) {
+                btn.onclick = function (ev) {
+                    ev.preventDefault();
+                    const id = btn.getAttribute('data-lo-tool');
+                    // Abrir suite completa centrada en la herramienta (misma plataforma / ventana sync)
+                    const url = '/libreoffice?tool=' + encodeURIComponent(id);
+                    let win = null;
+                    try { win = window.open(url, 'l8-libreoffice', 'width=1180,height=800'); } catch (e) { win = null; }
+                    if (!win) {
+                        // Fallback: navegar no — mostrar enlace usable
+                        loDockSetMsg('Abre la herramienta: ' + url, 'err');
+                        const a = document.createElement('a');
+                        a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.click();
+                    }
+                };
+            });
         }
 
         async function loDockApi(path, opts) {
@@ -7594,32 +7636,33 @@ if (!headers_sent()) {
             loDockSetMsg('Consultando estado en el servidor…');
             const st = await loDockApi('/api/libreoffice/status');
             loDockRender(st);
+            if (st && st.suite_ready) {
+                loDockSetMsg(st.message || 'Suite LibreOffice lista.', 'ok');
+                return st;
+            }
+            // Auto-desplegar sin sesión de cuenta
+            loDockSetMsg('Desplegando suite completa…');
+            const dep = await loDockApi('/api/libreoffice/ensure', { method: 'POST', body: '{}' });
+            loDockRender(dep);
             loDockSetMsg(
-                st && st.cloned ? 'LibreOffice core listo en el servidor.' : 'Aún no hay clone. Pulsa Desplegar.',
-                st && st.cloned ? 'ok' : null
+                dep && dep.ok ? (dep.message || 'Suite lista.') : ((dep && dep.error) || 'No se pudo desplegar'),
+                dep && dep.ok ? 'ok' : 'err'
             );
-            return st;
+            return dep;
         }
 
         async function loDockDeploy() {
             const btn = document.getElementById('loDockDeployBtn');
             const log = document.getElementById('loDockLog');
             if (btn) btn.disabled = true;
-            loDockSetMsg('Desplegando LibreOffice core en el servidor…');
-            if (log) {
-                log.hidden = false;
-                log.textContent = 'ensure…\n';
-            }
+            loDockSetMsg('Desplegando LibreOffice en el servidor…');
+            if (log) { log.hidden = false; log.textContent = 'ensure suite…\n'; }
             try {
                 const st = await loDockApi('/api/libreoffice/ensure', { method: 'POST', body: '{}' });
                 loDockRender(st);
-                if (log) {
-                    log.textContent = (st && st.ensure && st.ensure.raw_output)
-                        ? String(st.ensure.raw_output).slice(-4000)
-                        : JSON.stringify(st, null, 2).slice(0, 4000);
-                }
+                if (log) log.textContent = JSON.stringify(st, null, 2).slice(0, 4000);
                 loDockSetMsg(
-                    st && st.ok ? (st.message || 'Listo.') : (st && st.error) || 'Falló el despliegue',
+                    st && st.ok ? (st.message || 'Listo.') : ((st && st.error) || 'Falló el despliegue'),
                     st && st.ok ? 'ok' : 'err'
                 );
             } catch (e) {
@@ -7644,7 +7687,6 @@ if (!headers_sent()) {
         }
 
         function openLibreOfficePlatform() {
-            // Siempre en la plataforma (panel), sin depender de popups del navegador.
             setLibreOfficeOpen(true);
         }
 
@@ -10740,7 +10782,7 @@ if (!headers_sent()) {
                     </svg>
                     <div>
                         <h2 id="loDockTitle">LibreOffice</h2>
-                        <p>Core en la plataforma servidor</p>
+                        <p>Suite en la plataforma servidor</p>
                     </div>
                 </div>
                 <div class="lo-dock-head-actions">
@@ -10753,7 +10795,7 @@ if (!headers_sent()) {
                 <div class="lo-dock-msg" id="loDockMsg" aria-live="polite"></div>
                 <div class="lo-dock-badges" id="loDockBadges"></div>
                 <div class="lo-dock-meta" id="loDockMeta"></div>
-                <div class="lo-dock-tree" id="loDockTree"></div>
+                <div class="lo-dock-tools" id="loDockTools" aria-label="Herramientas LibreOffice"></div>
                 <pre class="lo-dock-log" id="loDockLog" hidden></pre>
             </div>
         </div>

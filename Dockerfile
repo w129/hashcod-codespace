@@ -32,6 +32,16 @@ RUN apt-get update && apt-get install -y \
     && /opt/l8-py/bin/pip install --no-cache-dir --upgrade pip \
     && rm -rf /var/lib/apt/lists/*
 
+# Node.js + agent-browser (control de páginas Google)
+# https://github.com/vercel-labs/agent-browser
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get update && apt-get install -y --no-install-recommends nodejs \
+    && mkdir -p /opt/agent-browser \
+    && cd /opt/agent-browser && npm install agent-browser@^0.34.0 --no-fund --no-audit \
+    && ln -sf /opt/agent-browser/node_modules/.bin/agent-browser /usr/local/bin/agent-browser \
+    && (agent-browser install --with-deps || agent-browser install || true) \
+    && rm -rf /var/lib/apt/lists/* /root/.npm
+
 # Configurar directorio SSH y archivo config de GitHub
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
     echo "Host github.com\n\tStrictHostKeyChecking no\n\tIdentityFile /root/.ssh/id_ed25519_github\n" > /root/.ssh/config && \

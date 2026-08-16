@@ -20,7 +20,7 @@ ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_SIDEBAR_SVG_V1"
+SORO_HEADER_MARK = "SORO_GOOGLE_AB_V1"
 
 
 def _asset(*names: str) -> str | None:
@@ -42,6 +42,60 @@ def _asset(*names: str) -> str | None:
 def _page_icon():
     """Favicon de pestaña: PNG pequeño (el chrome de Streamlit maneja mal SVG ahí)."""
     return _asset(FAVICON_PNG, ICON_PNG, ICON_SVG) or "🧠"
+
+
+def _api_base() -> str:
+    import os
+
+    return (
+        os.environ.get("L8_API_BASE")
+        or os.environ.get("L8_PHP_BASE")
+        or "http://127.0.0.1:8001"
+    ).rstrip("/")
+
+
+def _ab_request(method: str, path: str, payload: dict | None = None, timeout: int = 120) -> dict:
+    import json as _json
+    import urllib.error
+    import urllib.request
+
+    url = _api_base() + path
+    data = None
+    headers = {"Accept": "application/json"}
+    if payload is not None:
+        data = _json.dumps(payload).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+    req = urllib.request.Request(url, data=data, headers=headers, method=method.upper())
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8", errors="replace")
+            return _json.loads(raw) if raw else {"ok": False, "error": "Respuesta vacía"}
+    except urllib.error.HTTPError as e:
+        try:
+            body = e.read().decode("utf-8", errors="replace")
+            parsed = _json.loads(body) if body else {}
+            if isinstance(parsed, dict):
+                parsed.setdefault("ok", False)
+                parsed.setdefault("error", f"HTTP {e.code}")
+                return parsed
+        except Exception:
+            pass
+        return {"ok": False, "error": f"HTTP {e.code}: {e.reason}"}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+def _ab_action(action: str, **kwargs) -> dict:
+    body = {"action": action, **kwargs}
+    return _ab_request("POST", "/api/agent-browser/action", body, timeout=150)
+
+
+def _ab_ensure() -> dict:
+    return _ab_request("POST", "/api/agent-browser/ensure", {}, timeout=300)
+
+
+def _ab_status() -> dict:
+    return _ab_request("GET", "/api/agent-browser/status", None, timeout=30)
 
 
 def _now() -> str:
@@ -177,6 +231,14 @@ def main() -> None:
     )
 
     _ensure_state()
+    if "ab_log" not in st.session_state:
+        st.session_state.ab_log = ""
+    if "ab_snapshot" not in st.session_state:
+        st.session_state.ab_snapshot = ""
+    if "ab_shot_b64" not in st.session_state:
+        st.session_state.ab_shot_b64 = ""
+    if "ab_url" not in st.session_state:
+        st.session_state.ab_url = "https://www.google.com/"
 
     icon_data_uri = ""
     if icon_src:
@@ -244,6 +306,25 @@ def main() -> None:
 """,
         unsafe_allow_html=True,
     )
+
+    if st.session_state.get("ab_shot_b64") or st.session_state.get("ab_snapshot"):
+        with st.expander("Google · vista agent-browser", expanded=bool(st.session_state.get("ab_shot_b64"))):
+            if st.session_state.get("ab_shot_b64"):
+                try:
+                    import base64 as _b64
+
+                    st.image(_b64.b64decode(st.session_state.ab_shot_b64), caption="Screenshot Google")
+                except Exception as e:
+                    st.caption(f"No se pudo mostrar shot: {e}")
+            if st.session_state.get("ab_snapshot"):
+                st.text_area(
+                    "Snapshot (refs @eN para click/fill)",
+                    value=st.session_state.ab_snapshot,
+                    height=220,
+                    key="ab_snap_view",
+                )
+            if st.session_state.get("ab_log"):
+                st.caption((st.session_state.ab_log or "")[:1200])
 
     # —— Sidebar: icono completo a la izquierda + proyecto ——
     with st.sidebar:
@@ -341,6 +422,129 @@ def main() -> None:
                 if st.button("✕", key=f"bm_del_{i}"):
                     st.session_state.bookmarks.pop(i)
                     st.rerun()
+
+        st.divider()
+        st.subheader("Google · agent-browser")
+        st.caption(
+            "Entrar y controlar páginas de Google con "
+            "[vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser)."
+        )
+
+        st_status = _ab_status()
+        avail = bool(st_status.get("available"))
+        st.caption(
+            ("CLI listo · " + (st_status.get("version") or "agent-browser"))
+            if avail
+            else "CLI no instalado aún · pulsa Asegurar"
+        )
+        if st.button("Asegurar / instalar Chrome", use_container_width=True, key="ab_ensure"):
+            with st.spinner("Instalando agent-browser / Chrome…"):
+                ens = _ab_ensure()
+            st.session_state.ab_log = ens.get("logs_tail") or ens.get("error") or str(ens)
+            st.session_state.status_msg = (
+                "agent-browser listo" if ens.get("ok") else (ens.get("error") or "Ensure falló")
+            )
+            st.rerun()
+
+        presets = st_status.get("presets") or [
+            {"label": "Google", "url": "https://www.google.com/"},
+            {"label": "Gmail", "url": "https://mail.google.com/"},
+            {"label": "Drive", "url": "https://drive.google.com/"},
+            {"label": "Docs", "url": "https://docs.google.com/"},
+            {"label": "Maps", "url": "https://maps.google.com/"},
+            {"label": "Translate", "url": "https://translate.google.com/"},
+            {"label": "YouTube", "url": "https://www.youtube.com/"},
+        ]
+        labels = [p.get("label") or p.get("url") for p in presets]
+        pick = st.selectbox("Atajo Google", labels, key="ab_preset")
+        for p in presets:
+            if (p.get("label") or p.get("url")) == pick:
+                if st.button("Usar atajo", use_container_width=True, key="ab_use_preset"):
+                    st.session_state.ab_url = p.get("url") or st.session_state.ab_url
+                    st.rerun()
+                break
+
+        gurl = st.text_input("URL Google", value=st.session_state.ab_url, key="ab_url_input")
+        st.session_state.ab_url = gurl
+        g1, g2 = st.columns(2)
+        with g1:
+            if st.button("Abrir / entrar", use_container_width=True, key="ab_open"):
+                with st.spinner("Abriendo…"):
+                    res = _ab_action("open", url=gurl)
+                st.session_state.ab_log = res.get("output") or res.get("error") or ""
+                if res.get("ok"):
+                    st.session_state.status_msg = f"Google abierto · {res.get('title') or res.get('current_url') or gurl}"
+                    snap = _ab_action("snapshot")
+                    if snap.get("ok"):
+                        st.session_state.ab_snapshot = snap.get("output") or ""
+                else:
+                    st.session_state.status_msg = res.get("error") or "No se pudo abrir"
+                st.rerun()
+        with g2:
+            if st.button("Cerrar browser", use_container_width=True, key="ab_close"):
+                res = _ab_action("close")
+                st.session_state.ab_log = res.get("output") or res.get("error") or "cerrado"
+                st.session_state.status_msg = "Sesión agent-browser cerrada"
+                st.rerun()
+
+        g3, g4 = st.columns(2)
+        with g3:
+            if st.button("Snapshot", use_container_width=True, key="ab_snap"):
+                with st.spinner("Snapshot…"):
+                    res = _ab_action("snapshot")
+                st.session_state.ab_snapshot = res.get("output") or res.get("error") or ""
+                st.session_state.ab_log = st.session_state.ab_snapshot[:2000]
+                st.session_state.status_msg = "Snapshot listo" if res.get("ok") else (res.get("error") or "Snapshot falló")
+                st.rerun()
+        with g4:
+            if st.button("Screenshot", use_container_width=True, key="ab_shot"):
+                with st.spinner("Captura…"):
+                    res = _ab_action("screenshot")
+                st.session_state.ab_log = res.get("output") or res.get("error") or ""
+                if res.get("image_base64"):
+                    st.session_state.ab_shot_b64 = res["image_base64"]
+                st.session_state.status_msg = "Screenshot listo" if res.get("ok") else (res.get("error") or "Screenshot falló")
+                st.rerun()
+
+        ref = st.text_input("Ref / selector (@e2 o #q)", key="ab_ref", placeholder="@e1")
+        fill_txt = st.text_input("Texto para fill / búsqueda", key="ab_fill_txt")
+        c_click, c_fill, c_enter = st.columns(3)
+        with c_click:
+            if st.button("Click", use_container_width=True, key="ab_click"):
+                res = _ab_action("click", selector=ref)
+                st.session_state.ab_log = res.get("output") or res.get("error") or ""
+                st.session_state.status_msg = "Click OK" if res.get("ok") else (res.get("error") or "Click falló")
+                st.rerun()
+        with c_fill:
+            if st.button("Fill", use_container_width=True, key="ab_fill"):
+                res = _ab_action("fill", selector=ref, text=fill_txt)
+                st.session_state.ab_log = res.get("output") or res.get("error") or ""
+                st.session_state.status_msg = "Fill OK" if res.get("ok") else (res.get("error") or "Fill falló")
+                st.rerun()
+        with c_enter:
+            if st.button("Enter", use_container_width=True, key="ab_enter"):
+                res = _ab_action("press", key="Enter")
+                st.session_state.ab_log = res.get("output") or res.get("error") or ""
+                st.session_state.status_msg = "Enter OK" if res.get("ok") else (res.get("error") or "Enter falló")
+                st.rerun()
+
+        if st.button("Buscar en Google", use_container_width=True, key="ab_search"):
+            q = (fill_txt or "").strip()
+            if not q:
+                st.session_state.status_msg = "Escribe el texto a buscar"
+            else:
+                search_url = "https://www.google.com/search?q=" + __import__("urllib.parse").parse.quote_plus(q)
+                with st.spinner("Buscando…"):
+                    res = _ab_action("open", url=search_url)
+                st.session_state.ab_url = search_url
+                st.session_state.ab_log = res.get("output") or res.get("error") or ""
+                if res.get("ok"):
+                    snap = _ab_action("snapshot")
+                    st.session_state.ab_snapshot = snap.get("output") or ""
+                    st.session_state.status_msg = f"Búsqueda: {q}"
+                else:
+                    st.session_state.status_msg = res.get("error") or "Búsqueda falló"
+                st.rerun()
 
         st.divider()
         st.caption(st.session_state.status_msg)

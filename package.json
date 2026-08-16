@@ -1,0 +1,8 @@
+{
+  "name": "l8-codespace",
+  "private": true,
+  "description": "l8 platform — agent-browser powers Google page control in SoroOtbedit",
+  "dependencies": {
+    "agent-browser": "^0.34.0"
+  }
+}

@@ -38,6 +38,12 @@ else
   echo "[l8] caddy = MISSING"
 fi
 
+if command -v agent-browser >/dev/null 2>&1; then
+  echo "[l8] agent-browser = $(agent-browser --version 2>/dev/null | head -n1 || echo present)"
+else
+  echo "[l8] agent-browser = MISSING"
+fi
+
 # Secret files de Render (si se usaron en vez de Environment Variables)
 if [ -d /etc/secrets ]; then
   echo "[l8] /etc/secrets present:"

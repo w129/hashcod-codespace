@@ -4397,6 +4397,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/env/status' || $uri 
 
 require_once __DIR__ . '/streamlit.php';
 require_once __DIR__ . '/libreoffice.php';
+require_once __DIR__ . '/agent_browser.php';
+
+// ===== AGENT-BROWSER (Google pages; vercel-labs/agent-browser) =====
+if ($uri === '/api/agent-browser/status' || $uri === '/api/agent-browser') {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(agentBrowserStatusPayload(), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/agent-browser/ensure' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('agent_browser_ensure', 6, 60)) {
+        securityRateDenyJson(30);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(agentBrowserEnsure(), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/agent-browser/action' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!securityRateAllow('agent_browser_action', 40, 60)) {
+        securityRateDenyJson(20);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    $body = securityReadJsonBody(120000);
+    if (empty($body['ok'])) {
+        securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
+    }
+    $data = $body['data'] ?? [];
+    if (!is_array($data)) $data = [];
+    echo json_encode(agentBrowserAction($data), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($uri === '/api/agent-browser/shot' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $name = isset($_GET['name']) ? (string) $_GET['name'] : '';
+    $path = agentBrowserServeShot($name);
+    if ($path === null) {
+        http_response_code(404);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => false, 'error' => 'Shot no encontrado'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    header('Content-Type: image/png');
+    header('Cache-Control: private, max-age=120');
+    readfile($path);
+    exit;
+}
 
 // ===== LIBREOFFICE suite (plataforma servidor; sin exigir cuenta) =====
 if ($uri === '/api/libreoffice/status' || $uri === '/api/libreoffice') {

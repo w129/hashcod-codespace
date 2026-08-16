@@ -15,22 +15,33 @@ MAX_COLS = 6
 MIN_COLS = 1
 DEFAULT_COLS = 3
 DEFAULT_COL_PCT = [20, 50, 30]
-ICON_NAME = "soro_otbedit_icon.svg"
+# PNG para header/favicon (el SVG se recorta mal en el chrome de Streamlit)
+ICON_PNG = "soro_otbedit_icon.png"
+LOGO_PNG = "soro_otbedit_logo.png"
+FAVICON_PNG = "soro_otbedit_favicon.png"
+ICON_SVG = "soro_otbedit_icon.svg"
+SORO_HEADER_MARK = "SORO_HEADER_PNG_V1"
+
+
+def _asset(*names: str) -> str | None:
+    here = Path(__file__).resolve().parent
+    roots = [
+        here,
+        here / "streamlit_tools",
+        Path("/var/www/html/streamlit_tools"),
+        Path(__file__).resolve().parents[3] / "streamlit_tools",
+    ]
+    for name in names:
+        for root in roots:
+            p = root / name
+            if p.is_file():
+                return str(p)
+    return None
 
 
 def _page_icon():
-    """Favicon de pestaña: SVG junto a app.py (copiado al seed/save del slot)."""
-    here = Path(__file__).resolve().parent
-    candidates = [
-        here / ICON_NAME,
-        here / "streamlit_tools" / ICON_NAME,
-        Path("/var/www/html/streamlit_tools") / ICON_NAME,
-        Path(__file__).resolve().parents[3] / "streamlit_tools" / ICON_NAME,
-    ]
-    for p in candidates:
-        if p.is_file():
-            return str(p)
-    return "🧠"
+    """Favicon de pestaña: preferir PNG pequeño."""
+    return _asset(FAVICON_PNG, ICON_PNG, ICON_SVG) or "🧠"
 
 
 def _now() -> str:
@@ -154,28 +165,47 @@ def _load_project(raw: bytes | str) -> None:
 
 
 def main() -> None:
-    icon = _page_icon()
+    # {SORO_HEADER_MARK}
+    favicon = _page_icon()
+    logo = _asset(LOGO_PNG, ICON_PNG, ICON_SVG)
+    icon_small = _asset(ICON_PNG, FAVICON_PNG, LOGO_PNG, ICON_SVG)
+
     st.set_page_config(
         page_title=APP_TITLE,
-        page_icon=icon,
+        page_icon=favicon,
         layout="wide",
         initial_sidebar_state="expanded",
     )
+    # Logo visible en sidebar y en la barra al colapsar (PNG, no SVG)
+    try:
+        if logo:
+            st.logo(logo, size="large", icon_image=icon_small or logo)
+    except TypeError:
+        try:
+            if logo:
+                st.logo(logo, icon_image=icon_small or logo)
+        except Exception:
+            pass
+    except Exception:
+        pass
+
     _ensure_state()
 
-    # Icono en el banner (no st.logo: Streamlit recorta mal el SVG en el chrome)
+    banner_src = icon_small or logo or favicon
     icon_data_uri = ""
-    if icon and icon != "🧠":
+    if banner_src and banner_src != "🧠":
         try:
             import base64
+            import mimetypes
 
-            raw = Path(icon).read_bytes()
-            icon_data_uri = "data:image/svg+xml;base64," + base64.b64encode(raw).decode("ascii")
+            raw = Path(banner_src).read_bytes()
+            mime = mimetypes.guess_type(banner_src)[0] or "image/png"
+            icon_data_uri = f"data:{mime};base64," + base64.b64encode(raw).decode("ascii")
         except Exception:
             icon_data_uri = ""
 
     banner_img = (
-        f'<img class="soro-logo" src="{icon_data_uri}" width="28" height="28" alt="" />'
+        f'<img class="soro-logo" src="{icon_data_uri}" width="32" height="32" alt="SoroOtbedit" />'
         if icon_data_uri
         else ""
     )
@@ -194,14 +224,31 @@ def main() -> None:
     margin-bottom: 0.35rem;
   }}
   .soro-banner .soro-logo {{
-    width: 28px; height: 28px; display:block; flex: 0 0 auto;
+    width: 32px; height: 32px; display:block; flex: 0 0 auto;
+    object-fit: contain;
   }}
   .soro-banner h1 {{ font-size: 1.35rem; margin: 0; }}
   .soro-banner span {{ color:#5b6b7a; font-size: 0.9rem; }}
-  /* Ocultar restos rotos del logo Streamlit si quedó cacheado */
+  /* Evitar el recorte del chrome de Streamlit (solo se veía un fragmento) */
   [data-testid="stLogo"],
-  [data-testid="stSidebarCollapsedControl"] img {{
-    display: none !important;
+  [data-testid="stSidebarCollapsedControl"] {{
+    overflow: visible !important;
+  }}
+  [data-testid="stLogo"] img,
+  [data-testid="stSidebarCollapsedControl"] img,
+  [data-testid="stHeader"] img[alt="Logo"],
+  header img[alt="Logo"] {{
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    max-width: 2rem !important;
+    max-height: 2rem !important;
+    clip: auto !important;
+    clip-path: none !important;
   }}
 </style>
 <div class="soro-banner">

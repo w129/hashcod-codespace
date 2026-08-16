@@ -233,16 +233,27 @@ function streamlitDemoCode() {
     return "import streamlit as st\nst.title('SoroOtbedit')\nst.write('Editor no encontrado en streamlit_tools.')\n";
 }
 
-/** Copia assets del proyecto (favicon SVG) al directorio del slot. */
+/** Copia assets del proyecto (PNG + SVG) al directorio del slot. */
 function streamlitCopyProjectAssets($slot) {
     $slot = streamlitNormalizeSlot($slot);
     if (!$slot) return false;
     $dir = streamlitSlotDir($slot);
     if ($dir === '') return false;
-    $src = __DIR__ . '/streamlit_tools/soro_otbedit_icon.svg';
-    $dst = $dir . '/soro_otbedit_icon.svg';
-    if (!is_readable($src)) return false;
-    return @copy($src, $dst);
+    $base = __DIR__ . '/streamlit_tools';
+    $ok = false;
+    foreach ([
+        'soro_otbedit_icon.svg',
+        'soro_otbedit_icon.png',
+        'soro_otbedit_logo.png',
+        'soro_otbedit_favicon.png',
+    ] as $name) {
+        $src = $base . '/' . $name;
+        if (!is_readable($src)) continue;
+        if (@copy($src, $dir . '/' . $name)) {
+            $ok = true;
+        }
+    }
+    return $ok;
 }
 
 function streamlitEnsureSeeded() {
@@ -251,17 +262,24 @@ function streamlitEnsureSeeded() {
     if ($app === '') return;
 
     $code = streamlitDemoCode();
-    $icon = streamlitSlotDir($slot) . '/soro_otbedit_icon.svg';
+    $dir = streamlitSlotDir($slot);
     $need = !is_readable($app) || (int) @filesize($app) === 0;
     if (!$need) {
         $existing = (string) @file_get_contents($app);
-        // Migrar demos antiguas / favicon viejo → proyecto único SoroOtbedit
-        // Migrar demos / logo roto (st.logo(...) recorta mal el SVG) → versión limpia
-        if (strpos($existing, 'SoroOtbedit') === false || strpos($existing, '_page_icon') === false || preg_match('/\bst\.logo\s*\(/', $existing)) {
+        // Migrar demos / logo SVG roto → PNG header (SORO_HEADER_PNG_V1)
+        if (
+            strpos($existing, 'SoroOtbedit') === false
+            || strpos($existing, '_page_icon') === false
+            || strpos($existing, 'SORO_HEADER_PNG_V1') === false
+            || strpos($existing, 'display:none') !== false
+        ) {
             $need = true;
         }
-        if (!is_readable($icon)) {
-            $need = true;
+        foreach (['soro_otbedit_icon.svg', 'soro_otbedit_icon.png', 'soro_otbedit_logo.png', 'soro_otbedit_favicon.png'] as $name) {
+            if (!is_readable($dir . '/' . $name)) {
+                $need = true;
+                break;
+            }
         }
         $meta = function_exists('streamlitReadMeta') ? streamlitReadMeta($slot) : [];
         $tpl = is_array($meta) ? (string) ($meta['template'] ?? '') : '';

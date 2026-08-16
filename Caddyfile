@@ -7,36 +7,12 @@
 # Sin "http://:" Caddy trata el número como hostname y sirve HTTPS →
 # "Client sent an HTTP request to an HTTPS server."
 http://:{$PORT:8000} {
-	encode gzip
-
-	# SEO estático: robots + sitemap (sin PHP / sin headers CORP que confunden a crawlers)
+	# SEO vía PHP (sin file_server ETag/304; GSC es sensible a eso)
 	handle /robots.txt {
-		root * /var/www/html
-		rewrite * /robots.txt
-		file_server
-		header {
-			Content-Type "text/plain; charset=utf-8"
-			Cache-Control "public, max-age=3600, s-maxage=86400"
-			X-Content-Type-Options "nosniff"
-			-Cross-Origin-Resource-Policy
-			-Cross-Origin-Opener-Policy
-			-Content-Security-Policy
-			-X-Frame-Options
-		}
+		reverse_proxy 127.0.0.1:8001
 	}
 	handle /sitemap.xml {
-		root * /var/www/html
-		rewrite * /sitemap.xml
-		file_server
-		header {
-			Content-Type "application/xml; charset=utf-8"
-			Cache-Control "public, max-age=3600, s-maxage=86400"
-			X-Content-Type-Options "nosniff"
-			-Cross-Origin-Resource-Policy
-			-Cross-Origin-Opener-Policy
-			-Content-Security-Policy
-			-X-Frame-Options
-		}
+		reverse_proxy 127.0.0.1:8001
 	}
 
 	# Streamlit slots (websockets vía reverse_proxy).
@@ -114,8 +90,9 @@ http://:{$PORT:8000} {
 		}
 	}
 
-	# Plataforma PHP
+	# Plataforma PHP (gzip solo aquí)
 	handle {
+		encode gzip
 		reverse_proxy 127.0.0.1:8001
 	}
 

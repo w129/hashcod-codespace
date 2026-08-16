@@ -83,12 +83,21 @@ if ($uri === '/robots.txt' || $uri === '/sitemap.xml') {
     $isRobots = ($uri === '/robots.txt');
     $path = __DIR__ . ($isRobots ? '/robots.txt' : '/sitemap.xml');
     if (is_file($path)) {
-        // Cabeceras ligeras para crawlers (evitar CORP/COOP que a veces rompen fetch de GSC)
-        header_remove('Cross-Origin-Resource-Policy');
-        header_remove('Cross-Origin-Opener-Policy');
-        header('Content-Type: ' . ($isRobots ? 'text/plain; charset=utf-8' : 'application/xml; charset=utf-8'));
-        header('Cache-Control: public, max-age=3600, s-maxage=86400');
-        header('X-Robots-Tag: noindex'); // el propio robots/sitemap no deben rankear
+        // Cabeceras mínimas: GSC falla a menudo con CORP/ETag/304/gzip raro
+        foreach ([
+            'Cross-Origin-Resource-Policy',
+            'Cross-Origin-Opener-Policy',
+            'Content-Security-Policy',
+            'X-Frame-Options',
+            'ETag',
+            'Last-Modified',
+            'X-Robots-Tag',
+        ] as $h) {
+            header_remove($h);
+        }
+        header('Content-Type: ' . ($isRobots ? 'text/plain; charset=utf-8' : 'text/xml; charset=utf-8'));
+        header('Cache-Control: no-store, max-age=0, must-revalidate');
+        header('X-Content-Type-Options: nosniff');
         readfile($path);
         exit;
     }

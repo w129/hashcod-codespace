@@ -20,7 +20,7 @@ ICON_PNG = "soro_otbedit_icon.png"
 LOGO_PNG = "soro_otbedit_logo.png"
 FAVICON_PNG = "soro_otbedit_favicon.png"
 ICON_SVG = "soro_otbedit_icon.svg"
-SORO_HEADER_MARK = "SORO_VOISCRIPTER_V1"
+SORO_HEADER_MARK = "SORO_MDX_EDITOR_V1"
 NARRATOR_ID = "narrator"
 DEFAULT_CAST = [
     {"id": "char_prota", "name": "Protagonista", "color": "#2c5aa0", "preset": "Protagonista", "group": "main"},
@@ -42,6 +42,32 @@ def _asset(*names: str) -> str | None:
             p = root / name
             if p.is_file():
                 return str(p)
+    return None
+
+
+
+
+def _mdx_editor_fn():
+    """Lazy import of MDXEditor Streamlit component (bundled @mdxeditor/editor)."""
+    import sys
+
+    here = Path(__file__).resolve().parent
+    roots = [
+        here,
+        here / "streamlit_tools",
+        Path("/var/www/html/streamlit_tools"),
+        Path(__file__).resolve().parents[1] / "streamlit_tools",
+    ]
+    for root in roots:
+        s = str(root)
+        if root.is_dir() and s not in sys.path:
+            sys.path.insert(0, s)
+        try:
+            from mdx_component import mdx_editor  # type: ignore
+
+            return mdx_editor
+        except Exception:
+            continue
     return None
 
 
@@ -390,6 +416,8 @@ def _ensure_state() -> None:
         st.session_state.outline_jump = None
     if "voice_sep" not in st.session_state:
         st.session_state.voice_sep = "＞"
+    if "column_editor" not in st.session_state:
+        st.session_state.column_editor = "mdx"  # mdx | classic
 
 
 def _active_doc() -> dict:
@@ -670,6 +698,14 @@ def main() -> None:
         st.divider()
         st.subheader("Columnas (Soro)")
         doc = _active_doc()
+        st.session_state.column_editor = st.radio(
+            "Editor de columnas",
+            options=["mdx", "classic"],
+            format_func=lambda v: "MDX (Notion-like)" if v == "mdx" else "Clásico (texto)",
+            index=0 if st.session_state.get("column_editor") != "classic" else 1,
+            horizontal=True,
+            help="MDX usa @mdxeditor/editor: títulos, listas, tablas y código con vista enriquecida.",
+        )
         n_cols = st.slider("Nº de columnas", MIN_COLS, MAX_COLS, int(doc.get("n_cols") or DEFAULT_COLS))
         if n_cols != doc["n_cols"]:
             cols = list(doc["columns"])
@@ -1238,8 +1274,16 @@ def main() -> None:
                             st.markdown(f"- {b.get('text') or ''}")
 
             else:
-                # Columnas (Soro / otbedit)
+                # Columnas (Soro / otbedit) — MDXEditor o textarea clásico
                 n = int(doc.get("n_cols") or DEFAULT_COLS)
+                use_mdx = st.session_state.get("column_editor") != "classic"
+                mdx_fn = _mdx_editor_fn() if use_mdx else None
+                if use_mdx and mdx_fn is None:
+                    st.warning(
+                        "MDX Editor no está disponible en este slot (falta mdx_component). "
+                        "Usando editor clásico."
+                    )
+                    use_mdx = False
                 cols_ui = st.columns(n)
                 updated_cols = []
                 for ci, col in enumerate(cols_ui):
@@ -1248,13 +1292,24 @@ def main() -> None:
                         label = f"Columna {ci + 1}" + (
                             f" · ◀ L{int(this_jump['line']) + 1}" if jumped else ""
                         )
-                        text = st.text_area(
-                            label,
-                            value=doc["columns"][ci] if ci < len(doc["columns"]) else "",
-                            height=420,
-                            key=f"col_{doc['id']}_{ci}",
-                        )
-                        if text != (doc["columns"][ci] if ci < len(doc["columns"]) else ""):
+                        current = doc["columns"][ci] if ci < len(doc["columns"]) else ""
+                        if use_mdx and mdx_fn is not None:
+                            st.caption(label + " · MDX")
+                            text = mdx_fn(
+                                current,
+                                height=420,
+                                placeholder="# Título\n\nEscribe markdown…",
+                                key=f"mdx_{doc['id']}_{ci}",
+                                key_nonce=f"{doc['id']}_{ci}_{doc.get('updated_at') or ''}",
+                            )
+                        else:
+                            text = st.text_area(
+                                label,
+                                value=current,
+                                height=420,
+                                key=f"col_{doc['id']}_{ci}",
+                            )
+                        if text != current:
                             st.session_state.active_tab = ti
                         if find:
                             hits = text.lower().count(find.lower()) if find else 0
@@ -1283,7 +1338,7 @@ def main() -> None:
     st.markdown("---")
     st.caption(
         f"{APP_MARK} · otbedit · SoroEditor · Yohaku (outline) · "
-        "VoiScripter (bloques/elenco/export voz). Proyecto Streamlit de l8."
+        "VoiScripter · MDXEditor (@mdxeditor/editor). Proyecto Streamlit de l8."
     )
 
 

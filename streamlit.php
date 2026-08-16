@@ -253,6 +253,37 @@ function streamlitCopyProjectAssets($slot) {
             $ok = true;
         }
     }
+    // Paquete Streamlit custom component: MDXEditor
+    if (streamlitCopyTree(
+        $base . '/mdx_component',
+        $dir . '/mdx_component',
+        ['node_modules', '.git']
+    )) {
+        $ok = true;
+    }
+    return $ok;
+}
+
+/** Copia recursiva de directorio (omite carpetas listadas por basename). */
+function streamlitCopyTree($src, $dst, $skipBasenames = []) {
+    $src = rtrim((string) $src, '/');
+    $dst = rtrim((string) $dst, '/');
+    if ($src === '' || !is_dir($src)) return false;
+    if (!is_dir($dst) && !@mkdir($dst, 0700, true)) return false;
+    $ok = false;
+    $items = @scandir($src);
+    if (!is_array($items)) return false;
+    foreach ($items as $name) {
+        if ($name === '.' || $name === '..') continue;
+        if (in_array($name, $skipBasenames, true)) continue;
+        $from = $src . '/' . $name;
+        $to = $dst . '/' . $name;
+        if (is_dir($from)) {
+            if (streamlitCopyTree($from, $to, $skipBasenames)) $ok = true;
+        } elseif (is_file($from)) {
+            if (@copy($from, $to)) $ok = true;
+        }
+    }
     return $ok;
 }
 
@@ -270,7 +301,7 @@ function streamlitEnsureSeeded() {
         if (
             strpos($existing, 'SoroOtbedit') === false
             || strpos($existing, '_page_icon') === false
-            || strpos($existing, 'SORO_VOISCRIPTER_V1') === false
+            || strpos($existing, 'SORO_MDX_EDITOR_V1') === false
             || preg_match('/^\s*st\.logo\s*\(/m', $existing)
         ) {
             $need = true;
@@ -280,6 +311,9 @@ function streamlitEnsureSeeded() {
                 $need = true;
                 break;
             }
+        }
+        if (!is_dir($dir . '/mdx_component/frontend/build')) {
+            $need = true;
         }
         $meta = function_exists('streamlitReadMeta') ? streamlitReadMeta($slot) : [];
         $tpl = is_array($meta) ? (string) ($meta['template'] ?? '') : '';

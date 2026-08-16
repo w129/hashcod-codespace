@@ -11192,7 +11192,10 @@ if (!headers_sent()) {
                 </svg>
             </button>
             <button type="button" class="dock-tool is-ready is-filled has-icon" id="dockTipTapBtn" title="TipTap · Documento" aria-label="Abrir editor TipTap (hoja tipo Word)">
-                <img src="/tiptap-dock.svg" alt="" width="22" height="22" />
+                <svg class="tt-tool-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M6.25 3.5A1.75 1.75 0 0 0 4.5 5.25v13.5c0 .966.784 1.75 1.75 1.75h11c.966 0 1.75-.784 1.75-1.75V8.06a1.75 1.75 0 0 0-.513-1.238L14.074 3.16A1.75 1.75 0 0 0 12.836 2.65H6.25C6.25 2.65 6.25 3.5 6.25 3.5zm0 1.5h6v3.1c0 .966.784 1.75 1.75 1.75h3.1V18.75h-10.85V5z"/>
+                    <path fill="currentColor" d="M8.4 12.1h7.2v1.35H13.1v5.05h-1.55v-5.05H8.4V12.1z"/>
+                </svg>
             </button>
             <span class="dock-tool-sep" aria-hidden="true"></span>
             <button type="button" class="dock-slot" data-dock-slot="1" title="Herramienta 1" aria-label="Herramienta 1 (próximamente)" disabled></button>

@@ -161,9 +161,89 @@ function securityRateDir() {
 }
 
 /**
+ * Recolector de basura para purgar archivos temporales de rate limit y bans expirados.
+ * Previene la saturación de I/O en disco (Render / containers).
+ */
+function securityRateGc($force = false) {
+    static $lastGc = 0;
+    $now = time();
+    // Ejecutar con 2% de probabilidad o tras 300 segundos
+    if (!$force && ($now - $lastGc) < 300 && mt_rand(1, 50) !== 1) {
+        return;
+    }
+    $lastGc = $now;
+    $dir = securityRateDir();
+    if (!is_dir($dir)) return;
+
+    $files = @scandir($dir);
+    if (!is_array($files)) return;
+
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..' || strpos($file, '.') === 0) continue;
+        $filePath = $dir . '/' . $file;
+        if (!is_file($filePath)) continue;
+
+        // Archivos de rate limit rl_*.json: borrar si tienen más de 10 minutos
+        if (strpos($file, 'rl_') === 0 && ($now - (int)@filemtime($filePath)) > 600) {
+            @unlink($filePath);
+            continue;
+        }
+
+        // Archivos de baneo ban_*.json: borrar si el tiempo 'until' ya expiró
+        if (strpos($file, 'ban_') === 0) {
+            $raw = @file_get_contents($filePath);
+            $decoded = json_decode((string)$raw, true);
+            if (is_array($decoded) && isset($decoded['until']) && (int)$decoded['until'] < $now) {
+                @unlink($filePath);
+            }
+        }
+    }
+}
+
+/**
+ * Redactor automático de secretos y credenciales para logs y trazas de error.
+ * Enmascara tokens de GitHub, Supabase, JWT y claves maestras.
+ */
+function securityRedactSecrets($text) {
+    if (!is_string($text) || $text === '') return $text;
+
+    $patterns = [
+        '/(ghp|gho|ghu|ghs|ghr)_[a-zA-Z0-9]{30,}/' => '$1_****************************',
+        '/github_pat_[a-zA-Z0-9_]{50,}/' => 'github_pat_****************************',
+        '/sb_secret_[a-zA-Z0-9]{20,}/' => 'sb_secret_********************',
+        '/sb_publishable_[a-zA-Z0-9]{20,}/' => 'sb_publishable_****************',
+        '/eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}/' => 'eyJ***[REDACTED_JWT]***',
+        '/([a-f0-9]{64})/' => '$1' // Conservar hashes estándar pero permitir enmascarar si coincide con claves
+    ];
+
+    // Enmascarar claves de entorno conocidas si existen
+    $knownSecrets = [
+        getenv('SUPABASE_SECRET_KEY'),
+        getenv('GITHUB_TOKEN'),
+        getenv('L8_DILITHIUM5_REGISTER_KEY'),
+        getenv('L8_AUTH_PEPPER'),
+        getenv('L8_VAULT_MASTER_KEY')
+    ];
+
+    foreach ($knownSecrets as $sec) {
+        if (is_string($sec) && strlen(trim($sec)) >= 8) {
+            $text = str_replace(trim($sec), '[REDACTED_SECRET]', $text);
+        }
+    }
+
+    foreach ($patterns as $pattern => $replacement) {
+        if ($pattern === '/([a-f0-9]{64})/') continue;
+        $text = preg_replace($pattern, $replacement, $text);
+    }
+
+    return $text;
+}
+
+/**
  * Rate limit por bucket+IP. Retorna true si permitido.
  */
 function securityRateAllow($bucket, $limit, $windowSec) {
+    securityRateGc();
     $ip = securityClientIp();
     $safeBucket = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$bucket);
     $safeIp = preg_replace('/[^a-zA-Z0-9:._-]/', '_', $ip);

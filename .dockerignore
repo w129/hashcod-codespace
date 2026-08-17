@@ -16,3 +16,9 @@ NUL
 *.log
 *.bak
 *.old
+*.key
+*.pem
+*.enc
+.ssh/
+secrets/
+

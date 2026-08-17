@@ -7,6 +7,14 @@
 # Sin "http://:" Caddy trata el número como hostname y sirve HTTPS →
 # "Client sent an HTTP request to an HTTPS server."
 http://:{$PORT:8000} {
+	# Timeouts estrictos para mitigar Slowloris y DoS perimetral
+	timeouts {
+		read_body 30s
+		read_header 10s
+		write 120s
+		idle 60s
+	}
+
 	# SEO vía PHP (sin file_server ETag/304; GSC es sensible a eso)
 	handle /robots.txt {
 		reverse_proxy 127.0.0.1:8001
@@ -93,7 +101,14 @@ http://:{$PORT:8000} {
 	# Plataforma PHP (gzip solo aquí)
 	handle {
 		encode gzip
-		reverse_proxy 127.0.0.1:8001
+		reverse_proxy 127.0.0.1:8001 {
+			transport http {
+				dial_timeout 3s
+				response_header_timeout 60s
+				read_buffer 4096
+				write_buffer 4096
+			}
+		}
 	}
 
 	# 502 de Streamlit idle → página clara (CEL sin librería strings: Caddy de Render no la trae)

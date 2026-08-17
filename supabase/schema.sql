@@ -193,3 +193,31 @@ create policy "deny all anon hashcod keys" on public.l8_hashcod_keys
   for all to anon using (false) with check (false);
 create policy "deny all authenticated hashcod keys" on public.l8_hashcod_keys
   for all to authenticated using (false) with check (false);
+
+-- =====================================================================
+-- SUPABASE STORAGE: Políticas RLS para buckets y objetos (l8-storage)
+-- Bloquea acceso público / anónimo directo por URL de Supabase CDN.
+-- =====================================================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('l8-storage', 'l8-storage', false, 104857600, null)
+on conflict (id) do update set public = false;
+
+alter table if exists storage.objects enable row level security;
+
+drop policy if exists "deny anon direct read l8-storage" on storage.objects;
+drop policy if exists "deny authenticated direct read l8-storage" on storage.objects;
+drop policy if exists "deny anon direct write l8-storage" on storage.objects;
+drop policy if exists "deny authenticated direct write l8-storage" on storage.objects;
+
+create policy "deny anon direct read l8-storage" on storage.objects
+  for select to anon using (false);
+
+create policy "deny authenticated direct read l8-storage" on storage.objects
+  for select to authenticated using (false);
+
+create policy "deny anon direct write l8-storage" on storage.objects
+  for insert to anon with check (false);
+
+create policy "deny authenticated direct write l8-storage" on storage.objects
+  for insert to authenticated with check (false);
+

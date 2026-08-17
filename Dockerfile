@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
+    gosu \
+    && groupadd -g 10001 l8group \
+    && useradd -u 10001 -g l8group -m -d /home/l8user -s /bin/bash l8user \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
       | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -30,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     && chmod +x /usr/local/bin/caddy \
     && python3 -m venv /opt/l8-py \
     && /opt/l8-py/bin/pip install --no-cache-dir --upgrade pip \
+    && chown -R l8user:l8group /opt/l8-py \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js + agent-browser (control de páginas Google)
@@ -40,12 +44,17 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && cd /opt/agent-browser && npm install agent-browser@^0.34.0 --no-fund --no-audit \
     && ln -sf /opt/agent-browser/node_modules/.bin/agent-browser /usr/local/bin/agent-browser \
     && (agent-browser install --with-deps || agent-browser install || true) \
+    && chown -R l8user:l8group /opt/agent-browser \
     && rm -rf /var/lib/apt/lists/* /root/.npm
 
-# Configurar directorio SSH y archivo config de GitHub
+# Configurar directorio SSH y archivo config de GitHub para root y l8user
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
     echo "Host github.com\n\tStrictHostKeyChecking no\n\tIdentityFile /root/.ssh/id_ed25519_github\n" > /root/.ssh/config && \
-    chmod 600 /root/.ssh/config
+    chmod 600 /root/.ssh/config && \
+    mkdir -p /home/l8user/.ssh && chmod 700 /home/l8user/.ssh && \
+    echo "Host github.com\n\tStrictHostKeyChecking no\n\tIdentityFile /home/l8user/.ssh/id_ed25519_github\n" > /home/l8user/.ssh/config && \
+    chmod 600 /home/l8user/.ssh/config && \
+    chown -R l8user:l8group /home/l8user/.ssh
 
 # Configuración de memoria y OPcache para procesamiento de datos masivos
 RUN { \
@@ -80,8 +89,11 @@ RUN /opt/l8-py/bin/pip install --no-cache-dir -r /tmp/requirements-streamlit.txt
     && rm -f /tmp/requirements-streamlit.txt
 
 COPY . /var/www/html
+RUN chown -R l8user:l8group /var/www/html \
+    && mkdir -p /var/www/html/data_storage /var/www/html/uploads \
+    && chown -R l8user:l8group /var/www/html/data_storage /var/www/html/uploads
 
-# Entrypoint: confirma qué vars de entorno llegan al contenedor (sin secretos)
+# Entrypoint: confirma qué vars de entorno llegan al contenedor (sin secretos) y arranca servicios con l8user
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

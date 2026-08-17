@@ -50,6 +50,13 @@ if [ -d /etc/secrets ]; then
   ls -1 /etc/secrets 2>/dev/null | sed 's/^/[l8]   secretfile /' || true
 fi
 
+# Inicializar directorios de persistencia con propiedad adecuada
+mkdir -p /var/www/html/data_storage /var/www/html/uploads /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh
+if [ "$(id -u)" = "0" ]; then
+  chown -R l8user:l8group /var/www/html/data_storage /var/www/html/uploads /home/l8user
+  chmod 700 /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh || true
+fi
+
 # Render inyecta PORT; Caddy escucha ahí y PHP queda interno
 export PORT="${PORT:-8000}"
 echo "[l8] public PORT=${PORT}"
@@ -57,9 +64,17 @@ echo "[l8] public PORT=${PORT}"
 # Si el CMD es caddy (producción Docker), levantar PHP interno primero
 first="${1-}"
 if [ "$first" = "caddy" ] || [ "$first" = "/usr/local/bin/caddy" ]; then
-  echo "[l8] starting PHP router on 127.0.0.1:8001"
-  php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
+  echo "[l8] starting PHP router on 127.0.0.1:8001 (as l8user)"
+  if [ "$(id -u)" = "0" ]; then
+    gosu l8user php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
+  else
+    php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
+  fi
   echo "[l8] php pid=$!"
 fi
 
-exec "$@"
+if [ "$(id -u)" = "0" ]; then
+  exec gosu l8user "$@"
+else
+  exec "$@"
+fi

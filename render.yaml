@@ -5,6 +5,8 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     region: oregon
+    healthCheckPath: /robots.txt
+    autoDeploy: true
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -18,4 +20,11 @@ services:
         sync: false
       - key: ORIGINKIT_API_KEY
         sync: false
+      - key: L8_DILITHIUM5_REGISTER_KEY
+        sync: false
+      - key: L8_AUTH_PEPPER
+        sync: false
+      - key: L8_VAULT_MASTER_KEY
+        sync: false
+
 

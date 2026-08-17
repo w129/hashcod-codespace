@@ -52,6 +52,9 @@ fi
 
 # Inicializar directorios de persistencia con propiedad adecuada
 mkdir -p /var/www/html/data_storage /var/www/html/uploads /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh
+touch /tmp/l8-php.log
+chmod 666 /tmp/l8-php.log || true
+
 if [ "$(id -u)" = "0" ]; then
   chown -R l8user:l8group /var/www/html/data_storage /var/www/html/uploads /home/l8user
   chmod 700 /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh || true

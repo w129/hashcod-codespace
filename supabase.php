@@ -174,7 +174,8 @@ function supabaseRequest($path, $options = []) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_TIMEOUT, isset($options['timeout']) ? (int)$options['timeout'] : 60);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_TIMEOUT, isset($options['timeout']) ? (int)$options['timeout'] : 8);
     if (array_key_exists('body', $options)) {
         $payload = $options['body'];
         if ($contentType === 'application/json' && !is_string($payload)) {

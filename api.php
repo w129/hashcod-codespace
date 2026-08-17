@@ -428,7 +428,8 @@ function githubApiJson($path) {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 8);
         // Evita errores HTTP/2 PROTOCOL_ERROR en algunos hosts/Docker
         if (defined('CURL_HTTP_VERSION_1_1')) {
             curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);

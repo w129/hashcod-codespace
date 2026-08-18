@@ -5347,13 +5347,292 @@ if (!headers_sent()) {
         body.mobile-mode #dockBar .dock-toolbar {
             padding: 10px 14px;
             gap: 12px;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        /* ==========================================================================
+           TOOLBOX & ABSTRACT GEOMETRIC SCHEMATIC STYLES
+           ========================================================================== */
+        .toolbox-drawer-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            position: relative;
         }
 
-        @media (max-width: 430px) {
-            body.mobile-mode .platform-shell {
-                max-width: 100%;
-                box-shadow: none;
+        .toolbox-trigger-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 4px 0 8px 38px;
+        }
+
+        .toolbox-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: #ffffff;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #111111;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .toolbox-toggle-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #000000;
+            flex-shrink: 0;
+        }
+
+        .toolbox-toggle-btn:hover {
+            background: #f5f5f5;
+            border-color: #000000;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .toolbox-drawer {
+            display: none;
+            width: 100%;
+            max-width: 960px;
+            min-height: 520px;
+            margin: 4px auto 16px auto;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            animation: fadeInToolbox 0.25s ease-out;
+            isolation: isolate;
+        }
+
+        .toolbox-drawer.open {
+            display: block;
+        }
+
+        @keyframes fadeInToolbox {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Abstract Background Artwork (Exact CSS Specification) */
+        .abstract-bg {
+            position: absolute;
+            width: 960px;
+            height: 784px;
+            left: 0px;
+            top: 0px;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .abs-line {
+            position: absolute;
+            height: 0px;
+            opacity: 0.7;
+            border-top: 1.2px solid #E0E0E0;
+            transform-origin: 0 0;
+        }
+
+        .abs-line-thick {
+            position: absolute;
+            height: 0px;
+            opacity: 0.7;
+            border-top: 1.5px solid #E0E0E0;
+            transform-origin: 0 0;
+        }
+
+        .abs-ellipse {
+            box-sizing: border-box;
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.7;
+            border: 1.5px solid #E0E0E0;
+        }
+
+        .abs-rect {
+            box-sizing: border-box;
+            position: absolute;
+            opacity: 0.6;
+            border: 1.5px solid #E0E0E0;
+            transform-origin: center center;
+        }
+
+        .abs-cross-h {
+            position: absolute;
+            height: 0px;
+            opacity: 0.7;
+            border-top: 1.5px solid #E0E0E0;
+        }
+
+        .abs-cross-v {
+            position: absolute;
+            height: 0px;
+            opacity: 0.7;
+            border-top: 1.5px solid #E0E0E0;
+            transform: rotate(90deg);
+            transform-origin: 0 0;
+        }
+
+        /* Toolbox Inner Interactive UI */
+        .toolbox-content {
+            position: relative;
+            z-index: 2;
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .toolbox-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .toolbox-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toolbox-header-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: #111111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toolbox-header-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: #ffffff;
+        }
+
+        .toolbox-title-text h3 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: #000000;
+            letter-spacing: -0.3px;
+        }
+
+        .toolbox-title-text p {
+            font-size: 11px;
+            color: #666666;
+            margin-top: 1px;
+        }
+
+        .toolbox-close-btn {
+            background: transparent;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555555;
+            transition: all 0.15s ease;
+        }
+
+        .toolbox-close-btn:hover {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+        }
+
+        .toolbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .toolbox-card {
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: #000000;
+            transition: all 0.18s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .toolbox-card:hover {
+            transform: translateY(-2px);
+            border-color: #000000;
+            background: #ffffff;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .toolbox-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toolbox-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .toolbox-card-badge {
+            font-size: 9.5px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: #f0f0f0;
+            color: #444444;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .toolbox-card-desc {
+            font-size: 11.5px;
+            line-height: 1.45;
+            color: #555555;
+        }
+
+        .toolbox-card-footer {
+            margin-top: 4px;
+            font-size: 10.5px;
+            font-family: monospace;
+            color: #0b3d2e;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .toolbox-content {
+                padding: 16px;
+            }
+            .toolbox-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -5665,10 +5944,200 @@ if (!headers_sent()) {
     </div>
 
     <div class="main-container">
-        <!-- Bloque (=) de ejecuciones -->
-        <div class="block-row block-execution">
-            <div class="block-symbol">=</div>
-            <div class="block-body" id="executionContent"></div>
+        <!-- Bloque (=) de ejecuciones con su disparador de Toolbox y Drawer adaptable -->
+        <div class="toolbox-drawer-wrapper">
+            <div class="block-row block-execution">
+                <div class="block-symbol clickable-symbol" id="symbolExecution" onclick="toggleToolboxDrawer()" title="Haz clic en (=) o en el botón para abrir la Toolbox">
+                    =
+                </div>
+                <div class="block-body" id="executionContent"></div>
+            </div>
+
+            <!-- Botón / Barra de activación debajo de la celda con símbolo (=) -->
+            <div class="toolbox-trigger-bar">
+                <button type="button" class="toolbox-toggle-btn" id="toolboxToggleBtn" onclick="toggleToolboxDrawer()" title="Abrir Toolbox & Kit de Herramientas">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true">
+                        <path d="M 20 11 C 16.686 11 14 13.686 14 17 L 14 47 C 14 50.314 16.686 53 20 53 L 48 53 C 49.105 53 50 52.105 50 51 C 50 50.225188 49.556035 49.560676 48.912109 49.228516 L 48.917969 49.224609 C 48.917969 49.224609 47 48.445625 47 46.515625 C 47 44.621625 48.199219 43.845703 48.199219 43.845703 L 48.167969 43.837891 C 49.277417 42.920723 50 41.55158 50 40 L 50 17 C 50 13.686 47.314 11 44 11 L 20 11 z M 20 15 L 22 15 L 22 41 C 19.027 41 18 41.535156 18 41.535156 L 18 17 C 18 15.895 18.895 15 20 15 z M 29.5 19 L 41.5 19 C 42.328 19 43 19.671 43 20.5 C 43 21.329 42.328 22 41.5 22 L 29.5 22 C 28.672 22 28 21.329 28 20.5 C 28 19.671 28.672 19 29.5 19 z M 29.5 25 L 36.5 25 C 37.328 25 38 25.671 38 26.5 C 38 27.329 37.328 28 36.5 28 L 29.5 28 C 28.672 28 28 27.329 28 26.5 C 28 25.671 28.672 25 29.5 25 z M 20 45 L 43.363281 45 C 43.150753 45.537803 43 46.190793 43 47 C 43 47.805729 43.261883 48.458893 43.626953 49 L 20 49 C 18.895 49 18 48.105 18 47 C 18 45.895 18.895 45 20 45 z"></path>
+                    </svg>
+                    <span>TOOLBOX</span>
+                </button>
+            </div>
+
+            <!-- Ventana Desplegable Toolbox Adaptable con Fondo Abstracto Geométrico -->
+            <div class="toolbox-drawer" id="toolboxDrawer">
+                <!-- Abstract Geometric Background (Exact specifications from user) -->
+                <div class="abstract-bg">
+                    <!-- Rotated Lines -->
+                    <div class="abs-line" style="width: 360.56px; left: 0px; top: 0px; transform: rotate(-33.69deg);"></div>
+                    <div class="abs-line" style="width: 456.07px; left: 600px; top: 0px; transform: rotate(37.87deg);"></div>
+                    <div class="abs-line" style="width: 490.57px; left: 0px; top: 500px; transform: rotate(35.37deg);"></div>
+                    <div class="abs-line" style="width: 318.52px; left: 700px; top: 600px; transform: rotate(-35.29deg);"></div>
+                    <div class="abs-line" style="width: 490.57px; left: 100px; top: 500px; transform: rotate(-35.37deg);"></div>
+                    <div class="abs-line" style="width: 188.68px; left: 800px; top: 0px; transform: rotate(32.01deg);"></div>
+                    <div class="abs-line" style="width: 223.61px; left: 0px; top: 250px; transform: rotate(-26.57deg);"></div>
+                    <div class="abs-line" style="width: 232.59px; left: 750px; top: 400px; transform: rotate(25.46deg);"></div>
+
+                    <!-- Ellipses / Nodes -->
+                    <div class="abs-ellipse" style="width: 9.07px; height: 9.07px; left: 75.47px; top: 35.47px;"></div>
+                    <div class="abs-ellipse" style="width: 11.54px; height: 11.54px; left: 244.23px; top: 74.23px;"></div>
+                    <div class="abs-ellipse" style="width: 9.46px; height: 9.46px; left: 495.27px; top: 25.27px;"></div>
+                    <div class="abs-ellipse" style="width: 12.79px; height: 12.79px; left: 743.61px; top: 53.61px;"></div>
+                    <div class="abs-ellipse" style="width: 10.49px; height: 10.49px; left: 894.76px; top: 114.76px;"></div>
+                    <div class="abs-ellipse" style="width: 9.83px; height: 9.83px; left: 55.09px; top: 295.09px;"></div>
+                    <div class="abs-ellipse" style="width: 13.4px; height: 13.4px; left: 343.3px; top: 243.3px;"></div>
+                    <div class="abs-ellipse" style="width: 9.58px; height: 9.58px; left: 615.21px; top: 345.21px;"></div>
+                    <div class="abs-ellipse" style="width: 7.66px; height: 7.66px; left: 876.17px; top: 276.17px;"></div>
+                    <div class="abs-ellipse" style="width: 7.48px; height: 7.48px; left: 116.26px; top: 546.26px;"></div>
+                    <div class="abs-ellipse" style="width: 11.14px; height: 11.14px; left: 294.43px; top: 594.43px;"></div>
+                    <div class="abs-ellipse" style="width: 12.2px; height: 12.2px; left: 543.9px; top: 693.9px;"></div>
+                    <div class="abs-ellipse" style="width: 13.59px; height: 13.59px; left: 793.21px; top: 643.21px;"></div>
+                    <div class="abs-ellipse" style="width: 11.58px; height: 11.58px; left: 914.21px; top: 494.21px;"></div>
+                    <div class="abs-ellipse" style="width: 12.21px; height: 12.21px; left: 33.89px; top: 693.89px;"></div>
+                    <div class="abs-ellipse" style="width: 10.7px; height: 10.7px; left: 444.65px; top: 444.65px;"></div>
+                    <div class="abs-ellipse" style="width: 8px; height: 8px; left: 696px; top: 146px;"></div>
+                    <div class="abs-ellipse" style="width: 7.04px; height: 7.04px; left: 176.48px; top: 146.48px;"></div>
+                    <div class="abs-ellipse" style="width: 7.15px; height: 7.15px; left: 646.42px; top: 546.42px;"></div>
+                    <div class="abs-ellipse" style="width: 8.12px; height: 8.12px; left: 395.94px; top: 95.94px;"></div>
+                    <div class="abs-ellipse" style="width: 8.7px; height: 8.7px; left: 825.65px; top: 395.65px;"></div>
+                    <div class="abs-ellipse" style="width: 12px; height: 12px; left: 144px; top: 444px;"></div>
+                    <div class="abs-ellipse" style="width: 13.32px; height: 13.32px; left: 543.34px; top: 193.34px;"></div>
+                    <div class="abs-ellipse" style="width: 13.59px; height: 13.59px; left: 313.21px; top: 713.21px;"></div>
+
+                    <!-- Perpendicular Crosses -->
+                    <div class="abs-cross-h" style="width: 19px; left: 140.5px; top: 100px;"></div>
+                    <div class="abs-cross-v" style="width: 19px; left: 150px; top: 90.5px;"></div>
+                    <div class="abs-cross-h" style="width: 20.76px; left: 389.62px; top: 300px;"></div>
+                    <div class="abs-cross-v" style="width: 20.76px; left: 400px; top: 289.62px;"></div>
+                    <div class="abs-cross-h" style="width: 12.59px; left: 693.7px; top: 500px;"></div>
+                    <div class="abs-cross-v" style="width: 12.59px; left: 700px; top: 493.7px;"></div>
+                    <div class="abs-cross-h" style="width: 13.15px; left: 843.43px; top: 180px;"></div>
+                    <div class="abs-cross-v" style="width: 13.15px; left: 850px; top: 173.43px;"></div>
+                    <div class="abs-cross-h" style="width: 14.94px; left: 42.53px; top: 600px;"></div>
+                    <div class="abs-cross-v" style="width: 14.94px; left: 50px; top: 592.53px;"></div>
+                    <div class="abs-cross-h" style="width: 19.57px; left: 490.21px; top: 650px;"></div>
+                    <div class="abs-cross-v" style="width: 19.57px; left: 500px; top: 640.22px;"></div>
+                    <div class="abs-cross-h" style="width: 19.88px; left: 290.06px; top: 400px;"></div>
+                    <div class="abs-cross-v" style="width: 19.88px; left: 300px; top: 390.06px;"></div>
+                    <div class="abs-cross-h" style="width: 14.47px; left: 892.77px; top: 700px;"></div>
+                    <div class="abs-cross-v" style="width: 14.47px; left: 900px; top: 692.77px;"></div>
+                    <div class="abs-cross-h" style="width: 16.34px; left: 211.83px; top: 700px;"></div>
+                    <div class="abs-cross-v" style="width: 16.34px; left: 220px; top: 691.83px;"></div>
+                    <div class="abs-cross-h" style="width: 18.79px; left: 590.61px; top: 100px;"></div>
+                    <div class="abs-cross-v" style="width: 18.79px; left: 600px; top: 90.61px;"></div>
+                    <div class="abs-cross-h" style="width: 15.41px; left: 772.3px; top: 350px;"></div>
+                    <div class="abs-cross-v" style="width: 15.41px; left: 780px; top: 342.3px;"></div>
+
+                    <!-- Diamond Rectangles -->
+                    <div class="abs-rect" style="width: 14.89px; height: 14.89px; left: 192.56px; top: 182.03px; transform: rotate(-45deg);"></div>
+                    <div class="abs-rect" style="width: 10.44px; height: 10.44px; left: 594.78px; top: 437.4px; transform: rotate(-45deg);"></div>
+                    <div class="abs-rect" style="width: 17.72px; height: 17.72px; left: 91.14px; top: 428.61px; transform: rotate(-45deg);"></div>
+                    <div class="abs-rect" style="width: 11.88px; height: 11.88px; left: 794.06px; top: 85.66px; transform: rotate(-45deg);"></div>
+                    <div class="abs-rect" style="width: 15.06px; height: 15.06px; left: 442.47px; top: 531.83px; transform: rotate(-45deg);"></div>
+                    <div class="abs-rect" style="width: 14.18px; height: 14.18px; left: 692.91px; top: 682.89px; transform: rotate(-45deg);"></div>
+                    <div class="abs-rect" style="width: 13.68px; height: 13.68px; left: 343.16px; top: 33.49px; transform: rotate(-45deg);"></div>
+                    <div class="abs-rect" style="width: 16.15px; height: 16.15px; left: 891.92px; top: 380.51px; transform: rotate(-45deg);"></div>
+
+                    <!-- Orbital Large Circles -->
+                    <div class="abs-ellipse" style="width: 240px; height: 240px; left: -120px; top: -120px; opacity: 0.6;"></div>
+                    <div class="abs-ellipse" style="width: 300px; height: 300px; left: 810px; top: 634px; opacity: 0.6;"></div>
+                    <div class="abs-ellipse" style="width: 160px; height: 160px; left: 420px; top: 320px; opacity: 0.6;"></div>
+                    <div class="abs-ellipse" style="width: 200px; height: 200px; left: 100px; top: 500px; opacity: 0.6;"></div>
+                    <div class="abs-ellipse" style="width: 180px; height: 180px; left: 710px; top: 110px; opacity: 0.6;"></div>
+                </div>
+
+                <!-- Interactive UI Content -->
+                <div class="toolbox-content">
+                    <div class="toolbox-header">
+                        <div class="toolbox-title-group">
+                            <div class="toolbox-header-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                                    <path d="M 20 11 C 16.686 11 14 13.686 14 17 L 14 47 C 14 50.314 16.686 53 20 53 L 48 53 C 49.105 53 50 52.105 50 51 C 50 50.225188 49.556035 49.560676 48.912109 49.228516 L 48.917969 49.224609 C 48.917969 49.224609 47 48.445625 47 46.515625 C 47 44.621625 48.199219 43.845703 48.199219 43.845703 L 48.167969 43.837891 C 49.277417 42.920723 50 41.55158 50 40 L 50 17 C 50 13.686 47.314 11 44 11 L 20 11 z M 20 15 L 22 15 L 22 41 C 19.027 41 18 41.535156 18 41.535156 L 18 17 C 18 15.895 18.895 15 20 15 z M 29.5 19 L 41.5 19 C 42.328 19 43 19.671 43 20.5 C 43 21.329 42.328 22 41.5 22 L 29.5 22 C 28.672 22 28 21.329 28 20.5 C 28 19.671 28.672 19 29.5 19 z M 29.5 25 L 36.5 25 C 37.328 25 38 25.671 38 26.5 C 38 27.329 37.328 28 36.5 28 L 29.5 28 C 28.672 28 28 27.329 28 26.5 C 28 25.671 28.672 25 29.5 25 z M 20 45 L 43.363281 45 C 43.150753 45.537803 43 46.190793 43 47 C 43 47.805729 43.261883 48.458893 43.626953 49 L 20 49 C 18.895 49 18 48.105 18 47 C 18 45.895 18.895 45 20 45 z"></path>
+                                </svg>
+                            </div>
+                            <div class="toolbox-title-text">
+                                <h3>TOOLBOX & ENGINEERING KIT</h3>
+                                <p>Herramientas modulares, editores y utilidades integradas en la plataforma</p>
+                            </div>
+                        </div>
+                        <button type="button" class="toolbox-close-btn" onclick="toggleToolboxDrawer()" title="Cerrar Toolbox">✕</button>
+                    </div>
+
+                    <!-- Cards Grid -->
+                    <div class="toolbox-grid">
+                        <a href="tiptap" target="_blank" class="toolbox-card">
+                            <div class="toolbox-card-top">
+                                <div class="toolbox-card-title">📝 TipTap Word</div>
+                                <span class="toolbox-card-badge">Editor</span>
+                            </div>
+                            <div class="toolbox-card-desc">Procesador de textos enriquecido con tipografías vectoriales, exportación y diseño limpio.</div>
+                            <div class="toolbox-card-footer"><span>Abrir /tiptap →</span></div>
+                        </a>
+
+                        <a href="toolkit/pdf-inspector/" target="_blank" class="toolbox-card">
+                            <div class="toolbox-card-top">
+                                <div class="toolbox-card-title">🔬 PDF Inspector</div>
+                                <span class="toolbox-card-badge">WebAssembly</span>
+                            </div>
+                            <div class="toolbox-card-desc">Inspección de estructuras de documentos PDF impulsado por motor WASM local.</div>
+                            <div class="toolbox-card-footer"><span>Abrir /toolkit/pdf-inspector →</span></div>
+                        </a>
+
+                        <a href="ubuntu" target="_blank" class="toolbox-card">
+                            <div class="toolbox-card-top">
+                                <div class="toolbox-card-title">🐧 Ubuntu Linux CLI</div>
+                                <span class="toolbox-card-badge">Terminal</span>
+                            </div>
+                            <div class="toolbox-card-desc">Entorno de consola emulada con sistema de archivos virtual, comandos y utilidades.</div>
+                            <div class="toolbox-card-footer"><span>Abrir /ubuntu →</span></div>
+                        </a>
+
+                        <a href="claude" target="_blank" class="toolbox-card">
+                            <div class="toolbox-card-top">
+                                <div class="toolbox-card-title">⚡ Claude Code CLI</div>
+                                <span class="toolbox-card-badge">AI Assistant</span>
+                            </div>
+                            <div class="toolbox-card-desc">Asistente de desarrollo interactivo por terminal para generación y auditoría de código.</div>
+                            <div class="toolbox-card-footer"><span>Abrir /claude →</span></div>
+                        </a>
+
+                        <a href="gateway" target="_blank" class="toolbox-card">
+                            <div class="toolbox-card-top">
+                                <div class="toolbox-card-title">🌐 Gateway P2P</div>
+                                <span class="toolbox-card-badge">Share</span>
+                            </div>
+                            <div class="toolbox-card-desc">Pasarela segura para compartir notas, repositorios y códigos sin intermediarios.</div>
+                            <div class="toolbox-card-footer"><span>Abrir /gateway →</span></div>
+                        </a>
+
+                        <a href="zylon" target="_blank" class="toolbox-card">
+                            <div class="toolbox-card-top">
+                                <div class="toolbox-card-title">🧠 Zylon / PrivateGPT</div>
+                                <span class="toolbox-card-badge">Agentic AI</span>
+                            </div>
+                            <div class="toolbox-card-desc">Agente autónomo para análisis privado de repositorios y ejecución de tareas complejas.</div>
+                            <div class="toolbox-card-footer"><span>Abrir /zylon →</span></div>
+                        </a>
+
+                        <a href="tokens.php" target="_blank" class="toolbox-card">
+                            <div class="toolbox-card-top">
+                                <div class="toolbox-card-title">🔐 Dilithium-5 Vault</div>
+                                <span class="toolbox-card-badge">Post-Quantum</span>
+                            </div>
+                            <div class="toolbox-card-desc">Gestión de saldo de tokens, claves criptográficas Dilithium-5 y ledger distribuido.</div>
+                            <div class="toolbox-card-footer"><span>Ver tokens.php →</span></div>
+                        </a>
+
+                        <a href="javascript:void(0)" onclick="toggleFunctionDrawer(); toggleToolboxDrawer();" class="toolbox-card">
+                            <div class="toolbox-card-top">
+                                <div class="toolbox-card-title">📁 Code Inspector</div>
+                                <span class="toolbox-card-badge">Inspector</span>
+                            </div>
+                            <div class="toolbox-card-desc">Explorador de árbol de archivos de repositorios y consola de ejecución rápida (&gt;).</div>
+                            <div class="toolbox-card-footer"><span>Desplegar consola &gt; →</span></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Bloque (>) de introducción de comandos y su ventana desplegable -->
@@ -9312,6 +9781,19 @@ if (!headers_sent()) {
             if (vk.classList.contains('active')) {
                 if (!activeInputTarget) activeInputTarget = document.getElementById('cmdInput');
                 try { activeInputTarget.focus(); } catch (e) {}
+            }
+        function toggleToolboxDrawer(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const drawer = document.getElementById('toolboxDrawer');
+            if (!drawer) return;
+            drawer.classList.toggle('open');
+            if (drawer.classList.contains('open')) {
+                try {
+                    drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch (e) {}
             }
         }
 

@@ -12326,7 +12326,7 @@ if (!headers_sent()) {
             function markReady() {
                 finished = true;
                 enterBtn.classList.add('ready');
-                hintEl.textContent = 'Press Enter to open l8 codespace';
+                hintEl.textContent = 'Press enter platform to access account creation and login';
             }
 
             async function enterPlatform() {

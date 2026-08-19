@@ -5416,17 +5416,16 @@ if (!headers_sent()) {
             margin: 0;
             color: #000000;
             font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 900;
-            font-size: clamp(30px, 4vw, 46px);
-            letter-spacing: -0.04em;
+            font-weight: 800;
+            font-size: clamp(28px, 3.8vw, 44px);
+            letter-spacing: -0.03em;
             line-height: 1;
             white-space: nowrap;
-            -webkit-text-stroke: 0.4px #000000;
         }
 
         .boot-brand-reg {
             font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 800;
+            font-weight: 700;
             font-size: clamp(12px, 1.4vw, 18px);
             line-height: 1;
             color: #000000;

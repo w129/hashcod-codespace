@@ -23,7 +23,7 @@ if (!headers_sent()) {
     <link rel="apple-touch-icon" href="favicon.svg?v=3">
     <meta name="application-name" content="l8 codespace">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap');
 
         * {
             box-sizing: border-box;
@@ -3777,100 +3777,233 @@ if (!headers_sent()) {
         .notepad-ocg-status.err { color: #c5221f; }
         .notepad-ocg-status.ok { color: #137333; }
 
+        /* ==========================================================================
+           TERMINAL CONSOLE & CELLS REDESIGN (EXACT SPECIFICATION)
+           ========================================================================== */
+        /* terminal-console */
         .main-container {
-            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 16px 12px;
+            gap: 16px;
+            position: relative;
+            width: 100%;
+            max-width: 1261px;
+            margin: 0 auto;
+            background: #FFFFFF;
         }
 
-        .block-row {
+        /* top-output-bar */
+        .block-row.block-execution {
+            box-sizing: border-box;
             display: flex;
+            flex-direction: row;
+            justify-content: space-between;
             align-items: stretch;
-            background-color: #e0e0e0;
-            border: 1px solid #cccccc;
-            border-radius: 2px;
-            min-height: 38px;
+            padding: 0px;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 50px;
+            background: #FFFFFF;
+            border: 1px solid #D9D9D9;
+            border-radius: 6px;
+            overflow: hidden;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
         }
 
-        .block-symbol {
-            width: 38px;
-            min-width: 38px;
-            background-color: #d0d0d0;
-            border-right: 1px solid #bbbbbb;
+        /* equal-column */
+        .block-execution .block-symbol {
+            box-sizing: border-box;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            color: #000000;
+            align-items: center;
+            padding: 0px;
+            width: 40px;
+            min-width: 40px;
+            min-height: 50px;
+            background: #E0E0E0;
+            border-right: 1px solid #D9D9D9;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
             user-select: none;
+            /* = */
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 22px;
+            color: #40404D;
+            text-align: center;
         }
 
-        .block-body {
-            flex: 1;
-            padding: 8px 12px;
-            background-color: #f6f6f6;
-            display: flex;
-            align-items: center;
+        /* output-area */
+        .block-execution .block-body {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 1160px;
+            min-height: 50px;
+            max-height: 580px;
+            background: #FFFFFF;
+            padding: 12px 16px;
+            overflow-y: auto;
+            flex: none;
+            order: 1;
+            flex-grow: 1;
             word-break: break-all;
             white-space: pre-wrap;
             line-height: 1.4;
-            font-family: 'IBM Plex Mono', monospace;
-        }
-
-        .block-execution .block-body {
-            background-color: #ffffff;
-            min-height: 80px;
-            max-height: 580px;
-            overflow-y: auto;
+            font-family: 'IBM Plex Mono', 'Geist Mono', monospace;
+            font-size: 13px;
+            color: #000000;
+            display: flex;
             align-items: flex-start;
         }
 
-        .block-input-container {
-            width: 100%;
+        /* Wrapper for bottom input bar and its drawers */
+        .function-drawer-wrapper {
             display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex: none;
+            order: 1;
+            flex-grow: 0;
+        }
+
+        /* bottom-input-bar */
+        .block-row.block-prompt {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
             align-items: center;
-            justify-content: space-between;
-            gap: 8px;
+            padding: 0px 16px;
+            gap: 12px;
+            width: 100%;
+            max-width: 1200px;
+            height: 45px;
+            min-height: 45px;
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
         }
 
-        .cmd-input {
-            flex: 1;
-            border: none;
-            outline: none;
+        /* prompt-symbol */
+        .block-prompt .block-symbol {
+            width: 10px;
+            min-width: 10px;
+            height: 21px;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 21px;
+            color: #1F2937;
             background: transparent;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 13px;
-            color: #000000;
-            padding: 2px 0;
-        }
-
-        .cmd-input::placeholder {
-            color: #888888;
-        }
-
-        .cell-action-icon {
-            width: 24px;
-            height: 24px;
-            min-width: 24px;
+            border: none;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+            user-select: none;
             cursor: pointer;
-            opacity: 0.9;
-            transition: opacity 0.2s ease, transform 0.15s ease;
+            padding: 0;
+            margin: 0;
+        }
+
+        .block-prompt .block-body.block-input-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 0;
+            background: transparent;
+            border: none;
+            order: 1;
+            flex-grow: 1;
+        }
+
+        /* placeholder-text / cmd-input */
+        .cmd-input {
+            width: 100%;
+            max-width: 1104px;
+            height: 24px;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 17px;
+            color: #1F2937;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0;
+            margin: 0;
+            flex: none;
+            order: 1;
+            flex-grow: 1;
+        }
+
+        .cmd-input::placeholder {
+            color: #9CA3AF;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 17px;
+        }
+
+        /* keyboard-icon-btn */
+        .cell-action-icon {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            width: 30px;
+            height: 30px;
+            min-width: 30px;
+            min-height: 30px;
+            background: rgba(229, 231, 235, 0.313726);
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            flex: none;
+            order: 2;
+            flex-grow: 0;
+            transition: background 0.15s ease, transform 0.1s ease;
         }
 
         .cell-action-icon:hover {
-            opacity: 1;
-            transform: scale(1.08);
+            background: rgba(209, 213, 219, 0.6);
+            transform: scale(1.05);
         }
 
+        /* keyboard-icon / Vector */
         .cell-action-icon svg {
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             display: block;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+
+        .cell-action-icon svg path {
+            fill: #5F6368;
         }
 
         .catalog-card {
@@ -5211,26 +5344,29 @@ if (!headers_sent()) {
 
         body.mobile-mode .main-container {
             padding: 10px 10px 24px;
-            gap: 10px;
+            gap: 12px;
         }
 
-        body.mobile-mode .block-symbol {
-            width: 32px;
-            min-width: 32px;
-            font-size: 16px;
+        body.mobile-mode .block-execution .block-symbol {
+            width: 36px;
+            min-width: 36px;
+            min-height: 50px;
+            font-size: 18px;
         }
 
-        body.mobile-mode .block-body {
-            padding: 8px 10px;
+        body.mobile-mode .block-execution .block-body {
+            padding: 10px 12px;
             font-size: 12px;
+            max-height: min(42vh, 360px);
+        }
+
+        body.mobile-mode .block-row.block-prompt {
+            padding: 0 12px;
+            gap: 8px;
         }
 
         body.mobile-mode .cmd-input {
             font-size: 16px; /* evita zoom iOS al enfocar */
-        }
-
-        body.mobile-mode .block-execution .block-body {
-            max-height: min(42vh, 360px);
         }
 
         body.mobile-mode .function-drawer {
@@ -5680,8 +5816,8 @@ if (!headers_sent()) {
                 <div class="block-body block-input-container">
                     <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: repos, clone langgenius/dify)..." autocomplete="off" onkeydown="handleCommandKey(event)">
                     <div class="cell-action-icon" title="Abrir / cerrar teclado" onclick="toggleVirtualKeyboard()">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
-                            <path fill="#000000" d="M 59.365234 16.408203 C 56.760813 16.392078 53.896992 17.062151 51.017578 18.564453 C 47.651255 20.320795 41.333597 25.163819 34.724609 29.666016 C 31.420115 31.917114 28.067565 34.071438 25.074219 35.673828 C 22.080872 37.276218 19.411811 38.296538 17.712891 38.382812 C 10.665432 38.740699 7.3381904 28.128744 12.916016 25.107422 A 1.0001 1.0001 0 1 0 11.962891 23.349609 C 4.4367151 27.426288 8.7539123 40.840974 17.814453 40.380859 C 20.142533 40.262634 22.914831 39.098454 26.017578 37.4375 C 29.120326 35.776546 32.518182 33.589136 35.851562 31.318359 C 42.518324 26.776806 49.030682 21.857548 51.943359 20.337891 C 57.919842 17.219726 63.438369 18.217666 66.199219 20.978516 C 67.46183 22.241127 67.634293 24.095157 67.431641 25.763672 C 67.270323 27.091857 66.946151 28.000574 66.794922 28.396484 L 10.085938 50.423828 A 1.0001 1.0001 0 0 0 9.5 51.671875 C 9.2934395 54.05751 9.0824611 56.796105 8.9726562 58.283203 C 8.9186562 59.012203 9.0982812 59.735516 9.4882812 60.353516 C 12.099281 64.489516 22.487859 80.941703 25.130859 85.095703 C 25.508859 85.689703 26.271344 85.900844 26.902344 85.589844 L 93.798828 52.035156 L 94.763672 49.841797 A 1.0001 1.0001 0 0 0 94.761719 48.582031 L 76.019531 25.554688 A 1.0001 1.0001 0 0 0 75.232422 25.185547 A 1.0001 1.0001 0 0 0 74.882812 25.253906 L 69.150391 27.480469 C 69.255904 27.031399 69.353136 26.53965 69.417969 26.005859 C 69.658816 24.022874 69.490669 21.441842 67.613281 19.564453 C 65.853706 17.804878 63.350929 16.695986 60.464844 16.457031 C 60.104083 16.427162 59.737295 16.410507 59.365234 16.408203 z M 74.927734 27.380859 L 92.412109 48.861328 L 26.425781 80.552734 L 11.839844 51.886719 L 67.835938 30.134766 A 1.0001 1.0001 0 0 0 68.046875 30.054688 A 1.0001 1.0001 0 0 0 68.052734 30.050781 L 74.927734 27.380859 z M 75.548828 32.59375 A 1.0001 1.0001 0 0 0 75.173828 32.667969 L 18.517578 56.037109 A 1.0001 1.0001 0 0 0 18.023438 57.445312 L 27.773438 75.097656 A 1.0001 1.0001 0 0 0 29.074219 75.519531 L 87.076172 48.283203 A 1.0001 1.0001 0 0 0 87.429688 46.751953 L 76.333984 32.966797 A 1.0001 1.0001 0 0 0 75.548828 32.59375 z M 75.244141 34.802734 L 77.669922 37.816406 L 74.488281 39.166016 L 72.113281 36.09375 L 75.244141 34.802734 z M 70.197266 36.884766 L 72.585938 39.972656 L 69.253906 41.386719 L 66.945312 38.224609 L 70.197266 36.884766 z M 65.042969 39.009766 L 67.363281 42.189453 L 63.447266 43.851562 L 61.113281 40.630859 L 65.042969 39.009766 z M 78.972656 39.435547 L 81.751953 42.888672 L 78.451172 44.291016 L 75.751953 40.800781 L 78.972656 39.435547 z M 59.212891 41.416016 L 61.558594 44.652344 L 58.216797 46.070312 L 56.017578 42.734375 L 59.212891 41.416016 z M 73.849609 41.609375 L 76.546875 45.097656 L 73.048828 46.582031 L 70.464844 43.044922 L 73.849609 41.609375 z M 54.132812 43.509766 L 56.34375 46.865234 L 52.916016 48.318359 L 50.685547 44.933594 L 54.132812 43.509766 z M 68.574219 43.847656 L 71.15625 47.384766 L 67.216797 49.056641 L 64.650391 45.511719 L 68.574219 43.847656 z M 83.041016 44.490234 L 85.074219 47.015625 L 81.759766 48.572266 L 79.714844 45.925781 L 82.837891 44.601562 A 1.0001 1.0001 0 0 0 83.041016 44.490234 z M 48.800781 45.708984 L 51.044922 49.113281 L 47.619141 50.566406 L 45.355469 47.130859 L 48.800781 45.708984 z M 62.761719 46.3125 L 65.328125 49.857422 L 61.720703 51.388672 L 59.333984 47.767578 L 62.761719 46.3125 z M 77.810547 46.734375 L 79.904297 49.443359 L 76.353516 51.111328 L 74.259766 48.242188 L 77.810547 46.734375 z M 43.472656 47.908203 L 45.748047 51.361328 L 41.925781 52.982422 L 39.669922 49.476562 L 43.472656 47.908203 z M 57.460938 48.5625 L 59.847656 52.183594 L 56.421875 53.636719 L 54.035156 50.015625 L 57.460938 48.5625 z M 72.369141 49.044922 L 74.509766 51.976562 L 70.646484 53.791016 L 68.421875 50.71875 L 72.369141 49.044922 z M 37.791016 50.251953 L 40.058594 53.775391 L 35.519531 55.701172 L 33.335938 52.087891 L 37.791016 50.251953 z M 52.164062 50.810547 L 54.550781 54.431641 L 51.125 55.884766 L 48.738281 52.263672 L 52.164062 50.810547 z M 20.154297 50.9375 A 1.0001 1.0001 0 0 0 19.791016 50.998047 L 16.921875 51.998047 A 1.0001 1.0001 0 1 0 17.580078 53.886719 L 20.449219 52.886719 A 1.0001 1.0001 0 0 0 20.154297 50.9375 z M 66.533203 51.519531 L 68.804688 54.65625 L 48.988281 63.960938 L 46.462891 60.037109 L 51.011719 58.107422 A 1.0001 1.0001 0 0 0 51.267578 57.998047 L 66.533203 51.519531 z M 31.466797 52.859375 L 33.658203 56.490234 L 28.759766 58.570312 L 26.650391 54.845703 L 31.466797 52.859375 z M 46.865234 53.058594 L 49.251953 56.679688 L 45.365234 58.330078 L 43.023438 54.689453 L 46.865234 53.058594 z M 41.154297 55.480469 L 43.496094 59.121094 L 38.791016 61.119141 L 36.5625 57.429688 L 41.154297 55.480469 z M 24.787109 55.615234 L 26.90625 59.355469 L 22.416016 61.261719 L 20.314453 57.458984 L 24.787109 55.615234 z M 34.703125 58.21875 L 36.931641 61.908203 L 31.869141 64.056641 L 29.751953 60.320312 L 34.703125 58.21875 z M 44.595703 60.828125 L 47.162109 64.818359 L 42.382812 67.0625 L 39.835938 62.847656 L 44.595703 60.828125 z M 27.898438 61.105469 L 30.015625 64.841797 L 25.460938 66.775391 L 23.386719 63.019531 L 27.898438 61.105469 z M 37.976562 63.638672 L 40.560547 67.917969 L 35.423828 70.330078 L 32.861328 65.808594 L 37.976562 63.638672 z M 31.007812 66.59375 L 33.609375 71.181641 L 29.072266 73.3125 L 26.433594 68.535156 L 31.007812 66.59375 z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="#5F6368" d="M 3 3 C 2.2045912 3 1.441211 3.3166015 0.87890625 3.8789062 C 0.31660152 4.441211 0 5.2045912 0 6 L 0 13 C 0 13.710451 0.26410916 14.386893 0.71875 14.925781 L 0.703125 14.925781 C 0.703125 14.925781 4.8273906 19.558172 6.4003906 21.326172 C 6.7823906 21.755172 7.3283437 22 7.9023438 22 L 20.011719 22 C 20.538719 22 21.044969 21.790969 21.417969 21.417969 C 21.790969 21.044969 22 20.538719 22 20.011719 L 22 13 L 22 6 C 22 5.2045912 21.683398 4.4412111 21.121094 3.8789062 C 20.558789 3.3166016 19.795409 3 19 3 L 3 3 z M 3 5 L 19 5 C 19.264591 5 19.519336 5.1052735 19.707031 5.2929688 C 19.894727 5.480664 20 5.7354088 20 6 L 20 13 C 20 13.264591 19.894727 13.519336 19.707031 13.707031 C 19.519336 13.894727 19.264591 14 19 14 L 3 14 C 2.7354088 14 2.480664 13.894727 2.2929688 13.707031 C 2.1052734 13.519336 2 13.264591 2 13 L 2 6 C 2 5.7354088 2.1052735 5.480664 2.2929688 5.2929688 C 2.4806639 5.1052735 2.7354088 5 3 5 z M 5 7 A 1 1 0 0 0 5 9 A 1 1 0 0 0 5 7 z M 8 7 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 7 z M 11 7 A 1 1 0 0 0 11 9 A 1 1 0 0 0 11 7 z M 14 7 A 1 1 0 0 0 14 9 A 1 1 0 0 0 14 7 z M 17 7 A 1 1 0 0 0 17 9 A 1 1 0 0 0 17 7 z M 5 10 A 1 1 0 0 0 5 12 A 1 1 0 0 0 5 10 z M 8 10 A 1.0001 1.0001 0 1 0 8 12 L 14 12 A 1.0001 1.0001 0 1 0 14 10 L 8 10 z M 17 10 A 1 1 0 0 0 17 12 A 1 1 0 0 0 17 10 z"/>
                         </svg>
                     </div>
                 </div>

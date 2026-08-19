@@ -12,8 +12,8 @@ if (!headers_sent()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>l8 codespace</title>
-    <meta name="description" content="l8 codespace — plataforma de códigospace con terminal, toolkit, gateway y herramientas en el navegador.">
+    <title>Hashcod codespace</title>
+    <meta name="description" content="Hashcod codespace — plataforma de códigospace con terminal, toolkit, gateway y herramientas en el navegador.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://l8-codespace-1.onrender.com/">
     <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
@@ -21,7 +21,7 @@ if (!headers_sent()) {
     <link rel="icon" href="favicon.svg?v=3" type="image/svg+xml">
     <link rel="shortcut icon" href="favicon.svg?v=3" type="image/svg+xml">
     <link rel="apple-touch-icon" href="favicon.svg?v=3">
-    <meta name="application-name" content="l8 codespace">
+    <meta name="application-name" content="Hashcod codespace">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap');
 
@@ -5378,9 +5378,10 @@ if (!headers_sent()) {
             z-index: 4;
             display: flex;
             align-items: center;
-            gap: clamp(12px, 2vw, 18px);
+            gap: clamp(14px, 2vw, 22px);
             pointer-events: none;
             animation: bootBrandIn 0.7s ease 0.15s both;
+            font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         @keyframes bootBrandIn {
@@ -5389,8 +5390,8 @@ if (!headers_sent()) {
         }
 
         .boot-brand-icon {
-            width: clamp(42px, 6vw, 64px);
-            height: clamp(42px, 6vw, 64px);
+            width: clamp(52px, 6.5vw, 76px);
+            height: clamp(44px, 5.5vw, 64px);
             flex: 0 0 auto;
             display: block;
         }
@@ -5398,28 +5399,48 @@ if (!headers_sent()) {
         .boot-brand-text {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 1px;
             min-width: 0;
         }
 
-        .boot-brand-name {
+        .boot-brand-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+            line-height: 1;
+        }
+
+        .boot-brand-main {
             margin: 0;
-            color: #111;
-            font-family: 'IBM Plex Mono', monospace;
-            font-weight: 700;
-            font-size: clamp(22px, 3.4vw, 40px);
+            color: #000000;
+            font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 800;
+            font-size: clamp(28px, 3.8vw, 44px);
             letter-spacing: -0.03em;
-            line-height: 1.05;
+            line-height: 1;
             white-space: nowrap;
         }
 
-        .boot-brand-tag {
+        .boot-brand-reg {
+            font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 700;
+            font-size: clamp(12px, 1.4vw, 18px);
+            line-height: 1;
+            color: #000000;
+            margin-top: 1px;
+        }
+
+        .boot-brand-sub {
             margin: 0;
-            color: #6a6a6a;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: clamp(11px, 1.2vw, 13px);
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
+            color: #000000;
+            font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 400;
+            font-size: clamp(18px, 2.4vw, 28px);
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            white-space: nowrap;
         }
 
         .boot-cli-footer {
@@ -5544,7 +5565,7 @@ if (!headers_sent()) {
                 to { opacity: 1; transform: translateY(0); }
             }
 
-            .boot-brand-name {
+            .boot-brand-main {
                 white-space: normal;
             }
         }
@@ -5799,11 +5820,17 @@ if (!headers_sent()) {
                 <div class="boot-cli-body" id="bootCliBody" hidden></div>
                 <div class="boot-cli-visual" id="bootCliVisual">
                     <canvas id="bootBlackholeCanvas"></canvas>
-                    <div class="boot-brand" aria-label="l8 codespace">
-                        <img class="boot-brand-icon" src="favicon.svg?v=3" alt="" width="64" height="64">
+                    <div class="boot-brand" aria-label="Hashcod codespace">
+                        <svg class="boot-brand-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 44" fill="none" aria-hidden="true">
+                            <path d="M 18 36 L 6 36 C 3.79 36 2 34.21 2 32 L 2 6 C 2 3.79 3.79 2 6 2 L 46 2 C 48.21 2 50 3.79 50 6 L 50 32 C 50 34.21 48.21 36 46 36 L 34 36" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polygon points="26,16 14,40 38,40" fill="#000000"/>
+                        </svg>
                         <div class="boot-brand-text">
-                            <p class="boot-brand-name">l8 codespace</p>
-                            <p class="boot-brand-tag">platform</p>
+                            <div class="boot-brand-row">
+                                <span class="boot-brand-main">Hashcod</span>
+                                <span class="boot-brand-reg">®</span>
+                            </div>
+                            <span class="boot-brand-sub">codespace</span>
                         </div>
                     </div>
                 </div>

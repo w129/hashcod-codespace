@@ -18,12 +18,12 @@ if (!headers_sent()) {
     <link rel="canonical" href="https://l8-codespace-1.onrender.com/">
     <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
     <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
-    <link rel="icon" href="favicon.svg?v=3" type="image/svg+xml">
-    <link rel="shortcut icon" href="favicon.svg?v=3" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="favicon.svg?v=3">
+    <link rel="icon" href="favicon.svg?v=10" type="image/svg+xml">
+    <link rel="shortcut icon" href="favicon.svg?v=10" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="favicon.svg?v=10">
     <meta name="application-name" content="Hashcod codespace">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700;800;900&display=swap');
 
         * {
             box-sizing: border-box;
@@ -5416,16 +5416,17 @@ if (!headers_sent()) {
             margin: 0;
             color: #000000;
             font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 800;
-            font-size: clamp(28px, 3.8vw, 44px);
-            letter-spacing: -0.03em;
+            font-weight: 900;
+            font-size: clamp(30px, 4vw, 46px);
+            letter-spacing: -0.04em;
             line-height: 1;
             white-space: nowrap;
+            -webkit-text-stroke: 0.4px #000000;
         }
 
         .boot-brand-reg {
             font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 700;
+            font-weight: 800;
             font-size: clamp(12px, 1.4vw, 18px);
             line-height: 1;
             color: #000000;

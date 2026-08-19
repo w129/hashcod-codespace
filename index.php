@@ -5358,43 +5358,40 @@ if (!headers_sent()) {
         /* ==========================================================================
            TOOLBOX & ABSTRACT GEOMETRIC SCHEMATIC STYLES (ICON-ONLY & SEAMLESS)
            ========================================================================== */
-        .toolbox-bar-under-cell {
+        .toolbox-trigger-rail {
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding: 2px 0;
-            margin: 0px 0;
+            padding: 0;
+            margin: -4px 0 -4px 0;
             width: 100%;
         }
 
-        .toolbox-icon-btn-pill {
+        .toolbox-btn-icon-only {
             width: 38px;
             min-width: 38px;
-            height: 26px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #d8d8d8;
-            border: 1px solid #bbbbbb;
-            border-radius: 2px;
+            background: transparent;
+            border: none;
             cursor: pointer;
             color: #000000;
-            transition: all 0.15s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            transition: transform 0.15s ease, opacity 0.15s ease;
             padding: 0;
-            box-sizing: border-box;
+            opacity: 0.85;
         }
 
-        .toolbox-icon-btn-pill svg {
-            width: 16px;
-            height: 16px;
+        .toolbox-btn-icon-only svg {
+            width: 18px;
+            height: 18px;
             fill: #000000;
         }
 
-        .toolbox-icon-btn-pill:hover {
-            background: #cccccc;
-            border-color: #999999;
-            transform: scale(1.05);
+        .toolbox-btn-icon-only:hover {
+            opacity: 1;
+            transform: scale(1.15);
         }
 
         .toolbox-drawer {
@@ -5960,8 +5957,8 @@ if (!headers_sent()) {
         </div>
 
         <!-- Botón Icono Exclusivo debajo de la celda con símbolo (=) -->
-        <div class="toolbox-bar-under-cell">
-            <button type="button" class="toolbox-icon-btn-pill" id="toolboxToggleBtn" onclick="toggleToolboxDrawer(event)" title="Abrir / cerrar Toolbox" aria-label="Abrir Toolbox">
+        <div class="toolbox-trigger-rail">
+            <button type="button" class="toolbox-btn-icon-only" id="toolboxToggleBtn" onclick="toggleToolboxDrawer(event)" title="Abrir / cerrar Toolbox" aria-label="Abrir Toolbox">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true">
                     <path d="M 20 11 C 16.686 11 14 13.686 14 17 L 14 47 C 14 50.314 16.686 53 20 53 L 48 53 C 49.105 53 50 52.105 50 51 C 50 50.225188 49.556035 49.560676 48.912109 49.228516 L 48.917969 49.224609 C 48.917969 49.224609 47 48.445625 47 46.515625 C 47 44.621625 48.199219 43.845703 48.199219 43.845703 L 48.167969 43.837891 C 49.277417 42.920723 50 41.55158 50 40 L 50 17 C 50 13.686 47.314 11 44 11 L 20 11 z M 20 15 L 22 15 L 22 41 C 19.027 41 18 41.535156 18 41.535156 L 18 17 C 18 15.895 18.895 15 20 15 z M 29.5 19 L 41.5 19 C 42.328 19 43 19.671 43 20.5 C 43 21.329 42.328 22 41.5 22 L 29.5 22 C 28.672 22 28 21.329 28 20.5 C 28 19.671 28.672 19 29.5 19 z M 29.5 25 L 36.5 25 C 37.328 25 38 25.671 38 26.5 C 38 27.329 37.328 28 36.5 28 L 29.5 28 C 28.672 28 28 27.329 28 26.5 C 28 25.671 28.672 25 29.5 25 z M 20 45 L 43.363281 45 C 43.150753 45.537803 43 46.190793 43 47 C 43 47.805729 43.261883 48.458893 43.626953 49 L 20 49 C 18.895 49 18 48.105 18 47 C 18 45.895 18.895 45 20 45 z"></path>
                 </svg>

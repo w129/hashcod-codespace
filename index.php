@@ -5416,17 +5416,21 @@ if (!headers_sent()) {
             margin: 0;
             color: #000000;
             font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 800;
-            font-size: clamp(28px, 3.8vw, 44px);
-            letter-spacing: -0.03em;
+            font-weight: 700;
+            font-size: clamp(26px, 3.6vw, 42px);
+            letter-spacing: -0.02em;
             line-height: 1;
             white-space: nowrap;
+            font-synthesis: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
         .boot-brand-reg {
             font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 700;
-            font-size: clamp(12px, 1.4vw, 18px);
+            font-weight: 600;
+            font-size: clamp(11px, 1.3vw, 16px);
             line-height: 1;
             color: #000000;
             margin-top: 1px;
@@ -5437,10 +5441,11 @@ if (!headers_sent()) {
             color: #000000;
             font-family: 'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             font-weight: 400;
-            font-size: clamp(18px, 2.4vw, 28px);
-            letter-spacing: -0.02em;
+            font-size: clamp(17px, 2.3vw, 26px);
+            letter-spacing: -0.015em;
             line-height: 1.1;
             white-space: nowrap;
+            -webkit-font-smoothing: antialiased;
         }
 
         .boot-cli-footer {

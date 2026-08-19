@@ -5342,57 +5342,54 @@ if (!headers_sent()) {
             min-height: 10px !important;
             width: 88px !important;
             min-width: 88px !important;
-        }
-
         body.mobile-mode #dockBar .dock-toolbar {
             padding: 10px 14px;
             gap: 12px;
-        /* ==========================================================================
-           TOOLBOX & ABSTRACT GEOMETRIC SCHEMATIC STYLES
-           ========================================================================== */
-        .toolbox-drawer-wrapper {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            position: relative;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
         }
 
-        .toolbox-trigger-bar {
+        @media (max-width: 430px) {
+            body.mobile-mode .platform-shell {
+                max-width: 100%;
+                box-shadow: none;
+            }
+        }
+
+        /* ==========================================================================
+           TOOLBOX & ABSTRACT GEOMETRIC SCHEMATIC STYLES (ICON-ONLY & SEAMLESS)
+           ========================================================================== */
+        .toolbox-icon-only-bar {
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding: 4px 0 8px 38px;
+            padding: 2px 0 4px 0px;
+            width: 100%;
         }
 
-        .toolbox-toggle-btn {
-            display: inline-flex;
+        .toolbox-icon-only-btn {
+            width: 38px;
+            height: 28px;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            background: #ffffff;
-            border: 1px solid #d0d0d0;
-            border-radius: 4px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11.5px;
-            font-weight: 600;
-            color: #111111;
+            justify-content: center;
+            background: transparent;
+            border: none;
             cursor: pointer;
-            transition: all 0.15s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            opacity: 0.85;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            padding: 0;
+            margin: 0;
         }
 
-        .toolbox-toggle-btn svg {
-            width: 16px;
-            height: 16px;
+        .toolbox-icon-only-btn svg {
+            width: 20px;
+            height: 20px;
             fill: #000000;
-            flex-shrink: 0;
         }
 
-        .toolbox-toggle-btn:hover {
-            background: #f5f5f5;
-            border-color: #000000;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-            transform: translateY(-1px);
+        .toolbox-icon-only-btn:hover {
+            opacity: 1;
+            transform: scale(1.12);
         }
 
         .toolbox-drawer {
@@ -5953,13 +5950,12 @@ if (!headers_sent()) {
                 <div class="block-body" id="executionContent"></div>
             </div>
 
-            <!-- Botón / Barra de activación debajo de la celda con símbolo (=) -->
-            <div class="toolbox-trigger-bar">
-                <button type="button" class="toolbox-toggle-btn" id="toolboxToggleBtn" onclick="toggleToolboxDrawer()" title="Abrir Toolbox & Kit de Herramientas">
+            <!-- Botón Icono Exclusivo debajo de la celda con símbolo (=) -->
+            <div class="toolbox-icon-only-bar">
+                <button type="button" class="toolbox-icon-only-btn" id="toolboxToggleBtn" onclick="toggleToolboxDrawer(event)" title="Abrir / cerrar Toolbox" aria-label="Abrir Toolbox">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true">
                         <path d="M 20 11 C 16.686 11 14 13.686 14 17 L 14 47 C 14 50.314 16.686 53 20 53 L 48 53 C 49.105 53 50 52.105 50 51 C 50 50.225188 49.556035 49.560676 48.912109 49.228516 L 48.917969 49.224609 C 48.917969 49.224609 47 48.445625 47 46.515625 C 47 44.621625 48.199219 43.845703 48.199219 43.845703 L 48.167969 43.837891 C 49.277417 42.920723 50 41.55158 50 40 L 50 17 C 50 13.686 47.314 11 44 11 L 20 11 z M 20 15 L 22 15 L 22 41 C 19.027 41 18 41.535156 18 41.535156 L 18 17 C 18 15.895 18.895 15 20 15 z M 29.5 19 L 41.5 19 C 42.328 19 43 19.671 43 20.5 C 43 21.329 42.328 22 41.5 22 L 29.5 22 C 28.672 22 28 21.329 28 20.5 C 28 19.671 28.672 19 29.5 19 z M 29.5 25 L 36.5 25 C 37.328 25 38 25.671 38 26.5 C 38 27.329 37.328 28 36.5 28 L 29.5 28 C 28.672 28 28 27.329 28 26.5 C 28 25.671 28.672 25 29.5 25 z M 20 45 L 43.363281 45 C 43.150753 45.537803 43 46.190793 43 47 C 43 47.805729 43.261883 48.458893 43.626953 49 L 20 49 C 18.895 49 18 48.105 18 47 C 18 45.895 18.895 45 20 45 z"></path>
                     </svg>
-                    <span>TOOLBOX</span>
                 </button>
             </div>
 

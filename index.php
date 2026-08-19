@@ -4284,6 +4284,504 @@ if (!headers_sent()) {
             .tb-corner-dot.d-br { left: 100px; top: 100px; }
         }
 
+        /* Toolbox Slots Filled / Interactive State */
+        .tb-slot.is-filled {
+            background: rgba(0, 0, 0, 0.03);
+            border: 2px solid #000000;
+        }
+
+        .tb-slot.is-filled:hover {
+            transform: scale(1.08);
+            background: #FFFFFF;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+            border-color: #107C41;
+        }
+
+        .tb-slot.is-tool-blog .tb-inner-ring {
+            border-color: #107C41;
+            opacity: 0.6;
+        }
+
+        .tb-slot-icon {
+            display: block;
+            width: 44px;
+            height: 44px;
+            z-index: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .tb-slot:hover .tb-slot-icon {
+            transform: scale(1.1);
+        }
+
+        .tb-slot-badge {
+            position: absolute;
+            bottom: 8px;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            color: #000000;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: #FFFFFF;
+            border: 1px solid #000000;
+            padding: 1px 6px;
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* ==========================================================================
+           EXCEL BLOG TOOL (Blog de Publicaciones estilo Hoja de Cálculo Excel)
+           ========================================================================== */
+        .excel-blog-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 95;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .excel-blog-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .excel-blog-shell {
+            width: min(1280px, 98vw);
+            height: min(860px, 92vh);
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ribbon / Top Bar */
+        .excel-blog-ribbon {
+            background: #107C41;
+            color: #FFFFFF;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 2px solid #0B5C30;
+        }
+
+        .excel-blog-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .excel-blog-brand svg {
+            width: 22px;
+            height: 22px;
+            fill: #FFFFFF;
+        }
+
+        .excel-blog-admin-tag {
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #E2E8F0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .excel-blog-toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .excel-btn {
+            background: #FFFFFF;
+            color: #0F172A;
+            border: 1px solid #E2E8F0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .excel-btn:hover {
+            background: #F8FAFC;
+            border-color: #CBD5E1;
+            transform: translateY(-1px);
+        }
+
+        .excel-btn.primary {
+            background: #0B5C30;
+            color: #FFFFFF;
+            border-color: #084825;
+        }
+
+        .excel-btn.primary:hover {
+            background: #084825;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .excel-btn.close {
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            border-color: transparent;
+        }
+
+        .excel-btn.close:hover {
+            background: rgba(239, 68, 68, 0.9);
+            color: #FFFFFF;
+        }
+
+        /* Quick Filter Bar */
+        .excel-blog-quickbar {
+            background: #F8FAFC;
+            padding: 8px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .excel-search-input {
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            width: 240px;
+            background: #FFFFFF;
+            color: #0F172A;
+            outline: none;
+        }
+
+        .excel-search-input:focus {
+            border-color: #107C41;
+            box-shadow: 0 0 0 2px rgba(16, 124, 65, 0.15);
+        }
+
+        .excel-category-select {
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            background: #FFFFFF;
+            color: #0F172A;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Formula Bar */
+        .excel-formula-bar {
+            background: #FFFFFF;
+            padding: 6px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Geist Mono', monospace;
+            font-size: 12px;
+        }
+
+        .excel-cell-name {
+            width: 54px;
+            padding: 3px 6px;
+            background: #F1F5F9;
+            border: 1px solid #CBD5E1;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 700;
+            color: #0F172A;
+        }
+
+        .excel-fx-icon {
+            font-style: italic;
+            font-weight: 700;
+            color: #64748B;
+            padding: 0 4px;
+        }
+
+        .excel-formula-input {
+            flex: 1;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            background: #F8FAFC;
+            color: #0F172A;
+            outline: none;
+        }
+
+        /* Excel Worksheet Table Area */
+        .excel-sheet-viewport {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            background: #FFFFFF;
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+            user-select: text;
+        }
+
+        .excel-table th,
+        .excel-table td {
+            border: 1px solid #E2E8F0;
+            padding: 6px 10px;
+            white-space: nowrap;
+        }
+
+        .excel-table th {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 11px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            text-align: center;
+        }
+
+        .excel-table th.row-num-col,
+        .excel-table td.row-num-cell {
+            width: 44px;
+            min-width: 44px;
+            max-width: 44px;
+            text-align: center;
+            background: #F1F5F9;
+            color: #64748B;
+            font-weight: 600;
+            font-family: 'Geist Mono', monospace;
+            position: sticky;
+            left: 0;
+            z-index: 4;
+            user-select: none;
+        }
+
+        .excel-table th.row-num-col {
+            z-index: 6;
+        }
+
+        .excel-table tr:hover td:not(.row-num-cell) {
+            background: #F8FAFC;
+        }
+
+        .excel-table td.active-cell {
+            outline: 2px solid #107C41;
+            outline-offset: -2px;
+            background: #F0FDF4 !important;
+            position: relative;
+        }
+
+        .excel-table td.active-cell::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            right: -3px;
+            width: 6px;
+            height: 6px;
+            background: #107C41;
+            border: 1px solid #FFFFFF;
+        }
+
+        .excel-badge-cat {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 10.5px;
+            font-weight: 600;
+            background: #EFF6FF;
+            color: #1D4ED8;
+            border: 1px solid #BFDBFE;
+        }
+
+        .excel-badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 10.5px;
+            font-weight: 600;
+        }
+
+        .excel-badge-status.published {
+            background: #ECFDF5;
+            color: #047857;
+            border: 1px solid #A7F3D0;
+        }
+
+        .excel-badge-status.draft {
+            background: #FFFBEB;
+            color: #B45309;
+            border: 1px solid #FDE68A;
+        }
+
+        .excel-action-btn {
+            background: #F1F5F9;
+            border: 1px solid #CBD5E1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #0F172A;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .excel-action-btn:hover {
+            background: #107C41;
+            color: #FFFFFF;
+            border-color: #107C41;
+        }
+
+        /* Bottom Sheet Tabs Bar */
+        .excel-sheet-footer {
+            background: #F1F5F9;
+            border-top: 1px solid #CBD5E1;
+            padding: 4px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: #475569;
+        }
+
+        .excel-sheet-tabs {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .excel-tab-item {
+            padding: 5px 12px;
+            background: #E2E8F0;
+            border-radius: 4px 4px 0 0;
+            font-weight: 600;
+            cursor: pointer;
+            color: #475569;
+            transition: all 0.15s ease;
+        }
+
+        .excel-tab-item.active {
+            background: #FFFFFF;
+            color: #107C41;
+            border-bottom: 2px solid #107C41;
+        }
+
+        /* Detail Reader / Admin Publishing Modal */
+        .excel-post-modal {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(3px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .excel-post-modal.open {
+            display: flex;
+        }
+
+        .excel-post-card {
+            width: min(720px, 100%);
+            max-height: 85vh;
+            background: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .excel-post-card-head {
+            padding: 14px 18px;
+            background: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .excel-post-card-body {
+            padding: 20px;
+            overflow-y: auto;
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #1E293B;
+        }
+
+        .excel-form-group {
+            margin-bottom: 14px;
+        }
+
+        .excel-form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+
+        .excel-form-input,
+        .excel-form-textarea,
+        .excel-form-select {
+            width: 100%;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 13px;
+            color: #0F172A;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .excel-form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .excel-form-input:focus,
+        .excel-form-textarea:focus,
+        .excel-form-select:focus {
+            border-color: #107C41;
+            box-shadow: 0 0 0 2px rgba(16, 124, 65, 0.15);
+        }
+
         .catalog-card {
             width: 100%;
             background: #faf9f6;
@@ -6328,11 +6826,14 @@ if (!headers_sent()) {
             <div class="tb-grid-container">
                 <!-- grid-row-1 -->
                 <div class="tb-grid-row">
-                    <!-- slot-1-1 -->
-                    <div class="tb-slot" id="slot-1-1" data-slot="1-1" title="Slot 1-1">
+                    <!-- slot-1-1: Blog de Publicaciones (Vista Excel) -->
+                    <div class="tb-slot is-filled is-tool-blog" id="slot-1-1" data-slot="1-1" title="Blog de Publicaciones (Vista Excel)" onclick="toggleExcelBlog()" role="button" tabindex="0" aria-label="Abrir Blog de Publicaciones estilo Excel">
                         <div class="tb-inner-ring">
-                            <div class="tb-focal-center"></div>
+                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="46" height="46" fill="#000000" aria-hidden="true">
+                                <path d="M 10.376953 1.9765625 C 9.787168 1.9765555 9.1973513 2.1369377 8.6777344 2.4589844 A 1.0001 1.0001 0 0 0 8.6757812 2.4589844 L 7.9101562 2.9355469 L 7.0097656 3.0019531 C 5.790157 3.0903096 4.7216027 3.8663998 4.2597656 5 L 3.9179688 5.8359375 L 3.2285156 6.4179688 C 2.2949033 7.206835 1.8871479 8.4628535 2.1796875 9.6503906 L 2.3945312 10.527344 L 2.1796875 11.402344 C 1.9283596 12.41756 2.1926714 13.48079 2.8574219 14.261719 L 2.7421875 14.179688 C 2.7421875 14.179688 4.5693281 18.566531 5.4863281 20.769531 C 5.7973281 21.514531 6.5259844 22 7.3339844 22 L 20.017578 22 C 20.548578 22 21.056641 21.788109 21.431641 21.412109 C 21.806641 21.036109 22.017578 20.527094 22.017578 19.996094 C 22.013578 17.150094 22.004953 12.048312 22.001953 9.9453125 C 22.000953 9.3473125 21.731531 8.7793906 21.269531 8.4003906 C 19.612531 7.0423906 15.712891 3.8476563 15.712891 3.8476562 L 15.722656 3.8769531 C 15.191727 3.3749897 14.496419 3.0565298 13.742188 3.0019531 L 12.841797 2.9355469 L 12.076172 2.4589844 C 11.556794 2.1366366 10.966738 1.9765695 10.376953 1.9765625 z M 10.376953 3.9746094 C 10.600706 3.9746846 10.823863 4.0355509 11.021484 4.1582031 L 11.996094 4.7636719 A 1.0001 1.0001 0 0 0 12.451172 4.9121094 L 13.597656 4.9960938 C 14.063382 5.0297937 14.463164 5.3217602 14.638672 5.7539062 A 1.0001 1.0001 0 0 0 14.640625 5.7558594 L 15.074219 6.8183594 A 1.0001 1.0001 0 0 0 15.353516 7.203125 L 16.230469 7.9453125 A 1.0001 1.0001 0 0 0 16.232422 7.9472656 C 16.589529 8.2485402 16.74232 8.7194121 16.630859 9.171875 L 16.355469 10.287109 A 1.0001 1.0001 0 0 0 16.355469 10.765625 L 16.630859 11.880859 C 16.742569 12.334886 16.589529 12.806147 16.232422 13.107422 L 15.355469 13.849609 A 1.0001 1.0001 0 0 0 15.074219 14.234375 L 14.640625 15.298828 A 1.0001 1.0001 0 0 0 14.638672 15.300781 C 14.463276 15.732652 14.062995 16.024226 13.595703 16.058594 L 12.451172 16.142578 A 1.0001 1.0001 0 0 0 11.996094 16.289062 L 11.019531 16.894531 A 1.0001 1.0001 0 0 0 11.019531 16.896484 C 10.622885 17.142869 10.127115 17.142869 9.7304688 16.896484 A 1.0001 1.0001 0 0 0 9.7304688 16.894531 L 8.7539062 16.289062 A 1.0001 1.0001 0 0 0 8.3007812 16.142578 L 7.1542969 16.058594 C 6.6883359 16.024283 6.286449 15.731975 6.1113281 15.300781 L 5.6777344 14.236328 A 1.0001 1.0001 0 0 0 5.3964844 13.849609 L 4.5195312 13.107422 C 4.1628849 12.806536 4.0092437 12.334622 4.1210938 11.882812 A 1.0001 1.0001 0 0 0 4.1210938 11.880859 L 4.3964844 10.765625 A 1.0001 1.0001 0 0 0 4.3964844 10.287109 L 4.1210938 9.171875 C 4.0096334 8.7194121 4.1631436 8.2464462 4.5195312 7.9453125 L 5.3984375 7.203125 A 1.0001 1.0001 0 0 0 5.6777344 6.8164062 L 6.1113281 5.7539062 C 6.287491 5.3215064 6.6899055 5.0297373 7.1542969 4.9960938 L 8.3007812 4.9121094 A 1.0001 1.0001 0 0 0 8.7558594 4.7636719 L 9.7304688 4.1582031 C 9.9288519 4.0352499 10.1532 3.9745341 10.376953 3.9746094 z M 12.980469 7.9902344 A 1.0001 1.0001 0 0 0 12.292969 8.2929688 L 10 10.585938 L 9.2070312 9.7929688 A 1.0001 1.0001 0 1 0 7.7929688 11.207031 L 9.2929688 12.707031 A 1.0001 1.0001 0 0 0 10.707031 12.707031 L 13.707031 9.7070312 A 1.0001 1.0001 0 0 0 12.980469 7.9902344 z"/>
+                            </svg>
                         </div>
+                        <div class="tb-slot-badge">BLOG</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -12021,7 +12522,423 @@ if (!headers_sent()) {
         </div>
     </div>
 
+    <!-- =========================================================================
+         TOOLBOX TOOL 1: BLOG DE PUBLICACIONES (VISTA HOJA DE CÁLCULO EXCEL)
+         ========================================================================= -->
+    <div class="excel-blog-overlay" id="excelBlogOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="excelBlogTitle">
+        <div class="excel-blog-shell">
+            <!-- Ribbon / Top Bar -->
+            <div class="excel-blog-ribbon">
+                <div class="excel-blog-brand" id="excelBlogTitle">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M 10.376953 1.9765625 C 9.787168 1.9765555 9.1973513 2.1369377 8.6777344 2.4589844 A 1.0001 1.0001 0 0 0 8.6757812 2.4589844 L 7.9101562 2.9355469 L 7.0097656 3.0019531 C 5.790157 3.0903096 4.7216027 3.8663998 4.2597656 5 L 3.9179688 5.8359375 L 3.2285156 6.4179688 C 2.2949033 7.206835 1.8871479 8.4628535 2.1796875 9.6503906 L 2.3945312 10.527344 L 2.1796875 11.402344 C 1.9283596 12.41756 2.1926714 13.48079 2.8574219 14.261719 L 2.7421875 14.179688 C 2.7421875 14.179688 4.5693281 18.566531 5.4863281 20.769531 C 5.7973281 21.514531 6.5259844 22 7.3339844 22 L 20.017578 22 C 20.548578 22 21.056641 21.788109 21.431641 21.412109 C 21.806641 21.036109 22.017578 20.527094 22.017578 19.996094 C 22.013578 17.150094 22.004953 12.048312 22.001953 9.9453125 C 22.000953 9.3473125 21.731531 8.7793906 21.269531 8.4003906 C 19.612531 7.0423906 15.712891 3.8476563 15.712891 3.8476562 L 15.722656 3.8769531 C 15.191727 3.3749897 14.496419 3.0565298 13.742188 3.0019531 L 12.841797 2.9355469 L 12.076172 2.4589844 C 11.556794 2.1366366 10.966738 1.9765695 10.376953 1.9765625 z M 10.376953 3.9746094 C 10.600706 3.9746846 10.823863 4.0355509 11.021484 4.1582031 L 11.996094 4.7636719 A 1.0001 1.0001 0 0 0 12.451172 4.9121094 L 13.597656 4.9960938 C 14.063382 5.0297937 14.463164 5.3217602 14.638672 5.7539062 A 1.0001 1.0001 0 0 0 14.640625 5.7558594 L 15.074219 6.8183594 A 1.0001 1.0001 0 0 0 15.353516 7.203125 L 16.230469 7.9453125 A 1.0001 1.0001 0 0 0 16.232422 7.9472656 C 16.589529 8.2485402 16.74232 8.7194121 16.630859 9.171875 L 16.355469 10.287109 A 1.0001 1.0001 0 0 0 16.355469 10.765625 L 16.630859 11.880859 C 16.742569 12.334886 16.589529 12.806147 16.232422 13.107422 L 15.355469 13.849609 A 1.0001 1.0001 0 0 0 15.074219 14.234375 L 14.640625 15.298828 A 1.0001 1.0001 0 0 0 14.638672 15.300781 C 14.463276 15.732652 14.062995 16.024226 13.595703 16.058594 L 12.451172 16.142578 A 1.0001 1.0001 0 0 0 11.996094 16.289062 L 11.019531 16.894531 A 1.0001 1.0001 0 0 0 11.019531 16.896484 C 10.622885 17.142869 10.127115 17.142869 9.7304688 16.896484 A 1.0001 1.0001 0 0 0 9.7304688 16.894531 L 8.7539062 16.289062 A 1.0001 1.0001 0 0 0 8.3007812 16.142578 L 7.1542969 16.058594 C 6.6883359 16.024283 6.286449 15.731975 6.1113281 15.300781 L 5.6777344 14.236328 A 1.0001 1.0001 0 0 0 5.3964844 13.849609 L 4.5195312 13.107422 C 4.1628849 12.806536 4.0092437 12.334622 4.1210938 11.882812 A 1.0001 1.0001 0 0 0 4.1210938 11.880859 L 4.3964844 10.765625 A 1.0001 1.0001 0 0 0 4.3964844 10.287109 L 4.1210938 9.171875 C 4.0096334 8.7194121 4.1631436 8.2464462 4.5195312 7.9453125 L 5.3984375 7.203125 A 1.0001 1.0001 0 0 0 5.6777344 6.8164062 L 6.1113281 5.7539062 C 6.287491 5.3215064 6.6899055 5.0297373 7.1542969 4.9960938 L 8.3007812 4.9121094 A 1.0001 1.0001 0 0 0 8.7558594 4.7636719 L 9.7304688 4.1582031 C 9.9288519 4.0352499 10.1532 3.9745341 10.376953 3.9746094 z M 12.980469 7.9902344 A 1.0001 1.0001 0 0 0 12.292969 8.2929688 L 10 10.585938 L 9.2070312 9.7929688 A 1.0001 1.0001 0 1 0 7.7929688 11.207031 L 9.2929688 12.707031 A 1.0001 1.0001 0 0 0 10.707031 12.707031 L 13.707031 9.7070312 A 1.0001 1.0001 0 0 0 12.980469 7.9902344 z"/>
+                    </svg>
+                    <span>Blog de Publicaciones · Vista Excel</span>
+                    <span class="excel-blog-admin-tag">🔒 Solo Administrador puede publicar</span>
+                </div>
+                <div class="excel-blog-toolbar-actions">
+                    <button type="button" class="excel-btn primary" id="excelBlogNewPostBtn" onclick="openExcelBlogAdminPublish()">➕ Nueva Publicación</button>
+                    <button type="button" class="excel-btn" id="excelBlogExportBtn" onclick="exportExcelBlogCsv()">📥 Exportar CSV</button>
+                    <button type="button" class="excel-btn close" id="excelBlogCloseBtn" onclick="toggleExcelBlog(false)" title="Cerrar ventana">✕ Cerrar</button>
+                </div>
+            </div>
+
+            <!-- Quick Filter Bar -->
+            <div class="excel-blog-quickbar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="text" class="excel-search-input" id="excelBlogSearchInput" placeholder="🔍 Buscar en celdas de la hoja..." oninput="filterExcelBlogTable()">
+                    <select class="excel-category-select" id="excelBlogCategorySelect" onchange="filterExcelBlogTable()">
+                        <option value="">Todas las Categorías</option>
+                        <option value="Novedades">Novedades</option>
+                        <option value="Lanzamientos">Lanzamientos</option>
+                        <option value="Arquitectura">Arquitectura</option>
+                        <option value="Tutoriales">Tutoriales</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Changelog">Changelog</option>
+                    </select>
+                </div>
+                <div style="font-size:12px; color:#64748B; font-family:'Geist Mono', monospace;" id="excelBlogCounter">
+                    Mostrando 0 registros
+                </div>
+            </div>
+
+            <!-- Formula Bar -->
+            <div class="excel-formula-bar">
+                <div class="excel-cell-name" id="excelActiveCellCoords">A1</div>
+                <span class="excel-fx-icon">fx</span>
+                <input type="text" class="excel-formula-input" id="excelFormulaInput" readonly value="Selecciona una celda para inspeccionar su valor...">
+            </div>
+
+            <!-- Spreadsheet Grid Viewport -->
+            <div class="excel-sheet-viewport">
+                <table class="excel-table" id="excelBlogTable">
+                    <thead>
+                        <tr>
+                            <th class="row-num-col">#</th>
+                            <th style="width: 70px;">A (ID)</th>
+                            <th style="width: 110px;">B (Fecha)</th>
+                            <th style="width: 240px;">C (Título de Publicación)</th>
+                            <th style="width: 130px;">D (Categoría)</th>
+                            <th style="width: 100px;">E (Estado)</th>
+                            <th style="width: 120px;">F (Autor)</th>
+                            <th style="min-width: 320px;">G (Extracto / Resumen)</th>
+                            <th style="width: 80px;">H (Vistas)</th>
+                            <th style="width: 110px; text-align:center;">I (Acciones)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="excelBlogTableBody">
+                        <!-- Dynamic Rows Generated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Bottom Sheet Tabs Footer -->
+            <div class="excel-sheet-footer">
+                <div class="excel-sheet-tabs">
+                    <div class="excel-tab-item active" id="tabSheet1" onclick="switchExcelSheet(1)">📑 Hoja 1 - Publicaciones</div>
+                    <div class="excel-tab-item" id="tabSheet2" onclick="switchExcelSheet(2)">📝 Hoja 2 - Borradores Admin</div>
+                    <div class="excel-tab-item" id="tabSheet3" onclick="switchExcelSheet(3)">📊 Hoja 3 - Métricas</div>
+                </div>
+                <div style="font-family:'Geist Mono', monospace; font-size:11px;">
+                    Modo Lectura / Administración · Excel Grid Engine v1.0
+                </div>
+            </div>
+
+            <!-- Admin Publish Modal -->
+            <div class="excel-post-modal" id="excelAdminPublishModal">
+                <div class="excel-post-card">
+                    <div class="excel-post-card-head">
+                        <strong style="font-size:14px; color:#0F172A;">🔒 Panel Administrador · Crear Publicación</strong>
+                        <button type="button" class="excel-btn close" style="color:#000;" onclick="closeExcelBlogAdminPublish()">✕</button>
+                    </div>
+                    <div class="excel-post-card-body">
+                        <div class="excel-form-group">
+                            <label class="excel-form-label" for="pubTitle">Título de la Publicación</label>
+                            <input type="text" class="excel-form-input" id="pubTitle" placeholder="Ej: Lanzamiento del nuevo motor de ejecución...">
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;" class="excel-form-group">
+                            <div>
+                                <label class="excel-form-label" for="pubCat">Categoría</label>
+                                <select class="excel-form-select" id="pubCat">
+                                    <option value="Novedades">Novedades</option>
+                                    <option value="Lanzamientos">Lanzamientos</option>
+                                    <option value="Arquitectura">Arquitectura</option>
+                                    <option value="Tutoriales">Tutoriales</option>
+                                    <option value="Seguridad">Seguridad</option>
+                                    <option value="Changelog">Changelog</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="excel-form-label" for="pubAuthor">Autor</label>
+                                <input type="text" class="excel-form-input" id="pubAuthor" value="Diktatcart Admin">
+                            </div>
+                            <div>
+                                <label class="excel-form-label" for="pubStatus">Estado</label>
+                                <select class="excel-form-select" id="pubStatus">
+                                    <option value="Publicado">Publicado</option>
+                                    <option value="Borrador">Borrador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="excel-form-group">
+                            <label class="excel-form-label" for="pubExcerpt">Resumen Corto (Fila de la Hoja)</label>
+                            <input type="text" class="excel-form-input" id="pubExcerpt" placeholder="Breve síntesis de la publicación...">
+                        </div>
+                        <div class="excel-form-group">
+                            <label class="excel-form-label" for="pubContent">Contenido Completo del Artículo</label>
+                            <textarea class="excel-form-textarea" id="pubContent" placeholder="Escribe el artículo aquí... Puedes incluir explicaciones técnicas, notas y novedades."></textarea>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                            <button type="button" class="excel-btn" onclick="closeExcelBlogAdminPublish()">Cancelar</button>
+                            <button type="button" class="excel-btn primary" onclick="saveExcelBlogPost()">💾 Guardar y Publicar en Hoja</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post Reader Modal -->
+            <div class="excel-post-modal" id="excelReaderModal">
+                <div class="excel-post-card" style="width: min(840px, 100%);">
+                    <div class="excel-post-card-head">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="excel-badge-cat" id="readCat">Categoría</span>
+                            <span id="readDate" style="font-size:12px; color:#64748B;">Fecha</span>
+                        </div>
+                        <button type="button" class="excel-btn close" style="color:#000;" onclick="closeExcelBlogReader()">✕</button>
+                    </div>
+                    <div class="excel-post-card-body">
+                        <h2 id="readTitle" style="font-size:20px; font-weight:800; color:#0F172A; margin-bottom:10px; line-height:1.2;"></h2>
+                        <div style="display:flex; align-items:center; gap:12px; font-size:12px; color:#64748B; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid #E2E8F0;">
+                            <span>✍️ Autor: <strong id="readAuthor" style="color:#0F172A;">Admin</strong></span>
+                            <span>👁️ <span id="readViews">0</span> lecturas</span>
+                        </div>
+                        <div id="readBody" style="white-space:pre-wrap; line-height:1.7; color:#334155; font-size:14px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        /* ===== EXCEL BLOG ENGINE (Toolbox Slot 1-1) ===== */
+        (function initExcelBlogEngine() {
+            const STORAGE_KEY = 'l8_excel_blog_articles_v1';
+            let currentSheet = 1;
+
+            // Seed articles pre-loaded
+            const defaultArticles = [
+                {
+                    id: 'PUB-001',
+                    date: '2026-08-19',
+                    title: 'Despliegue del Sistema de Toolbox Matricial 4x4',
+                    category: 'Lanzamientos',
+                    status: 'Publicado',
+                    author: 'Diktatcart Admin',
+                    excerpt: 'Lanzamiento oficial de la matriz interactiva de 16 slots circulares integrados.',
+                    content: 'Nos complace anunciar la integración de la Toolbox Matricial 4x4 en la plataforma. Esta arquitectura modular permite conectar herramientas avanzadas como este Blog estilo Hoja de Cálculo, consolas matemáticas, editores vectoriales y utilidades de automatización directamente en el navegador con sincronización en tiempo real.',
+                    views: 142
+                },
+                {
+                    id: 'PUB-002',
+                    date: '2026-08-18',
+                    title: 'Nueva Identidad de Marca: Hashcod codespace',
+                    category: 'Novedades',
+                    status: 'Publicado',
+                    author: 'Diktatcart Admin',
+                    excerpt: 'Evolución y calibración de la pantalla de bienvenida con tipografía Codec Pro.',
+                    content: 'Hemos consolidado la nueva identidad de marca con el isotipo de pantalla y cursor piramidal, optimizado con trazado vectorial de alta precisión y tipografía Codec Pro con contrastes calibrados para máxima legibilidad.',
+                    views: 98
+                },
+                {
+                    id: 'PUB-003',
+                    date: '2026-08-17',
+                    title: 'Arquitectura de Datos y Control de Acceso de Administrador',
+                    category: 'Arquitectura',
+                    status: 'Publicado',
+                    author: 'Diktatcart Admin',
+                    excerpt: 'Estructuración de publicaciones ordenadas como hoja de cálculo con permisos exclusivos.',
+                    content: 'El Blog Excel utiliza un motor de celdas bidimensionales que emula una hoja de cálculo estándar. Cada fila representa una entrada inmutable accesible en modo lectura para usuarios generales y con privilegios de creación reservados al Administrador.',
+                    views: 67
+                },
+                {
+                    id: 'PUB-004',
+                    date: '2026-08-16',
+                    title: 'Guía de Optimización de Rendimiento y Caching Caddy',
+                    category: 'Tutoriales',
+                    status: 'Borrador',
+                    author: 'Diktatcart Admin',
+                    excerpt: 'Configuración de proxies inversos y mitigación de latencia en despliegues cloud.',
+                    content: 'Documentación interna para configurar Caddy y optimizar el rendimiento en contenedores cloud como Render, gestionando terminación TLS y encabezados de caché.',
+                    views: 15
+                }
+            ];
+
+            function getArticles() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+                } catch (e) {}
+                return defaultArticles;
+            }
+
+            function saveArticles(list) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+                } catch (e) {}
+            }
+
+            window.toggleExcelBlog = function (forceState) {
+                const overlay = document.getElementById('excelBlogOverlay');
+                if (!overlay) return;
+                const isOpening = (typeof forceState === 'boolean') ? forceState : !overlay.classList.contains('open');
+                if (isOpening) {
+                    overlay.classList.add('open');
+                    renderExcelTable();
+                } else {
+                    overlay.classList.remove('open');
+                }
+            };
+
+            window.switchExcelSheet = function (sheetNum) {
+                currentSheet = sheetNum;
+                document.querySelectorAll('.excel-tab-item').forEach((tab, idx) => {
+                    tab.classList.toggle('active', (idx + 1) === sheetNum);
+                });
+                renderExcelTable();
+            };
+
+            function renderExcelTable() {
+                const tbody = document.getElementById('excelBlogTableBody');
+                const counter = document.getElementById('excelBlogCounter');
+                if (!tbody) return;
+
+                const articles = getArticles();
+                const q = (document.getElementById('excelBlogSearchInput')?.value || '').toLowerCase().trim();
+                const catFilter = document.getElementById('excelBlogCategorySelect')?.value || '';
+
+                let filtered = articles.filter((art) => {
+                    if (currentSheet === 1 && art.status === 'Borrador') return false;
+                    if (currentSheet === 2 && art.status !== 'Borrador') return false;
+                    if (catFilter && art.category !== catFilter) return false;
+                    if (q) {
+                        const str = (art.id + ' ' + art.title + ' ' + art.category + ' ' + art.author + ' ' + art.excerpt + ' ' + art.date).toLowerCase();
+                        if (!str.includes(q)) return false;
+                    }
+                    return true;
+                });
+
+                if (counter) counter.textContent = 'Mostrando ' + filtered.length + ' de ' + articles.length + ' registros';
+
+                tbody.innerHTML = '';
+                if (filtered.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:28px; color:#64748B;">No hay registros para mostrar en esta hoja. Haz clic en <strong>➕ Nueva Publicación</strong> para redactar una.</td></tr>';
+                    return;
+                }
+
+                filtered.forEach((art, idx) => {
+                    const rowNum = idx + 1;
+                    const isPub = art.status === 'Publicado';
+                    const tr = document.createElement('tr');
+                    tr.dataset.id = art.id;
+
+                    const safeTitle = (art.title || '').replace(/"/g, '&quot;');
+                    const safeExcerpt = (art.excerpt || '').replace(/"/g, '&quot;');
+
+                    tr.innerHTML = `
+                        <td class="row-num-cell">${rowNum}</td>
+                        <td data-col="A" data-val="${art.id}"><strong>${art.id}</strong></td>
+                        <td data-col="B" data-val="${art.date}">${art.date}</td>
+                        <td data-col="C" data-val="${safeTitle}" style="font-weight:600; color:#0F172A;">${art.title}</td>
+                        <td data-col="D" data-val="${art.category}"><span class="excel-badge-cat">${art.category}</span></td>
+                        <td data-col="E" data-val="${art.status}"><span class="excel-badge-status ${isPub ? 'published' : 'draft'}">● ${art.status}</span></td>
+                        <td data-col="F" data-val="${art.author}">${art.author}</td>
+                        <td data-col="G" data-val="${safeExcerpt}" style="max-width:320px; overflow:hidden; text-overflow:ellipsis;">${art.excerpt || ''}</td>
+                        <td data-col="H" data-val="${art.views}">${art.views || 0}</td>
+                        <td style="text-align:center;">
+                            <button type="button" class="excel-action-btn" onclick="openExcelBlogReader('${art.id}')">👁️ Leer</button>
+                        </td>
+                    `;
+
+                    // Click handler for Excel cell selection
+                    tr.querySelectorAll('td:not(.row-num-cell)').forEach((td) => {
+                        td.addEventListener('click', (e) => {
+                            if (e.target.tagName === 'BUTTON') return;
+                            document.querySelectorAll('.excel-table td.active-cell').forEach(c => c.classList.remove('active-cell'));
+                            td.classList.add('active-cell');
+                            const col = td.dataset.col || 'A';
+                            const coords = col + rowNum;
+                            const val = td.dataset.val || td.textContent || '';
+                            const coordBox = document.getElementById('excelActiveCellCoords');
+                            const formulaBox = document.getElementById('excelFormulaInput');
+                            if (coordBox) coordBox.textContent = coords;
+                            if (formulaBox) formulaBox.value = val;
+                        });
+
+                        td.addEventListener('dblclick', () => {
+                            openExcelBlogReader(art.id);
+                        });
+                    });
+
+                    tbody.appendChild(tr);
+                });
+            }
+
+            window.filterExcelBlogTable = function () {
+                renderExcelTable();
+            };
+
+            window.openExcelBlogReader = function (id) {
+                const articles = getArticles();
+                const art = articles.find(a => a.id === id);
+                if (!art) return;
+
+                art.views = (art.views || 0) + 1;
+                saveArticles(articles);
+
+                document.getElementById('readTitle').textContent = art.title;
+                document.getElementById('readCat').textContent = art.category;
+                document.getElementById('readDate').textContent = art.date;
+                document.getElementById('readAuthor').textContent = art.author || 'Diktatcart Admin';
+                document.getElementById('readViews').textContent = art.views;
+                document.getElementById('readBody').textContent = art.content;
+
+                document.getElementById('excelReaderModal').classList.add('open');
+            };
+
+            window.closeExcelBlogReader = function () {
+                const modal = document.getElementById('excelReaderModal');
+                if (modal) modal.classList.remove('open');
+                renderExcelTable();
+            };
+
+            window.openExcelBlogAdminPublish = function () {
+                document.getElementById('pubTitle').value = '';
+                document.getElementById('pubExcerpt').value = '';
+                document.getElementById('pubContent').value = '';
+                document.getElementById('pubStatus').value = 'Publicado';
+                document.getElementById('excelAdminPublishModal').classList.add('open');
+            };
+
+            window.closeExcelBlogAdminPublish = function () {
+                const modal = document.getElementById('excelAdminPublishModal');
+                if (modal) modal.classList.remove('open');
+            };
+
+            window.saveExcelBlogPost = function () {
+                const title = (document.getElementById('pubTitle').value || '').trim();
+                if (!title) {
+                    alert('Por favor ingresa un título para la publicación.');
+                    return;
+                }
+                const cat = document.getElementById('pubCat').value || 'Novedades';
+                const author = (document.getElementById('pubAuthor').value || 'Diktatcart Admin').trim();
+                const status = document.getElementById('pubStatus').value || 'Publicado';
+                const excerpt = (document.getElementById('pubExcerpt').value || '').trim();
+                const content = (document.getElementById('pubContent').value || '').trim();
+
+                const articles = getArticles();
+                const nextNum = articles.length + 1;
+                const newId = 'PUB-' + String(nextNum).padStart(3, '0');
+                const today = new Date().toISOString().split('T')[0];
+
+                articles.unshift({
+                    id: newId,
+                    date: today,
+                    title: title,
+                    category: cat,
+                    status: status,
+                    author: author,
+                    excerpt: excerpt || title,
+                    content: content || excerpt || title,
+                    views: 1
+                });
+
+                saveArticles(articles);
+                closeExcelBlogAdminPublish();
+                renderExcelTable();
+            };
+
+            window.exportExcelBlogCsv = function () {
+                const articles = getArticles();
+                let csv = 'ID,Fecha,Titulo,Categoria,Estado,Autor,Resumen,Vistas\n';
+                articles.forEach(a => {
+                    csv += `"${a.id}","${a.date}","${(a.title||'').replace(/"/g, '""')}","${a.category}","${a.status}","${a.author}","${(a.excerpt||'').replace(/"/g, '""')}",${a.views}\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `blog_publicaciones_excel_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+        })();
+
         /* ===== AUTH GATE (registro / login) ===== */
         (function authGate() {
             const AUTH_TOKEN_KEY = 'l8_auth_token';

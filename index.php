@@ -3821,7 +3821,7 @@ if (!headers_sent()) {
 
         .block-execution .block-body {
             background-color: #ffffff;
-            min-height: 80px;
+            min-height: 48px;
             max-height: 580px;
             overflow-y: auto;
             align-items: flex-start;
@@ -5362,35 +5362,38 @@ if (!headers_sent()) {
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding: 0px;
-            margin: -2px 0 0 0;
+            padding: 2px 0;
+            margin: 0px 0;
             width: 100%;
         }
 
         .toolbox-icon-btn-pill {
             width: 38px;
-            height: 28px;
+            min-width: 38px;
+            height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f0f0f0;
-            border: 1px solid #cccccc;
-            border-radius: 3px;
+            background: #d8d8d8;
+            border: 1px solid #bbbbbb;
+            border-radius: 2px;
             cursor: pointer;
             color: #000000;
             transition: all 0.15s ease;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            padding: 0;
+            box-sizing: border-box;
         }
 
         .toolbox-icon-btn-pill svg {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             fill: #000000;
         }
 
         .toolbox-icon-btn-pill:hover {
-            background: #e0e0e0;
-            border-color: #888888;
+            background: #cccccc;
+            border-color: #999999;
             transform: scale(1.05);
         }
 

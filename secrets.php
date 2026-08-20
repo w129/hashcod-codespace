@@ -248,6 +248,7 @@ function secretsKnownNames() {
         'SUPABASE_SERVICE_ROLE_KEY',
         'L8_AUTH_PEPPER',
         'L8_DILITHIUM5_REGISTER_KEY',
+        'DILITHIUM5_ADMIN_SIGNATURE',
         'L8_TOKENS_UNLOCK_SEED',
         'L8_VAULT_MASTER_KEY',
         'L8_DATA_ENCRYPTION_KEY',

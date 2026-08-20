@@ -3646,7 +3646,12 @@ if ($uri === '/api/admin/dilithium-verify') {
     $data = json_decode($raw, true) ?: [];
     $inputSig = trim((string)($data['signature'] ?? ''));
 
-    // Leer firma maestra desde .env / secretGet / getenv
+    // Cargar entorno (incluyendo /etc/secrets/.env de Render)
+    if (function_exists('loadEnvFile')) {
+        loadEnvFile();
+    }
+
+    // Leer firma maestra desde .env / secretGet / getenv / /etc/secrets
     $masterSig = '';
     if (function_exists('secretGet')) {
         $masterSig = secretGet('DILITHIUM5_ADMIN_SIGNATURE', '');
@@ -3657,8 +3662,35 @@ if ($uri === '/api/admin/dilithium-verify') {
     if ($masterSig === '' && isset($_ENV['DILITHIUM5_ADMIN_SIGNATURE'])) {
         $masterSig = (string)$_ENV['DILITHIUM5_ADMIN_SIGNATURE'];
     }
+    if ($masterSig === '' && isset($_SERVER['DILITHIUM5_ADMIN_SIGNATURE'])) {
+        $masterSig = (string)$_SERVER['DILITHIUM5_ADMIN_SIGNATURE'];
+    }
     if ($masterSig === '') {
         $masterSig = getenv('DILITHIUM5_ADMIN_SIGNATURE') ?: '';
+    }
+    // Búsqueda directa en rutas secretas de Render
+    if ($masterSig === '') {
+        foreach ([
+            '/etc/secrets/DILITHIUM5_ADMIN_SIGNATURE',
+            '/etc/secrets/dilithium5_admin_signature',
+            '/etc/secrets/.env',
+            __DIR__ . '/.env'
+        ] as $p) {
+            if (is_readable($p)) {
+                $content = @file_get_contents($p);
+                if ($content !== false) {
+                    if (strpos($content, 'DILITHIUM5_ADMIN_SIGNATURE=') !== false) {
+                        if (preg_match('/DILITHIUM5_ADMIN_SIGNATURE=["\']?([^"\'\r\n]+)/', $content, $m)) {
+                            $masterSig = trim($m[1]);
+                            break;
+                        }
+                    } else if (strpos($p, 'DILITHIUM5') !== false && trim($content) !== '') {
+                        $masterSig = trim($content);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     if (empty($inputSig) || empty($masterSig)) {

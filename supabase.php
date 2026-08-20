@@ -5,24 +5,35 @@
  */
 
 function loadEnvFile($path = null) {
-    $path = $path ?: (__DIR__ . '/.env');
-    if (!file_exists($path) || !is_readable($path)) {
-        return;
-    }
-    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if ($line === '' || $line[0] === '#') continue;
-        if (strpos($line, '=') === false) continue;
-        list($key, $value) = explode('=', $line, 2);
-        $key = trim($key);
-        $value = trim($value);
-        if ($value !== '' && (($value[0] === '"' && substr($value, -1) === '"') || ($value[0] === "'" && substr($value, -1) === "'"))) {
-            $value = substr($value, 1, -1);
+    $paths = $path ? [$path] : [
+        __DIR__ . '/.env',
+        '/etc/secrets/.env',
+        '/etc/secrets/env',
+        '/etc/secrets/.env.local',
+        '/etc/secrets/dotenv',
+    ];
+
+    foreach ($paths as $filePath) {
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            continue;
         }
-        if ($key !== '' && getenv($key) === false) {
-            putenv("$key=$value");
-            $_ENV[$key] = $value;
+        $lines = @file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (!$lines) continue;
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#') continue;
+            if (strpos($line, '=') === false) continue;
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            if ($value !== '' && (($value[0] === '"' && substr($value, -1) === '"') || ($value[0] === "'" && substr($value, -1) === "'"))) {
+                $value = substr($value, 1, -1);
+            }
+            if ($key !== '') {
+                putenv("$key=$value");
+                $_ENV[$key] = $value;
+                $_SERVER[$key] = $value;
+            }
         }
     }
 }

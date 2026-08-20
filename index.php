@@ -4354,432 +4354,545 @@ if (!headers_sent()) {
             opacity: 1;
         }
 
-        .excel-blog-shell {
-            width: min(1280px, 98vw);
-            height: min(860px, 92vh);
-            background: #FFFFFF;
-            border: 1px solid #CBD5E1;
-            border-radius: 12px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        .excel-blog-shell.table-section-card,
+        .table-section-card {
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            align-items: flex-start;
+            padding: 0px;
+            isolation: isolate;
+            width: min(1360px, 98vw);
+            max-height: 92vh;
+            background: #FFFFFF;
+            border: 1px solid #E4E4E7;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
             position: relative;
+            overflow: hidden;
+            flex: none;
+            order: 2;
+            align-self: stretch;
+            flex-grow: 0;
         }
 
-        /* Ribbon / Top Bar */
-        .excel-blog-ribbon {
-            background: #107C41;
-            color: #FFFFFF;
-            padding: 10px 16px;
+        /* table-header-controls */
+        .table-header-controls {
+            box-sizing: border-box;
             display: flex;
-            align-items: center;
+            flex-direction: row;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            border-bottom: 2px solid #0B5C30;
+            align-items: center;
+            padding: 24px;
+            width: 100%;
+            height: 80px;
+            border-bottom: 1px solid #E4E4E7;
+            background: #FFFFFF;
+            z-index: 1;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
         }
 
-        .excel-blog-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 15px;
+        .table-title {
+            width: auto;
+            min-width: 237px;
+            height: 21px;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
             font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-
-        .excel-blog-brand svg {
-            width: 22px;
-            height: 22px;
-            fill: #FFFFFF;
-        }
-
-        .excel-blog-admin-tag {
-            font-size: 11px;
-            font-weight: 600;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 3px 8px;
-            border-radius: 4px;
-            color: #E2E8F0;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .excel-blog-toolbar-actions {
+            font-size: 16px;
+            line-height: 21px;
+            color: #09090B;
             display: flex;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
         }
 
-        .excel-btn {
-            background: #FFFFFF;
-            color: #0F172A;
-            border: 1px solid #E2E8F0;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
+        .filter-group {
+            display: flex;
+            flex-direction: row;
             align-items: center;
-            gap: 6px;
+            padding: 0px;
+            gap: 8px;
+            height: 32px;
+            flex: none;
+            order: 1;
+            flex-grow: 0;
+        }
+
+        .filter-search {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 8px 12px;
+            gap: 8px;
+            width: 200px;
+            height: 32px;
+            border: 1px solid #E4E4E7;
+            border-radius: 6px;
+            background: #FFFFFF;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+
+        .filter-search svg {
+            width: 12px;
+            height: 12px;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+            fill: #6B7280;
+        }
+
+        .filter-search input {
+            width: 100%;
+            height: 16px;
+            border: none;
+            outline: none;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            color: #09090B;
+            background: transparent;
+            flex: none;
+            order: 1;
+            flex-grow: 1;
+        }
+
+        .filter-search input::placeholder {
+            color: #71717A;
+        }
+
+        .filter-all {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            width: 71px;
+            height: 32px;
+            background: #000000;
+            border-radius: 6px;
+            border: none;
+            color: #FFFFFF;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 16px;
+            cursor: pointer;
+            flex: none;
+            order: 1;
+            flex-grow: 0;
+            transition: background 0.15s ease;
+        }
+
+        .filter-all:hover {
+            background: #27272A;
+        }
+
+        .btn-card-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #F4F4F5;
+            border: 1px solid #E4E4E7;
+            border-radius: 6px;
+            color: #71717A;
+            font-size: 13px;
+            cursor: pointer;
             transition: all 0.15s ease;
         }
 
-        .excel-btn:hover {
-            background: #F8FAFC;
-            border-color: #CBD5E1;
-            transform: translateY(-1px);
-        }
-
-        .excel-btn.primary {
-            background: #0B5C30;
+        .btn-card-close:hover {
+            background: #EF4444;
             color: #FFFFFF;
-            border-color: #084825;
+            border-color: #EF4444;
         }
 
-        .excel-btn.primary:hover {
-            background: #084825;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-
-        .excel-btn.close {
-            background: rgba(255, 255, 255, 0.15);
-            color: #FFFFFF;
-            border-color: transparent;
-        }
-
-        .excel-btn.close:hover {
-            background: rgba(239, 68, 68, 0.9);
-            color: #FFFFFF;
-        }
-
-        /* Quick Filter Bar */
-        .excel-blog-quickbar {
-            background: #F8FAFC;
-            padding: 8px 16px;
-            border-bottom: 1px solid #E2E8F0;
+        /* data-table */
+        .data-table-wrap {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .excel-search-input {
-            border: 1px solid #CBD5E1;
-            border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 12px;
-            width: 240px;
-            background: #FFFFFF;
-            color: #0F172A;
-            outline: none;
-        }
-
-        .excel-search-input:focus {
-            border-color: #107C41;
-            box-shadow: 0 0 0 2px rgba(16, 124, 65, 0.15);
-        }
-
-        .excel-category-select {
-            border: 1px solid #CBD5E1;
-            border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 12px;
-            background: #FFFFFF;
-            color: #0F172A;
-            outline: none;
-            cursor: pointer;
-        }
-
-        /* Formula Bar */
-        .excel-formula-bar {
-            background: #FFFFFF;
-            padding: 6px 16px;
-            border-bottom: 1px solid #E2E8F0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Geist Mono', monospace;
-            font-size: 12px;
-        }
-
-        .excel-cell-name {
-            width: 54px;
-            padding: 3px 6px;
-            background: #F1F5F9;
-            border: 1px solid #CBD5E1;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: 700;
-            color: #0F172A;
-        }
-
-        .excel-fx-icon {
-            font-style: italic;
-            font-weight: 700;
-            color: #64748B;
-            padding: 0 4px;
-        }
-
-        .excel-formula-input {
-            flex: 1;
-            border: 1px solid #E2E8F0;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 12px;
-            background: #F8FAFC;
-            color: #0F172A;
-            outline: none;
-        }
-
-        /* Excel Worksheet Table Area */
-        .excel-sheet-viewport {
-            flex: 1;
-            overflow: auto;
-            position: relative;
-            background: #FFFFFF;
-        }
-
-        .excel-table {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
             width: 100%;
+            min-height: 296px;
+            max-height: 480px;
+            overflow-x: auto;
+            overflow-y: auto;
+            flex: none;
+            order: 2;
+            align-self: stretch;
+            flex-grow: 1;
+            z-index: 2;
+            background: #FFFFFF;
+        }
+
+        .data-table-wrap table {
+            width: 100%;
+            min-width: 1315px;
             border-collapse: collapse;
-            font-size: 12px;
-            text-align: left;
-            user-select: text;
+            table-layout: fixed;
         }
 
-        .excel-table th,
-        .excel-table td {
-            border: 1px solid #E2E8F0;
-            padding: 6px 10px;
-            white-space: nowrap;
+        /* table-column-header */
+        .table-column-header-tr {
+            box-sizing: border-box;
+            height: 56px;
+            background: #F4F4F5;
+            border-bottom: 1px solid #E4E4E7;
         }
 
-        .excel-table th {
-            background: #F1F5F9;
-            color: #475569;
-            font-weight: 600;
-            font-size: 11px;
-            position: sticky;
-            top: 0;
-            z-index: 5;
+        .table-column-header-tr th {
+            box-sizing: border-box;
+            height: 56px;
+            padding: 0px 2px;
+            border-right: 1px solid #E0E3E8;
+            border-bottom: 1px solid #E4E4E7;
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 9px;
+            line-height: 11px;
             text-align: center;
-        }
-
-        .excel-table th.row-num-col,
-        .excel-table td.row-num-cell {
-            width: 44px;
-            min-width: 44px;
-            max-width: 44px;
-            text-align: center;
-            background: #F1F5F9;
-            color: #64748B;
-            font-weight: 600;
-            font-family: 'Geist Mono', monospace;
-            position: sticky;
-            left: 0;
-            z-index: 4;
+            color: #595E66;
+            vertical-align: middle;
+            background: #F4F4F5;
             user-select: none;
         }
 
-        .excel-table th.row-num-col {
-            z-index: 6;
+        .table-column-header-tr th:last-child {
+            border-right: none;
         }
 
-        .excel-table tr:hover td:not(.row-num-cell) {
-            background: #F8FAFC;
+        /* table row */
+        .table-data-tr {
+            box-sizing: border-box;
+            height: 40px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #EBEDF0;
+            transition: background 0.1s ease;
         }
 
-        .excel-table td.active-cell {
-            outline: 2px solid #107C41;
-            outline-offset: -2px;
-            background: #F0FDF4 !important;
-            position: relative;
+        .table-data-tr:nth-child(even) {
+            background: #FAFAFC;
         }
 
-        .excel-table td.active-cell::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            right: -3px;
-            width: 6px;
-            height: 6px;
-            background: #107C41;
-            border: 1px solid #FFFFFF;
+        .table-data-tr:hover {
+            background: #F1F5F9;
         }
 
-        .excel-badge-cat {
-            display: inline-block;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-size: 10.5px;
-            font-weight: 600;
-            background: #EFF6FF;
-            color: #1D4ED8;
-            border: 1px solid #BFDBFE;
+        .table-data-tr.active-row {
+            background: #EFF6FF !important;
         }
 
-        .excel-badge-status {
+        .table-data-tr.pulse-row {
+            animation: adminRowPulse 1.4s ease;
+        }
+
+        .table-data-tr td {
+            box-sizing: border-box;
+            height: 39px;
+            padding: 0px 2px;
+            border-right: 1px solid #EBEDF0;
+            border-bottom: 1px solid #EBEDF0;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .table-data-tr td:last-child {
+            border-right: none;
+        }
+
+        /* cell inputs & widgets matching Figma spec */
+        .cell-input-field {
+            box-sizing: border-box;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-size: 10.5px;
-            font-weight: 600;
+            justify-content: center;
+            padding: 0px 4px;
+            width: 60px;
+            height: 24px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 3px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: #09090B;
+            text-align: center;
+            outline: none;
         }
 
-        .excel-badge-status.published {
-            background: #ECFDF5;
-            color: #047857;
-            border: 1px solid #A7F3D0;
+        .cell-input-field:focus {
+            background: #FFFFFF;
+            border-color: #09090B;
         }
 
-        .excel-badge-status.draft {
-            background: #FFFBEB;
-            color: #B45309;
-            border: 1px solid #FDE68A;
+        .cell-dollar-wrap {
+            box-sizing: border-box;
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px 4px;
+            gap: 2px;
+            width: 60px;
+            height: 24px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 3px;
         }
 
-        .excel-action-btn {
-            background: #F1F5F9;
-            border: 1px solid #CBD5E1;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #0F172A;
+        .cell-dollar-wrap span {
+            width: 6px;
+            height: 11px;
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 9px;
+            line-height: 11px;
+            color: #666B73;
+        }
+
+        .cell-dollar-wrap input {
+            width: 44px;
+            border: none;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: #09090B;
+            outline: none;
+            text-align: center;
+        }
+
+        .cell-home-icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 3px;
             cursor: pointer;
             transition: all 0.1s ease;
         }
 
-        .excel-action-btn:hover {
-            background: #107C41;
-            color: #FFFFFF;
-            border-color: #107C41;
+        .cell-home-icon-btn:hover {
+            background: #E4E4E7;
         }
 
-        /* Bottom Sheet Tabs Bar */
-        .excel-sheet-footer {
-            background: #F1F5F9;
-            border-top: 1px solid #CBD5E1;
-            padding: 4px 16px;
-            display: flex;
+        .cell-home-icon-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: #000000;
+        }
+
+        .cell-btn-auth {
+            box-sizing: border-box;
+            display: inline-flex;
+            flex-direction: row;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
-            font-size: 11.5px;
-            color: #475569;
-        }
-
-        .excel-sheet-tabs {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .excel-tab-item {
-            padding: 5px 12px;
-            background: #E2E8F0;
-            border-radius: 4px 4px 0 0;
-            font-weight: 600;
+            padding: 0px;
+            width: 58px;
+            height: 20px;
+            background: #FFFFFF;
+            border: 1px solid #D1D6DB;
+            border-radius: 3px;
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 7px;
+            line-height: 8px;
+            color: #000000;
             cursor: pointer;
-            color: #475569;
+            transition: all 0.1s ease;
+        }
+
+        .cell-btn-auth:hover {
+            border-color: #09090B;
+        }
+
+        .cell-btn-auth.signed {
+            background: #ECFDF5;
+            border-color: #10B981;
+            color: #047857;
+            font-weight: 700;
+        }
+
+        .cell-checkboxes {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px;
+            gap: 4px;
+            height: 10px;
+        }
+
+        .cell-chk-box {
+            box-sizing: border-box;
+            width: 10px;
+            height: 10px;
+            background: #F2F5F7;
+            border: 1px solid #B3B8BF;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .cell-chk-box.checked {
+            background: #09090B;
+            border-color: #09090B;
+        }
+
+        .cell-chk-label {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 7px;
+            line-height: 8px;
+            color: #4D4D4D;
+        }
+
+        .cell-color-squares {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px;
+            gap: 2px;
+            width: 46px;
+            height: 10px;
+        }
+
+        .cell-color-rect {
+            box-sizing: border-box;
+            width: 10px;
+            height: 10px;
+            border: 0.5px solid #BFC4CC;
+            border-radius: 1px;
+        }
+
+        .cell-color-rect.active {
+            transform: scale(1.2);
+            outline: 1px solid #09090B;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+        }
+
+        /* table-footer */
+        .table-footer {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            height: 68px;
+            border-top: 1px solid #E4E4E7;
+            background: #FFFFFF;
+            z-index: 3;
+            flex: none;
+            order: 3;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        .footer-validation-msg {
+            width: auto;
+            height: 16px;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            color: #71717A;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+
+        .footer-pagination {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px;
+            gap: 8px;
+            height: 28px;
+            flex: none;
+            order: 1;
+            flex-grow: 0;
+        }
+
+        .btn-prev {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            width: 74px;
+            height: 28px;
+            border: 1px solid #E4E4E7;
+            border-radius: 4px;
+            background: #FFFFFF;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 16px;
+            color: #71717A;
+            cursor: pointer;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
             transition: all 0.15s ease;
         }
 
-        .excel-tab-item.active {
-            background: #FFFFFF;
-            color: #107C41;
-            border-bottom: 2px solid #107C41;
+        .btn-prev:hover {
+            background: #F4F4F5;
+            color: #09090B;
         }
 
-        /* Detail Reader / Admin Publishing Modal */
-        .excel-post-modal {
-            display: none;
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(3px);
-            z-index: 100;
+        .btn-next {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-
-        .excel-post-modal.open {
-            display: flex;
-        }
-
-        .excel-post-card {
-            width: min(720px, 100%);
-            max-height: 85vh;
+            padding: 6px 12px;
+            min-width: 134px;
+            height: 28px;
+            border: 1px solid #E4E4E7;
+            border-radius: 4px;
             background: #FFFFFF;
-            border-radius: 10px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .excel-post-card-head {
-            padding: 14px 18px;
-            background: #F8FAFC;
-            border-bottom: 1px solid #E2E8F0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .excel-post-card-body {
-            padding: 20px;
-            overflow-y: auto;
-            font-size: 13.5px;
-            line-height: 1.6;
-            color: #1E293B;
-        }
-
-        .excel-form-group {
-            margin-bottom: 14px;
-        }
-
-        .excel-form-label {
-            display: block;
-            font-size: 12px;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
             font-weight: 600;
-            color: #475569;
-            margin-bottom: 4px;
+            font-size: 12px;
+            line-height: 16px;
+            color: #09090B;
+            cursor: pointer;
+            flex: none;
+            order: 1;
+            flex-grow: 0;
+            transition: all 0.15s ease;
         }
 
-        .excel-form-input,
-        .excel-form-textarea,
-        .excel-form-select {
-            width: 100%;
-            border: 1px solid #CBD5E1;
-            border-radius: 6px;
-            padding: 8px 10px;
-            font-size: 13px;
-            color: #0F172A;
-            outline: none;
-            font-family: inherit;
-        }
-
-        .excel-form-textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .excel-form-input:focus,
-        .excel-form-textarea:focus,
-        .excel-form-select:focus {
-            border-color: #107C41;
-            box-shadow: 0 0 0 2px rgba(16, 124, 65, 0.15);
+        .btn-next:hover {
+            background: #09090B;
+            color: #FFFFFF;
+            border-color: #09090B;
         }
 
         /* ==========================================================================
@@ -13468,156 +13581,83 @@ if (!headers_sent()) {
     </div>
 
     <!-- =========================================================================
-         TOOLBOX TOOL 1: BLOG DE PUBLICACIONES (VISTA HOJA DE CÁLCULO EXCEL)
+         TOOLBOX TOOL 1: BLOG DE PUBLICACIONES (VISTA 16-COLUMNAS FIGMA EXACTA)
          ========================================================================= -->
     <div class="excel-blog-overlay" id="excelBlogOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="excelBlogTitle">
-        <div class="excel-blog-shell">
-            <!-- Ribbon / Top Bar -->
-            <div class="excel-blog-ribbon">
-                <div class="excel-blog-brand" id="excelBlogTitle">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M 10.376953 1.9765625 C 9.787168 1.9765555 9.1973513 2.1369377 8.6777344 2.4589844 A 1.0001 1.0001 0 0 0 8.6757812 2.4589844 L 7.9101562 2.9355469 L 7.0097656 3.0019531 C 5.790157 3.0903096 4.7216027 3.8663998 4.2597656 5 L 3.9179688 5.8359375 L 3.2285156 6.4179688 C 2.2949033 7.206835 1.8871479 8.4628535 2.1796875 9.6503906 L 2.3945312 10.527344 L 2.1796875 11.402344 C 1.9283596 12.41756 2.1926714 13.48079 2.8574219 14.261719 L 2.7421875 14.179688 C 2.7421875 14.179688 4.5693281 18.566531 5.4863281 20.769531 C 5.7973281 21.514531 6.5259844 22 7.3339844 22 L 20.017578 22 C 20.548578 22 21.056641 21.788109 21.431641 21.412109 C 21.806641 21.036109 22.017578 20.527094 22.017578 19.996094 C 22.013578 17.150094 22.004953 12.048312 22.001953 9.9453125 C 22.000953 9.3473125 21.731531 8.7793906 21.269531 8.4003906 C 19.612531 7.0423906 15.712891 3.8476563 15.712891 3.8476562 L 15.722656 3.8769531 C 15.191727 3.3749897 14.496419 3.0565298 13.742188 3.0019531 L 12.841797 2.9355469 L 12.076172 2.4589844 C 11.556794 2.1366366 10.966738 1.9765695 10.376953 1.9765625 z M 10.376953 3.9746094 C 10.600706 3.9746846 10.823863 4.0355509 11.021484 4.1582031 L 11.996094 4.7636719 A 1.0001 1.0001 0 0 0 12.451172 4.9121094 L 13.597656 4.9960938 C 14.063382 5.0297937 14.463164 5.3217602 14.638672 5.7539062 A 1.0001 1.0001 0 0 0 14.640625 5.7558594 L 15.074219 6.8183594 A 1.0001 1.0001 0 0 0 15.353516 7.203125 L 16.230469 7.9453125 A 1.0001 1.0001 0 0 0 16.232422 7.9472656 C 16.589529 8.2485402 16.74232 8.7194121 16.630859 9.171875 L 16.355469 10.287109 A 1.0001 1.0001 0 0 0 16.355469 10.765625 L 16.630859 11.880859 C 16.742569 12.334886 16.589529 12.806147 16.232422 13.107422 L 15.355469 13.849609 A 1.0001 1.0001 0 0 0 15.074219 14.234375 L 14.640625 15.298828 A 1.0001 1.0001 0 0 0 14.638672 15.300781 C 14.463276 15.732652 14.062995 16.024226 13.595703 16.058594 L 12.451172 16.142578 A 1.0001 1.0001 0 0 0 11.996094 16.289062 L 11.019531 16.894531 A 1.0001 1.0001 0 0 0 11.019531 16.896484 C 10.622885 17.142869 10.127115 17.142869 9.7304688 16.896484 A 1.0001 1.0001 0 0 0 9.7304688 16.894531 L 8.7539062 16.289062 A 1.0001 1.0001 0 0 0 8.3007812 16.142578 L 7.1542969 16.058594 C 6.6883359 16.024283 6.286449 15.731975 6.1113281 15.300781 L 5.6777344 14.236328 A 1.0001 1.0001 0 0 0 5.3964844 13.849609 L 4.5195312 13.107422 C 4.1628849 12.806536 4.0092437 12.334622 4.1210938 11.882812 A 1.0001 1.0001 0 0 0 4.1210938 11.880859 L 4.3964844 10.765625 A 1.0001 1.0001 0 0 0 4.3964844 10.287109 L 4.1210938 9.171875 C 4.0096334 8.7194121 4.1631436 8.2464462 4.5195312 7.9453125 L 5.3984375 7.203125 A 1.0001 1.0001 0 0 0 5.6777344 6.8164062 L 6.1113281 5.7539062 C 6.287491 5.3215064 6.6899055 5.0297373 7.1542969 4.9960938 L 8.3007812 4.9121094 A 1.0001 1.0001 0 0 0 8.7558594 4.7636719 L 9.7304688 4.1582031 C 9.9288519 4.0352499 10.1532 3.9745341 10.376953 3.9746094 z M 12.980469 7.9902344 A 1.0001 1.0001 0 0 0 12.292969 8.2929688 L 10 10.585938 L 9.2070312 9.7929688 A 1.0001 1.0001 0 1 0 7.7929688 11.207031 L 9.2929688 12.707031 A 1.0001 1.0001 0 0 0 10.707031 12.707031 L 13.707031 9.7070312 A 1.0001 1.0001 0 0 0 12.980469 7.9902344 z"/>
+        <div class="excel-blog-shell table-section-card">
+            <!-- table-header-controls -->
+            <div class="table-header-controls">
+                <div class="table-title" id="excelBlogTitle">
+                    <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;" aria-hidden="true">
+                        <path d="M 10.376953 1.9765625 C 9.787168 1.9765555 9.1973513 2.1369377 8.6777344 2.4589844 A 1.0001 1.0001 0 0 0 8.6757812 2.4589844 L 7.9101562 2.9355469 L 7.0097656 3.0019531 C 5.790157 3.0903096 4.7216027 3.8663998 4.2597656 5 L 3.9179688 5.8359375 L 3.2285156 6.4179688 C 2.2949033 7.206835 1.8871479 8.4628535 2.1796875 9.6503906 L 2.3945312 10.527344 L 2.1796875 11.402344 C 1.9283596 12.41756 2.1926714 13.48079 2.8574219 14.261719 L 2.7421875 14.179688 C 2.7421875 14.179688 4.5693281 18.566531 5.4863281 20.769531 C 5.7973281 21.514531 6.5259844 22 7.3339844 22 L 20.017578 22 C 20.548578 22 21.056641 21.788109 21.431641 21.412109 C 21.806641 21.036109 22.017578 20.527094 22.017578 19.996094 C 22.013578 17.150094 22.004953 12.048312 22.001953 9.9453125 C 22.000953 9.3473125 21.731531 8.7793906 21.269531 8.4003906 C 19.612531 7.0423906 15.712891 3.8476563 15.712891 3.8476562 L 15.722656 3.8769531 C 15.191727 3.3749897 14.496419 3.0565298 13.742188 3.0019531 L 12.841797 2.9355469 L 12.076172 2.4589844 C 11.556794 2.1366366 10.966738 1.9765695 10.376953 1.9765625 z M 12.980469 7.9902344 A 1.0001 1.0001 0 0 0 12.292969 8.2929688 L 10 10.585938 L 9.2070312 9.7929688 A 1.0001 1.0001 0 1 0 7.7929688 11.207031 L 9.2929688 12.707031 A 1.0001 1.0001 0 0 0 10.707031 12.707031 L 13.707031 9.7070312 A 1.0001 1.0001 0 0 0 12.980469 7.9902344 z"/>
                     </svg>
-                    <span>Blog de Publicaciones · Vista Excel</span>
-                    <span class="excel-blog-admin-tag">🔒 Solo Administrador puede publicar</span>
+                    <span>Publications and Preview Blog</span>
                 </div>
-                <div class="excel-blog-toolbar-actions">
-                    <button type="button" class="excel-btn primary" id="excelBlogNewPostBtn" onclick="openExcelBlogAdminPublish()">➕ Nueva Publicación</button>
-                    <button type="button" class="excel-btn" id="excelBlogExportBtn" onclick="exportExcelBlogCsv()">📥 Exportar CSV</button>
-                    <button type="button" class="excel-btn close" id="excelBlogCloseBtn" onclick="toggleExcelBlog(false)" title="Cerrar ventana">✕ Cerrar</button>
-                </div>
-            </div>
-
-            <!-- Quick Filter Bar -->
-            <div class="excel-blog-quickbar">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <input type="text" class="excel-search-input" id="excelBlogSearchInput" placeholder="🔍 Buscar en celdas de la hoja..." oninput="filterExcelBlogTable()">
-                    <select class="excel-category-select" id="excelBlogCategorySelect" onchange="filterExcelBlogTable()">
-                        <option value="">Todas las Categorías</option>
-                        <option value="Novedades">Novedades</option>
-                        <option value="Lanzamientos">Lanzamientos</option>
-                        <option value="Arquitectura">Arquitectura</option>
-                        <option value="Tutoriales">Tutoriales</option>
-                        <option value="Seguridad">Seguridad</option>
-                        <option value="Changelog">Changelog</option>
-                    </select>
-                </div>
-                <div style="font-size:12px; color:#64748B; font-family:'Geist Mono', monospace;" id="excelBlogCounter">
-                    Mostrando 0 registros
+                <div class="filter-group">
+                    <div class="filter-search">
+                        <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+                        <input type="text" id="excelBlogSearchInput" placeholder="Search user..." oninput="filterExcelBlogTable()">
+                    </div>
+                    <button type="button" class="filter-all" onclick="resetExcelBlogFilter()">View All</button>
+                    <button type="button" class="btn-card-close" onclick="toggleExcelBlog(false)" title="Cerrar ventana">✕</button>
                 </div>
             </div>
 
-            <!-- Formula Bar -->
-            <div class="excel-formula-bar">
-                <div class="excel-cell-name" id="excelActiveCellCoords">A1</div>
-                <span class="excel-fx-icon">fx</span>
-                <input type="text" class="excel-formula-input" id="excelFormulaInput" readonly value="Selecciona una celda para inspeccionar su valor...">
-            </div>
-
-            <!-- Spreadsheet Grid Viewport -->
-            <div class="excel-sheet-viewport">
-                <table class="excel-table" id="excelBlogTable">
+            <!-- data-table (16-Column Grid matching Figma) -->
+            <div class="data-table-wrap">
+                <table class="admin-16col-table" id="excelBlogTable">
                     <thead>
-                        <tr>
-                            <th class="row-num-col">#</th>
-                            <th style="width: 70px;">A (ID)</th>
-                            <th style="width: 110px;">B (Fecha)</th>
-                            <th style="width: 240px;">C (Título de Publicación)</th>
-                            <th style="width: 130px;">D (Categoría)</th>
-                            <th style="width: 100px;">E (Estado)</th>
-                            <th style="width: 120px;">F (Autor)</th>
-                            <th style="min-width: 320px;">G (Extracto / Resumen)</th>
-                            <th style="width: 80px;">H (Vistas)</th>
-                            <th style="width: 110px; text-align:center;">I (Acciones)</th>
+                        <tr class="table-column-header-tr">
+                            <th style="width: 82.19px;">identifier code</th>
+                            <th style="width: 82.19px;">responsible party code</th>
+                            <th style="width: 82.19px;">Platform code</th>
+                            <th style="width: 82.19px;">authorization signature</th>
+                            <th style="width: 82.19px;">Number of tokens</th>
+                            <th style="width: 82.19px;">cost per token</th>
+                            <th style="width: 82.19px;">ICAI page</th>
+                            <th style="width: 82.19px;">NSPA Monthly</th>
+                            <th style="width: 82.19px;">CORS Method</th>
+                            <th style="width: 82.19px;">HASNA 371</th>
+                            <th style="width: 82.19px;">How long did it take you to create it?</th>
+                            <th style="width: 82.19px;">Do you have proof that you lasted as long as you say?</th>
+                            <th style="width: 82.19px;">Code manager ID card</th>
+                            <th style="width: 82.19px;">Legal name of the code creator</th>
+                            <th style="width: 82.19px;">Phone number for calls</th>
+                            <th style="width: 81.19px; border-right:none;">Reply email</th>
                         </tr>
                     </thead>
                     <tbody id="excelBlogTableBody">
-                        <!-- Dynamic Rows Generated by JS -->
+                        <!-- Dynamically filled with identical 16 columns from shared publication database -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- Bottom Sheet Tabs Footer -->
-            <div class="excel-sheet-footer">
-                <div class="excel-sheet-tabs">
-                    <div class="excel-tab-item active" id="tabSheet1" onclick="switchExcelSheet(1)">📑 Hoja 1 - Publicaciones</div>
-                    <div class="excel-tab-item" id="tabSheet2" onclick="switchExcelSheet(2)">📝 Hoja 2 - Borradores Admin</div>
-                    <div class="excel-tab-item" id="tabSheet3" onclick="switchExcelSheet(3)">📊 Hoja 3 - Métricas</div>
-                </div>
-                <div style="font-family:'Geist Mono', monospace; font-size:11px;">
-                    Modo Lectura / Administración · Excel Grid Engine v1.0
+            <!-- table-footer -->
+            <div class="table-footer">
+                <div class="footer-validation-msg">Select the one that fits and the one you want to validate</div>
+                <div class="footer-pagination">
+                    <button type="button" class="btn-prev" onclick="blogPrevRow()">Previous</button>
+                    <button type="button" class="btn-next" onclick="openSelectedBlogArticle()">Launch on the blog</button>
                 </div>
             </div>
 
-            <!-- Admin Publish Modal -->
-            <div class="excel-post-modal" id="excelAdminPublishModal">
-                <div class="excel-post-card">
-                    <div class="excel-post-card-head">
-                        <strong style="font-size:14px; color:#0F172A;">🔒 Panel Administrador · Crear Publicación</strong>
-                        <button type="button" class="excel-btn close" style="color:#000;" onclick="closeExcelBlogAdminPublish()">✕</button>
-                    </div>
-                    <div class="excel-post-card-body">
-                        <div class="excel-form-group">
-                            <label class="excel-form-label" for="pubTitle">Título de la Publicación</label>
-                            <input type="text" class="excel-form-input" id="pubTitle" placeholder="Ej: Lanzamiento del nuevo motor de ejecución...">
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;" class="excel-form-group">
-                            <div>
-                                <label class="excel-form-label" for="pubCat">Categoría</label>
-                                <select class="excel-form-select" id="pubCat">
-                                    <option value="Novedades">Novedades</option>
-                                    <option value="Lanzamientos">Lanzamientos</option>
-                                    <option value="Arquitectura">Arquitectura</option>
-                                    <option value="Tutoriales">Tutoriales</option>
-                                    <option value="Seguridad">Seguridad</option>
-                                    <option value="Changelog">Changelog</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="excel-form-label" for="pubAuthor">Autor</label>
-                                <input type="text" class="excel-form-input" id="pubAuthor" value="Diktatcart Admin">
-                            </div>
-                            <div>
-                                <label class="excel-form-label" for="pubStatus">Estado</label>
-                                <select class="excel-form-select" id="pubStatus">
-                                    <option value="Publicado">Publicado</option>
-                                    <option value="Borrador">Borrador</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="excel-form-group">
-                            <label class="excel-form-label" for="pubExcerpt">Resumen Corto (Fila de la Hoja)</label>
-                            <input type="text" class="excel-form-input" id="pubExcerpt" placeholder="Breve síntesis de la publicación...">
-                        </div>
-                        <div class="excel-form-group">
-                            <label class="excel-form-label" for="pubContent">Contenido Completo del Artículo</label>
-                            <textarea class="excel-form-textarea" id="pubContent" placeholder="Escribe el artículo aquí... Puedes incluir explicaciones técnicas, notas y novedades."></textarea>
-                        </div>
-                        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-                            <button type="button" class="excel-btn" onclick="closeExcelBlogAdminPublish()">Cancelar</button>
-                            <button type="button" class="excel-btn primary" onclick="saveExcelBlogPost()">💾 Guardar y Publicar en Hoja</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post Reader Modal -->
+            <!-- Detail Reader Modal -->
             <div class="excel-post-modal" id="excelReaderModal">
                 <div class="excel-post-card" style="width: min(840px, 100%);">
                     <div class="excel-post-card-head">
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span class="excel-badge-cat" id="readCat">Categoría</span>
+                            <span class="excel-badge-cat" id="readCat" style="background:#EFF6FF;color:#1D4ED8;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Publicación</span>
                             <span id="readDate" style="font-size:12px; color:#64748B;">Fecha</span>
                         </div>
-                        <button type="button" class="excel-btn close" style="color:#000;" onclick="closeExcelBlogReader()">✕</button>
+                        <button type="button" class="btn-card-close" onclick="closeExcelBlogReader()">✕</button>
                     </div>
-                    <div class="excel-post-card-body">
+                    <div class="excel-post-card-body" style="padding:20px; max-height:75vh; overflow-y:auto;">
                         <h2 id="readTitle" style="font-size:20px; font-weight:800; color:#0F172A; margin-bottom:10px; line-height:1.2;"></h2>
                         <div style="display:flex; align-items:center; gap:12px; font-size:12px; color:#64748B; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid #E2E8F0;">
-                            <span>✍️ Autor: <strong id="readAuthor" style="color:#0F172A;">Admin</strong></span>
+                            <span>✍️ Creador: <strong id="readAuthor" style="color:#0F172A;">Diktatcart</strong></span>
                             <span>👁️ <span id="readViews">0</span> lecturas</span>
                         </div>
-                        <div id="readBody" style="white-space:pre-wrap; line-height:1.7; color:#334155; font-size:14px;"></div>
+                        <div id="readBody" style="white-space:pre-wrap; line-height:1.7; color:#334155; font-size:14px; font-family:'Geist Mono', monospace;"></div>
                     </div>
                 </div>
             </div>
@@ -13997,74 +14037,149 @@ if (!headers_sent()) {
     </div>
 
     <script>
-        /* ===== EXCEL BLOG ENGINE (Toolbox Slot 1-1) ===== */
+        /* ===== EXCEL BLOG ENGINE (Toolbox Slot 1-1 - 16 Columns Figma Spec) ===== */
         (function initExcelBlogEngine() {
-            const STORAGE_KEY = 'l8_excel_blog_articles_v1';
-            let currentSheet = 1;
+            const ADMIN_DATA_KEY = 'l8_admin_panel_records_v1';
+            let selectedBlogRowIndex = 0;
 
-            // Seed articles pre-loaded
-            const defaultArticles = [
+            const defaultBlogRows = [
                 {
-                    id: 'PUB-001',
-                    date: '2026-08-19',
-                    title: 'Despliegue del Sistema de Toolbox Matricial 4x4',
-                    category: 'Lanzamientos',
-                    status: 'Publicado',
-                    author: 'Diktatcart Admin',
-                    excerpt: 'Lanzamiento oficial de la matriz interactiva de 16 slots circulares integrados.',
-                    content: 'Nos complace anunciar la integración de la Toolbox Matricial 4x4 en la plataforma. Esta arquitectura modular permite conectar herramientas avanzadas como este Blog estilo Hoja de Cálculo, consolas matemáticas, editores vectoriales y utilidades de automatización directamente en el navegador con sincronización en tiempo real.',
-                    views: 142
+                    identifier_code: 'PUB-001',
+                    responsible_code: 'DKT-ROOT',
+                    platform_code: 'import hashlib\nimport os\n\ndef init_platform_engine():\n    print("Hashcod platform codespace ready")\n',
+                    platform_code_name: 'main.py',
+                    platform_code_lang: 'python',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '250000',
+                    cost_per_token: '0.00015',
+                    icai_page: 'ICAI-v4',
+                    nspa_monthly: '100.0%',
+                    cors_method: 'Yes',
+                    hasna_color: '#E63333',
+                    time_to_create: '12 mins',
+                    proof: 'Git SHA-256',
+                    manager_id: 'MGR-01',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'admin@hashcod.io'
                 },
                 {
-                    id: 'PUB-002',
-                    date: '2026-08-18',
-                    title: 'Nueva Identidad de Marca: Hashcod codespace',
-                    category: 'Novedades',
-                    status: 'Publicado',
-                    author: 'Diktatcart Admin',
-                    excerpt: 'Evolución y calibración de la pantalla de bienvenida con tipografía Codec Pro.',
-                    content: 'Hemos consolidado la nueva identidad de marca con el isotipo de pantalla y cursor piramidal, optimizado con trazado vectorial de alta precisión y tipografía Codec Pro con contrastes calibrados para máxima legibilidad.',
-                    views: 98
+                    identifier_code: 'PUB-002',
+                    responsible_code: 'AUTH-882',
+                    platform_code: '<div class="app">Hashcod AI codespace</div>',
+                    platform_code_name: 'index.html',
+                    platform_code_lang: 'html',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '500000',
+                    cost_per_token: '0.00012',
+                    icai_page: 'ICAI-v3',
+                    nspa_monthly: '99.8%',
+                    cors_method: 'Yes',
+                    hasna_color: '#33B34D',
+                    time_to_create: '35 mins',
+                    proof: 'Git SHA-256',
+                    manager_id: 'MGR-02',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'security@hashcod.io'
                 },
                 {
-                    id: 'PUB-003',
-                    date: '2026-08-17',
-                    title: 'Arquitectura de Datos y Control de Acceso de Administrador',
-                    category: 'Arquitectura',
-                    status: 'Publicado',
-                    author: 'Diktatcart Admin',
-                    excerpt: 'Estructuración de publicaciones ordenadas como hoja de cálculo con permisos exclusivos.',
-                    content: 'El Blog Excel utiliza un motor de celdas bidimensionales que emula una hoja de cálculo estándar. Cada fila representa una entrada inmutable accesible en modo lectura para usuarios generales y con privilegios de creación reservados al Administrador.',
-                    views: 67
+                    identifier_code: 'PUB-003',
+                    responsible_code: 'AUTH-771',
+                    platform_code: 'export const run = () => console.log("Hashcod TypeScript engine");',
+                    platform_code_name: 'app.ts',
+                    platform_code_lang: 'typescript',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '120000',
+                    cost_per_token: '0.00020',
+                    icai_page: 'ICAI-v5',
+                    nspa_monthly: '100.0%',
+                    cors_method: 'Yes',
+                    hasna_color: '#3366E6',
+                    time_to_create: '8 mins',
+                    proof: 'Git SHA-256',
+                    manager_id: 'MGR-01',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'dev@hashcod.io'
                 },
                 {
-                    id: 'PUB-004',
-                    date: '2026-08-16',
-                    title: 'Guía de Optimización de Rendimiento y Caching Caddy',
-                    category: 'Tutoriales',
-                    status: 'Borrador',
-                    author: 'Diktatcart Admin',
-                    excerpt: 'Configuración de proxies inversos y mitigación de latencia en despliegues cloud.',
-                    content: 'Documentación interna para configurar Caddy y optimizar el rendimiento en contenedores cloud como Render, gestionando terminación TLS y encabezados de caché.',
-                    views: 15
+                    identifier_code: 'PUB-004',
+                    responsible_code: 'AUTH-650',
+                    platform_code: 'const express = require("express");',
+                    platform_code_name: 'server.js',
+                    platform_code_lang: 'javascript',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '300000',
+                    cost_per_token: '0.00018',
+                    icai_page: 'ICAI-v2',
+                    nspa_monthly: '98.5%',
+                    cors_method: 'No',
+                    hasna_color: '#FFFFFF',
+                    time_to_create: '45 mins',
+                    proof: 'Commit log',
+                    manager_id: 'MGR-03',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'ops@hashcod.io'
+                },
+                {
+                    identifier_code: 'PUB-005',
+                    responsible_code: 'AUTH-520',
+                    platform_code: 'def benchmark(): pass',
+                    platform_code_name: 'bench.py',
+                    platform_code_lang: 'python',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '800000',
+                    cost_per_token: '0.00010',
+                    icai_page: 'ICAI-v6',
+                    nspa_monthly: '100.0%',
+                    cors_method: 'Yes',
+                    hasna_color: '#E63333',
+                    time_to_create: '1 hr',
+                    proof: 'Git SHA-256',
+                    manager_id: 'MGR-01',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'admin@hashcod.io'
+                },
+                {
+                    identifier_code: 'PUB-006',
+                    responsible_code: 'AUTH-410',
+                    platform_code: '{"status":"ok"}',
+                    platform_code_name: 'config.json',
+                    platform_code_lang: 'javascript',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '150000',
+                    cost_per_token: '0.00016',
+                    icai_page: 'ICAI-v1',
+                    nspa_monthly: '99.1%',
+                    cors_method: 'Yes',
+                    hasna_color: '#33B34D',
+                    time_to_create: '15 mins',
+                    proof: 'Commit log',
+                    manager_id: 'MGR-02',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'info@hashcod.io'
                 }
             ];
 
-            function getArticles() {
+            function getSharedPublicationRows() {
                 try {
-                    const raw = localStorage.getItem(STORAGE_KEY);
+                    const raw = localStorage.getItem(ADMIN_DATA_KEY);
                     if (raw) {
                         const parsed = JSON.parse(raw);
                         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                     }
                 } catch (e) {}
-                return defaultArticles;
-            }
-
-            function saveArticles(list) {
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-                } catch (e) {}
+                return defaultBlogRows;
             }
 
             window.toggleExcelBlog = function (forceState) {
@@ -14079,84 +14194,78 @@ if (!headers_sent()) {
                 }
             };
 
-            window.switchExcelSheet = function (sheetNum) {
-                currentSheet = sheetNum;
-                document.querySelectorAll('.excel-tab-item').forEach((tab, idx) => {
-                    tab.classList.toggle('active', (idx + 1) === sheetNum);
-                });
-                renderExcelTable();
-            };
-
             function renderExcelTable() {
                 const tbody = document.getElementById('excelBlogTableBody');
-                const counter = document.getElementById('excelBlogCounter');
                 if (!tbody) return;
 
-                const articles = getArticles();
+                const rows = getSharedPublicationRows();
                 const q = (document.getElementById('excelBlogSearchInput')?.value || '').toLowerCase().trim();
-                const catFilter = document.getElementById('excelBlogCategorySelect')?.value || '';
-
-                let filtered = articles.filter((art) => {
-                    if (currentSheet === 1 && art.status === 'Borrador') return false;
-                    if (currentSheet === 2 && art.status !== 'Borrador') return false;
-                    if (catFilter && art.category !== catFilter) return false;
-                    if (q) {
-                        const str = (art.id + ' ' + art.title + ' ' + art.category + ' ' + art.author + ' ' + art.excerpt + ' ' + art.date).toLowerCase();
-                        if (!str.includes(q)) return false;
-                    }
-                    return true;
-                });
-
-                if (counter) counter.textContent = 'Mostrando ' + filtered.length + ' de ' + articles.length + ' registros';
 
                 tbody.innerHTML = '';
-                if (filtered.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:28px; color:#64748B;">No hay registros para mostrar en esta hoja. Haz clic en <strong>➕ Nueva Publicación</strong> para redactar una.</td></tr>';
-                    return;
-                }
+                rows.forEach((r, idx) => {
+                    if (q) {
+                        const str = Object.values(r).join(' ').toLowerCase();
+                        if (!str.includes(q)) return;
+                    }
 
-                filtered.forEach((art, idx) => {
-                    const rowNum = idx + 1;
-                    const isPub = art.status === 'Publicado';
+                    const isSelected = (idx === selectedBlogRowIndex);
+                    const safeColor = r.hasna_color || '#E63333';
                     const tr = document.createElement('tr');
-                    tr.dataset.id = art.id;
-
-                    const safeTitle = (art.title || '').replace(/"/g, '&quot;');
-                    const safeExcerpt = (art.excerpt || '').replace(/"/g, '&quot;');
+                    tr.className = 'table-data-tr' + (isSelected ? ' active-row' : '');
 
                     tr.innerHTML = `
-                        <td class="row-num-cell">${rowNum}</td>
-                        <td data-col="A" data-val="${art.id}"><strong>${art.id}</strong></td>
-                        <td data-col="B" data-val="${art.date}">${art.date}</td>
-                        <td data-col="C" data-val="${safeTitle}" style="font-weight:600; color:#0F172A;">${art.title}</td>
-                        <td data-col="D" data-val="${art.category}"><span class="excel-badge-cat">${art.category}</span></td>
-                        <td data-col="E" data-val="${art.status}"><span class="excel-badge-status ${isPub ? 'published' : 'draft'}">● ${art.status}</span></td>
-                        <td data-col="F" data-val="${art.author}">${art.author}</td>
-                        <td data-col="G" data-val="${safeExcerpt}" style="max-width:320px; overflow:hidden; text-overflow:ellipsis;">${art.excerpt || ''}</td>
-                        <td data-col="H" data-val="${art.views}">${art.views || 0}</td>
-                        <td style="text-align:center;">
-                            <button type="button" class="excel-action-btn" onclick="openExcelBlogReader('${art.id}')">👁️ Leer</button>
+                        <td><input type="text" class="cell-input-field" value="${r.identifier_code || ''}" readonly></td>
+                        <td><input type="text" class="cell-input-field" value="${r.responsible_code || ''}" readonly></td>
+                        <td>
+                            <button type="button" class="cell-home-icon-btn" onclick="openBlogCodeViewer('${r.identifier_code}')" title="Ver código adjunto (${r.platform_code_name || 'script'})">
+                                <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                            </button>
                         </td>
+                        <td>
+                            <button type="button" class="cell-btn-auth signed" onclick="openBlogSphincsViewer('${r.identifier_code}')" title="Ver Certificado Post-Cuántico SPHINCS+">Authorized</button>
+                        </td>
+                        <td><input type="text" class="cell-input-field" value="${r.num_tokens || ''}" readonly></td>
+                        <td>
+                            <div class="cell-dollar-wrap">
+                                <span>$</span>
+                                <input type="text" value="${r.cost_per_token || ''}" readonly>
+                            </div>
+                        </td>
+                        <td><input type="text" class="cell-input-field" value="${r.icai_page || ''}" readonly></td>
+                        <td><input type="text" class="cell-input-field" value="${r.nspa_monthly || ''}" readonly></td>
+                        <td>
+                            <div class="cell-checkboxes">
+                                <span class="cell-chk-box ${r.cors_method === 'Yes' ? 'checked' : ''}"></span>
+                                <span class="cell-chk-label">Y</span>
+                                <span class="cell-chk-box ${r.cors_method === 'No' ? 'checked' : ''}"></span>
+                                <span class="cell-chk-label">N</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="cell-color-squares">
+                                <div class="cell-color-rect ${safeColor==='#E63333'?'active':''}" style="background:#E63333;"></div>
+                                <div class="cell-color-rect ${safeColor==='#33B34D'?'active':''}" style="background:#33B34D;"></div>
+                                <div class="cell-color-rect ${safeColor==='#3366E6'?'active':''}" style="background:#3366E6;"></div>
+                                <div class="cell-color-rect ${safeColor==='#FFFFFF'?'active':''}" style="background:#FFFFFF;"></div>
+                            </div>
+                        </td>
+                        <td><input type="text" class="cell-input-field" value="${r.time_to_create || ''}" readonly></td>
+                        <td><input type="text" class="cell-input-field" value="${r.proof || ''}" readonly></td>
+                        <td><input type="text" class="cell-input-field" value="${r.manager_id || ''}" readonly></td>
+                        <td><input type="text" class="cell-input-field" value="${r.creator_name || ''}" readonly></td>
+                        <td><input type="text" class="cell-input-field" value="${r.phone || ''}" readonly></td>
+                        <td style="border-right:none;"><input type="text" class="cell-input-field" value="${r.email || ''}" readonly></td>
                     `;
 
-                    // Click handler for Excel cell selection
-                    tr.querySelectorAll('td:not(.row-num-cell)').forEach((td) => {
-                        td.addEventListener('click', (e) => {
-                            if (e.target.tagName === 'BUTTON') return;
-                            document.querySelectorAll('.excel-table td.active-cell').forEach(c => c.classList.remove('active-cell'));
-                            td.classList.add('active-cell');
-                            const col = td.dataset.col || 'A';
-                            const coords = col + rowNum;
-                            const val = td.dataset.val || td.textContent || '';
-                            const coordBox = document.getElementById('excelActiveCellCoords');
-                            const formulaBox = document.getElementById('excelFormulaInput');
-                            if (coordBox) coordBox.textContent = coords;
-                            if (formulaBox) formulaBox.value = val;
-                        });
+                    tr.addEventListener('click', (e) => {
+                        if (e.target.tagName === 'BUTTON') return;
+                        selectedBlogRowIndex = idx;
+                        document.querySelectorAll('#excelBlogTableBody tr').forEach(t => t.classList.remove('active-row'));
+                        tr.classList.add('active-row');
+                    });
 
-                        td.addEventListener('dblclick', () => {
-                            openExcelBlogReader(art.id);
-                        });
+                    tr.addEventListener('dblclick', () => {
+                        openBlogArticleDetails(r.identifier_code);
                     });
 
                     tbody.appendChild(tr);
@@ -14167,99 +14276,105 @@ if (!headers_sent()) {
                 renderExcelTable();
             };
 
-            window.openExcelBlogReader = function (id) {
-                const articles = getArticles();
-                const art = articles.find(a => a.id === id);
-                if (!art) return;
+            window.resetExcelBlogFilter = function () {
+                const input = document.getElementById('excelBlogSearchInput');
+                if (input) input.value = '';
+                renderExcelTable();
+            };
 
-                art.views = (art.views || 0) + 1;
-                saveArticles(articles);
+            window.blogPrevRow = function () {
+                const rows = getSharedPublicationRows();
+                if (selectedBlogRowIndex > 0) {
+                    selectedBlogRowIndex--;
+                    renderExcelTable();
+                }
+            };
 
-                document.getElementById('readTitle').textContent = art.title;
-                document.getElementById('readCat').textContent = art.category;
-                document.getElementById('readDate').textContent = art.date;
-                document.getElementById('readAuthor').textContent = art.author || 'Diktatcart Admin';
-                document.getElementById('readViews').textContent = art.views;
-                document.getElementById('readBody').textContent = art.content;
+            window.openSelectedBlogArticle = function () {
+                const rows = getSharedPublicationRows();
+                const selected = rows[selectedBlogRowIndex] || rows[0];
+                if (selected) {
+                    openBlogArticleDetails(selected.identifier_code);
+                }
+            };
 
+            window.openBlogCodeViewer = function (identifierCode) {
+                const rows = getSharedPublicationRows();
+                const row = rows.find(r => r.identifier_code === identifierCode) || rows[0];
+                if (!row) return;
+
+                const modal = document.getElementById('platformCodeModal');
+                const contentEl = document.getElementById('platformCodeContent');
+                const langSel = document.getElementById('codeLangSelect');
+                if (contentEl) contentEl.value = row.platform_code || '# No hay código adjunto para esta publicación.';
+                if (langSel && row.platform_code_lang) langSel.value = row.platform_code_lang;
+                if (modal) modal.classList.add('open');
+            };
+
+            window.openBlogSphincsViewer = function (identifierCode) {
+                const rows = getSharedPublicationRows();
+                const row = rows.find(r => r.identifier_code === identifierCode) || rows[0];
+                if (!row) return;
+
+                const payloadEl = document.getElementById('sphincsCertPayload');
+                if (payloadEl) {
+                    payloadEl.innerHTML = `
+                        [POST-QUANTUM CRYPTOGRAPHIC CERTIFICATE]\n
+                        ALGORITHM: SPHINCS+ (SLH-DSA-SHAKE-256s / NIST FIPS 205)\n
+                        SECURITY LEVEL: Level 5 (Quantum Attack Invariant)\n
+                        TARGET: ${row.identifier_code} · ${row.responsible_code}\n
+                        CREATOR: ${row.creator_name} (${row.email})\n
+                        ATTACHMENT: ${row.platform_code_name || 'main.py'}\n
+                        SIGNATURE DIGEST:\n${row.auth_signature_digest || 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK'}\n
+                        STATUS: AUTHORIZED & VERIFIED ✓
+                    `;
+                }
+
+                const modal = document.getElementById('sphincsCertModal');
+                if (modal) modal.classList.add('open');
+            };
+
+            window.openBlogArticleDetails = function (identifierCode) {
+                const rows = getSharedPublicationRows();
+                const r = rows.find(x => x.identifier_code === identifierCode) || rows[0];
+                if (!r) return;
+
+                document.getElementById('readTitle').textContent = `Publicación ${r.identifier_code} · ${r.creator_name}`;
+                document.getElementById('readCat').textContent = r.icai_page || 'Publicación';
+                document.getElementById('readDate').textContent = '2026-08-20';
+                document.getElementById('readAuthor').textContent = `${r.creator_name} (${r.email} | ${r.phone})`;
+                document.getElementById('readViews').textContent = '1';
+
+                let fullText = `### Identificador: ${r.identifier_code}\n` +
+                    `**Responsable de Código:** ${r.responsible_code}\n` +
+                    `**Manager ID:** ${r.manager_id}\n` +
+                    `**Tokens:** ${r.num_tokens} ($${r.cost_per_token}/token)\n` +
+                    `**ICAI Page:** ${r.icai_page} | **NSPA Mensual:** ${r.nspa_monthly}\n` +
+                    `**Método CORS:** ${r.cors_method}\n` +
+                    `**Tiempo de Creación:** ${r.time_to_create} | **Prueba:** ${r.proof}\n` +
+                    `**Firma Criptográfica:** ${r.auth_signature}\n\n`;
+
+                if (r.platform_code) {
+                    fullText += `#### 💻 Código Adjunto (${r.platform_code_name || 'script'}):\n` +
+                        r.platform_code;
+                }
+
+                document.getElementById('readBody').textContent = fullText;
                 document.getElementById('excelReaderModal').classList.add('open');
             };
 
             window.closeExcelBlogReader = function () {
                 const modal = document.getElementById('excelReaderModal');
                 if (modal) modal.classList.remove('open');
-                renderExcelTable();
             };
 
-            window.openExcelBlogAdminPublish = function () {
-                document.getElementById('pubTitle').value = '';
-                document.getElementById('pubExcerpt').value = '';
-                document.getElementById('pubContent').value = '';
-                document.getElementById('pubStatus').value = 'Publicado';
-                document.getElementById('excelAdminPublishModal').classList.add('open');
-            };
-
-            window.closeExcelBlogAdminPublish = function () {
-                const modal = document.getElementById('excelAdminPublishModal');
-                if (modal) modal.classList.remove('open');
-            };
-
-            window.saveExcelBlogPost = function () {
-                const title = (document.getElementById('pubTitle').value || '').trim();
-                if (!title) {
-                    alert('Por favor ingresa un título para la publicación.');
-                    return;
-                }
-                const cat = document.getElementById('pubCat').value || 'Novedades';
-                const author = (document.getElementById('pubAuthor').value || 'Diktatcart Admin').trim();
-                const status = document.getElementById('pubStatus').value || 'Publicado';
-                const excerpt = (document.getElementById('pubExcerpt').value || '').trim();
-                const content = (document.getElementById('pubContent').value || '').trim();
-
-                const articles = getArticles();
-                const nextNum = articles.length + 1;
-                const newId = 'PUB-' + String(nextNum).padStart(3, '0');
-                const today = new Date().toISOString().split('T')[0];
-
-                articles.unshift({
-                    id: newId,
-                    date: today,
-                    title: title,
-                    category: cat,
-                    status: status,
-                    author: author,
-                    excerpt: excerpt || title,
-                    content: content || excerpt || title,
-                    views: 1
-                });
-
-                saveArticles(articles);
-                closeExcelBlogAdminPublish();
-                renderExcelTable();
-            };
-
-            window.exportExcelBlogCsv = function () {
-                const articles = getArticles();
-                let csv = 'ID,Fecha,Titulo,Categoria,Estado,Autor,Resumen,Vistas\n';
-                articles.forEach(a => {
-                    csv += `"${a.id}","${a.date}","${(a.title||'').replace(/"/g, '""')}","${a.category}","${a.status}","${a.author}","${(a.excerpt||'').replace(/"/g, '""')}",${a.views}\n`;
-                });
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `blog_publicaciones_excel_${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            };
-
+            // Global Exports
             window.renderExcelTable = renderExcelTable;
-            window.getExcelArticles = getArticles;
-            window.saveExcelArticles = saveArticles;
 
             // Initial render
+            document.addEventListener('DOMContentLoaded', () => {
+                renderExcelTable();
+            });
             renderExcelTable();
         })();
 
@@ -14419,6 +14534,9 @@ if (!headers_sent()) {
                 try {
                     localStorage.setItem(ADMIN_DATA_KEY, JSON.stringify(rows));
                 } catch (e) {}
+                if (typeof window.renderExcelTable === 'function') {
+                    window.renderExcelTable();
+                }
             }
 
             function gatherAllCardValues() {

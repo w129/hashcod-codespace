@@ -14075,13 +14075,13 @@ if (!headers_sent()) {
             <div class="table-footer">
                 <div class="footer-validation-msg">
                     <svg style="width:14px;height:14px;fill:currentColor;color:#2563EB;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                    <span>Select the one that fits and the one you want to validate</span>
+                    <span>Select an article to view metrics, verified code and publication details</span>
                 </div>
                 <div class="footer-pagination">
                     <button type="button" class="btn-prev" onclick="blogPrevRow()">Previous</button>
-                    <button type="button" class="btn-next" onclick="openSelectedBlogArticle()">
-                        <svg style="width:14px;height:14px;fill:currentColor;margin-right:6px;" viewBox="0 0 24 24"><path d="M9.19 6.35c-2.04 2.29-3.44 5.58-3.57 5.89l4.14 4.14c.31-.13 3.6-1.53 5.89-3.57C17.65 10.99 19 8.24 19 4c-4.24 0-6.99 1.35-8.81 2.35zM11.17 17l-3.23 3.23c-.39.39-1.02.39-1.41 0l-2.79-2.79c-.39-.39-.39-1.02 0-1.41L7 12.83l4.17 4.17z"/></svg>
-                        Launch on the blog
+                    <button type="button" class="btn-next" onclick="openSelectedBlogArticle()" title="Abrir lector de la publicación seleccionada">
+                        <svg style="width:14px;height:14px;fill:currentColor;margin-right:6px;" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        View Article
                     </button>
                 </div>
             </div>
@@ -15024,17 +15024,20 @@ if (!headers_sent()) {
                 const row = rows.find(r => r.identifier_code === identifierCode) || rows[0];
                 if (!row) return;
 
+                const titleEl = document.getElementById('sphincsTitle');
+                if (titleEl) titleEl.textContent = 'Certificado Criptográfico Post-Cuántico (Verificación)';
+
                 const payloadEl = document.getElementById('sphincsCertPayload');
                 if (payloadEl) {
                     payloadEl.innerHTML = `
-                        [POST-QUANTUM CRYPTOGRAPHIC CERTIFICATE]\n
+                        [POST-QUANTUM CRYPTOGRAPHIC CERTIFICATE - VERIFICATION]\n
                         ALGORITHM: SPHINCS+ (SLH-DSA-SHAKE-256s / NIST FIPS 205)\n
                         SECURITY LEVEL: Level 5 (Quantum Attack Invariant)\n
                         TARGET: ${row.identifier_code} · ${row.responsible_code}\n
                         CREATOR: ${row.creator_name} (${row.email})\n
                         ATTACHMENT: ${row.platform_code_name || 'main.py'}\n
                         SIGNATURE DIGEST:\n${row.auth_signature_digest || 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK'}\n
-                        STATUS: AUTHORIZED & VERIFIED ✓
+                        STATUS: AUTHORIZED & VERIFIED ✓ (Solo Certificable desde Panel Admin)
                     `;
                 }
 
@@ -15680,10 +15683,13 @@ if (!headers_sent()) {
                 adminPendingRow.auth_signature = 'Authorized (SPHINCS+)';
                 adminPendingRow.auth_signature_digest = certDigest;
 
+                const titleEl = document.getElementById('sphincsTitle');
+                if (titleEl) titleEl.textContent = 'Firma Criptográfica Cuántica Generada (SPHINCS+)';
+
                 const payloadEl = document.getElementById('sphincsCertPayload');
                 if (payloadEl) {
                     payloadEl.innerHTML = `
-                        [POST-QUANTUM CRYPTOGRAPHIC CERTIFICATE]\n
+                        [POST-QUANTUM CRYPTOGRAPHIC CERTIFICATE - ISSUED]\n
                         ALGORITHM: SPHINCS+ (SLH-DSA-SHAKE-256s / NIST FIPS 205)\n
                         SECURITY LEVEL: Level 5 (Quantum Attack Invariant)\n
                         TIMESTAMP (UTC): ${timestamp}\n

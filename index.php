@@ -4814,6 +4814,90 @@ if (!headers_sent()) {
             box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
         }
 
+        /* Column Header with Delete Action */
+        .th-content-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+            padding: 0 14px 0 4px;
+            box-sizing: border-box;
+        }
+
+        .th-del-btn {
+            position: absolute;
+            right: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            border: none;
+            background: transparent;
+            color: #A1A1AA;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.15s ease;
+            padding: 0;
+        }
+
+        .table-column-header-tr th:hover .th-del-btn {
+            opacity: 1;
+        }
+
+        .th-del-btn:hover {
+            background: #FEE2E2;
+            color: #EF4444;
+        }
+
+        /* Row Delete Action Button */
+        .cell-del-row-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background: transparent;
+            color: #94A3B8;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .cell-del-row-btn:hover {
+            background: #FEF2F2;
+            border-color: #FECACA;
+            color: #EF4444;
+            transform: scale(1.1);
+        }
+
+        .btn-restore-cols {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            height: 34px;
+            background: #F4F4F5;
+            border: 1px solid #E4E4E7;
+            border-radius: 6px;
+            color: #52525B;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-restore-cols:hover {
+            background: #E4E4E7;
+            color: #09090B;
+        }
+
         /* table-footer */
         .table-footer {
             box-sizing: border-box;
@@ -13943,10 +14027,15 @@ if (!headers_sent()) {
                     <span>Publications and Preview Blog</span>
                 </div>
                 <div class="filter-group">
+                    <button type="button" class="btn-restore-cols" id="blogRestoreColsBtn" onclick="restoreAllColumns()" style="display:none;" title="Restaurar columnas eliminadas">
+                        <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                        <span>Restaurar Columnas</span>
+                    </button>
                     <div class="filter-search">
                         <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
                         <input type="text" id="excelBlogSearchInput" placeholder="Search user..." oninput="filterExcelBlogTable()">
                     </div>
+                    <button type="button" class="filter-all" onclick="resetExcelBlogFilter()">View All</button>
                     <button type="button" class="btn-card-close" onclick="toggleExcelBlog(false)" title="Cerrar ventana">
                         <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                     </button>
@@ -14297,9 +14386,6 @@ if (!headers_sent()) {
                                 <input type="text" class="admin-grid-input" id="c2_nspaMonthly" placeholder="100.0%" value="100.0%">
                             </div>
                         </div>
-                        <button type="button" class="admin-btn-submit" onclick="submitAdminCard(2)">
-                            <span>Submit</span>
-                        </button>
                     </div>
                 </div>
 
@@ -14343,9 +14429,6 @@ if (!headers_sent()) {
                                 <input type="text" class="admin-grid-input" id="c3_proof" placeholder="Git SHA-256" value="Git SHA-256">
                             </div>
                         </div>
-                        <button type="button" class="admin-btn-submit" onclick="submitAdminCard(3)">
-                            <span>Submit</span>
-                        </button>
                     </div>
                 </div>
 
@@ -14381,9 +14464,6 @@ if (!headers_sent()) {
                                 <input type="email" class="admin-grid-input" id="c4_email" placeholder="admin@hashcod.io" value="admin@hashcod.io">
                             </div>
                         </div>
-                        <button type="button" class="admin-btn-submit" onclick="submitAdminCard(4)">
-                            <span>Submit</span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -14397,6 +14477,10 @@ if (!headers_sent()) {
                         <span id="adminTableStatusToast" style="display:none;font-size:12px;font-weight:600;color:#10B981;background:#ECFDF5;border:1px solid #A7F3D0;padding:3px 10px;border-radius:6px;"></span>
                     </div>
                     <div class="admin-filter-group">
+                        <button type="button" class="btn-restore-cols" id="adminRestoreColsBtn" onclick="restoreAllColumns()" style="display:none;" title="Restaurar columnas eliminadas">
+                            <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                            <span>Restaurar Columnas</span>
+                        </button>
                         <button type="button" class="admin-filter-all-btn" style="background:#10B981;border-color:#10B981;display:inline-flex;align-items:center;gap:6px;" onclick="addNewAdminRow()">
                             <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                             <span>+ New Row</span>
@@ -14650,6 +14734,87 @@ if (!headers_sent()) {
                 }
             ];
 
+            const ALL_COLUMNS = [
+                { key: 'identifier_code', label: 'identifier code', minWidth: '90px' },
+                { key: 'responsible_code', label: 'responsible party code', minWidth: '95px' },
+                { key: 'platform_code', label: 'Platform code', minWidth: '72px' },
+                { key: 'auth_signature', label: 'authorization signature', minWidth: '95px' },
+                { key: 'num_tokens', label: 'Number of tokens', minWidth: '95px' },
+                { key: 'cost_per_token', label: 'cost per token', minWidth: '95px' },
+                { key: 'icai_page', label: 'ICAI page', minWidth: '85px' },
+                { key: 'nspa_monthly', label: 'NSPA Monthly', minWidth: '90px' },
+                { key: 'cors_method', label: 'CORS Method', minWidth: '82px' },
+                { key: 'hasna_color', label: 'HASNA 371', minWidth: '82px' },
+                { key: 'time_to_create', label: 'How long did it take you to create it?', minWidth: '110px' },
+                { key: 'proof', label: 'Do you have proof that you lasted as long as you say?', minWidth: '135px' },
+                { key: 'manager_id', label: 'Code manager ID card', minWidth: '95px' },
+                { key: 'creator_name', label: 'Legal name of the code creator', minWidth: '120px' },
+                { key: 'phone', label: 'Phone number for calls', minWidth: '135px' },
+                { key: 'email', label: 'Reply email', minWidth: '160px' }
+            ];
+            window.L8_ALL_COLUMNS = ALL_COLUMNS;
+
+            const ACTIVE_COLS_KEY = 'l8_blog_active_columns_v1';
+
+            window.getActiveColumns = function () {
+                try {
+                    const raw = localStorage.getItem(ACTIVE_COLS_KEY);
+                    if (raw) {
+                        const arr = JSON.parse(raw);
+                        if (Array.isArray(arr) && arr.length > 0) return arr;
+                    }
+                } catch (e) {}
+                return ALL_COLUMNS.map(c => c.key);
+            };
+
+            window.saveActiveColumns = function (keys) {
+                localStorage.setItem(ACTIVE_COLS_KEY, JSON.stringify(keys));
+            };
+
+            window.deleteTableColumn = function (colKey, event) {
+                if (event) event.stopPropagation();
+                let activeKeys = window.getActiveColumns();
+                if (activeKeys.length <= 1) {
+                    alert('Debe quedar al menos una columna visible en la tabla.');
+                    return;
+                }
+                activeKeys = activeKeys.filter(k => k !== colKey);
+                window.saveActiveColumns(activeKeys);
+                if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
+                if (typeof window.renderAdminTable === 'function') window.renderAdminTable();
+                if (typeof window.showAdminToast === 'function') window.showAdminToast(`Columna eliminada. Puedes restaurarla cuando desees.`);
+            };
+
+            window.restoreAllColumns = function () {
+                window.saveActiveColumns(ALL_COLUMNS.map(c => c.key));
+                if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
+                if (typeof window.renderAdminTable === 'function') window.renderAdminTable();
+                if (typeof window.showAdminToast === 'function') window.showAdminToast(`Todas las 16 columnas han sido restauradas.`);
+            };
+
+            window.deleteTableRow = function (idx, event) {
+                if (event) event.stopPropagation();
+                const rows = getSharedPublicationRows();
+                if (!rows[idx]) return;
+                const targetCode = rows[idx].identifier_code || `Fila #${idx + 1}`;
+                
+                rows.splice(idx, 1);
+                localStorage.setItem(ADMIN_DATA_KEY, JSON.stringify(rows));
+
+                if (selectedBlogRowIndex >= rows.length) selectedBlogRowIndex = Math.max(0, rows.length - 1);
+                if (typeof selectedRowIndex !== 'undefined' && selectedRowIndex >= rows.length) {
+                    selectedRowIndex = Math.max(0, rows.length - 1);
+                }
+
+                if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
+                if (typeof window.renderAdminTable === 'function') window.renderAdminTable();
+                if (typeof window.loadPendingRowIntoCards === 'function' && rows[selectedRowIndex]) {
+                    adminPendingRow = { ...rows[selectedRowIndex] };
+                    window.loadPendingRowIntoCards();
+                }
+                if (typeof window.showAdminToast === 'function') window.showAdminToast(`Registro [${targetCode}] eliminado de la base de datos.`);
+            };
+
             function getSharedPublicationRows() {
                 try {
                     const raw = localStorage.getItem(ADMIN_DATA_KEY);
@@ -14660,6 +14825,7 @@ if (!headers_sent()) {
                 } catch (e) {}
                 return defaultBlogRows;
             }
+            window.getSharedPublicationRows = getSharedPublicationRows;
 
             window.toggleExcelBlog = function (forceState) {
                 const overlay = document.getElementById('excelBlogOverlay');
@@ -14674,8 +14840,38 @@ if (!headers_sent()) {
             };
 
             function renderExcelTable() {
+                const table = document.getElementById('excelBlogTable');
+                if (!table) return;
+                const thead = table.querySelector('thead');
                 const tbody = document.getElementById('excelBlogTableBody');
                 if (!tbody) return;
+
+                const activeKeys = window.getActiveColumns();
+                const activeCols = ALL_COLUMNS.filter(c => activeKeys.includes(c.key));
+
+                // Render Header con botones de borrar columna
+                if (thead) {
+                    let hHtml = '<tr class="table-column-header-tr">';
+                    activeCols.forEach(col => {
+                        hHtml += `
+                            <th style="min-width: ${col.minWidth};">
+                                <div class="th-content-box">
+                                    <span>${col.label}</span>
+                                    <button type="button" class="th-del-btn" onclick="deleteTableColumn('${col.key}', event)" title="Eliminar columna ${col.label}">✕</button>
+                                </div>
+                            </th>
+                        `;
+                    });
+                    hHtml += `<th style="width: 50px; min-width: 50px; border-right:none; text-align:center;">Acciones</th>`;
+                    hHtml += '</tr>';
+                    thead.innerHTML = hHtml;
+                }
+
+                // Botón de restaurar columnas
+                const blogRestoreBtn = document.getElementById('blogRestoreColsBtn');
+                if (blogRestoreBtn) {
+                    blogRestoreBtn.style.display = (activeKeys.length < ALL_COLUMNS.length) ? 'inline-flex' : 'none';
+                }
 
                 const rows = getSharedPublicationRows();
                 const q = (document.getElementById('excelBlogSearchInput')?.value || '').toLowerCase().trim();
@@ -14692,52 +14888,84 @@ if (!headers_sent()) {
                     const tr = document.createElement('tr');
                     tr.className = 'table-data-tr' + (isSelected ? ' active-row' : '');
 
-                    tr.innerHTML = `
-                        <td><input type="text" class="cell-input-field" value="${r.identifier_code || ''}" readonly></td>
-                        <td><input type="text" class="cell-input-field" value="${r.responsible_code || ''}" readonly></td>
-                        <td>
-                            <button type="button" class="cell-home-icon-btn" onclick="openBlogCodeViewer('${r.identifier_code}')" title="Ver código adjunto (${r.platform_code_name || 'script'})">
-                                <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                    let rowHtml = '';
+                    activeCols.forEach(col => {
+                        const key = col.key;
+                        switch (key) {
+                            case 'identifier_code':
+                            case 'responsible_code':
+                            case 'num_tokens':
+                            case 'icai_page':
+                            case 'nspa_monthly':
+                            case 'time_to_create':
+                            case 'proof':
+                            case 'manager_id':
+                            case 'creator_name':
+                            case 'phone':
+                            case 'email':
+                                rowHtml += `<td><input type="text" class="cell-input-field" value="${r[key] || ''}" readonly></td>`;
+                                break;
+                            case 'platform_code':
+                                rowHtml += `
+                                    <td>
+                                        <button type="button" class="cell-home-icon-btn" onclick="openBlogCodeViewer('${r.identifier_code}')" title="Ver código adjunto (${r.platform_code_name || 'script'})">
+                                            <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                                        </button>
+                                    </td>`;
+                                break;
+                            case 'auth_signature':
+                                rowHtml += `
+                                    <td>
+                                        <button type="button" class="cell-btn-auth signed" onclick="openBlogSphincsViewer('${r.identifier_code}')" title="Ver Certificado Post-Cuántico SPHINCS+">Authorized</button>
+                                    </td>`;
+                                break;
+                            case 'cost_per_token':
+                                rowHtml += `
+                                    <td>
+                                        <div class="cell-dollar-wrap">
+                                            <span>$</span>
+                                            <input type="text" value="${r.cost_per_token || ''}" readonly>
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'cors_method':
+                                rowHtml += `
+                                    <td>
+                                        <div class="cell-checkboxes">
+                                            <span class="cell-chk-box ${r.cors_method === 'Yes' ? 'checked' : ''}"></span>
+                                            <span class="cell-chk-label">Y</span>
+                                            <span class="cell-chk-box ${r.cors_method === 'No' ? 'checked' : ''}"></span>
+                                            <span class="cell-chk-label">N</span>
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'hasna_color':
+                                rowHtml += `
+                                    <td>
+                                        <div class="cell-color-squares">
+                                            <div class="cell-color-rect ${safeColor==='#E63333'?'active':''}" style="background:#E63333;"></div>
+                                            <div class="cell-color-rect ${safeColor==='#33B34D'?'active':''}" style="background:#33B34D;"></div>
+                                            <div class="cell-color-rect ${safeColor==='#3366E6'?'active':''}" style="background:#3366E6;"></div>
+                                            <div class="cell-color-rect ${safeColor==='#FFFFFF'?'active':''}" style="background:#FFFFFF;"></div>
+                                        </div>
+                                    </td>`;
+                                break;
+                        }
+                    });
+
+                    // Acciones: Eliminar fila
+                    rowHtml += `
+                        <td style="border-right:none; text-align:center;">
+                            <button type="button" class="cell-del-row-btn" onclick="deleteTableRow(${idx}, event)" title="Eliminar registro ${r.identifier_code}">
+                                <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                             </button>
                         </td>
-                        <td>
-                            <button type="button" class="cell-btn-auth signed" onclick="openBlogSphincsViewer('${r.identifier_code}')" title="Ver Certificado Post-Cuántico SPHINCS+">Authorized</button>
-                        </td>
-                        <td><input type="text" class="cell-input-field" value="${r.num_tokens || ''}" readonly></td>
-                        <td>
-                            <div class="cell-dollar-wrap">
-                                <span>$</span>
-                                <input type="text" value="${r.cost_per_token || ''}" readonly>
-                            </div>
-                        </td>
-                        <td><input type="text" class="cell-input-field" value="${r.icai_page || ''}" readonly></td>
-                        <td><input type="text" class="cell-input-field" value="${r.nspa_monthly || ''}" readonly></td>
-                        <td>
-                            <div class="cell-checkboxes">
-                                <span class="cell-chk-box ${r.cors_method === 'Yes' ? 'checked' : ''}"></span>
-                                <span class="cell-chk-label">Y</span>
-                                <span class="cell-chk-box ${r.cors_method === 'No' ? 'checked' : ''}"></span>
-                                <span class="cell-chk-label">N</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="cell-color-squares">
-                                <div class="cell-color-rect ${safeColor==='#E63333'?'active':''}" style="background:#E63333;"></div>
-                                <div class="cell-color-rect ${safeColor==='#33B34D'?'active':''}" style="background:#33B34D;"></div>
-                                <div class="cell-color-rect ${safeColor==='#3366E6'?'active':''}" style="background:#3366E6;"></div>
-                                <div class="cell-color-rect ${safeColor==='#FFFFFF'?'active':''}" style="background:#FFFFFF;"></div>
-                            </div>
-                        </td>
-                        <td><input type="text" class="cell-input-field" value="${r.time_to_create || ''}" readonly></td>
-                        <td><input type="text" class="cell-input-field" value="${r.proof || ''}" readonly></td>
-                        <td><input type="text" class="cell-input-field" value="${r.manager_id || ''}" readonly></td>
-                        <td><input type="text" class="cell-input-field" value="${r.creator_name || ''}" readonly></td>
-                        <td><input type="text" class="cell-input-field" value="${r.phone || ''}" readonly></td>
-                        <td style="border-right:none;"><input type="text" class="cell-input-field" value="${r.email || ''}" readonly></td>
                     `;
 
+                    tr.innerHTML = rowHtml;
+
                     tr.addEventListener('click', (e) => {
-                        if (e.target.tagName === 'BUTTON') return;
+                        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
                         selectedBlogRowIndex = idx;
                         document.querySelectorAll('#excelBlogTableBody tr').forEach(t => t.classList.remove('active-row'));
                         tr.classList.add('active-row');
@@ -14750,6 +14978,7 @@ if (!headers_sent()) {
                     tbody.appendChild(tr);
                 });
             }
+            window.renderExcelTable = renderExcelTable;
 
             window.filterExcelBlogTable = function () {
                 renderExcelTable();
@@ -15285,8 +15514,8 @@ if (!headers_sent()) {
                 }
             };
 
-            // --- Card Submissions into Table ---
-            window.submitAdminCard = function (cardNum) {
+            // --- Card Submissions into Table (Card 1 submits all 4 cards at once) ---
+            window.submitAdminCard = function (cardNum = 1) {
                 gatherAllCardValues();
 
                 const rows = getAdminRows();
@@ -15303,19 +15532,22 @@ if (!headers_sent()) {
 
                 saveAdminRows(rows);
                 renderAdminTable(true);
+                if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
 
-                // Visual confirmation on Card
-                const card = document.getElementById('adminCard' + cardNum);
-                if (card) {
-                    card.style.borderColor = '#10B981';
-                    card.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.25)';
-                    setTimeout(() => {
-                        card.style.borderColor = '#E5E7EB';
-                        card.style.boxShadow = '';
-                    }, 900);
+                // Visual confirmation on all 4 cards
+                for (let i = 1; i <= 4; i++) {
+                    const card = document.getElementById('adminCard' + i);
+                    if (card) {
+                        card.style.borderColor = '#10B981';
+                        card.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.25)';
+                        setTimeout(() => {
+                            card.style.borderColor = '#E5E7EB';
+                            card.style.boxShadow = '';
+                        }, 900);
+                    }
                 }
 
-                showAdminToast(`✓ Datos de [${targetId}] guardados y actualizados en la tabla.`);
+                showAdminToast(`✓ Datos de las 4 tarjetas [${targetId}] guardados y sincronizados en la tabla.`);
             };
 
             window.addNewAdminRow = function () {
@@ -15350,6 +15582,7 @@ if (!headers_sent()) {
                 saveAdminRows(rows);
                 loadPendingRowIntoCards();
                 renderAdminTable(true);
+                if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
                 showAdminToast(`✓ Nueva fila [${nextId}] creada lista para editar.`);
             };
 
@@ -15362,6 +15595,7 @@ if (!headers_sent()) {
                     rows[selectedRowIndex].hasna_color = color;
                     saveAdminRows(rows);
                     renderAdminTable();
+                    if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
                 }
             };
 
@@ -15432,6 +15666,7 @@ if (!headers_sent()) {
                 rows[selectedRowIndex] = { ...adminPendingRow };
                 saveAdminRows(rows);
                 renderAdminTable();
+                if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
                 showAdminToast(`✓ Código adjunto guardado para [${adminPendingRow.identifier_code}].`);
             };
 
@@ -15470,6 +15705,7 @@ if (!headers_sent()) {
                 rows[selectedRowIndex] = { ...adminPendingRow };
                 saveAdminRows(rows);
                 renderAdminTable();
+                if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
             };
 
             window.closeSphincsCertModal = function () {
@@ -15477,10 +15713,41 @@ if (!headers_sent()) {
                 if (modal) modal.classList.remove('open');
             };
 
-            // --- Render 16-Column Table ---
+            // --- Render 16-Column Admin Table ---
             function renderAdminTable(pulseActive = false) {
+                const table = document.getElementById('adminMainDataTable');
+                if (!table) return;
+                const thead = table.querySelector('thead');
                 const tbody = document.getElementById('adminTableBody');
                 if (!tbody) return;
+
+                const activeKeys = (typeof window.getActiveColumns === 'function') ? window.getActiveColumns() : window.L8_ALL_COLUMNS.map(c => c.key);
+                const activeCols = (window.L8_ALL_COLUMNS || []).filter(c => activeKeys.includes(c.key));
+
+                // Render Header
+                if (thead) {
+                    let hHtml = '<tr class="table-column-header-tr">';
+                    activeCols.forEach(col => {
+                        hHtml += `
+                            <th style="min-width: ${col.minWidth};">
+                                <div class="th-content-box">
+                                    <span>${col.label}</span>
+                                    <button type="button" class="th-del-btn" onclick="deleteTableColumn('${col.key}', event)" title="Eliminar columna ${col.label}">✕</button>
+                                </div>
+                            </th>
+                        `;
+                    });
+                    hHtml += `<th style="width: 50px; min-width: 50px; border-right:none; text-align:center;">Acciones</th>`;
+                    hHtml += '</tr>';
+                    thead.innerHTML = hHtml;
+                }
+
+                // Botón de restaurar columnas en Admin
+                const adminRestoreBtn = document.getElementById('adminRestoreColsBtn');
+                if (adminRestoreBtn && window.L8_ALL_COLUMNS) {
+                    adminRestoreBtn.style.display = (activeKeys.length < window.L8_ALL_COLUMNS.length) ? 'inline-flex' : 'none';
+                }
+
                 const rows = getAdminRows();
                 const q = (document.getElementById('adminTableSearchInput')?.value || '').toLowerCase().trim();
 
@@ -15493,57 +15760,87 @@ if (!headers_sent()) {
 
                     const isSelected = (idx === selectedRowIndex);
                     const tr = document.createElement('tr');
-                    if (isSelected) {
-                        tr.classList.add('active-row');
-                        if (pulseActive) tr.classList.add('pulse-row');
-                    }
+                    tr.className = 'table-data-tr' + (isSelected ? ' active-row' : '');
+                    if (isSelected && pulseActive) tr.classList.add('pulse-row');
 
                     const safeColor = r.hasna_color || '#E63333';
+                    let rowHtml = '';
 
-                    tr.innerHTML = `
-                        <td><input type="text" class="admin-cell-input" value="${r.identifier_code || ''}" onchange="updateCellData(${idx}, 'identifier_code', this.value)"></td>
-                        <td><input type="text" class="admin-cell-input" value="${r.responsible_code || ''}" onchange="updateCellData(${idx}, 'responsible_code', this.value)"></td>
-                        <td>
-                            <button type="button" class="admin-cell-code-btn" onclick="openPlatformCodeModal()" title="Ver/subir código">
-                                <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                    activeCols.forEach(col => {
+                        const key = col.key;
+                        switch (key) {
+                            case 'identifier_code':
+                            case 'responsible_code':
+                            case 'num_tokens':
+                            case 'icai_page':
+                            case 'nspa_monthly':
+                            case 'time_to_create':
+                            case 'proof':
+                            case 'manager_id':
+                            case 'creator_name':
+                            case 'phone':
+                            case 'email':
+                                rowHtml += `<td><input type="text" class="admin-cell-input" value="${r[key] || ''}" onchange="updateCellData(${idx}, '${key}', this.value)" oninput="updateCellDataRealtime(${idx}, '${key}', this.value)"></td>`;
+                                break;
+                            case 'platform_code':
+                                rowHtml += `
+                                    <td>
+                                        <button type="button" class="admin-cell-code-btn" onclick="openPlatformCodeModal()" title="Ver/subir código">
+                                            <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                                        </button>
+                                    </td>`;
+                                break;
+                            case 'auth_signature':
+                                rowHtml += `
+                                    <td>
+                                        <button type="button" class="admin-cell-btn-auth signed" onclick="stampSphincsSignature()">Authorized</button>
+                                    </td>`;
+                                break;
+                            case 'cost_per_token':
+                                rowHtml += `
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
+                                            <span style="font-size:9px;color:#666B73;">$</span>
+                                            <input type="text" class="admin-cell-input" style="width:54px;" value="${r.cost_per_token || ''}" onchange="updateCellData(${idx}, 'cost_per_token', this.value)" oninput="updateCellDataRealtime(${idx}, 'cost_per_token', this.value)">
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'cors_method':
+                                rowHtml += `
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:3px;justify-content:center;font-size:9px;">
+                                            <span>${r.cors_method === 'Yes' ? '☑ Y' : '☐ Y'}</span>
+                                            <span>${r.cors_method === 'No' ? '☑ N' : '☐ N'}</span>
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'hasna_color':
+                                rowHtml += `
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
+                                            <div style="width:10px;height:10px;background:#E63333;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#E63333'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                                            <div style="width:10px;height:10px;background:#33B34D;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#33B34D'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                                            <div style="width:10px;height:10px;background:#3366E6;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#3366E6'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                                            <div style="width:10px;height:10px;background:#FFFFFF;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#FFFFFF'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                                        </div>
+                                    </td>`;
+                                break;
+                        }
+                    });
+
+                    // Acciones: Eliminar registro
+                    rowHtml += `
+                        <td style="border-right:none; text-align:center;">
+                            <button type="button" class="cell-del-row-btn" onclick="deleteTableRow(${idx}, event)" title="Eliminar registro ${r.identifier_code}">
+                                <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                             </button>
                         </td>
-                        <td>
-                            <button type="button" class="admin-cell-btn-auth signed" onclick="stampSphincsSignature()">Authorized</button>
-                        </td>
-                        <td><input type="text" class="admin-cell-input" value="${r.num_tokens || ''}" onchange="updateCellData(${idx}, 'num_tokens', this.value)"></td>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
-                                <span style="font-size:9px;color:#666B73;">$</span>
-                                <input type="text" class="admin-cell-input" style="width:54px;" value="${r.cost_per_token || ''}" onchange="updateCellData(${idx}, 'cost_per_token', this.value)">
-                            </div>
-                        </td>
-                        <td><input type="text" class="admin-cell-input" value="${r.icai_page || ''}" onchange="updateCellData(${idx}, 'icai_page', this.value)"></td>
-                        <td><input type="text" class="admin-cell-input" value="${r.nspa_monthly || ''}" onchange="updateCellData(${idx}, 'nspa_monthly', this.value)"></td>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:3px;justify-content:center;font-size:9px;">
-                                <span>${r.cors_method === 'Yes' ? '☑ Y' : '☐ Y'}</span>
-                                <span>${r.cors_method === 'No' ? '☑ N' : '☐ N'}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
-                                <div style="width:10px;height:10px;background:#E63333;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#E63333'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
-                                <div style="width:10px;height:10px;background:#33B34D;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#33B34D'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
-                                <div style="width:10px;height:10px;background:#3366E6;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#3366E6'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
-                                <div style="width:10px;height:10px;background:#FFFFFF;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#FFFFFF'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
-                            </div>
-                        </td>
-                        <td><input type="text" class="admin-cell-input" value="${r.time_to_create || ''}" onchange="updateCellData(${idx}, 'time_to_create', this.value)"></td>
-                        <td><input type="text" class="admin-cell-input" value="${r.proof || ''}" onchange="updateCellData(${idx}, 'proof', this.value)"></td>
-                        <td><input type="text" class="admin-cell-input" value="${r.manager_id || ''}" onchange="updateCellData(${idx}, 'manager_id', this.value)"></td>
-                        <td><input type="text" class="admin-cell-input" value="${r.creator_name || ''}" onchange="updateCellData(${idx}, 'creator_name', this.value)"></td>
-                        <td><input type="text" class="admin-cell-input" value="${r.phone || ''}" onchange="updateCellData(${idx}, 'phone', this.value)"></td>
-                        <td style="border-right:none;"><input type="text" class="admin-cell-input" value="${r.email || ''}" onchange="updateCellData(${idx}, 'email', this.value)"></td>
                     `;
 
+                    tr.innerHTML = rowHtml;
+
                     tr.addEventListener('click', (e) => {
-                        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+                        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
                         selectedRowIndex = idx;
                         adminPendingRow = { ...r };
                         loadPendingRowIntoCards();
@@ -15553,6 +15850,7 @@ if (!headers_sent()) {
                     tbody.appendChild(tr);
                 });
             }
+            window.renderAdminTable = renderAdminTable;
 
             function loadPendingRowIntoCards() {
                 if (document.getElementById('c1_idCode')) document.getElementById('c1_idCode').value = adminPendingRow.identifier_code || '';
@@ -15581,12 +15879,26 @@ if (!headers_sent()) {
                     s.classList.toggle('active', s.dataset.color === adminPendingRow.hasna_color);
                 });
             }
+            window.loadPendingRowIntoCards = loadPendingRowIntoCards;
 
             window.updateCellData = function (rowIdx, key, val) {
                 const rows = getAdminRows();
                 if (rows[rowIdx]) {
                     rows[rowIdx][key] = val;
                     saveAdminRows(rows);
+                    if (rowIdx === selectedRowIndex) {
+                        adminPendingRow[key] = val;
+                        loadPendingRowIntoCards();
+                    }
+                    if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
+                }
+            };
+
+            window.updateCellDataRealtime = function (rowIdx, key, val) {
+                const rows = getAdminRows();
+                if (rows[rowIdx]) {
+                    rows[rowIdx][key] = val;
+                    localStorage.setItem(ADMIN_DATA_KEY, JSON.stringify(rows));
                     if (rowIdx === selectedRowIndex) {
                         adminPendingRow[key] = val;
                         loadPendingRowIntoCards();
@@ -15629,8 +15941,9 @@ if (!headers_sent()) {
                 }
                 saveAdminRows(rows);
                 renderAdminTable(true);
+                if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
 
-                // 2. Sincronizar con el Blog de Publicaciones (Vista Excel)
+                // 2. Sincronizar con el Blog de Publicaciones
                 const blogKey = 'l8_excel_blog_articles_v1';
                 let blogArticles = [];
                 try {
@@ -15685,7 +15998,6 @@ if (!headers_sent()) {
                     views: 1
                 };
 
-                // Upsert en la lista del blog
                 const existingIdx = blogArticles.findIndex(a => a.id === newArticle.id);
                 if (existingIdx >= 0) {
                     blogArticles[existingIdx] = newArticle;
@@ -15701,8 +16013,12 @@ if (!headers_sent()) {
                     window.renderExcelTable();
                 }
 
-                showAdminToast(`Publicación [${newArticle.id}] lanzada y visible en el Blog Excel.`);
-                alert(`Publicación [${newArticle.id}] lanzada y sincronizada con éxito en el Blog de Publicaciones (Vista Excel).\n\nPuedes abrir el primer círculo (slot-1-1) para verla en la hoja de cálculo.`);
+                showAdminToast(`✓ Publicación [${newArticle.id}] lanzada y visible en el Blog.`);
+                
+                // Abrir visor de detalles directamente con todos los datos modificados
+                if (typeof window.openBlogArticleDetails === 'function') {
+                    window.openBlogArticleDetails(newArticle.id);
+                }
             };
 
             window.exportAdminReport = function () {

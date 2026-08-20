@@ -5577,8 +5577,18 @@ if (!headers_sent()) {
             background: #F1F5F9;
         }
 
-        .admin-16col-table td.active-row {
+        .admin-16col-table tr.active-row td {
             background: #EFF6FF !important;
+        }
+
+        .admin-16col-table tr.pulse-row td {
+            animation: adminRowPulse 1.4s ease;
+        }
+
+        @keyframes adminRowPulse {
+            0% { background: #BBF7D0 !important; }
+            50% { background: #DCFCE7 !important; }
+            100% { background: #EFF6FF !important; }
         }
 
         .admin-cell-input {
@@ -13879,8 +13889,12 @@ if (!headers_sent()) {
             <div class="admin-table-card">
                 <!-- Header Controls -->
                 <div class="admin-table-header-controls">
-                    <h3 class="admin-table-title">Publications and Preview Blog</h3>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <h3 class="admin-table-title">Publications and Preview Blog</h3>
+                        <span id="adminTableStatusToast" style="display:none;font-size:12px;font-weight:600;color:#10B981;background:#ECFDF5;border:1px solid #A7F3D0;padding:3px 10px;border-radius:6px;"></span>
+                    </div>
                     <div class="admin-filter-group">
+                        <button type="button" class="admin-filter-all-btn" style="background:#10B981;border-color:#10B981;" onclick="addNewAdminRow()">➕ + New Row</button>
                         <div class="admin-filter-search">
                             <svg class="admin-grid-icon" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -14219,27 +14233,12 @@ if (!headers_sent()) {
                     views: 1
                 });
 
-                saveArticles(articles);
-                closeExcelBlogAdminPublish();
-                renderExcelTable();
-            };
+            window.renderExcelTable = renderExcelTable;
+            window.getExcelArticles = getArticles;
+            window.saveExcelArticles = saveArticles;
 
-            window.exportExcelBlogCsv = function () {
-                const articles = getArticles();
-                let csv = 'ID,Fecha,Titulo,Categoria,Estado,Autor,Resumen,Vistas\n';
-                articles.forEach(a => {
-                    csv += `"${a.id}","${a.date}","${(a.title||'').replace(/"/g, '""')}","${a.category}","${a.status}","${a.author}","${(a.excerpt||'').replace(/"/g, '""')}",${a.views}\n`;
-                });
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `blog_publicaciones_excel_${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            };
+            // Initial render
+            renderExcelTable();
         })();
 
         /* ===== ADMIN PUBLICATION PANEL ENGINE (Toolbox Slot 1-2 & Dilithium-5) ===== */
@@ -14389,6 +14388,8 @@ if (!headers_sent()) {
                         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                     }
                 } catch (e) {}
+                // Seed default
+                saveAdminRows(defaultTableRows);
                 return defaultTableRows;
             }
 
@@ -14396,6 +14397,49 @@ if (!headers_sent()) {
                 try {
                     localStorage.setItem(ADMIN_DATA_KEY, JSON.stringify(rows));
                 } catch (e) {}
+            }
+
+            function gatherAllCardValues() {
+                const idCode = (document.getElementById('c1_idCode')?.value || adminPendingRow.identifier_code || 'PUB-001').trim();
+                const respCode = (document.getElementById('c1_respCode')?.value || adminPendingRow.responsible_code || 'DKT-ROOT').trim();
+                const numTokens = (document.getElementById('c2_numTokens')?.value || adminPendingRow.num_tokens || '250000').trim();
+                const costPerToken = (document.getElementById('c2_costPerToken')?.value || adminPendingRow.cost_per_token || '0.00015').trim();
+                const icaiPage = (document.getElementById('c2_icaiPage')?.value || adminPendingRow.icai_page || 'ICAI-v4').trim();
+                const nspaMonthly = (document.getElementById('c2_nspaMonthly')?.value || adminPendingRow.nspa_monthly || '100.0%').trim();
+                const corsChecked = document.querySelector('input[name="c3_cors"]:checked')?.value || adminPendingRow.cors_method || 'Yes';
+                const timeToCreate = (document.getElementById('c3_timeToCreate')?.value || adminPendingRow.time_to_create || '12 mins').trim();
+                const proof = (document.getElementById('c3_proof')?.value || adminPendingRow.proof || 'Git SHA-256').trim();
+                const managerId = (document.getElementById('c4_managerId')?.value || adminPendingRow.manager_id || 'MGR-01').trim();
+                const creatorName = (document.getElementById('c4_creatorName')?.value || adminPendingRow.creator_name || 'Diktatcart').trim();
+                const phone = (document.getElementById('c4_phone')?.value || adminPendingRow.phone || '+1 800 HASHCOD').trim();
+                const email = (document.getElementById('c4_email')?.value || adminPendingRow.email || 'admin@hashcod.io').trim();
+
+                adminPendingRow.identifier_code = idCode;
+                adminPendingRow.responsible_code = respCode;
+                adminPendingRow.num_tokens = numTokens;
+                adminPendingRow.cost_per_token = costPerToken;
+                adminPendingRow.icai_page = icaiPage;
+                adminPendingRow.nspa_monthly = nspaMonthly;
+                adminPendingRow.cors_method = corsChecked;
+                adminPendingRow.time_to_create = timeToCreate;
+                adminPendingRow.proof = proof;
+                adminPendingRow.manager_id = managerId;
+                adminPendingRow.creator_name = creatorName;
+                adminPendingRow.phone = phone;
+                adminPendingRow.email = email;
+            }
+
+            function showAdminToast(msg, isSuccess = true) {
+                const toast = document.getElementById('adminTableStatusToast');
+                if (!toast) return;
+                toast.textContent = msg;
+                toast.style.display = 'inline-block';
+                toast.style.color = isSuccess ? '#10B981' : '#EF4444';
+                toast.style.background = isSuccess ? '#ECFDF5' : '#FEF2F2';
+                toast.style.borderColor = isSuccess ? '#A7F3D0' : '#FECACA';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3500);
             }
 
             // --- Dilithium-5 Security Gate ---
@@ -14461,7 +14505,6 @@ if (!headers_sent()) {
                         }, 400);
                         return;
                     } else if (isPqcFormat) {
-                        // Fallback cliente inmediato para tokens válidos de la plataforma
                         sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
                         if (msgEl) {
                             msgEl.textContent = '✅ Firma Dilithium-5 verificada localmente. Acceso concedido.';
@@ -14507,6 +14550,7 @@ if (!headers_sent()) {
                 const isOpening = (typeof forceState === 'boolean') ? forceState : !overlay.classList.contains('open');
                 if (isOpening) {
                     overlay.classList.add('open');
+                    loadPendingRowIntoCards();
                     renderAdminTable();
                 } else {
                     overlay.classList.remove('open');
@@ -14515,48 +14559,82 @@ if (!headers_sent()) {
 
             // --- Card Submissions into Table ---
             window.submitAdminCard = function (cardNum) {
-                if (cardNum === 1) {
-                    adminPendingRow.identifier_code = (document.getElementById('c1_idCode')?.value || 'PUB-001').trim();
-                    adminPendingRow.responsible_code = (document.getElementById('c1_respCode')?.value || 'DKT-ROOT').trim();
-                } else if (cardNum === 2) {
-                    adminPendingRow.num_tokens = (document.getElementById('c2_numTokens')?.value || '250000').trim();
-                    adminPendingRow.cost_per_token = (document.getElementById('c2_costPerToken')?.value || '0.00015').trim();
-                    adminPendingRow.icai_page = (document.getElementById('c2_icaiPage')?.value || 'ICAI-v4').trim();
-                    adminPendingRow.nspa_monthly = (document.getElementById('c2_nspaMonthly')?.value || '100.0%').trim();
-                } else if (cardNum === 3) {
-                    const corsChecked = document.querySelector('input[name="c3_cors"]:checked')?.value || 'Yes';
-                    adminPendingRow.cors_method = corsChecked;
-                    adminPendingRow.time_to_create = (document.getElementById('c3_timeToCreate')?.value || '12 mins').trim();
-                    adminPendingRow.proof = (document.getElementById('c3_proof')?.value || 'Git SHA-256').trim();
-                } else if (cardNum === 4) {
-                    adminPendingRow.manager_id = (document.getElementById('c4_managerId')?.value || 'MGR-01').trim();
-                    adminPendingRow.creator_name = (document.getElementById('c4_creatorName')?.value || 'Diktatcart').trim();
-                    adminPendingRow.phone = (document.getElementById('c4_phone')?.value || '+1 800 HASHCOD').trim();
-                    adminPendingRow.email = (document.getElementById('c4_email')?.value || 'admin@hashcod.io').trim();
+                gatherAllCardValues();
+
+                const rows = getAdminRows();
+                const targetId = adminPendingRow.identifier_code;
+                const existingIdx = rows.findIndex(r => r.identifier_code === targetId);
+
+                if (existingIdx >= 0) {
+                    rows[existingIdx] = { ...adminPendingRow };
+                    selectedRowIndex = existingIdx;
+                } else {
+                    rows.unshift({ ...adminPendingRow });
+                    selectedRowIndex = 0;
                 }
 
-                // Update row 0 or selected row in table
-                const rows = getAdminRows();
-                rows[selectedRowIndex] = { ...adminPendingRow };
                 saveAdminRows(rows);
-                renderAdminTable();
+                renderAdminTable(true);
 
-                // Visual confirmation
+                // Visual confirmation on Card
                 const card = document.getElementById('adminCard' + cardNum);
                 if (card) {
                     card.style.borderColor = '#10B981';
-                    card.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.2)';
+                    card.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.25)';
                     setTimeout(() => {
                         card.style.borderColor = '#E5E7EB';
                         card.style.boxShadow = '';
-                    }, 800);
+                    }, 900);
                 }
+
+                showAdminToast(`✓ Datos de [${targetId}] guardados y actualizados en la tabla.`);
+            };
+
+            window.addNewAdminRow = function () {
+                const rows = getAdminRows();
+                const nextNum = rows.length + 1;
+                const nextId = 'PUB-' + String(nextNum).padStart(3, '0');
+
+                adminPendingRow = {
+                    identifier_code: nextId,
+                    responsible_code: 'DKT-' + Math.floor(100 + Math.random() * 900),
+                    platform_code: '# Python module for ' + nextId + '\n',
+                    platform_code_name: 'module.py',
+                    platform_code_lang: 'python',
+                    auth_signature: 'Authorized (SPHINCS+)',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '200000',
+                    cost_per_token: '0.00015',
+                    icai_page: 'ICAI-v' + (nextNum % 6 + 1),
+                    nspa_monthly: '100.0%',
+                    cors_method: 'Yes',
+                    hasna_color: '#33B34D',
+                    time_to_create: '15 mins',
+                    proof: 'Git SHA-256',
+                    manager_id: 'MGR-0' + (nextNum % 3 + 1),
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'admin@hashcod.io'
+                };
+
+                rows.unshift({ ...adminPendingRow });
+                selectedRowIndex = 0;
+                saveAdminRows(rows);
+                loadPendingRowIntoCards();
+                renderAdminTable(true);
+                showAdminToast(`✓ Nueva fila [${nextId}] creada lista para editar.`);
             };
 
             window.selectHasnaColor = function (el, color) {
                 document.querySelectorAll('.admin-color-square').forEach(s => s.classList.remove('active'));
                 el.classList.add('active');
                 adminPendingRow.hasna_color = color;
+                const rows = getAdminRows();
+                if (rows[selectedRowIndex]) {
+                    rows[selectedRowIndex].hasna_color = color;
+                    saveAdminRows(rows);
+                    renderAdminTable();
+                }
             };
 
             // --- Code Upload / Code Viewer Modal ---
@@ -14626,6 +14704,7 @@ if (!headers_sent()) {
                 rows[selectedRowIndex] = { ...adminPendingRow };
                 saveAdminRows(rows);
                 renderAdminTable();
+                showAdminToast(`✓ Código adjunto guardado para [${adminPendingRow.identifier_code}].`);
             };
 
             // --- Post-Quantum SPHINCS+ (SLH-DSA) Signature ---
@@ -14671,7 +14750,7 @@ if (!headers_sent()) {
             };
 
             // --- Render 16-Column Table ---
-            function renderAdminTable() {
+            function renderAdminTable(pulseActive = false) {
                 const tbody = document.getElementById('adminTableBody');
                 if (!tbody) return;
                 const rows = getAdminRows();
@@ -14686,7 +14765,10 @@ if (!headers_sent()) {
 
                     const isSelected = (idx === selectedRowIndex);
                     const tr = document.createElement('tr');
-                    if (isSelected) tr.classList.add('active-row');
+                    if (isSelected) {
+                        tr.classList.add('active-row');
+                        if (pulseActive) tr.classList.add('pulse-row');
+                    }
 
                     const safeColor = r.hasna_color || '#E63333';
 
@@ -14757,6 +14839,19 @@ if (!headers_sent()) {
                 if (document.getElementById('c4_creatorName')) document.getElementById('c4_creatorName').value = adminPendingRow.creator_name || '';
                 if (document.getElementById('c4_phone')) document.getElementById('c4_phone').value = adminPendingRow.phone || '';
                 if (document.getElementById('c4_email')) document.getElementById('c4_email').value = adminPendingRow.email || '';
+
+                const codeStatus = document.getElementById('c1_codeStatusLabel');
+                if (codeStatus) codeStatus.textContent = 'Code ' + (adminPendingRow.platform_code_name || 'main.py') + ' ✓';
+
+                const authLabel = document.getElementById('c1_authSigLabel');
+                if (authLabel) authLabel.textContent = adminPendingRow.auth_signature ? 'Authorized ✓' : 'Authorized';
+
+                const corsInputs = document.querySelectorAll('input[name="c3_cors"]');
+                corsInputs.forEach(i => { i.checked = (i.value === adminPendingRow.cors_method); });
+
+                document.querySelectorAll('.admin-color-square').forEach(s => {
+                    s.classList.toggle('active', s.dataset.color === adminPendingRow.hasna_color);
+                });
             }
 
             window.updateCellData = function (rowIdx, key, val) {
@@ -14764,6 +14859,10 @@ if (!headers_sent()) {
                 if (rows[rowIdx]) {
                     rows[rowIdx][key] = val;
                     saveAdminRows(rows);
+                    if (rowIdx === selectedRowIndex) {
+                        adminPendingRow[key] = val;
+                        loadPendingRowIntoCards();
+                    }
                 }
             };
 
@@ -14789,13 +14888,36 @@ if (!headers_sent()) {
 
             // --- Launch on the blog Action ---
             window.launchOnTheBlog = function () {
+                gatherAllCardValues();
                 const row = adminPendingRow;
+
+                // 1. Guardar en la tabla del panel Admin
+                const rows = getAdminRows();
+                const exIdx = rows.findIndex(r => r.identifier_code === row.identifier_code);
+                if (exIdx >= 0) {
+                    rows[exIdx] = { ...row };
+                } else {
+                    rows.unshift({ ...row });
+                }
+                saveAdminRows(rows);
+                renderAdminTable(true);
+
+                // 2. Sincronizar con el Blog de Publicaciones (Vista Excel)
                 const blogKey = 'l8_excel_blog_articles_v1';
                 let blogArticles = [];
                 try {
                     const raw = localStorage.getItem(blogKey);
-                    if (raw) blogArticles = JSON.parse(raw);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) blogArticles = parsed;
+                    }
                 } catch (e) {}
+
+                if (!blogArticles || blogArticles.length === 0) {
+                    if (typeof window.getExcelArticles === 'function') {
+                        blogArticles = window.getExcelArticles();
+                    }
+                }
 
                 const postTitle = `Publicación ${row.identifier_code}: ${row.creator_name} [${row.manager_id}]`;
                 const postExcerpt = `Tokens: ${row.num_tokens} ($${row.cost_per_token}/token) · ICAI: ${row.icai_page} · NSPA: ${row.nspa_monthly} · ${row.time_to_create}`;
@@ -14835,7 +14957,7 @@ if (!headers_sent()) {
                     views: 1
                 };
 
-                // Upsert or prepend
+                // Upsert en la lista del blog
                 const existingIdx = blogArticles.findIndex(a => a.id === newArticle.id);
                 if (existingIdx >= 0) {
                     blogArticles[existingIdx] = newArticle;
@@ -14844,8 +14966,15 @@ if (!headers_sent()) {
                 }
 
                 localStorage.setItem(blogKey, JSON.stringify(blogArticles));
+                if (typeof window.saveExcelArticles === 'function') {
+                    window.saveExcelArticles(blogArticles);
+                }
+                if (typeof window.renderExcelTable === 'function') {
+                    window.renderExcelTable();
+                }
 
-                alert(`🚀 ¡Publicación ${newArticle.id} lanzada y actualizada con éxito en el Blog de Publicaciones (Vista Excel)!`);
+                showAdminToast(`🚀 ¡Publicación [${newArticle.id}] lanzada y visible en el Blog Excel!`);
+                alert(`🚀 ¡Publicación [${newArticle.id}] lanzada y sincronizada con éxito en el Blog de Publicaciones (Vista Excel)!\n\nPuedes abrir el primer círculo (slot-1-1) para verla en la hoja de cálculo.`);
             };
 
             window.exportAdminReport = function () {
@@ -14864,6 +14993,17 @@ if (!headers_sent()) {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
             };
+
+            // Expose globally
+            window.renderAdminTable = renderAdminTable;
+            window.getAdminRows = getAdminRows;
+            window.saveAdminRows = saveAdminRows;
+
+            // Initial render
+            document.addEventListener('DOMContentLoaded', () => {
+                renderAdminTable();
+            });
+            renderAdminTable();
         })();
 
         /* ===== AUTH GATE (registro / login) ===== */

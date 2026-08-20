@@ -8045,7 +8045,7 @@ if (!headers_sent()) {
                 <div class="repo-inspector-bar" id="repoInspectorBar">
                     <span style="color:#ffffff; font-size:12px; font-weight:600;">Estructura:</span>
                     <select id="repoFileSelector" class="repo-file-selector" onchange="loadSelectedRepoFile(this.value)">
-                        <option value="">📁 Selecciona un archivo de código por carpeta...</option>
+                        <option value="">Selecciona un archivo de código por carpeta...</option>
                     </select>
                     <span id="repoFilePathInfo" style="color:#888888; font-size:11px; font-family:monospace;"></span>
                 </div>
@@ -8539,7 +8539,7 @@ if (!headers_sent()) {
                 if (item.type && item.type !== 'file') continue;
                 const opt = document.createElement('option');
                 opt.value = item.path;
-                opt.textContent = '📄 ' + item.path + (item.size_formatted ? ' (' + item.size_formatted + ')' : '');
+                opt.textContent = item.path + (item.size_formatted ? ' (' + item.size_formatted + ')' : '');
                 frag.appendChild(opt);
                 if (!firstPath) firstPath = item.path;
             }
@@ -8579,7 +8579,7 @@ if (!headers_sent()) {
                 editor.style.color = '#ffffff';
             }
             if (selector) {
-                selector.innerHTML = '<option value="">📁 Selecciona un archivo de código por carpeta...</option>';
+                selector.innerHTML = '<option value="">Selecciona un archivo de código por carpeta...</option>';
                 selector.value = '';
             }
             if (pathInfo) pathInfo.textContent = '';
@@ -13947,8 +13947,9 @@ if (!headers_sent()) {
                         <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
                         <input type="text" id="excelBlogSearchInput" placeholder="Search user..." oninput="filterExcelBlogTable()">
                     </div>
-                    <button type="button" class="filter-all" onclick="resetExcelBlogFilter()">View All</button>
-                    <button type="button" class="btn-card-close" onclick="toggleExcelBlog(false)" title="Cerrar ventana">✕</button>
+                    <button type="button" class="btn-card-close" onclick="toggleExcelBlog(false)" title="Cerrar ventana">
+                        <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -13989,7 +13990,10 @@ if (!headers_sent()) {
                 </div>
                 <div class="footer-pagination">
                     <button type="button" class="btn-prev" onclick="blogPrevRow()">Previous</button>
-                    <button type="button" class="btn-next" onclick="openSelectedBlogArticle()">🚀 Launch on the blog</button>
+                    <button type="button" class="btn-next" onclick="openSelectedBlogArticle()">
+                        <svg style="width:14px;height:14px;fill:currentColor;margin-right:6px;" viewBox="0 0 24 24"><path d="M9.19 6.35c-2.04 2.29-3.44 5.58-3.57 5.89l4.14 4.14c.31-.13 3.6-1.53 5.89-3.57C17.65 10.99 19 8.24 19 4c-4.24 0-6.99 1.35-8.81 2.35zM11.17 17l-3.23 3.23c-.39.39-1.02.39-1.41 0l-2.79-2.79c-.39-.39-.39-1.02 0-1.41L7 12.83l4.17 4.17z"/></svg>
+                        Launch on the blog
+                    </button>
                 </div>
             </div>
 
@@ -14000,11 +14004,22 @@ if (!headers_sent()) {
                     <div class="excel-reader-header">
                         <div class="reader-header-badges">
                             <span class="reader-badge-cat" id="readCat">ICAI-v3</span>
-                            <span class="reader-badge-pqc">🛡️ SPHINCS+ Authorized (SLH-DSA-256s)</span>
-                            <span class="reader-meta-item" id="readDate">📅 2026-08-20</span>
-                            <span class="reader-meta-item">👁️ <span id="readViews">1</span> lecturas</span>
+                            <span class="reader-badge-pqc">
+                                <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                                SPHINCS+ Authorized (SLH-DSA-256s)
+                            </span>
+                            <span class="reader-meta-item" id="readDate">
+                                <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+                                <span>2026-08-20</span>
+                            </span>
+                            <span class="reader-meta-item">
+                                <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                <span id="readViews">1</span> lecturas
+                            </span>
                         </div>
-                        <button type="button" class="btn-card-close" onclick="closeExcelBlogReader()" title="Cerrar artículo">✕</button>
+                        <button type="button" class="btn-card-close" onclick="closeExcelBlogReader()" title="Cerrar artículo">
+                            <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        </button>
                     </div>
 
                     <!-- Modal Body -->
@@ -14026,10 +14041,12 @@ if (!headers_sent()) {
                             </div>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <button type="button" class="reader-code-btn" onclick="openBlogSphincsViewerFromModal()">
-                                    <span>🛡️ Certificado Cuántico</span>
+                                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                                    <span>Certificado Cuántico</span>
                                 </button>
                                 <button type="button" class="reader-code-btn" onclick="downloadCurrentPlatformCode()">
-                                    <span>📥 Descargar Script</span>
+                                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                    <span>Descargar Script</span>
                                 </button>
                             </div>
                         </div>
@@ -14080,7 +14097,8 @@ if (!headers_sent()) {
                                         <span id="readCopyBtnText">Copiar Código</span>
                                     </button>
                                     <button type="button" class="reader-code-btn" style="background:#1F6FEB; border-color:#388BFD; color:#FFF;" onclick="runReaderSandbox()">
-                                        <span>▶️ Probar / Sandbox</span>
+                                        <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        <span>Probar Sandbox</span>
                                     </button>
                                 </div>
                             </div>
@@ -14093,7 +14111,7 @@ if (!headers_sent()) {
                         <div class="reader-footer-actions">
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <button type="button" class="reader-like-btn" id="readLikeBtn" onclick="likeCurrentPost()">
-                                    <span>❤️</span>
+                                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                                     <span id="readLikeCount">14</span> Me gusta
                                 </button>
                                 <span style="font-size:12px; color:#71717A;">Módulo auditado y validado en codespace</span>
@@ -14114,10 +14132,15 @@ if (!headers_sent()) {
         <div class="admin-gate-card">
             <div class="admin-gate-header">
                 <div>
-                    <span class="admin-gate-badge">🔐 Post-Quantum Auth · Dilithium-5 (ML-DSA-87)</span>
+                    <span class="admin-gate-badge">
+                        <svg style="width:13px;height:13px;fill:currentColor;margin-right:4px;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                        Post-Quantum Auth · Dilithium-5 (ML-DSA-87)
+                    </span>
                     <h2 class="admin-gate-title" id="gateTitle">Acceso al Panel de Administrador</h2>
                 </div>
-                <button type="button" class="admin-close-btn" onclick="closeAdminPanelGate()" title="Cerrar">✕</button>
+                <button type="button" class="admin-close-btn" onclick="closeAdminPanelGate()" title="Cerrar">
+                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
             </div>
             <p class="admin-gate-desc">
                 Este panel requiere autenticación con la firma criptográfica post-cuántica <strong>Dilithium-5</strong> maestra almacenada en variables de entorno seguras. Pega tu firma criptográfica completa para desbloquear:
@@ -14153,7 +14176,9 @@ if (!headers_sent()) {
                         </svg>
                         <span>Export Report</span>
                     </button>
-                    <button type="button" class="admin-close-btn" onclick="toggleAdminPanel(false)" title="Cerrar Panel">✕</button>
+                    <button type="button" class="admin-close-btn" onclick="toggleAdminPanel(false)" title="Cerrar Panel">
+                        <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -14227,7 +14252,7 @@ if (!headers_sent()) {
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">authorization signature</span>
                                 <button type="button" class="admin-btn-authorized signed" id="c1_authSigBtn" onclick="stampSphincsSignature('card1')">
-                                    <span id="c1_authSigLabel">Authorized ✓</span>
+                                    <span id="c1_authSigLabel">Authorized</span>
                                 </button>
                             </div>
                         </div>
@@ -14254,22 +14279,22 @@ if (!headers_sent()) {
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">Number of tokens</span>
-                                <input type="number" class="admin-grid-input" id="c2_numTokens" placeholder="1000000" value="250000">
+                                <input type="text" class="admin-grid-input" id="c2_numTokens" placeholder="250000" value="250000">
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">cost per token</span>
-                                <div class="admin-grid-input-wrap">
-                                    <span style="font-size:11px;color:#666B73;">$</span>
-                                    <input type="text" id="c2_costPerToken" placeholder="0.00002" value="0.00015">
+                                <div class="admin-dollar-input-wrap">
+                                    <span>$</span>
+                                    <input type="text" class="admin-grid-input" id="c2_costPerToken" placeholder="0.00015" value="0.00015">
                                 </div>
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">ICAI page</span>
-                                <input type="text" class="admin-grid-input" id="c2_icaiPage" placeholder="p. 14-B" value="ICAI-v4">
+                                <input type="text" class="admin-grid-input" id="c2_icaiPage" placeholder="ICAI-v4" value="ICAI-v4">
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">NSPA Monthly</span>
-                                <input type="text" class="admin-grid-input" id="c2_nspaMonthly" placeholder="98.5%" value="100.0%">
+                                <input type="text" class="admin-grid-input" id="c2_nspaMonthly" placeholder="100.0%" value="100.0%">
                             </div>
                         </div>
                         <button type="button" class="admin-btn-submit" onclick="submitAdminCard(2)">
@@ -14295,31 +14320,27 @@ if (!headers_sent()) {
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">CORS Method</span>
-                                <div class="admin-checkbox-group">
-                                    <label class="admin-chk-label">
-                                        <input type="radio" name="c3_cors" value="Yes" checked> Yes
-                                    </label>
-                                    <label class="admin-chk-label">
-                                        <input type="radio" name="c3_cors" value="No"> No
-                                    </label>
+                                <div class="admin-cors-radios">
+                                    <label><input type="radio" name="c3_cors" value="Yes" checked> Y</label>
+                                    <label><input type="radio" name="c3_cors" value="No"> N</label>
                                 </div>
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">HASNA 371</span>
-                                <div class="admin-color-squares">
-                                    <div class="admin-color-square active" style="background:#E63333;" onclick="selectHasnaColor(this, '#E63333')" title="Rojo #E63333"></div>
-                                    <div class="admin-color-square" style="background:#33B34D;" onclick="selectHasnaColor(this, '#33B34D')" title="Verde #33B34D"></div>
-                                    <div class="admin-color-square" style="background:#3366E6;" onclick="selectHasnaColor(this, '#3366E6')" title="Azul #3366E6"></div>
-                                    <div class="admin-color-square" style="background:#FFFFFF;" onclick="selectHasnaColor(this, '#FFFFFF')" title="Blanco #FFFFFF"></div>
+                                <div class="admin-color-palette">
+                                    <div class="admin-color-square active" style="background:#E63333;" data-color="#E63333" onclick="selectHasnaColor(this, '#E63333')"></div>
+                                    <div class="admin-color-square" style="background:#33B34D;" data-color="#33B34D" onclick="selectHasnaColor(this, '#33B34D')"></div>
+                                    <div class="admin-color-square" style="background:#3366E6;" data-color="#3366E6" onclick="selectHasnaColor(this, '#3366E6')"></div>
+                                    <div class="admin-color-square" style="background:#FFFFFF; border:1px solid #BFC4CC;" data-color="#FFFFFF" onclick="selectHasnaColor(this, '#FFFFFF')"></div>
                                 </div>
                             </div>
                             <div class="admin-grid-row">
-                                <span class="admin-grid-label">How long did it take you to create it?</span>
-                                <input type="text" class="admin-grid-input" id="c3_timeToCreate" placeholder="4 hrs" value="12 mins">
+                                <span class="admin-grid-label">How long did it take you?</span>
+                                <input type="text" class="admin-grid-input" id="c3_timeToCreate" placeholder="12 mins" value="12 mins">
                             </div>
                             <div class="admin-grid-row">
-                                <span class="admin-grid-label">Do you have proof that you lasted as long as you say?</span>
-                                <input type="text" class="admin-grid-input" id="c3_proof" placeholder="Commit log" value="Git SHA-256">
+                                <span class="admin-grid-label">Do you have proof?</span>
+                                <input type="text" class="admin-grid-input" id="c3_proof" placeholder="Git SHA-256" value="Git SHA-256">
                             </div>
                         </div>
                         <button type="button" class="admin-btn-submit" onclick="submitAdminCard(3)">
@@ -14345,19 +14366,19 @@ if (!headers_sent()) {
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">Code manager ID card</span>
-                                <input type="text" class="admin-grid-input" id="c4_managerId" placeholder="ID-88410" value="MGR-01">
+                                <input type="text" class="admin-grid-input" id="c4_managerId" placeholder="MGR-01" value="MGR-01">
                             </div>
                             <div class="admin-grid-row">
-                                <span class="admin-grid-label">Legal name of the code creator</span>
+                                <span class="admin-grid-label">Legal name of creator</span>
                                 <input type="text" class="admin-grid-input" id="c4_creatorName" placeholder="Diktatcart" value="Diktatcart">
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">Phone number for calls</span>
-                                <input type="text" class="admin-grid-input" id="c4_phone" placeholder="+1..." value="+1 800 HASHCOD">
+                                <input type="text" class="admin-grid-input" id="c4_phone" placeholder="+1 800 HASHCOD" value="+1 800 HASHCOD">
                             </div>
                             <div class="admin-grid-row">
                                 <span class="admin-grid-label">Reply email</span>
-                                <input type="text" class="admin-grid-input" id="c4_email" placeholder="admin@..." value="admin@hashcod.io">
+                                <input type="email" class="admin-grid-input" id="c4_email" placeholder="admin@hashcod.io" value="admin@hashcod.io">
                             </div>
                         </div>
                         <button type="button" class="admin-btn-submit" onclick="submitAdminCard(4)">
@@ -14376,7 +14397,10 @@ if (!headers_sent()) {
                         <span id="adminTableStatusToast" style="display:none;font-size:12px;font-weight:600;color:#10B981;background:#ECFDF5;border:1px solid #A7F3D0;padding:3px 10px;border-radius:6px;"></span>
                     </div>
                     <div class="admin-filter-group">
-                        <button type="button" class="admin-filter-all-btn" style="background:#10B981;border-color:#10B981;" onclick="addNewAdminRow()">➕ + New Row</button>
+                        <button type="button" class="admin-filter-all-btn" style="background:#10B981;border-color:#10B981;display:inline-flex;align-items:center;gap:6px;" onclick="addNewAdminRow()">
+                            <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            <span>+ New Row</span>
+                        </button>
                         <div class="admin-filter-search">
                             <svg class="admin-grid-icon" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -14391,23 +14415,23 @@ if (!headers_sent()) {
                 <div class="admin-table-viewport">
                     <table class="admin-16col-table" id="adminMainDataTable">
                         <thead>
-                            <tr>
-                                <th style="width:82px;">identifier code</th>
-                                <th style="width:82px;">responsible party code</th>
-                                <th style="width:82px;">Platform code</th>
-                                <th style="width:82px;">authorization signature</th>
-                                <th style="width:82px;">Number of tokens</th>
-                                <th style="width:82px;">cost per token</th>
-                                <th style="width:82px;">ICAI page</th>
-                                <th style="width:82px;">NSPA Monthly</th>
-                                <th style="width:82px;">CORS Method</th>
-                                <th style="width:82px;">HASNA 371</th>
-                                <th style="width:82px;">How long did it take you to create it?</th>
-                                <th style="width:82px;">Do you have proof that you lasted as long as you say?</th>
-                                <th style="width:82px;">Code manager ID card</th>
-                                <th style="width:82px;">Legal name of the code creator</th>
-                                <th style="width:82px;">Phone number for calls</th>
-                                <th style="width:81px; border-right:none;">Reply email</th>
+                            <tr class="table-column-header-tr">
+                                <th style="width: 82.19px;">identifier code</th>
+                                <th style="width: 82.19px;">responsible party code</th>
+                                <th style="width: 82.19px;">Platform code</th>
+                                <th style="width: 82.19px;">authorization signature</th>
+                                <th style="width: 82.19px;">Number of tokens</th>
+                                <th style="width: 82.19px;">cost per token</th>
+                                <th style="width: 82.19px;">ICAI page</th>
+                                <th style="width: 82.19px;">NSPA Monthly</th>
+                                <th style="width: 82.19px;">CORS Method</th>
+                                <th style="width: 82.19px;">HASNA 371</th>
+                                <th style="width: 82.19px;">How long did it take you to create it?</th>
+                                <th style="width: 82.19px;">Do you have proof that you lasted as long as you say?</th>
+                                <th style="width: 82.19px;">Code manager ID card</th>
+                                <th style="width: 82.19px;">Legal name of the code creator</th>
+                                <th style="width: 82.19px;">Phone number for calls</th>
+                                <th style="width: 81.19px; border-right:none;">Reply email</th>
                             </tr>
                         </thead>
                         <tbody id="adminTableBody">
@@ -14436,10 +14460,15 @@ if (!headers_sent()) {
         <div class="admin-gate-card" style="width:min(820px, 96vw);">
             <div class="admin-gate-header">
                 <div>
-                    <span class="admin-gate-badge">⚡ Subir Código para Publicación</span>
+                    <span class="admin-gate-badge">
+                        <svg style="width:13px;height:13px;fill:currentColor;margin-right:4px;" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                        Subir Código para Publicación
+                    </span>
                     <h2 class="admin-gate-title" id="codeModalTitle">Platform Code (.py, .html, .ts, .js)</h2>
                 </div>
-                <button type="button" class="admin-close-btn" onclick="closePlatformCodeModal()">✕</button>
+                <button type="button" class="admin-close-btn" onclick="closePlatformCodeModal()">
+                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
             </div>
             <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -14456,7 +14485,10 @@ if (!headers_sent()) {
             <textarea class="admin-gate-textarea" id="platformCodeContent" style="height:220px;" placeholder="# Código de la plataforma..." spellcheck="false"></textarea>
             <div class="admin-gate-footer">
                 <button type="button" class="admin-gate-btn secondary" onclick="closePlatformCodeModal()">Cancelar</button>
-                <button type="button" class="admin-gate-btn" onclick="savePlatformCodeAttachment()">💾 Adjuntar Código a la Publicación</button>
+                <button type="button" class="admin-gate-btn" onclick="savePlatformCodeAttachment()">
+                    <svg style="width:13px;height:13px;fill:currentColor;margin-right:6px;" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+                    Adjuntar Código a la Publicación
+                </button>
             </div>
         </div>
     </div>
@@ -14466,10 +14498,15 @@ if (!headers_sent()) {
         <div class="admin-gate-card" style="width:min(680px, 94vw);">
             <div class="admin-gate-header">
                 <div>
-                    <span class="admin-gate-badge" style="background:#ECFDF5; color:#047857; border-color:#A7F3D0;">🛡️ Post-Quantum Security · SPHINCS+ (SLH-DSA)</span>
+                    <span class="admin-gate-badge" style="background:#ECFDF5; color:#047857; border-color:#A7F3D0;">
+                        <svg style="width:13px;height:13px;fill:currentColor;margin-right:4px;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                        Post-Quantum Security · SPHINCS+ (SLH-DSA)
+                    </span>
                     <h2 class="admin-gate-title" id="sphincsTitle">Firma Criptográfica Cuántica Generada</h2>
                 </div>
-                <button type="button" class="admin-close-btn" onclick="closeSphincsCertModal()">✕</button>
+                <button type="button" class="admin-close-btn" onclick="closeSphincsCertModal()">
+                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
             </div>
             <div style="background:#09090B; color:#A7F3D0; font-family:'Geist Mono', monospace; font-size:11px; padding:14px; border-radius:8px; line-height:1.6; word-break:break-all;" id="sphincsCertPayload"></div>
             <div class="admin-gate-footer">
@@ -14791,9 +14828,10 @@ if (!headers_sent()) {
                 const costTok = parseFloat(r.cost_per_token || 0.00015);
                 const totalCost = (numTok * costTok).toFixed(2);
 
-                document.getElementById('readTitle').textContent = `🚀 Publicación ${r.identifier_code} · ${r.creator_name || 'Diktatcart'}`;
+                document.getElementById('readTitle').textContent = `Publicación ${r.identifier_code} · ${r.creator_name || 'Diktatcart'}`;
                 document.getElementById('readCat').textContent = r.icai_page || 'ICAI-v3';
-                document.getElementById('readDate').textContent = '📅 2026-08-20';
+                const dateSpan = document.querySelector('#readDate span');
+                if (dateSpan) dateSpan.textContent = '2026-08-20';
                 document.getElementById('readViews').textContent = r.views || '1';
 
                 // Author strip
@@ -15161,14 +15199,14 @@ if (!headers_sent()) {
 
                 if (!sig) {
                     if (msgEl) {
-                        msgEl.textContent = '❌ Por favor ingresa la firma criptográfica Dilithium-5 completa.';
+                        msgEl.textContent = 'Por favor ingresa la firma criptográfica Dilithium-5 completa.';
                         msgEl.style.color = '#EF4444';
                     }
                     return;
                 }
 
                 if (msgEl) {
-                    msgEl.textContent = '⏳ Verificando firma criptográfica Dilithium-5 contra el entorno protegido...';
+                    msgEl.textContent = 'Verificando firma criptográfica Dilithium-5 contra el entorno protegido...';
                     msgEl.style.color = '#0284C7';
                 }
                 if (btn) btn.disabled = true;
@@ -15186,7 +15224,7 @@ if (!headers_sent()) {
                     if (data && data.ok) {
                         sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
                         if (msgEl) {
-                            msgEl.textContent = '✅ ' + (data.message || 'Firma Dilithium-5 válida. Acceso concedido.');
+                            msgEl.textContent = data.message || 'Firma Dilithium-5 válida. Acceso concedido.';
                             msgEl.style.color = '#10B981';
                         }
                         setTimeout(() => {
@@ -15197,7 +15235,7 @@ if (!headers_sent()) {
                     } else if (isPqcFormat) {
                         sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
                         if (msgEl) {
-                            msgEl.textContent = '✅ Firma Dilithium-5 verificada localmente. Acceso concedido.';
+                            msgEl.textContent = 'Firma Dilithium-5 verificada localmente. Acceso concedido.';
                             msgEl.style.color = '#10B981';
                         }
                         setTimeout(() => {
@@ -15207,7 +15245,7 @@ if (!headers_sent()) {
                         return;
                     } else {
                         if (msgEl) {
-                            msgEl.textContent = '❌ ' + ((data && data.error) || 'Firma Dilithium-5 inválida.');
+                            msgEl.textContent = ((data && data.error) || 'Firma Dilithium-5 inválida.');
                             msgEl.style.color = '#EF4444';
                         }
                     }
@@ -15215,7 +15253,7 @@ if (!headers_sent()) {
                     if (isPqcFormat) {
                         sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
                         if (msgEl) {
-                            msgEl.textContent = '✅ Firma Dilithium-5 verificada. Acceso concedido.';
+                            msgEl.textContent = 'Firma Dilithium-5 verificada. Acceso concedido.';
                             msgEl.style.color = '#10B981';
                         }
                         setTimeout(() => {
@@ -15224,7 +15262,7 @@ if (!headers_sent()) {
                         }, 400);
                     } else {
                         if (msgEl) {
-                            msgEl.textContent = '❌ Error al verificar firma criptográfica.';
+                            msgEl.textContent = 'Error al verificar firma criptográfica.';
                             msgEl.style.color = '#EF4444';
                         }
                     }
@@ -15618,7 +15656,7 @@ if (!headers_sent()) {
                     `**Responsable de Código:** \`${row.responsible_code}\` | **Manager ID:** \`${row.manager_id}\`\n` +
                     `**Firma Criptográfica:** \`${row.auth_signature}\`\n` +
                     `**Digest:** \`${row.auth_signature_digest || 'SLH-DSA-SHAKE-256s-OK'}\`\n\n` +
-                    `#### 📊 Métricas y Parámetros:\n` +
+                    `#### Métricas y Parámetros:\n` +
                     `- **Tokens Procesados:** ${row.num_tokens}\n` +
                     `- **Costo por Token:** $${row.cost_per_token}\n` +
                     `- **Página ICAI:** ${row.icai_page}\n` +
@@ -15628,7 +15666,7 @@ if (!headers_sent()) {
                     `- **Prueba de Creación:** ${row.proof}\n\n`;
 
                 if (row.platform_code) {
-                    postContent += `#### 💻 Código Adjunto (${row.platform_code_name || 'script'}):\n` +
+                    postContent += `#### Código Adjunto (${row.platform_code_name || 'script'}):\n` +
                         '```' + (row.platform_code_lang || '') + '\n' +
                         row.platform_code + '\n' +
                         '```\n';
@@ -15663,8 +15701,8 @@ if (!headers_sent()) {
                     window.renderExcelTable();
                 }
 
-                showAdminToast(`🚀 ¡Publicación [${newArticle.id}] lanzada y visible en el Blog Excel!`);
-                alert(`🚀 ¡Publicación [${newArticle.id}] lanzada y sincronizada con éxito en el Blog de Publicaciones (Vista Excel)!\n\nPuedes abrir el primer círculo (slot-1-1) para verla en la hoja de cálculo.`);
+                showAdminToast(`Publicación [${newArticle.id}] lanzada y visible en el Blog Excel.`);
+                alert(`Publicación [${newArticle.id}] lanzada y sincronizada con éxito en el Blog de Publicaciones (Vista Excel).\n\nPuedes abrir el primer círculo (slot-1-1) para verla en la hoja de cálculo.`);
             };
 
             window.exportAdminReport = function () {

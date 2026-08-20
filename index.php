@@ -4367,9 +4367,11 @@ if (!headers_sent()) {
 
         .excel-blog-overlay.open {
             display: flex;
-            opacity: 1;
-        }
+        /* =========================================================================
+           FIGMA SPECIFICATION: TABLE-SECTION-CARD & MEGA-CREATOR ILLUSTRATION
+           ========================================================================= */
 
+        /* table-section-card */
         .excel-blog-shell.table-section-card,
         .table-section-card {
             box-sizing: border-box;
@@ -4378,19 +4380,128 @@ if (!headers_sent()) {
             align-items: flex-start;
             padding: 0px;
             isolation: isolate;
-            width: min(1380px, 98vw);
-            max-height: 92vh;
+            position: relative;
+            width: 100%;
+            max-width: 1360px;
+            min-height: 444px;
             background: #FFFFFF;
             border: 1px solid #E4E4E7;
-            border-radius: 14px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
-            position: relative;
+            border-radius: 12px;
             overflow: hidden;
-            flex: none;
-            order: 2;
-            align-self: stretch;
-            flex-grow: 0;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12);
+            margin: 0 auto;
         }
+
+        /* mega-creator vector illustration */
+        .mega-creator {
+            position: absolute;
+            width: 200px;
+            height: 212px;
+            left: 0px;
+            top: -20px;
+            opacity: 0.55;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .mega-creator .mc-group-1 {
+            position: absolute;
+            left: 1.8%;
+            right: 24.22%;
+            top: 11.58%;
+            bottom: 10.93%;
+            transform: matrix(0.99, -0.12, 0.12, 0.99, 0, 0);
+        }
+
+        .mega-creator .mc-shape-1 {
+            position: absolute;
+            inset: 0;
+            background: #737885;
+            opacity: 0.18;
+            border-radius: 4px;
+        }
+
+        .mega-creator .mc-shape-2 {
+            position: absolute;
+            left: 1.91%;
+            right: 24.3%;
+            top: 11.67%;
+            bottom: 11.02%;
+            background: linear-gradient(336.83deg, #CCCCCC -7.38%, #EEEEEE 52.35%);
+            border-radius: 3px;
+        }
+
+        .mega-creator .mc-group-2 {
+            position: absolute;
+            left: 9.94%;
+            right: 14.53%;
+            top: 6.5%;
+            bottom: 15.67%;
+        }
+
+        .mega-creator .mc-inner-grad {
+            position: absolute;
+            left: 10.03%;
+            right: 14.62%;
+            top: 6.58%;
+            bottom: 15.75%;
+            background: linear-gradient(145.83deg, #FFFFFF 20.77%, #EEEEEE 103.45%);
+            border: 1px solid #737885;
+            border-radius: 3px;
+        }
+
+        .mega-creator .mc-line {
+            position: absolute;
+            background: #737885;
+            border-radius: 1px;
+        }
+        .mega-creator .mc-line.l1 { left: 22.32%; right: 56.07%; top: 14.41%; height: 2px; }
+        .mega-creator .mc-line.l2 { left: 17.45%; right: 73%; top: 27.78%; height: 2px; }
+        .mega-creator .mc-line.l3 { left: 42.48%; right: 44.6%; top: 33.14%; height: 2px; }
+        .mega-creator .mc-line.l4 { left: 39.31%; right: 52.47%; top: 54.09%; height: 2px; }
+        .mega-creator .mc-line.l5 { left: 43.57%; right: 48.79%; top: 72.98%; height: 2px; }
+        .mega-creator .mc-line.l6 { left: 27.75%; right: 46.94%; top: 17.32%; height: 2px; }
+        .mega-creator .mc-line.l7 { left: 19.93%; right: 44.79%; top: 22.05%; height: 2px; }
+        .mega-creator .mc-line.l8 { left: 22.41%; right: 42.31%; top: 26.82%; height: 2px; }
+        .mega-creator .mc-line.l9 { left: 24.86%; right: 57.89%; top: 39.24%; height: 2px; }
+        .mega-creator .mc-line.l10 { left: 55.71%; right: 39.76%; top: 31.62%; height: 2px; }
+        .mega-creator .mc-line.l11 { left: 30.13%; right: 34.59%; top: 41.22%; height: 2px; }
+        .mega-creator .mc-line.l12 { left: 35.52%; right: 29.16%; top: 50.46%; height: 2px; }
+
+        .mega-creator .mc-group-3 {
+            position: absolute;
+            left: 62.48%;
+            right: 1.32%;
+            top: 26.96%;
+            bottom: 54.88%;
+            transform: matrix(0.88, -0.47, 0.47, 0.88, 0, 0);
+        }
+
+        .mega-creator .mc-rot-grad {
+            position: absolute;
+            left: 64.75%;
+            right: 2.06%;
+            top: 27.32%;
+            bottom: 54.91%;
+            background: linear-gradient(139.47deg, #B3B3B3 48.32%, #747474 56.85%);
+            border-radius: 2px;
+        }
+
+        .mega-creator .mc-rot-line {
+            position: absolute;
+            background: #737885;
+            border-radius: 1px;
+            transform: matrix(0.88, -0.47, 0.47, 0.88, 0, 0);
+        }
+        .mega-creator .mc-rot-line.r1 { left: 70.32%; right: 26%; top: 54.33%; height: 2px; }
+        .mega-creator .mc-rot-line.r2 { left: 71.23%; right: 28.09%; top: 58.06%; height: 2px; }
+        .mega-creator .mc-rot-line.r3 { left: 91.98%; right: 5.25%; top: 27.07%; height: 2px; }
+        .mega-creator .mc-rot-line.r4 { left: 81.24%; right: 6.06%; top: 29.45%; height: 2px; }
+        .mega-creator .mc-rot-line.r5 { left: 91.72%; right: 6.3%; top: 31.8%; height: 2px; }
 
         /* table-header-controls */
         .table-header-controls {
@@ -4399,45 +4510,30 @@ if (!headers_sent()) {
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            padding: 18px 24px;
+            padding: 24px;
             width: 100%;
-            height: 72px;
-            border-bottom: 1px solid #E4E4E7;
-            background: #FFFFFF;
-            z-index: 1;
+            height: 80px;
             flex: none;
             order: 1;
             align-self: stretch;
             flex-grow: 0;
+            z-index: 1;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E4E4E7;
             gap: 16px;
         }
 
-        .table-title {
-            width: auto;
-            min-width: 240px;
+        .table-title-text {
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
             font-weight: 700;
             font-size: 16px;
-            line-height: 22px;
+            line-height: 21px;
             color: #09090B;
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex: none;
-            order: 0;
-            flex-grow: 0;
-        }
-
-        .table-title-badge {
-            background: #F4F4F5;
-            color: #52525B;
-            border: 1px solid #E4E4E7;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: 'Geist Mono', monospace;
+            gap: 8px;
+            white-space: nowrap;
         }
 
         .filter-group {
@@ -4457,48 +4553,40 @@ if (!headers_sent()) {
             display: flex;
             flex-direction: row;
             align-items: center;
-            padding: 6px 12px;
+            padding: 8px 12px;
             gap: 8px;
-            width: 220px;
-            height: 34px;
+            width: 200px;
+            height: 32px;
             border: 1px solid #E4E4E7;
             border-radius: 6px;
             background: #FFFFFF;
             flex: none;
             order: 0;
             flex-grow: 0;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            transition: border-color 0.15s ease;
         }
 
         .filter-search:focus-within {
             border-color: #09090B;
-            box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.08);
-        }
-
-        .filter-search svg {
-            width: 13px;
-            height: 13px;
-            flex: none;
-            fill: #71717A;
         }
 
         .filter-search input {
-            width: 100%;
-            height: 18px;
-            border: none;
-            outline: none;
+            width: 156px;
+            height: 16px;
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
             font-weight: 400;
             font-size: 12px;
-            line-height: 18px;
+            line-height: 16px;
             color: #09090B;
+            border: none;
+            outline: none;
             background: transparent;
             flex-grow: 1;
         }
 
         .filter-search input::placeholder {
-            color: #A1A1AA;
+            color: #71717A;
         }
 
         .filter-all {
@@ -4506,33 +4594,36 @@ if (!headers_sent()) {
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 6px 12px;
-            height: 34px;
-            background: #09090B;
+            padding: 8px 12px;
+            width: 71px;
+            height: 32px;
+            background: #000000;
             border-radius: 6px;
-            border: 1px solid #09090B;
-            color: #FFFFFF;
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
             font-weight: 600;
             font-size: 12px;
+            line-height: 16px;
+            color: #FFFFFF;
+            border: none;
             cursor: pointer;
             flex: none;
-            transition: all 0.15s ease;
+            order: 1;
+            flex-grow: 0;
+            transition: background 0.15s ease;
             white-space: nowrap;
         }
 
         .filter-all:hover {
             background: #27272A;
-            border-color: #27272A;
         }
 
         .btn-card-close {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             background: #F4F4F5;
             border: 1px solid #E4E4E7;
             border-radius: 6px;
@@ -4551,13 +4642,14 @@ if (!headers_sent()) {
 
         /* data-table */
         .data-table-wrap {
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             padding: 0px;
             width: 100%;
-            min-height: 280px;
-            max-height: calc(92vh - 150px);
+            min-height: 296px;
+            max-height: calc(85vh - 160px);
             overflow-x: auto;
             overflow-y: auto;
             flex: none;
@@ -4568,18 +4660,20 @@ if (!headers_sent()) {
             background: #FFFFFF;
         }
 
-        .data-table-wrap table {
+        .data-table-wrap table,
+        .admin-16col-table {
             width: 100%;
-            min-width: 1420px;
+            min-width: 1360px;
             border-collapse: collapse;
         }
 
         /* table-column-header */
         .table-column-header-tr {
             box-sizing: border-box;
-            height: 50px;
+            display: table-row;
+            height: 56px;
             background: #F4F4F5;
-            border-bottom: 1px solid #E4E4E7;
+            border: 1px solid #E4E4E7;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -4587,35 +4681,39 @@ if (!headers_sent()) {
 
         .table-column-header-tr th {
             box-sizing: border-box;
-            height: 50px;
-            padding: 4px 6px;
+            height: 56px;
+            padding: 0px 2px;
             border-right: 1px solid #E0E3E8;
             border-bottom: 1px solid #E4E4E7;
             font-family: 'Inter', sans-serif;
             font-style: normal;
-            font-weight: 600;
-            font-size: 10px;
-            line-height: 13px;
+            font-weight: 400;
+            font-size: 9px;
+            line-height: 11px;
             text-align: center;
-            color: #52525B;
+            color: #595E66;
             vertical-align: middle;
             background: #F4F4F5;
             user-select: none;
-            white-space: normal;
+            width: 82.19px;
+            min-width: 82.19px;
         }
 
         .table-column-header-tr th:last-child {
             border-right: none;
         }
 
-        /* table row */
+        /* Rows */
         .table-data-tr {
             box-sizing: border-box;
-            height: 42px;
-            background: #FFFFFF;
+            height: 40px;
             border-bottom: 1px solid #EBEDF0;
             transition: background 0.12s ease;
             cursor: pointer;
+        }
+
+        .table-data-tr:nth-child(odd) {
+            background: #FFFFFF;
         }
 
         .table-data-tr:nth-child(even) {
@@ -4637,34 +4735,39 @@ if (!headers_sent()) {
 
         .table-data-tr td {
             box-sizing: border-box;
-            height: 42px;
-            padding: 2px 4px;
+            height: 39px;
+            padding: 0px;
             border-right: 1px solid #EBEDF0;
             border-bottom: 1px solid #EBEDF0;
             text-align: center;
             vertical-align: middle;
-            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            width: 82.19px;
+            min-width: 82.19px;
         }
 
         .table-data-tr td:last-child {
             border-right: none;
         }
 
-        /* cell inputs & widgets matching Figma spec */
-        .cell-input-field {
+        /* input-field matching Figma */
+        .input-field-figma,
+        .cell-input-field,
+        .admin-cell-input {
             box-sizing: border-box;
             display: inline-flex;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 2px 6px;
-            width: 94%;
-            max-width: 100%;
-            height: 26px;
+            padding: 0px 4px;
+            width: 60px;
+            height: 24px;
             background: #F9FAFB;
             border: 1px solid #E0E2E6;
-            border-radius: 4px;
-            font-family: 'Geist Mono', 'Inter', monospace;
-            font-size: 11px;
+            border-radius: 3px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
             color: #09090B;
             text-align: center;
             outline: none;
@@ -4674,12 +4777,33 @@ if (!headers_sent()) {
             overflow: hidden;
         }
 
-        .cell-input-field:focus {
+        .input-field-figma:focus,
+        .cell-input-field:focus,
+        .admin-cell-input:focus {
             background: #FFFFFF;
             border-color: #09090B;
-            box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.1);
         }
 
+        /* read-only badge in blog view */
+        .blog-cell-badge {
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0px 4px;
+            max-width: 76px;
+            height: 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: #09090B;
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        /* dollar-input matching Figma */
+        .dollar-input-figma,
         .cell-dollar-wrap {
             box-sizing: border-box;
             display: inline-flex;
@@ -4688,91 +4812,98 @@ if (!headers_sent()) {
             justify-content: center;
             padding: 0px 4px;
             gap: 2px;
-            width: 90%;
-            height: 26px;
+            width: 60px;
+            height: 24px;
             background: #F9FAFB;
             border: 1px solid #E0E2E6;
-            border-radius: 4px;
+            border-radius: 3px;
         }
 
+        .dollar-input-figma span,
         .cell-dollar-wrap span {
             font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 10px;
-            color: #059669;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 9px;
+            line-height: 11px;
+            color: #666B73;
         }
 
+        .dollar-input-figma input,
         .cell-dollar-wrap input {
-            width: 75%;
+            width: 44px;
+            height: 20px;
             border: none;
             background: transparent;
-            font-family: 'Geist Mono', monospace;
-            font-size: 11px;
-            color: #09090B;
             outline: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: #09090B;
             text-align: center;
         }
 
-        .cell-home-icon-btn {
+        /* home/code icon matching Figma */
+        .cell-home-icon-btn,
+        .admin-cell-code-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            background: #F4F4F5;
-            border: 1px solid #E4E4E7;
-            border-radius: 6px;
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: none;
             cursor: pointer;
-            transition: all 0.15s ease;
-            color: #09090B;
+            color: #000000;
+            transition: transform 0.12s ease;
         }
 
-        .cell-home-icon-btn:hover {
-            background: #09090B;
-            color: #FFFFFF;
-            border-color: #09090B;
-            transform: scale(1.08);
+        .cell-home-icon-btn:hover,
+        .admin-cell-code-btn:hover {
+            transform: scale(1.15);
         }
 
-        .cell-home-icon-btn svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
+        .cell-home-icon-btn svg,
+        .admin-cell-code-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #000000;
         }
 
-        .cell-btn-auth {
+        /* btn-auth matching Figma */
+        .btn-auth-figma,
+        .cell-btn-auth,
+        .admin-cell-btn-auth {
             box-sizing: border-box;
             display: inline-flex;
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            padding: 3px 8px;
-            min-width: 68px;
-            height: 24px;
+            padding: 0px;
+            width: 58px;
+            height: 20px;
             background: #FFFFFF;
             border: 1px solid #D1D6DB;
-            border-radius: 4px;
-            font-family: 'Geist', sans-serif;
+            border-radius: 3px;
+            font-family: 'Inter', sans-serif;
             font-style: normal;
-            font-weight: 600;
-            font-size: 9px;
+            font-weight: 400;
+            font-size: 7px;
+            line-height: 8px;
             color: #000000;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.12s ease;
         }
 
-        .cell-btn-auth:hover {
-            border-color: #09090B;
-            transform: scale(1.04);
-        }
-
-        .cell-btn-auth.signed {
+        .btn-auth-figma.signed,
+        .cell-btn-auth.signed,
+        .admin-cell-btn-auth.signed {
             background: #ECFDF5;
             border-color: #10B981;
             color: #047857;
             font-weight: 700;
         }
 
+        /* checkboxes matching Figma */
         .cell-checkboxes {
             display: inline-flex;
             flex-direction: row;
@@ -4780,16 +4911,17 @@ if (!headers_sent()) {
             justify-content: center;
             padding: 0px;
             gap: 4px;
-            height: 14px;
+            width: 43px;
+            height: 10px;
         }
 
         .cell-chk-box {
             box-sizing: border-box;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: #F2F5F7;
             border: 1px solid #B3B8BF;
-            border-radius: 3px;
+            border-radius: 2px;
             display: inline-block;
         }
 
@@ -4799,35 +4931,148 @@ if (!headers_sent()) {
         }
 
         .cell-chk-label {
+            width: auto;
             font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 9px;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 7px;
+            line-height: 8px;
             color: #4D4D4D;
         }
 
+        /* color squares matching Figma */
         .cell-color-squares {
             display: inline-flex;
             flex-direction: row;
             align-items: center;
             justify-content: center;
             padding: 0px;
-            gap: 3px;
-            height: 14px;
+            gap: 2px;
+            width: 46px;
+            height: 10px;
         }
 
         .cell-color-rect {
             box-sizing: border-box;
-            width: 12px;
-            height: 12px;
-            border: 1px solid #BFC4CC;
-            border-radius: 2px;
-            transition: transform 0.15s ease;
+            width: 10px;
+            height: 10px;
+            border: 0.5px solid #BFC4CC;
+            border-radius: 1px;
+            transition: transform 0.12s ease;
+            cursor: pointer;
         }
 
         .cell-color-rect.active {
-            transform: scale(1.25);
-            outline: 1.5px solid #09090B;
-            box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+            transform: scale(1.3);
+            outline: 1px solid #000000;
+            z-index: 1;
+        }
+
+        /* table-footer matching Figma */
+        .table-footer {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            height: 68px;
+            flex: none;
+            order: 3;
+            align-self: stretch;
+            flex-grow: 0;
+            z-index: 3;
+            border-top: 1px solid #E4E4E7;
+            background: #FFFFFF;
+        }
+
+        .footer-note,
+        .footer-validation-msg {
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            color: #71717A;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pagination-group,
+        .footer-pagination {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px;
+            gap: 8px;
+            height: 28px;
+            flex: none;
+            order: 1;
+            flex-grow: 0;
+        }
+
+        .btn-prev {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            width: 74px;
+            height: 28px;
+            border: 1px solid #E4E4E7;
+            border-radius: 4px;
+            background: #FFFFFF;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 16px;
+            color: #71717A;
+            cursor: pointer;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+            transition: all 0.15s ease;
+        }
+
+        .btn-prev:hover {
+            background: #F4F4F5;
+            color: #09090B;
+            border-color: #D4D4D8;
+        }
+
+        .btn-next {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            width: 134px;
+            height: 28px;
+            border: 1px solid #E4E4E7;
+            border-radius: 4px;
+            background: #FFFFFF;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 16px;
+            color: #09090B;
+            cursor: pointer;
+            flex: none;
+            order: 1;
+            flex-grow: 0;
+            transition: all 0.15s ease;
+        }
+
+        .btn-next:hover {
+            background: #09090B;
+            color: #FFFFFF;
+            border-color: #09090B;
         }
 
         /* Column Header with Delete Action */
@@ -14034,27 +14279,54 @@ if (!headers_sent()) {
          ========================================================================= -->
     <div class="excel-blog-overlay" id="excelBlogOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="excelBlogTitle">
         <div class="excel-blog-shell table-section-card">
+            <!-- mega-creator Vector Illustration -->
+            <div class="mega-creator" aria-hidden="true">
+                <div class="mc-group-1">
+                    <div class="mc-shape-1"></div>
+                    <div class="mc-shape-2"></div>
+                </div>
+                <div class="mc-group-2">
+                    <div class="mc-inner-grad"></div>
+                    <div class="mc-line l1"></div>
+                    <div class="mc-line l2"></div>
+                    <div class="mc-line l3"></div>
+                    <div class="mc-line l4"></div>
+                    <div class="mc-line l5"></div>
+                    <div class="mc-line l6"></div>
+                    <div class="mc-line l7"></div>
+                    <div class="mc-line l8"></div>
+                    <div class="mc-line l9"></div>
+                    <div class="mc-line l10"></div>
+                    <div class="mc-line l11"></div>
+                    <div class="mc-line l12"></div>
+                </div>
+                <div class="mc-group-3">
+                    <div class="mc-rot-grad"></div>
+                    <div class="mc-rot-line r1"></div>
+                    <div class="mc-rot-line r2"></div>
+                    <div class="mc-rot-line r3"></div>
+                    <div class="mc-rot-line r4"></div>
+                    <div class="mc-rot-line r5"></div>
+                </div>
+            </div>
+
             <!-- table-header-controls -->
             <div class="table-header-controls">
-                <div class="table-title" id="excelBlogTitle">
-                    <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;" aria-hidden="true">
+                <div class="table-title-text" id="excelBlogTitle">
+                    <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;" aria-hidden="true">
                         <path d="M 10.376953 1.9765625 C 9.787168 1.9765555 9.1973513 2.1369377 8.6777344 2.4589844 A 1.0001 1.0001 0 0 0 8.6757812 2.4589844 L 7.9101562 2.9355469 L 7.0097656 3.0019531 C 5.790157 3.0903096 4.7216027 3.8663998 4.2597656 5 L 3.9179688 5.8359375 L 3.2285156 6.4179688 C 2.2949033 7.206835 1.8871479 8.4628535 2.1796875 9.6503906 L 2.3945312 10.527344 L 2.1796875 11.402344 C 1.9283596 12.41756 2.1926714 13.48079 2.8574219 14.261719 L 2.7421875 14.179688 C 2.7421875 14.179688 4.5693281 18.566531 5.4863281 20.769531 C 5.7973281 21.514531 6.5259844 22 7.3339844 22 L 20.017578 22 C 20.548578 22 21.056641 21.788109 21.431641 21.412109 C 21.806641 21.036109 22.017578 20.527094 22.017578 19.996094 C 22.013578 17.150094 22.004953 12.048312 22.001953 9.9453125 C 22.000953 9.3473125 21.731531 8.7793906 21.269531 8.4003906 C 19.612531 7.0423906 15.712891 3.8476563 15.712891 3.8476562 L 15.722656 3.8769531 C 15.191727 3.3749897 14.496419 3.0565298 13.742188 3.0019531 L 12.841797 2.9355469 L 12.076172 2.4589844 C 11.556794 2.1366366 10.966738 1.9765695 10.376953 1.9765625 z M 10.376953 3.9746094 C 10.600706 3.9746846 10.823863 4.0355509 11.021484 4.1582031 L 11.996094 4.7636719 A 1.0001 1.0001 0 0 0 12.451172 4.9121094 L 13.597656 4.9960938 C 14.063382 5.0297937 14.463164 5.3217602 14.638672 5.7539062 A 1.0001 1.0001 0 0 0 14.640625 5.7558594 L 15.074219 6.8183594 A 1.0001 1.0001 0 0 0 15.353516 7.203125 L 16.230469 7.9453125 A 1.0001 1.0001 0 0 0 16.232422 7.9472656 C 16.589529 8.2485402 16.74232 8.7194121 16.630859 9.171875 L 16.355469 10.287109 A 1.0001 1.0001 0 0 0 16.355469 10.765625 L 16.630859 11.880859 C 16.742569 12.334886 16.589529 12.806147 16.232422 13.107422 L 15.355469 13.849609 A 1.0001 1.0001 0 0 0 15.074219 14.234375 L 14.640625 15.298828 A 1.0001 1.0001 0 0 0 14.638672 15.300781 C 14.463276 15.732652 14.062995 16.024226 13.595703 16.058594 L 12.451172 16.142578 A 1.0001 1.0001 0 0 0 11.996094 16.289062 L 11.019531 16.894531 A 1.0001 1.0001 0 0 0 11.019531 16.896484 C 10.622885 17.142869 10.127115 17.142869 9.7304688 16.896484 A 1.0001 1.0001 0 0 0 9.7304688 16.894531 L 8.7539062 16.289062 A 1.0001 1.0001 0 0 0 8.3007812 16.142578 L 7.1542969 16.058594 C 6.6883359 16.024283 6.286449 15.731975 6.1113281 15.300781 L 5.6777344 14.236328 A 1.0001 1.0001 0 0 0 5.3964844 13.849609 L 4.5195312 13.107422 C 4.1628849 12.806536 4.0092437 12.334622 4.1210938 11.882812 A 1.0001 1.0001 0 0 0 4.1210938 11.880859 L 4.3964844 10.765625 A 1.0001 1.0001 0 0 0 4.3964844 10.287109 L 4.1210938 9.171875 C 4.0096334 8.7194121 4.1631436 8.2464462 4.5195312 7.9453125 L 5.3984375 7.203125 A 1.0001 1.0001 0 0 0 5.6777344 6.8164062 L 6.1113281 5.7539062 C 6.287491 5.3215064 6.6899055 5.0297373 7.1542969 4.9960938 L 8.3007812 4.9121094 A 1.0001 1.0001 0 0 0 8.7558594 4.7636719 L 9.7304688 4.1582031 C 9.9288519 4.0352499 10.1532 3.9745341 10.376953 3.9746094 z M 12.980469 7.9902344 A 1.0001 1.0001 0 0 0 12.292969 8.2929688 L 10 10.585938 L 9.2070312 9.7929688 A 1.0001 1.0001 0 1 0 7.7929688 11.207031 L 9.2929688 12.707031 A 1.0001 1.0001 0 0 0 10.707031 12.707031 L 13.707031 9.7070312 A 1.0001 1.0001 0 0 0 12.980469 7.9902344 z"/>
                     </svg>
                     <span>Publications and Preview Blog</span>
                 </div>
                 <div class="filter-group">
-                    <button type="button" class="btn-restore-cols" id="blogRestoreColsBtn" onclick="restoreAllColumns()" style="display:none;" title="Restaurar columnas eliminadas">
-                        <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-                        <span>Restaurar Columnas</span>
-                    </button>
                     <div class="filter-search">
-                        <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
-                        <input type="text" id="excelBlogSearchInput" placeholder="Search user..." oninput="filterExcelBlogTable()">
+                        <svg class="admin-grid-icon" style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="excelBlogSearchInput" placeholder="Search user..." oninput="filterExcelBlog()">
                     </div>
                     <button type="button" class="filter-all" onclick="resetExcelBlogFilter()">View All</button>
-                    <button type="button" class="btn-card-close" onclick="toggleExcelBlog(false)" title="Cerrar ventana">
-                        <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                    </button>
+                    <button type="button" class="btn-card-close" onclick="toggleExcelBlog(false)" title="Cerrar ventana">✕</button>
                 </div>
             </div>
 
@@ -14063,37 +14335,34 @@ if (!headers_sent()) {
                 <table class="admin-16col-table" id="excelBlogTable">
                     <thead>
                         <tr class="table-column-header-tr">
-                            <th style="min-width: 90px;">identifier code</th>
-                            <th style="min-width: 95px;">responsible party code</th>
-                            <th style="min-width: 72px;">Platform code</th>
-                            <th style="min-width: 95px;">authorization signature</th>
-                            <th style="min-width: 95px;">Number of tokens</th>
-                            <th style="min-width: 95px;">cost per token</th>
-                            <th style="min-width: 85px;">ICAI page</th>
-                            <th style="min-width: 90px;">NSPA Monthly</th>
-                            <th style="min-width: 82px;">CORS Method</th>
-                            <th style="min-width: 82px;">HASNA 371</th>
-                            <th style="min-width: 110px;">How long did it take you to create it?</th>
-                            <th style="min-width: 135px;">Do you have proof that you lasted as long as you say?</th>
-                            <th style="min-width: 95px;">Code manager ID card</th>
-                            <th style="min-width: 120px;">Legal name of the code creator</th>
-                            <th style="min-width: 135px;">Phone number for calls</th>
-                            <th style="min-width: 160px; border-right:none;">Reply email</th>
+                            <th style="min-width: 82.19px;">identifier code</th>
+                            <th style="min-width: 82.19px;">responsible party code</th>
+                            <th style="min-width: 82.19px;">Platform code</th>
+                            <th style="min-width: 82.19px;">authorization signature</th>
+                            <th style="min-width: 82.19px;">Number of tokens</th>
+                            <th style="min-width: 82.19px;">cost per token</th>
+                            <th style="min-width: 82.19px;">ICAI page</th>
+                            <th style="min-width: 82.19px;">NSPA Monthly</th>
+                            <th style="min-width: 82.19px;">CORS Method</th>
+                            <th style="min-width: 82.19px;">HASNA 371</th>
+                            <th style="min-width: 82.19px;">How long did it take you to create it?</th>
+                            <th style="min-width: 82.19px;">Do you have proof that you lasted as long as you say?</th>
+                            <th style="min-width: 82.19px;">Code manager ID card</th>
+                            <th style="min-width: 82.19px;">Legal name of the code creator</th>
+                            <th style="min-width: 82.19px;">Phone number for calls</th>
+                            <th style="min-width: 81.19px; border-right:none;">Reply email</th>
                         </tr>
                     </thead>
                     <tbody id="excelBlogTableBody">
-                        <!-- Dynamically filled with identical 16 columns from shared publication database -->
+                        <!-- Filled with preview rows -->
                     </tbody>
                 </table>
             </div>
 
             <!-- table-footer -->
             <div class="table-footer">
-                <div class="footer-validation-msg">
-                    <svg style="width:14px;height:14px;fill:currentColor;color:#2563EB;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                    <span>Select an article to view metrics, verified code and publication details</span>
-                </div>
-                <div class="footer-pagination">
+                <span class="footer-note">Select the one that fits and the one you want to validate</span>
+                <div class="pagination-group">
                     <button type="button" class="btn-prev" onclick="blogPrevRow()">Previous</button>
                     <button type="button" class="btn-next" onclick="openSelectedBlogArticle()" title="Abrir lector de la publicación seleccionada">
                         <svg style="width:14px;height:14px;fill:currentColor;margin-right:6px;" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
@@ -14101,6 +14370,8 @@ if (!headers_sent()) {
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
 
             <!-- Real-World Publication Reader & Code Sandbox Modal -->
             <div class="excel-post-modal" id="excelReaderModal">
@@ -14481,68 +14752,100 @@ if (!headers_sent()) {
             </div>
 
             <!-- Table Section Card (table-section-card) -->
-            <div class="admin-table-card">
+            <div class="table-section-card" style="margin-top: 16px;">
+                <!-- mega-creator Vector Illustration -->
+                <div class="mega-creator" aria-hidden="true">
+                    <div class="mc-group-1">
+                        <div class="mc-shape-1"></div>
+                        <div class="mc-shape-2"></div>
+                    </div>
+                    <div class="mc-group-2">
+                        <div class="mc-inner-grad"></div>
+                        <div class="mc-line l1"></div>
+                        <div class="mc-line l2"></div>
+                        <div class="mc-line l3"></div>
+                        <div class="mc-line l4"></div>
+                        <div class="mc-line l5"></div>
+                        <div class="mc-line l6"></div>
+                        <div class="mc-line l7"></div>
+                        <div class="mc-line l8"></div>
+                        <div class="mc-line l9"></div>
+                        <div class="mc-line l10"></div>
+                        <div class="mc-line l11"></div>
+                        <div class="mc-line l12"></div>
+                    </div>
+                    <div class="mc-group-3">
+                        <div class="mc-rot-grad"></div>
+                        <div class="mc-rot-line r1"></div>
+                        <div class="mc-rot-line r2"></div>
+                        <div class="mc-rot-line r3"></div>
+                        <div class="mc-rot-line r4"></div>
+                        <div class="mc-rot-line r5"></div>
+                    </div>
+                </div>
+
                 <!-- Header Controls -->
-                <div class="admin-table-header-controls">
+                <div class="table-header-controls">
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <h3 class="admin-table-title">Publications and Preview Blog</h3>
+                        <span class="table-title-text">Publications and Preview Blog</span>
                         <span id="adminTableStatusToast" style="display:none;font-size:12px;font-weight:600;color:#10B981;background:#ECFDF5;border:1px solid #A7F3D0;padding:3px 10px;border-radius:6px;"></span>
                     </div>
-                    <div class="admin-filter-group">
+                    <div class="filter-group">
                         <button type="button" class="btn-restore-cols" id="adminRestoreColsBtn" onclick="restoreAllColumns()" style="display:none;" title="Restaurar columnas eliminadas">
                             <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
                             <span>Restaurar Columnas</span>
                         </button>
-                        <button type="button" class="admin-filter-all-btn" style="background:#10B981;border-color:#10B981;display:inline-flex;align-items:center;gap:6px;" onclick="addNewAdminRow()">
+                        <button type="button" class="filter-all" style="background:#10B981;border-color:#10B981;display:inline-flex;align-items:center;gap:6px;width:auto;padding:8px 14px;" onclick="addNewAdminRow()">
                             <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                             <span>+ New Row</span>
                         </button>
-                        <div class="admin-filter-search">
-                            <svg class="admin-grid-icon" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <div class="filter-search">
+                            <svg class="admin-grid-icon" style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
                             <input type="text" id="adminTableSearchInput" placeholder="Search user..." oninput="filterAdminTable()">
                         </div>
-                        <button type="button" class="admin-filter-all-btn" onclick="resetAdminTableFilter()">View All</button>
+                        <button type="button" class="filter-all" onclick="resetAdminTableFilter()">View All</button>
                     </div>
                 </div>
 
                 <!-- 16-Column Data Table -->
-                <div class="admin-table-viewport">
+                <div class="data-table-wrap">
                     <table class="admin-16col-table" id="adminMainDataTable">
                         <thead>
                             <tr class="table-column-header-tr">
-                                <th style="width: 82.19px;">identifier code</th>
-                                <th style="width: 82.19px;">responsible party code</th>
-                                <th style="width: 82.19px;">Platform code</th>
-                                <th style="width: 82.19px;">authorization signature</th>
-                                <th style="width: 82.19px;">Number of tokens</th>
-                                <th style="width: 82.19px;">cost per token</th>
-                                <th style="width: 82.19px;">ICAI page</th>
-                                <th style="width: 82.19px;">NSPA Monthly</th>
-                                <th style="width: 82.19px;">CORS Method</th>
-                                <th style="width: 82.19px;">HASNA 371</th>
-                                <th style="width: 82.19px;">How long did it take you to create it?</th>
-                                <th style="width: 82.19px;">Do you have proof that you lasted as long as you say?</th>
-                                <th style="width: 82.19px;">Code manager ID card</th>
-                                <th style="width: 82.19px;">Legal name of the code creator</th>
-                                <th style="width: 82.19px;">Phone number for calls</th>
-                                <th style="width: 81.19px; border-right:none;">Reply email</th>
+                                <th style="min-width: 82.19px;">identifier code</th>
+                                <th style="min-width: 82.19px;">responsible party code</th>
+                                <th style="min-width: 82.19px;">Platform code</th>
+                                <th style="min-width: 82.19px;">authorization signature</th>
+                                <th style="min-width: 82.19px;">Number of tokens</th>
+                                <th style="min-width: 82.19px;">cost per token</th>
+                                <th style="min-width: 82.19px;">ICAI page</th>
+                                <th style="min-width: 82.19px;">NSPA Monthly</th>
+                                <th style="min-width: 82.19px;">CORS Method</th>
+                                <th style="min-width: 82.19px;">HASNA 371</th>
+                                <th style="min-width: 82.19px;">How long did it take you to create it?</th>
+                                <th style="min-width: 82.19px;">Do you have proof that you lasted as long as you say?</th>
+                                <th style="min-width: 82.19px;">Code manager ID card</th>
+                                <th style="min-width: 82.19px;">Legal name of the code creator</th>
+                                <th style="min-width: 82.19px;">Phone number for calls</th>
+                                <th style="min-width: 81.19px; border-right:none;">Reply email</th>
+                                <th style="width: 50px; min-width: 50px; border-right:none; text-align:center;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="adminTableBody">
-                            <!-- Populated with rows matching the Figma specification -->
+                            <!-- Populated with editable rows -->
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Table Footer -->
-                <div class="admin-table-footer">
-                    <span class="admin-table-footer-note">Select the one that fits and the one you want to validate</span>
-                    <div class="admin-pagination-group">
-                        <button type="button" class="admin-btn-prev" onclick="adminPrevRow()">Previous</button>
-                        <button type="button" class="admin-btn-launch" onclick="launchOnTheBlog()">
-                            <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                <div class="table-footer">
+                    <span class="footer-note">Select the one that fits and the one you want to validate</span>
+                    <div class="pagination-group">
+                        <button type="button" class="btn-prev" onclick="adminPrevRow()">Previous</button>
+                        <button type="button" class="btn-next" onclick="launchOnTheBlog()">
+                            <svg style="width:14px;height:14px;fill:currentColor;margin-right:6px;" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                             Launch on the blog
                         </button>
                     </div>
@@ -14890,28 +15193,15 @@ if (!headers_sent()) {
                 let activeCols = allCols.filter(c => activeKeys.includes(c.key));
                 if (activeCols.length === 0) activeCols = allCols;
 
-                // Render Header con botones de borrar columna
+                // Render Header de Solo Lectura (sin botones de borrado de columnas)
                 if (thead) {
                     let hHtml = '<tr class="table-column-header-tr">';
-                    activeCols.forEach(col => {
-                        hHtml += `
-                            <th style="min-width: ${col.minWidth};">
-                                <div class="th-content-box">
-                                    <span>${col.label}</span>
-                                    <button type="button" class="th-del-btn" onclick="deleteTableColumn('${col.key}', event)" title="Eliminar columna ${col.label}">✕</button>
-                                </div>
-                            </th>
-                        `;
+                    activeCols.forEach((col, idx) => {
+                        const isLast = (idx === activeCols.length - 1);
+                        hHtml += `<th style="min-width:${col.minWidth};${isLast ? 'border-right:none;' : ''}">${col.label}</th>`;
                     });
-                    hHtml += `<th style="width: 50px; min-width: 50px; border-right:none; text-align:center;">Acciones</th>`;
                     hHtml += '</tr>';
                     thead.innerHTML = hHtml;
-                }
-
-                // Botón de restaurar columnas en Blog
-                const blogRestoreBtn = document.getElementById('blogRestoreColsBtn');
-                if (blogRestoreBtn) {
-                    blogRestoreBtn.style.display = (activeKeys.length < allCols.length) ? 'inline-flex' : 'none';
                 }
 
                 const rows = window.getSharedPublicationRows();
@@ -14930,7 +15220,9 @@ if (!headers_sent()) {
                     tr.className = 'table-data-tr' + (isSelected ? ' active-row' : '');
 
                     let rowHtml = '';
-                    activeCols.forEach(col => {
+                    activeCols.forEach((col, colIdx) => {
+                        const isLast = (colIdx === activeCols.length - 1);
+                        const tdStyle = isLast ? 'border-right:none;' : '';
                         const key = col.key;
                         switch (key) {
                             case 'identifier_code':
@@ -14944,11 +15236,11 @@ if (!headers_sent()) {
                             case 'creator_name':
                             case 'phone':
                             case 'email':
-                                rowHtml += `<td><input type="text" class="cell-input-field" value="${r[key] || ''}" readonly></td>`;
+                                rowHtml += `<td style="${tdStyle}"><span class="blog-cell-badge" title="${r[key] || ''}">${r[key] || ''}</span></td>`;
                                 break;
                             case 'platform_code':
                                 rowHtml += `
-                                    <td>
+                                    <td style="${tdStyle}">
                                         <button type="button" class="cell-home-icon-btn" onclick="openBlogCodeViewer('${r.identifier_code}')" title="Ver código adjunto (${r.platform_code_name || 'script'})">
                                             <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
                                         </button>
@@ -14956,14 +15248,14 @@ if (!headers_sent()) {
                                 break;
                             case 'auth_signature':
                                 rowHtml += `
-                                    <td>
-                                        <span class="cell-btn-auth signed" style="cursor:default;user-select:none;" title="Certificado por Administrador">Authorized ✓</span>
+                                    <td style="${tdStyle}">
+                                        <span class="btn-auth-figma signed" style="cursor:default;user-select:none;" title="Certificado SPHINCS+">Authorized ✓</span>
                                     </td>`;
                                 break;
                             case 'cost_per_token':
                                 rowHtml += `
-                                    <td>
-                                        <div class="cell-dollar-wrap">
+                                    <td style="${tdStyle}">
+                                        <div class="dollar-input-figma">
                                             <span>$</span>
                                             <input type="text" value="${r.cost_per_token || ''}" readonly>
                                         </div>
@@ -14971,7 +15263,7 @@ if (!headers_sent()) {
                                 break;
                             case 'cors_method':
                                 rowHtml += `
-                                    <td>
+                                    <td style="${tdStyle}">
                                         <div class="cell-checkboxes">
                                             <span class="cell-chk-box ${r.cors_method === 'Yes' ? 'checked' : ''}"></span>
                                             <span class="cell-chk-label">Y</span>
@@ -14982,7 +15274,7 @@ if (!headers_sent()) {
                                 break;
                             case 'hasna_color':
                                 rowHtml += `
-                                    <td>
+                                    <td style="${tdStyle}">
                                         <div class="cell-color-squares">
                                             <div class="cell-color-rect ${safeColor==='#E63333'?'active':''}" style="background:#E63333;"></div>
                                             <div class="cell-color-rect ${safeColor==='#33B34D'?'active':''}" style="background:#33B34D;"></div>
@@ -14993,15 +15285,6 @@ if (!headers_sent()) {
                                 break;
                         }
                     });
-
-                    // Acciones: Eliminar fila
-                    rowHtml += `
-                        <td style="border-right:none; text-align:center;">
-                            <button type="button" class="cell-del-row-btn" onclick="deleteTableRow(${idx}, event)" title="Eliminar registro ${r.identifier_code}">
-                                <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                            </button>
-                        </td>
-                    `;
 
                     tr.innerHTML = rowHtml;
 
@@ -15566,7 +15849,7 @@ if (!headers_sent()) {
                     const safeColor = r.hasna_color || '#E63333';
                     let rowHtml = '';
 
-                    activeCols.forEach(col => {
+                    activeCols.forEach((col, colIdx) => {
                         const key = col.key;
                         switch (key) {
                             case 'identifier_code':
@@ -15580,12 +15863,12 @@ if (!headers_sent()) {
                             case 'creator_name':
                             case 'phone':
                             case 'email':
-                                rowHtml += `<td><input type="text" class="admin-cell-input" value="${r[key] || ''}" onchange="updateCellData(${idx}, '${key}', this.value)" oninput="updateCellDataRealtime(${idx}, '${key}', this.value)"></td>`;
+                                rowHtml += `<td><input type="text" class="input-field-figma" value="${r[key] || ''}" onchange="updateCellData(${idx}, '${key}', this.value)" oninput="updateCellDataRealtime(${idx}, '${key}', this.value)"></td>`;
                                 break;
                             case 'platform_code':
                                 rowHtml += `
                                     <td>
-                                        <button type="button" class="admin-cell-code-btn" onclick="openPlatformCodeModal()" title="Ver/subir código">
+                                        <button type="button" class="cell-home-icon-btn" onclick="openPlatformCodeModal()" title="Ver/subir código">
                                             <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
                                         </button>
                                     </td>`;
@@ -15593,35 +15876,37 @@ if (!headers_sent()) {
                             case 'auth_signature':
                                 rowHtml += `
                                     <td>
-                                        <button type="button" class="admin-cell-btn-auth signed" onclick="stampSphincsSignature()" title="Certificar con SPHINCS+">Authorized</button>
+                                        <button type="button" class="btn-auth-figma signed" onclick="stampSphincsSignature()" title="Certificar con SPHINCS+">Authorized</button>
                                     </td>`;
                                 break;
                             case 'cost_per_token':
                                 rowHtml += `
                                     <td>
-                                        <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
-                                            <span style="font-size:9px;color:#666B73;">$</span>
-                                            <input type="text" class="admin-cell-input" style="width:54px;" value="${r.cost_per_token || ''}" onchange="updateCellData(${idx}, 'cost_per_token', this.value)" oninput="updateCellDataRealtime(${idx}, 'cost_per_token', this.value)">
+                                        <div class="dollar-input-figma">
+                                            <span>$</span>
+                                            <input type="text" value="${r.cost_per_token || ''}" onchange="updateCellData(${idx}, 'cost_per_token', this.value)" oninput="updateCellDataRealtime(${idx}, 'cost_per_token', this.value)">
                                         </div>
                                     </td>`;
                                 break;
                             case 'cors_method':
                                 rowHtml += `
                                     <td>
-                                        <div style="display:flex;align-items:center;gap:3px;justify-content:center;font-size:9px;">
-                                            <span>${r.cors_method === 'Yes' ? '☑ Y' : '☐ Y'}</span>
-                                            <span>${r.cors_method === 'No' ? '☑ N' : '☐ N'}</span>
+                                        <div class="cell-checkboxes" onclick="toggleAdminCors(${idx})" style="cursor:pointer;" title="Alternar CORS (Y/N)">
+                                            <span class="cell-chk-box ${r.cors_method === 'Yes' ? 'checked' : ''}"></span>
+                                            <span class="cell-chk-label">Y</span>
+                                            <span class="cell-chk-box ${r.cors_method === 'No' ? 'checked' : ''}"></span>
+                                            <span class="cell-chk-label">N</span>
                                         </div>
                                     </td>`;
                                 break;
                             case 'hasna_color':
                                 rowHtml += `
                                     <td>
-                                        <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
-                                            <div style="width:10px;height:10px;background:#E63333;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#E63333'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
-                                            <div style="width:10px;height:10px;background:#33B34D;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#33B34D'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
-                                            <div style="width:10px;height:10px;background:#3366E6;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#3366E6'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
-                                            <div style="width:10px;height:10px;background:#FFFFFF;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#FFFFFF'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                                        <div class="cell-color-squares">
+                                            <div class="cell-color-rect ${safeColor==='#E63333'?'active':''}" style="background:#E63333;" onclick="updateAdminHasnaColor(${idx}, '#E63333')" title="Rojo HASNA"></div>
+                                            <div class="cell-color-rect ${safeColor==='#33B34D'?'active':''}" style="background:#33B34D;" onclick="updateAdminHasnaColor(${idx}, '#33B34D')" title="Verde HASNA"></div>
+                                            <div class="cell-color-rect ${safeColor==='#3366E6'?'active':''}" style="background:#3366E6;" onclick="updateAdminHasnaColor(${idx}, '#3366E6')" title="Azul HASNA"></div>
+                                            <div class="cell-color-rect ${safeColor==='#FFFFFF'?'active':''}" style="background:#FFFFFF;" onclick="updateAdminHasnaColor(${idx}, '#FFFFFF')" title="Blanco HASNA"></div>
                                         </div>
                                     </td>`;
                                 break;
@@ -15733,6 +16018,32 @@ if (!headers_sent()) {
                         adminPendingRow[key] = val;
                         loadPendingRowIntoCards();
                     }
+                }
+            };
+
+            window.toggleAdminCors = function (idx) {
+                const rows = window.getSharedPublicationRows();
+                if (rows[idx]) {
+                    rows[idx].cors_method = (rows[idx].cors_method === 'Yes') ? 'No' : 'Yes';
+                    window.saveSharedPublicationRows(rows);
+                    if (idx === selectedRowIndex) {
+                        adminPendingRow.cors_method = rows[idx].cors_method;
+                        loadPendingRowIntoCards();
+                    }
+                    renderAdminTable();
+                }
+            };
+
+            window.updateAdminHasnaColor = function (idx, color) {
+                const rows = window.getSharedPublicationRows();
+                if (rows[idx]) {
+                    rows[idx].hasna_color = color;
+                    window.saveSharedPublicationRows(rows);
+                    if (idx === selectedRowIndex) {
+                        adminPendingRow.hasna_color = color;
+                        loadPendingRowIntoCards();
+                    }
+                    renderAdminTable();
                 }
             };
 

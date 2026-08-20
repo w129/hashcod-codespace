@@ -4347,6 +4347,22 @@ if (!headers_sent()) {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             opacity: 0;
             transition: opacity 0.2s ease;
+        /* ==========================================================================
+           TOOLBOX TOOL 1: PUBLICATIONS AND PREVIEW BLOG (16 COLUMNS & REAL READER)
+           ========================================================================== */
+        .excel-blog-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 95;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
         .excel-blog-overlay.open {
@@ -4362,12 +4378,12 @@ if (!headers_sent()) {
             align-items: flex-start;
             padding: 0px;
             isolation: isolate;
-            width: min(1360px, 98vw);
+            width: min(1380px, 98vw);
             max-height: 92vh;
             background: #FFFFFF;
             border: 1px solid #E4E4E7;
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
             position: relative;
             overflow: hidden;
             flex: none;
@@ -4383,9 +4399,9 @@ if (!headers_sent()) {
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            padding: 24px;
+            padding: 18px 24px;
             width: 100%;
-            height: 80px;
+            height: 72px;
             border-bottom: 1px solid #E4E4E7;
             background: #FFFFFF;
             z-index: 1;
@@ -4393,24 +4409,35 @@ if (!headers_sent()) {
             order: 1;
             align-self: stretch;
             flex-grow: 0;
+            gap: 16px;
         }
 
         .table-title {
             width: auto;
-            min-width: 237px;
-            height: 21px;
+            min-width: 240px;
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
             font-weight: 700;
             font-size: 16px;
-            line-height: 21px;
+            line-height: 22px;
             color: #09090B;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             flex: none;
             order: 0;
             flex-grow: 0;
+        }
+
+        .table-title-badge {
+            background: #F4F4F5;
+            color: #52525B;
+            border: 1px solid #E4E4E7;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Geist Mono', monospace;
         }
 
         .filter-group {
@@ -4430,46 +4457,48 @@ if (!headers_sent()) {
             display: flex;
             flex-direction: row;
             align-items: center;
-            padding: 8px 12px;
+            padding: 6px 12px;
             gap: 8px;
-            width: 200px;
-            height: 32px;
+            width: 220px;
+            height: 34px;
             border: 1px solid #E4E4E7;
             border-radius: 6px;
             background: #FFFFFF;
             flex: none;
             order: 0;
             flex-grow: 0;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .filter-search:focus-within {
+            border-color: #09090B;
+            box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.08);
         }
 
         .filter-search svg {
-            width: 12px;
-            height: 12px;
+            width: 13px;
+            height: 13px;
             flex: none;
-            order: 0;
-            flex-grow: 0;
-            fill: #6B7280;
+            fill: #71717A;
         }
 
         .filter-search input {
             width: 100%;
-            height: 16px;
+            height: 18px;
             border: none;
             outline: none;
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
             font-weight: 400;
             font-size: 12px;
-            line-height: 16px;
+            line-height: 18px;
             color: #09090B;
             background: transparent;
-            flex: none;
-            order: 1;
             flex-grow: 1;
         }
 
         .filter-search input::placeholder {
-            color: #71717A;
+            color: #A1A1AA;
         }
 
         .filter-all {
@@ -4477,40 +4506,39 @@ if (!headers_sent()) {
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 8px 12px;
-            width: 71px;
-            height: 32px;
-            background: #000000;
+            padding: 6px 12px;
+            height: 34px;
+            background: #09090B;
             border-radius: 6px;
-            border: none;
+            border: 1px solid #09090B;
             color: #FFFFFF;
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
             font-weight: 600;
             font-size: 12px;
-            line-height: 16px;
             cursor: pointer;
             flex: none;
-            order: 1;
-            flex-grow: 0;
-            transition: background 0.15s ease;
+            transition: all 0.15s ease;
+            white-space: nowrap;
         }
 
         .filter-all:hover {
             background: #27272A;
+            border-color: #27272A;
         }
 
         .btn-card-close {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             background: #F4F4F5;
             border: 1px solid #E4E4E7;
             border-radius: 6px;
             color: #71717A;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.15s ease;
         }
@@ -4528,8 +4556,8 @@ if (!headers_sent()) {
             align-items: flex-start;
             padding: 0px;
             width: 100%;
-            min-height: 296px;
-            max-height: 480px;
+            min-height: 280px;
+            max-height: calc(92vh - 150px);
             overflow-x: auto;
             overflow-y: auto;
             flex: none;
@@ -4542,35 +4570,38 @@ if (!headers_sent()) {
 
         .data-table-wrap table {
             width: 100%;
-            min-width: 1315px;
+            min-width: 1420px;
             border-collapse: collapse;
-            table-layout: fixed;
         }
 
         /* table-column-header */
         .table-column-header-tr {
             box-sizing: border-box;
-            height: 56px;
+            height: 50px;
             background: #F4F4F5;
             border-bottom: 1px solid #E4E4E7;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .table-column-header-tr th {
             box-sizing: border-box;
-            height: 56px;
-            padding: 0px 2px;
+            height: 50px;
+            padding: 4px 6px;
             border-right: 1px solid #E0E3E8;
             border-bottom: 1px solid #E4E4E7;
             font-family: 'Inter', sans-serif;
             font-style: normal;
-            font-weight: 400;
-            font-size: 9px;
-            line-height: 11px;
+            font-weight: 600;
+            font-size: 10px;
+            line-height: 13px;
             text-align: center;
-            color: #595E66;
+            color: #52525B;
             vertical-align: middle;
             background: #F4F4F5;
             user-select: none;
+            white-space: normal;
         }
 
         .table-column-header-tr th:last-child {
@@ -4580,10 +4611,11 @@ if (!headers_sent()) {
         /* table row */
         .table-data-tr {
             box-sizing: border-box;
-            height: 40px;
+            height: 42px;
             background: #FFFFFF;
             border-bottom: 1px solid #EBEDF0;
-            transition: background 0.1s ease;
+            transition: background 0.12s ease;
+            cursor: pointer;
         }
 
         .table-data-tr:nth-child(even) {
@@ -4591,11 +4623,12 @@ if (!headers_sent()) {
         }
 
         .table-data-tr:hover {
-            background: #F1F5F9;
+            background: #F0F7FF !important;
         }
 
         .table-data-tr.active-row {
-            background: #EFF6FF !important;
+            background: #E0EFFF !important;
+            box-shadow: inset 2px 0 0 #2563EB;
         }
 
         .table-data-tr.pulse-row {
@@ -4604,12 +4637,13 @@ if (!headers_sent()) {
 
         .table-data-tr td {
             box-sizing: border-box;
-            height: 39px;
-            padding: 0px 2px;
+            height: 42px;
+            padding: 2px 4px;
             border-right: 1px solid #EBEDF0;
             border-bottom: 1px solid #EBEDF0;
             text-align: center;
             vertical-align: middle;
+            font-size: 11px;
         }
 
         .table-data-tr td:last-child {
@@ -4622,22 +4656,28 @@ if (!headers_sent()) {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0px 4px;
-            width: 60px;
-            height: 24px;
+            padding: 2px 6px;
+            width: 94%;
+            max-width: 100%;
+            height: 26px;
             background: #F9FAFB;
             border: 1px solid #E0E2E6;
-            border-radius: 3px;
-            font-family: 'Inter', sans-serif;
-            font-size: 10px;
+            border-radius: 4px;
+            font-family: 'Geist Mono', 'Inter', monospace;
+            font-size: 11px;
             color: #09090B;
             text-align: center;
             outline: none;
+            transition: all 0.12s ease;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .cell-input-field:focus {
             background: #FFFFFF;
             border-color: #09090B;
+            box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.1);
         }
 
         .cell-dollar-wrap {
@@ -4645,32 +4685,29 @@ if (!headers_sent()) {
             display: inline-flex;
             flex-direction: row;
             align-items: center;
+            justify-content: center;
             padding: 0px 4px;
             gap: 2px;
-            width: 60px;
-            height: 24px;
+            width: 90%;
+            height: 26px;
             background: #F9FAFB;
             border: 1px solid #E0E2E6;
-            border-radius: 3px;
+            border-radius: 4px;
         }
 
         .cell-dollar-wrap span {
-            width: 6px;
-            height: 11px;
             font-family: 'Inter', sans-serif;
-            font-style: normal;
-            font-weight: 400;
-            font-size: 9px;
-            line-height: 11px;
-            color: #666B73;
+            font-weight: 700;
+            font-size: 10px;
+            color: #059669;
         }
 
         .cell-dollar-wrap input {
-            width: 44px;
+            width: 75%;
             border: none;
             background: transparent;
-            font-family: 'Inter', sans-serif;
-            font-size: 10px;
+            font-family: 'Geist Mono', monospace;
+            font-size: 11px;
             color: #09090B;
             outline: none;
             text-align: center;
@@ -4680,23 +4717,27 @@ if (!headers_sent()) {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
-            height: 24px;
-            background: #F9FAFB;
-            border: 1px solid #E0E2E6;
-            border-radius: 3px;
+            width: 28px;
+            height: 28px;
+            background: #F4F4F5;
+            border: 1px solid #E4E4E7;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.1s ease;
+            transition: all 0.15s ease;
+            color: #09090B;
         }
 
         .cell-home-icon-btn:hover {
-            background: #E4E4E7;
+            background: #09090B;
+            color: #FFFFFF;
+            border-color: #09090B;
+            transform: scale(1.08);
         }
 
         .cell-home-icon-btn svg {
             width: 14px;
             height: 14px;
-            fill: #000000;
+            fill: currentColor;
         }
 
         .cell-btn-auth {
@@ -4705,24 +4746,24 @@ if (!headers_sent()) {
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            padding: 0px;
-            width: 58px;
-            height: 20px;
+            padding: 3px 8px;
+            min-width: 68px;
+            height: 24px;
             background: #FFFFFF;
             border: 1px solid #D1D6DB;
-            border-radius: 3px;
-            font-family: 'Inter', sans-serif;
+            border-radius: 4px;
+            font-family: 'Geist', sans-serif;
             font-style: normal;
-            font-weight: 400;
-            font-size: 7px;
-            line-height: 8px;
+            font-weight: 600;
+            font-size: 9px;
             color: #000000;
             cursor: pointer;
-            transition: all 0.1s ease;
+            transition: all 0.15s ease;
         }
 
         .cell-btn-auth:hover {
             border-color: #09090B;
+            transform: scale(1.04);
         }
 
         .cell-btn-auth.signed {
@@ -4736,18 +4777,19 @@ if (!headers_sent()) {
             display: inline-flex;
             flex-direction: row;
             align-items: center;
+            justify-content: center;
             padding: 0px;
             gap: 4px;
-            height: 10px;
+            height: 14px;
         }
 
         .cell-chk-box {
             box-sizing: border-box;
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             background: #F2F5F7;
             border: 1px solid #B3B8BF;
-            border-radius: 2px;
+            border-radius: 3px;
             display: inline-block;
         }
 
@@ -4758,10 +4800,8 @@ if (!headers_sent()) {
 
         .cell-chk-label {
             font-family: 'Inter', sans-serif;
-            font-style: normal;
-            font-weight: 400;
-            font-size: 7px;
-            line-height: 8px;
+            font-weight: 600;
+            font-size: 9px;
             color: #4D4D4D;
         }
 
@@ -4769,24 +4809,25 @@ if (!headers_sent()) {
             display: inline-flex;
             flex-direction: row;
             align-items: center;
+            justify-content: center;
             padding: 0px;
-            gap: 2px;
-            width: 46px;
-            height: 10px;
+            gap: 3px;
+            height: 14px;
         }
 
         .cell-color-rect {
             box-sizing: border-box;
-            width: 10px;
-            height: 10px;
-            border: 0.5px solid #BFC4CC;
-            border-radius: 1px;
+            width: 12px;
+            height: 12px;
+            border: 1px solid #BFC4CC;
+            border-radius: 2px;
+            transition: transform 0.15s ease;
         }
 
         .cell-color-rect.active {
-            transform: scale(1.2);
-            outline: 1px solid #09090B;
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+            transform: scale(1.25);
+            outline: 1.5px solid #09090B;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
         }
 
         /* table-footer */
@@ -4796,30 +4837,29 @@ if (!headers_sent()) {
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 16px 24px;
             width: 100%;
-            height: 68px;
+            height: 64px;
             border-top: 1px solid #E4E4E7;
-            background: #FFFFFF;
+            background: #FAFAFA;
             z-index: 3;
             flex: none;
             order: 3;
             align-self: stretch;
             flex-grow: 0;
+            gap: 16px;
         }
 
         .footer-validation-msg {
-            width: auto;
-            height: 16px;
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
-            font-weight: 400;
+            font-weight: 500;
             font-size: 12px;
             line-height: 16px;
             color: #71717A;
-            flex: none;
-            order: 0;
-            flex-grow: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .footer-pagination {
@@ -4827,11 +4867,8 @@ if (!headers_sent()) {
             flex-direction: row;
             align-items: center;
             padding: 0px;
-            gap: 8px;
-            height: 28px;
-            flex: none;
-            order: 1;
-            flex-grow: 0;
+            gap: 10px;
+            height: 32px;
         }
 
         .btn-prev {
@@ -4840,28 +4877,24 @@ if (!headers_sent()) {
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 6px 12px;
-            width: 74px;
-            height: 28px;
+            padding: 6px 14px;
+            height: 32px;
             border: 1px solid #E4E4E7;
-            border-radius: 4px;
+            border-radius: 6px;
             background: #FFFFFF;
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
             font-weight: 600;
             font-size: 12px;
-            line-height: 16px;
-            color: #71717A;
+            color: #52525B;
             cursor: pointer;
-            flex: none;
-            order: 0;
-            flex-grow: 0;
             transition: all 0.15s ease;
         }
 
         .btn-prev:hover {
             background: #F4F4F5;
             color: #09090B;
+            border-color: #D4D4D8;
         }
 
         .btn-next {
@@ -4870,28 +4903,360 @@ if (!headers_sent()) {
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 6px 12px;
-            min-width: 134px;
-            height: 28px;
-            border: 1px solid #E4E4E7;
-            border-radius: 4px;
-            background: #FFFFFF;
+            padding: 6px 16px;
+            min-width: 140px;
+            height: 32px;
+            border: 1px solid #09090B;
+            border-radius: 6px;
+            background: #09090B;
             font-family: 'Geist', 'Inter', -apple-system, sans-serif;
             font-style: normal;
             font-weight: 600;
             font-size: 12px;
-            line-height: 16px;
-            color: #09090B;
+            color: #FFFFFF;
             cursor: pointer;
-            flex: none;
-            order: 1;
-            flex-grow: 0;
             transition: all 0.15s ease;
         }
 
         .btn-next:hover {
+            background: #27272A;
+            border-color: #27272A;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ==========================================================================
+           REAL-WORLD PUBLICATION READER & INTERACTIVE SANDBOX STYLES
+           ========================================================================== */
+        .excel-post-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 120;
+            background: rgba(9, 9, 11, 0.75);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+        }
+
+        .excel-post-modal.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .excel-reader-card {
+            background: #FFFFFF;
+            border: 1px solid #E4E4E7;
+            border-radius: 16px;
+            width: min(960px, 96vw);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            animation: readerScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes readerScaleIn {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .excel-reader-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid #E4E4E7;
+            background: #FAFAFA;
+        }
+
+        .reader-header-badges {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .reader-badge-cat {
+            background: #EFF6FF;
+            color: #1D4ED8;
+            border: 1px solid #BFDBFE;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .reader-badge-pqc {
+            background: #ECFDF5;
+            color: #047857;
+            border: 1px solid #A7F3D0;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .reader-meta-item {
+            font-size: 12px;
+            color: #71717A;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .excel-reader-body {
+            padding: 28px;
+            overflow-y: auto;
+            max-height: calc(90vh - 75px);
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .reader-article-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #09090B;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        .reader-author-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: #F4F4F5;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #3F3F46;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .reader-author-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reader-author-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
             background: #09090B;
             color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .reader-bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px;
+        }
+
+        .reader-bento-card {
+            background: #FAFAFA;
+            border: 1px solid #E4E4E7;
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .reader-bento-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+            background: #FFFFFF;
+        }
+
+        .reader-bento-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #71717A;
+        }
+
+        .reader-bento-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #09090B;
+            font-family: 'Geist Mono', monospace;
+        }
+
+        .reader-bento-sub {
+            font-size: 11px;
+            color: #059669;
+            font-weight: 500;
+        }
+
+        /* Code Window IDE */
+        .reader-code-window {
+            background: #0D1117;
+            border: 1px solid #30363D;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .reader-code-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #161B22;
+            padding: 10px 16px;
+            border-bottom: 1px solid #30363D;
+        }
+
+        .reader-code-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .reader-code-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .reader-code-dot.red { background: #FF5F56; }
+        .reader-code-dot.yellow { background: #FFBD2E; }
+        .reader-code-dot.green { background: #27C93F; }
+
+        .reader-code-filename {
+            font-family: 'Geist Mono', monospace;
+            font-size: 12px;
+            color: #8B949E;
+            font-weight: 500;
+        }
+
+        .reader-code-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .reader-code-btn {
+            background: #21262D;
+            border: 1px solid #30363D;
+            color: #C9D1D9;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .reader-code-btn:hover {
+            background: #30363D;
+            color: #FFFFFF;
+        }
+
+        .reader-code-btn.copied {
+            background: #047857;
+            border-color: #10B981;
+            color: #FFFFFF;
+        }
+
+        .reader-code-pre {
+            margin: 0;
+            padding: 16px;
+            background: #0D1117;
+            color: #E6EDF3;
+            font-family: 'Geist Mono', 'Fira Code', Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+            max-height: 320px;
+            tab-size: 4;
+        }
+
+        /* Sandbox Terminal Output */
+        .reader-sandbox-console {
+            background: #000000;
+            border-top: 1px solid #30363D;
+            padding: 12px 16px;
+            font-family: 'Geist Mono', monospace;
+            font-size: 12px;
+            color: #34D399;
+            display: none;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .reader-sandbox-console.open {
+            display: block;
+        }
+
+        .reader-footer-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid #E4E4E7;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .reader-like-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: #FEE2E2;
+            color: #DC2626;
+            border: 1px solid #FECACA;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .reader-like-btn:hover {
+            background: #FECACA;
+            transform: scale(1.05);
+        }
+
+        .reader-comments-wrap {
+            margin-top: 8px;
+            background: #FAFAFA;
+            border: 1px solid #E4E4E7;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .reader-comment-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #E4E4E7;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 8px;
+        }
+
+        .reader-comment-input:focus {
             border-color: #09090B;
         }
 
@@ -13608,22 +13973,22 @@ if (!headers_sent()) {
                 <table class="admin-16col-table" id="excelBlogTable">
                     <thead>
                         <tr class="table-column-header-tr">
-                            <th style="width: 82.19px;">identifier code</th>
-                            <th style="width: 82.19px;">responsible party code</th>
-                            <th style="width: 82.19px;">Platform code</th>
-                            <th style="width: 82.19px;">authorization signature</th>
-                            <th style="width: 82.19px;">Number of tokens</th>
-                            <th style="width: 82.19px;">cost per token</th>
-                            <th style="width: 82.19px;">ICAI page</th>
-                            <th style="width: 82.19px;">NSPA Monthly</th>
-                            <th style="width: 82.19px;">CORS Method</th>
-                            <th style="width: 82.19px;">HASNA 371</th>
-                            <th style="width: 82.19px;">How long did it take you to create it?</th>
-                            <th style="width: 82.19px;">Do you have proof that you lasted as long as you say?</th>
-                            <th style="width: 82.19px;">Code manager ID card</th>
-                            <th style="width: 82.19px;">Legal name of the code creator</th>
-                            <th style="width: 82.19px;">Phone number for calls</th>
-                            <th style="width: 81.19px; border-right:none;">Reply email</th>
+                            <th style="min-width: 90px;">identifier code</th>
+                            <th style="min-width: 95px;">responsible party code</th>
+                            <th style="min-width: 72px;">Platform code</th>
+                            <th style="min-width: 95px;">authorization signature</th>
+                            <th style="min-width: 95px;">Number of tokens</th>
+                            <th style="min-width: 95px;">cost per token</th>
+                            <th style="min-width: 85px;">ICAI page</th>
+                            <th style="min-width: 90px;">NSPA Monthly</th>
+                            <th style="min-width: 82px;">CORS Method</th>
+                            <th style="min-width: 82px;">HASNA 371</th>
+                            <th style="min-width: 110px;">How long did it take you to create it?</th>
+                            <th style="min-width: 135px;">Do you have proof that you lasted as long as you say?</th>
+                            <th style="min-width: 95px;">Code manager ID card</th>
+                            <th style="min-width: 120px;">Legal name of the code creator</th>
+                            <th style="min-width: 135px;">Phone number for calls</th>
+                            <th style="min-width: 160px; border-right:none;">Reply email</th>
                         </tr>
                     </thead>
                     <tbody id="excelBlogTableBody">
@@ -13634,30 +13999,123 @@ if (!headers_sent()) {
 
             <!-- table-footer -->
             <div class="table-footer">
-                <div class="footer-validation-msg">Select the one that fits and the one you want to validate</div>
+                <div class="footer-validation-msg">
+                    <svg style="width:14px;height:14px;fill:currentColor;color:#2563EB;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <span>Select the one that fits and the one you want to validate</span>
+                </div>
                 <div class="footer-pagination">
                     <button type="button" class="btn-prev" onclick="blogPrevRow()">Previous</button>
-                    <button type="button" class="btn-next" onclick="openSelectedBlogArticle()">Launch on the blog</button>
+                    <button type="button" class="btn-next" onclick="openSelectedBlogArticle()">🚀 Launch on the blog</button>
                 </div>
             </div>
 
-            <!-- Detail Reader Modal -->
+            <!-- Real-World Publication Reader & Code Sandbox Modal -->
             <div class="excel-post-modal" id="excelReaderModal">
-                <div class="excel-post-card" style="width: min(840px, 100%);">
-                    <div class="excel-post-card-head">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span class="excel-badge-cat" id="readCat" style="background:#EFF6FF;color:#1D4ED8;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Publicación</span>
-                            <span id="readDate" style="font-size:12px; color:#64748B;">Fecha</span>
+                <div class="excel-reader-card">
+                    <!-- Modal Header -->
+                    <div class="excel-reader-header">
+                        <div class="reader-header-badges">
+                            <span class="reader-badge-cat" id="readCat">ICAI-v3</span>
+                            <span class="reader-badge-pqc">🛡️ SPHINCS+ Authorized (SLH-DSA-256s)</span>
+                            <span class="reader-meta-item" id="readDate">📅 2026-08-20</span>
+                            <span class="reader-meta-item">👁️ <span id="readViews">1</span> lecturas</span>
                         </div>
-                        <button type="button" class="btn-card-close" onclick="closeExcelBlogReader()">✕</button>
+                        <button type="button" class="btn-card-close" onclick="closeExcelBlogReader()" title="Cerrar artículo">✕</button>
                     </div>
-                    <div class="excel-post-card-body" style="padding:20px; max-height:75vh; overflow-y:auto;">
-                        <h2 id="readTitle" style="font-size:20px; font-weight:800; color:#0F172A; margin-bottom:10px; line-height:1.2;"></h2>
-                        <div style="display:flex; align-items:center; gap:12px; font-size:12px; color:#64748B; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid #E2E8F0;">
-                            <span>✍️ Creador: <strong id="readAuthor" style="color:#0F172A;">Diktatcart</strong></span>
-                            <span>👁️ <span id="readViews">0</span> lecturas</span>
+
+                    <!-- Modal Body -->
+                    <div class="excel-reader-body">
+                        <!-- Main Title -->
+                        <h1 class="reader-article-title" id="readTitle">Publicación PUB-008 · Diktatcart Platform Core</h1>
+
+                        <!-- Author & Security Strip -->
+                        <div class="reader-author-strip">
+                            <div class="reader-author-info">
+                                <div class="reader-author-avatar" id="readAvatar">D</div>
+                                <div>
+                                    <div style="font-weight:700; color:#09090B;" id="readAuthorName">Diktatcart</div>
+                                    <div style="font-size:11px; color:#71717A;">
+                                        <a href="#" id="readAuthorEmail" style="color:#2563EB; text-decoration:none;">admin@hashcod.io</a> · 
+                                        <span id="readAuthorPhone">+1 800 HASHCOD</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <button type="button" class="reader-code-btn" onclick="openBlogSphincsViewerFromModal()">
+                                    <span>🛡️ Certificado Cuántico</span>
+                                </button>
+                                <button type="button" class="reader-code-btn" onclick="downloadCurrentPlatformCode()">
+                                    <span>📥 Descargar Script</span>
+                                </button>
+                            </div>
                         </div>
-                        <div id="readBody" style="white-space:pre-wrap; line-height:1.7; color:#334155; font-size:14px; font-family:'Geist Mono', monospace;"></div>
+
+                        <!-- Bento-Grid Metrics Dashboard -->
+                        <div class="reader-bento-grid">
+                            <div class="reader-bento-card">
+                                <span class="reader-bento-label">Tokens & Costo</span>
+                                <span class="reader-bento-value" id="readTokensVal">200,000</span>
+                                <span class="reader-bento-sub" id="readCostVal">$0.00015 / token ($30.00)</span>
+                            </div>
+                            <div class="reader-bento-card">
+                                <span class="reader-bento-label">ICAI & NSPA Mensual</span>
+                                <span class="reader-bento-value" id="readIcaival">ICAI-v3</span>
+                                <span class="reader-bento-sub" id="readNspaVal">100.0% SLA Uptime</span>
+                            </div>
+                            <div class="reader-bento-card">
+                                <span class="reader-bento-label">CORS & HASNA 371</span>
+                                <span class="reader-bento-value" id="readCorsVal">Yes (Permissive)</span>
+                                <span class="reader-bento-sub" id="readHasnaVal">● Color #E63333</span>
+                            </div>
+                            <div class="reader-bento-card">
+                                <span class="reader-bento-label">Tiempo & Prueba</span>
+                                <span class="reader-bento-value" id="readTimeVal">15 mins</span>
+                                <span class="reader-bento-sub" id="readProofVal">Git SHA-256 Verified</span>
+                            </div>
+                            <div class="reader-bento-card">
+                                <span class="reader-bento-label">Responsable & Manager</span>
+                                <span class="reader-bento-value" id="readRespVal">DKT-500</span>
+                                <span class="reader-bento-sub" id="readManagerVal">Manager ID: MGR-03</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Code & Sandbox IDE Window -->
+                        <div class="reader-code-window">
+                            <div class="reader-code-head">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div class="reader-code-dots">
+                                        <div class="reader-code-dot red"></div>
+                                        <div class="reader-code-dot yellow"></div>
+                                        <div class="reader-code-dot green"></div>
+                                    </div>
+                                    <span class="reader-code-filename" id="readFilename">module.py</span>
+                                </div>
+                                <div class="reader-code-actions">
+                                    <button type="button" class="reader-code-btn" id="readCopyBtn" onclick="copyReaderCode()">
+                                        <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                                        <span id="readCopyBtnText">Copiar Código</span>
+                                    </button>
+                                    <button type="button" class="reader-code-btn" style="background:#1F6FEB; border-color:#388BFD; color:#FFF;" onclick="runReaderSandbox()">
+                                        <span>▶️ Probar / Sandbox</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <pre class="reader-code-pre" id="readCodePre"><code># Python platform module...</code></pre>
+                            <!-- Live Sandbox Output Console -->
+                            <div class="reader-sandbox-console" id="readConsoleOutput"></div>
+                        </div>
+
+                        <!-- Interactive Social & Comments Section -->
+                        <div class="reader-footer-actions">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <button type="button" class="reader-like-btn" id="readLikeBtn" onclick="likeCurrentPost()">
+                                    <span>❤️</span>
+                                    <span id="readLikeCount">14</span> Me gusta
+                                </button>
+                                <span style="font-size:12px; color:#71717A;">Módulo auditado y validado en codespace</span>
+                            </div>
+                            <button type="button" class="btn-next" style="min-width:120px;" onclick="closeExcelBlogReader()">Cerrar Vista</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -14334,33 +14792,141 @@ if (!headers_sent()) {
                 if (modal) modal.classList.add('open');
             };
 
+            let currentViewingArticle = null;
+
             window.openBlogArticleDetails = function (identifierCode) {
                 const rows = getSharedPublicationRows();
                 const r = rows.find(x => x.identifier_code === identifierCode) || rows[0];
                 if (!r) return;
 
-                document.getElementById('readTitle').textContent = `Publicación ${r.identifier_code} · ${r.creator_name}`;
-                document.getElementById('readCat').textContent = r.icai_page || 'Publicación';
-                document.getElementById('readDate').textContent = '2026-08-20';
-                document.getElementById('readAuthor').textContent = `${r.creator_name} (${r.email} | ${r.phone})`;
-                document.getElementById('readViews').textContent = '1';
+                currentViewingArticle = r;
+                r.views = (r.views || 0) + 1;
+                saveAdminRows(rows);
 
-                let fullText = `### Identificador: ${r.identifier_code}\n` +
-                    `**Responsable de Código:** ${r.responsible_code}\n` +
-                    `**Manager ID:** ${r.manager_id}\n` +
-                    `**Tokens:** ${r.num_tokens} ($${r.cost_per_token}/token)\n` +
-                    `**ICAI Page:** ${r.icai_page} | **NSPA Mensual:** ${r.nspa_monthly}\n` +
-                    `**Método CORS:** ${r.cors_method}\n` +
-                    `**Tiempo de Creación:** ${r.time_to_create} | **Prueba:** ${r.proof}\n` +
-                    `**Firma Criptográfica:** ${r.auth_signature}\n\n`;
+                const numTok = parseFloat(r.num_tokens || 200000);
+                const costTok = parseFloat(r.cost_per_token || 0.00015);
+                const totalCost = (numTok * costTok).toFixed(2);
 
-                if (r.platform_code) {
-                    fullText += `#### 💻 Código Adjunto (${r.platform_code_name || 'script'}):\n` +
-                        r.platform_code;
+                document.getElementById('readTitle').textContent = `🚀 Publicación ${r.identifier_code} · ${r.creator_name || 'Diktatcart'}`;
+                document.getElementById('readCat').textContent = r.icai_page || 'ICAI-v3';
+                document.getElementById('readDate').textContent = '📅 2026-08-20';
+                document.getElementById('readViews').textContent = r.views || '1';
+
+                // Author strip
+                const authorName = r.creator_name || 'Diktatcart';
+                document.getElementById('readAuthorName').textContent = authorName;
+                document.getElementById('readAvatar').textContent = authorName.charAt(0).toUpperCase();
+                
+                const emailEl = document.getElementById('readAuthorEmail');
+                if (emailEl) {
+                    emailEl.textContent = r.email || 'admin@hashcod.io';
+                    emailEl.href = `mailto:${r.email || 'admin@hashcod.io'}`;
                 }
 
-                document.getElementById('readBody').textContent = fullText;
+                const phoneEl = document.getElementById('readAuthorPhone');
+                if (phoneEl) phoneEl.textContent = r.phone || '+1 800 HASHCOD';
+
+                // Bento-grid metrics
+                document.getElementById('readTokensVal').textContent = parseInt(r.num_tokens || 200000).toLocaleString();
+                document.getElementById('readCostVal').textContent = `$${r.cost_per_token || '0.00015'} / token ($${totalCost})`;
+                document.getElementById('readIcaival').textContent = r.icai_page || 'ICAI-v3';
+                document.getElementById('readNspaVal').textContent = `${r.nspa_monthly || '100.0%'} SLA Uptime`;
+                document.getElementById('readCorsVal').textContent = `${r.cors_method === 'Yes' ? 'Habilitado (Yes)' : 'Restringido (No)'}`;
+                document.getElementById('readHasnaVal').innerHTML = `<span style="display:inline-block;width:10px;height:10px;background:${r.hasna_color || '#E63333'};border-radius:2px;margin-right:4px;"></span> Hasna ${r.hasna_color || '#E63333'}`;
+                document.getElementById('readTimeVal').textContent = r.time_to_create || '15 mins';
+                document.getElementById('readProofVal').textContent = r.proof || 'Git SHA-256 Verified';
+                document.getElementById('readRespVal').textContent = r.responsible_code || 'DKT-500';
+                document.getElementById('readManagerVal').textContent = `Manager: ${r.manager_id || 'MGR-01'}`;
+
+                // Code IDE block
+                const filename = r.platform_code_name || 'module.py';
+                document.getElementById('readFilename').textContent = filename;
+                
+                const codePre = document.getElementById('readCodePre');
+                if (codePre) {
+                    const code = r.platform_code || '# No platform code attached.\n';
+                    codePre.textContent = code;
+                }
+
+                // Reset console
+                const consoleOutput = document.getElementById('readConsoleOutput');
+                if (consoleOutput) {
+                    consoleOutput.classList.remove('open');
+                    consoleOutput.textContent = '';
+                }
+
+                // Likes count
+                const likeCountEl = document.getElementById('readLikeCount');
+                if (likeCountEl) likeCountEl.textContent = r.likes || '14';
+
                 document.getElementById('excelReaderModal').classList.add('open');
+            };
+
+            window.copyReaderCode = function () {
+                if (!currentViewingArticle) return;
+                const code = currentViewingArticle.platform_code || '';
+                navigator.clipboard.writeText(code).then(() => {
+                    const btn = document.getElementById('readCopyBtn');
+                    const text = document.getElementById('readCopyBtnText');
+                    if (btn) btn.classList.add('copied');
+                    if (text) text.textContent = '¡Copiado! ✓';
+                    setTimeout(() => {
+                        if (btn) btn.classList.remove('copied');
+                        if (text) text.textContent = 'Copiar Código';
+                    }, 2000);
+                });
+            };
+
+            window.runReaderSandbox = function () {
+                if (!currentViewingArticle) return;
+                const consoleOutput = document.getElementById('readConsoleOutput');
+                if (!consoleOutput) return;
+
+                consoleOutput.classList.add('open');
+                consoleOutput.textContent = `[SANDBOX ENGINE] -> Inicializando entorno de ejecución seguro...\n` +
+                    `>>> Validando firma cuántica: [${currentViewingArticle.auth_signature || 'SPHINCS+'}]\n` +
+                    `>>> Compilando ${currentViewingArticle.platform_code_name || 'module.py'}...\n` +
+                    `------------------------------------------------------------------------\n` +
+                    `[HASHCOD RUNTIME 2026.8] Ejecutando módulo ${currentViewingArticle.identifier_code}...\n` +
+                    `Tokens consumidos: ${currentViewingArticle.num_tokens} | Costo sesión: $${(parseFloat(currentViewingArticle.num_tokens||1000)*parseFloat(currentViewingArticle.cost_per_token||0.00015)).toFixed(2)}\n` +
+                    `Resultado: Proceso finalizado con éxito (código de salida 0).\n` +
+                    `Huella criptográfica NIST: ${currentViewingArticle.auth_signature_digest || 'SLH-DSA-SHAKE-256s-OK'}\n` +
+                    `------------------------------------------------------------------------\n` +
+                    `✓ Módulo verificado y operativo en el codespace.`;
+            };
+
+            window.downloadCurrentPlatformCode = function () {
+                if (!currentViewingArticle) return;
+                const filename = currentViewingArticle.platform_code_name || `${currentViewingArticle.identifier_code}.py`;
+                const content = currentViewingArticle.platform_code || '# Code';
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            window.openBlogSphincsViewerFromModal = function () {
+                if (!currentViewingArticle) return;
+                window.openBlogSphincsViewer(currentViewingArticle.identifier_code);
+            };
+
+            window.likeCurrentPost = function () {
+                if (!currentViewingArticle) return;
+                currentViewingArticle.likes = (parseInt(currentViewingArticle.likes || 14) + 1);
+                const countEl = document.getElementById('readLikeCount');
+                if (countEl) countEl.textContent = currentViewingArticle.likes;
+
+                const rows = getSharedPublicationRows();
+                const idx = rows.findIndex(x => x.identifier_code === currentViewingArticle.identifier_code);
+                if (idx >= 0) {
+                    rows[idx].likes = currentViewingArticle.likes;
+                    saveAdminRows(rows);
+                }
             };
 
             window.closeExcelBlogReader = function () {

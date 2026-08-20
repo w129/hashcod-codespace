@@ -4332,22 +4332,6 @@ if (!headers_sent()) {
         }
 
         /* ==========================================================================
-           EXCEL BLOG TOOL (Blog de Publicaciones estilo Hoja de Cálculo Excel)
-           ========================================================================== */
-        .excel-blog-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 95;
-            background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(4px);
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        /* ==========================================================================
            TOOLBOX TOOL 1: PUBLICATIONS AND PREVIEW BLOG (16 COLUMNS & REAL READER)
            ========================================================================== */
         .excel-blog-overlay {

@@ -4367,6 +4367,9 @@ if (!headers_sent()) {
 
         .excel-blog-overlay.open {
             display: flex;
+            opacity: 1;
+        }
+
         /* =========================================================================
            FIGMA SPECIFICATION: TABLE-SECTION-CARD & MEGA-CREATOR ILLUSTRATION
            ========================================================================= */

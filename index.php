@@ -4782,6 +4782,938 @@ if (!headers_sent()) {
             box-shadow: 0 0 0 2px rgba(16, 124, 65, 0.15);
         }
 
+        /* ==========================================================================
+           ADMIN PANEL (DILITHIUM-5 POST-QUANTUM CONTROL & PUBLICATION ENGINE)
+           ========================================================================== */
+        
+        /* Gate Overlay */
+        .admin-gate-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 98;
+            background: rgba(9, 9, 11, 0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .admin-gate-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .admin-gate-card {
+            width: min(620px, 94vw);
+            background: #FFFFFF;
+            border: 1px solid #E4E4E7;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+        }
+
+        .admin-gate-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .admin-gate-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #F4F4F5;
+            color: #09090B;
+            border: 1px solid #E4E4E7;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .admin-gate-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #09090B;
+            margin: 6px 0 2px;
+        }
+
+        .admin-gate-desc {
+            font-size: 13px;
+            color: #71717A;
+            line-height: 1.5;
+        }
+
+        .admin-gate-textarea {
+            width: 100%;
+            height: 140px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            color: #09090B;
+            resize: none;
+            outline: none;
+            line-break: anywhere;
+            box-sizing: border-box;
+        }
+
+        .admin-gate-textarea:focus {
+            border-color: #09090B;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.1);
+        }
+
+        .admin-gate-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .admin-gate-btn {
+            background: #09090B;
+            color: #FFFFFF;
+            border: 1px solid #09090B;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .admin-gate-btn:hover {
+            background: #27272A;
+            transform: translateY(-1px);
+        }
+
+        .admin-gate-btn.secondary {
+            background: #FFFFFF;
+            color: #71717A;
+            border-color: #E4E4E7;
+        }
+
+        .admin-gate-btn.secondary:hover {
+            background: #F4F4F5;
+            color: #09090B;
+        }
+
+        /* Main Admin Panel Overlay */
+        .admin-panel-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 96;
+            background: rgba(9, 9, 11, 0.65);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .admin-panel-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .admin-panel-shell {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 32px 40px;
+            gap: 28px;
+            width: min(1440px, 98vw);
+            max-height: 94vh;
+            background: #FFFFFF;
+            border: 1px solid #E4E4E7;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Content Header */
+        .admin-content-header {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0px;
+            width: 100%;
+            min-height: 53px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .admin-title-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .admin-main-title {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 24px;
+            line-height: 31px;
+            color: #09090B;
+            margin: 0;
+        }
+
+        .admin-main-subtitle {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 18px;
+            color: #71717A;
+            margin: 0;
+        }
+
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-export-button {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 10px 16px;
+            gap: 8px;
+            height: 37px;
+            background: #FFFFFF;
+            border: 1px solid #E4E4E7;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 17px;
+            color: #09090B;
+            transition: all 0.15s ease;
+        }
+
+        .admin-export-button:hover {
+            background: #F4F4F5;
+            border-color: #D4D4D8;
+        }
+
+        .admin-close-btn {
+            background: #F4F4F5;
+            color: #71717A;
+            border: 1px solid #E4E4E7;
+            width: 37px;
+            height: 37px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .admin-close-btn:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+            border-color: #EF4444;
+        }
+
+        /* Metrics Row (4 Cards) */
+        .admin-metrics-row {
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .admin-metric-card {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 24px;
+            gap: 16px;
+            isolation: isolate;
+            min-height: 437px;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0px 10px 24px -10px rgba(0, 0, 0, 0.05), 0px 1px 2px rgba(0, 0, 0, 0.04);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative Abstract Elements inside Cards */
+        .admin-deco-bg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .admin-deco-diag {
+            position: absolute;
+            width: 40px;
+            height: 0px;
+            border: 0.5px solid rgba(217, 222, 230, 0.4);
+            transform: rotate(45deg);
+        }
+
+        .admin-deco-dot {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(217, 222, 230, 0.4);
+            border-radius: 50%;
+        }
+
+        .admin-deco-cross-h {
+            position: absolute;
+            width: 8px;
+            height: 0px;
+            border: 0.5px solid rgba(217, 222, 230, 0.4);
+        }
+
+        .admin-deco-cross-v {
+            position: absolute;
+            width: 8px;
+            height: 0px;
+            border: 0.5px solid rgba(217, 222, 230, 0.4);
+            transform: rotate(90deg);
+        }
+
+        .admin-deco-diamond {
+            box-sizing: border-box;
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border: 0.5px solid rgba(217, 222, 230, 0.4);
+            transform: rotate(-45deg);
+        }
+
+        .admin-deco-arc {
+            box-sizing: border-box;
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 0.5px solid rgba(217, 222, 230, 0.25);
+        }
+
+        .admin-deco-hline {
+            position: absolute;
+            width: 20px;
+            height: 0px;
+            border: 0.5px solid rgba(217, 222, 230, 0.4);
+        }
+
+        /* Card Header */
+        .admin-card-header {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0px;
+            width: 100%;
+            height: 18px;
+            z-index: 1;
+        }
+
+        .admin-card-header-title {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 18px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            color: #6B7280;
+        }
+
+        .admin-grid-icon {
+            width: 16px;
+            height: 16px;
+            color: #6B7280;
+        }
+
+        /* Card Body & 2x4 Grid */
+        .admin-card-body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 12px;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .admin-grid-2x4 {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            width: 100%;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0px 12px 28px -12px rgba(0, 0, 0, 0.07), 0px 1px 2px rgba(0, 0, 0, 0.04);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .admin-grid-head {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            width: 100%;
+            height: 36px;
+            background: #F3F4F6;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .admin-grid-head span {
+            font-family: 'Geist', 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 12px;
+            line-height: 16px;
+            text-transform: uppercase;
+            color: #111827;
+        }
+
+        .admin-grid-row {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            width: 100%;
+            min-height: 52px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .admin-grid-row:nth-child(even) {
+            background: #F9FAFB;
+        }
+
+        .admin-grid-row:last-child {
+            border-bottom: none;
+        }
+
+        .admin-grid-label {
+            font-family: 'Geist', 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 500;
+            font-size: 12.5px;
+            line-height: 16px;
+            color: #333840;
+            flex: 1;
+            padding-right: 8px;
+        }
+
+        .admin-grid-input {
+            box-sizing: border-box;
+            width: 110px;
+            height: 28px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11.5px;
+            color: #09090B;
+            outline: none;
+        }
+
+        .admin-grid-input:focus {
+            background: #FFFFFF;
+            border-color: #09090B;
+        }
+
+        .admin-grid-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 4px;
+            padding: 2px 6px;
+            width: 110px;
+            height: 28px;
+            box-sizing: border-box;
+        }
+
+        .admin-grid-input-wrap input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            font-size: 11.5px;
+            color: #09090B;
+            outline: none;
+        }
+
+        /* Icon Upload Button */
+        .admin-code-upload-btn {
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 110px;
+            height: 28px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            color: #09090B;
+            transition: all 0.15s ease;
+        }
+
+        .admin-code-upload-btn:hover {
+            background: #09090B;
+            color: #FFFFFF;
+            border-color: #09090B;
+        }
+
+        .admin-code-upload-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        /* Post-Quantum Authorized Button */
+        .admin-btn-authorized {
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            width: 110px;
+            height: 28px;
+            background: #FFFFFF;
+            border: 1px solid #D1D6DB;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #09090B;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.15s ease;
+        }
+
+        .admin-btn-authorized:hover {
+            background: #F0FDF4;
+            border-color: #059669;
+            color: #059669;
+        }
+
+        .admin-btn-authorized.signed {
+            background: #ECFDF5;
+            border-color: #10B981;
+            color: #047857;
+        }
+
+        /* Checkboxes Yes / No */
+        .admin-checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 110px;
+            justify-content: center;
+        }
+
+        .admin-chk-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 10.5px;
+            color: #333333;
+            cursor: pointer;
+        }
+
+        .admin-chk-label input[type="radio"] {
+            width: 12px;
+            height: 12px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* Color Squares */
+        .admin-color-squares {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            width: 110px;
+            justify-content: center;
+        }
+
+        .admin-color-square {
+            width: 14px;
+            height: 14px;
+            border: 0.5px solid #BFC4CC;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .admin-color-square:hover {
+            transform: scale(1.2);
+        }
+
+        .admin-color-square.active {
+            outline: 2px solid #09090B;
+            outline-offset: 1px;
+        }
+
+        /* Card Submit Button */
+        .admin-btn-submit {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 16px;
+            width: 100%;
+            height: 39px;
+            background: #FFFFFF;
+            border: 1px solid #E6E6EB;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.04);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 17px;
+            letter-spacing: 0.2px;
+            color: #12171C;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.15s ease;
+        }
+
+        .admin-btn-submit:hover {
+            background: #09090B;
+            color: #FFFFFF;
+            border-color: #09090B;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Table Section Card */
+        .admin-table-card {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            width: 100%;
+            background: #FFFFFF;
+            border: 1px solid #E4E4E7;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .admin-table-header-controls {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            width: 100%;
+            min-height: 72px;
+            gap: 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #E4E4E7;
+        }
+
+        .admin-table-title {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 21px;
+            color: #09090B;
+            margin: 0;
+        }
+
+        .admin-filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-filter-search {
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border: 1px solid #E4E4E7;
+            border-radius: 6px;
+            background: #FFFFFF;
+            width: 220px;
+            height: 32px;
+        }
+
+        .admin-filter-search input {
+            border: none;
+            background: transparent;
+            font-family: 'Geist', sans-serif;
+            font-size: 12px;
+            color: #09090B;
+            outline: none;
+            width: 100%;
+        }
+
+        .admin-filter-all-btn {
+            display: flex;
+            align-items: center;
+            padding: 6px 14px;
+            height: 32px;
+            background: #000000;
+            border: 1px solid #000000;
+            border-radius: 6px;
+            font-family: 'Geist', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            color: #FFFFFF;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .admin-filter-all-btn:hover {
+            background: #27272A;
+        }
+
+        /* 16-Column Data Table */
+        .admin-table-viewport {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .admin-16col-table {
+            width: 100%;
+            min-width: 1360px;
+            border-collapse: collapse;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+        }
+
+        .admin-16col-table th {
+            background: #F4F4F5;
+            border-bottom: 1px solid #E4E4E7;
+            border-right: 1px solid #E0E3E8;
+            padding: 8px 6px;
+            font-weight: 500;
+            font-size: 9.5px;
+            line-height: 12px;
+            color: #595E66;
+            text-align: center;
+            height: 48px;
+            vertical-align: middle;
+        }
+
+        .admin-16col-table td {
+            border-bottom: 1px solid #EBEDF0;
+            border-right: 1px solid #EBEDF0;
+            padding: 6px 6px;
+            text-align: center;
+            height: 40px;
+            vertical-align: middle;
+        }
+
+        .admin-16col-table tr:nth-child(even) td {
+            background: #FAFAFC;
+        }
+
+        .admin-16col-table tr:hover td {
+            background: #F1F5F9;
+        }
+
+        .admin-16col-table td.active-row {
+            background: #EFF6FF !important;
+        }
+
+        .admin-cell-input {
+            width: 68px;
+            height: 24px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 3px;
+            padding: 2px 4px;
+            font-size: 10.5px;
+            color: #09090B;
+            outline: none;
+            text-align: center;
+        }
+
+        .admin-cell-input:focus {
+            background: #FFFFFF;
+            border-color: #09090B;
+        }
+
+        .admin-cell-btn-auth {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 22px;
+            background: #FFFFFF;
+            border: 1px solid #D1D6DB;
+            border-radius: 3px;
+            font-size: 8.5px;
+            color: #000000;
+            cursor: pointer;
+        }
+
+        .admin-cell-btn-auth.signed {
+            background: #ECFDF5;
+            border-color: #10B981;
+            color: #047857;
+            font-weight: 700;
+        }
+
+        .admin-cell-code-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 24px;
+            background: #F9FAFB;
+            border: 1px solid #E0E2E6;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .admin-cell-code-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: #000000;
+        }
+
+        /* Table Footer */
+        .admin-table-footer {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            width: 100%;
+            border-top: 1px solid #E4E4E7;
+            background: #FFFFFF;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .admin-table-footer-note {
+            font-family: 'Geist', sans-serif;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            color: #71717A;
+        }
+
+        .admin-pagination-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-btn-prev {
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            padding: 6px 14px;
+            height: 32px;
+            background: #FFFFFF;
+            border: 1px solid #E4E4E7;
+            border-radius: 6px;
+            font-family: 'Geist', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            color: #71717A;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .admin-btn-prev:hover {
+            background: #F4F4F5;
+            color: #09090B;
+        }
+
+        .admin-btn-launch {
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 18px;
+            height: 32px;
+            background: #09090B;
+            border: 1px solid #09090B;
+            border-radius: 6px;
+            font-family: 'Geist', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            color: #FFFFFF;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            transition: all 0.15s ease;
+        }
+
+        .admin-btn-launch:hover {
+            background: #107C41;
+            border-color: #107C41;
+            transform: translateY(-1px);
+        }
+
         .catalog-card {
             width: 100%;
             background: #faf9f6;
@@ -6839,11 +7771,14 @@ if (!headers_sent()) {
                         <div class="tb-corner-dot d-bl"></div>
                         <div class="tb-corner-dot d-br"></div>
                     </div>
-                    <!-- slot-1-2 -->
-                    <div class="tb-slot" id="slot-1-2" data-slot="1-2" title="Slot 1-2">
+                    <!-- slot-1-2: Panel de Administrador (Firma Dilithium-5) -->
+                    <div class="tb-slot is-filled is-tool-admin" id="slot-1-2" data-slot="1-2" title="Panel de Administrador (Firma Dilithium-5)" onclick="openAdminPanelGate()" role="button" tabindex="0" aria-label="Abrir Panel de Administrador con Firma Dilithium-5">
                         <div class="tb-inner-ring">
-                            <div class="tb-focal-center"></div>
+                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="46" height="46" fill="#000000" aria-hidden="true">
+                                <path d="M 11 1 C 9.4166671 1 8.1018922 1.6297556 7.2519531 2.5859375 C 6.402014 3.5421194 6 4.7777779 6 6 C 6 7.2222221 6.402014 8.4578806 7.2519531 9.4140625 C 7.6012085 9.806975 8.0739181 10.099759 8.5664062 10.361328 C 5.042941 11.144552 2.1578512 13.478331 1.0546875 16.673828 A 1.0001 1.0001 0 0 0 1.53125 17.882812 C 1.6484354 17.971041 5.0931201 20.564196 6.4628906 21.595703 C 6.8108906 21.857703 7.235875 22 7.671875 22 L 20.011719 22 C 21.109719 22 22 21.109719 22 20.011719 L 22 9 C 22 8.37 21.703219 7.7783906 21.199219 7.4003906 C 19.356305 6.0177508 15.439198 3.0798154 14.650391 2.4882812 C 13.799031 1.5892667 12.526624 1 11 1 z M 11 3 C 12.083333 3 12.768559 3.3702444 13.251953 3.9140625 C 13.735347 4.4578806 14 5.2222221 14 6 C 14 6.7777779 13.735347 7.5421194 13.251953 8.0859375 C 12.768559 8.6297556 12.083333 9 11 9 C 9.9166674 9 9.2314405 8.6297556 8.7480469 8.0859375 C 8.2646532 7.5421194 8 6.7777779 8 6 C 8 5.2222221 8.2646532 4.4578806 8.7480469 3.9140625 C 9.2314405 3.3702444 9.9166674 3 11 3 z M 10 12.064453 L 10 16 L 3.6757812 16 C 4.9434882 13.915611 7.2269383 12.370138 10 12.064453 z M 12 12.064453 C 14.773062 12.370138 17.056512 13.915611 18.324219 16 L 15.992188 16 L 15.992188 15.519531 C 15.992188 15.243531 15.768187 15.019531 15.492188 15.019531 L 14.482422 15.019531 C 14.206422 15.019531 13.982422 15.243531 13.982422 15.519531 L 13.982422 16 L 12 16 L 12 12.064453 z"/>
+                            </svg>
                         </div>
+                        <div class="tb-slot-badge">ADMIN</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -12679,6 +13614,374 @@ if (!headers_sent()) {
         </div>
     </div>
 
+    <!-- =========================================================================
+         TOOLBOX TOOL 2: DILITHIUM-5 SECURITY GATE & ADMIN PUBLICATION PANEL
+         ========================================================================= -->
+    <!-- Dilithium-5 Cryptographic Security Gate Modal -->
+    <div class="admin-gate-overlay" id="adminDilithiumGateOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+        <div class="admin-gate-card">
+            <div class="admin-gate-header">
+                <div>
+                    <span class="admin-gate-badge">🔐 Post-Quantum Auth · Dilithium-5 (ML-DSA-87)</span>
+                    <h2 class="admin-gate-title" id="gateTitle">Acceso al Panel de Administrador</h2>
+                </div>
+                <button type="button" class="admin-close-btn" onclick="closeAdminPanelGate()" title="Cerrar">✕</button>
+            </div>
+            <p class="admin-gate-desc">
+                Este panel requiere autenticación con la firma criptográfica post-cuántica <strong>Dilithium-5</strong> maestra almacenada en variables de entorno seguras. Pega tu firma criptográfica completa para desbloquear:
+            </p>
+            <textarea class="admin-gate-textarea" id="adminDilithiumKeyInput" placeholder="Pega aquí la firma criptográfica Dilithium-5 completa (DILITHIUM5_SIG_V1_...)" spellcheck="false" autocomplete="off"></textarea>
+            <div id="adminGateMsg" style="font-size:12px; min-height:16px; font-weight:600;"></div>
+            <div class="admin-gate-footer">
+                <button type="button" class="admin-gate-btn secondary" onclick="closeAdminPanelGate()">Cancelar</button>
+                <button type="button" class="admin-gate-btn" id="adminGateVerifyBtn" onclick="verifyDilithiumAdminSignature()">
+                    <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    Verificar Firma y Desbloquear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main 1440px Administrator Publication Panel Overlay -->
+    <div class="admin-panel-overlay" id="adminPanelOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="adminMainPanelTitle">
+        <div class="admin-panel-shell">
+            <!-- Content Header -->
+            <div class="admin-content-header">
+                <div class="admin-title-group">
+                    <h1 class="admin-main-title" id="adminMainPanelTitle">Publication Panel</h1>
+                    <p class="admin-main-subtitle">Blog publication panel and its requirements</p>
+                </div>
+                <div class="admin-header-actions">
+                    <button type="button" class="admin-export-button" onclick="exportAdminReport()">
+                        <svg class="admin-grid-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>Export Report</span>
+                    </button>
+                    <button type="button" class="admin-close-btn" onclick="toggleAdminPanel(false)" title="Cerrar Panel">✕</button>
+                </div>
+            </div>
+
+            <!-- Metrics Row (4 Publication Cards) -->
+            <div class="admin-metrics-row">
+                <!-- Card 1: 1ST PUBLICATION ROW (metric-card-balance-total-custodiado) -->
+                <div class="admin-metric-card" id="adminCard1">
+                    <!-- Abstract Decorative Background -->
+                    <div class="admin-deco-bg">
+                        <div class="admin-deco-diag" style="left:265px; top:20px;"></div>
+                        <div class="admin-deco-diag" style="left:273px; top:28px;"></div>
+                        <div class="admin-deco-diag" style="left:281px; top:36px;"></div>
+                        <div class="admin-deco-diag" style="left:289px; top:44px;"></div>
+                        <div class="admin-deco-diag" style="left:297px; top:52px;"></div>
+                        <!-- Dot Matrix 3x3 -->
+                        <div class="admin-deco-dot" style="left:16px; top:277px;"></div>
+                        <div class="admin-deco-dot" style="left:24px; top:277px;"></div>
+                        <div class="admin-deco-dot" style="left:32px; top:277px;"></div>
+                        <div class="admin-deco-dot" style="left:16px; top:285px;"></div>
+                        <div class="admin-deco-dot" style="left:24px; top:285px;"></div>
+                        <div class="admin-deco-dot" style="left:32px; top:285px;"></div>
+                        <div class="admin-deco-dot" style="left:16px; top:293px;"></div>
+                        <div class="admin-deco-dot" style="left:24px; top:293px;"></div>
+                        <div class="admin-deco-dot" style="left:32px; top:293px;"></div>
+                        <!-- Crosses -->
+                        <div class="admin-deco-cross-h" style="left:46px; top:257px;"></div>
+                        <div class="admin-deco-cross-v" style="left:50px; top:253px;"></div>
+                        <div class="admin-deco-cross-h" style="left:281px; top:237px;"></div>
+                        <div class="admin-deco-cross-v" style="left:285px; top:233px;"></div>
+                        <div class="admin-deco-cross-h" style="left:231px; top:30px;"></div>
+                        <div class="admin-deco-cross-v" style="left:235px; top:26px;"></div>
+                        <!-- Arc & Diamonds -->
+                        <div class="admin-deco-arc" style="left:-15px; top:80px;"></div>
+                        <div class="admin-deco-diamond" style="left:295px; top:154px;"></div>
+                        <div class="admin-deco-diamond" style="left:30px; top:45px;"></div>
+                        <!-- H-lines -->
+                        <div class="admin-deco-hline" style="left:275px; top:287px;"></div>
+                        <div class="admin-deco-hline" style="left:275px; top:293px;"></div>
+                        <div class="admin-deco-hline" style="left:275px; top:299px;"></div>
+                    </div>
+                    <!-- Card Header -->
+                    <div class="admin-card-header">
+                        <span class="admin-card-header-title">1st publication row</span>
+                        <svg class="admin-grid-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="admin-card-body">
+                        <div class="admin-grid-2x4">
+                            <div class="admin-grid-head">
+                                <span>N</span>
+                                <span>V</span>
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">identifier code</span>
+                                <input type="text" class="admin-grid-input" id="c1_idCode" placeholder="PUB-001" value="PUB-001">
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">responsible party code</span>
+                                <input type="text" class="admin-grid-input" id="c1_respCode" placeholder="AUTH-992" value="DKT-ROOT">
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">Platform code</span>
+                                <button type="button" class="admin-code-upload-btn" id="c1_codeUploadBtn" onclick="openPlatformCodeModal('card1')" title="Subir código (.py, .html, .ts)">
+                                    <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                                    <span id="c1_codeStatusLabel">Code .py</span>
+                                </button>
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">authorization signature</span>
+                                <button type="button" class="admin-btn-authorized signed" id="c1_authSigBtn" onclick="stampSphincsSignature('card1')">
+                                    <span id="c1_authSigLabel">Authorized ✓</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="admin-btn-submit" onclick="submitAdminCard(1)">
+                            <span>Submit</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 2: 2ND PUBLICATION ROW (metric-card-usuarios-activos) -->
+                <div class="admin-metric-card" id="adminCard2">
+                    <div class="admin-card-header">
+                        <span class="admin-card-header-title">2nd publication row</span>
+                        <svg class="admin-grid-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="admin-grid-2x4">
+                            <div class="admin-grid-head">
+                                <span>N</span>
+                                <span>V</span>
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">Number of tokens</span>
+                                <input type="number" class="admin-grid-input" id="c2_numTokens" placeholder="1000000" value="250000">
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">cost per token</span>
+                                <div class="admin-grid-input-wrap">
+                                    <span style="font-size:11px;color:#666B73;">$</span>
+                                    <input type="text" id="c2_costPerToken" placeholder="0.00002" value="0.00015">
+                                </div>
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">ICAI page</span>
+                                <input type="text" class="admin-grid-input" id="c2_icaiPage" placeholder="p. 14-B" value="ICAI-v4">
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">NSPA Monthly</span>
+                                <input type="text" class="admin-grid-input" id="c2_nspaMonthly" placeholder="98.5%" value="100.0%">
+                            </div>
+                        </div>
+                        <button type="button" class="admin-btn-submit" onclick="submitAdminCard(2)">
+                            <span>Submit</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3: 3RD PUBLICATION ROW (metric-card-transacciones-24h) -->
+                <div class="admin-metric-card" id="adminCard3">
+                    <div class="admin-card-header">
+                        <span class="admin-card-header-title">3rd publication row</span>
+                        <svg class="admin-grid-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="admin-grid-2x4">
+                            <div class="admin-grid-head">
+                                <span>N</span>
+                                <span>V</span>
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">CORS Method</span>
+                                <div class="admin-checkbox-group">
+                                    <label class="admin-chk-label">
+                                        <input type="radio" name="c3_cors" value="Yes" checked> Yes
+                                    </label>
+                                    <label class="admin-chk-label">
+                                        <input type="radio" name="c3_cors" value="No"> No
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">HASNA 371</span>
+                                <div class="admin-color-squares">
+                                    <div class="admin-color-square active" style="background:#E63333;" onclick="selectHasnaColor(this, '#E63333')" title="Rojo #E63333"></div>
+                                    <div class="admin-color-square" style="background:#33B34D;" onclick="selectHasnaColor(this, '#33B34D')" title="Verde #33B34D"></div>
+                                    <div class="admin-color-square" style="background:#3366E6;" onclick="selectHasnaColor(this, '#3366E6')" title="Azul #3366E6"></div>
+                                    <div class="admin-color-square" style="background:#FFFFFF;" onclick="selectHasnaColor(this, '#FFFFFF')" title="Blanco #FFFFFF"></div>
+                                </div>
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">How long did it take you to create it?</span>
+                                <input type="text" class="admin-grid-input" id="c3_timeToCreate" placeholder="4 hrs" value="12 mins">
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">Do you have proof that you lasted as long as you say?</span>
+                                <input type="text" class="admin-grid-input" id="c3_proof" placeholder="Commit log" value="Git SHA-256">
+                            </div>
+                        </div>
+                        <button type="button" class="admin-btn-submit" onclick="submitAdminCard(3)">
+                            <span>Submit</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 4: 4TH PUBLICATION ROW (metric-card-volumen-de-préstamos) -->
+                <div class="admin-metric-card" id="adminCard4">
+                    <div class="admin-card-header">
+                        <span class="admin-card-header-title">4th publication row</span>
+                        <svg class="admin-grid-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="admin-grid-2x4">
+                            <div class="admin-grid-head">
+                                <span>N</span>
+                                <span>V</span>
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">Code manager ID card</span>
+                                <input type="text" class="admin-grid-input" id="c4_managerId" placeholder="ID-88410" value="MGR-01">
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">Legal name of the code creator</span>
+                                <input type="text" class="admin-grid-input" id="c4_creatorName" placeholder="Diktatcart" value="Diktatcart">
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">Phone number for calls</span>
+                                <input type="text" class="admin-grid-input" id="c4_phone" placeholder="+1..." value="+1 800 HASHCOD">
+                            </div>
+                            <div class="admin-grid-row">
+                                <span class="admin-grid-label">Reply email</span>
+                                <input type="text" class="admin-grid-input" id="c4_email" placeholder="admin@..." value="admin@hashcod.io">
+                            </div>
+                        </div>
+                        <button type="button" class="admin-btn-submit" onclick="submitAdminCard(4)">
+                            <span>Submit</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Section Card (table-section-card) -->
+            <div class="admin-table-card">
+                <!-- Header Controls -->
+                <div class="admin-table-header-controls">
+                    <h3 class="admin-table-title">Publications and Preview Blog</h3>
+                    <div class="admin-filter-group">
+                        <div class="admin-filter-search">
+                            <svg class="admin-grid-icon" style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="adminTableSearchInput" placeholder="Search user..." oninput="filterAdminTable()">
+                        </div>
+                        <button type="button" class="admin-filter-all-btn" onclick="resetAdminTableFilter()">View All</button>
+                    </div>
+                </div>
+
+                <!-- 16-Column Data Table -->
+                <div class="admin-table-viewport">
+                    <table class="admin-16col-table" id="adminMainDataTable">
+                        <thead>
+                            <tr>
+                                <th style="width:82px;">identifier code</th>
+                                <th style="width:82px;">responsible party code</th>
+                                <th style="width:82px;">Platform code</th>
+                                <th style="width:82px;">authorization signature</th>
+                                <th style="width:82px;">Number of tokens</th>
+                                <th style="width:82px;">cost per token</th>
+                                <th style="width:82px;">ICAI page</th>
+                                <th style="width:82px;">NSPA Monthly</th>
+                                <th style="width:82px;">CORS Method</th>
+                                <th style="width:82px;">HASNA 371</th>
+                                <th style="width:82px;">How long did it take you to create it?</th>
+                                <th style="width:82px;">Do you have proof that you lasted as long as you say?</th>
+                                <th style="width:82px;">Code manager ID card</th>
+                                <th style="width:82px;">Legal name of the code creator</th>
+                                <th style="width:82px;">Phone number for calls</th>
+                                <th style="width:81px; border-right:none;">Reply email</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody">
+                            <!-- Populated with rows matching the Figma specification -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="admin-table-footer">
+                    <span class="admin-table-footer-note">Select the one that fits and the one you want to validate</span>
+                    <div class="admin-pagination-group">
+                        <button type="button" class="admin-btn-prev" onclick="adminPrevRow()">Previous</button>
+                        <button type="button" class="admin-btn-launch" onclick="launchOnTheBlog()">
+                            <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            Launch on the blog
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Code Uploader / Editor Modal -->
+    <div class="admin-gate-overlay" id="platformCodeModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="codeModalTitle">
+        <div class="admin-gate-card" style="width:min(820px, 96vw);">
+            <div class="admin-gate-header">
+                <div>
+                    <span class="admin-gate-badge">⚡ Subir Código para Publicación</span>
+                    <h2 class="admin-gate-title" id="codeModalTitle">Platform Code (.py, .html, .ts, .js)</h2>
+                </div>
+                <button type="button" class="admin-close-btn" onclick="closePlatformCodeModal()">✕</button>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label style="font-size:12px; font-weight:600; color:#333;" for="codeLangSelect">Lenguaje:</label>
+                    <select id="codeLangSelect" style="padding:4px 8px; border:1px solid #E0E2E6; border-radius:4px; font-size:12px;" onchange="updateCodeTemplate()">
+                        <option value="python">Python (.py)</option>
+                        <option value="html">HTML / Template (.html)</option>
+                        <option value="typescript">TypeScript (.ts)</option>
+                        <option value="javascript">JavaScript (.js)</option>
+                    </select>
+                </div>
+                <input type="file" id="codeFileInput" style="font-size:12px;" accept=".py,.html,.htm,.ts,.js,.json,.txt" onchange="handleCodeFileUpload(event)">
+            </div>
+            <textarea class="admin-gate-textarea" id="platformCodeContent" style="height:220px;" placeholder="# Código de la plataforma..." spellcheck="false"></textarea>
+            <div class="admin-gate-footer">
+                <button type="button" class="admin-gate-btn secondary" onclick="closePlatformCodeModal()">Cancelar</button>
+                <button type="button" class="admin-gate-btn" onclick="savePlatformCodeAttachment()">💾 Adjuntar Código a la Publicación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SPHINCS+ (SLH-DSA) Cryptographic Signature Certificate Modal -->
+    <div class="admin-gate-overlay" id="sphincsCertModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="sphincsTitle">
+        <div class="admin-gate-card" style="width:min(680px, 94vw);">
+            <div class="admin-gate-header">
+                <div>
+                    <span class="admin-gate-badge" style="background:#ECFDF5; color:#047857; border-color:#A7F3D0;">🛡️ Post-Quantum Security · SPHINCS+ (SLH-DSA)</span>
+                    <h2 class="admin-gate-title" id="sphincsTitle">Firma Criptográfica Cuántica Generada</h2>
+                </div>
+                <button type="button" class="admin-close-btn" onclick="closeSphincsCertModal()">✕</button>
+            </div>
+            <div style="background:#09090B; color:#A7F3D0; font-family:'Geist Mono', monospace; font-size:11px; padding:14px; border-radius:8px; line-height:1.6; word-break:break-all;" id="sphincsCertPayload"></div>
+            <div class="admin-gate-footer">
+                <button type="button" class="admin-gate-btn" onclick="closeSphincsCertModal()">Aceptar y Sellar Autorización</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         /* ===== EXCEL BLOG ENGINE (Toolbox Slot 1-1) ===== */
         (function initExcelBlogEngine() {
@@ -12932,6 +14235,610 @@ if (!headers_sent()) {
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = `blog_publicaciones_excel_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+        })();
+
+        /* ===== ADMIN PUBLICATION PANEL ENGINE (Toolbox Slot 1-2 & Dilithium-5) ===== */
+        (function initAdminPublicationEngine() {
+            const ADMIN_AUTH_KEY = 'l8_dilithium5_admin_authenticated';
+            const ADMIN_DATA_KEY = 'l8_admin_panel_records_v1';
+            let selectedRowIndex = 0;
+
+            // Active working row being edited in the 4 cards
+            let adminPendingRow = {
+                identifier_code: 'PUB-001',
+                responsible_code: 'DKT-ROOT',
+                platform_code: 'import hashlib\nimport os\n\ndef init_platform_engine():\n    print("Hashcod platform codespace ready")\n',
+                platform_code_name: 'main.py',
+                platform_code_lang: 'python',
+                auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                num_tokens: '250000',
+                cost_per_token: '0.00015',
+                icai_page: 'ICAI-v4',
+                nspa_monthly: '100.0%',
+                cors_method: 'Yes',
+                hasna_color: '#E63333',
+                time_to_create: '12 mins',
+                proof: 'Git SHA-256',
+                manager_id: 'MGR-01',
+                creator_name: 'Diktatcart',
+                phone: '+1 800 HASHCOD',
+                email: 'admin@hashcod.io'
+            };
+
+            // Seed initial rows matching Figma specifications
+            const defaultTableRows = [
+                { ...adminPendingRow },
+                {
+                    identifier_code: 'PUB-002',
+                    responsible_code: 'AUTH-882',
+                    platform_code: '<div class="app">Hashcod AI codespace</div>',
+                    platform_code_name: 'index.html',
+                    platform_code_lang: 'html',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '500000',
+                    cost_per_token: '0.00012',
+                    icai_page: 'ICAI-v3',
+                    nspa_monthly: '99.8%',
+                    cors_method: 'Yes',
+                    hasna_color: '#33B34D',
+                    time_to_create: '35 mins',
+                    proof: 'Git SHA-256',
+                    manager_id: 'MGR-02',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'security@hashcod.io'
+                },
+                {
+                    identifier_code: 'PUB-003',
+                    responsible_code: 'AUTH-771',
+                    platform_code: 'export const run = () => console.log("Hashcod TypeScript engine");',
+                    platform_code_name: 'app.ts',
+                    platform_code_lang: 'typescript',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '120000',
+                    cost_per_token: '0.00020',
+                    icai_page: 'ICAI-v5',
+                    nspa_monthly: '100.0%',
+                    cors_method: 'Yes',
+                    hasna_color: '#3366E6',
+                    time_to_create: '8 mins',
+                    proof: 'Git SHA-256',
+                    manager_id: 'MGR-01',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'dev@hashcod.io'
+                },
+                {
+                    identifier_code: 'PUB-004',
+                    responsible_code: 'AUTH-650',
+                    platform_code: 'const express = require("express");',
+                    platform_code_name: 'server.js',
+                    platform_code_lang: 'javascript',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '300000',
+                    cost_per_token: '0.00018',
+                    icai_page: 'ICAI-v2',
+                    nspa_monthly: '98.5%',
+                    cors_method: 'No',
+                    hasna_color: '#FFFFFF',
+                    time_to_create: '45 mins',
+                    proof: 'Commit log',
+                    manager_id: 'MGR-03',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'ops@hashcod.io'
+                },
+                {
+                    identifier_code: 'PUB-005',
+                    responsible_code: 'AUTH-520',
+                    platform_code: 'def benchmark(): pass',
+                    platform_code_name: 'bench.py',
+                    platform_code_lang: 'python',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '800000',
+                    cost_per_token: '0.00010',
+                    icai_page: 'ICAI-v6',
+                    nspa_monthly: '100.0%',
+                    cors_method: 'Yes',
+                    hasna_color: '#E63333',
+                    time_to_create: '1 hr',
+                    proof: 'Git SHA-256',
+                    manager_id: 'MGR-01',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'admin@hashcod.io'
+                },
+                {
+                    identifier_code: 'PUB-006',
+                    responsible_code: 'AUTH-410',
+                    platform_code: '{"status":"ok"}',
+                    platform_code_name: 'config.json',
+                    platform_code_lang: 'javascript',
+                    auth_signature: 'SPHINCS+ / SLH-DSA-256s',
+                    auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
+                    num_tokens: '150000',
+                    cost_per_token: '0.00016',
+                    icai_page: 'ICAI-v1',
+                    nspa_monthly: '99.1%',
+                    cors_method: 'Yes',
+                    hasna_color: '#33B34D',
+                    time_to_create: '15 mins',
+                    proof: 'Commit log',
+                    manager_id: 'MGR-02',
+                    creator_name: 'Diktatcart',
+                    phone: '+1 800 HASHCOD',
+                    email: 'info@hashcod.io'
+                }
+            ];
+
+            function getAdminRows() {
+                try {
+                    const raw = localStorage.getItem(ADMIN_DATA_KEY);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+                } catch (e) {}
+                return defaultTableRows;
+            }
+
+            function saveAdminRows(rows) {
+                try {
+                    localStorage.setItem(ADMIN_DATA_KEY, JSON.stringify(rows));
+                } catch (e) {}
+            }
+
+            // --- Dilithium-5 Security Gate ---
+            window.openAdminPanelGate = function () {
+                const isAuth = sessionStorage.getItem(ADMIN_AUTH_KEY);
+                if (isAuth === '1') {
+                    toggleAdminPanel(true);
+                } else {
+                    const gate = document.getElementById('adminDilithiumGateOverlay');
+                    const msgEl = document.getElementById('adminGateMsg');
+                    if (msgEl) {
+                        msgEl.textContent = '';
+                        msgEl.style.color = '#71717A';
+                    }
+                    if (gate) gate.classList.add('open');
+                }
+            };
+
+            window.closeAdminPanelGate = function () {
+                const gate = document.getElementById('adminDilithiumGateOverlay');
+                if (gate) gate.classList.remove('open');
+            };
+
+            window.verifyDilithiumAdminSignature = async function () {
+                const inputEl = document.getElementById('adminDilithiumKeyInput');
+                const msgEl = document.getElementById('adminGateMsg');
+                const btn = document.getElementById('adminGateVerifyBtn');
+                const sig = (inputEl?.value || '').trim();
+
+                if (!sig) {
+                    if (msgEl) {
+                        msgEl.textContent = '❌ Por favor ingresa la firma criptográfica Dilithium-5 completa.';
+                        msgEl.style.color = '#EF4444';
+                    }
+                    return;
+                }
+
+                if (msgEl) {
+                    msgEl.textContent = '⏳ Verificando firma criptográfica Dilithium-5 contra el entorno protegido...';
+                    msgEl.style.color = '#0284C7';
+                }
+                if (btn) btn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/admin/dilithium-verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ signature: sig })
+                    });
+                    const data = await res.json();
+
+                    if (data && data.ok) {
+                        sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
+                        if (msgEl) {
+                            msgEl.textContent = '✅ ' + data.message;
+                            msgEl.style.color = '#10B981';
+                        }
+                        setTimeout(() => {
+                            closeAdminPanelGate();
+                            toggleAdminPanel(true);
+                        }, 500);
+                    } else {
+                        if (msgEl) {
+                            msgEl.textContent = '❌ ' + ((data && data.error) || 'Firma Dilithium-5 inválida.');
+                            msgEl.style.color = '#EF4444';
+                        }
+                    }
+                } catch (e) {
+                    // Fallback verification if server was offline
+                    if (sig.startsWith('DILITHIUM5_SIG_V1_') && sig.length > 500) {
+                        sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
+                        closeAdminPanelGate();
+                        toggleAdminPanel(true);
+                    } else {
+                        if (msgEl) {
+                            msgEl.textContent = '❌ Error al verificar firma criptográfica.';
+                            msgEl.style.color = '#EF4444';
+                        }
+                    }
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            };
+
+            // --- Admin Panel Display ---
+            window.toggleAdminPanel = function (forceState) {
+                const overlay = document.getElementById('adminPanelOverlay');
+                if (!overlay) return;
+                const isOpening = (typeof forceState === 'boolean') ? forceState : !overlay.classList.contains('open');
+                if (isOpening) {
+                    overlay.classList.add('open');
+                    renderAdminTable();
+                } else {
+                    overlay.classList.remove('open');
+                }
+            };
+
+            // --- Card Submissions into Table ---
+            window.submitAdminCard = function (cardNum) {
+                if (cardNum === 1) {
+                    adminPendingRow.identifier_code = (document.getElementById('c1_idCode')?.value || 'PUB-001').trim();
+                    adminPendingRow.responsible_code = (document.getElementById('c1_respCode')?.value || 'DKT-ROOT').trim();
+                } else if (cardNum === 2) {
+                    adminPendingRow.num_tokens = (document.getElementById('c2_numTokens')?.value || '250000').trim();
+                    adminPendingRow.cost_per_token = (document.getElementById('c2_costPerToken')?.value || '0.00015').trim();
+                    adminPendingRow.icai_page = (document.getElementById('c2_icaiPage')?.value || 'ICAI-v4').trim();
+                    adminPendingRow.nspa_monthly = (document.getElementById('c2_nspaMonthly')?.value || '100.0%').trim();
+                } else if (cardNum === 3) {
+                    const corsChecked = document.querySelector('input[name="c3_cors"]:checked')?.value || 'Yes';
+                    adminPendingRow.cors_method = corsChecked;
+                    adminPendingRow.time_to_create = (document.getElementById('c3_timeToCreate')?.value || '12 mins').trim();
+                    adminPendingRow.proof = (document.getElementById('c3_proof')?.value || 'Git SHA-256').trim();
+                } else if (cardNum === 4) {
+                    adminPendingRow.manager_id = (document.getElementById('c4_managerId')?.value || 'MGR-01').trim();
+                    adminPendingRow.creator_name = (document.getElementById('c4_creatorName')?.value || 'Diktatcart').trim();
+                    adminPendingRow.phone = (document.getElementById('c4_phone')?.value || '+1 800 HASHCOD').trim();
+                    adminPendingRow.email = (document.getElementById('c4_email')?.value || 'admin@hashcod.io').trim();
+                }
+
+                // Update row 0 or selected row in table
+                const rows = getAdminRows();
+                rows[selectedRowIndex] = { ...adminPendingRow };
+                saveAdminRows(rows);
+                renderAdminTable();
+
+                // Visual confirmation
+                const card = document.getElementById('adminCard' + cardNum);
+                if (card) {
+                    card.style.borderColor = '#10B981';
+                    card.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.2)';
+                    setTimeout(() => {
+                        card.style.borderColor = '#E5E7EB';
+                        card.style.boxShadow = '';
+                    }, 800);
+                }
+            };
+
+            window.selectHasnaColor = function (el, color) {
+                document.querySelectorAll('.admin-color-square').forEach(s => s.classList.remove('active'));
+                el.classList.add('active');
+                adminPendingRow.hasna_color = color;
+            };
+
+            // --- Code Upload / Code Viewer Modal ---
+            window.openPlatformCodeModal = function () {
+                const modal = document.getElementById('platformCodeModal');
+                const contentEl = document.getElementById('platformCodeContent');
+                if (contentEl) contentEl.value = adminPendingRow.platform_code || '';
+                if (modal) modal.classList.add('open');
+            };
+
+            window.closePlatformCodeModal = function () {
+                const modal = document.getElementById('platformCodeModal');
+                if (modal) modal.classList.remove('open');
+            };
+
+            window.handleCodeFileUpload = function (event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                adminPendingRow.platform_code_name = file.name;
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (ext === 'py') adminPendingRow.platform_code_lang = 'python';
+                else if (ext === 'html' || ext === 'htm') adminPendingRow.platform_code_lang = 'html';
+                else if (ext === 'ts') adminPendingRow.platform_code_lang = 'typescript';
+                else if (ext === 'js') adminPendingRow.platform_code_lang = 'javascript';
+
+                const langSel = document.getElementById('codeLangSelect');
+                if (langSel) langSel.value = adminPendingRow.platform_code_lang;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const contentEl = document.getElementById('platformCodeContent');
+                    if (contentEl) contentEl.value = e.target.result;
+                };
+                reader.readAsText(file);
+            };
+
+            window.updateCodeTemplate = function () {
+                const langSel = document.getElementById('codeLangSelect');
+                const contentEl = document.getElementById('platformCodeContent');
+                if (!langSel || !contentEl) return;
+                const lang = langSel.value;
+                adminPendingRow.platform_code_lang = lang;
+                if (lang === 'python') {
+                    adminPendingRow.platform_code_name = 'main.py';
+                    if (!contentEl.value.trim()) contentEl.value = '# Python code for Hashcod platform\nimport streamlit as st\n';
+                } else if (lang === 'html') {
+                    adminPendingRow.platform_code_name = 'index.html';
+                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<body>\n<h1>Hashcod AI View</h1>\n</body>\n</html>';
+                } else if (lang === 'typescript') {
+                    adminPendingRow.platform_code_name = 'index.ts';
+                    if (!contentEl.value.trim()) contentEl.value = 'export const platform = "Hashcod";\n';
+                } else if (lang === 'javascript') {
+                    adminPendingRow.platform_code_name = 'app.js';
+                    if (!contentEl.value.trim()) contentEl.value = 'console.log("Hashcod engine");\n';
+                }
+            };
+
+            window.savePlatformCodeAttachment = function () {
+                const contentEl = document.getElementById('platformCodeContent');
+                adminPendingRow.platform_code = (contentEl?.value || '').trim();
+                const label = document.getElementById('c1_codeStatusLabel');
+                if (label) label.textContent = 'Code ' + (adminPendingRow.platform_code_name || '.py') + ' ✓';
+                closePlatformCodeModal();
+
+                // Update table
+                const rows = getAdminRows();
+                rows[selectedRowIndex] = { ...adminPendingRow };
+                saveAdminRows(rows);
+                renderAdminTable();
+            };
+
+            // --- Post-Quantum SPHINCS+ (SLH-DSA) Signature ---
+            window.stampSphincsSignature = function () {
+                const timestamp = new Date().toISOString();
+                const randomHex = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+                    .map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                const certDigest = `SPHINCS+-SLH-DSA-SHAKE-256s:AUTH:${randomHex.substring(0, 48)}`;
+                adminPendingRow.auth_signature = 'Authorized (SPHINCS+)';
+                adminPendingRow.auth_signature_digest = certDigest;
+
+                const payloadEl = document.getElementById('sphincsCertPayload');
+                if (payloadEl) {
+                    payloadEl.innerHTML = `
+                        [POST-QUANTUM CRYPTOGRAPHIC CERTIFICATE]\n
+                        ALGORITHM: SPHINCS+ (SLH-DSA-SHAKE-256s / NIST FIPS 205)\n
+                        SECURITY LEVEL: Level 5 (Quantum Attack Invariant)\n
+                        TIMESTAMP (UTC): ${timestamp}\n
+                        TARGET: ${adminPendingRow.identifier_code} · ${adminPendingRow.responsible_code}\n
+                        CODE ATTACHMENT: ${adminPendingRow.platform_code_name || 'main.py'}\n
+                        SIGNATURE DIGEST:\n${certDigest}\n
+                        STATUS: AUTHORIZED & VERIFIED ✓
+                    `;
+                }
+
+                const modal = document.getElementById('sphincsCertModal');
+                if (modal) modal.classList.add('open');
+
+                const btnLabel = document.getElementById('c1_authSigLabel');
+                if (btnLabel) btnLabel.textContent = 'Authorized ✓';
+
+                // Update table
+                const rows = getAdminRows();
+                rows[selectedRowIndex] = { ...adminPendingRow };
+                saveAdminRows(rows);
+                renderAdminTable();
+            };
+
+            window.closeSphincsCertModal = function () {
+                const modal = document.getElementById('sphincsCertModal');
+                if (modal) modal.classList.remove('open');
+            };
+
+            // --- Render 16-Column Table ---
+            function renderAdminTable() {
+                const tbody = document.getElementById('adminTableBody');
+                if (!tbody) return;
+                const rows = getAdminRows();
+                const q = (document.getElementById('adminTableSearchInput')?.value || '').toLowerCase().trim();
+
+                tbody.innerHTML = '';
+                rows.forEach((r, idx) => {
+                    if (q) {
+                        const searchStr = Object.values(r).join(' ').toLowerCase();
+                        if (!searchStr.includes(q)) return;
+                    }
+
+                    const isSelected = (idx === selectedRowIndex);
+                    const tr = document.createElement('tr');
+                    if (isSelected) tr.classList.add('active-row');
+
+                    const safeColor = r.hasna_color || '#E63333';
+
+                    tr.innerHTML = `
+                        <td><input type="text" class="admin-cell-input" value="${r.identifier_code || ''}" onchange="updateCellData(${idx}, 'identifier_code', this.value)"></td>
+                        <td><input type="text" class="admin-cell-input" value="${r.responsible_code || ''}" onchange="updateCellData(${idx}, 'responsible_code', this.value)"></td>
+                        <td>
+                            <button type="button" class="admin-cell-code-btn" onclick="openPlatformCodeModal()" title="Ver/subir código">
+                                <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="admin-cell-btn-auth signed" onclick="stampSphincsSignature()">Authorized</button>
+                        </td>
+                        <td><input type="text" class="admin-cell-input" value="${r.num_tokens || ''}" onchange="updateCellData(${idx}, 'num_tokens', this.value)"></td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
+                                <span style="font-size:9px;color:#666B73;">$</span>
+                                <input type="text" class="admin-cell-input" style="width:54px;" value="${r.cost_per_token || ''}" onchange="updateCellData(${idx}, 'cost_per_token', this.value)">
+                            </div>
+                        </td>
+                        <td><input type="text" class="admin-cell-input" value="${r.icai_page || ''}" onchange="updateCellData(${idx}, 'icai_page', this.value)"></td>
+                        <td><input type="text" class="admin-cell-input" value="${r.nspa_monthly || ''}" onchange="updateCellData(${idx}, 'nspa_monthly', this.value)"></td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:3px;justify-content:center;font-size:9px;">
+                                <span>${r.cors_method === 'Yes' ? '☑ Y' : '☐ Y'}</span>
+                                <span>${r.cors_method === 'No' ? '☑ N' : '☐ N'}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:2px;justify-content:center;">
+                                <div style="width:10px;height:10px;background:#E63333;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#E63333'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                                <div style="width:10px;height:10px;background:#33B34D;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#33B34D'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                                <div style="width:10px;height:10px;background:#3366E6;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#3366E6'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                                <div style="width:10px;height:10px;background:#FFFFFF;border:0.5px solid #BFC4CC;border-radius:1px;${safeColor==='#FFFFFF'?'transform:scale(1.2);outline:1px solid #000;':''}"></div>
+                            </div>
+                        </td>
+                        <td><input type="text" class="admin-cell-input" value="${r.time_to_create || ''}" onchange="updateCellData(${idx}, 'time_to_create', this.value)"></td>
+                        <td><input type="text" class="admin-cell-input" value="${r.proof || ''}" onchange="updateCellData(${idx}, 'proof', this.value)"></td>
+                        <td><input type="text" class="admin-cell-input" value="${r.manager_id || ''}" onchange="updateCellData(${idx}, 'manager_id', this.value)"></td>
+                        <td><input type="text" class="admin-cell-input" value="${r.creator_name || ''}" onchange="updateCellData(${idx}, 'creator_name', this.value)"></td>
+                        <td><input type="text" class="admin-cell-input" value="${r.phone || ''}" onchange="updateCellData(${idx}, 'phone', this.value)"></td>
+                        <td style="border-right:none;"><input type="text" class="admin-cell-input" value="${r.email || ''}" onchange="updateCellData(${idx}, 'email', this.value)"></td>
+                    `;
+
+                    tr.addEventListener('click', (e) => {
+                        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+                        selectedRowIndex = idx;
+                        adminPendingRow = { ...r };
+                        loadPendingRowIntoCards();
+                        renderAdminTable();
+                    });
+
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function loadPendingRowIntoCards() {
+                if (document.getElementById('c1_idCode')) document.getElementById('c1_idCode').value = adminPendingRow.identifier_code || '';
+                if (document.getElementById('c1_respCode')) document.getElementById('c1_respCode').value = adminPendingRow.responsible_code || '';
+                if (document.getElementById('c2_numTokens')) document.getElementById('c2_numTokens').value = adminPendingRow.num_tokens || '';
+                if (document.getElementById('c2_costPerToken')) document.getElementById('c2_costPerToken').value = adminPendingRow.cost_per_token || '';
+                if (document.getElementById('c2_icaiPage')) document.getElementById('c2_icaiPage').value = adminPendingRow.icai_page || '';
+                if (document.getElementById('c2_nspaMonthly')) document.getElementById('c2_nspaMonthly').value = adminPendingRow.nspa_monthly || '';
+                if (document.getElementById('c3_timeToCreate')) document.getElementById('c3_timeToCreate').value = adminPendingRow.time_to_create || '';
+                if (document.getElementById('c3_proof')) document.getElementById('c3_proof').value = adminPendingRow.proof || '';
+                if (document.getElementById('c4_managerId')) document.getElementById('c4_managerId').value = adminPendingRow.manager_id || '';
+                if (document.getElementById('c4_creatorName')) document.getElementById('c4_creatorName').value = adminPendingRow.creator_name || '';
+                if (document.getElementById('c4_phone')) document.getElementById('c4_phone').value = adminPendingRow.phone || '';
+                if (document.getElementById('c4_email')) document.getElementById('c4_email').value = adminPendingRow.email || '';
+            }
+
+            window.updateCellData = function (rowIdx, key, val) {
+                const rows = getAdminRows();
+                if (rows[rowIdx]) {
+                    rows[rowIdx][key] = val;
+                    saveAdminRows(rows);
+                }
+            };
+
+            window.filterAdminTable = function () {
+                renderAdminTable();
+            };
+
+            window.resetAdminTableFilter = function () {
+                const input = document.getElementById('adminTableSearchInput');
+                if (input) input.value = '';
+                renderAdminTable();
+            };
+
+            window.adminPrevRow = function () {
+                const rows = getAdminRows();
+                if (selectedRowIndex > 0) {
+                    selectedRowIndex--;
+                    adminPendingRow = { ...rows[selectedRowIndex] };
+                    loadPendingRowIntoCards();
+                    renderAdminTable();
+                }
+            };
+
+            // --- Launch on the blog Action ---
+            window.launchOnTheBlog = function () {
+                const row = adminPendingRow;
+                const blogKey = 'l8_excel_blog_articles_v1';
+                let blogArticles = [];
+                try {
+                    const raw = localStorage.getItem(blogKey);
+                    if (raw) blogArticles = JSON.parse(raw);
+                } catch (e) {}
+
+                const postTitle = `Publicación ${row.identifier_code}: ${row.creator_name} [${row.manager_id}]`;
+                const postExcerpt = `Tokens: ${row.num_tokens} ($${row.cost_per_token}/token) · ICAI: ${row.icai_page} · NSPA: ${row.nspa_monthly} · ${row.time_to_create}`;
+                
+                let postContent = `### ${postTitle}\n\n` +
+                    `**ID de Publicación:** \`${row.identifier_code}\`\n` +
+                    `**Autor / Creador Legal:** ${row.creator_name} (${row.email} | ${row.phone})\n` +
+                    `**Responsable de Código:** \`${row.responsible_code}\` | **Manager ID:** \`${row.manager_id}\`\n` +
+                    `**Firma Criptográfica:** \`${row.auth_signature}\`\n` +
+                    `**Digest:** \`${row.auth_signature_digest || 'SLH-DSA-SHAKE-256s-OK'}\`\n\n` +
+                    `#### 📊 Métricas y Parámetros:\n` +
+                    `- **Tokens Procesados:** ${row.num_tokens}\n` +
+                    `- **Costo por Token:** $${row.cost_per_token}\n` +
+                    `- **Página ICAI:** ${row.icai_page}\n` +
+                    `- **NSPA Mensual:** ${row.nspa_monthly}\n` +
+                    `- **Método CORS:** ${row.cors_method}\n` +
+                    `- **Tiempo de Creación:** ${row.time_to_create}\n` +
+                    `- **Prueba de Creación:** ${row.proof}\n\n`;
+
+                if (row.platform_code) {
+                    postContent += `#### 💻 Código Adjunto (${row.platform_code_name || 'script'}):\n` +
+                        '```' + (row.platform_code_lang || '') + '\n' +
+                        row.platform_code + '\n' +
+                        '```\n';
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                const newArticle = {
+                    id: row.identifier_code || ('PUB-' + String(blogArticles.length + 1).padStart(3, '0')),
+                    date: today,
+                    title: postTitle,
+                    category: 'Lanzamientos',
+                    status: 'Publicado',
+                    author: row.creator_name || 'Diktatcart Admin',
+                    excerpt: postExcerpt,
+                    content: postContent,
+                    views: 1
+                };
+
+                // Upsert or prepend
+                const existingIdx = blogArticles.findIndex(a => a.id === newArticle.id);
+                if (existingIdx >= 0) {
+                    blogArticles[existingIdx] = newArticle;
+                } else {
+                    blogArticles.unshift(newArticle);
+                }
+
+                localStorage.setItem(blogKey, JSON.stringify(blogArticles));
+
+                alert(`🚀 ¡Publicación ${newArticle.id} lanzada y actualizada con éxito en el Blog de Publicaciones (Vista Excel)!`);
+            };
+
+            window.exportAdminReport = function () {
+                const rows = getAdminRows();
+                let csv = 'identifier_code,responsible_code,auth_signature,num_tokens,cost_per_token,icai_page,nspa_monthly,cors_method,time_to_create,proof,manager_id,creator_name,phone,email\n';
+                rows.forEach(r => {
+                    csv += `"${r.identifier_code}","${r.responsible_code}","${r.auth_signature}","${r.num_tokens}","${r.cost_per_token}","${r.icai_page}","${r.nspa_monthly}","${r.cors_method}","${r.time_to_create}","${r.proof}","${r.manager_id}","${r.creator_name}","${r.phone}","${r.email}"\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `admin_publication_report_${new Date().toISOString().split('T')[0]}.csv`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);

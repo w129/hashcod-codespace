@@ -14233,6 +14233,28 @@ if (!headers_sent()) {
                     views: 1
                 });
 
+                saveArticles(articles);
+                closeExcelBlogAdminPublish();
+                renderExcelTable();
+            };
+
+            window.exportExcelBlogCsv = function () {
+                const articles = getArticles();
+                let csv = 'ID,Fecha,Titulo,Categoria,Estado,Autor,Resumen,Vistas\n';
+                articles.forEach(a => {
+                    csv += `"${a.id}","${a.date}","${(a.title||'').replace(/"/g, '""')}","${a.category}","${a.status}","${a.author}","${(a.excerpt||'').replace(/"/g, '""')}",${a.views}\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `blog_publicaciones_excel_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
             window.renderExcelTable = renderExcelTable;
             window.getExcelArticles = getArticles;
             window.saveExcelArticles = saveArticles;

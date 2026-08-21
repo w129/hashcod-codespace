@@ -8611,11 +8611,14 @@ if (!headers_sent()) {
                         <div class="tb-corner-dot d-bl"></div>
                         <div class="tb-corner-dot d-br"></div>
                     </div>
-                    <!-- slot-1-3 -->
-                    <div class="tb-slot" id="slot-1-3" data-slot="1-3" title="Slot 1-3">
+                    <!-- slot-1-3: Nueva Herramienta (Tool 3) -->
+                    <div class="tb-slot is-filled is-tool-3" id="slot-1-3" data-slot="1-3" title="Herramienta 3" onclick="openToolboxTool3()" role="button" tabindex="0" aria-label="Abrir Herramienta 3">
                         <div class="tb-inner-ring">
-                            <div class="tb-focal-center"></div>
+                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="46" height="46" fill="#000000" aria-hidden="true">
+                                <path d="M 9.9726562 0 C 9.1845193 0 8.4283814 0.31380601 7.8710938 0.87109375 C 7.3138059 1.4283815 7 2.1845192 7 2.9726562 L 7 3 L 4.7324219 3 C 3.2352782 3 2 4.2352782 2 5.7324219 L 2 8.8320312 A 1.0001 1.0001 0 0 0 2 9.1582031 L 2 14.267578 C 2 14.351128 2.0178682 14.429969 2.0253906 14.511719 L 2 14.5 C 2 14.5 2.0313433 14.607351 2.0371094 14.626953 C 2.0855125 14.983884 2.2007251 15.318368 2.375 15.619141 C 2.4814805 15.835624 2.6131287 16.039412 2.7910156 16.205078 C 3.9150156 17.254078 7.1029219 20.229984 8.4199219 21.458984 C 8.7929219 21.806984 9.2829687 22 9.7929688 22 L 20.011719 22 C 20.539719 22 21.044969 21.790969 21.417969 21.417969 C 21.789969 21.044969 22 20.538719 22 20.011719 L 22 7.9296875 C 22 7.3406875 21.740016 6.7803906 21.291016 6.4003906 C 20.135016 5.4233906 17.970703 3.5957031 17.970703 3.5957031 L 17.970703 3.6191406 C 17.500912 3.2388471 16.912369 3 16.267578 3 L 14 3 L 14 2.9726562 C 14 2.1845193 13.686194 1.4283815 13.128906 0.87109375 C 12.571619 0.31380601 11.815481 0 11.027344 0 L 9.9726562 0 z M 9.9726562 2 L 11.027344 2 C 11.285207 2 11.532131 2.1024441 11.714844 2.2851562 C 11.897556 2.4678685 12 2.7147934 12 2.9726562 L 12 3 L 9 3 L 9 2.9726562 C 9 2.7147934 9.102444 2.4678686 9.2851562 2.2851562 C 9.4678686 2.1024441 9.7147934 2 9.9726562 2 z M 4.7324219 5 L 7.8320312 5 A 1.0001 1.0001 0 0 0 8.1582031 5 L 12.832031 5 A 1.0001 1.0001 0 0 0 13.158203 5 L 16.267578 5 C 16.684 5 17 5.3175655 17 5.7324219 L 17 8 L 4 8 L 4 5.7324219 C 4 5.3175655 4.3175655 5 4.7324219 5 z M 4 10 L 6 10 L 6 10.017578 C 6 10.277578 6.1021094 10.527891 6.2871094 10.712891 C 6.4711094 10.896891 6.7224219 11 6.9824219 11 L 8.0136719 11 C 8.2756719 11 8.5259375 10.895938 8.7109375 10.710938 C 8.8959375 10.525937 9 10.275672 9 10.013672 L 9 10 L 12 10 L 12 10.017578 C 12 10.277578 12.103109 10.527891 12.287109 10.712891 C 12.471109 10.896891 12.722422 11 12.982422 11 L 14.013672 11 C 14.275672 11 14.525937 10.895938 14.710938 10.710938 C 14.895938 10.525937 15 10.275672 15 10.013672 L 15 10 L 17 10 L 17 14.267578 C 17 14.684 16.682434 15 16.267578 15 L 4.7324219 15 C 4.3160001 15 4 14.682434 4 14.267578 L 4 10 z"/>
+                            </svg>
                         </div>
+                        <div class="tb-slot-badge">TOOL 3</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -14934,8 +14937,30 @@ if (!headers_sent()) {
                 </button>
             </div>
             <div style="background:#09090B; color:#A7F3D0; font-family:'Geist Mono', monospace; font-size:11px; padding:14px; border-radius:8px; line-height:1.6; word-break:break-all;" id="sphincsCertPayload"></div>
+    <!-- =========================================================================
+         TOOLBOX TOOL 3: MODAL CONTENEDOR (NUEVA HERRAMIENTA)
+         ========================================================================= -->
+    <div class="admin-gate-overlay" id="tool3Modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="tool3ModalTitle">
+        <div class="admin-gate-card" style="width:min(760px, 94vw);">
+            <div class="admin-gate-header">
+                <div>
+                    <span class="admin-gate-badge" style="background:#F3F4F6; color:#111827; border-color:#D1D5DB;">
+                        <svg style="width:13px;height:13px;fill:currentColor;margin-right:4px;" viewBox="0 0 24 24">
+                            <path d="M 9.9726562 0 C 9.1845193 0 8.4283814 0.31380601 7.8710938 0.87109375 C 7.3138059 1.4283815 7 2.1845192 7 2.9726562 L 7 3 L 4.7324219 3 C 3.2352782 3 2 4.2352782 2 5.7324219 L 2 8.8320312 A 1.0001 1.0001 0 0 0 2 9.1582031 L 2 14.267578 C 2 14.351128 2.0178682 14.429969 2.0253906 14.511719 L 2 14.5 C 2 14.5 2.0313433 14.607351 2.0371094 14.626953 C 2.0855125 14.983884 2.2007251 15.318368 2.375 15.619141 C 2.4814805 15.835624 2.6131287 16.039412 2.7910156 16.205078 C 3.9150156 17.254078 7.1029219 20.229984 8.4199219 21.458984 C 8.7929219 21.806984 9.2829687 22 9.7929688 22 L 20.011719 22 C 20.539719 22 21.044969 21.790969 21.417969 21.417969 C 21.789969 21.044969 22 20.538719 22 20.011719 L 22 7.9296875 C 22 7.3406875 21.740016 6.7803906 21.291016 6.4003906 C 20.135016 5.4233906 17.970703 3.5957031 17.970703 3.5957031 L 17.970703 3.6191406 C 17.500912 3.2388471 16.912369 3 16.267578 3 L 14 3 L 14 2.9726562 C 14 2.1845193 13.686194 1.4283815 13.128906 0.87109375 C 12.571619 0.31380601 11.815481 0 11.027344 0 L 9.9726562 0 z M 9.9726562 2 L 11.027344 2 C 11.285207 2 11.532131 2.1024441 11.714844 2.2851562 C 11.897556 2.4678685 12 2.7147934 12 2.9726562 L 12 3 L 9 3 L 9 2.9726562 C 9 2.7147934 9.102444 2.4678686 9.2851562 2.2851562 C 9.4678686 2.1024441 9.7147934 2 9.9726562 2 z M 4.7324219 5 L 7.8320312 5 A 1.0001 1.0001 0 0 0 8.1582031 5 L 12.832031 5 A 1.0001 1.0001 0 0 0 13.158203 5 L 16.267578 5 C 16.684 5 17 5.3175655 17 5.7324219 L 17 8 L 4 8 L 4 5.7324219 C 4 5.3175655 4.3175655 5 4.7324219 5 z M 4 10 L 6 10 L 6 10.017578 C 6 10.277578 6.1021094 10.527891 6.2871094 10.712891 C 6.4711094 10.896891 6.7224219 11 6.9824219 11 L 8.0136719 11 C 8.2756719 11 8.5259375 10.895938 8.7109375 10.710938 C 8.8959375 10.525937 9 10.275672 9 10.013672 L 9 10 L 12 10 L 12 10.017578 C 12 10.277578 12.103109 10.527891 12.287109 10.712891 C 12.471109 10.896891 12.722422 11 12.982422 11 L 14.013672 11 C 14.275672 11 14.525937 10.895938 14.710938 10.710938 C 14.895938 10.525937 15 10.275672 15 10.013672 L 15 10 L 17 10 L 17 14.267578 C 17 14.684 16.682434 15 16.267578 15 L 4.7324219 15 C 4.3160001 15 4 14.682434 4 14.267578 L 4 10 z"/>
+                        </svg>
+                        Herramienta 3 · Toolbox
+                    </span>
+                    <h2 class="admin-gate-title" id="tool3ModalTitle">Herramienta 3</h2>
+                </div>
+                <button type="button" class="admin-close-btn" onclick="closeTool3Modal()" title="Cerrar">
+                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div id="tool3ModalBody" style="padding:16px 0; color:#374151; font-size:13px; line-height:1.6;">
+                <p>Módulo de Herramienta 3 inicializado y listo para la configuración de componentes.</p>
+            </div>
             <div class="admin-gate-footer">
-                <button type="button" class="admin-gate-btn" onclick="closeSphincsCertModal()">Aceptar y Sellar Autorización</button>
+                <button type="button" class="admin-gate-btn secondary" onclick="closeTool3Modal()">Cerrar</button>
             </div>
         </div>
     </div>
@@ -15904,6 +15929,20 @@ if (!headers_sent()) {
                     renderAdminTable();
                 }
                 window.showAdminToast(`✓ Código guardado: ${tokenCount.toLocaleString()} tokens asignados a [${adminPendingRow.identifier_code}].`);
+            };
+
+            // --- Toolbox Tool 3 (Nueva Herramienta) ---
+            window.openToolboxTool3 = function () {
+                if (typeof window.showAdminToast === 'function') {
+                    window.showAdminToast('Herramienta 3 abierta. Lista para configuración.');
+                }
+                const modal = document.getElementById('tool3Modal');
+                if (modal) modal.classList.add('open');
+            };
+
+            window.closeTool3Modal = function () {
+                const modal = document.getElementById('tool3Modal');
+                if (modal) modal.classList.remove('open');
             };
 
             // --- Post-Quantum SPHINCS+ (SLH-DSA) Signature Generation (Admin Exclusivo) ---

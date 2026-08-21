@@ -14893,14 +14893,26 @@ if (!headers_sent()) {
                         <option value="javascript">JavaScript (.js)</option>
                     </select>
                 </div>
-                <input type="file" id="codeFileInput" style="font-size:12px;" accept=".py,.html,.htm,.ts,.js,.json,.txt" onchange="handleCodeFileUpload(event)">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:12px; color:#6B7280;">Subir archivo:</span>
+                    <input type="file" id="codeFileInput" style="font-size:12px;" accept=".py,.html,.htm,.ts,.js,.json,.txt,.php,.css,.sql,.md" onchange="handleCodeFileUpload(event)">
+                </div>
             </div>
-            <textarea class="admin-gate-textarea" id="platformCodeContent" style="height:220px;" placeholder="# Código de la plataforma..." spellcheck="false"></textarea>
+            <textarea class="admin-gate-textarea" id="platformCodeContent" style="height:220px; font-family:'Geist Mono', monospace; font-size:12px;" placeholder="# Pega o escribe el código de la plataforma aquí..." spellcheck="false" oninput="onPlatformCodeInput()"></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:6px 2px; font-size:12px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span id="codeTokenCounterBadge" style="font-weight:700; color:#2563EB; background:#EFF6FF; border:1px solid #BFDBFE; padding:3px 10px; border-radius:6px;">
+                        🔢 Tokens: <strong id="codeTokenCountDisplay">0</strong>
+                    </span>
+                    <span style="color:#10B981; font-size:11px; font-weight:600;">(Calculado automáticamente en tiempo real)</span>
+                </div>
+                <span id="codeStatsDisplay" style="color:#6B7280; font-size:11px;">0 caracteres · 0 líneas</span>
+            </div>
             <div class="admin-gate-footer">
                 <button type="button" class="admin-gate-btn secondary" onclick="closePlatformCodeModal()">Cancelar</button>
                 <button type="button" class="admin-gate-btn" onclick="savePlatformCodeAttachment()">
                     <svg style="width:13px;height:13px;fill:currentColor;margin-right:6px;" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
-                    Adjuntar Código a la Publicación
+                    Adjuntar Código y Aplicar Tokens
                 </button>
             </div>
         </div>
@@ -15721,11 +15733,80 @@ if (!headers_sent()) {
                 }
             };
 
+            // --- Code Token Counter & Platform Code Engine ---
+            function calculateCodeTokens(text) {
+                if (!text || typeof text !== 'string') return 0;
+                const str = text.trim();
+                if (!str) return 0;
+
+                // Code tokenizer: palabras clave, identificadores, números, operadores compuestos, puntuación y espacios
+                const tokenRegex = /[a-zA-Z0-9_]+|==|!=|<=|>=|=>|->|\&\&|\|\||\+\+|\-\-|\+=|\-=|\*=|\/=|[\+\-\*\/\=\<\>\!\~\&\|\^\%\?\:\;\.\,\\\(\)\[\]\{\}\@\#\$]|\s+/g;
+                const matches = str.match(tokenRegex);
+                if (!matches) {
+                    return Math.max(1, Math.ceil(str.length / 3.8));
+                }
+
+                let count = 0;
+                for (let i = 0; i < matches.length; i++) {
+                    const m = matches[i];
+                    if (/^\s+$/.test(m)) {
+                        const newlines = (m.match(/\n/g) || []).length;
+                        const spaces = m.replace(/\n/g, '').length;
+                        count += Math.max(1, newlines + Math.ceil(spaces / 4));
+                    } else if (m.length > 8) {
+                        count += Math.ceil(m.length / 4);
+                    } else {
+                        count += 1;
+                    }
+                }
+                return Math.max(1, count);
+            }
+            window.calculateCodeTokens = calculateCodeTokens;
+
+            function refreshModalTokenStats(content) {
+                const text = (typeof content === 'string') ? content : (document.getElementById('platformCodeContent')?.value || '');
+                const tokens = calculateCodeTokens(text);
+                const charCount = text.length;
+                const lineCount = text ? text.split('\n').length : 0;
+
+                const tokenDisplay = document.getElementById('codeTokenCountDisplay');
+                if (tokenDisplay) tokenDisplay.textContent = tokens.toLocaleString();
+
+                const statsDisplay = document.getElementById('codeStatsDisplay');
+                if (statsDisplay) statsDisplay.textContent = `${charCount.toLocaleString()} caracteres · ${lineCount.toLocaleString()} líneas`;
+
+                return tokens;
+            }
+            window.refreshModalTokenStats = refreshModalTokenStats;
+
+            window.onPlatformCodeInput = function () {
+                const contentEl = document.getElementById('platformCodeContent');
+                const text = contentEl?.value || '';
+                const tokens = refreshModalTokenStats(text);
+
+                // Sincronizar en vivo con la fila actual y con la tarjeta 2
+                adminPendingRow.platform_code = text;
+                adminPendingRow.num_tokens = String(tokens);
+
+                const c2Tokens = document.getElementById('c2_numTokens');
+                if (c2Tokens) c2Tokens.value = String(tokens);
+
+                const rows = window.getSharedPublicationRows();
+                if (rows[selectedRowIndex]) {
+                    rows[selectedRowIndex].platform_code = text;
+                    rows[selectedRowIndex].num_tokens = String(tokens);
+                    window.saveSharedPublicationRows(rows);
+                    renderAdminTable();
+                }
+            };
+
             // --- Code Upload / Code Viewer Modal ---
             window.openPlatformCodeModal = function () {
                 const modal = document.getElementById('platformCodeModal');
                 const contentEl = document.getElementById('platformCodeContent');
-                if (contentEl) contentEl.value = adminPendingRow.platform_code || '';
+                const currentCode = adminPendingRow.platform_code || '';
+                if (contentEl) contentEl.value = currentCode;
+                refreshModalTokenStats(currentCode);
                 if (modal) modal.classList.add('open');
             };
 
@@ -15735,7 +15816,7 @@ if (!headers_sent()) {
             };
 
             window.handleCodeFileUpload = function (event) {
-                const file = event.target.files[0];
+                const file = event.target.files && event.target.files[0];
                 if (!file) return;
                 adminPendingRow.platform_code_name = file.name;
                 const ext = file.name.split('.').pop().toLowerCase();
@@ -15745,12 +15826,34 @@ if (!headers_sent()) {
                 else if (ext === 'js') adminPendingRow.platform_code_lang = 'javascript';
 
                 const langSel = document.getElementById('codeLangSelect');
-                if (langSel) langSel.value = adminPendingRow.platform_code_lang;
+                if (langSel) langSel.value = adminPendingRow.platform_code_lang || 'python';
 
                 const reader = new FileReader();
                 reader.onload = function (e) {
+                    const content = e.target.result || '';
                     const contentEl = document.getElementById('platformCodeContent');
-                    if (contentEl) contentEl.value = e.target.result;
+                    if (contentEl) contentEl.value = content;
+
+                    const tokenCount = refreshModalTokenStats(content);
+                    adminPendingRow.platform_code = content;
+                    adminPendingRow.num_tokens = String(tokenCount);
+
+                    const c2Tokens = document.getElementById('c2_numTokens');
+                    if (c2Tokens) c2Tokens.value = String(tokenCount);
+
+                    const codeStatus = document.getElementById('c1_codeStatusLabel');
+                    if (codeStatus) codeStatus.textContent = 'Code ' + file.name + ' ✓';
+
+                    const rows = window.getSharedPublicationRows();
+                    if (rows[selectedRowIndex]) {
+                        rows[selectedRowIndex].platform_code = content;
+                        rows[selectedRowIndex].platform_code_name = file.name;
+                        rows[selectedRowIndex].platform_code_lang = adminPendingRow.platform_code_lang;
+                        rows[selectedRowIndex].num_tokens = String(tokenCount);
+                        window.saveSharedPublicationRows(rows);
+                        renderAdminTable();
+                    }
+                    window.showAdminToast(`✓ Archivo '${file.name}' cargado: ${tokenCount.toLocaleString()} tokens calculados.`);
                 };
                 reader.readAsText(file);
             };
@@ -15763,32 +15866,44 @@ if (!headers_sent()) {
                 adminPendingRow.platform_code_lang = lang;
                 if (lang === 'python') {
                     adminPendingRow.platform_code_name = 'main.py';
-                    if (!contentEl.value.trim()) contentEl.value = '# Python code for Hashcod platform\nimport streamlit as st\n';
+                    if (!contentEl.value.trim()) contentEl.value = '# Python code for Hashcod platform\nimport streamlit as st\n\nst.title("Hashcod Codespace AI")\nst.write("Post-quantum quantum-resistant system initialized.")\n';
                 } else if (lang === 'html') {
                     adminPendingRow.platform_code_name = 'index.html';
-                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<body>\n<h1>Hashcod AI View</h1>\n</body>\n</html>';
+                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n</body>\n</html>';
                 } else if (lang === 'typescript') {
                     adminPendingRow.platform_code_name = 'index.ts';
-                    if (!contentEl.value.trim()) contentEl.value = 'export const platform = "Hashcod";\n';
+                    if (!contentEl.value.trim()) contentEl.value = 'export const platform = "Hashcod";\nexport function computeQuantumHash(data: string): string {\n    return `SPHINCS+:${data}`;\n}\n';
                 } else if (lang === 'javascript') {
                     adminPendingRow.platform_code_name = 'app.js';
-                    if (!contentEl.value.trim()) contentEl.value = 'console.log("Hashcod engine");\n';
+                    if (!contentEl.value.trim()) contentEl.value = 'console.log("Hashcod engine online");\n';
                 }
+                onPlatformCodeInput();
             };
 
             window.savePlatformCodeAttachment = function () {
                 const contentEl = document.getElementById('platformCodeContent');
-                adminPendingRow.platform_code = (contentEl?.value || '').trim();
+                const content = (contentEl?.value || '').trim();
+                const tokenCount = calculateCodeTokens(content);
+
+                adminPendingRow.platform_code = content;
+                adminPendingRow.num_tokens = String(tokenCount);
+
                 const label = document.getElementById('c1_codeStatusLabel');
-                if (label) label.textContent = 'Code ' + (adminPendingRow.platform_code_name || '.py') + ' ✓';
+                if (label) label.textContent = 'Code ' + (adminPendingRow.platform_code_name || 'script.py') + ' ✓';
+
+                const c2Tokens = document.getElementById('c2_numTokens');
+                if (c2Tokens) c2Tokens.value = String(tokenCount);
+
                 closePlatformCodeModal();
 
                 // Update table
                 const rows = window.getSharedPublicationRows();
-                rows[selectedRowIndex] = { ...adminPendingRow };
-                window.saveSharedPublicationRows(rows);
-                renderAdminTable();
-                window.showAdminToast(`✓ Código adjunto guardado para [${adminPendingRow.identifier_code}].`);
+                if (rows[selectedRowIndex]) {
+                    rows[selectedRowIndex] = { ...adminPendingRow };
+                    window.saveSharedPublicationRows(rows);
+                    renderAdminTable();
+                }
+                window.showAdminToast(`✓ Código guardado: ${tokenCount.toLocaleString()} tokens asignados a [${adminPendingRow.identifier_code}].`);
             };
 
             // --- Post-Quantum SPHINCS+ (SLH-DSA) Signature Generation (Admin Exclusivo) ---

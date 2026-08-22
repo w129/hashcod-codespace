@@ -7673,6 +7673,43 @@ if (!headers_sent()) {
             font-size: 12px;
         }
 
+        .privacy-evidence-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 16px 0 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .privacy-evidence-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: zoom-in;
+            transition: opacity 0.2s ease;
+        }
+
+        .privacy-evidence-img:hover {
+            opacity: 0.96;
+        }
+
+        .privacy-evidence-caption {
+            padding: 12px 14px;
+            background: #f9fafb;
+            font-size: 11.5px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .privacy-evidence-caption strong {
+            color: #111827;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
         .boot-cli-overlay {
             position: fixed;
             inset: 0;
@@ -8384,13 +8421,25 @@ if (!headers_sent()) {
                     </p>
                 </div>
 
-                <h3>1. Alcance Operativo: Certificación de IA Mediante Análisis de Datos y Pruebas Deterministas</h3>
-                <p>La plataforma ejecuta un protocolo estricto de certificación tecnológica para validar software y activos creados con IA:</p>
+                <h3>1. Alcance Operativo y Servicios Ofrecidos: Certificación de IA con Pruebas Deterministas</h3>
+                <p>La plataforma ejecuta un protocolo estricto de certificación tecnológica para validar software y activos creados con IA a través de los siguientes servicios integrados:</p>
                 <ul>
-                    <li><strong>Software de Análisis de Datos de la IA:</strong> Durante la interacción y realización con modelos de IA, nuestro software analiza en tiempo real el consumo de tokens, tiempos de creación, costes de cómputo, matrices de ejecución e índices de rendimiento operativo (como métricas ICAI y porcentajes NSPA).</li>
-                    <li><strong>Pruebas Deterministas de Validación:</strong> Todo código generado o adjuntado es sometido a pruebas deterministas que comprueban la consistencia matemática, repetibilidad y ausencia de discrepancias o alteraciones en los resultados.</li>
-                    <li><strong>Emisión de Certificados Criptográficos Post-Cuánticos:</strong> Una vez validadas las pruebas deterministas, la plataforma emite un certificado digital sellado bajo criptografía post-cuántica (NIST PQC: SPHINCS+ y Dilithium-5) garantizando no repudio, autoría y trazabilidad pública en el Blog de la plataforma.</li>
+                    <li><strong>Auditoría de Chat Local y Uso de IA por API REST:</strong> Software de análisis donde chateas con la IA y le pides proyectos completos en tiempo real. El sistema audita el canal analizando las <em>cantidades de repeticiones</em>, los <em>modelos de formatos empleados</em>, los <em>inputs</em> suministrados, los <em>outputs</em> generados y las <em>correcciones</em> iteradas.</li>
+                    <li><strong>Software de Análisis de Datos y Métricas de Rendimiento:</strong> Monitoriza el volumen de tokens consumidos, la velocidad de respuesta, costes computacionales y los índices operativos <strong>ICAI</strong> y <strong>NSPA</strong>.</li>
+                    <li><strong>Pruebas Deterministas de Validación:</strong> Todo código generado o adjuntado es sometido a pruebas deterministas que verifican matemáticamente la consistencia algorítmica, la repetibilidad y la ausencia de alteraciones en el resultado final.</li>
+                    <li><strong>Emisión y Despliegue de Certificados Post-Cuánticos:</strong> Emisión de sellos criptográficos inmutables basados en estándares NIST PQC (<strong>SPHINCS+</strong> y <strong>Dilithium-5</strong>), indexados públicamente en la tabla del Blog para verificación pública.</li>
                 </ul>
+
+                <!-- EVIDENCIA GRÁFICA DEL SOFTWARE DE ANÁLISIS DE IA -->
+                <div class="privacy-evidence-card">
+                    <img src="gus-mav-analysis-sample.png" alt="Software de prueba de uso de IA a través de chat local por API Rest (GUS MAV)" class="privacy-evidence-img" onclick="window.open('gus-mav-analysis-sample.png', '_blank')" title="Haz clic para ver la captura de análisis en tamaño completo">
+                    <div class="privacy-evidence-caption">
+                        <strong>Figura 1: Software de prueba de uso de IA a través de chat local por API Rest (GUS MAV v1.1.1).</strong>
+                        <p style="margin:0;">
+                            Prueba real de uno de los análisis que realizamos: software de prueba de uso de IA a través de chat local por API Rest donde chateas con la IA y le pides proyectos, y el software analiza las cantidades de repeticiones como también los modelos de formatos que usas, registrando canales de <em>Inputs</em>, <em>Outputs</em> y <em>Correcciones</em> en tiempo real junto con la telemetría determinista para respaldar cada certificación emitida.
+                        </p>
+                    </div>
+                </div>
 
                 <h3>2. Información y Datos que Recolecta la Plataforma</h3>
                 <p>En el marco de la certificación y el funcionamiento del servidor, la plataforma recolecta y procesa exclusivamente los siguientes datos:</p>

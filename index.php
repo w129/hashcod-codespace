@@ -7365,18 +7365,53 @@ if (!headers_sent()) {
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .auth-header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .auth-brand-icon {
+            width: 28px;
+            height: 26px;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+
+        .auth-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .auth-card h1 {
-            margin: 0 0 6px;
-            font-size: 18px;
+            margin: 0;
+            font-size: 19px;
             font-weight: 700;
             color: #111;
             letter-spacing: -0.02em;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+        }
+
+        .auth-badge-pqc {
+            display: inline-flex;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            background: #000000;
+            color: #ffffff;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         .auth-card .auth-sub {
             margin: 0 0 18px;
             font-size: 12px;
-            color: #666;
+            color: #555;
             line-height: 1.45;
         }
 
@@ -8330,8 +8365,17 @@ if (!headers_sent()) {
     <!-- Bloqueo: registro / inicio de sesión (después de Enter) -->
     <div id="authOverlay" class="auth-overlay hidden" role="dialog" aria-modal="true" aria-label="Acceso l8 codespace">
         <div class="auth-card">
-            <h1>l8 codespace</h1>
-            <p class="auth-sub">Accede o crea una cuenta. La plataforma permanece oculta hasta autenticarte.</p>
+            <div class="auth-header-brand">
+                <svg class="auth-brand-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" fill="none" aria-hidden="true">
+                    <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                </svg>
+                <div class="auth-title-wrap">
+                    <h1>l8 codespace</h1>
+                    <span class="auth-badge-pqc">PQC Auth</span>
+                </div>
+            </div>
+            <p class="auth-sub">Accede o crea tu cuenta. Plataforma de certificación determinista de creaciones con IA y seguridad post-cuántica.</p>
 
             <div class="auth-tabs" role="tablist">
                 <button type="button" class="auth-tab active" id="authTabLogin" data-tab="login">Iniciar sesión</button>

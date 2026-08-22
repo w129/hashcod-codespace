@@ -8309,7 +8309,7 @@ if (!headers_sent()) {
                 <input class="auth-input" id="authIdentityInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave L8ID-… de tu cuenta">
                 <button type="button" class="auth-btn" id="authLoginBtn">Entrar a la plataforma</button>
                 <div class="auth-privacy-notice">
-                    Al iniciar sesión, aceptas la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a> sobre recolección de claves criptográficas, desarrollo por IA y gestión en la nube con <strong>Supabase</strong> y <strong>Render</strong>.
+                    Al iniciar sesión, aceptas la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a>: certificación determinista de IA mediante análisis de datos, desarrollo asistido por IA e infraestructura cloud con <strong>Supabase</strong> y <strong>Render</strong>.
                 </div>
             </div>
 
@@ -8319,7 +8319,7 @@ if (!headers_sent()) {
                 <div class="auth-privacy-agreement">
                     <label class="auth-privacy-checkbox-label">
                         <input type="checkbox" id="authPrivacyCheckbox" checked>
-                        <span>Acepto la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a> (recolección criptográfica de claves/archivos, plataforma desarrollada por IA y custodia técnica en <strong>Supabase</strong> y <strong>Render</strong>).</span>
+                        <span>Acepto la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a>: certificación de lo creado por IA mediante software de análisis de datos y pruebas deterministas, desarrollo integral por IA y custodia técnica en <strong>Supabase</strong> y <strong>Render</strong>.</span>
                     </label>
                 </div>
                 <button type="button" class="auth-btn" id="authRegisterBtn">Crear cuenta</button>
@@ -8348,15 +8348,15 @@ if (!headers_sent()) {
 
             <p class="auth-msg" id="authMsg"></p>
             <p class="auth-foot">
-                <span>Las identidades criptográficas (hashes) se guardan en <strong>Supabase</strong> y la plataforma se aloja en <strong>Render</strong>. Sistema desarrollado mediante Inteligencia Artificial.</span>
+                <span><strong>Hashcod Codespace:</strong> Certificación de creaciones por IA mediante análisis de datos y pruebas deterministas. Identidades en <strong>Supabase</strong> · Hosting en <strong>Render</strong>.</span>
                 <br>
-                <button type="button" class="auth-privacy-btn-link" onclick="openPrivacyPolicyModal()">📜 Ver Política de Privacidad Completa</button>
+                <button type="button" class="auth-privacy-btn-link" onclick="openPrivacyPolicyModal()">📜 Leer Política de Privacidad y Modelo de Certificación</button>
             </p>
         </div>
     </div>
 
     <!-- =========================================================================
-         POLÍTICA DE PRIVACIDAD Y TRATAMIENTO DE DATOS (MODAL)
+         POLÍTICA DE PRIVACIDAD, TRATAMIENTO DE DATOS Y CERTIFICACIÓN DETERMINISTA
          ========================================================================= -->
     <div id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
         <div class="privacy-modal-card">
@@ -8364,53 +8364,67 @@ if (!headers_sent()) {
                 <div>
                     <span class="admin-gate-badge" style="background:#EEF2FF; color:#4338CA; border-color:#C7D2FE;">
                         <svg style="width:13px;height:13px;fill:currentColor;margin-right:4px;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-                        Transparencia Legal, IA y Criptografía
+                        Certificación de IA · Pruebas Deterministas · Privacidad
                     </span>
-                    <h2 class="admin-gate-title" id="privacyModalTitle" style="font-size:16px; margin-top:4px;">Política de Privacidad · Hashcod Codespace</h2>
+                    <h2 class="admin-gate-title" id="privacyModalTitle" style="font-size:16px; margin-top:4px;">Política de Privacidad y Modelo Operativo · Hashcod Codespace</h2>
                 </div>
                 <button type="button" class="admin-close-btn" onclick="closePrivacyPolicyModal()" title="Cerrar política de privacidad">
                     <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
             <div class="privacy-modal-body">
-                <div class="privacy-highlight-box">
-                    <strong>Resumen Ejecutivo:</strong> Hashcod Codespace es un entorno de computación, gestión de publicaciones y códigos fuente desarrollado mediante <strong>Inteligencia Artificial (IA)</strong>. Protegemos tu privacidad mediante arquitectura criptográfica de conocimiento cero (Zero-Knowledge) y colaboramos con proveedores líderes de infraestructura cloud como <strong>Supabase</strong> y <strong>Render</strong>.
+                <!-- SECCIÓN DESTACADA: QUÉ HACE HASHCOD CODESPACE -->
+                <div class="privacy-highlight-box" style="background:#F0FDF4; border-left:4px solid #16A34A; color:#14532D; padding:14px 16px; margin-bottom:18px;">
+                    <div style="font-weight:700; font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                        <svg style="width:16px;height:16px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        ¿Qué es y Qué Hace Hashcod Codespace?
+                    </div>
+                    <p style="margin:0; line-height:1.6; font-size:12px;">
+                        <strong>Hashcod Codespace</strong> es una plataforma concebida para <strong>certificar y auditar todo lo creado por Inteligencia Artificial (IA)</strong> a través de <strong>software especializado de análisis de datos y métricas de uso durante la realización con la IA</strong>, proveyendo <strong>certificaciones de validación inmutables respaldadas por pruebas deterministas</strong>.
+                    </p>
                 </div>
 
-                <h3>1. Información y Datos que Recolecta la Plataforma</h3>
-                <p>Al acceder, registrarte o interactuar con Hashcod Codespace, la plataforma procesa y almacena los siguientes datos estrictamente necesarios para su operación:</p>
+                <h3>1. Alcance Operativo: Certificación de IA Mediante Análisis de Datos y Pruebas Deterministas</h3>
+                <p>La plataforma ejecuta un protocolo estricto de certificación tecnológica para validar software y activos creados con IA:</p>
                 <ul>
-                    <li><strong>Claves e Identidades Criptográficas:</strong> Claves maestras AES-256 generadas en el cliente, identificadores únicos L8ID, hashes derivados SHA-256 / SHA-512, kits de recuperación L8REC y hashes de respaldo de un solo uso.</li>
-                    <li><strong>Firmas Post-Cuánticas (NIST PQC):</strong> Firmas criptográficas Dilithium-5 (ML-DSA-87) para el control de acceso administrativo y sellos criptográficos SPHINCS+ (SLH-DSA-SHAKE-256s) para la autorización inmutable de publicaciones.</li>
-                    <li><strong>Código Fuente y Archivos Adjuntos:</strong> Archivos de código (Python, HTML, TypeScript, JavaScript, JSON, SQL, etc.) subidos o editados en la plataforma, cálculo dinámico de tokens y metadatos de ejecución.</li>
-                    <li><strong>Registros de Publicación y Metadatos:</strong> Identificadores de publicaciones (PUB-XXX), códigos de responsable, costos por token, métricas de rendimiento (ICAI, NSPA), configuraciones de CORS y colores institucionales HASNA.</li>
-                    <li><strong>Datos Técnicos de Sesión y Navegación:</strong> Tokens de sesión efímeros (<code>sessionStorage</code>), configuraciones locales (<code>localStorage</code>) y telemetría mínima requerida para la renderización gráfica del agujero negro y terminales.</li>
+                    <li><strong>Software de Análisis de Datos de la IA:</strong> Durante la interacción y realización con modelos de IA, nuestro software analiza en tiempo real el consumo de tokens, tiempos de creación, costes de cómputo, matrices de ejecución e índices de rendimiento operativo (como métricas ICAI y porcentajes NSPA).</li>
+                    <li><strong>Pruebas Deterministas de Validación:</strong> Todo código generado o adjuntado es sometido a pruebas deterministas que comprueban la consistencia matemática, repetibilidad y ausencia de discrepancias o alteraciones en los resultados.</li>
+                    <li><strong>Emisión de Certificados Criptográficos Post-Cuánticos:</strong> Una vez validadas las pruebas deterministas, la plataforma emite un certificado digital sellado bajo criptografía post-cuántica (NIST PQC: SPHINCS+ y Dilithium-5) garantizando no repudio, autoría y trazabilidad pública en el Blog de la plataforma.</li>
                 </ul>
 
-                <h3>2. Desarrollo Asistido e Integral por Inteligencia Artificial (IA)</h3>
-                <p>En cumplimiento con las directivas de transparencia tecnológica, se informa expresamente que:</p>
+                <h3>2. Información y Datos que Recolecta la Plataforma</h3>
+                <p>En el marco de la certificación y el funcionamiento del servidor, la plataforma recolecta y procesa exclusivamente los siguientes datos:</p>
                 <ul>
-                    <li><strong>Plataforma Desarrollada por IA:</strong> La arquitectura de software, algoritmos, interfaces visuales, scripts de seguridad post-cuántica y flujos interactivos de Hashcod Codespace son concebidos, programados y optimizados mediante modelos avanzados de Inteligencia Artificial (IA) y agentes autónomos de codificación.</li>
-                    <li><strong>Procesamiento Inteligente:</strong> Las herramientas integradas (conteo de tokens, análisis de código, formateo y validaciones) utilizan heurísticas y modelos de cómputo basados en IA para asistir al usuario en tiempo real.</li>
-                    <li><strong>Privacidad de Código:</strong> El código subido se procesa exclusivamente para las funciones de despliegue, tokenización y visualización autorizadas por el usuario.</li>
+                    <li><strong>Claves de Acceso y Cifrado:</strong> Claves maestras AES-256 generadas en el navegador del usuario, identificadores únicos L8ID, hashes derivados unidireccionales (SHA-256 / SHA-512), kits de recuperación L8REC y hashes de respaldo de un solo uso.</li>
+                    <li><strong>Firmas y Sellos Criptográficos:</strong> Firmas post-cuánticas Dilithium-5 (ML-DSA-87) para validación de acceso al panel administrador y firmas SPHINCS+ (SLH-DSA) para sellado de publicaciones.</li>
+                    <li><strong>Código Fuente y Archivos de Proyecto:</strong> Archivos cargados o editados (.py, .html, .ts, .js, .json, .sql, .php, .css, etc.), volumen de tokens calculados automáticamente y metadatos de validación.</li>
+                    <li><strong>Registros Públicos de Publicación:</strong> Identificadores de registro (PUB-XXX), códigos de responsable, costos de tokens, métricas técnicas, estado de CORS y color HASNA.</li>
+                    <li><strong>Datos Técnicos de Sesión:</strong> Tokens temporales de sesión (<code>sessionStorage</code>), datos de configuración local (<code>localStorage</code>) y telemetría de renderizado gráfico de la interfaz.</li>
                 </ul>
 
-                <h3>3. Terceros y Proveedores de Infraestructura en la Nube</h3>
-                <p>Para garantizar disponibilidad 24/7, alta escalabilidad y persistencia resiliente, la plataforma se apoya en los siguientes proveedores de terceros que manejan y resguardan datos técnicos:</p>
+                <h3>3. Declaración de Desarrollo Integral por Inteligencia Artificial (IA)</h3>
+                <p>En estricto cumplimiento con las normas de transparencia tecnológica:</p>
                 <ul>
-                    <li><strong>Supabase (Bases de Datos y Persistencia):</strong> Se utiliza como infraestructura backend en la nube para el almacenamiento de esquemas relacionales PostgreSQL, persistencia de hashes de identidad, control de sesiones y resguardo de kits de recuperación. Los datos confidenciales se almacenan bajo algoritmos de hashing irreversible y cifrado en tránsito (TLS 1.3).</li>
-                    <li><strong>Render (Hosting y Ejecución de Servidores):</strong> Se utiliza como plataforma de alojamiento en la nube (Cloud Hosting Provider), aprovisionamiento de cómputo en contenedores, enrutamiento web HTTPS y balanceo de carga para servir la aplicación y procesar los endpoints de backend.</li>
+                    <li><strong>Plataforma Desarrollada por IA:</strong> Se declara expresamente que Hashcod Codespace, incluyendo su arquitectura backend, scripts criptográficos, componentes de análisis y diseños de interfaz, ha sido concebida, desarrollada y optimizada mediante modelos avanzados de Inteligencia Artificial (IA) y agentes autónomos de codificación.</li>
+                    <li><strong>Asistencia Inteligente Continua:</strong> Los módulos de cálculo de tokens, validación de scripts y formateo son asistidos por algoritmos de cómputo inteligente para asegurar precisión en tiempo real.</li>
                 </ul>
 
-                <h3>4. Almacenamiento Local y Principio de Cero Custodia</h3>
-                <p>La plataforma opera bajo el principio de no custodia de contraseñas tradicionales en texto plano. La seguridad reside en las claves criptográficas entregadas al usuario durante el registro. La pérdida del kit completo sin el código L8REC impide el restablecimiento de la cuenta.</p>
+                <h3>4. Proveedores de Terceros e Infraestructura Cloud (Supabase y Render)</h3>
+                <p>Para la custodia segura y ejecución ininterrumpida de los servicios, Hashcod Codespace delega la infraestructura técnica en los siguientes proveedores de terceros:</p>
+                <ul>
+                    <li><strong>Supabase (Base de Datos en la Nube y Persistencia):</strong> Almacena de forma segura las tablas relacionales PostgreSQL, los hashes de identidad criptográfica, el estado de las sesiones y la persistencia de los kits de recuperación. Ninguna contraseña o clave en texto plano es transmitida ni almacenada en Supabase (cero custodia / Zero-Knowledge).</li>
+                    <li><strong>Render (Plataforma de Hosting y Ejecución de Servidores):</strong> Provee el entorno de alojamiento en la nube, aprovisionamiento de contenedores de cómputo, balanceo de carga y enrutamiento HTTPS para ejecutar la aplicación web y procesar los endpoints del servidor.</li>
+                </ul>
 
-                <h3>5. Consentimiento y Derechos del Usuario</h3>
-                <p>Al iniciar sesión o crear una cuenta, otorgas tu consentimiento explícito para el procesamiento criptográfico de tus datos conforme a esta política. Puedes revocar o regenerar tus credenciales en cualquier momento utilizando el panel de recuperación.</p>
+                <h3>5. Criptografía del Lado del Cliente y Seguridad</h3>
+                <p>La seguridad de la cuenta depende de la custodia del kit de claves entregado al registrarse. La plataforma no almacena contraseñas convencionales en servidores centrales, garantizando que el usuario tenga el control exclusivo de sus credenciales criptográficas.</p>
+
+                <h3>6. Consentimiento del Usuario y Vigencia</h3>
+                <p>Al iniciar sesión o crear una cuenta, aceptas de manera libre e informada el tratamiento de datos y el modelo operativo de certificación determinista descrito en este documento.</p>
             </div>
             <div class="privacy-modal-footer">
-                <button type="button" class="admin-gate-btn" onclick="acceptAndClosePrivacyPolicy()" style="background:#111827; color:#fff; border:none; padding:10px 20px; font-weight:700; border-radius:6px; cursor:pointer;">
-                    Entendido y Aceptar
+                <button type="button" class="admin-gate-btn" onclick="acceptAndClosePrivacyPolicy()" style="background:#111827; color:#fff; border:none; padding:10px 22px; font-weight:700; border-radius:6px; cursor:pointer; font-size:12px;">
+                    Entendido y Aceptar Política de Certificación
                 </button>
             </div>
         </div>

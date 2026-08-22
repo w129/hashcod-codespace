@@ -7500,6 +7500,179 @@ if (!headers_sent()) {
             line-height: 1.4;
         }
 
+        .auth-privacy-notice {
+            margin-top: 10px;
+            font-size: 10.5px;
+            color: #6b7280;
+            line-height: 1.4;
+            text-align: left;
+        }
+
+        .auth-privacy-notice .privacy-link,
+        .auth-privacy-agreement .privacy-link {
+            color: #111827;
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .auth-privacy-notice .privacy-link:hover,
+        .auth-privacy-agreement .privacy-link:hover {
+            color: #2563eb;
+        }
+
+        .auth-privacy-agreement {
+            margin: 10px 0 12px;
+            padding: 8px 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            text-align: left;
+        }
+
+        .auth-privacy-checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 11px;
+            color: #374151;
+            line-height: 1.35;
+            cursor: pointer;
+        }
+
+        .auth-privacy-checkbox-label input[type="checkbox"] {
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #111;
+        }
+
+        .auth-privacy-btn-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            padding: 0;
+            margin-top: 4px;
+            font-family: inherit;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #1f2937;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+        }
+
+        .auth-privacy-btn-link:hover {
+            color: #2563eb;
+        }
+
+        /* Privacy Policy Modal Overlay & Styling */
+        .privacy-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .privacy-modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .privacy-modal-card {
+            width: min(780px, 96vw);
+            max-height: 88vh;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            animation: privacyCardScale 0.25s ease-out both;
+        }
+
+        @keyframes privacyCardScale {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .privacy-modal-header {
+            padding: 18px 22px;
+            background: #fbfbfb;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .privacy-modal-body {
+            padding: 22px 24px;
+            overflow-y: auto;
+            color: #374151;
+            font-size: 12.5px;
+            line-height: 1.65;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .privacy-modal-body h3 {
+            margin: 16px 0 6px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .privacy-modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .privacy-modal-body p {
+            margin: 0 0 10px;
+        }
+
+        .privacy-modal-body ul {
+            margin: 0 0 12px 18px;
+            padding: 0;
+        }
+
+        .privacy-modal-body li {
+            margin-bottom: 5px;
+        }
+
+        .privacy-modal-footer {
+            padding: 14px 22px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .privacy-highlight-box {
+            background: #f3f4f6;
+            border-left: 3px solid #111827;
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            margin: 12px 0;
+            font-size: 12px;
+        }
+
         .boot-cli-overlay {
             position: fixed;
             inset: 0;
@@ -8135,11 +8308,20 @@ if (!headers_sent()) {
                 <label class="auth-label" for="authIdentityInput">Clave identificador (L8ID)</label>
                 <input class="auth-input" id="authIdentityInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave L8ID-… de tu cuenta">
                 <button type="button" class="auth-btn" id="authLoginBtn">Entrar a la plataforma</button>
+                <div class="auth-privacy-notice">
+                    Al iniciar sesión, aceptas la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a> sobre recolección de claves criptográficas, desarrollo por IA y gestión en la nube con <strong>Supabase</strong> y <strong>Render</strong>.
+                </div>
             </div>
 
             <div class="auth-panel" id="authPanelRegister">
                 <label class="auth-label" for="authDilithiumInput">Dilithium-5 de registro (mensual)</label>
                 <input class="auth-input" id="authDilithiumInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave Dilithium-5 del mes">
+                <div class="auth-privacy-agreement">
+                    <label class="auth-privacy-checkbox-label">
+                        <input type="checkbox" id="authPrivacyCheckbox" checked>
+                        <span>Acepto la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a> (recolección criptográfica de claves/archivos, plataforma desarrollada por IA y custodia técnica en <strong>Supabase</strong> y <strong>Render</strong>).</span>
+                    </label>
+                </div>
                 <button type="button" class="auth-btn" id="authRegisterBtn">Crear cuenta</button>
             </div>
 
@@ -8165,7 +8347,72 @@ if (!headers_sent()) {
             </div>
 
             <p class="auth-msg" id="authMsg"></p>
-            <p class="auth-foot">Las identidades (hashes) se guardan en Supabase. Sin correo: el kit L8REC + códigos recupera la cuenta aunque Render se reinicie.</p>
+            <p class="auth-foot">
+                <span>Las identidades criptográficas (hashes) se guardan en <strong>Supabase</strong> y la plataforma se aloja en <strong>Render</strong>. Sistema desarrollado mediante Inteligencia Artificial.</span>
+                <br>
+                <button type="button" class="auth-privacy-btn-link" onclick="openPrivacyPolicyModal()">📜 Ver Política de Privacidad Completa</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         POLÍTICA DE PRIVACIDAD Y TRATAMIENTO DE DATOS (MODAL)
+         ========================================================================= -->
+    <div id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
+        <div class="privacy-modal-card">
+            <div class="privacy-modal-header">
+                <div>
+                    <span class="admin-gate-badge" style="background:#EEF2FF; color:#4338CA; border-color:#C7D2FE;">
+                        <svg style="width:13px;height:13px;fill:currentColor;margin-right:4px;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                        Transparencia Legal, IA y Criptografía
+                    </span>
+                    <h2 class="admin-gate-title" id="privacyModalTitle" style="font-size:16px; margin-top:4px;">Política de Privacidad · Hashcod Codespace</h2>
+                </div>
+                <button type="button" class="admin-close-btn" onclick="closePrivacyPolicyModal()" title="Cerrar política de privacidad">
+                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="privacy-modal-body">
+                <div class="privacy-highlight-box">
+                    <strong>Resumen Ejecutivo:</strong> Hashcod Codespace es un entorno de computación, gestión de publicaciones y códigos fuente desarrollado mediante <strong>Inteligencia Artificial (IA)</strong>. Protegemos tu privacidad mediante arquitectura criptográfica de conocimiento cero (Zero-Knowledge) y colaboramos con proveedores líderes de infraestructura cloud como <strong>Supabase</strong> y <strong>Render</strong>.
+                </div>
+
+                <h3>1. Información y Datos que Recolecta la Plataforma</h3>
+                <p>Al acceder, registrarte o interactuar con Hashcod Codespace, la plataforma procesa y almacena los siguientes datos estrictamente necesarios para su operación:</p>
+                <ul>
+                    <li><strong>Claves e Identidades Criptográficas:</strong> Claves maestras AES-256 generadas en el cliente, identificadores únicos L8ID, hashes derivados SHA-256 / SHA-512, kits de recuperación L8REC y hashes de respaldo de un solo uso.</li>
+                    <li><strong>Firmas Post-Cuánticas (NIST PQC):</strong> Firmas criptográficas Dilithium-5 (ML-DSA-87) para el control de acceso administrativo y sellos criptográficos SPHINCS+ (SLH-DSA-SHAKE-256s) para la autorización inmutable de publicaciones.</li>
+                    <li><strong>Código Fuente y Archivos Adjuntos:</strong> Archivos de código (Python, HTML, TypeScript, JavaScript, JSON, SQL, etc.) subidos o editados en la plataforma, cálculo dinámico de tokens y metadatos de ejecución.</li>
+                    <li><strong>Registros de Publicación y Metadatos:</strong> Identificadores de publicaciones (PUB-XXX), códigos de responsable, costos por token, métricas de rendimiento (ICAI, NSPA), configuraciones de CORS y colores institucionales HASNA.</li>
+                    <li><strong>Datos Técnicos de Sesión y Navegación:</strong> Tokens de sesión efímeros (<code>sessionStorage</code>), configuraciones locales (<code>localStorage</code>) y telemetría mínima requerida para la renderización gráfica del agujero negro y terminales.</li>
+                </ul>
+
+                <h3>2. Desarrollo Asistido e Integral por Inteligencia Artificial (IA)</h3>
+                <p>En cumplimiento con las directivas de transparencia tecnológica, se informa expresamente que:</p>
+                <ul>
+                    <li><strong>Plataforma Desarrollada por IA:</strong> La arquitectura de software, algoritmos, interfaces visuales, scripts de seguridad post-cuántica y flujos interactivos de Hashcod Codespace son concebidos, programados y optimizados mediante modelos avanzados de Inteligencia Artificial (IA) y agentes autónomos de codificación.</li>
+                    <li><strong>Procesamiento Inteligente:</strong> Las herramientas integradas (conteo de tokens, análisis de código, formateo y validaciones) utilizan heurísticas y modelos de cómputo basados en IA para asistir al usuario en tiempo real.</li>
+                    <li><strong>Privacidad de Código:</strong> El código subido se procesa exclusivamente para las funciones de despliegue, tokenización y visualización autorizadas por el usuario.</li>
+                </ul>
+
+                <h3>3. Terceros y Proveedores de Infraestructura en la Nube</h3>
+                <p>Para garantizar disponibilidad 24/7, alta escalabilidad y persistencia resiliente, la plataforma se apoya en los siguientes proveedores de terceros que manejan y resguardan datos técnicos:</p>
+                <ul>
+                    <li><strong>Supabase (Bases de Datos y Persistencia):</strong> Se utiliza como infraestructura backend en la nube para el almacenamiento de esquemas relacionales PostgreSQL, persistencia de hashes de identidad, control de sesiones y resguardo de kits de recuperación. Los datos confidenciales se almacenan bajo algoritmos de hashing irreversible y cifrado en tránsito (TLS 1.3).</li>
+                    <li><strong>Render (Hosting y Ejecución de Servidores):</strong> Se utiliza como plataforma de alojamiento en la nube (Cloud Hosting Provider), aprovisionamiento de cómputo en contenedores, enrutamiento web HTTPS y balanceo de carga para servir la aplicación y procesar los endpoints de backend.</li>
+                </ul>
+
+                <h3>4. Almacenamiento Local y Principio de Cero Custodia</h3>
+                <p>La plataforma opera bajo el principio de no custodia de contraseñas tradicionales en texto plano. La seguridad reside en las claves criptográficas entregadas al usuario durante el registro. La pérdida del kit completo sin el código L8REC impide el restablecimiento de la cuenta.</p>
+
+                <h3>5. Consentimiento y Derechos del Usuario</h3>
+                <p>Al iniciar sesión o crear una cuenta, otorgas tu consentimiento explícito para el procesamiento criptográfico de tus datos conforme a esta política. Puedes revocar o regenerar tus credenciales en cualquier momento utilizando el panel de recuperación.</p>
+            </div>
+            <div class="privacy-modal-footer">
+                <button type="button" class="admin-gate-btn" onclick="acceptAndClosePrivacyPolicy()" style="background:#111827; color:#fff; border:none; padding:10px 20px; font-weight:700; border-radius:6px; cursor:pointer;">
+                    Entendido y Aceptar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -16492,6 +16739,11 @@ if (!headers_sent()) {
             });
 
             document.getElementById('authRegisterBtn')?.addEventListener('click', async () => {
+                const privacyChk = document.getElementById('authPrivacyCheckbox');
+                if (privacyChk && !privacyChk.checked) {
+                    setMsg('Debes aceptar la Política de Privacidad para crear tu cuenta.');
+                    return;
+                }
                 const dil = (document.getElementById('authDilithiumInput')?.value || '').trim();
                 const btn = document.getElementById('authRegisterBtn');
                 if (!dil) {
@@ -16600,6 +16852,25 @@ if (!headers_sent()) {
             });
         })();
 
+        /* ===== PRIVACY POLICY MODAL CONTROLLER ===== */
+        window.openPrivacyPolicyModal = function () {
+            const modal = document.getElementById('privacyPolicyModal');
+            if (modal) modal.classList.add('open');
+        };
+
+        window.closePrivacyPolicyModal = function () {
+            const modal = document.getElementById('privacyPolicyModal');
+            if (modal) modal.classList.remove('open');
+        };
+
+        window.acceptAndClosePrivacyPolicy = function () {
+            const chk = document.getElementById('authPrivacyCheckbox');
+            if (chk) chk.checked = true;
+            closePrivacyPolicyModal();
+            if (typeof window.showAdminToast === 'function') {
+                window.showAdminToast('✓ Política de Privacidad aceptada.');
+            }
+        };
 
         window.l8Asset = function (path) {
             var p = String(path == null ? '' : path);

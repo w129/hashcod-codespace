@@ -8363,7 +8363,7 @@ if (!headers_sent()) {
     </div>
 
     <!-- Bloqueo: registro / inicio de sesión (después de Enter) -->
-    <div id="authOverlay" class="auth-overlay hidden" role="dialog" aria-modal="true" aria-label="Acceso l8 codespace">
+    <div id="authOverlay" class="auth-overlay hidden" role="dialog" aria-modal="true" aria-label="Acceso Hashcod codespace">
         <div class="auth-card">
             <div class="auth-header-brand">
                 <svg class="auth-brand-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" fill="none" aria-hidden="true">
@@ -8371,7 +8371,7 @@ if (!headers_sent()) {
                     <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
                 </svg>
                 <div class="auth-title-wrap">
-                    <h1>l8 codespace</h1>
+                    <h1>Hashcod codespace</h1>
                     <span class="auth-badge-pqc">PQC Auth</span>
                 </div>
             </div>

@@ -1,7 +1,11 @@
 /**
+ * Copyright (C) 2020-2026 Denver Technologies, Inc.
  * Copyright (C) 2026 DIKTATCART / Hashcod
  *
- * This file is free software: you can redistribute it and/or modify
+ * This file is part of Warp / Hashcod Codespace integration.
+ * Modified on 2026 by DIKTATCART: Added full Warp terminal engine, themes, workflows, and PQC blocks.
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -20,60 +24,150 @@
     const WARP_SVG_ZAP = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>';
     const WARP_SVG_EXPORT = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
     const WARP_SVG_TRASH = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
-    const WARP_SVG_CHEVRON = '<svg class="warp-icon-svg" style="width:10px; height:10px;" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>';
+    const WARP_SVG_PALETTE = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.59 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5 9c-.83 0-1.5-.67-1.5-1.5S6.17 9 7 9s1.5.67 1.5 1.5S7.83 12 7 12zm3-4c-.83 0-1.5-.67-1.5-1.5S9.17 5 10 5s1.5.67 1.5 1.5S10.83 8 10 8zm4 0c-.83 0-1.5-.67-1.5-1.5S13.17 5 14 5s1.5.67 1.5 1.5S14.83 8 14 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.17 9 17 9s1.5.67 1.5 1.5S17.83 12 17 12z"/></svg>';
+    const WARP_SVG_AI = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>';
 
     const WarpBlocks = {
         blocks: [],
-        maxBlocks: 50,
+        maxBlocks: 60,
         searchQuery: '',
         filterBookmarked: false,
         activeAutoIndex: -1,
+        selectedBlockIndex: -1,
+        currentTheme: 'default',
+
+        themes: [
+            { id: 'default', name: 'Warp Light', bg: '#FFFFFF', accent: '#3B82F6', fg: '#111827' },
+            { id: 'warp-dark', name: 'Warp Dark', bg: '#1e1e2e', accent: '#89b4fa', fg: '#cdd6f4' },
+            { id: 'nord', name: 'Nord Arctic', bg: '#2e3440', accent: '#88c0d0', fg: '#eceff4' },
+            { id: 'dracula', name: 'Dracula Pro', bg: '#282a36', accent: '#bd93f9', fg: '#f8f8f2' },
+            { id: 'tokyo-night', name: 'Tokyo Night', bg: '#1a1b26', accent: '#7aa2f7', fg: '#c0caf5' },
+            { id: 'cyberpunk', name: 'Cyberpunk Neon', bg: '#0d0f18', accent: '#00e5ff', fg: '#00ffcc' }
+        ],
 
         catalog: [
-            { cmd: 'repos', desc: 'Listar repositorios de GitHub con licencias MIT/Apache/BSD', category: 'GitHub' },
-            { cmd: 'clone facebook/react', desc: 'Clonar o actualizar repositorio GitHub', category: 'Git' },
-            { cmd: 'save facebook/react', desc: 'Guardar repositorio en base de datos Supabase', category: 'Storage' },
-            { cmd: 'set_i code', desc: 'Abrir catálogo global de archivos y firmas Dilithium-5', category: 'Database' },
-            { cmd: 'upload', desc: 'Subir archivo local con sellado criptográfico PQC', category: 'Files' },
-            { cmd: 'supabase', desc: 'Verificar estado de base de datos y Supabase Storage', category: 'Cloud' },
+            // Hashcod Built-ins
+            { cmd: 'repos', desc: 'Catálogo de repositorios GitHub con licencias verificadas', category: 'GitHub' },
+            { cmd: 'clone facebook/react', desc: 'Clonar o actualizar repositorio GitHub vía SSH/HTTPS', category: 'Git' },
+            { cmd: 'save facebook/react', desc: 'Guardar repositorio en base de datos persistente', category: 'Storage' },
+            { cmd: 'set_i code', desc: 'Explorador de base de datos global con firmas Dilithium-5', category: 'Database' },
+            { cmd: 'upload', desc: 'Subir archivo con sellado criptográfico post-cuántico PQC', category: 'Files' },
+            { cmd: 'supabase', desc: 'Estado de conexión y persistencia de Supabase Storage', category: 'Cloud' },
             { cmd: 'ssh_key', desc: 'Mostrar y copiar clave pública Ed25519 para GitHub', category: 'Security' },
-            { cmd: 'status', desc: 'Ver estado general de la plataforma Hashcod', category: 'System' },
-            { cmd: 'prs-code', desc: 'Lanzar IDE de código PRS en ventana independiente', category: 'Apps' },
-            { cmd: 'macos', desc: 'Abrir entorno macOS inside', category: 'Apps' },
-            { cmd: 'chromeos', desc: 'Abrir entorno ChromeOS play', category: 'Apps' },
-            { cmd: 'dil_fs', desc: 'Limpiar terminal negra y editor de código', category: 'System' },
-            { cmd: 'clear', desc: 'Limpiar todos los bloques de la sesión actual', category: 'Terminal' },
-            { cmd: 'workflows', desc: 'Abrir panel de flujos de trabajo predefinidos de Warp', category: 'Warp' }
+            { cmd: 'status', desc: 'Diagnóstico general del servidor y motores en ejecución', category: 'System' },
+            { cmd: 'prs-code', desc: 'Lanzar IDE colaborativo PRS Code en ventana externa', category: 'Apps' },
+            { cmd: 'macos', desc: 'Abrir entorno virtualizado macOS inside', category: 'Apps' },
+            { cmd: 'chromeos', desc: 'Abrir entorno virtualizado ChromeOS play', category: 'Apps' },
+            { cmd: 'dil_fs', desc: 'Limpiar terminal negra e inspector de carpetas', category: 'System' },
+            { cmd: 'clear', desc: 'Vaciar historial de celdas de la sesión', category: 'Terminal' },
+            { cmd: 'workflows', desc: 'Abrir panel de flujos de trabajo predefinidos', category: 'Warp' },
+            { cmd: 'themes', desc: 'Selector visual de temas de terminal Warp', category: 'Warp' },
+            { cmd: 'ai', desc: 'Asistente de inteligencia artificial y generador de comandos', category: 'Warp AI' },
+
+            // Bash Standard Shell Utilities
+            { cmd: 'ls -la', desc: 'Listar archivos y permisos del directorio actual', category: 'Bash' },
+            { cmd: 'pwd', desc: 'Imprimir ruta de trabajo actual', category: 'Bash' },
+            { cmd: 'date', desc: 'Mostrar fecha y hora actual del servidor', category: 'Bash' },
+            { cmd: 'whoami', desc: 'Usuario y privilegios actuales', category: 'Bash' },
+            { cmd: 'uname -a', desc: 'Información del sistema operativo y kernel', category: 'Bash' },
+            { cmd: 'git status', desc: 'Estado de cambios y rama Git', category: 'Git' },
+            { cmd: 'git log --oneline -n 5', desc: 'Últimos 5 commits del repositorio', category: 'Git' },
+            { cmd: 'php -v', desc: 'Versión y módulos de PHP en el servidor', category: 'Dev' },
+            { cmd: 'node -v', desc: 'Versión del motor Node.js', category: 'Dev' }
         ],
 
         workflows: [
-            { title: 'Clonar e Inspeccionar React', cmd: 'clone facebook/react', desc: 'Descarga React y carga el árbol de código en la consola' },
-            { title: 'Comprobar Conexión Supabase', cmd: 'supabase', desc: 'Verifica bucket de almacenamiento y persistencia Postgres' },
-            { title: 'Ver Clave SSH para GitHub', cmd: 'ssh_key', desc: 'Muestra la clave Ed25519 para configurar repositorios privados' },
-            { title: 'Explorar Base de Datos Global', cmd: 'set_i code', desc: 'Muestra todos los archivos con firma NIST Dilithium-5' },
-            { title: 'Subir Archivo Criptográfico', cmd: 'upload', desc: 'Abre el explorador de archivos para subir y firmar' },
-            { title: 'Limpiar Consola y Bloques', cmd: 'clear', desc: 'Vacía la sesión actual de terminal' }
+            { title: 'Clonar e Inspeccionar React', cmd: 'clone facebook/react', desc: 'Descarga React y carga el árbol de código en la consola', category: 'GitHub' },
+            { title: 'Comprobar Conexión Supabase', cmd: 'supabase', desc: 'Verifica bucket de almacenamiento y persistencia Postgres', category: 'Cloud' },
+            { title: 'Ver Clave SSH para GitHub', cmd: 'ssh_key', desc: 'Muestra la clave Ed25519 para configurar repositorios privados', category: 'Security' },
+            { title: 'Explorar Base de Datos Global', cmd: 'set_i code', desc: 'Muestra todos los archivos con firma NIST Dilithium-5', category: 'PQC' },
+            { title: 'Subir Archivo Criptográfico', cmd: 'upload', desc: 'Abre el explorador para subir y sellar con Dilithium-5', category: 'PQC' },
+            { title: 'Ver Estado del Servidor', cmd: 'status', desc: 'Diagnóstico de memoria, PHP, navegadores y PQC', category: 'System' },
+            { title: 'Cambiar Tema Warp', cmd: 'themes', desc: 'Abre el selector interactivo de paletas visuales', category: 'Warp' },
+            { title: 'Warp AI Assistant', cmd: 'ai ¿Cómo clono un repositorio privado?', desc: 'Consulta al asistente inteligente de comandos', category: 'Warp AI' },
+            { title: 'Limpiar Consola y Bloques', cmd: 'clear', desc: 'Vacía la sesión actual de terminal', category: 'Terminal' }
         ],
 
         init: function () {
-            console.log('[WarpBlocks] Warp block terminal initialized (AGPL-3.0 / Denver Technologies, Inc. & DIKTATCART / Hashcod).');
+            console.log('[WarpBlocks] Full Warp terminal engine loaded (AGPL-3.0 Denver & DIKTATCART / Hashcod).');
+            this.loadSavedTheme();
             this.setupPromptAutocomplete();
             this.setupKeyboardShortcuts();
         },
 
+        loadSavedTheme: function () {
+            const saved = localStorage.getItem('warp_theme') || 'default';
+            this.applyTheme(saved);
+        },
+
+        applyTheme: function (themeId) {
+            this.currentTheme = themeId;
+            localStorage.setItem('warp_theme', themeId);
+            if (themeId === 'default') {
+                document.body.removeAttribute('data-warp-theme');
+            } else {
+                document.body.setAttribute('data-warp-theme', themeId);
+            }
+            const badge = document.getElementById('warpThemeChipName');
+            if (badge) {
+                const found = this.themes.find(t => t.id === themeId);
+                badge.textContent = found ? found.name : themeId;
+            }
+        },
+
         setupKeyboardShortcuts: function () {
             window.addEventListener('keydown', (e) => {
+                // Ctrl+L / Cmd+K -> Clear all blocks
                 if ((e.ctrlKey || e.metaKey) && (e.key === 'l' || e.key === 'k')) {
                     if (document.activeElement && document.activeElement.id === 'cmdInput') {
                         e.preventDefault();
                         this.clearAll();
                     }
                 }
-                if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || (e.shiftKey && e.key.toLowerCase() === 'r'))) {
+                // Ctrl+P / Cmd+P -> Open Workflows / Palette
+                if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
                     e.preventDefault();
                     this.openWorkflowsModal();
                 }
+                // Ctrl+Shift+T -> Open Themes Modal
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'T' || e.key === 't')) {
+                    e.preventDefault();
+                    this.openThemesModal();
+                }
+                // Ctrl+Space -> Open Warp AI Modal
+                if ((e.ctrlKey || e.metaKey) && e.code === 'Space') {
+                    e.preventDefault();
+                    this.openAiModal();
+                }
+                // Ctrl+Up / Ctrl+Down -> Navigate between blocks
+                if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    this.navigateBlocks(-1);
+                } else if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.navigateBlocks(1);
+                }
             });
+        },
+
+        navigateBlocks: function (dir) {
+            if (this.blocks.length === 0) return;
+            const items = document.querySelectorAll('.warp-block');
+            if (items.length === 0) return;
+
+            items.forEach(el => el.classList.remove('active-focus'));
+            if (this.selectedBlockIndex < 0) {
+                this.selectedBlockIndex = dir > 0 ? 0 : items.length - 1;
+            } else {
+                this.selectedBlockIndex += dir;
+                if (this.selectedBlockIndex < 0) this.selectedBlockIndex = 0;
+                if (this.selectedBlockIndex >= items.length) this.selectedBlockIndex = items.length - 1;
+            }
+            const active = items[this.selectedBlockIndex];
+            if (active) {
+                active.classList.add('active-focus');
+                active.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         },
 
         setupPromptAutocomplete: function () {
@@ -230,8 +324,8 @@
                 container.innerHTML = `
                     <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
                         ${this.renderToolbarHtml()}
-                        <div style="padding:20px; text-align:center; color:#6B7280; font-family:'Geist Mono', monospace; font-size:12px; border:1px dashed #D1D5DB; border-radius:6px;">
-                            Sin bloques que coincidan con el filtro actual.
+                        <div style="padding:20px; text-align:center; color:#6B7280; font-family:'Geist Mono', monospace; font-size:12px; border:1px dashed var(--warp-border); border-radius:6px;">
+                            Sin celdas que coincidan con el filtro de búsqueda.
                         </div>
                     </div>
                 `;
@@ -256,19 +350,25 @@
                 <div class="warp-session-toolbar">
                     <div class="warp-session-search-wrapper">
                         <svg style="width:13px; height:13px; fill:#6B7280; flex-shrink:0;" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                        <input type="text" class="warp-session-search-input" placeholder="Buscar en historial de celdas..." value="${esc(this.searchQuery)}" oninput="window.WarpBlocks.setSearch(this.value)">
+                        <input type="text" class="warp-session-search-input" placeholder="Buscar en celdas (Ctrl+F)..." value="${esc(this.searchQuery)}" oninput="window.WarpBlocks.setSearch(this.value)">
                     </div>
                     <div class="warp-session-actions">
-                        <button type="button" class="warp-session-btn ${bookmarkActive}" title="Filtrar celdas favoritas" onclick="window.WarpBlocks.toggleBookmarkFilter()">
+                        <button type="button" class="warp-session-btn ${bookmarkActive}" title="Filtrar celdas destacadas" onclick="window.WarpBlocks.toggleBookmarkFilter()">
                             ${WARP_SVG_STAR} <span>Favoritos</span>
                         </button>
-                        <button type="button" class="warp-session-btn" title="Ver Workflows predefinidos" onclick="window.WarpBlocks.openWorkflowsModal()">
+                        <button type="button" class="warp-session-btn" title="Selector de Temas Warp (Ctrl+Shift+T)" onclick="window.WarpBlocks.openThemesModal()">
+                            ${WARP_SVG_PALETTE} <span>Temas</span>
+                        </button>
+                        <button type="button" class="warp-session-btn" title="Asistente AI de Comandos (Ctrl+Espacio)" onclick="window.WarpBlocks.openAiModal()">
+                            ${WARP_SVG_AI} <span>Warp AI</span>
+                        </button>
+                        <button type="button" class="warp-session-btn" title="Workflows Predefinidos (Ctrl+P)" onclick="window.WarpBlocks.openWorkflowsModal()">
                             ${WARP_SVG_ZAP} <span>Workflows</span>
                         </button>
-                        <button type="button" class="warp-session-btn" title="Descargar log de sesión" onclick="window.WarpBlocks.exportSessionLog()">
+                        <button type="button" class="warp-session-btn" title="Exportar log de la sesión" onclick="window.WarpBlocks.exportSessionLog()">
                             ${WARP_SVG_EXPORT} <span>Exportar</span>
                         </button>
-                        <button type="button" class="warp-session-btn" title="Limpiar sesión de terminal" onclick="window.WarpBlocks.clearAll()">
+                        <button type="button" class="warp-session-btn" title="Limpiar sesión (Ctrl+L)" onclick="window.WarpBlocks.clearAll()">
                             ${WARP_SVG_TRASH} <span>Limpiar</span>
                         </button>
                     </div>
@@ -319,7 +419,7 @@
                     </div>
                     <div class="warp-block-footer">
                         <span class="warp-exit-badge ${exitClass}">${exitIcon}</span>
-                        <a href="javascript:void(0)" class="warp-license-badge" onclick="window.WarpBlocks.openSourceModal()" title="Ver licencia AGPL-3.0 y código fuente abierto">
+                        <a href="javascript:void(0)" class="warp-license-badge" onclick="window.WarpBlocks.openSourceModal()" title="Ver aviso de código abierto y licencia AGPL-3.0">
                             ${WARP_SVG_ZAP} <span>Warp Blocks AGPLv3 (Denver &amp; DIKTATCART)</span>
                         </a>
                     </div>
@@ -420,15 +520,15 @@
             modal.innerHTML = `
                 <div class="warp-modal" role="dialog" aria-modal="true">
                     <div class="warp-modal-header">
-                        <div class="warp-modal-title">${WARP_SVG_ZAP} <span>Warp Workflows &amp; Snippets</span></div>
+                        <div class="warp-modal-title">${WARP_SVG_ZAP} <span>Warp Workflows &amp; Snippets (Ctrl+P)</span></div>
                         <button type="button" class="warp-modal-close" onclick="document.getElementById('warpWorkflowsModal').remove()">&times;</button>
                     </div>
                     <div class="warp-modal-content">
-                        <p style="margin-top:0; color:#6B7280; font-size:12px;">Selecciona un flujo de trabajo preconfigurado para ejecutarlo o insertarlo en la línea de comando:</p>
+                        <p style="margin-top:0; color:#6B7280; font-size:12px;">Selecciona o busca un flujo preconfigurado para ejecutarlo o insertarlo en la consola:</p>
                         ${this.workflows.map(wf => `
                             <div class="warp-workflow-card" onclick="window.WarpBlocks.runWorkflow('${esc(wf.cmd)}')">
                                 <div>
-                                    <div style="font-weight:700; color:#111827; font-size:13px;">${esc(wf.title)}</div>
+                                    <div style="font-weight:700; color:var(--warp-fg); font-size:13px;">${esc(wf.title)} <span class="warp-auto-badge">${esc(wf.category)}</span></div>
                                     <div style="font-size:11px; color:#6B7280; margin-top:2px;">${esc(wf.desc)}</div>
                                 </div>
                                 <span class="warp-prompt-pill" style="font-size:11px;">&gt;= ${esc(wf.cmd)}</span>
@@ -436,7 +536,7 @@
                         `).join('')}
                     </div>
                     <div class="warp-modal-footer">
-                        <span style="font-size:11px; color:#6B7280;">Warp Workflows Engine</span>
+                        <span style="font-size:11px; color:#6B7280;">Warp Workflows Engine (AGPL-3.0)</span>
                         <button type="button" class="unlicensed-modal-btn" onclick="document.getElementById('warpWorkflowsModal').remove()">Cerrar</button>
                     </div>
                 </div>
@@ -452,6 +552,176 @@
             if (modal) modal.remove();
             const input = document.getElementById('cmdInput');
             if (input) input.value = cmd;
+            if (typeof window.submitCommand === 'function') {
+                window.submitCommand(cmd);
+            }
+        },
+
+        openThemesModal: function () {
+            const existing = document.getElementById('warpThemesModal');
+            if (existing) existing.remove();
+
+            const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const modal = document.createElement('div');
+            modal.id = 'warpThemesModal';
+            modal.className = 'warp-modal-overlay';
+            modal.innerHTML = `
+                <div class="warp-modal" role="dialog" aria-modal="true">
+                    <div class="warp-modal-header">
+                        <div class="warp-modal-title">${WARP_SVG_PALETTE} <span>Warp Terminal Themes (Ctrl+Shift+T)</span></div>
+                        <button type="button" class="warp-modal-close" onclick="document.getElementById('warpThemesModal').remove()">&times;</button>
+                    </div>
+                    <div class="warp-modal-content">
+                        <p style="margin-top:0; color:#6B7280; font-size:12px;">Selecciona un tema visual oficial de Warp para personalizar la terminal y las celdas:</p>
+                        <div class="warp-themes-grid">
+                            ${this.themes.map(t => `
+                                <div class="warp-theme-card ${t.id === this.currentTheme ? 'active' : ''}" onclick="window.WarpBlocks.applyTheme('${t.id}')">
+                                    <div class="warp-theme-preview-strip" style="background:${t.bg}; border:1px solid rgba(0,0,0,0.15);">
+                                        <div style="flex:1; background:${t.bg};"></div>
+                                        <div style="width:20px; background:${t.accent};"></div>
+                                        <div style="width:20px; background:${t.fg};"></div>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <strong style="font-size:12px;">${esc(t.name)}</strong>
+                                        ${t.id === this.currentTheme ? '<span style="color:#10B981; font-size:11px; font-weight:700;">Activo</span>' : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="warp-modal-footer">
+                        <span style="font-size:11px; color:#6B7280;">Warp Theme Manager</span>
+                        <button type="button" class="unlicensed-modal-btn" onclick="document.getElementById('warpThemesModal').remove()">Listo</button>
+                    </div>
+                </div>
+            `;
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            document.body.appendChild(modal);
+        },
+
+        openAiModal: function (initialQuery) {
+            const existing = document.getElementById('warpAiModal');
+            if (existing) existing.remove();
+
+            const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            const query = initialQuery || '';
+
+            const modal = document.createElement('div');
+            modal.id = 'warpAiModal';
+            modal.className = 'warp-modal-overlay';
+            modal.innerHTML = `
+                <div class="warp-modal" role="dialog" aria-modal="true">
+                    <div class="warp-modal-header">
+                        <div class="warp-modal-title">${WARP_SVG_AI} <span>Warp AI Command Assistant (Ctrl+Espacio)</span></div>
+                        <button type="button" class="warp-modal-close" onclick="document.getElementById('warpAiModal').remove()">&times;</button>
+                    </div>
+                    <div class="warp-modal-content">
+                        <p style="margin-top:0; color:#6B7280; font-size:12px;">Escribe en lenguaje natural lo que deseas hacer y Warp AI generará el comando exacto de terminal:</p>
+                        <div style="display:flex; gap:8px; margin-bottom:12px;">
+                            <input type="text" id="warpAiInput" class="cmd-input" placeholder="Ej: clonar un repositorio, ver claves ssh, verificar supabase..." value="${esc(query)}" style="flex:1;" onkeydown="if(event.key==='Enter') window.WarpBlocks.askAi()">
+                            <button type="button" class="btn-upload-vector" onclick="window.WarpBlocks.askAi()">Generar</button>
+                        </div>
+                        <div id="warpAiResultContainer"></div>
+                    </div>
+                    <div class="warp-modal-footer">
+                        <span style="font-size:11px; color:#6B7280;">Warp AI Command Engine</span>
+                        <button type="button" class="unlicensed-modal-btn" onclick="document.getElementById('warpAiModal').remove()">Cerrar</button>
+                    </div>
+                </div>
+            `;
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            document.body.appendChild(modal);
+
+            setTimeout(() => {
+                const inp = document.getElementById('warpAiInput');
+                if (inp) {
+                    inp.focus();
+                    if (query) this.askAi();
+                }
+            }, 100);
+        },
+
+        askAi: function () {
+            const inp = document.getElementById('warpAiInput');
+            const res = document.getElementById('warpAiResultContainer');
+            if (!inp || !res) return;
+            const q = inp.value.trim().toLowerCase();
+            if (!q) return;
+
+            // Motor local de resolución inteligente Warp AI
+            let suggestion = 'status';
+            let explanation = 'Muestra el diagnóstico general de la plataforma Hashcod.';
+
+            if (q.includes('clon') || q.includes('descarg') || q.includes('repo')) {
+                suggestion = 'clone facebook/react';
+                explanation = 'Clona el repositorio especificado desde GitHub en el servidor seguro.';
+            } else if (q.includes('ssh') || q.includes('clave') || q.includes('key')) {
+                suggestion = 'ssh_key';
+                explanation = 'Genera y muestra la clave pública Ed25519 para vincularla a tu cuenta de GitHub.';
+            } else if (q.includes('supa') || q.includes('base') || q.includes('storage') || q.includes('guard')) {
+                suggestion = 'supabase';
+                explanation = 'Verifica la conexión con Supabase y la persistencia de datos.';
+            } else if (q.includes('subir') || q.includes('upload') || q.includes('archiv')) {
+                suggestion = 'upload';
+                explanation = 'Abre el selector de archivos local para subir y sellar con firma Dilithium-5.';
+            } else if (q.includes('pqc') || q.includes('dilithium') || q.includes('firma') || q.includes('set_i')) {
+                suggestion = 'set_i code';
+                explanation = 'Abre la super base de datos con todos los archivos sellados post-cuánticos.';
+            } else if (q.includes('limpi') || q.includes('borr') || q.includes('clear')) {
+                suggestion = 'clear';
+                explanation = 'Limpia el feed de celdas y la consola.';
+            } else if (q.includes('mac') || q.includes('macos')) {
+                suggestion = 'macos';
+                explanation = 'Despliega el entorno macOS inside.';
+            } else if (q.includes('chrome') || q.includes('chromeos')) {
+                suggestion = 'chromeos';
+                explanation = 'Despliega el entorno ChromeOS play.';
+            } else if (q.includes('prs') || q.includes('ide') || q.includes('editor')) {
+                suggestion = 'prs-code';
+                explanation = 'Abre el IDE colaborativo PRS Code.';
+            } else if (q.includes('tema') || q.includes('color') || q.includes('theme')) {
+                suggestion = 'themes';
+                explanation = 'Abre el panel de personalización de temas de Warp.';
+            }
+
+            const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            res.innerHTML = `
+                <div style="background:var(--warp-card-bg); border:1px solid var(--warp-accent); border-radius:6px; padding:12px; margin-top:10px;">
+                    <div style="font-weight:700; color:var(--warp-fg); font-size:12px; margin-bottom:4px;">Comando Sugerido:</div>
+                    <div style="background:var(--warp-code-bg); color:var(--warp-code-fg); padding:8px 10px; border-radius:4px; font-family:monospace; font-size:13px; display:flex; justify-content:space-between; align-items:center;">
+                        <code>&gt;= ${esc(suggestion)}</code>
+                        <button type="button" class="warp-tool-btn" style="color:#FFF;" title="Copiar comando" onclick="navigator.clipboard.writeText('${esc(suggestion)}')">
+                            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </button>
+                    </div>
+                    <div style="font-size:11px; color:#6B7280; margin-top:8px;">${esc(explanation)}</div>
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+                        <button type="button" class="unlicensed-modal-btn" onclick="window.WarpBlocks.insertAiCommand('${esc(suggestion)}')">Insertar en Consola</button>
+                        <button type="button" class="btn-upload-vector" onclick="window.WarpBlocks.runAiCommand('${esc(suggestion)}')">Ejecutar Ahora</button>
+                    </div>
+                </div>
+            `;
+        },
+
+        insertAiCommand: function (cmd) {
+            const modal = document.getElementById('warpAiModal');
+            if (modal) modal.remove();
+            const inp = document.getElementById('cmdInput');
+            if (inp) {
+                inp.value = cmd;
+                inp.focus();
+            }
+        },
+
+        runAiCommand: function (cmd) {
+            const modal = document.getElementById('warpAiModal');
+            if (modal) modal.remove();
+            const inp = document.getElementById('cmdInput');
+            if (inp) inp.value = cmd;
             if (typeof window.submitCommand === 'function') {
                 window.submitCommand(cmd);
             }
@@ -473,7 +743,7 @@
                     <div class="warp-modal-content">
                         <p style="margin-top:0;"><strong>Authors &amp; Licensing Notice:</strong></p>
                         <ul>
-                            <li><strong>Original Warp Terminal codebase:</strong> Copyright &copy; 2020-2026 Denver Technologies, Inc. (Licensed under AGPL-3.0).</li>
+                            <li><strong>Original Warp Terminal codebase:</strong> Copyright &copy; 2020-2026 Denver Technologies, Inc. (Licensed under GNU AGPL-3.0).</li>
                             <li><strong>Modifications &amp; Block Integration:</strong> Copyright &copy; 2026 DIKTATCART / Hashcod.</li>
                             <li><strong>Brand &amp; Custody:</strong> "Hashcod" is the platform and "DIKTATCART" is the enterprise author. The open AGPL-3.0 license strictly applies to this Warp-derived cell block terminal module.</li>
                         </ul>

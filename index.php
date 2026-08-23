@@ -8794,7 +8794,7 @@ if (!headers_sent()) {
 
         <!-- Bloque (>) de introducción de comandos y su ventana desplegable -->
         <div class="function-drawer-wrapper">
-            <!-- Segmentos de contexto Warp (Host, Dir, Git, PQC) con iconos vectoriales SVG -->
+            <!-- Segmentos de contexto Warp (Host, Dir, Git, PQC, Temas, AI) con iconos vectoriales SVG -->
             <div class="warp-prompt-segments">
                 <span class="warp-seg-badge host">
                     <svg class="warp-icon-svg" style="fill:#F9FAFB;" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-12-3l3-3-3-3 1.41-1.41L12.83 12l-3.42 3.41L8 15zm5 0h5v2h-5v-2z"/></svg>
@@ -8811,6 +8811,14 @@ if (!headers_sent()) {
                 <span class="warp-seg-badge pqc">
                     <svg class="warp-icon-svg" style="fill:#065F46;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
                     <span>Dilithium-5 (PQC)</span>
+                </span>
+                <span class="warp-seg-badge interactive" onclick="window.WarpBlocks.openThemesModal()" title="Cambiar tema de terminal (Ctrl+Shift+T)">
+                    <svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.59 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5 9c-.83 0-1.5-.67-1.5-1.5S6.17 9 7 9s1.5.67 1.5 1.5S7.83 12 7 12zm3-4c-.83 0-1.5-.67-1.5-1.5S9.17 5 10 5s1.5.67 1.5 1.5S10.83 8 10 8zm4 0c-.83 0-1.5-.67-1.5-1.5S13.17 5 14 5s1.5.67 1.5 1.5S14.83 8 14 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.17 9 17 9s1.5.67 1.5 1.5S17.83 12 17 12z"/></svg>
+                    <span id="warpThemeChipName">Warp Theme</span>
+                </span>
+                <span class="warp-seg-badge interactive" onclick="window.WarpBlocks.openAiModal()" title="Asistente AI Warp (Ctrl+Espacio)">
+                    <svg class="warp-icon-svg" style="fill:#8B5CF6;" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                    <span>Warp AI</span>
                 </span>
                 <span class="warp-seg-badge time">
                     <svg class="warp-icon-svg" style="fill:#6B7280;" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-8-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
@@ -10227,6 +10235,49 @@ if (!headers_sent()) {
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
                         <svg class="warp-icon-svg" style="fill:#6B7280; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                         <span>Terminal negra y visor de archivos limpiados.</span>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "BASH_OUTPUT") {
+                const isError = (dataToDisplay.exit_code !== 0);
+                const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                let outHtml = '';
+                if (dataToDisplay.stdout) {
+                    outHtml += `<pre class="warp-source-pre" style="margin:0; background:transparent; color:inherit; padding:0;">${esc(dataToDisplay.stdout)}</pre>`;
+                }
+                if (dataToDisplay.stderr) {
+                    outHtml += `<pre class="warp-source-pre" style="margin:0; color:#EF4444; background:transparent; padding:0;">${esc(dataToDisplay.stderr)}</pre>`;
+                }
+                if (!outHtml) {
+                    outHtml = '<span style="color:#6B7280;">(Ejecutado sin salida)</span>';
+                }
+                warpWrapOutput(outHtml, isError, dataToDisplay.stderr || null);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "TRIGGER_THEMES") {
+                if (window.WarpBlocks && typeof window.WarpBlocks.openThemesModal === 'function') {
+                    window.WarpBlocks.openThemesModal();
+                }
+                warpWrapOutput(`
+                    <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                        <svg class="warp-icon-svg" style="fill:#3B82F6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.59 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5 9c-.83 0-1.5-.67-1.5-1.5S6.17 9 7 9s1.5.67 1.5 1.5S7.83 12 7 12zm3-4c-.83 0-1.5-.67-1.5-1.5S9.17 5 10 5s1.5.67 1.5 1.5S10.83 8 10 8zm4 0c-.83 0-1.5-.67-1.5-1.5S13.17 5 14 5s1.5.67 1.5 1.5S14.83 8 14 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.17 9 17 9s1.5.67 1.5 1.5S17.83 12 17 12z"/></svg>
+                        <span><strong>Warp Themes:</strong> Selector de paletas y estilos visuales abierto.</span>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "TRIGGER_AI") {
+                if (window.WarpBlocks && typeof window.WarpBlocks.openAiModal === 'function') {
+                    window.WarpBlocks.openAiModal(dataToDisplay.prompt || '');
+                }
+                warpWrapOutput(`
+                    <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                        <svg class="warp-icon-svg" style="fill:#8B5CF6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                        <span><strong>Warp AI:</strong> Generador inteligente de comandos abierto.</span>
                     </div>
                 `);
                 return;

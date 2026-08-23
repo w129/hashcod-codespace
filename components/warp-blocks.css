@@ -1,16 +1,115 @@
 /**
+ * Copyright (C) 2020-2026 Denver Technologies, Inc.
  * Copyright (C) 2026 DIKTATCART / Hashcod
  *
- * This file is free software: you can redistribute it and/or modify
+ * This file is part of Warp / Hashcod Codespace integration.
+ * Modified on 2026 by DIKTATCART: Added full Warp terminal engine, themes, workflows, and PQC blocks.
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
 
-/* ==========================================================================
-   Warp-style Full Block Terminal Engine & UI System
-   ========================================================================== */
+:root {
+    --warp-bg: #FFFFFF;
+    --warp-fg: #111827;
+    --warp-border: #E5E7EB;
+    --warp-header-bg: #F9FAFB;
+    --warp-prompt-bg: #F3F4F6;
+    --warp-seg-bg: #E5E7EB;
+    --warp-seg-fg: #1F2937;
+    --warp-accent: #3B82F6;
+    --warp-success: #10B981;
+    --warp-error: #EF4444;
+    --warp-card-bg: #FFFFFF;
+    --warp-code-bg: #111827;
+    --warp-code-fg: #F3F4F6;
+    --warp-shadow: rgba(0, 0, 0, 0.05);
+}
 
+/* Temas Oficiales de Warp */
+body[data-warp-theme="warp-dark"] {
+    --warp-bg: #1e1e2e;
+    --warp-fg: #cdd6f4;
+    --warp-border: #313244;
+    --warp-header-bg: #181825;
+    --warp-prompt-bg: #11111b;
+    --warp-seg-bg: #313244;
+    --warp-seg-fg: #cdd6f4;
+    --warp-accent: #89b4fa;
+    --warp-success: #a6e3a1;
+    --warp-error: #f38ba8;
+    --warp-card-bg: #1e1e2e;
+    --warp-code-bg: #11111b;
+    --warp-code-fg: #cdd6f4;
+}
+
+body[data-warp-theme="nord"] {
+    --warp-bg: #2e3440;
+    --warp-fg: #eceff4;
+    --warp-border: #3b4252;
+    --warp-header-bg: #242933;
+    --warp-prompt-bg: #1e222a;
+    --warp-seg-bg: #434c5e;
+    --warp-seg-fg: #eceff4;
+    --warp-accent: #88c0d0;
+    --warp-success: #a3be8c;
+    --warp-error: #bf616a;
+    --warp-card-bg: #2e3440;
+    --warp-code-bg: #1e222a;
+    --warp-code-fg: #eceff4;
+}
+
+body[data-warp-theme="dracula"] {
+    --warp-bg: #282a36;
+    --warp-fg: #f8f8f2;
+    --warp-border: #44475a;
+    --warp-header-bg: #21222c;
+    --warp-prompt-bg: #191a21;
+    --warp-seg-bg: #44475a;
+    --warp-seg-fg: #f8f8f2;
+    --warp-accent: #bd93f9;
+    --warp-success: #50fa7b;
+    --warp-error: #ff5555;
+    --warp-card-bg: #282a36;
+    --warp-code-bg: #191a21;
+    --warp-code-fg: #f8f8f2;
+}
+
+body[data-warp-theme="tokyo-night"] {
+    --warp-bg: #1a1b26;
+    --warp-fg: #c0caf5;
+    --warp-border: #292e42;
+    --warp-header-bg: #16161e;
+    --warp-prompt-bg: #13141c;
+    --warp-seg-bg: #292e42;
+    --warp-seg-fg: #c0caf5;
+    --warp-accent: #7aa2f7;
+    --warp-success: #9ece6a;
+    --warp-error: #f7768e;
+    --warp-card-bg: #1a1b26;
+    --warp-code-bg: #13141c;
+    --warp-code-fg: #c0caf5;
+}
+
+body[data-warp-theme="cyberpunk"] {
+    --warp-bg: #0d0f18;
+    --warp-fg: #00ffcc;
+    --warp-border: #ff007f;
+    --warp-header-bg: #151828;
+    --warp-prompt-bg: #080a10;
+    --warp-seg-bg: #1f233a;
+    --warp-seg-fg: #00ffcc;
+    --warp-accent: #00e5ff;
+    --warp-success: #00ff66;
+    --warp-error: #ff0055;
+    --warp-card-bg: #0d0f18;
+    --warp-code-bg: #05060a;
+    --warp-code-fg: #00ffcc;
+}
+
+/* Iconos Vectoriales SVG Warp */
 .warp-icon-svg {
     width: 13px;
     height: 13px;
@@ -26,10 +125,10 @@
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: #F3F4F6;
+    background: var(--warp-prompt-bg);
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    border-bottom: 1px solid #E5E7EB;
+    border-bottom: 1px solid var(--warp-border);
     font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
     font-size: 11px;
     flex-wrap: wrap;
@@ -42,9 +141,11 @@
     gap: 5px;
     padding: 3px 8px;
     border-radius: 4px;
-    background: #E5E7EB;
-    color: #1F2937;
+    background: var(--warp-seg-bg);
+    color: var(--warp-seg-fg);
     font-weight: 500;
+    font-size: 11px;
+    cursor: default;
 }
 
 .warp-seg-badge.host {
@@ -64,6 +165,15 @@
     border: 1px solid #A7F3D0;
 }
 
+.warp-seg-badge.interactive {
+    cursor: pointer;
+    transition: filter 0.15s ease;
+}
+
+.warp-seg-badge.interactive:hover {
+    filter: brightness(0.92);
+}
+
 .warp-seg-badge.time {
     margin-left: auto;
     background: transparent;
@@ -79,15 +189,15 @@
     margin-bottom: 8px;
 }
 
-/* Barra superior de la sesión de bloques (Búsqueda, Filtros, Limpiar) */
+/* Barra de Herramientas de la Sesión */
 .warp-session-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
     padding: 6px 10px;
-    background: #FAFAFA;
-    border: 1px solid #E5E7EB;
+    background: var(--warp-header-bg);
+    border: 1px solid var(--warp-border);
     border-radius: 6px;
     font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
     font-size: 11px;
@@ -98,8 +208,8 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: #FFFFFF;
-    border: 1px solid #D1D5DB;
+    background: var(--warp-card-bg);
+    border: 1px solid var(--warp-border);
     border-radius: 4px;
     padding: 3px 8px;
     flex: 1;
@@ -112,7 +222,7 @@
     background: transparent;
     font-size: 11px;
     font-family: inherit;
-    color: #111827;
+    color: var(--warp-fg);
     width: 100%;
 }
 
@@ -120,6 +230,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
 .warp-session-btn {
@@ -127,10 +238,10 @@
     align-items: center;
     gap: 5px;
     padding: 3px 8px;
-    border: 1px solid #D1D5DB;
-    background: #FFFFFF;
+    border: 1px solid var(--warp-border);
+    background: var(--warp-card-bg);
     border-radius: 4px;
-    color: #374151;
+    color: var(--warp-fg);
     font-size: 11px;
     font-family: inherit;
     cursor: pointer;
@@ -138,9 +249,8 @@
 }
 
 .warp-session-btn:hover {
-    background: #F3F4F6;
-    border-color: #9CA3AF;
-    color: #111827;
+    background: var(--warp-prompt-bg);
+    border-color: var(--warp-accent);
 }
 
 .warp-session-btn.active {
@@ -151,10 +261,10 @@
 
 /* Celda / Bloque individual */
 .warp-block {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--warp-card-bg);
+    border: 1px solid var(--warp-border);
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px var(--warp-shadow);
     overflow: hidden;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
     display: flex;
@@ -164,21 +274,21 @@
     position: relative;
 }
 
-.warp-block:hover {
-    border-color: #D1D5DB;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+.warp-block:hover, .warp-block.active-focus {
+    border-color: var(--warp-accent);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .warp-block.status-running {
-    border-left: 3px solid #3B82F6;
+    border-left: 4px solid var(--warp-accent);
 }
 
 .warp-block.status-success {
-    border-left: 3px solid #10B981;
+    border-left: 4px solid var(--warp-success);
 }
 
 .warp-block.status-error {
-    border-left: 3px solid #EF4444;
+    border-left: 4px solid var(--warp-error);
 }
 
 .warp-block.bookmarked {
@@ -187,13 +297,13 @@
 
 /* Cabecera del Bloque */
 .warp-block-header {
-    background: #F9FAFB;
+    background: var(--warp-header-bg);
     padding: 8px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid var(--warp-border);
     user-select: none;
 }
 
@@ -211,8 +321,8 @@
     gap: 4px;
     font-weight: 700;
     font-size: 12px;
-    color: #111827;
-    background: #E5E7EB;
+    color: var(--warp-fg);
+    background: var(--warp-seg-bg);
     border-radius: 4px;
     padding: 2px 7px;
     letter-spacing: -0.5px;
@@ -222,7 +332,7 @@
 .warp-cmd-text {
     font-weight: 600;
     font-size: 13px;
-    color: #111827;
+    color: var(--warp-fg);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -242,7 +352,7 @@
     gap: 4px;
     font-size: 11px;
     color: #6B7280;
-    background: #F3F4F6;
+    background: var(--warp-seg-bg);
     padding: 2px 6px;
     border-radius: 4px;
     white-space: nowrap;
@@ -271,15 +381,15 @@
     background: transparent;
     border-radius: 4px;
     cursor: pointer;
-    color: #4B5563;
+    color: #6B7280;
     padding: 0;
     transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
 
 .warp-tool-btn:hover {
-    background: #E5E7EB;
-    color: #111827;
-    border-color: #D1D5DB;
+    background: var(--warp-seg-bg);
+    color: var(--warp-fg);
+    border-color: var(--warp-border);
 }
 
 .warp-tool-btn svg {
@@ -297,8 +407,8 @@
     padding: 12px 14px;
     font-size: 13px;
     line-height: 1.45;
-    color: #111827;
-    background: #FFFFFF;
+    color: var(--warp-fg);
+    background: var(--warp-card-bg);
     overflow-x: auto;
     max-height: 480px;
     overflow-y: auto;
@@ -317,8 +427,8 @@
 /* Footer del Bloque */
 .warp-block-footer {
     padding: 4px 12px;
-    background: #FAFAFA;
-    border-top: 1px solid #F3F4F6;
+    background: var(--warp-header-bg);
+    border-top: 1px solid var(--warp-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -335,11 +445,11 @@
 }
 
 .warp-exit-badge.success {
-    color: #10B981;
+    color: var(--warp-success);
 }
 
 .warp-exit-badge.error {
-    color: #EF4444;
+    color: var(--warp-error);
 }
 
 .warp-license-badge {
@@ -356,22 +466,22 @@
 }
 
 .warp-license-badge:hover {
-    background: #E5E7EB;
-    color: #111827;
+    background: var(--warp-seg-bg);
+    color: var(--warp-fg);
 }
 
-/* Menu Flotante de Autocompletado orientada HACIA ABAJO */
+/* Menú Flotante de Autocompletado (Orientada HACIA ABAJO) */
 .warp-autocomplete-dropdown {
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    background: #FFFFFF;
-    border: 1px solid #D1D5DB;
+    background: var(--warp-card-bg);
+    border: 1px solid var(--warp-border);
     border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
     z-index: 10000;
-    max-height: 280px;
+    max-height: 290px;
     overflow-y: auto;
     font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
     display: none;
@@ -388,7 +498,7 @@
     justify-content: space-between;
     gap: 10px;
     cursor: pointer;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid var(--warp-border);
     font-size: 12px;
 }
 
@@ -397,12 +507,12 @@
 }
 
 .warp-auto-item:hover, .warp-auto-item.selected {
-    background: #F3F4F6;
+    background: var(--warp-prompt-bg);
 }
 
 .warp-auto-cmd {
     font-weight: 600;
-    color: #111827;
+    color: var(--warp-fg);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -414,41 +524,21 @@
 }
 
 .warp-auto-badge {
-    background: #E5E7EB;
-    color: #374151;
+    background: var(--warp-seg-bg);
+    color: var(--warp-seg-fg);
     font-size: 10px;
     padding: 2px 5px;
     border-radius: 3px;
 }
 
-/* Workflows Modal / Drawer */
-.warp-workflow-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 6px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-.warp-workflow-card:hover {
-    border-color: #3B82F6;
-    background: #F8FAFC;
-}
-
-/* Modal de Disponibilidad de Código Fuente AGPL-3.0 */
+/* Modales Warp (Workflows, Temas, AI, Código Abierto) */
 .warp-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(4px);
     z-index: 100000;
     display: flex;
@@ -458,15 +548,15 @@
 }
 
 .warp-modal {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--warp-card-bg);
+    border: 1px solid var(--warp-border);
     border-radius: 10px;
     width: 100%;
-    max-width: 740px;
+    max-width: 760px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
     overflow: hidden;
     font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
 }
@@ -505,9 +595,74 @@
     padding: 16px 18px;
     overflow-y: auto;
     font-size: 12px;
-    color: #374151;
+    color: var(--warp-fg);
     line-height: 1.5;
-    background: #F9FAFB;
+    background: var(--warp-header-bg);
+}
+
+.warp-modal-footer {
+    padding: 12px 18px;
+    background: var(--warp-card-bg);
+    border-top: 1px solid var(--warp-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Tarjetas de Flujo de Trabajo / Workflows */
+.warp-workflow-card {
+    background: var(--warp-card-bg);
+    border: 1px solid var(--warp-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.warp-workflow-card:hover {
+    border-color: var(--warp-accent);
+    background: var(--warp-prompt-bg);
+}
+
+/* Grid de Temas */
+.warp-themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 12px;
+}
+
+.warp-theme-card {
+    background: var(--warp-card-bg);
+    border: 2px solid var(--warp-border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.warp-theme-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--warp-accent);
+}
+
+.warp-theme-card.active {
+    border-color: var(--warp-accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.warp-theme-preview-strip {
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    overflow: hidden;
 }
 
 .warp-source-pre {
@@ -518,13 +673,4 @@
     overflow-x: auto;
     font-size: 11px;
     max-height: 220px;
-}
-
-.warp-modal-footer {
-    padding: 12px 18px;
-    background: #FFFFFF;
-    border-top: 1px solid #E5E7EB;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
 }

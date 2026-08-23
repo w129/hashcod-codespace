@@ -4884,9 +4884,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isClear = ($lowerCmd === 'clear' || $lowerCmd === 'limpiar' || $lowerCmd === 'cls');
     $isWorkflows = ($lowerCmd === 'workflows' || $lowerCmd === 'workflow' || $lowerCmd === 'flujos');
     $isStatus = ($lowerCmd === 'status' || $lowerCmd === 'estado' || $lowerCmd === 'info');
+    $isThemes = ($lowerCmd === 'themes' || $lowerCmd === 'temas' || strpos($lowerCmd, 'theme') === 0);
+    $isAi = ($lowerCmd === 'ai' || strpos($lowerCmd, 'ai ') === 0 || strpos($rawCmd, '#') === 0);
+
+    $bashPrefixes = ['ls', 'pwd', 'date', 'whoami', 'echo', 'cat', 'git', 'php', 'node', 'composer', 'npm', 'uname', 'find', 'grep', 'mkdir', 'touch', 'head', 'tail', 'curl', 'df', 'free', 'ps', 'env', 'which', 'diff', 'tree'];
+    $cmdParts = explode(' ', $lowerCmd);
+    $isBash = in_array($cmdParts[0] ?? '', $bashPrefixes);
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isUpload || $isClear || $isWorkflows || $isStatus || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isUpload || $isClear || $isWorkflows || $isStatus || $isThemes || $isAi || $isBash || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
 
     if (!$isValid) {
         echo json_encode([
@@ -5127,6 +5133,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
                 'storage_ready' => !empty($sb['storage_ready']),
                 'db_ready' => !empty($sb['db_ready'])
             ]
+        ];
+    } else if ($isThemes) {
+        $themeName = trim(preg_replace('/^(themes?|temas?)\s*/i', '', $rawCmd));
+        $outputResult = [
+            'type' => 'TRIGGER_THEMES',
+            'command' => $rawCmd,
+            'theme_selected' => $themeName,
+            'message' => 'Abriendo selector interactivo de temas de Warp...'
+        ];
+    } else if ($isAi) {
+        $promptText = trim(preg_replace('/^(ai|#)\s*/i', '', $rawCmd));
+        $outputResult = [
+            'type' => 'TRIGGER_AI',
+            'command' => $rawCmd,
+            'prompt' => $promptText,
+            'message' => 'Consultando Warp AI Command Assistant...'
+        ];
+    } else if ($isBash) {
+        $startTime = microtime(true);
+        $descriptors = [
+            0 => ["pipe", "r"],
+            1 => ["pipe", "w"],
+            2 => ["pipe", "w"]
+        ];
+        $cwd = __DIR__;
+        $process = @proc_open($rawCmd, $descriptors, $pipes, $cwd, null);
+        $stdout = '';
+        $stderr = '';
+        $exitCode = 0;
+        if (is_resource($process)) {
+            fclose($pipes[0]);
+            $stdout = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+            $stderr = stream_get_contents($pipes[2]);
+            fclose($pipes[2]);
+            $exitCode = proc_close($process);
+        } else {
+            $exitCode = 1;
+            $stderr = 'No se pudo iniciar el subshell bash.';
+        }
+        $durMs = round((microtime(true) - $startTime) * 1000, 2);
+        $outputResult = [
+            'type' => 'BASH_OUTPUT',
+            'command' => $rawCmd,
+            'exit_code' => $exitCode,
+            'duration_ms' => $durMs,
+            'stdout' => mb_convert_encoding($stdout, 'UTF-8', 'UTF-8, ISO-8859-1'),
+            'stderr' => mb_convert_encoding($stderr, 'UTF-8', 'UTF-8, ISO-8859-1'),
+            'cwd' => $cwd
         ];
     } else if ($lowerCmd === 'ping') {
         $outputResult = [

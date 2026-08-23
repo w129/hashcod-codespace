@@ -11157,7 +11157,6 @@ if (!headers_sent()) {
         }
 
         async function openExternalWithTokens(url, windowName, features) {
-            // Abrir en el gesto del usuario ANTES del await (si no, el navegador bloquea el popup).
             const target = windowName || '_blank';
             const feat = String(features || 'width=1100,height=720')
                 .split(',')
@@ -11169,53 +11168,16 @@ if (!headers_sent()) {
                 .join(',');
             let win = null;
             try {
-                win = window.open('about:blank', target, feat || 'width=1100,height=720');
+                win = window.open(url, target, feat || 'width=1100,height=720');
+                if (win) {
+                    try { win.focus(); } catch (e) {}
+                }
             } catch (e) {
                 win = null;
             }
 
-            const charge = await consumeTokens('external', url || windowName || 'external');
-            if (!charge || !charge.ok) {
-                if (win) { try { win.close(); } catch (e) {} }
-                const msg = (charge && charge.error) ? charge.error : 'Tokens insuficientes para abrir la ventana externa (−25).';
-                if (executionContainer) {
-                    executionContainer.innerHTML = '<span style="color:#c5221f; font-weight:600; font-family:\'IBM Plex Mono\', monospace;">' +
-                        String(msg).replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
-                }
-                toggleTokensPanel(true);
-                return null;
-            }
-
-            // Solo ventana externa: nunca navegar la plataforma servidor.
-            if (win) {
-                try { win.location.href = url; } catch (e) {
-                    try { win.close(); } catch (e2) {}
-                    win = null;
-                }
-            }
-            if (!win) {
-                try {
-                    win = window.open(url, target, feat || 'width=1100,height=720');
-                } catch (e) {
-                    win = null;
-                }
-            }
-            if (win) {
-                try { win.opener = null; } catch (e) {}
-                try { win.focus(); } catch (e) {}
-                return win;
-            }
-
-            const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-            if (executionContainer) {
-                executionContainer.innerHTML =
-                    '<div style="padding:12px 14px; font-family:\'IBM Plex Mono\', monospace; font-size:12px; color:#111; line-height:1.45;">' +
-                    '<div style="font-weight:600; margin-bottom:6px;">Ventana externa bloqueada por el navegador</div>' +
-                    '<div style="color:#444; margin-bottom:10px;">La plataforma no se abre aquí a propósito. Permite ventanas emergentes o ábrela solo de forma externa:</div>' +
-                    '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" style="color:#0b57d0;">Abrir solo en ventana externa</a>' +
-                    '</div>';
-            }
-            return null;
+            try { consumeTokens('external', url || windowName || 'external'); } catch (e) {}
+            return win;
         }
 
         function markExternalLaunchOnly(label, url) {
@@ -12821,30 +12783,30 @@ if (!headers_sent()) {
         }
 
         async function openUbuntuCli() {
-            await openExternalWithTokens('/ubuntu', 'l8-ubuntu-cli', 'width=1100,height=720');
+            await openExternalWithTokens('ubuntu-cli.php', 'l8-ubuntu-cli', 'width=1100,height=720');
         }
 
         async function openClaudeCli() {
-            await openExternalWithTokens('/claude', 'l8-claude-cli', 'width=1100,height=720');
+            await openExternalWithTokens('claude-cli.php', 'l8-claude-cli', 'width=1100,height=720');
         }
 
         async function openZylonCli() {
-            await openExternalWithTokens('/zylon', 'l8-zylon-cli', 'width=1100,height=720');
+            await openExternalWithTokens('zylon-cli.php', 'l8-zylon-cli', 'width=1100,height=720');
         }
 
 
         async function openPrsCode(url) {
-            await openExternalWithTokens(url || '/prs-code', 'l8-prs-code', 'width=1180,height=780');
+            await openExternalWithTokens(url || 'prs-code.php', 'l8-prs-code', 'width=1180,height=780');
         }
 
 
         async function openMacosInside(url) {
-            await openExternalWithTokens(url || '/macos', 'l8-macos-inside', 'width=1180,height=780');
+            await openExternalWithTokens(url || 'macos-cli.php', 'l8-macos-inside', 'width=1180,height=780');
         }
 
 
         async function openChromeosPlay(url) {
-            await openExternalWithTokens(url || '/chromeos', 'l8-chromeos-play', 'width=1180,height=780');
+            await openExternalWithTokens(url || 'chromeos-cli.php', 'l8-chromeos-play', 'width=1180,height=780');
         }
 
         async function submitCommand(cmd) {

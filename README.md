@@ -57,11 +57,11 @@ LibreOffice (MPL-2.0) queda en `data_storage/repos/libreoffice-core`. El mirror 
 
 ## Authors, Branding & Open Source Credits
 
-* **Original Warp Terminal Base**: Copyright (C) 2020-2026 Denver Technologies, Inc. (Licensed under [GNU AGPL-3.0](https://github.com/warpdotdev/warp.git)).
+* **Original Tabby Terminal Base**: Copyright (C) 2020-2026 Eugeny Pankov (Licensed under [MIT License](https://github.com/Eugeny/tabby.git)).
 * **Modifications, Block Terminal & Platform Extensions**: Copyright (C) 2026 DIKTATCART / Hashcod.
 * **Platform Brand & Ownership**:
   - **Hashcod** (`Hashcod Codespace`) es la plataforma y marca registrada propietaria.
   - **DIKTATCART** es la empresa creadora y titular de la custodia técnica, arquitectura y seguridad post-cuántica (PQC).
-* **Alcance de la Licencia**: La licencia de código abierto **GNU AGPL v3.0** aplica **estrictamente y de forma exclusiva al módulo de celdas/bloques de terminal de Warp** (`components/warp-blocks.js`, `components/warp-blocks.css` y su renderizado en `index.php`). El resto de la plataforma, el motor de seguridad post-cuántica Dilithium-5/SPHINCS+, la infraestructura de certificación y los activos de marca pertenecen a DIKTATCART / Hashcod.
-* **Disponibilidad de Código en Red (AGPL-3.0 Section 13)**: Los usuarios pueden inspeccionar y descargar el código fuente del componente de bloques mediante el botón visible `⚡ Warp Blocks AGPLv3` presente en la interfaz de la terminal o en [LICENSE-WARP.md](LICENSE-WARP.md).
+* **Alcance de la Licencia**: La licencia de código abierto **MIT License** aplica **estrictamente y de forma exclusiva al módulo de celdas/bloques de terminal de Tabby** (`components/tabby-blocks.js`, `components/tabby-blocks.css` y su renderizado en `index.php`). El resto de la plataforma, el motor de seguridad post-cuántica Dilithium-5/SPHINCS+, la infraestructura de certificación y los activos de marca pertenecen a DIKTATCART / Hashcod.
+* **Disponibilidad de Código en Red (AGPL-3.0 Section 13)**: Los usuarios pueden inspeccionar y descargar el código fuente del componente de bloques mediante el botón visible `⚡ Tabby Terminal MIT` presente en la interfaz de la terminal o en [LICENSE-TABBY.md](LICENSE-TABBY.md).
 

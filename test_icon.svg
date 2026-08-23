@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none">
+  <!-- Screen Frame with rounded corners and bottom gap -->
+  <path d="M 74 122 L 64 122 C 58.48 122 54 117.52 54 112 L 54 74 C 54 68.48 58.48 64 64 64 L 136 64 C 141.52 64 146 68.48 146 74 L 146 112 C 146 117.52 141.52 122 136 122 L 126 122" 
+        stroke="#000000" 
+        stroke-width="8" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+  <!-- Triangle with rounded corners -->
+  <path d="M 96.5 107.5 C 98.1 105.1 101.9 105.1 103.5 107.5 L 122.8 136.5 C 124.6 139.2 122.7 143 119.3 143 L 80.7 143 C 77.3 143 75.4 139.2 77.2 136.5 Z" 
+        fill="#000000"/>
+</svg>

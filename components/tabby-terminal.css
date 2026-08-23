@@ -1,0 +1,600 @@
+/**
+ * Tabby Terminal Integration for Hashcod Codespace
+ * Based on Tabby (https://github.com/Eugeny/tabby)
+ *
+ * Copyright (c) 2017 Eugeny Pankov
+ * Copyright (c) 2026 DIKTATCART / Hashcod
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+:root {
+    --tabby-bg: #1e1e24;
+    --tabby-fg: #d8dee9;
+    --tabby-border: #2e3440;
+    --tabby-tab-bar-bg: #18181f;
+    --tabby-tab-bg: #22232a;
+    --tabby-tab-active-bg: #2b2d37;
+    --tabby-tab-active-border: #5294e2;
+    --tabby-accent: #5294e2;
+    --tabby-success: #a3be8c;
+    --tabby-error: #bf616a;
+    --tabby-warning: #ebcb8b;
+    --tabby-surface: #252630;
+    --tabby-surface-hover: #313340;
+    --tabby-code-bg: #181920;
+    --tabby-font: 'Geist Mono', 'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace;
+}
+
+/* Temas Oficiales de Tabby */
+body[data-tabby-theme="tabby-light"] {
+    --tabby-bg: #fafafa;
+    --tabby-fg: #2e3440;
+    --tabby-border: #d8dee9;
+    --tabby-tab-bar-bg: #e5e9f0;
+    --tabby-tab-bg: #eceff4;
+    --tabby-tab-active-bg: #ffffff;
+    --tabby-tab-active-border: #5294e2;
+    --tabby-accent: #5294e2;
+    --tabby-success: #4c566a;
+    --tabby-error: #bf616a;
+    --tabby-surface: #ffffff;
+    --tabby-surface-hover: #eceff4;
+    --tabby-code-bg: #f4f6f9;
+}
+
+body[data-tabby-theme="solarized-dark"] {
+    --tabby-bg: #002b36;
+    --tabby-fg: #839496;
+    --tabby-border: #073642;
+    --tabby-tab-bar-bg: #00212b;
+    --tabby-tab-bg: #073642;
+    --tabby-tab-active-bg: #002b36;
+    --tabby-tab-active-border: #268bd2;
+    --tabby-accent: #268bd2;
+    --tabby-success: #859900;
+    --tabby-error: #dc322f;
+    --tabby-surface: #073642;
+    --tabby-surface-hover: #094554;
+    --tabby-code-bg: #001f27;
+}
+
+body[data-tabby-theme="dracula"] {
+    --tabby-bg: #282a36;
+    --tabby-fg: #f8f8f2;
+    --tabby-border: #44475a;
+    --tabby-tab-bar-bg: #1e1f29;
+    --tabby-tab-bg: #343746;
+    --tabby-tab-active-bg: #282a36;
+    --tabby-tab-active-border: #bd93f9;
+    --tabby-accent: #bd93f9;
+    --tabby-success: #50fa7b;
+    --tabby-error: #ff5555;
+    --tabby-surface: #343746;
+    --tabby-surface-hover: #44475a;
+    --tabby-code-bg: #191a21;
+}
+
+body[data-tabby-theme="one-dark"] {
+    --tabby-bg: #282c34;
+    --tabby-fg: #abb2bf;
+    --tabby-border: #3b4048;
+    --tabby-tab-bar-bg: #21252b;
+    --tabby-tab-bg: #2c313a;
+    --tabby-tab-active-bg: #282c34;
+    --tabby-tab-active-border: #61afef;
+    --tabby-accent: #61afef;
+    --tabby-success: #98c379;
+    --tabby-error: #e06c75;
+    --tabby-surface: #2c313a;
+    --tabby-surface-hover: #3e4451;
+    --tabby-code-bg: #1e2227;
+}
+
+/* Iconos SVG Tabby */
+.tabby-icon-svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* ==========================================================================
+   CELDA 1 (>) : TABBY SMART PROMPT BAR & CONTEXT
+   ========================================================================== */
+
+.tabby-prompt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--tabby-tab-bar-bg);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom: 1px solid var(--tabby-border);
+    font-family: var(--tabby-font);
+    font-size: 11px;
+    user-select: none;
+    flex-wrap: wrap;
+}
+
+.tabby-prompt-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tabby-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--tabby-tab-bg);
+    color: var(--tabby-fg);
+    font-weight: 500;
+    font-size: 11px;
+    border: 1px solid var(--tabby-border);
+}
+
+.tabby-chip.host {
+    background: #111827;
+    color: #F9FAFB;
+    font-weight: 700;
+    border-color: #374151;
+}
+
+.tabby-chip.pqc {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10B981;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.tabby-chip.btn {
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.tabby-chip.btn:hover {
+    background: var(--tabby-surface-hover);
+    border-color: var(--tabby-accent);
+}
+
+.tabby-prompt-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+/* ==========================================================================
+   CELDA 2 (=) : TABBY MULTI-TAB TERMINAL VIEWPORT
+   ========================================================================== */
+
+.tabby-terminal-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--tabby-bg);
+    border: 1px solid var(--tabby-border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    font-family: var(--tabby-font);
+}
+
+/* Barra de Pestañas estilo Tabby */
+.tabby-tab-bar {
+    display: flex;
+    align-items: center;
+    background: var(--tabby-tab-bar-bg);
+    border-bottom: 1px solid var(--tabby-border);
+    padding: 4px 8px 0 8px;
+    gap: 4px;
+    overflow-x: auto;
+    user-select: none;
+}
+
+.tabby-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--tabby-tab-bg);
+    color: var(--tabby-fg);
+    border: 1px solid var(--tabby-border);
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+    white-space: nowrap;
+    max-width: 220px;
+}
+
+.tabby-tab:hover {
+    background: var(--tabby-surface-hover);
+}
+
+.tabby-tab.active {
+    background: var(--tabby-bg);
+    color: #ffffff;
+    font-weight: 600;
+    border-top: 2px solid var(--tabby-tab-active-border);
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tabby-tab-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tabby-tab-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    color: #888888;
+    font-size: 13px;
+    line-height: 1;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.tabby-tab-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.tabby-add-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--tabby-fg);
+    border: 1px solid transparent;
+    cursor: pointer;
+    margin-bottom: 2px;
+    transition: background 0.12s ease;
+}
+
+.tabby-add-tab-btn:hover {
+    background: var(--tabby-tab-bg);
+    border-color: var(--tabby-border);
+}
+
+.tabby-tab-bar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.tabby-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--tabby-tab-bg);
+    border: 1px solid var(--tabby-border);
+    color: var(--tabby-fg);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.tabby-action-btn:hover {
+    background: var(--tabby-surface-hover);
+    border-color: var(--tabby-accent);
+}
+
+/* Área de contenido de la pestaña / Terminal Stream */
+.tabby-tab-content {
+    padding: 12px 16px;
+    min-height: 220px;
+    max-height: 520px;
+    overflow-y: auto;
+    background: var(--tabby-bg);
+    color: var(--tabby-fg);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.tabby-session-log {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Bloque / Entrada de Comando en Tabby */
+.tabby-entry {
+    background: var(--tabby-surface);
+    border: 1px solid var(--tabby-border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+}
+
+.tabby-entry:hover {
+    border-color: var(--tabby-accent);
+}
+
+.tabby-entry-header {
+    background: var(--tabby-tab-bar-bg);
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    border-bottom: 1px solid var(--tabby-border);
+}
+
+.tabby-entry-cmd {
+    font-weight: 600;
+    color: var(--tabby-fg);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tabby-entry-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tabby-mini-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 2px 6px;
+    color: #888888;
+    font-size: 11px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    transition: color 0.12s ease, background 0.12s ease;
+}
+
+.tabby-mini-btn:hover {
+    background: var(--tabby-surface);
+    color: #ffffff;
+    border-color: var(--tabby-border);
+}
+
+.tabby-entry-body {
+    padding: 10px 12px;
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ==========================================================================
+   DROPDOWN DE AUTOCOMPLETADO TABBY (HACIA ABAJO)
+   ========================================================================== */
+
+.tabby-autocomplete-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--tabby-surface);
+    border: 1px solid var(--tabby-border);
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    max-height: 290px;
+    overflow-y: auto;
+    font-family: var(--tabby-font);
+    display: none;
+}
+
+.tabby-autocomplete-dropdown.open {
+    display: block;
+}
+
+.tabby-auto-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--tabby-border);
+    font-size: 12px;
+    color: var(--tabby-fg);
+}
+
+.tabby-auto-item:last-child {
+    border-bottom: none;
+}
+
+.tabby-auto-item:hover, .tabby-auto-item.selected {
+    background: var(--tabby-surface-hover);
+    color: #ffffff;
+}
+
+.tabby-auto-cmd {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tabby-badge {
+    background: var(--tabby-tab-bg);
+    color: var(--tabby-fg);
+    border: 1px solid var(--tabby-border);
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* ==========================================================================
+   MODALES TABBY (PALETA DE COMANDOS, PERFILES, TEMAS, CONFIGURACIÓN)
+   ========================================================================== */
+
+.tabby-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    font-family: var(--tabby-font);
+}
+
+.tabby-modal {
+    background: var(--tabby-surface);
+    border: 1px solid var(--tabby-border);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 740px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    color: var(--tabby-fg);
+}
+
+.tabby-modal-header {
+    background: var(--tabby-tab-bar-bg);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--tabby-border);
+}
+
+.tabby-modal-title {
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+}
+
+.tabby-modal-close {
+    background: transparent;
+    border: none;
+    color: #888888;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.tabby-modal-close:hover {
+    color: #ffffff;
+}
+
+.tabby-modal-content {
+    padding: 16px 18px;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.5;
+    background: var(--tabby-bg);
+}
+
+.tabby-modal-footer {
+    padding: 12px 18px;
+    background: var(--tabby-tab-bar-bg);
+    border-top: 1px solid var(--tabby-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Tarjetas de Perfiles Tabby */
+.tabby-profile-card {
+    background: var(--tabby-surface);
+    border: 1px solid var(--tabby-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.tabby-profile-card:hover {
+    border-color: var(--tabby-accent);
+    background: var(--tabby-surface-hover);
+}
+
+/* Grid de Temas Tabby */
+.tabby-themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.tabby-theme-card {
+    background: var(--tabby-surface);
+    border: 2px solid var(--tabby-border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.tabby-theme-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--tabby-accent);
+}
+
+.tabby-theme-card.active {
+    border-color: var(--tabby-accent);
+    box-shadow: 0 0 0 2px rgba(82, 148, 226, 0.3);
+}
+
+.tabby-theme-strip {
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    overflow: hidden;
+}

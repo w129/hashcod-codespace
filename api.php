@@ -5108,7 +5108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         $outputResult = [
             'type' => 'TRIGGER_WORKFLOWS',
             'command' => 'workflows',
-            'message' => 'Abriendo panel de flujos de trabajo predefinidos de Warp...'
+            'message' => 'Abriendo panel de perfiles y sesiones de Tabby...'
         ];
     } else if ($isClear) {
         $outputResult = [
@@ -5140,7 +5140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'type' => 'TRIGGER_THEMES',
             'command' => $rawCmd,
             'theme_selected' => $themeName,
-            'message' => 'Abriendo selector interactivo de temas de Warp...'
+            'message' => 'Abriendo selector interactivo de temas de Tabby Terminal...'
         ];
     } else if ($isAi) {
         $promptText = trim(preg_replace('/^(ai|#)\s*/i', '', $rawCmd));
@@ -5148,7 +5148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'type' => 'TRIGGER_AI',
             'command' => $rawCmd,
             'prompt' => $promptText,
-            'message' => 'Consultando Warp AI Command Assistant...'
+            'message' => 'Abriendo paleta de comandos de Tabby...'
         ];
     } else if ($isBash) {
         $startTime = microtime(true);

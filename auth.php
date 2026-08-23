@@ -138,6 +138,19 @@ function authVerifyDilithium($provided) {
     if ($provided === '') {
         return ['ok' => false, 'error' => 'Introduce la Dilithium-5 de registro'];
     }
+
+    // Normalizar si viene con prefijo DILITHIUM5_ADMIN_SIGNATURE= o L8_DILITHIUM5_REGISTER_KEY=
+    if (strpos($provided, 'DILITHIUM5_ADMIN_SIGNATURE=') === 0) {
+        $provided = substr($provided, strlen('DILITHIUM5_ADMIN_SIGNATURE='));
+    } elseif (strpos($provided, 'L8_DILITHIUM5_REGISTER_KEY=') === 0) {
+        $provided = substr($provided, strlen('L8_DILITHIUM5_REGISTER_KEY='));
+    }
+    if (strpos($expected, 'DILITHIUM5_ADMIN_SIGNATURE=') === 0) {
+        $expected = substr($expected, strlen('DILITHIUM5_ADMIN_SIGNATURE='));
+    } elseif (strpos($expected, 'L8_DILITHIUM5_REGISTER_KEY=') === 0) {
+        $expected = substr($expected, strlen('L8_DILITHIUM5_REGISTER_KEY='));
+    }
+
     if (!authTimingSafeEqual($provided, $expected)) {
         return ['ok' => false, 'error' => 'Dilithium-5 incorrecta'];
     }
@@ -987,10 +1000,10 @@ function authHandleApi($uri) {
     }
 
     if ($uri === '/api/auth/register' && $method === 'POST') {
-        if (!securityRateAllow('auth_register', 5, 3600)) {
+        if (!securityRateAllow('auth_register', 20, 3600)) {
             securityRateDenyJson(3600);
         }
-        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(8192) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
         if (empty($body['ok'])) {
             http_response_code(400);
             echo json_encode(['ok' => false, 'error' => $body['error'] ?? 'Bad request'], JSON_UNESCAPED_UNICODE);
@@ -1000,9 +1013,9 @@ function authHandleApi($uri) {
         $dil = $input['dilithium5'] ?? $input['dilithium_5'] ?? $input['d5'] ?? '';
         $res = authRegister($dil);
         if (empty($res['ok'])) {
-            if (function_exists('securityIpStrike')) securityIpStrike('auth_register_fail', 8, 3600, 3600);
+            if (function_exists('securityIpStrike')) securityIpStrike('auth_register_fail', 12, 3600, 3600);
             http_response_code(401);
-            echo json_encode(['ok' => false, 'error' => 'Registration failed'], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['ok' => false, 'error' => $res['error'] ?? 'Registration failed'], JSON_UNESCAPED_UNICODE);
             return true;
         }
         if (!empty($res['session_token'])) {
@@ -1013,10 +1026,10 @@ function authHandleApi($uri) {
     }
 
     if ($uri === '/api/auth/login' && $method === 'POST') {
-        if (!securityRateAllow('auth_login', 8, 60)) {
+        if (!securityRateAllow('auth_login', 15, 60)) {
             securityRateDenyJson(60);
         }
-        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(8192) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
         if (empty($body['ok'])) {
             http_response_code(400);
             echo json_encode(['ok' => false, 'error' => $body['error'] ?? 'Bad request'], JSON_UNESCAPED_UNICODE);
@@ -1027,9 +1040,9 @@ function authHandleApi($uri) {
         $identity = $input['identity'] ?? $input['identity_key'] ?? $input['key_identity'] ?? '';
         $res = authLogin($aes, $identity);
         if (empty($res['ok'])) {
-            if (function_exists('securityIpStrike')) securityIpStrike('auth_login_fail', 10, 600, 1800);
+            if (function_exists('securityIpStrike')) securityIpStrike('auth_login_fail', 15, 600, 1800);
             http_response_code(401);
-            echo json_encode(['ok' => false, 'error' => 'Invalid credentials'], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['ok' => false, 'error' => $res['error'] ?? 'Invalid credentials'], JSON_UNESCAPED_UNICODE);
             return true;
         }
         if (!empty($res['session_token'])) {
@@ -1048,10 +1061,10 @@ function authHandleApi($uri) {
     }
 
     if ($uri === '/api/auth/recover' && $method === 'POST') {
-        if (!securityRateAllow('auth_recover', 5, 600)) {
+        if (!securityRateAllow('auth_recover', 15, 600)) {
             securityRateDenyJson(600);
         }
-        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(8192) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
         if (empty($body['ok'])) {
             http_response_code(400);
             echo json_encode(['ok' => false, 'error' => $body['error'] ?? 'Bad request'], JSON_UNESCAPED_UNICODE);
@@ -1061,9 +1074,9 @@ function authHandleApi($uri) {
         $material = $input['recovery'] ?? $input['recovery_key'] ?? $input['backup_code'] ?? $input['code'] ?? '';
         $res = authRecover($material);
         if (empty($res['ok'])) {
-            if (function_exists('securityIpStrike')) securityIpStrike('auth_recover_fail', 6, 600, 1800);
+            if (function_exists('securityIpStrike')) securityIpStrike('auth_recover_fail', 12, 600, 1800);
             http_response_code(401);
-            echo json_encode(['ok' => false, 'error' => 'Recovery failed'], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['ok' => false, 'error' => $res['error'] ?? 'Recovery failed'], JSON_UNESCAPED_UNICODE);
             return true;
         }
         if (!empty($res['session_token'])) {

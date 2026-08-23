@@ -13262,31 +13262,7 @@ if (!headers_sent()) {
                 mime = 'text/html;charset=utf-8';
                 body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
                     String(title).replace(/</g, '&lt;') +
-                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}        /* Tabby Terminal Safe Embedded Constrains */
-        svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-container svg {
-            width: 14px !important;
-            height: 14px !important;
-            max-width: 14px !important;
-            max-height: 14px !important;
-            min-width: 14px !important;
-            min-height: 14px !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
-            flex-shrink: 0 !important;
-        }
-        .block-row.block-execution {
-            border: 1px solid #d0d0d0;
-            background: #ffffff;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .block-row.block-prompt {
-            border: 1px solid #d0d0d0;
-            background: #ffffff;
-            border-radius: 0 0 6px 6px;
-        }
-    </style></head><body><h1>' +
+                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style></head><body><h1>' +
                     String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '</body></html>';
             } else if (kind === 'md') {
                 ext = 'md';

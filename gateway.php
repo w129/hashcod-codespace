@@ -6,11 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>l8 codespace · Gateway</title>
+    <title>Hashcod codespace · Gateway</title>
     <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
-    <meta name="application-name" content="l8 codespace">
+    <meta name="application-name" content="Hashcod codespace">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="l8 codespace">
+    <meta name="apple-mobile-web-app-title" content="Hashcod codespace">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
         :root {
@@ -39,10 +39,19 @@
             gap: 12px;
             margin-bottom: 22px;
         }
-        .brand img {
-            width: 40px;
-            height: 40px;
+        @keyframes gatewayCrescentOrbit {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(14deg) translateY(-1px) scale(1.05); }
+            50% { transform: rotate(0deg) scale(1); }
+            75% { transform: rotate(-14deg) translateY(1px) scale(0.96); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+        .brand svg {
+            width: 38px;
+            height: 38px;
             display: block;
+            flex-shrink: 0;
+            animation: gatewayCrescentOrbit 6s ease-in-out infinite;
         }
         .brand h1 {
             font-size: 18px;
@@ -94,10 +103,14 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
         }
         .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: #222; }
+        .btn-primary:active:not(:disabled) { transform: scale(0.97); }
         .btn-primary:disabled { opacity: 0.55; cursor: wait; }
         .btn-secondary { background: #eceae4; color: #111; }
+        .btn-secondary:hover { background: #dfdcd4; }
         .status {
             margin-top: 14px;
             font-size: 12px;
@@ -118,7 +131,7 @@
             animation: rise 0.35s ease;
         }
         .result.visible { display: flex; }
-        .result img {
+        .result img, .result svg {
             width: 36px;
             height: 36px;
             flex-shrink: 0;
@@ -153,18 +166,20 @@
             line-height: 1.45;
         }
         @keyframes rise {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: scale(0.96) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
     </style>
 </head>
 <body>
     <div class="shell">
         <div class="brand">
-            <img src="/favicon.svg?v=3" alt="l8 codespace">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="38" height="38" aria-hidden="true">
+                <path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path>
+            </svg>
             <div>
-                <h1>l8 codespace</h1>
-                <p>Gateway · ingresa el código y descarga el paquete</p>
+                <h1>Hashcod codespace</h1>
+                <p>Gateway · l8 codespace · ingresa el código y descarga el paquete</p>
             </div>
         </div>
 
@@ -180,9 +195,11 @@
         </div>
 
         <div class="result" id="resultCard">
-            <img id="resultIcon" src="/favicon.svg?v=3" alt="l8 codespace">
+            <svg id="resultIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="36" height="36" aria-hidden="true" style="margin-top:2px;">
+                <path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path>
+            </svg>
             <div>
-                <h3 id="resultTitle">l8 codespace</h3>
+                <h3 id="resultTitle">Hashcod codespace</h3>
                 <p id="resultBody"></p>
                 <a id="resultDownload" href="#" download>Descargar paquete (.zip)</a>
             </div>
@@ -190,7 +207,7 @@
     </div>
 
     <script>
-        const PLATFORM = 'l8 codespace';
+        const PLATFORM = 'Hashcod codespace · l8 codespace';
         const ICON = '/favicon.svg?v=3';
         const codeInput = document.getElementById('codeInput');
         const statusText = document.getElementById('statusText');

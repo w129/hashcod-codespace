@@ -35,6 +35,7 @@
     const TABBY_SVG_SEARCH = '<svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>';
     const TABBY_SVG_TRASH = '<svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
     const TABBY_SVG_EXPORT = '<svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
+    const TABBY_SVG_GATEWAY = '<svg class="tabby-icon-svg gateway-crescent-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 30 30"><path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path></svg>';
 
     const TabbyTerminal = {
         tabs: [],
@@ -353,6 +354,7 @@
                             </span>
                             <div class="tabby-entry-toolbar">
                                 <span style="color:#888; margin-right:6px;">⚡ ${esc(e.duration)} · ${esc(e.time)}</span>
+                                <button type="button" class="tabby-mini-btn tabby-gateway-mini-btn gateway-action-btn" title="Gateway · Enviar salida de comando" onclick="window.TabbyTerminal.shareEntryGateway('${e.id}')">${TABBY_SVG_GATEWAY}</button>
                                 <button type="button" class="tabby-mini-btn" title="Copiar comando" onclick="navigator.clipboard.writeText('${esc(e.command)}')">📋</button>
                                 <button type="button" class="tabby-mini-btn" title="Re-ejecutar" onclick="if(typeof window.submitCommand==='function') window.submitCommand('${esc(e.command)}')">🔄</button>
                             </div>
@@ -371,6 +373,9 @@
                             ${TABBY_SVG_PLUS}
                         </button>
                         <div class="tabby-tab-bar-actions">
+                            <button type="button" class="tabby-action-btn tabby-gateway-btn gateway-action-btn" onclick="window.TabbyTerminal.shareActiveTabGateway()" title="Gateway · Transportar terminal y generar código único">
+                                ${TABBY_SVG_GATEWAY} <span>Gateway</span>
+                            </button>
                             <button type="button" class="tabby-action-btn" onclick="window.TabbyTerminal.openProfilesModal()">
                                 ${TABBY_SVG_PROFILE} <span>Perfiles</span>
                             </button>
@@ -395,6 +400,54 @@
                     </div>
                 </div>
             `;
+        },
+
+        shareActiveTabGateway: function () {
+            const active = this.tabs.find(t => t.id === this.activeTabId);
+            let text = '';
+            if (active && active.entries.length > 0) {
+                text += '# Tabby Terminal — Session (' + active.title + ')\n\n';
+                active.entries.forEach((e, idx) => {
+                    text += `### [${idx + 1}] >= ${e.command}\n`;
+                    text += `*Timestamp: ${e.time} (${e.duration})*\n\n`;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = e.outputHtml;
+                    text += '```\n' + (tempDiv.innerText || tempDiv.textContent) + '\n```\n\n';
+                });
+            } else {
+                const editor = document.getElementById('functionEditor');
+                text = editor ? String(editor.value || '').trim() : '';
+            }
+            if (typeof window.openGatewayFromTool === 'function') {
+                window.openGatewayFromTool('terminal', {
+                    name: (active ? active.title : 'terminal') + '.md',
+                    content: text || '# Tabby Terminal Session\n\nTerminal activa de Hashcod codespace.',
+                    autoSend: true
+                });
+            } else if (typeof window.openPlatformGateway === 'function') {
+                window.openPlatformGateway();
+            }
+        },
+
+        shareEntryGateway: function (entryId) {
+            const active = this.tabs.find(t => t.id === this.activeTabId);
+            if (!active) return;
+            const entry = active.entries.find(e => e.id === entryId);
+            if (!entry) return;
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = entry.outputHtml;
+            const rawOut = tempDiv.innerText || tempDiv.textContent;
+            const content = `# Comando: ${entry.command}\n# Ejecutado: ${entry.time} (${entry.duration})\n\n${rawOut}`;
+            const cleanCmd = String(entry.command || 'cmd').replace(/[^\w.-]+/g, '_').slice(0, 30);
+            if (typeof window.openGatewayFromTool === 'function') {
+                window.openGatewayFromTool('terminal', {
+                    name: 'tabby-' + cleanCmd + '.txt',
+                    content: content,
+                    autoSend: true
+                });
+            } else if (typeof window.openPlatformGateway === 'function') {
+                window.openPlatformGateway();
+            }
         },
 
         exportActiveTabLog: function () {

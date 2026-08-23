@@ -529,3 +529,51 @@ svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-c
     display: flex;
     overflow: hidden;
 }
+
+/* Gateway Action Button & Animations */
+@keyframes gatewayCrescentOrbit {
+    0% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(14deg) translateY(-1px) scale(1.05); }
+    50% { transform: rotate(0deg) scale(1); }
+    75% { transform: rotate(-14deg) translateY(1px) scale(0.96); }
+    100% { transform: rotate(0deg) scale(1); }
+}
+
+.tabby-gateway-btn,
+.tabby-gateway-mini-btn,
+.gateway-action-btn {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
+}
+
+.tabby-gateway-btn svg,
+.tabby-gateway-mini-btn svg,
+.gateway-action-btn svg,
+.gateway-crescent-svg {
+    display: inline-block !important;
+    animation: gatewayCrescentOrbit 6s ease-in-out infinite;
+    transform-origin: center center;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.tabby-gateway-btn:hover,
+.tabby-gateway-mini-btn:hover,
+.gateway-action-btn:hover {
+    color: #5294e2 !important;
+    border-color: #5294e2 !important;
+}
+
+.tabby-gateway-btn:hover svg,
+.tabby-gateway-mini-btn:hover svg,
+.gateway-action-btn:hover svg,
+.gateway-action-btn:hover .gateway-crescent-svg {
+    animation: none !important;
+    transform: rotate(85deg) scale(1.22) !important;
+}
+
+.tabby-gateway-btn:active svg,
+.tabby-gateway-mini-btn:active svg,
+.gateway-action-btn:active svg {
+    transform: rotate(-30deg) scale(0.9) !important;
+}

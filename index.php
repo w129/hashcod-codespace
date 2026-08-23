@@ -6789,44 +6789,126 @@ if (!headers_sent()) {
             font-family: inherit;
         }
 
+        @keyframes gatewayCrescentOrbit {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(14deg) translateY(-1px) scale(1.05); }
+            50% { transform: rotate(0deg) scale(1); }
+            75% { transform: rotate(-14deg) translateY(1px) scale(0.96); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        .gateway-action-btn,
+        .tabby-gateway-btn,
+        .notepad-gateway-btn,
+        .icon-gateway,
+        .action-gateway-btn,
+        .terminal-download-btn.gateway-action-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .gateway-action-btn svg,
+        .tabby-gateway-btn svg,
+        .notepad-gateway-btn svg,
+        .icon-gateway svg,
+        .action-gateway-btn svg,
+        .gateway-crescent-svg {
+            display: inline-block;
+            animation: gatewayCrescentOrbit 6s ease-in-out infinite;
+            transform-origin: center center;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .gateway-action-btn:hover svg,
+        .tabby-gateway-btn:hover svg,
+        .notepad-gateway-btn:hover svg,
+        .icon-gateway:hover svg,
+        .action-gateway-btn:hover svg,
+        .gateway-action-btn:hover .gateway-crescent-svg {
+            animation: none;
+            transform: rotate(85deg) scale(1.25);
+            color: #000000;
+        }
+
+        .gateway-action-btn:active svg,
+        .tabby-gateway-btn:active svg,
+        .notepad-gateway-btn:active svg,
+        .icon-gateway:active svg,
+        .action-gateway-btn:active svg {
+            transform: rotate(-30deg) scale(0.9);
+        }
+
         .gateway-modal {
             background: #ffffff;
             border: 1px solid #e0dcd3;
-            border-radius: 10px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
-            max-width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+            max-width: 480px;
             width: 100%;
-            padding: 18px 20px;
+            padding: 20px 22px;
             font-family: 'IBM Plex Mono', monospace;
+            animation: gatewayModalPop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes gatewayModalPop {
+            from { opacity: 0; transform: scale(0.94) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .gateway-modal-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #666;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #777;
             margin-bottom: 6px;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.08em;
         }
 
         .gateway-modal-brand {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 12px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
+            color: #111111;
         }
 
+        .gateway-modal-brand svg,
         .gateway-modal-brand img {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .gateway-brand-heading {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .gateway-brand-primary {
+            font-weight: 700;
+            color: #000000;
+            font-size: 15px;
+            letter-spacing: -0.01em;
+        }
+
+        .gateway-brand-sub {
+            color: #666666;
+            font-size: 12px;
+            font-weight: 500;
         }
 
         .gateway-modal-text {
             color: #333;
             font-size: 12px;
-            line-height: 1.45;
+            line-height: 1.48;
             margin-bottom: 12px;
         }
 
@@ -6834,6 +6916,7 @@ if (!headers_sent()) {
             background: #f4f2ec;
             padding: 1px 5px;
             border-radius: 4px;
+            font-weight: 600;
         }
 
         .gateway-modal label {
@@ -6872,6 +6955,15 @@ if (!headers_sent()) {
             font-weight: 600;
             cursor: pointer;
             font-family: inherit;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+
+        .gateway-modal-btn:hover:not(:disabled) {
+            background: #222222;
+        }
+
+        .gateway-modal-btn:active:not(:disabled) {
+            transform: scale(0.97);
         }
 
         .gateway-modal-btn:disabled {
@@ -6884,11 +6976,16 @@ if (!headers_sent()) {
             color: #111;
         }
 
+        .gateway-modal-btn.secondary:hover:not(:disabled) {
+            background: #dfdcd4;
+        }
+
         .gateway-modal-status {
             margin-top: 12px;
             font-size: 12px;
             color: #666;
             min-height: 16px;
+            line-height: 1.4;
         }
 
         .gateway-modal-status.ok { color: #137333; font-weight: 600; }
@@ -6939,6 +7036,12 @@ if (!headers_sent()) {
             border-radius: 8px;
             background: #faf9f6;
             text-align: center;
+            animation: gatewayCodeReveal 0.25s ease;
+        }
+
+        @keyframes gatewayCodeReveal {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .gateway-code-box.visible { display: block; }
@@ -6964,7 +7067,7 @@ if (!headers_sent()) {
         .action-gateway-btn svg {
             width: 16px;
             height: 16px;
-            fill: #000000;
+            fill: currentColor;
         }
 
         .action-btn-link {
@@ -8606,6 +8709,11 @@ if (!headers_sent()) {
                     <path d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 19 C 3 20.105 3.895 21 5 21 L 15 21 L 21 15 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 5 5 L 19 5 L 19 14 L 14 14 L 14 19 L 5 19 L 5 5 z M 7 7 L 7 9 L 17 9 L 17 7 L 7 7 z M 7 11 L 7 13 L 12 13 L 12 11 L 7 11 z"></path>
                 </svg>
             </button>
+            <button type="button" class="icon-gateway gateway-action-btn" id="topBarGatewayBtn" title="Gateway · Hashcod codespace" aria-label="Gateway · Hashcod codespace" onclick="openPlatformGateway()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="18" height="18" aria-hidden="true">
+                    <path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path>
+                </svg>
+            </button>
             <span class="hashcod-created-by" title="Created by diktatcart" aria-label="Created by diktatcart">
                 <img src="hashcod-created-by-gray.svg?v=10" alt="Created by diktatcart" height="14">
             </span>
@@ -8641,9 +8749,9 @@ if (!headers_sent()) {
             </nav>
         </div>
         <div class="top-bar-right">
-            <button type="button" class="icon-gateway" title="Gateway · abrir y enviar (notas, terminal…)" aria-label="Gateway · abrir y enviar" onclick="openPlatformGateway()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" role="img" aria-hidden="true">
-                    <path d="M 9.875 0.0625 C 9.617188 0.0976563 9.378906 0.230469 9.21875 0.4375 C 6.585938 3.582031 5 7.644531 5 12.0625 C 5 16.429688 6.542969 20.433594 9.125 23.5625 C 9.480469 23.992188 10.117188 24.058594 10.546875 23.703125 C 10.976563 23.347656 11.042969 22.710938 10.6875 22.28125 C 8.390625 19.496094 7 15.957031 7 12.0625 C 7 8.125 8.40625 4.515625 10.75 1.71875 C 11.027344 1.40625 11.082031 0.957031 10.886719 0.585938 C 10.691406 0.21875 10.289063 0.0078125 9.875 0.0625 Z M 39.8125 0.0625 C 39.453125 0.128906 39.160156 0.378906 39.042969 0.726563 C 38.925781 1.070313 39.003906 1.449219 39.25 1.71875 C 41.59375 4.515625 43 8.125 43 12.0625 C 43 15.957031 41.609375 19.496094 39.3125 22.28125 C 38.957031 22.710938 39.023438 23.347656 39.453125 23.703125 C 39.882813 24.058594 40.519531 23.992188 40.875 23.5625 C 43.457031 20.433594 45 16.429688 45 12.0625 C 45 7.644531 43.414063 3.582031 40.78125 0.4375 C 40.570313 0.171875 40.242188 0.03125 39.90625 0.0625 C 39.875 0.0625 39.84375 0.0625 39.8125 0.0625 Z M 15.6875 3.34375 C 15.429688 3.378906 15.191406 3.511719 15.03125 3.71875 C 13.140625 5.976563 12 8.890625 12 12.0625 C 12 15.234375 13.140625 18.148438 15.03125 20.40625 C 15.253906 20.707031 15.621094 20.855469 15.988281 20.800781 C 16.355469 20.742188 16.660156 20.488281 16.78125 20.136719 C 16.902344 19.785156 16.816406 19.394531 16.5625 19.125 C 14.960938 17.214844 14 14.753906 14 12.0625 C 14 9.371094 14.960938 6.914063 16.5625 5 C 16.839844 4.6875 16.894531 4.238281 16.699219 3.867188 C 16.503906 3.5 16.101563 3.289063 15.6875 3.34375 Z M 34 3.34375 C 33.640625 3.410156 33.347656 3.660156 33.230469 4.007813 C 33.113281 4.351563 33.191406 4.730469 33.4375 5 C 35.039063 6.914063 36 9.371094 36 12.0625 C 36 14.753906 35.039063 17.214844 33.4375 19.125 C 33.183594 19.394531 33.097656 19.785156 33.21875 20.136719 C 33.339844 20.488281 33.644531 20.742188 34.011719 20.800781 C 34.378906 20.855469 34.746094 20.707031 34.96875 20.40625 C 36.859375 18.148438 38 15.234375 38 12.0625 C 38 8.890625 36.859375 5.976563 34.96875 3.71875 C 34.757813 3.453125 34.429688 3.3125 34.09375 3.34375 C 34.0625 3.34375 34.03125 3.34375 34 3.34375 Z M 25 8 C 22.789063 8 21 9.789063 21 12 C 21 13.324219 21.632813 14.492188 22.625 15.21875 L 10.5 47.28125 C 10.113281 48.316406 10.636719 49.472656 11.671875 49.859375 C 12.707031 50.246094 13.863281 49.722656 14.25 48.6875 L 15.53125 45.34375 L 32.6875 40.5625 L 35.75 48.6875 C 36.136719 49.722656 37.292969 50.246094 38.328125 49.859375 C 39.363281 49.472656 39.886719 48.316406 39.5 47.28125 L 27.375 15.21875 C 28.367188 14.492188 29 13.324219 29 12 C 29 9.789063 27.210938 8 25 8 Z M 25 20.3125 L 27.5625 27.0625 L 21.59375 29.3125 Z M 28.96875 30.78125 L 30.5625 35.03125 L 24.1875 32.625 Z M 19.40625 35.09375 L 27.03125 37.96875 L 17.28125 40.6875 Z"></path>
+            <button type="button" class="icon-gateway gateway-action-btn" title="Gateway · abrir y enviar (notas, terminal…)" aria-label="Gateway · abrir y enviar" onclick="openPlatformGateway()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="18" height="18" aria-hidden="true">
+                    <path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path>
                 </svg>
             </button>
             <button type="button" class="icon-tokens" id="tokensMeterBtn" title="Consumo de tokens" aria-label="Ver consumo de tokens" aria-expanded="false" aria-controls="tokensPanel">
@@ -8832,6 +8940,10 @@ if (!headers_sent()) {
                     </span>
                 </div>
                 <div class="tabby-prompt-right">
+                    <span class="tabby-chip btn gateway-action-btn" onclick="openGatewayFromTool('terminal')" title="Gateway · Transportar terminal activa y generar código">
+                        <svg class="tabby-icon-svg gateway-crescent-svg" width="14" height="14" viewBox="0 0 30 30"><path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path></svg>
+                        <span>Gateway</span>
+                    </span>
                     <span class="tabby-chip" id="tabbyLiveClock">--:--:--</span>
                 </div>
             </div>
@@ -8866,6 +8978,11 @@ if (!headers_sent()) {
 
                 <div class="function-drawer-inner">
                     <textarea id="functionEditor" class="function-editor" placeholder="// Escribe las funciones aquí o inspecciona el código de repositorios guardados..." spellcheck="false" onkeydown="handleEditorKeyDown(event)"></textarea>
+                    <button type="button" class="terminal-download-btn gateway-action-btn" id="terminalGatewayBtn" title="Gateway · Enviar terminal y generar código" aria-label="Enviar al Gateway" onclick="openGatewayFromTool('terminal')" style="right: 50px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" aria-hidden="true">
+                            <path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path>
+                        </svg>
+                    </button>
                     <button type="button" class="terminal-download-btn" id="terminalDownloadBtn" title="Descargar contenido de la terminal" aria-label="Descargar contenido de la terminal" onclick="downloadBlackTerminalContent()">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true">
                             <g fill="currentColor" fill-rule="nonzero">
@@ -9309,7 +9426,7 @@ if (!headers_sent()) {
         // ICONOS VECTORIALES REUTILIZABLES
         const SVG_GITHUB_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:18px; height:18px;" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1.0.07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>';
         const SVG_CODE_WINDOW_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:16px; height:16px;" viewBox="0 0 32 32"><path d="M 4 5 L 4 27 L 28 27 L 28 5 Z M 6 7 L 26 7 L 26 9 L 6 9 Z M 6 11 L 26 11 L 26 25 L 6 25 Z M 16 13 L 14 23 L 16 23 L 18 13 Z M 11.1875 13.40625 L 8.1875 17.40625 L 7.75 18 L 8.1875 18.59375 L 11.1875 22.59375 L 12.8125 21.40625 L 10.25 18 L 12.8125 14.59375 Z M 20.8125 13.40625 L 19.1875 14.59375 L 21.75 18 L 19.1875 21.40625 L 20.8125 22.59375 L 23.8125 18.59375 L 24.25 18 L 23.8125 17.40625 Z"></path></svg>';
-        const SVG_GATEWAY_BLACK = '<svg class="svg-icon-vector" style="fill:#000000; width:16px; height:16px;" viewBox="0 0 50 50"><path d="M 9.875 0.0625 C 9.617188 0.0976563 9.378906 0.230469 9.21875 0.4375 C 6.585938 3.582031 5 7.644531 5 12.0625 C 5 16.429688 6.542969 20.433594 9.125 23.5625 C 9.480469 23.992188 10.117188 24.058594 10.546875 23.703125 C 10.976563 23.347656 11.042969 22.710938 10.6875 22.28125 C 8.390625 19.496094 7 15.957031 7 12.0625 C 7 8.125 8.40625 4.515625 10.75 1.71875 C 11.027344 1.40625 11.082031 0.957031 10.886719 0.585938 C 10.691406 0.21875 10.289063 0.0078125 9.875 0.0625 Z M 39.8125 0.0625 C 39.453125 0.128906 39.160156 0.378906 39.042969 0.726563 C 38.925781 1.070313 39.003906 1.449219 39.25 1.71875 C 41.59375 4.515625 43 8.125 43 12.0625 C 43 15.957031 41.609375 19.496094 39.3125 22.28125 C 38.957031 22.710938 39.023438 23.347656 39.453125 23.703125 C 39.882813 24.058594 40.519531 23.992188 40.875 23.5625 C 43.457031 20.433594 45 16.429688 45 12.0625 C 45 7.644531 43.414063 3.582031 40.78125 0.4375 C 40.570313 0.171875 40.242188 0.03125 39.90625 0.0625 C 39.875 0.0625 39.84375 0.0625 39.8125 0.0625 Z M 15.6875 3.34375 C 15.429688 3.378906 15.191406 3.511719 15.03125 3.71875 C 13.140625 5.976563 12 8.890625 12 12.0625 C 12 15.234375 13.140625 18.148438 15.03125 20.40625 C 15.253906 20.707031 15.621094 20.855469 15.988281 20.800781 C 16.355469 20.742188 16.660156 20.488281 16.78125 20.136719 C 16.902344 19.785156 16.816406 19.394531 16.5625 19.125 C 14.960938 17.214844 14 14.753906 14 12.0625 C 14 9.371094 14.960938 6.914063 16.5625 5 C 16.839844 4.6875 16.894531 4.238281 16.699219 3.867188 C 16.503906 3.5 16.101563 3.289063 15.6875 3.34375 Z M 34 3.34375 C 33.640625 3.410156 33.347656 3.660156 33.230469 4.007813 C 33.113281 4.351563 33.191406 4.730469 33.4375 5 C 35.039063 6.914063 36 9.371094 36 12.0625 C 36 14.753906 35.039063 17.214844 33.4375 19.125 C 33.183594 19.394531 33.097656 19.785156 33.21875 20.136719 C 33.339844 20.488281 33.644531 20.742188 34.011719 20.800781 C 34.378906 20.855469 34.746094 20.707031 34.96875 20.40625 C 36.859375 18.148438 38 15.234375 38 12.0625 C 38 8.890625 36.859375 5.976563 34.96875 3.71875 C 34.757813 3.453125 34.429688 3.3125 34.09375 3.34375 C 34.0625 3.34375 34.03125 3.34375 34 3.34375 Z M 25 8 C 22.789063 8 21 9.789063 21 12 C 21 13.324219 21.632813 14.492188 22.625 15.21875 L 10.5 47.28125 C 10.113281 48.316406 10.636719 49.472656 11.671875 49.859375 C 12.707031 50.246094 13.863281 49.722656 14.25 48.6875 L 15.53125 45.34375 L 32.6875 40.5625 L 35.75 48.6875 C 36.136719 49.722656 37.292969 50.246094 38.328125 49.859375 C 39.363281 49.472656 39.886719 48.316406 39.5 47.28125 L 27.375 15.21875 C 28.367188 14.492188 29 13.324219 29 12 C 29 9.789063 27.210938 8 25 8 Z M 25 20.3125 L 27.5625 27.0625 L 21.59375 29.3125 Z M 28.96875 30.78125 L 30.5625 35.03125 L 24.1875 32.625 Z M 19.40625 35.09375 L 27.03125 37.96875 L 17.28125 40.6875 Z"></path></svg>';
+        const SVG_GATEWAY_BLACK = '<svg class="svg-icon-vector gateway-crescent-svg" style="fill:currentColor; width:16px; height:16px;" viewBox="0 0 30 30"><path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path></svg>';
         const SVG_CHECK_VECTOR = '<svg class="svg-icon-vector" style="fill:#137333; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
         const SVG_CROSS_VECTOR = '<svg class="svg-icon-vector" style="fill:#c5221f; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>';
         const SVG_EXT_LINK = '<svg class="svg-icon-vector" style="fill:#000000; width:13px; height:13px;" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>';
@@ -9918,21 +10035,73 @@ if (!headers_sent()) {
             };
         }
 
-        function openPlatformGateway() {
+        function openGatewayFromTool(toolName, options) {
+            options = options || {};
+            let customPayload = null;
+            let repoTarget = '';
+
+            if (toolName === 'notepad') {
+                customPayload = collectGatewayNotepadPayload(true);
+            } else if (toolName === 'terminal') {
+                if (options.content) {
+                    customPayload = {
+                        name: gatewaySafeFilename(options.name || 'tabby-terminal', 'md'),
+                        content: options.content,
+                        folder: 'terminal',
+                        source: 'terminal',
+                        label: 'Terminal · ' + (options.name || 'sesión')
+                    };
+                } else {
+                    customPayload = collectGatewayTerminalPayload();
+                }
+            } else if (toolName === 'repo') {
+                repoTarget = options.repo || '';
+            } else if (options.content) {
+                customPayload = {
+                    name: gatewaySafeFilename(options.name || 'archivo', 'txt'),
+                    content: options.content,
+                    folder: options.folder || 'tools',
+                    source: toolName || 'tool',
+                    label: options.label || (toolName + ' · ' + (options.name || 'payload'))
+                };
+            }
+
+            if (repoTarget) {
+                openGatewaySend(repoTarget, repoTarget, { autoSend: options.autoSend !== false });
+                return;
+            }
+
+            openPlatformGateway({
+                initialPayload: customPayload,
+                sourceHint: toolName,
+                autoSend: options.autoSend !== false
+            });
+        }
+
+        function openPlatformGateway(opts) {
+            opts = opts || {};
             const existing = document.getElementById('gatewayModal');
             if (existing) existing.remove();
 
             const terminalPayload = collectGatewayTerminalPayload();
             const notepadPayload = collectGatewayNotepadPayload(true);
+            const initialPayload = opts.initialPayload || null;
+            const sourceHint = opts.sourceHint || '';
+
             const overlay = document.createElement('div');
             overlay.id = 'gatewayModal';
             overlay.className = 'unlicensed-modal-overlay';
             overlay.innerHTML = `
-                <div class="gateway-modal" role="dialog" aria-modal="true" aria-labelledby="gatewayModalTitle" style="max-width:460px;">
-                    <div class="gateway-modal-title" id="gatewayModalTitle">Gateway</div>
+                <div class="gateway-modal" role="dialog" aria-modal="true" aria-labelledby="gatewayModalTitle">
+                    <div class="gateway-modal-title" id="gatewayModalTitle">GATEWAY</div>
                     <div class="gateway-modal-brand">
-                        <img src="favicon.svg?v=3" alt="l8 codespace">
-                        <span>l8 codespace</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="24" height="24" class="gateway-crescent-svg" style="fill:currentColor; flex-shrink:0;">
+                            <path d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path>
+                        </svg>
+                        <div class="gateway-brand-heading">
+                            <span class="gateway-brand-primary">Hashcod codespace</span>
+                            <span class="gateway-brand-sub">· l8 codespace</span>
+                        </div>
                     </div>
                     <div class="gateway-modal-text">
                         Transporta contenido de la plataforma (no solo GitHub).
@@ -9940,22 +10109,26 @@ if (!headers_sent()) {
                         Los repositorios siguen pudiendo enviarse desde el botón antena de cada repo.
                     </div>
                     <div class="gateway-source-list" id="gatewaySourceList">
-                        <label class="gateway-source-item ${notepadPayload ? '' : 'disabled'}">
-                            <input type="checkbox" id="gatewaySrcNotepad" ${notepadPayload ? 'checked' : 'disabled'}>
+                        <label class="gateway-source-item ${(notepadPayload || (initialPayload && initialPayload.source === 'notepad')) ? '' : 'disabled'}">
+                            <input type="checkbox" id="gatewaySrcNotepad" ${(sourceHint === 'notepad' || (!sourceHint && notepadPayload)) ? 'checked' : ''} ${(notepadPayload || (initialPayload && initialPayload.source === 'notepad')) ? '' : 'disabled'}>
                             <span>
                                 <strong>Bloc de notas</strong>
-                                <span class="muted">${notepadPayload
-                                    ? (notepadPayload.label + (notepadPayload.selection ? '' : ' · nota activa'))
-                                    : 'Sin contenido en la nota activa'}</span>
+                                <span class="muted">${(initialPayload && initialPayload.source === 'notepad')
+                                    ? initialPayload.label
+                                    : (notepadPayload
+                                        ? (notepadPayload.label + (notepadPayload.selection ? '' : ' · nota activa'))
+                                        : 'Sin contenido en la nota activa')}</span>
                             </span>
                         </label>
-                        <label class="gateway-source-item ${terminalPayload ? '' : 'disabled'}">
-                            <input type="checkbox" id="gatewaySrcTerminal" ${terminalPayload ? 'checked' : 'disabled'}>
+                        <label class="gateway-source-item ${(terminalPayload || (initialPayload && initialPayload.source === 'terminal')) ? '' : 'disabled'}">
+                            <input type="checkbox" id="gatewaySrcTerminal" ${(sourceHint === 'terminal' || (!sourceHint && terminalPayload && !notepadPayload)) ? 'checked' : ''} ${(terminalPayload || (initialPayload && initialPayload.source === 'terminal')) ? '' : 'disabled'}>
                             <span>
-                                <strong>Terminal negra</strong>
-                                <span class="muted">${terminalPayload
-                                    ? terminalPayload.label
-                                    : 'Sin texto en la terminal'}</span>
+                                <strong>Terminal negra / Tabby</strong>
+                                <span class="muted">${(initialPayload && initialPayload.source === 'terminal')
+                                    ? initialPayload.label
+                                    : (terminalPayload
+                                        ? terminalPayload.label
+                                        : 'Sin texto en la terminal')}</span>
                             </span>
                         </label>
                     </div>
@@ -10000,8 +10173,9 @@ if (!headers_sent()) {
                 });
             });
 
-            if (!notepadPayload && !terminalPayload) {
-                statusEl.textContent = 'No hay contenido listo. Escribe en el bloc de notas o en la terminal negra, o abre /gateway para recibir.';
+            const hasAny = !!(notepadPayload || terminalPayload || initialPayload);
+            if (!hasAny) {
+                statusEl.textContent = 'No hay contenido listo. Escribe en el bloc de notas o en la terminal, o abre /gateway para recibir.';
                 statusEl.className = 'gateway-modal-status';
                 sendBtn.disabled = true;
             }
@@ -10013,7 +10187,19 @@ if (!headers_sent()) {
                 const sources = [];
                 const labels = [];
 
-                if (wantNote) {
+                if (initialPayload && !sources.includes(initialPayload.source)) {
+                    if ((initialPayload.source === 'notepad' && wantNote) || (initialPayload.source === 'terminal' && wantTerm) || (!wantNote && !wantTerm)) {
+                        files.push({
+                            name: initialPayload.name,
+                            content: initialPayload.content,
+                            folder: initialPayload.folder || initialPayload.source || 'platform'
+                        });
+                        sources.push(initialPayload.source);
+                        labels.push(initialPayload.label || initialPayload.source);
+                    }
+                }
+
+                if (wantNote && !sources.includes('notepad')) {
                     const fresh = collectGatewayNotepadPayload(true) || notepadPayload;
                     if (fresh) {
                         files.push({
@@ -10025,7 +10211,7 @@ if (!headers_sent()) {
                         labels.push(fresh.label || 'notepad');
                     }
                 }
-                if (wantTerm) {
+                if (wantTerm && !sources.includes('terminal')) {
                     const fresh = collectGatewayTerminalPayload() || terminalPayload;
                     if (fresh) {
                         files.push({
@@ -10045,7 +10231,7 @@ if (!headers_sent()) {
                 }
 
                 sendBtn.disabled = true;
-                statusEl.textContent = 'Empaquetando contenido de la plataforma y generando código…';
+                statusEl.textContent = 'Empaquetando contenido de Hashcod codespace y generando código único…';
                 statusEl.className = 'gateway-modal-status';
                 try {
                     const res = await fetch('/api/gateway/share', {
@@ -10070,9 +10256,14 @@ if (!headers_sent()) {
                     codeBox.classList.add('visible');
                     copyBtn.style.display = 'inline-block';
                     sendBtn.textContent = 'Generar otro código';
-                    statusEl.textContent = data.message || ('Código listo: ' + lastCode);
+                    statusEl.textContent = data.message || ('Código listo: ' + lastCode + '. Reclámalo en /gateway.');
                     statusEl.className = 'gateway-modal-status ok';
                     sendBtn.disabled = false;
+
+                    // Auto-copiar código al portapapeles
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(lastCode).catch(() => {});
+                    }
                 } catch (err) {
                     statusEl.textContent = 'Error de red al hablar con el gateway.';
                     statusEl.className = 'gateway-modal-status err';
@@ -10081,9 +10272,14 @@ if (!headers_sent()) {
             };
 
             sendBtn.addEventListener('click', doSend);
+
+            if (opts.autoSend && hasAny) {
+                doSend();
+            }
         }
 
-        function openGatewaySend(repoName, userRepo) {
+        function openGatewaySend(repoName, userRepo, opts) {
+            opts = opts || {};
             const existing = document.getElementById('gatewayModal');
             if (existing) existing.remove();
             const full = userRepo || repoName || '';
@@ -10093,10 +10289,15 @@ if (!headers_sent()) {
             overlay.className = 'unlicensed-modal-overlay';
             overlay.innerHTML = `
                 <div class="gateway-modal" role="dialog" aria-modal="true" aria-labelledby="gatewayModalTitle">
-                    <div class="gateway-modal-title" id="gatewayModalTitle">Gateway</div>
+                    <div class="gateway-modal-title" id="gatewayModalTitle">GATEWAY</div>
                     <div class="gateway-modal-brand">
-                        <img src="favicon.svg?v=3" alt="l8 codespace">
-                        <span>l8 codespace</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="24" height="24" class="gateway-crescent-svg" style="fill:currentColor; flex-shrink:0;">
+                            <path d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path>
+                        </svg>
+                        <div class="gateway-brand-heading">
+                            <span class="gateway-brand-primary">Hashcod codespace</span>
+                            <span class="gateway-brand-sub">· l8 codespace</span>
+                        </div>
                     </div>
                     <div class="gateway-modal-text">
                         Compartir <code>${safeFull}</code> como carpeta.
@@ -10172,6 +10373,10 @@ if (!headers_sent()) {
                     statusEl.textContent = data.message || ('Código listo en la nube: ' + lastCode + '. Úsalo en /gateway desde cualquier dispositivo.');
                     statusEl.className = 'gateway-modal-status ok';
                     sendBtn.disabled = false;
+
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(lastCode).catch(() => {});
+                    }
                 } catch (err) {
                     statusEl.textContent = 'Error de red al hablar con el gateway.';
                     statusEl.className = 'gateway-modal-status err';
@@ -10180,6 +10385,10 @@ if (!headers_sent()) {
             };
 
             sendBtn.addEventListener('click', doSend);
+
+            if (opts.autoSend && full) {
+                doSend();
+            }
         }
 
         function copyToClipboard(text) {
@@ -14576,6 +14785,11 @@ if (!headers_sent()) {
                 <button type="button" class="notepad-tool iconic" id="notepadOcgToggleBtn" data-action="ocg-toggle" title="OpenCriptG · códigos únicos" aria-label="Generar códigos OpenCriptG" aria-expanded="false" aria-controls="notepadOcgPanel">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true">
                         <path d="M 19 5.1171875 C 17.871654 5.1171875 16.743646 5.6343119 16.068359 6.6699219 L 11.060547 14.349609 A 1.500316 1.500316 0 1 0 13.574219 15.988281 L 18.580078 8.3085938 C 18.807506 7.9598138 19.190541 7.9598137 19.417969 8.3085938 L 28.941406 22.917969 L 9.0566406 22.917969 L 10.923828 20.052734 A 1.50015 1.50015 0 1 0 8.4121094 18.414062 L 5.4746094 22.919922 C 3.5713222 22.934182 2 24.511682 2 26.417969 L 2 26.460938 C 2 30.34721 3.3543537 33.933489 5.6132812 36.75 A 1.50015 1.50015 0 1 0 7.953125 34.873047 C 6.1040525 32.567558 5 29.652664 5 26.460938 L 5 26.417969 C 5 26.122924 5.2049548 25.917969 5.5 25.917969 L 6.2128906 25.917969 A 1.50015 1.50015 0 0 0 6.2871094 25.919922 L 31.710938 25.919922 A 1.50015 1.50015 0 0 0 31.748047 25.917969 L 34.765625 25.917969 A 1.50015 1.50015 0 0 0 34.871094 25.919922 L 42.509766 25.919922 C 42.799091 25.924788 43 26.126481 43 26.417969 L 43 26.460938 C 43 33.91126 36.992315 39.917969 29.542969 39.917969 L 18.457031 39.917969 C 16.129034 39.917969 13.952836 39.332156 12.046875 38.296875 A 1.50015 1.50015 0 1 0 10.613281 40.931641 C 12.94532 42.198359 15.623029 42.917969 18.457031 42.917969 L 29.542969 42.917969 C 38.613623 42.917969 46 35.532614 46 26.460938 L 46 26.417969 C 46 24.503014 44.414955 22.917969 42.5 22.917969 L 42.404297 22.917969 L 31.669922 10.25 L 31.669922 10.248047 C 31.173823 9.6631287 30.525278 9.2838775 29.832031 9.1152344 C 29.138785 8.9465912 28.401249 8.9895793 27.730469 9.25 A 1.50015 1.50015 0 1 0 28.816406 12.046875 C 29.004234 11.973955 29.223168 12.004995 29.380859 12.189453 L 38.472656 22.917969 L 32.523438 22.917969 L 21.931641 6.6699219 C 21.256354 5.6343119 20.128346 5.1171875 19 5.1171875 z"></path>
+                    </svg>
+                </button>
+                <button type="button" class="notepad-tool iconic gateway-action-btn" id="notepadGatewayBtn" data-action="gateway" title="Gateway · Enviar nota y generar código único" aria-label="Enviar al Gateway" onclick="openGatewayFromTool('notepad')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" aria-hidden="true">
+                        <path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path>
                     </svg>
                 </button>
                 <span class="notepad-tool-sep" aria-hidden="true"></span>

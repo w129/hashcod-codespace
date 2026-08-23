@@ -8343,6 +8343,30 @@ if (!headers_sent()) {
             }
         }
 
+            /* Tabby Terminal Safe Embedded Constrains */
+        svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-container svg {
+            width: 14px !important;
+            height: 14px !important;
+            max-width: 14px !important;
+            max-height: 14px !important;
+            min-width: 14px !important;
+            min-height: 14px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            flex-shrink: 0 !important;
+        }
+        .block-row.block-execution {
+            border: 1px solid #d0d0d0;
+            background: #ffffff;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .block-row.block-prompt {
+            border: 1px solid #d0d0d0;
+            background: #ffffff;
+            border-radius: 0 0 6px 6px;
+        }
     </style>
     <script src="components/originkit/ui/blackhole-runtime.js"></script>
 </head>
@@ -8794,36 +8818,41 @@ if (!headers_sent()) {
 
         <!-- Bloque (>) de introducción de comandos y su ventana desplegable -->
         <div class="function-drawer-wrapper">
-            <!-- Segmentos de contexto Tabby (Host, Dir, Git, PQC, Temas, AI) con iconos vectoriales SVG -->
+            <!-- Segmentos de contexto Tabby (Host, Dir, Git, PQC, Perfiles, Temas, Paleta) -->
             <div class="tabby-prompt-header">
-                <span class="tabby-chip host">
-                    <svg class="tabby-icon-svg" style="fill:#F9FAFB;" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-12-3l3-3-3-3 1.41-1.41L12.83 12l-3.42 3.41L8 15zm5 0h5v2h-5v-2z"/></svg>
-                    <span>hashcod@codespace</span>
-                </span>
-                <span class="tabby-chip">
-                    <svg class="tabby-icon-svg" style="fill:#374151;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
-                    <span>~/workspace</span>
-                </span>
-                <span class="tabby-chip git">
-                    <svg class="tabby-icon-svg" style="fill:#3730A3;" viewBox="0 0 24 24"><path d="M21 9c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V12.7l4-2.31v1.65c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V8.42l2-1.15v4.77c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V7.26l2-1.15c.58.34 1 .99 1 1.76 0 1.1.9 2 2 2s2-.9 2-2z"/></svg>
-                    <span>main</span>
-                </span>
-                <span class="tabby-chip pqc">
-                    <svg class="tabby-icon-svg" style="fill:#065F46;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-                    <span>Dilithium-5 (PQC)</span>
-                </span>
-                <span class="tabby-chip interactive" onclick="window.TabbyTerminal.openThemesModal()" title="Cambiar tema de terminal (Ctrl+Shift+T)">
-                    <svg class="tabby-icon-svg" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.59 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5 9c-.83 0-1.5-.67-1.5-1.5S6.17 9 7 9s1.5.67 1.5 1.5S7.83 12 7 12zm3-4c-.83 0-1.5-.67-1.5-1.5S9.17 5 10 5s1.5.67 1.5 1.5S10.83 8 10 8zm4 0c-.83 0-1.5-.67-1.5-1.5S13.17 5 14 5s1.5.67 1.5 1.5S14.83 8 14 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.17 9 17 9s1.5.67 1.5 1.5S17.83 12 17 12z"/></svg>
-                    <span id="tabbyThemeChipName">Tabby Theme</span>
-                </span>
-                <span class="tabby-chip interactive" onclick="window.TabbyTerminal.openPaletteModal()" title="Asistente AI Tabby (Ctrl+Espacio)">
-                    <svg class="tabby-icon-svg" style="fill:#8B5CF6;" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
-                    <span>Tabby</span>
-                </span>
-                <span class="tabby-chip time">
-                    <svg class="tabby-icon-svg" style="fill:#6B7280;" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-8-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-                    <span id="tabbyLiveClock">--:--:--</span>
-                </span>
+                <div class="tabby-prompt-left">
+                    <span class="tabby-chip host">
+                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px; fill:#F9FAFB;" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-12-3l3-3-3-3 1.41-1.41L12.83 12l-3.42 3.41L8 15zm5 0h5v2h-5v-2z"/></svg>
+                        <span>tabby@codespace</span>
+                    </span>
+                    <span class="tabby-chip">
+                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px; fill:#9CA3AF;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                        <span>~/workspace</span>
+                    </span>
+                    <span class="tabby-chip git">
+                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px; fill:#818CF8;" viewBox="0 0 24 24"><path d="M21 9c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V12.7l4-2.31v1.65c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V8.42l2-1.15v4.77c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V7.26l2-1.15c.58.34 1 .99 1 1.76 0 1.1.9 2 2 2s2-.9 2-2z"/></svg>
+                        <span>main</span>
+                    </span>
+                    <span class="tabby-chip pqc">
+                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px; fill:#10B981;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                        <span>Dilithium-5 (PQC)</span>
+                    </span>
+                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openProfilesModal()" title="Perfiles de sesión de Tabby">
+                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        <span>Perfiles</span>
+                    </span>
+                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openThemesModal()" title="Cambiar tema de terminal (Ctrl+Shift+T)">
+                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.59 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5 9c-.83 0-1.5-.67-1.5-1.5S6.17 9 7 9s1.5.67 1.5 1.5S7.83 12 7 12zm3-4c-.83 0-1.5-.67-1.5-1.5S9.17 5 10 5s1.5.67 1.5 1.5S10.83 8 10 8zm4 0c-.83 0-1.5-.67-1.5-1.5S13.17 5 14 5s1.5.67 1.5 1.5S14.83 8 14 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.17 9 17 9s1.5.67 1.5 1.5S17.83 12 17 12z"/></svg>
+                        <span id="tabbyThemeChipName">Tabby Theme</span>
+                    </span>
+                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openPaletteModal()" title="Paleta de comandos (Ctrl+Shift+P)">
+                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        <span>Paleta</span>
+                    </span>
+                </div>
+                <div class="tabby-prompt-right">
+                    <span class="tabby-chip" id="tabbyLiveClock">--:--:--</span>
+                </div>
             </div>
             <div class="block-row block-prompt">
                 <div class="block-symbol clickable-symbol" id="symbolPrompt" onclick="toggleFunctionDrawer()" title="Haz clic en (>) para abrir/cerrar la ventana de funciones">
@@ -9662,7 +9691,31 @@ if (!headers_sent()) {
     font-size: 13px;
   }
   code { font-family: inherit; }
-</style>
+        /* Tabby Terminal Safe Embedded Constrains */
+        svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-container svg {
+            width: 14px !important;
+            height: 14px !important;
+            max-width: 14px !important;
+            max-height: 14px !important;
+            min-width: 14px !important;
+            min-height: 14px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            flex-shrink: 0 !important;
+        }
+        .block-row.block-execution {
+            border: 1px solid #d0d0d0;
+            background: #ffffff;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .block-row.block-prompt {
+            border: 1px solid #d0d0d0;
+            background: #ffffff;
+            border-radius: 0 0 6px 6px;
+        }
+    </style>
 </head>
 <body>
 <header>l8 codespace · <strong>${title}</strong> · <span>${terminalEscapeHtml(lang)}</span></header>
@@ -13231,7 +13284,31 @@ if (!headers_sent()) {
                 mime = 'text/html;charset=utf-8';
                 body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
                     String(title).replace(/</g, '&lt;') +
-                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style></head><body><h1>' +
+                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}        /* Tabby Terminal Safe Embedded Constrains */
+        svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-container svg {
+            width: 14px !important;
+            height: 14px !important;
+            max-width: 14px !important;
+            max-height: 14px !important;
+            min-width: 14px !important;
+            min-height: 14px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            flex-shrink: 0 !important;
+        }
+        .block-row.block-execution {
+            border: 1px solid #d0d0d0;
+            background: #ffffff;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .block-row.block-prompt {
+            border: 1px solid #d0d0d0;
+            background: #ffffff;
+            border-radius: 0 0 6px 6px;
+        }
+    </style></head><body><h1>' +
                     String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '</body></html>';
             } else if (kind === 'md') {
                 ext = 'md';

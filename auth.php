@@ -38,6 +38,13 @@ function authPepper() {
         return $cached;
     }
 
+    // 1b) Fallback determinista con DILITHIUM5_ADMIN_SIGNATURE si existe
+    $sig = function_exists('secretGet') ? secretGet('DILITHIUM5_ADMIN_SIGNATURE', '') : envValue('DILITHIUM5_ADMIN_SIGNATURE', '');
+    if ($sig !== '') {
+        $cached = hash('sha256', 'l8_auth_pepper_deterministic_' . $sig);
+        return $cached;
+    }
+
     $pepperFile = authStorageDir() . '/.pepper';
 
     // 2) Supabase Storage (sobrevive redeploy si no hay env)
@@ -102,10 +109,20 @@ function authTimingSafeEqual($a, $b) {
 
 function authDilithiumRegisterKey() {
     // Única fuente: entorno / secret file / bóveda. Jamás hardcode.
+    $key = '';
     if (function_exists('secretGet')) {
-        return trim((string) secretGet('L8_DILITHIUM5_REGISTER_KEY', ''));
+        $key = trim((string) secretGet('L8_DILITHIUM5_REGISTER_KEY', ''));
+        if ($key === '') {
+            $key = trim((string) secretGet('DILITHIUM5_ADMIN_SIGNATURE', ''));
+        }
     }
-    return trim((string) envValue('L8_DILITHIUM5_REGISTER_KEY', ''));
+    if ($key === '') {
+        $key = trim((string) envValue('L8_DILITHIUM5_REGISTER_KEY', ''));
+    }
+    if ($key === '') {
+        $key = trim((string) envValue('DILITHIUM5_ADMIN_SIGNATURE', ''));
+    }
+    return $key;
 }
 
 function authDilithiumConfigured() {
@@ -115,7 +132,7 @@ function authDilithiumConfigured() {
 function authVerifyDilithium($provided) {
     $expected = authDilithiumRegisterKey();
     if ($expected === '') {
-        return ['ok' => false, 'error' => 'Registro no disponible: falta L8_DILITHIUM5_REGISTER_KEY en el servidor'];
+        return ['ok' => false, 'error' => 'Registro no disponible: falta configurar clave de registro en el servidor'];
     }
     $provided = trim((string)$provided);
     if ($provided === '') {

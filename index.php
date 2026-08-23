@@ -8632,11 +8632,6 @@ if (!headers_sent()) {
                     <path d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 19 C 3 20.105 3.895 21 5 21 L 15 21 L 21 15 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 5 5 L 19 5 L 19 14 L 14 14 L 14 19 L 5 19 L 5 5 z M 7 7 L 7 9 L 17 9 L 17 7 L 7 7 z M 7 11 L 7 13 L 12 13 L 12 11 L 7 11 z"></path>
                 </svg>
             </button>
-            <button type="button" class="icon-toolkit" id="toolkitOpenBtn" title="Toolkit" aria-label="Abrir toolkit" aria-expanded="false" aria-controls="toolkitOverlay" onclick="toggleToolkit()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" role="img" aria-hidden="true">
-                    <path d="M 28 4.7929688 L 27.5 5.0820312 L 7.5 16.628906 L 7 16.917969 L 7 17.494141 L 7 22.689453 L 3.5 24.710938 L 3 25 L 3 25.576172 L 3 33.646484 L 3 34.224609 L 3.5 34.513672 L 21.5 44.900391 L 22 45.189453 L 22.5 44.902344 L 46.5 31.060547 L 47 30.771484 L 47 30.193359 L 47 27.886719 L 47 27.310547 L 46.501953 27.021484 L 45 26.154297 L 46.5 25.287109 L 47 24.998047 L 47 24.421875 L 47 22.113281 L 47 21.537109 L 46.5 21.248047 L 41.001953 18.074219 L 42.5 17.208984 L 43 16.919922 L 43 16.34375 L 43 14.029297 L 43 13.453125 L 42.5 13.164062 L 28.5 5.0800781 L 28 4.7929688 z M 28 6.2363281 L 41.501953 14.03125 L 22 25.291016 L 8.5 17.494141 L 28 6.2363281 z M 26.980469 9.7382812 A 0.250025 0.250025 0 0 0 26.875 9.7734375 L 24.875 10.927734 A 0.250025 0.250025 0 0 0 24.875 11.361328 L 32.875 15.978516 A 0.250025 0.250025 0 0 0 33.125 15.978516 L 35.125 14.824219 A 0.250025 0.250025 0 0 0 35.125 14.390625 L 27.125 9.7734375 A 0.250025 0.250025 0 0 0 27.005859 9.7382812 A 0.250025 0.250025 0 0 0 26.980469 9.7382812 z M 27 10.277344 L 34.5 14.607422 L 33 15.472656 L 25.5 11.144531 L 27 10.277344 z M 41.75 14.462891 L 41.75 16.197266 L 39.890625 17.273438 A 0.250025 0.250025 0 0 0 39.875 17.28125 A 0.250025 0.250025 0 0 0 39.853516 17.294922 L 22.25 27.455078 L 22.25 25.722656 L 41.75 14.462891 z M 8.25 17.927734 L 21.75 25.722656 L 21.75 27.455078 L 11.158203 21.337891 A 0.250025 0.250025 0 0 0 11.087891 21.298828 L 10.125 20.742188 A 0.250025 0.250025 0 0 0 9.75 20.958984 L 9.75 24.380859 A 0.250025 0.250025 0 0 0 9.9082031 24.654297 A 0.250025 0.250025 0 0 0 9.9140625 24.65625 L 21.75 31.496094 L 21.75 33.226562 L 8.25 25.431641 L 8.25 23.279297 A 0.250025 0.250025 0 0 0 8.25 23.267578 A 0.250025 0.250025 0 0 0 8.25 23.242188 L 8.25 17.927734 z M 39.75 17.929688 L 39.75 18.630859 A 0.250025 0.250025 0 0 0 39.75 18.648438 L 39.75 19.662109 L 22.25 29.761719 L 22.25 28.033203 L 39.75 17.929688 z M 40.25 19.082031 L 41.501953 19.804688 L 22.25 30.917969 L 22.25 30.339844 L 40.125 20.023438 A 0.250025 0.250025 0 0 0 40.25 19.806641 L 40.25 19.082031 z M 42.25 20.236328 L 45.5 22.113281 L 22 35.681641 L 4.4980469 25.578125 L 7.75 23.701172 L 7.75 25.574219 A 0.250025 0.250025 0 0 0 7.875 25.791016 L 21.84375 33.859375 A 0.250025 0.250025 0 0 0 22.150391 33.861328 L 42.125 22.330078 A 0.250025 0.250025 0 0 0 42.25 22.113281 L 42.25 20.236328 z M 41.75 20.240234 L 41.75 21.96875 L 22.25 33.226562 L 22.25 31.496094 L 41.75 20.240234 z M 10.25 21.392578 L 10.75 21.681641 L 10.75 23.701172 L 10.25 23.988281 L 10.25 21.392578 z M 11.25 21.970703 L 21.75 28.033203 L 21.75 29.761719 L 11.25 23.701172 L 11.25 21.970703 z M 45.75 22.546875 L 45.75 24.277344 L 43.890625 25.351562 A 0.250025 0.250025 0 0 0 43.875 25.359375 A 0.250025 0.250025 0 0 0 43.853516 25.373047 L 22.25 37.845703 L 22.25 36.113281 L 45.75 22.546875 z M 11.001953 24.132812 L 21.75 30.339844 L 21.75 30.917969 L 10.501953 24.419922 L 11.001953 24.132812 z M 4.25 26.009766 L 21.75 36.113281 L 21.75 37.845703 L 7.1582031 29.421875 A 0.250025 0.250025 0 0 0 7.09375 29.384766 L 6.125 28.824219 A 0.250025 0.250025 0 0 0 5.75 29.041016 L 5.75 32.494141 A 0.25025175 0.25025175 0 0 0 5.75 32.519531 A 0.250025 0.250025 0 0 0 5.7519531 32.53125 A 0.25025175 0.25025175 0 0 0 5.7578125 32.568359 A 0.250025 0.250025 0 0 0 5.7617188 32.580078 A 0.25025175 0.25025175 0 0 0 5.765625 32.591797 A 0.250025 0.250025 0 0 0 5.7734375 32.611328 A 0.25025175 0.25025175 0 0 0 5.7753906 32.615234 A 0.250025 0.250025 0 0 0 5.78125 32.625 A 0.25025175 0.25025175 0 0 0 5.7910156 32.642578 A 0.250025 0.250025 0 0 0 5.7949219 32.650391 A 0.25025175 0.25025175 0 0 0 5.8007812 32.658203 A 0.250025 0.250025 0 0 0 5.8085938 32.667969 A 0.25025175 0.25025175 0 0 0 5.8164062 32.677734 A 0.250025 0.250025 0 0 0 5.8261719 32.685547 A 0.25025175 0.25025175 0 0 0 5.8359375 32.693359 A 0.250025 0.250025 0 0 0 5.84375 32.701172 A 0.25025175 0.25025175 0 0 0 5.8554688 32.708984 A 0.250025 0.250025 0 0 0 5.8652344 32.716797 A 0.25025175 0.25025175 0 0 0 5.875 32.722656 L 21.75 41.886719 L 21.75 43.601562 L 4.25 33.501953 L 4.25 26.009766 z M 43.75 26.009766 L 43.75 26.712891 A 0.250025 0.250025 0 0 0 43.75 26.730469 L 43.75 27.740234 L 22.25 40.154297 L 22.25 38.423828 L 43.75 26.009766 z M 44.25 27.164062 L 45.5 27.886719 L 22.25 41.310547 L 22.25 40.732422 L 44.125 28.101562 A 0.250025 0.250025 0 0 0 44.25 27.884766 L 44.25 27.164062 z M 45.75 28.320312 L 45.75 30.050781 L 22.25 43.601562 L 22.25 41.886719 L 45.75 28.320312 z M 6.25 29.474609 L 6.75 29.763672 L 6.75 31.783203 L 6.25 32.072266 L 6.25 29.474609 z M 7.25 30.052734 L 21.75 38.423828 L 21.75 40.154297 L 7.25 31.783203 L 7.25 30.052734 z M 7 32.216797 L 21.75 40.732422 L 21.75 41.310547 L 6.5 32.505859 L 7 32.216797 z"></path>
-                </svg>
-            </button>
             <span class="hashcod-created-by" title="Created by diktatcart" aria-label="Created by diktatcart">
                 <img src="hashcod-created-by-gray.svg?v=10" alt="Created by diktatcart" height="14">
             </span>
@@ -14509,58 +14504,9 @@ if (!headers_sent()) {
 
         let toolkitOpenBusy = false;
 
-        async function toggleToolkit(force) {
-            const overlay = document.getElementById('toolkitOverlay');
-            const btn = document.getElementById('toolkitOpenBtn');
-            if (!overlay) return;
-            const currentlyOpen = overlay.classList.contains('open');
-            const open = typeof force === 'boolean' ? force : !currentlyOpen;
+        function toggleToolkit() {}
+        window.toggleToolkit = toggleToolkit;
 
-            overlay.classList.toggle('open', open);
-            overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
-            if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-            if (open) {
-                toolkitLoadStore();
-                if (toolkitFichas.length) {
-                    toolkitLogUse(toolkitFichas[0].id, 'toolkit-open', 'Abrir toolkit');
-                } else {
-                    toolkitRenderBoard();
-                }
-                try { consumeTokens('toolkit', 'toolkit'); } catch (e) {}
-            }
-        }
-
-        function initToolkit() {
-            if (window.__l8ToolkitReady) return;
-            window.__l8ToolkitReady = true;
-            toolkitLoadStore();
-            const overlay = document.getElementById('toolkitOverlay');
-            const closeBtn = document.getElementById('toolkitCloseBtn');
-            if (closeBtn) closeBtn.addEventListener('click', () => toggleToolkit(false));
-            if (overlay) {
-                overlay.addEventListener('click', (e) => {
-                    if (e.target === overlay) toggleToolkit(false);
-                });
-            }
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
-                    toggleToolkit(false);
-                }
-            });
-            window.l8Toolkit = {
-                open: () => toggleToolkit(true),
-                close: () => toggleToolkit(false),
-                logUse: toolkitLogUse,
-                curateFile: toolkitCurateFile,
-                removeFicha: toolkitRemoveFicha,
-                fichas: toolkitFichas,
-                render: toolkitRenderBoard,
-                openEngineering: openToolkitEngineering,
-                openPdfMd: typeof openToolkitPdfMd === 'function' ? openToolkitPdfMd : function () {}
-            };
-        }
-
-        document.addEventListener('DOMContentLoaded', initToolkit);
         document.addEventListener('DOMContentLoaded', initToolkitEngineering);
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof initToolkitPdfMd === 'function') initToolkitPdfMd();
@@ -14625,16 +14571,6 @@ if (!headers_sent()) {
         </div>
     </div>
 
-    <div class="toolkit-overlay" id="toolkitOverlay" aria-hidden="true">
-        <div class="toolkit-shell" role="dialog" aria-modal="true" aria-labelledby="toolkitBrandLabel">
-            <div class="toolkit-top">
-                <div class="toolkit-brand" id="toolkitBrandLabel">= / toolkit</div>
-                <div class="toolkit-sub">Fichas de herramientas · historial · archivos curados</div>
-                <button type="button" class="toolkit-close" id="toolkitCloseBtn" title="Cerrar">Cerrar</button>
-            </div>
-            <div class="toolkit-board" id="toolkitBoard" aria-live="polite"></div>
-        </div>
-    </div>
 
     <div class="notepad-overlay" id="notepadOverlay" aria-hidden="true">
         <div class="notepad-shell" role="dialog" aria-modal="true" aria-labelledby="notepadBrandLabel">

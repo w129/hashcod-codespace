@@ -1,4 +1,19 @@
 <?php
+/**
+ * Copyright (C) 2020-2026 Denver Technologies, Inc.
+ * Copyright (C) 2026 DIKTATCART / Hashcod
+ *
+ * This file is part of Hashcod codespace / Warp Block Terminal integration.
+ *
+ * Modified on 2026 by DIKTATCART / Hashcod: Added custom Warp-style cell blocks,
+ * execution status, block toolbar, and platform integration.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+
 // index.php — plataforma servidor HTML nativo (PHP). No Vite / no React SPA.
 require_once __DIR__ . '/l8-html.php';
 
@@ -55,6 +70,7 @@ if (!headers_sent()) {
     <link rel="shortcut icon" href="favicon.svg?v=10" type="image/svg+xml">
     <link rel="apple-touch-icon" href="favicon.svg?v=10">
     <meta name="application-name" content="Hashcod codespace">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-blocks.css?v=2026.1">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700;800;900&display=swap');
 
@@ -10105,6 +10121,20 @@ if (!headers_sent()) {
             });
         }
 
+        function warpWrapOutput(innerHtml, isError, errorMsg) {
+            const cmd = (latestExecutionData && latestExecutionData.executedCommand) || lastCommandText || '';
+            const dur = (latestExecutionData && latestExecutionData.executionDuration) || 1;
+            if (window.WarpBlocks && typeof window.WarpBlocks.createBlock === 'function') {
+                const block = window.WarpBlocks.createBlock(cmd, innerHtml, {
+                    duration: dur,
+                    isError: !!isError,
+                    error: errorMsg
+                });
+                return window.WarpBlocks.renderBlockHtml(block);
+            }
+            return innerHtml;
+        }
+
         function render() {
             if (!hasExecutedCommand || !latestExecutionData) {
                 executionContainer.textContent = '';
@@ -10113,7 +10143,7 @@ if (!headers_sent()) {
 
             if (latestExecutionData.isError || latestExecutionData.error) {
                 const errorMsg = latestExecutionData.error || "Your command does not exist....";
-                executionContainer.innerHTML = '<span style="color: #ff0000; font-weight: 600;">' + errorMsg + '</span>';
+                executionContainer.innerHTML = warpWrapOutput('<span style="color: #EF4444; font-weight: 600;">' + errorMsg + '</span>', true, errorMsg);
                 return;
             }
 
@@ -10310,7 +10340,7 @@ if (!headers_sent()) {
                         </div>
                     </div>
                 `;
-                executionContainer.innerHTML = `<div style="width:100%;">${reposHtml}</div>`;
+                executionContainer.innerHTML = warpWrapOutput(reposHtml);
                 return;
             }
 
@@ -10345,7 +10375,7 @@ if (!headers_sent()) {
                         </div>
                     </div>
                 `;
-                executionContainer.innerHTML = `<div style="width:100%;">${supabaseHtml}</div>`;
+                executionContainer.innerHTML = warpWrapOutput(supabaseHtml);
                 return;
             }
 
@@ -10383,7 +10413,7 @@ if (!headers_sent()) {
                         </div>
                     </div>
                 `;
-                executionContainer.innerHTML = `<div style="width:100%;">${sshHtml}</div>`;
+                executionContainer.innerHTML = warpWrapOutput(sshHtml);
                 return;
             }
 
@@ -10398,9 +10428,10 @@ if (!headers_sent()) {
                         <tr>
                             <td colspan="6" style="text-align:center; padding:24px; color:#888;">
                                 <svg style="width:32px; height:32px; fill:#000000; opacity:0.3; margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                                No hay archivos almacenados aún en la Super Base de Datos.<br>Haz clic en <strong>'Subir Nuevo Archivo'</strong> para almacenar uno.
+                                No hay archivos subidos aún en la Base de Datos Global. Usa el botón de subida en la consola negra o ejecuta <code>upload</code>.
                             </td>
-                        </tr>`;
+                        </tr>
+                    `;
                 } else {
                     files.forEach(f => {
                         const dHash = f.dilithium5_hash ? (f.dilithium5_hash.substring(0, 22) + '...') : 'dilithium5_...';
@@ -10485,7 +10516,7 @@ if (!headers_sent()) {
                         </div>
                     </div>
                 `;
-                executionContainer.innerHTML = `<div style="width:100%;">${catalogHtml}</div>`;
+                executionContainer.innerHTML = warpWrapOutput(catalogHtml);
                 return;
             }
 
@@ -10497,16 +10528,16 @@ if (!headers_sent()) {
                         `<span class="vertical-cmd-desc">${r.description}</span>` +
                     `</div>`
                 ).join('');
-                executionContainer.innerHTML = `<div class="vertical-cmd-table">${htmlRows}</div>`;
+                executionContainer.innerHTML = warpWrapOutput(`<div class="vertical-cmd-table">${htmlRows}</div>`);
                 return;
             }
 
             if (formatToggle.checked) {
                 document.body.classList.remove('raw-mode');
-                executionContainer.innerHTML = syntaxHighlight(dataToDisplay);
+                executionContainer.innerHTML = warpWrapOutput(syntaxHighlight(dataToDisplay));
             } else {
                 document.body.classList.add('raw-mode');
-                executionContainer.textContent = JSON.stringify(dataToDisplay);
+                executionContainer.innerHTML = warpWrapOutput(`<pre style="margin:0; font-family:inherit; white-space:pre-wrap;">${JSON.stringify(dataToDisplay, null, 2)}</pre>`);
             }
         }
 
@@ -12592,13 +12623,26 @@ if (!headers_sent()) {
 
         async function submitCommand(cmd) {
             if (!cmd) return;
+            const startTime = performance.now();
             try {
                 hasExecutedCommand = true;
                 lastCommandText = cmd;
+                const escCmd = String(cmd).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 executionContainer.innerHTML = `
-                    <div style="padding:8px 10px; background:#faf9f6; border:1px solid #e6e3dd; border-radius:8px; font-weight:600; color:#000000; display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:12px;">
-                        <svg style="animation: spin 0.7s linear infinite; width:16px; height:16px; fill:#000000; flex-shrink:0;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
-                        <span>Procesando…</span>
+                    <div class="warp-block status-running" style="width:100%;">
+                        <div class="warp-block-header">
+                            <div class="warp-block-header-left">
+                                <span class="warp-prompt-pill">&gt;=</span>
+                                <span class="warp-cmd-text">${escCmd}</span>
+                            </div>
+                            <div class="warp-block-header-right">
+                                <span class="warp-meta-pill">⚡ ejecutando…</span>
+                            </div>
+                        </div>
+                        <div class="warp-block-body" style="display:flex; align-items:center; gap:8px; color:#4B5563; font-family:'Geist Mono', monospace; font-size:12px;">
+                            <svg style="animation: spin 0.7s linear infinite; width:15px; height:15px; fill:#111827; flex-shrink:0;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+                            <span>Procesando comando…</span>
+                        </div>
                     </div>
                 `;
                 const res = await fetch('/api/command', {
@@ -12606,13 +12650,19 @@ if (!headers_sent()) {
                     headers: authHeaders(),
                     body: JSON.stringify({ command: cmd })
                 });
+                const duration = Math.max(1, Math.round(performance.now() - startTime));
                 const result = await res.json();
                 if (result && result.tokens) applyTokensStatus(result.tokens);
+                result.executionDuration = duration;
+                result.executedCommand = cmd;
                 latestExecutionData = result;
                 render();
                 schedulePersistPlatformState();
             } catch (e) {
                 console.error("Error al enviar comando:", e);
+                const duration = Math.max(1, Math.round(performance.now() - startTime));
+                latestExecutionData = { isError: true, error: "Error de red al ejecutar comando", executionDuration: duration, executedCommand: cmd };
+                render();
             }
         }
 
@@ -17138,5 +17188,6 @@ if (!headers_sent()) {
             }).catch(function () { /* visual already running */ });
         })();
     </script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-blocks.js?v=2026.1"></script>
 </body>
 </html>

@@ -10,6 +10,18 @@
 (function (window, document) {
     'use strict';
 
+    // Iconos Vectoriales SVG Nativos Oficiales estilo Warp
+    const WARP_SVG_TERMINAL = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-12-3l3-3-3-3 1.41-1.41L12.83 12l-3.42 3.41L8 15zm5 0h5v2h-5v-2z"/></svg>';
+    const WARP_SVG_FOLDER = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>';
+    const WARP_SVG_GIT = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M21 9c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V12.7l4-2.31v1.65c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V8.42l2-1.15v4.77c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V7.26l2-1.15c.58.34 1 .99 1 1.76 0 1.1.9 2 2 2s2-.9 2-2z"/></svg>';
+    const WARP_SVG_LOCK = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>';
+    const WARP_SVG_CLOCK = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-8-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>';
+    const WARP_SVG_STAR = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+    const WARP_SVG_ZAP = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>';
+    const WARP_SVG_EXPORT = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
+    const WARP_SVG_TRASH = '<svg class="warp-icon-svg" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
+    const WARP_SVG_CHEVRON = '<svg class="warp-icon-svg" style="width:10px; height:10px;" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>';
+
     const WarpBlocks = {
         blocks: [],
         maxBlocks: 50,
@@ -17,49 +29,46 @@
         filterBookmarked: false,
         activeAutoIndex: -1,
 
-        // Catálogo de Autocompletado y Workflows estilo Warp
         catalog: [
             { cmd: 'repos', desc: 'Listar repositorios de GitHub con licencias MIT/Apache/BSD', category: 'GitHub' },
-            { cmd: 'clone ', desc: 'Clonar repositorio GitHub (ej: clone facebook/react)', category: 'Git' },
-            { cmd: 'save ', desc: 'Guardar repositorio en base de datos persistente Supabase', category: 'Storage' },
+            { cmd: 'clone facebook/react', desc: 'Clonar o actualizar repositorio GitHub', category: 'Git' },
+            { cmd: 'save facebook/react', desc: 'Guardar repositorio en base de datos Supabase', category: 'Storage' },
             { cmd: 'set_i code', desc: 'Abrir catálogo global de archivos y firmas Dilithium-5', category: 'Database' },
             { cmd: 'upload', desc: 'Subir archivo local con sellado criptográfico PQC', category: 'Files' },
             { cmd: 'supabase', desc: 'Verificar estado de base de datos y Supabase Storage', category: 'Cloud' },
             { cmd: 'ssh_key', desc: 'Mostrar y copiar clave pública Ed25519 para GitHub', category: 'Security' },
-            { cmd: 'dil_fs clear', desc: 'Limpiar terminal y editor de código', category: 'System' },
             { cmd: 'status', desc: 'Ver estado general de la plataforma Hashcod', category: 'System' },
             { cmd: 'prs-code', desc: 'Lanzar IDE de código PRS en ventana independiente', category: 'Apps' },
             { cmd: 'macos', desc: 'Abrir entorno macOS inside', category: 'Apps' },
             { cmd: 'chromeos', desc: 'Abrir entorno ChromeOS play', category: 'Apps' },
+            { cmd: 'dil_fs', desc: 'Limpiar terminal negra y editor de código', category: 'System' },
             { cmd: 'clear', desc: 'Limpiar todos los bloques de la sesión actual', category: 'Terminal' },
             { cmd: 'workflows', desc: 'Abrir panel de flujos de trabajo predefinidos de Warp', category: 'Warp' }
         ],
 
-        // Flujos de trabajo predefinidos (Warp Workflows)
         workflows: [
             { title: 'Clonar e Inspeccionar React', cmd: 'clone facebook/react', desc: 'Descarga React y carga el árbol de código en la consola' },
             { title: 'Comprobar Conexión Supabase', cmd: 'supabase', desc: 'Verifica bucket de almacenamiento y persistencia Postgres' },
             { title: 'Ver Clave SSH para GitHub', cmd: 'ssh_key', desc: 'Muestra la clave Ed25519 para configurar repositorios privados' },
             { title: 'Explorar Base de Datos Global', cmd: 'set_i code', desc: 'Muestra todos los archivos con firma NIST Dilithium-5' },
+            { title: 'Subir Archivo Criptográfico', cmd: 'upload', desc: 'Abre el explorador de archivos para subir y firmar' },
             { title: 'Limpiar Consola y Bloques', cmd: 'clear', desc: 'Vacía la sesión actual de terminal' }
         ],
 
         init: function () {
-            console.log('[WarpBlocks] Full Warp-style block terminal initialized (AGPL-3.0 / Denver Technologies, Inc. & DIKTATCART / Hashcod).');
+            console.log('[WarpBlocks] Warp block terminal initialized (AGPL-3.0 / Denver Technologies, Inc. & DIKTATCART / Hashcod).');
             this.setupPromptAutocomplete();
             this.setupKeyboardShortcuts();
         },
 
         setupKeyboardShortcuts: function () {
             window.addEventListener('keydown', (e) => {
-                // Ctrl+L o Cmd+K para limpiar bloques
                 if ((e.ctrlKey || e.metaKey) && (e.key === 'l' || e.key === 'k')) {
                     if (document.activeElement && document.activeElement.id === 'cmdInput') {
                         e.preventDefault();
                         this.clearAll();
                     }
                 }
-                // Ctrl+Shift+R o Ctrl+P para abrir Workflows
                 if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || (e.shiftKey && e.key.toLowerCase() === 'r'))) {
                     e.preventDefault();
                     this.openWorkflowsModal();
@@ -71,15 +80,16 @@
             const input = document.getElementById('cmdInput');
             if (!input) return;
 
-            // Contenedor dropdown de autocompletado
             let dropdown = document.getElementById('warpAutoDropdown');
             if (!dropdown) {
                 dropdown = document.createElement('div');
                 dropdown.id = 'warpAutoDropdown';
                 dropdown.className = 'warp-autocomplete-dropdown';
-                const wrapper = document.querySelector('.function-drawer-wrapper');
-                if (wrapper) wrapper.style.position = 'relative';
-                if (wrapper) wrapper.appendChild(dropdown);
+                const promptRow = document.querySelector('.block-row.block-prompt');
+                if (promptRow) {
+                    promptRow.style.position = 'relative';
+                    promptRow.appendChild(dropdown);
+                }
             }
 
             input.addEventListener('input', () => {
@@ -174,7 +184,6 @@
             const blockId = 'warp_block_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             const duration = meta && meta.duration ? meta.duration + 'ms' : '1ms';
             const isError = !!(meta && (meta.isError || meta.error));
-            const status = isError ? 'status-error' : 'status-success';
             const exitCode = isError ? 1 : 0;
             const timeStr = new Date().toLocaleTimeString();
 
@@ -251,16 +260,16 @@
                     </div>
                     <div class="warp-session-actions">
                         <button type="button" class="warp-session-btn ${bookmarkActive}" title="Filtrar celdas favoritas" onclick="window.WarpBlocks.toggleBookmarkFilter()">
-                            ⭐ <span>Favoritos</span>
+                            ${WARP_SVG_STAR} <span>Favoritos</span>
                         </button>
                         <button type="button" class="warp-session-btn" title="Ver Workflows predefinidos" onclick="window.WarpBlocks.openWorkflowsModal()">
-                            ⚡ <span>Workflows</span>
+                            ${WARP_SVG_ZAP} <span>Workflows</span>
                         </button>
                         <button type="button" class="warp-session-btn" title="Descargar log de sesión" onclick="window.WarpBlocks.exportSessionLog()">
-                            📥 <span>Exportar</span>
+                            ${WARP_SVG_EXPORT} <span>Exportar</span>
                         </button>
                         <button type="button" class="warp-session-btn" title="Limpiar sesión de terminal" onclick="window.WarpBlocks.clearAll()">
-                            🧹 <span>Limpiar</span>
+                            ${WARP_SVG_TRASH} <span>Limpiar</span>
                         </button>
                     </div>
                 </div>
@@ -281,8 +290,8 @@
                             <span class="warp-cmd-text" title="${esc(block.command)}">${esc(block.command)}</span>
                         </div>
                         <div class="warp-block-header-right">
-                            <span class="warp-meta-pill">⚡ ${esc(block.duration)}</span>
-                            <span class="warp-meta-pill">${esc(block.time)}</span>
+                            <span class="warp-meta-pill">${WARP_SVG_ZAP} ${esc(block.duration)}</span>
+                            <span class="warp-meta-pill">${WARP_SVG_CLOCK} ${esc(block.time)}</span>
                             <div class="warp-block-toolbar">
                                 <button type="button" class="warp-tool-btn" title="Copiar comando" onclick="window.WarpBlocks.copyCmd('${block.id}')">
                                     <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -311,7 +320,7 @@
                     <div class="warp-block-footer">
                         <span class="warp-exit-badge ${exitClass}">${exitIcon}</span>
                         <a href="javascript:void(0)" class="warp-license-badge" onclick="window.WarpBlocks.openSourceModal()" title="Ver licencia AGPL-3.0 y código fuente abierto">
-                            ⚡ Warp Blocks AGPLv3 (Denver &amp; DIKTATCART)
+                            ${WARP_SVG_ZAP} <span>Warp Blocks AGPLv3 (Denver &amp; DIKTATCART)</span>
                         </a>
                     </div>
                 </div>
@@ -411,7 +420,7 @@
             modal.innerHTML = `
                 <div class="warp-modal" role="dialog" aria-modal="true">
                     <div class="warp-modal-header">
-                        <div class="warp-modal-title">⚡ Warp Workflows &amp; Snippets</div>
+                        <div class="warp-modal-title">${WARP_SVG_ZAP} <span>Warp Workflows &amp; Snippets</span></div>
                         <button type="button" class="warp-modal-close" onclick="document.getElementById('warpWorkflowsModal').remove()">&times;</button>
                     </div>
                     <div class="warp-modal-content">
@@ -458,7 +467,7 @@
             modal.innerHTML = `
                 <div class="warp-modal" role="dialog" aria-modal="true">
                     <div class="warp-modal-header">
-                        <div class="warp-modal-title">⚡ Warp Block Terminal · Open Source Notice (AGPL-3.0)</div>
+                        <div class="warp-modal-title">${WARP_SVG_ZAP} <span>Warp Block Terminal · Open Source Notice (AGPL-3.0)</span></div>
                         <button type="button" class="warp-modal-close" onclick="document.getElementById('warpSourceModal').remove()">&times;</button>
                     </div>
                     <div class="warp-modal-content">

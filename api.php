@@ -4871,18 +4871,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isSave = (strpos($lowerCmd, 'save ') === 0);
     $isClone = (strpos($lowerCmd, 'clone ') === 0 || strpos($lowerCmd, 'git clone ') === 0 || $cleanCmd === 'clonedify' || $cleanCmd === 'dify');
     $isDilFs = ($lowerCmd === 'dil_fs' || $lowerCmd === 'dil-fs' || $cleanCmd === 'dilfs');
-    $isPrsCode = ($lowerCmd === 'prs_code' || $lowerCmd === 'prs-code' || $lowerCmd === 'prscode' || $cleanCmd === 'prscode');
+    $isPrsCode = ($lowerCmd === 'prs' || $lowerCmd === 'prs_code' || $lowerCmd === 'prs-code' || $lowerCmd === 'prscode' || $cleanCmd === 'prscode' || $cleanCmd === 'prs');
     $isMacosInside = (
-        $lowerCmd === 'macos_inside' || $lowerCmd === 'macos-inside' || $lowerCmd === 'macosinside'
-        || $lowerCmd === 'mac_os_inside' || $cleanCmd === 'macosinside'
+        $lowerCmd === 'macos' || $lowerCmd === 'macos_inside' || $lowerCmd === 'macos-inside' || $lowerCmd === 'macosinside'
+        || $lowerCmd === 'mac_os_inside' || $cleanCmd === 'macosinside' || $cleanCmd === 'macos'
     );
     $isChromeosPlay = (
-        $lowerCmd === 'chromeos_play' || $lowerCmd === 'chromeos-play' || $lowerCmd === 'chromeosplay'
-        || $lowerCmd === 'chrome_os_play' || $cleanCmd === 'chromeosplay'
+        $lowerCmd === 'chromeos' || $lowerCmd === 'chromeos_play' || $lowerCmd === 'chromeos-play' || $lowerCmd === 'chromeosplay'
+        || $lowerCmd === 'chrome_os_play' || $cleanCmd === 'chromeosplay' || $cleanCmd === 'chromeos'
     );
+    $isUpload = ($lowerCmd === 'upload' || $lowerCmd === 'subir');
+    $isClear = ($lowerCmd === 'clear' || $lowerCmd === 'limpiar' || $lowerCmd === 'cls');
+    $isWorkflows = ($lowerCmd === 'workflows' || $lowerCmd === 'workflow' || $lowerCmd === 'flujos');
+    $isStatus = ($lowerCmd === 'status' || $lowerCmd === 'estado' || $lowerCmd === 'info');
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isUpload || $isClear || $isWorkflows || $isStatus || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
 
     if (!$isValid) {
         echo json_encode([
@@ -5088,12 +5092,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'type' => 'COMMAND_VERTICAL_LIST',
             'rows' => $rows
         ];
-    } else if ($lowerCmd === 'status' || $lowerCmd === 'browsers') {
+    } else if ($isUpload) {
+        $outputResult = [
+            'type' => 'TRIGGER_UPLOAD',
+            'command' => 'upload',
+            'message' => 'Abriendo selector de archivos para subida con firma post-cuántica Dilithium-5...'
+        ];
+    } else if ($isWorkflows) {
+        $outputResult = [
+            'type' => 'TRIGGER_WORKFLOWS',
+            'command' => 'workflows',
+            'message' => 'Abriendo panel de flujos de trabajo predefinidos de Warp...'
+        ];
+    } else if ($isClear) {
+        $outputResult = [
+            'type' => 'CLEAR_TERMINAL_SESSION',
+            'command' => 'clear',
+            'message' => 'Sesión de terminal y bloques limpiados.'
+        ];
+    } else if ($isStatus || $lowerCmd === 'browsers') {
         $browser = scanRealBrowsers($BROWSER_NAMES);
         $sb = supabaseHealthCheck();
         $outputResult = [
             'type' => 'STATUS',
             'ok' => true,
+            'platform' => 'Hashcod codespace',
+            'company' => 'DIKTATCART',
+            'php_version' => PHP_VERSION,
+            'os' => PHP_OS,
+            'pqc_engine' => 'NIST ML-DSA-87 (Dilithium-5) Active',
             'browsers_running' => !empty($browser['running']) ? count((array)$browser['running']) : 0,
             'supabase' => [
                 'connected' => !empty($sb['connected']),

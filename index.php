@@ -8794,13 +8794,28 @@ if (!headers_sent()) {
 
         <!-- Bloque (>) de introducción de comandos y su ventana desplegable -->
         <div class="function-drawer-wrapper">
-            <!-- Segmentos de contexto Warp (Host, Dir, Git, PQC) -->
+            <!-- Segmentos de contexto Warp (Host, Dir, Git, PQC) con iconos vectoriales SVG -->
             <div class="warp-prompt-segments">
-                <span class="warp-seg-badge host">hashcod@codespace</span>
-                <span class="warp-seg-badge">📁 ~/workspace</span>
-                <span class="warp-seg-badge git"> main</span>
-                <span class="warp-seg-badge pqc">🔒 Dilithium-5 (PQC)</span>
-                <span class="warp-seg-badge time" id="warpLiveClock">--:--:--</span>
+                <span class="warp-seg-badge host">
+                    <svg class="warp-icon-svg" style="fill:#F9FAFB;" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-12-3l3-3-3-3 1.41-1.41L12.83 12l-3.42 3.41L8 15zm5 0h5v2h-5v-2z"/></svg>
+                    <span>hashcod@codespace</span>
+                </span>
+                <span class="warp-seg-badge">
+                    <svg class="warp-icon-svg" style="fill:#374151;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                    <span>~/workspace</span>
+                </span>
+                <span class="warp-seg-badge git">
+                    <svg class="warp-icon-svg" style="fill:#3730A3;" viewBox="0 0 24 24"><path d="M21 9c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V12.7l4-2.31v1.65c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V8.42l2-1.15v4.77c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V7.26l2-1.15c.58.34 1 .99 1 1.76 0 1.1.9 2 2 2s2-.9 2-2z"/></svg>
+                    <span>main</span>
+                </span>
+                <span class="warp-seg-badge pqc">
+                    <svg class="warp-icon-svg" style="fill:#065F46;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    <span>Dilithium-5 (PQC)</span>
+                </span>
+                <span class="warp-seg-badge time">
+                    <svg class="warp-icon-svg" style="fill:#6B7280;" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-8-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                    <span id="warpLiveClock">--:--:--</span>
+                </span>
             </div>
             <div class="block-row block-prompt">
                 <div class="block-symbol clickable-symbol" id="symbolPrompt" onclick="toggleFunctionDrawer()" title="Haz clic en (>) para abrir/cerrar la ventana de funciones">
@@ -10171,37 +10186,107 @@ if (!headers_sent()) {
             const dataToDisplay = latestExecutionData.output !== undefined ? latestExecutionData.output : latestExecutionData;
 
             if (!dataToDisplay || dataToDisplay.type === "EMPTY_CELL" || (dataToDisplay.execution === null && dataToDisplay.browserState)) {
-                executionContainer.textContent = '';
+                warpWrapOutput('<span style="color:#6B7280;">Comando ejecutado. Celda vaciada.</span>');
+                return;
+            }
+
+            if (dataToDisplay.type === "TRIGGER_UPLOAD") {
+                setTimeout(triggerFileUpload, 40);
+                warpWrapOutput(`
+                    <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                        <svg class="warp-icon-svg" style="fill:#10B981; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        <span><strong>Subida de Archivos:</strong> Explorador abierto para seleccionar y firmar criptográficamente (Dilithium-5).</span>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay.type === "TRIGGER_WORKFLOWS") {
+                if (window.WarpBlocks && typeof window.WarpBlocks.openWorkflowsModal === 'function') {
+                    window.WarpBlocks.openWorkflowsModal();
+                }
+                warpWrapOutput(`
+                    <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                        <svg class="warp-icon-svg" style="fill:#3B82F6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                        <span><strong>Warp Workflows:</strong> Panel de flujos de trabajo predefinidos abierto.</span>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay.type === "CLEAR_TERMINAL_SESSION") {
+                if (window.WarpBlocks && typeof window.WarpBlocks.clearAll === 'function') {
+                    window.WarpBlocks.clearAll();
+                }
                 return;
             }
 
             if (dataToDisplay.type === "CLEAR_BLACK_TERMINAL") {
                 clearBlackTerminal();
-                executionContainer.textContent = '';
+                warpWrapOutput(`
+                    <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                        <svg class="warp-icon-svg" style="fill:#6B7280; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        <span>Terminal negra y visor de archivos limpiados.</span>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "STATUS") {
+                const sb = dataToDisplay.supabase || {};
+                warpWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#111827;">Estado del Sistema — Hashcod codespace</strong>
+                            <span class="metric-badge-black" style="background:#111827; color:#FFFFFF;">DIKTATCART</span>
+                        </div>
+                        <div style="font-size:12px; display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:8px;">
+                            <div><strong>Seguridad PQC:</strong> NIST Dilithium-5 (ML-DSA-87) Activo</div>
+                            <div><strong>Servidor:</strong> PHP ${dataToDisplay.php_version || '8.1'} (${dataToDisplay.os || 'Linux'})</div>
+                            <div><strong>Supabase Storage:</strong> ${sb.storage_ready ? 'Listo / Conectado' : 'Pendiente'}</div>
+                            <div><strong>Navegadores Activos:</strong> ${dataToDisplay.browsers_running || 0} procesos</div>
+                        </div>
+                    </div>
+                `);
                 return;
             }
 
             if (dataToDisplay && dataToDisplay.type === "PRS_CODE_LAUNCH") {
                 const url = dataToDisplay.open_url || '/prs-code';
-                // Solo ventana externa — no montar la app en la celda (=) de la plataforma
                 markExternalLaunchOnly(dataToDisplay.product || 'PRS Code', url);
                 setTimeout(() => openPrsCode(url), 80);
+                warpWrapOutput(`
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                        <span><strong>PRS Code:</strong> Lanzado exitosamente en ventana externa.</span>
+                        <button type="button" class="btn-upload-vector" onclick="openPrsCode('${url}')">Abrir ventana</button>
+                    </div>
+                `);
                 return;
             }
-
 
             if (dataToDisplay && dataToDisplay.type === "MACOS_INSIDE_LAUNCH") {
                 const url = dataToDisplay.open_url || '/macos';
                 markExternalLaunchOnly(dataToDisplay.product || 'macOS inside', url);
                 setTimeout(() => openMacosInside(url), 80);
+                warpWrapOutput(`
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                        <span><strong>macOS inside:</strong> Lanzado exitosamente en ventana externa.</span>
+                        <button type="button" class="btn-upload-vector" onclick="openMacosInside('${url}')">Abrir ventana</button>
+                    </div>
+                `);
                 return;
             }
-
 
             if (dataToDisplay && dataToDisplay.type === "CHROMEOS_PLAY_LAUNCH") {
                 const url = dataToDisplay.open_url || '/chromeos';
                 markExternalLaunchOnly(dataToDisplay.product || 'ChromeOS play', url);
                 setTimeout(() => openChromeosPlay(url), 80);
+                warpWrapOutput(`
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                        <span><strong>ChromeOS play:</strong> Lanzado exitosamente en ventana externa.</span>
+                        <button type="button" class="btn-upload-vector" onclick="openChromeosPlay('${url}')">Abrir ventana</button>
+                    </div>
+                `);
                 return;
             }
 

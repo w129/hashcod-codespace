@@ -8,18 +8,139 @@
  */
 
 /* ==========================================================================
-   Warp-style Block Terminal System for Hashcod codespace
+   Warp-style Full Block Terminal Engine & UI System
    ========================================================================== */
 
-.warp-blocks-container {
+/* Barra de Estado y Segmentos de Prompt Warp */
+.warp-prompt-segments {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #F3F4F6;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom: 1px solid #E5E7EB;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    flex-wrap: wrap;
+    user-select: none;
+}
+
+.warp-seg-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: #E5E7EB;
+    color: #1F2937;
+    font-weight: 500;
+}
+
+.warp-seg-badge.host {
+    background: #111827;
+    color: #F9FAFB;
+    font-weight: 700;
+}
+
+.warp-seg-badge.git {
+    background: #E0E7FF;
+    color: #3730A3;
+}
+
+.warp-seg-badge.pqc {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}
+
+.warp-seg-badge.time {
+    margin-left: auto;
+    background: transparent;
+    color: #6B7280;
+}
+
+/* Feed de Sesión de Bloques */
+.warp-session-feed {
     display: flex;
     flex-direction: column;
     gap: 12px;
     width: 100%;
     margin-bottom: 8px;
-    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
 }
 
+/* Barra superior de la sesión de bloques (Búsqueda, Filtros, Limpiar) */
+.warp-session-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #FAFAFA;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    flex-wrap: wrap;
+}
+
+.warp-session-search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    padding: 3px 8px;
+    flex: 1;
+    max-width: 320px;
+}
+
+.warp-session-search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 11px;
+    font-family: inherit;
+    color: #111827;
+    width: 100%;
+}
+
+.warp-session-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.warp-session-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border: 1px solid #D1D5DB;
+    background: #FFFFFF;
+    border-radius: 4px;
+    color: #374151;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.warp-session-btn:hover {
+    background: #F3F4F6;
+    border-color: #9CA3AF;
+    color: #111827;
+}
+
+.warp-session-btn.active {
+    background: #FEF3C7;
+    border-color: #F59E0B;
+    color: #92400E;
+}
+
+/* Celda / Bloque individual */
 .warp-block {
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
@@ -31,6 +152,7 @@
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
 }
 
 .warp-block:hover {
@@ -50,7 +172,11 @@
     border-left: 3px solid #EF4444;
 }
 
-/* Header de la Celda / Bloque */
+.warp-block.bookmarked {
+    border-color: #F59E0B;
+}
+
+/* Cabecera del Bloque */
 .warp-block-header {
     background: #F9FAFB;
     padding: 8px 12px;
@@ -110,7 +236,7 @@
     white-space: nowrap;
 }
 
-/* Toolbar de Acciones de la Celda */
+/* Toolbar de Acciones */
 .warp-block-toolbar {
     display: flex;
     align-items: center;
@@ -154,7 +280,7 @@
     color: #F59E0B;
 }
 
-/* Cuerpo de salida de la Celda */
+/* Cuerpo de salida */
 .warp-block-body {
     padding: 12px 14px;
     font-size: 13px;
@@ -176,7 +302,7 @@
     overflow: hidden;
 }
 
-/* Barra inferior del Bloque */
+/* Footer del Bloque */
 .warp-block-footer {
     padding: 4px 12px;
     background: #FAFAFA;
@@ -204,7 +330,6 @@
     color: #EF4444;
 }
 
-/* Badge de Licencia AGPL v3 / Ver Fuente */
 .warp-license-badge {
     display: inline-flex;
     align-items: center;
@@ -223,6 +348,87 @@
     color: #111827;
 }
 
+/* Menu Flotante de Autocompletado y Workflows Warp */
+.warp-autocomplete-dropdown {
+    position: absolute;
+    bottom: 52px;
+    left: 16px;
+    right: 16px;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    max-height: 260px;
+    overflow-y: auto;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    display: none;
+}
+
+.warp-autocomplete-dropdown.open {
+    display: block;
+}
+
+.warp-auto-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 12px;
+}
+
+.warp-auto-item:last-child {
+    border-bottom: none;
+}
+
+.warp-auto-item:hover, .warp-auto-item.selected {
+    background: #F3F4F6;
+}
+
+.warp-auto-cmd {
+    font-weight: 600;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.warp-auto-desc {
+    color: #6B7280;
+    font-size: 11px;
+}
+
+.warp-auto-badge {
+    background: #E5E7EB;
+    color: #374151;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Workflows Modal / Drawer */
+.warp-workflow-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.warp-workflow-card:hover {
+    border-color: #3B82F6;
+    background: #F8FAFC;
+}
+
 /* Modal de Disponibilidad de Código Fuente AGPL-3.0 */
 .warp-modal-overlay {
     position: fixed;
@@ -237,7 +443,6 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    animation: fadeIn 0.15s ease;
 }
 
 .warp-modal {
@@ -245,7 +450,7 @@
     border: 1px solid #E5E7EB;
     border-radius: 10px;
     width: 100%;
-    max-width: 720px;
+    max-width: 740px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
@@ -300,7 +505,7 @@
     border-radius: 6px;
     overflow-x: auto;
     font-size: 11px;
-    max-height: 240px;
+    max-height: 220px;
 }
 
 .warp-modal-footer {

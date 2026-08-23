@@ -8794,12 +8794,20 @@ if (!headers_sent()) {
 
         <!-- Bloque (>) de introducción de comandos y su ventana desplegable -->
         <div class="function-drawer-wrapper">
+            <!-- Segmentos de contexto Warp (Host, Dir, Git, PQC) -->
+            <div class="warp-prompt-segments">
+                <span class="warp-seg-badge host">hashcod@codespace</span>
+                <span class="warp-seg-badge">📁 ~/workspace</span>
+                <span class="warp-seg-badge git"> main</span>
+                <span class="warp-seg-badge pqc">🔒 Dilithium-5 (PQC)</span>
+                <span class="warp-seg-badge time" id="warpLiveClock">--:--:--</span>
+            </div>
             <div class="block-row block-prompt">
                 <div class="block-symbol clickable-symbol" id="symbolPrompt" onclick="toggleFunctionDrawer()" title="Haz clic en (>) para abrir/cerrar la ventana de funciones">
                     &gt;
                 </div>
                 <div class="block-body block-input-container">
-                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí y presiona Enter (ej: repos, clone langgenius/dify)..." autocomplete="off" onkeydown="handleCommandKey(event)">
+                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí (ej: repos, clone facebook/react, set_i code, workflows)..." autocomplete="off" onkeydown="handleCommandKey(event)">
                     <div class="cell-action-icon" title="Abrir / cerrar teclado" onclick="toggleVirtualKeyboard()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
                             <path fill="#5F6368" d="M 3 3 C 2.2045912 3 1.441211 3.3166015 0.87890625 3.8789062 C 0.31660152 4.441211 0 5.2045912 0 6 L 0 13 C 0 13.710451 0.26410916 14.386893 0.71875 14.925781 L 0.703125 14.925781 C 0.703125 14.925781 4.8273906 19.558172 6.4003906 21.326172 C 6.7823906 21.755172 7.3283437 22 7.9023438 22 L 20.011719 22 C 20.538719 22 21.044969 21.790969 21.417969 21.417969 C 21.790969 21.044969 22 20.538719 22 20.011719 L 22 13 L 22 6 C 22 5.2045912 21.683398 4.4412111 21.121094 3.8789062 C 20.558789 3.3166016 19.795409 3 19 3 L 3 3 z M 3 5 L 19 5 C 19.264591 5 19.519336 5.1052735 19.707031 5.2929688 C 19.894727 5.480664 20 5.7354088 20 6 L 20 13 C 20 13.264591 19.894727 13.519336 19.707031 13.707031 C 19.519336 13.894727 19.264591 14 19 14 L 3 14 C 2.7354088 14 2.480664 13.894727 2.2929688 13.707031 C 2.1052734 13.519336 2 13.264591 2 13 L 2 6 C 2 5.7354088 2.1052735 5.480664 2.2929688 5.2929688 C 2.4806639 5.1052735 2.7354088 5 3 5 z M 5 7 A 1 1 0 0 0 5 9 A 1 1 0 0 0 5 7 z M 8 7 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 7 z M 11 7 A 1 1 0 0 0 11 9 A 1 1 0 0 0 11 7 z M 14 7 A 1 1 0 0 0 14 9 A 1 1 0 0 0 14 7 z M 17 7 A 1 1 0 0 0 17 9 A 1 1 0 0 0 17 7 z M 5 10 A 1 1 0 0 0 5 12 A 1 1 0 0 0 5 10 z M 8 10 A 1.0001 1.0001 0 1 0 8 12 L 14 12 A 1.0001 1.0001 0 1 0 14 10 L 8 10 z M 17 10 A 1 1 0 0 0 17 12 A 1 1 0 0 0 17 10 z"/>
@@ -10124,14 +10132,27 @@ if (!headers_sent()) {
         function warpWrapOutput(innerHtml, isError, errorMsg) {
             const cmd = (latestExecutionData && latestExecutionData.executedCommand) || lastCommandText || '';
             const dur = (latestExecutionData && latestExecutionData.executionDuration) || 1;
+            if (cmd === 'clear') {
+                if (window.WarpBlocks && typeof window.WarpBlocks.clearAll === 'function') {
+                    window.WarpBlocks.clearAll();
+                    return '';
+                }
+            }
+            if (cmd === 'workflows') {
+                if (window.WarpBlocks && typeof window.WarpBlocks.openWorkflowsModal === 'function') {
+                    window.WarpBlocks.openWorkflowsModal();
+                }
+            }
             if (window.WarpBlocks && typeof window.WarpBlocks.createBlock === 'function') {
-                const block = window.WarpBlocks.createBlock(cmd, innerHtml, {
+                window.WarpBlocks.createBlock(cmd, innerHtml, {
                     duration: dur,
                     isError: !!isError,
                     error: errorMsg
                 });
-                return window.WarpBlocks.renderBlockHtml(block);
+                window.WarpBlocks.renderSessionFeed();
+                return '';
             }
+            executionContainer.innerHTML = innerHtml;
             return innerHtml;
         }
 
@@ -12752,6 +12773,13 @@ if (!headers_sent()) {
                 editorEq.addEventListener('focus', () => { activeInputTarget = editorEq; });
                 editorEq.addEventListener('click', () => { activeInputTarget = editorEq; });
             }
+
+            function updateWarpPromptClock() {
+                const el = document.getElementById('warpLiveClock');
+                if (el) el.textContent = new Date().toLocaleTimeString();
+            }
+            updateWarpPromptClock();
+            setInterval(updateWarpPromptClock, 1000);
         });
 
         function toggleVirtualKeyboard() {

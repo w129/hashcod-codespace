@@ -228,6 +228,22 @@ body[data-tabby-theme="tabby-light"] .tabby-chip.btn:hover {
     box-sizing: border-box;
 }
 
+/* Integración limpia y fluida dentro de la Celda 2 (=) */
+#executionContent,
+.block-execution .block-body {
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+#executionContent .tabby-terminal-container,
+.block-execution .tabby-terminal-container {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
+}
+
 /* Barra de Pestañas */
 .tabby-tab-bar {
     display: flex;

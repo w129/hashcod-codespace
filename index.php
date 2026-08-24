@@ -8471,7 +8471,7 @@ if (!headers_sent()) {
             border-radius: 0 0 6px 6px;
         }
     </style>
-    <script src="components/originkit/ui/blackhole-runtime.js"></script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 </head>
 <body class="boot-locked">
     <script>
@@ -17485,6 +17485,7 @@ if (!headers_sent()) {
                 body: JSON.stringify({ command: COMMAND })
             }).catch(function () { /* visual already running */ });
         })();
+    </script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/tabby-terminal.js?v=2026.2"></script>
 </body>

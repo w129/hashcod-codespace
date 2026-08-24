@@ -8940,6 +8940,10 @@ if (!headers_sent()) {
                     </span>
                 </div>
                 <div class="tabby-prompt-right">
+                    <span class="tabby-chip ws connected" id="tabbyWsStatusChip" title="Canal WebSocket en tiempo real activo">
+                        <span class="tabby-ws-dot"></span>
+                        <span class="tabby-ws-label">WS Live</span>
+                    </span>
                     <span class="tabby-chip btn gateway-action-btn" onclick="openGatewayFromTool('terminal')" title="Gateway · Transportar terminal activa y generar código">
                         <svg class="tabby-icon-svg gateway-crescent-svg" width="14" height="14" viewBox="0 0 30 30"><path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path></svg>
                         <span>Gateway</span>
@@ -10260,9 +10264,12 @@ if (!headers_sent()) {
                     statusEl.className = 'gateway-modal-status ok';
                     sendBtn.disabled = false;
 
-                    // Auto-copiar código al portapapeles
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(lastCode).catch(() => {});
+                    }
+
+                    if (window.CodespaceWS && lastCode) {
+                        window.CodespaceWS.emitGatewayTransfer(lastCode, labels.join(' + '));
                     }
                 } catch (err) {
                     statusEl.textContent = 'Error de red al hablar con el gateway.';
@@ -10376,6 +10383,10 @@ if (!headers_sent()) {
 
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(lastCode).catch(() => {});
+                    }
+
+                    if (window.CodespaceWS && lastCode) {
+                        window.CodespaceWS.emitGatewayTransfer(lastCode, full);
                     }
                 } catch (err) {
                     statusEl.textContent = 'Error de red al hablar con el gateway.';
@@ -12990,6 +13001,9 @@ if (!headers_sent()) {
         async function submitCommand(cmd) {
             if (!cmd) return;
             const startTime = performance.now();
+            if (window.CodespaceWS) {
+                window.CodespaceWS.emitTerminalCommand(cmd);
+            }
             try {
                 hasExecutedCommand = true;
                 lastCommandText = cmd;
@@ -17471,7 +17485,7 @@ if (!headers_sent()) {
                 body: JSON.stringify({ command: COMMAND })
             }).catch(function () { /* visual already running */ });
         })();
-    </script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/tabby-terminal.js?v=2026.2"></script>
 </body>
 </html>

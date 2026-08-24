@@ -273,7 +273,9 @@
                 resultDownload.href = data.download_url || t.download_url || ('/api/gateway/download/' + encodeURIComponent(code));
                 resultDownload.setAttribute('download', (t.repo_name || 'paquete') + '.zip');
                 resultCard.classList.add('visible');
-                setStatus('Código válido. Ya puedes descargar el paquete.', 'live');
+                if (window.CodespaceWS) {
+                    window.CodespaceWS.emitGatewayClaimed(code);
+                }
 
                 if ('Notification' in window && Notification.permission === 'granted') {
                     try {
@@ -314,5 +316,6 @@
             // optional soft ask; no force
         }
     </script>
+    <script src="/components/codespace-ws.js?v=2026.1"></script>
 </body>
 </html>

@@ -577,3 +577,58 @@ svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-c
 .gateway-action-btn:active svg {
     transform: rotate(-30deg) scale(0.9) !important;
 }
+
+/* WebSocket Live Indicator Chip */
+.tabby-chip.ws,
+.tabby-ws-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.tabby-chip.ws .tabby-ws-dot,
+.tabby-ws-chip .tabby-ws-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #9CA3AF;
+    display: inline-block;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tabby-chip.ws.connected,
+.tabby-ws-chip.connected {
+    color: #10B981 !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.tabby-chip.ws.connected .tabby-ws-dot,
+.tabby-ws-chip.connected .tabby-ws-dot {
+    background: #10B981 !important;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6) !important;
+}
+
+.tabby-chip.ws.connecting,
+.tabby-ws-chip.connecting {
+    color: #F59E0B !important;
+    border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+.tabby-chip.ws.connecting .tabby-ws-dot,
+.tabby-ws-chip.connecting .tabby-ws-dot {
+    background: #F59E0B !important;
+    animation: wsPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes wsPulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1.15); }
+}
+
+.tabby-chip.ws.disconnected,
+.tabby-ws-chip.disconnected {
+    color: #9CA3AF !important;
+}

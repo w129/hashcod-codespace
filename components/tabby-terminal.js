@@ -297,6 +297,45 @@
             }
         },
 
+        createBlock: function (cmd, outputHtml, meta) {
+            return this.addEntryToActiveTab(cmd, outputHtml, meta);
+        },
+
+        renderSessionFeed: function () {
+            return this.renderTabs();
+        },
+
+        startRunningEntry: function (cmd) {
+            this.ensureDefaultTab();
+            let active = this.tabs.find(t => t.id === this.activeTabId) || this.tabs[0];
+            
+            // Quitar cualquier entrada running previa
+            active.entries = active.entries.filter(e => !e.isRunning);
+
+            const entryId = 'entry_running_' + Date.now();
+            active.entries.push({
+                id: entryId,
+                command: cmd,
+                isRunning: true,
+                outputHtml: `
+                    <div style="display:flex; align-items:center; gap:8px; color:inherit; font-family:var(--tabby-font); font-size:12px; padding:6px 0;">
+                        <svg style="animation: spin 0.7s linear infinite; width:15px; height:15px; fill:currentColor; flex-shrink:0;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+                        <span>Procesando comando…</span>
+                    </div>
+                `,
+                duration: 'ejecutando…',
+                isError: false,
+                time: new Date().toLocaleTimeString()
+            });
+
+            this.renderTabs();
+            setTimeout(() => {
+                const log = document.querySelector('.tabby-session-log');
+                if (log) log.scrollTop = log.scrollHeight;
+            }, 30);
+            return entryId;
+        },
+
         addEntryToActiveTab: function (cmd, outputHtml, meta) {
             this.ensureDefaultTab();
             let active = this.tabs.find(t => t.id === this.activeTabId);
@@ -304,6 +343,9 @@
                 active = this.tabs[0];
                 this.activeTabId = active.id;
             }
+
+            // Quitar cualquier entrada running si existe
+            active.entries = active.entries.filter(e => !e.isRunning);
 
             const entryId = 'entry_' + Date.now();
             const dur = meta && meta.duration ? meta.duration + 'ms' : '1ms';
@@ -323,6 +365,11 @@
             }
 
             this.renderTabs();
+
+            setTimeout(() => {
+                const log = document.querySelector('.tabby-session-log');
+                if (log) log.scrollTop = log.scrollHeight;
+            }, 30);
         },
 
         renderTabs: function () {

@@ -9,8 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = is_string($uri) ? $uri : '/';
+$rawUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$rawUri = is_string($rawUri) ? $rawUri : '/';
+$uri = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $rawUri);
+if ($uri === '' || $uri === false) $uri = '/';
 
 // Raíz / app principal — HTML completo en view-source (index.php)
 if ($uri === '/' || $uri === '/index.php' || $uri === '/index.html') {

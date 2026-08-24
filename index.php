@@ -10407,12 +10407,15 @@ if (!headers_sent()) {
                 alert('Clave pública SSH copiada al portapapeles con éxito!');
             }).catch(err => {
                 console.error('Error al copiar:', err);
-            });
-        }
-
         function tabbyWrapOutput(innerHtml, isError, errorMsg) {
             const cmd = (latestExecutionData && latestExecutionData.executedCommand) || lastCommandText || '';
             const dur = (latestExecutionData && latestExecutionData.executionDuration) || 1;
+            
+            // Limpiar siempre el contenedor de ejecución temporal para eliminar el spinner
+            if (executionContainer) {
+                executionContainer.innerHTML = '';
+            }
+
             if (cmd === 'clear') {
                 if (window.TabbyTerminal && typeof window.TabbyTerminal.clearActiveTab === 'function') {
                     window.TabbyTerminal.clearActiveTab();
@@ -10433,7 +10436,9 @@ if (!headers_sent()) {
                 window.TabbyTerminal.renderSessionFeed();
                 return '';
             }
-            executionContainer.innerHTML = innerHtml;
+            if (executionContainer) {
+                executionContainer.innerHTML = innerHtml;
+            }
             return innerHtml;
         }
 
@@ -11026,6 +11031,25 @@ if (!headers_sent()) {
                 return '';
             }
         }
+
+        function apiUrl(path) {
+            if (!path) return '';
+            if (/^(https?:|\/\/)/i.test(path)) return path;
+            const base = (window.L8_BASE_PATH || '/').replace(/\/+$/, '');
+            const cleanPath = path.replace(/^\/+/, '');
+            return (base ? base : '') + '/' + cleanPath;
+        }
+
+        // Interceptor transparente para que cualquier llamada a /api/ resuelva a la ruta correcta
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = function(resource, init) {
+                if (typeof resource === 'string' && (resource.startsWith('/api/') || resource.startsWith('/gateway') || resource.startsWith('/cmd'))) {
+                    resource = apiUrl(resource);
+                }
+                return originalFetch.call(this, resource, init);
+            };
+        })();
 
         function authHeaders(extra) {
             const headers = Object.assign({ 'Content-Type': 'application/json' }, extra || {});
@@ -13007,31 +13031,46 @@ if (!headers_sent()) {
             try {
                 hasExecutedCommand = true;
                 lastCommandText = cmd;
-                const escCmd = String(cmd).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                executionContainer.innerHTML = `
-                    <div class="tabby-block status-running" style="width:100%;">
-                        <div class="tabby-block-header">
-                            <div class="tabby-block-header-left">
-                                <span class="tabby-prompt-pill">&gt;=</span>
-                                <span class="tabby-cmd-text">${escCmd}</span>
+                if (window.TabbyTerminal && typeof window.TabbyTerminal.startRunningEntry === 'function') {
+                    window.TabbyTerminal.startRunningEntry(cmd);
+                } else if (executionContainer) {
+                    const escCmd = String(cmd).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    executionContainer.innerHTML = `
+                        <div class="tabby-block status-running" style="width:100%;">
+                            <div class="tabby-block-header">
+                                <div class="tabby-block-header-left">
+                                    <span class="tabby-prompt-pill">&gt;=</span>
+                                    <span class="tabby-cmd-text">${escCmd}</span>
+                                </div>
+                                <div class="tabby-block-header-right">
+                                    <span class="tabby-meta-pill">⚡ ejecutando…</span>
+                                </div>
                             </div>
-                            <div class="tabby-block-header-right">
-                                <span class="tabby-meta-pill">⚡ ejecutando…</span>
+                            <div class="tabby-block-body" style="display:flex; align-items:center; gap:8px; color:#4B5563; font-family:'Geist Mono', monospace; font-size:12px;">
+                                <svg style="animation: spin 0.7s linear infinite; width:15px; height:15px; fill:#111827; flex-shrink:0;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+                                <span>Procesando comando…</span>
                             </div>
                         </div>
-                        <div class="tabby-block-body" style="display:flex; align-items:center; gap:8px; color:#4B5563; font-family:'Geist Mono', monospace; font-size:12px;">
-                            <svg style="animation: spin 0.7s linear infinite; width:15px; height:15px; fill:#111827; flex-shrink:0;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
-                            <span>Procesando comando…</span>
-                        </div>
-                    </div>
-                `;
-                const res = await fetch('/api/command', {
+                    `;
+                }
+                const res = await fetch(apiUrl('api/command'), {
                     method: 'POST',
                     headers: authHeaders(),
                     body: JSON.stringify({ command: cmd })
                 });
                 const duration = Math.max(1, Math.round(performance.now() - startTime));
-                const result = await res.json();
+                let result;
+                try {
+                    result = await res.json();
+                } catch (jsonErr) {
+                    const txt = await res.text();
+                    result = {
+                        isError: true,
+                        error: (txt && txt.length < 250) ? txt : `Error del servidor (HTTP ${res.status})`,
+                        executionDuration: duration,
+                        executedCommand: cmd
+                    };
+                }
                 if (result && result.tokens) applyTokensStatus(result.tokens);
                 result.executionDuration = duration;
                 result.executedCommand = cmd;
@@ -13041,7 +13080,7 @@ if (!headers_sent()) {
             } catch (e) {
                 console.error("Error al enviar comando:", e);
                 const duration = Math.max(1, Math.round(performance.now() - startTime));
-                latestExecutionData = { isError: true, error: "Error de red al ejecutar comando", executionDuration: duration, executedCommand: cmd };
+                latestExecutionData = { isError: true, error: "Error de red al ejecutar comando: " + (e.message || ''), executionDuration: duration, executedCommand: cmd };
                 render();
             }
         }

@@ -3610,7 +3610,10 @@ function gatewayResolveZipPath($item) {
     return null;
 }
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$rawUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$rawUri = is_string($rawUri) ? $rawUri : '/';
+$uri = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $rawUri);
+if ($uri === '' || $uri === false) $uri = '/';
 
 // Auth gate: registro / login / sesión (Dilithium-5 mensual solo vía env)
 require_once __DIR__ . '/auth.php';

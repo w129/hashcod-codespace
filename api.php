@@ -3182,16 +3182,10 @@ function gatewayPackRepoFolder($repoFolder, $code = null, $transferId = null) {
 
     $supabaseObject = null;
     if (gatewaySupabaseReady()) {
-        // ruta estable por código para poder recuperar desde cualquier instancia
         $object = $code ? gatewayPackObjectPath($code) : ('gateway/packs/' . $zipName);
         $up = @supabaseStorageUpload($object, $zipPath, 'application/zip', true);
         if (!empty($up['ok'])) {
             $supabaseObject = $object;
-        } else {
-            return [
-                'ok' => false,
-                'error' => 'No se pudo subir la carpeta a Supabase Storage: ' . ($up['error'] ?? 'error')
-            ];
         }
     }
 
@@ -3209,13 +3203,6 @@ function gatewayPackRepoFolder($repoFolder, $code = null, $transferId = null) {
 
 function gatewayShareRepo($repoTarget) {
     global $REPOS_DIR;
-
-    if (!gatewaySupabaseReady()) {
-        return [
-            'ok' => false,
-            'error' => 'Gateway requiere Supabase Storage para compartir entre dispositivos. Configura SUPABASE_URL / SUPABASE_SECRET_KEY en Render.'
-        ];
-    }
 
     $clean = trim((string)$repoTarget);
     if ($clean === '') {
@@ -3266,7 +3253,7 @@ function gatewayShareRepo($repoTarget) {
         'zip_name' => $pack['zip_name'],
         'size_formatted' => $pack['size_formatted'],
         'size_bytes' => $pack['size_bytes'],
-        'supabase_object' => $pack['supabase_object'],
+        'supabase_object' => $pack['supabase_object'] ?? null,
         'download_url' => '/api/gateway/download/' . rawurlencode($code),
         'platform' => $brand['name'],
         'platform_icon' => $brand['icon'],
@@ -3277,12 +3264,10 @@ function gatewayShareRepo($repoTarget) {
     ];
 
     gatewayCacheShareLocal($item);
-    $persist = gatewayPersistShareRemote($item);
-    if (empty($persist['ok'])) {
-        return [
-            'ok' => false,
-            'error' => $persist['error'] ?? 'No se pudo publicar el código en Supabase'
-        ];
+    $isRemote = false;
+    if (gatewaySupabaseReady()) {
+        $persist = @gatewayPersistShareRemote($item);
+        $isRemote = !empty($persist['ok']);
     }
 
     return [
@@ -3290,8 +3275,8 @@ function gatewayShareRepo($repoTarget) {
         'type' => 'GATEWAY_SHARE_RESULT',
         'code' => $code,
         'transfer' => $item,
-        'persisted' => true,
-        'message' => 'Código generado y guardado en la nube. En el otro dispositivo abre /gateway e ingresa ' . $code . '.'
+        'persisted' => $isRemote,
+        'message' => 'Código listo: ' . $code . '. Reclámalo en /gateway.'
     ];
 }
 
@@ -3332,12 +3317,6 @@ function gatewaySanitizeShareFolder($folder) {
 }
 
 function gatewaySharePlatformPayload(array $input) {
-    if (!gatewaySupabaseReady()) {
-        return [
-            'ok' => false,
-            'error' => 'Gateway requiere Supabase Storage para compartir entre dispositivos. Configura SUPABASE_URL / SUPABASE_SECRET_KEY en Render.'
-        ];
-    }
     if (!class_exists('ZipArchive')) {
         return ['ok' => false, 'error' => 'ZipArchive no disponible en el servidor'];
     }
@@ -3455,17 +3434,13 @@ function gatewaySharePlatformPayload(array $input) {
         return ['ok' => false, 'error' => 'El paquete quedó vacío o inválido'];
     }
 
-    $object = gatewayPackObjectPath($code);
-    $up = @supabaseStorageUpload($object, $zipPath, 'application/zip', true);
-    if (empty($up['ok'])) {
-        @unlink($zipPath);
-        $codes = gatewayReadJson($dirs['codes']);
-        unset($codes[$code]);
-        gatewayWriteJson($dirs['codes'], $codes);
-        return [
-            'ok' => false,
-            'error' => 'No se pudo subir el paquete a Supabase Storage: ' . ($up['error'] ?? 'error')
-        ];
+    $supabaseObject = null;
+    if (gatewaySupabaseReady()) {
+        $object = gatewayPackObjectPath($code);
+        $up = @supabaseStorageUpload($object, $zipPath, 'application/zip', true);
+        if (!empty($up['ok'])) {
+            $supabaseObject = $object;
+        }
     }
 
     $brand = gatewayPlatformBrand();
@@ -3478,7 +3453,7 @@ function gatewaySharePlatformPayload(array $input) {
         'zip_name' => $zipName,
         'size_formatted' => formatBytes($size),
         'size_bytes' => $size,
-        'supabase_object' => $object,
+        'supabase_object' => $supabaseObject,
         'download_url' => '/api/gateway/download/' . rawurlencode($code),
         'platform' => $brand['name'],
         'platform_icon' => $brand['icon'],
@@ -3492,12 +3467,10 @@ function gatewaySharePlatformPayload(array $input) {
     ];
 
     gatewayCacheShareLocal($item);
-    $persist = gatewayPersistShareRemote($item);
-    if (empty($persist['ok'])) {
-        return [
-            'ok' => false,
-            'error' => $persist['error'] ?? 'No se pudo publicar el código en Supabase'
-        ];
+    $isRemote = false;
+    if (gatewaySupabaseReady()) {
+        $persist = @gatewayPersistShareRemote($item);
+        $isRemote = !empty($persist['ok']);
     }
 
     return [
@@ -3505,7 +3478,7 @@ function gatewaySharePlatformPayload(array $input) {
         'type' => 'GATEWAY_SHARE_RESULT',
         'code' => $code,
         'transfer' => $item,
-        'persisted' => true,
+        'persisted' => $isRemote,
         'message' => 'Código generado. En el otro dispositivo abre /gateway e ingresa ' . $code . ' para obtener el paquete (' . implode(', ', $sources) . ').'
     ];
 }

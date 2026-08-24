@@ -10238,7 +10238,7 @@ if (!headers_sent()) {
                 statusEl.textContent = 'Empaquetando contenido de Hashcod codespace y generando código único…';
                 statusEl.className = 'gateway-modal-status';
                 try {
-                    const res = await fetch('/api/gateway/share', {
+                    const res = await fetch(apiUrl('api/gateway/share'), {
                         method: 'POST',
                         headers: authHeaders(),
                         body: JSON.stringify({
@@ -10248,7 +10248,13 @@ if (!headers_sent()) {
                             files: files
                         })
                     });
-                    const data = await res.json();
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (jsonErr) {
+                        const txt = await res.text();
+                        data = { ok: false, error: txt || `Error del servidor (HTTP ${res.status})` };
+                    }
                     if (!data.ok) {
                         statusEl.textContent = data.error || 'No se pudo enviar por el gateway.';
                         statusEl.className = 'gateway-modal-status err';
@@ -10272,7 +10278,7 @@ if (!headers_sent()) {
                         window.CodespaceWS.emitGatewayTransfer(lastCode, labels.join(' + '));
                     }
                 } catch (err) {
-                    statusEl.textContent = 'Error de red al hablar con el gateway.';
+                    statusEl.textContent = 'Error al comunicar con el gateway: ' + (err.message || 'Verifica la conexión');
                     statusEl.className = 'gateway-modal-status err';
                     sendBtn.disabled = false;
                 }
@@ -10357,12 +10363,18 @@ if (!headers_sent()) {
                 statusEl.textContent = 'Empaquetando carpeta y generando código único…';
                 statusEl.className = 'gateway-modal-status';
                 try {
-                    const res = await fetch('/api/gateway/share', {
+                    const res = await fetch(apiUrl('api/gateway/share'), {
                         method: 'POST',
                         headers: authHeaders(),
                         body: JSON.stringify({ repo: full })
                     });
-                    const data = await res.json();
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (jsonErr) {
+                        const txt = await res.text();
+                        data = { ok: false, error: txt || `Error del servidor (HTTP ${res.status})` };
+                    }
                     if (!data.ok) {
                         statusEl.textContent = data.error || 'No se pudo compartir el repositorio.';
                         statusEl.className = 'gateway-modal-status err';
@@ -10377,7 +10389,7 @@ if (!headers_sent()) {
                     codeBox.classList.add('visible');
                     copyBtn.style.display = 'inline-block';
                     sendBtn.textContent = 'Generar otro código';
-                    statusEl.textContent = data.message || ('Código listo en la nube: ' + lastCode + '. Úsalo en /gateway desde cualquier dispositivo.');
+                    statusEl.textContent = data.message || ('Código listo: ' + lastCode + '. Úsalo en /gateway desde cualquier dispositivo.');
                     statusEl.className = 'gateway-modal-status ok';
                     sendBtn.disabled = false;
 
@@ -10389,7 +10401,7 @@ if (!headers_sent()) {
                         window.CodespaceWS.emitGatewayTransfer(lastCode, full);
                     }
                 } catch (err) {
-                    statusEl.textContent = 'Error de red al hablar con el gateway.';
+                    statusEl.textContent = 'Error al comunicar con el gateway: ' + (err.message || 'Verifica la conexión');
                     statusEl.className = 'gateway-modal-status err';
                     sendBtn.disabled = false;
                 }

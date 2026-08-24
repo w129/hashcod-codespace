@@ -3934,14 +3934,15 @@ if (!headers_sent()) {
             flex-grow: 0;
         }
 
-        /* bottom-input-bar (Celda Prompt Blanca con elementos y texto en Negro) */
+        /* bottom-input-bar (Barra de Herramientas Inferior Blanca con Iconos al inicio) */
         .block-row.block-prompt {
             box-sizing: border-box;
             display: flex;
             flex-direction: row;
             align-items: center;
-            padding: 0px 16px;
-            gap: 12px;
+            justify-content: flex-start;
+            padding: 0px 14px;
+            gap: 10px;
             width: 100%;
             max-width: 1200px;
             height: 48px;
@@ -3957,27 +3958,27 @@ if (!headers_sent()) {
             order: 0;
             flex-grow: 0;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+            overflow-x: auto;
+            scrollbar-width: thin;
         }
 
         /* prompt-symbol en Negro */
         .block-prompt .block-symbol {
-            width: 14px;
-            min-width: 14px;
-            height: 22px;
+            width: 18px;
+            min-width: 18px;
+            height: 24px;
             font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
             font-style: normal;
             font-weight: 800;
-            font-size: 17px;
-            line-height: 22px;
+            font-size: 18px;
+            line-height: 24px;
             color: #000000 !important;
             background: transparent;
             border: none;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            flex: none;
-            order: 0;
-            flex-grow: 0;
+            flex-shrink: 0;
             user-select: none;
             cursor: pointer;
             padding: 0;
@@ -3990,96 +3991,56 @@ if (!headers_sent()) {
             transform: scale(1.15);
         }
 
-        .block-prompt .block-body.block-input-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 0;
-            background: transparent;
-            border: none;
-            order: 1;
-            flex-grow: 1;
-        }
-
-        /* placeholder-text / cmd-input (Texto Negro, cursor negro) */
-        .cmd-input {
-            width: 100%;
-            max-width: 1104px;
-            height: 30px;
-            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
-            font-style: normal;
-            font-weight: 500;
-            font-size: 13.5px;
-            line-height: 18px;
-            color: #000000 !important;
-            caret-color: #000000 !important;
-            background: transparent;
-            border: none;
-            outline: none;
-            padding: 0;
-            margin: 0;
-            flex: none;
-            order: 1;
-            flex-grow: 1;
-        }
-
-        .cmd-input::placeholder {
-            color: #64748b !important;
-            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
-            font-style: normal;
-            font-weight: 400;
-            font-size: 13px;
-            line-height: 17px;
-        }
-
-        /* Grupo de botones de accion en la celda blanca */
-        .prompt-action-buttons {
+        /* Contenedor de herramientas organizadas desde el inicio de la celda */
+        .block-prompt .prompt-tools-container {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-            order: 2;
+            justify-content: flex-start;
+            gap: 8px;
+            flex: 1;
+            overflow-x: auto;
+            padding: 2px 0;
         }
 
-        /* Botones de iconos interactivos en negro/escala oscura */
+        /* Botones de herramientas con icono interactivo */
         .cell-action-icon {
             box-sizing: border-box;
             display: inline-flex;
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 4px;
-            width: 30px;
-            height: 30px;
-            min-width: 30px;
-            min-height: 30px;
+            padding: 5px;
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            min-height: 32px;
             background: #f8fafc;
             border-radius: 6px;
             cursor: pointer;
             border: 1px solid #cbd5e1;
-            flex: none;
+            flex-shrink: 0;
             color: #0f172a;
-            transition: all 0.15s ease;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
         }
 
         .cell-action-icon:hover {
-            background: #e2e8f0;
-            border-color: #000000;
+            background: #f1f5f9;
+            border-color: #0f172a;
             transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
         }
 
         .cell-action-icon:active {
             transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
         }
 
         .cell-action-icon svg {
-            width: 17px;
-            height: 17px;
+            width: 18px;
+            height: 18px;
             display: block;
-            flex: none;
+            flex-shrink: 0;
             color: #000000;
         }
 
@@ -9097,106 +9058,104 @@ if (!headers_sent()) {
                 <div class="block-symbol clickable-symbol" id="symbolPrompt" onclick="toggleFunctionDrawer()" title="Haz clic en (>) para abrir/cerrar la ventana de funciones">
                     &gt;
                 </div>
-                <div class="block-body block-input-container">
-                    <input type="text" class="cmd-input" id="cmdInput" onkeydown="if(event.key==='Enter'){triggerCommandSubmit();}" placeholder="Escribe un comando o función (ej: status, repos, clone, set_i code, upload, prs-code)..." autocomplete="off" spellcheck="false">
-                    <div class="prompt-action-buttons">
-                        <button type="button" class="cell-action-icon" id="btnPromptGit" title="Repositorios GitHub / Catálogo Git" onclick="if(window.submitCommand){submitCommand('repos');}else{triggerPromptCommand('repos');}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256">
-                                <defs>
-                                    <linearGradient x1="6" y1="6" x2="18" y2="18" gradientUnits="userSpaceOnUse" id="color-1_GigM2VYBlCsx_gr1">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
-                                        <stop offset="1" stop-color="#000000" stop-opacity="0.45"></stop>
-                                    </linearGradient>
-                                    <linearGradient x1="1.172" y1="12" x2="22.828" y2="12" gradientUnits="userSpaceOnUse" id="color-2_GigM2VYBlCsx_gr2">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
-                                        <stop offset="0.493" stop-color="#000000" stop-opacity="0.2"></stop>
-                                        <stop offset="0.997" stop-color="#000000" stop-opacity="0.45"></stop>
-                                    </linearGradient>
-                                    <linearGradient x1="6" y1="6" x2="18" y2="18" gradientUnits="userSpaceOnUse" id="color-3_GigM2VYBlCsx_gr3">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.9"></stop>
-                                        <stop offset="1" stop-color="#000000" stop-opacity="0.55"></stop>
-                                    </linearGradient>
-                                </defs>
-                                <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" style="mix-blend-mode: normal">
-                                    <g transform="scale(10.66667,10.66667)">
-                                        <path d="M22,10l-8,-8c-1.105,-1.105 -2.895,-1.105 -4,0l-8,8c-1.105,1.105 -1.105,2.895 0,4l8,8c1.105,1.104 2.895,1.104 4,0l8,-8c1.105,-1.105 1.105,-2.895 0,-4z" fill="url(#color-1_GigM2VYBlCsx_gr1)"></path>
-                                        <path d="M12,1.672c0.622,0 1.207,0.242 1.646,0.682l8,8c0.44,0.44 0.682,1.024 0.682,1.646c0,0.622 -0.242,1.207 -0.682,1.646l-8,8c-0.44,0.44 -1.024,0.682 -1.646,0.682c-0.622,0 -1.207,-0.242 -1.646,-0.682l-8,-8c-0.908,-0.908 -0.908,-2.385 0,-3.293l8,-8c0.439,-0.439 1.024,-0.681 1.646,-0.681M12,1.172c-0.724,0 -1.448,0.276 -2,0.828l-8,8c-1.105,1.105 -1.105,2.895 0,4l8,8c0.552,0.552 1.276,0.828 2,0.828c0.724,0 1.448,-0.276 2,-0.828l8,-8c1.105,-1.105 1.105,-2.895 0,-4l-8,-8c-0.552,-0.552 -1.276,-0.828 -2,-0.828z" fill="url(#color-2_GigM2VYBlCsx_gr2)"></path>
-                                        <g fill="url(#color-3_GigM2VYBlCsx_gr3)">
-                                            <path d="M21,9l-4,-4l-5.293,5.293l-5,-5l-0.707,0.707l-0.707,0.707l-3.293,3.293c-1.105,1.105 -1.105,2.895 0,4l3,3l5.293,-5.293l7,7l1.414,-1.414l-3,-3z"></path>
-                                        </g>
+                <div class="prompt-tools-container" id="promptToolsContainer">
+                    <button type="button" class="cell-action-icon" id="btnPromptGit" title="Repositorios GitHub / Catálogo Git" onclick="if(window.submitCommand){submitCommand('repos');}else{triggerPromptCommand('repos');}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256">
+                            <defs>
+                                <linearGradient x1="6" y1="6" x2="18" y2="18" gradientUnits="userSpaceOnUse" id="color-1_GigM2VYBlCsx_gr1">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
+                                    <stop offset="1" stop-color="#000000" stop-opacity="0.45"></stop>
+                                </linearGradient>
+                                <linearGradient x1="1.172" y1="12" x2="22.828" y2="12" gradientUnits="userSpaceOnUse" id="color-2_GigM2VYBlCsx_gr2">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
+                                    <stop offset="0.493" stop-color="#000000" stop-opacity="0.2"></stop>
+                                    <stop offset="0.997" stop-color="#000000" stop-opacity="0.45"></stop>
+                                </linearGradient>
+                                <linearGradient x1="6" y1="6" x2="18" y2="18" gradientUnits="userSpaceOnUse" id="color-3_GigM2VYBlCsx_gr3">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.9"></stop>
+                                    <stop offset="1" stop-color="#000000" stop-opacity="0.55"></stop>
+                                </linearGradient>
+                            </defs>
+                            <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" style="mix-blend-mode: normal">
+                                <g transform="scale(10.66667,10.66667)">
+                                    <path d="M22,10l-8,-8c-1.105,-1.105 -2.895,-1.105 -4,0l-8,8c-1.105,1.105 -1.105,2.895 0,4l8,8c1.105,1.104 2.895,1.104 4,0l8,-8c1.105,-1.105 1.105,-2.895 0,-4z" fill="url(#color-1_GigM2VYBlCsx_gr1)"></path>
+                                    <path d="M12,1.672c0.622,0 1.207,0.242 1.646,0.682l8,8c0.44,0.44 0.682,1.024 0.682,1.646c0,0.622 -0.242,1.207 -0.682,1.646l-8,8c-0.44,0.44 -1.024,0.682 -1.646,0.682c-0.622,0 -1.207,-0.242 -1.646,-0.682l-8,-8c-0.908,-0.908 -0.908,-2.385 0,-3.293l8,-8c0.439,-0.439 1.024,-0.681 1.646,-0.681M12,1.172c-0.724,0 -1.448,0.276 -2,0.828l-8,8c-1.105,1.105 -1.105,2.895 0,4l8,8c0.552,0.552 1.276,0.828 2,0.828c0.724,0 1.448,-0.276 2,-0.828l8,-8c1.105,-1.105 1.105,-2.895 0,-4l-8,-8c-0.552,-0.552 -1.276,-0.828 -2,-0.828z" fill="url(#color-2_GigM2VYBlCsx_gr2)"></path>
+                                    <g fill="url(#color-3_GigM2VYBlCsx_gr3)">
+                                        <path d="M21,9l-4,-4l-5.293,5.293l-5,-5l-0.707,0.707l-0.707,0.707l-3.293,3.293c-1.105,1.105 -1.105,2.895 0,4l3,3l5.293,-5.293l7,7l1.414,-1.414l-3,-3z"></path>
                                     </g>
                                 </g>
-                            </svg>
-                        </button>
-                        <button type="button" class="cell-action-icon" id="btnPromptTerminal" title="Consola / Ventana de Funciones" onclick="toggleFunctionDrawer()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256">
-                                <defs>
-                                    <linearGradient x1="5.378" y1="5.378" x2="20.122" y2="20.122" gradientUnits="userSpaceOnUse" id="color-1_9UoOuyS4mj4P_gr1">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
-                                        <stop offset="1" stop-color="#000000" stop-opacity="0.45"></stop>
-                                    </linearGradient>
-                                    <linearGradient x1="5.378" y1="5.378" x2="20.122" y2="20.122" gradientUnits="userSpaceOnUse" id="color-2_9UoOuyS4mj4P_gr2">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
-                                        <stop offset="0.493" stop-color="#000000" stop-opacity="0.2"></stop>
-                                        <stop offset="0.997" stop-color="#000000" stop-opacity="0.45"></stop>
-                                    </linearGradient>
-                                    <linearGradient x1="5.799" y1="13.958" x2="15.42" y2="23.58" gradientUnits="userSpaceOnUse" id="color-3_9UoOuyS4mj4P_gr3">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.95"></stop>
-                                        <stop offset="0.519" stop-color="#000000" stop-opacity="0.65"></stop>
-                                        <stop offset="1" stop-color="#000000" stop-opacity="0.8"></stop>
-                                    </linearGradient>
-                                </defs>
-                                <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" style="mix-blend-mode: normal">
-                                    <g transform="scale(10.66667,10.66667)">
-                                        <path d="M21,6v12c0,1.66 -1.34,3 -3,3h-12c-1.66,0 -3,-1.34 -3,-3c0,-1.66 1.34,-3 3,-3v-9c0,-1.66 1.34,-3 3,-3h9c1.66,0 3,1.34 3,3z" fill="url(#color-1_9UoOuyS4mj4P_gr1)"></path>
-                                        <path d="M18,3.5c1.379,0 2.5,1.121 2.5,2.5v12c0,1.379 -1.121,2.5 -2.5,2.5h-12c-1.379,0 -2.5,-1.121 -2.5,-2.5c0,-1.379 1.121,-2.5 2.5,-2.5h0.5v-0.5v-9c0,-1.379 1.121,-2.5 2.5,-2.5h9M18,3h-9c-1.66,0 -3,1.34 -3,3v9c-1.66,0 -3,1.34 -3,3c0,1.66 1.34,3 3,3h12c1.66,0 3,-1.34 3,-3v-12c0,-1.66 -1.34,-3 -3,-3z" fill="url(#color-2_9UoOuyS4mj4P_gr2)"></path>
-                                        <path d="M15,18c0,-0.552 0.149,-1.07 0.41,-1.514c0.385,-0.659 -0.154,-1.486 -0.917,-1.486h-8.493c-1.657,0 -3,1.343 -3,3c0,1.657 1.343,3 3,3h12c-1.657,0 -3,-1.343 -3,-3z" fill="url(#color-3_9UoOuyS4mj4P_gr3)"></path>
-                                    </g>
+                            </g>
+                        </svg>
+                    </button>
+                    <button type="button" class="cell-action-icon" id="btnPromptTerminal" title="Consola / Ventana de Funciones" onclick="toggleFunctionDrawer()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256">
+                            <defs>
+                                <linearGradient x1="5.378" y1="5.378" x2="20.122" y2="20.122" gradientUnits="userSpaceOnUse" id="color-1_9UoOuyS4mj4P_gr1">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
+                                    <stop offset="1" stop-color="#000000" stop-opacity="0.45"></stop>
+                                </linearGradient>
+                                <linearGradient x1="5.378" y1="5.378" x2="20.122" y2="20.122" gradientUnits="userSpaceOnUse" id="color-2_9UoOuyS4mj4P_gr2">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
+                                    <stop offset="0.493" stop-color="#000000" stop-opacity="0.2"></stop>
+                                    <stop offset="0.997" stop-color="#000000" stop-opacity="0.45"></stop>
+                                </linearGradient>
+                                <linearGradient x1="5.799" y1="13.958" x2="15.42" y2="23.58" gradientUnits="userSpaceOnUse" id="color-3_9UoOuyS4mj4P_gr3">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.95"></stop>
+                                    <stop offset="0.519" stop-color="#000000" stop-opacity="0.65"></stop>
+                                    <stop offset="1" stop-color="#000000" stop-opacity="0.8"></stop>
+                                </linearGradient>
+                            </defs>
+                            <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" style="mix-blend-mode: normal">
+                                <g transform="scale(10.66667,10.66667)">
+                                    <path d="M21,6v12c0,1.66 -1.34,3 -3,3h-12c-1.66,0 -3,-1.34 -3,-3c0,-1.66 1.34,-3 3,-3v-9c0,-1.66 1.34,-3 3,-3h9c1.66,0 3,1.34 3,3z" fill="url(#color-1_9UoOuyS4mj4P_gr1)"></path>
+                                    <path d="M18,3.5c1.379,0 2.5,1.121 2.5,2.5v12c0,1.379 -1.121,2.5 -2.5,2.5h-12c-1.379,0 -2.5,-1.121 -2.5,-2.5c0,-1.379 1.121,-2.5 2.5,-2.5h0.5v-0.5v-9c0,-1.379 1.121,-2.5 2.5,-2.5h9M18,3h-9c-1.66,0 -3,1.34 -3,3v9c-1.66,0 -3,1.34 -3,3c0,1.66 1.34,3 3,3h12c1.66,0 3,-1.34 3,-3v-12c0,-1.66 -1.34,-3 -3,-3z" fill="url(#color-2_9UoOuyS4mj4P_gr2)"></path>
+                                    <path d="M15,18c0,-0.552 0.149,-1.07 0.41,-1.514c0.385,-0.659 -0.154,-1.486 -0.917,-1.486h-8.493c-1.657,0 -3,1.343 -3,3c0,1.657 1.343,3 3,3h12c-1.657,0 -3,-1.343 -3,-3z" fill="url(#color-3_9UoOuyS4mj4P_gr3)"></path>
                                 </g>
-                            </svg>
-                        </button>
-                        <button type="button" class="cell-action-icon" id="btnPromptCloud" title="Gateway Nube / Sincronización Supabase" onclick="openGatewayFromTool('terminal')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256">
-                                <defs>
-                                    <linearGradient x1="4.697" y1="6.993" x2="19.095" y2="21.391" gradientUnits="userSpaceOnUse" id="color-1_5ntmfjtxICKt_gr1">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
-                                        <stop offset="1" stop-color="#000000" stop-opacity="0.45"></stop>
-                                    </linearGradient>
-                                    <linearGradient x1="4.697" y1="6.993" x2="19.095" y2="21.391" gradientUnits="userSpaceOnUse" id="color-2_5ntmfjtxICKt_gr2">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
-                                        <stop offset="0.493" stop-color="#000000" stop-opacity="0.2"></stop>
-                                        <stop offset="0.997" stop-color="#000000" stop-opacity="0.45"></stop>
-                                    </linearGradient>
-                                    <linearGradient x1="8.172" y1="8.172" x2="16.561" y2="16.561" gradientUnits="userSpaceOnUse" id="color-3_5ntmfjtxICKt_gr3">
-                                        <stop offset="0" stop-color="#000000" stop-opacity="0.95"></stop>
-                                        <stop offset="0.519" stop-color="#000000" stop-opacity="0.65"></stop>
-                                        <stop offset="1" stop-color="#000000" stop-opacity="0.8"></stop>
-                                    </linearGradient>
-                                </defs>
-                                <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" style="mix-blend-mode: normal">
-                                    <g transform="scale(10.66667,10.66667)">
-                                        <path d="M19.483,8.192c-1.138,-3.031 -4.054,-5.192 -7.483,-5.192c-4.112,0 -7.496,3.104 -7.945,7.095c-2.309,0.443 -4.055,2.467 -4.055,4.905c0,2.761 2.239,5 5,5h13c3.314,0 6,-2.686 6,-6c0,-2.801 -1.922,-5.146 -4.517,-5.808z" fill="url(#color-1_5ntmfjtxICKt_gr1)"></path>
-                                        <path d="M12,3.5c3.103,0 5.922,1.956 7.015,4.868l0.092,0.244l0.253,0.064c2.438,0.621 4.14,2.81 4.14,5.323c0,3.033 -2.467,5.5 -5.5,5.5h-13c-2.481,0 -4.5,-2.019 -4.5,-4.5c0,-2.152 1.535,-4.008 3.649,-4.414l0.361,-0.069l0.041,-0.366c0.428,-3.791 3.63,-6.65 7.449,-6.65M12,3c-4.112,0 -7.496,3.104 -7.945,7.095c-2.309,0.443 -4.055,2.467 -4.055,4.905c0,2.761 2.239,5 5,5h13c3.314,0 6,-2.686 6,-6c0,-2.801 -1.922,-5.146 -4.517,-5.808c-1.138,-3.031 -4.054,-5.192 -7.483,-5.192z" fill="url(#color-2_5ntmfjtxICKt_gr2)"></path>
-                                        <path d="M16.561,14.44l-1.878,-1.878c0.204,-0.48 0.317,-1.008 0.317,-1.562c0,-2.209 -1.791,-4 -4,-4c-2.209,0 -4,1.791 -4,4c0,2.209 1.791,4 4,4c0.554,0 1.082,-0.113 1.562,-0.317l1.878,1.878c0.292,0.293 0.676,0.439 1.06,0.439c0.384,0 0.768,-0.146 1.061,-0.439c0.586,-0.586 0.586,-1.536 0,-2.121zM9,11c0,-1.105 0.895,-2 2,-2c1.105,0 2,0.895 2,2c0,1.105 -0.895,2 -2,2c-1.105,0 -2,-0.895 -2,-2z" fill="url(#color-3_5ntmfjtxICKt_gr3)"></path>
-                                    </g>
+                            </g>
+                        </svg>
+                    </button>
+                    <button type="button" class="cell-action-icon" id="btnPromptCloud" title="Gateway Nube / Sincronización Supabase" onclick="openGatewayFromTool('terminal')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256">
+                            <defs>
+                                <linearGradient x1="4.697" y1="6.993" x2="19.095" y2="21.391" gradientUnits="userSpaceOnUse" id="color-1_5ntmfjtxICKt_gr1">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
+                                    <stop offset="1" stop-color="#000000" stop-opacity="0.45"></stop>
+                                </linearGradient>
+                                <linearGradient x1="4.697" y1="6.993" x2="19.095" y2="21.391" gradientUnits="userSpaceOnUse" id="color-2_5ntmfjtxICKt_gr2">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.85"></stop>
+                                    <stop offset="0.493" stop-color="#000000" stop-opacity="0.2"></stop>
+                                    <stop offset="0.997" stop-color="#000000" stop-opacity="0.45"></stop>
+                                </linearGradient>
+                                <linearGradient x1="8.172" y1="8.172" x2="16.561" y2="16.561" gradientUnits="userSpaceOnUse" id="color-3_5ntmfjtxICKt_gr3">
+                                    <stop offset="0" stop-color="#000000" stop-opacity="0.95"></stop>
+                                    <stop offset="0.519" stop-color="#000000" stop-opacity="0.65"></stop>
+                                    <stop offset="1" stop-color="#000000" stop-opacity="0.8"></stop>
+                                </linearGradient>
+                            </defs>
+                            <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" style="mix-blend-mode: normal">
+                                <g transform="scale(10.66667,10.66667)">
+                                    <path d="M19.483,8.192c-1.138,-3.031 -4.054,-5.192 -7.483,-5.192c-4.112,0 -7.496,3.104 -7.945,7.095c-2.309,0.443 -4.055,2.467 -4.055,4.905c0,2.761 2.239,5 5,5h13c3.314,0 6,-2.686 6,-6c0,-2.801 -1.922,-5.146 -4.517,-5.808z" fill="url(#color-1_5ntmfjtxICKt_gr1)"></path>
+                                    <path d="M12,3.5c3.103,0 5.922,1.956 7.015,4.868l0.092,0.244l0.253,0.064c2.438,0.621 4.14,2.81 4.14,5.323c0,3.033 -2.467,5.5 -5.5,5.5h-13c-2.481,0 -4.5,-2.019 -4.5,-4.5c0,-2.152 1.535,-4.008 3.649,-4.414l0.361,-0.069l0.041,-0.366c0.428,-3.791 3.63,-6.65 7.449,-6.65M12,3c-4.112,0 -7.496,3.104 -7.945,7.095c-2.309,0.443 -4.055,2.467 -4.055,4.905c0,2.761 2.239,5 5,5h13c3.314,0 6,-2.686 6,-6c0,-2.801 -1.922,-5.146 -4.517,-5.808c-1.138,-3.031 -4.054,-5.192 -7.483,-5.192z" fill="url(#color-2_5ntmfjtxICKt_gr2)"></path>
+                                    <path d="M16.561,14.44l-1.878,-1.878c0.204,-0.48 0.317,-1.008 0.317,-1.562c0,-2.209 -1.791,-4 -4,-4c-2.209,0 -4,1.791 -4,4c0,2.209 1.791,4 4,4c0.554,0 1.082,-0.113 1.562,-0.317l1.878,1.878c0.292,0.293 0.676,0.439 1.06,0.439c0.384,0 0.768,-0.146 1.061,-0.439c0.586,-0.586 0.586,-1.536 0,-2.121zM9,11c0,-1.105 0.895,-2 2,-2c1.105,0 2,0.895 2,2c0,1.105 -0.895,2 -2,2c-1.105,0 -2,-0.895 -2,-2z" fill="url(#color-3_5ntmfjtxICKt_gr3)"></path>
                                 </g>
-                            </svg>
-                        </button>
-                        <button type="button" class="cell-action-icon" id="btnVirtualKeyboard" role="button" tabindex="0" title="Abrir / cerrar teclado virtual" onclick="toggleVirtualKeyboard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVirtualKeyboard();}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <rect x="2" y="4" width="20" height="16" rx="2.5"></rect>
-                                <line x1="6" y1="8" x2="6.01" y2="8" stroke-width="2.2"></line>
-                                <line x1="10" y1="8" x2="10.01" y2="8" stroke-width="2.2"></line>
-                                <line x1="14" y1="8" x2="14.01" y2="8" stroke-width="2.2"></line>
-                                <line x1="18" y1="8" x2="18.01" y2="8" stroke-width="2.2"></line>
-                                <line x1="6" y1="12" x2="6.01" y2="12" stroke-width="2.2"></line>
-                                <line x1="10" y1="12" x2="10.01" y2="12" stroke-width="2.2"></line>
-                                <line x1="14" y1="12" x2="14.01" y2="12" stroke-width="2.2"></line>
-                                <line x1="18" y1="12" x2="18.01" y2="12" stroke-width="2.2"></line>
-                                <line x1="7" y1="16" x2="17" y2="16"></line>
-                            </svg>
-                        </button>
-                    </div>
+                            </g>
+                        </svg>
+                    </button>
+                    <button type="button" class="cell-action-icon" id="btnVirtualKeyboard" role="button" tabindex="0" title="Abrir / cerrar teclado virtual" onclick="toggleVirtualKeyboard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVirtualKeyboard();}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="2" y="4" width="20" height="16" rx="2.5"></rect>
+                            <line x1="6" y1="8" x2="6.01" y2="8" stroke-width="2.2"></line>
+                            <line x1="10" y1="8" x2="10.01" y2="8" stroke-width="2.2"></line>
+                            <line x1="14" y1="8" x2="14.01" y2="8" stroke-width="2.2"></line>
+                            <line x1="18" y1="8" x2="18.01" y2="8" stroke-width="2.2"></line>
+                            <line x1="6" y1="12" x2="6.01" y2="12" stroke-width="2.2"></line>
+                            <line x1="10" y1="12" x2="10.01" y2="12" stroke-width="2.2"></line>
+                            <line x1="14" y1="12" x2="14.01" y2="12" stroke-width="2.2"></line>
+                            <line x1="18" y1="12" x2="18.01" y2="12" stroke-width="2.2"></line>
+                            <line x1="7" y1="16" x2="17" y2="16"></line>
+                        </svg>
+                    </button>
+                    <input type="hidden" id="cmdInput" value="">
                 </div>
             </div>
 

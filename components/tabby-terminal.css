@@ -87,7 +87,7 @@ svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-c
     border: 1px solid #dcdad5;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: none;
     font-family: var(--tabby-font);
     font-size: 11.5px;
     user-select: none;

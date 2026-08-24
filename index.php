@@ -3934,7 +3934,7 @@ if (!headers_sent()) {
             flex-grow: 0;
         }
 
-        /* bottom-input-bar (Celda Shell Blanca) */
+        /* bottom-input-bar (Celda Shell Negra con texto blanco segun imagen) */
         .block-row.block-prompt {
             box-sizing: border-box;
             display: flex;
@@ -3946,8 +3946,8 @@ if (!headers_sent()) {
             max-width: 1200px;
             height: 46px;
             min-height: 46px;
-            background: #ffffff;
-            border: 1px solid #dcdad5;
+            background: #090a0f;
+            border: 1px solid #1e293b;
             border-top: none;
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
@@ -3956,7 +3956,7 @@ if (!headers_sent()) {
             flex: none;
             order: 0;
             flex-grow: 0;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
         }
 
         /* prompt-symbol */
@@ -3969,7 +3969,7 @@ if (!headers_sent()) {
             font-weight: 700;
             font-size: 16px;
             line-height: 21px;
-            color: #2563eb;
+            color: #38bdf8;
             background: transparent;
             border: none;
             display: flex;
@@ -3986,7 +3986,7 @@ if (!headers_sent()) {
         }
 
         .block-prompt .block-symbol:hover {
-            color: #1d4ed8;
+            color: #60a5fa;
             transform: scale(1.15);
         }
 
@@ -4013,8 +4013,8 @@ if (!headers_sent()) {
             font-weight: 500;
             font-size: 13.5px;
             line-height: 18px;
-            color: #0f172a !important;
-            caret-color: #2563eb;
+            color: #ffffff !important;
+            caret-color: #38bdf8;
             background: transparent;
             border: none;
             outline: none;
@@ -4026,7 +4026,7 @@ if (!headers_sent()) {
         }
 
         .cmd-input::placeholder {
-            color: #94a3b8;
+            color: #64748b;
             font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
             font-style: normal;
             font-weight: 400;
@@ -4046,7 +4046,7 @@ if (!headers_sent()) {
             height: 30px;
             min-width: 30px;
             min-height: 30px;
-            background: #f1f5f9;
+            background: #ffffff;
             border-radius: 6px;
             cursor: pointer;
             border: 1px solid #cbd5e1;
@@ -4057,8 +4057,8 @@ if (!headers_sent()) {
         }
 
         .cell-action-icon:hover {
-            background: #e2e8f0;
-            border-color: #2563eb;
+            background: #f1f5f9;
+            border-color: #38bdf8;
             transform: scale(1.05);
         }
 
@@ -4070,7 +4070,7 @@ if (!headers_sent()) {
             flex: none;
             order: 0;
             flex-grow: 0;
-            color: #475569;
+            color: #1e293b;
         }
 
         /* ==========================================================================
@@ -7107,15 +7107,50 @@ if (!headers_sent()) {
 
         .ssh-card-container {
             width: 100%;
-            background: #faf9f6;
-            border: 1px solid #e6e3dd;
-            border-radius: 10px;
-            padding: 16px;
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-            font-family: 'IBM Plex Mono', monospace;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            font-family: 'IBM Plex Mono', 'Geist Mono', monospace;
+            color: #1e293b !important;
+            box-sizing: border-box;
+            text-align: left;
+        }
+
+        .ssh-card-container strong,
+        .ssh-card-container h3,
+        .ssh-card-container h4 {
+            color: #0f172a !important;
+        }
+
+        .ssh-card-container p {
+            color: #334155 !important;
+        }
+
+        .ssh-card-container code {
+            color: #0f172a !important;
+            background: #f1f5f9 !important;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            font-weight: 500;
+        }
+
+        .ssh-card-container div {
+            color: #334155 !important;
+        }
+
+        .ssh-card-container .metric-badge-black {
+            color: #ffffff !important;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            letter-spacing: 0.04em;
         }
 
         .ssh-key-box {
@@ -10767,10 +10802,10 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                            <strong style="font-size:13px; color:#ffffff;">🤖 ${dataToDisplay.product || 'Claude Code'} — Engineering Assistant</strong>
+                            <strong style="font-size:13.5px; color:#111827;">🤖 ${dataToDisplay.product || 'Claude Code'} — Engineering Assistant</strong>
                             <span class="metric-badge-black" style="background:#111827; color:#FFFFFF;">CLI ACTIVA</span>
                         </div>
-                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Recurso: <code>${dataToDisplay.resource || 'anthropics/claude-code-action'}</code></p>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#374151;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Recurso: <code>${dataToDisplay.resource || 'anthropics/claude-code-action'}</code></p>
                         <button type="button" class="btn-upload-vector" onclick="openClaudeCli('${url}')">Abrir Claude Code</button>
                     </div>
                 `);
@@ -10784,10 +10819,10 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                            <strong style="font-size:13px; color:#ffffff;">🐧 ${dataToDisplay.product || 'Ubuntu Terminal'}</strong>
+                            <strong style="font-size:13.5px; color:#111827;">🐧 ${dataToDisplay.product || 'Ubuntu Terminal'}</strong>
                             <span class="metric-badge-black" style="background:#E95420; color:#FFFFFF;">UBUNTU</span>
                         </div>
-                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Usuario: <code>${dataToDisplay.user || 'root'}@${dataToDisplay.host || 'l8-codespace'}</code></p>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#374151;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Usuario: <code>${dataToDisplay.user || 'root'}@${dataToDisplay.host || 'l8-codespace'}</code></p>
                         <button type="button" class="btn-upload-vector" onclick="openUbuntuCli('${url}')">Abrir Terminal Ubuntu</button>
                     </div>
                 `);
@@ -10801,10 +10836,10 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                            <strong style="font-size:13px; color:#ffffff;">🧠 ${dataToDisplay.product || 'Zylon PrivateGPT'}</strong>
+                            <strong style="font-size:13.5px; color:#111827;">🧠 ${dataToDisplay.product || 'Zylon PrivateGPT'}</strong>
                             <span class="metric-badge-black" style="background:#243044; color:#FFFFFF;">PRIVADO</span>
                         </div>
-                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Modelo: <code>${dataToDisplay.model || 'local'}</code></p>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#374151;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Modelo: <code>${dataToDisplay.model || 'local'}</code></p>
                         <button type="button" class="btn-upload-vector" onclick="openZylonCli()">Abrir Zylon PrivateGPT</button>
                     </div>
                 `);
@@ -10818,10 +10853,10 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                            <strong style="font-size:13px; color:#ffffff;">📄 ${dataToDisplay.product || 'LibreOffice Suite'}</strong>
+                            <strong style="font-size:13.5px; color:#111827;">📄 ${dataToDisplay.product || 'LibreOffice Suite'}</strong>
                             <span class="metric-badge-black" style="background:#18A303; color:#FFFFFF;">MPL-2.0</span>
                         </div>
-                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Suite ofimática lista.'} Writer, Calc, Impress, Draw, Base, Math y Chart.</p>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#374151;">${dataToDisplay.message || 'Suite ofimática lista.'} Writer, Calc, Impress, Draw, Base, Math y Chart.</p>
                         <button type="button" class="btn-upload-vector" onclick="openLibreoffice('${url}')">Abrir LibreOffice</button>
                     </div>
                 `);
@@ -10835,10 +10870,10 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                            <strong style="font-size:13px; color:#ffffff;">📝 ${dataToDisplay.product || 'TipTap Editor'} — Word-like Document Sheet</strong>
+                            <strong style="font-size:13.5px; color:#111827;">📝 ${dataToDisplay.product || 'TipTap Editor'} — Word-like Document Sheet</strong>
                             <span class="metric-badge-black" style="background:#111827; color:#FFFFFF;">EDITOR</span>
                         </div>
-                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Editor de texto enriquecido en hoja directa.'}</p>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#374151;">${dataToDisplay.message || 'Editor de texto enriquecido en hoja directa.'}</p>
                         <button type="button" class="btn-upload-vector" onclick="openTiptap('${url}')">Abrir Editor TipTap</button>
                     </div>
                 `);
@@ -10849,11 +10884,11 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                            <strong style="font-size:13px; color:#ffffff;">⚡ ${dataToDisplay.product || 'Streamlit Python Apps'}</strong>
-                            <span class="metric-badge-black" style="background:#FF4B4B; color:#FFFFFF;">STREAMLIT</span>
+                            <strong style="font-size:13.5px; color:#111827;">⚡ ${dataToDisplay.product || 'Streamlit Python Apps'}</strong>
+                            <span class="metric-badge-black" style="background:#EF4444; color:#FFFFFF;">STREAMLIT</span>
                         </div>
-                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Panel de control de apps.'} Python: <code>${dataToDisplay.python_ready ? 'Detectado' : 'No disponible'}</code> ${dataToDisplay.version ? ('(v' + dataToDisplay.version + ')') : ''}</p>
-                        <div style="font-size:12px; color:#cbd5e1;">Apps en slot: <code>/st/1/</code> a <code>/st/8/</code> — Soporta componentes custom MDX & Wang.</div>
+                        <p style="margin:0 0 8px 0; font-size:12px; color:#374151;">${dataToDisplay.message || 'Panel de aplicaciones Streamlit activo'} Python: <strong>${dataToDisplay.python_ready ? 'Detectado' : 'No disponible'}</strong> ${dataToDisplay.version ? ('(v' + dataToDisplay.version + ')') : ''}</p>
+                        <div style="font-size:11.5px; color:#64748b;">Apps en slot: <code>/st/1/</code> a <code>/st/8/</code> — Soporta componentes custom MDX & Wang.</div>
                     </div>
                 `);
                 return;
@@ -10863,11 +10898,11 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                            <strong style="font-size:13px; color:#ffffff;">🛠️ ${dataToDisplay.product || 'Toolkit PDF Inspector'}</strong>
+                            <strong style="font-size:13.5px; color:#111827;">🛠️ ${dataToDisplay.product || 'Toolkit PDF Inspector'}</strong>
                             <span class="metric-badge-black" style="background:#3B82F6; color:#FFFFFF;">WASM + OCR</span>
                         </div>
-                        <p style="margin:0 0 8px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Extracción y procesamiento de documentos.'}</p>
-                        <div style="font-size:12px; color:#cbd5e1;">Motor WASM activo con soporte para PDFs escaneados vía Tesseract OCR.</div>
+                        <p style="margin:0 0 8px 0; font-size:12px; color:#374151;">${dataToDisplay.message || 'Extracción y procesamiento de documentos.'}</p>
+                        <div style="font-size:11.5px; color:#64748b;">Motor WASM activo con soporte para PDFs escaneados vía Tesseract OCR.</div>
                     </div>
                 `);
                 return;
@@ -10877,11 +10912,11 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                            <strong style="font-size:13px; color:#ffffff;">🔐 ${dataToDisplay.product || 'OpenCryptG Ledger'}</strong>
+                            <strong style="font-size:13.5px; color:#111827;">🔐 ${dataToDisplay.product || 'OpenCryptG Ledger'}</strong>
                             <span class="metric-badge-black" style="background:#10B981; color:#FFFFFF;">INVENTARIO OCG</span>
                         </div>
-                        <p style="margin:0 0 8px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Libro mayor criptográfico.'}</p>
-                        <div style="font-size:12px; color:#cbd5e1;">Total de códigos emitidos únicos: <strong>${dataToDisplay.total_registered || 0}</strong></div>
+                        <p style="margin:0 0 8px 0; font-size:12px; color:#374151;">${dataToDisplay.message || 'Libro mayor criptográfico.'}</p>
+                        <div style="font-size:11.5px; color:#64748b;">Total de códigos emitidos únicos: <strong style="color:#0f172a;">${dataToDisplay.total_registered || 0}</strong></div>
                     </div>
                 `);
                 return;
@@ -10892,12 +10927,12 @@ if (!headers_sent()) {
                 let rows = '';
                 list.forEach((ag, idx) => {
                     rows += `
-                        <div style="padding:8px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; margin-bottom:6px;">
+                        <div style="padding:8px 10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:6px;">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <strong style="color:#38bdf8; font-size:12.5px;">#${idx+1} ${ag.name}</strong>
-                                <span style="font-size:10.5px; padding:2px 6px; background:#1e293b; color:#94a3b8; border-radius:4px;">${ag.category}</span>
+                                <strong style="color:#0369a1; font-size:12.5px;">#${idx+1} ${ag.name}</strong>
+                                <span style="font-size:10.5px; padding:2px 6px; background:#e2e8f0; color:#334155; border-radius:4px; font-weight:600;">${ag.category}</span>
                             </div>
-                            <div style="font-size:11.5px; color:#cbd5e1; margin-top:2px;">${ag.role}</div>
+                            <div style="font-size:11.5px; color:#334155; margin-top:2px; font-weight:500;">${ag.role}</div>
                             <div style="font-size:11px; color:#64748b; margin-top:4px;">${ag.preview}…</div>
                         </div>
                     `;
@@ -10905,10 +10940,10 @@ if (!headers_sent()) {
                 tabbyWrapOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-                            <strong style="font-size:13.5px; color:#ffffff;">👥 ${dataToDisplay.product || '50+ Engineering AI Agents'}</strong>
-                            <span class="metric-badge-black" style="background:#38bdf8; color:#0f172a; font-weight:700;">${dataToDisplay.total || list.length} AGENTES ACTIVOS</span>
+                            <strong style="font-size:13.5px; color:#0f172a;">👥 ${dataToDisplay.product || '50+ Engineering AI Agents'}</strong>
+                            <span class="metric-badge-black" style="background:#0284c7; color:#ffffff; font-weight:700;">${dataToDisplay.total || list.length} AGENTES ACTIVOS</span>
                         </div>
-                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Catálogo de agentes de ingeniería de software autónomos.'}</p>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#475569;">${dataToDisplay.message || 'Catálogo de agentes de ingeniería de software autónomos.'}</p>
                         <div style="max-height:360px; overflow-y:auto; padding-right:4px;">
                             ${rows || '<div style="color:#64748b;">No se encontraron agentes con ese filtro.</div>'}
                         </div>

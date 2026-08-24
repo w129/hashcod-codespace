@@ -7387,10 +7387,82 @@ if (!headers_sent()) {
         }
 
         .vk-card-body {
-            padding: 18px;
+            padding: 14px;
             flex: 1;
             display: flex;
             flex-direction: column;
+        }
+
+        .vk-keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .vk-keypad-grid.fx-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .vk-keypad-grid.symbols-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .vk-key-btn {
+            background: #ffffff;
+            border: 1px solid #dcdad5;
+            border-radius: 6px;
+            padding: 8px 6px;
+            font: 600 13px 'Geist Mono', 'IBM Plex Mono', monospace;
+            color: #1f2937;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.12s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            user-select: none;
+        }
+
+        .vk-key-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+            color: #111827;
+            transform: translateY(-1px);
+        }
+
+        .vk-key-btn:active {
+            transform: translateY(0) scale(0.97);
+            background: #e5e7eb;
+        }
+
+        .vk-key-btn.action-enter {
+            background: #111827;
+            color: #ffffff;
+            border-color: #111827;
+        }
+
+        .vk-key-btn.action-enter:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .vk-key-btn.action-clear {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+
+        .vk-key-btn.action-clear:hover {
+            background: #fecaca;
+        }
+
+        .vk-key-btn.cmd-btn {
+            font-size: 11.5px;
+            padding: 8px 6px;
+            text-align: left;
+            justify-content: flex-start;
         }
 
         .vector-body {
@@ -8960,10 +9032,18 @@ if (!headers_sent()) {
                     &gt;
                 </div>
                 <div class="block-body block-input-container">
-                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Escribe un comando aquí (ej: repos, clone facebook/react, set_i code, workflows)..." autocomplete="off" onkeydown="handleCommandKey(event)">
-                    <div class="cell-action-icon" title="Abrir / cerrar teclado" onclick="toggleVirtualKeyboard()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                            <path fill="#5F6368" d="M 3 3 C 2.2045912 3 1.441211 3.3166015 0.87890625 3.8789062 C 0.31660152 4.441211 0 5.2045912 0 6 L 0 13 C 0 13.710451 0.26410916 14.386893 0.71875 14.925781 L 0.703125 14.925781 C 0.703125 14.925781 4.8273906 19.558172 6.4003906 21.326172 C 6.7823906 21.755172 7.3283437 22 7.9023438 22 L 20.011719 22 C 20.538719 22 21.044969 21.790969 21.417969 21.417969 C 21.790969 21.044969 22 20.538719 22 20.011719 L 22 13 L 22 6 C 22 5.2045912 21.683398 4.4412111 21.121094 3.8789062 C 20.558789 3.3166016 19.795409 3 19 3 L 3 3 z M 3 5 L 19 5 C 19.264591 5 19.519336 5.1052735 19.707031 5.2929688 C 19.894727 5.480664 20 5.7354088 20 6 L 20 13 C 20 13.264591 19.894727 13.519336 19.707031 13.707031 C 19.519336 13.894727 19.264591 14 19 14 L 3 14 C 2.7354088 14 2.480664 13.894727 2.2929688 13.707031 C 2.1052734 13.519336 2 13.264591 2 13 L 2 6 C 2 5.7354088 2.1052735 5.480664 2.2929688 5.2929688 C 2.4806639 5.1052735 2.7354088 5 3 5 z M 5 7 A 1 1 0 0 0 5 9 A 1 1 0 0 0 5 7 z M 8 7 A 1 1 0 0 0 8 9 A 1 1 0 0 0 8 7 z M 11 7 A 1 1 0 0 0 11 9 A 1 1 0 0 0 11 7 z M 14 7 A 1 1 0 0 0 14 9 A 1 1 0 0 0 14 7 z M 17 7 A 1 1 0 0 0 17 9 A 1 1 0 0 0 17 7 z M 5 10 A 1 1 0 0 0 5 12 A 1 1 0 0 0 5 10 z M 8 10 A 1.0001 1.0001 0 1 0 8 12 L 14 12 A 1.0001 1.0001 0 1 0 14 10 L 8 10 z M 17 10 A 1 1 0 0 0 17 12 A 1 1 0 0 0 17 10 z"/>
+                    <div class="cell-action-icon" id="btnVirtualKeyboard" role="button" tabindex="0" title="Abrir / cerrar teclado virtual" onclick="toggleVirtualKeyboard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVirtualKeyboard();}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="2" y="4" width="20" height="16" rx="2.5"></rect>
+                            <line x1="6" y1="8" x2="6.01" y2="8" stroke-width="2.2"></line>
+                            <line x1="10" y1="8" x2="10.01" y2="8" stroke-width="2.2"></line>
+                            <line x1="14" y1="8" x2="14.01" y2="8" stroke-width="2.2"></line>
+                            <line x1="18" y1="8" x2="18.01" y2="8" stroke-width="2.2"></line>
+                            <line x1="6" y1="12" x2="6.01" y2="12" stroke-width="2.2"></line>
+                            <line x1="10" y1="12" x2="10.01" y2="12" stroke-width="2.2"></line>
+                            <line x1="14" y1="12" x2="14.01" y2="12" stroke-width="2.2"></line>
+                            <line x1="18" y1="12" x2="18.01" y2="12" stroke-width="2.2"></line>
+                            <line x1="7" y1="16" x2="17" y2="16"></line>
                         </svg>
                     </div>
                 </div>
@@ -9010,18 +9090,78 @@ if (!headers_sent()) {
                         <div class="vk-card-header">
                             <span class="vk-card-title">Key window</span>
                             <div class="vk-pills">
-                                <span class="vk-pill active">123</span>
-                                <span class="vk-pill">fx</span>
-                                <span class="vk-pill">αβ</span>
+                                <span class="vk-pill active" id="vkPill123" onclick="switchVkTab('123')">123</span>
+                                <span class="vk-pill" id="vkPillFx" onclick="switchVkTab('fx')">fx</span>
+                                <span class="vk-pill" id="vkPillSymbols" onclick="switchVkTab('symbols')">αβ</span>
                             </div>
                         </div>
                         <div class="vk-card-body" id="keyWindowBody">
-                            <div class="keys-grid-placeholder" style="flex: 1; border: 1px dashed #d0cdcf; border-radius: 8px; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8c8983; font-size: 12px; font-family: 'IBM Plex Mono', monospace; min-height: 280px; padding: 12px; text-align: center; gap: 12px;">
-                                <span>[ Espacio preparado para tus teclas personalizadas ]</span>
-                                <button class="btn-upload-vector" onclick="triggerFileUpload()">
-                                    <svg class="svg-icon-vector" style="fill:#ffffff;" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
-                                    <span>Subir Archivo (Dilithium 5)</span>
-                                </button>
+                            <!-- Modo 123 (Numérico / Aritmético) -->
+                            <div class="vk-keypad-grid" id="vkKeypad123">
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('7')">7</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('8')">8</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('9')">9</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('/')">/</button>
+
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('4')">4</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('5')">5</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('6')">6</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('*')">*</button>
+
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('1')">1</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('2')">2</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('3')">3</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('-')">-</button>
+
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('0')">0</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('.')">.</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('+')">+</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('=')">=</button>
+
+                                <button type="button" class="vk-key-btn action-clear" onclick="vkKeyPress('CLEAR')">C</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('BACKSPACE')">⌫</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress(' ')">Space</button>
+                                <button type="button" class="vk-key-btn action-enter" onclick="vkKeyPress('ENTER')">↵ Ejecutar</button>
+                            </div>
+
+                            <!-- Modo fx (Comandos Rápidos) -->
+                            <div class="vk-keypad-grid fx-grid" id="vkKeypadFx" style="display:none;">
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('repos')">repos</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('status')">status</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('ssh_key')">ssh_key</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('clone ')">clone &lt;repo&gt;</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('set_i code')">set_i code</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('supabase')">supabase</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('prs_code')">prs_code</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('workflows')">workflows</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('macos')">macos</button>
+                                <button type="button" class="vk-key-btn cmd-btn" onclick="vkInsertCmd('chromeos')">chromeos</button>
+                                <button type="button" class="vk-key-btn cmd-btn action-clear" onclick="vkKeyPress('CLEAR')">Limpiar</button>
+                                <button type="button" class="vk-key-btn cmd-btn action-enter" onclick="vkKeyPress('ENTER')">↵ Ejecutar</button>
+                            </div>
+
+                            <!-- Modo αβ (Símbolos Griegos y Matemáticos) -->
+                            <div class="vk-keypad-grid symbols-grid" id="vkKeypadSymbols" style="display:none;">
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('α')">α</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('β')">β</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('γ')">γ</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('δ')">δ</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('π')">π</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('θ')">θ</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('λ')">λ</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('μ')">μ</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('σ')">σ</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('φ')">φ</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('ω')">ω</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('∑')">∑</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('∫')">∫</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('√')">√</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('∞')">∞</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('≈')">≈</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('≠')">≠</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('≤')">≤</button>
+                                <button type="button" class="vk-key-btn" onclick="vkKeyPress('≥')">≥</button>
+                                <button type="button" class="vk-key-btn action-enter" onclick="vkKeyPress('ENTER')">↵</button>
                             </div>
                         </div>
                     </div>
@@ -13103,7 +13243,168 @@ if (!headers_sent()) {
 
         let activeInputTarget = document.getElementById('cmdInput');
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function getActiveInput() {
+            if (activeInputTarget && document.body.contains(activeInputTarget)) {
+                return activeInputTarget;
+            }
+            return document.getElementById('cmdInput') || document.getElementById('functionEditor') || document.getElementById('equationsEditor');
+        }
+
+        function switchVkTab(tab) {
+            const p123 = document.getElementById('vkPill123');
+            const pFx = document.getElementById('vkPillFx');
+            const pSym = document.getElementById('vkPillSymbols');
+            const k123 = document.getElementById('vkKeypad123');
+            const kFx = document.getElementById('vkKeypadFx');
+            const kSym = document.getElementById('vkKeypadSymbols');
+
+            if (p123) p123.classList.remove('active');
+            if (pFx) pFx.classList.remove('active');
+            if (pSym) pSym.classList.remove('active');
+            if (k123) k123.style.display = 'none';
+            if (kFx) kFx.style.display = 'none';
+            if (kSym) kSym.style.display = 'none';
+
+            if (tab === 'fx') {
+                if (pFx) pFx.classList.add('active');
+                if (kFx) kFx.style.display = 'grid';
+            } else if (tab === 'symbols') {
+                if (pSym) pSym.classList.add('active');
+                if (kSym) kSym.style.display = 'grid';
+            } else {
+                if (p123) p123.classList.add('active');
+                if (k123) k123.style.display = 'grid';
+            }
+        }
+        window.switchVkTab = switchVkTab;
+
+        function vkInsertText(text) {
+            const target = getActiveInput();
+            if (!target) return;
+            target.focus();
+            const start = target.selectionStart ?? target.value.length;
+            const end = target.selectionEnd ?? target.value.length;
+            const val = target.value;
+            target.value = val.substring(0, start) + text + val.substring(end);
+            target.selectionStart = target.selectionEnd = start + text.length;
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        window.vkInsertText = vkInsertText;
+
+        function vkInsertCmd(cmd) {
+            const cmdInp = document.getElementById('cmdInput');
+            if (cmdInp) {
+                cmdInp.focus();
+                activeInputTarget = cmdInp;
+                cmdInp.value = cmd;
+                cmdInp.selectionStart = cmdInp.selectionEnd = cmd.length;
+                cmdInp.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+        window.vkInsertCmd = vkInsertCmd;
+
+        function vkKeyPress(key) {
+            const target = getActiveInput();
+            if (!target) return;
+            target.focus();
+
+            if (key === 'CLEAR') {
+                target.value = '';
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+                return;
+            }
+
+            if (key === 'BACKSPACE') {
+                const start = target.selectionStart ?? target.value.length;
+                const end = target.selectionEnd ?? target.value.length;
+                if (start === end && start > 0) {
+                    target.value = target.value.substring(0, start - 1) + target.value.substring(end);
+                    target.selectionStart = target.selectionEnd = start - 1;
+                } else if (start !== end) {
+                    target.value = target.value.substring(0, start) + target.value.substring(end);
+                    target.selectionStart = target.selectionEnd = start;
+                }
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+                return;
+            }
+
+            if (key === 'ENTER') {
+                if (target.id === 'cmdInput') {
+                    const cmd = target.value.trim();
+                    if (cmd) {
+                        submitCommand(cmd);
+                        target.value = '';
+                    }
+                } else {
+                    vkInsertText('\n');
+                }
+                return;
+            }
+
+            vkInsertText(key);
+        }
+        window.vkKeyPress = vkKeyPress;
+
+        function toggleVirtualKeyboard() {
+            const vk = document.getElementById('virtualKeyboard');
+            if (!vk) return;
+            vk.classList.toggle('active');
+            if (vk.classList.contains('active')) {
+                const target = getActiveInput();
+                if (target) {
+                    try { target.focus(); } catch (e) {}
+                }
+            }
+        }
+        window.toggleVirtualKeyboard = toggleVirtualKeyboard;
+
+        function toggleFunctionDrawer() {
+            const drawer = document.getElementById('functionDrawer');
+            if (!drawer) return;
+            drawer.classList.toggle('open');
+            if (drawer.classList.contains('open')) {
+                const funcEdit = document.getElementById('functionEditor');
+                if (funcEdit) {
+                    funcEdit.focus();
+                    activeInputTarget = funcEdit;
+                }
+            }
+        }
+        window.toggleFunctionDrawer = toggleFunctionDrawer;
+
+        function handleEditorKeyDown(event) {
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                const editor = event.target;
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                editor.value = editor.value.substring(0, start) + "    " + editor.value.substring(end);
+                editor.selectionStart = editor.selectionEnd = start + 4;
+            }
+        }
+
+        function triggerCommandSubmit() {
+            const input = document.getElementById('cmdInput');
+            const command = input ? input.value.trim() : '';
+            if (command) {
+                submitCommand(command);
+                if (input) input.value = '';
+            }
+        }
+
+        function updateTabbyPromptClock() {
+            const el = document.getElementById('tabbyLiveClock');
+            if (el) {
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                el.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            }
+        }
+        // Iniciar reloj inmediatamente
+        updateTabbyPromptClock();
+        setInterval(updateTabbyPromptClock, 1000);
+
+        function initApp() {
             const inputCmd = document.getElementById('cmdInput');
             const editorFunc = document.getElementById('functionEditor');
             const editorEq = document.getElementById('equationsEditor');
@@ -13113,6 +13414,7 @@ if (!headers_sent()) {
             const unlockCloseBtn = document.getElementById('tokensUnlockCloseBtn');
             const unlockOverlay = document.getElementById('tokensUnlockOverlay');
 
+            activeInputTarget = inputCmd;
             initMobileMode();
 
             if (tokensBtn) {
@@ -13187,56 +13489,13 @@ if (!headers_sent()) {
                 editorEq.addEventListener('focus', () => { activeInputTarget = editorEq; });
                 editorEq.addEventListener('click', () => { activeInputTarget = editorEq; });
             }
-
-            function updateTabbyPromptClock() {
-                const el = document.getElementById('tabbyLiveClock');
-                if (el) el.textContent = new Date().toLocaleTimeString();
-            }
             updateTabbyPromptClock();
-            setInterval(updateTabbyPromptClock, 1000);
-        });
-
-        function toggleVirtualKeyboard() {
-            // Solo teclado — la terminal negra se activa con (>)
-            const vk = document.getElementById('virtualKeyboard');
-            if (!vk) return;
-            vk.classList.toggle('active');
-            if (vk.classList.contains('active')) {
-                if (!activeInputTarget) activeInputTarget = document.getElementById('cmdInput');
-                try { activeInputTarget.focus(); } catch (e) {}
-            }
         }
 
-        function toggleFunctionDrawer() {
-            const drawer = document.getElementById('functionDrawer');
-            if (!drawer) return;
-            drawer.classList.toggle('open');
-            if (drawer.classList.contains('open')) {
-                const funcEdit = document.getElementById('functionEditor');
-                if (funcEdit) {
-                    funcEdit.focus();
-                    activeInputTarget = funcEdit;
-                }
-            }
-        }
-
-        function handleEditorKeyDown(event) {
-            if (event.key === 'Tab') {
-                event.preventDefault();
-                const editor = event.target;
-                const start = editor.selectionStart;
-                const end = editor.selectionEnd;
-                editor.value = editor.value.substring(0, start) + "    " + editor.value.substring(end);
-                editor.selectionStart = editor.selectionEnd = start + 4;
-            }
-        }
-
-        function triggerCommandSubmit() {
-            const command = cmdInput.value.trim();
-            if (command) {
-                submitCommand(command);
-                cmdInput.value = '';
-            }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
         }
 
         function handleCommandKey(event) {

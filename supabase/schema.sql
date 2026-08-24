@@ -1,38 +1,175 @@
--- l8 codespace · Supabase Postgres schema (optional mirror)
--- Run this once in Supabase → SQL Editor, then the platform can use DB + Storage.
+-- =====================================================================
+-- l8 codespace · Supabase Postgres Complete Schema (Immutable & Multi-Account)
+-- Run this in Supabase → SQL Editor to enable full DB + Storage persistence.
+-- Ensures everything executed and stored per account is permanently preserved.
+-- =====================================================================
 
+-- 1. Repositorios GitHub clonados o guardados por cuenta
 create table if not exists public.l8_repos (
   id text primary key,
-  user_repo text not null unique,
+  account_key text not null default 'global',
+  user_repo text not null,
   name text,
   branch text default 'main',
   remote_url text,
   license text,
-  stars integer,
+  stars integer default 0,
   is_private boolean default false,
   cloned boolean default false,
   meta jsonb default '{}'::jsonb,
-  updated_at timestamptz default now()
+  is_deleted boolean not null default false,
+  deleted_at timestamptz,
+  created_at timestamptz default timezone('utc', now()),
+  updated_at timestamptz default timezone('utc', now())
 );
 
+alter table public.l8_repos add column if not exists account_key text not null default 'global';
+alter table public.l8_repos add column if not exists is_deleted boolean not null default false;
+alter table public.l8_repos add column if not exists deleted_at timestamptz;
+alter table public.l8_repos add column if not exists created_at timestamptz default timezone('utc', now());
+
+create index if not exists l8_repos_account_idx on public.l8_repos(account_key, is_deleted);
+create index if not exists l8_repos_user_repo_idx on public.l8_repos(user_repo);
+
+-- 2. Archivos Dilithium-5 PQC y archivos de usuario
 create table if not exists public.l8_files (
   id text primary key,
+  account_key text not null default 'global',
   filename text not null,
   mime_type text,
   size_bytes bigint default 0,
   hash text,
   storage_path text,
   supabase_object text,
-  upload_date timestamptz default now()
+  meta jsonb default '{}'::jsonb,
+  is_deleted boolean not null default false,
+  deleted_at timestamptz,
+  upload_date timestamptz default timezone('utc', now())
 );
+
+alter table public.l8_files add column if not exists account_key text not null default 'global';
+alter table public.l8_files add column if not exists is_deleted boolean not null default false;
+alter table public.l8_files add column if not exists deleted_at timestamptz;
+alter table public.l8_files add column if not exists meta jsonb default '{}'::jsonb;
+
+create index if not exists l8_files_account_idx on public.l8_files(account_key, is_deleted);
+create index if not exists l8_files_upload_date_idx on public.l8_files(upload_date desc);
+
+-- 3. Historial Inmutable de Comandos Ejecutados (Nunca se elimina)
+create table if not exists public.l8_command_history (
+  id text primary key,
+  account_key text not null,
+  session_id text default 'default',
+  raw_command text not null,
+  normalized_command text default '',
+  exit_code integer default 0,
+  output_snippet text default '',
+  duration_ms integer default 0,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_command_history_account_idx on public.l8_command_history(account_key, created_at desc);
+create index if not exists l8_command_history_created_idx on public.l8_command_history(created_at desc);
+
+-- 4. Registro Inmutable de Actividad de la Plataforma (Audit Trail)
+create table if not exists public.l8_activity_log (
+  id text primary key,
+  account_key text not null,
+  action text not null,
+  target text default '',
+  payload jsonb not null default '{}'::jsonb,
+  ip_hash text default '',
+  user_agent text default '',
+  status text not null default 'ok',
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_activity_log_account_idx on public.l8_activity_log(account_key, created_at desc);
+create index if not exists l8_activity_log_action_idx on public.l8_activity_log(action);
+
+-- 5. Sesiones de Usuario y Estado del Terminal Tabby
+create table if not exists public.l8_account_sessions (
+  id text primary key,
+  account_key text not null,
+  state jsonb not null default '{}'::jsonb,
+  is_deleted boolean not null default false,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_account_sessions_account_idx on public.l8_account_sessions(account_key);
 
 create table if not exists public.l8_sessions (
   id text primary key default 'default',
   state jsonb not null default '{}'::jsonb,
-  updated_at timestamptz default now()
+  updated_at timestamptz default timezone('utc', now())
 );
 
--- Cuentas auth (solo hashes; nunca claves en claro)
+-- 6. Documentos de TipTap y LibreOffice Suite con Versionado
+create table if not exists public.l8_documents (
+  id text primary key,
+  account_key text not null,
+  title text not null default 'Documento sin título',
+  doc_type text not null default 'tiptap',
+  content text not null default '',
+  meta jsonb not null default '{}'::jsonb,
+  version integer not null default 1,
+  is_deleted boolean not null default false,
+  deleted_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_documents_account_idx on public.l8_documents(account_key, doc_type, is_deleted);
+
+-- 7. Historial Inmutable de Versiones de Documentos
+create table if not exists public.l8_documents_history (
+  id text primary key,
+  document_id text not null references public.l8_documents(id) on delete cascade,
+  account_key text not null,
+  version integer not null,
+  content text not null default '',
+  meta jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_documents_history_doc_idx on public.l8_documents_history(document_id, version desc);
+
+-- 8. Transferencias y Códigos PQC de Gateway
+create table if not exists public.l8_gateway_transfers (
+  id text primary key,
+  account_key text not null,
+  code text not null unique,
+  filename text not null default '',
+  mime_type text default '',
+  size_bytes bigint default 0,
+  storage_path text default '',
+  downloads_count integer not null default 0,
+  meta jsonb not null default '{}'::jsonb,
+  is_deleted boolean not null default false,
+  deleted_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_gateway_transfers_code_idx on public.l8_gateway_transfers(code);
+create index if not exists l8_gateway_transfers_account_idx on public.l8_gateway_transfers(account_key);
+
+-- 9. Libro Mayor de Códigos Únicos OpenCryptG
+create table if not exists public.l8_opencrypt_ledger (
+  id text primary key,
+  account_key text not null,
+  code text not null unique,
+  meta jsonb not null default '{}'::jsonb,
+  is_deleted boolean not null default false,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_opencrypt_ledger_code_idx on public.l8_opencrypt_ledger(code);
+create index if not exists l8_opencrypt_ledger_account_idx on public.l8_opencrypt_ledger(account_key);
+
+-- 10. Cuentas auth (solo hashes criptográficos, nunca claves en texto claro)
 create table if not exists public.l8_auth_accounts (
   id text primary key,
   aes256_hash text not null,
@@ -41,23 +178,22 @@ create table if not exists public.l8_auth_accounts (
   backup_codes jsonb not null default '{}'::jsonb,
   created_at timestamptz,
   recovered_at timestamptz,
-  updated_at timestamptz default now(),
+  updated_at timestamptz default timezone('utc', now()),
   meta jsonb not null default '{}'::jsonb
 );
 
--- Índice de identidades / recuperación (hash → cuenta)
 create table if not exists public.l8_auth_identities (
   hash text primary key,
   account_id text not null references public.l8_auth_accounts(id) on delete cascade,
   kind text not null check (kind in ('aes256', 'identity', 'recovery_key', 'backup_code')),
   used boolean default false,
-  updated_at timestamptz default now()
+  updated_at timestamptz default timezone('utc', now())
 );
 
 create index if not exists l8_auth_identities_account_idx on public.l8_auth_identities(account_id);
 create index if not exists l8_auth_identities_kind_idx on public.l8_auth_identities(kind);
 
--- Cupo mensual de tokens + historial de gastos (sobrevive redeploys de Render)
+-- 11. Cupo mensual de tokens y Libro Mayor de transacciones
 create table if not exists public.l8_token_accounts (
   account_key text primary key,
   current_period text not null default '',
@@ -72,14 +208,7 @@ create table if not exists public.l8_token_accounts (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
-alter table public.l8_token_accounts
-  add column if not exists notepads integer not null default 0;
-
-alter table public.l8_token_accounts
-  add column if not exists toolkits integer not null default 0;
-
-create index if not exists l8_token_accounts_updated_at_idx
-  on public.l8_token_accounts (updated_at desc);
+create index if not exists l8_token_accounts_updated_at_idx on public.l8_token_accounts (updated_at desc);
 
 create table if not exists public.l8_token_ledger (
   id text primary key,
@@ -91,112 +220,83 @@ create table if not exists public.l8_token_ledger (
   created_at timestamptz not null default timezone('utc', now())
 );
 
-create index if not exists l8_token_ledger_account_created_idx
-  on public.l8_token_ledger (account_key, created_at desc);
+create index if not exists l8_token_ledger_account_created_idx on public.l8_token_ledger (account_key, created_at desc);
+create index if not exists l8_token_ledger_account_period_idx on public.l8_token_ledger (account_key, period);
 
-create index if not exists l8_token_ledger_account_period_idx
-  on public.l8_token_ledger (account_key, period);
-
-alter table public.l8_repos enable row level security;
-alter table public.l8_files enable row level security;
-alter table public.l8_sessions enable row level security;
-alter table public.l8_auth_accounts enable row level security;
-alter table public.l8_auth_identities enable row level security;
-alter table public.l8_token_accounts enable row level security;
-alter table public.l8_token_ledger enable row level security;
-
--- Registro de Claves Hashcod (contraseñas / códigos por cuenta)
--- secret/code se almacenan cifrados (AES-256-GCM) desde el backend PHP.
+-- 12. Registro de Claves Hashcod (AES-256-GCM) por cuenta
 create table if not exists public.l8_hashcod_keys (
   id text primary key,
   account_key text not null,
   name text not null default '',
   secret text not null default '',
   code text not null default '',
+  is_deleted boolean not null default false,
+  deleted_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
 
-create index if not exists l8_hashcod_keys_account_created_idx
-  on public.l8_hashcod_keys (account_key, created_at desc);
+alter table public.l8_hashcod_keys add column if not exists is_deleted boolean not null default false;
+alter table public.l8_hashcod_keys add column if not exists deleted_at timestamptz;
 
+create index if not exists l8_hashcod_keys_account_created_idx on public.l8_hashcod_keys (account_key, created_at desc);
+
+-- 13. Estados de Aplicaciones (Streamlit, Toolkit OCR, Agentes IA)
+create table if not exists public.l8_app_states (
+  id text primary key,
+  account_key text not null,
+  app_id text not null,
+  state jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_app_states_account_app_idx on public.l8_app_states(account_key, app_id);
+
+-- =====================================================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- Strict Deny-All for public/anon/authenticated tokens.
+-- The PHP Backend uses the Service Role (SUPABASE_SECRET_KEY) which safely bypasses RLS.
+-- =====================================================================
+
+alter table public.l8_repos enable row level security;
+alter table public.l8_files enable row level security;
+alter table public.l8_sessions enable row level security;
+alter table public.l8_command_history enable row level security;
+alter table public.l8_activity_log enable row level security;
+alter table public.l8_account_sessions enable row level security;
+alter table public.l8_documents enable row level security;
+alter table public.l8_documents_history enable row level security;
+alter table public.l8_gateway_transfers enable row level security;
+alter table public.l8_opencrypt_ledger enable row level security;
+alter table public.l8_auth_accounts enable row level security;
+alter table public.l8_auth_identities enable row level security;
+alter table public.l8_token_accounts enable row level security;
+alter table public.l8_token_ledger enable row level security;
 alter table public.l8_hashcod_keys enable row level security;
+alter table public.l8_app_states enable row level security;
+
+-- Deny policies for anon and authenticated clients
+do $$
+declare
+  tbl text;
+  tbls text[] := array[
+    'l8_repos', 'l8_files', 'l8_sessions', 'l8_command_history',
+    'l8_activity_log', 'l8_account_sessions', 'l8_documents',
+    'l8_documents_history', 'l8_gateway_transfers', 'l8_opencrypt_ledger',
+    'l8_auth_accounts', 'l8_auth_identities', 'l8_token_accounts',
+    'l8_token_ledger', 'l8_hashcod_keys', 'l8_app_states'
+  ];
+begin
+  foreach tbl in array tbls loop
+    execute format('drop policy if exists %I on public.%I', 'deny anon ' || tbl, tbl);
+    execute format('drop policy if exists %I on public.%I', 'deny authenticated ' || tbl, tbl);
+    execute format('create policy %I on public.%I for all to anon using (false) with check (false)', 'deny anon ' || tbl, tbl);
+    execute format('create policy %I on public.%I for all to authenticated using (false) with check (false)', 'deny authenticated ' || tbl, tbl);
+  end loop;
+end $$;
 
 -- =====================================================================
--- RLS: deny-by-default para anon + authenticated (JWT).
--- El backend PHP usa SUPABASE_SECRET_KEY / service_role, que BYPASSEA RLS.
--- Nunca uses la publishable/anon key para leer estas tablas desde el cliente.
--- =====================================================================
-drop policy if exists "service only repos" on public.l8_repos;
-drop policy if exists "service only files" on public.l8_files;
-drop policy if exists "service only sessions" on public.l8_sessions;
-drop policy if exists "service only auth accounts" on public.l8_auth_accounts;
-drop policy if exists "service only auth identities" on public.l8_auth_identities;
-drop policy if exists "service only token accounts" on public.l8_token_accounts;
-drop policy if exists "service only token ledger" on public.l8_token_ledger;
-drop policy if exists "service only hashcod keys" on public.l8_hashcod_keys;
-
-drop policy if exists "deny all anon repos" on public.l8_repos;
-drop policy if exists "deny all authenticated repos" on public.l8_repos;
-drop policy if exists "deny all anon files" on public.l8_files;
-drop policy if exists "deny all authenticated files" on public.l8_files;
-drop policy if exists "deny all anon sessions" on public.l8_sessions;
-drop policy if exists "deny all authenticated sessions" on public.l8_sessions;
-drop policy if exists "deny all anon auth accounts" on public.l8_auth_accounts;
-drop policy if exists "deny all authenticated auth accounts" on public.l8_auth_accounts;
-drop policy if exists "deny all anon auth identities" on public.l8_auth_identities;
-drop policy if exists "deny all authenticated auth identities" on public.l8_auth_identities;
-drop policy if exists "deny all anon token accounts" on public.l8_token_accounts;
-drop policy if exists "deny all authenticated token accounts" on public.l8_token_accounts;
-drop policy if exists "deny all anon token ledger" on public.l8_token_ledger;
-drop policy if exists "deny all authenticated token ledger" on public.l8_token_ledger;
-drop policy if exists "deny all anon hashcod keys" on public.l8_hashcod_keys;
-drop policy if exists "deny all authenticated hashcod keys" on public.l8_hashcod_keys;
-
--- Políticas explícitas USING (false): bloquean SELECT/INSERT/UPDATE/DELETE a roles cliente.
-create policy "deny all anon repos" on public.l8_repos
-  for all to anon using (false) with check (false);
-create policy "deny all authenticated repos" on public.l8_repos
-  for all to authenticated using (false) with check (false);
-
-create policy "deny all anon files" on public.l8_files
-  for all to anon using (false) with check (false);
-create policy "deny all authenticated files" on public.l8_files
-  for all to authenticated using (false) with check (false);
-
-create policy "deny all anon sessions" on public.l8_sessions
-  for all to anon using (false) with check (false);
-create policy "deny all authenticated sessions" on public.l8_sessions
-  for all to authenticated using (false) with check (false);
-
-create policy "deny all anon auth accounts" on public.l8_auth_accounts
-  for all to anon using (false) with check (false);
-create policy "deny all authenticated auth accounts" on public.l8_auth_accounts
-  for all to authenticated using (false) with check (false);
-
-create policy "deny all anon auth identities" on public.l8_auth_identities
-  for all to anon using (false) with check (false);
-create policy "deny all authenticated auth identities" on public.l8_auth_identities
-  for all to authenticated using (false) with check (false);
-
-create policy "deny all anon token accounts" on public.l8_token_accounts
-  for all to anon using (false) with check (false);
-create policy "deny all authenticated token accounts" on public.l8_token_accounts
-  for all to authenticated using (false) with check (false);
-
-create policy "deny all anon token ledger" on public.l8_token_ledger
-  for all to anon using (false) with check (false);
-create policy "deny all authenticated token ledger" on public.l8_token_ledger
-  for all to authenticated using (false) with check (false);
-
-create policy "deny all anon hashcod keys" on public.l8_hashcod_keys
-  for all to anon using (false) with check (false);
-create policy "deny all authenticated hashcod keys" on public.l8_hashcod_keys
-  for all to authenticated using (false) with check (false);
-
--- =====================================================================
--- SUPABASE STORAGE: Políticas RLS para buckets y objetos (l8-storage)
--- Bloquea acceso público / anónimo directo por URL de Supabase CDN.
+-- SUPABASE STORAGE BUCKET & RLS
 -- =====================================================================
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('l8-storage', 'l8-storage', false, 104857600, null)
@@ -209,15 +309,8 @@ drop policy if exists "deny authenticated direct read l8-storage" on storage.obj
 drop policy if exists "deny anon direct write l8-storage" on storage.objects;
 drop policy if exists "deny authenticated direct write l8-storage" on storage.objects;
 
-create policy "deny anon direct read l8-storage" on storage.objects
-  for select to anon using (false);
-
-create policy "deny authenticated direct read l8-storage" on storage.objects
-  for select to authenticated using (false);
-
-create policy "deny anon direct write l8-storage" on storage.objects
-  for insert to anon with check (false);
-
-create policy "deny authenticated direct write l8-storage" on storage.objects
-  for insert to authenticated with check (false);
+create policy "deny anon direct read l8-storage" on storage.objects for select to anon using (false);
+create policy "deny authenticated direct read l8-storage" on storage.objects for select to authenticated using (false);
+create policy "deny anon direct write l8-storage" on storage.objects for insert to anon with check (false);
+create policy "deny authenticated direct write l8-storage" on storage.objects for insert to authenticated with check (false);
 

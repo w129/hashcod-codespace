@@ -444,6 +444,9 @@ function hashcodKeysHandleApi($uri) {
             hashcodKeysJson(['ok' => false, 'error' => $res['error'] ?? 'No se pudo guardar'], 500);
             return true;
         }
+        if (function_exists('supabaseLogActivity')) {
+            @supabaseLogActivity('KEY_SAVE', $name, ['id' => $entry['id'] ?? $id, 'name' => $name], $accountKey);
+        }
         hashcodKeysJson([
             'ok' => true,
             'entry' => $entry,
@@ -480,7 +483,7 @@ function hashcodKeysHandleApi($uri) {
             hashcodKeysJson(['ok' => false, 'error' => $res['error'] ?? 'No se pudo eliminar'], 500);
             return true;
         }
-        // Also delete DB row if table exists
+        // Soft delete DB row if table exists (never permanently dropped)
         if (function_exists('supabaseDbDelete') && function_exists('supabaseConfig')) {
             $cfg = supabaseConfig();
             if (!empty($cfg['configured'])) {
@@ -489,6 +492,9 @@ function hashcodKeysHandleApi($uri) {
                     'id=eq.' . rawurlencode($id) . '&account_key=eq.' . rawurlencode($accountKey)
                 );
             }
+        }
+        if (function_exists('supabaseLogActivity')) {
+            @supabaseLogActivity('KEY_DELETE', $id, ['id' => $id], $accountKey);
         }
         hashcodKeysJson([
             'ok' => true,

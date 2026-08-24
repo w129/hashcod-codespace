@@ -725,6 +725,10 @@ function authRegister($dilithium5) {
         return $saved;
     }
 
+    if (function_exists('supabaseLogActivity')) {
+        @supabaseLogActivity('AUTH_REGISTER', $userId, ['account_id' => $userId], $userId);
+    }
+
     return [
         'ok' => true,
         'account_id' => $userId,
@@ -900,6 +904,10 @@ function authLogin($aes256, $identity) {
     $saved = authSaveStore($store);
     if (empty($saved['ok'])) {
         return $saved;
+    }
+
+    if (function_exists('supabaseLogActivity')) {
+        @supabaseLogActivity('AUTH_LOGIN', $user['id'], ['account_id' => $user['id']], $user['id']);
     }
 
     return [

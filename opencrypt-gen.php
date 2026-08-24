@@ -124,6 +124,11 @@ function ocgClaimCodes($items) {
         if (!ocgSaveLedger($ledger)) {
             return ['ok' => false, 'error' => 'No se pudo persistir el ledger de unicidad'];
         }
+        if (function_exists('supabaseSyncOpencryptCode')) {
+            foreach ($accepted as $acc) {
+                @supabaseSyncOpencryptCode($acc['code'], $acc);
+            }
+        }
     }
 
     return [

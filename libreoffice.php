@@ -215,6 +215,8 @@ function libreofficeSuiteReady() {
     return is_file(libreofficeRootDir() . '/suite.json') && is_dir(libreofficeDocsDir());
 }
 
+require_once __DIR__ . '/supabase.php';
+
 function libreofficeLoadDoc($toolId) {
     $toolId = strtolower(preg_replace('/[^a-z0-9_-]/i', '', (string)$toolId));
     $valid = false;
@@ -224,6 +226,24 @@ function libreofficeLoadDoc($toolId) {
     if (!$valid) {
         return ['ok' => false, 'error' => 'Herramienta desconocida'];
     }
+
+    if (function_exists('supabaseLoadDocumentRecord')) {
+        $remote = @supabaseLoadDocumentRecord($toolId, 'libreoffice_' . $toolId);
+        if (!empty($remote['ok']) && is_array($remote['doc'])) {
+            $rd = $remote['doc'];
+            if ($toolId === 'writer') {
+                return ['ok' => true, 'tool' => 'writer', 'title' => $rd['title'] ?? 'Documento Writer', 'html' => $rd['content'] ?? ''];
+            }
+            if ($toolId === 'math') {
+                return ['ok' => true, 'tool' => 'math', 'title' => $rd['title'] ?? 'Fórmula Math', 'formula' => $rd['content'] ?? 'E = m c^2'];
+            }
+            $meta = $rd['meta'] ?? [];
+            $meta['ok'] = true;
+            $meta['tool'] = $toolId;
+            return $meta;
+        }
+    }
+
     libreofficeEnsureDirs();
     $path = libreofficeDocPath($toolId);
     if (!is_file($path)) {
@@ -264,24 +284,32 @@ function libreofficeSaveDoc($toolId, $payload) {
     $path = libreofficeDocPath($toolId);
     $payload['tool'] = $toolId;
     $payload['updated_at'] = gmdate('c');
+
+    $saveContent = '';
     if ($toolId === 'writer') {
         $html = (string)($payload['html'] ?? '');
         if (strlen($html) > 800000) {
             return ['ok' => false, 'error' => 'Documento demasiado grande'];
         }
         $ok = @file_put_contents($path, $html) !== false;
-        return ['ok' => $ok, 'tool' => 'writer', 'saved' => $ok];
-    }
-    if ($toolId === 'math') {
+        $saveContent = $html;
+    } else if ($toolId === 'math') {
         $formula = substr((string)($payload['formula'] ?? ''), 0, 20000);
         $ok = @file_put_contents($path, $formula) !== false;
-        return ['ok' => $ok, 'tool' => 'math', 'saved' => $ok];
+        $saveContent = $formula;
+    } else {
+        $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        if ($json === false || strlen($json) > 900000) {
+            return ['ok' => false, 'error' => 'Documento demasiado grande'];
+        }
+        $ok = @file_put_contents($path, $json) !== false;
+        $saveContent = $payload;
     }
-    $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    if ($json === false || strlen($json) > 900000) {
-        return ['ok' => false, 'error' => 'Documento demasiado grande'];
+
+    if (function_exists('supabaseSaveDocumentRecord')) {
+        @supabaseSaveDocumentRecord($toolId, 'LibreOffice ' . ucfirst($toolId), 'libreoffice_' . $toolId, $saveContent, $payload);
     }
-    $ok = @file_put_contents($path, $json) !== false;
+
     return ['ok' => $ok, 'tool' => $toolId, 'saved' => $ok];
 }
 

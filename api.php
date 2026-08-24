@@ -1357,9 +1357,11 @@ class SuperGlobalDatabase {
         if (function_exists('supabaseSyncMetaFile')) {
             @supabaseSyncMetaFile($this->jsonDbPath, 'global_database_index.json');
         }
-        if (function_exists('supabaseDbUpsert')) {
-            @supabaseDbUpsert('l8_files', [[
+        $acct = function_exists('supabaseCurrentAccountKey') ? supabaseCurrentAccountKey() : 'global';
+        if (function_exists('supabaseSyncFileRecord')) {
+            @supabaseSyncFileRecord([
                 'id' => $id,
+                'account_key' => $acct,
                 'filename' => $filename,
                 'mime_type' => $mimeType,
                 'size_bytes' => (int)$sizeBytes,
@@ -1367,7 +1369,14 @@ class SuperGlobalDatabase {
                 'storage_path' => $storagePath,
                 'supabase_object' => $supabaseObject,
                 'upload_date' => $uploadDate
-            ]], 'id');
+            ], $acct);
+        }
+        if (function_exists('supabaseLogActivity')) {
+            @supabaseLogActivity('FILE_CREATE', $filename, [
+                'file_id' => $id,
+                'size_bytes' => (int)$sizeBytes,
+                'mime_type' => $mimeType
+            ], $acct);
         }
     }
 
@@ -3844,6 +3853,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/gateway/send' || $u
         ];
     }
 
+    if (!empty($res['ok']) && !empty($res['code'])) {
+        if (function_exists('supabaseSyncGatewayTransfer')) {
+            @supabaseSyncGatewayTransfer($res['code'], $res);
+        }
+        if (function_exists('supabaseLogActivity')) {
+            @supabaseLogActivity('GATEWAY_SHARE', $res['code'], [
+                'kind' => $kind,
+                'code' => $res['code'],
+                'repo' => $res['repo'] ?? null
+            ]);
+        }
+    }
+
     if (empty($res['ok'])) {
         http_response_code(!empty($res['unlicensed']) ? 403 : 400);
     }
@@ -3863,7 +3885,11 @@ if (
     }
     $code = $inputData['code'] ?? $_POST['code'] ?? $_GET['code'] ?? '';
     $res = gatewayClaimByCode($code);
-    if (empty($res['ok'])) {
+    if (!empty($res['ok'])) {
+        if (function_exists('supabaseLogActivity')) {
+            @supabaseLogActivity('GATEWAY_CLAIM', $code, ['code' => $code]);
+        }
+    } else {
         http_response_code(404);
     }
     echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -3889,6 +3915,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && preg_match('#^/api/gateway/download/
         http_response_code(404);
         echo json_encode(['ok' => false, 'error' => 'Archivo zip no disponible en Supabase/local']);
         exit;
+    }
+    if (function_exists('supabaseLogActivity')) {
+        @supabaseLogActivity('GATEWAY_DOWNLOAD', $key, [
+            'code' => $key,
+            'filename' => $item['repo_name'] ?? 'repo',
+            'size' => filesize($zipPath)
+        ]);
     }
     header('Content-Type: application/zip');
     header('Content-Disposition: attachment; filename="' . ($item['repo_name'] ?? 'repo') . '.zip"');
@@ -4471,15 +4504,17 @@ if ($uri === '/api/agents' || strpos($uri, '/api/agents') === 0) {
 // Estado persistente de la plataforma (sobrevive al reload vía Supabase)
 if ($uri === '/api/platform/state' || $uri === '/api/session/state') {
     header('Content-Type: application/json; charset=utf-8');
+    $acct = function_exists('supabaseCurrentAccountKey') ? supabaseCurrentAccountKey() : null;
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $loaded = function_exists('supabaseLoadPlatformState')
-            ? supabaseLoadPlatformState()
-            : ['ok' => false, 'error' => 'supabase helpers missing', 'state' => null];
+        $loaded = function_exists('supabaseLoadAccountSessionState')
+            ? supabaseLoadAccountSessionState($acct)
+            : (function_exists('supabaseLoadPlatformState') ? supabaseLoadPlatformState() : ['ok' => false, 'error' => 'supabase helpers missing', 'state' => null]);
         echo json_encode([
             'ok' => !empty($loaded['ok']),
+            'account_key' => $acct,
             'state' => $loaded['state'] ?? null,
             'error' => $loaded['error'] ?? null,
-            'source' => !empty($loaded['ok']) ? 'supabase' : null
+            'source' => !empty($loaded['ok']) ? ($loaded['source'] ?? 'supabase') : null
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -4493,11 +4528,12 @@ if ($uri === '/api/platform/state' || $uri === '/api/session/state') {
             securityBadRequestJson($body['error'] ?? 'Bad request', $body['code'] ?? 'bad_request');
         }
         $state = platformSanitizeStatePayload($body['data'] ?? []);
-        $saved = function_exists('supabaseSavePlatformState')
-            ? supabaseSavePlatformState($state)
-            : ['ok' => false, 'error' => 'supabase helpers missing'];
+        $saved = function_exists('supabaseSaveAccountSessionState')
+            ? supabaseSaveAccountSessionState($state, $acct)
+            : (function_exists('supabaseSavePlatformState') ? supabaseSavePlatformState($state) : ['ok' => false, 'error' => 'supabase helpers missing']);
         echo json_encode([
             'ok' => !empty($saved['ok']),
+            'account_key' => $acct,
             'state' => $state,
             'error' => $saved['error'] ?? null
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -4962,6 +4998,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isClaude || $isUbuntu || $isZylon || $isLibreoffice || $isTiptap || $isStreamlit || $isToolkit || $isOpenCrypt || $isAgents || $isKeys || $isTokens || $isGateway || $isUpload || $isClear || $isWorkflows || $isStatus || $isThemes || $isAi || $isBash || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
 
     if (!$isValid) {
+        $durMs = (int)round((microtime(true) - $startTime) * 1000);
+        if (function_exists('supabaseLogCommand')) {
+            @supabaseLogCommand($rawCmd, 127, 'Your command does not exist....', $durMs, ['error' => 'invalid_command']);
+        }
+        if (function_exists('supabaseLogActivity')) {
+            @supabaseLogActivity('COMMAND_INVALID', $rawCmd, ['error' => 'Your command does not exist....'], null, 'error');
+        }
         echo json_encode([
             'ok' => false,
             'isError' => true,
@@ -5003,6 +5046,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             $targetRepo = 'langgenius/dify';
         }
         $cloneRes = cloneOrUpdateRepository($targetRepo);
+        if (function_exists('supabaseSyncRepositoryRecord')) {
+            @supabaseSyncRepositoryRecord([
+                'user_repo' => $targetRepo,
+                'name' => $targetRepo,
+                'cloned' => empty($cloneRes['unlicensed']),
+                'license' => $cloneRes['license'] ?? 'None',
+                'stars' => 0
+            ]);
+        }
         $catalogQuery = !empty($cloneRes['unlicensed']) ? '' : ($cloneRes['user_repo'] ?? $targetRepo);
         $catalog = buildGithubReposCatalog($catalogQuery, 1);
         $outputResult = array_merge($catalog, [
@@ -5022,6 +5074,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     } else if ($isSave) {
         $targetRepo = trim(preg_replace('/^save\s+/i', '', $rawCmd));
         $saveRes = saveGithubRepository($targetRepo);
+        if (function_exists('supabaseSyncRepositoryRecord')) {
+            @supabaseSyncRepositoryRecord([
+                'user_repo' => $targetRepo,
+                'name' => $targetRepo,
+                'cloned' => false,
+                'license' => $saveRes['license'] ?? 'None',
+                'stars' => 0
+            ]);
+        }
         $catalogQuery = !empty($saveRes['unlicensed']) ? '' : $targetRepo;
         $catalog = buildGithubReposCatalog($catalogQuery, 1);
         $outputResult = array_merge($catalog, [
@@ -5374,6 +5435,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         $outputResult = [
             'bigdata_ready' => true
         ];
+    }
+
+    $durMs = (int)round((microtime(true) - $startTime) * 1000);
+    if (function_exists('supabaseLogCommand')) {
+        @supabaseLogCommand($rawCmd, 0, $outputResult, $durMs, ['type' => $outputResult['type'] ?? 'COMMAND']);
+    }
+    if (function_exists('supabaseLogActivity')) {
+        @supabaseLogActivity('COMMAND_EXECUTE', $rawCmd, [
+            'output_type' => $outputResult['type'] ?? 'GENERAL',
+            'duration_ms' => $durMs
+        ]);
     }
 
     $tokenStatus = function_exists('tokensStatus') ? tokensStatus() : null;

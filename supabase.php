@@ -478,12 +478,390 @@ function supabaseDbSelect($table, $query = '') {
 }
 
 function supabaseDbDelete($table, $query = '') {
+    // Soft-delete de seguridad: en lugar de DELETE fisico, nunca se elimina nada.
     $q = $query !== '' ? ('?' . ltrim($query, '?')) : '';
     return supabaseDbRequest($table . $q, [
-        'method' => 'DELETE',
+        'method' => 'PATCH',
         'use_secret' => true,
-        'headers' => ['Prefer: return=minimal']
+        'headers' => ['Prefer: return=minimal'],
+        'body' => [
+            'is_deleted' => true,
+            'deleted_at' => gmdate('c')
+        ]
     ]);
+}
+
+/**
+ * Obtiene la cuenta activa para asociar toda la persistencia.
+ */
+function supabaseCurrentAccountKey() {
+    static $resolved = null;
+    if ($resolved !== null) return $resolved;
+
+    // 1) Sesion de Auth autenticada
+    if (function_exists('authSessionTokenFromRequest') && function_exists('authValidateSession')) {
+        $tok = authSessionTokenFromRequest();
+        if ($tok !== '') {
+            $val = authValidateSession($tok);
+            if (!empty($val['ok']) && !empty($val['account_id'])) {
+                $resolved = (string)$val['account_id'];
+                return $resolved;
+            }
+        }
+    }
+
+    // 2) Parametro explicito de request o header
+    $candidates = [
+        $_POST['account_key'] ?? '',
+        $_GET['account_key'] ?? '',
+        $_SERVER['HTTP_X_ACCOUNT_KEY'] ?? '',
+        $_SERVER['HTTP_X_L8_ACCOUNT'] ?? ''
+    ];
+    foreach ($candidates as $c) {
+        $c = trim((string)$c);
+        if ($c !== '' && preg_match('/^[a-zA-Z0-9_-]{3,64}$/', $c)) {
+            $resolved = $c;
+            return $resolved;
+        }
+    }
+
+    // 3) Identidad determinista anónima por IP + Pepper (sobrevive recargas)
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    $pepper = function_exists('authPepper') ? authPepper() : 'l8_pepper_fixed';
+    $resolved = 'anon_' . substr(hash_hmac('sha256', $ip, $pepper), 0, 16);
+    return $resolved;
+}
+
+/**
+ * Registra cada accion en l8_activity_log y espejo en Storage (inmutable, nunca se elimina).
+ */
+function supabaseLogActivity($action, $target = '', array $payload = [], $accountKey = null, $status = 'ok') {
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) return ['ok' => false, 'error' => 'Supabase no configurado'];
+
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $id = 'act_' . bin2hex(random_bytes(8)) . '_' . time();
+    $ipHash = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . (function_exists('authPepper') ? authPepper() : ''));
+    $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 200);
+
+    $row = [
+        'id' => $id,
+        'account_key' => $acct,
+        'action' => (string)$action,
+        'target' => substr((string)$target, 0, 255),
+        'payload' => $payload,
+        'ip_hash' => $ipHash,
+        'user_agent' => $ua,
+        'status' => (string)$status,
+        'created_at' => gmdate('c')
+    ];
+
+    // DB Postgres
+    $dbRes = supabaseDbUpsert('l8_activity_log', [$row], 'id');
+
+    // Storage mirror por cuenta
+    $path = 'meta/activity/' . rawurlencode($acct) . '/' . date('Y-m') . '.jsonl';
+    $line = json_encode($row, JSON_UNESCAPED_UNICODE) . "\n";
+    $exist = supabaseStorageDownload($path);
+    $all = (!empty($exist['ok']) && is_string($exist['data'])) ? ($exist['data'] . $line) : $line;
+    @supabaseStorageUpload($path, $all, 'text/plain', false);
+
+    return ['ok' => true, 'id' => $id, 'db' => $dbRes];
+}
+
+/**
+ * Registra cada comando ejecutado en l8_command_history (inmutable, nunca se elimina).
+ */
+function supabaseLogCommand($rawCmd, $exitCode = 0, $outputSnippet = '', $durationMs = 0, array $meta = [], $accountKey = null) {
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) return ['ok' => false, 'error' => 'Supabase no configurado'];
+
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $id = 'cmd_' . bin2hex(random_bytes(8)) . '_' . time();
+    $parts = explode(' ', trim((string)$rawCmd));
+    $norm = strtolower($parts[0] ?? '');
+
+    $snip = is_string($outputSnippet) ? $outputSnippet : json_encode($outputSnippet, JSON_UNESCAPED_UNICODE);
+    if (strlen($snip) > 1200) {
+        $snip = substr($snip, 0, 1200) . '… [truncado]';
+    }
+
+    $row = [
+        'id' => $id,
+        'account_key' => $acct,
+        'session_id' => (string)($meta['session_id'] ?? 'default'),
+        'raw_command' => (string)$rawCmd,
+        'normalized_command' => $norm,
+        'exit_code' => (int)$exitCode,
+        'output_snippet' => $snip,
+        'duration_ms' => (int)$durationMs,
+        'metadata' => $meta,
+        'created_at' => gmdate('c')
+    ];
+
+    // DB Postgres
+    $dbRes = supabaseDbUpsert('l8_command_history', [$row], 'id');
+
+    // Storage mirror por cuenta
+    $path = 'meta/commands/' . rawurlencode($acct) . '/' . date('Y-m') . '.jsonl';
+    $line = json_encode($row, JSON_UNESCAPED_UNICODE) . "\n";
+    $exist = supabaseStorageDownload($path);
+    $all = (!empty($exist['ok']) && is_string($exist['data'])) ? ($exist['data'] . $line) : $line;
+    @supabaseStorageUpload($path, $all, 'text/plain', false);
+
+    return ['ok' => true, 'id' => $id, 'db' => $dbRes];
+}
+
+/**
+ * Guarda documentos (TipTap / LibreOffice) con historial de versiones en DB y Storage.
+ */
+function supabaseSaveDocumentRecord($docId, $title, $docType, $content, array $meta = [], $accountKey = null) {
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) return ['ok' => false, 'error' => 'Supabase no configurado'];
+
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $normDocId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$docId) ?: 'main';
+    $pk = $acct . '_' . $docType . '_' . $normDocId;
+
+    // Buscar version actual
+    $prev = supabaseDbSelect('l8_documents', 'id=eq.' . rawurlencode($pk) . '&select=version');
+    $curVer = 1;
+    if (!empty($prev['ok']) && is_array($prev['body']) && !empty($prev['body'][0]['version'])) {
+        $curVer = (int)$prev['body'][0]['version'] + 1;
+    }
+
+    $now = gmdate('c');
+    $docRow = [
+        'id' => $pk,
+        'account_key' => $acct,
+        'title' => substr((string)$title, 0, 150) ?: 'Documento',
+        'doc_type' => (string)$docType,
+        'content' => is_string($content) ? $content : json_encode($content, JSON_UNESCAPED_UNICODE),
+        'meta' => $meta,
+        'version' => $curVer,
+        'is_deleted' => false,
+        'deleted_at' => null,
+        'updated_at' => $now
+    ];
+
+    $dbDoc = supabaseDbUpsert('l8_documents', [$docRow], 'id');
+
+    // Historial inmutable
+    $histId = 'dochist_' . $pk . '_v' . $curVer . '_' . time();
+    $histRow = [
+        'id' => $histId,
+        'document_id' => $pk,
+        'account_key' => $acct,
+        'version' => $curVer,
+        'content' => $docRow['content'],
+        'meta' => $meta,
+        'created_at' => $now
+    ];
+    @supabaseDbUpsert('l8_documents_history', [$histRow], 'id');
+
+    // Storage mirror
+    $storagePath = 'docs/' . rawurlencode($acct) . '/' . $docType . '/' . $normDocId . '.json';
+    @supabaseStorageUploadJson($storagePath, $docRow);
+
+    supabaseLogActivity('DOC_SAVE', $docType . ':' . $normDocId, [
+        'title' => $title,
+        'version' => $curVer,
+        'bytes' => strlen($docRow['content'])
+    ], $acct);
+
+    return ['ok' => true, 'id' => $pk, 'version' => $curVer, 'db' => $dbDoc];
+}
+
+/**
+ * Carga un documento desde Supabase DB o Storage.
+ */
+function supabaseLoadDocumentRecord($docId, $docType = 'tiptap', $accountKey = null) {
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $normDocId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$docId) ?: 'main';
+    $pk = $acct . '_' . $docType . '_' . $normDocId;
+
+    $db = supabaseDbSelect('l8_documents', 'id=eq.' . rawurlencode($pk) . '&is_deleted=eq.false&limit=1');
+    if (!empty($db['ok']) && is_array($db['body']) && !empty($db['body'][0])) {
+        return ['ok' => true, 'doc' => $db['body'][0], 'source' => 'db'];
+    }
+
+    $storagePath = 'docs/' . rawurlencode($acct) . '/' . $docType . '/' . $normDocId . '.json';
+    $st = supabaseStorageDownloadJson($storagePath);
+    if (!empty($st['ok']) && is_array($st['data'])) {
+        return ['ok' => true, 'doc' => $st['data'], 'source' => 'storage'];
+    }
+
+    return ['ok' => false, 'error' => 'Documento no encontrado'];
+}
+
+/**
+ * Soft delete: marca is_deleted = true para nunca perder datos fisicos.
+ */
+function supabaseSoftDeleteRecord($table, $id, $accountKey = null) {
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $res = supabaseDbRequest($table . '?id=eq.' . rawurlencode($id), [
+        'method' => 'PATCH',
+        'use_secret' => true,
+        'headers' => ['Prefer: return=minimal'],
+        'body' => [
+            'is_deleted' => true,
+            'deleted_at' => gmdate('c')
+        ]
+    ]);
+    supabaseLogActivity('SOFT_DELETE', $table . ':' . $id, ['table' => $table, 'id' => $id], $acct);
+    return $res;
+}
+
+/**
+ * Guarda sesión persistente por cuenta (pestañas Tabby, feeds, último comando).
+ */
+function supabaseSaveAccountSessionState(array $state, $accountKey = null) {
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $pk = 'sess_' . $acct;
+    $now = gmdate('c');
+
+    $row = [
+        'id' => $pk,
+        'account_key' => $acct,
+        'state' => $state,
+        'is_deleted' => false,
+        'updated_at' => $now
+    ];
+
+    $db = supabaseDbUpsert('l8_account_sessions', [$row], 'id');
+    @supabaseStorageUploadJson('meta/sessions/' . rawurlencode($acct) . '.json', $row);
+    return ['ok' => true, 'account_key' => $acct, 'db' => $db];
+}
+
+/**
+ * Carga sesión persistente por cuenta.
+ */
+function supabaseLoadAccountSessionState($accountKey = null) {
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $pk = 'sess_' . $acct;
+
+    $db = supabaseDbSelect('l8_account_sessions', 'id=eq.' . rawurlencode($pk) . '&is_deleted=eq.false&limit=1');
+    if (!empty($db['ok']) && is_array($db['body']) && !empty($db['body'][0]['state'])) {
+        return ['ok' => true, 'state' => $db['body'][0]['state'], 'source' => 'db'];
+    }
+
+    $st = supabaseStorageDownloadJson('meta/sessions/' . rawurlencode($acct) . '.json');
+    if (!empty($st['ok']) && is_array($st['data']) && !empty($st['data']['state'])) {
+        return ['ok' => true, 'state' => $st['data']['state'], 'source' => 'storage'];
+    }
+
+    return ['ok' => false, 'error' => 'Sin sesión previa'];
+}
+
+/**
+ * Sincroniza repositorio clonado o guardado por cuenta.
+ */
+function supabaseSyncRepositoryRecord(array $repo, $accountKey = null) {
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $userRepo = (string)($repo['user_repo'] ?? $repo['id'] ?? '');
+    if ($userRepo === '') return ['ok' => false, 'error' => 'user_repo vacio'];
+
+    $id = 'repo_' . hash('sha256', $acct . ':' . strtolower($userRepo));
+    $row = [
+        'id' => $id,
+        'account_key' => $acct,
+        'user_repo' => $userRepo,
+        'name' => (string)($repo['name'] ?? $userRepo),
+        'branch' => (string)($repo['branch'] ?? 'main'),
+        'remote_url' => (string)($repo['remote_url'] ?? ''),
+        'license' => (string)($repo['license'] ?? 'None'),
+        'stars' => (int)($repo['stars'] ?? 0),
+        'is_private' => !empty($repo['is_private']),
+        'cloned' => !empty($repo['cloned']),
+        'meta' => $repo['meta'] ?? $repo,
+        'is_deleted' => false,
+        'deleted_at' => null,
+        'updated_at' => gmdate('c')
+    ];
+
+    $db = supabaseDbUpsert('l8_repos', [$row], 'id');
+    supabaseLogActivity('REPO_SYNC', $userRepo, ['cloned' => $row['cloned'], 'branch' => $row['branch']], $acct);
+    return ['ok' => true, 'id' => $id, 'db' => $db];
+}
+
+/**
+ * Sincroniza archivo creado o subido por cuenta.
+ */
+function supabaseSyncFileRecord(array $file, $accountKey = null) {
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $fileId = (string)($file['id'] ?? '');
+    if ($fileId === '') return ['ok' => false, 'error' => 'id de archivo vacio'];
+
+    $row = [
+        'id' => $fileId,
+        'account_key' => $acct,
+        'filename' => (string)($file['filename'] ?? $fileId),
+        'mime_type' => (string)($file['mime_type'] ?? 'application/octet-stream'),
+        'size_bytes' => (int)($file['size_bytes'] ?? $file['size'] ?? 0),
+        'hash' => (string)($file['hash'] ?? ''),
+        'storage_path' => (string)($file['storage_path'] ?? ''),
+        'supabase_object' => (string)($file['supabase_object'] ?? ('files/' . $fileId)),
+        'meta' => $file['meta'] ?? $file,
+        'is_deleted' => false,
+        'deleted_at' => null,
+        'upload_date' => $file['upload_date'] ?? gmdate('c')
+    ];
+
+    $db = supabaseDbUpsert('l8_files', [$row], 'id');
+    supabaseLogActivity('FILE_SYNC', $row['filename'], ['size' => $row['size_bytes'], 'mime' => $row['mime_type']], $acct);
+    return ['ok' => true, 'id' => $fileId, 'db' => $db];
+}
+
+/**
+ * Sincroniza transferencias y códigos de Gateway.
+ */
+function supabaseSyncGatewayTransfer($code, array $fileInfo, $accountKey = null) {
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $code = strtoupper(trim((string)$code));
+    if ($code === '') return ['ok' => false, 'error' => 'Codigo gateway vacio'];
+
+    $id = 'gw_' . hash('sha256', $code);
+    $row = [
+        'id' => $id,
+        'account_key' => $acct,
+        'code' => $code,
+        'filename' => (string)($fileInfo['filename'] ?? ''),
+        'mime_type' => (string)($fileInfo['mime_type'] ?? ''),
+        'size_bytes' => (int)($fileInfo['size_bytes'] ?? 0),
+        'storage_path' => (string)($fileInfo['storage_path'] ?? ''),
+        'downloads_count' => (int)($fileInfo['downloads_count'] ?? 0),
+        'meta' => $fileInfo,
+        'is_deleted' => false,
+        'deleted_at' => null,
+        'updated_at' => gmdate('c')
+    ];
+
+    $db = supabaseDbUpsert('l8_gateway_transfers', [$row], 'id');
+    supabaseLogActivity('GATEWAY_SYNC', $code, ['filename' => $row['filename'], 'size' => $row['size_bytes']], $acct);
+    return ['ok' => true, 'id' => $id, 'db' => $db];
+}
+
+/**
+ * Sincroniza códigos únicos OpenCryptG.
+ */
+function supabaseSyncOpencryptCode($code, array $meta = [], $accountKey = null) {
+    $acct = $accountKey ?: supabaseCurrentAccountKey();
+    $code = strtoupper(trim((string)$code));
+    if ($code === '') return ['ok' => false, 'error' => 'Codigo OpenCrypt vacio'];
+
+    $id = 'ocg_' . hash('sha256', $code);
+    $row = [
+        'id' => $id,
+        'account_key' => $acct,
+        'code' => $code,
+        'meta' => $meta,
+        'is_deleted' => false,
+        'created_at' => gmdate('c')
+    ];
+
+    $db = supabaseDbUpsert('l8_opencrypt_ledger', [$row], 'id');
+    supabaseLogActivity('OPENCRYPT_CODE_SYNC', $code, $meta, $acct);
+    return ['ok' => true, 'id' => $id, 'db' => $db];
 }
 
 /** Hidrata índices críticos desde Supabase (una vez por request PHP). */

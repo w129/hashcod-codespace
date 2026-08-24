@@ -4,6 +4,8 @@
  * Frontend: tiptap_editor/ (https://github.com/ueberdosis/tiptap)
  */
 
+require_once __DIR__ . '/supabase.php';
+
 function tiptapRootDir() {
     return __DIR__ . '/data_storage/tiptap';
 }
@@ -49,6 +51,24 @@ function tiptapLoadDoc($id = 'main') {
     tiptapEnsureDirs();
     $id = tiptapNormalizeId($id);
     $path = tiptapDocPath($id);
+
+    if (function_exists('supabaseLoadDocumentRecord')) {
+        $remote = @supabaseLoadDocumentRecord($id, 'tiptap');
+        if (!empty($remote['ok']) && is_array($remote['doc'])) {
+            $rd = $remote['doc'];
+            return [
+                'ok' => true,
+                'id' => $id,
+                'title' => $rd['title'] ?? 'Documento sin título',
+                'html' => $rd['content'] ?? ($rd['html'] ?? ''),
+                'json' => $rd['meta']['json'] ?? null,
+                'updated_at' => $rd['updated_at'] ?? null,
+                'engine' => 'tiptap',
+                'source' => 'https://github.com/ueberdosis/tiptap'
+            ];
+        }
+    }
+
     if (!is_file($path)) {
         $doc = tiptapDefaultDoc($id);
         $doc['ok'] = true;
@@ -101,6 +121,12 @@ function tiptapSaveDoc($payload) {
         return ['ok' => false, 'error' => 'Documento demasiado grande'];
     }
     $ok = @file_put_contents(tiptapDocPath($id), $encoded) !== false;
+
+    // Persistencia inmutable a Supabase DB + Storage
+    if (function_exists('supabaseSaveDocumentRecord')) {
+        @supabaseSaveDocumentRecord($id, $title, 'tiptap', $html, ['json' => $json]);
+    }
+
     return [
         'ok' => $ok,
         'saved' => $ok,

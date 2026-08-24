@@ -49,7 +49,8 @@ $REGISTERED_COMMANDS = [
     "agents"      => "Catálogo de 50+ Agentes de Ingeniería de IA especializados (Agency Swarm)",
     "keys"        => "Administrador de claves y credenciales API cifradas con AES-256-GCM",
     "tokens"      => "Consulta de cupo mensual y ledger de transacciones de tokens",
-    "gateway"     => "Portal PQC Crescent Gateway para compartir recursos con Dilithium-5"
+    "gateway"     => "Portal PQC Crescent Gateway para compartir recursos con Dilithium-5",
+    "warp"        => "Abre el entorno interactivo Warp Terminal & Bash Engine (Herramienta #3 con motor Bash 4.3)"
 ];
 
 $STORAGE_DIR = __DIR__ . '/data_storage';
@@ -3616,6 +3617,7 @@ require_once __DIR__ . '/hashcod-keys.php';
 require_once __DIR__ . '/ai-chat.php';
 require_once __DIR__ . '/opencrypt-gen.php';
 require_once __DIR__ . '/durable-objects.php';
+require_once __DIR__ . '/bash-engine.php';
 if (function_exists('authHandleApi') && authHandleApi($uri)) {
     exit;
 }
@@ -3632,6 +3634,9 @@ if (function_exists('ocgHandleApi') && ocgHandleApi($uri)) {
     exit;
 }
 if (function_exists('doHandleApi') && doHandleApi($uri)) {
+    exit;
+}
+if (function_exists('bashHandleApi') && bashHandleApi($uri)) {
     exit;
 }
 

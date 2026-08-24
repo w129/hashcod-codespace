@@ -1,0 +1,642 @@
+/* =====================================================================
+   Warp Terminal Frame — Tool #3 (Figma Exact Architecture)
+   ===================================================================== */
+
+.warp-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.warp-modal-overlay.open {
+    display: flex;
+    opacity: 1;
+}
+
+/* terminal-frame */
+.warp-terminal-frame {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    width: 100%;
+    max-width: 1040px;
+    height: 700px;
+    max-height: 92vh;
+    background: #141414;
+    border: 1px solid #333333;
+    box-shadow: 0px 24px 48px rgba(0, 0, 0, 0.627451);
+    border-radius: 16px;
+    overflow: hidden;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    font-family: 'JetBrains Mono', 'Geist Mono', 'IBM Plex Mono', monospace;
+    position: relative;
+    transform: scale(0.98);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.warp-modal-overlay.open .warp-terminal-frame {
+    transform: scale(1);
+}
+
+/* sidebar */
+.warp-sidebar {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0px;
+    width: 64px;
+    min-width: 64px;
+    height: 100%;
+    background: #111111;
+    border-right: 1px solid #333333;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+    z-index: 10;
+}
+
+/* sidebar-top */
+.warp-sidebar-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 8px;
+    width: 40px;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.warp-sidebar-top::-webkit-scrollbar {
+    display: none;
+}
+
+/* sidebar-bottom */
+.warp-sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 12px;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+}
+
+/* Botones de la barra lateral (sidebar-btn) */
+.warp-sidebar-btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    transition: all 0.15s ease;
+    flex: none;
+    position: relative;
+}
+
+.warp-sidebar-btn:hover {
+    background: #1A1A1A;
+    transform: translateY(-1px);
+}
+
+.warp-sidebar-btn.active {
+    background: #1A1A1A;
+    box-shadow: 0 0 0 1px #333333;
+}
+
+.warp-sidebar-btn svg {
+    display: block;
+    flex-shrink: 0;
+}
+
+/* main-stack */
+.warp-main-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    width: calc(100% - 64px);
+    height: 100%;
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+/* title-bar */
+.warp-title-bar {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 16px;
+    width: 100%;
+    height: 48px;
+    min-height: 48px;
+    background: #111111;
+    border-bottom: 1px solid #333333;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+    user-select: none;
+}
+
+/* traffic-lights */
+.warp-traffic-lights {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    gap: 8px;
+    width: 52px;
+    height: 12px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+}
+
+.warp-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: filter 0.15s ease;
+}
+
+.warp-light.close {
+    background: #FF5F56;
+}
+
+.warp-light.minimize {
+    background: #FFBD2E;
+}
+
+.warp-light.expand {
+    background: #27C93F;
+}
+
+.warp-light:hover {
+    filter: brightness(1.15);
+}
+
+/* tabs-container */
+.warp-tabs-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    gap: 4px;
+    height: 28px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+}
+
+/* active-tab */
+.warp-tab-item {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 14px;
+    gap: 8px;
+    height: 28px;
+    background: #1A1A1A;
+    border-width: 1px 1px 0px 1px;
+    border-style: solid;
+    border-color: #333333;
+    border-radius: 8px 8px 0px 0px;
+    cursor: pointer;
+    color: #FFFFFF;
+    font-family: 'Geist', 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.warp-tab-item.active {
+    background: #1A1A1A;
+    border-color: #333333;
+}
+
+.warp-tab-close {
+    background: transparent;
+    border: none;
+    color: #888888;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+}
+
+.warp-tab-close:hover {
+    color: #FFFFFF;
+}
+
+.warp-add-tab-btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.warp-add-tab-btn:hover {
+    background: #1A1A1A;
+}
+
+/* window-actions */
+.warp-window-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    gap: 12px;
+    height: 16px;
+    flex: none;
+    order: 2;
+    flex-grow: 0;
+}
+
+.warp-window-action-btn {
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
+}
+
+.warp-window-action-btn:hover {
+    opacity: 1;
+}
+
+/* main-terminal */
+.warp-main-terminal {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px 32px;
+    width: 100%;
+    height: calc(100% - 48px - 84px - 32px);
+    background: #000000;
+    overflow-y: auto;
+    box-sizing: border-box;
+    flex: 1;
+    align-self: stretch;
+    flex-grow: 1;
+}
+
+.warp-terminal-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+/* ambient-placeholder */
+.warp-ambient-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    gap: 12px;
+    width: 100%;
+    height: 120px;
+    opacity: 0.35;
+    user-select: none;
+    margin: auto 0;
+    transition: opacity 0.2s ease;
+}
+
+.warp-ambient-placeholder.hidden {
+    display: none;
+}
+
+.warp-placeholder-title {
+    font-family: 'JetBrains Mono', 'Geist Mono', monospace;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    text-align: center;
+    color: #AAAAAA;
+}
+
+.warp-placeholder-sub {
+    font-family: 'Geist', 'IBM Plex Sans', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    color: #666666;
+}
+
+/* Bloques de comando y salida */
+.warp-cmd-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    animation: warpFadeIn 0.18s ease;
+}
+
+@keyframes warpFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.warp-cmd-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #FFFFFF;
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.warp-cmd-line .prompt-symbol {
+    color: #10B981;
+}
+
+.warp-cmd-output {
+    background: #0D0E14;
+    border: 1px solid #222226;
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #E2E8F0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-x: auto;
+}
+
+/* prompt-outer */
+.warp-prompt-outer {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px 24px;
+    width: 100%;
+    height: 84px;
+    min-height: 84px;
+    background: #000000;
+    flex: none;
+    order: 2;
+    align-self: stretch;
+    flex-grow: 0;
+}
+
+/* prompt-block-input */
+.warp-prompt-block-input {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 12px;
+    width: 100%;
+    height: 52px;
+    background: #1A1A1A;
+    border: 1px solid #333333;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+}
+
+.warp-prompt-symbol {
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 21px;
+    color: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.warp-input-field {
+    flex: 1;
+    height: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    color: #FFFFFF;
+    caret-color: #FFFFFF;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+}
+
+.warp-input-field::placeholder {
+    color: #666666;
+}
+
+/* prompt-actions */
+.warp-prompt-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* ai-badge */
+.warp-ai-badge {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 5px 10px;
+    gap: 6px;
+    height: 26px;
+    background: #1A1A1A;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #FFFFFF;
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 14px;
+}
+
+.warp-ai-badge:hover {
+    background: #252525;
+}
+
+.warp-shortcut-indicator {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    background: #2D2D44;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #8F8FA3;
+}
+
+/* run-button */
+.warp-run-button {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px;
+    width: 28px;
+    height: 28px;
+    background: #FFFFFF;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #000000;
+    transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.warp-run-button:hover {
+    background: #E2E8F0;
+    transform: scale(1.05);
+}
+
+.warp-run-button:active {
+    transform: scale(0.95);
+}
+
+/* status-bar */
+.warp-status-bar {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 16px;
+    width: 100%;
+    height: 32px;
+    min-height: 32px;
+    background: #0A0A0A;
+    border-top: 1px solid #333333;
+    flex: none;
+    order: 3;
+    align-self: stretch;
+    flex-grow: 0;
+    font-size: 11px;
+    color: #666666;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.warp-status-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    gap: 12px;
+}
+
+.warp-status-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.warp-status-divider {
+    width: 1px;
+    height: 12px;
+    background: #333333;
+}
+
+.warp-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10B981;
+}
+
+.warp-status-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    gap: 14px;
+}
+
+/* Sub-ventanas modulares de las herramientas del Sidebar */
+.warp-tool-subwindow {
+    display: none;
+    position: absolute;
+    top: 48px;
+    left: 64px;
+    right: 0;
+    bottom: 32px;
+    background: #141414;
+    z-index: 20;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.warp-tool-subwindow.open {
+    display: flex;
+    flex-direction: column;
+}

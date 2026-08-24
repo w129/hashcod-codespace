@@ -84,10 +84,10 @@ svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-c
     gap: 8px;
     padding: 7px 12px;
     background: #ffffff;
-    border: 1px solid #dcdad5;
+    border: 1px solid #cbd5e1;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    border-bottom: none;
+    border-bottom: 1px solid #e2e8f0;
     font-family: var(--tabby-font);
     font-size: 11.5px;
     user-select: none;

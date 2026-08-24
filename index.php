@@ -16400,13 +16400,13 @@ if (!headers_sent()) {
                         <button class="warp-light minimize" title="Minimizar"></button>
                         <button class="warp-light expand" title="Maximizar"></button>
                     </div>
-                    <div class="warp-tabs-container">
-                        <div class="warp-tab-item active" id="warpActiveTab">
-                            <span style="display:inline-flex; width:14px; height:14px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.4515 1.64287C11.791 1.45238 12.209 1.45238 12.548 1.64287C14.2255 2.58437 19.2735 5.41837 20.9515 6.35987C21.291 6.54987 21.5 6.90187 21.5 7.28287C21.5 9.16587 21.5 14.8334 21.5 16.7164C21.5 17.0974 21.291 17.4494 20.9515 17.6399C19.274 18.5814 14.226 21.4154 12.548 22.3569C12.2085 22.5474 11.7905 22.5474 11.4515 22.3569C9.774 21.4154 4.726 18.5814 3.048 17.6399C2.709 17.4494 2.5 17.0979 2.5 16.7169C2.5 14.8339 2.5 9.16637 2.5 7.28337C2.5 6.90237 2.709 6.55037 3.0485 6.35987C4.7255 5.41837 9.7745 2.58437 11.4515 1.64287Z" fill="white"/></svg></span>
-                            <span>Node.js</span>
-                            <button class="warp-tab-close" title="Cerrar pestaña">&times;</button>
+                    <div class="warp-tabs-container" id="warpTabsContainer">
+                        <div class="warp-tab-item active" id="warpActiveTab" onclick="window.selectWarpTab && window.selectWarpTab('tab-1')">
+                            <span class="warp-tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.4515 1.64287C11.791 1.45238 12.209 1.45238 12.548 1.64287C14.2255 2.58437 19.2735 5.41837 20.9515 6.35987C21.291 6.54987 21.5 6.90187 21.5 7.28287C21.5 9.16587 21.5 14.8334 21.5 16.7164C21.5 17.0974 21.291 17.4494 20.9515 17.6399C19.274 18.5814 14.226 21.4154 12.548 22.3569C12.2085 22.5474 11.7905 22.5474 11.4515 22.3569C9.774 21.4154 4.726 18.5814 3.048 17.6399C2.709 17.4494 2.5 17.0979 2.5 16.7169C2.5 14.8339 2.5 9.16637 2.5 7.28337C2.5 6.90237 2.709 6.55037 3.0485 6.35987C4.7255 5.41837 9.7745 2.58437 11.4515 1.64287Z" fill="white"/></svg></span>
+                            <span class="warp-tab-title">Node.js</span>
+                            <button type="button" class="warp-tab-close" title="Cerrar pestaña" onclick="window.closeWarpTab && window.closeWarpTab('tab-1', event)">&times;</button>
                         </div>
-                        <button class="warp-add-tab-btn" title="Nueva pestaña">+</button>
+                        <button type="button" class="warp-add-tab-btn" id="warpAddTabBtn" onclick="window.createWarpTab && window.createWarpTab()" title="Nueva pestaña">+</button>
                     </div>
                     <div class="warp-window-actions">
                         <button class="warp-window-action-btn" title="Buscar"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.16667 2.5C3.24583 2.5 2.5 3.24583 2.5 4.16667V15.8333C2.5 16.7542 3.24583 17.5 4.16667 17.5H15.8333C16.7542 17.5 17.5 16.7542 17.5 15.8333V4.16667C17.5 3.24583 16.7542 2.5 15.8333 2.5H4.16667ZM9.16667 5C11.4675 5 13.3333 6.86583 13.3333 9.16667C13.3333 10.0158 13.0766 10.8033 12.64 11.4616L15 13.8216L13.8216 15L11.4616 12.64C10.8033 13.0766 10.0158 13.3333 9.16667 13.3333C6.86583 13.3333 5 11.4675 5 9.16667C5 6.86583 6.86583 5 9.16667 5Z" fill="white"/></svg></button>

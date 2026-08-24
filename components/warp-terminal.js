@@ -52,14 +52,24 @@
     };
 
     let activeToolId = 'home';
-    let commandHistory = [];
+    let tabs = [
+        { id: 'tab-1', title: 'Node.js', icon: 'nodejs', feed: [], history: [], cwd: '~/workspace' }
+    ];
+    let activeTabId = 'tab-1';
+    let tabCounter = 1;
     let historyIndex = -1;
+
+    function getActiveTab() {
+        return tabs.find(t => t.id === activeTabId) || tabs[0];
+    }
 
     const WarpTerminal = {
         open() {
             const modal = document.getElementById('tool3Modal') || document.getElementById('warpTerminalModal');
             if (modal) {
                 modal.classList.add('open');
+                renderTabs();
+                renderActiveFeed();
                 setTimeout(() => {
                     const inp = modal.querySelector('#warpCmdInput') || document.getElementById('warpCmdInput');
                     if (inp) inp.focus();
@@ -81,8 +91,9 @@
         async executeCommand(cmd) {
             if (!cmd || !cmd.trim()) return;
             const command = cmd.trim();
-            commandHistory.push(command);
-            historyIndex = commandHistory.length;
+            const curTab = getActiveTab();
+            curTab.history.push(command);
+            historyIndex = curTab.history.length;
 
             const feed = document.getElementById('warpTerminalFeed');
             const placeholder = document.getElementById('warpAmbientPlaceholder');
@@ -109,21 +120,147 @@
                 const data = await res.json();
                 const outputEl = block.querySelector('.warp-cmd-output');
 
-                if (data.ok) {
-                    outputEl.textContent = data.stdout || '(Comando ejecutado sin salida)';
-                    outputEl.style.color = '#E2E8F0';
-                } else {
-                    outputEl.textContent = data.stderr || data.error || 'Error en ejecución';
-                    outputEl.style.color = '#EF4444';
-                }
+                const outputText = data.ok ? (data.stdout || '(Comando ejecutado sin salida)') : (data.stderr || data.error || 'Error en ejecución');
+                const isOk = !!data.ok;
+
+                outputEl.textContent = outputText;
+                outputEl.style.color = isOk ? '#E2E8F0' : '#EF4444';
+
+                // Guardar en el feed persistente de la pestaña activa
+                curTab.feed.push({
+                    command: command,
+                    output: outputText,
+                    ok: isOk,
+                    time: Date.now()
+                });
             } catch (e) {
                 const outputEl = block.querySelector('.warp-cmd-output');
-                outputEl.textContent = 'Error de conexión: ' + e.message;
+                const errText = 'Error de conexión: ' + e.message;
+                outputEl.textContent = errText;
                 outputEl.style.color = '#EF4444';
+                curTab.feed.push({
+                    command: command,
+                    output: errText,
+                    ok: false,
+                    time: Date.now()
+                });
             }
             scrollFeedToBottom();
         }
     };
+
+    function renderTabs() {
+        const containers = document.querySelectorAll('.warp-tabs-container');
+        containers.forEach(container => {
+            container.innerHTML = '';
+            tabs.forEach(tab => {
+                const isActive = tab.id === activeTabId;
+                const tabEl = document.createElement('div');
+                tabEl.className = 'warp-tab-item' + (isActive ? ' active' : '');
+                tabEl.setAttribute('data-tab-id', tab.id);
+                tabEl.title = tab.title;
+                tabEl.onclick = () => window.selectWarpTab(tab.id);
+                tabEl.innerHTML = `
+                    <span class="warp-tab-icon">${SVG_ICONS[tab.icon] || SVG_ICONS.nodejs}</span>
+                    <span class="warp-tab-title">${escapeHtml(tab.title)}</span>
+                    <button type="button" class="warp-tab-close" title="Cerrar pestaña" onclick="window.closeWarpTab('${tab.id}', event)">&times;</button>
+                `;
+                container.appendChild(tabEl);
+            });
+
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'warp-add-tab-btn';
+            addBtn.id = 'warpAddTabBtn';
+            addBtn.title = 'Nueva pestaña';
+            addBtn.textContent = '+';
+            addBtn.onclick = (e) => {
+                e.stopPropagation();
+                window.createWarpTab();
+            };
+            container.appendChild(addBtn);
+        });
+    }
+
+    window.createWarpTab = function (title) {
+        tabCounter++;
+        const newId = 'tab-' + tabCounter;
+        const tabTitle = title || ('Node.js ' + tabCounter);
+        tabs.push({
+            id: newId,
+            title: tabTitle,
+            icon: 'nodejs',
+            feed: [],
+            history: [],
+            cwd: '~/workspace'
+        });
+        window.selectWarpTab(newId);
+    };
+
+    window.selectWarpTab = function (tabId) {
+        activeTabId = tabId;
+        renderTabs();
+        renderActiveFeed();
+        const tab = getActiveTab();
+        historyIndex = tab.history.length;
+        const pathEl = document.getElementById('warpStatusPath');
+        if (pathEl) pathEl.textContent = tab.cwd || '~/workspace';
+        const inp = document.getElementById('warpCmdInput');
+        if (inp) {
+            inp.value = '';
+            inp.focus();
+        }
+    };
+
+    window.closeWarpTab = function (tabId, event) {
+        if (event) event.stopPropagation();
+        const index = tabs.findIndex(t => t.id === tabId);
+        if (index === -1) return;
+        tabs.splice(index, 1);
+        if (tabs.length === 0) {
+            tabCounter++;
+            const newId = 'tab-' + tabCounter;
+            tabs.push({
+                id: newId,
+                title: 'Node.js',
+                icon: 'nodejs',
+                feed: [],
+                history: [],
+                cwd: '~/workspace'
+            });
+            activeTabId = newId;
+        } else if (activeTabId === tabId) {
+            activeTabId = tabs[Math.max(0, index - 1)].id;
+        }
+        renderTabs();
+        renderActiveFeed();
+    };
+
+    function renderActiveFeed() {
+        const tab = getActiveTab();
+        const feed = document.getElementById('warpTerminalFeed');
+        const placeholder = document.getElementById('warpAmbientPlaceholder');
+        if (!feed) return;
+        feed.innerHTML = '';
+        if (tab.feed && tab.feed.length > 0) {
+            if (placeholder) placeholder.classList.add('hidden');
+            tab.feed.forEach(item => {
+                const block = document.createElement('div');
+                block.className = 'warp-cmd-block';
+                block.innerHTML = `
+                    <div class="warp-cmd-line">
+                        <span class="prompt-symbol">&gt;</span>
+                        <span>${escapeHtml(item.command)}</span>
+                    </div>
+                    <div class="warp-cmd-output" style="color:${item.ok ? '#E2E8F0' : '#EF4444'}; white-space:pre-wrap; font-family:'Geist Mono', 'IBM Plex Mono', monospace;">${escapeHtml(item.output)}</div>
+                `;
+                feed.appendChild(block);
+            });
+        } else {
+            if (placeholder) placeholder.classList.remove('hidden');
+        }
+        scrollFeedToBottom();
+    }
 
     function createWarpModal() {
         const modal = document.createElement('div');
@@ -347,27 +484,31 @@
 
     // Auto-montar o inicializar en el DOM al cargar
     function initWarpTerminal() {
+        renderTabs();
+        renderActiveFeed();
+
         const input = document.getElementById('warpCmdInput');
         if (input && !input._warpBound) {
             input._warpBound = true;
             input.addEventListener('keydown', (e) => {
+                const curTab = getActiveTab();
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     window.submitWarpInput();
                 } else if (e.key === 'ArrowUp') {
-                    if (commandHistory.length && historyIndex > 0) {
+                    if (curTab.history.length && historyIndex > 0) {
                         historyIndex--;
-                        input.value = commandHistory[historyIndex] || '';
-                    } else if (commandHistory.length && historyIndex === -1) {
-                        historyIndex = commandHistory.length - 1;
-                        input.value = commandHistory[historyIndex] || '';
+                        input.value = curTab.history[historyIndex] || '';
+                    } else if (curTab.history.length && historyIndex === -1) {
+                        historyIndex = curTab.history.length - 1;
+                        input.value = curTab.history[historyIndex] || '';
                     }
                 } else if (e.key === 'ArrowDown') {
-                    if (commandHistory.length && historyIndex < commandHistory.length - 1) {
+                    if (curTab.history.length && historyIndex < curTab.history.length - 1) {
                         historyIndex++;
-                        input.value = commandHistory[historyIndex] || '';
+                        input.value = curTab.history[historyIndex] || '';
                     } else {
-                        historyIndex = commandHistory.length;
+                        historyIndex = curTab.history.length;
                         input.value = '';
                     }
                 }

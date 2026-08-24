@@ -63,18 +63,17 @@ body[data-tabby-theme="dracula"] {
     --tabby-code-bg: #191a21;
 }
 
-/* Regla estricta para que NINGÚN SVG se desborde jamás */
+/* Regla estricta para que NINGÚN SVG se desborde */
 svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-container svg {
-    width: 14px !important;
-    height: 14px !important;
-    max-width: 14px !important;
-    max-height: 14px !important;
-    min-width: 14px !important;
-    min-height: 14px !important;
+    width: 13px !important;
+    height: 13px !important;
+    max-width: 13px !important;
+    max-height: 13px !important;
+    min-width: 13px !important;
+    min-height: 13px !important;
     display: inline-block !important;
     vertical-align: middle !important;
     flex-shrink: 0 !important;
-    fill: currentColor;
 }
 
 /* Barra de Contexto Tabby sobre el Prompt (>) */
@@ -82,63 +81,127 @@ svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-c
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
-    padding: 6px 10px;
-    background: #18181f;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    border-bottom: 1px solid #2e3440;
+    gap: 8px;
+    padding: 7px 12px;
+    background: linear-gradient(180deg, #16171e 0%, #0d0e14 100%);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     font-family: var(--tabby-font);
-    font-size: 11px;
+    font-size: 11.5px;
     user-select: none;
     flex-wrap: wrap;
-    color: #d8dee9;
+    color: #e2e8f0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+body[data-tabby-theme="tabby-light"] .tabby-prompt-header {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+    box-shadow: inset 0 1px 0 #ffffff;
 }
 
 .tabby-prompt-left {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     flex-wrap: wrap;
 }
 
 .tabby-chip {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 2px 7px;
-    border-radius: 4px;
-    background: #252630;
-    color: #d8dee9;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
     font-weight: 500;
-    font-size: 11px;
-    border: 1px solid #2e3440;
+    font-size: 11.5px;
+    letter-spacing: -0.01em;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     line-height: 1.4;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+body[data-tabby-theme="tabby-light"] .tabby-chip {
+    background: #ffffff;
+    color: #334155;
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .tabby-chip.host {
-    background: #111827;
-    color: #F9FAFB;
-    font-weight: 700;
-    border-color: #374151;
+    background: #0f172a;
+    color: #f8fafc;
+    font-weight: 600;
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+body[data-tabby-theme="tabby-light"] .tabby-chip.host {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+}
+
+.tabby-chip.workspace {
+    color: #94a3b8;
+}
+
+.tabby-chip.git {
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
 }
 
 .tabby-chip.pqc {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10B981;
-    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.35);
+    font-weight: 600;
+}
+
+body[data-tabby-theme="tabby-light"] .tabby-chip.pqc {
+    background: #ecfdf5;
+    color: #059669;
+    border-color: #a7f3d0;
 }
 
 .tabby-chip.btn {
     cursor: pointer;
-    background: #2a2b36;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+}
+
+body[data-tabby-theme="tabby-light"] .tabby-chip.btn {
+    background: #f1f5f9;
+    color: #334155;
 }
 
 .tabby-chip.btn:hover {
-    background: #3b3d4d;
-    border-color: #5294e2;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(82, 148, 226, 0.6);
     color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+body[data-tabby-theme="tabby-light"] .tabby-chip.btn:hover {
+    background: #e2e8f0;
+    border-color: #5294e2;
+    color: #0f172a;
+}
+
+.tabby-chip.btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.tabby-chip.clock {
+    color: #94a3b8;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em;
 }
 
 .tabby-prompt-right {

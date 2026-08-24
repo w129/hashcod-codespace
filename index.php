@@ -8907,48 +8907,52 @@ if (!headers_sent()) {
 
         <!-- Bloque (>) de introducción de comandos y su ventana desplegable -->
         <div class="function-drawer-wrapper">
-            <!-- Segmentos de contexto Tabby (Host, Dir, Git, PQC, Perfiles, Temas, Paleta) -->
+            <!-- Segmentos de contexto Tabby (Host, Dir, Git, PQC, Perfiles, Temas, Paleta, WS, Gateway, Reloj) -->
             <div class="tabby-prompt-header">
                 <div class="tabby-prompt-left">
-                    <span class="tabby-chip host">
-                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px; fill:#F9FAFB;" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-12-3l3-3-3-3 1.41-1.41L12.83 12l-3.42 3.41L8 15zm5 0h5v2h-5v-2z"/></svg>
+                    <span class="tabby-chip host" title="Usuario y entorno de ejecución activo">
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="12" height="11" rx="2"></rect><path d="M5 6.5l2.5 2L5 10.5"></path><line x1="9" y1="10.5" x2="11.5" y2="10.5"></line></svg>
                         <span>tabby@codespace</span>
                     </span>
-                    <span class="tabby-chip">
-                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px; fill:#9CA3AF;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                    <span class="tabby-chip workspace" title="Directorio de trabajo activo">
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3.5a1.5 1.5 0 0 1 1.5-1.5h3.17a1.5 1.5 0 0 1 1.06.44l1.06 1.06h4.71a1.5 1.5 0 0 1 1.5 1.5v6.5a1.5 1.5 0 0 1-1.5 1.5h-10a1.5 1.5 0 0 1-1.5-1.5v-7.5z"></path></svg>
                         <span>~/workspace</span>
                     </span>
-                    <span class="tabby-chip git">
-                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px; fill:#818CF8;" viewBox="0 0 24 24"><path d="M21 9c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.75-.41-1.4-.99-1.74l-2.01-1.15V4c0-.55-.45-1-1-1s-1 .45-1 1v2.11L14 7.26V4c0-.55-.45-1-1-1s-1 .45-1 1v4.38l-4 2.31V4c0-.55-.45-1-1-1s-1 .45-1 1v8.74c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V12.7l4-2.31v1.65c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V8.42l2-1.15v4.77c-.58.34-1 .99-1 1.76 0 1.1.9 2 2 2s2-.9 2-2c0-.77-.42-1.42-1-1.76V7.26l2-1.15c.58.34 1 .99 1 1.76 0 1.1.9 2 2 2s2-.9 2-2z"/></svg>
+                    <span class="tabby-chip git" title="Rama git actual">
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="1.8"></circle><circle cx="4" cy="12" r="1.8"></circle><circle cx="12" cy="7" r="1.8"></circle><line x1="4" y1="5.8" x2="4" y2="10.2"></line><path d="M5.8 4h2a3.5 3.5 0 0 1 3.5 3v-1.2"></path></svg>
                         <span>main</span>
                     </span>
-                    <span class="tabby-chip pqc">
-                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px; fill:#10B981;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    <span class="tabby-chip pqc" title="Criptografía Post-Cuántica NIST Dilithium Level 5 Activa">
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="10" height="7.5" rx="1.5"></rect><path d="M5.5 6.5V4.5a2.5 2.5 0 0 1 5 0v2"></path><circle cx="8" cy="10" r="1" fill="currentColor"></circle></svg>
                         <span>Dilithium-5 (PQC)</span>
                     </span>
-                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openProfilesModal()" title="Perfiles de sesión de Tabby">
-                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openProfilesModal()" title="Perfiles y flujos de trabajo de Tabby (Ctrl+T)">
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="12" height="11" rx="2"></rect><line x1="2" y1="6" x2="14" y2="6"></line><line x1="6" y1="6" x2="6" y2="13.5"></line></svg>
                         <span>Perfiles</span>
                     </span>
-                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openThemesModal()" title="Cambiar tema de terminal (Ctrl+Shift+T)">
-                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.59 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5 9c-.83 0-1.5-.67-1.5-1.5S6.17 9 7 9s1.5.67 1.5 1.5S7.83 12 7 12zm3-4c-.83 0-1.5-.67-1.5-1.5S9.17 5 10 5s1.5.67 1.5 1.5S10.83 8 10 8zm4 0c-.83 0-1.5-.67-1.5-1.5S13.17 5 14 5s1.5.67 1.5 1.5S14.83 8 14 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.17 9 17 9s1.5.67 1.5 1.5S17.83 12 17 12z"/></svg>
+                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openThemesModal()" title="Temas visuales de Tabby">
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5a6.5 6.5 0 1 0 0 13c.88 0 1.5-.72 1.5-1.5 0-.37-.13-.71-.35-.97-.22-.27-.35-.61-.35-.98 0-.83.67-1.5 1.5-1.5H12a2.5 2.5 0 0 0 2.5-2.5C14.5 4.36 11.59 1.5 8 1.5z"></path><circle cx="4.5" cy="5.5" r=".7" fill="currentColor"></circle><circle cx="7.5" cy="4.5" r=".7" fill="currentColor"></circle><circle cx="10.5" cy="5.5" r=".7" fill="currentColor"></circle><circle cx="11.5" cy="8.5" r=".7" fill="currentColor"></circle></svg>
                         <span id="tabbyThemeChipName">Tabby Theme</span>
                     </span>
-                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openPaletteModal()" title="Paleta de comandos (Ctrl+Shift+P)">
-                        <svg class="tabby-icon-svg" width="14" height="14" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openPaletteModal()" title="Paleta de comandos inteligentes (Ctrl+Shift+P)">
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="8 1.5 9.8 5.7 14.3 6.1 10.9 9.1 11.9 13.5 8 11.1 4.1 13.5 5.1 9.1 1.7 6.1 6.2 5.7 8 1.5"></polygon></svg>
                         <span>Paleta</span>
                     </span>
                 </div>
                 <div class="tabby-prompt-right">
                     <span class="tabby-chip ws connected" id="tabbyWsStatusChip" title="Canal WebSocket en tiempo real activo">
                         <span class="tabby-ws-dot"></span>
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5.5a9.2 9.2 0 0 1 13 0"></path><path d="M4 8a5.7 5.7 0 0 1 8 0"></path><circle cx="8" cy="12.5" r="1" fill="currentColor"></circle></svg>
                         <span class="tabby-ws-label">WS Live</span>
                     </span>
-                    <span class="tabby-chip btn gateway-action-btn" onclick="openGatewayFromTool('terminal')" title="Gateway · Transportar terminal activa y generar código">
-                        <svg class="tabby-icon-svg gateway-crescent-svg" width="14" height="14" viewBox="0 0 30 30"><path fill="currentColor" d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path></svg>
+                    <span class="tabby-chip btn gateway-action-btn" onclick="openGatewayFromTool('terminal')" title="Gateway · Transportar terminal activa y generar código en la nube">
+                        <svg class="tabby-icon-svg gateway-crescent-svg" width="13" height="13" viewBox="0 0 30 30" fill="currentColor"><path d="M 15 3 C 8.3845336 3 3 8.3845336 3 15 C 3 21.615466 8.3845336 27 15 27 C 17.554923 27 19.9167 26.181425 21.853516 24.818359 A 1.0002806 1.0002806 0 0 0 20.703125 23.181641 C 19.081941 24.322575 17.129077 25 15 25 C 9.4654664 25 5 20.534534 5 15 C 5 9.4654664 9.4654664 5 15 5 C 17.129077 5 19.081941 5.6774247 20.703125 6.8183594 A 1.0002809 1.0002809 0 0 0 21.853516 5.1816406 C 19.9167 3.8185753 17.554923 3 15 3 z"></path></svg>
                         <span>Gateway</span>
                     </span>
-                    <span class="tabby-chip" id="tabbyLiveClock">--:--:--</span>
+                    <span class="tabby-chip clock" title="Hora del sistema">
+                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"></circle><polyline points="8 4 8 8 10.5 9.5"></polyline></svg>
+                        <span id="tabbyLiveClock">--:--:--</span>
+                    </span>
                 </div>
             </div>
             <div class="block-row block-prompt">

@@ -58,18 +58,27 @@ function agentBrowserEnsureDirs() {
 }
 
 function agentBrowserBin() {
+    $isWin = (DIRECTORY_SEPARATOR === '\\');
     $candidates = [
         '/usr/local/bin/agent-browser',
         '/opt/agent-browser/node_modules/.bin/agent-browser',
         __DIR__ . '/node_modules/.bin/agent-browser',
-        trim((string) @shell_exec('command -v agent-browser 2>/dev/null')),
     ];
-    foreach ($candidates as $bin) {
-        if ($bin !== '' && is_file($bin) && is_executable($bin)) {
-            return $bin;
+    if ($isWin) {
+        $candidates[] = __DIR__ . '/node_modules/.bin/agent-browser.cmd';
+        $where = trim((string) @shell_exec('where.exe agent-browser 2>NUL'));
+        if ($where !== '') {
+            $lines = explode("\n", str_replace("\r", "", $where));
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line !== '' && is_file($line)) return $line;
+            }
         }
-        // npm shims may not be marked executable on some FS; still runnable via node
-        if ($bin !== '' && is_file($bin)) {
+    } else {
+        $candidates[] = trim((string) @shell_exec('command -v agent-browser 2>/dev/null'));
+    }
+    foreach ($candidates as $bin) {
+        if ($bin !== '' && (is_file($bin) || is_executable($bin))) {
             return $bin;
         }
     }

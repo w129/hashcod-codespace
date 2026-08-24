@@ -1,10 +1,18 @@
+<?php
+require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/l8-html.php';
+securityBootstrap('web');
+$L8_BASE = l8_public_base_path();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibreOffice · l8 codespace</title>
-    <link rel="icon" href="/libreoffice-dock.svg?v=2" type="image/svg+xml">
+    <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
+    <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
+    <link rel="icon" href="libreoffice-dock.svg?v=2" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -215,6 +223,13 @@
         { id: 'chart', name: 'Chart', desc: 'Gráficos y diagramas', color: '#1a6fb5' }
     ];
 
+    function l8ApiUrl(path) {
+        const base = window.L8_BASE_PATH || (document.querySelector('base')?.getAttribute('href')) || '';
+        const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+        const cleanBase = base.endsWith('/') ? base : (base ? base + '/' : '');
+        return cleanBase + cleanPath;
+    }
+
     function apiTimed(path, opts, ms) {
         ms = ms || 3500;
         const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -223,7 +238,7 @@
             headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
         }, opts || {});
         if (ctrl) merged.signal = ctrl.signal;
-        return fetch(path, merged).then(function (res) {
+        return fetch(l8ApiUrl(path), merged).then(function (res) {
             return res.json().catch(function () { return { ok: false, error: 'Respuesta inválida' }; });
         }).catch(function (e) {
             return { ok: false, error: (e && e.name === 'AbortError') ? 'Timeout' : (e.message || String(e)) };

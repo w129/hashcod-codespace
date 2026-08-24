@@ -47,25 +47,63 @@ function streamlitPublicUrlForSlot($slot) {
 }
 
 function streamlitPythonBin() {
+    $isWin = (DIRECTORY_SEPARATOR === '\\');
     $candidates = [
         '/opt/l8-py/bin/python',
         '/opt/l8-py/bin/python3',
-        trim((string) @shell_exec('command -v python3 2>/dev/null')),
-        trim((string) @shell_exec('command -v python 2>/dev/null')),
     ];
+    if ($isWin) {
+        $localApp = getenv('LOCALAPPDATA') ?: '';
+        if ($localApp) {
+            $candidates[] = $localApp . '\\Programs\\Python\\Python312\\python.exe';
+            $candidates[] = $localApp . '\\Programs\\Python\\Python311\\python.exe';
+            $candidates[] = $localApp . '\\Programs\\Python\\Python310\\python.exe';
+        }
+        $candidates[] = 'C:\\Python312\\python.exe';
+        $candidates[] = 'C:\\Python311\\python.exe';
+        $candidates[] = 'C:\\Python310\\python.exe';
+        $where = trim((string) @shell_exec('where.exe python 2>NUL'));
+        if ($where !== '') {
+            $lines = explode("\n", str_replace("\r", "", $where));
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line !== '' && is_file($line)) return $line;
+            }
+        }
+    } else {
+        $candidates[] = trim((string) @shell_exec('command -v python3 2>/dev/null'));
+        $candidates[] = trim((string) @shell_exec('command -v python 2>/dev/null'));
+    }
     foreach ($candidates as $bin) {
-        if ($bin !== '' && is_executable($bin)) return $bin;
+        if ($bin !== '' && (is_file($bin) || is_executable($bin))) return $bin;
     }
     return '';
 }
 
 function streamlitBin() {
+    $isWin = (DIRECTORY_SEPARATOR === '\\');
     $candidates = [
         '/opt/l8-py/bin/streamlit',
-        trim((string) @shell_exec('command -v streamlit 2>/dev/null')),
     ];
+    if ($isWin) {
+        $localApp = getenv('LOCALAPPDATA') ?: '';
+        if ($localApp) {
+            $candidates[] = $localApp . '\\Programs\\Python\\Python312\\Scripts\\streamlit.exe';
+            $candidates[] = $localApp . '\\Programs\\Python\\Python311\\Scripts\\streamlit.exe';
+        }
+        $where = trim((string) @shell_exec('where.exe streamlit 2>NUL'));
+        if ($where !== '') {
+            $lines = explode("\n", str_replace("\r", "", $where));
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line !== '' && is_file($line)) return $line;
+            }
+        }
+    } else {
+        $candidates[] = trim((string) @shell_exec('command -v streamlit 2>/dev/null'));
+    }
     foreach ($candidates as $bin) {
-        if ($bin !== '' && is_executable($bin)) return $bin;
+        if ($bin !== '' && (is_file($bin) || is_executable($bin))) return $bin;
     }
     return '';
 }

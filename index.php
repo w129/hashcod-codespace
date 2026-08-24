@@ -10760,6 +10760,198 @@ if (!headers_sent()) {
                 return;
             }
 
+            if (dataToDisplay && dataToDisplay.type === "CLAUDE_CLI_LAUNCH") {
+                const url = dataToDisplay.open_url || '/claude';
+                markExternalLaunchOnly(dataToDisplay.product || 'Claude Code', url);
+                setTimeout(() => openClaudeCli(url), 80);
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#ffffff;">🤖 ${dataToDisplay.product || 'Claude Code'} — Engineering Assistant</strong>
+                            <span class="metric-badge-black" style="background:#111827; color:#FFFFFF;">CLI ACTIVA</span>
+                        </div>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Recurso: <code>${dataToDisplay.resource || 'anthropics/claude-code-action'}</code></p>
+                        <button type="button" class="btn-upload-vector" onclick="openClaudeCli('${url}')">Abrir Claude Code</button>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "UBUNTU_CLI_LAUNCH") {
+                const url = dataToDisplay.open_url || '/ubuntu';
+                markExternalLaunchOnly(dataToDisplay.product || 'Ubuntu Linux Terminal', url);
+                setTimeout(() => openUbuntuCli(url), 80);
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#ffffff;">🐧 ${dataToDisplay.product || 'Ubuntu Terminal'}</strong>
+                            <span class="metric-badge-black" style="background:#E95420; color:#FFFFFF;">UBUNTU</span>
+                        </div>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Usuario: <code>${dataToDisplay.user || 'root'}@${dataToDisplay.host || 'l8-codespace'}</code></p>
+                        <button type="button" class="btn-upload-vector" onclick="openUbuntuCli('${url}')">Abrir Terminal Ubuntu</button>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "ZYLON_CLI_LAUNCH") {
+                const url = dataToDisplay.open_url || '/zylon';
+                markExternalLaunchOnly(dataToDisplay.product || 'Zylon PrivateGPT', url);
+                setTimeout(() => openZylonCli(), 80);
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#ffffff;">🧠 ${dataToDisplay.product || 'Zylon PrivateGPT'}</strong>
+                            <span class="metric-badge-black" style="background:#243044; color:#FFFFFF;">PRIVADO</span>
+                        </div>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Lanzado en ventana externa.'} Modelo: <code>${dataToDisplay.model || 'local'}</code></p>
+                        <button type="button" class="btn-upload-vector" onclick="openZylonCli()">Abrir Zylon PrivateGPT</button>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "LIBREOFFICE_LAUNCH") {
+                const url = dataToDisplay.open_url || '/libreoffice';
+                markExternalLaunchOnly(dataToDisplay.product || 'LibreOffice Suite', url);
+                setTimeout(() => openLibreoffice(url), 80);
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#ffffff;">📄 ${dataToDisplay.product || 'LibreOffice Suite'}</strong>
+                            <span class="metric-badge-black" style="background:#18A303; color:#FFFFFF;">MPL-2.0</span>
+                        </div>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Suite ofimática lista.'} Writer, Calc, Impress, Draw, Base, Math y Chart.</p>
+                        <button type="button" class="btn-upload-vector" onclick="openLibreoffice('${url}')">Abrir LibreOffice</button>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "TIPTAP_LAUNCH") {
+                const url = dataToDisplay.open_url || '/tiptap';
+                markExternalLaunchOnly(dataToDisplay.product || 'TipTap Editor', url);
+                setTimeout(() => openTiptap(url), 80);
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#ffffff;">📝 ${dataToDisplay.product || 'TipTap Editor'} — Word-like Document Sheet</strong>
+                            <span class="metric-badge-black" style="background:#111827; color:#FFFFFF;">EDITOR</span>
+                        </div>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Editor de texto enriquecido en hoja directa.'}</p>
+                        <button type="button" class="btn-upload-vector" onclick="openTiptap('${url}')">Abrir Editor TipTap</button>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "STREAMLIT_LAUNCH") {
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#ffffff;">⚡ ${dataToDisplay.product || 'Streamlit Python Apps'}</strong>
+                            <span class="metric-badge-black" style="background:#FF4B4B; color:#FFFFFF;">STREAMLIT</span>
+                        </div>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Panel de control de apps.'} Python: <code>${dataToDisplay.python_ready ? 'Detectado' : 'No disponible'}</code> ${dataToDisplay.version ? ('(v' + dataToDisplay.version + ')') : ''}</p>
+                        <div style="font-size:12px; color:#cbd5e1;">Apps en slot: <code>/st/1/</code> a <code>/st/8/</code> — Soporta componentes custom MDX & Wang.</div>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "TOOLKIT_LAUNCH") {
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#ffffff;">🛠️ ${dataToDisplay.product || 'Toolkit PDF Inspector'}</strong>
+                            <span class="metric-badge-black" style="background:#3B82F6; color:#FFFFFF;">WASM + OCR</span>
+                        </div>
+                        <p style="margin:0 0 8px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Extracción y procesamiento de documentos.'}</p>
+                        <div style="font-size:12px; color:#cbd5e1;">Motor WASM activo con soporte para PDFs escaneados vía Tesseract OCR.</div>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "OPENCRYPT_LAUNCH") {
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                            <strong style="font-size:13px; color:#ffffff;">🔐 ${dataToDisplay.product || 'OpenCryptG Ledger'}</strong>
+                            <span class="metric-badge-black" style="background:#10B981; color:#FFFFFF;">INVENTARIO OCG</span>
+                        </div>
+                        <p style="margin:0 0 8px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Libro mayor criptográfico.'}</p>
+                        <div style="font-size:12px; color:#cbd5e1;">Total de códigos emitidos únicos: <strong>${dataToDisplay.total_registered || 0}</strong></div>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "AGENTS_CATALOG_LAUNCH") {
+                const list = dataToDisplay.agents || [];
+                let rows = '';
+                list.forEach((ag, idx) => {
+                    rows += `
+                        <div style="padding:8px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; margin-bottom:6px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="color:#38bdf8; font-size:12.5px;">#${idx+1} ${ag.name}</strong>
+                                <span style="font-size:10.5px; padding:2px 6px; background:#1e293b; color:#94a3b8; border-radius:4px;">${ag.category}</span>
+                            </div>
+                            <div style="font-size:11.5px; color:#cbd5e1; margin-top:2px;">${ag.role}</div>
+                            <div style="font-size:11px; color:#64748b; margin-top:4px;">${ag.preview}…</div>
+                        </div>
+                    `;
+                });
+                tabbyWrapOutput(`
+                    <div class="ssh-card-container">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                            <strong style="font-size:13.5px; color:#ffffff;">👥 ${dataToDisplay.product || '50+ Engineering AI Agents'}</strong>
+                            <span class="metric-badge-black" style="background:#38bdf8; color:#0f172a; font-weight:700;">${dataToDisplay.total || list.length} AGENTES ACTIVOS</span>
+                        </div>
+                        <p style="margin:0 0 10px 0; font-size:12px; color:#94a3b8;">${dataToDisplay.message || 'Catálogo de agentes de ingeniería de software autónomos.'}</p>
+                        <div style="max-height:360px; overflow-y:auto; padding-right:4px;">
+                            ${rows || '<div style="color:#64748b;">No se encontraron agentes con ese filtro.</div>'}
+                        </div>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "TRIGGER_HASHCOD_KEYS") {
+                toggleHashcodKeys(true);
+                tabbyWrapOutput(`
+                    <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                        <svg class="tabby-icon-svg" style="fill:#F59E0B; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        <span><strong>Hashcod Keys Vault:</strong> Administrador de claves API cifradas con AES-256-GCM abierto.</span>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "TRIGGER_TOKENS_PANEL") {
+                toggleTokensPanel();
+                tabbyWrapOutput(`
+                    <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                        <svg class="tabby-icon-svg" style="fill:#10B981; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18h-2v-1.07A4 4 0 0 1 8 13h2a2 2 0 0 0 2 2 2 2 0 0 0 2-2c0-1.1-.9-2-2-2a4 4 0 0 1-4-4 4 4 0 0 1 3-3.93V4h2v1.07A4 4 0 0 1 16 9h-2a2 2 0 0 0-2-2 2 2 0 0 0-2 2c0 1.1.9 2 2 2a4 4 0 0 1 4 4 4 4 0 0 1-3 3.93z"/></svg>
+                        <span><strong>Cupo de Tokens:</strong> Panel mensual y ledger de transacciones abierto.</span>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "TRIGGER_GATEWAY_PORTAL") {
+                const url = dataToDisplay.open_url || '/gateway';
+                markExternalLaunchOnly('PQC Gateway', url);
+                setTimeout(() => openGatewayPortal(url), 80);
+                tabbyWrapOutput(`
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                        <span><strong>Gateway PQC Crescent:</strong> Portal de intercambio post-cuántico abierto.</span>
+                        <button type="button" class="btn-upload-vector" onclick="openGatewayPortal('${url}')">Abrir Gateway</button>
+                    </div>
+                `);
+                return;
+            }
+
 
             // RENDERIZADO PARA EL CATÁLOGO GLOBAL DE GITHUB (repos / clone / save)
             if (dataToDisplay && (dataToDisplay.type === "REPOS_CATALOG" || dataToDisplay.type === "REPO_CLONE_RESULT")) {
@@ -13155,24 +13347,37 @@ if (!headers_sent()) {
             await openExternalWithTokens('ubuntu-cli.php', 'l8-ubuntu-cli', 'width=1100,height=720');
         }
 
-        async function openClaudeCli() {
-            await openExternalWithTokens('claude-cli.php', 'l8-claude-cli', 'width=1100,height=720');
+        async function openClaudeCli(url) {
+            await openExternalWithTokens(url || 'claude-cli.php', 'l8-claude-cli', 'width=1180,height=780');
         }
 
-        async function openZylonCli() {
-            await openExternalWithTokens('zylon-cli.php', 'l8-zylon-cli', 'width=1100,height=720');
+        async function openUbuntuCli(url) {
+            await openExternalWithTokens(url || 'ubuntu-cli.php', 'l8-ubuntu-cli', 'width=1180,height=780');
         }
 
+        async function openZylonCli(url) {
+            await openExternalWithTokens(url || 'zylon-cli.php', 'l8-zylon-cli', 'width=1180,height=780');
+        }
+
+        async function openLibreoffice(url) {
+            await openExternalWithTokens(url || 'libreoffice-cli.php', 'l8-libreoffice', 'width=1200,height=800');
+        }
+
+        async function openTiptap(url) {
+            await openExternalWithTokens(url || 'tiptap-editor.php', 'l8-tiptap-editor', 'width=1180,height=780');
+        }
+
+        async function openGatewayPortal(url) {
+            await openExternalWithTokens(url || 'gateway.php', 'l8-gateway-portal', 'width=1100,height=720');
+        }
 
         async function openPrsCode(url) {
             await openExternalWithTokens(url || 'prs-code.php', 'l8-prs-code', 'width=1180,height=780');
         }
 
-
         async function openMacosInside(url) {
             await openExternalWithTokens(url || 'macos-cli.php', 'l8-macos-inside', 'width=1180,height=780');
         }
-
 
         async function openChromeosPlay(url) {
             await openExternalWithTokens(url || 'chromeos-cli.php', 'l8-chromeos-play', 'width=1180,height=780');

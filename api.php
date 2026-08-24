@@ -37,7 +37,19 @@ $REGISTERED_COMMANDS = [
     "bigdata"     => "Genera y prueba la transmisión en lote de grandes volúmenes de datos",
     "prs_code"    => "Abre el IDE externo PRS Code (paste/share por selección, thin client en cluster)",
     "macOS_inside"=> "Despliega macOS externo vía dockur/macos (System + License MIT)",
-    "chromeOS_play"=> "Despliega ChromeOS externo vía dockur/chromeos (System + License MIT)"
+    "chromeOS_play"=> "Despliega ChromeOS externo vía dockur/chromeos (System + License MIT)",
+    "claude"      => "Abre la consola Claude Code CLI (asistente IA con OAuth / API Key)",
+    "ubuntu"      => "Abre la terminal Ubuntu Linux completa con sesión web",
+    "zylon"       => "Abre Zylon / PrivateGPT para consultas IA privadas con modelos locales",
+    "libreoffice" => "Abre la suite ofimática LibreOffice (Writer, Calc, Impress, Draw, Math)",
+    "tiptap"      => "Abre el editor de documentos estilo Word basado en TipTap",
+    "streamlit"   => "Panel de control y ejecución de aplicaciones Python Streamlit",
+    "toolkit"     => "Inspector de PDF con extracción Markdown vía WASM + motor OCR Tesseract",
+    "opencrypt"   => "Libro de códigos criptográficos únicos OpenCryptG",
+    "agents"      => "Catálogo de 50+ Agentes de Ingeniería de IA especializados (Agency Swarm)",
+    "keys"        => "Administrador de claves y credenciales API cifradas con AES-256-GCM",
+    "tokens"      => "Consulta de cupo mensual y ledger de transacciones de tokens",
+    "gateway"     => "Portal PQC Crescent Gateway para compartir recursos con Dilithium-5"
 ];
 
 $STORAGE_DIR = __DIR__ . '/data_storage';
@@ -4389,6 +4401,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/chromeos/license' ||
     exit;
 }
 
+function agencyGetAgentsList($query = '') {
+    $dir = __DIR__ . '/toolkit/agency-agents/engineering';
+    if (!is_dir($dir)) {
+        return ['ok' => true, 'total' => 0, 'agents' => []];
+    }
+    $files = @scandir($dir) ?: [];
+    $agents = [];
+    $query = strtolower(trim((string)$query));
+    foreach ($files as $f) {
+        if ($f === '.' || $f === '..' || substr($f, -3) !== '.md') continue;
+        $id = substr($f, 0, -3);
+        $cleanName = ucwords(str_replace(['engineering-', '-'], ['', ' '], $id));
+        $fullPath = $dir . '/' . $f;
+        $role = 'Specialized Autonomous AI Engineer';
+        $preview = '';
+        if (is_file($fullPath)) {
+            $content = (string)@file_get_contents($fullPath);
+            if (preg_match('/^#\s+(.+)$/m', $content, $m)) {
+                $cleanName = trim($m[1]);
+            }
+            if (preg_match('/(?:Role|Rol|Description|Propósito):\s*(.+)/i', $content, $m)) {
+                $role = trim($m[1]);
+            }
+            $preview = substr(trim(strip_tags($content)), 0, 240);
+        }
+        if ($query !== '') {
+            $haystack = strtolower($id . ' ' . $cleanName . ' ' . $role . ' ' . $preview);
+            if (strpos($haystack, $query) === false) continue;
+        }
+        $agents[] = [
+            'id' => $id,
+            'name' => $cleanName,
+            'role' => $role,
+            'file' => $f,
+            'preview' => $preview,
+            'category' => 'Engineering'
+        ];
+    }
+    return [
+        'ok' => true,
+        'total' => count($agents),
+        'agents' => $agents
+    ];
+}
+
+// Agency Agents (50+ Specialized AI Engineers)
+if ($uri === '/api/agents' || strpos($uri, '/api/agents') === 0) {
+    header('Content-Type: application/json; charset=utf-8');
+    if ($uri === '/api/agents/get' && !empty($_GET['file'])) {
+        $file = basename((string)$_GET['file']);
+        $full = __DIR__ . '/toolkit/agency-agents/engineering/' . $file;
+        if (is_file($full)) {
+            echo json_encode([
+                'ok' => true,
+                'file' => $file,
+                'content' => (string)@file_get_contents($full)
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        echo json_encode(['ok' => false, 'error' => 'Agent file not found'], 404);
+        exit;
+    }
+    $q = trim((string)($_GET['q'] ?? $_GET['query'] ?? $_GET['search'] ?? ''));
+    echo json_encode(agencyGetAgentsList($q), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Estado persistente de la plataforma (sobrevive al reload vía Supabase)
 if ($uri === '/api/platform/state' || $uri === '/api/session/state') {
     header('Content-Type: application/json; charset=utf-8');
@@ -4856,6 +4935,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         $lowerCmd === 'chromeos' || $lowerCmd === 'chromeos_play' || $lowerCmd === 'chromeos-play' || $lowerCmd === 'chromeosplay'
         || $lowerCmd === 'chrome_os_play' || $cleanCmd === 'chromeosplay' || $cleanCmd === 'chromeos'
     );
+    $isClaude = ($lowerCmd === 'claude' || $lowerCmd === 'claude-cli' || $lowerCmd === 'claude-code' || $cleanCmd === 'claudecode');
+    $isUbuntu = ($lowerCmd === 'ubuntu' || $lowerCmd === 'ubuntu-cli' || $lowerCmd === 'linux' || $cleanCmd === 'ubuntucli');
+    $isZylon = ($lowerCmd === 'zylon' || $lowerCmd === 'zylon-cli' || $lowerCmd === 'private-gpt' || $cleanCmd === 'zyloncli' || $cleanCmd === 'privategpt');
+    $isLibreoffice = ($lowerCmd === 'libreoffice' || $lowerCmd === 'libreoffice-cli' || $lowerCmd === 'writer' || $lowerCmd === 'calc' || $lowerCmd === 'impress' || $cleanCmd === 'libreoffice');
+    $isTiptap = ($lowerCmd === 'tiptap' || $lowerCmd === 'tiptap-editor' || $lowerCmd === 'word' || $lowerCmd === 'doc' || $lowerCmd === 'documento' || $cleanCmd === 'tiptap');
+    $isStreamlit = ($lowerCmd === 'streamlit' || $lowerCmd === 'st' || strpos($lowerCmd, 'streamlit ') === 0 || strpos($lowerCmd, 'st ') === 0);
+    $isToolkit = ($lowerCmd === 'toolkit' || $lowerCmd === 'pdf' || $lowerCmd === 'pdf_inspector' || $lowerCmd === 'ocr' || $cleanCmd === 'pdfinspector');
+    $isOpenCrypt = ($lowerCmd === 'opencrypt' || $lowerCmd === 'ocg' || $cleanCmd === 'opencryptg');
+    $isAgents = ($lowerCmd === 'agents' || $lowerCmd === 'agency' || $lowerCmd === 'agentes' || strpos($lowerCmd, 'agents ') === 0 || strpos($lowerCmd, 'agency ') === 0);
+    $isKeys = ($lowerCmd === 'keys' || $lowerCmd === 'hashcod_keys' || $lowerCmd === 'vault' || $cleanCmd === 'hashcodkeys');
+    $isTokens = ($lowerCmd === 'tokens' || $lowerCmd === 'allowance' || $lowerCmd === 'cupo');
+    $isGateway = ($lowerCmd === 'gateway' || $lowerCmd === 'crescent');
     $isUpload = ($lowerCmd === 'upload' || $lowerCmd === 'subir');
     $isClear = ($lowerCmd === 'clear' || $lowerCmd === 'limpiar' || $lowerCmd === 'cls');
     $isWorkflows = ($lowerCmd === 'workflows' || $lowerCmd === 'workflow' || $lowerCmd === 'flujos');
@@ -4868,7 +4959,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isBash = in_array($cmdParts[0] ?? '', $bashPrefixes);
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isUpload || $isClear || $isWorkflows || $isStatus || $isThemes || $isAi || $isBash || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isClaude || $isUbuntu || $isZylon || $isLibreoffice || $isTiptap || $isStreamlit || $isToolkit || $isOpenCrypt || $isAgents || $isKeys || $isTokens || $isGateway || $isUpload || $isClear || $isWorkflows || $isStatus || $isThemes || $isAi || $isBash || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
 
     if (!$isValid) {
         echo json_encode([
@@ -5064,6 +5155,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             ],
             'repo_ready' => !empty($boot['repo_ready']),
             'message' => 'Abriendo ChromeOS externo (dockur/chromeos) con apartado License'
+        ];
+    } else if ($isClaude) {
+        $boot = claudeBootSession();
+        $outputResult = [
+            'type' => 'CLAUDE_CLI_LAUNCH',
+            'command' => 'claude',
+            'open_url' => '/claude',
+            'window_name' => 'l8-claude-cli',
+            'product' => 'Claude Code',
+            'resource' => 'anthropics/claude-code-action',
+            'authenticated' => !empty($boot['authenticated']),
+            'message' => 'Abriendo Claude Code CLI (Asistente de Ingeniería IA)'
+        ];
+    } else if ($isUbuntu) {
+        $boot = ubuntuBootSession();
+        $outputResult = [
+            'type' => 'UBUNTU_CLI_LAUNCH',
+            'command' => 'ubuntu',
+            'open_url' => '/ubuntu',
+            'window_name' => 'l8-ubuntu-cli',
+            'product' => 'Ubuntu Linux Terminal',
+            'user' => $boot['user'] ?? 'root',
+            'host' => $boot['host'] ?? 'l8-codespace',
+            'message' => 'Abriendo terminal completa Ubuntu Linux en ventana dedicada'
+        ];
+    } else if ($isZylon) {
+        $boot = zylonBootSession();
+        $outputResult = [
+            'type' => 'ZYLON_CLI_LAUNCH',
+            'command' => 'zylon',
+            'open_url' => '/zylon',
+            'window_name' => 'l8-zylon-cli',
+            'product' => 'Zylon PrivateGPT',
+            'model' => $boot['model'] ?? 'private-gpt-local',
+            'message' => 'Abriendo Zylon PrivateGPT para inferencia y análisis local privado'
+        ];
+    } else if ($isLibreoffice) {
+        $outputResult = [
+            'type' => 'LIBREOFFICE_LAUNCH',
+            'command' => 'libreoffice',
+            'open_url' => '/libreoffice',
+            'window_name' => 'l8-libreoffice',
+            'product' => 'LibreOffice Suite (MPL-2.0)',
+            'tools' => function_exists('libreofficeSuiteTools') ? libreofficeSuiteTools() : [],
+            'message' => 'Abriendo suite ofimática LibreOffice (Writer, Calc, Impress, Draw, Math)'
+        ];
+    } else if ($isTiptap) {
+        $outputResult = [
+            'type' => 'TIPTAP_LAUNCH',
+            'command' => 'tiptap',
+            'open_url' => '/tiptap',
+            'window_name' => 'l8-tiptap-editor',
+            'product' => 'TipTap Document Editor',
+            'message' => 'Abriendo editor de documentos estilo Word basado en TipTap'
+        ];
+    } else if ($isStreamlit) {
+        $avail = function_exists('streamlitAvailable') ? streamlitAvailable() : ['ok' => false];
+        $outputResult = [
+            'type' => 'STREAMLIT_LAUNCH',
+            'command' => 'streamlit',
+            'product' => 'Streamlit Python Apps',
+            'available' => !empty($avail['ok']),
+            'python_ready' => !empty($avail['python']),
+            'version' => $avail['version'] ?? null,
+            'apps' => function_exists('streamlitListTools') ? streamlitListTools() : [],
+            'message' => 'Panel de aplicaciones Streamlit activo'
+        ];
+    } else if ($isToolkit) {
+        $outputResult = [
+            'type' => 'TOOLKIT_LAUNCH',
+            'command' => 'toolkit',
+            'product' => 'Toolkit & PDF Inspector WASM + OCR',
+            'tool' => 'pdf-inspector',
+            'features' => ['PDF to Markdown', 'WASM Extraction', 'Tesseract OCR Engine', 'Scanned Docs Support'],
+            'message' => 'Abriendo Toolkit: Inspector de PDF y motor de extracción Markdown OCR'
+        ];
+    } else if ($isOpenCrypt) {
+        $st = function_exists('ocgLoadLedger') ? ocgLoadLedger() : [];
+        $outputResult = [
+            'type' => 'OPENCRYPT_LAUNCH',
+            'command' => 'opencrypt',
+            'product' => 'OpenCryptG Ledger',
+            'total_registered' => $st['count'] ?? 0,
+            'updated_at' => $st['updated_at'] ?? null,
+            'message' => 'Libro mayor de códigos criptográficos únicos OpenCryptG'
+        ];
+    } else if ($isAgents) {
+        $q = trim(preg_replace('/^(agents?|agency|agentes?)\s*/i', '', $rawCmd));
+        $agentsData = agencyGetAgentsList($q);
+        $outputResult = [
+            'type' => 'AGENTS_CATALOG_LAUNCH',
+            'command' => $rawCmd,
+            'product' => 'Agency 50+ Specialized AI Engineers',
+            'total' => $agentsData['total'] ?? 0,
+            'agents' => array_slice($agentsData['agents'] ?? [], 0, 30),
+            'message' => 'Catálogo de más de 50 Agentes de Ingeniería de IA autónomos especializados'
+        ];
+    } else if ($isKeys) {
+        $outputResult = [
+            'type' => 'TRIGGER_HASHCOD_KEYS',
+            'command' => 'keys',
+            'message' => 'Abriendo administrador de claves API cifradas Hashcod...'
+        ];
+    } else if ($isTokens) {
+        $outputResult = [
+            'type' => 'TRIGGER_TOKENS_PANEL',
+            'command' => 'tokens',
+            'message' => 'Abriendo panel de cupo mensual y transacciones de tokens...'
+        ];
+    } else if ($isGateway) {
+        $outputResult = [
+            'type' => 'TRIGGER_GATEWAY_PORTAL',
+            'command' => 'gateway',
+            'open_url' => '/gateway',
+            'message' => 'Abriendo portal PQC Crescent Gateway...'
         ];
     } else if ($lowerCmd === 'mane_list?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?') {
         $rows = [];

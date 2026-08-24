@@ -1,10 +1,18 @@
+<?php
+require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/l8-html.php';
+securityBootstrap('web');
+$L8_BASE = l8_public_base_path();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PRS Code · l8 codespace</title>
-    <link rel="icon" href="/prs-code-icon.svg" type="image/svg+xml">
+    <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
+    <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
+    <link rel="icon" href="prs-code-icon.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -328,10 +336,17 @@
                 return null;
             }
 
+            function l8ApiUrl(path) {
+                const base = window.L8_BASE_PATH || (document.querySelector('base')?.getAttribute('href')) || '';
+                const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+                const cleanBase = base.endsWith('/') ? base : (base ? base + '/' : '');
+                return cleanBase + cleanPath;
+            }
+
             async function bootSession() {
                 const started = Date.now();
                 try {
-                    const res = await fetch('/api/prs/session', {
+                    const res = await fetch(l8ApiUrl('api/prs/session'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: '{}'
@@ -363,7 +378,7 @@
                 }
                 shareOut.textContent = 'Publicando selección en el cluster…';
                 try {
-                    const res = await fetch('/api/prs/share', {
+                    const res = await fetch(l8ApiUrl('api/prs/share'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -391,7 +406,7 @@
                 if (!c) return;
                 shareOut.textContent = 'Cargando ' + c + '…';
                 try {
-                    const res = await fetch('/api/prs/paste/' + encodeURIComponent(c));
+                    const res = await fetch(l8ApiUrl('api/prs/paste/' + encodeURIComponent(c)));
                     const data = await res.json();
                     if (!data.ok) throw new Error(data.error || 'not found');
                     editor.value = data.content || '';
@@ -407,7 +422,7 @@
             async function analyze() {
                 lintOut.textContent = 'Analizando en cluster…';
                 try {
-                    const res = await fetch('/api/prs/analyze', {
+                    const res = await fetch(l8ApiUrl('api/prs/analyze'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

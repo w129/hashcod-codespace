@@ -1,10 +1,18 @@
+<?php
+require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/l8-html.php';
+securityBootstrap('web');
+$L8_BASE = l8_public_base_path();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude Code · l8 codespace</title>
-    <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+    <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
+    <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
+    <link rel="icon" href="favicon.svg?v=3" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -308,9 +316,16 @@
                 authenticated = false;
             }
 
+            function l8ApiUrl(path) {
+                const base = window.L8_BASE_PATH || (document.querySelector('base')?.getAttribute('href')) || '';
+                const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+                const cleanBase = base.endsWith('/') ? base : (base ? base + '/' : '');
+                return cleanBase + cleanPath;
+            }
+
             async function boot() {
                 try {
-                    const res = await fetch('/api/claude/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+                    const res = await fetch(l8ApiUrl('api/claude/session'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
                     const data = await res.json();
                     if (!data.ok) {
                         meta.textContent = 'offline';
@@ -347,7 +362,7 @@
                 btn.disabled = true;
                 setGateMsg('Conectando…', '');
                 try {
-                    const res = await fetch('/api/claude/auth', {
+                    const res = await fetch(l8ApiUrl('api/claude/auth'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ oauth_token: oauth, api_key: apiKey })
@@ -370,7 +385,7 @@
 
             async function logout() {
                 try {
-                    await fetch('/api/claude/auth', {
+                    await fetch(l8ApiUrl('api/claude/auth'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ logout: true })
@@ -387,7 +402,7 @@
                 busy = true;
                 append('<div><span class="prompt">claude&gt;</span> <span class="cmd">' + escapeHtml(prompt) + '</span></div>');
                 try {
-                    const res = await fetch('/api/claude/exec', {
+                    const res = await fetch(l8ApiUrl('api/claude/exec'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ prompt: prompt })

@@ -4,6 +4,7 @@
  * Serves the built TipTap app (ueberdosis/tiptap).
  */
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/l8-html.php';
 securityBootstrap('web');
 
 $buildIndex = __DIR__ . '/tiptap_editor/frontend/build/index.html';
@@ -16,7 +17,13 @@ if (!is_file($buildIndex)) {
     exit;
 }
 
+$base = l8_public_base_path();
 $html = (string) file_get_contents($buildIndex);
+
+// Ajustar rutas relativas al base path
+$html = str_replace('src="/tiptap_editor/', 'src="' . $base . 'tiptap_editor/', $html);
+$html = str_replace('href="/tiptap_editor/', 'href="' . $base . 'tiptap_editor/', $html);
+
 // Ensure title/favicon for the window
 if (strpos($html, '<title>') !== false) {
     $html = preg_replace(
@@ -29,7 +36,7 @@ if (strpos($html, '<title>') !== false) {
 if (strpos($html, 'rel="icon"') === false) {
     $html = str_replace(
         '</head>',
-        '<link rel="icon" href="/tiptap-dock.svg" type="image/svg+xml">' . "\n</head>",
+        '<link rel="icon" href="' . $base . 'tiptap-dock.svg" type="image/svg+xml">' . "\n</head>",
         $html
     );
 }

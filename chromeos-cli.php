@@ -1,10 +1,18 @@
+<?php
+require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/l8-html.php';
+securityBootstrap('web');
+$L8_BASE = l8_public_base_path();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChromeOS play · l8 codespace</title>
-    <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+    <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
+    <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
+    <link rel="icon" href="favicon.svg?v=3" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=SF+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -321,10 +329,17 @@
             });
             document.getElementById('btnReloadLicense').addEventListener('click', () => loadLicense());
 
+            function l8ApiUrl(path) {
+                const base = window.L8_BASE_PATH || (document.querySelector('base')?.getAttribute('href')) || '';
+                const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+                const cleanBase = base.endsWith('/') ? base : (base ? base + '/' : '');
+                return cleanBase + cleanPath;
+            }
+
             async function loadLicense() {
                 licenseBody.textContent = 'Cargando licencia…';
                 try {
-                    const res = await fetch('/api/chromeos/license');
+                    const res = await fetch(l8ApiUrl('api/chromeos/license'));
                     const data = await res.json();
                     if (!data.ok) throw new Error(data.error || 'license unavailable');
                     licenseSpdx.textContent = data.spdx || 'MIT';
@@ -339,7 +354,7 @@
                 append('<div class="boot-line">ChromeOS play · l8 codespace</div>');
                 append('<div class="boot-line">Loading resources from github.com/dockur/chromeos …</div>');
                 try {
-                    const res = await fetch('/api/chromeos/session', {
+                    const res = await fetch(l8ApiUrl('api/chromeos/session'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: '{}'
@@ -378,7 +393,7 @@
                 busy = true;
                 append('<div><span class="prompt">chromeos@l8</span>:<span class="path">' + escapeHtml(cwd) + '</span>$ <span class="cmd">' + escapeHtml(cmd) + '</span></div>');
                 try {
-                    const res = await fetch('/api/chromeos/exec', {
+                    const res = await fetch(l8ApiUrl('api/chromeos/exec'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ command: cmd, cwd: cwd })

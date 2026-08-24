@@ -5,19 +5,19 @@
  */
 
 :root {
-    --tabby-bg: #1e1e24;
-    --tabby-fg: #d8dee9;
-    --tabby-border: #2e3440;
-    --tabby-tab-bar-bg: #141419;
-    --tabby-tab-bg: #1e1f26;
-    --tabby-tab-active-bg: #2b2d37;
-    --tabby-tab-active-border: #5294e2;
-    --tabby-accent: #5294e2;
-    --tabby-success: #a3be8c;
-    --tabby-error: #bf616a;
-    --tabby-surface: #252630;
-    --tabby-surface-hover: #313340;
-    --tabby-code-bg: #141419;
+    --tabby-bg: #000000;
+    --tabby-fg: #e2e8f0;
+    --tabby-border: #1a1d24;
+    --tabby-tab-bar-bg: #07080b;
+    --tabby-tab-bg: #101217;
+    --tabby-tab-active-bg: #000000;
+    --tabby-tab-active-border: #38bdf8;
+    --tabby-accent: #38bdf8;
+    --tabby-success: #34d399;
+    --tabby-error: #f87171;
+    --tabby-surface: #12141c;
+    --tabby-surface-hover: #1c1e2a;
+    --tabby-code-bg: #000000;
     --tabby-font: 'Geist Mono', 'IBM Plex Mono', monospace;
 }
 

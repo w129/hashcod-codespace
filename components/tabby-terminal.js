@@ -44,11 +44,11 @@
         activeAutoIndex: -1,
 
         themes: [
-            { id: 'default', name: 'Tabby Standard Dark', bg: '#1e1e24', accent: '#5294e2', fg: '#d8dee9' },
-            { id: 'tabby-light', name: 'Tabby Standard Light', bg: '#fafafa', accent: '#5294e2', fg: '#2e3440' },
+            { id: 'default', name: 'Hashcod Deep Black', bg: '#000000', accent: '#38bdf8', fg: '#e2e8f0' },
             { id: 'solarized-dark', name: 'Solarized Dark', bg: '#002b36', accent: '#268bd2', fg: '#839496' },
             { id: 'dracula', name: 'Dracula', bg: '#282a36', accent: '#bd93f9', fg: '#f8f8f2' },
-            { id: 'one-dark', name: 'One Dark', bg: '#282c34', accent: '#61afef', fg: '#abb2bf' }
+            { id: 'one-dark', name: 'One Dark', bg: '#282c34', accent: '#61afef', fg: '#abb2bf' },
+            { id: 'tabby-light', name: 'Tabby Standard Light', bg: '#fafafa', accent: '#5294e2', fg: '#2e3440' }
         ],
 
         profiles: [

@@ -57,21 +57,21 @@
 
     const WarpTerminal = {
         open() {
-            let modal = document.getElementById('warpTerminalModal');
-            if (!modal) {
-                modal = createWarpModal();
-                document.body.appendChild(modal);
+            const modal = document.getElementById('tool3Modal') || document.getElementById('warpTerminalModal');
+            if (modal) {
+                modal.classList.add('open');
+                setTimeout(() => {
+                    const inp = modal.querySelector('#warpCmdInput') || document.getElementById('warpCmdInput');
+                    if (inp) inp.focus();
+                }, 100);
             }
-            modal.classList.add('open');
-            setTimeout(() => {
-                const inp = document.getElementById('warpCmdInput');
-                if (inp) inp.focus();
-            }, 100);
         },
 
         close() {
-            const modal = document.getElementById('warpTerminalModal');
-            if (modal) modal.classList.remove('open');
+            const modal1 = document.getElementById('tool3Modal');
+            if (modal1) modal1.classList.remove('open');
+            const modal2 = document.getElementById('warpTerminalModal');
+            if (modal2) modal2.classList.remove('open');
         },
 
         registerToolWindow(toolId, config) {
@@ -343,6 +343,50 @@
 
     function escapeHtml(str) {
         return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Auto-montar o inicializar en el DOM al cargar
+    function initWarpTerminal() {
+        const input = document.getElementById('warpCmdInput');
+        if (input && !input._warpBound) {
+            input._warpBound = true;
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    window.submitWarpInput();
+                } else if (e.key === 'ArrowUp') {
+                    if (commandHistory.length && historyIndex > 0) {
+                        historyIndex--;
+                        input.value = commandHistory[historyIndex] || '';
+                    } else if (commandHistory.length && historyIndex === -1) {
+                        historyIndex = commandHistory.length - 1;
+                        input.value = commandHistory[historyIndex] || '';
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    if (commandHistory.length && historyIndex < commandHistory.length - 1) {
+                        historyIndex++;
+                        input.value = commandHistory[historyIndex] || '';
+                    } else {
+                        historyIndex = commandHistory.length;
+                        input.value = '';
+                    }
+                }
+            });
+        }
+
+        // Vincular manejadores globales
+        window.openToolboxTool3 = function () {
+            WarpTerminal.open();
+        };
+        window.closeTool3Modal = function () {
+            WarpTerminal.close();
+        };
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWarpTerminal);
+    } else {
+        initWarpTerminal();
     }
 
     window.WarpTerminal = WarpTerminal;

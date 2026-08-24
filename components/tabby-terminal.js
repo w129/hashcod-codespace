@@ -81,11 +81,25 @@
 
         init: function () {
             console.log('[TabbyTerminal] Initialized Tabby Terminal engine (MIT License - Eugeny Pankov & DIKTATCART / Hashcod).');
+            this.initClock();
             this.loadSavedTheme();
             this.ensureDefaultTab();
             this.setupPromptAutocomplete();
             this.setupKeyboardShortcuts();
             this.renderTabs();
+        },
+
+        initClock: function () {
+            const update = () => {
+                const el = document.getElementById('tabbyLiveClock');
+                if (el) {
+                    const now = new Date();
+                    const pad = (n) => String(n).padStart(2, '0');
+                    el.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+                }
+            };
+            update();
+            setInterval(update, 1000);
         },
 
         loadSavedTheme: function () {

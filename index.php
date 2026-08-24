@@ -9031,6 +9031,7 @@ if (!headers_sent()) {
                     &gt;
                 </div>
                 <div class="block-body block-input-container">
+                    <input type="text" class="cmd-input" id="cmdInput" placeholder="Escribe un comando o función (ej: status, repos, clone, set_i code, upload, prs-code)..." autocomplete="off" spellcheck="false">
                     <div class="cell-action-icon" id="btnVirtualKeyboard" role="button" tabindex="0" title="Abrir / cerrar teclado virtual" onclick="toggleVirtualKeyboard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVirtualKeyboard();}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect x="2" y="4" width="20" height="16" rx="2.5"></rect>
@@ -10538,6 +10539,9 @@ if (!headers_sent()) {
                 alert('Clave pública SSH copiada al portapapeles con éxito!');
             }).catch(err => {
                 console.error('Error al copiar:', err);
+            });
+        }
+
         function tabbyWrapOutput(innerHtml, isError, errorMsg) {
             const cmd = (latestExecutionData && latestExecutionData.executedCommand) || lastCommandText || '';
             const dur = (latestExecutionData && latestExecutionData.executionDuration) || 1;

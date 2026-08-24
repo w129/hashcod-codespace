@@ -81,22 +81,22 @@ if (!headers_sent()) {
         }
 
         body {
-            background-color: #ffffff;
-            color: #000000;
+            background-color: #090a0f;
+            color: #f8fafc;
             font-family: 'IBM Plex Mono', monospace, ui-monospace;
             font-size: 13px;
             -webkit-font-smoothing: antialiased;
         }
 
         .top-bar {
-            background-color: #e5e5e5;
-            border-bottom: 1px solid #d0d0d0;
+            background-color: #0f1117;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             padding: 4px 8px;
             font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            color: #222222;
+            color: #cbd5e1;
             user-select: none;
             position: sticky;
             top: 0;
@@ -3841,10 +3841,10 @@ if (!headers_sent()) {
             width: 100%;
             max-width: 1261px;
             margin: 0 auto;
-            background: #FFFFFF;
+            background: transparent;
         }
 
-        /* top-output-bar */
+        /* top-output-bar (Celda de ejecucion negra) */
         .block-row.block-execution {
             box-sizing: border-box;
             display: flex;
@@ -3855,13 +3855,14 @@ if (!headers_sent()) {
             width: 100%;
             max-width: 1200px;
             min-height: 50px;
-            background: #FFFFFF;
-            border: 1px solid #D9D9D9;
-            border-radius: 6px;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
             overflow: hidden;
             flex: none;
             order: 0;
             flex-grow: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         /* equal-column */
@@ -3875,8 +3876,8 @@ if (!headers_sent()) {
             width: 40px;
             min-width: 40px;
             min-height: 50px;
-            background: #E0E0E0;
-            border-right: 1px solid #D9D9D9;
+            background: #0d0e14;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             flex: none;
             order: 0;
             flex-grow: 0;
@@ -3898,7 +3899,7 @@ if (!headers_sent()) {
             max-width: 1160px;
             min-height: 50px;
             max-height: 650px;
-            background: #FFFFFF;
+            background: #000000;
             padding: 0px;
             overflow-y: auto;
             flex: none;
@@ -3933,7 +3934,7 @@ if (!headers_sent()) {
             flex-grow: 0;
         }
 
-        /* bottom-input-bar */
+        /* bottom-input-bar (Celda Shell Blanca) */
         .block-row.block-prompt {
             box-sizing: border-box;
             display: flex;
@@ -3943,10 +3944,10 @@ if (!headers_sent()) {
             gap: 12px;
             width: 100%;
             max-width: 1200px;
-            height: 45px;
-            min-height: 45px;
-            background: #090a0f;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 46px;
+            min-height: 46px;
+            background: #ffffff;
+            border: 1px solid #dcdad5;
             border-top: none;
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
@@ -3955,6 +3956,7 @@ if (!headers_sent()) {
             flex: none;
             order: 0;
             flex-grow: 0;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         }
 
         /* prompt-symbol */
@@ -3967,7 +3969,7 @@ if (!headers_sent()) {
             font-weight: 700;
             font-size: 16px;
             line-height: 21px;
-            color: #38bdf8;
+            color: #2563eb;
             background: transparent;
             border: none;
             display: flex;
@@ -3984,7 +3986,7 @@ if (!headers_sent()) {
         }
 
         .block-prompt .block-symbol:hover {
-            color: #60a5fa;
+            color: #1d4ed8;
             transform: scale(1.15);
         }
 
@@ -4011,8 +4013,8 @@ if (!headers_sent()) {
             font-weight: 500;
             font-size: 13.5px;
             line-height: 18px;
-            color: #ffffff !important;
-            caret-color: #38bdf8;
+            color: #0f172a !important;
+            caret-color: #2563eb;
             background: transparent;
             border: none;
             outline: none;
@@ -4024,7 +4026,7 @@ if (!headers_sent()) {
         }
 
         .cmd-input::placeholder {
-            color: #64748b;
+            color: #94a3b8;
             font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
             font-style: normal;
             font-weight: 400;
@@ -4044,10 +4046,10 @@ if (!headers_sent()) {
             height: 30px;
             min-width: 30px;
             min-height: 30px;
-            background: rgba(255, 255, 255, 0.06);
+            background: #f1f5f9;
             border-radius: 6px;
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid #cbd5e1;
             flex: none;
             order: 2;
             flex-grow: 0;
@@ -4055,8 +4057,8 @@ if (!headers_sent()) {
         }
 
         .cell-action-icon:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(56, 189, 248, 0.5);
+            background: #e2e8f0;
+            border-color: #2563eb;
             transform: scale(1.05);
         }
 
@@ -4068,7 +4070,7 @@ if (!headers_sent()) {
             flex: none;
             order: 0;
             flex-grow: 0;
-            color: #94a3b8;
+            color: #475569;
         }
 
         /* ==========================================================================
@@ -7328,10 +7330,10 @@ if (!headers_sent()) {
             display: none;
             margin-top: -1px;
             padding: 16px 20px;
-            background: #ffffff;
-            border: 1px solid #cccccc;
+            background: #0d0e14;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-top: none;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             user-select: none;
             animation: fadeInDrawer 0.25s ease-out;
         }
@@ -7342,7 +7344,7 @@ if (!headers_sent()) {
 
         /* Si la terminal negra también está abierta, el teclado queda debajo con separación limpia */
         .function-drawer.open + .virtual-keyboard-white.active {
-            border-top: 1px solid #cccccc;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin-top: 0;
         }
 
@@ -7355,10 +7357,10 @@ if (!headers_sent()) {
         }
 
         .vk-card-panel {
-            background: #faf9f6;
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #13141c;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             font-family: 'IBM Plex Mono', ui-monospace, monospace;
             display: flex;
@@ -7371,15 +7373,15 @@ if (!headers_sent()) {
             align-items: center;
             justify-content: space-between;
             padding: 14px 18px;
-            border-bottom: 1px solid #e6e3dd;
-            background: #faf9f6;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: #181924;
         }
 
         .vk-card-title {
             font: 600 11px/1 'IBM Plex Mono', monospace;
             letter-spacing: .09em;
             text-transform: uppercase;
-            color: #141414;
+            color: #f8fafc;
         }
 
         .vk-pills {
@@ -7391,14 +7393,14 @@ if (!headers_sent()) {
             font: 500 10px/1 'IBM Plex Mono', monospace;
             padding: 5px 8px;
             border-radius: 5px;
-            background: #eceae4;
-            color: #7d7a72;
+            background: rgba(255, 255, 255, 0.06);
+            color: #94a3b8;
             cursor: pointer;
             transition: background 0.15s ease, color 0.15s ease;
         }
 
         .vk-pill.active {
-            background: #141414;
+            background: #2563eb;
             color: #ffffff;
         }
 
@@ -7426,52 +7428,52 @@ if (!headers_sent()) {
         }
 
         .vk-key-btn {
-            background: #ffffff;
-            border: 1px solid #dcdad5;
+            background: #1a1b26;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 6px;
             padding: 8px 6px;
             font: 600 13px 'Geist Mono', 'IBM Plex Mono', monospace;
-            color: #1f2937;
+            color: #f8fafc;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.12s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
             user-select: none;
         }
 
         .vk-key-btn:hover {
-            background: #f3f4f6;
-            border-color: #9ca3af;
-            color: #111827;
+            background: #282a3a;
+            border-color: rgba(56, 189, 248, 0.5);
+            color: #ffffff;
             transform: translateY(-1px);
         }
 
         .vk-key-btn:active {
             transform: translateY(0) scale(0.97);
-            background: #e5e7eb;
+            background: #161720;
         }
 
         .vk-key-btn.action-enter {
-            background: #111827;
-            color: #ffffff;
-            border-color: #111827;
-        }
-
-        .vk-key-btn.action-enter:hover {
             background: #2563eb;
+            color: #ffffff;
             border-color: #2563eb;
         }
 
+        .vk-key-btn.action-enter:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
         .vk-key-btn.action-clear {
-            background: #fee2e2;
-            color: #dc2626;
-            border-color: #fca5a5;
+            background: rgba(220, 38, 38, 0.18);
+            color: #f87171;
+            border-color: rgba(220, 38, 38, 0.35);
         }
 
         .vk-key-btn.action-clear:hover {
-            background: #fecaca;
+            background: rgba(220, 38, 38, 0.3);
         }
 
         .vk-key-btn.cmd-btn {
@@ -7486,9 +7488,9 @@ if (!headers_sent()) {
         }
 
         .vector-outer-frame {
-            border: 2px solid #141414;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 3px;
-            background: #ffffff;
+            background: #0f1016;
             height: 100%;
             border-radius: 6px;
             display: flex;
@@ -7496,10 +7498,10 @@ if (!headers_sent()) {
         }
 
         .vector-inner-frame {
-            border: 1px solid #141414;
+            border: 1px solid rgba(255, 255, 255, 0.06);
             height: 100%;
             border-radius: 4px;
-            background: #faf9f6;
+            background: #14151e;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -7520,19 +7522,19 @@ if (!headers_sent()) {
             width: 100%;
             height: 100%;
             min-height: 250px;
-            background: #ffffff;
-            color: #141414;
-            border: 1px solid #e6e3dd;
+            background: #14151e;
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
             padding: 12px;
             font: 500 13px 'IBM Plex Mono', monospace;
             outline: none;
             resize: none;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,.04);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,.2);
         }
 
         .equations-editor::placeholder {
-            color: #a09d96;
+            color: #64748b;
         }
 
         body.raw-mode .block-execution .block-body {

@@ -3882,12 +3882,12 @@ if (!headers_sent()) {
             flex-grow: 0;
             user-select: none;
             /* = */
-            font-family: 'Inter', sans-serif;
+            font-family: 'Geist Mono', 'Inter', monospace;
             font-style: normal;
             font-weight: 700;
             font-size: 18px;
             line-height: 22px;
-            color: #40404D;
+            color: #38bdf8;
             text-align: center;
         }
 
@@ -3909,9 +3909,16 @@ if (!headers_sent()) {
             line-height: 1.4;
             font-family: 'IBM Plex Mono', 'Geist Mono', monospace;
             font-size: 13px;
-            color: #000000;
+            color: #ffffff !important;
             display: flex;
             align-items: flex-start;
+        }
+
+        .block-execution .block-body pre,
+        .block-execution .block-body code,
+        .block-execution .block-body .tabby-session-feed,
+        .block-execution .block-body .tabby-feed-output {
+            color: #ffffff;
         }
 
         /* Wrapper for bottom input bar and its drawers */

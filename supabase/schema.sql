@@ -252,6 +252,37 @@ create table if not exists public.l8_app_states (
 
 create index if not exists l8_app_states_account_app_idx on public.l8_app_states(account_key, app_id);
 
+-- 14. Durable Objects: Actores con estado fuertemente consistente y alarmas
+create table if not exists public.l8_durable_objects (
+  id text primary key,
+  account_key text not null,
+  namespace text not null default 'default',
+  name text not null default '',
+  storage_data jsonb not null default '{}'::jsonb,
+  alarm_at bigint,
+  version bigint not null default 1,
+  is_deleted boolean not null default false,
+  deleted_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_durable_objects_acct_ns_idx on public.l8_durable_objects (account_key, namespace);
+create index if not exists l8_durable_objects_alarm_idx on public.l8_durable_objects (alarm_at) where is_deleted = false;
+
+-- 15. Durable Objects: Registro de Alarmas y Eventos Transaccionales
+create table if not exists public.l8_durable_object_events (
+  id text primary key,
+  account_key text not null,
+  namespace text not null,
+  object_id text not null,
+  action text not null,
+  payload jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists l8_do_events_acct_obj_idx on public.l8_durable_object_events (account_key, object_id, created_at desc);
+
 -- =====================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- Strict Deny-All for public/anon/authenticated tokens.
@@ -273,6 +304,9 @@ alter table public.l8_auth_identities enable row level security;
 alter table public.l8_token_accounts enable row level security;
 alter table public.l8_token_ledger enable row level security;
 alter table public.l8_hashcod_keys enable row level security;
+alter table public.l8_app_states enable row level security;
+alter table public.l8_durable_objects enable row level security;
+alter table public.l8_durable_object_events enable row level security;
 alter table public.l8_app_states enable row level security;
 
 -- Deny policies for anon and authenticated clients

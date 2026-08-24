@@ -3615,6 +3615,7 @@ require_once __DIR__ . '/tokens.php';
 require_once __DIR__ . '/hashcod-keys.php';
 require_once __DIR__ . '/ai-chat.php';
 require_once __DIR__ . '/opencrypt-gen.php';
+require_once __DIR__ . '/durable-objects.php';
 if (function_exists('authHandleApi') && authHandleApi($uri)) {
     exit;
 }
@@ -3628,6 +3629,9 @@ if (function_exists('aiChatHandleApi') && aiChatHandleApi($uri)) {
     exit;
 }
 if (function_exists('ocgHandleApi') && ocgHandleApi($uri)) {
+    exit;
+}
+if (function_exists('doHandleApi') && doHandleApi($uri)) {
     exit;
 }
 
@@ -4979,6 +4983,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isStreamlit = ($lowerCmd === 'streamlit' || $lowerCmd === 'st' || strpos($lowerCmd, 'streamlit ') === 0 || strpos($lowerCmd, 'st ') === 0);
     $isToolkit = ($lowerCmd === 'toolkit' || $lowerCmd === 'pdf' || $lowerCmd === 'pdf_inspector' || $lowerCmd === 'ocr' || $cleanCmd === 'pdfinspector');
     $isOpenCrypt = ($lowerCmd === 'opencrypt' || $lowerCmd === 'ocg' || $cleanCmd === 'opencryptg');
+    $isDurable = ($lowerCmd === 'durable' || $lowerCmd === 'do' || $lowerCmd === 'durableobjects' || $lowerCmd === 'durable_objects' || $cleanCmd === 'durableobjects' || $cleanCmd === 'durable');
     $isAgents = ($lowerCmd === 'agents' || $lowerCmd === 'agency' || $lowerCmd === 'agentes' || strpos($lowerCmd, 'agents ') === 0 || strpos($lowerCmd, 'agency ') === 0);
     $isKeys = ($lowerCmd === 'keys' || $lowerCmd === 'hashcod_keys' || $lowerCmd === 'vault' || $cleanCmd === 'hashcodkeys');
     $isTokens = ($lowerCmd === 'tokens' || $lowerCmd === 'allowance' || $lowerCmd === 'cupo');
@@ -4995,7 +5000,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isBash = in_array($cmdParts[0] ?? '', $bashPrefixes);
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isClaude || $isUbuntu || $isZylon || $isLibreoffice || $isTiptap || $isStreamlit || $isToolkit || $isOpenCrypt || $isAgents || $isKeys || $isTokens || $isGateway || $isUpload || $isClear || $isWorkflows || $isStatus || $isThemes || $isAi || $isBash || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isClaude || $isUbuntu || $isZylon || $isLibreoffice || $isTiptap || $isStreamlit || $isToolkit || $isOpenCrypt || $isDurable || $isAgents || $isKeys || $isTokens || $isGateway || $isUpload || $isClear || $isWorkflows || $isStatus || $isThemes || $isAi || $isBash || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
 
     if (!$isValid) {
         $durMs = (int)round((microtime(true) - $startTime) * 1000);
@@ -5312,6 +5317,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'total' => $agentsData['total'] ?? 0,
             'agents' => array_slice($agentsData['agents'] ?? [], 0, 30),
             'message' => 'Catálogo de más de 50 Agentes de Ingeniería de IA autónomos especializados'
+        ];
+    } else if ($isDurable) {
+        $outputResult = [
+            'type' => 'TRIGGER_DURABLE_OBJECTS',
+            'command' => 'durable',
+            'product' => 'Durable Objects Actor Model',
+            'message' => 'Abriendo inspector de Durable Objects y actores con estado...'
         ];
     } else if ($isKeys) {
         $outputResult = [

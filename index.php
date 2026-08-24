@@ -71,6 +71,7 @@ if (!headers_sent()) {
     <link rel="apple-touch-icon" href="favicon.svg?v=10">
     <meta name="application-name" content="Hashcod codespace">
     <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/tabby-terminal.css?v=2026.2">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/durable-objects.css?v=2026.1">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700;800;900&display=swap');
 
@@ -9141,6 +9142,13 @@ if (!headers_sent()) {
                             </g>
                         </svg>
                     </button>
+                    <button type="button" class="cell-action-icon" id="btnPromptDurable" title="Durable Objects · Actores con estado persistente y consistente" onclick="if(window.DurableObjects){window.DurableObjects.openInspectorModal();}else if(window.submitCommand){submitCommand('durable');}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2" fill="rgba(0,0,0,0.06)"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </button>
                     <button type="button" class="cell-action-icon" id="btnVirtualKeyboard" role="button" tabindex="0" title="Abrir / cerrar teclado virtual" onclick="toggleVirtualKeyboard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVirtualKeyboard();}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect x="2" y="4" width="20" height="16" rx="2.5"></rect>
@@ -11036,6 +11044,19 @@ if (!headers_sent()) {
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                         <span><strong>Gateway PQC Crescent:</strong> Portal de intercambio post-cuántico abierto.</span>
                         <button type="button" class="btn-upload-vector" onclick="openGatewayPortal('${url}')">Abrir Gateway</button>
+                    </div>
+                `);
+                return;
+            }
+
+            if (dataToDisplay && dataToDisplay.type === "TRIGGER_DURABLE_OBJECTS") {
+                if (window.DurableObjects && typeof window.DurableObjects.openInspectorModal === 'function') {
+                    window.DurableObjects.openInspectorModal();
+                }
+                tabbyWrapOutput(`
+                    <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+                        <svg class="tabby-icon-svg" style="fill:#0284c7; width:16px; height:16px;" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                        <span><strong>Durable Objects Actor Model:</strong> Inspector interactivo y estado persistente abierto.</span>
                     </div>
                 `);
                 return;
@@ -18112,5 +18133,6 @@ if (!headers_sent()) {
     </script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/tabby-terminal.js?v=2026.2"></script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/durable-objects.js?v=2026.1"></script>
 </body>
 </html>

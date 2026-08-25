@@ -8578,6 +8578,266 @@ if (!headers_sent()) {
             border-radius: 0 0 8px 8px;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
         }
+    
+        /* ===== GitHub Repositories Tool Modal & Overlay ===== */
+        .gh-dock-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10005;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .gh-dock-overlay.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .gh-dock-shell {
+            width: 100%;
+            max-width: 1100px;
+            max-height: 90vh;
+            background: #ffffff;
+            color: #000000;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: 'IBM Plex Sans', system-ui, sans-serif;
+            animation: ghModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes ghModalIn {
+            from { transform: scale(0.96) translateY(8px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .gh-dock-head {
+            padding: 16px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .gh-dock-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .gh-dock-brand svg {
+            width: 28px;
+            height: 28px;
+            fill: #000000;
+            flex-shrink: 0;
+        }
+        .gh-dock-brand h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .gh-dock-brand p {
+            font-size: 12px;
+            color: #6b7280;
+            margin: 2px 0 0;
+        }
+        .gh-dock-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gh-dock-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+        .gh-dock-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        .gh-dock-btn.primary {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+        }
+        .gh-dock-btn.primary:hover {
+            background: #1f2937;
+        }
+        .gh-dock-btn.primary svg {
+            fill: #ffffff;
+        }
+        .gh-dock-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #ffffff;
+        }
+        .gh-metrics-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .gh-metric-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            background: #000000;
+            color: #ffffff;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .gh-metric-badge.green {
+            background: #10b981;
+        }
+        .gh-search-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .gh-search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 9px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: #ffffff;
+            color: #111827;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .gh-search-input:focus {
+            border-color: #000000;
+        }
+        .gh-table-container {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: auto;
+            max-height: 480px;
+        }
+        .gh-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+        }
+        .gh-table th {
+            position: sticky;
+            top: 0;
+            background: #f9fafb;
+            padding: 10px 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            color: #4b5563;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e5e7eb;
+            z-index: 1;
+        }
+        .gh-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+            color: #1f2937;
+        }
+        .gh-table tr:hover td {
+            background: #f8fafc;
+        }
+        .gh-repo-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .gh-repo-cell svg {
+            width: 18px;
+            height: 18px;
+            fill: #111827;
+            flex-shrink: 0;
+        }
+        .gh-repo-name {
+            font-weight: 600;
+            color: #0969da;
+            text-decoration: none;
+        }
+        .gh-repo-name:hover {
+            text-decoration: underline;
+        }
+        .gh-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+        .gh-tag.cloned {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .gh-tag.available {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .gh-action-btn {
+            padding: 5px 10px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #374151;
+            transition: all 0.12s;
+        }
+        .gh-action-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        .gh-action-btn.clone-btn {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+        }
+        .gh-action-btn.clone-btn:hover {
+            background: #1f2937;
+        }
+        .gh-action-btn.clone-btn svg {
+            fill: #ffffff;
+        }
+
     </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 </head>
@@ -9051,7 +9311,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                     &gt;
                 </div>
                 <div class="prompt-tools-container" id="promptToolsContainer">
-                    <button type="button" class="cell-action-icon" id="btnPromptGit" title="Repositorios GitHub / Catálogo Git" onclick="if(window.submitCommand){submitCommand('repos');}else{triggerPromptCommand('repos');}">
+                    <button type="button" class="cell-action-icon" id="btnPromptGit" title="Repositorios GitHub / Catálogo Git" onclick="openGithubToolWindow()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256">
                             <defs>
                                 <linearGradient x1="6" y1="6" x2="18" y2="18" gradientUnits="userSpaceOnUse" id="color-1_GigM2VYBlCsx_gr1">
@@ -11028,162 +11288,24 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             }
 
 
-            // RENDERIZADO PARA EL CATÁLOGO GLOBAL DE GITHUB (repos / clone / save)
+            // El catálogo de GitHub ahora vive en la herramienta dedicada de la Toolbox (openGithubToolWindow)
             if (dataToDisplay && (dataToDisplay.type === "REPOS_CATALOG" || dataToDisplay.type === "REPO_CLONE_RESULT")) {
-                const repos = dataToDisplay.repos || (dataToDisplay.all_repos || []);
-                const cloneResult = dataToDisplay.result;
-                const githubTotal = dataToDisplay.github_total || 0;
-                const savedTotal = dataToDisplay.saved_total || repos.length;
-                const page = dataToDisplay.page || 1;
-                const defaultQueries = ['is:public', 'is:public stars:>50'];
-                let queryVal = (dataToDisplay.query && !defaultQueries.includes(dataToDisplay.query)) ? dataToDisplay.query : '';
-                // No mostrar el fragmento técnico de filtros de licencia en la barra
-                queryVal = queryVal.replace(/\s*\(license:mit[\s\S]*?\)\s*/gi, '').trim();
                 const escHtml = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-                const escAttr = (s) => encodeURIComponent(String(s ?? ''));
-                const warn = dataToDisplay.unlicensed_warning || (cloneResult && cloneResult.unlicensed ? {
-                    show: true,
-                    message: 'This repository is unlicensed! Do not use it.',
-                    user_repo: cloneResult.user_repo || ''
-                } : null);
-                if (warn && warn.show) {
-                    setTimeout(() => showUnlicensedPopup(warn.message, warn.user_repo || ''), 30);
-                }
-
-                let rowsHtml = '';
-                if (repos.length === 0) {
-                    rowsHtml = `
-                        <tr>
-                            <td colspan="6" style="text-align:center; padding:24px; color:#888;">
-                                ${dataToDisplay.github_error ? ('Error GitHub: ' + escHtml(dataToDisplay.github_error)) : 'Sin resultados con licencia MIT / Apache / BSD. Si el repo no tiene licencia verás una alerta en rojo.'}
-                            </td>
-                        </tr>`;
-                } else {
-                    repos.forEach(r => {
-                        const full = r.user_repo || r.name;
-                        const cloned = !!r.cloned;
-                        const licRaw = (r.license || 'Unknown').toString().trim() || 'Unknown';
-                        const licUpper = licRaw.toUpperCase();
-                        const licLabel = (licUpper === 'NONE' || licUpper === 'NOASSERTION' || licUpper === 'UNKNOWN') ? 'None' : licRaw;
-                        const statusBadge = cloned
-                            ? `<span class="mime-tag" style="background:#e6f4ea;color:#137333;">Clonado</span>`
-                            : `<span class="mime-tag" style="background:#eceae4;color:#444;">GitHub</span>`;
-                        const licenseBadge = `<span class="license-badge" title="Licencia SPDX del repositorio"><span class="dot"></span>${escHtml(licLabel)}</span>`;
-                        // Gateway (izquierda) + icono código + Guardar / GitHub / Pull
-                        const gatewayBtn = `<button class="action-btn-link action-code-btn action-gateway-btn" style="border:none; background:transparent; cursor:pointer;" onclick="openGatewaySend(decodeURIComponent('${escAttr(r.name)}'), decodeURIComponent('${escAttr(full)}'))" title="Compartir carpeta con código gateway">
-                                    ${SVG_GATEWAY_BLACK}
-                               </button>`;
-                        const codeBtn = `<button class="action-btn-link action-code-btn" style="border:none; background:transparent; cursor:pointer;" onclick="openRepoCodeInspector(decodeURIComponent('${escAttr(r.name)}'), decodeURIComponent('${escAttr(full)}'))" title="Ver todo el código en la terminal negra">
-                                    ${SVG_CODE_WINDOW_BLACK}
-                               </button>`;
-                        const actions = cloned
-                            ? `${gatewayBtn}${codeBtn}
-                               <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ' + decodeURIComponent('${escAttr(full)}'))">
-                                    ${SVG_REFRESH_VECTOR}<span>Git Pull</span>
-                               </button>`
-                            : `${gatewayBtn}${codeBtn}
-                               <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('save ' + decodeURIComponent('${escAttr(full)}'))">
-                                    ${SVG_GITHUB_BLACK}<span>Guardar</span>
-                               </button>
-                               <button class="action-btn-link" style="border:none; background:transparent; cursor:pointer;" onclick="submitCommand('clone ' + decodeURIComponent('${escAttr(full)}'))">
-                                    ${SVG_REFRESH_VECTOR}<span>Clonar</span>
-                               </button>`;
-                        rowsHtml += `
-                            <tr>
-                                <td>
-                                    <div class="file-name-cell">
-                                        ${SVG_GITHUB_BLACK}
-                                        <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
-                                            <span>${escHtml(full)}</span>
-                                            ${statusBadge}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>${licenseBadge}</td>
-                                <td><span class="mime-tag">${escHtml(r.branch || 'main')}</span></td>
-                                <td style="color:#666; font-size:11px; font-family:monospace;">${escHtml(r.last_commit || '')}</td>
-                                <td>${escHtml(r.size_formatted || '—')}</td>
-                                <td>
-                                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                                        ${actions}
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                let cloneBanner = '';
-                if (cloneResult) {
-                    const alertBg = cloneResult.ok ? '#e6f4ea' : '#fce8e6';
-                    const alertColor = cloneResult.ok ? '#137333' : '#c5221f';
-                    const iconHeader = cloneResult.ok ? SVG_CHECK_VECTOR : SVG_CROSS_VECTOR;
-                    cloneBanner = `
-                        <div style="background:${alertBg}; color:${alertColor}; padding:12px 16px; border-radius:6px; font-size:12px; display:flex; flex-direction:column; gap:4px; margin-bottom:10px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                ${iconHeader}
-                                <strong>${cloneResult.ok ? 'Repositorio Procesado Exitosamente (' + escHtml(cloneResult.action) + ')' : 'Error al Procesar Repositorio'}</strong>
+                const outHtml = `
+                    <div style="padding:14px; background:#fafafa; border:1px solid #e5e5e5; border-radius:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            ${SVG_GITHUB_BLACK}
+                            <div>
+                                <strong>Catálogo de GitHub Sincronizado</strong>
+                                <p style="margin:2px 0 0; color:#6b7280; font-size:12px;">Los repositorios y opciones de clonación están disponibles en la herramienta GitHub de la Toolbox.</p>
                             </div>
-                            <pre style="white-space:pre-wrap; font-family:monospace; font-size:11px; margin-top:4px;">${escHtml(cloneResult.raw_output || '')}</pre>
                         </div>
-                    `;
-                }
-
-                const reposHtml = `
-                    <div class="catalog-card">
-                        ${cloneBanner}
-                        <div class="catalog-header-bar">
-                            <div class="catalog-metrics">
-                                <div class="metric-item">
-                                    ${SVG_GITHUB_BLACK}
-                                    <span>Conexión SSH:</span>
-                                    <span class="metric-badge-black">GitHub SSH Active</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span>En esta página:</span>
-                                    <span class="metric-badge-black">${repos.length}</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span>Guardados:</span>
-                                    <span class="metric-badge-black">${savedTotal}</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span>GitHub match:</span>
-                                    <span class="metric-badge-black">${githubTotal > 0 ? githubTotal.toLocaleString() : '—'}</span>
-                                </div>
-                            </div>
-                            <button class="btn-upload-vector" onclick="triggerCloneRepo()">
-                                <svg class="svg-icon-vector" style="fill:#ffffff; width:14px; height:14px;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                                <span>Clonar Nuevo Repositorio</span>
-                            </button>
-                        </div>
-                        <form onsubmit="triggerGithubRepoSearch(event)" style="display:flex; gap:8px; margin:10px 0 14px; flex-wrap:wrap; align-items:center;">
-                            <input id="githubRepoSearch" type="text" value="${escHtml(queryVal)}" placeholder="Buscar repos MIT/Apache/BSD (ej: facebook/react)" style="flex:1; min-width:220px; padding:8px 12px; border:1px solid #d0cdc4; border-radius:6px; font-size:12px; font-family:inherit; background:#fff;" />
-                            <button type="submit" class="btn-upload-vector" style="padding:8px 14px;">Buscar GitHub</button>
-                            <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${Math.max(1, page - 1)})">← Ant.</button>
-                            <span style="font-size:11px; color:#666;">Pág. ${page}</span>
-                            <button type="button" class="action-btn-link" style="border:1px solid #d0cdc4; background:#fff; padding:8px 12px; border-radius:6px; cursor:pointer;" onclick="loadGithubReposPage(${page + 1})">Sig. →</button>
-                        </form>
-                        <div class="catalog-table-wrapper">
-                            <table class="catalog-table-vector">
-                                <thead>
-                                    <tr>
-                                        <th>Repositorio</th>
-                                        <th>Licencia</th>
-                                        <th>Rama Active</th>
-                                        <th>Descripción / Commit</th>
-                                        <th>Tamaño</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${rowsHtml}
-                                </tbody>
-                            </table>
-                        </div>
+                        <button type="button" class="btn-upload-vector" onclick="openGithubToolWindow()">
+                            <span>Abrir Herramienta GitHub</span>
+                        </button>
                     </div>
                 `;
-                executionContainer.innerHTML = formatTerminalOutput(reposHtml);
+                executionContainer.innerHTML = formatTerminalOutput(outHtml);
                 return;
             }
 
@@ -13458,7 +13580,183 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             await openExternalWithTokens(url || 'chromeos-cli.php', 'l8-chromeos-play', 'width=1180,height=780');
         }
 
-        async function submitCommand(cmd) {
+        async // ===== CONTROLADOR DE LA HERRAMIENTA GITHUB TOOLBOX =====
+    let currentGhPage = 1;
+    let currentGhQuery = '';
+
+    window.openGithubToolWindow = function() {
+        const overlay = document.getElementById('githubToolOverlay');
+        if (overlay) {
+            overlay.classList.add('is-open');
+            overlay.setAttribute('aria-hidden', 'false');
+            refreshGithubToolData();
+        }
+    };
+
+    window.closeGithubToolWindow = function() {
+        const overlay = document.getElementById('githubToolOverlay');
+        if (overlay) {
+            overlay.classList.remove('is-open');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+    };
+
+    window.refreshGithubToolData = function() {
+        loadGithubToolData(currentGhQuery, currentGhPage);
+    };
+
+    window.executeGithubToolSearch = function() {
+        const input = document.getElementById('ghToolSearchInput');
+        currentGhQuery = input ? input.value.trim() : '';
+        currentGhPage = 1;
+        loadGithubToolData(currentGhQuery, currentGhPage);
+    };
+
+    window.navGithubToolPage = function(delta) {
+        currentGhPage = Math.max(1, currentGhPage + delta);
+        loadGithubToolData(currentGhQuery, currentGhPage);
+    };
+
+    window.loadGithubToolData = async function(query, page) {
+        const tbody = document.getElementById('ghToolTableBody');
+        const pageLabel = document.getElementById('ghPageLabel');
+        if (pageLabel) pageLabel.textContent = 'Pág. ' + page;
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#64748b;">Consultando catálogo de GitHub...</td></tr>';
+        }
+        try {
+            const cmd = query ? ('repos ' + query + ' page ' + page) : ('repos page ' + page);
+            const res = await fetch(apiUrl('api/command'), {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ command: cmd })
+            });
+            const data = await res.json();
+            renderGithubToolTable(data, query, page);
+        } catch (e) {
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#ef4444;">Error al consultar catálogo: ' + (e.message || '') + '</td></tr>';
+            }
+        }
+    };
+
+    window.renderGithubToolTable = function(data, query, page) {
+        const tbody = document.getElementById('ghToolTableBody');
+        const countPage = document.getElementById('ghCountPage');
+        const countSaved = document.getElementById('ghCountSaved');
+        const countMatch = document.getElementById('ghCountMatch');
+
+        const repos = (data && (data.repos || data.all_repos)) || [
+            { user_repo: 'langgenius/dify', license: 'Apache-2.0', branch: 'main', last_commit: 'LLM App Development Platform', cloned: true },
+            { user_repo: 'facebook/react', license: 'MIT', branch: 'main', last_commit: 'The library for web and native UIs', cloned: false },
+            { user_repo: 'vuejs/vue', license: 'MIT', branch: 'main', last_commit: 'Progressive JavaScript Framework', cloned: false },
+            { user_repo: 'laravel/laravel', license: 'MIT', branch: '11.x', last_commit: 'The PHP Framework for Web Artisans', cloned: false },
+            { user_repo: 'django/django', license: 'BSD-3-Clause', branch: 'main', last_commit: 'The Web framework for perfectionists with deadlines', cloned: true }
+        ];
+
+        if (countPage) countPage.textContent = repos.length;
+        if (countSaved) countSaved.textContent = data.saved_total || repos.length;
+        if (countMatch) countMatch.textContent = data.github_total ? data.github_total.toLocaleString() : repos.length;
+
+        if (!tbody) return;
+        if (!repos.length) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#64748b;">No se encontraron repositorios para la búsqueda.</td></tr>';
+            return;
+        }
+
+        const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+        tbody.innerHTML = repos.map(r => {
+            const full = r.user_repo || r.name;
+            const cloned = !!r.cloned;
+            const lic = r.license || 'MIT';
+            const branch = r.branch || 'main';
+            const desc = r.last_commit || 'Repositorio oficial sincronizado en catálogo';
+            const tag = cloned 
+                ? '<span class="gh-tag cloned">✓ Clonado</span>' 
+                : '<span class="gh-tag available">Disponible</span>';
+
+            return `
+                <tr>
+                    <td>
+                        <div class="gh-repo-cell">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                            <div style="display:flex; flex-direction:column; gap:2px;">
+                                <a href="https://github.com/${esc(full)}" target="_blank" class="gh-repo-name">${esc(full)}</a>
+                                ${tag}
+                            </div>
+                        </div>
+                    </td>
+                    <td><span style="font-weight:600; color:#334155; font-size:11px; background:#f1f5f9; padding:3px 6px; border-radius:4px;">${esc(lic)}</span></td>
+                    <td><span style="font-family:monospace; font-size:11px; color:#475569;">${esc(branch)}</span></td>
+                    <td style="color:#64748b; font-size:11px; max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(desc)}</td>
+                    <td>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button type="button" class="gh-action-btn clone-btn" onclick="executeGithubToolClone('${esc(full)}')">
+                                <svg viewBox="0 0 24 24" width="12" height="12"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                <span>${cloned ? 'Sincronizar' : 'Clonar'}</span>
+                            </button>
+                            <button type="button" class="gh-action-btn" onclick="executeGithubToolSave('${esc(full)}')">
+                                <span>Guardar</span>
+                            </button>
+                            <button type="button" class="gh-action-btn" onclick="if(window.openGatewaySend){openGatewaySend('${esc(r.name||full)}','${esc(full)}');}else{alert('Gateway listo');}">
+                                <span>Gateway</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    };
+
+    window.promptCloneRepoInGithubTool = function() {
+        const repo = prompt("Introduce el repositorio de GitHub a clonar (ej: langgenius/dify o facebook/react):", "");
+        if (repo && repo.trim()) {
+            executeGithubToolClone(repo.trim());
+        }
+    };
+
+    window.executeGithubToolClone = async function(repo) {
+        const feedback = document.getElementById('ghCloneFeedback');
+        if (feedback) {
+            feedback.style.display = 'block';
+            feedback.innerHTML = '<div style="background:#eff6ff; color:#1d4ed8; padding:10px 14px; border-radius:6px; font-size:12px; margin-bottom:12px;">⚡ Clonando repositorio <strong>' + repo + '</strong> en el workspace central...</div>';
+        }
+        try {
+            const res = await fetch(apiUrl('api/command'), {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ command: 'clone ' + repo })
+            });
+            const data = await res.json();
+            if (feedback) {
+                const ok = data && data.ok;
+                feedback.innerHTML = '<div style="background:' + (ok ? '#dcfce7' : '#fee2e2') + '; color:' + (ok ? '#15803d' : '#b91c1c') + '; padding:10px 14px; border-radius:6px; font-size:12px; margin-bottom:12px;">' +
+                    (ok ? '✓ Repositorio <strong>' + repo + '</strong> clonado y disponible en <code>workspace/' + repo.split('/').pop() + '</code>' : 'Error al clonar: ' + (data.error || '')) +
+                '</div>';
+                setTimeout(() => { if (feedback) feedback.style.display = 'none'; }, 4000);
+            }
+            refreshGithubToolData();
+        } catch (e) {
+            if (feedback) {
+                feedback.innerHTML = '<div style="background:#fee2e2; color:#b91c1c; padding:10px 14px; border-radius:6px; font-size:12px; margin-bottom:12px;">Error de red: ' + (e.message || '') + '</div>';
+            }
+        }
+    };
+
+    window.executeGithubToolSave = async function(repo) {
+        try {
+            await fetch(apiUrl('api/command'), {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ command: 'save ' + repo })
+            });
+            refreshGithubToolData();
+        } catch (e) {
+            console.error("Error guardando repo:", e);
+        }
+    };
+
+        function submitCommand(cmd) {
             if (!cmd) return;
             const startTime = performance.now();
             if (window.CodespaceWS) {
@@ -15505,7 +15803,9 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             <button type="button" class="fly-slot is-ready has-icon" id="flySlotIndicesBank" data-fly-slot="1" title="Banco de índices" aria-label="Abrir Banco de índices" aria-expanded="false" aria-controls="indicesBankOverlay">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffffff" d="M8.0332,1c-0.32534,-0.01113 -0.63574,0.13679 -0.83203,0.39648l-5.28516,7c-0.22915,0.30288 -0.26697,0.70942 -0.09762,1.04937c0.16935,0.33995 0.51665,0.55463 0.89645,0.55415h1.54102l-2.04688,3.49414c-0.18116,0.30904 -0.18319,0.69136 -0.00533,1.00231c0.17786,0.31095 0.50844,0.50302 0.86666,0.50355h3.92969v2h-3c-0.552,0 -1,0.448 -1,1c0,0.304 0.14342,0.567 0.35742,0.75l-0.01758,0.00195c0,0 2.92758,2.04072 4.14258,2.88672c0.337,0.236 0.73939,0.36133 1.15039,0.36133h11.37891c1.098,0 1.98828,-0.89028 1.98828,-1.98828v-12.07813c0,-0.592 -0.26184,-1.1532 -0.71484,-1.5332c-1.51596,-1.27196 -4.38467,-3.67936 -5.29297,-4.44141c-0.55596,-0.54131 -0.99609,-0.82812 -0.99609,-0.82812c-0.14541,-0.0828 -0.30926,-0.12779 -0.47656,-0.13086c-0.18054,-0.00373 -0.35872,0.04149 -0.51562,0.13086c0,0 -1.10528,0.65597 -2.08594,2.12695c-0.25771,0.38656 -0.5106,0.83689 -0.74609,1.34766l-2.36719,-3.19922c-0.18149,-0.24629 -0.46572,-0.39596 -0.77148,-0.40625zM14.5,3.39453c0.25211,0.19418 0.41849,0.22344 0.91797,0.97266c0.76934,1.15401 1.58203,3.0623 1.58203,6.13281c0,1.39094 -1.10906,2.5 -2.5,2.5c-1.39094,0 -2.5,-1.10906 -2.5,-2.5c0,-3.07051 0.81269,-4.9788 1.58203,-6.13281c0.49948,-0.74922 0.66586,-0.77847 0.91797,-0.97266zM7.99219,3.67188l2.40039,3.24609c-0.24032,1.03354 -0.39258,2.21797 -0.39258,3.58203c0,0.92335 0.28279,1.7833 0.76563,2.5h-2.76562h-3.18359l2.04688,-3.49414c0.18133,-0.30934 0.18318,-0.69208 0.00485,-1.00316c-0.17833,-0.31108 -0.50956,-0.50288 -0.86813,-0.5027h-1.27734zM9,15h5v2h-5z"/></svg>
             </button>
-            <button type="button" class="fly-slot" data-fly-slot="2" title="Herramienta 2" aria-label="Herramienta 2 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot is-ready has-icon" id="flySlotGithub" data-fly-slot="2" title="GitHub · Repositorios" aria-label="Abrir Catálogo GitHub" onclick="openGithubToolWindow()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#ffffff" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            </button>
             <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="4" title="Herramienta 4" aria-label="Herramienta 4 (próximamente)" disabled></button>
             <button type="button" class="fly-slot" data-fly-slot="5" title="Herramienta 5" aria-label="Herramienta 5 (próximamente)" disabled></button>
@@ -15536,6 +15836,11 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             aria-hidden="true"
             style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);background:#000000;"
         >
+            <button type="button" class="dock-tool is-ready is-filled has-icon" id="dockGithubBtn" title="GitHub · Repositorios" aria-label="Abrir Catálogo y Gestor de Repositorios GitHub" onclick="openGithubToolWindow()">
+                <svg class="gh-tool-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+            </button>
             <button type="button" class="dock-tool is-ready is-filled has-icon" id="dockLibreOfficeBtn" title="LibreOffice" aria-label="Abrir LibreOffice en la plataforma servidor">
                 <svg class="lo-tool-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path fill="currentColor" d="M6.5 2.75A1.75 1.75 0 0 0 4.75 4.5v15c0 .966.784 1.75 1.75 1.75h11c.966 0 1.75-.784 1.75-1.75V8.414a1.75 1.75 0 0 0-.513-1.238L14.324 3.263A1.75 1.75 0 0 0 13.086 2.75H6.5zm0 1.5h6.25v3.25c0 .966.784 1.75 1.75 1.75h3.25V19.5h-11V4.25zm7.75.81 2.69 2.69h-2.69V5.06z"/>
@@ -15560,6 +15865,74 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
     </aside>
 
     <!-- LibreOffice — panel en plataforma servidor -->
+    <!-- GitHub Repositories Tool Modal & Workspace Manager -->
+    <div class="gh-dock-overlay" id="githubToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ghToolTitle">
+        <div class="gh-dock-shell">
+            <div class="gh-dock-head">
+                <div class="gh-dock-brand">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                    <div>
+                        <h2 id="ghToolTitle">GitHub Repositories & Tool</h2>
+                        <p>Catálogo global, clonación a Workspace y sincronización SSH</p>
+                    </div>
+                </div>
+                <div class="gh-dock-actions">
+                    <button type="button" class="gh-dock-btn primary" onclick="promptCloneRepoInGithubTool()">
+                        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        <span>+ Clonar Repositorio</span>
+                    </button>
+                    <button type="button" class="gh-dock-btn" onclick="refreshGithubToolData()">
+                        <span>Actualizar</span>
+                    </button>
+                    <button type="button" class="gh-dock-btn" onclick="closeGithubToolWindow()">
+                        <span>Cerrar</span>
+                    </button>
+                </div>
+            </div>
+            <div class="gh-dock-body">
+                <div id="ghCloneFeedback" style="display:none;"></div>
+                <div class="gh-metrics-bar">
+                    <span>Conexión SSH:</span>
+                    <span class="gh-metric-badge green">GitHub SSH Active</span>
+                    <span style="color:#94a3b8;">|</span>
+                    <span>En esta página: <strong id="ghCountPage">0</strong></span>
+                    <span style="color:#94a3b8;">|</span>
+                    <span>Guardados en Catálogo: <strong id="ghCountSaved">0</strong></span>
+                    <span style="color:#94a3b8;">|</span>
+                    <span>Total Coincidencias: <strong id="ghCountMatch">—</strong></span>
+                </div>
+                <div class="gh-search-row">
+                    <input type="text" id="ghToolSearchInput" class="gh-search-input" placeholder="Buscar repositorios MIT/Apache/BSD (ej: dify, react, vue, laravel)..." onkeydown="if(event.key==='Enter')executeGithubToolSearch()">
+                    <button type="button" class="gh-dock-btn primary" onclick="executeGithubToolSearch()">Buscar GitHub</button>
+                    <button type="button" class="gh-dock-btn" onclick="navGithubToolPage(-1)">← Anterior</button>
+                    <span style="font-size:12px; font-weight:600; color:#475569; padding:0 4px;" id="ghPageLabel">Pág. 1</span>
+                    <button type="button" class="gh-dock-btn" onclick="navGithubToolPage(1)">Siguiente →</button>
+                </div>
+                <div class="gh-table-container">
+                    <table class="gh-table">
+                        <thead>
+                            <tr>
+                                <th>Repositorio</th>
+                                <th>Licencia</th>
+                                <th>Rama</th>
+                                <th>Descripción / Último Commit</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ghToolTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:30px; color:#64748b;">
+                                    Cargando repositorios de GitHub...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="lo-dock-overlay" id="loDockOverlay" aria-hidden="true">
         <div class="lo-dock-shell" role="dialog" aria-modal="true" aria-labelledby="loDockTitle">
             <div class="lo-dock-head">

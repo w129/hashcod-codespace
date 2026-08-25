@@ -4342,6 +4342,15 @@ if (!headers_sent()) {
             border-color: #107C41;
         }
 
+        .tb-slot.is-tool-github:hover {
+            border-color: #000000;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+        }
+        .tb-slot.is-tool-github .tb-inner-ring {
+            border-color: #000000;
+            opacity: 0.7;
+        }
+
         .tb-slot.is-tool-blog .tb-inner-ring {
             border-color: #107C41;
             opacity: 0.6;
@@ -9726,11 +9735,14 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         <div class="tb-corner-dot d-bl"></div>
                         <div class="tb-corner-dot d-br"></div>
                     </div>
-                    <!-- slot-1-4 -->
-                    <div class="tb-slot" id="slot-1-4" data-slot="1-4" title="Slot 1-4">
+                    <!-- slot-1-4: GitHub Repositories & Catalog -->
+                    <div class="tb-slot is-filled is-tool-github" id="slot-1-4" data-slot="1-4" title="GitHub Repositories & Catalog" onclick="openGithubToolWindow()" role="button" tabindex="0" aria-label="Abrir Catálogo y Gestor de Repositorios GitHub">
                         <div class="tb-inner-ring">
-                            <div class="tb-focal-center"></div>
+                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="46" height="46" fill="#000000" aria-hidden="true">
+                                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                            </svg>
                         </div>
+                        <div class="tb-slot-badge">GITHUB</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -15800,15 +15812,21 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#0b3d2e;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
         ></button>
         <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true" style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:#0b3d2e;">
-            <button type="button" class="fly-slot is-ready has-icon" id="flySlotIndicesBank" data-fly-slot="1" title="Banco de índices" aria-label="Abrir Banco de índices" aria-expanded="false" aria-controls="indicesBankOverlay">
+            <button type="button" class="fly-slot is-ready has-icon" id="flySlotIndicesBank" data-fly-slot="1" title="Banco de índices" aria-label="Abrir Banco de índices" onclick="setIndicesBankOpen(true)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffffff" d="M8.0332,1c-0.32534,-0.01113 -0.63574,0.13679 -0.83203,0.39648l-5.28516,7c-0.22915,0.30288 -0.26697,0.70942 -0.09762,1.04937c0.16935,0.33995 0.51665,0.55463 0.89645,0.55415h1.54102l-2.04688,3.49414c-0.18116,0.30904 -0.18319,0.69136 -0.00533,1.00231c0.17786,0.31095 0.50844,0.50302 0.86666,0.50355h3.92969v2h-3c-0.552,0 -1,0.448 -1,1c0,0.304 0.14342,0.567 0.35742,0.75l-0.01758,0.00195c0,0 2.92758,2.04072 4.14258,2.88672c0.337,0.236 0.73939,0.36133 1.15039,0.36133h11.37891c1.098,0 1.98828,-0.89028 1.98828,-1.98828v-12.07813c0,-0.592 -0.26184,-1.1532 -0.71484,-1.5332c-1.51596,-1.27196 -4.38467,-3.67936 -5.29297,-4.44141c-0.55596,-0.54131 -0.99609,-0.82812 -0.99609,-0.82812c-0.14541,-0.0828 -0.30926,-0.12779 -0.47656,-0.13086c-0.18054,-0.00373 -0.35872,0.04149 -0.51562,0.13086c0,0 -1.10528,0.65597 -2.08594,2.12695c-0.25771,0.38656 -0.5106,0.83689 -0.74609,1.34766l-2.36719,-3.19922c-0.18149,-0.24629 -0.46572,-0.39596 -0.77148,-0.40625zM14.5,3.39453c0.25211,0.19418 0.41849,0.22344 0.91797,0.97266c0.76934,1.15401 1.58203,3.0623 1.58203,6.13281c0,1.39094 -1.10906,2.5 -2.5,2.5c-1.39094,0 -2.5,-1.10906 -2.5,-2.5c0,-3.07051 0.81269,-4.9788 1.58203,-6.13281c0.49948,-0.74922 0.66586,-0.77847 0.91797,-0.97266zM7.99219,3.67188l2.40039,3.24609c-0.24032,1.03354 -0.39258,2.21797 -0.39258,3.58203c0,0.92335 0.28279,1.7833 0.76563,2.5h-2.76562h-3.18359l2.04688,-3.49414c0.18133,-0.30934 0.18318,-0.69208 0.00485,-1.00316c-0.17833,-0.31108 -0.50956,-0.50288 -0.86813,-0.5027h-1.27734zM9,15h5v2h-5z"/></svg>
             </button>
             <button type="button" class="fly-slot is-ready has-icon" id="flySlotGithub" data-fly-slot="2" title="GitHub · Repositorios" aria-label="Abrir Catálogo GitHub" onclick="openGithubToolWindow()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#ffffff" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
             </button>
-            <button type="button" class="fly-slot" data-fly-slot="3" title="Herramienta 3" aria-label="Herramienta 3 (próximamente)" disabled></button>
-            <button type="button" class="fly-slot" data-fly-slot="4" title="Herramienta 4" aria-label="Herramienta 4 (próximamente)" disabled></button>
-            <button type="button" class="fly-slot" data-fly-slot="5" title="Herramienta 5" aria-label="Herramienta 5 (próximamente)" disabled></button>
+            <button type="button" class="fly-slot is-ready has-icon" id="flySlotLibreOffice" data-fly-slot="3" title="LibreOffice" aria-label="Abrir LibreOffice" onclick="const btn=document.getElementById('dockLibreOfficeBtn');if(btn)btn.click();">
+                <svg class="lo-tool-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#ffffff" d="M6.5 2.75A1.75 1.75 0 0 0 4.75 4.5v15c0 .966.784 1.75 1.75 1.75h11c.966 0 1.75-.784 1.75-1.75V8.414a1.75 1.75 0 0 0-.513-1.238L14.324 3.263A1.75 1.75 0 0 0 13.086 2.75H6.5zm0 1.5h6.25v3.25c0 .966.784 1.75 1.75 1.75h3.25V19.5h-11V4.25zm7.75.81 2.69 2.69h-2.69V5.06z"/></svg>
+            </button>
+            <button type="button" class="fly-slot is-ready has-icon" id="flySlotTipTap" data-fly-slot="4" title="TipTap Documentos" aria-label="Abrir editor TipTap" onclick="const btn=document.getElementById('dockTipTapBtn');if(btn)btn.click();">
+                <svg class="tt-tool-ico" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="#ffffff" fill-rule="nonzero" d="M2.5,1c-0.82253,0 -1.5,0.67747 -1.5,1.5v10c0,0.82253 0.67747,1.5 1.5,1.5h10c0.82253,0 1.5,-0.67747 1.5,-1.5v-10c0,-0.82253 -0.67747,-1.5 -1.5,-1.5zM2.5,2h10c0.28147,0 0.5,0.21853 0.5,0.5v10c0,0.28147 -0.21853,0.5 -0.5,0.5h-10c-0.28147,0 -0.5,-0.21853 -0.5,-0.5v-10c0,-0.28147 0.21853,-0.5 0.5,-0.5zM4,5v1h7v-1zM5,7v1h5v-1zM4,9v1h7v-1z"/></svg>
+            </button>
+            <button type="button" class="fly-slot is-ready has-icon" id="flySlotWarp" data-fly-slot="5" title="Warp Terminal & Bash Engine" aria-label="Abrir Warp Terminal" onclick="openToolboxTool3()">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#ffffff" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-12-3l3-3-3-3 1.41-1.41L12.83 12l-3.42 3.41L8 15zm5 0h5v2h-5v-2z"/></svg>
+            </button>
         </nav>
     </aside>
 

@@ -16403,7 +16403,7 @@ if (!headers_sent()) {
                     <div class="warp-tabs-container" id="warpTabsContainer">
                         <div class="warp-tab-item active" id="warpActiveTab" onclick="window.selectWarpTab && window.selectWarpTab('tab-1')">
                             <span class="warp-tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.4515 1.64287C11.791 1.45238 12.209 1.45238 12.548 1.64287C14.2255 2.58437 19.2735 5.41837 20.9515 6.35987C21.291 6.54987 21.5 6.90187 21.5 7.28287C21.5 9.16587 21.5 14.8334 21.5 16.7164C21.5 17.0974 21.291 17.4494 20.9515 17.6399C19.274 18.5814 14.226 21.4154 12.548 22.3569C12.2085 22.5474 11.7905 22.5474 11.4515 22.3569C9.774 21.4154 4.726 18.5814 3.048 17.6399C2.709 17.4494 2.5 17.0979 2.5 16.7169C2.5 14.8339 2.5 9.16637 2.5 7.28337C2.5 6.90237 2.709 6.55037 3.0485 6.35987C4.7255 5.41837 9.7745 2.58437 11.4515 1.64287Z" fill="white"/></svg></span>
-                            <span class="warp-tab-title">Node.js</span>
+                            <span class="warp-tab-title">bash</span>
                             <button type="button" class="warp-tab-close" title="Cerrar pestaña" onclick="window.closeWarpTab && window.closeWarpTab('tab-1', event)">&times;</button>
                         </div>
                         <button type="button" class="warp-add-tab-btn" id="warpAddTabBtn" onclick="window.createWarpTab && window.createWarpTab()" title="Nueva pestaña">+</button>

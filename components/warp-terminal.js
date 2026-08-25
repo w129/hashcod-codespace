@@ -53,7 +53,7 @@
 
     let activeToolId = 'home';
     let tabs = [
-        { id: 'tab-1', title: 'Node.js', icon: 'nodejs', feed: [], history: [], cwd: '~/workspace' }
+        { id: 'tab-1', title: 'bash', icon: 'nodejs', feed: [], history: [], cwd: '~/workspace' }
     ];
     let activeTabId = 'tab-1';
     let tabCounter = 1;
@@ -185,7 +185,8 @@
     window.createWarpTab = function (title) {
         tabCounter++;
         const newId = 'tab-' + tabCounter;
-        const tabTitle = title || ('Node.js ' + tabCounter);
+        const defaultNames = ['bash', 'node.js', 'bash 2', 'node.js 2', 'bash 3', 'node.js 3'];
+        const tabTitle = title || (defaultNames[tabCounter - 1] || ('bash ' + tabCounter));
         tabs.push({
             id: newId,
             title: tabTitle,
@@ -218,11 +219,11 @@
         if (index === -1) return;
         tabs.splice(index, 1);
         if (tabs.length === 0) {
-            tabCounter++;
-            const newId = 'tab-' + tabCounter;
+            tabCounter = 1;
+            const newId = 'tab-1';
             tabs.push({
                 id: newId,
-                title: 'Node.js',
+                title: 'bash',
                 icon: 'nodejs',
                 feed: [],
                 history: [],

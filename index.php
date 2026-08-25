@@ -8792,10 +8792,17 @@ if (!headers_sent()) {
                     <li><strong>Render (Plataforma de Hosting y Ejecución de Servidores):</strong> Provee el entorno de alojamiento en la nube, aprovisionamiento de contenedores de cómputo, balanceo de carga y enrutamiento HTTPS para ejecutar la aplicación web y procesar los endpoints del servidor.</li>
                 </ul>
 
-                <h3>5. Criptografía del Lado del Cliente y Seguridad</h3>
+                <h3>5. Licenciamiento, Módulo Bash Open Source y Propiedad de Hashcod</h3>
+                <p>En relación con el entorno de terminal y los componentes de software integrados en la plataforma:</p>
+                <ul>
+                    <li><strong>Herramienta Bash y Comandos Open Source:</strong> Se aclara expresamente que la herramienta de terminal <strong>Bash</strong> integrada es <em>Open Source</em>, limitándose esta condición única y exclusivamente a la especificación, sintaxis y ejecución de los comandos propios de dicha herramienta.</li>
+                    <li><strong>Propiedad Exclusiva de Hashcod:</strong> Todo lo demás que compone la plataforma —incluyendo la arquitectura general, el entorno interactivo de Warp Terminal, las herramientas del Toolbox lateral, el sistema de ventanas, los motores de certificación determinista de IA, las firmas criptográficas post-cuánticas (Dilithium-5 / SPHINCS+), el software de análisis de datos y la interfaz gráfica integral— es desarrollo y propiedad intelectual exclusiva de <strong>Hashcod</strong> (Hashcod Codespace).</li>
+                </ul>
+
+                <h3>6. Criptografía del Lado del Cliente y Seguridad</h3>
                 <p>La seguridad de la cuenta depende de la custodia del kit de claves entregado al registrarse. La plataforma no almacena contraseñas convencionales en servidores centrales, garantizando que el usuario tenga el control exclusivo de sus credenciales criptográficas.</p>
 
-                <h3>6. Consentimiento del Usuario y Vigencia</h3>
+                <h3>7. Consentimiento del Usuario y Vigencia</h3>
                 <p>Al iniciar sesión o crear una cuenta, aceptas de manera libre e informada el tratamiento de datos y el modelo operativo de certificación determinista descrito en este documento.</p>
             </div>
             <div class="privacy-modal-footer">

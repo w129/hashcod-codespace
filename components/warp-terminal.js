@@ -327,56 +327,104 @@
             if (!cmd || !cmd.trim()) return;
             const command = cmd.trim();
             const curTab = getActiveTab();
+
+            if (command === 'clear' || command === 'cls') {
+                curTab.feed = [];
+                curTab.history.push(command);
+                historyIndex = curTab.history.length;
+                renderActiveFeed();
+                return;
+            }
+
             curTab.history.push(command);
             historyIndex = curTab.history.length;
 
             const feed = document.getElementById('warpTerminalFeed');
             const placeholder = document.getElementById('warpAmbientPlaceholder');
-            if (placeholder) placeholder.classList.add('hidden');
+            if (placeholder) {
+                placeholder.classList.add('hidden');
+                placeholder.style.display = 'none';
+            }
 
-            const block = document.createElement('div');
-            block.className = 'warp-cmd-block';
-            block.innerHTML = `
-                <div class="warp-cmd-line">
-                    <span class="prompt-symbol">&gt;</span>
-                    <span>${escapeHtml(command)}</span>
-                </div>
-                <div class="warp-cmd-output" style="color: #94a3b8;">Ejecutando en Bash 4.3...</div>
-            `;
+            const cwd = curTab.cwd || '~/workspace';
+            const block = createBlockElement(command, cwd, true);
             if (feed) feed.appendChild(block);
             scrollFeedToBottom();
 
+            const startTime = performance.now();
             try {
                 const res = await fetch(l8ApiUrl('api/bash/exec'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: command })
+                    body: JSON.stringify({ command: command, cwd: curTab.cwd })
                 });
                 const data = await res.json();
-                const outputEl = block.querySelector('.warp-cmd-output');
+                const durMs = Math.round(performance.now() - startTime);
 
-                const outputText = data.ok ? (data.stdout || '(Comando ejecutado sin salida)') : (data.stderr || data.error || 'Error en ejecución');
+                const statusEl = block.querySelector('.warp-block-status');
+                const statusLbl = block.querySelector('.status-label');
+                const durationEl = block.querySelector('.warp-block-duration');
+                const outputEl = block.querySelector('.warp-block-output');
+
                 const isOk = !!data.ok;
+                const outputText = isOk ? (data.stdout || '(Comando ejecutado con éxito sin salida)') : (data.stderr || data.error || 'Error al ejecutar comando');
 
-                outputEl.textContent = outputText;
-                outputEl.style.color = isOk ? '#E2E8F0' : '#EF4444';
+                if (statusEl) {
+                    statusEl.className = 'warp-block-status ' + (isOk ? 'success' : 'error');
+                }
+                if (statusLbl) {
+                    statusLbl.textContent = isOk ? (data.exit_code !== undefined ? data.exit_code : '0') : (data.exit_code !== undefined ? data.exit_code : 'ERR');
+                }
+                if (durationEl) {
+                    durationEl.textContent = (data.execution_time_ms || durMs) + 'ms';
+                    durationEl.style.display = 'inline-block';
+                }
+                if (outputEl) {
+                    outputEl.className = 'warp-block-output ' + (isOk ? 'out-success' : 'out-error');
+                    outputEl.textContent = outputText;
+                }
 
-                // Guardar en el feed persistente de la pestaña activa
+                if (data.display_path) {
+                    curTab.cwd = data.display_path;
+                    WarpTerminal.updateStatusPath(data.display_path);
+                }
+
                 curTab.feed.push({
                     command: command,
                     output: outputText,
                     ok: isOk,
+                    exit_code: data.exit_code !== undefined ? data.exit_code : (isOk ? 0 : 1),
+                    duration_ms: data.execution_time_ms || durMs,
+                    cwd: curTab.cwd,
+                    timeStr: formatTimeNow(),
                     time: Date.now()
                 });
             } catch (e) {
-                const outputEl = block.querySelector('.warp-cmd-output');
-                const errText = 'Error de conexión: ' + e.message;
-                outputEl.textContent = errText;
-                outputEl.style.color = '#EF4444';
+                const durMs = Math.round(performance.now() - startTime);
+                const statusEl = block.querySelector('.warp-block-status');
+                const statusLbl = block.querySelector('.status-label');
+                const outputEl = block.querySelector('.warp-block-output');
+                const durationEl = block.querySelector('.warp-block-duration');
+
+                if (statusEl) statusEl.className = 'warp-block-status error';
+                if (statusLbl) statusLbl.textContent = 'ERR';
+                if (durationEl) {
+                    durationEl.textContent = durMs + 'ms';
+                    durationEl.style.display = 'inline-block';
+                }
+                if (outputEl) {
+                    outputEl.className = 'warp-block-output out-error';
+                    outputEl.textContent = 'Error de conexión: ' + e.message;
+                }
+
                 curTab.feed.push({
                     command: command,
-                    output: errText,
+                    output: 'Error de conexión: ' + e.message,
                     ok: false,
+                    exit_code: 'ERR',
+                    duration_ms: durMs,
+                    cwd: curTab.cwd,
+                    timeStr: formatTimeNow(),
                     time: Date.now()
                 });
             }
@@ -472,6 +520,52 @@
         renderActiveFeed();
     };
 
+    
+    function formatTimeNow() {
+        const now = new Date();
+        return now.toTimeString().split(' ')[0];
+    }
+
+    function createBlockElement(cmd, cwd, isRunning) {
+        const block = document.createElement('div');
+        block.className = 'warp-block-card';
+        block.innerHTML = `
+            <div class="warp-block-header">
+                <div class="warp-block-header-left">
+                    <span class="warp-block-status ${isRunning ? 'running' : 'success'}">
+                        <span class="warp-block-dot"></span>
+                        <span class="status-label">${isRunning ? 'RUNNING' : '0'}</span>
+                    </span>
+                    <span class="warp-block-cwd">${escapeHtml(cwd || '~/workspace')}</span>
+                    <span class="warp-block-time">${formatTimeNow()}</span>
+                    <span class="warp-block-duration" style="${isRunning ? 'display:none;' : ''}"></span>
+                </div>
+                <div class="warp-block-actions">
+                    <button type="button" class="warp-block-action-btn" title="Copiar salida" onclick="copyBlockOutput(this)">Copiar</button>
+                    <button type="button" class="warp-block-action-btn" title="Re-ejecutar" onclick="window.WarpTerminal && window.WarpTerminal.executeCommand('${escapeHtml(cmd)}')">Re-ejecutar</button>
+                </div>
+            </div>
+            <div class="warp-block-prompt-line">
+                <span class="warp-block-prompt-symbol">&gt;</span>
+                <span class="warp-block-cmd-text">${escapeHtml(cmd)}</span>
+            </div>
+            <div class="warp-block-output ${isRunning ? 'out-running' : 'out-success'}">${isRunning ? 'Ejecutando en Bash 4.3 + Python Catalyst...' : ''}</div>
+        `;
+        return block;
+    }
+
+    window.copyBlockOutput = function(btn) {
+        const card = btn.closest('.warp-block-card');
+        if (!card) return;
+        const out = card.querySelector('.warp-block-output');
+        if (out) {
+            navigator.clipboard.writeText(out.innerText || out.textContent);
+            const oldTxt = btn.textContent;
+            btn.textContent = '¡Copiado!';
+            setTimeout(() => { btn.textContent = oldTxt; }, 1500);
+        }
+    };
+
     function renderActiveFeed() {
         const tab = getActiveTab();
         const feed = document.getElementById('warpTerminalFeed');
@@ -479,21 +573,42 @@
         if (!feed) return;
         feed.innerHTML = '';
         if (tab.feed && tab.feed.length > 0) {
-            if (placeholder) placeholder.classList.add('hidden');
+            if (placeholder) {
+                placeholder.classList.add('hidden');
+                placeholder.style.display = 'none';
+            }
             tab.feed.forEach(item => {
                 const block = document.createElement('div');
-                block.className = 'warp-cmd-block';
+                block.className = 'warp-block-card';
                 block.innerHTML = `
-                    <div class="warp-cmd-line">
-                        <span class="prompt-symbol">&gt;</span>
-                        <span>${escapeHtml(item.command)}</span>
+                    <div class="warp-block-header">
+                        <div class="warp-block-header-left">
+                            <span class="warp-block-status ${item.ok ? 'success' : 'error'}">
+                                <span class="warp-block-dot"></span>
+                                <span class="status-label">${item.ok ? (item.exit_code !== undefined ? item.exit_code : '0') : 'ERR'}</span>
+                            </span>
+                            <span class="warp-block-cwd">${escapeHtml(item.cwd || tab.cwd || '~/workspace')}</span>
+                            <span class="warp-block-time">${item.timeStr || ''}</span>
+                            ${item.duration_ms ? `<span class="warp-block-duration">${item.duration_ms}ms</span>` : ''}
+                        </div>
+                        <div class="warp-block-actions">
+                            <button type="button" class="warp-block-action-btn" title="Copiar salida" onclick="copyBlockOutput(this)">Copiar</button>
+                            <button type="button" class="warp-block-action-btn" title="Re-ejecutar" onclick="window.WarpTerminal && window.WarpTerminal.executeCommand('${escapeHtml(item.command)}')">Re-ejecutar</button>
+                        </div>
                     </div>
-                    <div class="warp-cmd-output" style="color:${item.ok ? '#E2E8F0' : '#EF4444'}; white-space:pre-wrap; font-family:'Geist Mono', 'IBM Plex Mono', monospace;">${escapeHtml(item.output)}</div>
+                    <div class="warp-block-prompt-line">
+                        <span class="warp-block-prompt-symbol">&gt;</span>
+                        <span class="warp-block-cmd-text">${escapeHtml(item.command)}</span>
+                    </div>
+                    <div class="warp-block-output ${item.ok ? 'out-success' : 'out-error'}">${escapeHtml(item.output)}</div>
                 `;
                 feed.appendChild(block);
             });
         } else {
-            if (placeholder) placeholder.classList.remove('hidden');
+            if (placeholder) {
+                placeholder.classList.remove('hidden');
+                placeholder.style.display = 'flex';
+            }
         }
         scrollFeedToBottom();
     }

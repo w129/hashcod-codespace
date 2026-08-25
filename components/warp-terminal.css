@@ -1233,3 +1233,210 @@
     font-family: 'JetBrains Mono', Consolas, monospace;
     font-size: 12px;
 }
+
+
+/* ===== MODO DE EJECUCIÓN ACTIVA Y BLOQUES DE WARP TERMINAL ===== */
+.warp-terminal-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    padding: 12px 16px;
+    box-sizing: border-box;
+}
+
+.warp-ambient-placeholder {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.warp-ambient-placeholder.hidden,
+.warp-ambient-placeholder[style*="display: none"] {
+    display: none !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Warp Block Card */
+.warp-block-card {
+    background: #0D0E14;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: warpBlockSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.warp-block-card:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+@keyframes warpBlockSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.warp-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.warp-block-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.warp-block-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 10.5px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+}
+
+.warp-block-status.success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.warp-block-status.error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #F87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.warp-block-status.running {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.warp-block-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.warp-block-status.running .warp-block-dot {
+    animation: warpPulseDot 1s infinite alternate;
+}
+
+@keyframes warpPulseDot {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
+}
+
+.warp-block-cwd {
+    color: #38BDF8;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 11px;
+}
+
+.warp-block-time {
+    color: #64748B;
+}
+
+.warp-block-duration {
+    color: #94A3B8;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.warp-block-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.warp-block-card:hover .warp-block-actions {
+    opacity: 1;
+}
+
+.warp-block-action-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94A3B8;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 10.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.warp-block-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+}
+
+.warp-block-prompt-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    color: #FFFFFF;
+    background: #09090B;
+}
+
+.warp-block-prompt-symbol {
+    color: #10B981;
+    font-weight: bold;
+}
+
+.warp-block-cmd-text {
+    font-weight: 600;
+    color: #F8FAFC;
+}
+
+.warp-block-output {
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 480px;
+    overflow-y: auto;
+    background: #0D0E14;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.warp-block-output.out-success {
+    color: #E2E8F0;
+}
+
+.warp-block-output.out-error {
+    color: #F87171;
+}
+
+.warp-block-output.out-running {
+    color: #38BDF8;
+}

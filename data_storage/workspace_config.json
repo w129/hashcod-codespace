@@ -1,0 +1,10 @@
+{
+    "workspace_path": "D:/laragon/www/l8/workspace",
+    "display_path": "~/workspace",
+    "api_url": "/api/bash/workspace",
+    "status": "connected",
+    "is_central": true,
+    "auto_sync": true,
+    "storage_mode": "centralized_api",
+    "updated_at": "2026-08-25T19:40:43.475Z"
+}

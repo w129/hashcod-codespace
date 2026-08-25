@@ -87,6 +87,7 @@
             if (modal) {
                 modal.classList.add('open');
                 renderTabs();
+        WarpTerminal.fetchWorkspaceStatus();
                 renderActiveFeed();
                 setTimeout(() => {
                     const inp = modal.querySelector('#warpCmdInput') || document.getElementById('warpCmdInput');
@@ -100,6 +101,175 @@
             if (modal1) modal1.classList.remove('open');
             const modal2 = document.getElementById('warpTerminalModal');
             if (modal2) modal2.classList.remove('open');
+        },
+
+        
+        workspaceConfig: null,
+
+        async fetchWorkspaceStatus() {
+            try {
+                const res = await fetch(l8ApiUrl('api/bash/workspace'));
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok) {
+                        this.workspaceConfig = data;
+                        this.updateStatusPath(data.display_path || '~/workspace');
+                        return data;
+                    }
+                }
+            } catch (e) {
+                console.warn('[WarpTerminal] Error al consultar API de workspace:', e);
+            }
+            return null;
+        },
+
+        updateStatusPath(displayPath) {
+            document.querySelectorAll('#warpStatusPath').forEach(el => {
+                el.textContent = displayPath;
+            });
+            const curTab = getActiveTab();
+            if (curTab) {
+                curTab.cwd = displayPath;
+            }
+        },
+
+        openWorkspaceModal() {
+            let overlay = document.getElementById('warpWorkspaceModal');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'warpWorkspaceModal';
+                overlay.className = 'warp-workspace-modal-overlay';
+                overlay.onclick = (e) => {
+                    if (e.target === overlay) this.closeWorkspaceModal();
+                };
+                document.body.appendChild(overlay);
+            }
+
+            const cfg = this.workspaceConfig || {
+                workspace_path: 'D:/laragon/www/l8/workspace',
+                display_path: '~/workspace',
+                api_url: '/api/bash/workspace',
+                status: 'connected',
+                files_count: 0,
+                files: []
+            };
+
+            const filesHtml = (cfg.files && cfg.files.length) ? cfg.files.map(f => `
+                <div class="warp-ws-file-item">
+                    <span>${f.is_dir ? '📁 ' : '📄 '} ${escapeHtml(f.name)}</span>
+                    <span style="color:#64748B; font-size:11px;">${f.is_dir ? 'directorio' : (f.size + ' B')}</span>
+                </div>
+            `).join('') : '<div style="padding:10px; color:#64748B; text-align:center;">(Carpeta vacía o sin archivos listados)</div>';
+
+            overlay.innerHTML = `
+                <div class="warp-workspace-modal-card">
+                    <div class="warp-ws-header">
+                        <h3>
+                            <span style="display:inline-flex; width:16px; height:16px;">${SVG_ICONS.folder}</span>
+                            <span>Carpeta Centralizada y Conexión API</span>
+                        </h3>
+                        <span class="warp-ws-badge">
+                            <span class="warp-ws-badge-dot"></span>
+                            <span>API Conectada</span>
+                        </span>
+                    </div>
+
+                    <div class="warp-ws-body">
+                        <div class="warp-ws-stats">
+                            <div class="warp-ws-stat-item">
+                                <span class="warp-ws-stat-val">${cfg.files_count || (cfg.files ? cfg.files.length : 0)}</span>
+                                <span class="warp-ws-stat-lbl">Archivos Centrales</span>
+                            </div>
+                            <div class="warp-ws-stat-item">
+                                <span class="warp-ws-stat-val">Centralizado</span>
+                                <span class="warp-ws-stat-lbl">Modo de Almacenamiento</span>
+                            </div>
+                            <div class="warp-ws-stat-item">
+                                <span class="warp-ws-stat-val" style="color:#34D399;">ONLINE</span>
+                                <span class="warp-ws-stat-lbl">Estado del Motor</span>
+                            </div>
+                        </div>
+
+                        <div class="warp-ws-field">
+                            <label class="warp-ws-label">Ruta Local / Central de Almacenamiento</label>
+                            <input type="text" class="warp-ws-input" id="warpWsInputPath" value="${escapeHtml(cfg.workspace_path || '')}" placeholder="ej: D:/laragon/www/l8/workspace" />
+                        </div>
+
+                        <div class="warp-ws-field">
+                            <label class="warp-ws-label">Alias en Terminal (Display CWD)</label>
+                            <input type="text" class="warp-ws-input" id="warpWsInputDisplay" value="${escapeHtml(cfg.display_path || '~/workspace')}" placeholder="ej: ~/workspace" />
+                        </div>
+
+                        <div class="warp-ws-field">
+                            <label class="warp-ws-label">Dirección de la API / Endpoint de Conexión</label>
+                            <input type="text" class="warp-ws-input" id="warpWsInputApi" value="${escapeHtml(cfg.api_url || '/api/bash/workspace')}" placeholder="ej: /api/bash/workspace o https://api.dominio.com" />
+                        </div>
+
+                        <div class="warp-ws-field">
+                            <label class="warp-ws-label">Archivos en la Carpeta Central</label>
+                            <div class="warp-ws-files-box" id="warpWsFilesBox">
+                                ${filesHtml}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="warp-ws-footer">
+                        <button type="button" class="warp-ws-btn warp-ws-btn-secondary" onclick="WarpTerminal.closeWorkspaceModal()">Cerrar</button>
+                        <button type="button" class="warp-ws-btn warp-ws-btn-primary" onclick="WarpTerminal.saveWorkspaceModalConfig()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                            <span>Guardar y Conectar</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            overlay.classList.add('open');
+        },
+
+        closeWorkspaceModal() {
+            const overlay = document.getElementById('warpWorkspaceModal');
+            if (overlay) overlay.classList.remove('open');
+        },
+
+        async saveWorkspaceModalConfig() {
+            const pathInp = document.getElementById('warpWsInputPath');
+            const dispInp = document.getElementById('warpWsInputDisplay');
+            const apiInp = document.getElementById('warpWsInputApi');
+
+            const payload = {
+                path: pathInp ? pathInp.value.trim() : '',
+                display_path: dispInp ? dispInp.value.trim() : '',
+                api_url: apiInp ? apiInp.value.trim() : ''
+            };
+
+            try {
+                const res = await fetch(l8ApiUrl('api/bash/workspace/connect'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    await this.fetchWorkspaceStatus();
+                    this.closeWorkspaceModal();
+                    
+                    const curTab = getActiveTab();
+                    if (curTab) {
+                        curTab.feed.push({
+                            command: 'workspace connect ' + (payload.api_url || '/api/bash/workspace'),
+                            output: 'Carpeta central conectada a la API:\nPath: ' + (payload.path || data.config.workspace_path) + '\nDisplay: ' + (payload.display_path || data.config.display_path),
+                            ok: true,
+                            time: Date.now()
+                        });
+                        renderActiveFeed();
+                        scrollFeedToBottom();
+                    }
+                } else {
+                    alert('Error al conectar carpeta central: ' + (data.error || 'Desconocido'));
+                }
+            } catch (e) {
+                alert('Error de conexión con la API: ' + e.message);
+            }
         },
 
         registerToolWindow(toolId, config) {
@@ -391,7 +561,7 @@
                     <!-- status-bar -->
                     <div class="warp-status-bar">
                         <div class="warp-status-left">
-                            <span class="warp-status-item">
+                            <span class="warp-status-item warp-status-clickable" title="Configurar y conectar carpeta central a la API" onclick="WarpTerminal.openWorkspaceModal()">
                                 ${SVG_ICONS.folder}
                                 <span id="warpStatusPath">~/workspace</span>
                             </span>

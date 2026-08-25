@@ -4,12 +4,57 @@
  *
  * Conecta el frontend interactivo de la herramienta con el ejecutor POSIX / Bash 4.3,
  * gestiona sesiones de shell, variables de entorno, directorios de trabajo y streams.
+ * Centraliza la carpeta de guardado y conexión con la API y endpoints dinámicos.
  */
 
 require_once __DIR__ . '/supabase.php';
 
+function bashDataStorageDir() {
+    $dir = __DIR__ . '/data_storage';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    return $dir;
+}
+
+function bashWorkspaceConfigFile() {
+    return bashDataStorageDir() . '/workspace_config.json';
+}
+
+function bashGetWorkspaceConfig() {
+    $file = bashWorkspaceConfigFile();
+    $defaultPath = str_replace('\\', '/', __DIR__ . '/workspace');
+    $default = [
+        'workspace_path' => $defaultPath,
+        'display_path' => '~/workspace',
+        'api_url' => '/api/bash/workspace',
+        'connected_at' => date('c'),
+        'status' => 'connected',
+        'is_central' => true,
+        'auto_sync' => true,
+        'storage_mode' => 'centralized_api'
+    ];
+
+    if (is_file($file)) {
+        $data = json_decode((string)file_get_contents($file), true);
+        if (is_array($data)) {
+            return array_merge($default, $data);
+        }
+    }
+    return $default;
+}
+
+function bashSaveWorkspaceConfig(array $cfg) {
+    $current = bashGetWorkspaceConfig();
+    $merged = array_merge($current, $cfg, ['updated_at' => date('c')]);
+    @file_put_contents(bashWorkspaceConfigFile(), json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    return $merged;
+}
+
 function bashWorkspaceDir() {
-    $ws = __DIR__ . '/workspace';
+    $cfg = bashGetWorkspaceConfig();
+    $ws = !empty($cfg['workspace_path']) ? $cfg['workspace_path'] : (__DIR__ . '/workspace');
+    $ws = str_replace('\\', '/', $ws);
     if (!is_dir($ws)) {
         @mkdir($ws, 0777, true);
     }
@@ -17,11 +62,43 @@ function bashWorkspaceDir() {
 }
 
 function bashSessionsDir() {
-    $dir = __DIR__ . '/data_storage/bash_sessions';
+    $dir = bashDataStorageDir() . '/bash_sessions';
     if (!is_dir($dir)) {
         @mkdir($dir, 0777, true);
     }
     return $dir;
+}
+
+/**
+ * Escanea archivos en la carpeta centralizada
+ */
+function bashScanWorkspaceFiles($dir = null, $maxDepth = 2, $currentDepth = 0) {
+    $dir = $dir ?: bashWorkspaceDir();
+    if (!is_dir($dir)) return [];
+    
+    $results = [];
+    $items = @scandir($dir);
+    if (!$items) return [];
+
+    foreach ($items as $item) {
+        if ($item === '.' || $item === '..') continue;
+        $fullPath = str_replace('\\', '/', $dir . '/' . $item);
+        $isDir = is_dir($fullPath);
+        $entry = [
+            'name' => $item,
+            'path' => $fullPath,
+            'relative_path' => ltrim(str_replace(bashWorkspaceDir(), '', $fullPath), '/'),
+            'is_dir' => $isDir,
+            'size' => $isDir ? 0 : (@filesize($fullPath) ?: 0),
+            'modified' => @filemtime($fullPath) ? date('c', @filemtime($fullPath)) : null
+        ];
+
+        if ($isDir && $currentDepth < $maxDepth) {
+            $entry['children'] = bashScanWorkspaceFiles($fullPath, $maxDepth, $currentDepth + 1);
+        }
+        $results[] = $entry;
+    }
+    return $results;
 }
 
 /**
@@ -72,13 +149,81 @@ function bashDetectExecutable() {
  * Ejecuta un comando en el motor de Bash.
  */
 function bashExecCommand($cmd, $cwd = null, array $extraEnv = []) {
-    $workspace = $cwd && is_dir($cwd) ? $cwd : bashWorkspaceDir();
+    $cfg = bashGetWorkspaceConfig();
+    $workspace = $cwd && is_dir($cwd) ? str_replace('\\', '/', $cwd) : bashWorkspaceDir();
     $bashExe = bashDetectExecutable();
     $startTime = microtime(true);
+
+    // Manejador interno de comandos especiales de workspace
+    $trimmedCmd = trim((string)$cmd);
+    if ($trimmedCmd === 'workspace' || $trimmedCmd === 'workspace info' || $trimmedCmd === 'workspace status') {
+        $files = bashScanWorkspaceFiles($workspace, 1);
+        $fileCount = count($files);
+        $stdout = "=== HASHCOD CODESPACE CENTRAL WORKSPACE ===\n";
+        $stdout .= "Central Directory : " . $cfg['workspace_path'] . "\n";
+        $stdout .= "Display Alias     : " . $cfg['display_path'] . "\n";
+        $stdout .= "API Connection    : " . $cfg['api_url'] . " (ONLINE)\n";
+        $stdout .= "Status            : " . strtoupper($cfg['status']) . "\n";
+        $stdout .= "Files in Root     : " . $fileCount . "\n";
+        $stdout .= "Engine Execution  : " . basename($bashExe) . "\n";
+        $stdout .= "============================================";
+        return [
+            'ok' => true,
+            'exit_code' => 0,
+            'stdout' => $stdout,
+            'stderr' => '',
+            'execution_time_ms' => 1,
+            'cwd' => $workspace,
+            'display_path' => $cfg['display_path'],
+            'shell' => basename($bashExe)
+        ];
+    }
+
+    if (preg_match('/^workspace\s+set\s+(.+)$/i', $trimmedCmd, $m)) {
+        $newPath = trim($m[1]);
+        $resolved = realpath($newPath) ?: $newPath;
+        if (!is_dir($resolved)) {
+            @mkdir($resolved, 0777, true);
+        }
+        $updated = bashSaveWorkspaceConfig([
+            'workspace_path' => str_replace('\\', '/', $resolved),
+            'display_path' => (strpos($resolved, __DIR__) === 0) ? '~/workspace' : basename($resolved)
+        ]);
+        return [
+            'ok' => true,
+            'exit_code' => 0,
+            'stdout' => "Carpeta central actualizada y conectada a la API:\nPath: " . $updated['workspace_path'] . "\nAlias: " . $updated['display_path'],
+            'stderr' => '',
+            'execution_time_ms' => 2,
+            'cwd' => $updated['workspace_path'],
+            'display_path' => $updated['display_path'],
+            'shell' => basename($bashExe)
+        ];
+    }
+
+    if (preg_match('/^workspace\s+connect\s+(.+)$/i', $trimmedCmd, $m)) {
+        $newApi = trim($m[1]);
+        $updated = bashSaveWorkspaceConfig([
+            'api_url' => $newApi,
+            'status' => 'connected'
+        ]);
+        return [
+            'ok' => true,
+            'exit_code' => 0,
+            'stdout' => "Carpeta central conectada exitosamente a la API:\nEndpoint: " . $updated['api_url'] . "\nStatus: CONNECTED",
+            'stderr' => '',
+            'execution_time_ms' => 2,
+            'cwd' => $workspace,
+            'display_path' => $cfg['display_path'],
+            'shell' => basename($bashExe)
+        ];
+    }
 
     $env = array_merge($_ENV, [
         'HOME' => $workspace,
         'WORKSPACE' => $workspace,
+        'CENTRAL_WORKSPACE' => $cfg['workspace_path'],
+        'WORKSPACE_API' => $cfg['api_url'],
         'TERM' => 'xterm-256color',
         'BASH_VERSION' => '4.3-testing',
         'SHELL' => $bashExe,
@@ -124,6 +269,7 @@ function bashExecCommand($cmd, $cwd = null, array $extraEnv = []) {
         'stderr' => (string)$stderr,
         'execution_time_ms' => $durMs,
         'cwd' => $workspace,
+        'display_path' => $cfg['display_path'],
         'shell' => basename($bashExe)
     ];
 }
@@ -155,26 +301,170 @@ function bashHandleApi($uri) {
         return true;
     }
 
-    // 2. Estado del motor e información de Bash 4.3
+    // 2. Consulta de Estado y Conexión de la Carpeta Central (Workspace API)
+    if ($uri === '/api/bash/workspace' || $uri === '/api/bash/workspace/status') {
+        $cfg = bashGetWorkspaceConfig();
+        $wsDir = bashWorkspaceDir();
+        $files = bashScanWorkspaceFiles($wsDir, 1);
+        $totalFiles = count($files);
+
+        echo json_encode([
+            'ok' => true,
+            'workspace' => $wsDir,
+            'display_path' => $cfg['display_path'] ?? '~/workspace',
+            'api_url' => $cfg['api_url'] ?? '/api/bash/workspace',
+            'status' => $cfg['status'] ?? 'connected',
+            'is_connected' => true,
+            'is_writable' => is_writable($wsDir),
+            'files_count' => $totalFiles,
+            'files' => $files,
+            'detected_shell' => bashDetectExecutable(),
+            'storage_mode' => 'centralized_api',
+            'connected_at' => $cfg['connected_at'] ?? date('c'),
+            'account_key' => $acct
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    // 3. Conectar / Establecer nueva dirección para la Carpeta Central
+    if (($uri === '/api/bash/workspace/connect' || $uri === '/api/bash/workspace/set-path') && $method === 'POST') {
+        $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
+        $newPath = trim((string)($body['path'] ?? $body['workspace_path'] ?? ''));
+        $newDisplay = trim((string)($body['display_path'] ?? ''));
+        $newApiUrl = trim((string)($body['api_url'] ?? ''));
+
+        $updates = [];
+        if ($newPath !== '') {
+            $resolved = realpath($newPath) ?: $newPath;
+            if (!is_dir($resolved)) {
+                @mkdir($resolved, 0777, true);
+            }
+            $updates['workspace_path'] = str_replace('\\', '/', $resolved);
+            if ($newDisplay === '') {
+                $updates['display_path'] = (strpos($resolved, __DIR__) === 0) ? '~/workspace' : basename($resolved);
+            }
+        }
+        if ($newDisplay !== '') {
+            $updates['display_path'] = $newDisplay;
+        }
+        if ($newApiUrl !== '') {
+            $updates['api_url'] = $newApiUrl;
+        }
+        $updates['status'] = 'connected';
+
+        $saved = bashSaveWorkspaceConfig($updates);
+
+        echo json_encode([
+            'ok' => true,
+            'message' => 'Carpeta central conectada exitosamente a la API',
+            'config' => $saved
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    // 4. Listar archivos dentro de la Carpeta Central
+    if ($uri === '/api/bash/workspace/files') {
+        $sub = trim((string)($_GET['sub'] ?? ''));
+        $base = bashWorkspaceDir();
+        $target = $sub ? str_replace('\\', '/', $base . '/' . ltrim($sub, '/')) : $base;
+        
+        $files = bashScanWorkspaceFiles($target, 2);
+        echo json_encode([
+            'ok' => true,
+            'workspace' => $base,
+            'current_directory' => $target,
+            'files' => $files
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    // 5. Guardar / Centralizar un archivo en la Carpeta Central
+    if ($uri === '/api/bash/workspace/save-file' && $method === 'POST') {
+        $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
+        $relPath = trim((string)($body['file_path'] ?? $body['filename'] ?? ''));
+        $content = (string)($body['content'] ?? '');
+
+        if ($relPath === '') {
+            echo json_encode(['ok' => false, 'error' => 'Ruta de archivo no especificada'], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
+
+        $base = bashWorkspaceDir();
+        $fullPath = str_replace('\\', '/', $base . '/' . ltrim($relPath, '/'));
+        $parent = dirname($fullPath);
+        if (!is_dir($parent)) {
+            @mkdir($parent, 0777, true);
+        }
+
+        $written = @file_put_contents($fullPath, $content);
+        if ($written === false) {
+            echo json_encode(['ok' => false, 'error' => 'No se pudo escribir el archivo en ' . $fullPath]);
+            return true;
+        }
+
+        echo json_encode([
+            'ok' => true,
+            'message' => 'Archivo guardado y centralizado exitosamente',
+            'file_path' => $fullPath,
+            'relative_path' => $relPath,
+            'bytes_written' => $written
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    // 6. Leer archivo desde la Carpeta Central
+    if ($uri === '/api/bash/workspace/read-file' && ($method === 'POST' || $method === 'GET')) {
+        $body = ($method === 'POST') ? (json_decode((string)file_get_contents('php://input'), true) ?: $_POST) : $_GET;
+        $relPath = trim((string)($body['file_path'] ?? $body['filename'] ?? ''));
+
+        if ($relPath === '') {
+            echo json_encode(['ok' => false, 'error' => 'Ruta de archivo no especificada'], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
+
+        $base = bashWorkspaceDir();
+        $fullPath = str_replace('\\', '/', $base . '/' . ltrim($relPath, '/'));
+
+        if (!is_file($fullPath)) {
+            http_response_code(404);
+            echo json_encode(['ok' => false, 'error' => 'Archivo no encontrado: ' . $relPath]);
+            return true;
+        }
+
+        $content = @file_get_contents($fullPath);
+        echo json_encode([
+            'ok' => true,
+            'file_path' => $fullPath,
+            'relative_path' => $relPath,
+            'size' => filesize($fullPath),
+            'content' => $content
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    // 7. Estado del motor e información de Bash 4.3
     if ($uri === '/api/bash/status' || $uri === '/api/bash/info') {
         $srcDir = __DIR__ . '/engines/bash-src/bash-bash-4.3-testing';
         $hasSource = is_dir($srcDir);
         $fileCount = $hasSource ? count(glob($srcDir . '/*')) : 0;
+        $cfg = bashGetWorkspaceConfig();
 
         echo json_encode([
             'ok' => true,
             'engine' => 'GNU Bash 4.3-testing Environment',
             'detected_shell' => bashDetectExecutable(),
             'workspace' => bashWorkspaceDir(),
+            'display_path' => $cfg['display_path'] ?? '~/workspace',
+            'api_url' => $cfg['api_url'] ?? '/api/bash/workspace',
             'source_tree_installed' => $hasSource,
             'source_files_count' => $fileCount,
             'source_path' => $srcDir,
             'account_key' => $acct
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         return true;
     }
 
-    // 3. Crear sesión interactiva
+    // 8. Crear sesión interactiva
     if ($uri === '/api/bash/session/create' && $method === 'POST') {
         $sessionId = 'bash_sess_' . bin2hex(random_bytes(8));
         $record = [

@@ -16496,7 +16496,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 <!-- status-bar -->
                 <div class="warp-status-bar">
                     <div class="warp-status-left">
-                        <span class="warp-status-item">
+                        <span class="warp-status-item warp-status-clickable" title="Configurar y conectar carpeta central a la API" onclick="window.WarpTerminal && window.WarpTerminal.openWorkspaceModal && window.WarpTerminal.openWorkspaceModal()">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5998 1.2002C1.1578 1.2002 0.799805 1.5582 0.799805 2.0002V3.2002H5.1998H11.1998V2.8002C11.1998 2.3582 10.8418 2.0002 10.3998 2.0002H4.47949L4.23262 1.58848C4.08822 1.34768 3.82788 1.2002 3.54668 1.2002H1.5998ZM1.1998 4.0002C0.979005 4.0002 0.799805 4.1794 0.799805 4.4002V9.20019C0.799805 9.64219 1.1578 10.0002 1.5998 10.0002H10.3998C10.8418 10.0002 11.1998 9.64219 11.1998 9.20019V4.4002C11.1998 4.1794 11.0206 4.0002 10.7998 4.0002H1.1998Z" fill="white"/></svg>
                             <span id="warpStatusPath">~/workspace</span>
                         </span>

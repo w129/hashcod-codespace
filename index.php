@@ -8795,9 +8795,31 @@ if (!headers_sent()) {
                 <h3>5. Licenciamiento, Módulo Bash Open Source y Propiedad de Hashcod</h3>
                 <p>En relación con el entorno de terminal y los componentes de software integrados en la plataforma:</p>
                 <ul>
-                    <li><strong>Herramienta Bash y Comandos Open Source:</strong> Se aclara expresamente que la herramienta de terminal <strong>Bash</strong> integrada es <em>Open Source</em>, limitándose esta condición única y exclusivamente a la especificación, sintaxis y ejecución de los comandos propios de dicha herramienta.</li>
+                    <li><strong>Herramienta Bash y Licencia Original (GNU GPLv3):</strong> Se aclara expresamente que la herramienta de terminal <strong>GNU Bash</strong> (Bourne Again SHell) integrada para la interpretación y ejecución de comandos es software libre y de código abierto (<em>Open Source</em>), distribuida bajo los términos de la <strong>Licencia Pública General de GNU (GNU General Public License, Version 3, 29 June 2007)</strong>, Copyright © Free Software Foundation, Inc. (<a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer" style="color:#2563EB; text-decoration:underline;">https://www.gnu.org/licenses/gpl-3.0.html</a>). Dicha licencia aplica <em>única y exclusivamente</em> a la especificación, código fuente y ejecución de comandos del motor Bash.</li>
                     <li><strong>Propiedad Exclusiva de Hashcod:</strong> Todo lo demás que compone la plataforma —incluyendo la arquitectura general, el entorno interactivo de Warp Terminal, las herramientas del Toolbox lateral, el sistema de ventanas, los motores de certificación determinista de IA, las firmas criptográficas post-cuánticas (Dilithium-5 / SPHINCS+), el software de análisis de datos y la interfaz gráfica integral— es desarrollo y propiedad intelectual exclusiva de <strong>Hashcod</strong> (Hashcod Codespace).</li>
                 </ul>
+
+                <div class="privacy-highlight-box" style="background:#F8FAFC; border-left:4px solid #0EA5E9; color:#0F172A; padding:12px 14px; margin-top:10px; font-size:11.5px; line-height:1.6;">
+                    <div style="font-weight:700; color:#0369A1; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                        <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        Aviso Oficial de Licencia Original de GNU Bash (GPLv3)
+                    </div>
+                    <pre style="background:#0f172a; color:#f8fafc; padding:10px 12px; border-radius:6px; font-size:11px; overflow-x:auto; margin:8px 0 4px 0; font-family:Consolas, Monaco, 'Courier New', monospace; line-height:1.45; white-space:pre-wrap;">GNU GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
+
+This program (GNU Bash) is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&gt;.</pre>
+                </div>
 
                 <h3>6. Criptografía del Lado del Cliente y Seguridad</h3>
                 <p>La seguridad de la cuenta depende de la custodia del kit de claves entregado al registrarse. La plataforma no almacena contraseñas convencionales en servidores centrales, garantizando que el usuario tenga el control exclusivo de sus credenciales criptográficas.</p>

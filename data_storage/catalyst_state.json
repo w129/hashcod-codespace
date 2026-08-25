@@ -1,0 +1,72 @@
+{
+    "macho": {
+        "active": true,
+        "mode": "BRIDGED_ONE_WAY",
+        "channel": "/a",
+        "flow": "ENV_1 -> ENV_3",
+        "env_1": {
+            "key_id": "KEY-M1-F52D684D",
+            "token": "eddfc17bb47bb615a1a8c430cd60e465",
+            "buffer": "tx_packet_5_d5cd01fe860b0708",
+            "transfers_count": 5,
+            "last_sync": "2026-08-25T16:01:57.808782-04:00"
+        },
+        "env_3": {
+            "key_id": "KEY-M3-0440F625",
+            "token": "eddfc17bb47bb615a1a8c430cd60e465",
+            "buffer": "tx_packet_5_d5cd01fe860b0708",
+            "transfers_count": 5,
+            "last_sync": "2026-08-25T16:01:57.808782-04:00"
+        }
+    },
+    "hembra": {
+        "active": true,
+        "mode": "REACTIVE_TWO_WAY",
+        "channel": "/b",
+        "flow": "ENV_2 <-> ENV_4",
+        "env_2": {
+            "key_id": "KEY-H2-8CB16A0D",
+            "token": "36b3cd4d58d9e461e40335f64d35ae43",
+            "buffer": "duplex_inout_2_69c9dc1658b3",
+            "transfers_count": 6,
+            "last_sync": "2026-08-25T16:02:15.233689-04:00"
+        },
+        "env_4": {
+            "key_id": "KEY-H4-9E3861B3",
+            "token": "5537e920ad78e3cc01cc9b24e1bd0b7c",
+            "buffer": "duplex_inout_4_73fa11762ca9",
+            "transfers_count": 4,
+            "last_sync": "2026-08-25T16:02:15.233689-04:00"
+        }
+    },
+    "bridge_connected": true,
+    "total_cycles": 9,
+    "storage_volumes": [
+        {
+            "id": "vol-01",
+            "name": "workspace-primary",
+            "pool": "local-nvme",
+            "size_gb": 50,
+            "status": "mounted",
+            "path": "D:/laragon/www/l8/workspace"
+        },
+        {
+            "id": "vol-02",
+            "name": "catalyst-stream",
+            "pool": "fast-cache",
+            "size_gb": 20,
+            "status": "active",
+            "path": "D:/laragon/www/l8/data_storage/catalyst_logs"
+        },
+        {
+            "id": "vol-03",
+            "name": "api-soda-share",
+            "pool": "soda-controller",
+            "size_gb": 100,
+            "status": "standby",
+            "path": "D:/laragon/www/l8/data_storage"
+        }
+    ],
+    "last_operation": "Hembra 2-Way Duplex: ENV_2 <-> ENV_4 (REACTIVE TRIGGER (Reactive trigger (/b.): on_request))",
+    "updated_at": "2026-08-25T16:02:15.233689-04:00"
+}

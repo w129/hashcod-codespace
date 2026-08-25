@@ -231,6 +231,54 @@
             if (overlay) overlay.classList.remove('open');
         },
 
+        async 
+        async execApiCmd(cmd) {
+            const feed = document.getElementById('warpApiTermFeed');
+            if (feed) {
+                const line = document.createElement('div');
+                line.style.color = '#38BDF8';
+                line.textContent = '> ' + cmd;
+                feed.appendChild(line);
+            }
+
+            try {
+                const res = await fetch(l8ApiUrl('api/bash/exec'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: cmd })
+                });
+                const data = await res.json();
+                if (feed) {
+                    const out = document.createElement('div');
+                    out.style.color = data.ok ? '#E2E8F0' : '#EF4444';
+                    out.style.whiteSpace = 'pre-wrap';
+                    out.style.margin = '4px 0 8px 0';
+                    out.textContent = data.stdout || data.stderr || data.error || '(Comando ejecutado)';
+                    feed.appendChild(out);
+                    feed.scrollTop = feed.scrollHeight;
+                }
+                // Auto-refrescar ventana de API
+                showApiGatewayWindow();
+            } catch (e) {
+                if (feed) {
+                    const err = document.createElement('div');
+                    err.style.color = '#EF4444';
+                    err.textContent = 'Error: ' + e.message;
+                    feed.appendChild(err);
+                }
+            }
+        },
+
+        submitApiTerminalInput() {
+            const inp = document.getElementById('warpApiTermInput');
+            if (!inp) return;
+            const cmd = inp.value.trim();
+            if (cmd) {
+                inp.value = '';
+                this.execApiCmd(cmd);
+            }
+        },
+
         async saveWorkspaceModalConfig() {
             const pathInp = document.getElementById('warpWsInputPath');
             const dispInp = document.getElementById('warpWsInputDisplay');
@@ -637,6 +685,198 @@
         const sub = document.getElementById('warpToolSubwindow');
         if (term) term.style.display = 'flex';
         if (sub) sub.classList.remove('open');
+    }
+
+    
+    // ===== VENTANA INTERACTIVA DE API GATEWAY Y STORAGE DUAL-CATALYST =====
+    async function showApiGatewayWindow() {
+        const term = document.getElementById('warpMainTerminal');
+        const sub = document.getElementById('warpToolSubwindow');
+        if (term) term.style.display = 'none';
+        if (!sub) return;
+
+        sub.classList.add('open');
+        sub.innerHTML = '<div style="padding:20px; color:#888;">Cargando motor de API, Django y catalizador de 4 ENV...</div>';
+
+        try {
+            const [catRes, storRes, logRes] = await Promise.all([
+                fetch(l8ApiUrl('api/catalyst/status')).then(r => r.json()).catch(() => null),
+                fetch(l8ApiUrl('api/storage/pools')).then(r => r.json()).catch(() => null),
+                fetch(l8ApiUrl('api/catalyst/logs?channel=all&limit=25')).then(r => r.json()).catch(() => null)
+            ]);
+
+            const state = (catRes && catRes.macho) ? catRes : {
+                macho: { active: false, mode: 'IDLE', env_1: { key_id: 'KEY-M1', token: '...', transfers_count: 0 }, env_3: { key_id: 'KEY-M3', token: '...', transfers_count: 0 } },
+                hembra: { active: false, mode: 'IDLE', env_2: { key_id: 'KEY-H2', token: '...', transfers_count: 0 }, env_4: { key_id: 'KEY-H4', token: '...', transfers_count: 0 } },
+                total_cycles: 0
+            };
+
+            const pools = (storRes && storRes.pools) ? storRes.pools : [
+                { id: 'pool-nvme-01', name: 'NVMe Primary Storage', total_gb: 500, free_gb: 342 },
+                { id: 'pool-cloud-02', name: 'SODA Distributed Cloud Pool', total_gb: 2000, free_gb: 1840 },
+                { id: 'pool-cache-03', name: 'Dual-Catalyst Fast Cache', total_gb: 64, free_gb: 58 }
+            ];
+
+            const machoLogs = (logRes && logRes.logs && logRes.logs.macho) ? logRes.logs.macho.slice(-8).join('\n') : '(Sin registros aún)';
+            const hembraLogs = (logRes && logRes.logs && logRes.logs.hembra) ? logRes.logs.hembra.slice(-8).join('\n') : '(Sin registros aún)';
+
+            sub.innerHTML = `
+                <div class="warp-api-window-container">
+                    <div class="warp-api-header-bar">
+                        <div class="warp-api-title-box">
+                            <h2>
+                                ${SVG_ICONS.airplane || ''}
+                                <span>API Storage Gateway & Dual-Catalyst Engine</span>
+                            </h2>
+                        </div>
+                        <div class="warp-api-tags">
+                            <span class="warp-api-tag warp-api-tag-django">
+                                <span style="width:6px;height:6px;border-radius:50%;background:#40C057;"></span>
+                                Django 6.1 / Python 3.12
+                            </span>
+                            <span class="warp-api-tag warp-api-tag-soda">
+                                SODA Storage API
+                            </span>
+                            <span class="warp-api-tag warp-api-tag-catalyst">
+                                4 ENV Stream Active
+                            </span>
+                            <button type="button" class="warp-sidebar-btn" onclick="selectSidebarTool('home')" style="width:28px;height:28px;" title="Volver a la terminal">&times;</button>
+                        </div>
+                    </div>
+
+                    <!-- 4 ENV DUAL-CATALYST GRID -->
+                    <div class="warp-env-grid">
+                        <!-- MACHO (ENV_1 -> ENV_3) -->
+                        <div class="warp-env-panel">
+                            <div class="warp-env-panel-header">
+                                <div class="warp-env-panel-title">
+                                    <span style="color:#38BDF8;">♂ CANAL MACHO (/a & /a.)</span>
+                                    <span style="font-size:11px; color:#94A3B8;">(1 Vía: ENV_1 &rarr; ENV_3)</span>
+                                </div>
+                                <span class="warp-ws-badge" style="border-color:${state.macho.active ? '#10B981' : '#64748B'}; color:${state.macho.active ? '#34D399' : '#94A3B8'};">
+                                    ${state.macho.active ? state.macho.mode : 'INACTIVO'}
+                                </span>
+                            </div>
+                            <div class="warp-env-cards-row">
+                                <div class="warp-env-card">
+                                    <div class="warp-env-card-title">ENV_1 (Macho TX)</div>
+                                    <div class="warp-env-card-key">${state.macho.env_1.key_id}</div>
+                                    <div class="warp-env-card-token">Token: ${state.macho.env_1.token.slice(0, 12)}...</div>
+                                    <div style="font-size:10px; color:#64748B;">Tx: ${state.macho.env_1.transfers_count} ciclos</div>
+                                </div>
+                                <div class="warp-env-arrow">&rarr;</div>
+                                <div class="warp-env-card">
+                                    <div class="warp-env-card-title">ENV_3 (Macho RX)</div>
+                                    <div class="warp-env-card-key">${state.macho.env_3.key_id}</div>
+                                    <div class="warp-env-card-token">Token: ${state.macho.env_3.token.slice(0, 12)}...</div>
+                                    <div style="font-size:10px; color:#64748B;">Rx: ${state.macho.env_3.transfers_count} ciclos</div>
+                                </div>
+                            </div>
+                            <div class="warp-env-actions-row">
+                                <button type="button" class="warp-env-btn ${state.macho.mode === 'ONE_WAY' ? 'warp-env-btn-active' : ''}" onclick="WarpTerminal.execApiCmd('/a activate')">
+                                    /a activate (1 Vía)
+                                </button>
+                                <button type="button" class="warp-env-btn ${state.macho.mode === 'BRIDGED_ONE_WAY' ? 'warp-env-btn-active' : ''}" onclick="WarpTerminal.execApiCmd('/a. sync')">
+                                    /a. (Puente a /b)
+                                </button>
+                                <button type="button" class="warp-env-btn" onclick="WarpTerminal.execApiCmd('/a deactivate')">
+                                    Desactivar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- HEMBRA (ENV_2 <-> ENV_4) -->
+                        <div class="warp-env-panel">
+                            <div class="warp-env-panel-header">
+                                <div class="warp-env-panel-title">
+                                    <span style="color:#EC4899;">♀ CANAL HEMBRA (/b & /b.)</span>
+                                    <span style="font-size:11px; color:#94A3B8;">(2 Vías: ENV_2 &harr; ENV_4)</span>
+                                </div>
+                                <span class="warp-ws-badge" style="border-color:${state.hembra.active ? '#10B981' : '#64748B'}; color:${state.hembra.active ? '#34D399' : '#94A3B8'};">
+                                    ${state.hembra.active ? state.hembra.mode : 'INACTIVO'}
+                                </span>
+                            </div>
+                            <div class="warp-env-cards-row">
+                                <div class="warp-env-card">
+                                    <div class="warp-env-card-title">ENV_2 (Hembra DX)</div>
+                                    <div class="warp-env-card-key">${state.hembra.env_2.key_id}</div>
+                                    <div class="warp-env-card-token">Token: ${state.hembra.env_2.token.slice(0, 12)}...</div>
+                                    <div style="font-size:10px; color:#64748B;">Dx: ${state.hembra.env_2.transfers_count} ciclos</div>
+                                </div>
+                                <div class="warp-env-arrow">&harr;</div>
+                                <div class="warp-env-card">
+                                    <div class="warp-env-card-title">ENV_4 (Hembra DX)</div>
+                                    <div class="warp-env-card-key">${state.hembra.env_4.key_id}</div>
+                                    <div class="warp-env-card-token">Token: ${state.hembra.env_4.token.slice(0, 12)}...</div>
+                                    <div style="font-size:10px; color:#64748B;">Dx: ${state.hembra.env_4.transfers_count} ciclos</div>
+                                </div>
+                            </div>
+                            <div class="warp-env-actions-row">
+                                <button type="button" class="warp-env-btn ${state.hembra.mode === 'TWO_WAY' ? 'warp-env-btn-active' : ''}" onclick="WarpTerminal.execApiCmd('/b activate')">
+                                    /b activate (2 Vías)
+                                </button>
+                                <button type="button" class="warp-env-btn ${state.hembra.mode === 'REACTIVE_TWO_WAY' ? 'warp-env-btn-active' : ''}" onclick="WarpTerminal.execApiCmd('/b. on_request')">
+                                    /b. (Reactivo)
+                                </button>
+                                <button type="button" class="warp-env-btn" onclick="WarpTerminal.execApiCmd('/b deactivate')">
+                                    Desactivar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SODA STORAGE POOLS SECTION -->
+                    <div class="warp-soda-section">
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:13px; font-weight:600; color:#F8FAFC;">Almacenamiento Centralizado SODA & Local Disk Pool</span>
+                            <span style="font-size:11px; color:#94A3B8;">Conectado a la PC del Usuario</span>
+                        </div>
+                        <div class="warp-soda-pools-grid">
+                            ${pools.map(p => `
+                                <div class="warp-soda-pool-item">
+                                    <div class="warp-soda-pool-name">${escapeHtml(p.name)}</div>
+                                    <div class="warp-soda-pool-cap">${p.free_gb || p.size_gb} GB libres / ${p.total_gb || p.size_gb} GB</div>
+                                    <div style="font-size:10.5px; color:#10B981;">&bull; Montado y disponible</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- DEDICATED STORAGE TERMINAL & REAL-TIME CATALYST LOGS -->
+                    <div class="warp-api-terminal-section">
+                        <div class="warp-api-term-box">
+                            <div class="warp-api-term-header">
+                                <span>Terminal de Almacenamiento y API</span>
+                                <span style="font-size:10.5px; color:#64748B;">Bash 4.3 + Python Catalyst</span>
+                            </div>
+                            <div class="warp-api-term-feed" id="warpApiTermFeed">
+                                <div style="color:#64748B;">// Terminal de gestión de almacenamiento a través de API activa.</div>
+                                <div style="color:#64748B;">// Comandos: /a activate, /b activate, /a. sync, /b. sync, workspace info, ls, df -h</div>
+                            </div>
+                            <div class="warp-api-term-input-row">
+                                <span class="warp-api-term-prompt">&gt;</span>
+                                <input type="text" class="warp-api-term-input" id="warpApiTermInput" placeholder="Escribe un comando (/a, /b, /a., /b., workspace...)" onkeydown="if(event.key==='Enter'){WarpTerminal.submitApiTerminalInput();}" />
+                            </div>
+                        </div>
+
+                        <div class="warp-api-logs-box">
+                            <div class="warp-api-logs-header">
+                                <span>Registros de Catalizadores (.log)</span>
+                                <button type="button" class="warp-env-btn" style="padding:2px 8px; font-size:10.5px;" onclick="showApiGatewayWindow()">Refrescar</button>
+                            </div>
+                            <div class="warp-api-logs-feed" id="warpApiLogsFeed">
+                                <div style="color:#38BDF8; font-weight:bold; margin-bottom:4px;">[catalyst_macho.log]</div>
+                                <div style="color:#94A3B8; margin-bottom:8px; white-space:pre-wrap;">${escapeHtml(machoLogs)}</div>
+                                <div style="color:#EC4899; font-weight:bold; margin-bottom:4px;">[catalyst_hembra.log]</div>
+                                <div style="color:#94A3B8; white-space:pre-wrap;">${escapeHtml(hembraLogs)}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (e) {
+            sub.innerHTML = '<div style="padding:20px; color:#EF4444;">Error al cargar la ventana de API: ' + escapeHtml(e.message) + '</div>';
+        }
     }
 
     function showPlaceholderTool(toolId, title) {

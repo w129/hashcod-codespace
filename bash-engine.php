@@ -5,6 +5,7 @@
  * Conecta el frontend interactivo de la herramienta con el ejecutor POSIX / Bash 4.3,
  * gestiona sesiones de shell, variables de entorno, directorios de trabajo y streams.
  * Centraliza la carpeta de guardado y conexión con la API y endpoints dinámicos.
+ * Integra el motor Dual-Catalyst 4-ENV en Python y el servicio Django.
  */
 
 require_once __DIR__ . '/supabase.php';
@@ -67,6 +68,28 @@ function bashSessionsDir() {
         @mkdir($dir, 0777, true);
     }
     return $dir;
+}
+
+/**
+ * Ejecuta comandos en el motor Python Catalyst
+ */
+function bashRunPythonCatalyst(array $args = []) {
+    $pyScript = __DIR__ . '/engines/api-engine/catalyst_engine.py';
+    if (!is_file($pyScript)) {
+        return ['ok' => false, 'error' => 'catalyst_engine.py no encontrado'];
+    }
+
+    $escapedArgs = array_map('escapeshellarg', $args);
+    $cmd = 'python ' . escapeshellarg($pyScript) . ' ' . implode(' ', $escapedArgs);
+    $output = @shell_exec($cmd . ' 2>&1');
+    
+    if ($output) {
+        $json = json_decode(trim($output), true);
+        if (is_array($json)) {
+            return $json;
+        }
+    }
+    return ['ok' => true, 'raw' => $output];
 }
 
 /**
@@ -146,16 +169,51 @@ function bashDetectExecutable() {
 }
 
 /**
- * Ejecuta un comando en el motor de Bash.
+ * Ejecuta un comando en el motor de Bash y cicla los catalizadores 4-ENV.
  */
 function bashExecCommand($cmd, $cwd = null, array $extraEnv = []) {
     $cfg = bashGetWorkspaceConfig();
     $workspace = $cwd && is_dir($cwd) ? str_replace('\\', '/', $cwd) : bashWorkspaceDir();
     $bashExe = bashDetectExecutable();
     $startTime = microtime(true);
-
-    // Manejador interno de comandos especiales de workspace
     $trimmedCmd = trim((string)$cmd);
+
+    // 1. Manejador de comandos de Control de Catalizador: /a, /a., /b, /b.
+    if (preg_match('#^(\\/a\\.|\\/b\\.|\\/a|\\/b)(\\s+(.*))?$#i', $trimmedCmd, $matches)) {
+        $channel = strtolower($matches[1]);
+        $paramStr = trim($matches[3] ?? '');
+        $parts = preg_split('/\\s+/', $paramStr);
+        $action = !empty($parts[0]) ? $parts[0] : 'activate';
+        $param = !empty($parts[1]) ? $parts[1] : '';
+
+        $pyRes = bashRunPythonCatalyst([$channel, $action, $param]);
+        
+        $stdout = "=== HASHCOD DUAL-CATALYST 4-ENV STREAM ===\n";
+        $stdout .= "Channel Triggered : " . strtoupper($channel) . "\n";
+        $stdout .= "Mode              : " . ($pyRes['mode'] ?? $pyRes['status'] ?? 'EXECUTED') . "\n";
+        $stdout .= "Transmission Flow : " . ($pyRes['flow'] ?? ($channel === '/a' ? 'ENV_1 -> ENV_3' : 'ENV_2 <-> ENV_4')) . "\n";
+        if (!empty($pyRes['packet'])) {
+            $stdout .= "Encrypted Packet  : " . $pyRes['packet'] . "\n";
+        }
+        if (!empty($pyRes['message'])) {
+            $stdout .= "Catalyst Message  : " . $pyRes['message'] . "\n";
+        }
+        $stdout .= "Catalyst Log File : " . (strpos($channel, 'a') !== false ? 'catalyst_macho.log' : 'catalyst_hembra.log') . "\n";
+        $stdout .= "==========================================";
+
+        return [
+            'ok' => true,
+            'exit_code' => 0,
+            'stdout' => $stdout,
+            'stderr' => '',
+            'execution_time_ms' => (int)round((microtime(true) - $startTime) * 1000),
+            'cwd' => $workspace,
+            'display_path' => $cfg['display_path'],
+            'shell' => 'Python/Django Catalyst'
+        ];
+    }
+
+    // 2. Comandos de Información de Workspace
     if ($trimmedCmd === 'workspace' || $trimmedCmd === 'workspace info' || $trimmedCmd === 'workspace status') {
         $files = bashScanWorkspaceFiles($workspace, 1);
         $fileCount = count($files);
@@ -219,6 +277,7 @@ function bashExecCommand($cmd, $cwd = null, array $extraEnv = []) {
         ];
     }
 
+    // 3. Ejecución de comandos del sistema en Bash POSIX
     $env = array_merge($_ENV, [
         'HOME' => $workspace,
         'WORKSPACE' => $workspace,
@@ -262,6 +321,9 @@ function bashExecCommand($cmd, $cwd = null, array $extraEnv = []) {
     $exitCode = proc_close($proc);
     $durMs = (int)round((microtime(true) - $startTime) * 1000);
 
+    // 4. Disparar el Hook de Catalizador para sincronizar las 4 ENVs con la ejecución
+    bashRunPythonCatalyst(['hook', $trimmedCmd, ($exitCode === 0 ? '1' : '0')]);
+
     return [
         'ok' => ($exitCode === 0),
         'exit_code' => $exitCode,
@@ -275,10 +337,10 @@ function bashExecCommand($cmd, $cwd = null, array $extraEnv = []) {
 }
 
 /**
- * Maneja las solicitudes a `/api/bash/*`
+ * Maneja las solicitudes a `/api/bash/*` y `/api/catalyst/*`
  */
 function bashHandleApi($uri) {
-    if (strpos($uri, '/api/bash') !== 0) {
+    if (strpos($uri, '/api/bash') !== 0 && strpos($uri, '/api/catalyst') !== 0 && strpos($uri, '/api/storage') !== 0 && strpos($uri, '/api/django') !== 0) {
         return false;
     }
 
@@ -362,83 +424,63 @@ function bashHandleApi($uri) {
         return true;
     }
 
-    // 4. Listar archivos dentro de la Carpeta Central
-    if ($uri === '/api/bash/workspace/files') {
-        $sub = trim((string)($_GET['sub'] ?? ''));
-        $base = bashWorkspaceDir();
-        $target = $sub ? str_replace('\\', '/', $base . '/' . ltrim($sub, '/')) : $base;
-        
-        $files = bashScanWorkspaceFiles($target, 2);
-        echo json_encode([
-            'ok' => true,
-            'workspace' => $base,
-            'current_directory' => $target,
-            'files' => $files
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    // 4. Endpoints del Sistema Dual-Catalyst 4-ENV
+    if ($uri === '/api/catalyst/status' || $uri === '/api/bash/catalyst/status') {
+        $status = bashRunPythonCatalyst(['status']);
+        echo json_encode($status, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         return true;
     }
 
-    // 5. Guardar / Centralizar un archivo en la Carpeta Central
-    if ($uri === '/api/bash/workspace/save-file' && $method === 'POST') {
+    if ($uri === '/api/catalyst/logs' || $uri === '/api/bash/catalyst/logs') {
+        $channel = $_GET['channel'] ?? 'all';
+        $logs = bashRunPythonCatalyst(['logs', $channel]);
+        echo json_encode($logs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if ($uri === '/api/catalyst/execute' && $method === 'POST') {
         $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
-        $relPath = trim((string)($body['file_path'] ?? $body['filename'] ?? ''));
-        $content = (string)($body['content'] ?? '');
-
-        if ($relPath === '') {
-            echo json_encode(['ok' => false, 'error' => 'Ruta de archivo no especificada'], JSON_UNESCAPED_UNICODE);
-            return true;
-        }
-
-        $base = bashWorkspaceDir();
-        $fullPath = str_replace('\\', '/', $base . '/' . ltrim($relPath, '/'));
-        $parent = dirname($fullPath);
-        if (!is_dir($parent)) {
-            @mkdir($parent, 0777, true);
-        }
-
-        $written = @file_put_contents($fullPath, $content);
-        if ($written === false) {
-            echo json_encode(['ok' => false, 'error' => 'No se pudo escribir el archivo en ' . $fullPath]);
-            return true;
-        }
-
-        echo json_encode([
-            'ok' => true,
-            'message' => 'Archivo guardado y centralizado exitosamente',
-            'file_path' => $fullPath,
-            'relative_path' => $relPath,
-            'bytes_written' => $written
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $channel = $body['channel'] ?? '/a';
+        $action = $body['action'] ?? 'activate';
+        $param = $body['param'] ?? '';
+        $res = bashRunPythonCatalyst([$channel, $action, $param]);
+        echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         return true;
     }
 
-    // 6. Leer archivo desde la Carpeta Central
-    if ($uri === '/api/bash/workspace/read-file' && ($method === 'POST' || $method === 'GET')) {
-        $body = ($method === 'POST') ? (json_decode((string)file_get_contents('php://input'), true) ?: $_POST) : $_GET;
-        $relPath = trim((string)($body['file_path'] ?? $body['filename'] ?? ''));
+    // 5. Estado y Control de Almacenamiento SODA / OpenSDS
+    if ($uri === '/api/storage/pools') {
+        $pyScript = __DIR__ . '/engines/api-engine/storage_controller.py';
+        $output = @shell_exec('python ' . escapeshellarg($pyScript) . ' pools 2>&1');
+        echo $output ?: json_encode(['ok' => true, 'pools' => []]);
+        return true;
+    }
 
-        if ($relPath === '') {
-            echo json_encode(['ok' => false, 'error' => 'Ruta de archivo no especificada'], JSON_UNESCAPED_UNICODE);
-            return true;
-        }
+    if ($uri === '/api/storage/fileshares') {
+        $pyScript = __DIR__ . '/engines/api-engine/storage_controller.py';
+        $output = @shell_exec('python ' . escapeshellarg($pyScript) . ' shares 2>&1');
+        echo $output ?: json_encode(['ok' => true, 'fileshares' => []]);
+        return true;
+    }
 
-        $base = bashWorkspaceDir();
-        $fullPath = str_replace('\\', '/', $base . '/' . ltrim($relPath, '/'));
-
-        if (!is_file($fullPath)) {
-            http_response_code(404);
-            echo json_encode(['ok' => false, 'error' => 'Archivo no encontrado: ' . $relPath]);
-            return true;
-        }
-
-        $content = @file_get_contents($fullPath);
+    // 6. Django Status API
+    if ($uri === '/api/django/status') {
+        $managePy = __DIR__ . '/engines/api-engine/django_api/manage.py';
+        $output = @shell_exec('python -c "import django; print(django.__version__)" 2>&1');
+        $catState = bashRunPythonCatalyst(['status']);
         echo json_encode([
             'ok' => true,
-            'file_path' => $fullPath,
-            'relative_path' => $relPath,
-            'size' => filesize($fullPath),
-            'content' => $content
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            'django_version' => trim((string)$output) ?: '6.1',
+            'framework' => 'Django REST & Storage Controller Engine',
+            'catalyst_state' => $catState,
+            'api_endpoints' => [
+                '/api/catalyst/status',
+                '/api/catalyst/logs',
+                '/api/catalyst/execute',
+                '/api/storage/pools',
+                '/api/storage/fileshares'
+            ]
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         return true;
     }
 
@@ -464,27 +506,7 @@ function bashHandleApi($uri) {
         return true;
     }
 
-    // 8. Crear sesión interactiva
-    if ($uri === '/api/bash/session/create' && $method === 'POST') {
-        $sessionId = 'bash_sess_' . bin2hex(random_bytes(8));
-        $record = [
-            'id' => $sessionId,
-            'account_key' => $acct,
-            'cwd' => bashWorkspaceDir(),
-            'created_at' => date('c'),
-            'history' => []
-        ];
-        @file_put_contents(bashSessionsDir() . '/' . $sessionId . '.json', json_encode($record, JSON_PRETTY_PRINT));
-
-        echo json_encode([
-            'ok' => true,
-            'session_id' => $sessionId,
-            'cwd' => $record['cwd']
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        return true;
-    }
-
     http_response_code(404);
-    echo json_encode(['ok' => false, 'error' => 'Endpoint Bash no encontrado']);
+    echo json_encode(['ok' => false, 'error' => 'Endpoint no encontrado']);
     return true;
 }

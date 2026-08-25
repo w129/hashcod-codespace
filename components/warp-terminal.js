@@ -231,7 +231,6 @@
             if (overlay) overlay.classList.remove('open');
         },
 
-        async 
         async execApiCmd(cmd) {
             const feed = document.getElementById('warpApiTermFeed');
             if (feed) {
@@ -568,7 +567,7 @@
                         </div>
                         <div class="warp-window-actions">
                             <button class="warp-window-action-btn" title="Buscar">${SVG_ICONS.windowSearch}</button>
-                            <button class="warp-window-action-btn" title="Dividir panel">${SVG_ICONS.receipt}</button>
+                            <button type="button" class="warp-window-action-btn" id="warpTopBtnApi" title="API Gateway & Storage Controller" onclick="selectSidebarTool('airplane')">${SVG_ICONS.receipt}</button>
                             <button class="warp-window-action-btn" title="Opciones">${SVG_ICONS.dotsVertical}</button>
                         </div>
                     </div>
@@ -668,6 +667,7 @@
         }
     };
 
+    window.openApiGatewayWindow = showApiGatewayWindow;
     window.selectSidebarTool = function (toolId) {
         activeToolId = toolId;
         document.querySelectorAll('.warp-sidebar-btn').forEach(btn => btn.classList.remove('active'));

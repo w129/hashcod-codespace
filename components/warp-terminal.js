@@ -62,7 +62,8 @@
         accordion: { title: 'Estructura & Árbol de Código', handler: (id) => showPlaceholderTool(id, 'Estructura de Carpetas') },
         saxophone: { title: 'Audio & Procesamiento DSP', handler: (id) => showPlaceholderTool(id, 'Audio & DSP Toolkit') },
         plane: { title: 'Deploy & Despliegue Cloud', handler: (id) => showPlaceholderTool(id, 'Cloud Deployment') },
-        airplane: { title: 'Rutas & API Gateway', handler: (id) => showPlaceholderTool(id, 'API Gateway Routing') },
+        airplane: { title: 'API Gateway & Storage Controller', handler: () => showApiGatewayWindow() },
+        api: { title: 'API Gateway & Storage Controller', handler: () => showApiGatewayWindow() },
         potion: { title: 'Compilador & WebAssembly', handler: (id) => showPlaceholderTool(id, 'WASM Compiler') },
         dragon: { title: 'Motor de Inteligencia & Agentes', handler: (id) => showPlaceholderTool(id, 'Engine AI Core') },
         tractor: { title: 'Procesamiento Masivo de Datos', handler: (id) => showPlaceholderTool(id, 'Data Pipeline') },
@@ -804,6 +805,9 @@
 
     
     // ===== VENTANA INTERACTIVA DE API GATEWAY Y STORAGE DUAL-CATALYST =====
+    
+    let apiLogsPollTimer = null;
+
     async function showApiGatewayWindow() {
         const term = document.getElementById('warpMainTerminal');
         const sub = document.getElementById('warpToolSubwindow');
@@ -811,18 +815,98 @@
         if (!sub) return;
 
         sub.classList.add('open');
-        sub.innerHTML = '<div style="padding:20px; color:#888;">Cargando motor de API, Django y catalizador de 4 ENV...</div>';
+        
+        await renderApiGatewayContent(sub);
 
+        if (apiLogsPollTimer) clearInterval(apiLogsPollTimer);
+        apiLogsPollTimer = setInterval(async () => {
+            if (!sub.classList.contains('open') || (activeToolId !== 'api' && activeToolId !== 'airplane')) {
+                clearInterval(apiLogsPollTimer);
+                apiLogsPollTimer = null;
+                return;
+            }
+            await refreshApiGatewayStateOnly();
+        }, 2500);
+    }
+
+    async function refreshApiGatewayStateOnly() {
+        try {
+            const [catRes, logRes] = await Promise.all([
+                fetch(l8ApiUrl('api/catalyst/status')).then(r => r.json()).catch(() => null),
+                fetch(l8ApiUrl('api/catalyst/logs?channel=all&limit=30')).then(r => r.json()).catch(() => null)
+            ]);
+
+            if (catRes && catRes.macho) {
+                const machoBadge = document.getElementById('warpMachoBadge');
+                if (machoBadge) {
+                    machoBadge.textContent = catRes.macho.active ? catRes.macho.mode : 'INACTIVO';
+                    machoBadge.style.borderColor = catRes.macho.active ? '#10B981' : '#64748B';
+                    machoBadge.style.color = catRes.macho.active ? '#34D399' : '#94A3B8';
+                }
+                const hembraBadge = document.getElementById('warpHembraBadge');
+                if (hembraBadge) {
+                    hembraBadge.textContent = catRes.hembra.active ? catRes.hembra.mode : 'INACTIVO';
+                    hembraBadge.style.borderColor = catRes.hembra.active ? '#10B981' : '#64748B';
+                    hembraBadge.style.color = catRes.hembra.active ? '#34D399' : '#94A3B8';
+                }
+
+                const elKey1 = document.getElementById('env1Key');
+                if (elKey1) elKey1.textContent = catRes.macho.env_1.key_id;
+                const elTok1 = document.getElementById('env1Token');
+                if (elTok1) elTok1.textContent = 'Token: ' + catRes.macho.env_1.token.slice(0, 16) + '...';
+                const elTx1 = document.getElementById('env1Tx');
+                if (elTx1) elTx1.textContent = 'Tx: ' + catRes.macho.env_1.transfers_count + ' ciclos (' + (catRes.macho.env_1.buffer || '') + ')';
+
+                const elKey3 = document.getElementById('env3Key');
+                if (elKey3) elKey3.textContent = catRes.macho.env_3.key_id;
+                const elTok3 = document.getElementById('env3Token');
+                if (elTok3) elTok3.textContent = 'Token: ' + catRes.macho.env_3.token.slice(0, 16) + '...';
+                const elRx3 = document.getElementById('env3Rx');
+                if (elRx3) elRx3.textContent = 'Rx: ' + catRes.macho.env_3.transfers_count + ' ciclos (' + (catRes.macho.env_3.buffer || '') + ')';
+
+                const elKey2 = document.getElementById('env2Key');
+                if (elKey2) elKey2.textContent = catRes.hembra.env_2.key_id;
+                const elTok2 = document.getElementById('env2Token');
+                if (elTok2) elTok2.textContent = 'Token: ' + catRes.hembra.env_2.token.slice(0, 16) + '...';
+                const elDx2 = document.getElementById('env2Dx');
+                if (elDx2) elDx2.textContent = 'Dx: ' + catRes.hembra.env_2.transfers_count + ' ciclos (' + (catRes.hembra.env_2.buffer || '') + ')';
+
+                const elKey4 = document.getElementById('env4Key');
+                if (elKey4) elKey4.textContent = catRes.hembra.env_4.key_id;
+                const elTok4 = document.getElementById('env4Token');
+                if (elTok4) elTok4.textContent = 'Token: ' + catRes.hembra.env_4.token.slice(0, 16) + '...';
+                const elDx4 = document.getElementById('env4Dx');
+                if (elDx4) elDx4.textContent = 'Dx: ' + catRes.hembra.env_4.transfers_count + ' ciclos (' + (catRes.hembra.env_4.buffer || '') + ')';
+
+                const opEl = document.getElementById('warpApiLastOp');
+                if (opEl && catRes.last_operation) opEl.textContent = catRes.last_operation;
+            }
+
+            if (logRes && logRes.logs) {
+                const machoLogsEl = document.getElementById('warpMachoLogsText');
+                if (machoLogsEl && logRes.logs.macho) {
+                    machoLogsEl.textContent = logRes.logs.macho.slice(-10).join('\n') || '(Sin registros)';
+                }
+                const hembraLogsEl = document.getElementById('warpHembraLogsText');
+                if (hembraLogsEl && logRes.logs.hembra) {
+                    hembraLogsEl.textContent = logRes.logs.hembra.slice(-10).join('\n') || '(Sin registros)';
+                }
+            }
+        } catch (e) {}
+    }
+
+    async function renderApiGatewayContent(sub) {
         try {
             const [catRes, storRes, logRes] = await Promise.all([
                 fetch(l8ApiUrl('api/catalyst/status')).then(r => r.json()).catch(() => null),
                 fetch(l8ApiUrl('api/storage/pools')).then(r => r.json()).catch(() => null),
-                fetch(l8ApiUrl('api/catalyst/logs?channel=all&limit=25')).then(r => r.json()).catch(() => null)
+                fetch(l8ApiUrl('api/catalyst/logs?channel=all&limit=30')).then(r => r.json()).catch(() => null)
             ]);
 
             const state = (catRes && catRes.macho) ? catRes : {
-                macho: { active: false, mode: 'IDLE', env_1: { key_id: 'KEY-M1', token: '...', transfers_count: 0 }, env_3: { key_id: 'KEY-M3', token: '...', transfers_count: 0 } },
-                hembra: { active: false, mode: 'IDLE', env_2: { key_id: 'KEY-H2', token: '...', transfers_count: 0 }, env_4: { key_id: 'KEY-H4', token: '...', transfers_count: 0 } },
+                macho: { active: false, mode: 'IDLE', env_1: { key_id: 'KEY-M1-INIT', token: '0000000000000000', transfers_count: 0, buffer: 'init_tx' }, env_3: { key_id: 'KEY-M3-INIT', token: '0000000000000000', transfers_count: 0, buffer: 'init_rx' } },
+                hembra: { active: false, mode: 'IDLE', env_2: { key_id: 'KEY-H2-INIT', token: '0000000000000000', transfers_count: 0, buffer: 'duplex_a' }, env_4: { key_id: 'KEY-H4-INIT', token: '0000000000000000', transfers_count: 0, buffer: 'duplex_b' } },
+                last_operation: 'Motor Dual-Catalyst Inicializado',
                 total_cycles: 0
             };
 
@@ -832,16 +916,16 @@
                 { id: 'pool-cache-03', name: 'Dual-Catalyst Fast Cache', total_gb: 64, free_gb: 58 }
             ];
 
-            const machoLogs = (logRes && logRes.logs && logRes.logs.macho) ? logRes.logs.macho.slice(-8).join('\n') : '(Sin registros aún)';
-            const hembraLogs = (logRes && logRes.logs && logRes.logs.hembra) ? logRes.logs.hembra.slice(-8).join('\n') : '(Sin registros aún)';
+            const machoLogs = (logRes && logRes.logs && logRes.logs.macho && logRes.logs.macho.length) ? logRes.logs.macho.slice(-10).join('\n') : '(Sin registros aún en catalyst_macho.log)';
+            const hembraLogs = (logRes && logRes.logs && logRes.logs.hembra && logRes.logs.hembra.length) ? logRes.logs.hembra.slice(-10).join('\n') : '(Sin registros aún en catalyst_hembra.log)';
 
             sub.innerHTML = `
                 <div class="warp-api-window-container">
                     <div class="warp-api-header-bar">
                         <div class="warp-api-title-box">
                             <h2>
-                                ${SVG_ICONS.airplane || ''}
-                                <span>API Storage Gateway & Dual-Catalyst Engine</span>
+                                ${SVG_ICONS.receipt || '<span style="border:1px solid #fff;padding:2px 4px;border-radius:4px;font-size:12px;">API</span>'}
+                                <span>API Storage Gateway & Motor Dual-Catalyst 4-ENV</span>
                             </h2>
                         </div>
                         <div class="warp-api-tags">
@@ -850,12 +934,23 @@
                                 Django 6.1 / Python 3.12
                             </span>
                             <span class="warp-api-tag warp-api-tag-soda">
-                                SODA Storage API
+                                SODA Storage Controller
                             </span>
                             <span class="warp-api-tag warp-api-tag-catalyst">
                                 4 ENV Stream Active
                             </span>
                             <button type="button" class="warp-sidebar-btn" onclick="selectSidebarTool('home')" style="width:28px;height:28px;" title="Volver a la terminal">&times;</button>
+                        </div>
+                    </div>
+
+                    <!-- ESTADO GLOBAL DE FLUJO -->
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:8px 12px; font-size:11.5px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="color:#94A3B8;">Última Operación:</span>
+                            <span id="warpApiLastOp" style="color:#38BDF8; font-weight:600; font-family:'JetBrains Mono', monospace; margin-left:6px;">${escapeHtml(state.last_operation || 'Sistema en Espera')}</span>
+                        </div>
+                        <div style="color:#64748B; font-family:'JetBrains Mono', monospace; font-size:11px;">
+                            Total Ciclos: <strong style="color:#E2E8F0;">${state.total_cycles || 0}</strong>
                         </div>
                     </div>
 
@@ -865,26 +960,26 @@
                         <div class="warp-env-panel">
                             <div class="warp-env-panel-header">
                                 <div class="warp-env-panel-title">
-                                    <span style="color:#38BDF8;">♂ CANAL MACHO (/a & /a.)</span>
+                                    <span style="color:#38BDF8;">♂ PAREJA MACHO (/a & /a.)</span>
                                     <span style="font-size:11px; color:#94A3B8;">(1 Vía: ENV_1 &rarr; ENV_3)</span>
                                 </div>
-                                <span class="warp-ws-badge" style="border-color:${state.macho.active ? '#10B981' : '#64748B'}; color:${state.macho.active ? '#34D399' : '#94A3B8'};">
+                                <span class="warp-ws-badge" id="warpMachoBadge" style="border-color:${state.macho.active ? '#10B981' : '#64748B'}; color:${state.macho.active ? '#34D399' : '#94A3B8'};">
                                     ${state.macho.active ? state.macho.mode : 'INACTIVO'}
                                 </span>
                             </div>
                             <div class="warp-env-cards-row">
                                 <div class="warp-env-card">
                                     <div class="warp-env-card-title">ENV_1 (Macho TX)</div>
-                                    <div class="warp-env-card-key">${state.macho.env_1.key_id}</div>
-                                    <div class="warp-env-card-token">Token: ${state.macho.env_1.token.slice(0, 12)}...</div>
-                                    <div style="font-size:10px; color:#64748B;">Tx: ${state.macho.env_1.transfers_count} ciclos</div>
+                                    <div class="warp-env-card-key" id="env1Key">${state.macho.env_1.key_id}</div>
+                                    <div class="warp-env-card-token" id="env1Token">Token: ${state.macho.env_1.token.slice(0, 16)}...</div>
+                                    <div style="font-size:10px; color:#64748B;" id="env1Tx">Tx: ${state.macho.env_1.transfers_count} ciclos (${state.macho.env_1.buffer || ''})</div>
                                 </div>
                                 <div class="warp-env-arrow">&rarr;</div>
                                 <div class="warp-env-card">
                                     <div class="warp-env-card-title">ENV_3 (Macho RX)</div>
-                                    <div class="warp-env-card-key">${state.macho.env_3.key_id}</div>
-                                    <div class="warp-env-card-token">Token: ${state.macho.env_3.token.slice(0, 12)}...</div>
-                                    <div style="font-size:10px; color:#64748B;">Rx: ${state.macho.env_3.transfers_count} ciclos</div>
+                                    <div class="warp-env-card-key" id="env3Key">${state.macho.env_3.key_id}</div>
+                                    <div class="warp-env-card-token" id="env3Token">Token: ${state.macho.env_3.token.slice(0, 16)}...</div>
+                                    <div style="font-size:10px; color:#64748B;" id="env3Rx">Rx: ${state.macho.env_3.transfers_count} ciclos (${state.macho.env_3.buffer || ''})</div>
                                 </div>
                             </div>
                             <div class="warp-env-actions-row">
@@ -904,26 +999,26 @@
                         <div class="warp-env-panel">
                             <div class="warp-env-panel-header">
                                 <div class="warp-env-panel-title">
-                                    <span style="color:#EC4899;">♀ CANAL HEMBRA (/b & /b.)</span>
+                                    <span style="color:#EC4899;">♀ PAREJA HEMBRA (/b & /b.)</span>
                                     <span style="font-size:11px; color:#94A3B8;">(2 Vías: ENV_2 &harr; ENV_4)</span>
                                 </div>
-                                <span class="warp-ws-badge" style="border-color:${state.hembra.active ? '#10B981' : '#64748B'}; color:${state.hembra.active ? '#34D399' : '#94A3B8'};">
+                                <span class="warp-ws-badge" id="warpHembraBadge" style="border-color:${state.hembra.active ? '#10B981' : '#64748B'}; color:${state.hembra.active ? '#34D399' : '#94A3B8'};">
                                     ${state.hembra.active ? state.hembra.mode : 'INACTIVO'}
                                 </span>
                             </div>
                             <div class="warp-env-cards-row">
                                 <div class="warp-env-card">
                                     <div class="warp-env-card-title">ENV_2 (Hembra DX)</div>
-                                    <div class="warp-env-card-key">${state.hembra.env_2.key_id}</div>
-                                    <div class="warp-env-card-token">Token: ${state.hembra.env_2.token.slice(0, 12)}...</div>
-                                    <div style="font-size:10px; color:#64748B;">Dx: ${state.hembra.env_2.transfers_count} ciclos</div>
+                                    <div class="warp-env-card-key" id="env2Key">${state.hembra.env_2.key_id}</div>
+                                    <div class="warp-env-card-token" id="env2Token">Token: ${state.hembra.env_2.token.slice(0, 16)}...</div>
+                                    <div style="font-size:10px; color:#64748B;" id="env2Dx">Dx: ${state.hembra.env_2.transfers_count} ciclos (${state.hembra.env_2.buffer || ''})</div>
                                 </div>
                                 <div class="warp-env-arrow">&harr;</div>
                                 <div class="warp-env-card">
                                     <div class="warp-env-card-title">ENV_4 (Hembra DX)</div>
-                                    <div class="warp-env-card-key">${state.hembra.env_4.key_id}</div>
-                                    <div class="warp-env-card-token">Token: ${state.hembra.env_4.token.slice(0, 12)}...</div>
-                                    <div style="font-size:10px; color:#64748B;">Dx: ${state.hembra.env_4.transfers_count} ciclos</div>
+                                    <div class="warp-env-card-key" id="env4Key">${state.hembra.env_4.key_id}</div>
+                                    <div class="warp-env-card-token" id="env4Token">Token: ${state.hembra.env_4.token.slice(0, 16)}...</div>
+                                    <div style="font-size:10px; color:#64748B;" id="env4Dx">Dx: ${state.hembra.env_4.transfers_count} ciclos (${state.hembra.env_4.buffer || ''})</div>
                                 </div>
                             </div>
                             <div class="warp-env-actions-row">
@@ -943,30 +1038,30 @@
                     <!-- SODA STORAGE POOLS SECTION -->
                     <div class="warp-soda-section">
                         <div style="display:flex; align-items:center; justify-content:space-between;">
-                            <span style="font-size:13px; font-weight:600; color:#F8FAFC;">Almacenamiento Centralizado SODA & Local Disk Pool</span>
-                            <span style="font-size:11px; color:#94A3B8;">Conectado a la PC del Usuario</span>
+                            <span style="font-size:13px; font-weight:600; color:#F8FAFC;">Almacenamiento Centralizado SODA & Local Storage Controller</span>
+                            <span style="font-size:11px; color:#94A3B8;">Gestionado por API en la PC del Usuario</span>
                         </div>
                         <div class="warp-soda-pools-grid">
                             ${pools.map(p => `
                                 <div class="warp-soda-pool-item">
                                     <div class="warp-soda-pool-name">${escapeHtml(p.name)}</div>
                                     <div class="warp-soda-pool-cap">${p.free_gb || p.size_gb} GB libres / ${p.total_gb || p.size_gb} GB</div>
-                                    <div style="font-size:10.5px; color:#10B981;">&bull; Montado y disponible</div>
+                                    <div style="font-size:10.5px; color:#10B981;">&bull; Montado y conectado</div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
 
-                    <!-- DEDICATED STORAGE TERMINAL & REAL-TIME CATALYST LOGS -->
+                    <!-- TERMINAL DEDICADA & REGISTROS CATALIZADORES -->
                     <div class="warp-api-terminal-section">
                         <div class="warp-api-term-box">
                             <div class="warp-api-term-header">
-                                <span>Terminal de Almacenamiento y API</span>
+                                <span>Terminal de Almacenamiento & API</span>
                                 <span style="font-size:10.5px; color:#64748B;">Bash 4.3 + Python Catalyst</span>
                             </div>
                             <div class="warp-api-term-feed" id="warpApiTermFeed">
                                 <div style="color:#64748B;">// Terminal de gestión de almacenamiento a través de API activa.</div>
-                                <div style="color:#64748B;">// Comandos: /a activate, /b activate, /a. sync, /b. sync, workspace info, ls, df -h</div>
+                                <div style="color:#64748B;">// Comandos disponibles: /a activate, /b activate, /a. sync, /b. on_request, workspace info</div>
                             </div>
                             <div class="warp-api-term-input-row">
                                 <span class="warp-api-term-prompt">&gt;</span>
@@ -977,13 +1072,13 @@
                         <div class="warp-api-logs-box">
                             <div class="warp-api-logs-header">
                                 <span>Registros de Catalizadores (.log)</span>
-                                <button type="button" class="warp-env-btn" style="padding:2px 8px; font-size:10.5px;" onclick="showApiGatewayWindow()">Refrescar</button>
+                                <button type="button" class="warp-env-btn" style="padding:2px 8px; font-size:10.5px;" onclick="refreshApiGatewayStateOnly()">Refrescar</button>
                             </div>
                             <div class="warp-api-logs-feed" id="warpApiLogsFeed">
                                 <div style="color:#38BDF8; font-weight:bold; margin-bottom:4px;">[catalyst_macho.log]</div>
-                                <div style="color:#94A3B8; margin-bottom:8px; white-space:pre-wrap;">${escapeHtml(machoLogs)}</div>
+                                <div id="warpMachoLogsText" style="color:#94A3B8; margin-bottom:8px; white-space:pre-wrap;">${escapeHtml(machoLogs)}</div>
                                 <div style="color:#EC4899; font-weight:bold; margin-bottom:4px;">[catalyst_hembra.log]</div>
-                                <div style="color:#94A3B8; white-space:pre-wrap;">${escapeHtml(hembraLogs)}</div>
+                                <div id="warpHembraLogsText" style="color:#94A3B8; white-space:pre-wrap;">${escapeHtml(hembraLogs)}</div>
                             </div>
                         </div>
                     </div>

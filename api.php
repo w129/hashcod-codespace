@@ -5368,7 +5368,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         $outputResult = [
             'type' => 'TRIGGER_WORKFLOWS',
             'command' => 'workflows',
-            'message' => 'Abriendo panel de perfiles y sesiones de Tabby...'
+            'message' => 'Abriendo panel de perfiles y sesiones de Codespace...'
         ];
     } else if ($isClear) {
         $outputResult = [
@@ -5400,7 +5400,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'type' => 'TRIGGER_THEMES',
             'command' => $rawCmd,
             'theme_selected' => $themeName,
-            'message' => 'Abriendo selector interactivo de temas de Tabby Terminal...'
+            'message' => 'Abriendo selector interactivo de temas de Terminal...'
         ];
     } else if ($isAi) {
         $promptText = trim(preg_replace('/^(ai|#)\s*/i', '', $rawCmd));
@@ -5408,7 +5408,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'type' => 'TRIGGER_AI',
             'command' => $rawCmd,
             'prompt' => $promptText,
-            'message' => 'Abriendo paleta de comandos de Tabby...'
+            'message' => 'Abriendo paleta de comandos de Codespace...'
         ];
     } else if ($isBash) {
         $startTime = microtime(true);

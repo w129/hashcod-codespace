@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * HASHCOD CODESPACE · WEBSOCKET CLIENT (codespace-ws.js)
- * Cliente WebSocket resiliente para Terminal Tabby, Gateway y Notepad
+ * Cliente WebSocket resiliente para Terminal Warp, Gateway y Notepad
  * ============================================================================
  */
 
@@ -192,9 +192,9 @@
 
             // Terminal: sincronización de comandos remotos
             if (eventName === 'command_run' && channel === 'terminal') {
-                if (window.TabbyTerminal && payload.from !== this.clientId) {
+                if (window.WarpTerminal && payload.from !== this.clientId) {
                     // Notificación discreta de comando en otra pestaña
-                    console.log(`[WS Terminal] Comando remoto ejecutado por ${payload.user || 'tabby'}: ${payload.command}`);
+                    console.log(`[WS Terminal] Comando remoto ejecutado por ${payload.user || 'user'}: ${payload.command}`);
                 }
             }
         }
@@ -227,7 +227,7 @@
         }
 
         /**
-         * Emite un comando ejecutado en Tabby Terminal
+         * Emite un comando ejecutado en Terminal
          */
         emitTerminalCommand(command, cwd = '~/workspace') {
             return this.sendRaw({
@@ -317,12 +317,12 @@
          * Actualizar el estado visual en la UI
          */
         updateUiState(state) {
-            // Actualizar chips de Tabby o badges de estado
-            const chips = document.querySelectorAll('.tabby-ws-chip, #tabbyWsStatusChip');
+            // Actualizar chips de Warp o badges de estado
+            const chips = document.querySelectorAll('.warp-ws-chip, #warpWsStatusChip');
             chips.forEach(chip => {
                 chip.classList.remove('connected', 'connecting', 'disconnected', 'error');
                 chip.classList.add(state);
-                const label = chip.querySelector('.tabby-ws-label') || chip.querySelector('span:last-child');
+                const label = chip.querySelector('.warp-ws-label') || chip.querySelector('span:last-child');
                 if (label) {
                     if (state === 'connected') label.textContent = 'WS Live';
                     else if (state === 'connecting') label.textContent = 'WS Conectando…';

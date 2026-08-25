@@ -3,9 +3,9 @@
  * Copyright (C) 2020-2026 Denver Technologies, Inc.
  * Copyright (C) 2026 DIKTATCART / Hashcod
  *
- * This file is part of Hashcod codespace / Tabby Terminal Terminal integration.
+ * This file is part of Hashcod codespace / Warp Terminal integration.
  *
- * Modified on 2026 by DIKTATCART / Hashcod: Added custom Tabby-style cell blocks,
+ * Modified on 2026 by DIKTATCART / Hashcod: Added custom Warp-style cell blocks,
  * execution status, block toolbar, and platform integration.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -70,8 +70,7 @@ if (!headers_sent()) {
     <link rel="shortcut icon" href="favicon.svg?v=10" type="image/svg+xml">
     <link rel="apple-touch-icon" href="favicon.svg?v=10">
     <meta name="application-name" content="Hashcod codespace">
-    <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/tabby-terminal.css?v=2026.2">
-    <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/durable-objects.css?v=2026.1">
+<link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/durable-objects.css?v=2026.1">
     <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.css?v=2026.1">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700;800;900&display=swap');
@@ -3925,8 +3924,8 @@ if (!headers_sent()) {
 
         .block-execution .block-body pre,
         .block-execution .block-body code,
-        .block-execution .block-body .tabby-session-feed,
-        .block-execution .block-body .tabby-feed-output {
+        .block-execution .block-body .warp-session-feed,
+        .block-execution .block-body .warp-feed-output {
             color: #0f172a !important;
         }
 
@@ -6795,7 +6794,7 @@ if (!headers_sent()) {
         }
 
         .gateway-action-btn,
-        .tabby-gateway-btn,
+        .warp-gateway-btn,
         .notepad-gateway-btn,
         .icon-gateway,
         .action-gateway-btn,
@@ -6809,7 +6808,7 @@ if (!headers_sent()) {
         }
 
         .gateway-action-btn svg,
-        .tabby-gateway-btn svg,
+        .warp-gateway-btn svg,
         .notepad-gateway-btn svg,
         .icon-gateway svg,
         .action-gateway-btn svg,
@@ -6821,7 +6820,7 @@ if (!headers_sent()) {
         }
 
         .gateway-action-btn:hover svg,
-        .tabby-gateway-btn:hover svg,
+        .warp-gateway-btn:hover svg,
         .notepad-gateway-btn:hover svg,
         .icon-gateway:hover svg,
         .action-gateway-btn:hover svg,
@@ -6832,7 +6831,7 @@ if (!headers_sent()) {
         }
 
         .gateway-action-btn:active svg,
-        .tabby-gateway-btn:active svg,
+        .warp-gateway-btn:active svg,
         .notepad-gateway-btn:active svg,
         .icon-gateway:active svg,
         .action-gateway-btn:active svg {
@@ -8550,8 +8549,8 @@ if (!headers_sent()) {
             }
         }
 
-            /* Tabby Terminal Safe Embedded Constrains */
-        svg.tabby-icon-svg, .tabby-icon-svg, .tabby-prompt-header svg, .tabby-terminal-container svg {
+            /* Warp Terminal */
+        svg.warp-icon-svg, .warp-icon-svg, .warp-prompt-header svg, .warp-terminal-container svg {
             width: 14px !important;
             height: 14px !important;
             max-width: 14px !important;
@@ -9045,54 +9044,8 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
 
         <!-- Bloque (>) de introducción de comandos y su ventana desplegable -->
         <div class="function-drawer-wrapper">
-            <!-- Segmentos de contexto Tabby (Host, Dir, Git, PQC, Perfiles, Temas, Paleta, WS, Gateway, Reloj) -->
-            <div class="tabby-prompt-header">
-                <div class="tabby-prompt-left">
-                    <span class="tabby-chip host" title="Usuario y entorno de ejecución activo">
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="12" height="11" rx="2"></rect><path d="M5 6.5l2.5 2L5 10.5"></path><line x1="9" y1="10.5" x2="11.5" y2="10.5"></line></svg>
-                        <span>tabby@codespace</span>
-                    </span>
-                    <span class="tabby-chip workspace" title="Directorio de trabajo activo">
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3.5a1.5 1.5 0 0 1 1.5-1.5h3.17a1.5 1.5 0 0 1 1.06.44l1.06 1.06h4.71a1.5 1.5 0 0 1 1.5 1.5v6.5a1.5 1.5 0 0 1-1.5 1.5h-10a1.5 1.5 0 0 1-1.5-1.5v-7.5z"></path></svg>
-                        <span>~/workspace</span>
-                    </span>
-                    <span class="tabby-chip git" title="Rama git actual">
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="4" r="1.8"></circle><circle cx="4" cy="12" r="1.8"></circle><circle cx="12" cy="7" r="1.8"></circle><line x1="4" y1="5.8" x2="4" y2="10.2"></line><path d="M5.8 4h2a3.5 3.5 0 0 1 3.5 3v-1.2"></path></svg>
-                        <span>main</span>
-                    </span>
-                    <span class="tabby-chip pqc" title="Criptografía Post-Cuántica NIST Dilithium Level 5 Activa">
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="10" height="7.5" rx="1.5"></rect><path d="M5.5 6.5V4.5a2.5 2.5 0 0 1 5 0v2"></path><circle cx="8" cy="10" r="1" fill="currentColor"></circle></svg>
-                        <span>Dilithium-5 (PQC)</span>
-                    </span>
-                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openProfilesModal()" title="Perfiles y flujos de trabajo de Tabby (Ctrl+T)">
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="12" height="11" rx="2"></rect><line x1="2" y1="6" x2="14" y2="6"></line><line x1="6" y1="6" x2="6" y2="13.5"></line></svg>
-                        <span>Perfiles</span>
-                    </span>
-                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openThemesModal()" title="Temas visuales de Tabby">
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5a6.5 6.5 0 1 0 0 13c.88 0 1.5-.72 1.5-1.5 0-.37-.13-.71-.35-.97-.22-.27-.35-.61-.35-.98 0-.83.67-1.5 1.5-1.5H12a2.5 2.5 0 0 0 2.5-2.5C14.5 4.36 11.59 1.5 8 1.5z"></path><circle cx="4.5" cy="5.5" r=".7" fill="currentColor"></circle><circle cx="7.5" cy="4.5" r=".7" fill="currentColor"></circle><circle cx="10.5" cy="5.5" r=".7" fill="currentColor"></circle><circle cx="11.5" cy="8.5" r=".7" fill="currentColor"></circle></svg>
-                        <span id="tabbyThemeChipName">Tabby Theme</span>
-                    </span>
-                    <span class="tabby-chip btn" onclick="window.TabbyTerminal.openPaletteModal()" title="Paleta de comandos inteligentes (Ctrl+Shift+P)">
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="8 1.5 9.8 5.7 14.3 6.1 10.9 9.1 11.9 13.5 8 11.1 4.1 13.5 5.1 9.1 1.7 6.1 6.2 5.7 8 1.5"></polygon></svg>
-                        <span>Paleta</span>
-                    </span>
-                </div>
-                <div class="tabby-prompt-right">
-                    <span class="tabby-chip ws connected" id="tabbyWsStatusChip" title="Canal WebSocket en tiempo real activo">
-                        <span class="tabby-ws-dot"></span>
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5.5a9.2 9.2 0 0 1 13 0"></path><path d="M4 8a5.7 5.7 0 0 1 8 0"></path><circle cx="8" cy="12.5" r="1" fill="currentColor"></circle></svg>
-                        <span class="tabby-ws-label">WS Live</span>
-                    </span>
-                    <span class="tabby-chip btn gateway-action-btn" onclick="openGatewayFromTool('terminal')" title="Gateway · Transportar terminal activa y generar código en la nube">
-                        <svg class="tabby-icon-svg gateway-crescent-svg" width="13" height="13" viewBox="0 0 100 100" fill="currentColor"><path d="M 21.693359 7.1972656 A 1.0001 1.0001 0 0 0 21.484375 7.2128906 C 16.219222 8.187171 11.3871 9.4963897 7.21875 11.34375 A 1.0001 1.0001 0 0 0 6.625 12.201172 C 6.2031567 19.649719 6.1391302 27.227265 6.625 34.994141 A 1.0001 1.0001 0 0 0 7.4921875 35.921875 C 7.5562145 35.950095 7.651101 35.993165 7.8027344 36.072266 C 8.1651191 36.261307 8.7105544 36.569927 9.3710938 36.957031 C 10.692172 37.73124 12.480841 38.821679 14.341797 39.972656 C 14.93395 40.338896 15.179031 40.49706 15.773438 40.867188 C 14.804338 41.670438 14.069932 42.828224 13.560547 44.171875 C 12.78613 46.214625 12.464887 48.74142 12.554688 51.478516 A 1.0001 1.0001 0 0 0 12.896484 52.199219 C 13.647227 52.854863 14.343243 53.448968 15.023438 54.027344 C 15.022075 54.060576 15.021103 54.075292 15.019531 54.113281 C 14.661531 63.806281 18.270375 68.077125 21.359375 69.953125 C 22.835375 70.849125 24.250937 71.300781 25.585938 71.300781 C 26.074938 71.300781 26.552531 71.238187 27.019531 71.117188 C 27.996151 70.863585 28.747102 70.37994 29.306641 69.896484 A 1.0001 1.0001 0 0 0 29.755859 70.501953 C 41.643284 77.689873 47.580222 80.893133 51.044922 82.3125 C 54.509622 83.731867 55.766125 83.292261 57.115234 83.199219 C 59.016457 83.068143 61.309417 81.976436 63.291016 80.951172 C 65.014669 80.059367 66.05599 79.402972 66.398438 79.191406 A 1.0001 1.0001 0 0 0 66.974609 79.433594 C 66.666775 79.405744 67.171796 79.549389 67.679688 79.496094 C 67.883521 79.474703 68.095904 79.405325 68.308594 79.308594 C 68.402852 82.487297 69.423379 92.020319 78.322266 95.0625 C 79.593266 95.4975 80.729422 95.671875 81.732422 95.671875 C 83.704422 95.671875 85.165344 94.994062 86.152344 94.289062 C 88.373344 92.701063 89.753859 89.866672 89.755859 86.888672 C 89.756786 84.588888 89.004895 81.738356 87.539062 78.419922 C 87.640303 78.359302 87.754902 78.310012 87.849609 78.244141 C 88.874729 77.531137 89.514307 76.420954 89.417969 75.255859 C 89.364729 74.612005 89.119327 73.914582 88.693359 72.996094 C 88.267392 72.077605 87.650323 70.994066 86.820312 69.84375 C 85.290934 67.724172 83.025923 65.386494 79.933594 63.544922 C 80.297255 62.645271 80.621224 61.415224 80.5 59.292969 C 80.443877 58.307 80.038339 56.749329 79.388672 54.701172 C 78.739005 52.653014 77.839251 50.222373 76.771484 47.910156 C 75.723382 45.64052 74.824187 43.740727 73.933594 42.300781 C 73.148408 41.031264 72.372426 40.026267 71.287109 39.609375 C 71.905394 38.584632 72.152038 37.677387 72.169922 36.935547 C 72.177722 36.612002 72.099642 36.407213 72.046875 36.160156 L 75.179688 34.488281 A 1.0001 1.0001 0 0 0 75.671875 33.876953 C 75.671875 33.876953 75.936978 32.929919 75.71875 31.761719 C 75.69822 31.651809 75.600683 31.520994 75.570312 31.40625 C 76.301096 31.143655 78.650129 30.290581 80.529297 29.710938 A 1.0001 1.0001 0 0 0 80.205078 27.751953 A 1.0001 1.0001 0 0 0 79.939453 27.800781 C 77.874507 28.43773 75.174926 29.41742 74.648438 29.607422 C 74.229055 29.064659 73.744384 28.524524 72.998047 28.085938 A 1.0001 1.0001 0 0 0 72.585938 27.953125 C 71.587665 27.856992 70.624021 27.81656 69.689453 27.816406 L 71.914062 20.439453 A 1.0001 1.0001 0 0 0 72.330078 20.525391 L 75.384766 20.533203 C 77.079971 20.537103 78.60621 20.124678 79.353516 18.851562 C 80.100821 17.578449 79.762391 15.941875 78.695312 14.097656 C 78.05838 12.996854 76.859323 12.467498 75.857422 12.65625 C 74.855521 12.845002 74.062045 13.452752 73.353516 14.107422 C 71.936457 15.416761 70.873047 17.097656 70.873047 17.097656 A 1.0001 1.0001 0 0 0 70.755859 17.349609 L 67.576172 27.890625 C 62.738099 28.2463 58.855703 29.783423 55.955078 31.429688 C 54.034158 32.519914 52.535645 33.656502 51.464844 34.519531 C 50.929443 34.951046 50.499495 35.31699 50.195312 35.558594 C 50.043222 35.679396 49.919609 35.769229 49.853516 35.8125 C 49.787426 35.85577 49.739479 35.826392 49.986328 35.789062 A 1.0001 1.0001 0 0 0 49.195312 37.113281 L 49.566406 38.15625 A 1.0001 1.0001 0 0 0 49.474609 38.179688 C 47.213706 38.87708 43.679687 40.158203 43.679688 40.158203 A 1.0002829 1.0002829 0 1 0 44.361328 42.039062 C 44.361328 42.039062 47.903356 40.756451 50.064453 40.089844 A 1.0001 1.0001 0 0 0 50.234375 40.023438 L 50.664062 41.226562 A 1.0001 1.0001 0 0 0 51.810547 41.867188 C 51.810547 41.867188 52.904907 41.639063 54.259766 41.490234 C 55.614624 41.341406 57.257233 41.323238 58.027344 41.560547 C 58.301983 41.645177 58.764953 42.056669 59.087891 42.507812 C 59.239315 42.719353 59.353565 42.914264 59.439453 43.068359 C 59.147334 43.213675 58.844556 43.360732 58.613281 43.490234 C 57.161561 44.303127 56.329114 45.528523 55.921875 46.660156 C 55.514636 47.79179 55.48243 48.796702 55.615234 49.515625 C 55.697374 49.959974 55.898754 50.608835 56.193359 51.664062 C 56.488215 52.720185 56.859772 54.06845 57.212891 55.488281 C 57.919127 58.327944 58.509969 61.566643 58.369141 62.929688 C 58.322061 63.383961 58.229878 63.963008 58.113281 64.595703 C 57.20855 64.150167 55.832441 63.464724 54.023438 62.498047 C 51.345002 61.066771 48.314582 59.240891 47.492188 58.412109 C 46.67244 57.585996 46.294472 56.140314 46.195312 54.859375 C 46.103384 53.671857 46.216312 52.790417 46.234375 52.65625 C 46.303418 52.547 46.373112 52.43793 46.429688 52.326172 C 46.958061 51.282428 47.045781 50.023886 46.890625 48.783203 C 46.735469 47.542521 46.334048 46.313209 45.521484 45.404297 A 1.0001 1.0001 0 0 0 45.519531 45.404297 C 44.074425 43.788634 40.85678 41.522161 37.732422 39.404297 L 38.908203 17.896484 A 1.0001 1.0001 0 0 0 38.318359 16.927734 C 33.230698 14.657039 27.861522 11.444052 22.253906 7.3867188 A 1.0001 1.0001 0 0 0 21.693359 7.1972656 z M 21.470703 9.2675781 C 26.301291 12.735686 30.972769 15.573939 35.484375 17.763672 C 33.196822 18.526671 24.838085 21.315617 23.914062 21.623047 L 8.84375 12.871094 C 12.534587 11.326671 16.792001 10.152737 21.470703 9.2675781 z M 76.433594 14.585938 C 76.604977 14.571009 76.702215 14.649087 76.962891 15.099609 C 77.864812 16.65839 77.831351 17.493005 77.628906 17.837891 C 77.426462 18.182776 76.747466 18.536318 75.388672 18.533203 L 72.492188 18.525391 L 72.619141 18.101562 C 72.677011 18.013723 73.597145 16.605297 74.710938 15.576172 C 75.285032 15.045717 75.89926 14.683123 76.228516 14.621094 C 76.310829 14.605586 76.376466 14.590914 76.433594 14.585938 z M 8.5175781 14.992188 L 22.865234 23.324219 L 22.865234 27.927734 L 9.2226562 19.496094 C 8.7613846 17.350082 8.5720744 15.972835 8.5019531 15.388672 C 8.5075764 15.256584 8.511712 15.124198 8.5175781 14.992188 z M 36.822266 19.427734 L 36.550781 24.396484 C 35.824878 24.655284 33.776805 25.386566 30.947266 26.376953 C 29.301184 26.95311 27.638452 27.529798 26.357422 27.960938 C 25.753257 28.164273 25.255381 28.328215 24.865234 28.451172 L 24.865234 23.412109 C 26.304797 22.932816 35.450445 19.884921 36.822266 19.427734 z M 9.5390625 20.867188 L 22.865234 29.101562 L 22.865234 32.558594 L 10.927734 25.703125 C 10.342699 23.959094 9.8895073 22.327478 9.5390625 20.867188 z M 36.492188 25.476562 L 36.292969 29.089844 L 24.865234 33.128906 L 24.865234 29.496094 C 24.931358 29.476366 24.988646 29.459725 25.072266 29.433594 C 25.482261 29.305463 26.033546 29.125009 26.677734 28.908203 C 27.96611 28.474592 29.6293 27.897156 31.277344 27.320312 C 33.91151 26.39831 35.657038 25.774512 36.492188 25.476562 z M 11.443359 27.152344 L 22.865234 33.710938 L 22.865234 42.794922 C 22.722238 42.739031 22.548906 42.689654 22.384766 42.638672 C 21.945403 42.363204 21.19746 41.899908 20.628906 41.542969 C 16.136837 37.574909 13.268042 32.109922 11.443359 27.152344 z M 69.71875 29.832031 C 70.497771 29.833956 71.301925 29.86949 72.130859 29.941406 C 73.242549 30.660393 73.62588 31.454005 73.751953 32.128906 C 73.846743 32.636332 73.780957 32.798195 73.748047 32.984375 L 70.671875 34.625 C 69.800774 33.006783 68.133337 31.988457 66.277344 32.185547 L 66.277344 32.183594 C 65.312374 32.285634 64.15889 32.683443 63.226562 33.603516 C 62.294235 34.523588 61.672733 35.987574 61.818359 37.865234 C 61.859107 38.393106 62.000807 38.86113 62.191406 39.292969 C 61.015516 38.53813 59.406599 37.762899 57.59375 37.115234 C 55.176558 36.25166 54.819944 35.14239 54.753906 34.554688 C 55.407954 34.100335 56.128635 33.631214 56.941406 33.169922 C 60.030516 31.416683 64.265604 29.818559 69.71875 29.832031 z M 36.234375 30.171875 L 35.773438 38.609375 A 1.0001 1.0001 0 0 0 35.308594 38.998047 L 24.865234 43.255859 L 24.865234 34.191406 L 36.234375 30.171875 z M 66.488281 34.173828 C 68.15835 33.996482 69.624667 35.412348 69.265625 37.798828 C 69.165945 38.462581 68.731002 39.039174 68.121094 39.455078 C 67.511185 39.870982 66.740315 40.066134 66.277344 40.025391 C 65.147148 39.925991 63.926865 39.192512 63.8125 37.710938 C 63.704126 36.313598 64.098687 35.552521 64.630859 35.027344 C 65.163032 34.502166 65.921251 34.233788 66.488281 34.173828 z M 36.210938 40.791016 C 39.445768 42.989343 42.952124 45.534014 44.029297 46.738281 C 44.422733 47.178369 44.788406 48.088933 44.90625 49.03125 C 45.024094 49.973567 44.89011 50.940619 44.646484 51.421875 C 44.460306 51.78965 43.389848 52.869684 41.955078 53.619141 C 40.520308 54.368598 38.723668 54.890062 37 54.738281 C 36.808856 54.72145 36.576279 54.673597 36.318359 54.603516 C 36.317579 54.193764 36.265742 50.729165 34.523438 49.941406 C 33.424311 49.445179 29.494017 47.197975 26.083984 44.921875 L 36.210938 40.791016 z M 70.414062 41.427734 C 70.745795 41.499104 71.442265 42.074008 72.232422 43.351562 C 72.957106 44.52326 73.779367 46.230623 74.712891 48.240234 L 60.611328 53.757812 C 60.115444 51.955188 59.667705 50.379165 59.482422 49.732422 C 59.156995 48.598444 59.57195 46.599008 59.972656 45.041016 C 61.196424 44.404463 63.380935 43.458043 65.496094 42.697266 C 66.657839 42.279411 67.793142 41.917319 68.708984 41.6875 C 69.624827 41.457681 70.418567 41.428706 70.414062 41.427734 z M 16.90625 42.521484 A 1.0005878 1.0005878 0 0 0 16.929688 42.630859 C 17.181039 43.485686 17.578508 44.150955 18.037109 44.699219 C 17.284061 45.940498 16.782273 47.469943 16.552734 49.310547 C 16.479734 49.898547 16.758188 50.477359 17.242188 50.818359 C 21.883188 54.691359 27.484656 58.981391 33.847656 63.025391 C 34.418656 63.388391 35.168047 62.944531 35.123047 62.269531 L 34.962891 59.828125 C 34.68515 58.119567 34.260573 56.768437 33.90625 55.84375 C 34.940334 56.317481 35.911268 56.649905 36.826172 56.730469 C 39.054504 56.926688 41.184129 56.278871 42.880859 55.392578 C 43.355345 55.144729 43.785807 54.884398 44.1875 54.615234 C 44.193642 54.750784 44.190229 54.872311 44.201172 55.013672 C 44.318763 56.532733 44.703013 58.440427 46.072266 59.820312 C 47.438871 61.197531 50.357763 62.808948 53.080078 64.263672 C 55.305443 65.45284 57.005443 66.28524 57.675781 66.611328 C 57.39902 67.749561 57.063557 68.949006 56.660156 70.074219 C 56.202723 71.350146 55.669029 72.525046 55.125 73.359375 C 54.580971 74.193704 54.030133 74.603502 53.757812 74.660156 C 53.726993 74.666556 53.301639 74.656556 52.736328 74.484375 C 52.171017 74.31222 51.448996 74.018446 50.648438 73.640625 C 49.047317 72.884984 47.124012 71.797617 45.28125 70.677734 C 43.438488 69.557851 41.671121 68.405627 40.355469 67.515625 C 39.697642 67.070624 39.153063 66.690109 38.771484 66.416016 C 38.580695 66.278969 38.428421 66.167948 38.332031 66.09375 C 38.293691 66.06424 38.272799 66.047093 38.255859 66.033203 A 1.0001 1.0001 0 0 0 36.708984 67.292969 C 36.881323 67.541577 36.893177 67.498815 36.945312 67.542969 C 36.997453 67.587119 37.050193 67.629169 37.113281 67.677734 C 37.239457 67.774864 37.401573 67.895957 37.603516 68.041016 C 38.007402 68.331133 38.564217 68.718532 39.234375 69.171875 C 40.574691 70.078561 42.364074 71.245352 44.242188 72.386719 C 46.1203 73.528086 48.083822 74.641673 49.794922 75.449219 C 50.650472 75.852992 51.440003 76.181507 52.152344 76.398438 C 52.276014 76.436099 52.387078 76.450168 52.505859 76.482422 C 52.490114 76.498439 52.386719 76.574219 52.386719 76.574219 C 52.600719 76.745219 56.510359 77.396563 58.193359 76.476562 C 59.876359 75.556562 62.345328 67.456141 62.736328 64.744141 C 62.883286 63.72743 62.544875 61.649984 62.033203 59.341797 C 63.052164 58.919796 65.627325 57.855381 69.1875 56.367188 C 71.290841 55.487966 73.384774 54.607444 74.933594 53.947266 C 75.693906 53.623185 76.312907 53.357716 76.75 53.164062 C 77.017512 53.906438 77.269072 54.634028 77.482422 55.306641 C 78.108755 57.281233 78.477076 58.969219 78.501953 59.40625 C 78.610551 61.307443 78.4182 62.057689 78.109375 62.763672 C 77.916166 62.72444 77.701933 62.688163 77.466797 62.666016 C 76.497885 62.574756 75.129109 62.653776 73.482422 63.261719 C 70.136276 64.497492 66.7285 67.593778 65.636719 70.931641 C 64.753472 73.631958 64.890024 75.334955 65.265625 77.537109 C 64.886525 77.770368 63.975919 78.344514 62.373047 79.173828 C 60.473645 80.156564 58.123293 81.126154 56.978516 81.205078 C 55.282625 81.322036 55.027035 81.783774 51.802734 80.462891 C 48.616739 79.1577 42.697074 75.974897 31.117188 68.982422 C 30.460857 65.70511 29.725053 63.843408 28.023438 62.080078 C 27.715048 61.71452 27.387005 61.379833 27.017578 61.126953 C 26.962037 61.088878 26.878116 61.025329 26.8125 60.978516 C 24.505501 59.003224 20.832856 56.415449 14.574219 50.988281 C 14.540509 48.630486 14.827247 46.475123 15.431641 44.880859 C 15.828034 43.835255 16.32804 43.049654 16.90625 42.521484 z M 75.130859 49.150391 C 75.589307 50.168106 76.019009 51.204938 76.404297 52.220703 C 76.394874 52.225096 76.389508 52.228803 76.376953 52.234375 C 75.948256 52.4246 75.313246 52.698183 74.541016 53.027344 C 72.996554 53.685665 70.905018 54.56458 68.802734 55.443359 C 65.319287 56.899481 62.812457 57.936464 61.800781 58.355469 C 61.505239 57.098179 61.192706 55.926241 60.871094 54.730469 L 75.130859 49.150391 z M 18.3125 56.757812 C 22.08084 59.819512 24.518881 61.571571 26.003906 62.904297 C 26.119569 63.008098 26.212456 63.101838 26.318359 63.201172 C 26.038966 64.391982 25.415021 65.288088 24.492188 65.623047 C 22.539188 66.331047 20.003172 64.27525 18.826172 61.03125 C 18.275813 59.513877 18.12217 58.006318 18.3125 56.757812 z M 76.693359 64.632812 C 76.910114 64.630023 77.10615 64.639941 77.279297 64.65625 C 77.959012 64.72027 78.199629 64.850549 78.208984 64.855469 C 81.392874 66.584868 83.692481 68.925474 85.199219 71.013672 C 85.955084 72.06123 86.51103 73.04466 86.878906 73.837891 C 87.246783 74.631121 87.41502 75.289776 87.425781 75.419922 C 87.457441 75.802827 87.304411 76.186067 86.707031 76.601562 C 86.109651 77.01706 85.066936 77.373165 83.619141 77.414062 C 82.567128 77.444113 80.163931 76.345474 77.888672 75.146484 C 76.751042 74.546989 75.614638 73.944555 74.558594 73.494141 C 73.750708 73.149568 73.002087 72.869645 72.244141 72.808594 C 74.164098 72.763806 76.941819 73.43228 78.205078 73.660156 C 79.857078 73.958156 79.462563 73.237891 77.101562 70.587891 C 75.241644 68.500307 72.066006 67.565374 70.681641 67.337891 C 71.787807 66.372478 73.023379 65.564268 74.175781 65.138672 C 75.199767 64.760627 76.043096 64.641181 76.693359 64.632812 z M 73.191406 77.443359 C 74.798854 77.527653 76.864693 79.932115 78.082031 83.287109 C 79.454031 87.070109 79.226313 90.625563 77.570312 91.226562 C 75.914312 91.827562 73.458938 89.246891 72.085938 85.462891 C 71.110733 82.775217 70.960303 80.223967 71.539062 78.744141 C 71.679977 79.129575 71.791612 79.441275 71.935547 79.833984 C 72.407695 81.122185 72.87822 82.401426 73.224609 83.347656 C 73.397804 83.820771 73.539137 84.209704 73.634766 84.474609 C 73.679756 84.599228 73.712945 84.690778 73.734375 84.751953 A 1.0001 1.0001 0 0 0 73.841797 85.021484 C 73.855367 85.045614 73.935347 85.159911 73.935547 85.160156 C 73.935745 85.160401 75.371014 85.287179 75.371094 85.287109 C 75.371174 85.28704 75.709021 84.435929 75.708984 84.435547 C 75.708948 84.435165 75.696246 84.336357 75.691406 84.314453 C 75.672066 84.226843 75.667739 84.228602 75.662109 84.210938 C 75.650859 84.175597 75.641976 84.148808 75.628906 84.111328 C 75.602766 84.036378 75.564566 83.93245 75.515625 83.796875 C 75.417745 83.525726 75.275166 83.134385 75.101562 82.660156 C 74.754358 81.711699 74.284227 80.433534 73.8125 79.146484 C 73.587084 78.531463 73.404318 78.027177 73.191406 77.443359 z"></path></svg>
-                        <span>Gateway</span>
-                    </span>
-                    <span class="tabby-chip clock" title="Hora del sistema">
-                        <svg class="tabby-icon-svg" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"></circle><polyline points="8 4 8 8 10.5 9.5"></polyline></svg>
-                        <span id="tabbyLiveClock">--:--:--</span>
-                    </span>
-                </div>
-            </div>
+            <!-- Segmentos de contexto Hashcod Codespace -->
+            <div class="warp-prompt-header" style="display:none;"></div>
             <div class="block-row block-prompt">
                 <div class="block-symbol clickable-symbol" id="symbolPrompt" onclick="toggleFunctionDrawer()" title="Haz clic en (>) para abrir/cerrar la ventana de funciones">
                     &gt;
@@ -10330,7 +10283,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             } else if (toolName === 'terminal') {
                 if (options.content) {
                     customPayload = {
-                        name: gatewaySafeFilename(options.name || 'tabby-terminal', 'md'),
+                        name: gatewaySafeFilename(options.name || 'warp-terminal', 'md'),
                         content: options.content,
                         folder: 'terminal',
                         source: 'terminal',
@@ -10408,7 +10361,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         <label class="gateway-source-item ${(terminalPayload || (initialPayload && initialPayload.source === 'terminal')) ? '' : 'disabled'}">
                             <input type="checkbox" id="gatewaySrcTerminal" ${(sourceHint === 'terminal' || (!sourceHint && terminalPayload && !notepadPayload)) ? 'checked' : ''} ${(terminalPayload || (initialPayload && initialPayload.source === 'terminal')) ? '' : 'disabled'}>
                             <span>
-                                <strong>Terminal negra / Tabby</strong>
+                                <strong>Terminal Bash 4.3</strong>
                                 <span class="muted">${(initialPayload && initialPayload.source === 'terminal')
                                     ? initialPayload.label
                                     : (terminalPayload
@@ -10703,40 +10656,9 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             });
         }
 
-        function tabbyWrapOutput(innerHtml, isError, errorMsg) {
-            const cmd = (latestExecutionData && latestExecutionData.executedCommand) || lastCommandText || '';
-            const dur = (latestExecutionData && latestExecutionData.executionDuration) || 1;
-            
-            // Limpiar siempre el contenedor de ejecución temporal para eliminar el spinner
-            if (executionContainer) {
-                executionContainer.innerHTML = '';
-            }
-
-            if (cmd === 'clear') {
-                if (window.TabbyTerminal && typeof window.TabbyTerminal.clearActiveTab === 'function') {
-                    window.TabbyTerminal.clearActiveTab();
-                    return '';
-                }
-            }
-            if (cmd === 'workflows') {
-                if (window.TabbyTerminal && typeof window.TabbyTerminal.openProfilesModal === 'function') {
-                    window.TabbyTerminal.openProfilesModal();
-                }
-            }
-            if (window.TabbyTerminal && typeof window.TabbyTerminal.createBlock === 'function') {
-                window.TabbyTerminal.createBlock(cmd, innerHtml, {
-                    duration: dur,
-                    isError: !!isError,
-                    error: errorMsg
-                });
-                window.TabbyTerminal.renderSessionFeed();
-                return '';
-            }
-            if (executionContainer) {
-                executionContainer.innerHTML = innerHtml;
-            }
-            return innerHtml;
-        }
+        function formatTerminalOutput(innerHtml, isError, errorMsg) {
+        return innerHtml;
+    }
 
         function render() {
             if (!hasExecutedCommand || !latestExecutionData) {
@@ -10746,22 +10668,22 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
 
             if (latestExecutionData.isError || latestExecutionData.error) {
                 const errorMsg = latestExecutionData.error || "Your command does not exist....";
-                executionContainer.innerHTML = tabbyWrapOutput('<span style="color: #EF4444; font-weight: 600;">' + errorMsg + '</span>', true, errorMsg);
+                executionContainer.innerHTML = formatTerminalOutput('<span style="color: #EF4444; font-weight: 600;">' + errorMsg + '</span>', true, errorMsg);
                 return;
             }
 
             const dataToDisplay = latestExecutionData.output !== undefined ? latestExecutionData.output : latestExecutionData;
 
             if (!dataToDisplay || dataToDisplay.type === "EMPTY_CELL" || (dataToDisplay.execution === null && dataToDisplay.browserState)) {
-                tabbyWrapOutput('<span style="color:#6B7280;">Comando ejecutado. Celda vaciada.</span>');
+                formatTerminalOutput('<span style="color:#6B7280;">Comando ejecutado. Celda vaciada.</span>');
                 return;
             }
 
             if (dataToDisplay.type === "TRIGGER_UPLOAD") {
                 setTimeout(triggerFileUpload, 40);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
-                        <svg class="tabby-icon-svg" style="fill:#10B981; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        <svg class="warp-icon-svg" style="fill:#10B981; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                         <span><strong>Subida de Archivos:</strong> Explorador abierto para seleccionar y firmar criptográficamente (Dilithium-5).</span>
                     </div>
                 `);
@@ -10769,30 +10691,30 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             }
 
             if (dataToDisplay.type === "TRIGGER_WORKFLOWS") {
-                if (window.TabbyTerminal && typeof window.TabbyTerminal.openProfilesModal === 'function') {
-                    window.TabbyTerminal.openProfilesModal();
+                if (window.WarpTerminal && typeof window.WarpTerminal.openProfilesModal === 'function') {
+                    window.WarpTerminal.openProfilesModal();
                 }
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
-                        <svg class="tabby-icon-svg" style="fill:#3B82F6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
-                        <span><strong>Tabby Profiles:</strong> Panel de flujos de trabajo predefinidos abierto.</span>
+                        <svg class="warp-icon-svg" style="fill:#3B82F6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                        <span><strong>Profiles:</strong> Panel de flujos de trabajo predefinidos abierto.</span>
                     </div>
                 `);
                 return;
             }
 
             if (dataToDisplay.type === "CLEAR_TERMINAL_SESSION") {
-                if (window.TabbyTerminal && typeof window.TabbyTerminal.clearActiveTab === 'function') {
-                    window.TabbyTerminal.clearActiveTab();
+                if (window.WarpTerminal && typeof window.WarpTerminal.clearActiveTab === 'function') {
+                    window.WarpTerminal.clearActiveTab();
                 }
                 return;
             }
 
             if (dataToDisplay.type === "CLEAR_BLACK_TERMINAL") {
                 clearBlackTerminal();
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
-                        <svg class="tabby-icon-svg" style="fill:#6B7280; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        <svg class="warp-icon-svg" style="fill:#6B7280; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                         <span>Terminal negra y visor de archivos limpiados.</span>
                     </div>
                 `);
@@ -10804,39 +10726,39 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 let outHtml = '';
                 if (dataToDisplay.stdout) {
-                    outHtml += `<pre class="tabby-source-pre" style="margin:0; background:transparent; color:inherit; padding:0;">${esc(dataToDisplay.stdout)}</pre>`;
+                    outHtml += `<pre class="warp-source-pre" style="margin:0; background:transparent; color:inherit; padding:0;">${esc(dataToDisplay.stdout)}</pre>`;
                 }
                 if (dataToDisplay.stderr) {
-                    outHtml += `<pre class="tabby-source-pre" style="margin:0; color:#EF4444; background:transparent; padding:0;">${esc(dataToDisplay.stderr)}</pre>`;
+                    outHtml += `<pre class="warp-source-pre" style="margin:0; color:#EF4444; background:transparent; padding:0;">${esc(dataToDisplay.stderr)}</pre>`;
                 }
                 if (!outHtml) {
                     outHtml = '<span style="color:#6B7280;">(Ejecutado sin salida)</span>';
                 }
-                tabbyWrapOutput(outHtml, isError, dataToDisplay.stderr || null);
+                formatTerminalOutput(outHtml, isError, dataToDisplay.stderr || null);
                 return;
             }
 
             if (dataToDisplay && dataToDisplay.type === "TRIGGER_THEMES") {
-                if (window.TabbyTerminal && typeof window.TabbyTerminal.openThemesModal === 'function') {
-                    window.TabbyTerminal.openThemesModal();
+                if (window.WarpTerminal && typeof window.WarpTerminal.openThemesModal === 'function') {
+                    window.WarpTerminal.openThemesModal();
                 }
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
-                        <svg class="tabby-icon-svg" style="fill:#3B82F6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.59 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5 9c-.83 0-1.5-.67-1.5-1.5S6.17 9 7 9s1.5.67 1.5 1.5S7.83 12 7 12zm3-4c-.83 0-1.5-.67-1.5-1.5S9.17 5 10 5s1.5.67 1.5 1.5S10.83 8 10 8zm4 0c-.83 0-1.5-.67-1.5-1.5S13.17 5 14 5s1.5.67 1.5 1.5S14.83 8 14 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.17 9 17 9s1.5.67 1.5 1.5S17.83 12 17 12z"/></svg>
-                        <span><strong>Tabby Themes:</strong> Selector de paletas y estilos visuales abierto.</span>
+                        <svg class="warp-icon-svg" style="fill:#3B82F6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.17 19.59 10.53 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5 9c-.83 0-1.5-.67-1.5-1.5S6.17 9 7 9s1.5.67 1.5 1.5S7.83 12 7 12zm3-4c-.83 0-1.5-.67-1.5-1.5S9.17 5 10 5s1.5.67 1.5 1.5S10.83 8 10 8zm4 0c-.83 0-1.5-.67-1.5-1.5S13.17 5 14 5s1.5.67 1.5 1.5S14.83 8 14 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.17 9 17 9s1.5.67 1.5 1.5S17.83 12 17 12z"/></svg>
+                        <span><strong>Themes:</strong> Selector de paletas y estilos visuales abierto.</span>
                     </div>
                 `);
                 return;
             }
 
             if (dataToDisplay && dataToDisplay.type === "TRIGGER_AI") {
-                if (window.TabbyTerminal && typeof window.TabbyTerminal.openPaletteModal === 'function') {
-                    window.TabbyTerminal.openPaletteModal(dataToDisplay.prompt || '');
+                if (window.WarpTerminal && typeof window.WarpTerminal.openPaletteModal === 'function') {
+                    window.WarpTerminal.openPaletteModal(dataToDisplay.prompt || '');
                 }
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
-                        <svg class="tabby-icon-svg" style="fill:#8B5CF6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
-                        <span><strong>Tabby Palette:</strong> Generador inteligente de comandos abierto.</span>
+                        <svg class="warp-icon-svg" style="fill:#8B5CF6; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                        <span><strong>Palette:</strong> Generador inteligente de comandos abierto.</span>
                     </div>
                 `);
                 return;
@@ -10844,7 +10766,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
 
             if (dataToDisplay && dataToDisplay.type === "STATUS") {
                 const sb = dataToDisplay.supabase || {};
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13px; color:#111827;">Estado del Sistema — Hashcod codespace</strong>
@@ -10865,7 +10787,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/prs-code';
                 markExternalLaunchOnly(dataToDisplay.product || 'PRS Code', url);
                 setTimeout(() => openPrsCode(url), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                         <span><strong>PRS Code:</strong> Lanzado exitosamente en ventana externa.</span>
                         <button type="button" class="btn-upload-vector" onclick="openPrsCode('${url}')">Abrir ventana</button>
@@ -10878,7 +10800,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/macos';
                 markExternalLaunchOnly(dataToDisplay.product || 'macOS inside', url);
                 setTimeout(() => openMacosInside(url), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                         <span><strong>macOS inside:</strong> Lanzado exitosamente en ventana externa.</span>
                         <button type="button" class="btn-upload-vector" onclick="openMacosInside('${url}')">Abrir ventana</button>
@@ -10891,7 +10813,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/chromeos';
                 markExternalLaunchOnly(dataToDisplay.product || 'ChromeOS play', url);
                 setTimeout(() => openChromeosPlay(url), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                         <span><strong>ChromeOS play:</strong> Lanzado exitosamente en ventana externa.</span>
                         <button type="button" class="btn-upload-vector" onclick="openChromeosPlay('${url}')">Abrir ventana</button>
@@ -10904,7 +10826,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/claude';
                 markExternalLaunchOnly(dataToDisplay.product || 'Claude Code', url);
                 setTimeout(() => openClaudeCli(url), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13.5px; color:#111827;">🤖 ${dataToDisplay.product || 'Claude Code'} — Engineering Assistant</strong>
@@ -10921,7 +10843,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/ubuntu';
                 markExternalLaunchOnly(dataToDisplay.product || 'Ubuntu Linux Terminal', url);
                 setTimeout(() => openUbuntuCli(url), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13.5px; color:#111827;">🐧 ${dataToDisplay.product || 'Ubuntu Terminal'}</strong>
@@ -10938,7 +10860,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/zylon';
                 markExternalLaunchOnly(dataToDisplay.product || 'Zylon PrivateGPT', url);
                 setTimeout(() => openZylonCli(), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13.5px; color:#111827;">🧠 ${dataToDisplay.product || 'Zylon PrivateGPT'}</strong>
@@ -10955,7 +10877,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/libreoffice';
                 markExternalLaunchOnly(dataToDisplay.product || 'LibreOffice Suite', url);
                 setTimeout(() => openLibreoffice(url), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13.5px; color:#111827;">📄 ${dataToDisplay.product || 'LibreOffice Suite'}</strong>
@@ -10972,7 +10894,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/tiptap';
                 markExternalLaunchOnly(dataToDisplay.product || 'TipTap Editor', url);
                 setTimeout(() => openTiptap(url), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13.5px; color:#111827;">📝 ${dataToDisplay.product || 'TipTap Editor'} — Word-like Document Sheet</strong>
@@ -10986,7 +10908,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             }
 
             if (dataToDisplay && dataToDisplay.type === "STREAMLIT_LAUNCH") {
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13.5px; color:#111827;">⚡ ${dataToDisplay.product || 'Streamlit Python Apps'}</strong>
@@ -11000,7 +10922,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             }
 
             if (dataToDisplay && dataToDisplay.type === "TOOLKIT_LAUNCH") {
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13.5px; color:#111827;">🛠️ ${dataToDisplay.product || 'Toolkit PDF Inspector'}</strong>
@@ -11014,7 +10936,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             }
 
             if (dataToDisplay && dataToDisplay.type === "OPENCRYPT_LAUNCH") {
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
                             <strong style="font-size:13.5px; color:#111827;">🔐 ${dataToDisplay.product || 'OpenCryptG Ledger'}</strong>
@@ -11042,7 +10964,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         </div>
                     `;
                 });
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div class="ssh-card-container">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
                             <strong style="font-size:13.5px; color:#0f172a;">👥 ${dataToDisplay.product || '50+ Engineering AI Agents'}</strong>
@@ -11059,9 +10981,9 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
 
             if (dataToDisplay && dataToDisplay.type === "TRIGGER_HASHCOD_KEYS") {
                 toggleHashcodKeys(true);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
-                        <svg class="tabby-icon-svg" style="fill:#F59E0B; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        <svg class="warp-icon-svg" style="fill:#F59E0B; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
                         <span><strong>Hashcod Keys Vault:</strong> Administrador de claves API cifradas con AES-256-GCM abierto.</span>
                     </div>
                 `);
@@ -11070,9 +10992,9 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
 
             if (dataToDisplay && dataToDisplay.type === "TRIGGER_TOKENS_PANEL") {
                 toggleTokensPanel();
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
-                        <svg class="tabby-icon-svg" style="fill:#10B981; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18h-2v-1.07A4 4 0 0 1 8 13h2a2 2 0 0 0 2 2 2 2 0 0 0 2-2c0-1.1-.9-2-2-2a4 4 0 0 1-4-4 4 4 0 0 1 3-3.93V4h2v1.07A4 4 0 0 1 16 9h-2a2 2 0 0 0-2-2 2 2 0 0 0-2 2c0 1.1.9 2 2 2a4 4 0 0 1 4 4 4 4 0 0 1-3 3.93z"/></svg>
+                        <svg class="warp-icon-svg" style="fill:#10B981; width:16px; height:16px;" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18h-2v-1.07A4 4 0 0 1 8 13h2a2 2 0 0 0 2 2 2 2 0 0 0 2-2c0-1.1-.9-2-2-2a4 4 0 0 1-4-4 4 4 0 0 1 3-3.93V4h2v1.07A4 4 0 0 1 16 9h-2a2 2 0 0 0-2-2 2 2 0 0 0-2 2c0 1.1.9 2 2 2a4 4 0 0 1 4 4 4 4 0 0 1-3 3.93z"/></svg>
                         <span><strong>Cupo de Tokens:</strong> Panel mensual y ledger de transacciones abierto.</span>
                     </div>
                 `);
@@ -11083,7 +11005,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 const url = dataToDisplay.open_url || '/gateway';
                 markExternalLaunchOnly('PQC Gateway', url);
                 setTimeout(() => openGatewayPortal(url), 80);
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                         <span><strong>Gateway PQC Crescent:</strong> Portal de intercambio post-cuántico abierto.</span>
                         <button type="button" class="btn-upload-vector" onclick="openGatewayPortal('${url}')">Abrir Gateway</button>
@@ -11096,9 +11018,9 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 if (window.DurableObjects && typeof window.DurableObjects.openInspectorModal === 'function') {
                     window.DurableObjects.openInspectorModal();
                 }
-                tabbyWrapOutput(`
+                formatTerminalOutput(`
                     <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
-                        <svg class="tabby-icon-svg" style="fill:#0284c7; width:16px; height:16px;" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                        <svg class="warp-icon-svg" style="fill:#0284c7; width:16px; height:16px;" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
                         <span><strong>Durable Objects Actor Model:</strong> Inspector interactivo y estado persistente abierto.</span>
                     </div>
                 `);
@@ -11261,7 +11183,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         </div>
                     </div>
                 `;
-                executionContainer.innerHTML = tabbyWrapOutput(reposHtml);
+                executionContainer.innerHTML = formatTerminalOutput(reposHtml);
                 return;
             }
 
@@ -11296,7 +11218,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         </div>
                     </div>
                 `;
-                executionContainer.innerHTML = tabbyWrapOutput(supabaseHtml);
+                executionContainer.innerHTML = formatTerminalOutput(supabaseHtml);
                 return;
             }
 
@@ -11334,7 +11256,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         </div>
                     </div>
                 `;
-                executionContainer.innerHTML = tabbyWrapOutput(sshHtml);
+                executionContainer.innerHTML = formatTerminalOutput(sshHtml);
                 return;
             }
 
@@ -11437,7 +11359,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         </div>
                     </div>
                 `;
-                executionContainer.innerHTML = tabbyWrapOutput(catalogHtml);
+                executionContainer.innerHTML = formatTerminalOutput(catalogHtml);
                 return;
             }
 
@@ -11449,16 +11371,16 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         `<span class="vertical-cmd-desc">${r.description}</span>` +
                     `</div>`
                 ).join('');
-                executionContainer.innerHTML = tabbyWrapOutput(`<div class="vertical-cmd-table">${htmlRows}</div>`);
+                executionContainer.innerHTML = formatTerminalOutput(`<div class="vertical-cmd-table">${htmlRows}</div>`);
                 return;
             }
 
             if (formatToggle.checked) {
                 document.body.classList.remove('raw-mode');
-                executionContainer.innerHTML = tabbyWrapOutput(syntaxHighlight(dataToDisplay));
+                executionContainer.innerHTML = formatTerminalOutput(syntaxHighlight(dataToDisplay));
             } else {
                 document.body.classList.add('raw-mode');
-                executionContainer.innerHTML = tabbyWrapOutput(`<pre style="margin:0; font-family:inherit; white-space:pre-wrap;">${JSON.stringify(dataToDisplay, null, 2)}</pre>`);
+                executionContainer.innerHTML = formatTerminalOutput(`<pre style="margin:0; font-family:inherit; white-space:pre-wrap;">${JSON.stringify(dataToDisplay, null, 2)}</pre>`);
             }
         }
 
@@ -13545,22 +13467,22 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             try {
                 hasExecutedCommand = true;
                 lastCommandText = cmd;
-                if (window.TabbyTerminal && typeof window.TabbyTerminal.startRunningEntry === 'function') {
-                    window.TabbyTerminal.startRunningEntry(cmd);
+                if (window.WarpTerminal && typeof window.WarpTerminal.startRunningEntry === 'function') {
+                    window.WarpTerminal.startRunningEntry(cmd);
                 } else if (executionContainer) {
                     const escCmd = String(cmd).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                     executionContainer.innerHTML = `
-                        <div class="tabby-block status-running" style="width:100%;">
-                            <div class="tabby-block-header">
-                                <div class="tabby-block-header-left">
-                                    <span class="tabby-prompt-pill">&gt;=</span>
-                                    <span class="tabby-cmd-text">${escCmd}</span>
+                        <div class="warp-block status-running" style="width:100%;">
+                            <div class="warp-block-header">
+                                <div class="warp-block-header-left">
+                                    <span class="warp-prompt-pill">&gt;=</span>
+                                    <span class="warp-cmd-text">${escCmd}</span>
                                 </div>
-                                <div class="tabby-block-header-right">
-                                    <span class="tabby-meta-pill">⚡ ejecutando…</span>
+                                <div class="warp-block-header-right">
+                                    <span class="warp-meta-pill">⚡ ejecutando…</span>
                                 </div>
                             </div>
-                            <div class="tabby-block-body" style="display:flex; align-items:center; gap:8px; color:#4B5563; font-family:'Geist Mono', monospace; font-size:12px;">
+                            <div class="warp-block-body" style="display:flex; align-items:center; gap:8px; color:#4B5563; font-family:'Geist Mono', monospace; font-size:12px;">
                                 <svg style="animation: spin 0.7s linear infinite; width:15px; height:15px; fill:#111827; flex-shrink:0;" viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8C6.25 13.93 6 12.99 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.45.87.7 1.81.7 2.8c0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
                                 <span>Procesando comando…</span>
                             </div>
@@ -13766,8 +13688,8 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
         }
         window.triggerPromptCommand = triggerPromptCommand;
 
-        function updateTabbyPromptClock() {
-            const el = document.getElementById('tabbyLiveClock');
+        function updateWarpPromptClock() {
+            const el = document.getElementById('warpLiveClock');
             if (el) {
                 const now = new Date();
                 const pad = (n) => String(n).padStart(2, '0');
@@ -13775,8 +13697,8 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             }
         }
         // Iniciar reloj inmediatamente
-        updateTabbyPromptClock();
-        setInterval(updateTabbyPromptClock, 1000);
+        updateWarpPromptClock();
+        setInterval(updateWarpPromptClock, 1000);
 
         function initApp() {
             const inputCmd = document.getElementById('cmdInput');
@@ -13863,7 +13785,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 editorEq.addEventListener('focus', () => { activeInputTarget = editorEq; });
                 editorEq.addEventListener('click', () => { activeInputTarget = editorEq; });
             }
-            updateTabbyPromptClock();
+            updateWarpPromptClock();
         }
 
         if (document.readyState === 'loading') {
@@ -18290,8 +18212,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
         })();
     </script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
-    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/tabby-terminal.js?v=2026.2"></script>
-    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/durable-objects.js?v=2026.1"></script>
+<script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/durable-objects.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.js?v=2026.1"></script>
 </body>
 </html>

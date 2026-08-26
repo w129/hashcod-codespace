@@ -9614,6 +9614,855 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 </div>
             </div>
         </div>
+
+        <!-- Panel Toolbox 2 (Vacía) -->
+        <div class="toolbox-panel" id="toolboxPanel2">
+            <!-- abstract-bg -->
+            <div class="toolbox-abstract-bg">
+                <!-- Rotated Lines -->
+                <div class="tb-line" style="width: 360.56px; left: 0px; top: 0px; transform: rotate(-33.69deg);"></div>
+                <div class="tb-line" style="width: 456.07px; left: 600px; top: 0px; transform: rotate(37.87deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 0px; top: 500px; transform: rotate(35.37deg);"></div>
+                <div class="tb-line" style="width: 318.52px; left: 700px; top: 600px; transform: rotate(-35.29deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 100px; top: 500px; transform: rotate(-35.37deg);"></div>
+                <div class="tb-line" style="width: 188.68px; left: 800px; top: 0px; transform: rotate(32.01deg);"></div>
+                <div class="tb-line" style="width: 223.61px; left: 0px; top: 250px; transform: rotate(-26.57deg);"></div>
+                <div class="tb-line" style="width: 232.59px; left: 750px; top: 400px; transform: rotate(25.46deg);"></div>
+
+                <!-- Ellipses / Nodes -->
+                <div class="tb-ellipse" style="width: 9.07px; height: 9.07px; left: 75.47px; top: 35.47px;"></div>
+                <div class="tb-ellipse" style="width: 11.54px; height: 11.54px; left: 244.23px; top: 74.23px;"></div>
+                <div class="tb-ellipse" style="width: 9.46px; height: 9.46px; left: 495.27px; top: 25.27px;"></div>
+                <div class="tb-ellipse" style="width: 12.79px; height: 12.79px; left: 743.61px; top: 53.61px;"></div>
+                <div class="tb-ellipse" style="width: 10.49px; height: 10.49px; left: 894.76px; top: 114.76px;"></div>
+                <div class="tb-ellipse" style="width: 9.83px; height: 9.83px; left: 55.09px; top: 295.09px;"></div>
+                <div class="tb-ellipse" style="width: 13.4px; height: 13.4px; left: 343.3px; top: 243.3px;"></div>
+                <div class="tb-ellipse" style="width: 9.58px; height: 9.58px; left: 615.21px; top: 345.21px;"></div>
+                <div class="tb-ellipse" style="width: 7.66px; height: 7.66px; left: 876.17px; top: 276.17px;"></div>
+                <div class="tb-ellipse" style="width: 7.48px; height: 7.48px; left: 116.26px; top: 546.26px;"></div>
+                <div class="tb-ellipse" style="width: 11.14px; height: 11.14px; left: 294.43px; top: 594.43px;"></div>
+                <div class="tb-ellipse" style="width: 12.2px; height: 12.2px; left: 543.9px; top: 693.9px;"></div>
+                <div class="tb-ellipse" style="width: 13.59px; height: 13.59px; left: 793.21px; top: 643.21px;"></div>
+                <div class="tb-ellipse" style="width: 11.58px; height: 11.58px; left: 914.21px; top: 494.21px;"></div>
+                <div class="tb-ellipse" style="width: 12.21px; height: 12.21px; left: 33.89px; top: 693.89px;"></div>
+                <div class="tb-ellipse" style="width: 10.7px; height: 10.7px; left: 444.65px; top: 444.65px;"></div>
+                <div class="tb-ellipse" style="width: 8px; height: 8px; left: 696px; top: 146px;"></div>
+                <div class="tb-ellipse" style="width: 7.04px; height: 7.04px; left: 176.48px; top: 146.48px;"></div>
+                <div class="tb-ellipse" style="width: 7.15px; height: 7.15px; left: 646.42px; top: 546.42px;"></div>
+                <div class="tb-ellipse" style="width: 8.12px; height: 8.12px; left: 395.94px; top: 95.94px;"></div>
+                <div class="tb-ellipse" style="width: 8.7px; height: 8.7px; left: 825.65px; top: 395.65px;"></div>
+                <div class="tb-ellipse" style="width: 12px; height: 12px; left: 144px; top: 444px;"></div>
+                <div class="tb-ellipse" style="width: 13.32px; height: 13.32px; left: 543.34px; top: 193.34px;"></div>
+                <div class="tb-ellipse" style="width: 13.59px; height: 13.59px; left: 313.21px; top: 713.21px;"></div>
+
+                <!-- Perpendicular Crosses -->
+                <div class="tb-cross-h" style="width: 19px; left: 140.5px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 19px; left: 150px; top: 90.5px;"></div>
+                <div class="tb-cross-h" style="width: 20.76px; left: 389.62px; top: 300px;"></div>
+                <div class="tb-cross-v" style="width: 20.76px; left: 400px; top: 289.62px;"></div>
+                <div class="tb-cross-h" style="width: 12.59px; left: 693.7px; top: 500px;"></div>
+                <div class="tb-cross-v" style="width: 12.59px; left: 700px; top: 493.7px;"></div>
+                <div class="tb-cross-h" style="width: 13.15px; left: 843.43px; top: 180px;"></div>
+                <div class="tb-cross-v" style="width: 13.15px; left: 850px; top: 173.43px;"></div>
+                <div class="tb-cross-h" style="width: 14.94px; left: 42.53px; top: 600px;"></div>
+                <div class="tb-cross-v" style="width: 14.94px; left: 50px; top: 592.53px;"></div>
+                <div class="tb-cross-h" style="width: 19.57px; left: 490.21px; top: 650px;"></div>
+                <div class="tb-cross-v" style="width: 19.57px; left: 500px; top: 640.22px;"></div>
+                <div class="tb-cross-h" style="width: 19.88px; left: 290.06px; top: 400px;"></div>
+                <div class="tb-cross-v" style="width: 19.88px; left: 300px; top: 390.06px;"></div>
+                <div class="tb-cross-h" style="width: 14.47px; left: 892.77px; top: 700px;"></div>
+                <div class="tb-cross-v" style="width: 14.47px; left: 900px; top: 692.77px;"></div>
+                <div class="tb-cross-h" style="width: 16.34px; left: 211.83px; top: 700px;"></div>
+                <div class="tb-cross-v" style="width: 16.34px; left: 220px; top: 691.83px;"></div>
+                <div class="tb-cross-h" style="width: 18.79px; left: 590.61px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 18.79px; left: 600px; top: 90.61px;"></div>
+                <div class="tb-cross-h" style="width: 15.41px; left: 772.3px; top: 350px;"></div>
+                <div class="tb-cross-v" style="width: 15.41px; left: 780px; top: 342.3px;"></div>
+
+                <!-- Diamond Rectangles -->
+                <div class="tb-rect" style="width: 14.89px; height: 14.89px; left: 192.56px; top: 182.03px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 10.44px; height: 10.44px; left: 594.78px; top: 437.4px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 17.72px; height: 17.72px; left: 91.14px; top: 428.61px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 11.88px; height: 11.88px; left: 794.06px; top: 85.66px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 15.06px; height: 15.06px; left: 442.47px; top: 531.83px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 14.18px; height: 14.18px; left: 692.91px; top: 682.89px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 13.68px; height: 13.68px; left: 343.16px; top: 33.49px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 16.15px; height: 16.15px; left: 891.92px; top: 380.51px; transform: rotate(-45deg);"></div>
+
+                <!-- Orbital Large Circles -->
+                <div class="tb-ellipse" style="width: 240px; height: 240px; left: -120px; top: -120px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 300px; height: 300px; left: 810px; top: 634px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 160px; height: 160px; left: 420px; top: 320px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 200px; height: 200px; left: 100px; top: 500px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 180px; height: 180px; left: 710px; top: 110px; opacity: 0.6;"></div>
+            </div>
+
+            <!-- top-decorations -->
+            <div class="tb-top-decorations">
+                <div class="tb-bracket-corner top-left">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+                <div class="tb-bracket-corner top-right">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+            </div>
+
+            <!-- bottom-decorations -->
+            <div class="tb-bottom-decorations">
+                <div class="tb-bracket-corner bottom-left">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+                <div class="tb-bracket-corner bottom-right">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+            </div>
+
+            <!-- grid-container (4x4 Matrix) -->
+            <div class="tb-grid-container">
+                <!-- grid-row-1 -->
+                <div class="tb-grid-row">
+                    <!-- slot-2-1-1 -->
+                    <div class="tb-slot" id="slot-t2-1-1" data-slot="t2-1-1" title="Slot 1-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-1-2 -->
+                    <div class="tb-slot" id="slot-t2-1-2" data-slot="t2-1-2" title="Slot 1-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-1-3 -->
+                    <div class="tb-slot" id="slot-t2-1-3" data-slot="t2-1-3" title="Slot 1-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-1-4 -->
+                    <div class="tb-slot" id="slot-t2-1-4" data-slot="t2-1-4" title="Slot 1-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-2 -->
+                <div class="tb-grid-row">
+                    <!-- slot-2-2-1 -->
+                    <div class="tb-slot" id="slot-t2-2-1" data-slot="t2-2-1" title="Slot 2-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-2-2 -->
+                    <div class="tb-slot" id="slot-t2-2-2" data-slot="t2-2-2" title="Slot 2-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-2-3 -->
+                    <div class="tb-slot" id="slot-t2-2-3" data-slot="t2-2-3" title="Slot 2-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-2-4 -->
+                    <div class="tb-slot" id="slot-t2-2-4" data-slot="t2-2-4" title="Slot 2-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-3 -->
+                <div class="tb-grid-row">
+                    <!-- slot-2-3-1 -->
+                    <div class="tb-slot" id="slot-t2-3-1" data-slot="t2-3-1" title="Slot 3-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-3-2 -->
+                    <div class="tb-slot" id="slot-t2-3-2" data-slot="t2-3-2" title="Slot 3-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-3-3 -->
+                    <div class="tb-slot" id="slot-t2-3-3" data-slot="t2-3-3" title="Slot 3-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-3-4 -->
+                    <div class="tb-slot" id="slot-t2-3-4" data-slot="t2-3-4" title="Slot 3-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-4 -->
+                <div class="tb-grid-row">
+                    <!-- slot-2-4-1 -->
+                    <div class="tb-slot" id="slot-t2-4-1" data-slot="t2-4-1" title="Slot 4-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-4-2 -->
+                    <div class="tb-slot" id="slot-t2-4-2" data-slot="t2-4-2" title="Slot 4-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-4-3 -->
+                    <div class="tb-slot" id="slot-t2-4-3" data-slot="t2-4-3" title="Slot 4-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-2-4-4 -->
+                    <div class="tb-slot" id="slot-t2-4-4" data-slot="t2-4-4" title="Slot 4-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Toolbox 3 (Vacía) -->
+        <div class="toolbox-panel" id="toolboxPanel3">
+            <!-- abstract-bg -->
+            <div class="toolbox-abstract-bg">
+                <!-- Rotated Lines -->
+                <div class="tb-line" style="width: 360.56px; left: 0px; top: 0px; transform: rotate(-33.69deg);"></div>
+                <div class="tb-line" style="width: 456.07px; left: 600px; top: 0px; transform: rotate(37.87deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 0px; top: 500px; transform: rotate(35.37deg);"></div>
+                <div class="tb-line" style="width: 318.52px; left: 700px; top: 600px; transform: rotate(-35.29deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 100px; top: 500px; transform: rotate(-35.37deg);"></div>
+                <div class="tb-line" style="width: 188.68px; left: 800px; top: 0px; transform: rotate(32.01deg);"></div>
+                <div class="tb-line" style="width: 223.61px; left: 0px; top: 250px; transform: rotate(-26.57deg);"></div>
+                <div class="tb-line" style="width: 232.59px; left: 750px; top: 400px; transform: rotate(25.46deg);"></div>
+
+                <!-- Ellipses / Nodes -->
+                <div class="tb-ellipse" style="width: 9.07px; height: 9.07px; left: 75.47px; top: 35.47px;"></div>
+                <div class="tb-ellipse" style="width: 11.54px; height: 11.54px; left: 244.23px; top: 74.23px;"></div>
+                <div class="tb-ellipse" style="width: 9.46px; height: 9.46px; left: 495.27px; top: 25.27px;"></div>
+                <div class="tb-ellipse" style="width: 12.79px; height: 12.79px; left: 743.61px; top: 53.61px;"></div>
+                <div class="tb-ellipse" style="width: 10.49px; height: 10.49px; left: 894.76px; top: 114.76px;"></div>
+                <div class="tb-ellipse" style="width: 9.83px; height: 9.83px; left: 55.09px; top: 295.09px;"></div>
+                <div class="tb-ellipse" style="width: 13.4px; height: 13.4px; left: 343.3px; top: 243.3px;"></div>
+                <div class="tb-ellipse" style="width: 9.58px; height: 9.58px; left: 615.21px; top: 345.21px;"></div>
+                <div class="tb-ellipse" style="width: 7.66px; height: 7.66px; left: 876.17px; top: 276.17px;"></div>
+                <div class="tb-ellipse" style="width: 7.48px; height: 7.48px; left: 116.26px; top: 546.26px;"></div>
+                <div class="tb-ellipse" style="width: 11.14px; height: 11.14px; left: 294.43px; top: 594.43px;"></div>
+                <div class="tb-ellipse" style="width: 12.2px; height: 12.2px; left: 543.9px; top: 693.9px;"></div>
+                <div class="tb-ellipse" style="width: 13.59px; height: 13.59px; left: 793.21px; top: 643.21px;"></div>
+                <div class="tb-ellipse" style="width: 11.58px; height: 11.58px; left: 914.21px; top: 494.21px;"></div>
+                <div class="tb-ellipse" style="width: 12.21px; height: 12.21px; left: 33.89px; top: 693.89px;"></div>
+                <div class="tb-ellipse" style="width: 10.7px; height: 10.7px; left: 444.65px; top: 444.65px;"></div>
+                <div class="tb-ellipse" style="width: 8px; height: 8px; left: 696px; top: 146px;"></div>
+                <div class="tb-ellipse" style="width: 7.04px; height: 7.04px; left: 176.48px; top: 146.48px;"></div>
+                <div class="tb-ellipse" style="width: 7.15px; height: 7.15px; left: 646.42px; top: 546.42px;"></div>
+                <div class="tb-ellipse" style="width: 8.12px; height: 8.12px; left: 395.94px; top: 95.94px;"></div>
+                <div class="tb-ellipse" style="width: 8.7px; height: 8.7px; left: 825.65px; top: 395.65px;"></div>
+                <div class="tb-ellipse" style="width: 12px; height: 12px; left: 144px; top: 444px;"></div>
+                <div class="tb-ellipse" style="width: 13.32px; height: 13.32px; left: 543.34px; top: 193.34px;"></div>
+                <div class="tb-ellipse" style="width: 13.59px; height: 13.59px; left: 313.21px; top: 713.21px;"></div>
+
+                <!-- Perpendicular Crosses -->
+                <div class="tb-cross-h" style="width: 19px; left: 140.5px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 19px; left: 150px; top: 90.5px;"></div>
+                <div class="tb-cross-h" style="width: 20.76px; left: 389.62px; top: 300px;"></div>
+                <div class="tb-cross-v" style="width: 20.76px; left: 400px; top: 289.62px;"></div>
+                <div class="tb-cross-h" style="width: 12.59px; left: 693.7px; top: 500px;"></div>
+                <div class="tb-cross-v" style="width: 12.59px; left: 700px; top: 493.7px;"></div>
+                <div class="tb-cross-h" style="width: 13.15px; left: 843.43px; top: 180px;"></div>
+                <div class="tb-cross-v" style="width: 13.15px; left: 850px; top: 173.43px;"></div>
+                <div class="tb-cross-h" style="width: 14.94px; left: 42.53px; top: 600px;"></div>
+                <div class="tb-cross-v" style="width: 14.94px; left: 50px; top: 592.53px;"></div>
+                <div class="tb-cross-h" style="width: 19.57px; left: 490.21px; top: 650px;"></div>
+                <div class="tb-cross-v" style="width: 19.57px; left: 500px; top: 640.22px;"></div>
+                <div class="tb-cross-h" style="width: 19.88px; left: 290.06px; top: 400px;"></div>
+                <div class="tb-cross-v" style="width: 19.88px; left: 300px; top: 390.06px;"></div>
+                <div class="tb-cross-h" style="width: 14.47px; left: 892.77px; top: 700px;"></div>
+                <div class="tb-cross-v" style="width: 14.47px; left: 900px; top: 692.77px;"></div>
+                <div class="tb-cross-h" style="width: 16.34px; left: 211.83px; top: 700px;"></div>
+                <div class="tb-cross-v" style="width: 16.34px; left: 220px; top: 691.83px;"></div>
+                <div class="tb-cross-h" style="width: 18.79px; left: 590.61px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 18.79px; left: 600px; top: 90.61px;"></div>
+                <div class="tb-cross-h" style="width: 15.41px; left: 772.3px; top: 350px;"></div>
+                <div class="tb-cross-v" style="width: 15.41px; left: 780px; top: 342.3px;"></div>
+
+                <!-- Diamond Rectangles -->
+                <div class="tb-rect" style="width: 14.89px; height: 14.89px; left: 192.56px; top: 182.03px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 10.44px; height: 10.44px; left: 594.78px; top: 437.4px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 17.72px; height: 17.72px; left: 91.14px; top: 428.61px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 11.88px; height: 11.88px; left: 794.06px; top: 85.66px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 15.06px; height: 15.06px; left: 442.47px; top: 531.83px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 14.18px; height: 14.18px; left: 692.91px; top: 682.89px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 13.68px; height: 13.68px; left: 343.16px; top: 33.49px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 16.15px; height: 16.15px; left: 891.92px; top: 380.51px; transform: rotate(-45deg);"></div>
+
+                <!-- Orbital Large Circles -->
+                <div class="tb-ellipse" style="width: 240px; height: 240px; left: -120px; top: -120px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 300px; height: 300px; left: 810px; top: 634px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 160px; height: 160px; left: 420px; top: 320px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 200px; height: 200px; left: 100px; top: 500px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 180px; height: 180px; left: 710px; top: 110px; opacity: 0.6;"></div>
+            </div>
+
+            <!-- top-decorations -->
+            <div class="tb-top-decorations">
+                <div class="tb-bracket-corner top-left">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+                <div class="tb-bracket-corner top-right">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+            </div>
+
+            <!-- bottom-decorations -->
+            <div class="tb-bottom-decorations">
+                <div class="tb-bracket-corner bottom-left">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+                <div class="tb-bracket-corner bottom-right">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+            </div>
+
+            <!-- grid-container (4x4 Matrix) -->
+            <div class="tb-grid-container">
+                <!-- grid-row-1 -->
+                <div class="tb-grid-row">
+                    <!-- slot-3-1-1 -->
+                    <div class="tb-slot" id="slot-t3-1-1" data-slot="t3-1-1" title="Slot 1-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-1-2 -->
+                    <div class="tb-slot" id="slot-t3-1-2" data-slot="t3-1-2" title="Slot 1-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-1-3 -->
+                    <div class="tb-slot" id="slot-t3-1-3" data-slot="t3-1-3" title="Slot 1-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-1-4 -->
+                    <div class="tb-slot" id="slot-t3-1-4" data-slot="t3-1-4" title="Slot 1-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-2 -->
+                <div class="tb-grid-row">
+                    <!-- slot-3-2-1 -->
+                    <div class="tb-slot" id="slot-t3-2-1" data-slot="t3-2-1" title="Slot 2-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-2-2 -->
+                    <div class="tb-slot" id="slot-t3-2-2" data-slot="t3-2-2" title="Slot 2-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-2-3 -->
+                    <div class="tb-slot" id="slot-t3-2-3" data-slot="t3-2-3" title="Slot 2-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-2-4 -->
+                    <div class="tb-slot" id="slot-t3-2-4" data-slot="t3-2-4" title="Slot 2-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-3 -->
+                <div class="tb-grid-row">
+                    <!-- slot-3-3-1 -->
+                    <div class="tb-slot" id="slot-t3-3-1" data-slot="t3-3-1" title="Slot 3-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-3-2 -->
+                    <div class="tb-slot" id="slot-t3-3-2" data-slot="t3-3-2" title="Slot 3-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-3-3 -->
+                    <div class="tb-slot" id="slot-t3-3-3" data-slot="t3-3-3" title="Slot 3-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-3-4 -->
+                    <div class="tb-slot" id="slot-t3-3-4" data-slot="t3-3-4" title="Slot 3-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-4 -->
+                <div class="tb-grid-row">
+                    <!-- slot-3-4-1 -->
+                    <div class="tb-slot" id="slot-t3-4-1" data-slot="t3-4-1" title="Slot 4-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-4-2 -->
+                    <div class="tb-slot" id="slot-t3-4-2" data-slot="t3-4-2" title="Slot 4-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-4-3 -->
+                    <div class="tb-slot" id="slot-t3-4-3" data-slot="t3-4-3" title="Slot 4-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-3-4-4 -->
+                    <div class="tb-slot" id="slot-t3-4-4" data-slot="t3-4-4" title="Slot 4-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Toolbox 4 (Vacía) -->
+        <div class="toolbox-panel" id="toolboxPanel4">
+            <!-- abstract-bg -->
+            <div class="toolbox-abstract-bg">
+                <!-- Rotated Lines -->
+                <div class="tb-line" style="width: 360.56px; left: 0px; top: 0px; transform: rotate(-33.69deg);"></div>
+                <div class="tb-line" style="width: 456.07px; left: 600px; top: 0px; transform: rotate(37.87deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 0px; top: 500px; transform: rotate(35.37deg);"></div>
+                <div class="tb-line" style="width: 318.52px; left: 700px; top: 600px; transform: rotate(-35.29deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 100px; top: 500px; transform: rotate(-35.37deg);"></div>
+                <div class="tb-line" style="width: 188.68px; left: 800px; top: 0px; transform: rotate(32.01deg);"></div>
+                <div class="tb-line" style="width: 223.61px; left: 0px; top: 250px; transform: rotate(-26.57deg);"></div>
+                <div class="tb-line" style="width: 232.59px; left: 750px; top: 400px; transform: rotate(25.46deg);"></div>
+
+                <!-- Ellipses / Nodes -->
+                <div class="tb-ellipse" style="width: 9.07px; height: 9.07px; left: 75.47px; top: 35.47px;"></div>
+                <div class="tb-ellipse" style="width: 11.54px; height: 11.54px; left: 244.23px; top: 74.23px;"></div>
+                <div class="tb-ellipse" style="width: 9.46px; height: 9.46px; left: 495.27px; top: 25.27px;"></div>
+                <div class="tb-ellipse" style="width: 12.79px; height: 12.79px; left: 743.61px; top: 53.61px;"></div>
+                <div class="tb-ellipse" style="width: 10.49px; height: 10.49px; left: 894.76px; top: 114.76px;"></div>
+                <div class="tb-ellipse" style="width: 9.83px; height: 9.83px; left: 55.09px; top: 295.09px;"></div>
+                <div class="tb-ellipse" style="width: 13.4px; height: 13.4px; left: 343.3px; top: 243.3px;"></div>
+                <div class="tb-ellipse" style="width: 9.58px; height: 9.58px; left: 615.21px; top: 345.21px;"></div>
+                <div class="tb-ellipse" style="width: 7.66px; height: 7.66px; left: 876.17px; top: 276.17px;"></div>
+                <div class="tb-ellipse" style="width: 7.48px; height: 7.48px; left: 116.26px; top: 546.26px;"></div>
+                <div class="tb-ellipse" style="width: 11.14px; height: 11.14px; left: 294.43px; top: 594.43px;"></div>
+                <div class="tb-ellipse" style="width: 12.2px; height: 12.2px; left: 543.9px; top: 693.9px;"></div>
+                <div class="tb-ellipse" style="width: 13.59px; height: 13.59px; left: 793.21px; top: 643.21px;"></div>
+                <div class="tb-ellipse" style="width: 11.58px; height: 11.58px; left: 914.21px; top: 494.21px;"></div>
+                <div class="tb-ellipse" style="width: 12.21px; height: 12.21px; left: 33.89px; top: 693.89px;"></div>
+                <div class="tb-ellipse" style="width: 10.7px; height: 10.7px; left: 444.65px; top: 444.65px;"></div>
+                <div class="tb-ellipse" style="width: 8px; height: 8px; left: 696px; top: 146px;"></div>
+                <div class="tb-ellipse" style="width: 7.04px; height: 7.04px; left: 176.48px; top: 146.48px;"></div>
+                <div class="tb-ellipse" style="width: 7.15px; height: 7.15px; left: 646.42px; top: 546.42px;"></div>
+                <div class="tb-ellipse" style="width: 8.12px; height: 8.12px; left: 395.94px; top: 95.94px;"></div>
+                <div class="tb-ellipse" style="width: 8.7px; height: 8.7px; left: 825.65px; top: 395.65px;"></div>
+                <div class="tb-ellipse" style="width: 12px; height: 12px; left: 144px; top: 444px;"></div>
+                <div class="tb-ellipse" style="width: 13.32px; height: 13.32px; left: 543.34px; top: 193.34px;"></div>
+                <div class="tb-ellipse" style="width: 13.59px; height: 13.59px; left: 313.21px; top: 713.21px;"></div>
+
+                <!-- Perpendicular Crosses -->
+                <div class="tb-cross-h" style="width: 19px; left: 140.5px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 19px; left: 150px; top: 90.5px;"></div>
+                <div class="tb-cross-h" style="width: 20.76px; left: 389.62px; top: 300px;"></div>
+                <div class="tb-cross-v" style="width: 20.76px; left: 400px; top: 289.62px;"></div>
+                <div class="tb-cross-h" style="width: 12.59px; left: 693.7px; top: 500px;"></div>
+                <div class="tb-cross-v" style="width: 12.59px; left: 700px; top: 493.7px;"></div>
+                <div class="tb-cross-h" style="width: 13.15px; left: 843.43px; top: 180px;"></div>
+                <div class="tb-cross-v" style="width: 13.15px; left: 850px; top: 173.43px;"></div>
+                <div class="tb-cross-h" style="width: 14.94px; left: 42.53px; top: 600px;"></div>
+                <div class="tb-cross-v" style="width: 14.94px; left: 50px; top: 592.53px;"></div>
+                <div class="tb-cross-h" style="width: 19.57px; left: 490.21px; top: 650px;"></div>
+                <div class="tb-cross-v" style="width: 19.57px; left: 500px; top: 640.22px;"></div>
+                <div class="tb-cross-h" style="width: 19.88px; left: 290.06px; top: 400px;"></div>
+                <div class="tb-cross-v" style="width: 19.88px; left: 300px; top: 390.06px;"></div>
+                <div class="tb-cross-h" style="width: 14.47px; left: 892.77px; top: 700px;"></div>
+                <div class="tb-cross-v" style="width: 14.47px; left: 900px; top: 692.77px;"></div>
+                <div class="tb-cross-h" style="width: 16.34px; left: 211.83px; top: 700px;"></div>
+                <div class="tb-cross-v" style="width: 16.34px; left: 220px; top: 691.83px;"></div>
+                <div class="tb-cross-h" style="width: 18.79px; left: 590.61px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 18.79px; left: 600px; top: 90.61px;"></div>
+                <div class="tb-cross-h" style="width: 15.41px; left: 772.3px; top: 350px;"></div>
+                <div class="tb-cross-v" style="width: 15.41px; left: 780px; top: 342.3px;"></div>
+
+                <!-- Diamond Rectangles -->
+                <div class="tb-rect" style="width: 14.89px; height: 14.89px; left: 192.56px; top: 182.03px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 10.44px; height: 10.44px; left: 594.78px; top: 437.4px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 17.72px; height: 17.72px; left: 91.14px; top: 428.61px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 11.88px; height: 11.88px; left: 794.06px; top: 85.66px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 15.06px; height: 15.06px; left: 442.47px; top: 531.83px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 14.18px; height: 14.18px; left: 692.91px; top: 682.89px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 13.68px; height: 13.68px; left: 343.16px; top: 33.49px; transform: rotate(-45deg);"></div>
+                <div class="tb-rect" style="width: 16.15px; height: 16.15px; left: 891.92px; top: 380.51px; transform: rotate(-45deg);"></div>
+
+                <!-- Orbital Large Circles -->
+                <div class="tb-ellipse" style="width: 240px; height: 240px; left: -120px; top: -120px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 300px; height: 300px; left: 810px; top: 634px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 160px; height: 160px; left: 420px; top: 320px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 200px; height: 200px; left: 100px; top: 500px; opacity: 0.6;"></div>
+                <div class="tb-ellipse" style="width: 180px; height: 180px; left: 710px; top: 110px; opacity: 0.6;"></div>
+            </div>
+
+            <!-- top-decorations -->
+            <div class="tb-top-decorations">
+                <div class="tb-bracket-corner top-left">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+                <div class="tb-bracket-corner top-right">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+            </div>
+
+            <!-- bottom-decorations -->
+            <div class="tb-bottom-decorations">
+                <div class="tb-bracket-corner bottom-left">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+                <div class="tb-bracket-corner bottom-right">
+                    <div class="tb-h"></div>
+                    <div class="tb-v"></div>
+                </div>
+            </div>
+
+            <!-- grid-container (4x4 Matrix) -->
+            <div class="tb-grid-container">
+                <!-- grid-row-1 -->
+                <div class="tb-grid-row">
+                    <!-- slot-4-1-1 -->
+                    <div class="tb-slot" id="slot-t4-1-1" data-slot="t4-1-1" title="Slot 1-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-1-2 -->
+                    <div class="tb-slot" id="slot-t4-1-2" data-slot="t4-1-2" title="Slot 1-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-1-3 -->
+                    <div class="tb-slot" id="slot-t4-1-3" data-slot="t4-1-3" title="Slot 1-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-1-4 -->
+                    <div class="tb-slot" id="slot-t4-1-4" data-slot="t4-1-4" title="Slot 1-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-2 -->
+                <div class="tb-grid-row">
+                    <!-- slot-4-2-1 -->
+                    <div class="tb-slot" id="slot-t4-2-1" data-slot="t4-2-1" title="Slot 2-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-2-2 -->
+                    <div class="tb-slot" id="slot-t4-2-2" data-slot="t4-2-2" title="Slot 2-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-2-3 -->
+                    <div class="tb-slot" id="slot-t4-2-3" data-slot="t4-2-3" title="Slot 2-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-2-4 -->
+                    <div class="tb-slot" id="slot-t4-2-4" data-slot="t4-2-4" title="Slot 2-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-3 -->
+                <div class="tb-grid-row">
+                    <!-- slot-4-3-1 -->
+                    <div class="tb-slot" id="slot-t4-3-1" data-slot="t4-3-1" title="Slot 3-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-3-2 -->
+                    <div class="tb-slot" id="slot-t4-3-2" data-slot="t4-3-2" title="Slot 3-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-3-3 -->
+                    <div class="tb-slot" id="slot-t4-3-3" data-slot="t4-3-3" title="Slot 3-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-3-4 -->
+                    <div class="tb-slot" id="slot-t4-3-4" data-slot="t4-3-4" title="Slot 3-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <!-- grid-row-4 -->
+                <div class="tb-grid-row">
+                    <!-- slot-4-4-1 -->
+                    <div class="tb-slot" id="slot-t4-4-1" data-slot="t4-4-1" title="Slot 4-1">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-4-2 -->
+                    <div class="tb-slot" id="slot-t4-4-2" data-slot="t4-4-2" title="Slot 4-2">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-4-3 -->
+                    <div class="tb-slot" id="slot-t4-4-3" data-slot="t4-4-3" title="Slot 4-3">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <!-- slot-4-4-4 -->
+                    <div class="tb-slot" id="slot-t4-4-4" data-slot="t4-4-4" title="Slot 4-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="toolkit/pdf-inspector/toolkit-pdf-md.js?v=2"></script>

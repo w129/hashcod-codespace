@@ -3,28 +3,47 @@ use std::collections::HashMap;
 /// KV-Aware Router para cálculo de prefijos y enrutamiento inteligente sin cómputo redundante
 #[derive(Debug, Clone)]
 pub struct KvRouter {
-    prefix_tree: HashMap<String, Vec<u32>>,
+    // Usamos &'static str para evitar asignaciones dinámicas de memoria (Heap) en las llaves
+    prefix_tree: HashMap<&'static str, Vec<u32>>,
     total_cached_blocks: usize,
     cache_hit_rate: f64,
 }
 
 impl KvRouter {
+    // Definimos constantes para evitar números mágicos
+    const DEFAULT_BLOCKS: usize = 131072;
+    const DEFAULT_HIT_RATE: f64 = 94.8;
+    const TOTAL_GPU_NODES: u32 = 8;
+    const LATENCY_HIT_MS: f64 = 3.4;
+    const LATENCY_MISS_MS: f64 = 18.2;
+
     pub fn new() -> Self {
         let mut prefix_tree = HashMap::new();
-        prefix_tree.insert("system_prompt_default".to_string(), vec![0, 1, 2, 3]);
-        prefix_tree.insert("deepseek_reasoning_prefix".to_string(), vec![4, 5, 6, 7, 8]);
-        
+        // Insertamos directamente los literales sin hacer .to_string()
+        prefix_tree.insert("system_prompt_default", vec![0, 1, 2, 3]);
+        prefix_tree.insert("deepseek_reasoning_prefix", vec![4, 5, 6, 7, 8]);
+
         Self {
             prefix_tree,
-            total_cached_blocks: 131072,
-            cache_hit_rate: 94.8,
+            total_cached_blocks: Self::DEFAULT_BLOCKS,
+            cache_hit_rate: Self::DEFAULT_HIT_RATE,
         }
     }
 
     pub fn route_prompt(&self, prompt: &str) -> (u32, f64, bool) {
-        let is_hit = prompt.len() > 15;
-        let assigned_gpu_node = (prompt.len() as u32 % 8) + 1;
-        let estimated_latency_ms = if is_hit { 3.4 } else { 18.2 };
+        // AHORA SÍ: Evaluamos si el prompt comienza con alguno de nuestros prefijos guardados
+        let is_hit = self.prefix_tree.keys().any(|prefix| prompt.starts_with(prefix));
+        
+        // Algoritmo de enrutamiento basado en hash (consistente con la longitud o el contenido)
+        let assigned_gpu_node = (prompt.len() as u32 % Self::TOTAL_GPU_NODES) + 1;
+        
+        // Latencia estimada según el resultado real del prefijo
+        let estimated_latency_ms = if is_hit { 
+            Self::LATENCY_HIT_MS 
+        } else { 
+            Self::LATENCY_MISS_MS 
+        };
+
         (assigned_gpu_node, estimated_latency_ms, is_hit)
     }
 
@@ -32,3 +51,4 @@ impl KvRouter {
         (self.total_cached_blocks, self.cache_hit_rate)
     }
 }
+

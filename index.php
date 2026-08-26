@@ -14386,6 +14386,16 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
         }
 
         // ===== CONTROLADOR DE LA HERRAMIENTA NVIDIA DYNAMO (RUST ENGINE) =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const slotDyn = document.getElementById('slot-2-1');
+        if (slotDyn) {
+            slotDyn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openDynamoToolWindow();
+            });
+        }
+    });
+
     window.openDynamoToolWindow = function() {
         const overlay = document.getElementById('dynamoToolOverlay');
         if (overlay) {
@@ -16734,6 +16744,77 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
     </aside>
 
     <!-- LibreOffice — panel en plataforma servidor -->
+    <!-- NVIDIA Dynamo LLM Inference Stack Modal (Rust Engine) -->
+    <div class="dynamo-dock-overlay" id="dynamoToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="dynamoToolTitle">
+        <div class="dynamo-dock-shell">
+            <div class="dynamo-head">
+                <div class="dynamo-brand">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460" width="28" height="28" aria-hidden="true">
+                        <path d="M 306.750 62.805 L 302 63.110 302 67.469 L 302 71.829 308.750 72.196 C 312.462 72.398, 315.594 72.530, 315.708 72.490 C 315.823 72.449, 316.048 70.453, 316.208 68.054 C 316.471 64.118, 316.255 63.633, 314 63.096 C 312.625 62.768, 309.363 62.637, 306.750 62.805 M 284.230 66.886 C 281.332 67.887, 278.680 68.987, 278.336 69.331 C 277.993 69.674, 278.363 71.653, 279.159 73.728 C 280.794 77.991, 282.231 78.190, 289.736 75.192 C 293.215 73.802, 293.861 73.143, 293.352 71.500 C 291.959 66.999, 291.008 65.002, 290.275 65.033 C 289.849 65.051, 287.129 65.884, 284.230 66.886 M 324.279 74.097 C 321.302 76.003, 321.164 76.324, 322.455 78.330 C 323.223 79.523, 324.163 82.201, 324.543 84.280 C 325.066 87.143, 325.630 87.943, 326.867 87.578 C 327.765 87.312, 329.738 86.800, 331.250 86.439 C 332.863 86.054, 334.002 85.104, 334.006 84.142 C 334.015 81.655, 329.640 72.034, 328.500 72.034 C 327.950 72.034, 326.051 72.962, 324.279 74.097 M 261.802 76.334 C 255.937 79.106, 255.234 79.727, 256.144 81.325 C 256.716 82.329, 256.977 83.357, 256.724 83.610 C 256.471 83.862, 253.617 83.635, 250.382 83.103 C 244.282 82.102, 213.516 82.314, 206.500 83.406 C 194.730 85.238, 170.345 93.666, 159.385 99.689 C 135.630 112.745, 112.944 135.442, 99.689 159.416 C 93.047 171.428, 85.017 195.407, 83.083 209 C 82.574 212.575, 82.246 222.925, 82.353 232 L 82.547 248.500 79.774 252.645 C 78.248 254.925, 77 257.337, 77 258.005 C 77 258.673, 75.715 261.758, 74.145 264.860 C 68.890 275.240, 66.923 280.437, 64.678 289.874 C 61.167 304.632, 62.876 316.603, 69.429 323.156 C 75.324 329.051, 87.218 332.112, 97 330.252 C 101.734 329.352, 101.706 329.406, 100.662 323 C 100.438 321.625, 99.695 320.630, 99.011 320.789 C 95.612 321.578, 84.980 321.149, 81.781 320.093 C 79.687 319.402, 76.965 317.337, 75.330 315.199 C 72.717 311.783, 72.506 310.849, 72.573 303 C 72.630 296.433, 73.337 292.339, 75.681 285 C 77.350 279.775, 80.186 272.588, 81.984 269.028 L 85.253 262.556 88.507 273.028 C 94.131 291.126, 97.885 298.867, 108.860 315 C 115.828 325.241, 129.438 339.948, 137.500 345.948 C 147.544 353.422, 155.619 358.781, 160.743 361.374 C 163.627 362.833, 166.102 363.977, 166.243 363.915 C 166.384 363.854, 169.200 365.027, 172.500 366.521 C 175.800 368.016, 182.550 370.482, 187.500 372.001 L 196.500 374.763 192.750 376.567 C 190.688 377.559, 189 378.926, 189 379.604 C 189 380.283, 189.750 382.144, 190.666 383.740 L 192.331 386.642 197.416 384.557 C 204.759 381.545, 205.175 381.195, 204.003 379.005 C 203.451 377.975, 203 376.959, 203 376.749 C 203 376.539, 205.813 376.743, 209.250 377.203 C 219.958 378.634, 239.071 378.744, 249.239 377.432 C 260.703 375.953, 275.717 371.938, 285.429 367.755 C 289.240 366.114, 292.840 364.684, 293.429 364.577 C 296.246 364.070, 306.909 357.762, 315 351.818 C 316.375 350.808, 319.075 348.925, 321 347.635 C 326.328 344.063, 341.088 329.301, 346.631 322 C 355.946 309.730, 363.954 296.938, 364.597 293.299 C 364.713 292.638, 365.957 289.589, 367.361 286.523 C 375.396 268.972, 380.141 240.139, 378.186 220.748 C 377.434 213.280, 377.512 212.824, 380.318 208.315 C 381.920 205.742, 383.317 203.155, 383.424 202.568 C 383.530 201.981, 385.447 197.675, 387.684 193 C 391.921 184.146, 392.697 182.039, 395.949 170.569 C 398.584 161.275, 398.248 149.175, 395.196 143.500 C 392.110 137.761, 391.084 136.695, 385.500 133.427 C 380.819 130.687, 379.820 130.500, 369.833 130.500 C 363.967 130.500, 358.889 130.777, 358.550 131.116 C 358.211 131.456, 358.225 133.558, 358.582 135.788 L 359.231 139.844 367.102 139.469 C 378.385 138.932, 383.382 140.970, 386.749 147.482 C 388.975 151.786, 388.605 163.010, 385.974 171 C 384.797 174.575, 383.731 177.950, 383.606 178.500 C 382.314 184.170, 375.900 197.366, 374.979 196.247 C 374.641 195.836, 373.289 191.900, 371.976 187.500 C 370.662 183.100, 368.298 176.575, 366.723 173 C 365.148 169.425, 363.935 166.365, 364.027 166.199 C 364.304 165.701, 357.049 152.724, 354.692 149.500 C 353.485 147.850, 350.395 143.575, 347.826 140 C 342.499 132.589, 326.861 117.006, 319.647 111.921 C 302.583 99.892, 289.683 93.443, 271.750 87.977 C 268.038 86.846, 265 85.724, 265 85.485 C 265 85.247, 266.462 84.308, 268.250 83.399 C 270.038 82.489, 271.664 81.602, 271.864 81.425 C 272.064 81.249, 271.283 79.576, 270.127 77.706 C 268.972 75.836, 268.321 74.013, 268.680 73.653 C 269.667 72.666, 269.058 72.904, 261.802 76.334" stroke="none" fill="#76B900" fill-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <h2 id="dynamoToolTitle">NVIDIA Dynamo · LLM Inference Stack <span class="dynamo-badge-pqc">RUST CORE</span></h2>
+                        <p style="margin:2px 0 0 0; font-size:12px; color:#94a3b8;">Orquestación Datacenter, KV-Cache Routing y Desagregación Prefill/Decode</p>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="dynamo-btn primary" onclick="runDynamoInference()">
+                        <span>⚡ Iniciar Inferencia</span>
+                    </button>
+                    <button type="button" class="dynamo-btn" onclick="closeDynamoToolWindow()">
+                        <span>✕ Cerrar</span>
+                    </button>
+                </div>
+            </div>
+            <div class="dynamo-grid-metrics">
+                <div class="dynamo-metric-box">
+                    <span class="dynamo-metric-label">GPU Nodes Online</span>
+                    <span class="dynamo-metric-val green" id="dynGpuCount">8 x H100 (80GB)</span>
+                </div>
+                <div class="dynamo-metric-box">
+                    <span class="dynamo-metric-label">KV-Cache Hit Rate</span>
+                    <span class="dynamo-metric-val green" id="dynHitRate">94.8%</span>
+                </div>
+                <div class="dynamo-metric-box">
+                    <span class="dynamo-metric-label">Prefill P99 Latency</span>
+                    <span class="dynamo-metric-val" id="dynPrefillLat">4.2 ms</span>
+                </div>
+                <div class="dynamo-metric-box">
+                    <span class="dynamo-metric-label">Decode Throughput</span>
+                    <span class="dynamo-metric-val" id="dynDecodeSpeed">148 tok/s / node</span>
+                </div>
+            </div>
+            <div class="dynamo-body">
+                <div>
+                    <span style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em;">Topología de Desagregación Activa (Rust Orchestrator)</span>
+                    <div class="dynamo-pipeline-flow" style="margin-top:8px;">
+                        <div class="dynamo-node">API Clients / Gateway</div>
+                        <span class="dynamo-arrow">➜</span>
+                        <div class="dynamo-node active">KV-Router (Rust Prefix Tree)</div>
+                        <span class="dynamo-arrow">➜</span>
+                        <div class="dynamo-node">Prefill Cluster (vLLM / TRT-LLM)</div>
+                        <span class="dynamo-arrow">➜ [NVLink / RoCEv2] ➜</span>
+                        <div class="dynamo-node active">Decode Cluster (SGLang)</div>
+                    </div>
+                </div>
+
+                <div class="dynamo-playground">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:13px; font-weight:700; color:#f8fafc;">Test de Inferencia y Reutilización de KV-Cache</span>
+                        <select id="dynModelSelect" style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:6px; padding:4px 8px; font-size:12px; font-family:'Geist Mono',monospace;">
+                            <option value="deepseek-ai/DeepSeek-R1">deepseek-ai/DeepSeek-R1 (671B MoE)</option>
+                            <option value="meta-llama/Llama-3.3-70B-Instruct">meta-llama/Llama-3.3-70B-Instruct</option>
+                            <option value="Qwen/Qwen2.5-Coder-32B-Instruct">Qwen/Qwen2.5-Coder-32B-Instruct</option>
+                            <option value="mistralai/Mistral-Large-Instruct-2407">mistralai/Mistral-Large-Instruct-2407</option>
+                        </select>
+                    </div>
+                    <textarea id="dynPromptInput" class="dynamo-prompt-input" placeholder="Introduce un prompt para evaluar el enrutador KV y la desagregación de Dynamo en Rust...">¿Cuál es la ventaja de la desagregación de Prefill y Decode en clústeres de inferencia LLM?</textarea>
+                    <div id="dynStreamOutput" class="dynamo-stream-output">Esperando solicitud de inferencia... Haz clic en '⚡ Iniciar Inferencia' para evaluar el motor Rust.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- GitHub Repositories Tool Modal & Workspace Manager -->
     <div class="gh-dock-overlay" id="githubToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ghToolTitle">
         <div class="gh-dock-shell">

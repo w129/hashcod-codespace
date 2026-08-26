@@ -34,7 +34,7 @@ class CatalystEngine:
     def default_state(self):
         return {
             "macho": {
-                "active": False,
+                "active": true,
                 "mode": "IDLE", # IDLE, ONE_WAY, BRIDGED_ONE_WAY
                 "channel": "/a",
                 "flow": "ENV_1 -> ENV_3",

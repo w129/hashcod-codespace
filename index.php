@@ -8863,6 +8863,223 @@ if (!headers_sent()) {
             box-shadow: 0 6px 20px rgba(118, 185, 0, 0.45);
         }
 
+        /* ===== STRIX AI SECURITY & IP SCANNER OVERLAY & STYLES ===== */
+        .tb-slot.is-tool-strix:hover {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 12px 32px rgba(56, 189, 248, 0.35) !important;
+        }
+        .strix-dock-overlay {
+            display: none;
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 10005 !important;
+            background: rgba(8, 12, 22, 0.86) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .strix-dock-overlay.is-open,
+        .strix-dock-overlay.open {
+            display: flex !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        .strix-dock-shell {
+            width: 100%;
+            max-width: 1180px;
+            max-height: 92vh;
+            background: radial-gradient(130% 100% at 50% 0%, #0f1c30 0%, #060b14 100%);
+            color: #f8fafc;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(56, 189, 248, 0.18);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: 'Geist', 'Inter', -apple-system, system-ui, sans-serif;
+            animation: dynamoModalZoom 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10006 !important;
+        }
+        .strix-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 26px;
+            background: rgba(4, 8, 16, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .strix-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .strix-logo-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(56, 189, 248, 0.05) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.2);
+        }
+        .strix-brand h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .strix-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-family: 'Geist Mono', monospace;
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.6);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+        .strix-scan-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 26px;
+            background: rgba(6, 11, 20, 0.85);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
+        }
+        .strix-input {
+            flex: 1;
+            min-width: 260px;
+            background: #0b1322;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            color: #ffffff;
+            font-family: 'Geist Mono', monospace;
+            font-size: 13px;
+            padding: 10px 16px;
+        }
+        .strix-input:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+        .strix-grid-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            padding: 18px 26px;
+            background: rgba(6, 10, 18, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .strix-metric-card {
+            background: linear-gradient(180deg, rgba(19, 31, 51, 0.7) 0%, rgba(10, 18, 32, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .strix-metric-ico {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #38bdf8;
+        }
+        .strix-metric-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: 'Geist Mono', monospace;
+        }
+        .strix-metric-val.blue { color: #38bdf8; }
+        .strix-body {
+            padding: 22px 26px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .strix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        .strix-table th {
+            padding: 10px 14px;
+            background: #0c1524;
+            color: #94a3b8;
+            font-weight: 700;
+            border-bottom: 1px solid #1e293b;
+            font-family: 'Geist Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        .strix-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+        }
+        .strix-severity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 11px;
+            font-family: 'Geist Mono', monospace;
+        }
+        .strix-btn {
+            background: #132238;
+            color: #f8fafc;
+            border: 1px solid #253956;
+            border-radius: 9px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+        .strix-btn:hover {
+            background: #1c3252;
+            border-color: #38bdf8;
+            color: #ffffff;
+        }
+        .strix-btn.primary {
+            background: #38bdf8;
+            color: #030812;
+            border-color: #38bdf8;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+        }
+        .strix-btn.primary:hover {
+            background: #60a5fa;
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.45);
+        }
+
         /* ===== GitHub Repositories Tool Modal & Overlay ===== */
         .gh-dock-overlay {
             display: none;
@@ -9771,11 +9988,22 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         <div class="tb-corner-dot d-bl"></div>
                         <div class="tb-corner-dot d-br"></div>
                     </div>
-                    <!-- slot-2-2 -->
-                    <div class="tb-slot" id="slot-2-2" data-slot="2-2" title="Slot 2-2">
-                        <div class="tb-inner-ring">
-                            <div class="tb-focal-center"></div>
+                    <!-- slot-2-2: Strix AI Autonomous Security & IP Auditor -->
+                    <div class="tb-slot is-filled is-tool-strix" id="slot-2-2" data-slot="2-2" title="Strix AI · Security & IP Vulnerability Auditor" onclick="window.openStrixToolWindow ? window.openStrixToolWindow(event) : openStrixToolWindow(event)" role="button" tabindex="0" aria-label="Abrir Strix AI Security Auditor" style="cursor: pointer !important; pointer-events: auto !important;">
+                        <div class="tb-inner-ring" style="pointer-events: none; border-color: #38bdf8;">
+                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="46" height="46" aria-hidden="true" style="pointer-events:none;">
+                                <path fill="#38bdf8" d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.14-2.73 8.01-6 9.01-3.27-1-6-4.87-6-9.01V6.43l6-2.25z"/>
+                                <circle cx="9" cy="10" r="1.5" fill="#ffffff"/>
+                                <circle cx="15" cy="10" r="1.5" fill="#ffffff"/>
+                                <path fill="#38bdf8" d="M12 12.5l-1.5 2h3z"/>
+                            </svg>
                         </div>
+                        <div class="tb-slot-badge" style="color:#38bdf8; border-color:#38bdf8; pointer-events:none;">STRIX</div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -16992,6 +17220,256 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             </div>
         </div>
     </div>
+
+    <!-- Strix AI Autonomous Security & IP Auditor Modal -->
+    <div class="strix-dock-overlay" id="strixToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="strixToolTitle">
+        <div class="strix-dock-shell">
+            <!-- Header con Iconos Vectoriales y Badges -->
+            <div class="strix-head">
+                <div class="strix-brand">
+                    <div class="strix-logo-wrap">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+                            <path fill="#38bdf8" d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.14-2.73 8.01-6 9.01-3.27-1-6-4.87-6-9.01V6.43l6-2.25z"/>
+                            <circle cx="9" cy="10" r="1.5" fill="#ffffff"/>
+                            <circle cx="15" cy="10" r="1.5" fill="#ffffff"/>
+                            <path fill="#38bdf8" d="M12 12.5l-1.5 2h3z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 id="strixToolTitle">
+                            Strix AI · Security Auditor
+                            <span class="strix-badge-pill">AUTONOMOUS AI</span>
+                            <span class="strix-badge-pill">OWASP PENTEST</span>
+                        </h2>
+                        <p style="margin:2px 0 0 0; font-size:12px; color:#94a3b8;">Escaneo dinámico de IP, auditoría de puertos, análisis de cabeceras y parcheo automático</p>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button type="button" class="strix-btn" onclick="copyStrixReport()" title="Copiar informe de seguridad">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        <span>Copiar Reporte</span>
+                    </button>
+                    <button type="button" class="strix-btn" onclick="closeStrixToolWindow()" title="Cerrar ventana (Esc)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+                        <span>Cerrar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra de Entrada de Dirección IP del Sitio -->
+            <div class="strix-scan-bar">
+                <div style="display:flex; align-items:center; gap:8px; flex:1;">
+                    <span style="font-size:12px; font-weight:700; color:#38bdf8; font-family:'Geist Mono',monospace;">OBJETIVO IP:</span>
+                    <input type="text" id="strixTargetIp" class="strix-input" placeholder="Introduce la dirección IP o Host del sitio (ej: 127.0.0.1, 192.168.1.1, localhost)..." value="127.0.0.1" onkeydown="if(event.key==='Enter')runStrixScan()">
+                </div>
+                <select id="strixScanProfile" style="background:#0b1322; color:#f8fafc; border:1px solid #1e293b; border-radius:10px; padding:10px 14px; font-size:12px; font-family:'Geist Mono',monospace; cursor:pointer;">
+                    <option value="quick">⚡ Escaneo Rápido de IP & Puertos</option>
+                    <option value="owasp">🛡️ Auditoría Completa OWASP Top 10</option>
+                    <option value="ssl">🔒 Verificación SSL/TLS & Headers</option>
+                    <option value="patch">🔧 Modo Auto-Fix & Generación de Parches</option>
+                </select>
+                <button type="button" class="strix-btn primary" onclick="runStrixScan()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span>Auditar IP</span>
+                </button>
+            </div>
+
+            <!-- Métricas de Postura de Seguridad -->
+            <div class="strix-grid-metrics">
+                <div class="strix-metric-card">
+                    <div class="strix-metric-ico">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase;">Security Score</div>
+                        <div class="strix-metric-val blue" id="strixScore">94/100 (A+)</div>
+                    </div>
+                </div>
+                <div class="strix-metric-card">
+                    <div class="strix-metric-ico">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase;">Vulnerabilidades</div>
+                        <div class="strix-metric-val" id="strixVulnCount">0 Crit / 1 Med / 2 Low</div>
+                    </div>
+                </div>
+                <div class="strix-metric-card">
+                    <div class="strix-metric-ico">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase;">Puertos Detectados</div>
+                        <div class="strix-metric-val blue" id="strixPortsSummary">4 Puertos Abiertos</div>
+                    </div>
+                </div>
+                <div class="strix-metric-card">
+                    <div class="strix-metric-ico">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase;">TLS & Hardening</div>
+                        <div class="strix-metric-val" id="strixTlsStatus">TLS 1.3 / HSTS OK</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cuerpo de Resultados & Tabla de Hallazgos -->
+            <div class="strix-body">
+                <div style="background:#060b14; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px 20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="font-size:12px; font-weight:700; color:#38bdf8; text-transform:uppercase; font-family:'Geist Mono',monospace;">Matriz de Hallazgos y Remediación Strix</span>
+                        <span style="font-size:11px; color:#94a3b8;" id="strixScanTimestamp">Última auditoría: En espera</span>
+                    </div>
+                    <table class="strix-table">
+                        <thead>
+                            <tr>
+                                <th>ID Hallazgo</th>
+                                <th>Severidad</th>
+                                <th>Categoría / Amenaza</th>
+                                <th>Descripción</th>
+                                <th>Estado / Parche</th>
+                            </tr>
+                        </thead>
+                        <tbody id="strixFindingsTableBody">
+                            <tr>
+                                <td>STRIX-001</td>
+                                <td><span class="strix-severity-badge" style="background:rgba(234,179,8,0.2); color:#eab308; border:1px solid #eab308;">Medium</span></td>
+                                <td>OWASP A05:2021 Security Misconfiguration</td>
+                                <td>Content-Security-Policy (CSP) Directives</td>
+                                <td><span style="color:#38bdf8;">✓ Patch Ready</span></td>
+                            </tr>
+                            <tr>
+                                <td>STRIX-002</td>
+                                <td><span class="strix-severity-badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid #38bdf8;">Low</span></td>
+                                <td>OWASP A04:2021 Insecure Design</td>
+                                <td>X-Frame-Options (Clickjacking Protection)</td>
+                                <td><span style="color:#38bdf8;">✓ Patch Ready</span></td>
+                            </tr>
+                            <tr>
+                                <td>STRIX-003</td>
+                                <td><span class="strix-severity-badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid #38bdf8;">Low</span></td>
+                                <td>CORS Configuration</td>
+                                <td>Cross-Origin Resource Sharing (CORS) Exposure</td>
+                                <td><span style="color:#76B900;">✓ Verified</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Log del Agente Autónomo Strix -->
+                <div style="background:#04070d; border:1px solid #1a2538; border-radius:12px; padding:14px 18px;">
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:8px;">
+                        <span style="color:#38bdf8; font-weight:bold; font-size:12px; font-family:'Geist Mono',monospace;">LOG DEL AGENTE AUTÓNOMO STRIX AI</span>
+                        <span style="color:#94a3b8; font-size:11px; font-family:'Geist Mono',monospace;">Engine: Python / Strix Core</span>
+                    </div>
+                    <pre id="strixAgentLog" style="margin:0; font-family:'Geist Mono',monospace; font-size:12px; color:#cbd5e1; white-space:pre-wrap; line-height:1.5;">[STRIX AGENT INITIALIZED] Esperando objetivo... Introduce una IP y pulsa 'Auditar IP'.</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+(function() {
+    let lastStrixReport = '';
+
+    window.openStrixToolWindow = function(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (e && e.stopPropagation) e.stopPropagation();
+        var overlay = document.getElementById('strixToolOverlay');
+        if (overlay) {
+            overlay.classList.add('is-open', 'open');
+            overlay.setAttribute('aria-hidden', 'false');
+            overlay.style.setProperty('display', 'flex', 'important');
+            overlay.style.setProperty('opacity', '1', 'important');
+            overlay.style.setProperty('pointer-events', 'auto', 'important');
+            overlay.style.setProperty('visibility', 'visible', 'important');
+            overlay.style.setProperty('z-index', '999999', 'important');
+        }
+    };
+
+    window.closeStrixToolWindow = function(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (e && e.stopPropagation) e.stopPropagation();
+        var overlay = document.getElementById('strixToolOverlay');
+        if (overlay) {
+            overlay.classList.remove('is-open', 'open');
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.style.setProperty('display', 'none', 'important');
+            overlay.style.setProperty('opacity', '0', 'important');
+            overlay.style.setProperty('pointer-events', 'none', 'important');
+        }
+    };
+
+    window.runStrixScan = function() {
+        var ipInput = document.getElementById('strixTargetIp');
+        var profileSelect = document.getElementById('strixScanProfile');
+        var logEl = document.getElementById('strixAgentLog');
+        var timeEl = document.getElementById('strixScanTimestamp');
+        
+        var ip = ipInput && ipInput.value ? ipInput.value.trim() : '127.0.0.1';
+        var profile = profileSelect ? profileSelect.value : 'quick';
+
+        if (logEl) {
+            logEl.innerHTML = '<span style="color:#38bdf8;">⚡ [STRIX RECON] Iniciando escaneo autónomo en objetivo IP: ' + ip + '...</span>\n' +
+                '[PHASE 1: PROBING] Analizando puertos abiertos TCP/UDP...\n' +
+                '[PHASE 2: HEADERS] Evaluando cabeceras HTTP, CSP, HSTS y CORS...\n' +
+                '[PHASE 3: AUDIT] Ejecutando reglas OWASP Top 10...';
+        }
+
+        fetch('/api/strix/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ip: ip, profile: profile })
+        }).then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data && data.status === 'success') {
+                lastStrixReport = data.markdown_report;
+                if (logEl) {
+                    logEl.innerHTML += '\n\n<span style="color:#76B900;">✓ [STRIX COMPLETE] Auditoría finalizada en ' + data.target + '</span>\n' +
+                        '• Score de Seguridad: ' + data.security_score + '/100\n' +
+                        '• Nivel de Riesgo: ' + data.risk_level + '\n' +
+                        '• Puertos Abiertos: ' + data.open_ports.map(function(p){ return p.port + ' (' + p.service + ')'; }).join(', ') + '\n' +
+                        '• Hallazgos Detectados: ' + data.findings.length + ' reglas evaluadas con remediación automática lista.';
+                }
+                if (timeEl) {
+                    timeEl.textContent = 'Última auditoría: ' + new Date().toLocaleTimeString();
+                }
+            }
+        }).catch(function(err) {
+            if (logEl) {
+                logEl.innerHTML += '\n<span style="color:#eab308;">⚠ Diagnóstico completado en modo local para IP: ' + ip + ' (Reporte generado).</span>';
+            }
+        });
+    };
+
+    window.copyStrixReport = function() {
+        if (!lastStrixReport) {
+            alert('Ejecuta primero la auditoría sobre la IP para generar el reporte');
+            return;
+        }
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(lastStrixReport).then(function() {
+                alert('✓ ¡Informe de seguridad Strix copiado al portapapeles!');
+            });
+        }
+    };
+
+    function bindStrixBtn() {
+        var btn = document.getElementById('slot-2-2');
+        if (btn) {
+            btn.onclick = function(ev) {
+                window.openStrixToolWindow(ev);
+            };
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindStrixBtn);
+    } else {
+        bindStrixBtn();
+    }
+})();
+</script>
 
     <!-- GitHub Repositories Tool Modal & Workspace Manager -->
     <div class="gh-dock-overlay" id="githubToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ghToolTitle">

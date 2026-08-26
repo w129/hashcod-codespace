@@ -9694,13 +9694,13 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 <!-- grid-row-2 -->
                 <div class="tb-grid-row">
                     <!-- slot-2-1: NVIDIA Dynamo Datacenter LLM Inference Stack (Rust) -->
-                    <div class="tb-slot is-filled is-tool-dynamo" id="slot-2-1" data-slot="2-1" title="NVIDIA Dynamo · LLM Inference Stack (Rust)" onclick="openDynamoToolWindow()" role="button" tabindex="0" aria-label="Abrir NVIDIA Dynamo LLM Inference Stack">
-                        <div class="tb-inner-ring">
-                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460" width="46" height="46" aria-hidden="true">
+                    <div class="tb-slot is-filled is-tool-dynamo" id="slot-2-1" data-slot="2-1" title="NVIDIA Dynamo · LLM Inference Stack (Rust)" onclick="window.openDynamoToolWindow ? window.openDynamoToolWindow(event) : openDynamoToolWindow(event)" role="button" tabindex="0" aria-label="Abrir NVIDIA Dynamo LLM Inference Stack" style="cursor: pointer !important; pointer-events: auto !important;">
+                        <div class="tb-inner-ring" style="pointer-events: none;">
+                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460" width="46" height="46" aria-hidden="true" style="pointer-events: none;">
                                 <path d="M 306.750 62.805 L 302 63.110 302 67.469 L 302 71.829 308.750 72.196 C 312.462 72.398, 315.594 72.530, 315.708 72.490 C 315.823 72.449, 316.048 70.453, 316.208 68.054 C 316.471 64.118, 316.255 63.633, 314 63.096 C 312.625 62.768, 309.363 62.637, 306.750 62.805 M 284.230 66.886 C 281.332 67.887, 278.680 68.987, 278.336 69.331 C 277.993 69.674, 278.363 71.653, 279.159 73.728 C 280.794 77.991, 282.231 78.190, 289.736 75.192 C 293.215 73.802, 293.861 73.143, 293.352 71.500 C 291.959 66.999, 291.008 65.002, 290.275 65.033 C 289.849 65.051, 287.129 65.884, 284.230 66.886 M 324.279 74.097 C 321.302 76.003, 321.164 76.324, 322.455 78.330 C 323.223 79.523, 324.163 82.201, 324.543 84.280 C 325.066 87.143, 325.630 87.943, 326.867 87.578 C 327.765 87.312, 329.738 86.800, 331.250 86.439 C 332.863 86.054, 334.002 85.104, 334.006 84.142 C 334.015 81.655, 329.640 72.034, 328.500 72.034 C 327.950 72.034, 326.051 72.962, 324.279 74.097 M 261.802 76.334 C 255.937 79.106, 255.234 79.727, 256.144 81.325 C 256.716 82.329, 256.977 83.357, 256.724 83.610 C 256.471 83.862, 253.617 83.635, 250.382 83.103 C 244.282 82.102, 213.516 82.314, 206.500 83.406 C 194.730 85.238, 170.345 93.666, 159.385 99.689 C 135.630 112.745, 112.944 135.442, 99.689 159.416 C 93.047 171.428, 85.017 195.407, 83.083 209 C 82.574 212.575, 82.246 222.925, 82.353 232 L 82.547 248.500 79.774 252.645 C 78.248 254.925, 77 257.337, 77 258.005 C 77 258.673, 75.715 261.758, 74.145 264.860 C 68.890 275.240, 66.923 280.437, 64.678 289.874 C 61.167 304.632, 62.876 316.603, 69.429 323.156 C 75.324 329.051, 87.218 332.112, 97 330.252 C 101.734 329.352, 101.706 329.406, 100.662 323 C 100.438 321.625, 99.695 320.630, 99.011 320.789 C 95.612 321.578, 84.980 321.149, 81.781 320.093 C 79.687 319.402, 76.965 317.337, 75.330 315.199 C 72.717 311.783, 72.506 310.849, 72.573 303 C 72.630 296.433, 73.337 292.339, 75.681 285 C 77.350 279.775, 80.186 272.588, 81.984 269.028 L 85.253 262.556 88.507 273.028 C 94.131 291.126, 97.885 298.867, 108.860 315 C 115.828 325.241, 129.438 339.948, 137.500 345.948 C 147.544 353.422, 155.619 358.781, 160.743 361.374 C 163.627 362.833, 166.102 363.977, 166.243 363.915 C 166.384 363.854, 169.200 365.027, 172.500 366.521 C 175.800 368.016, 182.550 370.482, 187.500 372.001 L 196.500 374.763 192.750 376.567 C 190.688 377.559, 189 378.926, 189 379.604 C 189 380.283, 189.750 382.144, 190.666 383.740 L 192.331 386.642 197.416 384.557 C 204.759 381.545, 205.175 381.195, 204.003 379.005 C 203.451 377.975, 203 376.959, 203 376.749 C 203 376.539, 205.813 376.743, 209.250 377.203 C 219.958 378.634, 239.071 378.744, 249.239 377.432 C 260.703 375.953, 275.717 371.938, 285.429 367.755 C 289.240 366.114, 292.840 364.684, 293.429 364.577 C 296.246 364.070, 306.909 357.762, 315 351.818 C 316.375 350.808, 319.075 348.925, 321 347.635 C 326.328 344.063, 341.088 329.301, 346.631 322 C 355.946 309.730, 363.954 296.938, 364.597 293.299 C 364.713 292.638, 365.957 289.589, 367.361 286.523 C 375.396 268.972, 380.141 240.139, 378.186 220.748 C 377.434 213.280, 377.512 212.824, 380.318 208.315 C 381.920 205.742, 383.317 203.155, 383.424 202.568 C 383.530 201.981, 385.447 197.675, 387.684 193 C 391.921 184.146, 392.697 182.039, 395.949 170.569 C 398.584 161.275, 398.248 149.175, 395.196 143.500 C 392.110 137.761, 391.084 136.695, 385.500 133.427 C 380.819 130.687, 379.820 130.500, 369.833 130.500 C 363.967 130.500, 358.889 130.777, 358.550 131.116 C 358.211 131.456, 358.225 133.558, 358.582 135.788 L 359.231 139.844 367.102 139.469 C 378.385 138.932, 383.382 140.970, 386.749 147.482 C 388.975 151.786, 388.605 163.010, 385.974 171 C 384.797 174.575, 383.731 177.950, 383.606 178.500 C 382.314 184.170, 375.900 197.366, 374.979 196.247 C 374.641 195.836, 373.289 191.900, 371.976 187.500 C 370.662 183.100, 368.298 176.575, 366.723 173 C 365.148 169.425, 363.935 166.365, 364.027 166.199 C 364.304 165.701, 357.049 152.724, 354.692 149.500 C 353.485 147.850, 350.395 143.575, 347.826 140 C 342.499 132.589, 326.861 117.006, 319.647 111.921 C 302.583 99.892, 289.683 93.443, 271.750 87.977 C 268.038 86.846, 265 85.724, 265 85.485 C 265 85.247, 266.462 84.308, 268.250 83.399 C 270.038 82.489, 271.664 81.602, 271.864 81.425 C 272.064 81.249, 271.283 79.576, 270.127 77.706 C 268.972 75.836, 268.321 74.013, 268.680 73.653 C 269.667 72.666, 269.058 72.904, 261.802 76.334" stroke="none" fill="#76B900" fill-rule="evenodd"/>
                             </svg>
                         </div>
-                        <div class="tb-slot-badge" style="color:#76B900; border-color:#76B900;">DYNAMO</div>
+                        <div class="tb-slot-badge" style="color:#76B900; border-color:#76B900; pointer-events:none;">DYNAMO</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -16814,6 +16814,72 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             </div>
         </div>
     </div>
+<script>
+(function() {
+    window.openDynamoToolWindow = function(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (e && e.stopPropagation) e.stopPropagation();
+        var overlay = document.getElementById('dynamoToolOverlay');
+        if (overlay) {
+            overlay.classList.add('is-open', 'open');
+            overlay.setAttribute('aria-hidden', 'false');
+            overlay.style.setProperty('display', 'flex', 'important');
+            overlay.style.setProperty('opacity', '1', 'important');
+            overlay.style.setProperty('pointer-events', 'auto', 'important');
+            overlay.style.setProperty('visibility', 'visible', 'important');
+            overlay.style.setProperty('z-index', '999999', 'important');
+        } else {
+            console.error('dynamoToolOverlay not found');
+        }
+    };
+
+    window.closeDynamoToolWindow = function(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (e && e.stopPropagation) e.stopPropagation();
+        var overlay = document.getElementById('dynamoToolOverlay');
+        if (overlay) {
+            overlay.classList.remove('is-open', 'open');
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.style.setProperty('display', 'none', 'important');
+            overlay.style.setProperty('opacity', '0', 'important');
+            overlay.style.setProperty('pointer-events', 'none', 'important');
+        }
+    };
+
+    window.runDynamoInference = function() {
+        var modelEl = document.getElementById('dynModelSelect');
+        var promptEl = document.getElementById('dynPromptInput');
+        var out = document.getElementById('dynStreamOutput');
+        var model = modelEl ? modelEl.value : 'DeepSeek-R1';
+        var prompt = promptEl && promptEl.value ? promptEl.value.trim() : 'Inferencia Dynamo';
+
+        if (out) {
+            out.innerHTML = '<span style="color:#76B900;">⚡ [DYNAMO-RUST] Evaluando enrutamiento KV-Cache...</span>\n';
+            setTimeout(function() {
+                var isHit = prompt.length > 15;
+                var latency = isHit ? '3.8 ms' : '16.9 ms';
+                var hitText = isHit ? '✓ CACHE HIT (Prefijo en VRAM reusado)' : '⚠ CACHE MISS (Nuevo bloque asignado)';
+                out.innerHTML += '[KV-ROUTER] ' + hitText + ' | Latencia: ' + latency + '\n[DISAGG-ENGINE] Prefill completado ➜ NVLink ➜ Decode Cluster (148 tok/s)\n\n[INFERENCE RESULT: ' + model + ']\n\n✓ Respuesta generada exitosamente por el motor NVIDIA Dynamo en Rust.';
+            }, 300);
+        }
+    };
+
+    // Attach immediate click handler
+    function bindDynamoBtn() {
+        var btn = document.getElementById('slot-2-1');
+        if (btn) {
+            btn.onclick = function(ev) {
+                window.openDynamoToolWindow(ev);
+            };
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindDynamoBtn);
+    } else {
+        bindDynamoBtn();
+    }
+})();
+</script>
 
     <!-- GitHub Repositories Tool Modal & Workspace Manager -->
     <div class="gh-dock-overlay" id="githubToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ghToolTitle">

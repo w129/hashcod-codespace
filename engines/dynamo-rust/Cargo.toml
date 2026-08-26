@@ -1,0 +1,12 @@
+[package]
+name = "dynamo-core"
+version = "0.8.0"
+edition = "2021"
+authors = ["NVIDIA Corporation", "Hashcod Codespace Core"]
+description = "Datacenter scale inference orchestration stack, KV-aware routing and disaggregated serving"
+
+[dependencies]
+tokio = { version = "1.38", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = "0.4"

@@ -14396,6 +14396,41 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
         }
     });
 
+    let currentDynamoMarkdown = '';
+
+    window.switchDynamoTab = function(tab) {
+        var streamView = document.getElementById('dynStreamOutput');
+        var mdView = document.getElementById('dynMarkdownOutput');
+        var streamBtn = document.getElementById('dynTabStreamBtn');
+        var mdBtn = document.getElementById('dynTabMdBtn');
+
+        if (tab === 'markdown') {
+            if (streamView) streamView.style.display = 'none';
+            if (mdView) mdView.style.display = 'block';
+            if (streamBtn) { streamBtn.style.background = 'transparent'; streamBtn.style.color = '#94a3b8'; }
+            if (mdBtn) { mdBtn.style.background = '#76B900'; mdBtn.style.color = '#000'; }
+        } else {
+            if (streamView) streamView.style.display = 'block';
+            if (mdView) mdView.style.display = 'none';
+            if (streamBtn) { streamBtn.style.background = '#76B900'; streamBtn.style.color = '#000'; }
+            if (mdBtn) { mdBtn.style.background = 'transparent'; mdBtn.style.color = '#94a3b8'; }
+        }
+    };
+
+    window.copyDynamoMarkdown = function() {
+        if (!currentDynamoMarkdown) {
+            alert('Ejecuta primero la inferencia para generar el Markdown');
+            return;
+        }
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(currentDynamoMarkdown).then(function() {
+                alert('✓ ¡Markdown del Prompt copiado! Listo para usar en el editor.');
+            }).catch(function() {
+                alert('✓ ¡Markdown listo!');
+            });
+        }
+    };
+
     window.openDynamoToolWindow = function() {
         const overlay = document.getElementById('dynamoToolOverlay');
         if (overlay) {
@@ -16799,17 +16834,39 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 </div>
 
                 <div class="dynamo-playground">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:13px; font-weight:700; color:#f8fafc;">Test de Inferencia y Reutilización de KV-Cache</span>
-                        <select id="dynModelSelect" style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:6px; padding:4px 8px; font-size:12px; font-family:'Geist Mono',monospace;">
-                            <option value="deepseek-ai/DeepSeek-R1">deepseek-ai/DeepSeek-R1 (671B MoE)</option>
-                            <option value="meta-llama/Llama-3.3-70B-Instruct">meta-llama/Llama-3.3-70B-Instruct</option>
-                            <option value="Qwen/Qwen2.5-Coder-32B-Instruct">Qwen/Qwen2.5-Coder-32B-Instruct</option>
-                            <option value="mistralai/Mistral-Large-Instruct-2407">mistralai/Mistral-Large-Instruct-2407</option>
-                        </select>
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:13px; font-weight:700; color:#f8fafc;">Pipeline de Inferencia & Editor de Prompts</span>
+                            <div style="display:inline-flex; background:#0b1120; border:1px solid #334155; border-radius:6px; padding:2px;">
+                                <button type="button" id="dynTabStreamBtn" onclick="switchDynamoTab('stream')" style="background:#76B900; color:#000; border:none; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; cursor:pointer;">Terminal Stream</button>
+                                <button type="button" id="dynTabMdBtn" onclick="switchDynamoTab('markdown')" style="background:transparent; color:#94a3b8; border:none; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; cursor:pointer;">Markdown Editor Spec (.md)</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <select id="dynModelSelect" style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:6px; padding:4px 8px; font-size:12px; font-family:'Geist Mono',monospace;">
+                                <option value="deepseek-ai/DeepSeek-R1">deepseek-ai/DeepSeek-R1 (671B MoE)</option>
+                                <option value="meta-llama/Llama-3.3-70B-Instruct">meta-llama/Llama-3.3-70B-Instruct</option>
+                                <option value="Qwen/Qwen2.5-Coder-32B-Instruct">Qwen/Qwen2.5-Coder-32B-Instruct</option>
+                                <option value="mistralai/Mistral-Large-Instruct-2407">mistralai/Mistral-Large-Instruct-2407</option>
+                            </select>
+                            <button type="button" class="dynamo-btn" onclick="copyDynamoMarkdown()" title="Copiar salida Markdown para conectar con editor de prompts" style="padding:4px 10px; font-size:11px;">
+                                <span>📋 Copiar Markdown</span>
+                            </button>
+                        </div>
                     </div>
-                    <textarea id="dynPromptInput" class="dynamo-prompt-input" placeholder="Introduce un prompt para evaluar el enrutador KV y la desagregación de Dynamo en Rust...">¿Cuál es la ventaja de la desagregación de Prefill y Decode en clústeres de inferencia LLM?</textarea>
-                    <div id="dynStreamOutput" class="dynamo-stream-output">Esperando solicitud de inferencia... Haz clic en '⚡ Iniciar Inferencia' para evaluar el motor Rust.</div>
+                    <textarea id="dynPromptInput" class="dynamo-prompt-input" placeholder="Introduce un prompt o plantilla con variables (ej: {{user_query}})...">¿Cuál es la ventaja de la desagregación de Prefill y Decode en clústeres de inferencia LLM?</textarea>
+                    
+                    <!-- Vista 1: Stream CLI -->
+                    <div id="dynStreamOutput" class="dynamo-stream-output">Esperando solicitud de inferencia... Haz clic en '⚡ Iniciar Inferencia' para evaluar el motor Rust y generar el Markdown.</div>
+                    
+                    <!-- Vista 2: Markdown Spec Preview -->
+                    <div id="dynMarkdownOutput" class="dynamo-stream-output" style="display:none; background:#020617; border-color:#76B900; color:#f1f5f9; max-height:220px; overflow-y:auto;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #1e293b; padding-bottom:4px;">
+                            <span style="color:#76B900; font-weight:bold;">FORMATO MARKDOWN PREPARADO PARA EDITOR DE PROMPTS (.MD)</span>
+                            <span style="color:#94a3b8; font-size:11px;">Bridge API: /api/dynamo/prompt-bridge</span>
+                        </div>
+                        <pre id="dynRawMarkdownText" style="margin:0; font-family:'Geist Mono',monospace; white-space:pre-wrap; color:#cbd5e1; font-size:12px;"># Esperando generación de Markdown...</pre>
+                    </div>
                 </div>
             </div>
         </div>

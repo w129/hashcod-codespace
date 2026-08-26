@@ -13600,25 +13600,6 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
     let currentGhPage = 1;
     let currentGhQuery = '';
 
-    // ===== DISPARADORES DE HERRAMIENTAS FLY =====
-    window.openLoDockFromFly = function() {
-        const overlay = document.getElementById('loDockOverlay');
-        if (overlay) {
-            overlay.classList.add('open', 'is-open');
-            overlay.setAttribute('aria-hidden', 'false');
-            overlay.style.display = 'flex';
-        }
-    };
-
-    window.openTipTapDockFromFly = function() {
-        if (typeof window.openTipTapStandalone === 'function') {
-            window.openTipTapStandalone();
-        } else {
-            const btn = document.getElementById('dockTipTapBtn');
-            if (btn) btn.click();
-        }
-    };
-
     window.openGithubToolWindow = function() {
         const overlay = document.getElementById('githubToolOverlay');
         if (overlay) {
@@ -13634,10 +13615,27 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
     window.closeGithubToolWindow = function() {
         const overlay = document.getElementById('githubToolOverlay');
         if (overlay) {
-            overlay.classList.remove('is-open');
+            overlay.classList.remove('is-open', 'open');
+            overlay.style.display = 'none';
             overlay.setAttribute('aria-hidden', 'true');
         }
     };
+
+    document.addEventListener('click', function(ev) {
+        const overlay = document.getElementById('githubToolOverlay');
+        if (overlay && (overlay.classList.contains('is-open') || overlay.classList.contains('open')) && ev.target === overlay) {
+            closeGithubToolWindow();
+        }
+    });
+
+    document.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Escape') {
+            const overlay = document.getElementById('githubToolOverlay');
+            if (overlay && (overlay.classList.contains('is-open') || overlay.classList.contains('open') || overlay.style.display === 'flex')) {
+                closeGithubToolWindow();
+            }
+        }
+    });
 
     window.refreshGithubToolData = function() {
         loadGithubToolData(currentGhQuery, currentGhPage);
@@ -15923,15 +15921,15 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                     </div>
                 </div>
                 <div class="gh-dock-actions">
-                    <button type="button" class="gh-dock-btn primary" onclick="promptCloneRepoInGithubTool()">
+                    <button type="button" class="gh-dock-btn primary" onclick="promptCloneRepoInGithubTool()" title="Clonar nuevo repositorio">
                         <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                         <span>+ Clonar Repositorio</span>
                     </button>
-                    <button type="button" class="gh-dock-btn" onclick="refreshGithubToolData()">
+                    <button type="button" class="gh-dock-btn" onclick="refreshGithubToolData()" title="Recargar catálogo">
                         <span>Actualizar</span>
                     </button>
-                    <button type="button" class="gh-dock-btn" onclick="closeGithubToolWindow()">
-                        <span>Cerrar</span>
+                    <button type="button" class="gh-dock-btn" id="btnGhModalClose" onclick="closeGithubToolWindow()" title="Cerrar ventana (Esc)">
+                        <span>✕ Cerrar</span>
                     </button>
                 </div>
             </div>

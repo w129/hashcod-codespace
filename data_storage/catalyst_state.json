@@ -6,17 +6,17 @@
         "flow": "ENV_1 -> ENV_3",
         "env_1": {
             "key_id": "KEY-M1-F52D684D",
-            "token": "89d592d132b2e4db5fdfe9bc00dc689a",
-            "buffer": "tx_packet_10_af86cf7b4be0eb36",
-            "transfers_count": 10,
-            "last_sync": "2026-08-26T19:35:32.297163-04:00"
+            "token": "2001d9410a39abbdaa12c1d5556af010",
+            "buffer": "tx_packet_11_0c48825fcd1a9337",
+            "transfers_count": 11,
+            "last_sync": "2026-08-26T19:44:17.162719-04:00"
         },
         "env_3": {
             "key_id": "KEY-M3-0440F625",
-            "token": "89d592d132b2e4db5fdfe9bc00dc689a",
-            "buffer": "tx_packet_10_af86cf7b4be0eb36",
-            "transfers_count": 10,
-            "last_sync": "2026-08-26T19:35:32.297163-04:00"
+            "token": "2001d9410a39abbdaa12c1d5556af010",
+            "buffer": "tx_packet_11_0c48825fcd1a9337",
+            "transfers_count": 11,
+            "last_sync": "2026-08-26T19:44:17.162719-04:00"
         }
     },
     "hembra": {
@@ -40,7 +40,7 @@
         }
     },
     "bridge_connected": true,
-    "total_cycles": 15,
+    "total_cycles": 16,
     "storage_volumes": [
         {
             "id": "vol-01",
@@ -67,6 +67,6 @@
             "path": "D:/laragon/www/l8/data_storage"
         }
     ],
-    "last_operation": "MACHO Triggered (/a) | Packet: 2707163b75a504e0",
-    "updated_at": "2026-08-26T23:35:32+00:00"
+    "last_operation": "MACHO Triggered (/a) | Packet: 2208ef846451223a",
+    "updated_at": "2026-08-26T23:44:17+00:00"
 }

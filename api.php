@@ -5411,38 +5411,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
             'message' => 'Abriendo paleta de comandos de Codespace...'
         ];
     } else if ($isBash) {
-        $startTime = microtime(true);
-        $descriptors = [
-            0 => ["pipe", "r"],
-            1 => ["pipe", "w"],
-            2 => ["pipe", "w"]
-        ];
-        $cwd = __DIR__;
-        $process = @proc_open($rawCmd, $descriptors, $pipes, $cwd, null);
-        $stdout = '';
-        $stderr = '';
-        $exitCode = 0;
-        if (is_resource($process)) {
-            fclose($pipes[0]);
-            $stdout = stream_get_contents($pipes[1]);
-            fclose($pipes[1]);
-            $stderr = stream_get_contents($pipes[2]);
-            fclose($pipes[2]);
-            $exitCode = proc_close($process);
+        if (function_exists('bashExecCommand')) {
+            $bashRes = bashExecCommand($rawCmd);
+            $outputResult = [
+                'type' => 'BASH_OUTPUT',
+                'command' => $rawCmd,
+                'exit_code' => $bashRes['exit_code'] ?? 0,
+                'duration_ms' => $bashRes['execution_time_ms'] ?? 0,
+                'stdout' => $bashRes['stdout'] ?? '',
+                'stderr' => $bashRes['stderr'] ?? '',
+                'cwd' => $bashRes['cwd'] ?? __DIR__,
+                'shell' => $bashRes['shell'] ?? 'GNU Bash'
+            ];
         } else {
-            $exitCode = 1;
-            $stderr = 'No se pudo iniciar el subshell bash.';
+            $startTime = microtime(true);
+            $descriptors = [
+                0 => ["pipe", "r"],
+                1 => ["pipe", "w"],
+                2 => ["pipe", "w"]
+            ];
+            $cwd = __DIR__;
+            $process = @proc_open($rawCmd, $descriptors, $pipes, $cwd, null);
+            $stdout = '';
+            $stderr = '';
+            $exitCode = 0;
+            if (is_resource($process)) {
+                fclose($pipes[0]);
+                $stdout = stream_get_contents($pipes[1]);
+                fclose($pipes[1]);
+                $stderr = stream_get_contents($pipes[2]);
+                fclose($pipes[2]);
+                $exitCode = proc_close($process);
+            } else {
+                $exitCode = 1;
+                $stderr = 'No se pudo iniciar el subshell bash.';
+            }
+            $durMs = round((microtime(true) - $startTime) * 1000, 2);
+            $outputResult = [
+                'type' => 'BASH_OUTPUT',
+                'command' => $rawCmd,
+                'exit_code' => $exitCode,
+                'duration_ms' => $durMs,
+                'stdout' => mb_convert_encoding($stdout, 'UTF-8', 'UTF-8, ISO-8859-1'),
+                'stderr' => mb_convert_encoding($stderr, 'UTF-8', 'UTF-8, ISO-8859-1'),
+                'cwd' => $cwd
+            ];
         }
-        $durMs = round((microtime(true) - $startTime) * 1000, 2);
-        $outputResult = [
-            'type' => 'BASH_OUTPUT',
-            'command' => $rawCmd,
-            'exit_code' => $exitCode,
-            'duration_ms' => $durMs,
-            'stdout' => mb_convert_encoding($stdout, 'UTF-8', 'UTF-8, ISO-8859-1'),
-            'stderr' => mb_convert_encoding($stderr, 'UTF-8', 'UTF-8, ISO-8859-1'),
-            'cwd' => $cwd
-        ];
     } else if ($lowerCmd === 'ping') {
         $outputResult = [
             'pong' => true,

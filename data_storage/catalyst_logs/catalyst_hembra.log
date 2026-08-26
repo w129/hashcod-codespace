@@ -9,3 +9,5 @@
 [2026-08-25 18:44:21.984 UTC] [HEMBRA] [INCOMING FROM /a.] Handshake recibido en ENV_2 desde Macho | Packet: e45c7bf3032a1993
 [2026-08-25 18:44:22.024 UTC] [HEMBRA] [2-WAY DUPLEX] ENV_2 <-> ENV_4 | Trigger: REACTIVE TRIGGER (Bash Cmd: repos) | {"key_2": "KEY-H2-8CB16A0D", "key_4": "KEY-H4-9E3861B3", "duplex_sync": true, "cycle": 11}
 [2026-08-25 18:44:22.027 UTC] [HEMBRA] [REACTIVE TRIGGER 2-WAY] Activado al recibir petición | Bash Cmd: repos
+[2026-08-26 19:49:09.344 UTC] [HEMBRA] [2-WAY DUPLEX] ENV_2 <-> ENV_4 | Trigger: Manual activation (/b activate) | {"key_2": "KEY-H2-8CB16A0D", "key_4": "KEY-H4-9E3861B3", "duplex_sync": true, "cycle": 17}
+[2026-08-26 23:49:09.378 UTC] [HEMBRA] [2-WAY DUPLEX] ENV_2 <-> ENV_4 | Trigger: Terminal Exec: /b  | {"key_1":"KEY-H2-B9660420","key_3":"KEY-H4-6E57297F","packet":"0fb6617d52800070","cycle":8149,"trigger":"/b","source":"web_terminal"}

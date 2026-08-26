@@ -5000,12 +5000,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
     $isThemes = ($lowerCmd === 'themes' || $lowerCmd === 'temas' || strpos($lowerCmd, 'theme') === 0);
     $isAi = ($lowerCmd === 'ai' || strpos($lowerCmd, 'ai ') === 0 || strpos($rawCmd, '#') === 0);
 
-    $bashPrefixes = ['ls', 'pwd', 'date', 'whoami', 'echo', 'cat', 'git', 'php', 'node', 'composer', 'npm', 'uname', 'find', 'grep', 'mkdir', 'touch', 'head', 'tail', 'curl', 'df', 'free', 'ps', 'env', 'which', 'diff', 'tree'];
+    $isCatalyst = (preg_match('#^(\\/a\\.|\\/b\\.|\\/a|\\/b|catalyst)#i', $lowerCmd) === 1);
+    $isDynamo = ($lowerCmd === 'dynamo' || $lowerCmd === 'rust' || strpos($lowerCmd, 'dynamo ') === 0);
+    $isStrix = ($lowerCmd === 'strix' || $lowerCmd === 'audit' || $lowerCmd === 'pentest' || strpos($lowerCmd, 'strix ') === 0);
+    $isCoreEngines = ($lowerCmd === 'c_core' || $lowerCmd === 'go_core');
+
+    $bashPrefixes = ['ls', 'pwd', 'date', 'whoami', 'echo', 'cat', 'git', 'php', 'node', 'python', 'composer', 'npm', 'uname', 'find', 'grep', 'mkdir', 'touch', 'head', 'tail', 'curl', 'df', 'free', 'ps', 'env', 'which', 'diff', 'tree', '/a', '/b', '/a.', '/b.', 'catalyst', 'dynamo', 'strix', 'audit', 'pentest', 'c_core', 'go_core'];
     $cmdParts = explode(' ', $lowerCmd);
-    $isBash = in_array($cmdParts[0] ?? '', $bashPrefixes);
+    $isBash = in_array($cmdParts[0] ?? '', $bashPrefixes) || $isCatalyst || $isDynamo || $isStrix || $isCoreEngines;
 
     $knownKeys = array_keys($REGISTERED_COMMANDS);
-    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isClaude || $isUbuntu || $isZylon || $isLibreoffice || $isTiptap || $isStreamlit || $isToolkit || $isOpenCrypt || $isDurable || $isAgents || $isKeys || $isTokens || $isGateway || $isUpload || $isClear || $isWorkflows || $isStatus || $isThemes || $isAi || $isBash || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
+    $isValid = $isSetICode || $isSshKey || $isSupabase || $isRepos || $isSave || $isClone || $isDilFs || $isPrsCode || $isMacosInside || $isChromeosPlay || $isClaude || $isUbuntu || $isZylon || $isLibreoffice || $isTiptap || $isStreamlit || $isToolkit || $isOpenCrypt || $isDurable || $isAgents || $isKeys || $isTokens || $isGateway || $isUpload || $isClear || $isWorkflows || $isStatus || $isThemes || $isAi || $isBash || $isCatalyst || $isDynamo || $isStrix || $isCoreEngines || in_array($lowerCmd, $knownKeys) || $lowerCmd === 'crl?' || $lowerCmd === 'mane_list' || $lowerCmd === 'help' || $lowerCmd === '?' || $lowerCmd === 'ping' || $lowerCmd === 'browsers';
 
     if (!$isValid) {
         $durMs = (int)round((microtime(true) - $startTime) * 1000);

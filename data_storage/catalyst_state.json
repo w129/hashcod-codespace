@@ -21,26 +21,26 @@
     },
     "hembra": {
         "active": true,
-        "mode": "REACTIVE_TWO_WAY",
+        "mode": "TWO_WAY",
         "channel": "/b",
         "flow": "ENV_2 <-> ENV_4",
         "env_2": {
             "key_id": "KEY-H2-8CB16A0D",
-            "token": "e3863e0309825a9a595a88741512a3da",
-            "buffer": "duplex_inout_2_0347bd8aa4d1",
-            "transfers_count": 8,
-            "last_sync": "2026-08-25T18:44:22.024425-04:00"
+            "token": "fc072dac3a1a83074aa19ac8c6a9889a",
+            "buffer": "duplex_inout_2_dd8b53e41a56",
+            "transfers_count": 9,
+            "last_sync": "2026-08-26T19:49:09.344367-04:00"
         },
         "env_4": {
             "key_id": "KEY-H4-9E3861B3",
-            "token": "7e33896447f6fb2242b133ee62a04c04",
-            "buffer": "duplex_inout_4_1baae32925cc",
-            "transfers_count": 5,
-            "last_sync": "2026-08-25T18:44:22.024425-04:00"
+            "token": "e253806ecdbb78074f3969a6cfd07418",
+            "buffer": "duplex_inout_4_9e405d85b6e9",
+            "transfers_count": 6,
+            "last_sync": "2026-08-26T19:49:09.344367-04:00"
         }
     },
     "bridge_connected": true,
-    "total_cycles": 16,
+    "total_cycles": 17,
     "storage_volumes": [
         {
             "id": "vol-01",
@@ -67,6 +67,6 @@
             "path": "D:/laragon/www/l8/data_storage"
         }
     ],
-    "last_operation": "MACHO Triggered (/a) | Packet: 2208ef846451223a",
-    "updated_at": "2026-08-26T23:44:17+00:00"
+    "last_operation": "HEMBRA Triggered (/b) | Packet: 0fb6617d52800070",
+    "updated_at": "2026-08-26T23:49:09+00:00"
 }

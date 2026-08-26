@@ -8865,8 +8865,8 @@ if (!headers_sent()) {
 
         /* ===== STRIX AI SECURITY & IP SCANNER OVERLAY & STYLES ===== */
         .tb-slot.is-tool-strix:hover {
-            border-color: #38bdf8 !important;
-            box-shadow: 0 12px 32px rgba(56, 189, 248, 0.35) !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 12px 32px rgba(255, 255, 255, 0.35) !important;
         }
         .strix-dock-overlay {
             display: none;
@@ -9988,22 +9988,12 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                         <div class="tb-corner-dot d-bl"></div>
                         <div class="tb-corner-dot d-br"></div>
                     </div>
-                    <!-- slot-2-2: Strix AI Autonomous Security & IP Auditor -->
+                    <!-- slot-2-2: Strix AI Autonomous Security & IP Auditor (Real Pixel Logo) -->
                     <div class="tb-slot is-filled is-tool-strix" id="slot-2-2" data-slot="2-2" title="Strix AI · Security & IP Vulnerability Auditor" onclick="window.openStrixToolWindow ? window.openStrixToolWindow(event) : openStrixToolWindow(event)" role="button" tabindex="0" aria-label="Abrir Strix AI Security Auditor" style="cursor: pointer !important; pointer-events: auto !important;">
-                        <div class="tb-inner-ring" style="pointer-events: none; border-color: #38bdf8;">
-                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="46" height="46" aria-hidden="true" style="pointer-events:none;">
-                                <path fill="#38bdf8" d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.14-2.73 8.01-6 9.01-3.27-1-6-4.87-6-9.01V6.43l6-2.25z"/>
-                                <circle cx="9" cy="10" r="1.5" fill="#ffffff"/>
-                                <circle cx="15" cy="10" r="1.5" fill="#ffffff"/>
-                                <path fill="#38bdf8" d="M12 12.5l-1.5 2h3z"/>
-                            </svg>
+                        <div class="tb-inner-ring" style="pointer-events: none; border-color: rgba(255,255,255,0.7); background: #000000; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <img src="assets/img/strix-logo.png" alt="Strix" style="width: 36px; height: 36px; border-radius: 6px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));" />
                         </div>
-                        <div class="tb-slot-badge" style="color:#38bdf8; border-color:#38bdf8; pointer-events:none;">STRIX</div>
-                        <div class="tb-corner-dot d-tl"></div>
-                        <div class="tb-corner-dot d-tr"></div>
-                        <div class="tb-corner-dot d-bl"></div>
-                        <div class="tb-corner-dot d-br"></div>
-                    </div>
+                        <div class="tb-slot-badge" style="color:#ffffff; border-color:#ffffff; background:#000000; pointer-events:none;">STRIX</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -17227,13 +17217,8 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             <!-- Header con Iconos Vectoriales y Badges -->
             <div class="strix-head">
                 <div class="strix-brand">
-                    <div class="strix-logo-wrap">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
-                            <path fill="#38bdf8" d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.14-2.73 8.01-6 9.01-3.27-1-6-4.87-6-9.01V6.43l6-2.25z"/>
-                            <circle cx="9" cy="10" r="1.5" fill="#ffffff"/>
-                            <circle cx="15" cy="10" r="1.5" fill="#ffffff"/>
-                            <path fill="#38bdf8" d="M12 12.5l-1.5 2h3z"/>
-                        </svg>
+                    <div class="strix-logo-wrap" style="background:#000000; border:1px solid rgba(255,255,255,0.4); padding:4px;">
+                        <img src="assets/img/strix-logo.png" alt="Strix Logo" style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px;" />
                     </div>
                     <div>
                         <h2 id="strixToolTitle">

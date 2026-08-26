@@ -1,0 +1,14 @@
+[2026-08-25 20:00:08.352 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Manual activation (/a activate) | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "6380b2c176868e26", "cycle": 1}
+[2026-08-25 20:00:08.805 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Bridged exec (/a.): test_data [SENDING BRIDGE TO /b] | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "349f77221a8a48cd", "cycle": 3}
+[2026-08-25 20:00:08.808 UTC] [MACHO] [BRIDGED 1-WAY -> /b] ENV_1 -> ENV_3 -> BRIDGE(ENV_2) | Bridged exec (/a.): test_data | {"bridge_packet": "349f77221a8a48cd", "target_env": "ENV_2"}
+[2026-08-25 16:01:02.553 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Manual activation (/a activate) | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "ac1d1b7f20c94ba0", "cycle": 5}
+[2026-08-25 16:01:42.256 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Manual activation (/a activate) | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "9ffc10ee6431818b", "cycle": 6}
+[2026-08-25 16:01:57.808 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Bridged exec (/a.): sync [SENDING BRIDGE TO /b] | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "d5cd01fe860b0708", "cycle": 8}
+[2026-08-25 16:01:57.808 UTC] [MACHO] [BRIDGED 1-WAY -> /b] ENV_1 -> ENV_3 -> BRIDGE(ENV_2) | Bridged exec (/a.): sync | {"bridge_packet": "d5cd01fe860b0708", "target_env": "ENV_2"}
+[2026-08-25 18:44:21.879 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Bash Cmd: repos [SENDING BRIDGE TO /b] | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "e45c7bf3032a1993", "cycle": 10}
+[2026-08-25 18:44:21.979 UTC] [MACHO] [BRIDGED 1-WAY -> /b] ENV_1 -> ENV_3 -> BRIDGE(ENV_2) | Bash Cmd: repos | {"bridge_packet": "e45c7bf3032a1993", "target_env": "ENV_2"}
+[2026-08-25 18:44:22.247 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Manual activation (/a activate) | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "59e1152b8331fbee", "cycle": 12}
+[2026-08-26 19:32:23.704 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Manual activation (/a activate) | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "c2c3c68e594bbac5", "cycle": 13}
+[2026-08-26 19:32:34.349 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Manual activation (/a activate) | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "7f66578428833ce3", "cycle": 14}
+[2026-08-26 19:35:32.297 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Manual activation (/a activate) | {"key_1": "KEY-M1-F52D684D", "key_3": "KEY-M3-0440F625", "packet": "af86cf7b4be0eb36", "cycle": 15}
+[2026-08-26 23:35:32.328 UTC] [MACHO] [1-WAY TRANSFER] ENV_1 -> ENV_3 | Trigger: Terminal Exec: /a  | {"key_1":"KEY-M1-B2CD2095","key_3":"KEY-M3-10355A3C","packet":"2707163b75a504e0","cycle":7332,"trigger":"/a","source":"web_terminal"}

@@ -73,6 +73,47 @@ function bashSessionsDir() {
 /**
  * Ejecuta comandos en el motor Python Catalyst
  */
+/**
+ * Asegura el registro instantáneo y directo en los logs de Catalyst
+ */
+function bashLogCatalystEntry($channel, $trigger, $extra = []) {
+    $isMacho = strpos($channel, 'a') !== false;
+    $logFile = __DIR__ . '/data_storage/catalyst_logs/' . ($isMacho ? 'catalyst_macho.log' : 'catalyst_hembra.log');
+    $logDir = dirname($logFile);
+    if (!is_dir($logDir)) {
+        @mkdir($logDir, 0777, true);
+    }
+
+    $now = gmdate('Y-m-d H:i:s') . '.' . sprintf('%03d', (int)((microtime(true) - floor(microtime(true))) * 1000)) . ' UTC';
+    $side = $isMacho ? 'MACHO' : 'HEMBRA';
+    $flow = $isMacho ? 'ENV_1 -> ENV_3' : 'ENV_2 <-> ENV_4';
+    $mode = $isMacho ? '1-WAY TRANSFER' : '2-WAY DUPLEX';
+    $packet = substr(bin2hex(random_bytes(8)), 0, 16);
+    $cycle = time() % 10000;
+
+    $meta = array_merge([
+        'key_1' => 'KEY-' . ($isMacho ? 'M1' : 'H2') . '-' . strtoupper(substr(md5(uniqid()), 0, 8)),
+        'key_3' => 'KEY-' . ($isMacho ? 'M3' : 'H4') . '-' . strtoupper(substr(md5(uniqid()), 0, 8)),
+        'packet' => $packet,
+        'cycle' => $cycle
+    ], $extra);
+
+    $line = "[$now] [$side] [$mode] $flow | Trigger: $trigger | " . json_encode($meta, JSON_UNESCAPED_SLASHES) . "
+";
+    @file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
+    
+    // Actualizar catalyst_state.json
+    $stateFile = __DIR__ . '/data_storage/catalyst_state.json';
+    if (is_file($stateFile)) {
+        $state = json_decode(@file_get_contents($stateFile), true) ?: [];
+        $state['updated_at'] = date('c');
+        $state['last_operation'] = "$side Triggered ($channel) | Packet: $packet";
+        @file_put_contents($stateFile, json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    }
+
+    return ['packet' => $packet, 'cycle' => $cycle, 'time' => $now];
+}
+
 function bashRunPythonCatalyst(array $args = []) {
     $pyScript = __DIR__ . '/engines/api-engine/catalyst_engine.py';
     if (!is_file($pyScript)) {
@@ -745,6 +786,13 @@ function bashExecCommand($cmd, $cwd = null, array $extraEnv = []) {
         $param = !empty($parts[1]) ? $parts[1] : '';
 
         $pyRes = bashRunPythonCatalyst([$channel, $action, $param]);
+        $directLog = bashLogCatalystEntry($channel, "Terminal Exec: $channel " . ($action !== 'activate' ? $action : ''), [
+            'trigger' => $trimmedCmd,
+            'source' => 'web_terminal'
+        ]);
+        if (empty($pyRes['packet']) && !empty($directLog['packet'])) {
+            $pyRes['packet'] = $directLog['packet'];
+        }
         
         $stdout = "=== HASHCOD DUAL-CATALYST 4-ENV STREAM ===\n";
         $stdout .= "Channel Triggered : " . strtoupper($channel) . "\n";

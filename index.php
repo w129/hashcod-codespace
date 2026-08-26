@@ -8588,29 +8588,29 @@ if (!headers_sent()) {
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
         }
     
-        /* ===== NVIDIA DYNAMO TOOL OVERLAY & STYLES (RUST ENGINE) ===== */
+        /* ===== NVIDIA DYNAMO TOOL OVERLAY & ENHANCED VECTOR STYLES ===== */
         .tb-slot.is-tool-dynamo:hover {
             border-color: #76B900 !important;
-            box-shadow: 0 12px 28px rgba(118, 185, 0, 0.28) !important;
+            box-shadow: 0 12px 32px rgba(118, 185, 0, 0.35) !important;
         }
         .tb-slot.is-tool-dynamo .tb-inner-ring {
             border-color: #76B900;
-            opacity: 0.8;
+            opacity: 0.85;
         }
         .dynamo-dock-overlay {
             display: none;
             position: fixed !important;
             inset: 0 !important;
             z-index: 10005 !important;
-            background: rgba(10, 15, 20, 0.82) !important;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(8, 12, 18, 0.86) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.25s ease;
         }
         .dynamo-dock-overlay.is-open,
         .dynamo-dock-overlay.open {
@@ -8620,161 +8620,223 @@ if (!headers_sent()) {
         }
         .dynamo-dock-shell {
             width: 100%;
-            max-width: 1140px;
-            max-height: 90vh;
-            background: #0f172a;
+            max-width: 1180px;
+            max-height: 92vh;
+            background: radial-gradient(130% 100% at 50% 0%, #131d2e 0%, #0a0f18 100%);
             color: #f8fafc;
-            border: 1px solid rgba(118, 185, 0, 0.35);
-            border-radius: 16px;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(118, 185, 0, 0.15);
+            border: 1px solid rgba(118, 185, 0, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(118, 185, 0, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.15);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             font-family: 'Geist', 'Inter', -apple-system, system-ui, sans-serif;
-            animation: ghModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: dynamoModalZoom 0.28s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 10006 !important;
+        }
+        @keyframes dynamoModalZoom {
+            from { transform: scale(0.95) translateY(12px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
         .dynamo-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 24px;
-            background: #020617;
-            border-bottom: 1px solid #1e293b;
+            padding: 18px 26px;
+            background: rgba(5, 9, 15, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
         .dynamo-brand {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
+        }
+        .dynamo-logo-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(118, 185, 0, 0.2) 0%, rgba(118, 185, 0, 0.05) 100%);
+            border: 1px solid rgba(118, 185, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(118, 185, 0, 0.2);
         }
         .dynamo-brand h2 {
             margin: 0;
-            font-size: 17px;
-            font-weight: 700;
-            letter-spacing: -0.01em;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
             color: #ffffff;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        .dynamo-badge-pqc {
-            font-size: 10px;
+        .dynamo-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
             font-family: 'Geist Mono', monospace;
-            background: rgba(118, 185, 0, 0.15);
+            background: rgba(118, 185, 0, 0.12);
             color: #76B900;
-            border: 1px solid #76B900;
-            padding: 2px 6px;
-            border-radius: 4px;
+            border: 1px solid rgba(118, 185, 0, 0.6);
+            padding: 3px 8px;
+            border-radius: 6px;
             font-weight: 700;
         }
         .dynamo-grid-metrics {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            padding: 16px 24px;
-            background: #090d16;
-            border-bottom: 1px solid #1e293b;
+            gap: 14px;
+            padding: 18px 26px;
+            background: rgba(8, 13, 22, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
-        .dynamo-metric-box {
-            background: #111827;
-            border: 1px solid #1f2937;
+        .dynamo-metric-card {
+            background: linear-gradient(180deg, rgba(26, 36, 54, 0.7) 0%, rgba(15, 23, 38, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .dynamo-metric-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(118, 185, 0, 0.4);
+        }
+        .dynamo-metric-ico {
+            width: 38px;
+            height: 38px;
             border-radius: 10px;
-            padding: 12px;
+            background: rgba(118, 185, 0, 0.12);
+            border: 1px solid rgba(118, 185, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #76B900;
+        }
+        .dynamo-metric-info {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
         }
         .dynamo-metric-label {
             font-size: 11px;
             color: #94a3b8;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
         }
         .dynamo-metric-val {
             font-size: 20px;
             font-weight: 800;
             color: #ffffff;
             font-family: 'Geist Mono', monospace;
+            letter-spacing: -0.02em;
         }
         .dynamo-metric-val.green { color: #76B900; }
         .dynamo-body {
-            padding: 20px 24px;
+            padding: 22px 26px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 22px;
         }
-        .dynamo-pipeline-flow {
-            background: #020617;
-            border: 1px dashed #334155;
-            border-radius: 12px;
-            padding: 14px 18px;
+        .dynamo-topology-container {
+            background: #060a12;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .dynamo-topology-flow {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .dynamo-node-item {
+            background: #131c2e;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-family: 'Geist Mono', monospace;
             font-size: 12px;
-        }
-        .dynamo-node {
-            background: #1e293b;
-            border: 1px solid #475569;
-            padding: 8px 12px;
-            border-radius: 6px;
-            color: #f1f5f9;
             font-weight: 600;
+            color: #e2e8f0;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        .dynamo-node.active {
+        .dynamo-node-item.active {
             border-color: #76B900;
-            background: rgba(118, 185, 0, 0.1);
+            background: linear-gradient(135deg, rgba(118, 185, 0, 0.18) 0%, rgba(118, 185, 0, 0.05) 100%);
             color: #76B900;
+            box-shadow: 0 0 16px rgba(118, 185, 0, 0.15);
         }
-        .dynamo-arrow { color: #64748b; font-weight: bold; }
+        .dynamo-arrow-vector {
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
         .dynamo-playground {
-            background: #020617;
-            border: 1px solid #1e293b;
-            border-radius: 12px;
-            padding: 16px;
+            background: #060a12;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 18px 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
         .dynamo-prompt-input {
             width: 100%;
-            height: 72px;
-            background: #0b1120;
-            border: 1px solid #334155;
-            border-radius: 8px;
+            height: 76px;
+            background: #0d1524;
+            border: 1px solid #233148;
+            border-radius: 10px;
             color: #f8fafc;
             font-family: 'Geist Mono', monospace;
             font-size: 13px;
-            padding: 10px 14px;
+            padding: 12px 16px;
             resize: none;
             box-sizing: border-box;
+            line-height: 1.5;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .dynamo-prompt-input:focus {
             outline: none;
             border-color: #76B900;
-            box-shadow: 0 0 0 2px rgba(118, 185, 0, 0.2);
+            box-shadow: 0 0 0 3px rgba(118, 185, 0, 0.25);
         }
         .dynamo-stream-output {
-            background: #050811;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 12px 14px;
-            min-height: 80px;
+            background: #04070d;
+            border: 1px solid #1a2538;
+            border-radius: 10px;
+            padding: 14px 18px;
+            min-height: 90px;
             font-family: 'Geist Mono', monospace;
             font-size: 12px;
             color: #cbd5e1;
             white-space: pre-wrap;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .dynamo-btn {
-            background: #1e293b;
+            background: #172236;
             color: #f8fafc;
-            border: 1px solid #334155;
-            border-radius: 8px;
+            border: 1px solid #2d3e5c;
+            border-radius: 9px;
             padding: 8px 16px;
             font-size: 13px;
             font-weight: 600;
@@ -8785,17 +8847,20 @@ if (!headers_sent()) {
             transition: all 0.15s ease;
         }
         .dynamo-btn:hover {
-            background: #334155;
+            background: #233352;
+            border-color: #435b85;
             color: #ffffff;
         }
         .dynamo-btn.primary {
             background: #76B900;
-            color: #000000;
+            color: #050b00;
             border-color: #76B900;
-            font-weight: 700;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(118, 185, 0, 0.3);
         }
         .dynamo-btn.primary:hover {
             background: #88d400;
+            box-shadow: 0 6px 20px rgba(118, 185, 0, 0.45);
         }
 
         /* ===== GitHub Repositories Tool Modal & Overlay ===== */
@@ -16782,75 +16847,129 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
     <!-- NVIDIA Dynamo LLM Inference Stack Modal (Rust Engine) -->
     <div class="dynamo-dock-overlay" id="dynamoToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="dynamoToolTitle">
         <div class="dynamo-dock-shell">
+            <!-- Header con Iconos Vectoriales y Badges -->
             <div class="dynamo-head">
                 <div class="dynamo-brand">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460" width="28" height="28" aria-hidden="true">
-                        <path d="M 306.750 62.805 L 302 63.110 302 67.469 L 302 71.829 308.750 72.196 C 312.462 72.398, 315.594 72.530, 315.708 72.490 C 315.823 72.449, 316.048 70.453, 316.208 68.054 C 316.471 64.118, 316.255 63.633, 314 63.096 C 312.625 62.768, 309.363 62.637, 306.750 62.805 M 284.230 66.886 C 281.332 67.887, 278.680 68.987, 278.336 69.331 C 277.993 69.674, 278.363 71.653, 279.159 73.728 C 280.794 77.991, 282.231 78.190, 289.736 75.192 C 293.215 73.802, 293.861 73.143, 293.352 71.500 C 291.959 66.999, 291.008 65.002, 290.275 65.033 C 289.849 65.051, 287.129 65.884, 284.230 66.886 M 324.279 74.097 C 321.302 76.003, 321.164 76.324, 322.455 78.330 C 323.223 79.523, 324.163 82.201, 324.543 84.280 C 325.066 87.143, 325.630 87.943, 326.867 87.578 C 327.765 87.312, 329.738 86.800, 331.250 86.439 C 332.863 86.054, 334.002 85.104, 334.006 84.142 C 334.015 81.655, 329.640 72.034, 328.500 72.034 C 327.950 72.034, 326.051 72.962, 324.279 74.097 M 261.802 76.334 C 255.937 79.106, 255.234 79.727, 256.144 81.325 C 256.716 82.329, 256.977 83.357, 256.724 83.610 C 256.471 83.862, 253.617 83.635, 250.382 83.103 C 244.282 82.102, 213.516 82.314, 206.500 83.406 C 194.730 85.238, 170.345 93.666, 159.385 99.689 C 135.630 112.745, 112.944 135.442, 99.689 159.416 C 93.047 171.428, 85.017 195.407, 83.083 209 C 82.574 212.575, 82.246 222.925, 82.353 232 L 82.547 248.500 79.774 252.645 C 78.248 254.925, 77 257.337, 77 258.005 C 77 258.673, 75.715 261.758, 74.145 264.860 C 68.890 275.240, 66.923 280.437, 64.678 289.874 C 61.167 304.632, 62.876 316.603, 69.429 323.156 C 75.324 329.051, 87.218 332.112, 97 330.252 C 101.734 329.352, 101.706 329.406, 100.662 323 C 100.438 321.625, 99.695 320.630, 99.011 320.789 C 95.612 321.578, 84.980 321.149, 81.781 320.093 C 79.687 319.402, 76.965 317.337, 75.330 315.199 C 72.717 311.783, 72.506 310.849, 72.573 303 C 72.630 296.433, 73.337 292.339, 75.681 285 C 77.350 279.775, 80.186 272.588, 81.984 269.028 L 85.253 262.556 88.507 273.028 C 94.131 291.126, 97.885 298.867, 108.860 315 C 115.828 325.241, 129.438 339.948, 137.500 345.948 C 147.544 353.422, 155.619 358.781, 160.743 361.374 C 163.627 362.833, 166.102 363.977, 166.243 363.915 C 166.384 363.854, 169.200 365.027, 172.500 366.521 C 175.800 368.016, 182.550 370.482, 187.500 372.001 L 196.500 374.763 192.750 376.567 C 190.688 377.559, 189 378.926, 189 379.604 C 189 380.283, 189.750 382.144, 190.666 383.740 L 192.331 386.642 197.416 384.557 C 204.759 381.545, 205.175 381.195, 204.003 379.005 C 203.451 377.975, 203 376.959, 203 376.749 C 203 376.539, 205.813 376.743, 209.250 377.203 C 219.958 378.634, 239.071 378.744, 249.239 377.432 C 260.703 375.953, 275.717 371.938, 285.429 367.755 C 289.240 366.114, 292.840 364.684, 293.429 364.577 C 296.246 364.070, 306.909 357.762, 315 351.818 C 316.375 350.808, 319.075 348.925, 321 347.635 C 326.328 344.063, 341.088 329.301, 346.631 322 C 355.946 309.730, 363.954 296.938, 364.597 293.299 C 364.713 292.638, 365.957 289.589, 367.361 286.523 C 375.396 268.972, 380.141 240.139, 378.186 220.748 C 377.434 213.280, 377.512 212.824, 380.318 208.315 C 381.920 205.742, 383.317 203.155, 383.424 202.568 C 383.530 201.981, 385.447 197.675, 387.684 193 C 391.921 184.146, 392.697 182.039, 395.949 170.569 C 398.584 161.275, 398.248 149.175, 395.196 143.500 C 392.110 137.761, 391.084 136.695, 385.500 133.427 C 380.819 130.687, 379.820 130.500, 369.833 130.500 C 363.967 130.500, 358.889 130.777, 358.550 131.116 C 358.211 131.456, 358.225 133.558, 358.582 135.788 L 359.231 139.844 367.102 139.469 C 378.385 138.932, 383.382 140.970, 386.749 147.482 C 388.975 151.786, 388.605 163.010, 385.974 171 C 384.797 174.575, 383.731 177.950, 383.606 178.500 C 382.314 184.170, 375.900 197.366, 374.979 196.247 C 374.641 195.836, 373.289 191.900, 371.976 187.500 C 370.662 183.100, 368.298 176.575, 366.723 173 C 365.148 169.425, 363.935 166.365, 364.027 166.199 C 364.304 165.701, 357.049 152.724, 354.692 149.500 C 353.485 147.850, 350.395 143.575, 347.826 140 C 342.499 132.589, 326.861 117.006, 319.647 111.921 C 302.583 99.892, 289.683 93.443, 271.750 87.977 C 268.038 86.846, 265 85.724, 265 85.485 C 265 85.247, 266.462 84.308, 268.250 83.399 C 270.038 82.489, 271.664 81.602, 271.864 81.425 C 272.064 81.249, 271.283 79.576, 270.127 77.706 C 268.972 75.836, 268.321 74.013, 268.680 73.653 C 269.667 72.666, 269.058 72.904, 261.802 76.334" stroke="none" fill="#76B900" fill-rule="evenodd"/>
-                    </svg>
+                    <div class="dynamo-logo-wrap">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460" width="30" height="30" aria-hidden="true">
+                            <path d="M 306.750 62.805 L 302 63.110 302 67.469 L 302 71.829 308.750 72.196 C 312.462 72.398, 315.594 72.530, 315.708 72.490 C 315.823 72.449, 316.048 70.453, 316.208 68.054 C 316.471 64.118, 316.255 63.633, 314 63.096 C 312.625 62.768, 309.363 62.637, 306.750 62.805 M 284.230 66.886 C 281.332 67.887, 278.680 68.987, 278.336 69.331 C 277.993 69.674, 278.363 71.653, 279.159 73.728 C 280.794 77.991, 282.231 78.190, 289.736 75.192 C 293.215 73.802, 293.861 73.143, 293.352 71.500 C 291.959 66.999, 291.008 65.002, 290.275 65.033 C 289.849 65.051, 287.129 65.884, 284.230 66.886 M 324.279 74.097 C 321.302 76.003, 321.164 76.324, 322.455 78.330 C 323.223 79.523, 324.163 82.201, 324.543 84.280 C 325.066 87.143, 325.630 87.943, 326.867 87.578 C 327.765 87.312, 329.738 86.800, 331.250 86.439 C 332.863 86.054, 334.002 85.104, 334.006 84.142 C 334.015 81.655, 329.640 72.034, 328.500 72.034 C 327.950 72.034, 326.051 72.962, 324.279 74.097 M 261.802 76.334 C 255.937 79.106, 255.234 79.727, 256.144 81.325 C 256.716 82.329, 256.977 83.357, 256.724 83.610 C 256.471 83.862, 253.617 83.635, 250.382 83.103 C 244.282 82.102, 213.516 82.314, 206.500 83.406 C 194.730 85.238, 170.345 93.666, 159.385 99.689 C 135.630 112.745, 112.944 135.442, 99.689 159.416 C 93.047 171.428, 85.017 195.407, 83.083 209 C 82.574 212.575, 82.246 222.925, 82.353 232 L 82.547 248.500 79.774 252.645 C 78.248 254.925, 77 257.337, 77 258.005 C 77 258.673, 75.715 261.758, 74.145 264.860 C 68.890 275.240, 66.923 280.437, 64.678 289.874 C 61.167 304.632, 62.876 316.603, 69.429 323.156 C 75.324 329.051, 87.218 332.112, 97 330.252 C 101.734 329.352, 101.706 329.406, 100.662 323 C 100.438 321.625, 99.695 320.630, 99.011 320.789 C 95.612 321.578, 84.980 321.149, 81.781 320.093 C 79.687 319.402, 76.965 317.337, 75.330 315.199 C 72.717 311.783, 72.506 310.849, 72.573 303 C 72.630 296.433, 73.337 292.339, 75.681 285 C 77.350 279.775, 80.186 272.588, 81.984 269.028 L 85.253 262.556 88.507 273.028 C 94.131 291.126, 97.885 298.867, 108.860 315 C 115.828 325.241, 129.438 339.948, 137.500 345.948 C 147.544 353.422, 155.619 358.781, 160.743 361.374 C 163.627 362.833, 166.102 363.977, 166.243 363.915 C 166.384 363.854, 169.200 365.027, 172.500 366.521 C 175.800 368.016, 182.550 370.482, 187.500 372.001 L 196.500 374.763 192.750 376.567 C 190.688 377.559, 189 378.926, 189 379.604 C 189 380.283, 189.750 382.144, 190.666 383.740 L 192.331 386.642 197.416 384.557 C 204.759 381.545, 205.175 381.195, 204.003 379.005 C 203.451 377.975, 203 376.959, 203 376.749 C 203 376.539, 205.813 376.743, 209.250 377.203 C 219.958 378.634, 239.071 378.744, 249.239 377.432 C 260.703 375.953, 275.717 371.938, 285.429 367.755 C 289.240 366.114, 292.840 364.684, 293.429 364.577 C 296.246 364.070, 306.909 357.762, 315 351.818 C 316.375 350.808, 319.075 348.925, 321 347.635 C 326.328 344.063, 341.088 329.301, 346.631 322 C 355.946 309.730, 363.954 296.938, 364.597 293.299 C 364.713 292.638, 365.957 289.589, 367.361 286.523 C 375.396 268.972, 380.141 240.139, 378.186 220.748 C 377.434 213.280, 377.512 212.824, 380.318 208.315 C 381.920 205.742, 383.317 203.155, 383.424 202.568 C 383.530 201.981, 385.447 197.675, 387.684 193 C 391.921 184.146, 392.697 182.039, 395.949 170.569 C 398.584 161.275, 398.248 149.175, 395.196 143.500 C 392.110 137.761, 391.084 136.695, 385.500 133.427 C 380.819 130.687, 379.820 130.500, 369.833 130.500 C 363.967 130.500, 358.889 130.777, 358.550 131.116 C 358.211 131.456, 358.225 133.558, 358.582 135.788 L 359.231 139.844 367.102 139.469 C 378.385 138.932, 383.382 140.970, 386.749 147.482 C 388.975 151.786, 388.605 163.010, 385.974 171 C 384.797 174.575, 383.731 177.950, 383.606 178.500 C 382.314 184.170, 375.900 197.366, 374.979 196.247 C 374.641 195.836, 373.289 191.900, 371.976 187.500 C 370.662 183.100, 368.298 176.575, 366.723 173 C 365.148 169.425, 363.935 166.365, 364.027 166.199 C 364.304 165.701, 357.049 152.724, 354.692 149.500 C 353.485 147.850, 350.395 143.575, 347.826 140 C 342.499 132.589, 326.861 117.006, 319.647 111.921 C 302.583 99.892, 289.683 93.443, 271.750 87.977 C 268.038 86.846, 265 85.724, 265 85.485 C 265 85.247, 266.462 84.308, 268.250 83.399 C 270.038 82.489, 271.664 81.602, 271.864 81.425 C 272.064 81.249, 271.283 79.576, 270.127 77.706 C 268.972 75.836, 268.321 74.013, 268.680 73.653 C 269.667 72.666, 269.058 72.904, 261.802 76.334" stroke="none" fill="#76B900" fill-rule="evenodd"/>
+                        </svg>
+                    </div>
                     <div>
-                        <h2 id="dynamoToolTitle">NVIDIA Dynamo · LLM Inference Stack <span class="dynamo-badge-pqc">RUST CORE</span></h2>
-                        <p style="margin:2px 0 0 0; font-size:12px; color:#94a3b8;">Orquestación Datacenter, KV-Cache Routing y Desagregación Prefill/Decode</p>
+                        <h2 id="dynamoToolTitle">
+                            NVIDIA Dynamo
+                            <span class="dynamo-badge-pill">RUST NATIVE</span>
+                            <span class="dynamo-badge-pill">DISAGGREGATED</span>
+                        </h2>
+                        <p style="margin:2px 0 0 0; font-size:12px; color:#94a3b8;">Datacenter LLM Inference Stack · KV-Aware Routing & Prompt Markdown Engine</p>
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px;">
+                <div style="display:flex; align-items:center; gap:10px;">
                     <button type="button" class="dynamo-btn primary" onclick="runDynamoInference()">
-                        <span>⚡ Iniciar Inferencia</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>Iniciar Inferencia</span>
                     </button>
-                    <button type="button" class="dynamo-btn" onclick="closeDynamoToolWindow()">
-                        <span>✕ Cerrar</span>
+                    <button type="button" class="dynamo-btn" onclick="closeDynamoToolWindow()" title="Cerrar ventana (Esc)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+                        <span>Cerrar</span>
                     </button>
                 </div>
             </div>
+
+            <!-- Métricas Clave con Iconos Vectoriales -->
             <div class="dynamo-grid-metrics">
-                <div class="dynamo-metric-box">
-                    <span class="dynamo-metric-label">GPU Nodes Online</span>
-                    <span class="dynamo-metric-val green" id="dynGpuCount">8 x H100 (80GB)</span>
+                <div class="dynamo-metric-card">
+                    <div class="dynamo-metric-ico"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3"/><path d="M15 1v3"/><path d="M9 20v3"/><path d="M15 20v3"/><path d="M20 9h3"/><path d="M20 14h3"/><path d="M1 9h3"/><path d="M1 14h3"/></svg></div>
+                    <div class="dynamo-metric-info">
+                        <span class="dynamo-metric-label">GPU Nodes Online</span>
+                        <span class="dynamo-metric-val green" id="dynGpuCount">8 x H100 (80GB)</span>
+                    </div>
                 </div>
-                <div class="dynamo-metric-box">
-                    <span class="dynamo-metric-label">KV-Cache Hit Rate</span>
-                    <span class="dynamo-metric-val green" id="dynHitRate">94.8%</span>
+                <div class="dynamo-metric-card">
+                    <div class="dynamo-metric-ico"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                    <div class="dynamo-metric-info">
+                        <span class="dynamo-metric-label">KV-Cache Hit Rate</span>
+                        <span class="dynamo-metric-val green" id="dynHitRate">94.8%</span>
+                    </div>
                 </div>
-                <div class="dynamo-metric-box">
-                    <span class="dynamo-metric-label">Prefill P99 Latency</span>
-                    <span class="dynamo-metric-val" id="dynPrefillLat">4.2 ms</span>
+                <div class="dynamo-metric-card">
+                    <div class="dynamo-metric-ico"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg></div>
+                    <div class="dynamo-metric-info">
+                        <span class="dynamo-metric-label">Prefill P99 Latency</span>
+                        <span class="dynamo-metric-val" id="dynPrefillLat">4.2 ms</span>
+                    </div>
                 </div>
-                <div class="dynamo-metric-box">
-                    <span class="dynamo-metric-label">Decode Throughput</span>
-                    <span class="dynamo-metric-val" id="dynDecodeSpeed">148 tok/s / node</span>
+                <div class="dynamo-metric-card">
+                    <div class="dynamo-metric-ico"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                    <div class="dynamo-metric-info">
+                        <span class="dynamo-metric-label">Decode Throughput</span>
+                        <span class="dynamo-metric-val" id="dynDecodeSpeed">148 tok/s</span>
+                    </div>
                 </div>
             </div>
+
             <div class="dynamo-body">
-                <div>
-                    <span style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em;">Topología de Desagregación Activa (Rust Orchestrator)</span>
-                    <div class="dynamo-pipeline-flow" style="margin-top:8px;">
-                        <div class="dynamo-node">API Clients / Gateway</div>
-                        <span class="dynamo-arrow">➜</span>
-                        <div class="dynamo-node active">KV-Router (Rust Prefix Tree)</div>
-                        <span class="dynamo-arrow">➜</span>
-                        <div class="dynamo-node">Prefill Cluster (vLLM / TRT-LLM)</div>
-                        <span class="dynamo-arrow">➜ [NVLink / RoCEv2] ➜</span>
-                        <div class="dynamo-node active">Decode Cluster (SGLang)</div>
+                <!-- Topología Vectorial con Conectores -->
+                <div class="dynamo-topology-container">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em;">Topología de Desagregación Multi-Nodo (Rust Orchestrator)</span>
+                        <span style="font-size:11px; font-family:'Geist Mono',monospace; color:#76B900;">NVLink 900 GB/s Interconnect</span>
+                    </div>
+                    <div class="dynamo-topology-flow">
+                        <div class="dynamo-node-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            <span>API Gateway / Clients</span>
+                        </div>
+                        <div class="dynamo-arrow-vector">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="dynamo-node-item active">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6H9a3 3 0 0 0-3 3v9"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 15h-5a3 3 0 0 0-3 3"/><circle cx="18" cy="15" r="3"/></svg>
+                            <span>KV-Router (Rust Prefix Tree)</span>
+                        </div>
+                        <div class="dynamo-arrow-vector">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="dynamo-node-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+                            <span>Prefill Cluster (vLLM / TRT-LLM)</span>
+                        </div>
+                        <div class="dynamo-arrow-vector">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#76B900" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="dynamo-node-item active">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-5.04z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-5.04z"/></svg>
+                            <span>Decode Cluster (SGLang)</span>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Playground & Prompt Editor Markdown Spec -->
                 <div class="dynamo-playground">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
                             <span style="font-size:13px; font-weight:700; color:#f8fafc;">Pipeline de Inferencia & Editor de Prompts</span>
-                            <div style="display:inline-flex; background:#0b1120; border:1px solid #334155; border-radius:6px; padding:2px;">
-                                <button type="button" id="dynTabStreamBtn" onclick="switchDynamoTab('stream')" style="background:#76B900; color:#000; border:none; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; cursor:pointer;">Terminal Stream</button>
-                                <button type="button" id="dynTabMdBtn" onclick="switchDynamoTab('markdown')" style="background:transparent; color:#94a3b8; border:none; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; cursor:pointer;">Markdown Editor Spec (.md)</button>
+                            <div style="display:inline-flex; background:#0b1120; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:3px; gap:4px;">
+                                <button type="button" id="dynTabStreamBtn" onclick="switchDynamoTab('stream')" style="background:#76B900; color:#050b00; border:none; border-radius:5px; padding:4px 12px; font-size:11px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+                                    <span>Terminal Stream</span>
+                                </button>
+                                <button type="button" id="dynTabMdBtn" onclick="switchDynamoTab('markdown')" style="background:transparent; color:#94a3b8; border:none; border-radius:5px; padding:4px 12px; font-size:11px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                    <span>Markdown Editor Spec (.md)</span>
+                                </button>
                             </div>
                         </div>
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <select id="dynModelSelect" style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:6px; padding:4px 8px; font-size:12px; font-family:'Geist Mono',monospace;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <select id="dynModelSelect" style="background:#0f172a; color:#f8fafc; border:1px solid #334155; border-radius:8px; padding:6px 10px; font-size:12px; font-family:'Geist Mono',monospace; cursor:pointer;">
                                 <option value="deepseek-ai/DeepSeek-R1">deepseek-ai/DeepSeek-R1 (671B MoE)</option>
                                 <option value="meta-llama/Llama-3.3-70B-Instruct">meta-llama/Llama-3.3-70B-Instruct</option>
                                 <option value="Qwen/Qwen2.5-Coder-32B-Instruct">Qwen/Qwen2.5-Coder-32B-Instruct</option>
                                 <option value="mistralai/Mistral-Large-Instruct-2407">mistralai/Mistral-Large-Instruct-2407</option>
                             </select>
-                            <button type="button" class="dynamo-btn" onclick="copyDynamoMarkdown()" title="Copiar salida Markdown para conectar con editor de prompts" style="padding:4px 10px; font-size:11px;">
-                                <span>📋 Copiar Markdown</span>
+                            <button type="button" class="dynamo-btn" onclick="copyDynamoMarkdown()" title="Copiar especificación Markdown para el editor de prompts">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                <span>Copiar Markdown</span>
                             </button>
                         </div>
                     </div>
@@ -16860,83 +16979,19 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                     <div id="dynStreamOutput" class="dynamo-stream-output">Esperando solicitud de inferencia... Haz clic en '⚡ Iniciar Inferencia' para evaluar el motor Rust y generar el Markdown.</div>
                     
                     <!-- Vista 2: Markdown Spec Preview -->
-                    <div id="dynMarkdownOutput" class="dynamo-stream-output" style="display:none; background:#020617; border-color:#76B900; color:#f1f5f9; max-height:220px; overflow-y:auto;">
+                    <div id="dynMarkdownOutput" class="dynamo-stream-output" style="display:none; background:#020617; border-color:#76B900; color:#f1f5f9; max-height:240px; overflow-y:auto;">
                         <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #1e293b; padding-bottom:4px;">
-                            <span style="color:#76B900; font-weight:bold;">FORMATO MARKDOWN PREPARADO PARA EDITOR DE PROMPTS (.MD)</span>
-                            <span style="color:#94a3b8; font-size:11px;">Bridge API: /api/dynamo/prompt-bridge</span>
+                            <span style="color:#76B900; font-weight:bold; display:inline-flex; align-items:center; gap:6px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> FORMATO MARKDOWN PREPARADO PARA EDITOR DE PROMPTS (.MD)
+                            </span>
+                            <span style="color:#94a3b8; font-size:11px; font-family:'Geist Mono',monospace;">Bridge API: /api/dynamo/prompt-bridge</span>
                         </div>
-                        <pre id="dynRawMarkdownText" style="margin:0; font-family:'Geist Mono',monospace; white-space:pre-wrap; color:#cbd5e1; font-size:12px;"># Esperando generación de Markdown...</pre>
+                        <pre id="dynRawMarkdownText" style="margin:0; font-family:'Geist Mono',monospace; white-space:pre-wrap; color:#cbd5e1; font-size:12px; line-height:1.5;"># Esperando generación de Markdown...</pre>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-<script>
-(function() {
-    window.openDynamoToolWindow = function(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        if (e && e.stopPropagation) e.stopPropagation();
-        var overlay = document.getElementById('dynamoToolOverlay');
-        if (overlay) {
-            overlay.classList.add('is-open', 'open');
-            overlay.setAttribute('aria-hidden', 'false');
-            overlay.style.setProperty('display', 'flex', 'important');
-            overlay.style.setProperty('opacity', '1', 'important');
-            overlay.style.setProperty('pointer-events', 'auto', 'important');
-            overlay.style.setProperty('visibility', 'visible', 'important');
-            overlay.style.setProperty('z-index', '999999', 'important');
-        } else {
-            console.error('dynamoToolOverlay not found');
-        }
-    };
-
-    window.closeDynamoToolWindow = function(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        if (e && e.stopPropagation) e.stopPropagation();
-        var overlay = document.getElementById('dynamoToolOverlay');
-        if (overlay) {
-            overlay.classList.remove('is-open', 'open');
-            overlay.setAttribute('aria-hidden', 'true');
-            overlay.style.setProperty('display', 'none', 'important');
-            overlay.style.setProperty('opacity', '0', 'important');
-            overlay.style.setProperty('pointer-events', 'none', 'important');
-        }
-    };
-
-    window.runDynamoInference = function() {
-        var modelEl = document.getElementById('dynModelSelect');
-        var promptEl = document.getElementById('dynPromptInput');
-        var out = document.getElementById('dynStreamOutput');
-        var model = modelEl ? modelEl.value : 'DeepSeek-R1';
-        var prompt = promptEl && promptEl.value ? promptEl.value.trim() : 'Inferencia Dynamo';
-
-        if (out) {
-            out.innerHTML = '<span style="color:#76B900;">⚡ [DYNAMO-RUST] Evaluando enrutamiento KV-Cache...</span>\n';
-            setTimeout(function() {
-                var isHit = prompt.length > 15;
-                var latency = isHit ? '3.8 ms' : '16.9 ms';
-                var hitText = isHit ? '✓ CACHE HIT (Prefijo en VRAM reusado)' : '⚠ CACHE MISS (Nuevo bloque asignado)';
-                out.innerHTML += '[KV-ROUTER] ' + hitText + ' | Latencia: ' + latency + '\n[DISAGG-ENGINE] Prefill completado ➜ NVLink ➜ Decode Cluster (148 tok/s)\n\n[INFERENCE RESULT: ' + model + ']\n\n✓ Respuesta generada exitosamente por el motor NVIDIA Dynamo en Rust.';
-            }, 300);
-        }
-    };
-
-    // Attach immediate click handler
-    function bindDynamoBtn() {
-        var btn = document.getElementById('slot-2-1');
-        if (btn) {
-            btn.onclick = function(ev) {
-                window.openDynamoToolWindow(ev);
-            };
-        }
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bindDynamoBtn);
-    } else {
-        bindDynamoBtn();
-    }
-})();
-</script>
 
     <!-- GitHub Repositories Tool Modal & Workspace Manager -->
     <div class="gh-dock-overlay" id="githubToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ghToolTitle">

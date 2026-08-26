@@ -13596,7 +13596,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             await openExternalWithTokens(url || 'chromeos-cli.php', 'l8-chromeos-play', 'width=1180,height=780');
         }
 
-        async // ===== CONTROLADOR DE LA HERRAMIENTA GITHUB TOOLBOX =====
+        // ===== CONTROLADOR DE LA HERRAMIENTA GITHUB TOOLBOX =====
     let currentGhPage = 1;
     let currentGhQuery = '';
 
@@ -13622,9 +13622,12 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
     window.openGithubToolWindow = function() {
         const overlay = document.getElementById('githubToolOverlay');
         if (overlay) {
-            overlay.classList.add('is-open');
+            overlay.style.display = 'flex';
+            overlay.classList.add('is-open', 'open');
             overlay.setAttribute('aria-hidden', 'false');
-            refreshGithubToolData();
+            if (typeof refreshGithubToolData === 'function') {
+                refreshGithubToolData();
+            }
         }
     };
 
@@ -13790,8 +13793,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             console.error("Error guardando repo:", e);
         }
     };
-
-        function submitCommand(cmd) {
+        async function submitCommand(cmd) {
             if (!cmd) return;
             const startTime = performance.now();
             if (window.CodespaceWS) {

@@ -14668,177 +14668,8 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             await openExternalWithTokens(url || 'chromeos-cli.php', 'l8-chromeos-play', 'width=1180,height=780');
         }
 
-        // ===== CONTROLADOR DE LA HERRAMIENTA NVIDIA DYNAMO (RUST ENGINE) =====
-let currentDynamoMarkdown = '';
+        // ===== CONTROLADOR DE LA HERRAMIENTA GITHUB TOOLBOX =====
 
-    window.switchDynamoTab = function(tab) {
-        var streamView = document.getElementById('dynStreamOutput');
-        var mdView = document.getElementById('dynMarkdownOutput');
-        var streamBtn = document.getElementById('dynTabStreamBtn');
-        var mdBtn = document.getElementById('dynTabMdBtn');
-
-        if (tab === 'markdown') {
-            if (streamView) streamView.style.display = 'none';
-            if (mdView) mdView.style.display = 'block';
-            if (streamBtn) { streamBtn.style.background = 'transparent'; streamBtn.style.color = '#94a3b8'; }
-            if (mdBtn) { mdBtn.style.background = '#76B900'; mdBtn.style.color = '#000'; }
-        } else {
-            if (streamView) streamView.style.display = 'block';
-            if (mdView) mdView.style.display = 'none';
-            if (streamBtn) { streamBtn.style.background = '#76B900'; streamBtn.style.color = '#000'; }
-            if (mdBtn) { mdBtn.style.background = 'transparent'; mdBtn.style.color = '#94a3b8'; }
-        }
-    };
-
-    window.copyDynamoMarkdown = function() {
-        if (!currentDynamoMarkdown) {
-            alert('Ejecuta primero la inferencia para generar el Markdown');
-            return;
-        }
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(currentDynamoMarkdown).then(function() {
-                alert('✓ ¡Markdown del Prompt copiado! Listo para usar en el editor.');
-            }).catch(function() {
-                alert('✓ ¡Markdown listo!');
-            });
-        }
-    };
-
-    window.runDynamoInference = async function() {
-        var modelEl = document.getElementById('dynModelSelect');
-        var promptEl = document.getElementById('dynPromptInput');
-        var keyEl = document.getElementById('dynApiKeyInput');
-        var out = document.getElementById('dynStreamOutput');
-        var mdOut = document.getElementById('dynRawMarkdownText');
-
-        var model = modelEl ? modelEl.value : 'deepseek-ai/DeepSeek-R1';
-        var prompt = promptEl && promptEl.value ? promptEl.value.trim() : 'Explicar arquitectura Dynamo';
-        var apiKey = (keyEl && keyEl.value ? keyEl.value.trim() : '') || localStorage.getItem('dynamo_api_key') || '';
-
-        if (keyEl && !keyEl.value && apiKey) {
-            keyEl.value = apiKey;
-        }
-
-        // 1. Validación en Frontend antes de disparar la petición
-        if (!apiKey) {
-            if (out) {
-                out.innerHTML = '<span style="color:#ef4444; font-weight:bold;">[INFERENCE ERROR] ❌ Error de Autenticación:</span>\n' +
-                    'No se proporcionó una clave API válida para el modelo \'' + model + '\'.\n\n' +
-                    '<span style="color:#38bdf8;">👉 Por favor, introduce tu API Key (sk-... / Token de DeepSeek, OpenRouter, Groq u OpenAI) en el campo "MODEL API KEY" arriba para iniciar la inferencia real.</span>';
-            }
-            if (keyEl) {
-                keyEl.focus();
-                keyEl.style.borderColor = '#ef4444';
-            }
-            return;
-        }
-
-        if (out) {
-            out.innerHTML = '<span style="color:#76B900;">⚡ [DYNAMO-RUST] Autorizado con Bearer Token (****' + apiKey.slice(-4) + '). Enrutando inferencia hacia clúster...</span>\n';
-        }
-
-        try {
-            // 2. Envío seguro con cabecera Authorization: Bearer <API_KEY>
-            var res = await fetch('/api/route_prompt', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + apiKey
-                },
-                body: JSON.stringify({
-                    model: model,
-                    prompt: prompt,
-                    api_key: apiKey
-                })
-            });
-
-            var data = await res.json();
-
-            if (!res.ok || data.status === 'error') {
-                var errMsg = (data && data.error) ? data.error : ('Error HTTP ' + res.status);
-                if (out) {
-                    out.innerHTML = '<span style="color:#ef4444; font-weight:bold;">' + errMsg + '</span>\n' +
-                        (data.message || 'Por favor, verifica que tu clave API sea correcta.');
-                }
-                return;
-            }
-
-            var isHit = data.kv_cache_hit;
-            var hitText = isHit ? '✓ CACHE HIT (Prefijo en VRAM reusado)' : '⚠ CACHE MISS (Nuevo bloque asignado)';
-            var latency = data.latency_ms + ' ms';
-            var speed = data.throughput_tok_s + ' tok/s';
-
-            if (out) {
-                out.innerHTML = '[KV-ROUTER] ' + hitText + ' | Latencia Prefill: ' + latency + '\n' +
-                    '[DISAGG-ENGINE] Prefill completado ➜ NVLink ➜ Decode Cluster (' + speed + ')\n\n' +
-                    '[INFERENCE STREAM: ' + model + ']\n\n' +
-                    data.content + '\n\n' +
-                    '✓ Inferencia finalizada exitosamente por Dynamo Rust Core (' + data.tokens_generated + ' tokens).';
-            }
-
-            currentDynamoMarkdown = data.markdown || '';
-            if (mdOut) {
-                mdOut.textContent = currentDynamoMarkdown;
-            }
-
-        } catch (err) {
-            if (out) {
-                out.innerHTML = '<span style="color:#ef4444;">[NETWORK ERROR] No se pudo conectar con el motor de inferencia: ' + (err.message || '') + '</span>';
-            }
-        }
-    };
-
-    window.openDynamoToolWindow = function() {
-        const overlay = document.getElementById('dynamoToolOverlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-            overlay.classList.add('is-open', 'open');
-            overlay.setAttribute('aria-hidden', 'false');
-        }
-    };
-
-    window.closeDynamoToolWindow = function() {
-        const overlay = document.getElementById('dynamoToolOverlay');
-        if (overlay) {
-            overlay.classList.remove('is-open', 'open');
-            overlay.style.display = 'none';
-            overlay.setAttribute('aria-hidden', 'true');
-        }
-    };
-
-    window.runDynamoInference = function() {
-        const model = document.getElementById('dynModelSelect').value;
-        const prompt = document.getElementById('dynPromptInput').value.trim() || 'Explicar arquitectura Dynamo';
-        const out = document.getElementById('dynStreamOutput');
-        
-        out.innerHTML = '<span style="color:#76B900;">⚡ [DYNAMO-RUST] Enrutando prompt con árbol de prefijos KV-Router...</span>\n';
-        
-        setTimeout(() => {
-            const isHit = prompt.length > 20;
-            const latency = isHit ? '3.8 ms' : '17.4 ms';
-            const hitText = isHit ? '✓ CACHE HIT (Prefijo en VRAM reusado)' : '⚠ CACHE MISS (Nuevo bloque asignado)';
-            
-            out.innerHTML += `[KV-ROUTER] ${hitText} | Latencia Prefill: ${latency}\n[DISAGG-ENGINE] Prefill completado en Nodo #2 ➜ Transfiriendo KV a Decode Nodo #6 (900 GB/s NVLink)...\n\n[INFERENCE STREAM: ${model}]\n\nLa desagregación de Prefill y Decode en NVIDIA Dynamo separa las fases de procesamiento masivo en paralelo (Prefill: compute-bound) del muestreo autorregresivo secuencial (Decode: memory-bandwidth bound).\n\nEsto elimina la interferencia entre peticiones largas y cortas, maximizando el TCO del centro de datos y reduciendo la latencia P99 hasta en un 68%.\n\n✓ Inferencia finalizada exitosamente por Dynamo Rust Core (148 tokens generados).`;
-        }, 350);
-    };
-
-    document.addEventListener('click', function(ev) {
-        const overlay = document.getElementById('dynamoToolOverlay');
-        if (overlay && (overlay.classList.contains('is-open') || overlay.classList.contains('open')) && ev.target === overlay) {
-            closeDynamoToolWindow();
-        }
-    });
-
-    document.addEventListener('keydown', function(ev) {
-        if (ev.key === 'Escape') {
-            const overlay = document.getElementById('dynamoToolOverlay');
-            if (overlay && (overlay.classList.contains('is-open') || overlay.classList.contains('open') || overlay.style.display === 'flex')) {
-                closeDynamoToolWindow();
-            }
-        }
-    });
-
-    // ===== CONTROLADOR DE LA HERRAMIENTA GITHUB TOOLBOX =====
     let currentGhPage = 1;
     let currentGhQuery = '';
 
@@ -17265,6 +17096,17 @@ let currentDynamoMarkdown = '';
                             </button>
                         </div>
                     </div>
+
+                    <!-- Campo de Entrada de API Key (Frontend Auth) -->
+                    <div style="display:flex; align-items:center; gap:10px; background:#070d17; border:1px solid #76B900; border-radius:10px; padding:8px 14px; box-shadow:0 0 14px rgba(118,185,0,0.18);">
+                        <span style="font-size:11px; font-weight:800; color:#76B900; font-family:'Geist Mono',monospace; display:flex; align-items:center; gap:5px; flex-shrink:0;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            MODEL API KEY:
+                        </span>
+                        <input type="password" id="dynApiKeyInput" placeholder="Introduce tu clave API (sk-... / Token de DeepSeek, OpenRouter, Groq, NVIDIA NIM u OpenAI)..." style="flex:1; background:transparent; border:none; color:#ffffff; font-family:'Geist Mono',monospace; font-size:12px; outline:none;" oninput="localStorage.setItem('dynamo_api_key', this.value)">
+                        <button type="button" onclick="const f=document.getElementById('dynApiKeyInput'); f.type = f.type==='password'?'text':'password';" style="background:#172236; border:1px solid #2d3e5c; color:#94a3b8; padding:3px 8px; border-radius:5px; font-size:11px; cursor:pointer; font-family:'Geist Mono',monospace;">👁 Ver</button>
+                    </div>
+
                     <textarea id="dynPromptInput" class="dynamo-prompt-input" placeholder="Introduce un prompt o plantilla con variables (ej: {{user_query}})...">¿Cuál es la ventaja de la desagregación de Prefill y Decode en clústeres de inferencia LLM?</textarea>
                     
                     <!-- Vista 1: Stream CLI -->
@@ -17284,6 +17126,178 @@ let currentDynamoMarkdown = '';
             </div>
         </div>
     </div>
+<!-- Script Controlador de NVIDIA Dynamo con Autenticación de API Key -->
+    <script>
+    (function() {
+        let currentDynamoMarkdown = '';
+
+        window.openDynamoToolWindow = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (e && e.stopPropagation) e.stopPropagation();
+            var overlay = document.getElementById('dynamoToolOverlay');
+            if (overlay) {
+                overlay.classList.add('is-open', 'open');
+                overlay.setAttribute('aria-hidden', 'false');
+                overlay.style.setProperty('display', 'flex', 'important');
+                overlay.style.setProperty('opacity', '1', 'important');
+                overlay.style.setProperty('pointer-events', 'auto', 'important');
+                overlay.style.setProperty('visibility', 'visible', 'important');
+                overlay.style.setProperty('z-index', '999999', 'important');
+                
+                var keyEl = document.getElementById('dynApiKeyInput');
+                if (keyEl && !keyEl.value) {
+                    keyEl.value = localStorage.getItem('dynamo_api_key') || '';
+                }
+            }
+        };
+
+        window.closeDynamoToolWindow = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (e && e.stopPropagation) e.stopPropagation();
+            var overlay = document.getElementById('dynamoToolOverlay');
+            if (overlay) {
+                overlay.classList.remove('is-open', 'open');
+                overlay.setAttribute('aria-hidden', 'true');
+                overlay.style.setProperty('display', 'none', 'important');
+                overlay.style.setProperty('opacity', '0', 'important');
+                overlay.style.setProperty('pointer-events', 'none', 'important');
+            }
+        };
+
+        window.switchDynamoTab = function(tab) {
+            var streamView = document.getElementById('dynStreamOutput');
+            var mdView = document.getElementById('dynMarkdownOutput');
+            var streamBtn = document.getElementById('dynTabStreamBtn');
+            var mdBtn = document.getElementById('dynTabMdBtn');
+
+            if (tab === 'markdown') {
+                if (streamView) streamView.style.display = 'none';
+                if (mdView) mdView.style.display = 'block';
+                if (streamBtn) { streamBtn.style.background = 'transparent'; streamBtn.style.color = '#94a3b8'; }
+                if (mdBtn) { mdBtn.style.background = '#76B900'; mdBtn.style.color = '#050b00'; }
+            } else {
+                if (streamView) streamView.style.display = 'block';
+                if (mdView) mdView.style.display = 'none';
+                if (streamBtn) { streamBtn.style.background = '#76B900'; streamBtn.style.color = '#050b00'; }
+                if (mdBtn) { mdBtn.style.background = 'transparent'; mdBtn.style.color = '#94a3b8'; }
+            }
+        };
+
+        window.copyDynamoMarkdown = function() {
+            if (!currentDynamoMarkdown) {
+                alert('Ejecuta primero la inferencia para generar el Markdown');
+                return;
+            }
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(currentDynamoMarkdown).then(function() {
+                    alert('✓ ¡Markdown del Prompt copiado! Listo para usar en el editor.');
+                });
+            }
+        };
+
+        window.runDynamoInference = async function() {
+            var modelEl = document.getElementById('dynModelSelect');
+            var promptEl = document.getElementById('dynPromptInput');
+            var keyEl = document.getElementById('dynApiKeyInput');
+            var out = document.getElementById('dynStreamOutput');
+            var mdOut = document.getElementById('dynRawMarkdownText');
+
+            var model = modelEl ? modelEl.value : 'deepseek-ai/DeepSeek-R1';
+            var prompt = promptEl && promptEl.value ? promptEl.value.trim() : 'Explicar arquitectura Dynamo';
+            var apiKey = (keyEl && keyEl.value ? keyEl.value.trim() : '') || localStorage.getItem('dynamo_api_key') || '';
+
+            if (keyEl && !keyEl.value && apiKey) {
+                keyEl.value = apiKey;
+            }
+
+            // 1. VALIDACIÓN ESTRICTA: Frena inmediatamente si la API Key está vacía
+            if (!apiKey) {
+                if (out) {
+                    out.innerHTML = '<span style="color:#ef4444; font-weight:bold; font-size:13px;">[INFERENCE ERROR] ❌ Error de Autenticación:</span>\n' +
+                        'No se proporcionó una clave API para el modelo \'' + model + '\'.\n\n' +
+                        '<span style="color:#76B900; font-weight:bold;">👉 Por favor, introduce tu API Key (sk-... o Token de DeepSeek, OpenRouter, Groq, NVIDIA NIM u OpenAI) en la barra "MODEL API KEY" arriba y vuelve a pulsar \'⚡ Iniciar Inferencia\'.</span>';
+                }
+                if (keyEl) {
+                    keyEl.focus();
+                    keyEl.style.boxShadow = '0 0 14px #ef4444';
+                    setTimeout(function() { keyEl.style.boxShadow = 'none'; }, 3000);
+                }
+                return;
+            }
+
+            if (out) {
+                out.innerHTML = '<span style="color:#76B900;">⚡ [DYNAMO-RUST] Autorizado con Bearer Token (****' + apiKey.slice(-4) + '). Enrutando prompt al clúster de inferencia...</span>\n';
+            }
+
+            try {
+                var res = await fetch('/api/route_prompt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: prompt,
+                        api_key: apiKey
+                    })
+                });
+
+                var data = await res.json();
+
+                if (!res.ok || data.status === 'error') {
+                    var errMsg = (data && data.error) ? data.error : ('Error HTTP ' + res.status);
+                    if (out) {
+                        out.innerHTML = '<span style="color:#ef4444; font-weight:bold;">' + errMsg + '</span>\n' +
+                            (data.message || 'Por favor, verifica que tu clave API sea válida.');
+                    }
+                    return;
+                }
+
+                var isHit = data.kv_cache_hit;
+                var hitText = isHit ? '✓ CACHE HIT (Prefijo en VRAM reusado)' : '⚠ CACHE MISS (Nuevo bloque asignado)';
+                var latency = data.latency_ms + ' ms';
+                var speed = data.throughput_tok_s + ' tok/s';
+
+                if (out) {
+                    out.innerHTML = '[KV-ROUTER] ' + hitText + ' | Latencia Prefill: ' + latency + '\n' +
+                        '[DISAGG-ENGINE] Prefill completado ➜ NVLink ➜ Decode Cluster (' + speed + ')\n\n' +
+                        '[INFERENCE STREAM: ' + model + ' | Auth: Bearer ' + data.auth_key_masked + ']\n\n' +
+                        data.content + '\n\n' +
+                        '✓ Inferencia real finalizada exitosamente por Dynamo Rust Core (' + data.tokens_generated + ' tokens).';
+                }
+
+                currentDynamoMarkdown = data.markdown || '';
+                if (mdOut) {
+                    mdOut.textContent = currentDynamoMarkdown;
+                }
+
+            } catch (err) {
+                if (out) {
+                    out.innerHTML = '<span style="color:#ef4444;">[NETWORK ERROR] Error de conexión con el endpoint de inferencia: ' + (err.message || '') + '</span>';
+                }
+            }
+        };
+
+        function bindDynamoBtn() {
+            var btn = document.getElementById('slot-2-1');
+            if (btn) {
+                btn.onclick = function(ev) {
+                    window.openDynamoToolWindow(ev);
+                };
+            }
+            var keyEl = document.getElementById('dynApiKeyInput');
+            if (keyEl && !keyEl.value) {
+                keyEl.value = localStorage.getItem('dynamo_api_key') || '';
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindDynamoBtn);
+        } else {
+            bindDynamoBtn();
+        }
+    })();
+    </script>
 
     <!-- Strix AI Autonomous Security & IP Auditor Modal -->
     <div class="strix-dock-overlay" id="strixToolOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="strixToolTitle">

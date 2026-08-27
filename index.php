@@ -9357,8 +9357,8 @@ if (!headers_sent()) {
     
         /* ICON LOGOUT BUTTON */
         .icon-logout {
-            background: transparent;
-            border: 1px solid rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.5);
             border-radius: 8px;
             color: #ef4444;
             display: inline-flex;
@@ -9371,10 +9371,11 @@ if (!headers_sent()) {
             transition: all 0.2s ease;
         }
         .icon-logout:hover {
-            background: rgba(239, 68, 68, 0.15);
+            background: rgba(239, 68, 68, 0.2);
             border-color: #ef4444;
             color: #f87171;
-            transform: scale(1.05);
+            transform: scale(1.08);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
         }
 
     </style>
@@ -9681,12 +9682,19 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             </nav>
         </div>
         <div class="top-bar-right" style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="l8LogoutSession()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
+            <button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="window.l8LogoutSession && window.l8LogoutSession()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" aria-hidden="true" style="overflow:visible;">
+<circle cx="24" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"></circle>
+<line x1="22.09" x2="13.5" y1="9.63" y2="16.5" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"></line>
+<line x1="26.24" x2="34.5" y1="9.89" y2="16.5" fill="none" stroke="currentColor" stroke-width="3"></line>
+<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M26.24,39.5H6.5c-1.1,0-2-0.9-2-2v-19c0-1.1,0.9-2,2-2h7"></path>
+<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M24,16.5h18.5c1.1,0,2,0.9,2,2v19c0,1.1-0.9,2-2,2h-6.6"></path>
+<path fill="currentColor" d="M11.35,32.1c-1.86,0-3.38-1.84-3.38-4.1s1.52-4.1,3.38-4.1c1.48,0,2.37,1.01,2.66,1.6c0.25,0.51,0.04,1.12-0.47,1.37 c-0.5,0.25-1.11,0.04-1.36-0.45c-0.05-0.08-0.29-0.47-0.83-0.47c-0.71,0-1.33,0.96-1.33,2.05c0,1.09,0.62,2.05,1.33,2.05 c0.57,0,0.82-0.45,0.82-0.45c0.25-0.51,0.86-0.72,1.37-0.47c0.51,0.25,0.72,0.86,0.47,1.37C13.72,31.1,12.83,32.1,11.35,32.1z"></path>
+<path fill="currentColor" d="M40,30.05h-2.05v-1.03h1.54c0.57,0,1.03-0.46,1.03-1.03c0-0.57-0.46-1.03-1.03-1.03h-1.54v-1.03H40 c0.57,0,1.03-0.46,1.03-1.03S40.57,23.9,40,23.9h-3.08c-0.57,0-1.03,0.46-1.03,1.03v6.16c0,0.57,0.46,1.03,1.03,1.03H40 c0.57,0,1.03-0.46,1.03-1.03C41.03,30.51,40.57,30.05,40,30.05z"></path>
+<path fill="currentColor" d="M19.7,32.1h-3.08c-0.57,0-1.03-0.46-1.03-1.03v-6.16c0-0.57,0.46-1.03,1.03-1.03s1.03,0.46,1.03,1.03v5.13h2.05 c0.57,0,1.03,0.46,1.03,1.03S20.27,32.1,19.7,32.1z"></path>
+<path fill="currentColor" d="M24.66,32.1c-1.98,0-3.59-1.84-3.59-4.1s1.61-4.1,3.59-4.1s3.59,1.84,3.59,4.1S26.64,32.1,24.66,32.1z M24.66,25.95 c-0.83,0-1.54,0.94-1.54,2.05c0,1.11,0.7,2.05,1.54,2.05c0.83,0,1.54-0.94,1.54-2.05C26.2,26.89,25.49,25.95,24.66,25.95z"></path>
+<path fill="currentColor" d="M32.59,32.1h-1.12c-1.11,0-1.89-0.66-2.17-0.94c-0.4-0.4-0.4-1.05,0-1.45s1.05-0.4,1.45,0c0.08,0.08,0.37,0.34,0.72,0.34 h1.12c0.28,0,0.51-0.23,0.51-0.51c0-0.28-0.23-0.51-0.51-0.51h-0.9c-1.41,0-2.57-1.15-2.57-2.57c0-1.41,1.15-2.57,2.57-2.57h0.9 c1.16,0,1.92,0.73,2.01,0.81c0.4,0.4,0.4,1.05,0,1.45c-0.4,0.4-1.05,0.4-1.45,0c0,0,0,0,0,0c0,0-0.25-0.21-0.56-0.21h-0.9 c-0.28,0-0.51,0.23-0.51,0.51c0,0.28,0.23,0.51,0.51,0.51h0.9c1.41,0,2.57,1.15,2.57,2.57C35.15,30.95,34,32.1,32.59,32.1z"></path>
+</svg>
             </button>
             <button type="button" class="icon-mobile" id="mobileModeBtn" title="Versión móvil" aria-label="Activar versión móvil" aria-pressed="false" onclick="toggleMobileMode()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" role="img" aria-hidden="true">
@@ -11412,6 +11420,28 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
 <body>
 <header>l8 codespace · <strong>${title}</strong> · <span>${terminalEscapeHtml(lang)}</span></header>
 <pre><code class="language-${terminalEscapeHtml(lang)}">${body}</code></pre>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var logoutBtn = document.getElementById('topBarLogoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                if (e && e.preventDefault) e.preventDefault();
+                if (typeof window.l8LogoutSession === 'function') {
+                    window.l8LogoutSession();
+                } else {
+                    if (confirm('¿Cerrar sesión de la cuenta?')) {
+                        sessionStorage.clear();
+                        localStorage.removeItem('l8_session_token');
+                        localStorage.removeItem('l8_auth_account_id');
+                        window.location.reload();
+                    }
+                }
+            };
+        }
+    });
+    </script>
+
 </body>
 </html>
 `;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Sistema de Tokens - DESACTIVADO (Acceso Ilimitado Libre de Restricciones)
+ * Sistema de Tokens - Acceso Libre e Ilimitado
  */
 
 function tokensStatus() {

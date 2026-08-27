@@ -9354,6 +9354,29 @@ if (!headers_sent()) {
             pointer-events: none !important;
         }
 
+    
+        /* ICON LOGOUT BUTTON */
+        .icon-logout {
+            background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 8px;
+            color: #ef4444;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .icon-logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            color: #f87171;
+            transform: scale(1.05);
+        }
+
     </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 </head>
@@ -9657,34 +9680,14 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 </div>
             </nav>
         </div>
-        <div class="top-bar-right">
-            
-            
-            <div class="tokens-panel" id="tokensPanel" role="dialog" aria-label="Consumo mensual de tokens">
-                <h3>Tokens del mes</h3>
-                <div class="tokens-period" id="tokensPeriodLabel">Periodo —</div>
-                <div class="tokens-meter-track"><div class="tokens-meter-fill" id="tokensMeterFill"></div></div>
-                <div class="tokens-stats">
-                    <div>Restantes<strong id="tokensRemaining">—</strong></div>
-                    <div>Usados<strong id="tokensUsed">—</strong></div>
-                    <div>Comandos<strong id="tokensCommands">—</strong></div>
-                    <div>Externas<strong id="tokensExternals">—</strong></div>
-                    <div>Clones<strong id="tokensClones">—</strong></div>
-                    <div>Notas<strong id="tokensNotepads">—</strong></div>
-                    <div>Toolkit<strong id="tokensToolkits">—</strong></div>
-                </div>
-                <div class="tokens-legend" id="tokensLegend">Cupo mensual 10.000 · Comando −5 · Ventana externa −25 · Clone GitHub −625 · Bloc de notas −1000 · Toolkit −1000</div>
-                <div class="tokens-section-title">Meses anteriores</div>
-                <ul class="tokens-history" id="tokensHistoryList"></ul>
-                <p class="tokens-empty" id="tokensHistoryEmpty">Sin gastos de meses previos aún.</p>
-                <button type="button" class="tokens-unlock-open" id="tokensUnlockOpenBtn" title="Desbloquear más tokens con Dilithium-5">
-                    Desbloquear tokens · Dilithium-5 · <span class="xu" id="tokensUnlockUsesHint">x1</span>
-                </button>
-                <div class="tokens-section-title">Gastos recientes</div>
-                <ul class="tokens-ledger" id="tokensLedgerList"></ul>
-                <p class="tokens-empty" id="tokensLedgerEmpty">Aún no hay movimientos guardados.</p>
-                <p class="tokens-persist-note">El consumo se guarda en el servidor (y Supabase si está configurado) para no perderse al actualizar la plataforma.</p>
-            </div>
+        <div class="top-bar-right" style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="l8LogoutSession()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </button>
             <button type="button" class="icon-mobile" id="mobileModeBtn" title="Versión móvil" aria-label="Activar versión móvil" aria-pressed="false" onclick="toggleMobileMode()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" role="img" aria-hidden="true">
                     <path d="M28.957,7.628C28.813,1,23.806,1,21.919,1c-0.593,0-1.207,0.025-1.801,0.048 c-0.465,0.018-0.94,0.038-1.417,0.045l-0.163,0.004c-1.67,0.04-5.57,0.132-7.1,0.173c-0.045-0.001-0.09-0.001-0.134-0.001 c-5.201,0-5.252,5.412-5.277,8.013C6.023,9.686,6.02,10.065,6.003,10.4L6,10.449v0.049c-0.005,5.539,0.248,11.295,0.775,17.597h0 c0.021,0.239,0.125,1.117,0.558,1.781c0.664,1.098,1.962,1.788,3.761,1.999l0.027,0.003l0.027,0.002 c0.904,0.081,1.809,0.12,2.766,0.12c2.234,0,4.31-0.214,6.508-0.439l1.062-0.108l0.026-0.002l0.026-0.003l2.433-0.308l0.077-0.01 l0.076-0.016c0.029-0.004,0.073-0.008,0.121-0.013c0.355-0.036,0.947-0.098,1.747-0.43c1.429-0.562,2.447-2.179,2.374-3.749 l0.335-9.486c0.031-0.991,0.081-1.983,0.132-2.979C28.947,12.223,29.065,9.913,28.957,7.628z" opacity=".3"></path>

@@ -14669,17 +14669,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
         }
 
         // ===== CONTROLADOR DE LA HERRAMIENTA NVIDIA DYNAMO (RUST ENGINE) =====
-    document.addEventListener('DOMContentLoaded', function() {
-        const slotDyn = document.getElementById('slot-2-1');
-        if (slotDyn) {
-            slotDyn.addEventListener('click', function(e) {
-                e.preventDefault();
-                openDynamoToolWindow();
-            });
-        }
-    });
-
-    let currentDynamoMarkdown = '';
+let currentDynamoMarkdown = '';
 
     window.switchDynamoTab = function(tab) {
         var streamView = document.getElementById('dynStreamOutput');
@@ -14711,6 +14701,90 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             }).catch(function() {
                 alert('✓ ¡Markdown listo!');
             });
+        }
+    };
+
+    window.runDynamoInference = async function() {
+        var modelEl = document.getElementById('dynModelSelect');
+        var promptEl = document.getElementById('dynPromptInput');
+        var keyEl = document.getElementById('dynApiKeyInput');
+        var out = document.getElementById('dynStreamOutput');
+        var mdOut = document.getElementById('dynRawMarkdownText');
+
+        var model = modelEl ? modelEl.value : 'deepseek-ai/DeepSeek-R1';
+        var prompt = promptEl && promptEl.value ? promptEl.value.trim() : 'Explicar arquitectura Dynamo';
+        var apiKey = (keyEl && keyEl.value ? keyEl.value.trim() : '') || localStorage.getItem('dynamo_api_key') || '';
+
+        if (keyEl && !keyEl.value && apiKey) {
+            keyEl.value = apiKey;
+        }
+
+        // 1. Validación en Frontend antes de disparar la petición
+        if (!apiKey) {
+            if (out) {
+                out.innerHTML = '<span style="color:#ef4444; font-weight:bold;">[INFERENCE ERROR] ❌ Error de Autenticación:</span>\n' +
+                    'No se proporcionó una clave API válida para el modelo \'' + model + '\'.\n\n' +
+                    '<span style="color:#38bdf8;">👉 Por favor, introduce tu API Key (sk-... / Token de DeepSeek, OpenRouter, Groq u OpenAI) en el campo "MODEL API KEY" arriba para iniciar la inferencia real.</span>';
+            }
+            if (keyEl) {
+                keyEl.focus();
+                keyEl.style.borderColor = '#ef4444';
+            }
+            return;
+        }
+
+        if (out) {
+            out.innerHTML = '<span style="color:#76B900;">⚡ [DYNAMO-RUST] Autorizado con Bearer Token (****' + apiKey.slice(-4) + '). Enrutando inferencia hacia clúster...</span>\n';
+        }
+
+        try {
+            // 2. Envío seguro con cabecera Authorization: Bearer <API_KEY>
+            var res = await fetch('/api/route_prompt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + apiKey
+                },
+                body: JSON.stringify({
+                    model: model,
+                    prompt: prompt,
+                    api_key: apiKey
+                })
+            });
+
+            var data = await res.json();
+
+            if (!res.ok || data.status === 'error') {
+                var errMsg = (data && data.error) ? data.error : ('Error HTTP ' + res.status);
+                if (out) {
+                    out.innerHTML = '<span style="color:#ef4444; font-weight:bold;">' + errMsg + '</span>\n' +
+                        (data.message || 'Por favor, verifica que tu clave API sea correcta.');
+                }
+                return;
+            }
+
+            var isHit = data.kv_cache_hit;
+            var hitText = isHit ? '✓ CACHE HIT (Prefijo en VRAM reusado)' : '⚠ CACHE MISS (Nuevo bloque asignado)';
+            var latency = data.latency_ms + ' ms';
+            var speed = data.throughput_tok_s + ' tok/s';
+
+            if (out) {
+                out.innerHTML = '[KV-ROUTER] ' + hitText + ' | Latencia Prefill: ' + latency + '\n' +
+                    '[DISAGG-ENGINE] Prefill completado ➜ NVLink ➜ Decode Cluster (' + speed + ')\n\n' +
+                    '[INFERENCE STREAM: ' + model + ']\n\n' +
+                    data.content + '\n\n' +
+                    '✓ Inferencia finalizada exitosamente por Dynamo Rust Core (' + data.tokens_generated + ' tokens).';
+            }
+
+            currentDynamoMarkdown = data.markdown || '';
+            if (mdOut) {
+                mdOut.textContent = currentDynamoMarkdown;
+            }
+
+        } catch (err) {
+            if (out) {
+                out.innerHTML = '<span style="color:#ef4444;">[NETWORK ERROR] No se pudo conectar con el motor de inferencia: ' + (err.message || '') + '</span>';
+            }
         }
     };
 

@@ -7,6 +7,6 @@ pub mod cluster_manager;
 pub mod markdown_formatter;
 
 pub use kv_router::KvRouter;
-pub use disagg_engine::DisaggregatedEngine;
+pub use disagg_engine::{DisaggEngine, InferenceError, InferenceResponse};
 pub use cluster_manager::ClusterStatus;
 pub use markdown_formatter::{MarkdownFormatter, PromptMetadata};

@@ -14744,7 +14744,7 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             const latency = isHit ? '3.8 ms' : '17.4 ms';
             const hitText = isHit ? '✓ CACHE HIT (Prefijo en VRAM reusado)' : '⚠ CACHE MISS (Nuevo bloque asignado)';
             
-            out.innerHTML += `[KV-ROUTER] ${hitText} | Latencia Prefill: ${latency}\n[DISAGG-ENGINE] Prefill completado en Nodo #2 ➜ Transfiriendo KV a Decode Nodo #6 (900 GB/s NVLink)...\n\n[INFERENCE STREAM: ${model}]\n\nLa desagregación de Prefill y Decode en NVIDIA Dynamo separa las fases de procesamiento masivo en paralelo (Prefill: compute-bound) del muestreo autorregresivo secuencial (Decode: memory-bandwidth bound).\n\nEsto elimina la interferencia entre peticiones largas y cortas, maximizando el TCO del centro de datos y reduciendo la latencia P99 hasta en un 68%%.\n\n✓ Inferencia finalizada exitosamente por Dynamo Rust Core (148 tokens generados).`;
+            out.innerHTML += `[KV-ROUTER] ${hitText} | Latencia Prefill: ${latency}\n[DISAGG-ENGINE] Prefill completado en Nodo #2 ➜ Transfiriendo KV a Decode Nodo #6 (900 GB/s NVLink)...\n\n[INFERENCE STREAM: ${model}]\n\nLa desagregación de Prefill y Decode en NVIDIA Dynamo separa las fases de procesamiento masivo en paralelo (Prefill: compute-bound) del muestreo autorregresivo secuencial (Decode: memory-bandwidth bound).\n\nEsto elimina la interferencia entre peticiones largas y cortas, maximizando el TCO del centro de datos y reduciendo la latencia P99 hasta en un 68%.\n\n✓ Inferencia finalizada exitosamente por Dynamo Rust Core (148 tokens generados).`;
         }, 350);
     };
 

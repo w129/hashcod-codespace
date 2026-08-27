@@ -52,3 +52,34 @@ impl KvRouter {
     }
 }
 
+    pub fn get_metrics(&self) -> (usize, f64) {
+        (self.total_cached_blocks, self.cache_hit_rate)
+    }
+} // <-- Esta es la última llave que se ve en tu imagen
+
+// Pégalo justo aquí abajo:
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cache_hit_con_prefijo_deepseek() {
+        let router = KvRouter::new();
+        let prompt = "deepseek_reasoning_prefix: ¿Cuál es la ventaja de la desagregación?";
+        let (node, latency, is_hit) = router.route_prompt(prompt);
+
+        assert!(is_hit, "Debería ser un Cache Hit porque contiene el prefijo");
+        assert_eq!(latency, KvRouter::LATENCY_HIT_MS, "La latencia del Hit debe ser baja (3.4ms)");
+        assert!(node >= 1 && node <= KvRouter::TOTAL_GPU_NODES);
+    }
+
+    #[test]
+    fn test_cache_miss_con_prompt_comun() {
+        let router = KvRouter::new();
+        let prompt = "Hola, ¿cómo funciona este clúster?";
+        let (_, latency, is_hit) = router.route_prompt(prompt);
+
+        assert!(!is_hit, "Debería ser un Cache Miss");
+        assert_eq!(latency, KvRouter::LATENCY_MISS_MS, "La latencia debe ser la alta de prefill (18.2ms)");
+    }
+}

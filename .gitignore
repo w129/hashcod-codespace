@@ -36,3 +36,11 @@ tiptap_editor/frontend/node_modules/
 !data_storage/catalyst_logs/
 !data_storage/catalyst_logs/*.log
 !data_storage/catalyst_state.json
+.env.*
+.env.local
+*.env
+*.enc
+.vault_master
+.pepper
+data_storage/secrets.json
+/etc/secrets/

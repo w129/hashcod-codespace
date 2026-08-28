@@ -9628,7 +9628,7 @@ if (!headers_sent()) {
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 <!-- Cloudflare Turnstile Bot Protection Init -->
     <script>
-        const CF_TURNSTILE_SITE_KEY = '0x4AAAAAAEfpecWchE9q2-cs';
+        const CF_TURNSTILE_SITE_KEY = '<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "", ENT_QUOTES, "UTF-8"); ?>';
         window.turnstileWidgets = {};
 
         window.renderTurnstileWidgets = function () {
@@ -9763,7 +9763,7 @@ if (!headers_sent()) {
                 <input class="auth-input" id="authAesInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave AES-256 de tu cuenta">
                 <label class="auth-label" for="authIdentityInput">Clave identificador (L8ID)</label>
                 <input class="auth-input" id="authIdentityInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave L8ID-… de tu cuenta">
-                <div class="cf-turnstile" id="cfTurnstileLogin" data-sitekey="0x4AAAAAAEfpecWchE9q2-cs" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
+                <div class="cf-turnstile" id="cfTurnstileLogin" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "", ENT_QUOTES, "UTF-8"); ?>" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authLoginBtn">Entrar a la plataforma</button>
                 <div class="auth-privacy-notice">
                     Al iniciar sesión, aceptas la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a>: certificación determinista de IA mediante análisis de datos, desarrollo asistido por IA e infraestructura cloud con <strong>Supabase</strong> y <strong>Render</strong>.
@@ -9779,7 +9779,7 @@ if (!headers_sent()) {
                         <span>Acepto la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad y Modelo de Certificación</a>: certificación de creaciones con IA mediante pruebas deterministas, seguridad post-cuántica (NIST PQC) y soberanía de datos (cero telemetría).</span>
                     </label>
                 </div>
-                <div class="cf-turnstile" id="cfTurnstileRegister" data-sitekey="0x4AAAAAAEfpecWchE9q2-cs" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
+                <div class="cf-turnstile" id="cfTurnstileRegister" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "", ENT_QUOTES, "UTF-8"); ?>" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authRegisterBtn">Crear cuenta</button>
 
                 <div class="auth-checkout-box" id="authCheckoutBox">
@@ -9812,7 +9812,7 @@ if (!headers_sent()) {
             <div class="auth-panel" id="authPanelRecover">
                 <label class="auth-label" for="authRecoverInput">Clave L8REC o código de respaldo</label>
                 <input class="auth-input" id="authRecoverInput" type="password" autocomplete="off" spellcheck="false" placeholder="L8REC-… o XXXX-XXXX-XXXX">
-                <div class="cf-turnstile" id="cfTurnstileRecover" data-sitekey="0x4AAAAAAEfpecWchE9q2-cs" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
+                <div class="cf-turnstile" id="cfTurnstileRecover" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "", ENT_QUOTES, "UTF-8"); ?>" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authRecoverBtn">Recuperar y regenerar claves</button>
                 <p class="auth-foot" style="margin-top:10px;">Si perdiste AES/L8ID pero guardaste el kit, aquí emites claves nuevas. Las anteriores quedan invalidadas.</p>
             </div>

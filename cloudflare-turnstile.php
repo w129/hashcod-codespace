@@ -11,22 +11,35 @@ if (!function_exists('secretGet')) {
 }
 
 function cfTurnstileConfig() {
-    $siteKey = '0x4AAAAAAEfpecWchE9q2-cs';
-    $secretKey = '0x4AAAAAAEfpjV8mVoPyxk-k09ztF-byCuE';
+    $siteKey = '';
+    $secretKey = '';
 
-    // Prioridad a variables de entorno o bóveda cifrada si existen
+    // 1. Cargar archivo .env si aún no se han cargado las variables
+    if (function_exists('loadEnvFile')) {
+        loadEnvFile();
+    }
+
+    // 2. Secret Files de Render (/etc/secrets/<KEY>)
+    foreach (['/etc/secrets/CF_TURNSTILE_SITE_KEY', '/etc/secrets/cf_turnstile_site_key'] as $f) {
+        if (is_readable($f)) { $siteKey = trim((string)@file_get_contents($f)); break; }
+    }
+    foreach (['/etc/secrets/CF_TURNSTILE_SECRET_KEY', '/etc/secrets/cf_turnstile_secret_key'] as $f) {
+        if (is_readable($f)) { $secretKey = trim((string)@file_get_contents($f)); break; }
+    }
+
+    // 3. Bóveda cifrada AES-256-GCM
     if (function_exists('secretGet')) {
-        $vSite = secretGet('CF_TURNSTILE_SITE_KEY', '');
-        if ($vSite !== '') $siteKey = $vSite;
-        $vSec = secretGet('CF_TURNSTILE_SECRET_KEY', '');
-        if ($vSec !== '') $secretKey = $vSec;
+        if ($siteKey === '') $siteKey = secretGet('CF_TURNSTILE_SITE_KEY', '');
+        if ($secretKey === '') $secretKey = secretGet('CF_TURNSTILE_SECRET_KEY', '');
     }
+
+    // 4. Variables de entorno (.env / getenv)
     if (function_exists('envValue')) {
-        $eSite = envValue('CF_TURNSTILE_SITE_KEY', '');
-        if ($eSite !== '') $siteKey = $eSite;
-        $eSec = envValue('CF_TURNSTILE_SECRET_KEY', '');
-        if ($eSec !== '') $secretKey = $eSec;
+        if ($siteKey === '') $siteKey = envValue('CF_TURNSTILE_SITE_KEY', '');
+        if ($secretKey === '') $secretKey = envValue('CF_TURNSTILE_SECRET_KEY', '');
     }
+    if ($siteKey === '' && getenv('CF_TURNSTILE_SITE_KEY')) $siteKey = (string)getenv('CF_TURNSTILE_SITE_KEY');
+    if ($secretKey === '' && getenv('CF_TURNSTILE_SECRET_KEY')) $secretKey = (string)getenv('CF_TURNSTILE_SECRET_KEY');
 
     return [
         'enabled' => !empty($siteKey) && !empty($secretKey),

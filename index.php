@@ -9630,45 +9630,60 @@ if (!headers_sent()) {
 <!-- Cloudflare Turnstile Bot Protection Init -->
     <script>
         const CF_TURNSTILE_SITE_KEY = '<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "0x4AAAAAAEfpecWchE9q2-cs", ENT_QUOTES, "UTF-8"); ?>';
-        window.turnstileWidgets = {};
-        window.turnstileTokens = {};
+        window.turnstileTokens = {
+            login: '',
+            register: '',
+            recover: '',
+            latest: ''
+        };
+
+        window.onTurnstileSuccessLogin = function (token) {
+            window.turnstileTokens.login = token;
+            window.turnstileTokens.latest = token;
+        };
+        window.onTurnstileExpireLogin = function () {
+            window.turnstileTokens.login = '';
+        };
+
+        window.onTurnstileSuccessRegister = function (token) {
+            window.turnstileTokens.register = token;
+            window.turnstileTokens.latest = token;
+        };
+        window.onTurnstileExpireRegister = function () {
+            window.turnstileTokens.register = '';
+        };
+
+        window.onTurnstileSuccessRecover = function (token) {
+            window.turnstileTokens.recover = token;
+            window.turnstileTokens.latest = token;
+        };
+        window.onTurnstileExpireRecover = function () {
+            window.turnstileTokens.recover = '';
+        };
 
         window.renderTurnstileWidgets = function () {
-            if (!window.turnstile || typeof window.turnstile.render !== 'function') {
-                return;
-            }
-            const siteKey = CF_TURNSTILE_SITE_KEY || '0x4AAAAAAEfpecWchE9q2-cs';
-            ['cfTurnstileLogin', 'cfTurnstileRegister', 'cfTurnstileRecover'].forEach(function (id) {
-                const el = document.getElementById(id);
-                if (el && !window.turnstileWidgets[id]) {
-                    try {
-                        el.innerHTML = '';
-                        const wId = window.turnstile.render('#' + id, {
-                            sitekey: siteKey,
-                            theme: 'light',
-                            size: 'flexible',
-                            callback: function (token) {
-                                window.turnstileTokens[id] = token;
-                                window.turnstileTokens['active'] = token;
-                            },
-                            'expired-callback': function () {
-                                window.turnstileTokens[id] = '';
-                                if (window.turnstileTokens['active'] === window.turnstileTokens[id]) {
-                                    window.turnstileTokens['active'] = '';
-                                }
-                            },
-                            'error-callback': function () {
-                                window.turnstileTokens[id] = '';
-                            }
-                        });
-                        window.turnstileWidgets[id] = wId || '1';
-                        el.style.border = 'none';
-                        el.style.background = 'transparent';
-                    } catch (e) {
-                        console.warn('Turnstile render warning:', e);
+            if (window.turnstile && typeof window.turnstile.render === 'function') {
+                const siteKey = CF_TURNSTILE_SITE_KEY || '0x4AAAAAAEfpecWchE9q2-cs';
+                const configs = [
+                    { id: 'cfTurnstileLogin', cb: window.onTurnstileSuccessLogin, exp: window.onTurnstileExpireLogin },
+                    { id: 'cfTurnstileRegister', cb: window.onTurnstileSuccessRegister, exp: window.onTurnstileExpireRegister },
+                    { id: 'cfTurnstileRecover', cb: window.onTurnstileSuccessRecover, exp: window.onTurnstileExpireRecover }
+                ];
+                configs.forEach(function (c) {
+                    const el = document.getElementById(c.id);
+                    if (el && !el.hasChildNodes()) {
+                        try {
+                            window.turnstile.render('#' + c.id, {
+                                sitekey: siteKey,
+                                theme: 'light',
+                                size: 'flexible',
+                                callback: c.cb,
+                                'expired-callback': c.exp
+                            });
+                        } catch (e) {}
                     }
-                }
-            });
+                });
+            }
         };
 
         window.onloadTurnstileCallback = function () {
@@ -9676,18 +9691,9 @@ if (!headers_sent()) {
             window.renderTurnstileWidgets();
         };
 
-        setInterval(function () {
-            if (window.turnstile && typeof window.turnstile.render === 'function') {
-                ['cfTurnstileLogin', 'cfTurnstileRegister', 'cfTurnstileRecover'].forEach(function (id) {
-                    const el = document.getElementById(id);
-                    if (el && el.offsetParent !== null && !window.turnstileWidgets[id]) {
-                        window.renderTurnstileWidgets();
-                    }
-                });
-            }
-        }, 400);
+        setInterval(window.renderTurnstileWidgets, 500);
     </script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" async defer></script>
 </head>
 <body class="boot-locked">
     <script>
@@ -9778,7 +9784,7 @@ if (!headers_sent()) {
                 <input class="auth-input" id="authAesInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave AES-256 de tu cuenta">
                 <label class="auth-label" for="authIdentityInput">Clave identificador (L8ID)</label>
                 <input class="auth-input" id="authIdentityInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave L8ID-… de tu cuenta">
-                <div class="cf-turnstile" id="cfTurnstileLogin" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "", ENT_QUOTES, "UTF-8"); ?>" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
+                <div class="cf-turnstile" id="cfTurnstileLogin" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "0x4AAAAAAEfpecWchE9q2-cs", ENT_QUOTES, "UTF-8"); ?>" data-callback="onTurnstileSuccessLogin" data-expired-callback="onTurnstileExpireLogin" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authLoginBtn">Entrar a la plataforma</button>
                 <div class="auth-privacy-notice">
                     Al iniciar sesión, aceptas la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a>: certificación determinista de IA mediante análisis de datos, desarrollo asistido por IA e infraestructura cloud con <strong>Supabase</strong> y <strong>Render</strong>.
@@ -9794,7 +9800,7 @@ if (!headers_sent()) {
                         <span>Acepto la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad y Modelo de Certificación</a>: certificación de creaciones con IA mediante pruebas deterministas, seguridad post-cuántica (NIST PQC) y soberanía de datos (cero telemetría).</span>
                     </label>
                 </div>
-                <div class="cf-turnstile" id="cfTurnstileRegister" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "", ENT_QUOTES, "UTF-8"); ?>" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
+                <div class="cf-turnstile" id="cfTurnstileRegister" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "0x4AAAAAAEfpecWchE9q2-cs", ENT_QUOTES, "UTF-8"); ?>" data-callback="onTurnstileSuccessRegister" data-expired-callback="onTurnstileExpireRegister" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authRegisterBtn">Crear cuenta</button>
 
                 <div class="auth-checkout-box" id="authCheckoutBox">
@@ -9827,7 +9833,7 @@ if (!headers_sent()) {
             <div class="auth-panel" id="authPanelRecover">
                 <label class="auth-label" for="authRecoverInput">Clave L8REC o código de respaldo</label>
                 <input class="auth-input" id="authRecoverInput" type="password" autocomplete="off" spellcheck="false" placeholder="L8REC-… o XXXX-XXXX-XXXX">
-                <div class="cf-turnstile" id="cfTurnstileRecover" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "", ENT_QUOTES, "UTF-8"); ?>" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
+                <div class="cf-turnstile" id="cfTurnstileRecover" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "0x4AAAAAAEfpecWchE9q2-cs", ENT_QUOTES, "UTF-8"); ?>" data-callback="onTurnstileSuccessRecover" data-expired-callback="onTurnstileExpireRecover" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authRecoverBtn">Recuperar y regenerar claves</button>
                 <p class="auth-foot" style="margin-top:10px;">Si perdiste AES/L8ID pero guardaste el kit, aquí emites claves nuevas. Las anteriores quedan invalidadas.</p>
             </div>
@@ -20559,32 +20565,36 @@ if (!headers_sent()) {
                 window.renderTurnstileWidgets();
             };
 
-            function getTurnstileToken(widgetContainerId) {
+            function getTurnstileToken(mode) {
                 try {
-                    if (widgetContainerId && window.turnstileTokens && window.turnstileTokens[widgetContainerId]) {
-                        return window.turnstileTokens[widgetContainerId];
+                    if (mode === 'login' || mode === 'cfTurnstileLogin') {
+                        if (window.turnstileTokens && window.turnstileTokens.login) return window.turnstileTokens.login;
+                        const c = document.getElementById('cfTurnstileLogin');
+                        const inp = c ? c.querySelector('[name="cf-turnstile-response"]') : null;
+                        if (inp && inp.value) return inp.value;
                     }
-                    if (window.turnstileTokens && window.turnstileTokens['active']) {
-                        return window.turnstileTokens['active'];
+                    if (mode === 'register' || mode === 'cfTurnstileRegister') {
+                        if (window.turnstileTokens && window.turnstileTokens.register) return window.turnstileTokens.register;
+                        const c = document.getElementById('cfTurnstileRegister');
+                        const inp = c ? c.querySelector('[name="cf-turnstile-response"]') : null;
+                        if (inp && inp.value) return inp.value;
                     }
-                    if (widgetContainerId) {
-                        const container = document.getElementById(widgetContainerId);
-                        if (container) {
-                            const inp = container.querySelector('[name="cf-turnstile-response"]');
-                            if (inp && inp.value) return inp.value;
-                        }
+                    if (mode === 'recover' || mode === 'cfTurnstileRecover') {
+                        if (window.turnstileTokens && window.turnstileTokens.recover) return window.turnstileTokens.recover;
+                        const c = document.getElementById('cfTurnstileRecover');
+                        const inp = c ? c.querySelector('[name="cf-turnstile-response"]') : null;
+                        if (inp && inp.value) return inp.value;
+                    }
+                    if (window.turnstileTokens && window.turnstileTokens.latest) {
+                        return window.turnstileTokens.latest;
                     }
                     if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
-                        if (widgetContainerId && window.turnstileWidgets && window.turnstileWidgets[widgetContainerId]) {
-                            const t = window.turnstile.getResponse(window.turnstileWidgets[widgetContainerId]);
-                            if (t) return t;
-                        }
                         const t = window.turnstile.getResponse();
                         if (t) return t;
                     }
-                    const inputs = document.querySelectorAll('[name="cf-turnstile-response"]');
-                    for (let i = 0; i < inputs.length; i++) {
-                        if (inputs[i].value) return inputs[i].value;
+                    const all = document.querySelectorAll('[name="cf-turnstile-response"]');
+                    for (let i = 0; i < all.length; i++) {
+                        if (all[i].value) return all[i].value;
                     }
                     return '';
                 } catch (e) {

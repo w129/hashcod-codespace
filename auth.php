@@ -1042,7 +1042,8 @@ function authHandleApi($uri) {
             $cfRes = cfTurnstileVerify($cfToken);
             if (empty($cfRes['ok'])) {
                 http_response_code(403);
-                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare no superada. Por favor, vuelve a marcar la casilla de Cloudflare.'], JSON_UNESCAPED_UNICODE);
+                $errDetail = !empty($cfRes['error_codes']) ? (' (' . implode(', ', $cfRes['error_codes']) . ')') : '';
+                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare no superada' . $errDetail . '. Por favor, vuelve a marcar la casilla de Cloudflare.'], JSON_UNESCAPED_UNICODE);
                 return true;
             }
         }
@@ -1082,7 +1083,8 @@ function authHandleApi($uri) {
             $cfRes = cfTurnstileVerify($cfToken);
             if (empty($cfRes['ok'])) {
                 http_response_code(403);
-                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare no superada. Por favor, vuelve a marcar la casilla de Cloudflare.'], JSON_UNESCAPED_UNICODE);
+                $errDetail = !empty($cfRes['error_codes']) ? (' (' . implode(', ', $cfRes['error_codes']) . ')') : '';
+                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare no superada' . $errDetail . '. Por favor, vuelve a marcar la casilla de Cloudflare.'], JSON_UNESCAPED_UNICODE);
                 return true;
             }
         }

@@ -1393,6 +1393,85 @@ class SuperGlobalDatabase {
 }
 
 /**
+ * Ejecutor de sub-shell multiplataforma resiliente (Linux / Docker / Windows Git Bash / PowerShell)
+ */
+function apiExecuteSubShell($cmd, $cwd, $homeDir = null) {
+    if (!is_dir($cwd)) @mkdir($cwd, 0777, true);
+    $homeReal = $homeDir ? (realpath($homeDir) ?: $homeDir) : $cwd;
+    
+    $descriptors = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w']
+    ];
+    
+    $isWin = (stripos(PHP_OS, 'WIN') === 0);
+    $bashExe = null;
+    if ($isWin) {
+        $candidates = [
+            'D:\\laragon\\bin\\git\\bin\\bash.exe',
+            'C:\\Program Files\\Git\\bin\\bash.exe',
+            'C:\\Program Files (x86)\\Git\\bin\\bash.exe',
+            'C:\\laragon\\bin\\git\\bin\\bash.exe',
+            'D:\\Git\\bin\\bash.exe'
+        ];
+        foreach ($candidates as $c) {
+            if (is_file($c) && is_executable($c)) {
+                $bashExe = $c;
+                break;
+            }
+        }
+        if (!$bashExe) {
+            $where = @shell_exec('where bash 2>NUL');
+            if ($where) {
+                $lines = explode("\n", trim($where));
+                if (!empty($lines[0]) && is_file(trim($lines[0]))) {
+                    $bashExe = trim($lines[0]);
+                }
+            }
+        }
+    } else {
+        $bashExe = 'bash';
+    }
+
+    if ($bashExe) {
+        $envPrefix = 'export HOME=' . escapeshellarg($homeReal) . '; export TERM=xterm-256color; ';
+        $full = $envPrefix . 'cd ' . escapeshellarg($cwd) . ' && ' . $cmd;
+        $procCmd = escapeshellarg($bashExe) . ' -lc ' . escapeshellarg($full);
+    } else {
+        $procCmd = 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ' . escapeshellarg("cd " . escapeshellarg($cwd) . "; " . $cmd);
+    }
+
+    $env = array_merge($_ENV, [
+        'HOME' => $homeReal,
+        'TERM' => 'xterm-256color'
+    ]);
+
+    $proc = @proc_open($procCmd, $descriptors, $pipes, $cwd, $env);
+    if (!is_resource($proc)) {
+        return ['ok' => false, 'exit_code' => -1, 'stdout' => '', 'stderr' => 'No se pudo iniciar el proceso de shell'];
+    }
+    @fclose($pipes[0]);
+    stream_set_blocking($pipes[1], true);
+    stream_set_blocking($pipes[2], true);
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    @fclose($pipes[1]);
+    @fclose($pipes[2]);
+    $code = proc_close($proc);
+
+    if (strlen((string)$stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
+    if (strlen((string)$stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
+
+    return [
+        'ok' => ($code === 0),
+        'exit_code' => $code,
+        'stdout' => rtrim((string)$stdout),
+        'stderr' => rtrim((string)$stderr)
+    ];
+}
+
+/**
  * ===== Ubuntu CLI externa (recursos boxcutter/ubuntu) =====
  */
 function ubuntuCliDirs() {
@@ -1583,35 +1662,12 @@ function ubuntuRunCommand($command, $cwdDisplay = '~') {
         return ['ok' => true, 'stdout' => '', 'stderr' => '', 'cwd_display' => ubuntuDisplayCwd($real, $homeReal)];
     }
 
-    if (!is_dir($cwd['abs'])) @mkdir($cwd['abs'], 0777, true);
-    $homeReal = realpath($dirs['home']) ?: $dirs['home'];
-    $envPrefix = 'export HOME=' . escapeshellarg($homeReal) . '; export TERM=xterm-256color; ';
-    $full = $envPrefix . 'cd ' . escapeshellarg($cwd['abs']) . ' && ' . $cmd;
-    $descriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-    $proc = @proc_open(['bash', '-lc', $full], $descriptors, $pipes, $cwd['abs'], null);
-    if (!is_resource($proc)) {
-        return ['ok' => false, 'error' => 'Unable to start bash', 'cwd_display' => $cwd['display']];
-    }
-    fclose($pipes[0]);
-    stream_set_blocking($pipes[1], true);
-    stream_set_blocking($pipes[2], true);
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    $code = proc_close($proc);
-    // truncate huge output
-    if (strlen($stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
-    if (strlen($stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
+    $res = apiExecuteSubShell($cmd, $cwd['abs'], $dirs['home']);
     return [
-        'ok' => $code === 0,
-        'exit_code' => $code,
-        'stdout' => rtrim((string)$stdout),
-        'stderr' => rtrim((string)$stderr),
+        'ok' => $res['ok'],
+        'exit_code' => $res['exit_code'],
+        'stdout' => $res['stdout'],
+        'stderr' => $res['stderr'],
         'cwd_display' => $cwd['display']
     ];
 }
@@ -2148,34 +2204,12 @@ function zylonRunCommand($command, $cwdDisplay = '~') {
         return ['ok' => true, 'stdout' => '', 'stderr' => '', 'cwd_display' => zylonDisplayCwd($real, $homeReal)];
     }
 
-    if (!is_dir($cwd['abs'])) @mkdir($cwd['abs'], 0777, true);
-    $homeReal = realpath($dirs['home']) ?: $dirs['home'];
-    $envPrefix = 'export HOME=' . escapeshellarg($homeReal) . '; export TERM=xterm-256color; ';
-    $full = $envPrefix . 'cd ' . escapeshellarg($cwd['abs']) . ' && ' . $cmd;
-    $descriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-    $proc = @proc_open(['bash', '-lc', $full], $descriptors, $pipes, $cwd['abs'], null);
-    if (!is_resource($proc)) {
-        return ['ok' => false, 'error' => 'Unable to start bash', 'cwd_display' => $cwd['display']];
-    }
-    fclose($pipes[0]);
-    stream_set_blocking($pipes[1], true);
-    stream_set_blocking($pipes[2], true);
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    $code = proc_close($proc);
-    if (strlen($stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
-    if (strlen($stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
+    $res = apiExecuteSubShell($cmd, $cwd['abs'], $dirs['home']);
     return [
-        'ok' => $code === 0,
-        'exit_code' => $code,
-        'stdout' => rtrim((string)$stdout),
-        'stderr' => rtrim((string)$stderr),
+        'ok' => $res['ok'],
+        'exit_code' => $res['exit_code'],
+        'stdout' => $res['stdout'],
+        'stderr' => $res['stderr'],
         'cwd_display' => $cwd['display'],
         'repo_ready' => !empty($ensure['ok'])
     ];
@@ -2464,34 +2498,12 @@ function macosRunCommand($command, $cwdDisplay = '~') {
         return ['ok' => true, 'stdout' => '', 'stderr' => '', 'cwd_display' => macosDisplayCwd($real, $homeReal)];
     }
 
-    if (!is_dir($cwd['abs'])) @mkdir($cwd['abs'], 0777, true);
-    $homeReal = realpath($dirs['home']) ?: $dirs['home'];
-    $envPrefix = 'export HOME=' . escapeshellarg($homeReal) . '; export TERM=xterm-256color; ';
-    $full = $envPrefix . 'cd ' . escapeshellarg($cwd['abs']) . ' && ' . $cmd;
-    $descriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-    $proc = @proc_open(['bash', '-lc', $full], $descriptors, $pipes, $cwd['abs'], null);
-    if (!is_resource($proc)) {
-        return ['ok' => false, 'error' => 'Unable to start bash', 'cwd_display' => $cwd['display']];
-    }
-    fclose($pipes[0]);
-    stream_set_blocking($pipes[1], true);
-    stream_set_blocking($pipes[2], true);
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    $code = proc_close($proc);
-    if (strlen($stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
-    if (strlen($stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
+    $res = apiExecuteSubShell($cmd, $cwd['abs'], $dirs['home']);
     return [
-        'ok' => $code === 0,
-        'exit_code' => $code,
-        'stdout' => rtrim((string)$stdout),
-        'stderr' => rtrim((string)$stderr),
+        'ok' => $res['ok'],
+        'exit_code' => $res['exit_code'],
+        'stdout' => $res['stdout'],
+        'stderr' => $res['stderr'],
         'cwd_display' => $cwd['display'],
         'repo_ready' => !empty($ensure['ok'])
     ];
@@ -2787,34 +2799,12 @@ function chromeosRunCommand($command, $cwdDisplay = '~') {
         return ['ok' => true, 'stdout' => '', 'stderr' => '', 'cwd_display' => chromeosDisplayCwd($real, $homeReal)];
     }
 
-    if (!is_dir($cwd['abs'])) @mkdir($cwd['abs'], 0777, true);
-    $homeReal = realpath($dirs['home']) ?: $dirs['home'];
-    $envPrefix = 'export HOME=' . escapeshellarg($homeReal) . '; export TERM=xterm-256color; ';
-    $full = $envPrefix . 'cd ' . escapeshellarg($cwd['abs']) . ' && ' . $cmd;
-    $descriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-    $proc = @proc_open(['bash', '-lc', $full], $descriptors, $pipes, $cwd['abs'], null);
-    if (!is_resource($proc)) {
-        return ['ok' => false, 'error' => 'Unable to start bash', 'cwd_display' => $cwd['display']];
-    }
-    fclose($pipes[0]);
-    stream_set_blocking($pipes[1], true);
-    stream_set_blocking($pipes[2], true);
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    $code = proc_close($proc);
-    if (strlen($stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
-    if (strlen($stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
+    $res = apiExecuteSubShell($cmd, $cwd['abs'], $dirs['home']);
     return [
-        'ok' => $code === 0,
-        'exit_code' => $code,
-        'stdout' => rtrim((string)$stdout),
-        'stderr' => rtrim((string)$stderr),
+        'ok' => $res['ok'],
+        'exit_code' => $res['exit_code'],
+        'stdout' => $res['stdout'],
+        'stderr' => $res['stderr'],
         'cwd_display' => $cwd['display'],
         'repo_ready' => !empty($ensure['ok'])
     ];
@@ -4009,16 +3999,18 @@ function runOriginKitBlackhole() {
     $raw = '';
 
     if (!$hasBun) {
-        $lines[] = 'bunx: command not found';
-        $lines[] = 'Installing Bun runtime is required on this server image.';
-        $lines[] = 'Falling back to local boot sequence for blackhole…';
-        $lines[] = '';
-        $lines[] = '√ Resolving originkit@latest';
-        $lines[] = '√ Fetching registry item: blackhole';
-        $lines[] = '√ Writing components/originkit/ui/blackhole.tsx';
-        $lines[] = '√ blackhole ready on l8 codespace';
+        $componentDir = $workDir . '/src/components/originkit/ui';
+        if (!is_dir($componentDir)) @mkdir($componentDir, 0777, true);
+        $componentFile = $componentDir . '/blackhole.tsx';
+        if (!file_exists($componentFile)) {
+            @file_put_contents($componentFile, "import React from 'react';\n\nexport const BlackHole: React.FC = () => {\n  return (\n    <div className=\"blackhole-container\" style={{ width: '100%', height: '100%', minHeight: '300px', background: '#000', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>\n      <h2>OriginKit Blackhole Canvas</h2>\n    </div>\n  );\n};\nexport default BlackHole;\n");
+        }
+        $lines[] = 'bunx: command not found (using native component scaffold)';
+        $lines[] = '√ Resolved originkit component: blackhole';
+        $lines[] = '√ Created src/components/originkit/ui/blackhole.tsx';
+        $lines[] = '√ blackhole component scaffold ready on l8 codespace';
         $ok = true;
-        $mode = 'simulated';
+        $mode = 'native_scaffold';
     } else {
         $fullCmd = $envExports . 'cd ' . escapeshellarg($workDir) . ' && ' . escapeshellarg($bun) . ' --bun originkit@latest add blackhole --no-deps 2>&1';
         $descriptorSpec = [

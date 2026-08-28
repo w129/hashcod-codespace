@@ -13,6 +13,16 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8000 ^| findstr LISTENING') 
 echo.
 echo Servidor PHP activo. Abre http://localhost:8000
 echo El view-source debe mostrar HTML completo.
-echo --------------------------------------------------
-"D:\laragon\bin\php\php-8.1.10-Win32-vs16-x64\php.exe" -S localhost:8000 router.php
+set "PHP_BIN=php"
+if exist "D:\laragon\bin\php\php-8.1.10-Win32-vs16-x64\php.exe" (
+    set "PHP_BIN=D:\laragon\bin\php\php-8.1.10-Win32-vs16-x64\php.exe"
+) else if exist "C:\laragon\bin\php\php-8.1.10-Win32-vs16-x64\php.exe" (
+    set "PHP_BIN=C:\laragon\bin\php\php-8.1.10-Win32-vs16-x64\php.exe"
+) else if exist "C:\xampp\php\php.exe" (
+    set "PHP_BIN=C:\xampp\php\php.exe"
+) else if exist "D:\xampp\php\php.exe" (
+    set "PHP_BIN=D:\xampp\php\php.exe"
+)
+
+"%PHP_BIN%" -S localhost:8000 router.php
 pause

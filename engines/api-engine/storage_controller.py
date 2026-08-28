@@ -67,7 +67,7 @@ class SodaStorageController:
             "size_gb": int(size_gb),
             "protocol": "NFS/POSIX",
             "status": "available",
-            "created_at": datetime.utcnow().isoformat() + "Z"
+            "created_at": datetime.now().astimezone().isoformat()
         }
         self.data.setdefault("fileshares", []).append(new_share)
         self.save_data()

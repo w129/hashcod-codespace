@@ -34,7 +34,7 @@ class CatalystEngine:
     def default_state(self):
         return {
             "macho": {
-                "active": true,
+                "active": True,
                 "mode": "IDLE", # IDLE, ONE_WAY, BRIDGED_ONE_WAY
                 "channel": "/a",
                 "flow": "ENV_1 -> ENV_3",
@@ -76,9 +76,9 @@ class CatalystEngine:
             "bridge_connected": False,
             "total_cycles": 0,
             "storage_volumes": [
-                {"id": "vol-01", "name": "workspace-primary", "pool": "local-nvme", "size_gb": 50, "status": "mounted", "path": "D:/laragon/www/l8/workspace"},
-                {"id": "vol-02", "name": "catalyst-stream", "pool": "fast-cache", "size_gb": 20, "status": "active", "path": "D:/laragon/www/l8/data_storage/catalyst_logs"},
-                {"id": "vol-03", "name": "api-soda-share", "pool": "soda-controller", "size_gb": 100, "status": "standby", "path": "D:/laragon/www/l8/data_storage"}
+                {"id": "vol-01", "name": "workspace-primary", "pool": "local-nvme", "size_gb": 50, "status": "mounted", "path": os.path.join(PROJECT_DIR, 'workspace').replace('\\', '/')},
+                {"id": "vol-02", "name": "catalyst-stream", "pool": "fast-cache", "size_gb": 20, "status": "active", "path": LOGS_DIR.replace('\\', '/')},
+                {"id": "vol-03", "name": "api-soda-share", "pool": "soda-controller", "size_gb": 100, "status": "standby", "path": DATA_DIR.replace('\\', '/')}
             ],
             "last_operation": "Dual-Catalyst 4-ENV Engine Initialized",
             "updated_at": datetime.now().astimezone().isoformat()

@@ -9495,6 +9495,135 @@ if (!headers_sent()) {
             margin: 12px 0 !important;
             border-radius: 8px;
         }
+
+        /* AUTH CHECKOUT CARD & WHATSAPP VOUCHER */
+        .auth-checkout-box {
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 6px;
+            text-align: left;
+            transition: all 0.25s ease;
+        }
+
+        .auth-checkout-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .auth-checkout-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .auth-checkout-price {
+            font-size: 12px;
+            color: #0f172a;
+        }
+
+        .auth-checkout-price strong {
+            color: #15803d;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .auth-checkout-text {
+            font-size: 11px;
+            color: #475569;
+            line-height: 1.45;
+            margin: 0 0 10px 0;
+        }
+
+        .auth-checkout-text strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .auth-whatsapp-link {
+            color: #16a34a;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .auth-whatsapp-link:hover {
+            color: #15803d;
+        }
+
+        .auth-checkout-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .auth-btn-capture,
+        .auth-btn-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .auth-btn-capture {
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+        }
+
+        .auth-btn-capture:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+
+        .auth-btn-whatsapp {
+            background: #16a34a;
+            color: #ffffff;
+            border: 1px solid #15803d;
+        }
+
+        .auth-btn-whatsapp:hover {
+            background: #15803d;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+        }
+
+        .auth-checkout-checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 10.5px;
+            color: #334155;
+            line-height: 1.35;
+            cursor: pointer;
+            padding-top: 8px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .auth-checkout-checkbox-label input[type="checkbox"] {
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #111;
+        }
 </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 <!-- Cloudflare Turnstile Bot Protection Init -->
@@ -9652,6 +9781,32 @@ if (!headers_sent()) {
                 </div>
                 <div class="cf-turnstile" id="cfTurnstileRegister" data-sitekey="0x4AAAAAAEfpecWchE9q2-cs" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authRegisterBtn">Crear cuenta</button>
+
+                <div class="auth-checkout-box" id="authCheckoutBox">
+                    <div class="auth-checkout-header">
+                        <span class="auth-checkout-badge">💼 Plan Codespace Pro &amp; Hosting PQC</span>
+                        <span class="auth-checkout-price"><strong>US$ 60.27</strong> / mes</span>
+                    </div>
+                    <p class="auth-checkout-text">
+                        Este codespace certifica plataformas de IA como tambien les ofrece un alojamiento post-cuantico, la puedes utilizar para usar sus herramientas que ya estan como tambien alojar las tuyas, <strong>al registrarse...usted comprende que el pago debe de realizarse mensual donde el costo es de US$ 60.27</strong>...los cuales debes de pagarlo por transaci&oacute;n bancaria, donde todo este proceso tienes que hacerlo contactandonos al <strong>Whatsapp: <a href="https://wa.me/18294721257?text=Hola,%20deseo%20realizar%20el%20pago%20de%20mi%20suscripci%C3%B3n%20mensual%20de%20US%24%2060.27%20para%20Hashcod%20Codespace%20y%20obtener%20mi%20clave%20Dilithium-5." target="_blank" rel="noopener noreferrer" class="auth-whatsapp-link">829-472-1257</a></strong> .... donde luego un asistente despues de realizar el pago le dar&aacute; la clave dilithium-5 para poder registrarse.
+                    </p>
+                    
+                    <div class="auth-checkout-actions">
+                        <button type="button" class="auth-btn-capture" id="authCaptureCheckoutBtn" onclick="triggerCheckoutCapture()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                            <span>Capturar Checkout</span>
+                        </button>
+                        <a href="https://wa.me/18294721257?text=Hola,%20deseo%20realizar%20el%20pago%20de%20mi%20suscripci%C3%B3n%20mensual%20de%20US%24%2060.27%20para%20Hashcod%20Codespace%20y%20obtener%20mi%20clave%20Dilithium-5." target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.879.814 2.795.815 3.179 0 5.767-2.587 5.768-5.766.001-3.18-2.585-5.767-5.767-5.801zm3.376 8.163c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.025-.48-1.583-.657-2.589-2.28-2.667-2.384-.078-.104-.633-.842-.633-1.608 0-.765.401-1.141.543-1.295.144-.155.312-.194.417-.194.104 0 .208.001.299.006.096.004.224-.036.35.267.13.312.443 1.077.482 1.156.039.078.065.169.013.273-.052.104-.078.169-.156.26-.078.091-.163.203-.234.273-.078.078-.16.163-.069.318.091.156.403.666.865 1.077.595.53 1.097.694 1.253.772.156.078.247.065.338-.039.091-.104.39-.455.494-.611.104-.156.208-.13.351-.078.143.052.91.429 1.066.507.156.078.26.117.299.182.039.065.039.377-.105.782z"/></svg>
+                            <span>WhatsApp: 829-472-1257</span>
+                        </a>
+                    </div>
+
+                    <label class="auth-checkout-checkbox-label">
+                        <input type="checkbox" id="authCheckoutCheckbox" required>
+                        <span><strong>Comprendo el pago mensual de US$ 60.27 por transacci&oacute;n bancaria</strong> y tengo mi clave Dilithium-5 provista por WhatsApp.</span>
+                    </label>
+                </div>
             </div>
 
             <div class="auth-panel" id="authPanelRecover">
@@ -20428,6 +20583,99 @@ if (!headers_sent()) {
                 }
             });
 
+            /* ===== CHECKOUT SCREENSHOT & VOUCHER GENERATOR ===== */
+        window.triggerCheckoutCapture = function () {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 900;
+                canvas.height = 620;
+                const ctx = canvas.getContext('2d');
+
+                // Fondo degradado elegante
+                const grad = ctx.createLinearGradient(0, 0, 900, 620);
+                grad.addColorStop(0, '#0f172a');
+                grad.addColorStop(1, '#1e293b');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 900, 620);
+
+                // Tarjeta interior blanca
+                ctx.fillStyle = '#ffffff';
+                ctx.roundRect ? ctx.roundRect(40, 40, 820, 540, 16) : ctx.fillRect(40, 40, 820, 540);
+                ctx.fill();
+
+                // Header de la tarjeta
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('Hashcod Codespace® · Comprobante de Checkout', 70, 90);
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('Certificación Determinista de IA y Alojamiento Post-Cuántico (PQC)', 70, 115);
+
+                // Línea separadora
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(70, 135);
+                ctx.lineTo(830, 135);
+                ctx.stroke();
+
+                // Detalles del plan
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('DETALLES DE LA SUSCRIPCIÓN MENSUAL', 70, 175);
+
+                ctx.fillStyle = '#334155';
+                ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('• Servicio: Codespace Pro + Hosting Post-Cuántico + Certificación IA', 70, 205);
+                ctx.fillText('• Costo Mensual: US$ 60.27 / mes (Sesenta dólares con 27/100 USD)', 70, 235);
+                ctx.fillText('• Método de Pago: Transacción / Transferencia Bancaria', 70, 265);
+                ctx.fillText('• Contacto WhatsApp de Validación: +1 (829) 472-1257', 70, 295);
+
+                // Cuadro verde con monto
+                ctx.fillStyle = '#f0fdf4';
+                ctx.strokeStyle = '#86efac';
+                ctx.lineWidth = 1.5;
+                ctx.roundRect ? ctx.roundRect(70, 325, 760, 100, 10) : ctx.fillRect(70, 325, 760, 100);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#166534';
+                ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('TOTAL A PAGAR: US$ 60.27 MENSUAL', 95, 360);
+                ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('Instrucción: Envía este comprobante al WhatsApp 829-472-1257 tras realizar tu depósito bancario.', 95, 390);
+
+                // Pie de página con Timestamp y Hash
+                const nowIso = new Date().toISOString();
+                const randomVoucher = 'VOUCHER-L8-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '12px monospace';
+                ctx.fillText('Ref: ' + randomVoucher + ' | Emisión: ' + nowIso, 70, 470);
+                ctx.fillText('Seguridad: NIST Post-Quantum Cryptography Level 5 · ML-DSA-87 / Dilithium-5', 70, 495);
+
+                // Descargar imagen
+                const link = document.createElement('a');
+                link.download = 'Comprobante-Checkout-Hashcod-Codespace.png';
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Marcar automáticamente la casilla
+                const chk = document.getElementById('authCheckoutCheckbox');
+                if (chk) chk.checked = true;
+
+                if (typeof setMsg === 'function') {
+                    setMsg('✓ Captura de comprobante generada. Envíala a nuestro WhatsApp: 829-472-1257.', true);
+                }
+            } catch (e) {
+                console.error('Error generando captura:', e);
+                const chk = document.getElementById('authCheckoutCheckbox');
+                if (chk) chk.checked = true;
+            }
+        };
+
             document.getElementById('authRegisterBtn')?.addEventListener('click', async () => {
                 const privacyChk = document.getElementById('authPrivacyCheckbox');
                 if (!privacyChk || !privacyChk.checked) {
@@ -20446,6 +20694,22 @@ if (!headers_sent()) {
                     }
                     return;
                 }
+
+                const checkoutChk = document.getElementById('authCheckoutCheckbox');
+                if (!checkoutChk || !checkoutChk.checked) {
+                    setMsg('Debes marcar la casilla de confirmación de checkout (pago mensual de US$ 60.27 vía WhatsApp: 829-472-1257) antes de registrarte.');
+                    const box = document.getElementById('authCheckoutBox');
+                    if (box) {
+                        box.style.border = '1.5px solid #ef4444';
+                        box.style.background = '#fef2f2';
+                        setTimeout(() => {
+                            box.style.border = '';
+                            box.style.background = '';
+                        }, 3500);
+                    }
+                    return;
+                }
+
                 const dil = (document.getElementById('authDilithiumInput')?.value || '').trim();
                 const btn = document.getElementById('authRegisterBtn');
                 if (!dil) {
@@ -20459,7 +20723,7 @@ if (!headers_sent()) {
                     const res = await fetch('/api/auth/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ dilithium5: dil, cf_turnstile_response: cfToken, privacy_accepted: true })
+                        body: JSON.stringify({ dilithium5: dil, cf_turnstile_response: cfToken, privacy_accepted: true, checkout_accepted: true })
                     });
                     const data = await res.json();
                     if (!data || !data.ok) {

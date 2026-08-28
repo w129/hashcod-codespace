@@ -1025,6 +1025,13 @@ function authHandleApi($uri) {
             echo json_encode(['ok' => false, 'error' => 'Debes marcar que aceptas la Política de Privacidad para registrarte.'], JSON_UNESCAPED_UNICODE);
             return true;
         }
+
+        $checkoutAccepted = !empty($input['checkout_accepted']) || !empty($input['accept_checkout']);
+        if (!$checkoutAccepted) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Debes confirmar el checkout y términos de suscripción mensual (US$ 60.27) para registrarte.'], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
         $cfToken = $input['cf_turnstile_response'] ?? ($input['cf-turnstile-response'] ?? ($input['turnstile_token'] ?? ''));
         if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled() && $cfToken !== '') {
             $cfRes = cfTurnstileVerify($cfToken);

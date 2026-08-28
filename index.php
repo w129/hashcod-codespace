@@ -9682,8 +9682,10 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             </nav>
         </div>
         <div class="top-bar-right" style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="window.l8LogoutSession && window.l8LogoutSession()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" aria-hidden="true" style="overflow:visible;">
+           <!-- CUIDADO: Asegúrate de escribir la letra 'l' minúscula al inicio, no el número '1' -->
+<button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="window.l8LogoutSession && window.l8LogoutSession()">
+
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" aria-hidden="true" style="overflow:visible;">
 <circle cx="24" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"></circle>
 <line x1="22.09" x2="13.5" y1="9.63" y2="16.5" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"></line>
 <line x1="26.24" x2="34.5" y1="9.89" y2="16.5" fill="none" stroke="currentColor" stroke-width="3"></line>

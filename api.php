@@ -3609,6 +3609,7 @@ require_once __DIR__ . '/opencrypt-gen.php';
 require_once __DIR__ . '/durable-objects.php';
 require_once __DIR__ . '/bash-engine.php';
 require_once __DIR__ . '/openclaw-bridge.php';
+require_once __DIR__ . '/cloudflare-turnstile.php';
 if (function_exists('authHandleApi') && authHandleApi($uri)) {
     exit;
 }
@@ -3631,6 +3632,9 @@ if (function_exists('bashHandleApi') && bashHandleApi($uri)) {
     exit;
 }
 if (function_exists('openclawHandleApi') && openclawHandleApi($uri)) {
+    exit;
+}
+if (function_exists('cfTurnstileHandleApi') && cfTurnstileHandleApi($uri)) {
     exit;
 }
 

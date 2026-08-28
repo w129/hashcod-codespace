@@ -9486,6 +9486,8 @@ if (!headers_sent()) {
 
     </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
+    <!-- Cloudflare Turnstile Bot Protection -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body class="boot-locked">
     <script>
@@ -9576,6 +9578,7 @@ if (!headers_sent()) {
                 <input class="auth-input" id="authAesInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave AES-256 de tu cuenta">
                 <label class="auth-label" for="authIdentityInput">Clave identificador (L8ID)</label>
                 <input class="auth-input" id="authIdentityInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave L8ID-… de tu cuenta">
+                <div class="cf-turnstile" id="cfTurnstileLogin" data-sitekey="0x4AAAAAAEfpecWchE9q2-cs" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authLoginBtn">Entrar a la plataforma</button>
                 <div class="auth-privacy-notice">
                     Al iniciar sesión, aceptas la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a>: certificación determinista de IA mediante análisis de datos, desarrollo asistido por IA e infraestructura cloud con <strong>Supabase</strong> y <strong>Render</strong>.
@@ -9591,12 +9594,14 @@ if (!headers_sent()) {
                         <span>Acepto la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a>: certificación de lo creado por IA mediante software de análisis de datos y pruebas deterministas, desarrollo integral por IA y custodia técnica en <strong>Supabase</strong> y <strong>Render</strong>.</span>
                     </label>
                 </div>
+                <div class="cf-turnstile" id="cfTurnstileRegister" data-sitekey="0x4AAAAAAEfpecWchE9q2-cs" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authRegisterBtn">Crear cuenta</button>
             </div>
 
             <div class="auth-panel" id="authPanelRecover">
                 <label class="auth-label" for="authRecoverInput">Clave L8REC o código de respaldo</label>
                 <input class="auth-input" id="authRecoverInput" type="password" autocomplete="off" spellcheck="false" placeholder="L8REC-… o XXXX-XXXX-XXXX">
+                <div class="cf-turnstile" id="cfTurnstileRecover" data-sitekey="0x4AAAAAAEfpecWchE9q2-cs" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authRecoverBtn">Recuperar y regenerar claves</button>
                 <p class="auth-foot" style="margin-top:10px;">Si perdiste AES/L8ID pero guardaste el kit, aquí emites claves nuevas. Las anteriores quedan invalidadas.</p>
             </div>
@@ -20275,6 +20280,27 @@ if (!headers_sent()) {
             document.getElementById('authTabRegister')?.addEventListener('click', () => switchTab('register'));
             document.getElementById('authTabRecover')?.addEventListener('click', () => switchTab('recover'));
 
+            function getTurnstileToken() {
+                try {
+                    if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
+                        const t = window.turnstile.getResponse();
+                        if (t) return t;
+                    }
+                    const el = document.querySelector('[name="cf-turnstile-response"]');
+                    return el ? el.value : '';
+                } catch (e) {
+                    return '';
+                }
+            }
+
+            function resetTurnstile() {
+                try {
+                    if (window.turnstile && typeof window.turnstile.reset === 'function') {
+                        window.turnstile.reset();
+                    }
+                } catch (e) {}
+            }
+
             document.getElementById('authLoginBtn')?.addEventListener('click', async () => {
                 const aes = (document.getElementById('authAesInput')?.value || '').trim();
                 const identity = (document.getElementById('authIdentityInput')?.value || '').trim();
@@ -20283,13 +20309,14 @@ if (!headers_sent()) {
                     setMsg('Introduce las 2 claves de tu cuenta.');
                     return;
                 }
+                const cfToken = getTurnstileToken();
                 if (btn) btn.disabled = true;
-                setMsg('Verificando…');
+                setMsg('Verificando con Cloudflare…');
                 try {
                     const res = await fetch('/api/auth/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ aes256: aes, identity: identity })
+                        body: JSON.stringify({ aes256: aes, identity: identity, cf_turnstile_response: cfToken })
                     });
                     const data = await res.json();
                     if (!data || !data.ok) {
@@ -20318,13 +20345,14 @@ if (!headers_sent()) {
                     setMsg('Introduce la Dilithium-5 de registro del mes.');
                     return;
                 }
+                const cfToken = getTurnstileToken();
                 if (btn) btn.disabled = true;
-                setMsg('Creando cuenta…');
+                setMsg('Creando cuenta con verificación Cloudflare…');
                 try {
                     const res = await fetch('/api/auth/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ dilithium5: dil })
+                        body: JSON.stringify({ dilithium5: dil, cf_turnstile_response: cfToken })
                     });
                     const data = await res.json();
                     if (!data || !data.ok) {
@@ -20362,13 +20390,14 @@ if (!headers_sent()) {
                     setMsg('Introduce L8REC o un código de respaldo.');
                     return;
                 }
+                const cfToken = getTurnstileToken();
                 if (btn) btn.disabled = true;
                 setMsg('Recuperando cuenta…');
                 try {
                     const res = await fetch('/api/auth/recover', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ recovery: material })
+                        body: JSON.stringify({ recovery: material, cf_turnstile_response: cfToken })
                     });
                     const data = await res.json();
                     if (!data || !data.ok) {

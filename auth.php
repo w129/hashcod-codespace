@@ -11,6 +11,7 @@ require_once __DIR__ . '/supabase.php';
 if (!function_exists('secretGet')) {
     require_once __DIR__ . '/secrets.php';
 }
+require_once __DIR__ . '/cloudflare-turnstile.php';
 
 function authStorageDir() {
     $dir = __DIR__ . '/data_storage/auth';
@@ -1018,6 +1019,15 @@ function authHandleApi($uri) {
             return true;
         }
         $input = $body['data'] ?? [];
+        $cfToken = $input['cf_turnstile_response'] ?? ($input['cf-turnstile-response'] ?? ($input['turnstile_token'] ?? ''));
+        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled() && $cfToken !== '') {
+            $cfRes = cfTurnstileVerify($cfToken);
+            if (empty($cfRes['ok'])) {
+                http_response_code(403);
+                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare fallida. Por favor, completa el desafío.'], JSON_UNESCAPED_UNICODE);
+                return true;
+            }
+        }
         $dil = $input['dilithium5'] ?? $input['dilithium_5'] ?? $input['d5'] ?? '';
         $res = authRegister($dil);
         if (empty($res['ok'])) {
@@ -1044,6 +1054,15 @@ function authHandleApi($uri) {
             return true;
         }
         $input = $body['data'] ?? [];
+        $cfToken = $input['cf_turnstile_response'] ?? ($input['cf-turnstile-response'] ?? ($input['turnstile_token'] ?? ''));
+        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled() && $cfToken !== '') {
+            $cfRes = cfTurnstileVerify($cfToken);
+            if (empty($cfRes['ok'])) {
+                http_response_code(403);
+                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare fallida. Por favor, completa el desafío.'], JSON_UNESCAPED_UNICODE);
+                return true;
+            }
+        }
         $aes = $input['aes256'] ?? $input['aes_256'] ?? $input['key_aes'] ?? '';
         $identity = $input['identity'] ?? $input['identity_key'] ?? $input['key_identity'] ?? '';
         $res = authLogin($aes, $identity);
@@ -1079,6 +1098,15 @@ function authHandleApi($uri) {
             return true;
         }
         $input = $body['data'] ?? [];
+        $cfToken = $input['cf_turnstile_response'] ?? ($input['cf-turnstile-response'] ?? ($input['turnstile_token'] ?? ''));
+        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled() && $cfToken !== '') {
+            $cfRes = cfTurnstileVerify($cfToken);
+            if (empty($cfRes['ok'])) {
+                http_response_code(403);
+                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare fallida. Por favor, completa el desafío.'], JSON_UNESCAPED_UNICODE);
+                return true;
+            }
+        }
         $material = $input['recovery'] ?? $input['recovery_key'] ?? $input['backup_code'] ?? $input['code'] ?? '';
         $res = authRecover($material);
         if (empty($res['ok'])) {

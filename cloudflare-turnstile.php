@@ -10,6 +10,16 @@ if (!function_exists('secretGet')) {
     require_once __DIR__ . '/secrets.php';
 }
 
+function cfSanitizeKey($val) {
+    if ($val === null || $val === false) return '';
+    $val = trim((string)$val);
+    // Remover comillas accidentales de Render o .env
+    if ((strlen($val) >= 2) && (($val[0] === '"' && substr($val, -1) === '"') || ($val[0] === "'" && substr($val, -1) === "'"))) {
+        $val = trim(substr($val, 1, -1));
+    }
+    return trim($val);
+}
+
 function cfTurnstileConfig() {
     // 1. Claves maestras por defecto para Hashcod Codespace
     $siteKey = '0x4AAAAAAEfpecWchE9q2-cs';
@@ -23,14 +33,14 @@ function cfTurnstileConfig() {
     // 3. Secret Files de Render (/etc/secrets/<KEY>)
     foreach (['/etc/secrets/CF_TURNSTILE_SITE_KEY', '/etc/secrets/cf_turnstile_site_key'] as $f) {
         if (is_readable($f)) {
-            $val = trim((string)@file_get_contents($f));
+            $val = cfSanitizeKey(@file_get_contents($f));
             if ($val !== '') $siteKey = $val;
             break;
         }
     }
     foreach (['/etc/secrets/CF_TURNSTILE_SECRET_KEY', '/etc/secrets/cf_turnstile_secret_key'] as $f) {
         if (is_readable($f)) {
-            $val = trim((string)@file_get_contents($f));
+            $val = cfSanitizeKey(@file_get_contents($f));
             if ($val !== '') $secretKey = $val;
             break;
         }
@@ -38,23 +48,26 @@ function cfTurnstileConfig() {
 
     // 4. Bóveda cifrada AES-256-GCM
     if (function_exists('secretGet')) {
-        $vSite = secretGet('CF_TURNSTILE_SITE_KEY', '');
+        $vSite = cfSanitizeKey(secretGet('CF_TURNSTILE_SITE_KEY', ''));
         if ($vSite !== '') $siteKey = $vSite;
-        $vSec = secretGet('CF_TURNSTILE_SECRET_KEY', '');
+        $vSec = cfSanitizeKey(secretGet('CF_TURNSTILE_SECRET_KEY', ''));
         if ($vSec !== '') $secretKey = $vSec;
     }
 
     // 5. Variables de entorno (.env / getenv)
     if (function_exists('envValue')) {
-        $eSite = envValue('CF_TURNSTILE_SITE_KEY', '');
+        $eSite = cfSanitizeKey(envValue('CF_TURNSTILE_SITE_KEY', ''));
         if ($eSite !== '') $siteKey = $eSite;
-        $eSec = envValue('CF_TURNSTILE_SECRET_KEY', '');
+        $eSec = cfSanitizeKey(envValue('CF_TURNSTILE_SECRET_KEY', ''));
         if ($eSec !== '') $secretKey = $eSec;
     }
-    $gSite = @getenv('CF_TURNSTILE_SITE_KEY');
-    if (is_string($gSite) && trim($gSite) !== '') $siteKey = trim($gSite);
-    $gSec = @getenv('CF_TURNSTILE_SECRET_KEY');
-    if (is_string($gSec) && trim($gSec) !== '') $secretKey = trim($gSec);
+    $gSite = cfSanitizeKey(@getenv('CF_TURNSTILE_SITE_KEY'));
+    if ($gSite !== '') $siteKey = $gSite;
+    $gSec = cfSanitizeKey(@getenv('CF_TURNSTILE_SECRET_KEY'));
+    if ($gSec !== '') $secretKey = $gSec;
+
+    $siteKey = cfSanitizeKey($siteKey);
+    $secretKey = cfSanitizeKey($secretKey);
 
     return [
         'enabled' => !empty($siteKey) && !empty($secretKey),

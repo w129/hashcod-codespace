@@ -10043,6 +10043,20 @@ if (!headers_sent()) {
                             </p>
                         </div>
                     </div>
+
+                    <div class="privacy-evidence-card" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:14px; margin-top:20px;">
+                        <div style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px;height:16px;fill:#16a34a;" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.879.814 2.795.815 3.179 0 5.767-2.587 5.768-5.766.001-3.18-2.585-5.767-5.767-5.801zm3.376 8.163c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.025-.48-1.583-.657-2.589-2.28-2.667-2.384-.078-.104-.633-.842-.633-1.608 0-.765.401-1.141.543-1.295.144-.155.312-.194.417-.194.104 0 .208.001.299.006.096.004.224-.036.35.267.13.312.443 1.077.482 1.156.039.078.065.169.013.273-.052.104-.078.169-.156.26-.078.091-.163.203-.234.273-.078.078-.16.163-.069.318.091.156.403.666.865 1.077.595.53 1.097.694 1.253.772.156.078.247.065.338-.039.091-.104.39-.455.494-.611.104-.156.208-.13.351-.078.143.052.91.429 1.066.507.156.078.26.117.299.182.039.065.039.377-.105.782z"/></svg>
+                            <span>Como debe de verse el whatsapp</span>
+                        </div>
+                        <img src="whatsapp-checkout-preview.png" alt="Como debe de verse el whatsapp - diktatcart" class="privacy-evidence-img" onclick="window.open('whatsapp-checkout-preview.png', '_blank')" title="Haz clic para ver la captura en tamaño completo" style="width:100%; max-width:640px; display:block; margin:0 auto; border-radius:8px; border:1px solid #cbd5e1; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                        <div class="privacy-evidence-caption" style="margin-top:10px; font-size:12px; color:#475569; line-height:1.5;">
+                            <strong>Figura 2: Interfaz oficial de solicitud y checkout vía WhatsApp (diktatcart: 829-472-1257).</strong>
+                            <p style="margin:4px 0 0;">
+                                Muestra c&oacute;mo debe de verse la pantalla de WhatsApp al iniciar la solicitud de suscripci&oacute;n mensual de <strong>US$ 60.27</strong> para Hashcod Codespace y obtener la clave de acceso Dilithium-5 tras la confirmaci&oacute;n del dep&oacute;sito o transferencia bancaria.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
             </div>

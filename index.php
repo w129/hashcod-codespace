@@ -16,6 +16,7 @@
 
 // index.php — plataforma servidor HTML nativo (PHP). No Vite / no React SPA.
 require_once __DIR__ . '/l8-html.php';
+require_once __DIR__ . '/cloudflare-turnstile.php';
 
 $envAdminSig = getenv('DILITHIUM5_ADMIN_SIGNATURE') ?: (getenv('L8_DILITHIUM5_REGISTER_KEY') ?: '');
 if (function_exists('secretGet')) {
@@ -9628,22 +9629,37 @@ if (!headers_sent()) {
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 <!-- Cloudflare Turnstile Bot Protection Init -->
     <script>
-        const CF_TURNSTILE_SITE_KEY = '<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "", ENT_QUOTES, "UTF-8"); ?>';
+        const CF_TURNSTILE_SITE_KEY = '<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "0x4AAAAAAEfpecWchE9q2-cs", ENT_QUOTES, "UTF-8"); ?>';
         window.turnstileWidgets = {};
+        window.turnstileTokens = {};
 
         window.renderTurnstileWidgets = function () {
             if (!window.turnstile || typeof window.turnstile.render !== 'function') {
                 return;
             }
+            const siteKey = CF_TURNSTILE_SITE_KEY || '0x4AAAAAAEfpecWchE9q2-cs';
             ['cfTurnstileLogin', 'cfTurnstileRegister', 'cfTurnstileRecover'].forEach(function (id) {
                 const el = document.getElementById(id);
                 if (el && !window.turnstileWidgets[id]) {
                     try {
                         el.innerHTML = '';
                         const wId = window.turnstile.render('#' + id, {
-                            sitekey: CF_TURNSTILE_SITE_KEY,
+                            sitekey: siteKey,
                             theme: 'light',
-                            size: 'flexible'
+                            size: 'flexible',
+                            callback: function (token) {
+                                window.turnstileTokens[id] = token;
+                                window.turnstileTokens['active'] = token;
+                            },
+                            'expired-callback': function () {
+                                window.turnstileTokens[id] = '';
+                                if (window.turnstileTokens['active'] === window.turnstileTokens[id]) {
+                                    window.turnstileTokens['active'] = '';
+                                }
+                            },
+                            'error-callback': function () {
+                                window.turnstileTokens[id] = '';
+                            }
                         });
                         window.turnstileWidgets[id] = wId || '1';
                         el.style.border = 'none';
@@ -9660,7 +9676,6 @@ if (!headers_sent()) {
             window.renderTurnstileWidgets();
         };
 
-        // Fallback periódico por si el contenedor se hizo visible después
         setInterval(function () {
             if (window.turnstile && typeof window.turnstile.render === 'function') {
                 ['cfTurnstileLogin', 'cfTurnstileRegister', 'cfTurnstileRecover'].forEach(function (id) {
@@ -9670,7 +9685,7 @@ if (!headers_sent()) {
                     }
                 });
             }
-        }, 500);
+        }, 400);
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit" async defer></script>
 </head>
@@ -20546,16 +20561,12 @@ if (!headers_sent()) {
 
             function getTurnstileToken(widgetContainerId) {
                 try {
-                    // 1. Intentar obtener por el widget ID renderizado
-                    if (widgetContainerId && window.turnstileWidgets && window.turnstileWidgets[widgetContainerId] && window.turnstile && typeof window.turnstile.getResponse === 'function') {
-                        const t = window.turnstile.getResponse(window.turnstileWidgets[widgetContainerId]);
-                        if (t) return t;
+                    if (widgetContainerId && window.turnstileTokens && window.turnstileTokens[widgetContainerId]) {
+                        return window.turnstileTokens[widgetContainerId];
                     }
-                    if (widgetContainerId && typeof renderedTurnstileWidgets !== 'undefined' && renderedTurnstileWidgets[widgetContainerId] && window.turnstile && typeof window.turnstile.getResponse === 'function') {
-                        const t = window.turnstile.getResponse(renderedTurnstileWidgets[widgetContainerId]);
-                        if (t) return t;
+                    if (window.turnstileTokens && window.turnstileTokens['active']) {
+                        return window.turnstileTokens['active'];
                     }
-                    // 2. Buscar dentro del contenedor específico
                     if (widgetContainerId) {
                         const container = document.getElementById(widgetContainerId);
                         if (container) {
@@ -20563,12 +20574,14 @@ if (!headers_sent()) {
                             if (inp && inp.value) return inp.value;
                         }
                     }
-                    // 3. Fallback a getResponse() global
                     if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
+                        if (widgetContainerId && window.turnstileWidgets && window.turnstileWidgets[widgetContainerId]) {
+                            const t = window.turnstile.getResponse(window.turnstileWidgets[widgetContainerId]);
+                            if (t) return t;
+                        }
                         const t = window.turnstile.getResponse();
                         if (t) return t;
                     }
-                    // 4. Buscar cualquier input con valor
                     const inputs = document.querySelectorAll('[name="cf-turnstile-response"]');
                     for (let i = 0; i < inputs.length; i++) {
                         if (inputs[i].value) return inputs[i].value;

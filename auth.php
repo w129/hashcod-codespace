@@ -1033,11 +1033,16 @@ function authHandleApi($uri) {
             return true;
         }
         $cfToken = $input['cf_turnstile_response'] ?? ($input['cf-turnstile-response'] ?? ($input['turnstile_token'] ?? ''));
-        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled() && $cfToken !== '') {
+        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled()) {
+            if ($cfToken === '') {
+                http_response_code(403);
+                echo json_encode(['ok' => false, 'error' => 'Por favor, completa la casilla de verificación de Cloudflare Turnstile antes de continuar.'], JSON_UNESCAPED_UNICODE);
+                return true;
+            }
             $cfRes = cfTurnstileVerify($cfToken);
             if (empty($cfRes['ok'])) {
                 http_response_code(403);
-                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare fallida. Por favor, completa el desafío.'], JSON_UNESCAPED_UNICODE);
+                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare no superada. Por favor, vuelve a marcar la casilla de Cloudflare.'], JSON_UNESCAPED_UNICODE);
                 return true;
             }
         }
@@ -1068,11 +1073,16 @@ function authHandleApi($uri) {
         }
         $input = $body['data'] ?? [];
         $cfToken = $input['cf_turnstile_response'] ?? ($input['cf-turnstile-response'] ?? ($input['turnstile_token'] ?? ''));
-        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled() && $cfToken !== '') {
+        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled()) {
+            if ($cfToken === '') {
+                http_response_code(403);
+                echo json_encode(['ok' => false, 'error' => 'Por favor, completa la casilla de verificación de Cloudflare Turnstile antes de continuar.'], JSON_UNESCAPED_UNICODE);
+                return true;
+            }
             $cfRes = cfTurnstileVerify($cfToken);
             if (empty($cfRes['ok'])) {
                 http_response_code(403);
-                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare fallida. Por favor, completa el desafío.'], JSON_UNESCAPED_UNICODE);
+                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare no superada. Por favor, vuelve a marcar la casilla de Cloudflare.'], JSON_UNESCAPED_UNICODE);
                 return true;
             }
         }

@@ -9484,10 +9484,23 @@ if (!headers_sent()) {
             box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
         }
 
-    </style>
+    
+        /* CLOUDFLARE TURNSTILE WIDGET */
+        .cf-turnstile {
+            min-height: 65px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 12px 0 !important;
+            background: #fafafb;
+            border-radius: 8px;
+            border: 1px dashed #e2e8f0;
+        }
+</style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
     <!-- Cloudflare Turnstile Bot Protection -->
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit" async defer></script>
 </head>
 <body class="boot-locked">
     <script>
@@ -20182,6 +20195,9 @@ if (!headers_sent()) {
                 document.body.classList.remove('boot-locked');
                 if (overlay) overlay.classList.remove('hidden');
                 setMsg('');
+                if (typeof window.renderTurnstileWidgets === 'function') {
+                    setTimeout(window.renderTurnstileWidgets, 100);
+                }
             }
 
             window.l8ShowAuthGate = showAuthGate;
@@ -20251,6 +20267,9 @@ if (!headers_sent()) {
                     if (panels[k]) panels[k].classList.toggle('active', k === name);
                 });
                 setMsg('');
+                if (typeof window.renderTurnstileWidgets === 'function') {
+                    setTimeout(window.renderTurnstileWidgets, 50);
+                }
             }
 
             function showKeyKit(data) {
@@ -20279,6 +20298,39 @@ if (!headers_sent()) {
             document.getElementById('authTabLogin')?.addEventListener('click', () => switchTab('login'));
             document.getElementById('authTabRegister')?.addEventListener('click', () => switchTab('register'));
             document.getElementById('authTabRecover')?.addEventListener('click', () => switchTab('recover'));
+
+            /* ===== CLOUDFLARE TURNSTILE EXPLICIT RENDER CONTROLLER ===== */
+            const CF_TURNSTILE_SITE_KEY = '0x4AAAAAAEfpecWchE9q2-cs';
+            const renderedTurnstileWidgets = {};
+
+            window.renderTurnstileWidgets = function () {
+                if (!window.turnstile || typeof window.turnstile.render !== 'function') {
+                    // Si Turnstile aún no terminó de cargar, reintentar en 300ms
+                    setTimeout(window.renderTurnstileWidgets, 300);
+                    return;
+                }
+                ['cfTurnstileLogin', 'cfTurnstileRegister', 'cfTurnstileRecover'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && !renderedTurnstileWidgets[id]) {
+                        try {
+                            el.innerHTML = '';
+                            const wId = window.turnstile.render('#' + id, {
+                                sitekey: CF_TURNSTILE_SITE_KEY,
+                                theme: 'light',
+                                size: 'flexible'
+                            });
+                            renderedTurnstileWidgets[id] = wId || '1';
+                        } catch (e) {
+                            console.warn('Turnstile render warning:', e);
+                        }
+                    }
+                });
+            };
+
+            window.onloadTurnstileCallback = function () {
+                window.turnstileReady = true;
+                window.renderTurnstileWidgets();
+            };
 
             function getTurnstileToken() {
                 try {

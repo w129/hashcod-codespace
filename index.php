@@ -7845,20 +7845,20 @@ if (!headers_sent()) {
             color: #2563eb;
         }
 
-        /* Privacy Policy Modal Overlay & Styling */
+        /* Privacy Policy Modal Overlay & Dynamic Styling */
         .privacy-modal-overlay {
             position: fixed;
             inset: 0;
             z-index: 100000;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(6px);
+            background: rgba(9, 11, 17, 0.75);
+            backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 16px;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.25s ease;
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .privacy-modal-overlay.open {
@@ -7867,50 +7867,109 @@ if (!headers_sent()) {
         }
 
         .privacy-modal-card {
-            width: min(780px, 96vw);
-            max-height: 88vh;
+            width: min(880px, 96vw);
+            max-height: 90vh;
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.08);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             border: 1px solid #e5e7eb;
-            animation: privacyCardScale 0.25s ease-out both;
+            animation: privacyCardScale 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         @keyframes privacyCardScale {
-            from { transform: scale(0.96); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from { transform: scale(0.95) translateY(8px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
 
         .privacy-modal-header {
-            padding: 18px 22px;
-            background: #fbfbfb;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 16px;
+        }
+
+        .privacy-tabs-bar {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-bottom: 1px solid #e2e8f0;
+            gap: 4px;
+            overflow-x: auto;
+        }
+
+        .privacy-tab-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .privacy-tab-btn:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .privacy-tab-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .privacy-tab-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            flex-shrink: 0;
         }
 
         .privacy-modal-body {
-            padding: 22px 24px;
+            padding: 24px 26px;
             overflow-y: auto;
-            color: #374151;
-            font-size: 12.5px;
-            line-height: 1.65;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.68;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            flex: 1;
+        }
+
+        .privacy-tab-pane {
+            display: none;
+            animation: privacyPaneFade 0.2s ease-out;
+        }
+
+        .privacy-tab-pane.active {
+            display: block;
+        }
+
+        @keyframes privacyPaneFade {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .privacy-modal-body h3 {
-            margin: 16px 0 6px;
-            font-size: 13.5px;
+            margin: 18px 0 8px;
+            font-size: 14px;
             font-weight: 700;
-            color: #111827;
+            color: #0f172a;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .privacy-modal-body h3:first-child {
@@ -7918,26 +7977,73 @@ if (!headers_sent()) {
         }
 
         .privacy-modal-body p {
-            margin: 0 0 10px;
+            margin: 0 0 12px;
         }
 
         .privacy-modal-body ul {
-            margin: 0 0 12px 18px;
+            margin: 0 0 14px 20px;
             padding: 0;
         }
 
         .privacy-modal-body li {
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+        }
+
+        .privacy-vector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+        .privacy-vector-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .privacy-vector-card:hover {
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .privacy-vector-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 12.5px;
+            color: #0f172a;
+        }
+
+        .privacy-vector-head svg {
+            width: 18px;
+            height: 18px;
+            fill: #0ea5e9;
+            flex-shrink: 0;
+        }
+
+        .privacy-vector-desc {
+            font-size: 11.5px;
+            color: #64748b;
+            line-height: 1.45;
         }
 
         .privacy-modal-footer {
-            padding: 14px 22px;
-            background: #f9fafb;
-            border-top: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .privacy-highlight-box {
@@ -9519,116 +9625,221 @@ if (!headers_sent()) {
     </div>
 
     <!-- =========================================================================
-         POLÍTICA DE PRIVACIDAD, TRATAMIENTO DE DATOS Y CERTIFICACIÓN DETERMINISTA
+         POLÍTICA DE PRIVACIDAD, TRATAMIENTO DE DATOS Y CERTIFICACIÓN DETERMINISTA (DINÁMICA)
          ========================================================================= -->
     <div id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
         <div class="privacy-modal-card">
+            <!-- Header -->
             <div class="privacy-modal-header">
                 <div>
-                    <span class="admin-gate-badge" style="background:#EEF2FF; color:#4338CA; border-color:#C7D2FE;">
-                        <svg style="width:13px;height:13px;fill:currentColor;margin-right:4px;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-                        Certificación de IA · Pruebas Deterministas · Privacidad
+                    <span class="admin-gate-badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:11px; padding:3px 8px; border-radius:20px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                        <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                        Hashcod Codespace · Arquitectura Real & Certificación PQC
                     </span>
-                    <h2 class="admin-gate-title" id="privacyModalTitle" style="font-size:16px; margin-top:4px;">Política de Privacidad y Modelo Operativo · Hashcod Codespace</h2>
+                    <h2 class="admin-gate-title" id="privacyModalTitle" style="font-size:16px; font-weight:700; color:#0f172a; margin:4px 0 0;">Política de Privacidad y Modelo Operativo</h2>
                 </div>
-                <button type="button" class="admin-close-btn" onclick="closePrivacyPolicyModal()" title="Cerrar política de privacidad">
-                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                <button type="button" class="admin-close-btn" onclick="closePrivacyPolicyModal()" title="Cerrar política de privacidad" style="background:#f1f5f9; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#64748b;">
+                    <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
+
+            <!-- Dynamic Tabs Navigation -->
+            <div class="privacy-tabs-bar">
+                <button type="button" class="privacy-tab-btn active" onclick="showPrivacyTab('tab-scope')" id="btnTab-scope">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    1. Alcance & Cero Telemetría
+                </button>
+                <button type="button" class="privacy-tab-btn" onclick="showPrivacyTab('tab-openclaw')" id="btnTab-openclaw">
+                    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>
+                    2. OpenClaw 🦞 & Agentes
+                </button>
+                <button type="button" class="privacy-tab-btn" onclick="showPrivacyTab('tab-crypto')" id="btnTab-crypto">
+                    <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    3. Criptografía PQC & Strix
+                </button>
+                <button type="button" class="privacy-tab-btn" onclick="showPrivacyTab('tab-storage')" id="btnTab-storage">
+                    <svg viewBox="0 0 24 24"><path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/></svg>
+                    4. SODA Storage & Docs
+                </button>
+                <button type="button" class="privacy-tab-btn" onclick="showPrivacyTab('tab-license')" id="btnTab-license">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    5. Licenciamiento FOSS
+                </button>
+                <button type="button" class="privacy-tab-btn" onclick="showPrivacyTab('tab-evidence')" id="btnTab-evidence">
+                    <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                    6. Evidencias & Auditoría
+                </button>
+            </div>
+
+            <!-- Body Container -->
             <div class="privacy-modal-body">
-                <!-- SECCIÓN DESTACADA: QUÉ HACE HASHCOD CODESPACE -->
-                <div class="privacy-highlight-box" style="background:#F0FDF4; border-left:4px solid #16A34A; color:#14532D; padding:14px 16px; margin-bottom:18px;">
-                    <div style="font-weight:700; font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-                        <svg style="width:16px;height:16px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                        ¿Qué es y Qué Hace Hashcod Codespace?
-                    </div>
-                    <p style="margin:0; line-height:1.6; font-size:12px;">
-                        <strong>Hashcod Codespace</strong> es una plataforma concebida para <strong>certificar y auditar todo lo creado por Inteligencia Artificial (IA)</strong> a través de <strong>software especializado de análisis de datos y métricas de uso durante la realización con la IA</strong>, proveyendo <strong>certificaciones de validación inmutables respaldadas por pruebas deterministas</strong>.
-                    </p>
-                </div>
-
-                <h3>1. Alcance Operativo y Servicios Ofrecidos: Certificación de IA con Pruebas Deterministas</h3>
-                <p>La plataforma ejecuta un protocolo estricto de certificación tecnológica para validar software y activos creados con IA a través de los siguientes servicios integrados:</p>
-                <ul>
-                    <li><strong>Auditoría de Chat Local y Uso de IA por API REST:</strong> Software de análisis donde chateas con la IA y le pides proyectos completos en tiempo real. El sistema audita el canal analizando las <em>cantidades de repeticiones</em>, los <em>modelos de formatos empleados</em>, los <em>inputs</em> suministrados, los <em>outputs</em> generados y las <em>correcciones</em> iteradas.</li>
-                    <li><strong>Software de Análisis de Datos y Métricas de Rendimiento:</strong> Monitoriza el volumen de tokens consumidos, la velocidad de respuesta, costes computacionales y los índices operativos <strong>ICAI</strong> y <strong>NSPA</strong>.</li>
-                    <li><strong>Pruebas Deterministas de Validación:</strong> Todo código generado o adjuntado es sometido a pruebas deterministas que verifican matemáticamente la consistencia algorítmica, la repetibilidad y la ausencia de alteraciones en el resultado final.</li>
-                    <li><strong>Emisión y Despliegue de Certificados Post-Cuánticos:</strong> Emisión de sellos criptográficos inmutables basados en estándares NIST PQC (<strong>SPHINCS+</strong> y <strong>Dilithium-5</strong>), indexados públicamente en la tabla del Blog para verificación pública.</li>
-                </ul>
-
-                <!-- EVIDENCIA GRÁFICA DEL SOFTWARE DE ANÁLISIS DE IA -->
-                <div class="privacy-evidence-card">
-                    <img src="gus-mav-analysis-sample.png" alt="Software de prueba de uso de IA a través de chat local por API Rest (GUS MAV)" class="privacy-evidence-img" onclick="window.open('gus-mav-analysis-sample.png', '_blank')" title="Haz clic para ver la captura de análisis en tamaño completo">
-                    <div class="privacy-evidence-caption">
-                        <strong>Figura 1: Software de prueba de uso de IA a través de chat local por API Rest (GUS MAV v1.1.1).</strong>
-                        <p style="margin:0;">
-                            Prueba real de uno de los análisis que realizamos: software de prueba de uso de IA a través de chat local por API Rest donde chateas con la IA y le pides proyectos, y el software analiza las cantidades de repeticiones como también los modelos de formatos que usas, registrando canales de <em>Inputs</em>, <em>Outputs</em> y <em>Correcciones</em> en tiempo real junto con la telemetría determinista para respaldar cada certificación emitida.
+                
+                <!-- TAB 1: ALCANCE & CERO TELEMETRÍA -->
+                <div class="privacy-tab-pane active" id="pane-tab-scope">
+                    <div class="privacy-highlight-box" style="background:#f0fdf4; border-left:4px solid #16a34a; color:#14532d; padding:14px 16px; margin-bottom:16px; border-radius:4px;">
+                        <div style="font-weight:700; font-size:13px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px;height:16px;fill:#16a34a;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            Declaración de Cero Telemetría y Soberanía Total de Datos (Own-Your-Data)
+                        </div>
+                        <p style="margin:0; font-size:12px; line-height:1.55;">
+                            <strong>Hashcod Codespace</strong> opera bajo un principio estricto de <em>Zero-Knowledge</em> y computación aislada. No recopilamos rastreo publicitario, no vendemos datos ni almacenamos telemetría invasiva. Todo el código fuente y los proyectos se gestionan localmente en tu carpeta <code>~/workspace</code>.
                         </p>
                     </div>
-                </div>
 
-                <h3>2. Información y Datos que Recolecta la Plataforma</h3>
-                <p>En el marco de la certificación y el funcionamiento del servidor, la plataforma recolecta y procesa exclusivamente los siguientes datos:</p>
-                <ul>
-                    <li><strong>Claves de Acceso y Cifrado:</strong> Claves maestras AES-256 generadas en el navegador del usuario, identificadores únicos L8ID, hashes derivados unidireccionales (SHA-256 / SHA-512), kits de recuperación L8REC y hashes de respaldo de un solo uso.</li>
-                    <li><strong>Firmas y Sellos Criptográficos:</strong> Firmas post-cuánticas Dilithium-5 (ML-DSA-87) para validación de acceso al panel administrador y firmas SPHINCS+ (SLH-DSA) para sellado de publicaciones.</li>
-                    <li><strong>Código Fuente y Archivos de Proyecto:</strong> Archivos cargados o editados (.py, .html, .ts, .js, .json, .sql, .php, .css, etc.), volumen de tokens calculados automáticamente y metadatos de validación.</li>
-                    <li><strong>Registros Públicos de Publicación:</strong> Identificadores de registro (PUB-XXX), códigos de responsable, costos de tokens, métricas técnicas, estado de CORS y color HASNA.</li>
-                    <li><strong>Datos Técnicos de Sesión:</strong> Tokens temporales de sesión (<code>sessionStorage</code>), datos de configuración local (<code>localStorage</code>) y telemetría de renderizado gráfico de la interfaz.</li>
-                </ul>
+                    <h3>🏛️ Arquitectura Operativa y Servicios Activos</h3>
+                    <p>La plataforma integra de manera real y funcional los siguientes componentes de cómputo:</p>
+                    <div class="privacy-vector-grid">
+                        <div class="privacy-vector-card">
+                            <div class="privacy-vector-head">
+                                <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                                Motores Nativos Multi-Lenguaje
+                            </div>
+                            <div class="privacy-vector-desc">
+                                Micro-core ultra rápido en <strong>C99</strong>, orquestador concurrente en <strong>Go</strong> (Goroutines pool), stack de inferencia en <strong>Rust</strong> (NVIDIA Dynamo) y backend <strong>PHP 8.1 / Python 3.12</strong>.
+                            </div>
+                        </div>
 
-                <h3>3. Declaración de Desarrollo Integral por Inteligencia Artificial (IA)</h3>
-                <p>En estricto cumplimiento con las normas de transparencia tecnológica:</p>
-                <ul>
-                    <li><strong>Plataforma Desarrollada por IA:</strong> Se declara expresamente que Hashcod Codespace, incluyendo su arquitectura backend, scripts criptográficos, componentes de análisis y diseños de interfaz, ha sido concebida, desarrollada y optimizada mediante modelos avanzados de Inteligencia Artificial (IA) y agentes autónomos de codificación.</li>
-                    <li><strong>Asistencia Inteligente Continua:</strong> Los módulos de cálculo de tokens, validación de scripts y formateo son asistidos por algoritmos de cómputo inteligente para asegurar precisión en tiempo real.</li>
-                </ul>
+                        <div class="privacy-vector-card">
+                            <div class="privacy-vector-head">
+                                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                                Workspace Central & POSIX Shell
+                            </div>
+                            <div class="privacy-vector-desc">
+                                Terminal Bash interactiva con soporte POSIX completo, gestión de repositorios Git en vivo y enlaces hacia entornos Linux/Ubuntu y macOS.
+                            </div>
+                        </div>
 
-                <h3>4. Proveedores de Terceros e Infraestructura Cloud (Supabase y Render)</h3>
-                <p>Para la custodia segura y ejecución ininterrumpida de los servicios, Hashcod Codespace delega la infraestructura técnica en los siguientes proveedores de terceros:</p>
-                <ul>
-                    <li><strong>Supabase (Base de Datos en la Nube y Persistencia):</strong> Almacena de forma segura las tablas relacionales PostgreSQL, los hashes de identidad criptográfica, el estado de las sesiones y la persistencia de los kits de recuperación. Ninguna contraseña o clave en texto plano es transmitida ni almacenada en Supabase (cero custodia / Zero-Knowledge).</li>
-                    <li><strong>Render (Plataforma de Hosting y Ejecución de Servidores):</strong> Provee el entorno de alojamiento en la nube, aprovisionamiento de contenedores de cómputo, balanceo de carga y enrutamiento HTTPS para ejecutar la aplicación web y procesar los endpoints del servidor.</li>
-                </ul>
+                        <div class="privacy-vector-card">
+                            <div class="privacy-vector-head">
+                                <svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9z"/></svg>
+                                Dual-Catalyst 4-ENV Tunnel
+                            </div>
+                            <div class="privacy-vector-desc">
+                                Canales de comunicación aislados <code>/a</code> (macho: 1 vía ENV_1 ➜ ENV_3) y <code>/b</code> (hembra: 2 vías reactivas ENV_2 ⟷ ENV_4) para flujos de datos sin interferencias.
+                            </div>
+                        </div>
 
-                <h3>5. Licenciamiento, Módulo Bash Open Source y Propiedad de Hashcod</h3>
-                <p>En relación con el entorno de terminal y los componentes de software integrados en la plataforma:</p>
-                <ul>
-                    <li><strong>Herramienta Bash y Licencia Original (GNU GPLv3):</strong> Se aclara expresamente que la herramienta de terminal <strong>GNU Bash</strong> (Bourne Again SHell) integrada para la interpretación y ejecución de comandos es software libre y de código abierto (<em>Open Source</em>), distribuida bajo los términos de la <strong>Licencia Pública General de GNU (GNU General Public License, Version 3, 29 June 2007)</strong>, Copyright © Free Software Foundation, Inc. (<a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer" style="color:#2563EB; text-decoration:underline;">https://www.gnu.org/licenses/gpl-3.0.html</a>). Dicha licencia aplica <em>única y exclusivamente</em> a la especificación, código fuente y ejecución de comandos del motor Bash.</li>
-                    <li><strong>Propiedad Exclusiva de Hashcod:</strong> Todo lo demás que compone la plataforma —incluyendo la arquitectura general, el entorno interactivo de Warp Terminal, las herramientas del Toolbox lateral, el sistema de ventanas, los motores de certificación determinista de IA, las firmas criptográficas post-cuánticas (Dilithium-5 / SPHINCS+), el software de análisis de datos y la interfaz gráfica integral— es desarrollo y propiedad intelectual exclusiva de <strong>Hashcod</strong> (Hashcod Codespace).</li>
-                </ul>
-
-                <div class="privacy-highlight-box" style="background:#F8FAFC; border-left:4px solid #0EA5E9; color:#0F172A; padding:12px 14px; margin-top:10px; font-size:11.5px; line-height:1.6;">
-                    <div style="font-weight:700; color:#0369A1; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
-                        <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                        Aviso Oficial de Licencia Original de GNU Bash (GPLv3)
+                        <div class="privacy-vector-card">
+                            <div class="privacy-vector-head">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/></svg>
+                                Certificación Determinista de IA
+                            </div>
+                            <div class="privacy-vector-desc">
+                                Software de verificación que audita entradas, salidas y modelos empleados, emitiendo certificados criptográficos inmutables respaldados por hashes NIST PQC.
+                            </div>
+                        </div>
                     </div>
-                    <pre style="background:#0f172a; color:#f8fafc; padding:10px 12px; border-radius:6px; font-size:11px; overflow-x:auto; margin:8px 0 4px 0; font-family:Consolas, Monaco, 'Courier New', monospace; line-height:1.45; white-space:pre-wrap;">GNU GENERAL PUBLIC LICENSE
-Version 3, 29 June 2007
-Copyright (C) 2007 Free Software Foundation, Inc. &lt;http://fsf.org/&gt;
-Everyone is permitted to copy and distribute verbatim copies
-of this license document, but changing it is not allowed.
-
-This program (GNU Bash) is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&gt;.</pre>
                 </div>
 
-                <h3>6. Criptografía del Lado del Cliente y Seguridad</h3>
-                <p>La seguridad de la cuenta depende de la custodia del kit de claves entregado al registrarse. La plataforma no almacena contraseñas convencionales en servidores centrales, garantizando que el usuario tenga el control exclusivo de sus credenciales criptográficas.</p>
+                <!-- TAB 2: OPENCLAW & AGENTES -->
+                <div class="privacy-tab-pane" id="pane-tab-openclaw">
+                    <div class="privacy-highlight-box" style="background:#fff7ed; border-left:4px solid #ea580c; color:#9a3412; padding:14px 16px; margin-bottom:16px; border-radius:4px;">
+                        <div style="font-weight:700; font-size:13px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:16px;">🦞</span> OpenClaw Multi-Channel AI Gateway & Autonomous Agents
+                        </div>
+                        <p style="margin:0; font-size:12px; line-height:1.55;">
+                            La plataforma integra el ecosistema <strong>OpenClaw 2026.8.1</strong> para desplegar agentes autónomos multi-canal sobre el workspace central.
+                        </p>
+                    </div>
 
-                <h3>7. Consentimiento del Usuario y Vigencia</h3>
-                <p>Al iniciar sesión o crear una cuenta, aceptas de manera libre e informada el tratamiento de datos y el modelo operativo de certificación determinista descrito en este documento.</p>
+                    <h3>🦞 Tratamiento de Datos en el Gateway OpenClaw</h3>
+                    <ul>
+                        <li><strong>Puerto RPC y Gateway Local (18789):</strong> El daemon opera en un puerto local aislado (<code>127.0.0.1:18789</code>) comunicándose vía WebSocket y HTTP RPC seguro con el Codespace.</li>
+                        <li><strong>Zero-Data Retention en Canales de Mensajería:</strong> Los mensajes procesados a través de WhatsApp, Telegram, Discord, Slack o Webhooks son utilizados exclusivamente para ejecutar la tarea solicitada y devolver la respuesta al operador, sin retención secundaria en servidores externos.</li>
+                        <li><strong>50+ Habilidades Autónomas Aisladas (Skills):</strong> Las habilidades activas (<code>coding-agent</code>, <code>diagram-maker</code>, <code>github</code>, <code>gh-issues</code>, <code>gemini</code>, <code>active-memory</code>) operan dentro de los límites estrictos del directorio <code>workspace/</code>.</li>
+                        <li><strong>Custodia de API Keys de Modelos:</strong> Las credenciales para Claude 3.7 Sonnet, OpenAI o Gemini se leen directamente desde la bóveda criptográfica local y nunca se comparten con terceros.</li>
+                    </ul>
+                </div>
+
+                <!-- TAB 3: CRIPTOGRAFÍA PQC & STRIX -->
+                <div class="privacy-tab-pane" id="pane-tab-crypto">
+                    <div class="privacy-highlight-box" style="background:#f8fafc; border-left:4px solid #6366f1; color:#1e1b4b; padding:14px 16px; margin-bottom:16px; border-radius:4px;">
+                        <div style="font-weight:700; font-size:13px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px;height:16px;fill:#6366f1;" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+                            Seguridad Post-Cuántica (NIST PQC) y Auditoría Strix AI
+                        </div>
+                        <p style="margin:0; font-size:12px; line-height:1.55;">
+                            Implementación nativa de los algoritmos estandarizados por el NIST para resistencia frente a computación cuántica.
+                        </p>
+                    </div>
+
+                    <h3>🔐 Bóveda Criptográfica y Firmas Digitales</h3>
+                    <ul>
+                        <li><strong>CRYSTALS-Dilithium Nivel 5 (ML-DSA-87):</strong> Empleado para la autenticación criptográfica del panel de administración y verificación de integridad de código.</li>
+                        <li><strong>SPHINCS+ (SLH-DSA-SHAKE-256s):</strong> Sellos criptográficos sin estado para certificación inmutable de activos.</li>
+                        <li><strong>Bóveda AES-256-GCM:</strong> Cifrado simétrico autenticado para proteger credenciales y claves de cuenta en <code>data_storage/hashcod_keys</code>.</li>
+                        <li><strong>Strix Security Scanner:</strong> Auditor autónomo en Python (<code>strix_scanner.py</code>) que evalúa en tiempo real puertos abiertos, directivas de seguridad CSP, HSTS y cabeceras OWASP contra vulnerabilidades de red.</li>
+                    </ul>
+                </div>
+
+                <!-- TAB 4: SODA STORAGE & DOCS -->
+                <div class="privacy-tab-pane" id="pane-tab-storage">
+                    <div class="privacy-highlight-box" style="background:#f0fdfa; border-left:4px solid #0d9488; color:#134e4a; padding:14px 16px; margin-bottom:16px; border-radius:4px;">
+                        <div style="font-weight:700; font-size:13px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px;height:16px;fill:#0d9488;" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                            SODA Storage Controller & Suites de Documentos Locales
+                        </div>
+                        <p style="margin:0; font-size:12px; line-height:1.55;">
+                            Almacenamiento unificado de datos y edición ofimática local sin dependencia de nubes cerradas.
+                        </p>
+                    </div>
+
+                    <h3>💾 Almacenamiento y Edición de Documentos</h3>
+                    <ul>
+                        <li><strong>SODA Storage Pools & Fileshares:</strong> Controlador en Python (<code>storage_controller.py</code>) para aprovisionamiento dinámico de volúmenes NVMe y carpetas compartidas NFS/POSIX.</li>
+                        <li><strong>TipTap Editor (Word-like):</strong> Editor nativo enriquecido para documentos técnicos montado localmente en <code>/tiptap</code>.</li>
+                        <li><strong>LibreOffice Server Workspace:</strong> Suite ofimática completa ejecutada en el servidor sin transferir archivos a nubes de terceros.</li>
+                        <li><strong>Persistencia Supabase Cloud:</strong> Tablas relacionales PostgreSQL sincronizadas con cifrado en reposo para metadatos de sesión y kits de recuperación L8REC.</li>
+                    </ul>
+                </div>
+
+                <!-- TAB 5: LICENCIAMIENTO FOSS -->
+                <div class="privacy-tab-pane" id="pane-tab-license">
+                    <div class="privacy-highlight-box" style="background:#f8fafc; border-left:4px solid #475569; color:#0f172a; padding:14px 16px; margin-bottom:16px; border-radius:4px;">
+                        <div style="font-weight:700; font-size:13px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                            <svg style="width:16px;height:16px;fill:#475569;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            Declaración Oficial de Licencias Open Source & Propiedad
+                        </div>
+                        <p style="margin:0; font-size:12px; line-height:1.55;">
+                            Transparencia en el uso de componentes de código abierto y deslinde de licencias.
+                        </p>
+                    </div>
+
+                    <h3>⚖️ Desglose de Licencias</h3>
+                    <ul>
+                        <li><strong>GNU Bash (GNU GPLv3):</strong> La herramienta de terminal GNU Bash integrada para la ejecución de comandos es software libre distribuido bajo la <strong>GNU General Public License v3</strong>. Aplica exclusivamente a la ejecución del intérprete shell.</li>
+                        <li><strong>OpenClaw (Licencia MIT):</strong> El framework de gateway y agente OpenClaw es software de código abierto bajo licencia MIT.</li>
+                        <li><strong>Propiedad Intelectual de Hashcod:</strong> Todo el núcleo orquestador, la arquitectura Dual-Catalyst 4-ENV, las firmas post-cuánticas Dilithium-5, el panel Warp y la interfaz gráfica completa son propiedad exclusiva de <strong>Hashcod Codespace</strong>.</li>
+                    </ul>
+                </div>
+
+                <!-- TAB 6: EVIDENCIAS & AUDITORÍA -->
+                <div class="privacy-tab-pane" id="pane-tab-evidence">
+                    <h3>📸 Evidencia de Análisis y Software de Certificación</h3>
+                    <p>Muestra real del software de análisis de datos y telemetría de interacción con IA utilizado para respaldar las certificaciones deterministas emitidas por la plataforma:</p>
+                    
+                    <div class="privacy-evidence-card" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:14px; margin-top:12px;">
+                        <img src="gus-mav-analysis-sample.png" alt="Software de prueba de uso de IA a través de chat local por API Rest (GUS MAV)" class="privacy-evidence-img" onclick="window.open('gus-mav-analysis-sample.png', '_blank')" title="Haz clic para ver la captura en tamaño completo" style="width:100%; border-radius:8px; border:1px solid #cbd5e1; cursor:pointer;">
+                        <div class="privacy-evidence-caption" style="margin-top:10px; font-size:12px; color:#475569; line-height:1.5;">
+                            <strong>Figura 1: Software de prueba de uso de IA a través de chat local por API Rest (GUS MAV v1.1.1).</strong>
+                            <p style="margin:4px 0 0;">
+                                Registro de canales de <em>Inputs</em>, <em>Outputs</em>, repeticiones y modelos empleados en tiempo real para respaldar de forma determinista la certificación de proyectos creados con IA.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+
+            <!-- Footer -->
             <div class="privacy-modal-footer">
-                <button type="button" class="admin-gate-btn" onclick="acceptAndClosePrivacyPolicy()" style="background:#111827; color:#fff; border:none; padding:10px 22px; font-weight:700; border-radius:6px; cursor:pointer; font-size:12px;">
-                    Entendido y Aceptar Política de Certificación
+                <div style="font-size:11.5px; color:#64748b; display:flex; align-items:center; gap:6px;">
+                    <svg style="width:14px;height:14px;fill:#10b981;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <span>Vigencia 2026.8 · Cumplimiento NIST PQC & Zero-Knowledge</span>
+                </div>
+                <button type="button" class="admin-gate-btn" onclick="acceptAndClosePrivacyPolicy()" style="background:#0f172a; color:#fff; border:none; padding:9px 20px; font-weight:600; border-radius:8px; cursor:pointer; font-size:12.5px; display:inline-flex; align-items:center; gap:6px;">
+                    <span>Entendido y Aceptar Política</span>
+                    <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </button>
             </div>
         </div>
@@ -20208,6 +20419,18 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
                 if (e.key === 'Enter') document.getElementById('authRecoverBtn')?.click();
             });
         })();
+
+        
+        /* ===== PRIVACY POLICY DYNAMIC TAB CONTROLLER ===== */
+        window.showPrivacyTab = function (tabId) {
+            document.querySelectorAll('.privacy-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.privacy-tab-pane').forEach(pane => pane.classList.remove('active'));
+            
+            const btn = document.getElementById('btnTab-' + tabId.replace('tab-', ''));
+            const pane = document.getElementById('pane-' + tabId);
+            if (btn) btn.classList.add('active');
+            if (pane) pane.classList.add('active');
+        };
 
         /* ===== PRIVACY POLICY MODAL CONTROLLER ===== */
         window.openPrivacyPolicyModal = function () {

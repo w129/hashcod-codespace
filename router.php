@@ -61,6 +61,10 @@ $routedPages = [
     '/openclaw-ui' => 'openclaw-ui.php',
     '/claw' => 'openclaw-ui.php',
     '/claw-ui' => 'openclaw-ui.php',
+    '/privacy' => 'privacy.php',
+    '/privacy.php' => 'privacy.php',
+    '/politica' => 'privacy.php',
+    '/politica-de-privacidad' => 'privacy.php',
 ];
 if (isset($routedPages[$uri])) {
     $page = $routedPages[$uri];

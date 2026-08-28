@@ -1019,6 +1019,12 @@ function authHandleApi($uri) {
             return true;
         }
         $input = $body['data'] ?? [];
+        $privacyAccepted = !empty($input['privacy_accepted']) || !empty($input['accept_privacy']) || !empty($input['privacy']);
+        if (!$privacyAccepted) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Debes marcar que aceptas la Política de Privacidad para registrarte.'], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
         $cfToken = $input['cf_turnstile_response'] ?? ($input['cf-turnstile-response'] ?? ($input['turnstile_token'] ?? ''));
         if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled() && $cfToken !== '') {
             $cfRes = cfTurnstileVerify($cfToken);

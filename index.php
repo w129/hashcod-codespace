@@ -9646,8 +9646,8 @@ if (!headers_sent()) {
                 <input class="auth-input" id="authDilithiumInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave Dilithium-5 del mes">
                 <div class="auth-privacy-agreement">
                     <label class="auth-privacy-checkbox-label">
-                        <input type="checkbox" id="authPrivacyCheckbox" checked>
-                        <span>Acepto la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad</a>: certificación de lo creado por IA mediante software de análisis de datos y pruebas deterministas, desarrollo integral por IA y custodia técnica en <strong>Supabase</strong> y <strong>Render</strong>.</span>
+                        <input type="checkbox" id="authPrivacyCheckbox" required>
+                        <span>Acepto la <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" class="privacy-link">Política de Privacidad y Modelo de Certificación</a>: certificación de creaciones con IA mediante pruebas deterministas, seguridad post-cuántica (NIST PQC) y soberanía de datos (cero telemetría).</span>
                     </label>
                 </div>
                 <div class="cf-turnstile" id="cfTurnstileRegister" data-sitekey="0x4AAAAAAEfpecWchE9q2-cs" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
@@ -20430,8 +20430,20 @@ if (!headers_sent()) {
 
             document.getElementById('authRegisterBtn')?.addEventListener('click', async () => {
                 const privacyChk = document.getElementById('authPrivacyCheckbox');
-                if (privacyChk && !privacyChk.checked) {
-                    setMsg('Debes aceptar la Política de Privacidad para crear tu cuenta.');
+                if (!privacyChk || !privacyChk.checked) {
+                    setMsg('Debes marcar la casilla para aceptar la Política de Privacidad antes de registrarte.');
+                    if (privacyChk) {
+                        privacyChk.focus();
+                        const parent = privacyChk.closest('.auth-privacy-agreement');
+                        if (parent) {
+                            parent.style.border = '1.5px solid #ef4444';
+                            parent.style.background = '#fef2f2';
+                            setTimeout(() => {
+                                parent.style.border = '';
+                                parent.style.background = '';
+                            }, 3500);
+                        }
+                    }
                     return;
                 }
                 const dil = (document.getElementById('authDilithiumInput')?.value || '').trim();
@@ -20447,7 +20459,7 @@ if (!headers_sent()) {
                     const res = await fetch('/api/auth/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ dilithium5: dil, cf_turnstile_response: cfToken })
+                        body: JSON.stringify({ dilithium5: dil, cf_turnstile_response: cfToken, privacy_accepted: true })
                     });
                     const data = await res.json();
                     if (!data || !data.ok) {

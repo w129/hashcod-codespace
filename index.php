@@ -19962,6 +19962,37 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
             window.l8UnlockPlatform = unlockPlatform;
             window.l8GetAuthToken = getToken;
 
+            window.l8LogoutSession = async function() {
+                if (!confirm('¿Cerrar sesión de la cuenta? Se bloqueará la plataforma y tendrás que volver a ingresar con tus claves.')) {
+                    return;
+                }
+                const token = getToken();
+                if (token) {
+                    try {
+                        await fetch('/api/auth/logout', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + token
+                            }
+                        });
+                    } catch (e) {}
+                }
+                clearSession();
+                try {
+                    sessionStorage.clear();
+                    localStorage.removeItem(AUTH_TOKEN_KEY);
+                    localStorage.removeItem(AUTH_ACCOUNT_KEY);
+                    localStorage.removeItem('l8_auth_token');
+                    localStorage.removeItem('l8_auth_account');
+                    localStorage.removeItem('l8_session_token');
+                    localStorage.removeItem('l8_auth_account_id');
+                } catch(e) {}
+                showAuthGate();
+                window.location.reload();
+            };
+            window.logoutSession = window.l8LogoutSession;
+
             async function checkSession() {
                 const token = getToken();
                 if (!token) return false;
@@ -20300,7 +20331,27 @@ GNU General Public License for more details: &lt;https://www.gnu.org/licenses/&g
         })();
     </script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
-<script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/durable-objects.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.js?v=2026.1"></script>
+    <script>
+    document.addEventListener('click', function(e) {
+        var btn = e.target && e.target.closest && e.target.closest('#topBarLogoutBtn');
+        if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.l8LogoutSession === 'function') {
+                window.l8LogoutSession();
+            } else {
+                if (confirm('¿Cerrar sesión de la cuenta?')) {
+                    sessionStorage.clear();
+                    localStorage.removeItem('l8_auth_token');
+                    localStorage.removeItem('l8_auth_account');
+                    localStorage.removeItem('l8_session_token');
+                    localStorage.removeItem('l8_auth_account_id');
+                    window.location.reload();
+                }
+            }
+        }
+    }, true);
+    </script>
 </body>
 </html>

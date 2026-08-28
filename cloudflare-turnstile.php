@@ -23,7 +23,7 @@ function cfSanitizeKey($val) {
 function cfTurnstileConfig() {
     // 1. Claves maestras por defecto para Hashcod Codespace
     $siteKey = '0x4AAAAAAEfpecWchE9q2-cs';
-    $secretKey = '0x4AAAAAAEfpjV8mVoPyxk-k09ztF-byCuE';
+    $secretKey = '0x4AAAAAAEfpefehY9pZh507cWEuXnDN04k';
 
     // 2. Cargar archivo .env si existe
     if (function_exists('loadEnvFile')) {

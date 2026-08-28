@@ -20544,14 +20544,36 @@ if (!headers_sent()) {
                 window.renderTurnstileWidgets();
             };
 
-            function getTurnstileToken() {
+            function getTurnstileToken(widgetContainerId) {
                 try {
+                    // 1. Intentar obtener por el widget ID renderizado
+                    if (widgetContainerId && window.turnstileWidgets && window.turnstileWidgets[widgetContainerId] && window.turnstile && typeof window.turnstile.getResponse === 'function') {
+                        const t = window.turnstile.getResponse(window.turnstileWidgets[widgetContainerId]);
+                        if (t) return t;
+                    }
+                    if (widgetContainerId && typeof renderedTurnstileWidgets !== 'undefined' && renderedTurnstileWidgets[widgetContainerId] && window.turnstile && typeof window.turnstile.getResponse === 'function') {
+                        const t = window.turnstile.getResponse(renderedTurnstileWidgets[widgetContainerId]);
+                        if (t) return t;
+                    }
+                    // 2. Buscar dentro del contenedor específico
+                    if (widgetContainerId) {
+                        const container = document.getElementById(widgetContainerId);
+                        if (container) {
+                            const inp = container.querySelector('[name="cf-turnstile-response"]');
+                            if (inp && inp.value) return inp.value;
+                        }
+                    }
+                    // 3. Fallback a getResponse() global
                     if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
                         const t = window.turnstile.getResponse();
                         if (t) return t;
                     }
-                    const el = document.querySelector('[name="cf-turnstile-response"]');
-                    return el ? el.value : '';
+                    // 4. Buscar cualquier input con valor
+                    const inputs = document.querySelectorAll('[name="cf-turnstile-response"]');
+                    for (let i = 0; i < inputs.length; i++) {
+                        if (inputs[i].value) return inputs[i].value;
+                    }
+                    return '';
                 } catch (e) {
                     return '';
                 }
@@ -20573,7 +20595,7 @@ if (!headers_sent()) {
                     setMsg('Introduce las 2 claves de tu cuenta.');
                     return;
                 }
-                const cfToken = getTurnstileToken();
+                const cfToken = getTurnstileToken('cfTurnstileLogin');
                 if (btn) btn.disabled = true;
                 setMsg('Verificando con Cloudflare…');
                 try {
@@ -20730,7 +20752,7 @@ if (!headers_sent()) {
                     setMsg('Introduce la Dilithium-5 de registro del mes.');
                     return;
                 }
-                const cfToken = getTurnstileToken();
+                const cfToken = getTurnstileToken('cfTurnstileRegister');
                 if (btn) btn.disabled = true;
                 setMsg('Creando cuenta con verificación Cloudflare…');
                 try {
@@ -20775,7 +20797,7 @@ if (!headers_sent()) {
                     setMsg('Introduce L8REC o un código de respaldo.');
                     return;
                 }
-                const cfToken = getTurnstileToken();
+                const cfToken = getTurnstileToken('cfTurnstileRecover');
                 if (btn) btn.disabled = true;
                 setMsg('Recuperando cuenta…');
                 try {

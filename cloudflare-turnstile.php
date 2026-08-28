@@ -11,35 +11,50 @@ if (!function_exists('secretGet')) {
 }
 
 function cfTurnstileConfig() {
-    $siteKey = '';
-    $secretKey = '';
+    // 1. Claves maestras por defecto para Hashcod Codespace
+    $siteKey = '0x4AAAAAAEfpecWchE9q2-cs';
+    $secretKey = '0x4AAAAAAEfpjV8mVoPyxk-k09ztF-byCuE';
 
-    // 1. Cargar archivo .env si aún no se han cargado las variables
+    // 2. Cargar archivo .env si existe
     if (function_exists('loadEnvFile')) {
         loadEnvFile();
     }
 
-    // 2. Secret Files de Render (/etc/secrets/<KEY>)
+    // 3. Secret Files de Render (/etc/secrets/<KEY>)
     foreach (['/etc/secrets/CF_TURNSTILE_SITE_KEY', '/etc/secrets/cf_turnstile_site_key'] as $f) {
-        if (is_readable($f)) { $siteKey = trim((string)@file_get_contents($f)); break; }
+        if (is_readable($f)) {
+            $val = trim((string)@file_get_contents($f));
+            if ($val !== '') $siteKey = $val;
+            break;
+        }
     }
     foreach (['/etc/secrets/CF_TURNSTILE_SECRET_KEY', '/etc/secrets/cf_turnstile_secret_key'] as $f) {
-        if (is_readable($f)) { $secretKey = trim((string)@file_get_contents($f)); break; }
+        if (is_readable($f)) {
+            $val = trim((string)@file_get_contents($f));
+            if ($val !== '') $secretKey = $val;
+            break;
+        }
     }
 
-    // 3. Bóveda cifrada AES-256-GCM
+    // 4. Bóveda cifrada AES-256-GCM
     if (function_exists('secretGet')) {
-        if ($siteKey === '') $siteKey = secretGet('CF_TURNSTILE_SITE_KEY', '');
-        if ($secretKey === '') $secretKey = secretGet('CF_TURNSTILE_SECRET_KEY', '');
+        $vSite = secretGet('CF_TURNSTILE_SITE_KEY', '');
+        if ($vSite !== '') $siteKey = $vSite;
+        $vSec = secretGet('CF_TURNSTILE_SECRET_KEY', '');
+        if ($vSec !== '') $secretKey = $vSec;
     }
 
-    // 4. Variables de entorno (.env / getenv)
+    // 5. Variables de entorno (.env / getenv)
     if (function_exists('envValue')) {
-        if ($siteKey === '') $siteKey = envValue('CF_TURNSTILE_SITE_KEY', '');
-        if ($secretKey === '') $secretKey = envValue('CF_TURNSTILE_SECRET_KEY', '');
+        $eSite = envValue('CF_TURNSTILE_SITE_KEY', '');
+        if ($eSite !== '') $siteKey = $eSite;
+        $eSec = envValue('CF_TURNSTILE_SECRET_KEY', '');
+        if ($eSec !== '') $secretKey = $eSec;
     }
-    if ($siteKey === '' && getenv('CF_TURNSTILE_SITE_KEY')) $siteKey = (string)getenv('CF_TURNSTILE_SITE_KEY');
-    if ($secretKey === '' && getenv('CF_TURNSTILE_SECRET_KEY')) $secretKey = (string)getenv('CF_TURNSTILE_SECRET_KEY');
+    $gSite = @getenv('CF_TURNSTILE_SITE_KEY');
+    if (is_string($gSite) && trim($gSite) !== '') $siteKey = trim($gSite);
+    $gSec = @getenv('CF_TURNSTILE_SECRET_KEY');
+    if (is_string($gSec) && trim($gSec) !== '') $secretKey = trim($gSec);
 
     return [
         'enabled' => !empty($siteKey) && !empty($secretKey),
@@ -85,12 +100,14 @@ function cfTurnstileVerify($token, $remoteIp = null) {
         ];
     }
 
-    $ip = $remoteIp ?: ($_SERVER['REMOTE_ADDR'] ?? '');
     $postData = [
         'secret' => $cfg['secret_key'],
         'response' => $token
     ];
-    if ($ip !== '') {
+
+    // Solo enviar remoteip si es una IP pública válida (evita errores con proxies locales o Render)
+    $ip = $remoteIp ?: ($_SERVER['REMOTE_ADDR'] ?? '');
+    if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
         $postData['remoteip'] = $ip;
     }
 
@@ -109,7 +126,6 @@ function cfTurnstileVerify($token, $remoteIp = null) {
             CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded']
         ]);
         $raw = curl_exec($ch);
-        $curlErr = curl_error($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 

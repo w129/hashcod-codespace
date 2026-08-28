@@ -45,9 +45,9 @@ function securityApplyHeaders() {
             "img-src 'self' data: blob: https:; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " .
-            "connect-src 'self' https: wss:; " .
-            "frame-src 'self'; " .
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; " .
+            "connect-src 'self' https: wss: https://challenges.cloudflare.com; " .
+            "frame-src 'self' https://challenges.cloudflare.com; " .
             "worker-src 'self' blob:; " .
             "media-src 'self' blob:;"
         );

@@ -9493,13 +9493,56 @@ if (!headers_sent()) {
             align-items: center;
             justify-content: center;
             margin: 12px 0 !important;
-            background: #fafafb;
             border-radius: 8px;
-            border: 1px dashed #e2e8f0;
         }
 </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
-    <!-- Cloudflare Turnstile Bot Protection -->
+<!-- Cloudflare Turnstile Bot Protection Init -->
+    <script>
+        const CF_TURNSTILE_SITE_KEY = '0x4AAAAAAEfpecWchE9q2-cs';
+        window.turnstileWidgets = {};
+
+        window.renderTurnstileWidgets = function () {
+            if (!window.turnstile || typeof window.turnstile.render !== 'function') {
+                return;
+            }
+            ['cfTurnstileLogin', 'cfTurnstileRegister', 'cfTurnstileRecover'].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el && !window.turnstileWidgets[id]) {
+                    try {
+                        el.innerHTML = '';
+                        const wId = window.turnstile.render('#' + id, {
+                            sitekey: CF_TURNSTILE_SITE_KEY,
+                            theme: 'light',
+                            size: 'flexible'
+                        });
+                        window.turnstileWidgets[id] = wId || '1';
+                        el.style.border = 'none';
+                        el.style.background = 'transparent';
+                    } catch (e) {
+                        console.warn('Turnstile render warning:', e);
+                    }
+                }
+            });
+        };
+
+        window.onloadTurnstileCallback = function () {
+            window.turnstileReady = true;
+            window.renderTurnstileWidgets();
+        };
+
+        // Fallback periódico por si el contenedor se hizo visible después
+        setInterval(function () {
+            if (window.turnstile && typeof window.turnstile.render === 'function') {
+                ['cfTurnstileLogin', 'cfTurnstileRegister', 'cfTurnstileRecover'].forEach(function (id) {
+                    const el = document.getElementById(id);
+                    if (el && el.offsetParent !== null && !window.turnstileWidgets[id]) {
+                        window.renderTurnstileWidgets();
+                    }
+                });
+            }
+        }, 500);
+    </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit" async defer></script>
 </head>
 <body class="boot-locked">

@@ -56,6 +56,11 @@ $routedPages = [
     '/tiptap-editor.php' => 'tiptap-editor.php',
     '/word' => 'tiptap-editor.php',
     '/documento' => 'tiptap-editor.php',
+    '/openclaw' => 'openclaw-ui.php',
+    '/openclaw.php' => 'openclaw-ui.php',
+    '/openclaw-ui' => 'openclaw-ui.php',
+    '/claw' => 'openclaw-ui.php',
+    '/claw-ui' => 'openclaw-ui.php',
 ];
 if (isset($routedPages[$uri])) {
     $page = $routedPages[$uri];

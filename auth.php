@@ -8,6 +8,7 @@
  */
 
 require_once __DIR__ . '/supabase.php';
+require_once __DIR__ . '/cache.php';
 if (!function_exists('secretGet')) {
     require_once __DIR__ . '/secrets.php';
 }
@@ -76,6 +77,13 @@ function authPepper() {
 }
 
 function authGetAllCandidatePeppers() {
+    if (function_exists('l8CacheGet')) {
+        $cached = l8CacheGet('auth_candidate_peppers');
+        if (is_array($cached) && !empty($cached)) {
+            return $cached;
+        }
+    }
+
     $peppers = [];
 
     // Master permanente
@@ -116,7 +124,11 @@ function authGetAllCandidatePeppers() {
     $peppers[] = 'l8_codespace_default_pepper';
     $peppers[] = '';
 
-    return array_values(array_unique(array_filter($peppers, function ($p) { return is_string($p); })));
+    $resolved = array_values(array_unique(array_filter($peppers, function ($p) { return is_string($p); })));
+    if (function_exists('l8CacheSet')) {
+        l8CacheSet('auth_candidate_peppers', $resolved, 600);
+    }
+    return $resolved;
 }
 
 function authHashKey($plaintext) {
@@ -1528,24 +1540,73 @@ function authAccountPreview($accountIdOrKey) {
 
 function authValidateSession($token) {
     $token = trim((string)$token);
-    if ($token === '') {
+    if ($token === '' || strlen($token) < 16) {
         return ['ok' => false, 'authenticated' => false, 'error' => 'Sin sesión'];
     }
-    $store = authLoadStore();
+
     $tokenHash = authHashKey($token);
+
+    // 1. Fast Path Negativo (Token inválido reciente en caché de 30s)
+    if (function_exists('l8CacheGet')) {
+        $isBad = l8CacheGet('auth_bad_sess_' . $tokenHash);
+        if ($isBad === true) {
+            return ['ok' => false, 'authenticated' => false, 'error' => 'Sesión inválida'];
+        }
+
+        // 2. Fast Path Positivo (Sesión válida activa en APCu / Memoria - 0 DB roundtrips)
+        $cachedSess = l8CacheGet('auth_sess_' . $tokenHash);
+        if (is_array($cachedSess) && !empty($cachedSess['account_id'])) {
+            $exp = (int)($cachedSess['expires_at'] ?? 0);
+            if ($exp === 0 || $exp > time()) {
+                return [
+                    'ok' => true,
+                    'authenticated' => true,
+                    'account_id' => $cachedSess['account_id'],
+                    'cached' => true
+                ];
+            }
+            l8CacheDel('auth_sess_' . $tokenHash);
+        }
+    }
+
+    // 3. Fallback: Carga local rápida sin obligar pull remoto bloqueante
+    $store = authLoadStore(false);
     $sess = $store['sessions'][$tokenHash] ?? null;
+
     if (!is_array($sess)) {
+        if (function_exists('l8CacheSet')) {
+            l8CacheSet('auth_bad_sess_' . $tokenHash, true, 30);
+        }
         return ['ok' => false, 'authenticated' => false, 'error' => 'Sesión inválida'];
     }
-    if ((int)($sess['expires_at'] ?? 0) < time()) {
+
+    $exp = (int)($sess['expires_at'] ?? 0);
+    if ($exp !== 0 && $exp < time()) {
         unset($store['sessions'][$tokenHash]);
         authSaveStore($store);
+        if (function_exists('l8CacheSet')) {
+            l8CacheSet('auth_bad_sess_' . $tokenHash, true, 30);
+        }
         return ['ok' => false, 'authenticated' => false, 'error' => 'Sesión expirada'];
     }
+
     $userId = $sess['user_id'] ?? '';
     if ($userId === '' || !isset($store['users'][$userId])) {
+        if (function_exists('l8CacheSet')) {
+            l8CacheSet('auth_bad_sess_' . $tokenHash, true, 30);
+        }
         return ['ok' => false, 'authenticated' => false, 'error' => 'Cuenta inválida'];
     }
+
+    // Guardar en caché positiva con TTL acotado
+    if (function_exists('l8CacheSet')) {
+        $ttl = ($exp > time()) ? min(300, $exp - time()) : 300;
+        l8CacheSet('auth_sess_' . $tokenHash, [
+            'account_id' => $userId,
+            'expires_at' => $exp
+        ], max(30, $ttl));
+    }
+
     return [
         'ok' => true,
         'authenticated' => true,
@@ -1558,8 +1619,15 @@ function authLogout($token) {
     if ($token === '') {
         return ['ok' => true];
     }
-    $store = authLoadStore();
+
     $tokenHash = authHashKey($token);
+
+    if (function_exists('l8CacheDel')) {
+        l8CacheDel('auth_sess_' . $tokenHash);
+        l8CacheDel('auth_bad_sess_' . $tokenHash);
+    }
+
+    $store = authLoadStore(false);
     unset($store['sessions'][$tokenHash]);
     authSaveStore($store);
     return ['ok' => true];

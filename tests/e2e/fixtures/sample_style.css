@@ -1,0 +1,11 @@
+/* Sample CSS asset fixture for E2E caching tests */
+:root {
+    --hashcod-primary: #00ffcc;
+    --hashcod-bg: #0d1117;
+    --hashcod-font: "JetBrains Mono", monospace;
+}
+body {
+    background-color: var(--hashcod-bg);
+    color: var(--hashcod-primary);
+    font-family: var(--hashcod-font);
+}

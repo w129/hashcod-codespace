@@ -134,7 +134,19 @@ if (
     && is_file($filePath)
     && securityIsAllowedStatic($uri)
 ) {
+    l8_serve_static_asset($filePath, $uri);
+}
+
+/**
+ * Sirve un asset estático con ETag determinista, validación 304 Not Modified,
+ * Cache-Control jerárquico (1 año immutable vs 86400s stale-while-revalidate),
+ * y streaming eficiente con zero-copy / buffer limpio.
+ */
+function l8_serve_static_asset(string $filePath, string $uri): void {
+    $mtime = (int)@filemtime($filePath);
+    $size = (int)@filesize($filePath);
     $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
     $mimes = [
         'js' => 'application/javascript; charset=utf-8',
         'mjs' => 'application/javascript; charset=utf-8',
@@ -151,17 +163,88 @@ if (
         'woff2' => 'font/woff2',
         'ttf' => 'font/ttf',
         'map' => 'application/json; charset=utf-8',
+        'json' => 'application/json; charset=utf-8',
+        'webmanifest' => 'application/manifest+json; charset=utf-8',
+        'xml' => 'text/xml; charset=utf-8',
+        'txt' => 'text/plain; charset=utf-8',
     ];
-    if (isset($mimes[$ext])) {
-        header('Content-Type: ' . $mimes[$ext]);
-        if (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'ico', 'svg', 'woff', 'woff2', 'ttf', 'wasm'], true)) {
-            header('Cache-Control: public, max-age=86400');
-        } else {
-            header('Cache-Control: public, max-age=300');
+
+    $mime = $mimes[$ext] ?? 'application/octet-stream';
+    $etag = 'W/"' . dechex($mtime) . '-' . dechex($size) . '"';
+    $lastModified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+
+    // Determinar si es un asset versionado / inmutable
+    $queryString = $_SERVER['QUERY_STRING'] ?? '';
+    $hasVersionQuery = (bool)preg_match('/(?:^|&)(?:v|ver|hash|t|id)=[a-zA-Z0-9_.-]+/i', $queryString);
+    $hasHashedFilename = (bool)preg_match('/-[a-zA-Z0-9_-]{6,}\.(?:js|css|wasm|svg|png|woff2?)$/i', basename($filePath));
+
+    $isImmutable = $hasVersionQuery || $hasHashedFilename;
+    $cacheControl = $isImmutable
+        ? 'public, max-age=31536000, immutable'
+        : 'public, max-age=86400, stale-while-revalidate=604800';
+
+    // Validación condicional HTTP (If-None-Match / If-Modified-Since)
+    $ifNoneMatch = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? trim($_SERVER['HTTP_IF_NONE_MATCH']) : '';
+    $ifModifiedSince = isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) ? trim($_SERVER['HTTP_IF_MODIFIED_SINCE']) : '';
+
+    $matchEtag = false;
+    if ($ifNoneMatch !== '') {
+        $etags = array_map('trim', explode(',', $ifNoneMatch));
+        foreach ($etags as $clientEtag) {
+            $cClean = trim($clientEtag, '"');
+            $sClean = trim($etag, '"');
+            $sWeakClean = ltrim($sClean, 'W/');
+            $cWeakClean = ltrim($cClean, 'W/');
+            if ($clientEtag === '*' || $clientEtag === $etag || $cClean === $sClean || $cWeakClean === $sWeakClean) {
+                $matchEtag = true;
+                break;
+            }
         }
-        readfile($filePath);
+    }
+
+    $matchTime = false;
+    if ($ifModifiedSince !== '') {
+        $sinceTime = strtotime($ifModifiedSince);
+        if ($sinceTime !== false && $mtime <= $sinceTime) {
+            $matchTime = true;
+        }
+    }
+
+    if ($matchEtag || ($ifNoneMatch === '' && $matchTime)) {
+        http_response_code(304);
+        header('ETag: ' . $etag);
+        header('Last-Modified: ' . $lastModified);
+        header('Cache-Control: ' . $cacheControl);
+        header('Vary: Accept-Encoding');
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
         exit;
     }
+
+    // Cabeceras de respuesta completa 200
+    http_response_code(200);
+    header('Content-Type: ' . $mime);
+    header('Content-Length: ' . $size);
+    header('Last-Modified: ' . $lastModified);
+    header('ETag: ' . $etag);
+    header('Cache-Control: ' . $cacheControl);
+    header('Vary: Accept-Encoding');
+    header('X-Content-Type-Options: nosniff');
+
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        exit;
+    }
+
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+
+    readfile($filePath);
+    exit;
 }
 
 // Soft-landing: rutas desconocidas → HTML nativo de la plataforma (view-source completo).

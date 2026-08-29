@@ -22,8 +22,10 @@ RUN apt-get update && apt-get install -y \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
       > /etc/apt/sources.list.d/github-cli.list \
     && apt-get update \
-    && apt-get install -y gh \
+    && apt-get install -y gh $PHPIZE_DEPS \
     && docker-php-ext-install opcache zip curl \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu \
     && curl -fsSL https://bun.sh/install | bash \
     && ln -sf /root/.bun/bin/bun /usr/local/bin/bun \
     && ln -sf /root/.bun/bin/bunx /usr/local/bin/bunx \
@@ -78,6 +80,7 @@ RUN { \
     echo 'opcache.max_accelerated_files=10000'; \
     echo 'opcache.revalidate_freq=0'; \
     echo 'opcache.fast_shutdown=1'; \
+    echo 'apc.enable_cli=1'; \
 } > /usr/local/etc/php/conf.d/docker-php-high-performance.ini
 
 WORKDIR /var/www/html

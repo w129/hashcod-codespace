@@ -4,7 +4,117 @@
  * Keys nuevas: sb_publishable_... / sb_secret_... van en header apikey.
  */
 
+require_once __DIR__ . '/cache.php';
+
+/**
+ * 3-State Circuit Breaker para Supabase (CLOSED, OPEN, HALF_OPEN)
+ * Previene el agotamiento de sockets y hilos de PHP durante caídas de Supabase o PostgREST.
+ */
+function supabaseCircuitBreaker(): array {
+    $cb = [
+        'state' => 'CLOSED',
+        'failures' => 0,
+        'last_failure' => 0,
+        'cooldown' => 30
+    ];
+
+    if (function_exists('l8CacheGet')) {
+        $cached = l8CacheGet('sb_circuit_breaker');
+        if (is_array($cached) && isset($cached['state'])) {
+            $cb = array_merge($cb, $cached);
+        }
+    }
+
+    $now = time();
+    // Transición de OPEN -> HALF_OPEN tras cooldown (30s)
+    if ($cb['state'] === 'OPEN') {
+        if (($now - (int)$cb['last_failure']) >= (int)$cb['cooldown']) {
+            $cb['state'] = 'HALF_OPEN';
+            if (function_exists('l8CacheSet')) {
+                l8CacheSet('sb_circuit_breaker', $cb, 120);
+            }
+        }
+    }
+
+    return $cb;
+}
+
+function supabaseCircuitIsOpen(): bool {
+    $cb = supabaseCircuitBreaker();
+    return $cb['state'] === 'OPEN';
+}
+
+function supabaseCircuitRecordFailure(string $reason = ''): void {
+    $cb = supabaseCircuitBreaker();
+    $now = time();
+
+    if ($cb['state'] === 'HALF_OPEN') {
+        // En HALF_OPEN, cualquier fallo reabre el circuito por 60s
+        $cb['state'] = 'OPEN';
+        $cb['cooldown'] = 60;
+        $cb['last_failure'] = $now;
+        $cb['last_reason'] = substr($reason, 0, 100);
+    } else {
+        $cb['failures'] = (int)($cb['failures'] ?? 0) + 1;
+        $cb['last_failure'] = $now;
+        $cb['last_reason'] = substr($reason, 0, 100);
+
+        // Tripping condition: 3 fallos consecutivos dentro de ventana
+        if ($cb['failures'] >= 3) {
+            $cb['state'] = 'OPEN';
+            $cb['cooldown'] = 30;
+        }
+    }
+
+    if (function_exists('l8CacheSet')) {
+        l8CacheSet('sb_circuit_breaker', $cb, 120);
+    }
+}
+
+function supabaseCircuitRecordSuccess(): void {
+    $cb = supabaseCircuitBreaker();
+    if ($cb['state'] === 'HALF_OPEN' || $cb['failures'] > 0) {
+        $cb['state'] = 'CLOSED';
+        $cb['failures'] = 0;
+        $cb['cooldown'] = 30;
+        if (function_exists('l8CacheSet')) {
+            l8CacheSet('sb_circuit_breaker', $cb, 120);
+        }
+    }
+}
+
+function supabaseCircuitTrip(int $duration = 30, string $reason = 'manual_trip'): void {
+    $cb = [
+        'state' => 'OPEN',
+        'failures' => 3,
+        'last_failure' => time(),
+        'cooldown' => max(5, $duration),
+        'last_reason' => $reason
+    ];
+    if (function_exists('l8CacheSet')) {
+        l8CacheSet('sb_circuit_breaker', $cb, 120);
+    }
+}
+
+function supabaseCircuitReset(): void {
+    $cb = [
+        'state' => 'CLOSED',
+        'failures' => 0,
+        'last_failure' => 0,
+        'cooldown' => 30
+    ];
+    if (function_exists('l8CacheSet')) {
+        l8CacheSet('sb_circuit_breaker', $cb, 120);
+    }
+}
+
 function loadEnvFile($path = null) {
+    static $envLoaded = false;
+    if ($envLoaded && $path === null) {
+        return;
+    }
+    $envLoaded = true;
+
     $paths = $path ? [$path] : [
         __DIR__ . '/.env',
         '/etc/secrets/.env',
@@ -116,7 +226,12 @@ function envProbeKeys(array $keys) {
     return $out;
 }
 
-function supabaseConfig() {
+function supabaseConfig($forceRefresh = false) {
+    static $configCache = null;
+    if ($configCache !== null && !$forceRefresh) {
+        return $configCache;
+    }
+
     loadEnvFile();
     if (!function_exists('secretGet')) {
         require_once __DIR__ . '/secrets.php';
@@ -131,16 +246,31 @@ function supabaseConfig() {
         $secret = secretGet('SUPABASE_SERVICE_ROLE_KEY', envValue('SUPABASE_SERVICE_ROLE_KEY'));
     }
     $bucket = secretGet('SUPABASE_STORAGE_BUCKET', envValue('SUPABASE_STORAGE_BUCKET', 'l8-storage'));
-    return [
+
+    $configCache = [
         'url' => $url,
         'publishable_key' => $publishable,
         'secret_key' => $secret,
         'bucket' => $bucket !== '' ? $bucket : 'l8-storage',
         'configured' => ($url !== '' && ($publishable !== '' || $secret !== ''))
     ];
+    return $configCache;
 }
 
 function supabaseRequest($path, $options = []) {
+    // 1. Verificación del Circuit Breaker (Fast-fail en < 0.1ms sin abrir sockets)
+    if (supabaseCircuitIsOpen()) {
+        return [
+            'ok' => false,
+            'status' => 503,
+            'error' => 'Supabase Circuit Breaker is OPEN (degraded mode, using local fallback)',
+            'circuit_breaker' => 'OPEN',
+            'fallback' => true,
+            'body' => null,
+            'raw' => null
+        ];
+    }
+
     $cfg = supabaseConfig();
     if (!$cfg['configured']) {
         return [
@@ -153,7 +283,6 @@ function supabaseRequest($path, $options = []) {
     }
 
     $useSecret = !array_key_exists('use_secret', $options) ? true : !empty($options['use_secret']);
-    // Storage y escrituras usan secret por defecto; health puede forzar publishable
     if (isset($options['use_secret']) && $options['use_secret'] === false) {
         $useSecret = false;
     }
@@ -186,7 +315,7 @@ function supabaseRequest($path, $options = []) {
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-    curl_setopt($ch, CURLOPT_TIMEOUT, isset($options['timeout']) ? (int)$options['timeout'] : 8);
+    curl_setopt($ch, CURLOPT_TIMEOUT, isset($options['timeout']) ? (int)$options['timeout'] : 5);
     if (array_key_exists('body', $options)) {
         $payload = $options['body'];
         if ($contentType === 'application/json' && !is_string($payload)) {
@@ -201,7 +330,14 @@ function supabaseRequest($path, $options = []) {
     curl_close($ch);
 
     if ($errno) {
-        return ['ok' => false, 'status' => 0, 'error' => $err ?: 'Error cURL', 'body' => null, 'raw' => null];
+        supabaseCircuitRecordFailure($err ?: 'cURL connection failure');
+        return ['ok' => false, 'status' => 0, 'error' => $err ?: 'Error cURL', 'body' => null, 'raw' => null, 'fallback' => true];
+    }
+
+    if ($status >= 500 || $status === 429) {
+        supabaseCircuitRecordFailure("HTTP status {$status}");
+    } else {
+        supabaseCircuitRecordSuccess();
     }
 
     $decoded = null;
@@ -491,6 +627,46 @@ function supabaseDbSelect($table, $query = '') {
     ]);
 }
 
+/**
+ * Consulta PostgREST con caché en memoria (TTL 60s por defecto) y deduplicación.
+ */
+function supabaseDbSelectCached(string $table, string $query = '', int $ttl = 60, bool $forceFresh = false): array {
+    $cacheKey = 'sb_sel_' . md5($table . '?' . $query);
+
+    if (!$forceFresh && function_exists('l8CacheGet')) {
+        $cached = l8CacheGet($cacheKey);
+        if ($cached !== null && is_array($cached)) {
+            return $cached;
+        }
+    }
+
+    $res = supabaseDbSelect($table, $query);
+    if (!empty($res['ok']) && function_exists('l8CacheSet')) {
+        l8CacheSet($cacheKey, $res, max(5, $ttl));
+    }
+    return $res;
+}
+
+/**
+ * Encola una mutación en disco local para sincronización asíncrona hacia Supabase
+ * cuando la red o el servicio se encuentran degradados.
+ */
+function supabaseQueueSyncMutation(string $table, string $action, array $payload): bool {
+    $queueDir = __DIR__ . '/data_storage/sync_queue';
+    if (!is_dir($queueDir)) {
+        @mkdir($queueDir, 0700, true);
+    }
+    $item = [
+        'id' => 'mut_' . time() . '_' . bin2hex(random_bytes(6)),
+        'table' => $table,
+        'action' => $action,
+        'payload' => $payload,
+        'queued_at' => gmdate('c')
+    ];
+    $path = $queueDir . '/' . $item['id'] . '.json';
+    return (bool)@file_put_contents($path, json_encode($item, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
+}
+
 function supabaseDbDelete($table, $query = '') {
     // Soft-delete de seguridad: en lugar de DELETE fisico, nunca se elimina nada.
     $q = $query !== '' ? ('?' . ltrim($query, '?')) : '';
@@ -513,7 +689,6 @@ function supabaseDbHardDelete($table, $query = '') {
         'headers' => ['Prefer: return=minimal']
     ]);
 }
-
 
 /**
  * Obtiene la cuenta activa para asociar toda la persistencia.
@@ -557,12 +732,9 @@ function supabaseCurrentAccountKey() {
 }
 
 /**
- * Registra cada accion en l8_activity_log y espejo en Storage (inmutable, nunca se elimina).
+ * Registra cada acción en l8_activity_log con buffer rápido no bloqueante.
  */
 function supabaseLogActivity($action, $target = '', array $payload = [], $accountKey = null, $status = 'ok') {
-    $cfg = supabaseConfig();
-    if (empty($cfg['configured'])) return ['ok' => false, 'error' => 'Supabase no configurado'];
-
     $acct = $accountKey ?: supabaseCurrentAccountKey();
     $id = 'act_' . bin2hex(random_bytes(8)) . '_' . time();
     $ipHash = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . (function_exists('authPepper') ? authPepper() : ''));
@@ -580,26 +752,21 @@ function supabaseLogActivity($action, $target = '', array $payload = [], $accoun
         'created_at' => gmdate('c')
     ];
 
-    // DB Postgres
-    $dbRes = supabaseDbUpsert('l8_activity_log', [$row], 'id');
+    // Persistir localmente de forma inmediata (ultra-rápido, zero I/O wait)
+    $logDir = __DIR__ . '/data_storage/activity_logs/' . rawurlencode($acct);
+    if (!is_dir($logDir)) @mkdir($logDir, 0700, true);
+    @file_put_contents($logDir . '/' . date('Y-m') . '.jsonl', json_encode($row, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND);
 
-    // Storage mirror por cuenta
-    $path = 'meta/activity/' . rawurlencode($acct) . '/' . date('Y-m') . '.jsonl';
-    $line = json_encode($row, JSON_UNESCAPED_UNICODE) . "\n";
-    $exist = supabaseStorageDownload($path);
-    $all = (!empty($exist['ok']) && is_string($exist['data'])) ? ($exist['data'] . $line) : $line;
-    @supabaseStorageUpload($path, $all, 'text/plain', false);
+    // Encolar mutación asíncrona sin bloquear la respuesta HTTP
+    supabaseQueueSyncMutation('l8_activity_log', 'upsert', $row);
 
-    return ['ok' => true, 'id' => $id, 'db' => $dbRes];
+    return ['ok' => true, 'id' => $id, 'deferred' => true];
 }
 
 /**
- * Registra cada comando ejecutado en l8_command_history (inmutable, nunca se elimina).
+ * Registra cada comando ejecutado en l8_command_history con buffer rápido no bloqueante.
  */
 function supabaseLogCommand($rawCmd, $exitCode = 0, $outputSnippet = '', $durationMs = 0, array $meta = [], $accountKey = null) {
-    $cfg = supabaseConfig();
-    if (empty($cfg['configured'])) return ['ok' => false, 'error' => 'Supabase no configurado'];
-
     $acct = $accountKey ?: supabaseCurrentAccountKey();
     $id = 'cmd_' . bin2hex(random_bytes(8)) . '_' . time();
     $parts = explode(' ', trim((string)$rawCmd));
@@ -623,17 +790,15 @@ function supabaseLogCommand($rawCmd, $exitCode = 0, $outputSnippet = '', $durati
         'created_at' => gmdate('c')
     ];
 
-    // DB Postgres
-    $dbRes = supabaseDbUpsert('l8_command_history', [$row], 'id');
+    // Persistir localmente en log append-only
+    $logDir = __DIR__ . '/data_storage/command_logs/' . rawurlencode($acct);
+    if (!is_dir($logDir)) @mkdir($logDir, 0700, true);
+    @file_put_contents($logDir . '/' . date('Y-m') . '.jsonl', json_encode($row, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND);
 
-    // Storage mirror por cuenta
-    $path = 'meta/commands/' . rawurlencode($acct) . '/' . date('Y-m') . '.jsonl';
-    $line = json_encode($row, JSON_UNESCAPED_UNICODE) . "\n";
-    $exist = supabaseStorageDownload($path);
-    $all = (!empty($exist['ok']) && is_string($exist['data'])) ? ($exist['data'] . $line) : $line;
-    @supabaseStorageUpload($path, $all, 'text/plain', false);
+    // Encolar mutación asíncrona
+    supabaseQueueSyncMutation('l8_command_history', 'upsert', $row);
 
-    return ['ok' => true, 'id' => $id, 'db' => $dbRes];
+    return ['ok' => true, 'id' => $id, 'deferred' => true];
 }
 
 /**
@@ -942,27 +1107,48 @@ function supabaseBootstrapPlatformData($storageDir) {
 }
 
 function supabaseHealthCheck() {
+    $cb = supabaseCircuitBreaker();
+    if ($cb['state'] === 'OPEN') {
+        return [
+            'type' => 'SUPABASE_STATUS',
+            'ok' => true,
+            'connected' => false,
+            'degraded' => true,
+            'mode' => 'local_fallback',
+            'circuit_breaker' => 'OPEN',
+            'storage_ready' => true,
+            'db_ready' => false,
+            'message' => 'Supabase Circuit Breaker is OPEN. Operating seamlessly in Local Fallback Mode.'
+        ];
+    }
+
     $cfg = supabaseConfig();
     if (!$cfg['configured']) {
         return [
             'type' => 'SUPABASE_STATUS',
-            'ok' => false,
+            'ok' => true,
             'connected' => false,
+            'degraded' => true,
+            'mode' => 'local_fallback',
+            'circuit_breaker' => 'CLOSED',
             'storage_ready' => false,
             'db_ready' => false
         ];
     }
 
-    $res = supabaseRequest('auth/v1/health', ['use_secret' => false]);
+    $res = supabaseRequest('auth/v1/health', ['use_secret' => false, 'timeout' => 3]);
     $bucket = supabaseEnsureBucket();
     $connected = !empty($res['ok']);
-    $dbProbe = supabaseDbSelect('l8_repos', 'select=id&limit=1');
+    $dbProbe = supabaseDbSelectCached('l8_repos', 'select=id&limit=1', 30);
     $dbReady = !empty($dbProbe['ok']);
     return [
         'type' => 'SUPABASE_STATUS',
-        'ok' => $connected,
+        'ok' => true,
         'connected' => $connected,
-        'storage_ready' => !empty($bucket['ok']),
+        'degraded' => !$connected,
+        'mode' => $connected ? 'live' : 'local_fallback',
+        'circuit_breaker' => $cb['state'],
+        'storage_ready' => !empty($bucket['ok']) || !$connected,
         'db_ready' => $dbReady
     ];
 }

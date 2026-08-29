@@ -1,7 +1,68 @@
+# ==============================================================================
+# Apache Configuration: Hashcod Codespace 100M+ Scale Hardening
+# ==============================================================================
+
+# 1. Payload Compression (Brotli / Deflate)
+<IfModule mod_brotli.c>
+    AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json application/xml application/wasm image/svg+xml
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/x-javascript application/json application/xml application/wasm image/svg+xml font/ttf font/woff font/woff2
+</IfModule>
+
+# 2. Aggressive Edge & Static Asset Caching (1 Year Immutable / Tiered)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 day"
+
+    # Static assets (1 year)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType application/x-javascript "access plus 1 year"
+    ExpiresByType application/wasm "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+
+    # Dynamic HTML & API
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType application/json "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Security Headers
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Immutable Cache-Control for versioned/fingerprinted assets
+    <FilesMatch "\.(css|js|mjs|wasm|svg|png|jpe?g|gif|webp|ico|woff|woff2|ttf)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set Vary "Accept-Encoding"
+    </FilesMatch>
+
+    # No-store for API and sensitive endpoints
+    <FilesMatch "\.(php|json)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+# 3. URL Routing & Front Controller
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Si es archivo o directorio existente físico, servirlo directamente
+    # Deny direct access to sensitive directories
+    RewriteRule ^(data_storage|\.git|\.env|composer\.|package\.) - [F,L]
+
+    # Si es archivo o directorio existente físico permitido, servirlo directamente
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]

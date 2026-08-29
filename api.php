@@ -1,10 +1,12 @@
 <?php
 // api.php - Backend PHP con Super Base de Datos, Dilithium 5, SSH GitHub, Supabase y Navegador de Código por Carpetas
-ini_set('memory_limit', '1024M'); // 1GB Memory Limit
-set_time_limit(300); // 5 Minutos para grandes cargas
+// Límites estrictos estándar de proceso (15s timeout, 128M ceiling) para alta concurrencia
+ini_set('memory_limit', '128M');
+set_time_limit(15);
 @ini_set('display_errors', '0');
 @ini_set('expose_php', '0');
 
+require_once __DIR__ . '/cache.php';
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/secrets.php';

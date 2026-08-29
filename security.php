@@ -10,6 +10,10 @@ if (!function_exists('envValue')) {
 if (!function_exists('secretGet')) {
     require_once __DIR__ . '/secrets.php';
 }
+require_once __DIR__ . '/cache.php';
+if (!function_exists('cfTurnstileConfig')) {
+    require_once __DIR__ . '/cloudflare-turnstile.php';
+}
 
 /** Headers de seguridad + ocultar fingerprint de PHP. */
 function securityApplyHeaders() {
@@ -96,18 +100,110 @@ function securityApplyCors() {
 }
 
 /**
- * IP del cliente.
- * L8_TRUST_PROXY=1 (default en Render): CF-Connecting-IP o primer X-Forwarded-For.
- * L8_TRUST_PROXY=0: solo REMOTE_ADDR (anti-spoof en despliegues sin edge).
+ * Comprueba si una dirección IP pertenece a un bloque CIDR (IPv4 o IPv6).
+ */
+function securityIpInCidr(string $ip, string $cidr): bool {
+    $ip = trim($ip);
+    $cidr = trim($cidr);
+    if (strpos($cidr, '/') === false) {
+        return $ip === $cidr;
+    }
+    list($subnet, $bits) = explode('/', $cidr, 2);
+    $bits = (int)$bits;
+
+    // IPv4
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && filter_var($subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if ($bits < 0 || $bits > 32) return false;
+        $ipLong = ip2long($ip);
+        $subnetLong = ip2long($subnet);
+        if ($ipLong === false || $subnetLong === false) return false;
+        $mask = $bits === 0 ? 0 : (~((1 << (32 - $bits)) - 1));
+        return ($ipLong & $mask) === ($subnetLong & $mask);
+    }
+
+    // IPv6
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) && filter_var($subnet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        if ($bits < 0 || $bits > 128) return false;
+        $ipBin = inet_pton($ip);
+        $subnetBin = inet_pton($subnet);
+        if ($ipBin === false || $subnetBin === false) return false;
+        $bytes = (int)($bits / 8);
+        $remainderBits = $bits % 8;
+        if ($bytes > 0) {
+            if (substr($ipBin, 0, $bytes) !== substr($subnetBin, 0, $bytes)) {
+                return false;
+            }
+        }
+        if ($remainderBits > 0) {
+            $mask = 0xFF << (8 - $remainderBits);
+            $ipByte = ord($ipBin[$bytes]);
+            $subnetByte = ord($subnetBin[$bytes]);
+            if (($ipByte & $mask) !== ($subnetByte & $mask)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
+function securityIsTrustedProxy(string $ip): bool {
+    static $trustedCidrs = [
+        '127.0.0.0/8',
+        '10.0.0.0/8',
+        '172.16.0.0/12',
+        '192.168.0.0/16',
+        '169.254.0.0/16',
+        '::1/128',
+        'fc00::/7',
+        'fe80::/10',
+        '173.245.48.0/20',
+        '103.21.244.0/22',
+        '103.22.200.0/22',
+        '103.31.4.0/22',
+        '141.101.64.0/18',
+        '108.162.192.0/18',
+        '190.93.240.0/20',
+        '188.114.96.0/20',
+        '197.234.240.0/22',
+        '198.41.128.0/17',
+        '162.158.0.0/15',
+        '104.16.0.0/13',
+        '104.24.0.0/14',
+        '172.64.0.0/13',
+        '131.0.72.0/22',
+        '2400:cb00::/32',
+        '2606:4700::/32',
+        '2803:f800::/32',
+        '2405:b500::/32',
+        '2405:8100::/32',
+        '2a06:98c0::/29',
+        '2c0f:f248::/32'
+    ];
+
+    foreach ($trustedCidrs as $cidr) {
+        if (securityIpInCidr($ip, $cidr)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * IP del cliente con validación estricta de proxy confiable (anti-spoofing).
  */
 function securityClientIp() {
+    $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    $remoteAddr = trim((string)$remoteAddr);
+
     $trust = strtolower((string) (
         function_exists('secretGet') ? secretGet('L8_TRUST_PROXY', '1') : '1'
     ));
-    $trustProxy = !in_array($trust, ['0', 'false', 'no', 'off'], true);
+    $trustConfigured = !in_array($trust, ['0', 'false', 'no', 'off'], true);
 
     $candidates = [];
-    if ($trustProxy) {
+    if ($trustConfigured && securityIsTrustedProxy($remoteAddr)) {
         if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
             $candidates[] = $_SERVER['HTTP_CF_CONNECTING_IP'];
         }
@@ -119,8 +215,8 @@ function securityClientIp() {
             $candidates[] = $_SERVER['HTTP_X_REAL_IP'];
         }
     }
-    if (!empty($_SERVER['REMOTE_ADDR'])) {
-        $candidates[] = $_SERVER['REMOTE_ADDR'];
+    if ($remoteAddr !== '') {
+        $candidates[] = $remoteAddr;
     }
 
     foreach ($candidates as $ip) {
@@ -128,12 +224,11 @@ function securityClientIp() {
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return $ip;
         }
-        // Permitir privadas en local/dev
         if (filter_var($ip, FILTER_VALIDATE_IP)) {
             return $ip;
         }
     }
-    return '0.0.0.0';
+    return '127.0.0.1';
 }
 
 function securityIsScannerUa($ua) {
@@ -161,13 +256,25 @@ function securityRateDir() {
 }
 
 /**
+ * Partición de disco de 2 niveles para rate limit y bans (data_storage/security/shards/ab/cd/...).
+ */
+function securityShardPath(string $prefix, string $safeKey): string {
+    $hash = hash('sha256', $prefix . '_' . $safeKey);
+    $d1 = substr($hash, 0, 2);
+    $d2 = substr($hash, 2, 2);
+    $dir = securityRateDir() . '/shards/' . $d1 . '/' . $d2;
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0700, true);
+    }
+    return $dir . '/' . $prefix . '_' . substr($hash, 4, 28) . '.json';
+}
+
+/**
  * Recolector de basura para purgar archivos temporales de rate limit y bans expirados.
- * Previene la saturación de I/O en disco (Render / containers).
  */
 function securityRateGc($force = false) {
     static $lastGc = 0;
     $now = time();
-    // Ejecutar con 2% de probabilidad o tras 300 segundos
     if (!$force && ($now - $lastGc) < 300 && mt_rand(1, 50) !== 1) {
         return;
     }
@@ -183,13 +290,11 @@ function securityRateGc($force = false) {
         $filePath = $dir . '/' . $file;
         if (!is_file($filePath)) continue;
 
-        // Archivos de rate limit rl_*.json: borrar si tienen más de 10 minutos
         if (strpos($file, 'rl_') === 0 && ($now - (int)@filemtime($filePath)) > 600) {
             @unlink($filePath);
             continue;
         }
 
-        // Archivos de baneo ban_*.json: borrar si el tiempo 'until' ya expiró
         if (strpos($file, 'ban_') === 0) {
             $raw = @file_get_contents($filePath);
             $decoded = json_decode((string)$raw, true);
@@ -202,7 +307,6 @@ function securityRateGc($force = false) {
 
 /**
  * Redactor automático de secretos y credenciales para logs y trazas de error.
- * Enmascara tokens de GitHub, Supabase, JWT y claves maestras.
  */
 function securityRedactSecrets($text) {
     if (!is_string($text) || $text === '') return $text;
@@ -213,10 +317,8 @@ function securityRedactSecrets($text) {
         '/sb_secret_[a-zA-Z0-9]{20,}/' => 'sb_secret_********************',
         '/sb_publishable_[a-zA-Z0-9]{20,}/' => 'sb_publishable_****************',
         '/eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}/' => 'eyJ***[REDACTED_JWT]***',
-        '/([a-f0-9]{64})/' => '$1' // Conservar hashes estándar pero permitir enmascarar si coincide con claves
     ];
 
-    // Enmascarar claves de entorno conocidas si existen
     $knownSecrets = [
         getenv('SUPABASE_SECRET_KEY'),
         getenv('GITHUB_TOKEN'),
@@ -232,7 +334,6 @@ function securityRedactSecrets($text) {
     }
 
     foreach ($patterns as $pattern => $replacement) {
-        if ($pattern === '/([a-f0-9]{64})/') continue;
         $text = preg_replace($pattern, $replacement, $text);
     }
 
@@ -240,30 +341,110 @@ function securityRedactSecrets($text) {
 }
 
 /**
- * Rate limit por bucket+IP. Retorna true si permitido.
+ * Rate limit atómico con algoritmo Sliding Window (Interpolación de ventanas previa y actual).
+ *
+ * @param string $bucket Nombre del bucket
+ * @param int $limit Número máximo de peticiones permitidas en la ventana
+ * @param int $windowSec Duración de la ventana en segundos
+ * @param string|null $ip IP a validar (opcional)
+ * @return array{allowed: bool, count: float, remaining: int, retry_after: int, challenge_required: bool}
  */
-function securityRateAllow($bucket, $limit, $windowSec) {
-    securityRateGc();
-    $ip = securityClientIp();
+function securityRateAllowSliding(string $bucket, int $limit, int $windowSec, ?string $ip = null): array {
+    $ip = $ip !== null ? $ip : securityClientIp();
     $safeBucket = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$bucket);
     $safeIp = preg_replace('/[^a-zA-Z0-9:._-]/', '_', $ip);
-    $path = securityRateDir() . '/rl_' . $safeBucket . '_' . substr(hash('sha256', $safeIp), 0, 24) . '.json';
-    $now = time();
-    $data = ['start' => $now, 'count' => 0];
-    if (is_readable($path)) {
-        $raw = @file_get_contents($path);
-        $decoded = json_decode((string)$raw, true);
-        if (is_array($decoded) && isset($decoded['start'], $decoded['count'])) {
-            $data = $decoded;
+
+    // 1. Si la petición incluye un token de clearance válido de Turnstile, elevar límite (5x)
+    $clearanceHdr = $_SERVER['HTTP_X_CF_CLEARANCE_TOKEN'] ?? ($_COOKIE['cf_clearance'] ?? '');
+    if ($clearanceHdr !== '' && function_exists('cfValidateClearanceToken')) {
+        if (cfValidateClearanceToken($clearanceHdr, $ip)) {
+            $limit = (int)($limit * 5);
         }
     }
-    if (($now - (int)$data['start']) >= (int)$windowSec) {
-        $data = ['start' => $now, 'count' => 0];
+
+    $now = time();
+    $windowDuration = max(1, (int)$windowSec);
+    $currentWindow = (int)(floor($now / $windowDuration) * $windowDuration);
+    $previousWindow = $currentWindow - $windowDuration;
+    $timeElapsed = $now - $currentWindow;
+    $previousWeight = max(0.0, min(1.0, 1.0 - ($timeElapsed / $windowDuration)));
+
+    $currKey = "rl:{$safeBucket}:{$safeIp}:{$currentWindow}";
+    $prevKey = "rl:{$safeBucket}:{$safeIp}:{$previousWindow}";
+
+    // Operación atómica en memoria (APCu / Sharded)
+    $currCount = 1;
+    if (function_exists('l8CacheInc')) {
+        $currCount = l8CacheInc($currKey, 1, $windowDuration * 2);
+        $prevCount = (int)(l8CacheGet($prevKey) ?? 0);
+    } else {
+        $prevCount = 0;
     }
-    $data['count'] = (int)$data['count'] + 1;
-    @file_put_contents($path, json_encode($data), LOCK_EX);
-    @chmod($path, 0600);
-    return ((int)$data['count'] <= (int)$limit);
+
+    $calculatedRate = (float)$currCount + ((float)$prevCount * $previousWeight);
+
+    // Fallback particionado en disco de 2 niveles (sin LOCK_EX bloqueante)
+    $shardPath = securityShardPath('rl_' . $safeBucket, $safeIp);
+    $state = [
+        'bucket' => $safeBucket,
+        'ip' => $ip,
+        'curr_window' => $currentWindow,
+        'curr_count' => $currCount,
+        'rate' => $calculatedRate,
+        'updated_at' => $now
+    ];
+    $tmp = $shardPath . '.' . bin2hex(random_bytes(4)) . '.tmp';
+    if (@file_put_contents($tmp, json_encode($state)) !== false) {
+        @rename($tmp, $shardPath);
+    }
+
+    if ($calculatedRate > (float)$limit) {
+        $retryAfter = max(1, (int)ceil($windowDuration - $timeElapsed));
+        $challengeRequired = ($calculatedRate <= (float)($limit * 2.5));
+        return [
+            'allowed' => false,
+            'count' => $calculatedRate,
+            'remaining' => 0,
+            'retry_after' => $retryAfter,
+            'challenge_required' => $challengeRequired
+        ];
+    }
+
+    $remaining = max(0, $limit - (int)ceil($calculatedRate));
+    return [
+        'allowed' => true,
+        'count' => $calculatedRate,
+        'remaining' => $remaining,
+        'retry_after' => 0,
+        'challenge_required' => false
+    ];
+}
+
+/**
+ * Compatibilidad con firmas anteriores de rate limiting: delega a sliding window.
+ */
+function securityRateAllow($bucket, $limit, $windowSec) {
+    $res = securityRateAllowSliding((string)$bucket, (int)$limit, (int)$windowSec);
+    return $res['allowed'];
+}
+
+function securityRateChallengeJson(int $retryAfter = 15, string $bucket = 'api') {
+    http_response_code(429);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Retry-After: ' . (int)$retryAfter);
+    header('X-L8-Challenge: turnstile');
+
+    $siteKey = function_exists('cfTurnstileGetSiteKey') ? cfTurnstileGetSiteKey() : '0x4AAAAAAEfpecWchE9q2-cs';
+    echo json_encode([
+        'ok' => false,
+        'error' => 'Rate limit exceeded - Cloudflare Turnstile verification required',
+        'code' => 'turnstile_challenge_required',
+        'challenge_required' => true,
+        'site_key' => $siteKey,
+        'retry_after' => (int)$retryAfter,
+        'bucket' => $bucket
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    exit;
 }
 
 /** Ban temporal por IP (tras fallos de auth / abuso). */
@@ -587,10 +768,122 @@ function securityRequireMutationAuthIfEnabled() {
 }
 
 /**
+ * Interceptor global de apagado (Shutdown Handler).
+ * Captura errores fatales de PHP (OOM, parse error, timeouts) y responde con JSON limpio sin caer en 502.
+ */
+function securityGlobalShutdownHandler() {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
+        while (ob_get_level()) {
+            @ob_end_clean();
+        }
+
+        $isCbOpen = function_exists('supabaseCircuitIsOpen') ? supabaseCircuitIsOpen() : false;
+        $status = $isCbOpen ? 503 : 500;
+        http_response_code($status);
+        if (!headers_sent()) {
+            header('Content-Type: application/json; charset=utf-8');
+            header('Cache-Control: no-store');
+            header('X-L8-Crash-Guard: active');
+        }
+
+        $msg = 'Internal server execution error';
+        if (function_exists('securityRedactSecrets')) {
+            $msg = securityRedactSecrets($error['message'] ?? $msg);
+        }
+
+        echo json_encode([
+            'ok' => false,
+            'error' => 'Internal server execution error',
+            'code' => 'fatal_error',
+            'status' => $status,
+            'request_id' => bin2hex(random_bytes(8))
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+/**
+ * Manejador global de excepciones no capturadas.
+ */
+function securityGlobalExceptionHandler(Throwable $e) {
+    while (ob_get_level()) {
+        @ob_end_clean();
+    }
+
+    http_response_code(500);
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+        header('X-L8-Crash-Guard: active');
+    }
+
+    $msg = $e->getMessage();
+    if (function_exists('securityRedactSecrets')) {
+        $msg = securityRedactSecrets($msg);
+    }
+
+    echo json_encode([
+        'ok' => false,
+        'error' => $msg ?: 'Unhandled Exception',
+        'code' => 'server_exception',
+        'status' => 500,
+        'request_id' => bin2hex(random_bytes(8))
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+/**
+ * Manejador global de errores estándar de PHP.
+ */
+function securityGlobalErrorHandler($errno, $errstr, $errfile, $errline) {
+    if (!(error_reporting() & $errno)) {
+        return false;
+    }
+    if (in_array($errno, [E_USER_ERROR, E_RECOVERABLE_ERROR], true)) {
+        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+    }
+    return false;
+}
+
+/**
+ * Comprueba si queda suficiente margen de memoria disponible antes de ejecutar operaciones pesadas.
+ */
+function securityCheckMemoryGuard(int $minFreeBytes = 16777216): bool {
+    $memLimit = ini_get('memory_limit');
+    if ($memLimit === '-1' || $memLimit === false) return true;
+
+    $val = trim((string)$memLimit);
+    $last = strtolower($val[strlen($val) - 1]);
+    $bytes = (int)$val;
+    switch ($last) {
+        case 'g': $bytes *= 1024;
+        case 'm': $bytes *= 1024;
+        case 'k': $bytes *= 1024;
+    }
+
+    $used = memory_get_usage(true);
+    return ($used + $minFreeBytes) <= $bytes;
+}
+
+/**
  * Bootstrap de seguridad para cada request HTTP.
  * $mode: 'web' | 'api'
  */
 function securityBootstrap($mode = 'web') {
+    // 1. Asignar límites estrictos de proceso (15s timeout, 128M memoria base)
+    @set_time_limit(15);
+    @ini_set('memory_limit', '128M');
+
+    // 2. Registrar Error Boundaries universales para cero caídas no controladas
+    static $handlersRegistered = false;
+    if (!$handlersRegistered) {
+        $handlersRegistered = true;
+        @register_shutdown_function('securityGlobalShutdownHandler');
+        @set_exception_handler('securityGlobalExceptionHandler');
+        @set_error_handler('securityGlobalErrorHandler', E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+    }
+
     securityApplyHeaders();
     securityApplyCors();
 
@@ -608,7 +901,8 @@ function securityBootstrap($mode = 'web') {
 
     $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
     if (securityIsScannerUa($ua)) {
-        if (!securityRateAllow('scanner_ua', 15, 60)) {
+        $res = securityRateAllowSliding('scanner_ua', 15, 60);
+        if (!$res['allowed']) {
             securityIpBan(3600, 'scanner');
             if ($mode === 'api') securityRateDenyJson(120);
             securityNotFoundQuiet();
@@ -631,13 +925,22 @@ function securityBootstrap($mode = 'web') {
         securityNotFoundQuiet();
     }
 
-    // Rate limit global API + techo por IP
+    // Rate limit adaptativo para API con desafío Turnstile
     if ($mode === 'api' || strpos($uri, '/api/') === 0) {
-        if (!securityRateAllow('api_global', 120, 60)) {
-            securityRateDenyJson(30);
+        $resGlobal = securityRateAllowSliding('api_global', 120, 60);
+        if (!$resGlobal['allowed']) {
+            if (!empty($resGlobal['challenge_required'])) {
+                securityRateChallengeJson($resGlobal['retry_after'], 'api_global');
+            }
+            securityRateDenyJson($resGlobal['retry_after']);
         }
-        if (!securityRateAllow('api_ip_burst', 40, 10)) {
-            securityRateDenyJson(15);
+
+        $resBurst = securityRateAllowSliding('api_ip_burst', 40, 10);
+        if (!$resBurst['allowed']) {
+            if (!empty($resBurst['challenge_required'])) {
+                securityRateChallengeJson($resBurst['retry_after'], 'api_ip_burst');
+            }
+            securityRateDenyJson($resBurst['retry_after']);
         }
     }
 }

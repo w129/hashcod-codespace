@@ -12,7 +12,17 @@ if (!function_exists('envValue')) {
  * Root PHP/Render → "/". GitHub Pages project site → "/l8-codespace/".
  * Override with L8_PUBLIC_BASE (e.g. "/app").
  */
+/**
+ * Public URL base path ending with "/".
+ * Root PHP/Render → "/". GitHub Pages project site → "/l8-codespace/".
+ * Override with L8_PUBLIC_BASE (e.g. "/app").
+ */
 function l8_public_base_path() {
+    static $cachedBase = null;
+    if ($cachedBase !== null) {
+        return $cachedBase;
+    }
+
     $override = '';
     if (function_exists('envValue')) {
         $override = (string) envValue('L8_PUBLIC_BASE', '');
@@ -22,26 +32,62 @@ function l8_public_base_path() {
     $override = trim($override);
     if ($override !== '') {
         if ($override === '/') {
+            $cachedBase = '/';
             return '/';
         }
-        return '/' . trim($override, '/') . '/';
+        $cachedBase = '/' . trim($override, '/') . '/';
+        return $cachedBase;
     }
 
     $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
     if ($host !== '' && strpos($host, 'github.io') !== false) {
+        $cachedBase = '/l8-codespace/';
         return '/l8-codespace/';
     }
 
+    $cachedBase = '/';
     return '/';
 }
 
-/** Emit Content-Type + cache headers for an HTML document response. */
-function l8_html_headers($ok = true) {
+/**
+ * Inicializa compresión de salida ligera (gzip/deflate) de forma segura.
+ */
+function l8_init_compression(): bool {
+    if (headers_sent() || ob_get_level() > 0) {
+        return false;
+    }
+    if (extension_loaded('zlib') && !ini_get('zlib.output_compression')) {
+        return @ob_start('ob_gzhandler');
+    }
+    return @ob_start();
+}
+
+/** Emit Content-Type + cache headers for an HTML document response with micro-caching & ETag support. */
+function l8_html_headers($ok = true, $cacheTtl = 0, $etag = null) {
     if (!headers_sent()) {
         http_response_code($ok ? 200 : 404);
         header('Content-Type: text/html; charset=utf-8');
-        header('Cache-Control: no-store');
+        if ($cacheTtl > 0) {
+            header('Cache-Control: public, max-age=' . (int)$cacheTtl . ', stale-while-revalidate=300');
+        } else {
+            header('Cache-Control: no-store, no-cache, must-revalidate');
+        }
         header('X-L8-Serve: php-html');
+
+        if ($etag !== null && $etag !== '') {
+            $etag = '"' . trim($etag, '"') . '"';
+            header('ETag: ' . $etag);
+            header('Vary: Accept-Encoding');
+
+            $ifNoneMatch = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? trim($_SERVER['HTTP_IF_NONE_MATCH']) : '';
+            if ($ifNoneMatch !== '' && ($ifNoneMatch === $etag || trim($ifNoneMatch, '"') === trim($etag, '"') || $ifNoneMatch === '*')) {
+                http_response_code(304);
+                while (ob_get_level()) {
+                    ob_end_clean();
+                }
+                exit;
+            }
+        }
     }
 }
 
@@ -49,13 +95,14 @@ function l8_html_headers($ok = true) {
  * Require a PHP/HTML page file with HTML headers.
  * $file is a basename under the project root (e.g. "index.php", "gateway.php").
  */
-function l8_require_html_page($file, $ok = true) {
+function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
     $file = basename((string) $file);
     $path = __DIR__ . '/' . $file;
     if (!is_file($path)) {
         l8_html_not_found_page();
     }
-    l8_html_headers($ok);
+    l8_init_compression();
+    l8_html_headers($ok, $cacheTtl);
     require $path;
     exit;
 }

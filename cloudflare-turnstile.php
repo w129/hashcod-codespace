@@ -218,6 +218,62 @@ function cfTurnstileVerify($token, $remoteIp = null) {
 }
 
 /**
+ * Genera un token firmado HMAC de clearance para IPs que han completado Turnstile exitosamente.
+ * Permite tráfico elevado sin desafíos por 15 minutos (900s).
+ */
+function cfGenerateClearanceToken(?string $ip = null, int $ttl = 900): string {
+    $ip = $ip ?: (function_exists('securityClientIp') ? securityClientIp() : ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'));
+    $exp = time() + max(60, $ttl);
+    $payload = [
+        'ip' => $ip,
+        'exp' => $exp,
+        'nonce' => bin2hex(random_bytes(8))
+    ];
+    $json = json_encode($payload);
+    $encoded = rtrim(strtr(base64_encode($json), '+/', '-_'), '=');
+    $secret = (function_exists('authPepper') ? authPepper() : 'l8_cf_clearance_secret');
+    $sig = hash_hmac('sha256', $encoded, $secret);
+    return $encoded . '.' . $sig;
+}
+
+/**
+ * Valida un token de clearance emitido por Cloudflare Turnstile.
+ */
+function cfValidateClearanceToken(string $token, ?string $ip = null): bool {
+    $token = trim($token);
+    if ($token === '' || strpos($token, '.') === false) {
+        return false;
+    }
+    list($encoded, $sig) = explode('.', $token, 2);
+    $secret = (function_exists('authPepper') ? authPepper() : 'l8_cf_clearance_secret');
+    $expectedSig = hash_hmac('sha256', $encoded, $secret);
+    if (!hash_equals($expectedSig, $sig)) {
+        return false;
+    }
+
+    $json = base64_decode(strtr($encoded, '-_', '+/'));
+    if ($json === false) {
+        return false;
+    }
+
+    $payload = json_decode($json, true);
+    if (!is_array($payload) || empty($payload['ip']) || empty($payload['exp'])) {
+        return false;
+    }
+
+    if ((int)$payload['exp'] < time()) {
+        return false;
+    }
+
+    $checkIp = $ip ?: (function_exists('securityClientIp') ? securityClientIp() : ($_SERVER['REMOTE_ADDR'] ?? ''));
+    if ($checkIp !== '' && $checkIp !== '0.0.0.0' && $payload['ip'] !== $checkIp) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Dispatcher para endpoints de Cloudflare API / Turnstile
  */
 function cfTurnstileHandleApi($uri) {
@@ -268,6 +324,13 @@ function cfTurnstileHandleApi($uri) {
         $data = json_decode($raw, true) ?: [];
         $token = $data['token'] ?? ($data['cf-turnstile-response'] ?? ($data['cf_turnstile_response'] ?? ''));
         $res = cfTurnstileVerify($token);
+        if (!empty($res['ok'])) {
+            $clearance = cfGenerateClearanceToken();
+            $res['clearance_token'] = $clearance;
+            if (!headers_sent()) {
+                header('Set-Cookie: cf_clearance=' . $clearance . '; Path=/; Max-Age=900; HttpOnly; SameSite=Lax');
+            }
+        }
         echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         return true;
     }

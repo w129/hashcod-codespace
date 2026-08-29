@@ -98,9 +98,32 @@ http://:{$PORT:8000} {
 		}
 	}
 
-	# Plataforma PHP (gzip solo aquí)
+	# Static assets direct edge offloading & compression
+	@static {
+		path *.css *.js *.mjs *.svg *.png *.jpg *.jpeg *.gif *.webp *.ico *.woff *.woff2 *.wasm *.ttf *.map *.webmanifest
+		not path /data_storage/*
+		not path /uploads/*
+		not path /.git/*
+	}
+	handle @static {
+		root * /var/www/html
+		encode zstd gzip
+
+		@versioned {
+			query v=* ver=* hash=* t=* id=*
+			path_regexp hashed -[a-zA-Z0-9_-]{6,}\.(js|css|wasm|svg|png|woff2?)$
+		}
+		header @versioned Cache-Control "public, max-age=31536000, immutable"
+		header not @versioned Cache-Control "public, max-age=86400, stale-while-revalidate=604800"
+
+		file_server {
+			hide .git data_storage uploads
+		}
+	}
+
+	# Plataforma PHP dinámica (compresión zstd + gzip)
 	handle {
-		encode gzip
+		encode zstd gzip
 		reverse_proxy 127.0.0.1:8001 {
 			transport http {
 				dial_timeout 3s

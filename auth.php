@@ -26,65 +26,33 @@ function authUsersPath() {
     return authStorageDir() . '/users.json';
 }
 
+function authCleanKey($key) {
+    if ($key === null || $key === false) return '';
+    $key = trim((string)$key);
+    // Remover espacios no rompibles (nbsp), espacios de ancho cero y comillas de móviles
+    $key = preg_replace('/^[\s\x{00a0}\x{200b}\"\']+|[\s\x{00a0}\x{200b}\"\']+$/u', '', $key);
+    return trim($key);
+}
+
 function authPepper() {
     static $cached = null;
     if (is_string($cached) && $cached !== '') {
         return $cached;
     }
 
-    // 1) Env / secret file / bóveda (recomendado en Render)
+    // 1) Variable de entorno o bóveda si está definida
     $pepper = function_exists('secretGet') ? secretGet('L8_AUTH_PEPPER', '') : envValue('L8_AUTH_PEPPER', '');
     if ($pepper !== '') {
         $cached = $pepper;
         return $cached;
     }
 
-    // 1b) Fallback determinista con DILITHIUM5_ADMIN_SIGNATURE si existe
-    $sig = function_exists('secretGet') ? secretGet('DILITHIUM5_ADMIN_SIGNATURE', '') : envValue('DILITHIUM5_ADMIN_SIGNATURE', '');
-    if ($sig !== '') {
-        $cached = hash('sha256', 'l8_auth_pepper_deterministic_' . $sig);
-        return $cached;
+    // 2) Pepper permanente maestro post-cuántico (inmutable entre reinicios de Render)
+    $masterSig = defined('DILITHIUM5_ADMIN_SIGNATURE_EXACT') ? DILITHIUM5_ADMIN_SIGNATURE_EXACT : '';
+    if ($masterSig === '') {
+        $masterSig = 'HASHCOD_PQC_MASTER_PEPPER_V1_2026_STABLE_SUPABASE_PERSISTENCE';
     }
-
-    $pepperFile = authStorageDir() . '/.pepper';
-
-    // 2) Supabase Storage (sobrevive redeploy si no hay env)
-    if (function_exists('supabaseConfig') && function_exists('supabaseStorageDownload')) {
-        $cfg = supabaseConfig();
-        if (!empty($cfg['configured'])) {
-            $remote = @supabaseStorageDownload('meta/auth_pepper');
-            if (!empty($remote['ok']) && is_string($remote['data'])) {
-                $fromRemote = trim($remote['data']);
-                if ($fromRemote !== '') {
-                    @file_put_contents($pepperFile, $fromRemote);
-                    @chmod($pepperFile, 0600);
-                    $cached = $fromRemote;
-                    return $cached;
-                }
-            }
-        }
-    }
-
-    // 3) Local
-    if (is_readable($pepperFile)) {
-        $existing = trim((string)@file_get_contents($pepperFile));
-        if ($existing !== '') {
-            $cached = $existing;
-            // intenta subir a Supabase para no perderlo en el próximo deploy
-            if (function_exists('supabaseConfig') && function_exists('supabaseStorageUpload') && !empty(supabaseConfig()['configured'])) {
-                @supabaseStorageUpload('meta/auth_pepper', $existing, 'text/plain', false);
-            }
-            return $cached;
-        }
-    }
-
-    $generated = bin2hex(random_bytes(32));
-    @file_put_contents($pepperFile, $generated);
-    @chmod($pepperFile, 0600);
-    if (function_exists('supabaseConfig') && function_exists('supabaseStorageUpload') && !empty(supabaseConfig()['configured'])) {
-        @supabaseStorageUpload('meta/auth_pepper', $generated, 'text/plain', false);
-    }
-    $cached = $generated;
+    $cached = hash('sha256', 'l8_auth_master_pepper_pqc_' . $masterSig);
     return $cached;
 }
 
@@ -867,8 +835,8 @@ function authRecover($recoveryMaterial) {
 }
 
 function authLogin($aes256, $identity) {
-    $aes256 = trim((string)$aes256);
-    $identity = trim((string)$identity);
+    $aes256 = authCleanKey($aes256);
+    $identity = authCleanKey($identity);
     if ($aes256 === '' || $identity === '') {
         return ['ok' => false, 'error' => 'Debes introducir las 2 claves de acceso'];
     }

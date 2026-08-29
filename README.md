@@ -27,7 +27,28 @@ php -S localhost:8000 router.php
 
 Abre [http://localhost:8000](http://localhost:8000) — el view-source debe mostrar `<!DOCTYPE html>` completo, no un `#root` vacío.
 
-En Windows (Laragon) también puedes usar `run.bat`.
+En Windows (Laragon) también puedes usar `scripts/run.bat`.
+
+## Estructura del repositorio
+
+```text
+router.php            front controller (allowlist de páginas + /api/* + estáticos)
+index.php             página principal (HTML nativo completo)
+*.php                 páginas enrutadas y módulos backend (api, auth, security, supabase, …)
+assets/images/        imágenes PNG/JPG de la plataforma y evidencias legales
+assets/icons/         iconos e isotipos SVG
+assets/img/           logos de motores (strix)
+components/           JS/CSS de la UI (tabby-blocks, warp-terminal, durable-objects, …)
+engines/              motores auxiliares (Go, Rust, C, Python/Django, Strix)
+streamlit_tools/      apps Streamlit del dock inferior (SoroOtbedit, componentes)
+tiptap_editor/        editor Tiptap (frontend + build)
+toolkit/              utilidades embebidas (pdf-inspector, agency-agents, vendor)
+scripts/              utilidades de desarrollo (Windows/Node: run.bat, recortes de logo)
+supabase/             schema.sql (tablas + RLS)
+data_storage/         persistencia local efímera (no se sirve por HTTP)
+```
+
+Los ficheros de `scripts/`, `.github/`, `supabase/` y `data_storage/` están bloqueados en `security.php` y nunca se sirven como estáticos.
 
 ## Herramientas Streamlit (dock inferior)
 

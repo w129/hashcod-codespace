@@ -220,7 +220,7 @@ $L8_BASE = l8_public_base_path();
     <div class="shell">
         <div class="titlebar">
             <div class="brand">
-                <img src="/claude-mark-gray.svg" alt="" width="22" height="22" aria-hidden="true">
+                <img src="/assets/icons/claude-mark-gray.svg" alt="" width="22" height="22" aria-hidden="true">
                 <div>
                     <h1>Claude Code</h1>
                     <span>anthropics/claude-code-action · l8 codespace</span>
@@ -232,7 +232,7 @@ $L8_BASE = l8_public_base_path();
         <div class="gate visible" id="authGate">
             <div class="gate-card">
                 <div class="mark">
-                    <img src="/claude-mark-gray.svg" alt="" width="36" height="36">
+                    <img src="/assets/icons/claude-mark-gray.svg" alt="" width="36" height="36">
                     <div>
                         <h2>Inicia sesión con Claude</h2>
                         <p style="margin:0;color:var(--muted);font-size:12px;">OAuth requerido antes de ejecutar Claude Code</p>

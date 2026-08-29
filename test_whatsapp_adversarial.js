@@ -1,5 +1,5 @@
-﻿/**
- * Exhaustive Adversarial Test Suite for WhatsApp PQC Message Generator & Checkout Engine
+/**
+ * Exhaustive Adversarial Test Suite for WhatsApp PQC Message Generator & Terms/Privacy Confirmation
  */
 const fs = require('fs');
 const path = require('path');
@@ -99,7 +99,10 @@ function createMockEnv(hasCrypto) {
                 removeChild: () => {},
                 select: () => {},
                 focus: () => {},
-                click: () => { state.canvasDownloaded = true; }
+                click: function() {
+                    state.canvasDownloaded = true;
+                    state.downloadedFilename = this.download;
+                }
             };
         },
         body: {
@@ -192,7 +195,7 @@ console.log('\n=== TEST 4: Message Template, Markdown & ASCII Headers ===');
     const msg = mockWin.buildWhatsAppMessageText(session);
 
     // Markdown elements
-    assert(msg.includes('*HASHCOD CODESPACE® — COMPROBANTE DE CHECKOUT*'), 'Missing *bold* header');
+    assert(msg.includes('*HASHCOD CODESPACE® — CONFIRMACIÓN DE ACEPTACIÓN DE TÉRMINOS Y POLÍTICA DE PRIVACIDAD*'), 'Missing *bold* header');
     assert(msg.includes('_Certificación Determinista de IA & Alojamiento Post-Cuántico (PQC)_'), 'Missing _italic_ subtitle');
     assert(msg.includes('~US$ 90.00~'), 'Missing ~strikethrough~ original price');
     assert(msg.includes('> 🛡️'), 'Missing > blockquote');
@@ -208,17 +211,21 @@ console.log('\n=== TEST 4: Message Template, Markdown & ASCII Headers ===');
     });
 
     // Details box drawing
-    assert(msg.includes('*┌── [ 💳 DETALLES DE LA TRANSACCIÓN ]*'), 'Missing details ┌── header');
+    assert(msg.includes('*┌── [ 📋 REGISTRO DE AUDITORÍA & METADATOS ]*'), 'Missing details ┌── header');
     assert(msg.includes('*│* *Identificador:* `' + session.voucherId + '`'), 'Missing details │ voucher ID');
-    assert(msg.includes('*│* *Emisión (ISO):* `' + session.timestamp + '`'), 'Missing details │ timestamp');
-    assert(msg.includes('*│* *Monto Mensual:* *US$ 60.27 / mes*'), 'Missing details │ price');
+    assert(msg.includes('*│* *Fecha y Hora:* `' + session.timestamp + '`'), 'Missing details │ timestamp');
+    assert(msg.includes('*│* *Monto Suscripción:* *US$ 60.27 / mes*'), 'Missing details │ price');
     assert(msg.includes('*└──*'), 'Missing details └── footer');
 
     // Official credentials
     assert(msg.includes('DIKTATCART'), 'Missing DIKTATCART');
     assert(msg.includes('40209369293'), 'Missing RNC 40209369293');
-    assert(msg.includes('#336973'), 'Missing ONAPI #336973');
-    assert(msg.includes('#3323LV-PF'), 'Missing RM #3323LV-PF');
+    assert(msg.includes('336973'), 'Missing ONAPI 336973');
+    assert(msg.includes('3323LV-PF'), 'Missing RM 3323LV-PF');
+
+    // Tab 1 to 7 acceptance confirmations
+    assert(msg.includes('Tab 1 (Alcance & Cero Telemetría)'), 'Missing Tab 1');
+    assert(msg.includes('Tab 7 (Validación Oficial República Dominicana)'), 'Missing Tab 7');
 
     // JSON Payload
     const jsonMatches = msg.match(/```\n([\s\S]*?)\n```/g);
@@ -233,6 +240,9 @@ console.log('\n=== TEST 4: Message Template, Markdown & ASCII Headers ===');
     assert.strictEqual(parsed.rnc, '40209369293');
     assert.strictEqual(parsed.onapi, '336973');
     assert.strictEqual(parsed.registro_mercantil, '3323LV-PF');
+    assert.strictEqual(parsed.audit_tabs_acceptance.tab_1_alcance_cero_telemetria, true);
+    assert.strictEqual(parsed.audit_tabs_acceptance.tab_7_validacion_legal_dominicana.onapi_marca_336973, true);
+    assert.strictEqual(parsed.user_acceptance.privacy_policy, true);
     console.log('✓ Markdown styling, 36-col ASCII box, and JSON payload validated.');
 }
 
@@ -297,6 +307,7 @@ console.log('\n=== TEST 6: Clipboard Copy Engine & Rapid Double-Click Idempotenc
     state.canvasCalls = [];
     mockWin.triggerCheckoutCapture();
     assert.strictEqual(state.canvasDownloaded, true, 'Canvas image download must be triggered');
+    assert(state.downloadedFilename.includes('Comprobante-Aceptacion-Terminos-'), 'Canvas filename should include Comprobante-Aceptacion-Terminos-');
 
     // Verify beginPath is called before every shape
     const beginPathIndices = [];

@@ -9988,19 +9988,19 @@ if (!headers_sent()) {
                     </div>
 
                     <p class="auth-checkout-text">
-                        Este codespace certifica plataformas de IA como tambien les ofrece un alojamiento post-cuantico, la puedes utilizar para usar sus herramientas que ya estan como tambien alojar las tuyas, <strong>al registrarse...usted comprende que el pago debe de realizarse mensual donde el costo es de US$ 60.27</strong>...los cuales debes de pagarlo por transaci&oacute;n bancaria, donde todo este proceso tienes que hacerlo contactandonos al <strong>Whatsapp: <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" id="authInlineWhatsappLink" class="auth-whatsapp-link">829-472-1257</a></strong> .... donde luego un asistente despues de realizar el pago le dar&aacute; la clave dilithium-5 para poder registrarse.
+                        Este codespace certifica plataformas de IA como tambien les ofrece un alojamiento post-cuantico, la puedes utilizar para usar sus herramientas que ya estan como tambien alojar las tuyas, <strong>al registrarse...usted confirma que acepta la Política de Privacidad, Modelo de Certificación Determinista y Términos de Suscripción (US$ 60.27 / mes)</strong>...el pago se coordina directamente por transferencia bancaria contactandonos al <strong>Whatsapp: <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" id="authInlineWhatsappLink" class="auth-whatsapp-link">829-472-1257</a></strong> .... donde luego un asistente tras validar la transacción le otorgará la correspondiente clave Dilithium-5 para completar el registro.
                     </p>
                     
                     <div class="auth-checkout-actions">
-                        <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp" id="authWhatsappBtn" title="Abrir WhatsApp con código JSON y vector ASCII">
+                        <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp" id="authWhatsappBtn" title="Abrir WhatsApp con confirmación formal de términos y payload JSON">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.879.814 2.795.815 3.179 0 5.767-2.587 5.768-5.766.001-3.18-2.585-5.767-5.767-5.801zm3.376 8.163c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.025-.48-1.583-.657-2.589-2.28-2.667-2.384-.078-.104-.633-.842-.633-1.608 0-.765.401-1.141.543-1.295.144-.155.312-.194.417-.194.104 0 .208.001.299.006.096.004.224-.036.35.267.13.312.443 1.077.482 1.156.039.078.065.169.013.273-.052.104-.078.169-.156.26-.078.091-.163.203-.234.273-.078.078-.16.163-.069.318.091.156.403.666.865 1.077.595.53 1.097.694 1.253.772.156.078.247.065.338-.039.091-.104.39-.455.494-.611.104-.156.208-.13.351-.078.143.052.91.429 1.066.507.156.078.26.117.299.182.039.065.039.377-.105.782z"/></svg>
                             <span>WhatsApp: 829-472-1257</span>
                         </a>
-                        <button type="button" class="auth-btn-capture" id="authCaptureCheckoutBtn" onclick="triggerCheckoutCapture()" title="Descargar comprobante PNG sincronizado con el voucher">
+                        <button type="button" class="auth-btn-capture" id="authCaptureCheckoutBtn" onclick="triggerCheckoutCapture()" title="Descargar comprobante de aceptación de términos y solicitud de pago PNG">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                             <span>Capturar PNG</span>
                         </button>
-                        <button type="button" class="auth-btn-copy-msg" id="authCopyWhatsappBtn" onclick="copyWhatsAppMessage()" title="Copiar el payload JSON y mensaje formateado de WhatsApp">
+                        <button type="button" class="auth-btn-copy-msg" id="authCopyWhatsappBtn" onclick="copyWhatsAppMessage()" title="Copiar el payload JSON y confirmación formateada de WhatsApp">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             <span>Copiar Payload</span>
                         </button>
@@ -10008,7 +10008,7 @@ if (!headers_sent()) {
 
                     <label class="auth-checkout-checkbox-label">
                         <input type="checkbox" id="authCheckoutCheckbox" required>
-                        <span><strong>Comprendo el pago mensual de US$ 60.27 por transaci&oacute;n bancaria</strong> y tengo mi clave Dilithium-5 provista por WhatsApp.</span>
+                        <span><strong>Confirmo la Aceptación de Términos y Política de Privacidad</strong> (Suscripción US$ 60.27 / mes coordinada vía WhatsApp).</span>
                     </label>
                 </div>
             </div>
@@ -21024,19 +21024,50 @@ if (!headers_sent()) {
                     } else {
                         randHex = Math.floor(Math.random() * 65536).toString(16).toUpperCase().padStart(4, '0');
                     }
+                    
+                    const now = new Date();
+                    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                    const dayOfWeek = days[now.getDay()] || 'Sábado';
+                    let timezone = 'America/Santo_Domingo';
+                    try {
+                        if (typeof Intl !== 'undefined' && typeof Intl.DateTimeFormat === 'function') {
+                            const resolved = Intl.DateTimeFormat().resolvedOptions();
+                            if (resolved && resolved.timeZone) {
+                                timezone = resolved.timeZone;
+                            }
+                        }
+                    } catch (e) {}
+
+                    const offsetMin = -now.getTimezoneOffset();
+                    const offsetSign = offsetMin >= 0 ? '+' : '-';
+                    const offsetHours = String(Math.floor(Math.abs(offsetMin) / 60)).padStart(2, '0');
+                    const offsetMins = String(Math.abs(offsetMin) % 60).padStart(2, '0');
+                    const tzOffsetStr = `UTC${offsetSign}${offsetHours}:${offsetMins}`;
+
                     window.__hashcodCheckoutSession = {
                         voucherId: 'HASHCOD-L8-' + randHex,
-                        timestamp: new Date().toISOString(),
+                        timestamp: now.toISOString(),
+                        formattedDate: now.toLocaleDateString('es-DO', { year: 'numeric', month: 'long', day: 'numeric' }),
+                        formattedTime: now.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                        dayOfWeek: dayOfWeek,
+                        timezone: timezone,
+                        timezoneOffset: tzOffsetStr,
                         priceUsd: '60.27',
                         currency: 'USD',
-                        service: 'Codespace Pro + Hosting PQC',
-                        plan: 'Monthly Subscription',
+                        service: 'Hashcod Codespace Pro + Hosting PQC + Certificación Determinista IA',
+                        plan: 'Suscripción Mensual (Monthly Subscription)',
                         issuer: 'DIKTATCART',
                         rnc: '40209369293',
                         onapi: '#336973',
                         registroMercantil: '#3323LV-PF',
                         phone: '18294721257',
-                        phoneFormatted: '+1 (829) 472-1257'
+                        phoneFormatted: '+1 (829) 472-1257',
+                        privacyAccepted: true,
+                        deterministicModelAccepted: true,
+                        monthlyTermsAccepted: true,
+                        paymentCoordinationMethod: 'WhatsApp (829-472-1257) - Transferencia / Depósito Bancario',
+                        quantumAlgorithm: 'ML-DSA-87 / Dilithium-5 (NIST FIPS 204)',
+                        status: 'SOLICITUD_COORDINACION_PAGO_Y_LLAVE_DILITHIUM5'
                     };
                 }
                 return window.__hashcodCheckoutSession;
@@ -21047,53 +21078,90 @@ if (!headers_sent()) {
                 
                 const jsonPayload = JSON.stringify({
                     protocol: "HASHCOD-L8-PQC-V1",
+                    document_type: "CONFIRMACION_ACEPTACION_TERMINOS_Y_PRIVACIDAD",
                     voucher_id: s.voucherId,
                     timestamp: s.timestamp,
+                    day_of_week: s.dayOfWeek || "Sábado",
+                    timezone: `${s.timezone || "America/Santo_Domingo"} (${s.timezoneOffset || "UTC-04:00"})`,
                     service: s.service,
                     plan: s.plan,
                     price_usd: 60.27,
                     currency: "USD",
+                    payment_mode: "COORDINACION_DIRECTA_TRANSFERENCIA_WHATSAPP",
+                    settlement_status: "PENDIENTE_COORDINACION_NO_PREPAGADO",
                     issuer: s.issuer,
                     rnc: s.rnc,
                     onapi: "336973",
                     registro_mercantil: "3323LV-PF",
-                    quantum_algorithm: "ML-DSA-87 / Dilithium-5 (NIST FIPS 204)",
-                    status: "PAYMENT_PENDING_CONFIRMATION"
+                    quantum_algorithm: s.quantumAlgorithm || "ML-DSA-87 / Dilithium-5 (NIST FIPS 204)",
+                    audit_tabs_acceptance: {
+                        tab_1_alcance_cero_telemetria: true,
+                        tab_2_openclaw_agentes_autonomos: true,
+                        tab_3_criptografia_pqc_strix_scanner: true,
+                        tab_4_soda_storage_documentos_locales: true,
+                        tab_5_licenciamiento_foss_bash_mit: true,
+                        tab_6_evidencias_software_gus_mav: true,
+                        tab_7_validacion_legal_dominicana: {
+                            onapi_marca_336973: true,
+                            dgii_rnc_40209369293: true,
+                            camara_comercio_rm_3323lv_pf: true
+                        }
+                    },
+                    user_acceptance: {
+                        privacy_policy: true,
+                        deterministic_ai_certification: true,
+                        monthly_subscription_terms: true,
+                        monthly_amount_usd: 60.27,
+                        dilithium5_key_issuance_requested: true
+                    },
+                    status: "SOLICITUD_PAGO_Y_EMISION_LLAVE_DILITHIUM5"
                 }, null, 2);
 
                 const msg = 
-`> 🛡️ *HASHCOD CODESPACE® — COMPROBANTE DE CHECKOUT*
+`> 🛡️ *HASHCOD CODESPACE® — CONFIRMACIÓN DE ACEPTACIÓN DE TÉRMINOS Y POLÍTICA DE PRIVACIDAD*
 > _Certificación Determinista de IA & Alojamiento Post-Cuántico (PQC)_
 
 \`\`\`
 ╔══════════════════════════════════╗
-║  HASHCOD CODESPACE® · CHECKOUT   ║
-║   POST-QUANTUM VOUCHER & GATE    ║
+║  HASHCOD CODESPACE® · AUDIT PQC  ║
+║   PRIVACY & TERMS ACCEPTANCE     ║
 ╚══════════════════════════════════╝
 \`\`\`
 
-*┌── [ 💳 DETALLES DE LA TRANSACCIÓN ]*
+*┌── [ 📋 REGISTRO DE AUDITORÍA & METADATOS ]*
 *│* *Identificador:* \`${s.voucherId}\`
-*│* *Emisión (ISO):* \`${s.timestamp}\`
+*│* *Fecha y Hora:* \`${s.timestamp}\`
+*│* *Día de la Semana:* *${s.dayOfWeek || "Sábado"}*
+*│* *Zona Horaria:* \`${s.timezone || "America/Santo_Domingo"} (${s.timezoneOffset || "UTC-04:00"})\`
 *│* *Servicio:* ${s.service}
-*│* *Monto Mensual:* *US$ 60.27 / mes* (~US$ 90.00~ tarifa regular)
-*│* *Método de Pago:* Transferencia / Depósito Bancario
-*│* *Estado:* *PENDIENTE DE VALIDACIÓN*
+*│* *Monto Suscripción:* *US$ 60.27 / mes* (~US$ 90.00~ tarifa regular)
+*│* *Modalidad:* Coordinación y Liquidación Directa vía WhatsApp (No prepagado)
+*│* *Estado:* *ACEPTACIÓN CONFIRMADA · SOLICITUD DE COORDENADAS DE PAGO*
 *└──*
 
-*🏛️ Credenciales Oficiales de la Empresa:*
+*🏛️ Validación Legal y Credenciales Gubernamentales (República Dominicana):*
 • *Emisor:* ${s.issuer}
-• *RNC:* ${s.rnc}
-• *ONAPI:* Registro de Marca ${s.onapi} (Clase 42)
-• *Registro Mercantil:* ${s.registroMercantil} (Cámara de Comercio)
+• *RNC (DGII):* ${s.rnc} (Contribuyente Activo)
+• *ONAPI:* Marca Registrada #${String(s.onapi || "336973").replace('#', '')} (Clase 42)
+• *Registro Mercantil:* #${String(s.registroMercantil || "3323LV-PF").replace('#', '')} (Cámara de Comercio de La Vega)
+• *Marco Regulatorio:* Conforme a la Ley No. 126-02 sobre Comercio Electrónico y Firmas Digitales.
 
-*📦 Payload Criptográfico JSON:*
+*📜 Confirmación de Aceptación de Pestañas de Privacidad (Tab 1 a Tab 7):*
+• *Tab 1 (Alcance & Cero Telemetría):* Aceptado ✓ (Own-Your-Data)
+• *Tab 2 (OpenClaw & Agentes Autónomos):* Aceptado ✓ (Zero-Data Retention)
+• *Tab 3 (Criptografía PQC & Strix Scanner):* Aceptado ✓ (Dilithium-5 / NIST ML-DSA-87)
+• *Tab 4 (SODA Storage & Suites Documentales):* Aceptado ✓ (Edición local)
+• *Tab 5 (Licenciamiento FOSS & Propiedad):* Aceptado ✓ (GNU Bash GPLv3 / OpenClaw MIT)
+• *Tab 6 (Evidencias & Auditoría GUS MAV):* Aceptado ✓ (Pruebas deterministas de IA)
+• *Tab 7 (Validación Oficial República Dominicana):* Aceptado ✓ (ONAPI + DGII + RM)
+
+*📦 Payload Criptográfico JSON (Auditoría Inmutable):*
 \`\`\`
 ${jsonPayload}
 \`\`\`
 
 > 💬 *Mensaje del Cliente:*
-> _"Hola, he realizado/iniciado el pago de mi suscripción mensual de US$ 60.27 para Hashcod Codespace. Adjunto mi comprobante bancario para validar mi sesión y recibir la clave Dilithium-5 de acceso."_`;
+> _"Hola, confirmo que he leído y aceptado la Política de Privacidad, el Modelo de Certificación Determinista de IA y los Términos de Suscripción Mensual (US$ 60.27) de Hashcod Codespace. Solicito las coordenadas bancarias para coordinar mi pago y recibir la correspondiente clave Dilithium-5 de acceso."_`;
 
                 return msg;
             };
@@ -21109,6 +21177,8 @@ ${jsonPayload}
                 const url = window.getWhatsAppCheckoutUrl(s);
                 const waLink = document.getElementById('authWhatsappBtn');
                 const inlineWaLink = document.getElementById('authInlineWhatsappLink');
+                const chk = document.getElementById('authCheckoutCheckbox');
+                if (chk) chk.checked = true;
                 if (waLink) {
                     waLink.href = url;
                     waLink.target = '_blank';
@@ -21120,14 +21190,17 @@ ${jsonPayload}
                     inlineWaLink.rel = 'noopener noreferrer';
                 }
 
-                if (e && e.currentTarget && (e.currentTarget.tagName === 'A' || (e.currentTarget.closest && e.currentTarget.closest('a')))) {
-                    const anchor = e.currentTarget.tagName === 'A' ? e.currentTarget : e.currentTarget.closest('a');
-                    if (anchor) {
-                        anchor.href = url;
-                        anchor.target = '_blank';
-                        anchor.rel = 'noopener noreferrer';
+                if (e) {
+                    const targetEl = e.currentTarget || e.target;
+                    if (targetEl && (targetEl.tagName === 'A' || (targetEl.closest && targetEl.closest('a')))) {
+                        const anchor = targetEl.tagName === 'A' ? targetEl : targetEl.closest('a');
+                        if (anchor) {
+                            anchor.href = url;
+                            anchor.target = '_blank';
+                            anchor.rel = 'noopener noreferrer';
+                        }
+                        return true;
                     }
-                    return true;
                 }
                 if (e && e.preventDefault) e.preventDefault();
                 window.open(url, '_blank', 'noopener,noreferrer');
@@ -21138,6 +21211,8 @@ ${jsonPayload}
                 const s = window.getCheckoutVoucherSession();
                 const text = window.buildWhatsAppMessageText(s);
                 const btn = document.getElementById('authCopyWhatsappBtn');
+                const chk = document.getElementById('authCheckoutCheckbox');
+                if (chk) chk.checked = true;
                 let copied = false;
                 
                 if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
@@ -21158,9 +21233,24 @@ ${jsonPayload}
                         ta.style.top = '-9999px';
                         ta.style.left = '-9999px';
                         ta.style.opacity = '0';
+                        ta.style.fontSize = '16px';
                         document.body.appendChild(ta);
-                        ta.focus();
-                        ta.select();
+                        if (typeof navigator !== 'undefined' && navigator.userAgent && /ipad|iphone/i.test(navigator.userAgent)) {
+                            const range = document.createRange();
+                            range.selectNodeContents(ta);
+                            const sel = window.getSelection ? window.getSelection() : null;
+                            if (sel) {
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                            }
+                            ta.setSelectionRange(0, 999999);
+                        } else {
+                            ta.focus();
+                            ta.select();
+                            if (ta.setSelectionRange) {
+                                ta.setSelectionRange(0, ta.value.length);
+                            }
+                        }
                         copied = document.execCommand('copy');
                         document.body.removeChild(ta);
                     } catch (fallbackErr) {
@@ -21238,6 +21328,7 @@ ${jsonPayload}
                     }
 
                     // Dark terminal background
+                    ctx.beginPath();
                     const grad = ctx.createLinearGradient(0, 0, 960, 680);
                     grad.addColorStop(0, '#060a12');
                     grad.addColorStop(0.5, '#0b1322');
@@ -21266,8 +21357,11 @@ ${jsonPayload}
                     ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
                     ctx.strokeStyle = '#1e293b';
                     ctx.lineWidth = 1.5;
-                    if (ctx.roundRect) ctx.roundRect(40, 36, 880, 608, 14);
-                    else ctx.fillRect(40, 36, 880, 608);
+                    if (typeof ctx.roundRect === 'function') {
+                        ctx.roundRect(40, 36, 880, 608, 14);
+                    } else if (typeof ctx.rect === 'function') {
+                        ctx.rect(40, 36, 880, 608);
+                    }
                     ctx.fill();
                     ctx.stroke();
 
@@ -21278,23 +21372,26 @@ ${jsonPayload}
                     topBarGrad.addColorStop(0.5, '#38bdf8');
                     topBarGrad.addColorStop(1, '#6366f1');
                     ctx.fillStyle = topBarGrad;
-                    if (ctx.roundRect) ctx.roundRect(40, 36, 880, 5, [14, 14, 0, 0]);
-                    else ctx.fillRect(40, 36, 880, 5);
+                    if (typeof ctx.roundRect === 'function') {
+                        ctx.roundRect(40, 36, 880, 5, [14, 14, 0, 0]);
+                    } else if (typeof ctx.rect === 'function') {
+                        ctx.rect(40, 36, 880, 5);
+                    }
                     ctx.fill();
 
                     // Title & Subtitle
                     ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 22px "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                    ctx.fillText('Hashcod Codespace® · Comprobante de Checkout & Voucher PQC', 70, 82);
+                    ctx.fillText('Hashcod Codespace® · Comprobante de Aceptación de Términos y Solicitud de Pago', 70, 82);
 
                     ctx.fillStyle = '#94a3b8';
                     ctx.font = '13px "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                    ctx.fillText('Certificación Determinista de IA y Alojamiento Post-Cuántico (NIST Level 5)', 70, 106);
+                    ctx.fillText('Certificación Determinista de IA, Soberanía de Datos y Alojamiento Post-Cuántico (PQC Level 5)', 70, 106);
 
                     // Vector Divider
+                    ctx.beginPath();
                     ctx.strokeStyle = '#334155';
                     ctx.lineWidth = 1;
-                    ctx.beginPath();
                     ctx.moveTo(70, 124);
                     ctx.lineTo(890, 124);
                     ctx.stroke();
@@ -21302,23 +21399,26 @@ ${jsonPayload}
                     // Transaction Details Section
                     ctx.fillStyle = '#38bdf8';
                     ctx.font = 'bold 13px "Geist Mono", "IBM Plex Mono", monospace';
-                    ctx.fillText('┌── [ DETALLES DE LA TRANSACCIÓN & VOUCHER ]', 70, 156);
+                    ctx.fillText('┌── [ REGISTRO DE AUDITORÍA & DETALLES DEL PLAN ]', 70, 156);
 
                     ctx.fillStyle = '#e2e8f0';
                     ctx.font = '13.5px "IBM Plex Sans", -apple-system, sans-serif';
-                    ctx.fillText('• Servicio: Codespace Pro + Hosting Post-Cuántico + Certificación IA', 90, 186);
-                    ctx.fillText('• Plan: Suscripción Mensual Determinista (Acceso Ilimitado a Herramientas)', 90, 212);
-                    ctx.fillText('• Costo Mensual: US$ 60.27 / mes (Sesenta dólares estadounidenses con 27/100)', 90, 238);
-                    ctx.fillText('• Método de Pago: Transferencia / Depósito Bancario', 90, 264);
-                    ctx.fillText('• Contacto WhatsApp de Validación: +1 (829) 472-1257', 90, 290);
+                    ctx.fillText('• Servicio: Codespace Pro + Hosting Post-Cuántico + Certificación Determinista IA', 90, 186);
+                    ctx.fillText('• Plan: Suscripción Mensual (Acceso Ilimitado y Registro de Creaciones)', 90, 212);
+                    ctx.fillText('• Monto Mensual Acordado: US$ 60.27 / mes (Tarifa regular ~US$ 90.00~)', 90, 238);
+                    ctx.fillText('• Modalidad de Pago: Coordinación Directa vía WhatsApp (Transferencia / Depósito Bancario)', 90, 264);
+                    ctx.fillText('• Contacto Oficial WhatsApp: +1 (829) 472-1257', 90, 290);
 
                     // Official Credentials Box
                     ctx.beginPath();
                     ctx.fillStyle = 'rgba(30, 41, 59, 0.6)';
                     ctx.strokeStyle = '#334155';
                     ctx.lineWidth = 1;
-                    if (ctx.roundRect) ctx.roundRect(70, 312, 820, 78, 8);
-                    else ctx.fillRect(70, 312, 820, 78);
+                    if (typeof ctx.roundRect === 'function') {
+                        ctx.roundRect(70, 312, 820, 78, 8);
+                    } else if (typeof ctx.rect === 'function') {
+                        ctx.rect(70, 312, 820, 78);
+                    }
                     ctx.fill();
                     ctx.stroke();
 
@@ -21329,27 +21429,30 @@ ${jsonPayload}
                     ctx.font = 'bold 12px "IBM Plex Sans", monospace';
                     ctx.fillText('• Emisor: DIKTATCART   |   • RNC: 40209369293   |   • ONAPI: #336973   |   • Registro Mercantil: #3323LV-PF', 86, 362);
 
-                    // Emerald Highlight Box: TOTAL A PAGAR
+                    // Emerald Highlight Box: TOTAL A PAGAR & CONFIRMACION
                     ctx.beginPath();
                     ctx.fillStyle = 'rgba(6, 78, 59, 0.4)';
                     ctx.strokeStyle = '#10b981';
                     ctx.lineWidth = 1.5;
-                    if (ctx.roundRect) ctx.roundRect(70, 408, 820, 94, 8);
-                    else ctx.fillRect(70, 408, 820, 94);
+                    if (typeof ctx.roundRect === 'function') {
+                        ctx.roundRect(70, 408, 820, 94, 8);
+                    } else if (typeof ctx.rect === 'function') {
+                        ctx.rect(70, 408, 820, 94);
+                    }
                     ctx.fill();
                     ctx.stroke();
 
                     ctx.fillStyle = '#34d399';
                     ctx.font = 'bold 17px "IBM Plex Sans", sans-serif';
-                    ctx.fillText('TOTAL A PAGAR: US$ 60.27 MENSUAL', 95, 442);
+                    ctx.fillText('ESTADO: ACEPTACIÓN DE TÉRMINOS CONFIRMADA (US$ 60.27 / mes)', 95, 442);
                     ctx.fillStyle = '#e2e8f0';
                     ctx.font = '13px "IBM Plex Sans", sans-serif';
-                    ctx.fillText('Instrucción: Envía este comprobante al WhatsApp 829-472-1257 tras realizar tu depósito bancario.', 95, 474);
+                    ctx.fillText('Instrucción: Envía este comprobante al WhatsApp 829-472-1257 para recibir las coordenadas de pago y tu clave Dilithium-5.', 95, 474);
 
                     // Footer Cryptographic Voucher & Metadata
                     ctx.fillStyle = '#38bdf8';
                     ctx.font = 'bold 12px "Geist Mono", "IBM Plex Mono", monospace';
-                    ctx.fillText(`VOUCHER REF: ${session.voucherId}   |   EMISIÓN UTC: ${session.timestamp}`, 70, 540);
+                    ctx.fillText(`VOUCHER REF: ${session.voucherId}   |   EMISIÓN UTC: ${session.timestamp} (${session.dayOfWeek || "Sábado"})`, 70, 540);
 
                     ctx.fillStyle = '#64748b';
                     ctx.font = '11.5px "IBM Plex Mono", monospace';
@@ -21358,7 +21461,7 @@ ${jsonPayload}
 
                     // Download PNG Image
                     const link = document.createElement('a');
-                    link.download = `Comprobante-Checkout-${session.voucherId}.png`;
+                    link.download = `Comprobante-Aceptacion-Terminos-${session.voucherId}.png`;
                     link.href = canvas.toDataURL('image/png');
                     document.body.appendChild(link);
                     link.click();
@@ -21401,7 +21504,7 @@ ${jsonPayload}
 
                 const checkoutChk = document.getElementById('authCheckoutCheckbox');
                 if (!checkoutChk || !checkoutChk.checked) {
-                    setMsg('Debes marcar la casilla de confirmación de checkout (pago mensual de US$ 60.27 vía WhatsApp: 829-472-1257) antes de registrarte.');
+                    setMsg('Debes confirmar la aceptación de términos y política de privacidad (pago mensual de US$ 60.27 coordinado vía WhatsApp: 829-472-1257) antes de registrarte.');
                     if (checkoutChk) {
                         checkoutChk.focus();
                     }

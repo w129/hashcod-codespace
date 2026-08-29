@@ -168,6 +168,8 @@ for (let i = 0; i < 10000; i++) {
     assert.strictEqual(s.rnc, '40209369293');
     assert.strictEqual(s.onapi, '#336973');
     assert.strictEqual(s.registroMercantil, '#3323LV-PF');
+    assert(s.dayOfWeek, 'dayOfWeek missing');
+    assert(s.timezone, 'timezone missing');
     generatedIds.add(s.voucherId);
 }
 console.log(`  ✓ 10,000 sessions generated. Unique IDs: ${generatedIds.size} / 10,000 (Distribution entropy OK).`);
@@ -178,7 +180,7 @@ const testSession = sandboxWindow.getCheckoutVoucherSession(true);
 const msg = sandboxWindow.buildWhatsAppMessageText(testSession);
 
 // Check Markdown Syntax
-assert(msg.includes('*HASHCOD CODESPACE® — COMPROBANTE DE CHECKOUT*'), 'Bold header missing');
+assert(msg.includes('*HASHCOD CODESPACE® — CONFIRMACIÓN DE ACEPTACIÓN DE TÉRMINOS Y POLÍTICA DE PRIVACIDAD*'), 'Bold header missing');
 assert(msg.includes('_Certificación Determinista de IA & Alojamiento Post-Cuántico (PQC)_'), 'Italic subtitle missing');
 assert(msg.includes('~US$ 90.00~'), 'Strikethrough missing');
 assert(msg.includes('> 🛡️'), 'Blockquote missing');
@@ -209,7 +211,9 @@ assert.strictEqual(payload.rnc, '40209369293');
 assert.strictEqual(payload.onapi, '336973');
 assert.strictEqual(payload.registro_mercantil, '3323LV-PF');
 assert.strictEqual(payload.quantum_algorithm, 'ML-DSA-87 / Dilithium-5 (NIST FIPS 204)');
-assert.strictEqual(payload.status, 'PAYMENT_PENDING_CONFIRMATION');
+assert.strictEqual(payload.audit_tabs_acceptance.tab_1_alcance_cero_telemetria, true);
+assert.strictEqual(payload.audit_tabs_acceptance.tab_7_validacion_legal_dominicana.onapi_marca_336973, true);
+assert.strictEqual(payload.user_acceptance.privacy_policy, true);
 console.log('  ✓ Cryptographic JSON payload parsed and strictly validated.');
 
 // 5. URL Encoding and Roundtrip
@@ -259,7 +263,7 @@ assert.strictEqual(lastTargetOpened, '_blank');
     downloadTriggered = null;
     sandboxWindow.triggerCheckoutCapture();
     assert(downloadTriggered !== null, 'Canvas download should be triggered');
-    assert.strictEqual(downloadTriggered.filename, `Comprobante-Checkout-${testSession.voucherId}.png`);
+    assert.strictEqual(downloadTriggered.filename, `Comprobante-Aceptacion-Terminos-${testSession.voucherId}.png`);
     assert(mockCanvasCtx.renderedTexts.some(t => t.text.includes(testSession.voucherId)), 'Voucher ID rendered on canvas');
     assert(mockCanvasCtx.renderedTexts.some(t => t.text.includes('US$ 60.27')), 'Price rendered on canvas');
     assert(mockCanvasCtx.renderedTexts.some(t => t.text.includes('DIKTATCART')), 'Issuer rendered on canvas');

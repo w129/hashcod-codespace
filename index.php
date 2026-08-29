@@ -20744,70 +20744,80 @@ if (!headers_sent()) {
             document.getElementById('authTabRegister')?.addEventListener('click', () => switchTab('register'));
             document.getElementById('authTabRecover')?.addEventListener('click', () => switchTab('recover'));
 
-            /* ===== CLOUDFLARE TURNSTILE EXPLICIT RENDER CONTROLLER ===== */
+            /* ===== CLOUDFLARE TURNSTILE UNIFIED CONTROLLER ===== */
             const CF_TURNSTILE_SITE_KEY = '0x4AAAAAAEfpecWchE9q2-cs';
-            const renderedTurnstileWidgets = {};
+            window.renderedTurnstileWidgets = window.renderedTurnstileWidgets || {};
 
             window.renderTurnstileWidgets = function () {
                 if (!window.turnstile || typeof window.turnstile.render !== 'function') {
-                    // Si Turnstile aún no terminó de cargar, reintentar en 300ms
-                    setTimeout(window.renderTurnstileWidgets, 300);
+                    setTimeout(window.renderTurnstileWidgets, 250);
                     return;
                 }
-                ['cfTurnstileLogin', 'cfTurnstileRegister', 'cfTurnstileRecover'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el && !renderedTurnstileWidgets[id]) {
+                const configs = [
+                    { id: 'cfTurnstileLogin', key: 'login', cb: window.onTurnstileSuccessLogin, exp: window.onTurnstileExpireLogin },
+                    { id: 'cfTurnstileRegister', key: 'register', cb: window.onTurnstileSuccessRegister, exp: window.onTurnstileExpireRegister },
+                    { id: 'cfTurnstileRecover', key: 'recover', cb: window.onTurnstileSuccessRecover, exp: window.onTurnstileExpireRecover }
+                ];
+                configs.forEach(c => {
+                    const el = document.getElementById(c.id);
+                    if (el && (!window.renderedTurnstileWidgets[c.id] || !el.hasChildNodes())) {
                         try {
                             el.innerHTML = '';
-                            const wId = window.turnstile.render('#' + id, {
+                            const wId = window.turnstile.render('#' + c.id, {
                                 sitekey: CF_TURNSTILE_SITE_KEY,
                                 theme: 'light',
-                                size: 'flexible'
+                                size: 'flexible',
+                                callback: function (token) {
+                                    if (window.turnstileTokens) {
+                                        window.turnstileTokens[c.key] = token;
+                                        window.turnstileTokens.latest = token;
+                                    }
+                                    if (typeof c.cb === 'function') c.cb(token);
+                                },
+                                'expired-callback': function () {
+                                    if (window.turnstileTokens) window.turnstileTokens[c.key] = '';
+                                    if (typeof c.exp === 'function') c.exp();
+                                },
+                                'error-callback': function () {
+                                    if (window.turnstileTokens) window.turnstileTokens[c.key] = '';
+                                }
                             });
-                            renderedTurnstileWidgets[id] = wId || '1';
+                            window.renderedTurnstileWidgets[c.id] = wId || '1';
                         } catch (e) {
-                            console.warn('Turnstile render warning:', e);
+                            console.warn('Turnstile render error:', e);
                         }
                     }
                 });
             };
 
-            window.onloadTurnstileCallback = function () {
-                window.turnstileReady = true;
-                window.renderTurnstileWidgets();
-            };
-
             function getTurnstileToken(mode) {
                 try {
-                    if (mode === 'login' || mode === 'cfTurnstileLogin') {
-                        if (window.turnstileTokens && window.turnstileTokens.login) return window.turnstileTokens.login;
-                        const c = document.getElementById('cfTurnstileLogin');
-                        const inp = c ? c.querySelector('[name="cf-turnstile-response"]') : null;
-                        if (inp && inp.value) return inp.value;
+                    let key = 'login';
+                    let elId = 'cfTurnstileLogin';
+                    if (mode === 'register' || mode === 'cfTurnstileRegister') { key = 'register'; elId = 'cfTurnstileRegister'; }
+                    else if (mode === 'recover' || mode === 'cfTurnstileRecover') { key = 'recover'; elId = 'cfTurnstileRecover'; }
+
+                    // 1) De window.turnstileTokens verificado por callback
+                    if (window.turnstileTokens && window.turnstileTokens[key]) {
+                        return window.turnstileTokens[key];
                     }
-                    if (mode === 'register' || mode === 'cfTurnstileRegister') {
-                        if (window.turnstileTokens && window.turnstileTokens.register) return window.turnstileTokens.register;
-                        const c = document.getElementById('cfTurnstileRegister');
-                        const inp = c ? c.querySelector('[name="cf-turnstile-response"]') : null;
-                        if (inp && inp.value) return inp.value;
-                    }
-                    if (mode === 'recover' || mode === 'cfTurnstileRecover') {
-                        if (window.turnstileTokens && window.turnstileTokens.recover) return window.turnstileTokens.recover;
-                        const c = document.getElementById('cfTurnstileRecover');
-                        const inp = c ? c.querySelector('[name="cf-turnstile-response"]') : null;
-                        if (inp && inp.value) return inp.value;
-                    }
-                    if (window.turnstileTokens && window.turnstileTokens.latest) {
-                        return window.turnstileTokens.latest;
-                    }
+                    
+                    // 2) De widget renderizado activo
+                    const wId = window.renderedTurnstileWidgets ? window.renderedTurnstileWidgets[elId] : null;
                     if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
-                        const t = window.turnstile.getResponse();
-                        if (t) return t;
+                        if (wId && wId !== '1') {
+                            const res = window.turnstile.getResponse(wId);
+                            if (res) return res;
+                        }
+                        const resGen = window.turnstile.getResponse();
+                        if (resGen) return resGen;
                     }
-                    const all = document.querySelectorAll('[name="cf-turnstile-response"]');
-                    for (let i = 0; i < all.length; i++) {
-                        if (all[i].value) return all[i].value;
-                    }
+
+                    // 3) De input oculto del contenedor
+                    const c = document.getElementById(elId);
+                    const inp = c ? c.querySelector('[name="cf-turnstile-response"]') : null;
+                    if (inp && inp.value) return inp.value;
+
                     return '';
                 } catch (e) {
                     return '';
@@ -20847,7 +20857,7 @@ if (!headers_sent()) {
                 }
                 const cfToken = getTurnstileToken('cfTurnstileLogin');
                 if (!cfToken) {
-                    setMsg('Por favor, marca la casilla de Cloudflare antes de entrar.');
+                    setMsg('⏳ Cloudflare se está verificando o la casilla no está marcada. Espera la marca verde y presiona entrar.');
                     return;
                 }
                 // Consumir token en cliente para evitar reenviarlo si falla

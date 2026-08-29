@@ -9579,108 +9579,124 @@ if (!headers_sent()) {
         /* AUTH CHECKOUT CARD & WHATSAPP VOUCHER (DARK TERMINAL & VECTOR AESTHETIC) */
         .auth-checkout-box {
             margin-top: 14px;
-            padding: 14px 16px;
-            background: radial-gradient(120% 100% at 50% 0%, #0d1527 0%, #060b14 100%);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            border-radius: 10px;
+            padding: 16px 18px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-top: 3px solid #0f172a;
+            border-radius: 12px;
             text-align: left;
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.08);
-            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .auth-checkout-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #10b981, #38bdf8, #6366f1);
         }
 
         .auth-checkout-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .auth-checkout-badge {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 700;
-            color: #38bdf8;
+            color: #0f172a;
             letter-spacing: -0.01em;
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            gap: 7px;
+            font-family: 'IBM Plex Mono', monospace;
             text-transform: uppercase;
         }
 
         .auth-checkout-badge-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 8px #10b981;
+            background: #16a34a;
+            box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
             display: inline-block;
         }
 
         .auth-checkout-price {
             font-size: 12px;
-            color: #94a3b8;
-            font-family: 'Geist Mono', monospace;
+            color: #15803d;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 6px;
+            padding: 3px 9px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 700;
         }
 
         .auth-checkout-price strong {
-            color: #34d399;
+            color: #15803d;
             font-weight: 800;
-            font-size: 14px;
-            text-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+            font-size: 13.5px;
         }
 
         .auth-voucher-terminal-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(4, 8, 16, 0.9);
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            border-radius: 6px;
-            padding: 6px 10px;
-            margin-bottom: 10px;
-            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
-            font-size: 10.5px;
-            color: #cbd5e1;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 7px 12px;
+            margin-bottom: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #475569;
         }
 
         .auth-voucher-id-pill {
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            color: #38bdf8;
-            padding: 2px 6px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            padding: 2px 7px;
             border-radius: 4px;
             font-weight: 700;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.03em;
+        }
+
+                .auth-checkout-features {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .auth-checkout-feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 11.5px;
+            color: #334155;
+            line-height: 1.45;
+        }
+
+        .auth-checkout-feature-item .auth-feature-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
         .auth-checkout-text {
-            font-size: 11.5px;
-            color: #cbd5e1;
-            line-height: 1.5;
-            margin: 0 0 12px 0;
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.6;
+            margin: 0 0 14px 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .auth-checkout-text strong {
-            color: #ffffff;
+            color: #0f172a;
             font-weight: 700;
         }
 
         .auth-whatsapp-link {
-            color: #4ade80;
+            color: #16a34a;
             font-weight: 700;
             text-decoration: underline;
             text-underline-offset: 2px;
@@ -9688,15 +9704,14 @@ if (!headers_sent()) {
         }
 
         .auth-whatsapp-link:hover {
-            color: #86efac;
-            text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+            color: #15803d;
         }
 
         .auth-checkout-actions {
             display: grid;
-            grid-template-columns: 1.2fr 1fr 1fr;
+            grid-template-columns: 1.3fr 1fr 1fr;
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         @media (max-width: 580px) {
@@ -9712,80 +9727,89 @@ if (!headers_sent()) {
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 9px 10px;
-            font-size: 11px;
-            font-weight: 700;
-            border-radius: 6px;
+            padding: 9px 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
-            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            font-family: 'IBM Plex Mono', monospace;
             user-select: none;
         }
 
         .auth-btn-whatsapp {
-            background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+            background: #16a34a;
             color: #ffffff;
-            border-color: #10b981;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            border: 1px solid #15803d;
+            box-shadow: 0 1px 3px rgba(22, 163, 74, 0.25);
+            font-weight: 700;
         }
 
         .auth-btn-whatsapp:hover {
-            background: linear-gradient(135deg, #047857 0%, #059669 100%);
-            border-color: #34d399;
+            background: #15803d;
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
             color: #ffffff;
         }
 
         .auth-btn-capture {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #f8fafc;
-            border-color: #38bdf8;
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
         }
 
         .auth-btn-capture:hover {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            border-color: #7dd3fc;
+            background: #f8fafc;
+            border-color: #94a3b8;
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.3);
-            color: #ffffff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            color: #0f172a;
         }
 
         .auth-btn-copy-msg {
-            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-            color: #e2e8f0;
-            border-color: #64748b;
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
         }
 
         .auth-btn-copy-msg:hover {
-            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            background: #f8fafc;
             border-color: #94a3b8;
-            color: #ffffff;
+            color: #0f172a;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
         }
 
         .auth-checkout-checkbox-label {
             display: flex;
             align-items: flex-start;
-            gap: 8px;
-            font-size: 11px;
-            color: #cbd5e1;
-            line-height: 1.4;
+            gap: 10px;
+            font-size: 11.5px;
+            color: #1e293b;
+            line-height: 1.45;
             cursor: pointer;
-            padding-top: 10px;
-            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            padding: 10px 12px;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .auth-checkout-checkbox-label:hover {
+            border-color: #94a3b8;
+            background: #fafafa;
         }
 
         .auth-checkout-checkbox-label input[type="checkbox"] {
             margin-top: 2px;
             cursor: pointer;
-            accent-color: #10b981;
-            width: 14px;
-            height: 14px;
+            accent-color: #16a34a;
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
         }
 
         .auth-checkout-checkbox-label strong {
@@ -9984,23 +10008,34 @@ if (!headers_sent()) {
 
                     <div class="auth-voucher-terminal-bar">
                         <span>Ref: <span class="auth-voucher-id-pill" id="authVoucherIdDisplay">HASHCOD-L8-PQC</span></span>
-                        <span style="color:#64748b; font-size:10px;">NIST ML-DSA-87 / Dilithium-5</span>
+                        <span style="color:#64748b; font-size:10.5px;">NIST ML-DSA-87 / Dilithium-5</span>
                     </div>
 
-                    <p class="auth-checkout-text">
-                        Este codespace certifica plataformas de IA como tambien les ofrece un alojamiento post-cuantico, la puedes utilizar para usar sus herramientas que ya estan como tambien alojar las tuyas, <strong>al registrarse...usted confirma que acepta la Política de Privacidad, Modelo de Certificación Determinista y Términos de Suscripción (US$ 60.27 / mes)</strong>...el pago se coordina directamente por transferencia bancaria contactandonos al <strong>Whatsapp: <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" id="authInlineWhatsappLink" class="auth-whatsapp-link">829-472-1257</a></strong> .... donde luego un asistente tras validar la transacción le otorgará la correspondiente clave Dilithium-5 para completar el registro.
-                    </p>
+                    <div class="auth-checkout-features">
+                        <div class="auth-checkout-feature-item">
+                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <span><strong>Certificación Determinista de IA:</strong> Certifica plataformas de IA y ofrece alojamiento seguro con criptografía post-cuántica.</span>
+                        </div>
+                        <div class="auth-checkout-feature-item">
+                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <span><strong>Aceptación de Términos:</strong> Al registrarte confirmas que aceptas la Política de Privacidad y la suscripción mensual de <strong>US$ 60.27 / mes</strong>.</span>
+                        </div>
+                        <div class="auth-checkout-feature-item">
+                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <span><strong>Coordinación por WhatsApp:</strong> El pago se coordina vía transferencia bancaria al <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" id="authInlineWhatsappLink" class="auth-whatsapp-link">829-472-1257</a> para recibir tu clave <strong>Dilithium-5</strong>.</span>
+                        </div>
+                    </div>
                     
                     <div class="auth-checkout-actions">
-                        <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp" id="authWhatsappBtn" title="Abrir WhatsApp con confirmación formal de términos y payload JSON">
+                        <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp" id="authWhatsappBtn" title="Abrir WhatsApp con confirmación formal de términos">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.879.814 2.795.815 3.179 0 5.767-2.587 5.768-5.766.001-3.18-2.585-5.767-5.767-5.801zm3.376 8.163c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.025-.48-1.583-.657-2.589-2.28-2.667-2.384-.078-.104-.633-.842-.633-1.608 0-.765.401-1.141.543-1.295.144-.155.312-.194.417-.194.104 0 .208.001.299.006.096.004.224-.036.35.267.13.312.443 1.077.482 1.156.039.078.065.169.013.273-.052.104-.078.169-.156.26-.078.091-.163.203-.234.273-.078.078-.16.163-.069.318.091.156.403.666.865 1.077.595.53 1.097.694 1.253.772.156.078.247.065.338-.039.091-.104.39-.455.494-.611.104-.156.208-.13.351-.078.143.052.91.429 1.066.507.156.078.26.117.299.182.039.065.039.377-.105.782z"/></svg>
                             <span>WhatsApp: 829-472-1257</span>
                         </a>
-                        <button type="button" class="auth-btn-capture" id="authCaptureCheckoutBtn" onclick="triggerCheckoutCapture()" title="Descargar comprobante de aceptación de términos y solicitud de pago PNG">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        <button type="button" class="auth-btn-capture" id="authCaptureCheckoutBtn" onclick="triggerCheckoutCapture()" title="Descargar comprobante de aceptación de términos PNG">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                             <span>Capturar PNG</span>
                         </button>
-                        <button type="button" class="auth-btn-copy-msg" id="authCopyWhatsappBtn" onclick="copyWhatsAppMessage()" title="Copiar el payload JSON y confirmación formateada de WhatsApp">
+                        <button type="button" class="auth-btn-copy-msg" id="authCopyWhatsappBtn" onclick="copyWhatsAppMessage()" title="Copiar el payload JSON">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             <span>Copiar Payload</span>
                         </button>

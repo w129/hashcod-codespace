@@ -26,6 +26,14 @@ function authUsersPath() {
     return authStorageDir() . '/users.json';
 }
 
+function authCleanKey($key) {
+    if ($key === null || $key === false) return '';
+    $key = trim((string)$key);
+    // Remover espacios no rompibles (nbsp), espacios de ancho cero y comillas comunes de teclados móviles
+    $key = preg_replace('/^[\s\x{00a0}\x{200b}\"\']+|[\s\x{00a0}\x{200b}\"\']+$/u', '', $key);
+    return trim($key);
+}
+
 function authMasterPepper() {
     $masterSig = defined('DILITHIUM5_ADMIN_SIGNATURE_EXACT') ? DILITHIUM5_ADMIN_SIGNATURE_EXACT : '';
     if ($masterSig === '') {

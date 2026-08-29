@@ -20870,7 +20870,15 @@ if (!headers_sent()) {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ aes256: aes, identity: identity, cf_turnstile_response: cfToken })
                     });
-                    const data = await res.json();
+                    let data = null;
+                    try {
+                        data = await res.json();
+                    } catch (jsonErr) {
+                        const rawText = await res.text();
+                        resetTurnstile('cfTurnstileLogin');
+                        setMsg('Error del servidor (' + res.status + '): ' + (rawText || 'Respuesta inválida.'));
+                        return;
+                    }
                     if (!data || !data.ok) {
                         resetTurnstile('cfTurnstileLogin');
                         setMsg((data && data.error) || 'Acceso denegado.');
@@ -20881,7 +20889,7 @@ if (!headers_sent()) {
                     unlockPlatform();
                 } catch (e) {
                     resetTurnstile('cfTurnstileLogin');
-                    setMsg('Error de red al iniciar sesión.');
+                    setMsg('Error de red o conexión al iniciar sesión.');
                 } finally {
                     if (btn) btn.disabled = false;
                 }

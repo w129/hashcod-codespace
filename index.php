@@ -9813,7 +9813,31 @@ if (!headers_sent()) {
         }
 
         .auth-checkout-checkbox-label strong {
-            color: #f8fafc;
+            color: #0f172a !important;
+            font-weight: 700;
+        }
+        
+        .auth-checkout-box,
+        .auth-checkout-box strong,
+        .auth-checkout-box span,
+        .auth-checkout-box p {
+            color: #0f172a;
+        }
+        
+        .auth-checkout-feature-item {
+            color: #334155 !important;
+        }
+        
+        .auth-checkout-feature-item strong {
+            color: #0f172a !important;
+        }
+        
+        .auth-checkout-checkbox-label {
+            color: #0f172a !important;
+        }
+        
+        .auth-checkout-checkbox-label span {
+            color: #0f172a !important;
         }
 </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>

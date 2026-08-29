@@ -8444,6 +8444,72 @@ if (!headers_sent()) {
         }
 
         /* ===== MOBILE MODE (toggle icono teléfono) ===== */
+        /* Botón de versión móvil con icono estilizado */
+        .icon-mobile, .boot-mobile-toggle {
+            background: #ffffff !important;
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            padding: 4px 6px !important;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-mobile:hover, .boot-mobile-toggle:hover {
+            transform: translateY(-1px) scale(1.03);
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+        }
+
+        .icon-mobile.active-mobile-mode, .boot-mobile-toggle.active-mobile-mode {
+            background: #f0fdf4 !important;
+            border-color: #16a34a !important;
+            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2) !important;
+        }
+
+        /* Optimizaciones generales para modo teléfono */
+        body.mobile-mode {
+            touch-action: manipulation;
+        }
+
+        body.mobile-mode .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        body.mobile-mode .auth-card {
+            width: 100% !important;
+            max-width: 95vw !important;
+            margin: 10px auto !important;
+            padding: 16px 14px !important;
+            box-sizing: border-box;
+        }
+
+        body.mobile-mode .privacy-modal-content {
+            width: 96vw !important;
+            max-height: 90vh !important;
+            border-radius: 12px !important;
+        }
+
+        body.mobile-mode .privacy-tabs-bar {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 6px;
+        }
+
+        body.mobile-mode .privacy-tab-btn {
+            font-size: 11px;
+            padding: 6px 10px;
+        }
+
         html.mobile-mode,
         body.mobile-mode {
             -webkit-text-size-adjust: 100%;
@@ -9699,21 +9765,24 @@ if (!headers_sent()) {
     <script>
         (function () {
             try {
-                if (localStorage.getItem('l8_mobile_mode') === '1') {
-                    document.body.classList.add('mobile-mode');
+                var stored = localStorage.getItem('l8_mobile_mode');
+                var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(navigator.userAgent || '') || (window.innerWidth <= 768);
+                if (stored === '1' || (stored === null && isMobile)) {
+                    document.documentElement.classList.add('mobile-mode');
+                    if (document.body) {
+                        document.body.classList.add('mobile-mode');
+                    } else {
+                        document.addEventListener('DOMContentLoaded', function () {
+                            document.body.classList.add('mobile-mode');
+                        });
+                    }
                 }
             } catch (e) {}
         })();
     </script>
     <div id="bootCliOverlay" class="boot-cli-overlay" role="dialog" aria-modal="true" aria-label="l8 codespace blackhole">
             <button type="button" class="boot-mobile-toggle" id="bootMobileModeBtn" title="Versión móvil" aria-label="Activar versión móvil" aria-pressed="false" onclick="toggleMobileMode()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" role="img" aria-hidden="true">
-                    <path fill="#111111" d="M27.957,6.628C27.813,0,22.806,0,20.92,0c-0.593,0-1.207,0.025-1.801,0.048 c-0.465,0.018-0.94,0.038-1.417,0.045l-0.163,0.004c-1.67,0.04-5.57,0.132-7.1,0.173c-0.045-0.001-0.09-0.001-0.134-0.001 c-5.201,0-5.252,5.412-5.277,8.013C5.023,8.686,5.02,9.065,5.003,9.4L5,9.449v0.049c-0.005,5.539,0.248,11.295,0.775,17.597h0 c0.021,0.239,0.125,1.117,0.558,1.781c0.664,1.098,1.962,1.788,3.761,1.999l0.027,0.003l0.027,0.002 c0.904,0.081,1.809,0.12,2.766,0.12c2.234,0,4.31-0.214,6.508-0.439l1.062-0.108l0.026-0.002l0.026-0.003l2.433-0.308l0.077-0.01 l0.076-0.016c0.029-0.004,0.073-0.008,0.121-0.013c0.355-0.036,0.947-0.098,1.747-0.43c1.429-0.562,2.447-2.179,2.374-3.749 l0.335-9.486c0.031-0.991,0.081-1.983,0.132-2.979C27.947,11.223,28.066,8.913,27.957,6.628z"></path>
-                    <path fill="#ffffff" d="M25.978,6.249c-0.113-5.828-4.155-4.889-8.441-4.821c-1.625,0.039-5.876,0.141-7.445,0.184 C6.049,1.492,6.672,6.538,6.536,9.149c-0.006,6.008,0.29,12.032,0.785,18.017c0.009,0.175,0.123,0.746,0.273,0.943 c0.466,0.835,1.786,1.071,2.379,1.141c3.553,0.321,6.729-0.091,10.173-0.44l2.484-0.318c0.359-0.075,0.792-0.024,1.562-0.353 c0.698-0.267,1.245-1.215,1.177-1.994l0.345-9.899C25.815,12.948,26.134,9.551,25.978,6.249z M9.654,4.691 C9.694,4.538,9.75,4.43,9.78,4.372c1.224-0.093,3.406-0.218,5.298-0.329C15.032,4.188,15,4.34,15,4.5C15,5.328,15.672,6,16.5,6 S18,5.328,18,4.5c0-0.223-0.052-0.432-0.138-0.622c1.293-0.054,3.411-0.314,4.459-0.184c1.417,0.173,1.405,1.397,1.559,2.675 c0.363,5.01-0.41,12.118-0.751,17.654L10.046,24.77c-0.209-3.568-0.343-7.182-0.47-10.731C9.529,11.026,9.271,7.613,9.654,4.691z"></path>
-                    <path fill="#ffffff" d="M19.684,14.835l0.829-1.02c0.175-0.215,0.142-0.529-0.072-0.703c-0.213-0.176-0.53-0.142-0.703,0.072l-0.827,1.018 c-0.697-0.443-1.523-0.703-2.41-0.703c-0.992,0-1.899,0.334-2.643,0.878l-0.97-1.193c-0.176-0.215-0.49-0.247-0.703-0.072 c-0.214,0.174-0.247,0.488-0.072,0.703l1.009,1.242c-0.635,0.728-1.053,1.649-1.113,2.676C12,17.877,12.121,18,12.265,18h8.471 c0.144,0,0.265-0.123,0.257-0.267C20.926,16.602,20.434,15.59,19.684,14.835z"></path>
-                    <circle cx="14.5" cy="16.5" r=".5" fill="#fff"></circle>
-                    <circle cx="18.5" cy="16.5" r=".5" fill="#fff"></circle>
-                </svg>
+                <img src="mobile-mode-icon.png" alt="Versión móvil" class="mobile-toggle-img" style="width:30px; height:30px; object-fit:contain; display:block; border-radius:6px;">
             </button>
         <div class="boot-cli-window">
             <div class="boot-cli-stage">
@@ -10265,14 +10334,7 @@ if (!headers_sent()) {
 </svg>
             </button>
             <button type="button" class="icon-mobile" id="mobileModeBtn" title="Versión móvil" aria-label="Activar versión móvil" aria-pressed="false" onclick="toggleMobileMode()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" role="img" aria-hidden="true">
-                    <path d="M28.957,7.628C28.813,1,23.806,1,21.919,1c-0.593,0-1.207,0.025-1.801,0.048 c-0.465,0.018-0.94,0.038-1.417,0.045l-0.163,0.004c-1.67,0.04-5.57,0.132-7.1,0.173c-0.045-0.001-0.09-0.001-0.134-0.001 c-5.201,0-5.252,5.412-5.277,8.013C6.023,9.686,6.02,10.065,6.003,10.4L6,10.449v0.049c-0.005,5.539,0.248,11.295,0.775,17.597h0 c0.021,0.239,0.125,1.117,0.558,1.781c0.664,1.098,1.962,1.788,3.761,1.999l0.027,0.003l0.027,0.002 c0.904,0.081,1.809,0.12,2.766,0.12c2.234,0,4.31-0.214,6.508-0.439l1.062-0.108l0.026-0.002l0.026-0.003l2.433-0.308l0.077-0.01 l0.076-0.016c0.029-0.004,0.073-0.008,0.121-0.013c0.355-0.036,0.947-0.098,1.747-0.43c1.429-0.562,2.447-2.179,2.374-3.749 l0.335-9.486c0.031-0.991,0.081-1.983,0.132-2.979C28.947,12.223,29.065,9.913,28.957,7.628z" opacity=".3"></path>
-                    <path fill="#fff" d="M27.957,6.628C27.813,0,22.806,0,20.92,0c-0.593,0-1.207,0.025-1.801,0.048 c-0.465,0.018-0.94,0.038-1.417,0.045l-0.163,0.004c-1.67,0.04-5.57,0.132-7.1,0.173c-0.045-0.001-0.09-0.001-0.134-0.001 c-5.201,0-5.252,5.412-5.277,8.013C5.023,8.686,5.02,9.065,5.003,9.4L5,9.449v0.049c-0.005,5.539,0.248,11.295,0.775,17.597h0 c0.021,0.239,0.125,1.117,0.558,1.781c0.664,1.098,1.962,1.788,3.761,1.999l0.027,0.003l0.027,0.002 c0.904,0.081,1.809,0.12,2.766,0.12c2.234,0,4.31-0.214,6.508-0.439l1.062-0.108l0.026-0.002l0.026-0.003l2.433-0.308l0.077-0.01 l0.076-0.016c0.029-0.004,0.073-0.008,0.121-0.013c0.355-0.036,0.947-0.098,1.747-0.43c1.429-0.562,2.447-2.179,2.374-3.749 l0.335-9.486c0.031-0.991,0.081-1.983,0.132-2.979C27.947,11.223,28.066,8.913,27.957,6.628z"></path>
-                    <path fill="currentColor" d="M25.978,6.249c-0.113-5.828-4.155-4.889-8.441-4.821c-1.625,0.039-5.876,0.141-7.445,0.184 C6.049,1.492,6.672,6.538,6.536,9.149c-0.006,6.008,0.29,12.032,0.785,18.017c0.009,0.175,0.123,0.746,0.273,0.943 c0.466,0.835,1.786,1.071,2.379,1.141c3.553,0.321,6.729-0.091,10.173-0.44l2.484-0.318c0.359-0.075,0.792-0.024,1.562-0.353 c0.698-0.267,1.245-1.215,1.177-1.994l0.345-9.899C25.815,12.948,26.134,9.551,25.978,6.249z M9.654,4.691 C9.694,4.538,9.75,4.43,9.78,4.372c1.224-0.093,3.406-0.218,5.298-0.329C15.032,4.188,15,4.34,15,4.5C15,5.328,15.672,6,16.5,6 S18,5.328,18,4.5c0-0.223-0.052-0.432-0.138-0.622c1.293-0.054,3.411-0.314,4.459-0.184c1.417,0.173,1.405,1.397,1.559,2.675 c0.363,5.01-0.41,12.118-0.751,17.654L10.046,24.77c-0.209-3.568-0.343-7.182-0.47-10.731C9.529,11.026,9.271,7.613,9.654,4.691z"></path>
-                    <path fill="currentColor" d="M19.684,14.835l0.829-1.02c0.175-0.215,0.142-0.529-0.072-0.703c-0.213-0.176-0.53-0.142-0.703,0.072l-0.827,1.018 c-0.697-0.443-1.523-0.703-2.41-0.703c-0.992,0-1.899,0.334-2.643,0.878l-0.97-1.193c-0.176-0.215-0.49-0.247-0.703-0.072 c-0.214,0.174-0.247,0.488-0.072,0.703l1.009,1.242c-0.635,0.728-1.053,1.649-1.113,2.676C12,17.877,12.121,18,12.265,18h8.471 c0.144,0,0.265-0.123,0.257-0.267C20.926,16.602,20.434,15.59,19.684,14.835z"></path>
-                    <circle cx="14.5" cy="16.5" r=".5" fill="#fff"></circle>
-                    <circle cx="18.5" cy="16.5" r=".5" fill="#fff"></circle>
-                </svg>
+                <img src="mobile-mode-icon.png" alt="Versión móvil" class="mobile-toggle-img" style="width:24px; height:24px; object-fit:contain; display:block; border-radius:4px;">
             </button>
         </div>
     </div>
@@ -13199,25 +13261,43 @@ if (!headers_sent()) {
 
         const MOBILE_MODE_KEY = 'l8_mobile_mode';
 
+        function isPhoneDevice() {
+            try {
+                const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+                const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua);
+                const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                const isNarrow = window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches;
+                return isMobileUA || (isTouch && isNarrow);
+            } catch (e) {
+                return window.innerWidth <= 768;
+            }
+        }
+
         function isMobileModeEnabled() {
-            return document.body.classList.contains('mobile-mode');
+            return document.body.classList.contains('mobile-mode') || document.documentElement.classList.contains('mobile-mode');
         }
 
         function syncMobileModeButton(on) {
             const active = !!on;
-            const title = active ? 'Salir de versión móvil' : 'Versión móvil';
+            const title = active ? '📱 Versión móvil activa (clic para versión PC)' : '📱 Activar versión móvil';
             const label = active ? 'Desactivar versión móvil' : 'Activar versión móvil';
-            ['mobileModeBtn', 'bootMobileModeBtn'].forEach((id) => {
+            ['mobileModeBtn', 'bootMobileModeBtn', 'floatingMobileToggleBtn'].forEach((id) => {
                 const btn = document.getElementById(id);
                 if (!btn) return;
                 btn.setAttribute('aria-pressed', active ? 'true' : 'false');
                 btn.title = title;
                 btn.setAttribute('aria-label', label);
+                if (active) {
+                    btn.classList.add('active-mobile-mode');
+                } else {
+                    btn.classList.remove('active-mobile-mode');
+                }
             });
         }
 
         function setMobileMode(on, persist) {
             const active = !!on;
+            document.documentElement.classList.toggle('mobile-mode', active);
             document.body.classList.toggle('mobile-mode', active);
             syncMobileModeButton(active);
             if (persist !== false) {
@@ -13228,6 +13308,11 @@ if (!headers_sent()) {
             try {
                 window.dispatchEvent(new CustomEvent('l8:mobile-mode', { detail: { on: active } }));
             } catch (e) {}
+            
+            // Notificación visual agradable
+            if (persist === true && typeof window.showAdminToast === 'function') {
+                window.showAdminToast(active ? '📱 Modo teléfono activado' : '🖥️ Modo escritorio activado');
+            }
         }
 
         function toggleMobileMode(force) {
@@ -13238,9 +13323,19 @@ if (!headers_sent()) {
         function initMobileMode() {
             let stored = null;
             try { stored = localStorage.getItem(MOBILE_MODE_KEY); } catch (e) {}
-            const on = stored === '1' || (stored === null && document.body.classList.contains('mobile-mode'));
-            setMobileMode(on, stored === null ? false : true);
+            // Si no hay configuración previa guardada, auto-activar automáticamente en teléfonos
+            const on = stored === '1' || (stored === null && isPhoneDevice());
+            setMobileMode(on, stored !== null);
         }
+
+        // Auto-adaptación en cambios de tamaño u orientación
+        window.addEventListener('resize', function () {
+            let stored = null;
+            try { stored = localStorage.getItem(MOBILE_MODE_KEY); } catch (e) {}
+            if (stored === null) {
+                setMobileMode(isPhoneDevice(), false);
+            }
+        });
 
         function toggleFormat() {
             render();

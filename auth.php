@@ -837,28 +837,70 @@ function authRecover($recoveryMaterial) {
 function authLogin($aes256, $identity) {
     $aes256 = authCleanKey($aes256);
     $identity = authCleanKey($identity);
-    if ($aes256 === '' || $identity === '') {
-        return ['ok' => false, 'error' => 'Debes introducir las 2 claves de acceso'];
+    
+    if ($aes256 === '' && $identity === '') {
+        return ['ok' => false, 'error' => 'Falta ingresar la Clave AES-256 y la Clave identificador (L8ID).'];
+    }
+    if ($aes256 === '') {
+        return ['ok' => false, 'error' => 'Falta la Clave AES-256 (campo 1).'];
+    }
+    if ($identity === '') {
+        return ['ok' => false, 'error' => 'Falta la Clave identificador L8ID (campo 2).'];
     }
     if (authTimingSafeEqual($aes256, $identity)) {
-        return ['ok' => false, 'error' => 'Las dos claves deben ser distintas'];
+        return ['ok' => false, 'error' => 'Ambas casillas contienen la misma clave. Debes ingresar tu Clave AES-256 en la primera y tu L8ID en la segunda.'];
+    }
+
+    // Detectar si el usuario intercambió los campos por error (L8ID en campo 1 y AES en campo 2)
+    if (stripos($aes256, 'L8ID-') === 0 && stripos($identity, 'L8ID-') !== 0) {
+        return ['ok' => false, 'error' => 'Campos invertidos: Tu clave identificador (L8ID-...) debe ir en el segundo campo, y la clave AES-256 en el primero.'];
     }
 
     // Identidades desde Supabase (sobrevive redeploy de Render)
     $store = authLoadStore(true);
+    $totalUsers = count($store['users'] ?? []);
+
+    if ($totalUsers === 0) {
+        return [
+            'ok' => false,
+            'error' => 'No hay cuentas registradas en la base de datos (0 cuentas). Si aún no has creado tu cuenta permanente, ve a la pestaña "Registrarse" primero.'
+        ];
+    }
+
     $aesHash = authHashKey($aes256);
     $idHash = authHashKey($identity);
 
     $userFromAes = $store['key_hashes'][$aesHash] ?? null;
     $userFromId = $store['key_hashes'][$idHash] ?? null;
 
-    if (!$userFromAes || !$userFromId || $userFromAes !== $userFromId) {
-        return ['ok' => false, 'error' => 'Claves incorrectas. Acceso denegado.'];
+    if (!$userFromAes && !$userFromId) {
+        return [
+            'ok' => false,
+            'error' => 'Ninguna de las dos claves coincide con las cuentas registradas (Cuentas activas: ' . $totalUsers . '). Si creaste tu cuenta antes del último reinicio permanente, regístrate nuevamente en "Registrarse".'
+        ];
+    }
+    if (!$userFromAes) {
+        return [
+            'ok' => false,
+            'error' => 'La clave AES-256 no coincide con ninguna cuenta. Verifica que hayas copiado los 64 caracteres completos.'
+        ];
+    }
+    if (!$userFromId) {
+        return [
+            'ok' => false,
+            'error' => 'La clave identificador (L8ID) no coincide con ninguna cuenta. Verifica que empiece por "L8ID-" y esté completa.'
+        ];
+    }
+    if ($userFromAes !== $userFromId) {
+        return [
+            'ok' => false,
+            'error' => 'Conflicto de claves: La clave AES-256 pertenece a una cuenta distinta que la clave L8ID ingresada. Debes usar las 2 claves del mismo kit.'
+        ];
     }
 
     $user = $store['users'][$userFromAes] ?? null;
     if (!is_array($user)) {
-        return ['ok' => false, 'error' => 'Cuenta no encontrada'];
+        return ['ok' => false, 'error' => 'Cuenta registrada pero no localizada en el almacén de usuarios.'];
     }
 
     // Verificar que cada hash corresponde al campo correcto
@@ -866,7 +908,7 @@ function authLogin($aes256, $identity) {
         !authTimingSafeEqual($user['aes256_hash'] ?? '', $aesHash) ||
         !authTimingSafeEqual($user['identity_hash'] ?? '', $idHash)
     ) {
-        return ['ok' => false, 'error' => 'Claves incorrectas. Acceso denegado.'];
+        return ['ok' => false, 'error' => 'Las claves no coinciden con la firma de seguridad de la cuenta.'];
     }
 
     $token = authCreateSession($store, $user['id']);
@@ -1010,8 +1052,18 @@ function authHandleApi($uri) {
             $cfRes = cfTurnstileVerify($cfToken);
             if (empty($cfRes['ok'])) {
                 http_response_code(403);
-                $errDetail = !empty($cfRes['error_codes']) ? (' (' . implode(', ', $cfRes['error_codes']) . ')') : '';
-                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare no superada' . $errDetail . '. Por favor, vuelve a marcar la casilla de Cloudflare.'], JSON_UNESCAPED_UNICODE);
+                $errCodes = $cfRes['error_codes'] ?? [];
+                $errExplanation = 'Verificación de seguridad Cloudflare no superada.';
+                if (in_array('timeout-or-duplicate', $errCodes, true)) {
+                    $errExplanation = 'El token de Cloudflare expiró (más de 5 min) o ya fue utilizado en una petición anterior. La casilla se ha reiniciado; márcala de nuevo.';
+                } elseif (in_array('invalid-input-response', $errCodes, true)) {
+                    $errExplanation = 'El token de verificación de Cloudflare no es válido. Por favor, marca la casilla nuevamente.';
+                } elseif (in_array('missing-input-response', $errCodes, true)) {
+                    $errExplanation = 'Falta completar el desafío de Cloudflare. Por favor, marca la casilla.';
+                } elseif (!empty($errCodes)) {
+                    $errExplanation = 'Cloudflare rechazó la verificación (código: ' . implode(', ', $errCodes) . '). Por favor, vuelve a marcar la casilla.';
+                }
+                echo json_encode(['ok' => false, 'error' => $errExplanation, 'cf_errors' => $errCodes], JSON_UNESCAPED_UNICODE);
                 return true;
             }
         }
@@ -1051,8 +1103,18 @@ function authHandleApi($uri) {
             $cfRes = cfTurnstileVerify($cfToken);
             if (empty($cfRes['ok'])) {
                 http_response_code(403);
-                $errDetail = !empty($cfRes['error_codes']) ? (' (' . implode(', ', $cfRes['error_codes']) . ')') : '';
-                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare no superada' . $errDetail . '. Por favor, vuelve a marcar la casilla de Cloudflare.'], JSON_UNESCAPED_UNICODE);
+                $errCodes = $cfRes['error_codes'] ?? [];
+                $errExplanation = 'Verificación de seguridad Cloudflare no superada.';
+                if (in_array('timeout-or-duplicate', $errCodes, true)) {
+                    $errExplanation = 'El token de Cloudflare expiró (más de 5 min) o ya fue utilizado en una petición anterior. La casilla se ha reiniciado; márcala de nuevo.';
+                } elseif (in_array('invalid-input-response', $errCodes, true)) {
+                    $errExplanation = 'El token de verificación de Cloudflare no es válido. Por favor, marca la casilla nuevamente.';
+                } elseif (in_array('missing-input-response', $errCodes, true)) {
+                    $errExplanation = 'Falta completar el desafío de Cloudflare. Por favor, marca la casilla.';
+                } elseif (!empty($errCodes)) {
+                    $errExplanation = 'Cloudflare rechazó la verificación (código: ' . implode(', ', $errCodes) . '). Por favor, vuelve a marcar la casilla.';
+                }
+                echo json_encode(['ok' => false, 'error' => $errExplanation, 'cf_errors' => $errCodes], JSON_UNESCAPED_UNICODE);
                 return true;
             }
         }

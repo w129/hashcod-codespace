@@ -7737,15 +7737,28 @@ if (!headers_sent()) {
 
         .auth-msg {
             min-height: 18px;
-            margin: 10px 0 0;
-            font-size: 11px;
-            color: #a10;
-            line-height: 1.4;
-            white-space: pre-wrap;
-            word-break: break-all;
+            margin: 12px 0 6px;
+            font-size: 12px;
+            color: #b91c1c;
+            line-height: 1.5;
+            white-space: normal;
+            word-break: break-word;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
-        .auth-msg.ok { color: #137333; }
+        .auth-msg:not(:empty) {
+            padding: 10px 12px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+        }
+
+        .auth-msg.ok {
+            color: #15803d;
+            background: #f0fdf4 !important;
+            border-color: #bbf7d0 !important;
+        }
 
         .auth-keys-box {
             display: none;

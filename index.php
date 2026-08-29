@@ -10147,18 +10147,36 @@ if (!headers_sent()) {
                             </div>
                         </div>
 
-                        <!-- 4. Cámara de Comercio Registro Mercantil -->
-                        <div class="privacy-evidence-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:14px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                            <div style="font-size:12px; font-weight:700; color:#0f172a; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                                <span style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:4px; font-size:10px;">CÁMARA DE COMERCIO</span>
-                                Certificado de Registro Mercantil
+                        <!-- 4. Cámara de Comercio Registro Mercantil (3 Páginas Completas) -->
+                        <div class="privacy-evidence-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:14px; box-shadow:0 1px 3px rgba(0,0,0,0.05); grid-column: 1 / -1;">
+                            <div style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="background:#fef3c7; color:#b45309; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">CÁMARA DE COMERCIO</span>
+                                    <span>Certificado de Registro Mercantil (No. 3323LV-PF · DIKTATCART)</span>
+                                </div>
+                                <span style="font-size:11px; color:#64748b;">Validez Legal Ley 126-02 · 3 Páginas Oficiales</span>
                             </div>
-                            <img src="gob-camara-comercio-registro-mercantil.png" alt="Certificado Registro Mercantil Cámara de Comercio" class="privacy-evidence-img" onclick="window.open('gob-camara-comercio-registro-mercantil.png', '_blank')" title="Clic para ampliar documento" style="width:100%; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer;">
-                            <div style="margin-top:8px; font-size:11.5px; color:#475569; line-height:1.45;">
-                                <strong>Registro Mercantil No.: 3323LV-PF</strong><br>
-                                <strong>Validación:</strong> 87CD8008-AC9C-481B-8C8B-1D63D2246AD1<br>
-                                <strong>Titular:</strong> Emil Enmanuel Pieter Mora (Persona Física)<br>
-                                <strong>Jurisdicción:</strong> Cámara de Comercio y Producción de La Vega.
+                            
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:12px;">
+                                <div>
+                                    <div style="font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">Página 1: Titularidad & RNC</div>
+                                    <img src="gob-camara-comercio-registro-mercantil-p1.png" alt="Registro Mercantil Página 1" class="privacy-evidence-img" onclick="window.open('gob-camara-comercio-registro-mercantil-p1.png', '_blank')" title="Clic para ampliar Página 1" style="width:100%; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                                </div>
+                                <div>
+                                    <div style="font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">Página 2: Objeto, IA & Criptografía</div>
+                                    <img src="gob-camara-comercio-registro-mercantil-p2.png" alt="Registro Mercantil Página 2" class="privacy-evidence-img" onclick="window.open('gob-camara-comercio-registro-mercantil-p2.png', '_blank')" title="Clic para ampliar Página 2" style="width:100%; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                                </div>
+                                <div>
+                                    <div style="font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">Página 3: Firma Digital & Registrador</div>
+                                    <img src="gob-camara-comercio-registro-mercantil-p3.png" alt="Registro Mercantil Página 3" class="privacy-evidence-img" onclick="window.open('gob-camara-comercio-registro-mercantil-p3.png', '_blank')" title="Clic para ampliar Página 3" style="width:100%; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                                </div>
+                            </div>
+
+                            <div style="font-size:11.5px; color:#475569; line-height:1.5; background:#f8fafc; padding:10px 12px; border-radius:6px; border:1px solid #e2e8f0;">
+                                <strong>Nombre Comercial / Establecimiento:</strong> DIKTATCART (Reg. No. 925063)<br>
+                                <strong>Titular:</strong> Emil Enmanuel Pieter Mora · <strong>RNC:</strong> 402-0936929-3 · <strong>WhatsApp Oficial:</strong> (829) 472-1257<br>
+                                <strong>Actividad Registrada:</strong> Diseño y desarrollo de software, soluciones digitales, Inteligencia Artificial, automatización y herramientas criptográficas.<br>
+                                <strong>Validación Oficial:</strong> Código <code>87CD8008-AC9C-481B-8C8B-1D63D2246AD1</code> verificable en <code>www.camaralavega.org.do</code>.
                             </div>
                         </div>
 

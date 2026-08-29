@@ -9576,133 +9576,220 @@ if (!headers_sent()) {
             border-radius: 8px;
         }
 
-        /* AUTH CHECKOUT CARD & WHATSAPP VOUCHER */
+        /* AUTH CHECKOUT CARD & WHATSAPP VOUCHER (DARK TERMINAL & VECTOR AESTHETIC) */
         .auth-checkout-box {
             margin-top: 14px;
-            padding: 12px 14px;
-            background: #f8fafc;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 6px;
+            padding: 14px 16px;
+            background: radial-gradient(120% 100% at 50% 0%, #0d1527 0%, #060b14 100%);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 10px;
             text-align: left;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.08);
             transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-checkout-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #10b981, #38bdf8, #6366f1);
         }
 
         .auth-checkout-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .auth-checkout-badge {
-            font-size: 10.5px;
+            font-size: 11px;
             font-weight: 700;
-            color: #0f172a;
+            color: #38bdf8;
             letter-spacing: -0.01em;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        .auth-checkout-badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            display: inline-block;
         }
 
         .auth-checkout-price {
             font-size: 12px;
-            color: #0f172a;
+            color: #94a3b8;
+            font-family: 'Geist Mono', monospace;
         }
 
         .auth-checkout-price strong {
-            color: #15803d;
+            color: #34d399;
+            font-weight: 800;
+            font-size: 14px;
+            text-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+        }
+
+        .auth-voucher-terminal-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(4, 8, 16, 0.9);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin-bottom: 10px;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            font-size: 10.5px;
+            color: #cbd5e1;
+        }
+
+        .auth-voucher-id-pill {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            padding: 2px 6px;
+            border-radius: 4px;
             font-weight: 700;
-            font-size: 13px;
+            letter-spacing: 0.05em;
         }
 
         .auth-checkout-text {
-            font-size: 11px;
-            color: #475569;
-            line-height: 1.45;
-            margin: 0 0 10px 0;
+            font-size: 11.5px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin: 0 0 12px 0;
         }
 
         .auth-checkout-text strong {
-            color: #0f172a;
+            color: #ffffff;
             font-weight: 700;
         }
 
         .auth-whatsapp-link {
-            color: #16a34a;
+            color: #4ade80;
             font-weight: 700;
             text-decoration: underline;
             text-underline-offset: 2px;
+            transition: color 0.15s;
         }
 
         .auth-whatsapp-link:hover {
-            color: #15803d;
+            color: #86efac;
+            text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
         }
 
         .auth-checkout-actions {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1.2fr 1fr 1fr;
             gap: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
+        @media (max-width: 580px) {
+            .auth-checkout-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .auth-btn-whatsapp,
         .auth-btn-capture,
-        .auth-btn-whatsapp {
+        .auth-btn-copy-msg {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 8px 10px;
+            padding: 9px 10px;
             font-size: 11px;
-            font-weight: 600;
-            border-radius: 5px;
+            font-weight: 700;
+            border-radius: 6px;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-
-        .auth-btn-capture {
-            background: #ffffff;
-            color: #1e293b;
-            border: 1px solid #cbd5e1;
-        }
-
-        .auth-btn-capture:hover {
-            background: #f1f5f9;
-            border-color: #94a3b8;
-            transform: translateY(-1px);
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            border: 1px solid transparent;
+            user-select: none;
         }
 
         .auth-btn-whatsapp {
-            background: #16a34a;
+            background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
             color: #ffffff;
-            border: 1px solid #15803d;
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
         }
 
         .auth-btn-whatsapp:hover {
-            background: #15803d;
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            border-color: #34d399;
             transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+            color: #ffffff;
+        }
+
+        .auth-btn-capture {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            border-color: #38bdf8;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+        }
+
+        .auth-btn-capture:hover {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-color: #7dd3fc;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.3);
+            color: #ffffff;
+        }
+
+        .auth-btn-copy-msg {
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            color: #e2e8f0;
+            border-color: #64748b;
+        }
+
+        .auth-btn-copy-msg:hover {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            border-color: #94a3b8;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .auth-checkout-checkbox-label {
             display: flex;
             align-items: flex-start;
             gap: 8px;
-            font-size: 10.5px;
-            color: #334155;
-            line-height: 1.35;
+            font-size: 11px;
+            color: #cbd5e1;
+            line-height: 1.4;
             cursor: pointer;
-            padding-top: 8px;
-            border-top: 1px dashed #e2e8f0;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
         }
 
         .auth-checkout-checkbox-label input[type="checkbox"] {
             margin-top: 2px;
             cursor: pointer;
-            accent-color: #111;
+            accent-color: #10b981;
+            width: 14px;
+            height: 14px;
+        }
+
+        .auth-checkout-checkbox-label strong {
+            color: #f8fafc;
         }
 </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
@@ -9888,27 +9975,40 @@ if (!headers_sent()) {
 
                 <div class="auth-checkout-box" id="authCheckoutBox">
                     <div class="auth-checkout-header">
-                        <span class="auth-checkout-badge">💼 Plan Codespace Pro &amp; Hosting PQC</span>
+                        <span class="auth-checkout-badge">
+                            <span class="auth-checkout-badge-dot"></span>
+                            <span>PQC VOUCHER &amp; CHECKOUT</span>
+                        </span>
                         <span class="auth-checkout-price"><strong>US$ 60.27</strong> / mes</span>
                     </div>
+
+                    <div class="auth-voucher-terminal-bar">
+                        <span>Ref: <span class="auth-voucher-id-pill" id="authVoucherIdDisplay">HASHCOD-L8-PQC</span></span>
+                        <span style="color:#64748b; font-size:10px;">NIST ML-DSA-87 / Dilithium-5</span>
+                    </div>
+
                     <p class="auth-checkout-text">
-                        Este codespace certifica plataformas de IA como tambien les ofrece un alojamiento post-cuantico, la puedes utilizar para usar sus herramientas que ya estan como tambien alojar las tuyas, <strong>al registrarse...usted comprende que el pago debe de realizarse mensual donde el costo es de US$ 60.27</strong>...los cuales debes de pagarlo por transaci&oacute;n bancaria, donde todo este proceso tienes que hacerlo contactandonos al <strong>Whatsapp: <a href="https://wa.me/18294721257?text=Hola,%20deseo%20realizar%20el%20pago%20de%20mi%20suscripci%C3%B3n%20mensual%20de%20US%24%2060.27%20para%20Hashcod%20Codespace%20y%20obtener%20mi%20clave%20Dilithium-5." target="_blank" rel="noopener noreferrer" class="auth-whatsapp-link">829-472-1257</a></strong> .... donde luego un asistente despues de realizar el pago le dar&aacute; la clave dilithium-5 para poder registrarse.
+                        Este codespace certifica plataformas de IA como tambien les ofrece un alojamiento post-cuantico, la puedes utilizar para usar sus herramientas que ya estan como tambien alojar las tuyas, <strong>al registrarse...usted comprende que el pago debe de realizarse mensual donde el costo es de US$ 60.27</strong>...los cuales debes de pagarlo por transaci&oacute;n bancaria, donde todo este proceso tienes que hacerlo contactandonos al <strong>Whatsapp: <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" id="authInlineWhatsappLink" class="auth-whatsapp-link">829-472-1257</a></strong> .... donde luego un asistente despues de realizar el pago le dar&aacute; la clave dilithium-5 para poder registrarse.
                     </p>
                     
                     <div class="auth-checkout-actions">
-                        <button type="button" class="auth-btn-capture" id="authCaptureCheckoutBtn" onclick="triggerCheckoutCapture()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                            <span>Capturar Checkout</span>
-                        </button>
-                        <a href="https://wa.me/18294721257?text=Hola,%20deseo%20realizar%20el%20pago%20de%20mi%20suscripci%C3%B3n%20mensual%20de%20US%24%2060.27%20para%20Hashcod%20Codespace%20y%20obtener%20mi%20clave%20Dilithium-5." target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp">
+                        <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp" id="authWhatsappBtn" title="Abrir WhatsApp con código JSON y vector ASCII">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.879.814 2.795.815 3.179 0 5.767-2.587 5.768-5.766.001-3.18-2.585-5.767-5.767-5.801zm3.376 8.163c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.025-.48-1.583-.657-2.589-2.28-2.667-2.384-.078-.104-.633-.842-.633-1.608 0-.765.401-1.141.543-1.295.144-.155.312-.194.417-.194.104 0 .208.001.299.006.096.004.224-.036.35.267.13.312.443 1.077.482 1.156.039.078.065.169.013.273-.052.104-.078.169-.156.26-.078.091-.163.203-.234.273-.078.078-.16.163-.069.318.091.156.403.666.865 1.077.595.53 1.097.694 1.253.772.156.078.247.065.338-.039.091-.104.39-.455.494-.611.104-.156.208-.13.351-.078.143.052.91.429 1.066.507.156.078.26.117.299.182.039.065.039.377-.105.782z"/></svg>
                             <span>WhatsApp: 829-472-1257</span>
                         </a>
+                        <button type="button" class="auth-btn-capture" id="authCaptureCheckoutBtn" onclick="triggerCheckoutCapture()" title="Descargar comprobante PNG sincronizado con el voucher">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                            <span>Capturar PNG</span>
+                        </button>
+                        <button type="button" class="auth-btn-copy-msg" id="authCopyWhatsappBtn" onclick="copyWhatsAppMessage()" title="Copiar el payload JSON y mensaje formateado de WhatsApp">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span>Copiar Payload</span>
+                        </button>
                     </div>
 
                     <label class="auth-checkout-checkbox-label">
                         <input type="checkbox" id="authCheckoutCheckbox" required>
-                        <span><strong>Comprendo el pago mensual de US$ 60.27 por transacci&oacute;n bancaria</strong> y tengo mi clave Dilithium-5 provista por WhatsApp.</span>
+                        <span><strong>Comprendo el pago mensual de US$ 60.27 por transaci&oacute;n bancaria</strong> y tengo mi clave Dilithium-5 provista por WhatsApp.</span>
                     </label>
                 </div>
             </div>
@@ -20649,6 +20749,9 @@ if (!headers_sent()) {
                 document.body.classList.remove('boot-locked');
                 if (overlay) overlay.classList.remove('hidden');
                 setMsg('');
+                if (typeof window.updateCheckoutVoucherUI === 'function') {
+                    window.updateCheckoutVoucherUI();
+                }
                 if (typeof window.renderTurnstileWidgets === 'function') {
                     setTimeout(window.renderTurnstileWidgets, 100);
                 }
@@ -20723,6 +20826,9 @@ if (!headers_sent()) {
                     if (panels[k]) panels[k].classList.toggle('active', k === name);
                 });
                 setMsg('');
+                if (name === 'register' && typeof window.updateCheckoutVoucherUI === 'function') {
+                    window.updateCheckoutVoucherUI();
+                }
                 if (typeof window.renderTurnstileWidgets === 'function') {
                     setTimeout(window.renderTurnstileWidgets, 50);
                 }
@@ -20903,72 +21009,356 @@ if (!headers_sent()) {
                 }
             });
 
+            /* ===== HIGH-TECH WHATSAPP MESSAGE GENERATOR & PQC VOUCHER ENGINE ===== */
+            window.getCheckoutVoucherSession = function (forceNew) {
+                if (!window.__hashcodCheckoutSession || forceNew) {
+                    let randHex = '';
+                    if (typeof window !== 'undefined' && window.crypto && typeof window.crypto.getRandomValues === 'function') {
+                        const bytes = new Uint8Array(2);
+                        window.crypto.getRandomValues(bytes);
+                        randHex = Array.from(bytes).map(b => b.toString(16).toUpperCase().padStart(2, '0')).join('');
+                    } else if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+                        const bytes = new Uint8Array(2);
+                        crypto.getRandomValues(bytes);
+                        randHex = Array.from(bytes).map(b => b.toString(16).toUpperCase().padStart(2, '0')).join('');
+                    } else {
+                        randHex = Math.floor(Math.random() * 65536).toString(16).toUpperCase().padStart(4, '0');
+                    }
+                    window.__hashcodCheckoutSession = {
+                        voucherId: 'HASHCOD-L8-' + randHex,
+                        timestamp: new Date().toISOString(),
+                        priceUsd: '60.27',
+                        currency: 'USD',
+                        service: 'Codespace Pro + Hosting PQC',
+                        plan: 'Monthly Subscription',
+                        issuer: 'DIKTATCART',
+                        rnc: '40209369293',
+                        onapi: '#336973',
+                        registroMercantil: '#3323LV-PF',
+                        phone: '18294721257',
+                        phoneFormatted: '+1 (829) 472-1257'
+                    };
+                }
+                return window.__hashcodCheckoutSession;
+            };
+
+            window.buildWhatsAppMessageText = function (session) {
+                const s = session || window.getCheckoutVoucherSession();
+                
+                const jsonPayload = JSON.stringify({
+                    protocol: "HASHCOD-L8-PQC-V1",
+                    voucher_id: s.voucherId,
+                    timestamp: s.timestamp,
+                    service: s.service,
+                    plan: s.plan,
+                    price_usd: 60.27,
+                    currency: "USD",
+                    issuer: s.issuer,
+                    rnc: s.rnc,
+                    onapi: "336973",
+                    registro_mercantil: "3323LV-PF",
+                    quantum_algorithm: "ML-DSA-87 / Dilithium-5 (NIST FIPS 204)",
+                    status: "PAYMENT_PENDING_CONFIRMATION"
+                }, null, 2);
+
+                const msg = 
+`> 🛡️ *HASHCOD CODESPACE® — COMPROBANTE DE CHECKOUT*
+> _Certificación Determinista de IA & Alojamiento Post-Cuántico (PQC)_
+
+\`\`\`
+╔══════════════════════════════════╗
+║  HASHCOD CODESPACE® · CHECKOUT   ║
+║   POST-QUANTUM VOUCHER & GATE    ║
+╚══════════════════════════════════╝
+\`\`\`
+
+*┌── [ 💳 DETALLES DE LA TRANSACCIÓN ]*
+*│* *Identificador:* \`${s.voucherId}\`
+*│* *Emisión (ISO):* \`${s.timestamp}\`
+*│* *Servicio:* ${s.service}
+*│* *Monto Mensual:* *US$ 60.27 / mes* (~US$ 90.00~ tarifa regular)
+*│* *Método de Pago:* Transferencia / Depósito Bancario
+*│* *Estado:* *PENDIENTE DE VALIDACIÓN*
+*└──*
+
+*🏛️ Credenciales Oficiales de la Empresa:*
+• *Emisor:* ${s.issuer}
+• *RNC:* ${s.rnc}
+• *ONAPI:* Registro de Marca ${s.onapi} (Clase 42)
+• *Registro Mercantil:* ${s.registroMercantil} (Cámara de Comercio)
+
+*📦 Payload Criptográfico JSON:*
+\`\`\`
+${jsonPayload}
+\`\`\`
+
+> 💬 *Mensaje del Cliente:*
+> _"Hola, he realizado/iniciado el pago de mi suscripción mensual de US$ 60.27 para Hashcod Codespace. Adjunto mi comprobante bancario para validar mi sesión y recibir la clave Dilithium-5 de acceso."_`;
+
+                return msg;
+            };
+
+            window.getWhatsAppCheckoutUrl = function (session) {
+                const s = session || window.getCheckoutVoucherSession();
+                const text = window.buildWhatsAppMessageText(s);
+                return 'https://wa.me/18294721257?text=' + encodeURIComponent(text);
+            };
+
+            window.openWhatsAppCheckout = function (e) {
+                const s = window.getCheckoutVoucherSession();
+                const url = window.getWhatsAppCheckoutUrl(s);
+                const waLink = document.getElementById('authWhatsappBtn');
+                const inlineWaLink = document.getElementById('authInlineWhatsappLink');
+                if (waLink) {
+                    waLink.href = url;
+                    waLink.target = '_blank';
+                    waLink.rel = 'noopener noreferrer';
+                }
+                if (inlineWaLink) {
+                    inlineWaLink.href = url;
+                    inlineWaLink.target = '_blank';
+                    inlineWaLink.rel = 'noopener noreferrer';
+                }
+
+                if (e && e.currentTarget && (e.currentTarget.tagName === 'A' || (e.currentTarget.closest && e.currentTarget.closest('a')))) {
+                    const anchor = e.currentTarget.tagName === 'A' ? e.currentTarget : e.currentTarget.closest('a');
+                    if (anchor) {
+                        anchor.href = url;
+                        anchor.target = '_blank';
+                        anchor.rel = 'noopener noreferrer';
+                    }
+                    return true;
+                }
+                if (e && e.preventDefault) e.preventDefault();
+                window.open(url, '_blank', 'noopener,noreferrer');
+                return false;
+            };
+
+            window.copyWhatsAppMessage = async function () {
+                const s = window.getCheckoutVoucherSession();
+                const text = window.buildWhatsAppMessageText(s);
+                const btn = document.getElementById('authCopyWhatsappBtn');
+                let copied = false;
+                
+                if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        copied = true;
+                    } catch (clipErr) {
+                        console.warn('navigator.clipboard.writeText fallo, intentando fallback:', clipErr);
+                    }
+                }
+                
+                if (!copied) {
+                    try {
+                        const ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.setAttribute('readonly', '');
+                        ta.style.position = 'fixed';
+                        ta.style.top = '-9999px';
+                        ta.style.left = '-9999px';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.focus();
+                        ta.select();
+                        copied = document.execCommand('copy');
+                        document.body.removeChild(ta);
+                    } catch (fallbackErr) {
+                        console.warn('Fallback document.execCommand fallo:', fallbackErr);
+                    }
+                }
+
+                if (copied) {
+                    if (btn) {
+                        if (!btn._origHtml) {
+                            btn._origHtml = btn.innerHTML;
+                        }
+                        if (btn._copyTimeout) {
+                            clearTimeout(btn._copyTimeout);
+                        }
+                        btn.innerHTML = '<span>¡Payload Copiado! ✓</span>';
+                        btn.style.borderColor = '#10b981';
+                        btn.style.color = '#10b981';
+                        btn._copyTimeout = setTimeout(() => {
+                            if (btn._origHtml) {
+                                btn.innerHTML = btn._origHtml;
+                                delete btn._origHtml;
+                            }
+                            btn.style.borderColor = '';
+                            btn.style.color = '';
+                            btn._copyTimeout = null;
+                        }, 2000);
+                    }
+                    if (typeof window.showAdminToast === 'function') {
+                        window.showAdminToast('✓ Mensaje WhatsApp con código JSON copiado al portapapeles.');
+                    } else if (typeof setMsg === 'function') {
+                        setMsg('✓ Mensaje WhatsApp con código JSON copiado al portapapeles.', true);
+                    }
+                } else {
+                    if (typeof setMsg === 'function') {
+                        setMsg('No se pudo copiar automáticamente al portapapeles. Abre directamente el enlace de WhatsApp.', false);
+                    }
+                }
+            };
+
+            window.updateCheckoutVoucherUI = function () {
+                const s = window.getCheckoutVoucherSession();
+                const vIdEl = document.getElementById('authVoucherIdDisplay');
+                const waLink = document.getElementById('authWhatsappBtn');
+                const inlineWaLink = document.getElementById('authInlineWhatsappLink');
+                
+                if (vIdEl) vIdEl.textContent = s.voucherId;
+                
+                const url = window.getWhatsAppCheckoutUrl(s);
+                if (waLink) {
+                    waLink.href = url;
+                    waLink.target = '_blank';
+                    waLink.rel = 'noopener noreferrer';
+                }
+                if (inlineWaLink) {
+                    inlineWaLink.href = url;
+                    inlineWaLink.target = '_blank';
+                    inlineWaLink.rel = 'noopener noreferrer';
+                }
+            };
+
             /* ===== CHECKOUT SCREENSHOT & VOUCHER GENERATOR ===== */
             window.triggerCheckoutCapture = function () {
                 try {
+                    const session = window.getCheckoutVoucherSession();
                     const canvas = document.createElement('canvas');
-                    canvas.width = 900;
-                    canvas.height = 620;
+                    if (!canvas || !canvas.getContext) {
+                        throw new Error('Canvas 2D no soportado');
+                    }
+                    canvas.width = 960;
+                    canvas.height = 680;
                     const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        throw new Error('Contexto 2D no disponible');
+                    }
 
-                    const grad = ctx.createLinearGradient(0, 0, 900, 620);
-                    grad.addColorStop(0, '#0f172a');
-                    grad.addColorStop(1, '#1e293b');
+                    // Dark terminal background
+                    const grad = ctx.createLinearGradient(0, 0, 960, 680);
+                    grad.addColorStop(0, '#060a12');
+                    grad.addColorStop(0.5, '#0b1322');
+                    grad.addColorStop(1, '#0f172a');
                     ctx.fillStyle = grad;
-                    ctx.fillRect(0, 0, 900, 620);
+                    ctx.fillRect(0, 0, 960, 680);
 
-                    ctx.fillStyle = '#ffffff';
-                    ctx.roundRect ? ctx.roundRect(40, 40, 820, 540, 16) : ctx.fillRect(40, 40, 820, 540);
+                    // High-tech vector grid
+                    ctx.strokeStyle = 'rgba(56, 189, 248, 0.04)';
+                    ctx.lineWidth = 1;
+                    for (let x = 20; x < 960; x += 30) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, 680);
+                        ctx.stroke();
+                    }
+                    for (let y = 20; y < 680; y += 30) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(960, y);
+                        ctx.stroke();
+                    }
+
+                    // Inner Card Panel (Dark Vector Box)
+                    ctx.beginPath();
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                    ctx.strokeStyle = '#1e293b';
+                    ctx.lineWidth = 1.5;
+                    if (ctx.roundRect) ctx.roundRect(40, 36, 880, 608, 14);
+                    else ctx.fillRect(40, 36, 880, 608);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Neon Top Accent Bar
+                    ctx.beginPath();
+                    const topBarGrad = ctx.createLinearGradient(40, 36, 920, 36);
+                    topBarGrad.addColorStop(0, '#10b981');
+                    topBarGrad.addColorStop(0.5, '#38bdf8');
+                    topBarGrad.addColorStop(1, '#6366f1');
+                    ctx.fillStyle = topBarGrad;
+                    if (ctx.roundRect) ctx.roundRect(40, 36, 880, 5, [14, 14, 0, 0]);
+                    else ctx.fillRect(40, 36, 880, 5);
                     ctx.fill();
 
-                    ctx.fillStyle = '#0f172a';
-                    ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                    ctx.fillText('Hashcod Codespace® · Comprobante de Checkout', 70, 90);
+                    // Title & Subtitle
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 22px "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('Hashcod Codespace® · Comprobante de Checkout & Voucher PQC', 70, 82);
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '13px "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('Certificación Determinista de IA y Alojamiento Post-Cuántico (NIST Level 5)', 70, 106);
+
+                    // Vector Divider
+                    ctx.strokeStyle = '#334155';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(70, 124);
+                    ctx.lineTo(890, 124);
+                    ctx.stroke();
+
+                    // Transaction Details Section
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.font = 'bold 13px "Geist Mono", "IBM Plex Mono", monospace';
+                    ctx.fillText('┌── [ DETALLES DE LA TRANSACCIÓN & VOUCHER ]', 70, 156);
+
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.font = '13.5px "IBM Plex Sans", -apple-system, sans-serif';
+                    ctx.fillText('• Servicio: Codespace Pro + Hosting Post-Cuántico + Certificación IA', 90, 186);
+                    ctx.fillText('• Plan: Suscripción Mensual Determinista (Acceso Ilimitado a Herramientas)', 90, 212);
+                    ctx.fillText('• Costo Mensual: US$ 60.27 / mes (Sesenta dólares estadounidenses con 27/100)', 90, 238);
+                    ctx.fillText('• Método de Pago: Transferencia / Depósito Bancario', 90, 264);
+                    ctx.fillText('• Contacto WhatsApp de Validación: +1 (829) 472-1257', 90, 290);
+
+                    // Official Credentials Box
+                    ctx.beginPath();
+                    ctx.fillStyle = 'rgba(30, 41, 59, 0.6)';
+                    ctx.strokeStyle = '#334155';
+                    ctx.lineWidth = 1;
+                    if (ctx.roundRect) ctx.roundRect(70, 312, 820, 78, 8);
+                    else ctx.fillRect(70, 312, 820, 78);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.font = '12px "IBM Plex Sans", sans-serif';
+                    ctx.fillText('Credenciales Oficiales Registradas (República Dominicana):', 86, 334);
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.font = 'bold 12px "IBM Plex Sans", monospace';
+                    ctx.fillText('• Emisor: DIKTATCART   |   • RNC: 40209369293   |   • ONAPI: #336973   |   • Registro Mercantil: #3323LV-PF', 86, 362);
+
+                    // Emerald Highlight Box: TOTAL A PAGAR
+                    ctx.beginPath();
+                    ctx.fillStyle = 'rgba(6, 78, 59, 0.4)';
+                    ctx.strokeStyle = '#10b981';
+                    ctx.lineWidth = 1.5;
+                    if (ctx.roundRect) ctx.roundRect(70, 408, 820, 94, 8);
+                    else ctx.fillRect(70, 408, 820, 94);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#34d399';
+                    ctx.font = 'bold 17px "IBM Plex Sans", sans-serif';
+                    ctx.fillText('TOTAL A PAGAR: US$ 60.27 MENSUAL', 95, 442);
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.font = '13px "IBM Plex Sans", sans-serif';
+                    ctx.fillText('Instrucción: Envía este comprobante al WhatsApp 829-472-1257 tras realizar tu depósito bancario.', 95, 474);
+
+                    // Footer Cryptographic Voucher & Metadata
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.font = 'bold 12px "Geist Mono", "IBM Plex Mono", monospace';
+                    ctx.fillText(`VOUCHER REF: ${session.voucherId}   |   EMISIÓN UTC: ${session.timestamp}`, 70, 540);
 
                     ctx.fillStyle = '#64748b';
-                    ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                    ctx.fillText('Certificación Determinista de IA y Alojamiento Post-Cuántico (PQC)', 70, 115);
+                    ctx.font = '11.5px "IBM Plex Mono", monospace';
+                    ctx.fillText('Seguridad Post-Cuántica NIST FIPS 204 / Level 5 · CRYSTALS-Dilithium (ML-DSA-87) · Invariante Cuántico', 70, 566);
+                    ctx.fillText('Hashcod Codespace® · Todos los derechos reservados · www.hashcod.io', 70, 590);
 
-                    ctx.strokeStyle = '#e2e8f0';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(70, 135);
-                    ctx.lineTo(830, 135);
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#0f172a';
-                    ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                    ctx.fillText('DETALLES DE LA SUSCRIPCIÓN MENSUAL', 70, 175);
-
-                    ctx.fillStyle = '#334155';
-                    ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                    ctx.fillText('• Servicio: Codespace Pro + Hosting Post-Cuántico + Certificación IA', 70, 205);
-                    ctx.fillText('• Costo Mensual: US$ 60.27 / mes (Sesenta dólares con 27/100 USD)', 70, 235);
-                    ctx.fillText('• Método de Pago: Transacción / Transferencia Bancaria', 70, 265);
-                    ctx.fillText('• Contacto WhatsApp de Validación: +1 (829) 472-1257', 70, 295);
-
-                    ctx.fillStyle = '#f0fdf4';
-                    ctx.strokeStyle = '#86efac';
-                    ctx.lineWidth = 1.5;
-                    ctx.roundRect ? ctx.roundRect(70, 325, 760, 100, 10) : ctx.fillRect(70, 325, 760, 100);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#166534';
-                    ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                    ctx.fillText('TOTAL A PAGAR: US$ 60.27 MENSUAL', 95, 360);
-                    ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                    ctx.fillText('Instrucción: Envía este comprobante al WhatsApp 829-472-1257 tras realizar tu depósito bancario.', 95, 390);
-
-                    const nowIso = new Date().toISOString();
-                    const randomVoucher = 'VOUCHER-L8-' + Math.random().toString(36).substring(2, 9).toUpperCase();
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.font = '12px monospace';
-                    ctx.fillText('Ref: ' + randomVoucher + ' | Emisión: ' + nowIso, 70, 470);
-                    ctx.fillText('Seguridad: NIST Post-Quantum Cryptography Level 5 · ML-DSA-87 / Dilithium-5', 70, 495);
-
+                    // Download PNG Image
                     const link = document.createElement('a');
-                    link.download = 'Comprobante-Checkout-Hashcod-Codespace.png';
+                    link.download = `Comprobante-Checkout-${session.voucherId}.png`;
                     link.href = canvas.toDataURL('image/png');
                     document.body.appendChild(link);
                     link.click();
@@ -20978,12 +21368,15 @@ if (!headers_sent()) {
                     if (chk) chk.checked = true;
 
                     if (typeof setMsg === 'function') {
-                        setMsg('✓ Captura de comprobante generada. Envíala a nuestro WhatsApp: 829-472-1257.', true);
+                        setMsg(`✓ Captura [${session.voucherId}] generada. Envíala a nuestro WhatsApp: 829-472-1257.`, true);
                     }
                 } catch (e) {
                     console.error('Error generando captura:', e);
                     const chk = document.getElementById('authCheckoutCheckbox');
                     if (chk) chk.checked = true;
+                    if (typeof setMsg === 'function') {
+                        setMsg('No se pudo generar automáticamente la captura visual. Utiliza el botón de WhatsApp o Copiar Payload.', false);
+                    }
                 }
             };
 
@@ -21009,13 +21402,20 @@ if (!headers_sent()) {
                 const checkoutChk = document.getElementById('authCheckoutCheckbox');
                 if (!checkoutChk || !checkoutChk.checked) {
                     setMsg('Debes marcar la casilla de confirmación de checkout (pago mensual de US$ 60.27 vía WhatsApp: 829-472-1257) antes de registrarte.');
+                    if (checkoutChk) {
+                        checkoutChk.focus();
+                    }
                     const box = document.getElementById('authCheckoutBox');
                     if (box) {
+                        if (box._errorTimeout) {
+                            clearTimeout(box._errorTimeout);
+                        }
                         box.style.border = '1.5px solid #ef4444';
-                        box.style.background = '#fef2f2';
-                        setTimeout(() => {
+                        box.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.35)';
+                        box._errorTimeout = setTimeout(() => {
                             box.style.border = '';
-                            box.style.background = '';
+                            box.style.boxShadow = '';
+                            box._errorTimeout = null;
                         }, 3500);
                     }
                     return;
@@ -21203,6 +21603,15 @@ if (!headers_sent()) {
             document.getElementById('authValidateInput')?.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') document.getElementById('authValidateBtn')?.click();
             });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof window.updateCheckoutVoucherUI === 'function') {
+                    window.updateCheckoutVoucherUI();
+                }
+            });
+            if (typeof window.updateCheckoutVoucherUI === 'function') {
+                window.updateCheckoutVoucherUI();
+            }
         })();
 
         

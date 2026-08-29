@@ -9859,12 +9859,13 @@ if (!headers_sent()) {
                 <button type="button" class="auth-tab active" id="authTabLogin" data-tab="login">Iniciar sesión</button>
                 <button type="button" class="auth-tab" id="authTabRegister" data-tab="register">Registrarse</button>
                 <button type="button" class="auth-tab" id="authTabRecover" data-tab="recover">Recuperar</button>
+                <button type="button" class="auth-tab" id="authTabValidate" data-tab="validate">Comprobar</button>
             </div>
 
             <div class="auth-panel active" id="authPanelLogin">
-                <label class="auth-label" for="authAesInput">Clave AES-256</label>
+                <label class="auth-label" for="authAesInput">Clave AES-256 (o L8ID / acct_... / L8REC)</label>
                 <input class="auth-input" id="authAesInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave AES-256 de tu cuenta">
-                <label class="auth-label" for="authIdentityInput">Clave identificador (L8ID)</label>
+                <label class="auth-label" for="authIdentityInput">Clave identificador L8ID (o ID de cuenta)</label>
                 <input class="auth-input" id="authIdentityInput" type="password" autocomplete="off" spellcheck="false" placeholder="Clave L8ID-… de tu cuenta">
                 <div class="cf-turnstile" id="cfTurnstileLogin" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "0x4AAAAAAEfpecWchE9q2-cs", ENT_QUOTES, "UTF-8"); ?>" data-callback="onTurnstileSuccessLogin" data-expired-callback="onTurnstileExpireLogin" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authLoginBtn">Entrar a la plataforma</button>
@@ -9918,6 +9919,14 @@ if (!headers_sent()) {
                 <div class="cf-turnstile" id="cfTurnstileRecover" data-sitekey="<?php echo htmlspecialchars(function_exists("cfTurnstileGetSiteKey") ? cfTurnstileGetSiteKey() : "0x4AAAAAAEfpecWchE9q2-cs", ENT_QUOTES, "UTF-8"); ?>" data-callback="onTurnstileSuccessRecover" data-expired-callback="onTurnstileExpireRecover" data-theme="light" data-size="flexible" style="margin:10px 0;"></div>
                 <button type="button" class="auth-btn" id="authRecoverBtn">Recuperar y regenerar claves</button>
                 <p class="auth-foot" style="margin-top:10px;">Si perdiste AES/L8ID pero guardaste el kit, aquí emites claves nuevas. Las anteriores quedan invalidadas.</p>
+            </div>
+
+            <div class="auth-panel" id="authPanelValidate">
+                <label class="auth-label" for="authValidateInput">Clave o Cuenta a Comprobar</label>
+                <input class="auth-input" id="authValidateInput" type="text" autocomplete="off" spellcheck="false" placeholder="Pega tu clave AES-256, L8ID, ID acct_... o L8REC">
+                <button type="button" class="auth-btn" id="authValidateBtn">Comprobar en Supabase</button>
+                <div id="authValidateResult" style="display:none; margin-top:12px; padding:12px; border-radius:6px; background:#f8fafc; border:1px solid #cbd5e1; font-size:11.5px; line-height:1.5;"></div>
+                <p class="auth-foot" style="margin-top:10px;">Diagnóstico en vivo: Verifica si tu cuenta o claves existen sincronizadas en Supabase sin revelar secretos.</p>
             </div>
 
             <div class="auth-keys-box" id="authKeysBox">
@@ -20700,12 +20709,14 @@ if (!headers_sent()) {
                 const tabs = {
                     login: document.getElementById('authTabLogin'),
                     register: document.getElementById('authTabRegister'),
-                    recover: document.getElementById('authTabRecover')
+                    recover: document.getElementById('authTabRecover'),
+                    validate: document.getElementById('authTabValidate')
                 };
                 const panels = {
                     login: document.getElementById('authPanelLogin'),
                     register: document.getElementById('authPanelRegister'),
-                    recover: document.getElementById('authPanelRecover')
+                    recover: document.getElementById('authPanelRecover'),
+                    validate: document.getElementById('authPanelValidate')
                 };
                 Object.keys(tabs).forEach((k) => {
                     if (tabs[k]) tabs[k].classList.toggle('active', k === name);
@@ -20743,6 +20754,7 @@ if (!headers_sent()) {
             document.getElementById('authTabLogin')?.addEventListener('click', () => switchTab('login'));
             document.getElementById('authTabRegister')?.addEventListener('click', () => switchTab('register'));
             document.getElementById('authTabRecover')?.addEventListener('click', () => switchTab('recover'));
+            document.getElementById('authTabValidate')?.addEventListener('click', () => switchTab('validate'));
 
             /* ===== CLOUDFLARE TURNSTILE UNIFIED CONTROLLER ===== */
             const CF_TURNSTILE_SITE_KEY = '0x4AAAAAAEfpecWchE9q2-cs';
@@ -20797,12 +20809,10 @@ if (!headers_sent()) {
                     if (mode === 'register' || mode === 'cfTurnstileRegister') { key = 'register'; elId = 'cfTurnstileRegister'; }
                     else if (mode === 'recover' || mode === 'cfTurnstileRecover') { key = 'recover'; elId = 'cfTurnstileRecover'; }
 
-                    // 1) De window.turnstileTokens verificado por callback
                     if (window.turnstileTokens && window.turnstileTokens[key]) {
                         return window.turnstileTokens[key];
                     }
                     
-                    // 2) De widget renderizado activo
                     const wId = window.renderedTurnstileWidgets ? window.renderedTurnstileWidgets[elId] : null;
                     if (window.turnstile && typeof window.turnstile.getResponse === 'function') {
                         if (wId && wId !== '1') {
@@ -20813,7 +20823,6 @@ if (!headers_sent()) {
                         if (resGen) return resGen;
                     }
 
-                    // 3) De input oculto del contenedor
                     const c = document.getElementById(elId);
                     const inp = c ? c.querySelector('[name="cf-turnstile-response"]') : null;
                     if (inp && inp.value) return inp.value;
@@ -20851,8 +20860,8 @@ if (!headers_sent()) {
                 const aes = (document.getElementById('authAesInput')?.value || '').trim();
                 const identity = (document.getElementById('authIdentityInput')?.value || '').trim();
                 const btn = document.getElementById('authLoginBtn');
-                if (!aes || !identity) {
-                    setMsg('Introduce las 2 claves de tu cuenta.');
+                if (!aes && !identity) {
+                    setMsg('Introduce las claves de tu cuenta.');
                     return;
                 }
                 const cfToken = getTurnstileToken('cfTurnstileLogin');
@@ -20860,10 +20869,9 @@ if (!headers_sent()) {
                     setMsg('⏳ Cloudflare se está verificando o la casilla no está marcada. Espera la marca verde y presiona entrar.');
                     return;
                 }
-                // Consumir token en cliente para evitar reenviarlo si falla
                 if (window.turnstileTokens) window.turnstileTokens.login = '';
                 if (btn) btn.disabled = true;
-                setMsg('Verificando con Cloudflare…');
+                setMsg('Verificando con Cloudflare y autenticando…');
                 try {
                     const res = await fetch('/api/auth/login', {
                         method: 'POST',
@@ -20896,97 +20904,88 @@ if (!headers_sent()) {
             });
 
             /* ===== CHECKOUT SCREENSHOT & VOUCHER GENERATOR ===== */
-        window.triggerCheckoutCapture = function () {
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = 900;
-                canvas.height = 620;
-                const ctx = canvas.getContext('2d');
+            window.triggerCheckoutCapture = function () {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 900;
+                    canvas.height = 620;
+                    const ctx = canvas.getContext('2d');
 
-                // Fondo degradado elegante
-                const grad = ctx.createLinearGradient(0, 0, 900, 620);
-                grad.addColorStop(0, '#0f172a');
-                grad.addColorStop(1, '#1e293b');
-                ctx.fillStyle = grad;
-                ctx.fillRect(0, 0, 900, 620);
+                    const grad = ctx.createLinearGradient(0, 0, 900, 620);
+                    grad.addColorStop(0, '#0f172a');
+                    grad.addColorStop(1, '#1e293b');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, 900, 620);
 
-                // Tarjeta interior blanca
-                ctx.fillStyle = '#ffffff';
-                ctx.roundRect ? ctx.roundRect(40, 40, 820, 540, 16) : ctx.fillRect(40, 40, 820, 540);
-                ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.roundRect ? ctx.roundRect(40, 40, 820, 540, 16) : ctx.fillRect(40, 40, 820, 540);
+                    ctx.fill();
 
-                // Header de la tarjeta
-                ctx.fillStyle = '#0f172a';
-                ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('Hashcod Codespace® · Comprobante de Checkout', 70, 90);
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('Hashcod Codespace® · Comprobante de Checkout', 70, 90);
 
-                ctx.fillStyle = '#64748b';
-                ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('Certificación Determinista de IA y Alojamiento Post-Cuántico (PQC)', 70, 115);
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('Certificación Determinista de IA y Alojamiento Post-Cuántico (PQC)', 70, 115);
 
-                // Línea separadora
-                ctx.strokeStyle = '#e2e8f0';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(70, 135);
-                ctx.lineTo(830, 135);
-                ctx.stroke();
+                    ctx.strokeStyle = '#e2e8f0';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(70, 135);
+                    ctx.lineTo(830, 135);
+                    ctx.stroke();
 
-                // Detalles del plan
-                ctx.fillStyle = '#0f172a';
-                ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('DETALLES DE LA SUSCRIPCIÓN MENSUAL', 70, 175);
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('DETALLES DE LA SUSCRIPCIÓN MENSUAL', 70, 175);
 
-                ctx.fillStyle = '#334155';
-                ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('• Servicio: Codespace Pro + Hosting Post-Cuántico + Certificación IA', 70, 205);
-                ctx.fillText('• Costo Mensual: US$ 60.27 / mes (Sesenta dólares con 27/100 USD)', 70, 235);
-                ctx.fillText('• Método de Pago: Transacción / Transferencia Bancaria', 70, 265);
-                ctx.fillText('• Contacto WhatsApp de Validación: +1 (829) 472-1257', 70, 295);
+                    ctx.fillStyle = '#334155';
+                    ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('• Servicio: Codespace Pro + Hosting Post-Cuántico + Certificación IA', 70, 205);
+                    ctx.fillText('• Costo Mensual: US$ 60.27 / mes (Sesenta dólares con 27/100 USD)', 70, 235);
+                    ctx.fillText('• Método de Pago: Transacción / Transferencia Bancaria', 70, 265);
+                    ctx.fillText('• Contacto WhatsApp de Validación: +1 (829) 472-1257', 70, 295);
 
-                // Cuadro verde con monto
-                ctx.fillStyle = '#f0fdf4';
-                ctx.strokeStyle = '#86efac';
-                ctx.lineWidth = 1.5;
-                ctx.roundRect ? ctx.roundRect(70, 325, 760, 100, 10) : ctx.fillRect(70, 325, 760, 100);
-                ctx.fill();
-                ctx.stroke();
+                    ctx.fillStyle = '#f0fdf4';
+                    ctx.strokeStyle = '#86efac';
+                    ctx.lineWidth = 1.5;
+                    ctx.roundRect ? ctx.roundRect(70, 325, 760, 100, 10) : ctx.fillRect(70, 325, 760, 100);
+                    ctx.fill();
+                    ctx.stroke();
 
-                ctx.fillStyle = '#166534';
-                ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('TOTAL A PAGAR: US$ 60.27 MENSUAL', 95, 360);
-                ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                ctx.fillText('Instrucción: Envía este comprobante al WhatsApp 829-472-1257 tras realizar tu depósito bancario.', 95, 390);
+                    ctx.fillStyle = '#166534';
+                    ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('TOTAL A PAGAR: US$ 60.27 MENSUAL', 95, 360);
+                    ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.fillText('Instrucción: Envía este comprobante al WhatsApp 829-472-1257 tras realizar tu depósito bancario.', 95, 390);
 
-                // Pie de página con Timestamp y Hash
-                const nowIso = new Date().toISOString();
-                const randomVoucher = 'VOUCHER-L8-' + Math.random().toString(36).substring(2, 9).toUpperCase();
-                ctx.fillStyle = '#94a3b8';
-                ctx.font = '12px monospace';
-                ctx.fillText('Ref: ' + randomVoucher + ' | Emisión: ' + nowIso, 70, 470);
-                ctx.fillText('Seguridad: NIST Post-Quantum Cryptography Level 5 · ML-DSA-87 / Dilithium-5', 70, 495);
+                    const nowIso = new Date().toISOString();
+                    const randomVoucher = 'VOUCHER-L8-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '12px monospace';
+                    ctx.fillText('Ref: ' + randomVoucher + ' | Emisión: ' + nowIso, 70, 470);
+                    ctx.fillText('Seguridad: NIST Post-Quantum Cryptography Level 5 · ML-DSA-87 / Dilithium-5', 70, 495);
 
-                // Descargar imagen
-                const link = document.createElement('a');
-                link.download = 'Comprobante-Checkout-Hashcod-Codespace.png';
-                link.href = canvas.toDataURL('image/png');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                    const link = document.createElement('a');
+                    link.download = 'Comprobante-Checkout-Hashcod-Codespace.png';
+                    link.href = canvas.toDataURL('image/png');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
 
-                // Marcar automáticamente la casilla
-                const chk = document.getElementById('authCheckoutCheckbox');
-                if (chk) chk.checked = true;
+                    const chk = document.getElementById('authCheckoutCheckbox');
+                    if (chk) chk.checked = true;
 
-                if (typeof setMsg === 'function') {
-                    setMsg('✓ Captura de comprobante generada. Envíala a nuestro WhatsApp: 829-472-1257.', true);
+                    if (typeof setMsg === 'function') {
+                        setMsg('✓ Captura de comprobante generada. Envíala a nuestro WhatsApp: 829-472-1257.', true);
+                    }
+                } catch (e) {
+                    console.error('Error generando captura:', e);
+                    const chk = document.getElementById('authCheckoutCheckbox');
+                    if (chk) chk.checked = true;
                 }
-            } catch (e) {
-                console.error('Error generando captura:', e);
-                const chk = document.getElementById('authCheckoutCheckbox');
-                if (chk) chk.checked = true;
-            }
-        };
+            };
 
             document.getElementById('authRegisterBtn')?.addEventListener('click', async () => {
                 const privacyChk = document.getElementById('authPrivacyCheckbox');
@@ -21054,6 +21053,7 @@ if (!headers_sent()) {
                     }
                     setMsg(formatPersistMsg(data, data.warning || 'Cuenta creada. Guarda el kit completo.'), true);
                 } catch (e) {
+                    resetTurnstile('cfTurnstileRegister');
                     setMsg('Error de red al registrar.');
                 } finally {
                     if (btn) btn.disabled = false;
@@ -21090,6 +21090,7 @@ if (!headers_sent()) {
                     });
                     const data = await res.json();
                     if (!data || !data.ok) {
+                        resetTurnstile('cfTurnstileRecover');
                         setMsg((data && data.error) || 'No se pudo recuperar.');
                         return;
                     }
@@ -21099,7 +21100,70 @@ if (!headers_sent()) {
                     }
                     setMsg(formatPersistMsg(data, data.warning || 'Claves regeneradas. Guarda el nuevo kit.'), true);
                 } catch (e) {
+                    resetTurnstile('cfTurnstileRecover');
                     setMsg('Error de red al recuperar.');
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            });
+
+            document.getElementById('authValidateBtn')?.addEventListener('click', async () => {
+                const inputVal = (document.getElementById('authValidateInput')?.value || '').trim();
+                const resBox = document.getElementById('authValidateResult');
+                const btn = document.getElementById('authValidateBtn');
+                if (!inputVal) {
+                    setMsg('Introduce una clave AES-256, L8ID, ID acct_... o L8REC para comprobar.');
+                    if (resBox) resBox.style.display = 'none';
+                    return;
+                }
+                if (btn) btn.disabled = true;
+                setMsg('Consultando persistencia en Supabase…');
+                if (resBox) {
+                    resBox.style.display = 'block';
+                    resBox.innerHTML = '<div style="color:#64748b;">⏳ Verificando registros en Supabase PostgreSQL y Storage...</div>';
+                }
+                try {
+                    const res = await fetch('/api/auth/validate-key', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: inputVal })
+                    });
+                    const data = await res.json();
+                    if (!data || !data.ok || !data.exists) {
+                        setMsg((data && data.message) || 'Clave o cuenta no localizada en Supabase.');
+                        if (resBox) {
+                            resBox.innerHTML = '<div style="color:#b91c1c; font-weight:600;">✕ No encontrada en Supabase</div>' +
+                                '<div style="color:#475569; margin-top:4px;">No existe ninguna cuenta vinculada a esta clave en la base de datos o almacenamiento. Si no te has registrado, ve a la pestaña "Registrarse".</div>';
+                        }
+                        return;
+                    }
+                    const prev = data.account_preview || {};
+                    const typeLabel = {
+                        aes256: 'Clave AES-256 (64 hex)',
+                        identity: 'Clave L8ID (Identificador)',
+                        account_id: 'ID de Cuenta (acct_...)',
+                        recovery_key: 'Clave de Recuperación (L8REC)',
+                        backup_code: 'Código de Respaldo',
+                        generic_key: 'Clave Criptográfica'
+                    }[data.key_type] || data.key_type;
+
+                    const dbStatus = (prev.persistence && prev.persistence.supabase_db) ? '<span style="color:#166534; font-weight:600;">✓ Sincronizado</span>' : '<span style="color:#ca8a04;">Pendiente</span>';
+                    const storageStatus = (prev.persistence && prev.persistence.supabase_storage) ? '<span style="color:#166534; font-weight:600;">✓ Sincronizado</span>' : '<span style="color:#ca8a04;">Local</span>';
+
+                    if (resBox) {
+                        resBox.innerHTML = '<div style="color:#166534; font-weight:600; font-size:12.5px; margin-bottom:6px;">✓ Cuenta localizada en Supabase (Activa)</div>' +
+                            '<div style="color:#334155; margin-bottom:2px;"><strong>ID Cuenta:</strong> <code style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">' + (data.account_id || 'N/A') + '</code></div>' +
+                            '<div style="color:#334155; margin-bottom:2px;"><strong>Tipo de Clave:</strong> ' + typeLabel + '</div>' +
+                            '<div style="color:#334155; margin-bottom:2px;"><strong>Persistencia:</strong> Postgres DB ' + dbStatus + ' · Cloud Storage ' + storageStatus + '</div>' +
+                            '<div style="color:#334155; margin-bottom:2px;"><strong>Hashes activos:</strong> AES-256 (' + (prev.has_aes256 ? '✓' : '✗') + ') · L8ID (' + (prev.has_identity ? '✓' : '✗') + ') · L8REC (' + (prev.has_recovery ? '✓' : '✗') + ') · Códigos Respaldo (' + (prev.backup_codes_count || 0) + ')</div>' +
+                            '<div style="color:#64748b; font-size:10.5px; margin-top:4px;">Creada: ' + (prev.created_at || 'Previa') + '</div>';
+                    }
+                    setMsg('✓ Cuenta validada exitosamente en Supabase.', true);
+                } catch (e) {
+                    setMsg('Error de red al consultar validador.');
+                    if (resBox) {
+                        resBox.innerHTML = '<div style="color:#b91c1c;">Error al conectar con el servicio de validación.</div>';
+                    }
                 } finally {
                     if (btn) btn.disabled = false;
                 }
@@ -21135,6 +21199,9 @@ if (!headers_sent()) {
             });
             document.getElementById('authRecoverInput')?.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') document.getElementById('authRecoverBtn')?.click();
+            });
+            document.getElementById('authValidateInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') document.getElementById('authValidateBtn')?.click();
             });
         })();
 

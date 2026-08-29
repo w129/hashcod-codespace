@@ -447,12 +447,26 @@ function supabaseDbRequest($tablePath, $options = []) {
     $path = 'rest/v1/' . ltrim($tablePath, '/');
     $opts = $options;
     if (!isset($opts['headers'])) $opts['headers'] = [];
-    $opts['headers'][] = 'Prefer: resolution=merge-duplicates,return=representation';
-    if (empty($opts['method']) || strtoupper($opts['method']) === 'GET') {
+    $method = strtoupper($opts['method'] ?? 'GET');
+
+    $hasPrefer = false;
+    foreach ($opts['headers'] as $h) {
+        if (stripos($h, 'Prefer:') === 0) {
+            $hasPrefer = true;
+            break;
+        }
+    }
+    if ($method === 'GET') {
         // no Prefer needed for GET
         $opts['headers'] = array_values(array_filter($opts['headers'], function ($h) {
             return stripos($h, 'Prefer:') !== 0;
         }));
+    } elseif (!$hasPrefer) {
+        if ($method === 'POST') {
+            $opts['headers'][] = 'Prefer: resolution=merge-duplicates,return=representation';
+        } else {
+            $opts['headers'][] = 'Prefer: return=minimal';
+        }
     }
     return supabaseRequest($path, $opts);
 }
@@ -490,6 +504,16 @@ function supabaseDbDelete($table, $query = '') {
         ]
     ]);
 }
+
+function supabaseDbHardDelete($table, $query = '') {
+    $q = $query !== '' ? ('?' . ltrim($query, '?')) : '';
+    return supabaseDbRequest($table . $q, [
+        'method' => 'DELETE',
+        'use_secret' => true,
+        'headers' => ['Prefer: return=minimal']
+    ]);
+}
+
 
 /**
  * Obtiene la cuenta activa para asociar toda la persistencia.

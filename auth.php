@@ -85,16 +85,22 @@ function authGetAllCandidatePeppers() {
     $envPep = function_exists('secretGet') ? secretGet('L8_AUTH_PEPPER', '') : (function_exists('envValue') ? envValue('L8_AUTH_PEPPER', '') : '');
     if ($envPep !== '') $peppers[] = $envPep;
 
-    // Supabase Storage meta/auth_pepper
-    if (function_exists('supabaseConfig') && function_exists('supabaseStorageDownload')) {
-        $cfg = supabaseConfig();
-        if (!empty($cfg['configured'])) {
-            $remote = @supabaseStorageDownload('meta/auth_pepper');
-            if (!empty($remote['ok']) && is_string($remote['data'])) {
-                $fromRemote = trim($remote['data']);
-                if ($fromRemote !== '') $peppers[] = $fromRemote;
+    // Supabase Storage meta/auth_pepper (con cache estática)
+    static $cachedRemotePepper = null;
+    if ($cachedRemotePepper === null) {
+        $cachedRemotePepper = '';
+        if (function_exists('supabaseConfig') && function_exists('supabaseStorageDownload')) {
+            $cfg = supabaseConfig();
+            if (!empty($cfg['configured'])) {
+                $remote = @supabaseStorageDownload('meta/auth_pepper');
+                if (!empty($remote['ok']) && is_string($remote['data'])) {
+                    $cachedRemotePepper = trim($remote['data']);
+                }
             }
         }
+    }
+    if ($cachedRemotePepper !== '') {
+        $peppers[] = $cachedRemotePepper;
     }
 
     // Determinista DILITHIUM5_ADMIN_SIGNATURE
@@ -155,9 +161,15 @@ function authDilithiumRegisterKey() {
     $key = '';
     if (function_exists('secretGet')) {
         $key = trim((string) secretGet('L8_DILITHIUM5_REGISTER_KEY', ''));
+        if ($key === '') {
+            $key = trim((string) secretGet('DILITHIUM5_ADMIN_SIGNATURE', ''));
+        }
     }
     if ($key === '') {
         $key = trim((string) envValue('L8_DILITHIUM5_REGISTER_KEY', ''));
+    }
+    if ($key === '') {
+        $key = trim((string) envValue('DILITHIUM5_ADMIN_SIGNATURE', ''));
     }
     if ($key === '') {
         $key = trim((string) L8_DILITHIUM5_REGISTER_KEY_DEFAULT);
@@ -218,7 +230,7 @@ function authNormalizeStore($data) {
     return $data;
 }
 
-/** Fusiona store A con B (B gana en conflictos de usuario/hash). */
+/** Fusiona store A con B (B gana en conflictos de usuario/hash, preservando hashes no vacíos). */
 function authMergeStores(array $base, array $overlay) {
     $out = authNormalizeStore($base);
     $over = authNormalizeStore($overlay);
@@ -232,10 +244,51 @@ function authMergeStores(array $base, array $overlay) {
         // gana el más reciente por recovered_at / updated_at / created_at
         $prevTs = strtotime($prev['recovered_at'] ?? $prev['updated_at'] ?? $prev['created_at'] ?? '') ?: 0;
         $newTs = strtotime($user['recovered_at'] ?? $user['updated_at'] ?? $user['created_at'] ?? '') ?: 0;
-        $out['users'][$id] = ($newTs >= $prevTs) ? array_replace($prev, $user) : array_replace($user, $prev);
+        $mergedUser = ($newTs >= $prevTs) ? array_replace($prev, $user) : array_replace($user, $prev);
+
+        // Preservar hashes criptográficos si uno de los lados venía en blanco
+        foreach (['aes256_hash', 'identity_hash', 'recovery_hash'] as $hField) {
+            if (empty($mergedUser[$hField])) {
+                if (!empty($prev[$hField])) $mergedUser[$hField] = $prev[$hField];
+                elseif (!empty($user[$hField])) $mergedUser[$hField] = $user[$hField];
+            }
+        }
+        if (empty($mergedUser['backup_codes']) && !empty($prev['backup_codes'])) {
+            $mergedUser['backup_codes'] = $prev['backup_codes'];
+        } elseif (!empty($prev['backup_codes']) && !empty($user['backup_codes']) && is_array($prev['backup_codes']) && is_array($user['backup_codes'])) {
+            $mergedUser['backup_codes'] = array_replace($prev['backup_codes'], $user['backup_codes']);
+        }
+        $out['users'][$id] = $mergedUser;
     }
-    $out['key_hashes'] = array_replace($out['key_hashes'], $over['key_hashes']);
-    $out['recovery_hashes'] = array_replace($out['recovery_hashes'], $over['recovery_hashes']);
+
+    // Reconstruir índices criptográficos limpiamente para purgar hashes revocados
+    $out['key_hashes'] = [];
+    $out['recovery_hashes'] = [];
+    foreach ($out['users'] as $uid => $u) {
+        if (!empty($u['aes256_hash'])) {
+            $out['key_hashes'][$u['aes256_hash']] = $uid;
+        }
+        if (!empty($u['identity_hash'])) {
+            $out['key_hashes'][$u['identity_hash']] = $uid;
+        }
+        if (!empty($u['recovery_hash'])) {
+            $out['recovery_hashes'][$u['recovery_hash']] = [
+                'user_id' => $uid,
+                'type' => 'recovery_key'
+            ];
+        }
+        $bCodes = $u['backup_codes'] ?? [];
+        if (is_string($bCodes)) $bCodes = json_decode($bCodes, true) ?: [];
+        if (is_array($bCodes)) {
+            foreach ($bCodes as $codeHash => $bMeta) {
+                $out['recovery_hashes'][(string)$codeHash] = [
+                    'user_id' => $uid,
+                    'type' => 'backup_code'
+                ];
+            }
+        }
+    }
+
     // sesiones: conservar unión; no crítico para recuperación
     $out['sessions'] = array_replace($out['sessions'], $over['sessions']);
     return $out;
@@ -267,12 +320,46 @@ function authStoreFromDbRows(array $accounts, array $identities) {
         if (!empty($row['identity_hash'])) {
             $store['key_hashes'][$row['identity_hash']] = $id;
         }
+        if (!empty($row['recovery_hash'])) {
+            $store['recovery_hashes'][$row['recovery_hash']] = [
+                'user_id' => $id,
+                'type' => 'recovery_key'
+            ];
+        }
+        foreach ($backup as $codeHash => $meta) {
+            $store['recovery_hashes'][(string)$codeHash] = [
+                'user_id' => $id,
+                'type' => 'backup_code'
+            ];
+        }
     }
     foreach ($identities as $row) {
         if (!is_array($row) || empty($row['hash']) || empty($row['account_id'])) continue;
         $hash = (string)$row['hash'];
         $accountId = (string)$row['account_id'];
         $kind = (string)($row['kind'] ?? '');
+
+        if (!isset($store['users'][$accountId])) {
+            $store['users'][$accountId] = [
+                'id' => $accountId,
+                'created_at' => $row['updated_at'] ?? date('c'),
+                'recovered_at' => null,
+                'updated_at' => $row['updated_at'] ?? date('c'),
+                'aes256_hash' => ($kind === 'aes256') ? $hash : '',
+                'identity_hash' => ($kind === 'identity') ? $hash : '',
+                'recovery_hash' => ($kind === 'recovery_key') ? $hash : '',
+                'backup_codes' => []
+            ];
+        } else {
+            if ($kind === 'aes256' && empty($store['users'][$accountId]['aes256_hash'])) {
+                $store['users'][$accountId]['aes256_hash'] = $hash;
+            } elseif ($kind === 'identity' && empty($store['users'][$accountId]['identity_hash'])) {
+                $store['users'][$accountId]['identity_hash'] = $hash;
+            } elseif ($kind === 'recovery_key' && empty($store['users'][$accountId]['recovery_hash'])) {
+                $store['users'][$accountId]['recovery_hash'] = $hash;
+            }
+        }
+
         if ($kind === 'aes256' || $kind === 'identity') {
             $store['key_hashes'][$hash] = $accountId;
         } elseif ($kind === 'recovery_key' || $kind === 'backup_code') {
@@ -304,11 +391,11 @@ function authPullStoreFromSupabaseDb() {
     if (empty($cfg['configured'])) {
         return ['ok' => false, 'error' => 'Supabase no configurado', 'store' => null];
     }
-    $accountsRes = supabaseDbSelect('l8_auth_accounts', 'select=*');
+    $accountsRes = supabaseDbSelect('l8_auth_accounts', 'select=*&limit=5000');
     if (empty($accountsRes['ok'])) {
         return ['ok' => false, 'error' => $accountsRes['error'] ?? 'sin tabla l8_auth_accounts', 'store' => null];
     }
-    $identRes = supabaseDbSelect('l8_auth_identities', 'select=*');
+    $identRes = supabaseDbSelect('l8_auth_identities', 'select=*&limit=10000');
     $accounts = is_array($accountsRes['body'] ?? null) ? $accountsRes['body'] : [];
     $identities = (!empty($identRes['ok']) && is_array($identRes['body'] ?? null)) ? $identRes['body'] : [];
     return [
@@ -319,7 +406,7 @@ function authPullStoreFromSupabaseDb() {
     ];
 }
 
-function authPushStoreToSupabaseDb(array $store) {
+function authPushStoreToSupabaseDb(array $store, $targetAccountId = null) {
     if (!function_exists('supabaseDbUpsert') || !function_exists('supabaseConfig')) {
         return ['ok' => false, 'error' => 'DB helper ausente'];
     }
@@ -333,7 +420,15 @@ function authPushStoreToSupabaseDb(array $store) {
     $identityRows = [];
     $now = date('c');
 
-    foreach ($store['users'] as $id => $user) {
+    // Identificar cuentas a sincronizar
+    $accountsToProcess = [];
+    if ($targetAccountId !== null && isset($store['users'][$targetAccountId])) {
+        $accountsToProcess[$targetAccountId] = $store['users'][$targetAccountId];
+    } else {
+        $accountsToProcess = $store['users'];
+    }
+
+    foreach ($accountsToProcess as $id => $user) {
         if (!is_array($user)) continue;
         $accountId = (string)($user['id'] ?? $id);
         $backup = is_array($user['backup_codes'] ?? null) ? $user['backup_codes'] : [];
@@ -386,9 +481,13 @@ function authPushStoreToSupabaseDb(array $store) {
             ];
         }
 
-        // Limpia identidades previas de esta cuenta y reescribe (evita hashes huérfanos tras rotate)
-        if (function_exists('supabaseDbDelete')) {
-            @supabaseDbDelete('l8_auth_identities', 'account_id=eq.' . rawurlencode($accountId));
+        // Limpia identidades previas de esta cuenta vía Hard Delete HTTP
+        if ($targetAccountId !== null) {
+            if (function_exists('supabaseDbHardDelete')) {
+                @supabaseDbHardDelete('l8_auth_identities', 'account_id=eq.' . rawurlencode($accountId));
+            } elseif (function_exists('supabaseDbDelete')) {
+                @supabaseDbDelete('l8_auth_identities', 'account_id=eq.' . rawurlencode($accountId));
+            }
         }
     }
 
@@ -448,7 +547,7 @@ function authLoadStore($forceRemote = true) {
     return $local;
 }
 
-function authSaveStore(array $store) {
+function authSaveStore(array $store, $targetAccountId = null) {
     $path = authUsersPath();
     $meta = $store['_meta'] ?? null;
     unset($store['_meta']);
@@ -470,7 +569,7 @@ function authSaveStore(array $store) {
         $storage = @supabaseSyncMetaFile($path, 'auth_users.json') ?: ['ok' => false, 'error' => 'sync falló'];
     }
 
-    $db = authPushStoreToSupabaseDb($store);
+    $db = authPushStoreToSupabaseDb($store, $targetAccountId);
 
     // pepper a Storage por si no hay env
     if (function_exists('supabaseConfig') && function_exists('supabaseStorageUpload') && !empty(supabaseConfig()['configured'])) {
@@ -760,7 +859,7 @@ function authRegister($dilithium5) {
     }
 
     $token = authCreateSession($store, $userId);
-    $saved = authSaveStore($store);
+    $saved = authSaveStore($store, $userId);
     if (empty($saved['ok'])) {
         return $saved;
     }
@@ -798,20 +897,24 @@ function authRecover($recoveryMaterial) {
     $store = authLoadStore(true);
     $candidates = authHashCandidates($material);
     $entry = null;
+    $matchedRecoveryHash = null;
     
     foreach ($candidates as $h) {
         if (!empty($store['recovery_hashes'][$h])) {
             $entry = $store['recovery_hashes'][$h];
+            $matchedRecoveryHash = $h;
             break;
         }
         // Buscar directamente en users por si recovery_hashes no estaba mapeado
         foreach ($store['users'] as $uid => $u) {
             if (($u['recovery_hash'] ?? '') === $h) {
                 $entry = ['user_id' => $uid, 'type' => 'recovery_key'];
+                $matchedRecoveryHash = $h;
                 break 2;
             }
             if (!empty($u['backup_codes'][$h])) {
                 $entry = ['user_id' => $uid, 'type' => 'backup_code'];
+                $matchedRecoveryHash = $h;
                 break 2;
             }
         }
@@ -828,6 +931,7 @@ function authRecover($recoveryMaterial) {
                     'user_id' => $row['account_id'],
                     'type' => $row['kind'] ?? 'recovery_key'
                 ];
+                $matchedRecoveryHash = $h;
                 $acc = supabaseDbSelect('l8_auth_accounts', 'select=*&id=eq.' . rawurlencode($row['account_id']) . '&limit=1');
                 if (!empty($acc['ok']) && is_array($acc['body'][0] ?? null)) {
                     $dbStore = authStoreFromDbRows([$acc['body'][0]], [$row]);
@@ -850,16 +954,22 @@ function authRecover($recoveryMaterial) {
 
     $type = $entry['type'] ?? '';
     if ($type === 'backup_code') {
-        $codeMeta = $user['backup_codes'][$hash] ?? null;
-        if (!is_array($codeMeta) || !empty($codeMeta['used'])) {
-            return ['ok' => false, 'error' => 'Este código de respaldo ya fue usado o no es válido'];
+        $codeMeta = $user['backup_codes'][$matchedRecoveryHash] ?? ($user['backup_codes'][$material] ?? null);
+        if (is_array($codeMeta) && !empty($codeMeta['used'])) {
+            return ['ok' => false, 'error' => 'Este código de respaldo ya fue usado'];
         }
     } elseif ($type === 'recovery_key') {
-        if (!authTimingSafeEqual($user['recovery_hash'] ?? '', $hash)) {
+        $userRecHash = $user['recovery_hash'] ?? '';
+        $matched = false;
+        foreach ($candidates as $cand) {
+            if (authTimingSafeEqual($userRecHash, $cand)) {
+                $matched = true;
+                break;
+            }
+        }
+        if (!$matched && !empty($userRecHash)) {
             return ['ok' => false, 'error' => 'Clave de recuperación inválida'];
         }
-    } else {
-        return ['ok' => false, 'error' => 'Material de recuperación inválido'];
     }
 
     $pair = authGenerateUniqueKeyPair($store);
@@ -903,7 +1013,7 @@ function authRecover($recoveryMaterial) {
     }
 
     $token = authCreateSession($store, $userId);
-    $saved = authSaveStore($store);
+    $saved = authSaveStore($store, $userId);
     if (empty($saved['ok'])) {
         return $saved;
     }
@@ -926,41 +1036,124 @@ function authRecover($recoveryMaterial) {
 }
 
 function authLogin($aes256, $identity) {
-    $aes256 = authCleanKey($aes256);
-    $identity = authCleanKey($identity);
-    
-    if ($aes256 === '' && $identity === '') {
+    $field1 = authCleanKey($aes256);
+    $field2 = authCleanKey($identity);
+
+    // If both empty
+    if ($field1 === '' && $field2 === '') {
         return ['ok' => false, 'error' => 'Falta ingresar la Clave AES-256 y la Clave identificador (L8ID).'];
     }
-    if ($aes256 === '') {
+
+    // Check if recovery key or backup code was entered into either field
+    $isRec1 = (stripos($field1, 'L8REC-') === 0 || preg_match('/^[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}$/i', $field1));
+    $isRec2 = (stripos($field2, 'L8REC-') === 0 || preg_match('/^[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}$/i', $field2));
+    if ($isRec1 && $field2 === '') {
+        return authRecover($field1);
+    }
+    if ($isRec2 && $field1 === '') {
+        return authRecover($field2);
+    }
+    if ($isRec1 && !$isRec2) {
+        return authRecover($field1);
+    }
+    if ($isRec2 && !$isRec1) {
+        return authRecover($field2);
+    }
+
+    if ($field1 === '') {
         return ['ok' => false, 'error' => 'Falta la Clave AES-256 (campo 1).'];
     }
-    if ($identity === '') {
+    if ($field2 === '') {
         return ['ok' => false, 'error' => 'Falta la Clave identificador L8ID (campo 2).'];
     }
-    if (authTimingSafeEqual($aes256, $identity)) {
+    if (authTimingSafeEqual($field1, $field2)) {
         return ['ok' => false, 'error' => 'Ambas casillas contienen la misma clave. Debes ingresar tu Clave AES-256 en la primera y tu L8ID en la segunda.'];
     }
 
-    // Detectar si el usuario intercambió los campos por error (L8ID en campo 1 y AES en campo 2)
-    if (stripos($aes256, 'L8ID-') === 0 && stripos($identity, 'L8ID-') !== 0) {
-        return ['ok' => false, 'error' => 'Campos invertidos: Tu clave identificador (L8ID-...) debe ir en el segundo campo, y la clave AES-256 en el primero.'];
+    // Auto-detect and swap inverted fields seamlessly
+    if (
+        (stripos($field1, 'L8ID-') === 0 && stripos($field2, 'L8ID-') !== 0) ||
+        (stripos($field1, 'acct_') === 0 && preg_match('/^[a-f0-9]{64}$/i', $field2)) ||
+        (!preg_match('/^[a-f0-9]{64}$/i', $field1) && preg_match('/^[a-f0-9]{64}$/i', $field2))
+    ) {
+        $temp = $field1;
+        $field1 = $field2;
+        $field2 = $temp;
     }
+
+    $aes256 = $field1;
+    $identity = $field2;
 
     // Identidades desde Supabase (sobrevive redeploy de Render)
     $store = authLoadStore(true);
     $totalUsers = count($store['users'] ?? []);
 
-    if ($totalUsers === 0) {
-        return [
-            'ok' => false,
-            'error' => 'No hay cuentas registradas en la base de datos (0 cuentas). Si aún no has creado tu cuenta permanente, ve a la pestaña "Registrarse" primero.'
-        ];
-    }
-
     $aesCandidates = authHashCandidates($aes256);
     $idCandidates = authHashCandidates($identity);
 
+    // Case: Logging in with AES-256 + Account ID (acct_...)
+    if (stripos($identity, 'acct_') === 0 || isset($store['users'][$identity])) {
+        $targetUserId = (string)$identity;
+        $user = $store['users'][$targetUserId] ?? null;
+
+        // Try direct Supabase DB pull if not in store
+        if (!is_array($user) && function_exists('supabaseDbSelect') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
+            $dbAcc = supabaseDbSelect('l8_auth_accounts', 'select=*&id=eq.' . rawurlencode($targetUserId) . '&limit=1');
+            if (!empty($dbAcc['ok']) && is_array($dbAcc['body'][0] ?? null)) {
+                $userRow = $dbAcc['body'][0];
+                $user = [
+                    'id' => $targetUserId,
+                    'created_at' => $userRow['created_at'] ?? null,
+                    'aes256_hash' => $userRow['aes256_hash'] ?? '',
+                    'identity_hash' => $userRow['identity_hash'] ?? '',
+                    'recovery_hash' => $userRow['recovery_hash'] ?? '',
+                    'backup_codes' => is_string($userRow['backup_codes'] ?? null) ? (json_decode($userRow['backup_codes'], true) ?: []) : ($userRow['backup_codes'] ?? [])
+                ];
+                $store['users'][$targetUserId] = $user;
+            }
+        }
+
+        if (is_array($user)) {
+            $userAesHash = $user['aes256_hash'] ?? '';
+            $aesOk = in_array($userAesHash, $aesCandidates, true);
+            if (!$aesOk) {
+                foreach ($aesCandidates as $h) {
+                    if (isset($store['key_hashes'][$h]) && $store['key_hashes'][$h] === $targetUserId) {
+                        $aesOk = true;
+                        break;
+                    }
+                }
+            }
+            if ($aesOk) {
+                $masterPepper = authMasterPepper();
+                $masterAesHash = hash_hmac('sha256', $aes256, $masterPepper);
+                if ($userAesHash !== $masterAesHash) {
+                    if ($userAesHash && isset($store['key_hashes'][$userAesHash])) unset($store['key_hashes'][$userAesHash]);
+                    $store['users'][$targetUserId]['aes256_hash'] = $masterAesHash;
+                    $store['key_hashes'][$masterAesHash] = $targetUserId;
+                    $store['users'][$targetUserId]['updated_at'] = date('c');
+                }
+                $token = authCreateSession($store, $targetUserId);
+                authSaveStore($store, $targetUserId);
+                if (function_exists('supabaseLogActivity')) {
+                    @supabaseLogActivity('AUTH_LOGIN_ACCT_ID', $targetUserId, ['account_id' => $targetUserId], $targetUserId);
+                }
+                return [
+                    'ok' => true,
+                    'account_id' => $targetUserId,
+                    'session_token' => $token,
+                    'resolved_via' => 'account_id_plus_aes'
+                ];
+            } else {
+                return [
+                    'ok' => false,
+                    'error' => 'La cuenta ' . $targetUserId . ' fue localizada en Supabase, pero la clave AES-256 ingresada no es válida para esta cuenta. Verifica los 64 caracteres de tu clave AES-256.'
+                ];
+            }
+        }
+    }
+
+    // Standard AES + L8ID matching
     $userFromAes = null;
     $matchedAesHash = null;
     foreach ($aesCandidates as $h) {
@@ -969,12 +1162,23 @@ function authLogin($aes256, $identity) {
             $matchedAesHash = $h;
             break;
         }
-        // Buscar también directamente en users si key_hashes no estaba indexado
         foreach ($store['users'] as $uid => $u) {
             if (($u['aes256_hash'] ?? '') === $h) {
                 $userFromAes = $uid;
                 $matchedAesHash = $h;
                 break 2;
+            }
+        }
+    }
+
+    // Direct DB lookup for AES if not in store
+    if (!$userFromAes && function_exists('supabaseDbSelect') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
+        foreach ($aesCandidates as $h) {
+            $hit = supabaseDbSelect('l8_auth_identities', 'select=*&hash=eq.' . rawurlencode($h) . '&kind=eq.aes256&limit=1');
+            if (!empty($hit['ok']) && !empty($hit['body'][0]['account_id'])) {
+                $userFromAes = $hit['body'][0]['account_id'];
+                $matchedAesHash = $h;
+                break;
             }
         }
     }
@@ -996,54 +1200,101 @@ function authLogin($aes256, $identity) {
         }
     }
 
+    // Direct DB lookup for Identity if not in store
+    if (!$userFromId && function_exists('supabaseDbSelect') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
+        foreach ($idCandidates as $h) {
+            $hit = supabaseDbSelect('l8_auth_identities', 'select=*&hash=eq.' . rawurlencode($h) . '&kind=eq.identity&limit=1');
+            if (!empty($hit['ok']) && !empty($hit['body'][0]['account_id'])) {
+                $userFromId = $hit['body'][0]['account_id'];
+                $matchedIdHash = $h;
+                break;
+            }
+        }
+    }
+
     if (!$userFromAes && !$userFromId) {
+        if ($totalUsers === 0) {
+            return [
+                'ok' => false,
+                'error' => 'No hay cuentas registradas en la base de datos (0 cuentas). Si aún no has creado tu cuenta permanente, ve a la pestaña "Registrarse" primero.'
+            ];
+        }
         return [
             'ok' => false,
-            'error' => 'Ninguna de las dos claves coincide con las cuentas registradas (Cuentas activas: ' . $totalUsers . '). Si creaste tu cuenta antes del último reinicio permanente, regístrate nuevamente en "Registrarse".'
+            'error' => 'Ninguna de las dos claves coincide con las cuentas registradas en Supabase (Cuentas activas: ' . $totalUsers . '). Si creaste tu cuenta antes del último reinicio, regístrate nuevamente en "Registrarse" o recupera con tu kit L8REC.'
         ];
     }
     if (!$userFromAes) {
         return [
             'ok' => false,
-            'error' => 'La clave AES-256 no coincide con ninguna cuenta. Verifica que hayas copiado los 64 caracteres completos.'
+            'error' => 'La clave AES-256 no coincide con ninguna cuenta en Supabase. La clave identificador (L8ID) sí es válida para la cuenta ' . $userFromId . '; verifica tu clave AES-256.'
         ];
     }
     if (!$userFromId) {
-        return [
-            'ok' => false,
-            'error' => 'La clave identificador (L8ID) no coincide con ninguna cuenta. Verifica que empiece por "L8ID-" y esté completa.'
-        ];
+        // If AES matches a valid account, check if identity is a recovery key or backup code for that account
+        $userObj = $store['users'][$userFromAes] ?? null;
+        if (is_array($userObj)) {
+            $userRecHash = $userObj['recovery_hash'] ?? '';
+            $recOk = in_array($userRecHash, $idCandidates, true);
+            if ($recOk) {
+                $userFromId = $userFromAes;
+            }
+        }
+        if (!$userFromId) {
+            return [
+                'ok' => false,
+                'error' => 'La clave identificador (L8ID) no coincide con ninguna cuenta. La clave AES-256 sí es válida para la cuenta ' . $userFromAes . '; verifica tu clave L8ID-...'
+            ];
+        }
     }
     if ($userFromAes !== $userFromId) {
         return [
             'ok' => false,
-            'error' => 'Conflicto de claves: La clave AES-256 pertenece a una cuenta distinta que la clave L8ID ingresada. Debes usar las 2 claves del mismo kit.'
+            'error' => 'Conflicto de claves: La clave AES-256 pertenece a una cuenta distinta que la clave identificador ingresada. Debes usar las 2 claves del mismo kit.'
         ];
     }
 
     $user = $store['users'][$userFromAes] ?? null;
     if (!is_array($user)) {
-        return ['ok' => false, 'error' => 'Cuenta registrada pero no localizada en el almacén de usuarios.'];
+        if (function_exists('supabaseDbSelect') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
+            $dbAcc = supabaseDbSelect('l8_auth_accounts', 'select=*&id=eq.' . rawurlencode($userFromAes) . '&limit=1');
+            if (!empty($dbAcc['ok']) && is_array($dbAcc['body'][0] ?? null)) {
+                $user = [
+                    'id' => $userFromAes,
+                    'created_at' => $dbAcc['body'][0]['created_at'] ?? null,
+                    'aes256_hash' => $dbAcc['body'][0]['aes256_hash'] ?? '',
+                    'identity_hash' => $dbAcc['body'][0]['identity_hash'] ?? '',
+                    'recovery_hash' => $dbAcc['body'][0]['recovery_hash'] ?? '',
+                    'backup_codes' => is_string($dbAcc['body'][0]['backup_codes'] ?? null) ? (json_decode($dbAcc['body'][0]['backup_codes'], true) ?: []) : ($dbAcc['body'][0]['backup_codes'] ?? [])
+                ];
+                $store['users'][$userFromAes] = $user;
+            }
+        }
+        if (!is_array($user)) {
+            return ['ok' => false, 'error' => 'Cuenta registrada pero no localizada en el almacén de usuarios.'];
+        }
     }
 
-    // Verificar que los hashes pertenezcan a la cuenta
     $userAesHash = $user['aes256_hash'] ?? '';
     $userIdHash = $user['identity_hash'] ?? '';
 
-    $aesOk = in_array($userAesHash, $aesCandidates, true);
-    $idOk = in_array($userIdHash, $idCandidates, true);
+    // Validar que las credenciales coincidan con los hashes activos de la cuenta
+    $aesMatchesActive = in_array($userAesHash, $aesCandidates, true);
+    $idMatchesActive = in_array($userIdHash, $idCandidates, true);
 
-    if (!$aesOk || !$idOk) {
-        return ['ok' => false, 'error' => 'Las claves no coinciden con la firma de seguridad de la cuenta.'];
+    if (!$aesMatchesActive || !$idMatchesActive) {
+        return [
+            'ok' => false,
+            'error' => 'Las claves ingresadas no coinciden con las credenciales activas de la cuenta. Si recuperaste tu cuenta recientemente, utiliza el nuevo kit emitido.'
+        ];
     }
 
     // Auto-migración al pepper maestro permanente si la cuenta usaba un hash antiguo
     $masterPepper = authMasterPepper();
     $masterAesHash = hash_hmac('sha256', $aes256, $masterPepper);
     $masterIdHash = hash_hmac('sha256', $identity, $masterPepper);
-    
+
     if ($userAesHash !== $masterAesHash || $userIdHash !== $masterIdHash) {
-        // Actualizar al formato maestro
         if ($userAesHash && isset($store['key_hashes'][$userAesHash])) unset($store['key_hashes'][$userAesHash]);
         if ($userIdHash && isset($store['key_hashes'][$userIdHash])) unset($store['key_hashes'][$userIdHash]);
         
@@ -1055,7 +1306,7 @@ function authLogin($aes256, $identity) {
     }
 
     $token = authCreateSession($store, $user['id']);
-    $saved = authSaveStore($store);
+    $saved = authSaveStore($store, $user['id']);
     if (empty($saved['ok'])) {
         return $saved;
     }
@@ -1067,8 +1318,212 @@ function authLogin($aes256, $identity) {
     return [
         'ok' => true,
         'account_id' => $user['id'],
-        'session_token' => $token
+        'session_token' => $token,
+        'persisted' => $saved['persisted'] ?? null
     ];
+}
+
+/**
+ * Diagnóstico y validador de claves / cuentas seguro.
+ * Comprueba existencia en Supabase DB y Storage sin exponer secretos.
+ */
+function authValidateKey($key, $type = 'auto') {
+    $raw = trim((string)$key);
+    if ($raw === '') {
+        return [
+            'ok' => false,
+            'exists' => false,
+            'error' => 'Por favor introduce una clave o identificador de cuenta para comprobar.'
+        ];
+    }
+
+    $clean = authCleanKey($raw);
+    $store = authLoadStore(true);
+
+    $detectedType = 'unknown';
+    $accountId = null;
+    $source = 'not_found';
+
+    if (stripos($clean, 'acct_') === 0 || isset($store['users'][$clean])) {
+        $detectedType = 'account_id';
+        if (isset($store['users'][$clean])) {
+            $accountId = $clean;
+            $source = 'local_store';
+        }
+    } elseif (stripos($clean, 'L8REC-') === 0) {
+        $detectedType = 'recovery_key';
+    } elseif (stripos($clean, 'L8ID-') === 0) {
+        $detectedType = 'identity';
+    } elseif (preg_match('/^[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}$/i', $clean)) {
+        $detectedType = 'backup_code';
+    } elseif (preg_match('/^[a-f0-9]{64}$/i', $clean)) {
+        $detectedType = 'aes256';
+    } else {
+        $detectedType = 'generic_key';
+    }
+
+    $candidates = authHashCandidates($clean);
+    if (!$accountId) {
+        foreach ($candidates as $h) {
+            if (!empty($store['key_hashes'][$h])) {
+                $accountId = $store['key_hashes'][$h];
+                $source = 'store_key_hashes';
+                break;
+            }
+            if (!empty($store['recovery_hashes'][$h]['user_id'])) {
+                $accountId = $store['recovery_hashes'][$h]['user_id'];
+                if ($detectedType === 'unknown' || $detectedType === 'generic_key') {
+                    $detectedType = $store['recovery_hashes'][$h]['type'] ?? 'recovery_key';
+                }
+                $source = 'store_recovery_hashes';
+                break;
+            }
+            foreach ($store['users'] as $uid => $u) {
+                if (($u['aes256_hash'] ?? '') === $h) {
+                    $accountId = $uid;
+                    $detectedType = 'aes256';
+                    $source = 'store_users_aes';
+                    break 2;
+                }
+                if (($u['identity_hash'] ?? '') === $h) {
+                    $accountId = $uid;
+                    $detectedType = 'identity';
+                    $source = 'store_users_id';
+                    break 2;
+                }
+                if (($u['recovery_hash'] ?? '') === $h) {
+                    $accountId = $uid;
+                    $detectedType = 'recovery_key';
+                    $source = 'store_users_rec';
+                    break 2;
+                }
+                if (!empty($u['backup_codes'][$h])) {
+                    $accountId = $uid;
+                    $detectedType = 'backup_code';
+                    $source = 'store_users_backup';
+                    break 2;
+                }
+            }
+        }
+    }
+
+    // Direct Supabase PostgREST query if not resolved
+    if (function_exists('supabaseDbSelect') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
+        if (!$accountId) {
+            if ($detectedType === 'account_id') {
+                $dbAcc = supabaseDbSelect('l8_auth_accounts', 'select=*&id=eq.' . rawurlencode($clean) . '&limit=1');
+                if (!empty($dbAcc['ok']) && !empty($dbAcc['body'][0]['id'])) {
+                    $accountId = $dbAcc['body'][0]['id'];
+                    $source = 'supabase_db_accounts';
+                    $bCodes = $dbAcc['body'][0]['backup_codes'] ?? [];
+                    if (is_string($bCodes)) $bCodes = json_decode($bCodes, true) ?: [];
+                    if (!is_array($bCodes)) $bCodes = [];
+                    $store['users'][$accountId] = [
+                        'id' => $accountId,
+                        'created_at' => $dbAcc['body'][0]['created_at'] ?? null,
+                        'updated_at' => $dbAcc['body'][0]['updated_at'] ?? null,
+                        'recovered_at' => $dbAcc['body'][0]['recovered_at'] ?? null,
+                        'aes256_hash' => $dbAcc['body'][0]['aes256_hash'] ?? '',
+                        'identity_hash' => $dbAcc['body'][0]['identity_hash'] ?? '',
+                        'recovery_hash' => $dbAcc['body'][0]['recovery_hash'] ?? '',
+                        'backup_codes' => $bCodes
+                    ];
+                }
+            }
+
+            if (!$accountId) {
+                foreach ($candidates as $h) {
+                    $dbId = supabaseDbSelect('l8_auth_identities', 'select=*&hash=eq.' . rawurlencode($h) . '&limit=1');
+                    if (!empty($dbId['ok']) && !empty($dbId['body'][0]['account_id'])) {
+                        $row = $dbId['body'][0];
+                        $accountId = $row['account_id'];
+                        $source = 'supabase_db_identities';
+                        if ($detectedType === 'unknown' || $detectedType === 'generic_key') {
+                            $detectedType = $row['kind'] ?? 'identity';
+                        }
+                        $dbAcc = supabaseDbSelect('l8_auth_accounts', 'select=*&id=eq.' . rawurlencode($accountId) . '&limit=1');
+                        if (!empty($dbAcc['ok']) && !empty($dbAcc['body'][0]['id'])) {
+                            $bCodes = $dbAcc['body'][0]['backup_codes'] ?? [];
+                            if (is_string($bCodes)) $bCodes = json_decode($bCodes, true) ?: [];
+                            if (!is_array($bCodes)) $bCodes = [];
+                            $store['users'][$accountId] = [
+                                'id' => $accountId,
+                                'created_at' => $dbAcc['body'][0]['created_at'] ?? null,
+                                'updated_at' => $dbAcc['body'][0]['updated_at'] ?? null,
+                                'recovered_at' => $dbAcc['body'][0]['recovered_at'] ?? null,
+                                'aes256_hash' => $dbAcc['body'][0]['aes256_hash'] ?? '',
+                                'identity_hash' => $dbAcc['body'][0]['identity_hash'] ?? '',
+                                'recovery_hash' => $dbAcc['body'][0]['recovery_hash'] ?? '',
+                                'backup_codes' => $bCodes
+                            ];
+                        } else {
+                            $store['users'][$accountId] = [
+                                'id' => $accountId,
+                                'created_at' => $row['updated_at'] ?? null,
+                                'updated_at' => $row['updated_at'] ?? null,
+                                'recovered_at' => null,
+                                'aes256_hash' => ($row['kind'] === 'aes256') ? $row['hash'] : '',
+                                'identity_hash' => ($row['kind'] === 'identity') ? $row['hash'] : '',
+                                'recovery_hash' => ($row['kind'] === 'recovery_key') ? $row['hash'] : '',
+                                'backup_codes' => []
+                            ];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!$accountId || empty($store['users'][$accountId])) {
+        return [
+            'ok' => true,
+            'exists' => false,
+            'key_type' => $detectedType,
+            'account_id' => null,
+            'status' => 'not_found',
+            'message' => 'La clave o identificador no existe en la base de datos de Supabase ni en el almacenamiento.'
+        ];
+    }
+
+    $user = $store['users'][$accountId];
+    $backupCount = 0;
+    $bCodes = $user['backup_codes'] ?? [];
+    if (is_string($bCodes)) $bCodes = json_decode($bCodes, true) ?: [];
+    if (is_array($bCodes)) {
+        $backupCount = count($bCodes);
+    }
+
+    return [
+        'ok' => true,
+        'exists' => true,
+        'key_type' => $detectedType,
+        'account_id' => $accountId,
+        'status' => 'active',
+        'source' => $source,
+        'account_preview' => [
+            'id' => $accountId,
+            'created_at' => $user['created_at'] ?? null,
+            'updated_at' => $user['updated_at'] ?? null,
+            'recovered_at' => $user['recovered_at'] ?? null,
+            'has_aes256' => !empty($user['aes256_hash']),
+            'has_identity' => !empty($user['identity_hash']),
+            'has_recovery' => !empty($user['recovery_hash']),
+            'backup_codes_count' => $backupCount,
+            'persistence' => [
+                'supabase_db' => !empty($store['_meta']['db_pulled']) || strpos($source, 'supabase') !== false,
+                'supabase_storage' => !empty($store['_meta']['storage_hydrated'])
+            ]
+        ],
+        'message' => 'Cuenta localizada y validada con éxito en Supabase.'
+    ];
+}
+
+/**
+ * Obtiene la vista previa segura de una cuenta por ID o Clave.
+ */
+function authAccountPreview($accountIdOrKey) {
+    return authValidateKey($accountIdOrKey, 'auto');
 }
 
 function authValidateSession($token) {
@@ -1126,7 +1581,8 @@ function authBearerTokenFromRequest() {
  */
 function authHandleApi($uri) {
     $uri = (string)$uri;
-    if (strpos($uri, '/api/auth') !== 0) {
+    $path = (string)(parse_url($uri, PHP_URL_PATH) ?: $uri);
+    if (strpos($path, '/api/auth') !== 0) {
         return false;
     }
 
@@ -1137,12 +1593,12 @@ function authHandleApi($uri) {
     header('Content-Type: application/json; charset=utf-8');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-    if ($uri === '/api/auth/status' && $method === 'GET') {
+    if ($path === '/api/auth/status' && $method === 'GET') {
         echo json_encode(authStatusPublic(), JSON_UNESCAPED_UNICODE);
         return true;
     }
 
-    if ($uri === '/api/auth/session' && $method === 'GET') {
+    if ($path === '/api/auth/session' && $method === 'GET') {
         if (!securityRateAllow('auth_session', 60, 60)) {
             securityRateDenyJson(30);
         }
@@ -1161,7 +1617,7 @@ function authHandleApi($uri) {
         return true;
     }
 
-    if ($uri === '/api/auth/register' && $method === 'POST') {
+    if ($path === '/api/auth/register' && $method === 'POST') {
         if (!securityRateAllow('auth_register', 20, 3600)) {
             securityRateDenyJson(3600);
         }
@@ -1225,7 +1681,7 @@ function authHandleApi($uri) {
         return true;
     }
 
-    if ($uri === '/api/auth/login' && $method === 'POST') {
+    if ($path === '/api/auth/login' && $method === 'POST') {
         if (!securityRateAllow('auth_login', 15, 60)) {
             securityRateDenyJson(60);
         }
@@ -1277,7 +1733,7 @@ function authHandleApi($uri) {
         return true;
     }
 
-    if ($uri === '/api/auth/logout' && $method === 'POST') {
+    if ($path === '/api/auth/logout' && $method === 'POST') {
         $token = authBearerTokenFromRequest();
         $res = authLogout($token);
         authClearSessionCookie();
@@ -1285,27 +1741,43 @@ function authHandleApi($uri) {
         return true;
     }
 
-    if ($uri === '/api/auth/recover' && $method === 'POST') {
+    if ($path === '/api/auth/recover' && $method === 'POST') {
         if (!securityRateAllow('auth_recover', 15, 600)) {
             securityRateDenyJson(600);
         }
         $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
-        if (empty($body['ok'])) {
+        if (empty($body['ok']) && empty($_POST)) {
             http_response_code(400);
             echo json_encode(['ok' => false, 'error' => $body['error'] ?? 'Bad request'], JSON_UNESCAPED_UNICODE);
             return true;
         }
-        $input = $body['data'] ?? [];
+        $input = !empty($body['data']) ? $body['data'] : $_POST;
         $cfToken = $input['cf_turnstile_response'] ?? ($input['cf-turnstile-response'] ?? ($input['turnstile_token'] ?? ''));
-        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled() && $cfToken !== '') {
+        if (function_exists('cfTurnstileIsEnabled') && cfTurnstileIsEnabled()) {
+            if ($cfToken === '') {
+                http_response_code(403);
+                echo json_encode(['ok' => false, 'error' => 'Por favor, completa la casilla de verificación de Cloudflare Turnstile antes de continuar.'], JSON_UNESCAPED_UNICODE);
+                return true;
+            }
             $cfRes = cfTurnstileVerify($cfToken);
             if (empty($cfRes['ok'])) {
                 http_response_code(403);
-                echo json_encode(['ok' => false, 'error' => 'Verificación de seguridad Cloudflare fallida. Por favor, completa el desafío.'], JSON_UNESCAPED_UNICODE);
+                $errCodes = $cfRes['error_codes'] ?? [];
+                $errExplanation = 'Verificación de seguridad Cloudflare no superada.';
+                if (in_array('timeout-or-duplicate', $errCodes, true)) {
+                    $errExplanation = 'El token de Cloudflare expiró (más de 5 min) o ya fue utilizado en una petición anterior. La casilla se ha reiniciado; márcala de nuevo.';
+                } elseif (in_array('invalid-input-response', $errCodes, true)) {
+                    $errExplanation = 'El token de verificación de Cloudflare no es válido. Por favor, marca la casilla nuevamente.';
+                } elseif (in_array('missing-input-response', $errCodes, true)) {
+                    $errExplanation = 'Falta completar el desafío de Cloudflare. Por favor, marca la casilla.';
+                } elseif (!empty($errCodes)) {
+                    $errExplanation = 'Cloudflare rechazó la verificación (código: ' . implode(', ', $errCodes) . '). Por favor, vuelve a marcar la casilla.';
+                }
+                echo json_encode(['ok' => false, 'error' => $errExplanation, 'cf_errors' => $errCodes], JSON_UNESCAPED_UNICODE);
                 return true;
             }
         }
-        $material = $input['recovery'] ?? $input['recovery_key'] ?? $input['backup_code'] ?? $input['code'] ?? '';
+        $material = $input['recovery'] ?? ($input['recovery_key'] ?? ($input['backup_code'] ?? ($input['code'] ?? '')));
         $res = authRecover($material);
         if (empty($res['ok'])) {
             if (function_exists('securityIpStrike')) securityIpStrike('auth_recover_fail', 12, 600, 1800);
@@ -1316,6 +1788,43 @@ function authHandleApi($uri) {
         if (!empty($res['session_token'])) {
             authIssueSessionCookie($res['session_token']);
         }
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if (($path === '/api/auth/validate-key' || $path === '/api/auth/check-key') && ($method === 'POST' || $method === 'GET')) {
+        if (!securityRateAllow('auth_validate_key', 60, 60)) {
+            securityRateDenyJson(60);
+        }
+        $key = '';
+        $type = 'auto';
+        if ($method === 'POST') {
+            $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+            $data = !empty($body['data']) ? $body['data'] : $_POST;
+            $key = $data['key'] ?? ($data['aes256'] ?? ($data['identity'] ?? ($data['account_id'] ?? ($data['recovery'] ?? ''))));
+            $type = $data['type'] ?? 'auto';
+        } else {
+            $key = $_GET['key'] ?? ($_GET['aes256'] ?? ($_GET['identity'] ?? ($_GET['account_id'] ?? ($_GET['recovery'] ?? ''))));
+            $type = $_GET['type'] ?? 'auto';
+        }
+        $res = authValidateKey($key, $type);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if ($path === '/api/auth/preview' && ($method === 'POST' || $method === 'GET')) {
+        if (!securityRateAllow('auth_preview', 60, 60)) {
+            securityRateDenyJson(60);
+        }
+        $target = '';
+        if ($method === 'POST') {
+            $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+            $data = !empty($body['data']) ? $body['data'] : $_POST;
+            $target = $data['account_id'] ?? ($data['key'] ?? ($data['id'] ?? ''));
+        } else {
+            $target = $_GET['account_id'] ?? ($_GET['key'] ?? ($_GET['id'] ?? ''));
+        }
+        $res = authAccountPreview($target);
         echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
     }

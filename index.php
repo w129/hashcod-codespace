@@ -20801,12 +20801,27 @@ if (!headers_sent()) {
                 }
             }
 
-            function resetTurnstile() {
+            function resetTurnstile(containerId) {
                 try {
                     if (window.turnstile && typeof window.turnstile.reset === 'function') {
+                        if (containerId) {
+                            const el = document.getElementById(containerId);
+                            if (el) window.turnstile.reset('#' + containerId);
+                        }
                         window.turnstile.reset();
                     }
                 } catch (e) {}
+                if (window.turnstileTokens) {
+                    if (containerId === 'cfTurnstileLogin') window.turnstileTokens.login = '';
+                    else if (containerId === 'cfTurnstileRegister') window.turnstileTokens.register = '';
+                    else if (containerId === 'cfTurnstileRecover') window.turnstileTokens.recover = '';
+                    else {
+                        window.turnstileTokens.login = '';
+                        window.turnstileTokens.register = '';
+                        window.turnstileTokens.recover = '';
+                    }
+                    window.turnstileTokens.latest = '';
+                }
             }
 
             document.getElementById('authLoginBtn')?.addEventListener('click', async () => {
@@ -20818,6 +20833,12 @@ if (!headers_sent()) {
                     return;
                 }
                 const cfToken = getTurnstileToken('cfTurnstileLogin');
+                if (!cfToken) {
+                    setMsg('Por favor, marca la casilla de Cloudflare antes de entrar.');
+                    return;
+                }
+                // Consumir token en cliente para evitar reenviarlo si falla
+                if (window.turnstileTokens) window.turnstileTokens.login = '';
                 if (btn) btn.disabled = true;
                 setMsg('Verificando con Cloudflare…');
                 try {
@@ -20828,6 +20849,7 @@ if (!headers_sent()) {
                     });
                     const data = await res.json();
                     if (!data || !data.ok) {
+                        resetTurnstile('cfTurnstileLogin');
                         setMsg((data && data.error) || 'Acceso denegado.');
                         return;
                     }
@@ -20835,6 +20857,7 @@ if (!headers_sent()) {
                     setMsg('Acceso concedido.', true);
                     unlockPlatform();
                 } catch (e) {
+                    resetTurnstile('cfTurnstileLogin');
                     setMsg('Error de red al iniciar sesión.');
                 } finally {
                     if (btn) btn.disabled = false;
@@ -20975,6 +20998,11 @@ if (!headers_sent()) {
                     return;
                 }
                 const cfToken = getTurnstileToken('cfTurnstileRegister');
+                if (!cfToken) {
+                    setMsg('Por favor, marca la casilla de Cloudflare antes de registrarte.');
+                    return;
+                }
+                if (window.turnstileTokens) window.turnstileTokens.register = '';
                 if (btn) btn.disabled = true;
                 setMsg('Creando cuenta con verificación Cloudflare…');
                 try {
@@ -20985,6 +21013,7 @@ if (!headers_sent()) {
                     });
                     const data = await res.json();
                     if (!data || !data.ok) {
+                        resetTurnstile('cfTurnstileRegister');
                         setMsg((data && data.error) || 'No se pudo registrar.');
                         return;
                     }

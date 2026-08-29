@@ -26,12 +26,12 @@ function authUsersPath() {
     return authStorageDir() . '/users.json';
 }
 
-function authCleanKey($key) {
-    if ($key === null || $key === false) return '';
-    $key = trim((string)$key);
-    // Remover espacios no rompibles (nbsp), espacios de ancho cero y comillas de móviles
-    $key = preg_replace('/^[\s\x{00a0}\x{200b}\"\']+|[\s\x{00a0}\x{200b}\"\']+$/u', '', $key);
-    return trim($key);
+function authMasterPepper() {
+    $masterSig = defined('DILITHIUM5_ADMIN_SIGNATURE_EXACT') ? DILITHIUM5_ADMIN_SIGNATURE_EXACT : '';
+    if ($masterSig === '') {
+        $masterSig = 'HASHCOD_PQC_MASTER_PEPPER_V1_2026_STABLE_SUPABASE_PERSISTENCE';
+    }
+    return hash('sha256', 'l8_auth_master_pepper_pqc_' . $masterSig);
 }
 
 function authPepper() {
@@ -40,25 +40,88 @@ function authPepper() {
         return $cached;
     }
 
-    // 1) Variable de entorno o bóveda si está definida
-    $pepper = function_exists('secretGet') ? secretGet('L8_AUTH_PEPPER', '') : envValue('L8_AUTH_PEPPER', '');
+    // 1) Env o Bóveda si existe
+    $pepper = function_exists('secretGet') ? secretGet('L8_AUTH_PEPPER', '') : (function_exists('envValue') ? envValue('L8_AUTH_PEPPER', '') : '');
     if ($pepper !== '') {
         $cached = $pepper;
         return $cached;
     }
 
-    // 2) Pepper permanente maestro post-cuántico (inmutable entre reinicios de Render)
-    $masterSig = defined('DILITHIUM5_ADMIN_SIGNATURE_EXACT') ? DILITHIUM5_ADMIN_SIGNATURE_EXACT : '';
-    if ($masterSig === '') {
-        $masterSig = 'HASHCOD_PQC_MASTER_PEPPER_V1_2026_STABLE_SUPABASE_PERSISTENCE';
+    // 2) Supabase Storage (pepper original con el que se crearon las cuentas previas)
+    if (function_exists('supabaseConfig') && function_exists('supabaseStorageDownload')) {
+        $cfg = supabaseConfig();
+        if (!empty($cfg['configured'])) {
+            $remote = @supabaseStorageDownload('meta/auth_pepper');
+            if (!empty($remote['ok']) && is_string($remote['data'])) {
+                $fromRemote = trim($remote['data']);
+                if ($fromRemote !== '') {
+                    $cached = $fromRemote;
+                    return $cached;
+                }
+            }
+        }
     }
-    $cached = hash('sha256', 'l8_auth_master_pepper_pqc_' . $masterSig);
+
+    // 3) Pepper Maestro Permanente Post-Cuántico
+    $cached = authMasterPepper();
     return $cached;
+}
+
+function authGetAllCandidatePeppers() {
+    $peppers = [];
+
+    // Master permanente
+    $peppers[] = authMasterPepper();
+
+    // Variable de entorno
+    $envPep = function_exists('secretGet') ? secretGet('L8_AUTH_PEPPER', '') : (function_exists('envValue') ? envValue('L8_AUTH_PEPPER', '') : '');
+    if ($envPep !== '') $peppers[] = $envPep;
+
+    // Supabase Storage meta/auth_pepper
+    if (function_exists('supabaseConfig') && function_exists('supabaseStorageDownload')) {
+        $cfg = supabaseConfig();
+        if (!empty($cfg['configured'])) {
+            $remote = @supabaseStorageDownload('meta/auth_pepper');
+            if (!empty($remote['ok']) && is_string($remote['data'])) {
+                $fromRemote = trim($remote['data']);
+                if ($fromRemote !== '') $peppers[] = $fromRemote;
+            }
+        }
+    }
+
+    // Determinista DILITHIUM5_ADMIN_SIGNATURE
+    $sig = function_exists('secretGet') ? secretGet('DILITHIUM5_ADMIN_SIGNATURE', '') : (function_exists('envValue') ? envValue('DILITHIUM5_ADMIN_SIGNATURE', '') : '');
+    if ($sig !== '') {
+        $peppers[] = hash('sha256', 'l8_auth_pepper_deterministic_' . $sig);
+    }
+    if (defined('DILITHIUM5_ADMIN_SIGNATURE_EXACT')) {
+        $peppers[] = hash('sha256', 'l8_auth_pepper_deterministic_' . DILITHIUM5_ADMIN_SIGNATURE_EXACT);
+    }
+
+    // Fallbacks históricos
+    $peppers[] = 'l8_codespace_default_pepper';
+    $peppers[] = '';
+
+    return array_values(array_unique(array_filter($peppers, function ($p) { return is_string($p); })));
 }
 
 function authHashKey($plaintext) {
     return hash_hmac('sha256', (string)$plaintext, authPepper());
 }
+
+/** Devuelve todos los hashes posibles para soportar cuentas creadas con cualquier versión de pepper */
+function authHashCandidates($plaintext) {
+    $str = (string)$plaintext;
+    $hashes = [];
+    $peppers = authGetAllCandidatePeppers();
+    foreach ($peppers as $p) {
+        $hashes[] = hash_hmac('sha256', $str, $p);
+    }
+    $hashes[] = hash('sha256', $str);
+    $hashes[] = hash('sha512', $str);
+    return array_values(array_unique(array_filter($hashes)));
+}
+
 
 function authTimingSafeEqual($a, $b) {
     $a = (string)$a;
@@ -725,24 +788,44 @@ function authRecover($recoveryMaterial) {
 
     // Siempre hidrata identidades desde Supabase (Storage + DB) antes de buscar
     $store = authLoadStore(true);
-    $hash = authHashKey($material);
-    $entry = $store['recovery_hashes'][$hash] ?? null;
+    $candidates = authHashCandidates($material);
+    $entry = null;
+    
+    foreach ($candidates as $h) {
+        if (!empty($store['recovery_hashes'][$h])) {
+            $entry = $store['recovery_hashes'][$h];
+            break;
+        }
+        // Buscar directamente en users por si recovery_hashes no estaba mapeado
+        foreach ($store['users'] as $uid => $u) {
+            if (($u['recovery_hash'] ?? '') === $h) {
+                $entry = ['user_id' => $uid, 'type' => 'recovery_key'];
+                break 2;
+            }
+            if (!empty($u['backup_codes'][$h])) {
+                $entry = ['user_id' => $uid, 'type' => 'backup_code'];
+                break 2;
+            }
+        }
+    }
 
-    // Fallback directo a Postgres por hash de recuperación
+    // Fallback directo a Postgres por candidatos de hash de recuperación
     if ((!is_array($entry) || empty($entry['user_id'])) && function_exists('supabaseDbSelect') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
-        $q = 'select=*&hash=eq.' . rawurlencode($hash) . '&limit=1';
-        $hit = supabaseDbSelect('l8_auth_identities', $q);
-        if (!empty($hit['ok']) && is_array($hit['body']) && !empty($hit['body'][0]['account_id'])) {
-            $row = $hit['body'][0];
-            $entry = [
-                'user_id' => $row['account_id'],
-                'type' => $row['kind'] ?? 'recovery_key'
-            ];
-            // Asegura usuario en store desde DB
-            $acc = supabaseDbSelect('l8_auth_accounts', 'select=*&id=eq.' . rawurlencode($row['account_id']) . '&limit=1');
-            if (!empty($acc['ok']) && is_array($acc['body'][0] ?? null)) {
-                $dbStore = authStoreFromDbRows([$acc['body'][0]], [$row]);
-                $store = authMergeStores($store, $dbStore);
+        foreach ($candidates as $h) {
+            $q = 'select=*&hash=eq.' . rawurlencode($h) . '&limit=1';
+            $hit = supabaseDbSelect('l8_auth_identities', $q);
+            if (!empty($hit['ok']) && is_array($hit['body']) && !empty($hit['body'][0]['account_id'])) {
+                $row = $hit['body'][0];
+                $entry = [
+                    'user_id' => $row['account_id'],
+                    'type' => $row['kind'] ?? 'recovery_key'
+                ];
+                $acc = supabaseDbSelect('l8_auth_accounts', 'select=*&id=eq.' . rawurlencode($row['account_id']) . '&limit=1');
+                if (!empty($acc['ok']) && is_array($acc['body'][0] ?? null)) {
+                    $dbStore = authStoreFromDbRows([$acc['body'][0]], [$row]);
+                    $store = authMergeStores($store, $dbStore);
+                }
+                break;
             }
         }
     }
@@ -867,11 +950,43 @@ function authLogin($aes256, $identity) {
         ];
     }
 
-    $aesHash = authHashKey($aes256);
-    $idHash = authHashKey($identity);
+    $aesCandidates = authHashCandidates($aes256);
+    $idCandidates = authHashCandidates($identity);
 
-    $userFromAes = $store['key_hashes'][$aesHash] ?? null;
-    $userFromId = $store['key_hashes'][$idHash] ?? null;
+    $userFromAes = null;
+    $matchedAesHash = null;
+    foreach ($aesCandidates as $h) {
+        if (!empty($store['key_hashes'][$h])) {
+            $userFromAes = $store['key_hashes'][$h];
+            $matchedAesHash = $h;
+            break;
+        }
+        // Buscar también directamente en users si key_hashes no estaba indexado
+        foreach ($store['users'] as $uid => $u) {
+            if (($u['aes256_hash'] ?? '') === $h) {
+                $userFromAes = $uid;
+                $matchedAesHash = $h;
+                break 2;
+            }
+        }
+    }
+
+    $userFromId = null;
+    $matchedIdHash = null;
+    foreach ($idCandidates as $h) {
+        if (!empty($store['key_hashes'][$h])) {
+            $userFromId = $store['key_hashes'][$h];
+            $matchedIdHash = $h;
+            break;
+        }
+        foreach ($store['users'] as $uid => $u) {
+            if (($u['identity_hash'] ?? '') === $h) {
+                $userFromId = $uid;
+                $matchedIdHash = $h;
+                break 2;
+            }
+        }
+    }
 
     if (!$userFromAes && !$userFromId) {
         return [
@@ -903,12 +1018,32 @@ function authLogin($aes256, $identity) {
         return ['ok' => false, 'error' => 'Cuenta registrada pero no localizada en el almacén de usuarios.'];
     }
 
-    // Verificar que cada hash corresponde al campo correcto
-    if (
-        !authTimingSafeEqual($user['aes256_hash'] ?? '', $aesHash) ||
-        !authTimingSafeEqual($user['identity_hash'] ?? '', $idHash)
-    ) {
+    // Verificar que los hashes pertenezcan a la cuenta
+    $userAesHash = $user['aes256_hash'] ?? '';
+    $userIdHash = $user['identity_hash'] ?? '';
+
+    $aesOk = in_array($userAesHash, $aesCandidates, true);
+    $idOk = in_array($userIdHash, $idCandidates, true);
+
+    if (!$aesOk || !$idOk) {
         return ['ok' => false, 'error' => 'Las claves no coinciden con la firma de seguridad de la cuenta.'];
+    }
+
+    // Auto-migración al pepper maestro permanente si la cuenta usaba un hash antiguo
+    $masterPepper = authMasterPepper();
+    $masterAesHash = hash_hmac('sha256', $aes256, $masterPepper);
+    $masterIdHash = hash_hmac('sha256', $identity, $masterPepper);
+    
+    if ($userAesHash !== $masterAesHash || $userIdHash !== $masterIdHash) {
+        // Actualizar al formato maestro
+        if ($userAesHash && isset($store['key_hashes'][$userAesHash])) unset($store['key_hashes'][$userAesHash]);
+        if ($userIdHash && isset($store['key_hashes'][$userIdHash])) unset($store['key_hashes'][$userIdHash]);
+        
+        $store['users'][$user['id']]['aes256_hash'] = $masterAesHash;
+        $store['users'][$user['id']]['identity_hash'] = $masterIdHash;
+        $store['key_hashes'][$masterAesHash] = $user['id'];
+        $store['key_hashes'][$masterIdHash] = $user['id'];
+        $store['users'][$user['id']]['updated_at'] = date('c');
     }
 
     $token = authCreateSession($store, $user['id']);

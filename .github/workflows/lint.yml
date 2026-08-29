@@ -1,0 +1,35 @@
+name: lint
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: PHP syntax check
+        run: |
+          set -e
+          find . -path ./.git -prune -o -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Node syntax check
+        run: |
+          set -e
+          for f in *.js components/*.js scripts/*.js; do
+            [ -f "$f" ] && node --check "$f"
+          done
+
+      - name: Python syntax check
+        run: |
+          set -e
+          python3 -m compileall -q streamlit_tools engines/strix-core > /dev/null

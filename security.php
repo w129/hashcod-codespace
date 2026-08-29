@@ -391,7 +391,7 @@ function securityIsDeniedPath($uri) {
         '/server.js', '/router.php', '/api.php', '/security.php', '/supabase.php', '/secrets.php',
         '/l8-html.php', '/streamlit.php', '/libreoffice.php', '/auth.php', '/tokens.php', '/hashcod-keys.php', '/ai-chat.php',
         '/opencrypt-gen.php', '/.gitignore', '/.dockerignore', '/.cursor',
-        '/caddyfile', '/requirements-streamlit.txt', '/dockerfile',
+        '/caddyfile', '/requirements-streamlit.txt', '/.htaccess',
         '/phpinfo.php', '/info.php', '/test.php', '/debug.php'
     ];
     if (in_array($uriLower, $deniedExact, true)) return true;
@@ -399,13 +399,14 @@ function securityIsDeniedPath($uri) {
     $deniedPrefixes = [
         '/.git/', '/.git', '/.svn/', '/.hg/', '/.idea/', '/.vscode/',
         '/data_storage/', '/uploads/', '/supabase/', '/vendor/',
-        '/node_modules/', '/.cursor/', '/etc/secrets/', '/secrets/'
+        '/node_modules/', '/.cursor/', '/etc/secrets/', '/secrets/',
+        '/scripts/', '/.github/'
     ];
     foreach ($deniedPrefixes as $p) {
         if ($uriLower === rtrim($p, '/') || strpos($uriLower, $p) === 0) return true;
     }
 
-    if (preg_match('/\.(env|sql|sqlite|sqlite3|bak|old|swp|dist|ini|yml|yaml|toml|lock|log|sh|bash|zsh|phar|phtml|enc)$/i', $uriLower)) {
+    if (preg_match('/\.(env|sql|sqlite|sqlite3|bak|old|swp|dist|ini|yml|yaml|toml|lock|log|sh|bash|zsh|ps1|psm1|bat|cmd|phar|phtml|enc)$/i', $uriLower)) {
         return true;
     }
     if (preg_match('/\.php$/i', $uriLower)) {
@@ -424,7 +425,7 @@ function securityIsAllowedStatic($uri) {
         return false;
     }
     $lower = strtolower($uri);
-    foreach (['/data_storage/', '/uploads/', '/.git/', '/supabase/', '/vendor/', '/node_modules/'] as $bad) {
+    foreach (['/data_storage/', '/uploads/', '/.git/', '/supabase/', '/vendor/', '/node_modules/', '/scripts/', '/.github/'] as $bad) {
         if (strpos($lower, $bad) === 0) return false;
     }
     return true;

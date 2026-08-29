@@ -36,7 +36,7 @@ if (strpos($html, '<title>') !== false) {
 if (strpos($html, 'rel="icon"') === false) {
     $html = str_replace(
         '</head>',
-        '<link rel="icon" href="' . $base . 'tiptap-dock.svg" type="image/svg+xml">' . "\n</head>",
+        '<link rel="icon" href="' . $base . 'assets/icons/tiptap-dock.svg" type="image/svg+xml">' . "\n</head>",
         $html
     );
 }

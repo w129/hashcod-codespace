@@ -12,7 +12,7 @@ $L8_BASE = l8_public_base_path();
     <title>PRS Code · l8 codespace</title>
     <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
     <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
-    <link rel="icon" href="prs-code-icon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/icons/prs-code-icon.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -241,7 +241,7 @@ $L8_BASE = l8_public_base_path();
 <body>
     <div class="shell">
         <div class="boot" id="bootScreen" aria-live="polite">
-            <img class="boot-icon" src="/prs-code-icon.svg" width="120" height="120" alt="PRS Code">
+            <img class="boot-icon" src="/assets/icons/prs-code-icon.svg" width="120" height="120" alt="PRS Code">
             <svg class="boot-reload" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
                 <path d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-8.9 3.1l-1.46 1.46A7 7 0 0 0 19 13c0-3.87-3.13-7-7-7zm-5 5a5 5 0 0 1 8.9-3.1l1.46-1.46A7 7 0 0 0 5 13c0 3.87 3.13 7 7 7v3l4-4-4-4v3c-2.76 0-5-2.24-5-5z"/>
             </svg>
@@ -252,7 +252,7 @@ $L8_BASE = l8_public_base_path();
         <div class="ide" id="ideScreen">
             <div class="titlebar">
                 <div class="brand">
-                    <img src="/prs-code-icon.svg" alt="" width="28" height="28">
+                    <img src="/assets/icons/prs-code-icon.svg" alt="" width="28" height="28">
                     <div>
                         <h1>PRS Code</h1>
                         <span>Paste · share by selection · thin client</span>

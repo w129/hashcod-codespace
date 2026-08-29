@@ -136,7 +136,7 @@ $L8_BASE = l8_public_base_path();
     <div class="shell">
         <div class="titlebar">
             <div class="brand">
-                <img src="/zylon-mark-gray.svg?v=1" alt="" width="24" height="24" aria-hidden="true">
+                <img src="/assets/icons/zylon-mark-gray.svg?v=1" alt="" width="24" height="24" aria-hidden="true">
                 <div>
                     <h1>Zylon</h1>
                     <span>zylon-ai/private-gpt · l8 codespace</span>

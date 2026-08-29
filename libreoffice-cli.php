@@ -12,7 +12,7 @@ $L8_BASE = l8_public_base_path();
     <title>LibreOffice · l8 codespace</title>
     <base href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>">
     <script>window.L8_BASE_PATH = <?php echo json_encode($L8_BASE, JSON_UNESCAPED_SLASHES); ?>;</script>
-    <link rel="icon" href="libreoffice-dock.svg?v=2" type="image/svg+xml">
+    <link rel="icon" href="assets/icons/libreoffice-dock.svg?v=2" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -124,7 +124,7 @@ $L8_BASE = l8_public_base_path();
 <div class="shell">
     <header class="titlebar">
         <div class="brand">
-            <img src="/libreoffice-dock.svg?v=2" alt="">
+            <img src="/assets/icons/libreoffice-dock.svg?v=2" alt="">
             <div>
                 <h1>LibreOffice</h1>
                 <p>Suite en la plataforma servidor · MPL-2.0</p>

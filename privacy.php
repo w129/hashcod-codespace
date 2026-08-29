@@ -494,6 +494,87 @@
 
     </div>
 
+
+        <!-- PANE 7: VALIDACIÓN GUBERNAMENTAL & LEGAL (REPÚBLICA DOMINICANA) -->
+        <div class="tab-pane" id="pane-tab-gov">
+            <div class="highlight-box" style="background:#f0f9ff; border-left-color:#0284c7; color:#0369a1;">
+                <div style="font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:18px;">🇩🇴</span>
+                    Certificación, Registro de Marca y Validación Oficial del Gobierno Dominicano
+                </div>
+                <p style="margin:0;">
+                    <strong>Hashcod Codespace</strong> y su plataforma de certificación determinista de software e Inteligencia Artificial operan bajo pleno amparo y registro legal ante las instituciones gubernamentales de la <strong>República Dominicana</strong>: <strong>ONAPI</strong> (Oficina Nacional de la Propiedad Industrial), <strong>DGII</strong> (Dirección General de Impuestos Internos) y el <strong>Registro Mercantil</strong> de la Cámara de Comercio.
+                </p>
+            </div>
+
+            <h3>🏛️ Títulos y Certificados Oficiales del Estado Dominicano</h3>
+            <p style="font-size:13.5px; color:#475569; margin-bottom:16px;">
+                A continuación se presentan los registros públicos y resoluciones emitidas por los ministerios competentes:
+            </p>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-top:14px;">
+                
+                <!-- 1. ONAPI Certificado Marca -->
+                <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+                    <div style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                        <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">ONAPI</span>
+                        Certificado de Marca Mixta "Hashcod"
+                    </div>
+                    <img src="gob-onapi-marca-hashcod.png" alt="Certificado ONAPI de Registro de Marca Mixta Hashcod" class="evidence-img" onclick="window.open('gob-onapi-marca-hashcod.png', '_blank')" title="Clic para ampliar documento" style="max-height:480px; object-fit:contain; width:100%;">
+                    <div style="margin-top:12px; font-size:12px; color:#475569; line-height:1.5;">
+                        <strong>Registro Oficial Núm. 336973 (Clase 42 Internacional)</strong><br>
+                        <strong>Vigencia:</strong> 18/08/2026 – 18/08/2036 (10 años renovables)<br>
+                        <strong>Servicios Autorizados:</strong> Software como Servicio (SaaS), Desarrollo de Software, Criptografía aplicada a software, Protección de datos digitales, Certificación determinista de IA y Almacenamiento seguro.
+                    </div>
+                </div>
+
+                <!-- 2. ONAPI Oficio de Envío -->
+                <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+                    <div style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                        <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">ONAPI</span>
+                        Oficio de Concesión y Registro
+                    </div>
+                    <img src="gob-onapi-cert-envio.png" alt="Envío de Certificación de Registro de Marca ONAPI" class="evidence-img" onclick="window.open('gob-onapi-cert-envio.png', '_blank')" title="Clic para ampliar documento" style="max-height:480px; object-fit:contain; width:100%;">
+                    <div style="margin-top:12px; font-size:12px; color:#475569; line-height:1.5;">
+                        <strong>Solicitud Núm.: 2026-35462</strong><br>
+                        <strong>Titular:</strong> Emil Enmanuel Pieter Mora<br>
+                        <strong>Entidad:</strong> Ministerio de Industria, Comercio y Mipymes (MICM) / Dirección de Signos Distintivos (Lic. Michelle Marie Guzmán Soñé).
+                    </div>
+                </div>
+
+                <!-- 3. DGII Certificación RNC -->
+                <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+                    <div style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                        <span style="background:#dcfce7; color:#15803d; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">DGII</span>
+                        Certificación de Registro Tributario
+                    </div>
+                    <img src="gob-dgii-rnc-certificacion.png" alt="Certificación DGII RNC Activo" class="evidence-img" onclick="window.open('gob-dgii-rnc-certificacion.png', '_blank')" title="Clic para ampliar documento" style="max-height:480px; object-fit:contain; width:100%;">
+                    <div style="margin-top:12px; font-size:12px; color:#475569; line-height:1.5;">
+                        <strong>RNC No.: 40209369293 (Certificado C0426011487298)</strong><br>
+                        <strong>Condición:</strong> Contribuyente Activo Ordinario<br>
+                        <strong>Actividad Económica:</strong> Diseño y Desarrollo de Software.<br>
+                        <strong>Ministerio:</strong> Hacienda y Economía / DGII República Dominicana.
+                    </div>
+                </div>
+
+                <!-- 4. Cámara de Comercio Registro Mercantil -->
+                <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+                    <div style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                        <span style="background:#fef3c7; color:#b45309; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;">REGISTRO MERCANTIL</span>
+                        Cámara de Comercio y Producción
+                    </div>
+                    <img src="gob-camara-comercio-registro-mercantil.png" alt="Certificado Registro Mercantil Cámara de Comercio" class="evidence-img" onclick="window.open('gob-camara-comercio-registro-mercantil.png', '_blank')" title="Clic para ampliar documento" style="max-height:480px; object-fit:contain; width:100%;">
+                    <div style="margin-top:12px; font-size:12px; color:#475569; line-height:1.5;">
+                        <strong>Registro Mercantil No.: 3323LV-PF</strong><br>
+                        <strong>Código Validación:</strong> 87CD8008-AC9C-481B-8C8B-1D63D2246AD1<br>
+                        <strong>Titular:</strong> Emil Enmanuel Pieter Mora (Persona Física)<br>
+                        <strong>Vigencia:</strong> 16/06/2026 – 16/06/2028.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     <!-- Footer -->
     <div class="privacy-footer">
         <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">

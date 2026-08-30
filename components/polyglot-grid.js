@@ -250,6 +250,66 @@ public class OrderService {
             this.subscribers = new Set();
             this.initDefaultCells();
             this.loadPresetFiles();
+            this.loadFromStorage();
+        }
+
+        saveToStorage() {
+            if (typeof localStorage === 'undefined') return;
+            try {
+                const cellsObj = {};
+                this.cells.forEach((v, k) => { cellsObj[k] = v; });
+                const payload = {
+                    version: "2026.3",
+                    savedAt: new Date().toISOString(),
+                    activeCoord: this.activeCoord,
+                    selectedFilePath: this.selectedFilePath,
+                    currentFramework: this.currentFramework,
+                    currentMethod: this.currentMethod,
+                    currentRoute: this.currentRoute,
+                    cells: cellsObj,
+                    files: Array.from(this.files.entries()),
+                    history: this.historyLedger.slice(0, 50)
+                };
+                localStorage.setItem('krumbs_studio_state_v1', JSON.stringify(payload));
+            } catch (err) {
+                console.warn("[Krumbs] Could not save to localStorage:", err);
+            }
+        }
+
+        loadFromStorage() {
+            if (typeof localStorage === 'undefined') return false;
+            try {
+                const raw = localStorage.getItem('krumbs_studio_state_v1');
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                if (!data || !data.cells) return false;
+
+                if (data.cells) {
+                    Object.keys(data.cells).forEach(k => {
+                        this.cells.set(k, data.cells[k]);
+                    });
+                }
+                if (Array.isArray(data.files)) {
+                    data.files.forEach(([path, fileObj]) => {
+                        this.files.set(path, fileObj);
+                    });
+                }
+                if (data.activeCoord) this.activeCoord = data.activeCoord;
+                if (data.selectedFilePath && this.files.has(data.selectedFilePath)) {
+                    this.selectedFilePath = data.selectedFilePath;
+                    const f = this.files.get(data.selectedFilePath);
+                    if (f) this.sourceCode = f.content;
+                }
+                if (data.currentFramework) this.currentFramework = data.currentFramework;
+                if (data.currentMethod) this.currentMethod = data.currentMethod;
+                if (data.currentRoute) this.currentRoute = data.currentRoute;
+                if (Array.isArray(data.history)) this.historyLedger = data.history;
+
+                return true;
+            } catch (err) {
+                console.warn("[Krumbs] Could not load from localStorage:", err);
+                return false;
+            }
         }
 
         initDefaultCells() {
@@ -1536,7 +1596,8 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             this.renderGrid();
             this.renderFileTree();
             this.updateActiveCellInspector();
-            this.appendLog('SUCCESS', `Archivo '${filePath}' asignado con éxito a la Caja [V: x${rowVal + 1}, F: ${colVal}].`, [colVal, rowVal, 0, 0]);
+            this.state.saveToStorage();
+            this.appendLog('SUCCESS', `Archivo '${filePath}' asignado con éxito a la Caja [V: x${rowVal + 1}, F: ${colVal}] (Guardado en memoria permanente 💾).`, [colVal, rowVal, 0, 0]);
         }
 
         selectFile(path) {
@@ -1881,6 +1942,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             if (this.state.historyLedger.length > 50) {
                 this.state.historyLedger.pop();
             }
+            this.state.saveToStorage();
         }
 
         exportWorkspace() {

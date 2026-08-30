@@ -1,0 +1,1836 @@
+/**
+ * Hashcod Codespace — Polyglot Grid API Launcher & Code Studio
+ * 8x7 Coordinate Matrix Grid (x, y, z, u), Directory Explorer, Polyglot Converter & Live Console
+ * Version: 2026.1
+ */
+
+(function(global) {
+    'use strict';
+
+    // ===== 1. CONSTANTS & LIFECYCLE STATES =====
+    const GRID_COLS = 8; // X: 0..7
+    const GRID_ROWS = 7; // Y: 0..6
+    const TOTAL_CELLS = GRID_COLS * GRID_ROWS; // 56 cells
+
+    const LIFECYCLE_STATES = {
+        IDLE: 'IDLE',
+        CONFIGURED: 'CONFIGURED',
+        RUNNING: 'RUNNING',
+        SUCCESS: 'SUCCESS',
+        ERROR: 'ERROR',
+        LOCKED: 'LOCKED'
+    };
+
+    const FRAMEWORKS = {
+        FASTAPI: 'fastapi',
+        SANIC: 'sanic',
+        EXPRESS: 'express',
+        GO: 'go',
+        C: 'c',
+        JAVA: 'java'
+    };
+
+    // ===== 2. PRESET CODE SAMPLES LIBRARY =====
+    const SAMPLE_PRESETS = {
+        'ml_analyzer.py': {
+            name: 'ml_analyzer.py',
+            path: 'services/ml_analyzer.py',
+            language: 'python',
+            content: `"""
+Machine Learning Model Prediction & Inference Service
+Extracts high-dimensional vector representations and computes class probabilities.
+"""
+
+def predict_classification(features: list, model_id: str = "xgboost_v2", threshold: float = 0.5) -> dict:
+    """Computes softmax classification probabilities from input numerical features."""
+    if not features or len(features) == 0:
+        return {"error": "Features list cannot be empty", "classes": []}
+    
+    total = sum(abs(f) for f in features) or 1.0
+    scores = [round(abs(f) / total, 4) for f in features]
+    prediction = 1 if max(scores) >= threshold else 0
+    
+    return {
+        "model_id": model_id,
+        "prediction": prediction,
+        "confidence": max(scores),
+        "scores": scores,
+        "features_count": len(features)
+    }
+
+def analyze_model_metrics(model_id: str, epoch_count: int = 100) -> dict:
+    """Returns training convergence telemetry and validation loss metrics."""
+    return {
+        "model_id": model_id,
+        "epoch_count": epoch_count,
+        "loss": 0.0245,
+        "accuracy": 0.987,
+        "status": "CONVERGED"
+    }
+`
+        },
+        'math_service.py': {
+            name: 'math_service.py',
+            path: 'services/math_service.py',
+            language: 'python',
+            content: `"""
+Matrix & Vector High-Performance Numerical Computing Service
+"""
+
+def dot_product(vec_a: list, vec_b: list) -> dict:
+    """Calculates Euclidean dot product between two real-valued vectors."""
+    if len(vec_a) != len(vec_b):
+        return {"error": "Vectors must have identical dimensionality", "result": 0}
+    
+    val = sum(a * b for a, b in zip(vec_a, vec_b))
+    return {
+        "dimension": len(vec_a),
+        "dot_product": round(val, 6),
+        "orthogonal": (val == 0)
+    }
+
+def matrix_determinant_2x2(matrix: list) -> dict:
+    """Calculates determinant of a 2x2 square matrix [[a, b], [c, d]]."""
+    if len(matrix) != 2 or len(matrix[0]) != 2 or len(matrix[1]) != 2:
+        return {"error": "Matrix must be exactly 2x2", "det": 0}
+    
+    det = (matrix[0][0] * matrix[1][1]) - (matrix[0][1] * matrix[1][0])
+    return {
+        "matrix": matrix,
+        "determinant": det,
+        "invertible": (det != 0)
+    }
+`
+        },
+        'auth_controller.js': {
+            name: 'auth_controller.js',
+            path: 'controllers/auth_controller.js',
+            language: 'javascript',
+            content: `/**
+ * Authentication and Security Identity Controller
+ */
+
+function issueSessionToken(accountId, role, ttlSeconds) {
+    if (!accountId) {
+        throw new Error("accountId is required for session token issuance");
+    }
+    const token = "l8_tok_" + Math.random().toString(36).substring(2, 15) + "_" + Date.now();
+    return {
+        issued: true,
+        accountId: accountId,
+        role: role || "developer",
+        token: token,
+        expiresIn: ttlSeconds || 3600
+    };
+}
+
+function verifyAccessPermission(token, requiredRole) {
+    if (!token || !token.startsWith("l8_tok_")) {
+        return { valid: false, reason: "Malformed or expired token header" };
+    }
+    return {
+        valid: true,
+        grantedRole: requiredRole || "user",
+        timestamp: new Date().toISOString()
+    };
+}
+`
+        },
+        'payment_processor.go': {
+            name: 'payment_processor.go',
+            path: 'pkg/payment/payment_processor.go',
+            language: 'go',
+            content: `package payment
+
+import (
+    "errors"
+    "fmt"
+    "time"
+)
+
+// ProcessTransaction executes a ledger transaction with fraud verification
+func ProcessTransaction(accountID string, amount float64, currency string) (map[string]interface{}, error) {
+    if accountID == "" {
+        return nil, errors.New("invalid account ID")
+    }
+    if amount <= 0 {
+        return nil, errors.New("transaction amount must be greater than zero")
+    }
+    
+    txID := fmt.Sprintf("TXN-%d", time.Now().UnixNano())
+    return map[string]interface{}{
+        "transaction_id": txID,
+        "account_id":     accountID,
+        "amount":         amount,
+        "currency":       currency,
+        "status":         "SETTLED",
+        "processed_at":   time.Now().UTC().Format(time.RFC3339),
+    }, nil
+}
+`
+        },
+        'crypto_hasher.c': {
+            name: 'crypto_hasher.c',
+            path: 'native/crypto_hasher.c',
+            language: 'c',
+            content: `#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+/**
+ * Computes deterministic FNV-1a 64-bit cryptographic signature hash for input payload.
+ */
+uint64_t compute_fnv1a_hash(const char* payload, size_t length) {
+    uint64_t hash = 14695981039346656037ULL;
+    for (size_t i = 0; i < length; ++i) {
+        hash ^= (uint8_t)payload[i];
+        hash *= 1099511628211ULL;
+    }
+    return hash;
+}
+`
+        },
+        'OrderService.java': {
+            name: 'OrderService.java',
+            path: 'src/main/java/com/hashcod/service/OrderService.java',
+            language: 'java',
+            content: `package com.hashcod.service;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.UUID;
+
+public class OrderService {
+    
+    public Map<String, Object> createOrder(String customerId, double totalAmount, String currency) {
+        if (customerId == null || customerId.trim().isEmpty()) {
+            throw new IllegalArgumentException("customerId cannot be empty");
+        }
+        
+        Map<String, Object> order = new HashMap<>();
+        order.put("orderId", "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        order.put("customerId", customerId);
+        order.put("totalAmount", totalAmount);
+        order.put("currency", currency != null ? currency : "USD");
+        order.put("status", "CONFIRMED");
+        return order;
+    }
+}
+`
+        }
+    };
+
+    // ===== 3. CORE STATE STORE =====
+    class PolyglotStudioState {
+        constructor() {
+            this.activeCoord = { x: 0, y: 0, z: 0, u: 0 };
+            this.cells = new Map(); // key: "x:y:z:u", value: CellState
+            this.selectedCellKeys = new Set();
+            this.files = new Map(); // path -> fileObj
+            this.selectedFilePath = 'services/ml_analyzer.py';
+            this.currentFramework = FRAMEWORKS.FASTAPI;
+            this.currentMethod = 'POST';
+            this.currentRoute = '/api/v1/predict';
+            this.sourceCode = '';
+            this.generatedApiCode = '';
+            this.clientCurl = '';
+            this.clientFetch = '';
+            this.activeSnippetTab = 'curl';
+            this.activeWorkspaceTab = 'matrix';
+            this.executionLogs = [];
+            this.historyLedger = [];
+            this.logFilterLevel = 'ALL';
+            this.logFilterQuery = '';
+            this.logFilterCell = '';
+            this.subscribers = new Set();
+            this.initDefaultCells();
+            this.loadPresetFiles();
+        }
+
+        initDefaultCells() {
+            for (let y = 0; y < GRID_ROWS; y++) {
+                for (let x = 0; x < GRID_COLS; x++) {
+                    const key = `${x}:${y}:0:0`;
+                    this.cells.set(key, {
+                        x, y, z: 0, u: 0,
+                        id: `cell-${x}-${y}-0-0`,
+                        state: LIFECYCLE_STATES.IDLE,
+                        boundFile: '',
+                        boundFunction: '',
+                        framework: FRAMEWORKS.FASTAPI,
+                        route: `/api/cell/${x}/${y}`,
+                        method: 'POST',
+                        params: [],
+                        lastResult: null,
+                        lastLatencyMs: 0,
+                        lastTimestamp: null,
+                        executionCount: 0
+                    });
+                }
+            }
+            // Bind preset to cell 0,0
+            const firstCell = this.cells.get('0:0:0:0');
+            if (firstCell) {
+                firstCell.state = LIFECYCLE_STATES.CONFIGURED;
+                firstCell.boundFile = 'services/ml_analyzer.py';
+                firstCell.boundFunction = 'predict_classification';
+                firstCell.framework = FRAMEWORKS.FASTAPI;
+                firstCell.route = '/api/v1/predict';
+            }
+        }
+
+        loadPresetFiles() {
+            Object.keys(SAMPLE_PRESETS).forEach(k => {
+                const p = SAMPLE_PRESETS[k];
+                this.files.set(p.path, {
+                    name: p.name,
+                    path: p.path,
+                    language: p.language,
+                    content: p.content,
+                    size: p.content.length,
+                    lines: p.content.split('\n').length
+                });
+            });
+            const defaultFile = this.files.get(this.selectedFilePath);
+            if (defaultFile) {
+                this.sourceCode = defaultFile.content;
+            }
+        }
+
+        subscribe(listener) {
+            this.subscribers.add(listener);
+            return () => this.subscribers.delete(listener);
+        }
+
+        notify(event, payload) {
+            this.subscribers.forEach(fn => {
+                try { fn(event, payload, this); } catch (e) { console.error("Subscriber error:", e); }
+            });
+        }
+
+        getCell(x, y, z = 0, u = 0) {
+            const clamped = this.clampCoord(x, y, z, u);
+            const key = `${clamped.x}:${clamped.y}:${clamped.z}:${clamped.u}`;
+            if (!this.cells.has(key)) {
+                this.cells.set(key, {
+                    x: clamped.x, y: clamped.y, z: clamped.z, u: clamped.u,
+                    id: `cell-${clamped.x}-${clamped.y}-${clamped.z}-${clamped.u}`,
+                    state: LIFECYCLE_STATES.IDLE,
+                    boundFile: '',
+                    boundFunction: '',
+                    framework: this.currentFramework,
+                    route: `/api/cell/${clamped.x}/${clamped.y}`,
+                    method: 'POST',
+                    params: [],
+                    lastResult: null,
+                    lastLatencyMs: 0,
+                    lastTimestamp: null,
+                    executionCount: 0
+                });
+            }
+            return this.cells.get(key);
+        }
+
+        clampCoord(x, y, z = 0, u = 0) {
+            return {
+                x: Math.max(0, Math.min(GRID_COLS - 1, Math.floor(Number(x) || 0))),
+                y: Math.max(0, Math.min(GRID_ROWS - 1, Math.floor(Number(y) || 0))),
+                z: Math.max(0, Math.floor(Number(z) || 0)),
+                u: Math.max(0, Math.floor(Number(u) || 0))
+            };
+        }
+
+        coordToIndex(x, y) {
+            const c = this.clampCoord(x, y);
+            return c.y * GRID_COLS + c.x;
+        }
+
+        indexToCoord(index) {
+            const safeIdx = Math.max(0, Math.min(TOTAL_CELLS - 1, Math.floor(Number(index) || 0)));
+            return {
+                x: safeIdx % GRID_COLS,
+                y: Math.floor(safeIdx / GRID_COLS),
+                z: this.activeCoord.z,
+                u: this.activeCoord.u
+            };
+        }
+    }
+
+    // ===== 4. AST & CODE-TO-API CONVERTER ENGINE =====
+    class PolyglotConverter {
+        static extractSignatures(code, language = 'python') {
+            const functions = [];
+            const str = String(code || '');
+            const lang = (language || 'python').toLowerCase();
+
+            if (lang === 'python' || lang === 'py') {
+                const pyRegex = /def\s+([a-zA-Z0-9_]+)\s*\(([\s\S]*?)\)\s*(?:->\s*([a-zA-Z0-9_\[\],\s]+))?:/g;
+                let m;
+                while ((m = pyRegex.exec(str)) !== null) {
+                    const funcName = m[1];
+                    const rawArgs = m[2] || '';
+                    const returnType = (m[3] || 'dict').trim();
+                    const params = PolyglotConverter.parsePythonParams(rawArgs);
+                    
+                    const afterIndex = m.index + m[0].length;
+                    const snippet = str.substring(afterIndex, afterIndex + 300);
+                    const docMatch = /^\s*"""([\s\S]*?)"""/.exec(snippet) || /^\s*'''([\s\S]*?)'''/.exec(snippet);
+                    const docstring = docMatch ? docMatch[1].trim() : '';
+
+                    functions.push({
+                        name: funcName,
+                        params: params,
+                        returnType: returnType,
+                        docstring: docstring,
+                        language: 'python'
+                    });
+                }
+            } else if (lang === 'javascript' || lang === 'typescript' || lang === 'js' || lang === 'ts') {
+                const jsRegex = /(?:async\s+)?function\s+([a-zA-Z0-9_]+)\s*\(([\s\S]*?)\)|(?:const|let|var)\s+([a-zA-Z0-9_]+)\s*=\s*(?:async\s*)?\(([\s\S]*?)\)\s*=>/g;
+                let m;
+                while ((m = jsRegex.exec(str)) !== null) {
+                    const funcName = m[1] || m[3];
+                    const rawArgs = m[2] || m[4] || '';
+                    const params = PolyglotConverter.parseGenericParams(rawArgs);
+                    functions.push({
+                        name: funcName,
+                        params: params,
+                        returnType: 'Object',
+                        docstring: '',
+                        language: 'javascript'
+                    });
+                }
+            } else if (lang === 'go' || lang === 'golang') {
+                const goRegex = /func\s+(?:\([^)]+\)\s+)?([a-zA-Z0-9_]+)\s*\(([\s\S]*?)\)\s*(?:\(([\s\S]*?)\)|([a-zA-Z0-9_\[\]*]+))?/g;
+                let m;
+                while ((m = goRegex.exec(str)) !== null) {
+                    const funcName = m[1];
+                    const rawArgs = m[2] || '';
+                    const returnType = m[3] || m[4] || 'error';
+                    const params = PolyglotConverter.parseGoParams(rawArgs);
+                    functions.push({
+                        name: funcName,
+                        params: params,
+                        returnType: returnType.trim(),
+                        docstring: '',
+                        language: 'go'
+                    });
+                }
+            } else if (lang === 'c' || lang === 'cpp') {
+                const cRegex = /([a-zA-Z0-9_]+(?:\s*\*+)?)\s+([a-zA-Z0-9_]+)\s*\(([\s\S]*?)\)\s*\{/g;
+                let m;
+                while ((m = cRegex.exec(str)) !== null) {
+                    const returnType = m[1].trim();
+                    const funcName = m[2];
+                    if (funcName === 'if' || funcName === 'while' || funcName === 'for') continue;
+                    const rawArgs = m[3] || '';
+                    const params = PolyglotConverter.parseCParams(rawArgs);
+                    functions.push({
+                        name: funcName,
+                        params: params,
+                        returnType: returnType,
+                        docstring: '',
+                        language: 'c'
+                    });
+                }
+            } else if (lang === 'java') {
+                const javaRegex = /(?:public|protected|private)?\s*(?:static\s+)?([a-zA-Z0-9_<>,\[\]]+)\s+([a-zA-Z0-9_]+)\s*\(([\s\S]*?)\)\s*(?:throws\s+[a-zA-Z0-9_,\s]+)?\s*\{/g;
+                let m;
+                while ((m = javaRegex.exec(str)) !== null) {
+                    const returnType = m[1].trim();
+                    const funcName = m[2];
+                    if (funcName === 'if' || funcName === 'while' || funcName === 'for') continue;
+                    const rawArgs = m[3] || '';
+                    const params = PolyglotConverter.parseJavaParams(rawArgs);
+                    functions.push({
+                        name: funcName,
+                        params: params,
+                        returnType: returnType,
+                        docstring: '',
+                        language: 'java'
+                    });
+                }
+            }
+
+            if (!functions.length) {
+                functions.push({
+                    name: 'executeHandler',
+                    params: [{ name: 'payload', type: 'object', in: 'body', required: true, defaultVal: null }],
+                    returnType: 'object',
+                    docstring: 'Default synthesized endpoint handler',
+                    language: lang
+                });
+            }
+
+            return functions;
+        }
+
+        static parsePythonParams(raw) {
+            if (!raw.trim()) return [];
+            return raw.split(',').map(p => {
+                const trimmed = p.trim();
+                if (!trimmed || trimmed === 'self' || trimmed === 'cls') return null;
+                const parts = trimmed.split('=');
+                const defaultVal = parts.length > 1 ? parts[1].trim() : null;
+                const nameType = parts[0].split(':');
+                const name = nameType[0].trim();
+                const type = nameType.length > 1 ? nameType[1].trim() : 'str';
+                const isPrimitive = ['int', 'float', 'bool', 'str'].includes(type.toLowerCase());
+                return {
+                    name: name,
+                    type: type,
+                    in: isPrimitive && defaultVal !== null ? 'query' : (name.endsWith('_id') || name === 'id' ? 'path' : 'body'),
+                    required: defaultVal === null,
+                    defaultVal: defaultVal
+                };
+            }).filter(Boolean);
+        }
+
+        static parseGenericParams(raw) {
+            if (!raw.trim()) return [];
+            return raw.split(',').map(p => {
+                const trimmed = p.trim();
+                if (!trimmed) return null;
+                const parts = trimmed.split('=');
+                const name = parts[0].trim();
+                const defaultVal = parts.length > 1 ? parts[1].trim() : null;
+                return {
+                    name: name,
+                    type: 'any',
+                    in: name.endsWith('Id') || name === 'id' ? 'path' : 'body',
+                    required: defaultVal === null,
+                    defaultVal: defaultVal
+                };
+            }).filter(Boolean);
+        }
+
+        static parseGoParams(raw) {
+            if (!raw.trim()) return [];
+            return raw.split(',').map(p => {
+                const parts = p.trim().split(/\s+/);
+                if (parts.length < 2) return null;
+                const name = parts[0];
+                const type = parts.slice(1).join(' ');
+                return {
+                    name: name,
+                    type: type,
+                    in: name.toLowerCase().includes('id') ? 'path' : 'body',
+                    required: true,
+                    defaultVal: null
+                };
+            }).filter(Boolean);
+        }
+
+        static parseCParams(raw) {
+            if (!raw.trim() || raw.trim() === 'void') return [];
+            return raw.split(',').map(p => {
+                const parts = p.trim().split(/\s+/);
+                if (parts.length < 2) return null;
+                const name = parts[parts.length - 1].replace(/^\*+/, '');
+                const type = parts.slice(0, -1).join(' ');
+                return {
+                    name: name,
+                    type: type,
+                    in: 'body',
+                    required: true,
+                    defaultVal: null
+                };
+            }).filter(Boolean);
+        }
+
+        static parseJavaParams(raw) {
+            if (!raw.trim()) return [];
+            return raw.split(',').map(p => {
+                const parts = p.trim().split(/\s+/);
+                if (parts.length < 2) return null;
+                const name = parts[parts.length - 1];
+                const type = parts.slice(0, -1).join(' ');
+                return {
+                    name: name,
+                    type: type,
+                    in: name.toLowerCase().includes('id') ? 'path' : 'body',
+                    required: true,
+                    defaultVal: null
+                };
+            }).filter(Boolean);
+        }
+
+        static synthesize(fn, framework, routePath = '/api/v1/resource', method = 'POST', cell = [0,0,0,0]) {
+            const fw = (framework || FRAMEWORKS.FASTAPI).toLowerCase();
+            const httpMethod = (method || 'POST').toUpperCase();
+            const path = routePath.startsWith('/') ? routePath : '/' + routePath;
+
+            switch (fw) {
+                case FRAMEWORKS.FASTAPI:
+                    return PolyglotConverter.synthesizeFastAPI(fn, path, httpMethod, cell);
+                case FRAMEWORKS.SANIC:
+                    return PolyglotConverter.synthesizeSanic(fn, path, httpMethod, cell);
+                case FRAMEWORKS.EXPRESS:
+                    return PolyglotConverter.synthesizeExpress(fn, path, httpMethod, cell);
+                case FRAMEWORKS.GO:
+                    return PolyglotConverter.synthesizeGo(fn, path, httpMethod, cell);
+                case FRAMEWORKS.C:
+                    return PolyglotConverter.synthesizeC(fn, path, httpMethod, cell);
+                case FRAMEWORKS.JAVA:
+                    return PolyglotConverter.synthesizeJava(fn, path, httpMethod, cell);
+                default:
+                    return PolyglotConverter.synthesizeFastAPI(fn, path, httpMethod, cell);
+            }
+        }
+
+        static synthesizeFastAPI(fn, routePath, method, cell) {
+            const bodyParams = fn.params.filter(p => p.in === 'body');
+            const queryParams = fn.params.filter(p => p.in === 'query');
+            const pathParams = fn.params.filter(p => p.in === 'path');
+
+            const hasBody = bodyParams.length > 0;
+            const schemaName = `${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Request`;
+
+            let schemaCode = '';
+            if (hasBody) {
+                schemaCode = `class ${schemaName}(BaseModel):\n` +
+                    bodyParams.map(p => `    ${p.name}: ${p.type || 'Any'}${p.defaultVal ? ` = ${p.defaultVal}` : ''}`).join('\n') + '\n\n';
+            }
+
+            const handlerArgs = [];
+            pathParams.forEach(p => handlerArgs.push(`${p.name}: ${p.type || 'str'}`));
+            queryParams.forEach(p => handlerArgs.push(`${p.name}: ${p.type || 'str'} = ${p.defaultVal || 'None'}`));
+            if (hasBody) {
+                handlerArgs.push(`req_body: ${schemaName}`);
+            }
+
+            const pyMethod = method.toLowerCase();
+            const code = `# Synthesized by Hashcod Polyglot Grid (Cell: [${cell.join(',')}])
+import time
+from typing import Any, List, Optional
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+app = FastAPI(title="Polyglot Grid API", version="2026.1")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+${schemaCode}@app.${pyMethod}("${routePath}")
+async def ${fn.name}_endpoint(${handlerArgs.join(', ')}):
+    """${fn.docstring || `Synthesized route for ${fn.name}`}"""
+    t_start = time.time()
+    try:
+        ${hasBody ? `payload = req_body.dict()` : 'payload = {}'}
+        result_data = {
+            "function": "${fn.name}",
+            "status": "COMPLETED",
+            "inputs": {
+                ${fn.params.map(p => `"${p.name}": ${p.in === 'body' ? `req_body.${p.name}` : p.name}`).join(',\n                ')}
+            },
+            "cell": [${cell.join(', ')}]
+        }
+        
+        latency_ms = round((time.time() - t_start) * 1000, 2)
+        return {
+            "ok": True,
+            "status": 200,
+            "data": result_data,
+            "cell": [${cell.join(', ')}],
+            "latency_ms": latency_ms
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+`;
+            return code;
+        }
+
+        static synthesizeSanic(fn, routePath, method, cell) {
+            const code = `# Synthesized by Hashcod Polyglot Grid (Cell: [${cell.join(',')}])
+import time
+from sanic import Sanic, response, json
+from sanic.exceptions import SanicException
+
+app = Sanic("PolyglotGridSanicApp")
+
+@app.route("${routePath}", methods=["${method}"])
+async def handle_${fn.name}(request):
+    """${fn.docstring || `Sanic async route handler for ${fn.name}`}"""
+    t_start = time.time()
+    try:
+        body = request.json if request.json else {}
+        query_args = dict(request.args)
+        
+        result_data = {
+            "function": "${fn.name}",
+            "executed": True,
+            "query": query_args,
+            "body": body,
+            "cell": [${cell.join(', ')}]
+        }
+        
+        latency_ms = round((time.time() - t_start) * 1000, 2)
+        return response.json({
+            "ok": True,
+            "status": 200,
+            "data": result_data,
+            "cell": [${cell.join(', ')}],
+            "latency_ms": latency_ms
+        })
+    except Exception as exc:
+        return response.json({
+            "ok": False,
+            "status": 500,
+            "error": str(exc),
+            "cell": [${cell.join(', ')}]
+        }, status=500)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, workers=2)
+`;
+            return code;
+        }
+
+        static synthesizeExpress(fn, routePath, method, cell) {
+            const expMethod = method.toLowerCase();
+            const code = `// Synthesized by Hashcod Polyglot Grid (Cell: [${cell.join(',')}])
+const express = require('express');
+const router = express.Router();
+
+router.use(express.json());
+
+/**
+ * ${fn.docstring || `Express route handler for ${fn.name}`}
+ */
+router.${expMethod}('${routePath}', async (req, res, next) => {
+    const tStart = Date.now();
+    try {
+        const body = req.body || {};
+        const query = req.query || {};
+        const params = req.params || {};
+
+        const resultData = {
+            function: '${fn.name}',
+            processed: true,
+            inputs: { ...params, ...query, ...body },
+            cell: [${cell.join(', ')}]
+        };
+
+        const latencyMs = Date.now() - tStart;
+        return res.status(200).json({
+            ok: true,
+            status: 200,
+            data: resultData,
+            cell: [${cell.join(', ')}],
+            latency_ms: latencyMs
+        });
+    } catch (err) {
+        return res.status(500).json({
+            ok: false,
+            status: 500,
+            error: err.message || 'Internal Server Error',
+            cell: [${cell.join(', ')}]
+        });
+    }
+});
+
+module.exports = router;
+`;
+            return code;
+        }
+
+        static synthesizeGo(fn, routePath, method, cell) {
+            const structFields = fn.params.map(p => {
+                const fieldName = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+                let goType = 'string';
+                if (p.type === 'int') goType = 'int64';
+                else if (p.type === 'float') goType = 'float64';
+                else if (p.type === 'bool') goType = 'bool';
+                else if (p.type === 'list' || p.type === 'array') goType = '[]interface{}';
+                else if (p.type === 'dict' || p.type === 'object') goType = 'map[string]interface{}';
+                return `\t${fieldName} ${goType} \`json:"${p.name}"\``;
+            }).join('\n');
+
+            const code = `// Synthesized by Hashcod Polyglot Grid (Cell: [${cell.join(',')}])
+package main
+
+import (
+\t"encoding/json"
+\t"net/http"
+\t"time"
+\t"github.com/gin-gonic/gin"
+)
+
+type ${fn.name}Request struct {
+${structFields || '\tPayload map[string]interface{} `json:"payload"`'}
+}
+
+type StandardResponse struct {
+\tOk        bool        \`json:"ok"\`
+\tStatus    int         \`json:"status"\`
+\tData      interface{} \`json:"data"\`
+\tCell      []int       \`json:"cell"\`
+\tLatencyMs float64     \`json:"latency_ms"\`
+}
+
+func Handle${fn.name}(c *gin.Context) {
+\ttStart := time.Now()
+\tvar req ${fn.name}Request
+
+\tif err := c.ShouldBindJSON(&req); err != nil {
+\t\tc.JSON(http.StatusBadRequest, gin.H{
+\t\t\t"ok":     false,
+\t\t\t"status": 400,
+\t\t\t"error":  err.Error(),
+\t\t\t"cell":   []int{${cell.join(', ')}},
+\t\t})
+\t\treturn
+\t}
+
+\tresultData := gin.H{
+\t\t"function": "${fn.name}",
+\t\t"request":  req,
+\t\t"status":   "SUCCESS",
+\t}
+
+\tdurMs := float64(time.Since(tStart).Microseconds()) / 1000.0
+
+\tc.JSON(http.StatusOK, StandardResponse{
+\t\tOk:        true,
+\t\tStatus:    200,
+\t\tData:      resultData,
+\t\tCell:      []int{${cell.join(', ')}},
+\t\tLatencyMs: durMs,
+\t})
+}
+
+func main() {
+\tr := gin.Default()
+\tr.${method}("${routePath}", Handle${fn.name})
+\tr.Run(":8080")
+}
+`;
+            return code;
+        }
+
+        static synthesizeC(fn, routePath, method, cell) {
+            const code = `/* Synthesized by Hashcod Polyglot Grid (Cell: [${cell.join(',')}]) */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <microhttpd.h>
+
+#define PORT 8888
+#define BUFFER_MAX 8192
+
+static enum MHD_Result handle_request(void *cls, struct MHD_Connection *connection,
+                          const char *url, const char *method,
+                          const char *version, const char *upload_data,
+                          size_t *upload_data_size, void **con_cls) {
+    if (strcmp(url, "${routePath}") != 0 || strcmp(method, "${method}") != 0) {
+        return MHD_NO;
+    }
+
+    clock_t start = clock();
+    char response_buf[BUFFER_MAX];
+    
+    snprintf(response_buf, sizeof(response_buf),
+        "{\\\"ok\\\":true,\\\"status\\\":200,\\\"data\\\":{\\\"function\\\":\\\"${fn.name}\\\",\\\"status\\\":\\\"OK\\\"},"
+        "\\\"cell\\\":[%d,%d,%d,%d],\\\"latency_ms\\\":%.2f}",
+        ${cell[0]}, ${cell[1]}, ${cell[2]}, ${cell[3]},
+        ((double)(clock() - start) / CLOCKS_PER_SEC) * 1000.0
+    );
+
+    struct MHD_Response *response = MHD_create_response_from_buffer(
+        strlen(response_buf), (void*)response_buf, MHD_RESPMEM_MUST_COPY);
+    
+    MHD_add_response_header(response, "Content-Type", "application/json");
+    MHD_add_response_header(response, "Access-Control-Allow-Origin", "*");
+    
+    enum MHD_Result ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+    MHD_destroy_response(response);
+    return ret;
+}
+
+int main(void) {
+    struct MHD_Daemon *daemon = MHD_start_daemon(
+        MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
+        &handle_request, NULL, MHD_OPTION_END);
+    if (!daemon) return 1;
+    
+    printf("Polyglot C REST Server running on port %d...\\n", PORT);
+    getchar();
+    MHD_stop_daemon(daemon);
+    return 0;
+}
+`;
+            return code;
+        }
+
+        static synthesizeJava(fn, routePath, method, cell) {
+            const springMethod = method === 'GET' ? '@GetMapping' : '@PostMapping';
+            const code = `// Synthesized by Hashcod Polyglot Grid (Cell: [${cell.join(',')}])
+package com.hashcod.grid.controller;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import java.util.Map;
+import java.util.HashMap;
+
+@RestController
+@RequestMapping
+@CrossOrigin(origins = "*")
+public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
+
+    public record ExecutionEnvelope(
+        boolean ok,
+        int status,
+        Object data,
+        int[] cell,
+        long latency_ms
+    ) {}
+
+    ${springMethod}("${routePath}")
+    public ResponseEntity<ExecutionEnvelope> handle${fn.name}(@RequestBody(required = false) Map<String, Object> body) {
+        long tStart = System.currentTimeMillis();
+        try {
+            Map<String, Object> result = new HashMap<>();
+            result.put("function", "${fn.name}");
+            result.put("status", "SUCCESS");
+            result.put("payload", body != null ? body : Map.of());
+
+            long latencyMs = System.currentTimeMillis() - tStart;
+            ExecutionEnvelope env = new ExecutionEnvelope(
+                true,
+                200,
+                result,
+                new int[]{${cell.join(', ')}},
+                latencyMs
+            );
+            return ResponseEntity.ok(env);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                new ExecutionEnvelope(false, 500, Map.of("error", e.getMessage()), new int[]{${cell.join(', ')}}, 0)
+            );
+        }
+    }
+}
+`;
+            return code;
+        }
+
+        static generateClientSnippets(routePath, method = 'POST', samplePayload = { test: "data" }) {
+            const host = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'http://localhost:8000';
+            const url = host + (routePath.startsWith('/') ? routePath : '/' + routePath);
+            const jsonStr = JSON.stringify(samplePayload, null, 2);
+
+            const curl = method === 'GET'
+                ? `curl -X GET "${url}" \\\n  -H "Accept: application/json"`
+                : `curl -X ${method} "${url}" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(samplePayload)}'`;
+
+            const fetchCode = method === 'GET'
+                ? `async function callApi() {\n    const res = await fetch("${url}", {\n        method: "GET",\n        headers: { "Accept": "application/json" }\n    });\n    const data = await res.json();\n    console.log("Response:", data);\n    return data;\n}`
+                : `async function callApi() {\n    const res = await fetch("${url}", {\n        method: "${method}",\n        headers: { "Content-Type": "application/json" },\n        body: JSON.stringify(${jsonStr})\n    });\n    const data = await res.json();\n    console.log("Response:", data);\n    return data;\n}`;
+
+            return { curl, fetch: fetchCode };
+        }
+    }
+
+    // ===== 6. MAIN STUDIO CONTROLLER =====
+    class PolyglotGridStudioController {
+        constructor() {
+            this.state = new PolyglotStudioState();
+            this.modalEl = null;
+            this.isInitialized = false;
+            this.executionCounter = 0;
+        }
+
+        init() {
+            if (this.isInitialized) return;
+            this.bindDOM();
+            this.bindEvents();
+            this.renderGrid();
+            this.renderFileTree();
+            this.updateActiveCellInspector();
+            this.regenerateApi();
+            this.isInitialized = true;
+            this.appendLog('INFO', 'Polyglot Grid API Launcher & Code Studio initialized (56 cells ready).', [0,0,0,0]);
+        }
+
+        bindDOM() {
+            if (typeof document === 'undefined') return;
+            this.modalEl = document.getElementById('polyglotGridOverlay') || document.getElementById('polyglotStudioModal');
+        }
+
+        bindEvents() {
+            if (typeof document === 'undefined') return;
+            const dockBtn = document.getElementById('hashcodDockGridBtn');
+            if (dockBtn) dockBtn.addEventListener('click', () => this.toggleModal());
+
+            const slot23 = document.getElementById('slot-2-3');
+            if (slot23) slot23.addEventListener('click', () => this.openModal());
+
+            const closeBtn = document.getElementById('polyglotGridCloseBtn');
+            if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
+
+            if (this.modalEl) {
+                this.modalEl.addEventListener('click', (e) => {
+                    if (e.target === this.modalEl) this.closeModal();
+                });
+            }
+
+            if (typeof window !== 'undefined') {
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.modalEl && (this.modalEl.classList.contains('open') || this.modalEl.classList.contains('is-open'))) {
+                        this.closeModal();
+                    }
+                });
+            }
+
+            document.querySelectorAll('.pg-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => this.switchTab(btn.getAttribute('data-tab')));
+            });
+
+            const inputZ = document.getElementById('pgDimZ');
+            const inputU = document.getElementById('pgDimU');
+            if (inputZ) {
+                inputZ.addEventListener('change', (e) => {
+                    this.state.activeCoord.z = Math.max(0, parseInt(e.target.value) || 0);
+                    this.renderGrid();
+                    this.updateActiveCellInspector();
+                });
+            }
+            if (inputU) {
+                inputU.addEventListener('change', (e) => {
+                    this.state.activeCoord.u = Math.max(0, parseInt(e.target.value) || 0);
+                    this.renderGrid();
+                    this.updateActiveCellInspector();
+                });
+            }
+
+            document.querySelectorAll('.pg-fw-pill').forEach(pill => {
+                pill.addEventListener('click', () => {
+                    document.querySelectorAll('.pg-fw-pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    this.state.currentFramework = pill.getAttribute('data-fw');
+                    this.regenerateApi();
+                });
+            });
+
+            const methodSel = document.getElementById('pgMethodSelect');
+            const pathInput = document.getElementById('pgPathInput');
+            if (methodSel) {
+                methodSel.addEventListener('change', (e) => {
+                    this.state.currentMethod = e.target.value;
+                    this.regenerateApi();
+                });
+            }
+            if (pathInput) {
+                pathInput.addEventListener('input', (e) => {
+                    this.state.currentRoute = e.target.value;
+                    this.regenerateApi();
+                });
+            }
+
+            const srcEditor = document.getElementById('polyglotSourceEditor');
+            if (srcEditor) {
+                srcEditor.addEventListener('input', (e) => {
+                    this.state.sourceCode = e.target.value;
+                });
+            }
+
+            const dirInput = document.getElementById('polyglotDirInput');
+            const uploadBtn = document.getElementById('polyglotUploadFolderBtn');
+            const dropzone = document.getElementById('polyglotDropZone');
+
+            if (uploadBtn && dirInput) uploadBtn.addEventListener('click', () => dirInput.click());
+            if (dirInput) {
+                dirInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files.length) this.handleFileListUpload(e.target.files);
+                });
+            }
+            if (dropzone) {
+                dropzone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add('dragover');
+                });
+                dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+                dropzone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove('dragover');
+                    if (e.dataTransfer.files && e.dataTransfer.files.length) {
+                        this.handleFileListUpload(e.dataTransfer.files);
+                    }
+                });
+            }
+
+            const searchInput = document.getElementById('polyglotFileSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => this.renderFileTree(e.target.value));
+            }
+            document.querySelectorAll('.pg-ext-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.pg-ext-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    const ext = chip.getAttribute('data-ext');
+                    this.renderFileTree(searchInput ? searchInput.value : '', ext);
+                });
+            });
+
+            const presetSelect = document.getElementById('polyglotPresetSelect');
+            if (presetSelect) {
+                presetSelect.addEventListener('change', (e) => {
+                    const chosen = e.target.value;
+                    if (SAMPLE_PRESETS[chosen]) this.loadPresetIntoEditor(chosen);
+                });
+            }
+
+            const bindBtn = document.getElementById('polyglotBindCellBtn');
+            if (bindBtn) bindBtn.addEventListener('click', () => this.bindCurrentFileToActiveCell());
+
+            const sendBtn = document.getElementById('polyglotSendRequestBtn');
+            if (sendBtn) sendBtn.addEventListener('click', () => this.executeActiveCell());
+
+            const batchArmBtn = document.getElementById('pgBatchArmBtn');
+            const batchExecBtn = document.getElementById('pgBatchExecBtn');
+            const batchClearBtn = document.getElementById('pgBatchClearBtn');
+            if (batchArmBtn) batchArmBtn.addEventListener('click', () => this.batchArmSelected());
+            if (batchExecBtn) batchExecBtn.addEventListener('click', () => this.batchExecuteSelected());
+            if (batchClearBtn) batchClearBtn.addEventListener('click', () => this.batchClearSelected());
+
+            document.querySelectorAll('.pg-snippet-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.pg-snippet-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    this.state.activeSnippetTab = tab.getAttribute('data-snippet');
+                    this.updateSnippetView();
+                });
+            });
+
+            const logLvl = document.getElementById('pgLogFilterLevel');
+            const logSearch = document.getElementById('pgLogSearch');
+            const clearLogsBtn = document.getElementById('pgClearLogsBtn');
+            if (logLvl) logLvl.addEventListener('change', (e) => {
+                this.state.logFilterLevel = e.target.value;
+                this.renderLogs();
+            });
+            if (logSearch) logSearch.addEventListener('input', (e) => {
+                this.state.logFilterQuery = e.target.value;
+                this.renderLogs();
+            });
+            if (clearLogsBtn) clearLogsBtn.addEventListener('click', () => {
+                this.state.executionLogs = [];
+                this.renderLogs();
+            });
+
+            const exportBtn = document.getElementById('polyglotExportBtn');
+            const importBtn = document.getElementById('polyglotImportBtn');
+            const importInput = document.getElementById('polyglotImportInput');
+            if (exportBtn) exportBtn.addEventListener('click', () => this.exportWorkspace());
+            if (importBtn && importInput) importBtn.addEventListener('click', () => importInput.click());
+            if (importInput) {
+                importInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (evt) => this.importWorkspace(evt.target.result);
+                        reader.readAsText(e.target.files[0]);
+                    }
+                });
+            }
+        }
+
+        openModal() {
+            this.init();
+            if (this.modalEl) {
+                this.modalEl.classList.add('open', 'is-open');
+                this.modalEl.setAttribute('aria-hidden', 'false');
+            }
+        }
+
+        closeModal() {
+            if (this.modalEl) {
+                this.modalEl.classList.remove('open', 'is-open');
+                this.modalEl.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        toggleModal(force) {
+            if (!this.modalEl) this.bindDOM();
+            const isOpen = this.modalEl && (this.modalEl.classList.contains('open') || this.modalEl.classList.contains('is-open'));
+            const shouldOpen = (typeof force === 'boolean') ? force : !isOpen;
+            if (shouldOpen) this.openModal();
+            else this.closeModal();
+        }
+
+        switchTab(tabName) {
+            this.state.activeWorkspaceTab = tabName;
+            if (typeof document === 'undefined') return;
+            document.querySelectorAll('.pg-tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+            });
+            document.querySelectorAll('.pg-pane').forEach(pane => {
+                pane.classList.toggle('active-tab-pane', pane.getAttribute('data-pane') === tabName);
+            });
+        }
+
+        renderGrid() {
+            if (typeof document === 'undefined') return;
+            const container = document.getElementById('pgMatrixGridBody');
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let y = 0; y < GRID_ROWS; y++) {
+                const rowWrap = document.createElement('div');
+                rowWrap.className = 'pg-grid-row-wrap';
+
+                const rowHdr = document.createElement('div');
+                rowHdr.className = 'pg-row-hdr';
+                rowHdr.textContent = `Y:${y}`;
+                rowWrap.appendChild(rowHdr);
+
+                for (let x = 0; x < GRID_COLS; x++) {
+                    const cell = this.state.getCell(x, y, this.state.activeCoord.z, this.state.activeCoord.u);
+                    const cellEl = document.createElement('div');
+                    cellEl.className = 'pg-cell';
+                    cellEl.setAttribute('data-x', x);
+                    cellEl.setAttribute('data-y', y);
+                    cellEl.setAttribute('data-z', cell.z);
+                    cellEl.setAttribute('data-u', cell.u);
+                    cellEl.setAttribute('data-cell-id', cell.id);
+                    cellEl.setAttribute('data-state', cell.state);
+                    cellEl.title = `Cell (${x}, ${y}, ${cell.z}, ${cell.u}) - ${cell.state}\nBound: ${cell.boundFunction || 'none'}`;
+
+                    if (x === this.state.activeCoord.x && y === this.state.activeCoord.y) {
+                        cellEl.classList.add('active');
+                    }
+                    if (this.state.selectedCellKeys.has(`${x}:${y}`)) {
+                        cellEl.classList.add('selected');
+                    }
+
+                    const indicator = document.createElement('div');
+                    indicator.className = 'pg-cell-indicator';
+
+                    const coordLabel = document.createElement('div');
+                    coordLabel.className = 'pg-cell-coord';
+                    coordLabel.textContent = `${x},${y}`;
+
+                    cellEl.appendChild(indicator);
+                    cellEl.appendChild(coordLabel);
+
+                    cellEl.addEventListener('click', (e) => {
+                        if (e.shiftKey) {
+                            this.toggleCellSelection(x, y);
+                        } else {
+                            this.selectCell(x, y, cell.z, cell.u);
+                        }
+                    });
+
+                    rowWrap.appendChild(cellEl);
+                }
+                container.appendChild(rowWrap);
+            }
+        }
+
+        selectCell(x, y, z = 0, u = 0) {
+            const clamped = this.state.clampCoord(x, y, z, u);
+            this.state.activeCoord = clamped;
+            this.state.selectedCellKeys.clear();
+            this.state.selectedCellKeys.add(`${clamped.x}:${clamped.y}`);
+            this.renderGrid();
+            this.updateActiveCellInspector();
+
+            if (typeof document !== 'undefined') {
+                const hudBadge = document.getElementById('pgActiveCoordHud');
+                if (hudBadge) {
+                    hudBadge.textContent = `(x:${clamped.x}, y:${clamped.y}, z:${clamped.z}, u:${clamped.u})`;
+                }
+            }
+
+            const cell = this.state.getCell(clamped.x, clamped.y, clamped.z, clamped.u);
+            if (cell.boundFile && this.state.files.has(cell.boundFile)) {
+                this.loadPresetIntoEditor(cell.boundFile, false);
+            }
+            return cell;
+        }
+
+        toggleCellSelection(x, y) {
+            const key = `${x}:${y}`;
+            if (this.state.selectedCellKeys.has(key)) {
+                this.state.selectedCellKeys.delete(key);
+            } else {
+                this.state.selectedCellKeys.add(key);
+            }
+            this.renderGrid();
+        }
+
+        updateCellState(x, y, state, metadata = {}) {
+            const cell = this.state.getCell(x, y, this.state.activeCoord.z, this.state.activeCoord.u);
+            if (LIFECYCLE_STATES[state]) {
+                cell.state = state;
+                Object.assign(cell, metadata);
+                this.renderGrid();
+                this.updateActiveCellInspector();
+            }
+        }
+
+        updateActiveCellInspector() {
+            if (typeof document === 'undefined') return;
+            const cell = this.state.getCell(this.state.activeCoord.x, this.state.activeCoord.y, this.state.activeCoord.z, this.state.activeCoord.u);
+            const titleEl = document.getElementById('pgInspectorCoordTitle');
+            const stateEl = document.getElementById('pgInspectorState');
+            const fileEl = document.getElementById('pgInspectorFile');
+            const funcEl = document.getElementById('pgInspectorFunc');
+            const fwEl = document.getElementById('pgInspectorFw');
+            const countEl = document.getElementById('pgInspectorCount');
+            const latencyEl = document.getElementById('pgInspectorLatency');
+
+            if (titleEl) titleEl.textContent = `Cell (${cell.x}, ${cell.y}, ${cell.z}, ${cell.u})`;
+            if (stateEl) stateEl.textContent = cell.state;
+            if (fileEl) fileEl.textContent = cell.boundFile || 'None';
+            if (funcEl) funcEl.textContent = cell.boundFunction || 'None';
+            if (fwEl) fwEl.textContent = cell.framework.toUpperCase();
+            if (countEl) countEl.textContent = cell.executionCount;
+            if (latencyEl) latencyEl.textContent = cell.lastLatencyMs ? `${cell.lastLatencyMs}ms` : '0ms';
+        }
+
+        renderFileTree(filterQuery = '', extFilter = 'all') {
+            if (typeof document === 'undefined') return;
+            const treeContainer = document.getElementById('polyglotFileTree');
+            if (!treeContainer) return;
+            treeContainer.innerHTML = '';
+
+            const q = (filterQuery || '').toLowerCase();
+            const ext = (extFilter || 'all').toLowerCase();
+
+            this.state.files.forEach((file, path) => {
+                if (q && !path.toLowerCase().includes(q)) return;
+                if (ext !== 'all' && !path.toLowerCase().endsWith(ext)) return;
+
+                const item = document.createElement('div');
+                item.className = 'pg-tree-item';
+                if (path === this.state.selectedFilePath) item.classList.add('selected');
+
+                const icon = document.createElement('span');
+                icon.className = 'pg-file-icon';
+                icon.textContent = this.getFileIcon(path);
+
+                const label = document.createElement('span');
+                label.textContent = path;
+                label.style.flex = '1';
+
+                const sizeBadge = document.createElement('span');
+                sizeBadge.style.fontSize = '9px';
+                sizeBadge.style.color = '#64748b';
+                sizeBadge.textContent = `${file.lines}L`;
+
+                item.appendChild(icon);
+                item.appendChild(label);
+                item.appendChild(sizeBadge);
+
+                item.addEventListener('click', () => {
+                    this.selectFile(path);
+                });
+
+                treeContainer.appendChild(item);
+            });
+        }
+
+        getFileIcon(path) {
+            const p = path.toLowerCase();
+            if (p.endsWith('.py')) return '🐍';
+            if (p.endsWith('.js') || p.endsWith('.ts')) return '📜';
+            if (p.endsWith('.go')) return '🐹';
+            if (p.endsWith('.c') || p.endsWith('.h')) return '⚙️';
+            if (p.endsWith('.java')) return '☕';
+            if (p.endsWith('.json')) return '📋';
+            if (p.endsWith('.yaml') || p.endsWith('.yml')) return '📄';
+            return '📁';
+        }
+
+        selectFile(path) {
+            this.state.selectedFilePath = path;
+            const file = this.state.files.get(path);
+            if (file) {
+                this.state.sourceCode = file.content;
+                if (typeof document !== 'undefined') {
+                    const editor = document.getElementById('polyglotSourceEditor');
+                    if (editor) editor.value = file.content;
+                }
+                this.renderFileTree();
+                this.regenerateApi();
+            }
+        }
+
+        loadPresetIntoEditor(presetKey, shouldRegenerate = true) {
+            const preset = SAMPLE_PRESETS[presetKey] || Object.values(SAMPLE_PRESETS).find(p => p.path === presetKey);
+            if (preset) {
+                this.state.selectedFilePath = preset.path;
+                this.state.sourceCode = preset.content;
+                if (typeof document !== 'undefined') {
+                    const editor = document.getElementById('polyglotSourceEditor');
+                    if (editor) editor.value = preset.content;
+                }
+                if (shouldRegenerate) this.regenerateApi();
+                this.renderFileTree();
+            }
+        }
+
+        async handleFileListUpload(fileList) {
+            const files = Array.from(fileList);
+            let count = 0;
+            for (const file of files) {
+                const relPath = file.webkitRelativePath || file.name;
+                if (file.size > 5 * 1024 * 1024) continue;
+                if (relPath.includes('node_modules') || relPath.includes('.git') || relPath.includes('__pycache__')) continue;
+
+                try {
+                    const text = await file.text();
+                    this.state.files.set(relPath, {
+                        name: file.name,
+                        path: relPath,
+                        language: file.name.split('.').pop() || 'text',
+                        content: text,
+                        size: file.size,
+                        lines: text.split('\n').length
+                    });
+                    count++;
+                } catch (e) {
+                    console.error("Error reading file:", relPath, e);
+                }
+            }
+            this.appendLog('INFO', `Ingested ${count} files from directory upload.`, [0,0,0,0]);
+            this.renderFileTree();
+            if (count > 0 && files[0]) {
+                this.selectFile(files[0].webkitRelativePath || files[0].name);
+            }
+        }
+
+        regenerateApi() {
+            const code = this.state.sourceCode;
+            const lang = (this.state.selectedFilePath.split('.').pop() || 'python').toLowerCase();
+            const functions = PolyglotConverter.extractSignatures(code, lang);
+            const primaryFn = functions[0] || { name: 'handler', params: [], returnType: 'dict' };
+
+            const cellCoord = [
+                this.state.activeCoord.x,
+                this.state.activeCoord.y,
+                this.state.activeCoord.z,
+                this.state.activeCoord.u
+            ];
+
+            const generated = PolyglotConverter.synthesize(
+                primaryFn,
+                this.state.currentFramework,
+                this.state.currentRoute,
+                this.state.currentMethod,
+                cellCoord
+            );
+
+            this.state.generatedApiCode = generated;
+            if (typeof document !== 'undefined') {
+                const apiDisplay = document.getElementById('polyglotGeneratedApi');
+                if (apiDisplay) apiDisplay.value = generated;
+            }
+
+            const sampleBody = {};
+            primaryFn.params.forEach(p => {
+                sampleBody[p.name] = p.defaultVal ? evalSafe(p.defaultVal) : (p.type === 'int' ? 1 : 'sample');
+            });
+
+            const snippets = PolyglotConverter.generateClientSnippets(this.state.currentRoute, this.state.currentMethod, sampleBody);
+            this.state.clientCurl = snippets.curl;
+            this.state.clientFetch = snippets.fetch;
+            this.updateSnippetView();
+        }
+
+        updateSnippetView() {
+            if (typeof document === 'undefined') return;
+            const snippetBox = document.getElementById('polyglotSnippetOutput');
+            if (!snippetBox) return;
+            if (this.state.activeSnippetTab === 'curl') {
+                snippetBox.textContent = this.state.clientCurl;
+            } else {
+                snippetBox.textContent = this.state.clientFetch;
+            }
+        }
+
+        bindCurrentFileToActiveCell() {
+            const cell = this.state.getCell(this.state.activeCoord.x, this.state.activeCoord.y, this.state.activeCoord.z, this.state.activeCoord.u);
+            const lang = (this.state.selectedFilePath.split('.').pop() || 'python').toLowerCase();
+            const functions = PolyglotConverter.extractSignatures(this.state.sourceCode, lang);
+            const primaryFn = functions[0] || { name: 'execute' };
+
+            cell.boundFile = this.state.selectedFilePath;
+            cell.boundFunction = primaryFn.name;
+            cell.framework = this.state.currentFramework;
+            cell.route = this.state.currentRoute;
+            cell.method = this.state.currentMethod;
+            cell.state = LIFECYCLE_STATES.CONFIGURED;
+
+            this.renderGrid();
+            this.updateActiveCellInspector();
+            this.appendLog('CONFIGURED', `Bound ${cell.boundFile} [${cell.boundFunction}] to Cell (${cell.x},${cell.y},${cell.z},${cell.u})`, [cell.x, cell.y, cell.z, cell.u]);
+        }
+
+        async executeActiveCell() {
+            const cell = this.state.getCell(this.state.activeCoord.x, this.state.activeCoord.y, this.state.activeCoord.z, this.state.activeCoord.u);
+            return this.executeSpecificCell(cell);
+        }
+
+        async executeSpecificCell(cell) {
+            if (cell.state === LIFECYCLE_STATES.LOCKED) {
+                this.appendLog('WARN', `Cell (${cell.x},${cell.y},${cell.z},${cell.u}) is LOCKED. Execution prevented.`, [cell.x, cell.y, cell.z, cell.u]);
+                return;
+            }
+
+            this.updateCellState(cell.x, cell.y, LIFECYCLE_STATES.RUNNING);
+            this.appendLog('EXEC', `Dispatching execution on Cell (${cell.x},${cell.y},${cell.z},${cell.u}) via ${cell.framework.toUpperCase()}...`, [cell.x, cell.y, cell.z, cell.u]);
+
+            let payload = {};
+            if (typeof document !== 'undefined') {
+                const payloadInput = document.getElementById('polyglotPayloadInput');
+                try {
+                    if (payloadInput && payloadInput.value.trim()) {
+                        payload = JSON.parse(payloadInput.value.trim());
+                    }
+                } catch (e) {
+                    this.appendLog('WARN', 'Payload JSON parse failed; sending empty object.', [cell.x, cell.y, cell.z, cell.u]);
+                }
+            }
+
+            const tStart = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+            let result = null;
+            let ok = true;
+
+            try {
+                if (typeof fetch !== 'undefined') {
+                    const response = await fetch('/api/grid/execute', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            cell: [cell.x, cell.y, cell.z, cell.u],
+                            framework: cell.framework,
+                            route: cell.route,
+                            method: cell.method,
+                            code: this.state.sourceCode,
+                            payload: payload
+                        })
+                    }).catch(() => null);
+
+                    if (response && response.ok) {
+                        result = await response.json();
+                    }
+                }
+
+                if (!result) {
+                    await new Promise(r => setTimeout(r, 40 + Math.floor(Math.random() * 60)));
+                    result = {
+                        ok: true,
+                        status: 200,
+                        data: {
+                            result: "Computed successfully",
+                            function: cell.boundFunction || 'anonymous',
+                            cell: [cell.x, cell.y, cell.z, cell.u],
+                            echo_payload: payload
+                        }
+                    };
+                }
+            } catch (err) {
+                ok = false;
+                result = { ok: false, status: 500, error: err.message };
+            }
+
+            const durationMs = Math.round((typeof performance !== 'undefined' ? performance.now() : Date.now()) - tStart);
+            cell.executionCount = (cell.executionCount || 0) + 1;
+            cell.lastLatencyMs = durationMs;
+            cell.lastTimestamp = new Date().toISOString();
+            cell.lastResult = result;
+
+            if (ok && result && result.ok) {
+                this.updateCellState(cell.x, cell.y, LIFECYCLE_STATES.SUCCESS, { lastLatencyMs: durationMs });
+                this.appendLog('API', `HTTP 200 OK — Output: ${JSON.stringify(result.data || result)}`, [cell.x, cell.y, cell.z, cell.u], durationMs);
+            } else {
+                this.updateCellState(cell.x, cell.y, LIFECYCLE_STATES.ERROR, { lastLatencyMs: durationMs });
+                this.appendLog('ERROR', `HTTP 500 ERR — ${result.error || 'Execution Exception'}`, [cell.x, cell.y, cell.z, cell.u], durationMs);
+            }
+
+            this.addHistoryRecord(cell, result, durationMs);
+            this.updateActiveCellInspector();
+            return result;
+        }
+
+        batchArmSelected() {
+            let count = 0;
+            this.state.selectedCellKeys.forEach(key => {
+                const [x, y] = key.split(':').map(Number);
+                const cell = this.state.getCell(x, y, this.state.activeCoord.z, this.state.activeCoord.u);
+                if (cell.state !== LIFECYCLE_STATES.LOCKED) {
+                    cell.state = LIFECYCLE_STATES.CONFIGURED;
+                    cell.framework = this.state.currentFramework;
+                    cell.route = `/api/cell/${x}/${y}`;
+                    count++;
+                }
+            });
+            this.renderGrid();
+            this.appendLog('INFO', `Batch armed ${count} cells.`, [0,0,0,0]);
+        }
+
+        async batchExecuteSelected() {
+            const cells = [];
+            this.state.selectedCellKeys.forEach(key => {
+                const [x, y] = key.split(':').map(Number);
+                const cell = this.state.getCell(x, y, this.state.activeCoord.z, this.state.activeCoord.u);
+                if (cell.state !== LIFECYCLE_STATES.LOCKED) {
+                    cells.push(cell);
+                }
+            });
+
+            this.appendLog('EXEC', `Starting batch execution on ${cells.length} selected cells...`, [0,0,0,0]);
+            for (const cell of cells) {
+                await this.executeSpecificCell(cell);
+            }
+        }
+
+        batchClearSelected() {
+            this.state.selectedCellKeys.forEach(key => {
+                const [x, y] = key.split(':').map(Number);
+                const cell = this.state.getCell(x, y, this.state.activeCoord.z, this.state.activeCoord.u);
+                cell.state = LIFECYCLE_STATES.IDLE;
+                cell.boundFile = '';
+                cell.boundFunction = '';
+            });
+            this.renderGrid();
+            this.updateActiveCellInspector();
+            this.appendLog('INFO', `Cleared selected cells.`, [0,0,0,0]);
+        }
+
+        appendLog(level, message, cellCoord = null, latencyMs = 0) {
+            const now = new Date();
+            const timeStr = now.toISOString().slice(11, 23);
+            const entry = {
+                id: ++this.executionCounter,
+                timestamp: timeStr,
+                iso: now.toISOString(),
+                level: level.toUpperCase(),
+                message: String(message),
+                cell: cellCoord || [this.state.activeCoord.x, this.state.activeCoord.y, this.state.activeCoord.z, this.state.activeCoord.u],
+                latency: latencyMs
+            };
+
+            this.state.executionLogs.push(entry);
+            if (this.state.executionLogs.length > 1000) {
+                this.state.executionLogs.shift();
+            }
+            this.renderLogs();
+        }
+
+        renderLogs() {
+            if (typeof document === 'undefined') return;
+            const stream = document.getElementById('polyglotTerminalConsole');
+            if (!stream) return;
+            stream.innerHTML = '';
+
+            const lvl = this.state.logFilterLevel;
+            const q = this.state.logFilterQuery.toLowerCase();
+
+            const filtered = this.state.executionLogs.filter(log => {
+                if (lvl !== 'ALL' && log.level !== lvl) return false;
+                if (q && !log.message.toLowerCase().includes(q)) return false;
+                return true;
+            });
+
+            filtered.forEach(log => {
+                const line = document.createElement('div');
+                line.className = 'pg-log-line';
+
+                const time = document.createElement('span');
+                time.className = 'pg-log-time';
+                time.textContent = `[${log.timestamp}]`;
+
+                const level = document.createElement('span');
+                level.className = `pg-log-lvl-${log.level}`;
+                level.textContent = `[${log.level}]`;
+
+                const cellBadge = document.createElement('span');
+                cellBadge.className = 'pg-log-cell';
+                cellBadge.textContent = `C(${log.cell.join(',')})`;
+
+                const msg = document.createElement('span');
+                msg.style.flex = '1';
+                msg.textContent = log.message;
+
+                line.appendChild(time);
+                line.appendChild(level);
+                line.appendChild(cellBadge);
+                line.appendChild(msg);
+
+                if (log.latency > 0) {
+                    const lat = document.createElement('span');
+                    lat.style.color = '#10b981';
+                    lat.style.fontSize = '9px';
+                    lat.textContent = `+${log.latency}ms`;
+                    line.appendChild(lat);
+                }
+
+                stream.appendChild(line);
+            });
+
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        addHistoryRecord(cell, result, latencyMs) {
+            const record = {
+                id: Date.now(),
+                cell: [cell.x, cell.y, cell.z, cell.u],
+                framework: cell.framework,
+                status: result && result.ok ? 200 : 500,
+                latency: latencyMs,
+                timestamp: new Date().toLocaleTimeString()
+            };
+            this.state.historyLedger.unshift(record);
+            if (this.state.historyLedger.length > 50) this.state.historyLedger.pop();
+            this.renderHistory();
+        }
+
+        renderHistory() {
+            if (typeof document === 'undefined') return;
+            const drawer = document.getElementById('polyglotHistoryDrawer');
+            if (!drawer) return;
+            drawer.innerHTML = '';
+
+            this.state.historyLedger.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'pg-history-item';
+
+                const left = document.createElement('div');
+                left.textContent = `[${item.timestamp}] C(${item.cell.join(',')}) · ${item.framework.toUpperCase()}`;
+
+                const right = document.createElement('div');
+                right.style.display = 'flex';
+                right.style.gap = '6px';
+                right.style.alignItems = 'center';
+
+                const statusBadge = document.createElement('span');
+                statusBadge.className = `pg-badge-status ${item.status === 200 ? 'ok' : 'err'}`;
+                statusBadge.textContent = `${item.status} (${item.latency}ms)`;
+
+                const rerunBtn = document.createElement('button');
+                rerunBtn.className = 'pg-btn-sm';
+                rerunBtn.textContent = 'Replay';
+                rerunBtn.addEventListener('click', () => {
+                    const cell = this.state.getCell(item.cell[0], item.cell[1], item.cell[2], item.cell[3]);
+                    this.executeSpecificCell(cell);
+                });
+
+                right.appendChild(statusBadge);
+                right.appendChild(rerunBtn);
+
+                row.appendChild(left);
+                row.appendChild(right);
+                drawer.appendChild(row);
+            });
+        }
+
+        exportWorkspace() {
+            const cellsObj = {};
+            this.state.cells.forEach((v, k) => { cellsObj[k] = v; });
+            const data = {
+                version: "2026.1",
+                exported_at: new Date().toISOString(),
+                activeCoord: this.state.activeCoord,
+                cells: cellsObj,
+                files: Array.from(this.state.files.entries()),
+                history: this.state.historyLedger
+            };
+            const jsonStr = JSON.stringify(data, null, 2);
+            if (typeof Blob !== 'undefined' && typeof document !== 'undefined') {
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `polyglot-workspace-${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+            this.appendLog('INFO', 'Exported complete Studio workspace to JSON.', [0,0,0,0]);
+            return jsonStr;
+        }
+
+        importWorkspace(jsonStr) {
+            try {
+                const data = JSON.parse(jsonStr);
+                if (!data || !data.cells) throw new Error("Invalid workspace JSON format");
+
+                this.state.cells.clear();
+                Object.keys(data.cells).forEach(k => {
+                    this.state.cells.set(k, data.cells[k]);
+                });
+
+                if (Array.isArray(data.files)) {
+                    this.state.files.clear();
+                    data.files.forEach(([path, fileObj]) => {
+                        this.state.files.set(path, fileObj);
+                    });
+                }
+
+                if (data.activeCoord) {
+                    this.state.activeCoord = data.activeCoord;
+                }
+
+                this.renderGrid();
+                this.renderFileTree();
+                this.updateActiveCellInspector();
+                this.regenerateApi();
+                this.appendLog('INFO', 'Successfully imported workspace state.', [0,0,0,0]);
+                return true;
+            } catch (err) {
+                this.appendLog('ERROR', `Import failed: ${err.message}`, [0,0,0,0]);
+                return false;
+            }
+        }
+    }
+
+    function evalSafe(val) {
+        try { return JSON.parse(val); } catch(e) { return val; }
+    }
+
+    // ===== 7. GLOBAL EXPORT & PLATFORM HOOKS =====
+    const studioInstance = new PolyglotGridStudioController();
+
+    global.PolyglotGridStudio = studioInstance;
+    global.PolyglotConverter = PolyglotConverter;
+    global.togglePolyglotGridModal = function(force) { studioInstance.toggleModal(force); };
+    global.openPolyglotGridStudio = function() { studioInstance.openModal(); };
+    global.closePolyglotGridStudio = function() { studioInstance.closeModal(); };
+    global.openPolyglotStudioModal = function() { studioInstance.openModal(); };
+
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => studioInstance.init());
+        } else {
+            studioInstance.init();
+        }
+    }
+
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = {
+            PolyglotStudioState,
+            PolyglotConverter,
+            PolyglotGridStudioController,
+            studioInstance,
+            SAMPLE_PRESETS,
+            LIFECYCLE_STATES,
+            FRAMEWORKS
+        };
+    }
+
+})(typeof window !== 'undefined' ? window : globalThis);

@@ -73,6 +73,7 @@ if (!headers_sent()) {
     <meta name="application-name" content="Hashcod codespace">
 <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/durable-objects.css?v=2026.1">
     <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.css?v=2026.1">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/polyglot-grid.css?v=2026.1">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700;800;900&display=swap');
 
@@ -10491,6 +10492,16 @@ if (!headers_sent()) {
                 <button type="button" class="hashcod-dock-slot is-filled is-ready" id="hashcodDockBlogBtn" data-dock-slot="6" title="Blog de Publicaciones (Vista Excel)" aria-label="Abrir blog de publicaciones" onclick="toggleExcelBlog()">
                     <svg style="width:13px; height:13px; fill:#ffffff;" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
                 </button>
+                <button type="button" class="hashcod-dock-slot is-filled is-ready" id="hashcodDockGridBtn" data-dock-slot="7" title="Polyglot Grid API Launcher &amp; Code Studio" aria-label="Abrir Polyglot Grid API Launcher" onclick="togglePolyglotGridModal()">
+                    <svg style="width:13px; height:13px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="20" height="20" rx="3" stroke="#00f3ff" stroke-width="1.5" fill="rgba(0, 243, 255, 0.1)"/>
+                        <line x1="2" y1="8" x2="22" y2="8" stroke="#00f3ff" stroke-width="1" stroke-dasharray="2 2"/>
+                        <line x1="2" y1="14" x2="22" y2="14" stroke="#00f3ff" stroke-width="1" stroke-dasharray="2 2"/>
+                        <line x1="8" y1="2" x2="8" y2="22" stroke="#00f3ff" stroke-width="1" stroke-dasharray="2 2"/>
+                        <line x1="14" y1="2" x2="14" y2="22" stroke="#00f3ff" stroke-width="1" stroke-dasharray="2 2"/>
+                        <circle cx="11" cy="11" r="2.5" fill="#00f3ff"/>
+                    </svg>
+                </button>
                 <div class="hashcod-clock-pop" id="hashcodClockPop" role="dialog" aria-label="Hora actual" aria-hidden="true">
                     <div class="hashcod-clock-label">Hora actual</div>
                     <div class="hashcod-clock-time" id="hashcodClockTime">00:00:00</div>
@@ -10620,6 +10631,221 @@ if (!headers_sent()) {
                 <input type="password" class="tokens-unlock-input" id="tokensUnlockSharedCode" autocomplete="off" spellcheck="false" placeholder="dilithium5_…">
             </div>
             <div class="tokens-unlock-msg" id="tokensUnlockMsg">Introduce la clave Dilithium-5 de la próxima vez (xN). Tras un uso válido, la clave cambia.</div>
+        </div>
+    </div>
+
+    <!-- Polyglot Grid API Launcher & Code Studio Modal (Circle 7) -->
+    <div class="polyglot-grid-overlay" id="polyglotGridOverlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="pgModalTitle">
+        <div class="polyglot-studio-modal" id="polyglotStudioModal">
+            <!-- Header -->
+            <header class="pg-header">
+                <div class="pg-brand">
+                    <div class="pg-brand-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                            <line x1="15" y1="3" x2="15" y2="21"/>
+                            <line x1="3" y1="9" x2="21" y2="9"/>
+                            <line x1="3" y1="15" x2="21" y2="15"/>
+                        </svg>
+                    </div>
+                    <span id="pgModalTitle">Polyglot Grid API Launcher &amp; Code Studio</span>
+                </div>
+                <div class="pg-header-hud">
+                    <div class="pg-coord-pill" id="pgActiveCoordHud">(x:0, y:0, z:0, u:0)</div>
+                    <select class="pg-btn-sm" id="polyglotPresetSelect" style="background:#040812; color:#38bdf8;" aria-label="Seleccionar preset de código">
+                        <option value="ml_analyzer.py">⚡ Preset: ML Inference (FastAPI / Sanic)</option>
+                        <option value="math_service.py">⚡ Preset: Vector / Matrix Linear Algebra</option>
+                        <option value="auth_controller.js">⚡ Preset: Auth &amp; JWT Controller (Express)</option>
+                        <option value="payment_processor.go">⚡ Preset: Payment Processor (Go Gin)</option>
+                        <option value="crypto_hasher.c">⚡ Preset: FNV-1a Crypto Hasher (C REST)</option>
+                        <option value="OrderService.java">⚡ Preset: Order Service (Spring Boot)</option>
+                    </select>
+                </div>
+                <div class="pg-header-actions">
+                    <button type="button" class="pg-btn-sm" id="polyglotExportBtn" title="Exportar configuración de matriz y estado a JSON">⬇ Export</button>
+                    <button type="button" class="pg-btn-sm" id="polyglotImportBtn" title="Restaurar configuración de matriz desde JSON">⬆ Import</button>
+                    <input type="file" id="polyglotImportInput" accept=".json" style="display:none;" aria-hidden="true">
+                    <button type="button" class="pg-btn-close" id="polyglotGridCloseBtn" title="Cerrar ventana (Esc)" aria-label="Cerrar">✕</button>
+                </div>
+            </header>
+
+            <!-- Tabs Bar -->
+            <nav class="pg-tabs-bar" aria-label="Navegación de módulos Polyglot Studio">
+                <button type="button" class="pg-tab-btn active" data-tab="matrix">⊞ 8x7 Coordinate Matrix</button>
+                <button type="button" class="pg-tab-btn" data-tab="explorer">📁 Directory Explorer</button>
+                <button type="button" class="pg-tab-btn" data-tab="studio">⚙ Code-to-API Studio</button>
+                <button type="button" class="pg-tab-btn" data-tab="logs">▶ Real-Time Console &amp; Logs</button>
+            </nav>
+
+            <!-- 4-Pane Responsive Workspace Body -->
+            <div class="pg-workspace">
+                <!-- Pane 1: 8x7 Coordinate Matrix Grid & 4D Inspector -->
+                <section class="pg-pane active-tab-pane" data-pane="matrix" aria-label="Matriz de coordenadas 8x7">
+                    <div class="pg-pane-head">
+                        <span>8x7 Matrix Visualizer (56 Cells)</span>
+                        <span style="font-size:10px; color:#64748b;">(x: 0..7, y: 0..6)</span>
+                    </div>
+                    <div class="pg-pane-body pg-matrix-container">
+                        <div class="pg-dimension-controls">
+                            <div class="pg-dim-input-group">
+                                <span>Depth Z:</span>
+                                <input type="number" id="pgDimZ" class="pg-dim-input" value="0" min="0" max="64">
+                            </div>
+                            <div class="pg-dim-input-group">
+                                <span>Vector U:</span>
+                                <input type="number" id="pgDimU" class="pg-dim-input" value="0" min="0" max="64">
+                            </div>
+                        </div>
+
+                        <div class="pg-matrix-wrapper">
+                            <div class="pg-grid-headers-x">
+                                <span></span>
+                                <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                            </div>
+                            <div class="pg-grid-body-rows" id="pgMatrixGridBody"></div>
+                        </div>
+
+                        <!-- Cell Metadata Inspector -->
+                        <div class="pg-cell-inspector">
+                            <div class="pg-inspector-title">
+                                <span id="pgInspectorCoordTitle">Cell (0, 0, 0, 0)</span>
+                                <span id="pgInspectorState" style="color:#00f3ff; font-weight:700;">CONFIGURED</span>
+                            </div>
+                            <div class="pg-inspector-row"><span>Bound File:</span><span id="pgInspectorFile">services/ml_analyzer.py</span></div>
+                            <div class="pg-inspector-row"><span>Target Function:</span><span id="pgInspectorFunc">predict_classification</span></div>
+                            <div class="pg-inspector-row"><span>Framework:</span><span id="pgInspectorFw">FASTAPI</span></div>
+                            <div class="pg-inspector-row"><span>Execution Count:</span><span id="pgInspectorCount">0</span></div>
+                            <div class="pg-inspector-row"><span>Last Latency:</span><span id="pgInspectorLatency">0ms</span></div>
+                            
+                            <div class="pg-inspector-actions">
+                                <button type="button" class="pg-btn-sm pg-btn-cyan" id="pgBatchArmBtn" style="flex:1;">⚡ Arm Selected</button>
+                                <button type="button" class="pg-btn-sm" id="pgBatchExecBtn" style="flex:1;">▶ Execute Selected</button>
+                                <button type="button" class="pg-btn-sm" id="pgBatchClearBtn">✕ Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pane 2: Directory Upload & File Explorer -->
+                <section class="pg-pane" data-pane="explorer" aria-label="Explorador de archivos y carpetas">
+                    <div class="pg-pane-head">
+                        <span>Directory Tree</span>
+                        <button type="button" class="pg-btn-sm" id="polyglotUploadFolderBtn">📁 Upload</button>
+                        <input type="file" id="polyglotDirInput" webkitdirectory directory multiple style="display:none;" aria-hidden="true">
+                    </div>
+                    <div class="pg-pane-body pg-explorer-container">
+                        <div class="pg-dropzone" id="polyglotDropZone">
+                            <span>Drop Folder or Source Files Here</span>
+                        </div>
+
+                        <div class="pg-search-bar">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="search" id="polyglotFileSearch" class="pg-search-input" placeholder="Filter files..." autocomplete="off" spellcheck="false">
+                        </div>
+
+                        <div class="pg-ext-filters">
+                            <span class="pg-ext-chip active" data-ext="all">All</span>
+                            <span class="pg-ext-chip" data-ext=".py">.py</span>
+                            <span class="pg-ext-chip" data-ext=".js">.js</span>
+                            <span class="pg-ext-chip" data-ext=".go">.go</span>
+                            <span class="pg-ext-chip" data-ext=".c">.c</span>
+                            <span class="pg-ext-chip" data-ext=".java">.java</span>
+                        </div>
+
+                        <div class="pg-file-tree" id="polyglotFileTree"></div>
+
+                        <button type="button" class="pg-btn-sm pg-btn-cyan" id="polyglotBindCellBtn" style="width:100%;">🔗 Bind to Active Cell</button>
+                    </div>
+                </section>
+
+                <!-- Pane 3: Code Studio & Code-to-API Converter -->
+                <section class="pg-pane" data-pane="studio" aria-label="Estudio de código y convertidor a API">
+                    <div class="pg-pane-head">
+                        <span>Code-to-API Synthesizer</span>
+                        <span style="font-size:10px; color:#38bdf8;">6 Frameworks</span>
+                    </div>
+                    <div class="pg-pane-body pg-studio-container">
+                        <div class="pg-framework-selector">
+                            <span class="pg-fw-pill active" data-fw="fastapi">Python FastAPI</span>
+                            <span class="pg-fw-pill" data-fw="sanic">Python Sanic</span>
+                            <span class="pg-fw-pill" data-fw="express">Node.js Express</span>
+                            <span class="pg-fw-pill" data-fw="go">Go Gin / net/http</span>
+                            <span class="pg-fw-pill" data-fw="c">C (libmicrohttpd)</span>
+                            <span class="pg-fw-pill" data-fw="java">Java Spring Boot</span>
+                        </div>
+
+                        <div class="pg-route-config-bar">
+                            <select id="pgMethodSelect" class="pg-method-select">
+                                <option value="POST">POST</option>
+                                <option value="GET">GET</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="PATCH">PATCH</option>
+                            </select>
+                            <input type="text" id="pgPathInput" class="pg-path-input" value="/api/v1/predict" placeholder="/api/v1/endpoint">
+                        </div>
+
+                        <div class="pg-editor-split">
+                            <!-- Source Box -->
+                            <div class="pg-editor-box">
+                                <div class="pg-editor-header">
+                                    <span>Source Code Preview / Edit</span>
+                                    <span>Polyglot AST</span>
+                                </div>
+                                <textarea id="polyglotSourceEditor" class="pg-code-textarea" spellcheck="false"></textarea>
+                            </div>
+
+                            <!-- Generated API Box -->
+                            <div class="pg-editor-box">
+                                <div class="pg-editor-header">
+                                    <span>Synthesized REST Module</span>
+                                    <div class="pg-snippet-tabs">
+                                        <span class="pg-snippet-tab active" data-snippet="curl">curl</span>
+                                        <span class="pg-snippet-tab" data-snippet="fetch">fetch()</span>
+                                    </div>
+                                </div>
+                                <textarea id="polyglotGeneratedApi" class="pg-code-textarea" readonly spellcheck="false" style="color:#a5f3fc;"></textarea>
+                                <pre id="polyglotSnippetOutput" style="display:none;"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pane 4: Real-Time Execution Console & History -->
+                <section class="pg-pane pg-pane-logs" data-pane="logs" aria-label="Consola de ejecución en tiempo real">
+                    <div class="pg-pane-head">
+                        <span>Dual-Channel Terminal</span>
+                        <button type="button" class="pg-btn-sm" id="pgClearLogsBtn">Clear</button>
+                    </div>
+                    <div class="pg-pane-body pg-console-container">
+                        <!-- Payload runner -->
+                        <div class="pg-runner-box">
+                            <span style="font-size:10px; color:#64748b;">Request JSON Payload:</span>
+                            <textarea id="polyglotPayloadInput" class="pg-payload-textarea" spellcheck="false">{"features": [0.82, 0.45, 1.29, 0.15], "threshold": 0.5}</textarea>
+                            <button type="button" class="pg-btn-sm pg-btn-cyan" id="polyglotSendRequestBtn" style="width:100%;">▶ Send Request / Execute Cell</button>
+                        </div>
+
+                        <div class="pg-log-filters">
+                            <select id="pgLogFilterLevel" class="pg-btn-sm" style="background:#040812;">
+                                <option value="ALL">All Levels</option>
+                                <option value="INFO">INFO</option>
+                                <option value="EXEC">EXEC</option>
+                                <option value="API">API</option>
+                                <option value="WARN">WARN</option>
+                                <option value="ERROR">ERROR</option>
+                            </select>
+                            <input type="search" id="pgLogSearch" class="pg-search-input" placeholder="Search logs..." style="background:#040812; padding:3px 6px; border:1px solid rgba(255,255,255,0.1); border-radius:4px;">
+                        </div>
+
+                        <!-- Live Terminal Stream -->
+                        <div class="pg-terminal-stream" id="polyglotTerminalConsole"></div>
+
+                        <!-- History Drawer -->
+                        <div class="pg-history-drawer" id="polyglotHistoryDrawer"></div>
+                    </div>
+                </section>
+            </div>
         </div>
     </div>
 
@@ -10822,11 +11048,21 @@ if (!headers_sent()) {
                         <div class="tb-corner-dot d-bl"></div>
                         <div class="tb-corner-dot d-br"></div>
                     </div>
-                    <!-- slot-2-3 -->
-                    <div class="tb-slot" id="slot-2-3" data-slot="2-3" title="Slot 2-3">
-                        <div class="tb-inner-ring">
-                            <div class="tb-focal-center"></div>
+                    <!-- slot-2-3: Polyglot Grid API Launcher & Code Studio (Circle 7) -->
+                    <div class="tb-slot is-filled is-tool-grid-studio" id="slot-2-3" data-slot="2-3" title="Polyglot Grid · 8x7 API Launcher &amp; Code Studio" onclick="window.openPolyglotGridStudio ? window.openPolyglotGridStudio(event) : openPolyglotGridStudio(event)" role="button" tabindex="0" aria-label="Abrir Polyglot Grid API Launcher" style="cursor: pointer !important; pointer-events: auto !important;">
+                        <div class="tb-inner-ring" style="pointer-events: none; border-color: #00f3ff; background: rgba(0, 243, 255, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg class="tb-slot-icon" viewBox="0 0 46 46" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none;">
+                                <rect x="4" y="4" width="38" height="38" rx="6" stroke="#00f3ff" stroke-width="2" fill="rgba(6, 182, 212, 0.12)"/>
+                                <line x1="4" y1="15" x2="42" y2="15" stroke="#00f3ff" stroke-width="1" opacity="0.6"/>
+                                <line x1="4" y1="26" x2="42" y2="26" stroke="#00f3ff" stroke-width="1" opacity="0.6"/>
+                                <line x1="4" y1="34" x2="42" y2="34" stroke="#00f3ff" stroke-width="1" opacity="0.4"/>
+                                <line x1="15" y1="4" x2="15" y2="42" stroke="#00f3ff" stroke-width="1" opacity="0.6"/>
+                                <line x1="26" y1="4" x2="26" y2="42" stroke="#00f3ff" stroke-width="1" opacity="0.6"/>
+                                <line x1="34" y1="4" x2="34" y2="42" stroke="#00f3ff" stroke-width="1" opacity="0.4"/>
+                                <circle cx="20.5" cy="20.5" r="4.5" fill="#00f3ff" filter="drop-shadow(0 0 6px #00f3ff)"/>
+                            </svg>
                         </div>
+                        <div class="tb-slot-badge" style="color:#00f3ff; border-color:#00f3ff; background:#04141e; pointer-events:none;">GRID 8x7</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -21921,6 +22157,7 @@ ${jsonPayload}
     </script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.js?v=2026.1"></script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/polyglot-grid.js?v=2026.1"></script>
     <script>
     document.addEventListener('click', function(e) {
         var btn = e.target && e.target.closest && e.target.closest('#topBarLogoutBtn');

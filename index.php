@@ -10663,19 +10663,39 @@ if (!headers_sent()) {
                     </select>
                 </div>
                 <div class="pg-header-actions">
-                    <button type="button" class="pg-btn-sm" id="polyglotExportBtn" title="Exportar configuración de matriz y estado a JSON">⬇ Export</button>
-                    <button type="button" class="pg-btn-sm" id="polyglotImportBtn" title="Restaurar configuración de matriz desde JSON">⬆ Import</button>
+                    <button type="button" class="pg-btn-sm" id="polyglotExportBtn" title="Exportar configuración de matriz y estado a JSON">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span>Exportar</span>
+                    </button>
+                    <button type="button" class="pg-btn-sm" id="polyglotImportBtn" title="Restaurar configuración de matriz desde JSON">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <span>Importar</span>
+                    </button>
                     <input type="file" id="polyglotImportInput" accept=".json" style="display:none;" aria-hidden="true">
-                    <button type="button" class="pg-btn-close" id="polyglotGridCloseBtn" title="Cerrar ventana (Esc)" aria-label="Cerrar">✕</button>
+                    <button type="button" class="pg-btn-close" id="polyglotGridCloseBtn" title="Cerrar ventana (Esc)" aria-label="Cerrar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
                 </div>
             </header>
 
-            <!-- Tabs Bar -->
+            <!-- Tabs Bar with Vector SVGs -->
             <nav class="pg-tabs-bar" aria-label="Navegación de módulos Polyglot Studio">
-                <button type="button" class="pg-tab-btn active" data-tab="matrix">⊞ 8x7 Coordinate Matrix</button>
-                <button type="button" class="pg-tab-btn" data-tab="explorer">📁 Directory Explorer</button>
-                <button type="button" class="pg-tab-btn" data-tab="studio">⚙ Code-to-API Studio</button>
-                <button type="button" class="pg-tab-btn" data-tab="logs">▶ Real-Time Console &amp; Logs</button>
+                <button type="button" class="pg-tab-btn active" data-tab="matrix">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                    <span>Cuadrícula 8×7</span>
+                </button>
+                <button type="button" class="pg-tab-btn" data-tab="explorer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    <span>Explorador de Archivos</span>
+                </button>
+                <button type="button" class="pg-tab-btn" data-tab="studio">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    <span>Lanzador de APIs</span>
+                </button>
+                <button type="button" class="pg-tab-btn" data-tab="logs">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                    <span>Terminal de Logs</span>
+                </button>
             </nav>
 
             <!-- 4-Pane Responsive Workspace Body -->
@@ -10731,7 +10751,10 @@ if (!headers_sent()) {
                 <section class="pg-pane" data-pane="explorer" aria-label="Explorador de archivos y carpetas">
                     <div class="pg-pane-head">
                         <span>Directory Tree</span>
-                        <button type="button" class="pg-btn-sm" id="polyglotUploadFolderBtn">📁 Upload</button>
+                        <button type="button" class="pg-btn-sm" id="polyglotUploadFolderBtn">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span>Subir Carpeta</span>
+                        </button>
                         <input type="file" id="polyglotDirInput" webkitdirectory directory multiple style="display:none;" aria-hidden="true">
                     </div>
                     <div class="pg-pane-body pg-explorer-container">

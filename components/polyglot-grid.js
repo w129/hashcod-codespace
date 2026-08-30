@@ -8,6 +8,11 @@
     'use strict';
 
     // ===== 1. CONSTANTS & LIFECYCLE STATES =====
+        const SVG_BOX_ICON = `<svg viewBox="0 0 128 128" width="28" height="28" fill="currentColor"><path d="M15,109.8l48,17c0,0,0,0,0,0c0.1,0,0.2,0.1,0.3,0.1c0.2,0.1,0.5,0.1,0.7,0.1c0.2,0,0.3,0,0.5,0c0,0,0,0,0,0c0,0,0,0,0.1,0 c0.1,0,0.3-0.1,0.4-0.1c0,0,0,0,0,0l48-17c1.2-0.4,2-1.6,2-2.8V73.4l10-3.5c0.8-0.3,1.5-1,1.8-1.8s0.2-1.8-0.3-2.6l-12-20 c0,0-0.1-0.1-0.1-0.1c0-0.1-0.1-0.1-0.1-0.2c0,0,0,0,0,0c0-0.1-0.1-0.1-0.1-0.2c0,0,0,0,0-0.1c-0.1-0.1-0.1-0.1-0.2-0.2 c0,0-0.1-0.1-0.1-0.1c0,0-0.1-0.1-0.1-0.1c0,0-0.1,0-0.1,0c0,0-0.1-0.1-0.1-0.1c-0.1-0.1-0.2-0.1-0.3-0.1c-0.1,0-0.1-0.1-0.2-0.1 c0,0,0,0,0,0c0,0,0,0,0,0l-48-17c0,0,0,0-0.1,0c0,0-0.1,0-0.1,0c0,0-0.1,0-0.1,0c-0.1,0-0.1,0-0.2,0c0,0,0,0,0,0c0,0,0,0,0,0 c-0.1,0-0.1,0-0.2,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.4,0c-0.1,0-0.1,0-0.2,0c-0.2,0-0.4,0.1-0.5,0.1l-48,17 c-0.2,0.1-0.3,0.1-0.5,0.2c0,0-0.1,0.1-0.1,0.1c-0.1,0.1-0.2,0.1-0.3,0.2c0,0-0.1,0.1-0.1,0.1c-0.1,0.1-0.2,0.1-0.2,0.2 c0,0-0.1,0.1-0.1,0.1c-0.1,0.1-0.1,0.2-0.2,0.2c0,0,0,0.1-0.1,0.1l-12,20c-0.7,1.1-0.6,2.5,0.2,3.4C2.3,69.6,3.1,70,4,70 c0.3,0,0.7-0.1,1-0.2l8-2.8v40C13,108.3,13.8,109.4,15,109.8z M119.5,65.4l-42.2,15l-8.9-14.8l42.2-15L119.5,65.4z M67,34.2L103,47 L67,59.8V34.2z M67,74.8l6.4,10.7C74,86.5,75,87,76,87c0.3,0,0.7-0.1,1-0.2l32-11.3v29.4l-42,14.9V74.8z M19,51.2l42,14.9v53.6 l-42-14.9V51.2z"/></svg>`;
+    const SVG_FOLDER_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+    const SVG_FILE_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+    const SVG_PLAY_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+
     const GRID_COLS = 8; // X: 0..7
     const GRID_ROWS = 7; // Y: 0..6
     const TOTAL_CELLS = GRID_COLS * GRID_ROWS; // 56 cells
@@ -434,7 +439,7 @@ public class OrderService {
                     });
                 }
             } else if (lang === 'java') {
-                const javaRegex = /(?:public|protected|private)?\s*(?:static\s+)?([a-zA-Z0-9_<>,\[\]]+)\s+([a-zA-Z0-9_]+)\s*\(([\s\S]*?)\)\s*(?:throws\s+[a-zA-Z0-9_,\s]+)?\s*\{/g;
+                const javaRegex = /(?:(?:public|protected|private|final|abstract|synchronized|static)\s+)*([a-zA-Z0-9_\[\]]+(?:<[\w\s,<>\[\]]+>)?)\s+([a-zA-Z0-9_]+)\s*\(([\s\S]*?)\)\s*(?:throws\s+[a-zA-Z0-9_,\s]+)?\s*\{/g;
                 let m;
                 while ((m = javaRegex.exec(str)) !== null) {
                     const returnType = m[1].trim();
@@ -476,10 +481,11 @@ public class OrderService {
                 const name = nameType[0].trim();
                 const type = nameType.length > 1 ? nameType[1].trim() : 'str';
                 const isPrimitive = ['int', 'float', 'bool', 'str'].includes(type.toLowerCase());
+                const isPathParam = name.endsWith('_id') || name === 'id';
                 return {
                     name: name,
                     type: type,
-                    in: isPrimitive && defaultVal !== null ? 'query' : (name.endsWith('_id') || name === 'id' ? 'path' : 'body'),
+                    in: isPathParam ? 'path' : (isPrimitive && defaultVal !== null ? 'query' : 'body'),
                     required: defaultVal === null,
                     defaultVal: defaultVal
                 };
@@ -583,13 +589,14 @@ public class OrderService {
             const queryParams = fn.params.filter(p => p.in === 'query');
             const pathParams = fn.params.filter(p => p.in === 'path');
 
-            const hasBody = bodyParams.length > 0;
+            const schemaParams = bodyParams.length > 0 ? bodyParams : fn.params.filter(p => p.in !== 'path');
+            const hasBody = bodyParams.length > 0 || (fn.params.length > 0 && queryParams.length === fn.params.length);
             const schemaName = `${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Request`;
 
             let schemaCode = '';
-            if (hasBody) {
+            if (schemaParams.length > 0) {
                 schemaCode = `class ${schemaName}(BaseModel):\n` +
-                    bodyParams.map(p => `    ${p.name}: ${p.type || 'Any'}${p.defaultVal ? ` = ${p.defaultVal}` : ''}`).join('\n') + '\n\n';
+                    schemaParams.map(p => `    ${p.name}: ${p.type || 'Any'}${p.defaultVal ? ` = ${p.defaultVal}` : ''}`).join('\n') + '\n\n';
             }
 
             const handlerArgs = [];
@@ -770,6 +777,10 @@ type ${fn.name}Request struct {
 ${structFields || '\tPayload map[string]interface{} `json:"payload"`'}
 }
 
+type ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Request struct {
+${structFields || '\tPayload map[string]interface{} `json:"payload"`'}
+}
+
 type StandardResponse struct {
 \tOk        bool        \`json:"ok"\`
 \tStatus    int         \`json:"status"\`
@@ -780,7 +791,7 @@ type StandardResponse struct {
 
 func Handle${fn.name}(c *gin.Context) {
 \ttStart := time.Now()
-\tvar req ${fn.name}Request
+\tvar req ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Request
 
 \tif err := c.ShouldBindJSON(&req); err != nil {
 \t\tc.JSON(http.StatusBadRequest, gin.H{
@@ -1186,14 +1197,26 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             if (!container) return;
             container.innerHTML = '';
 
+            const leftLabels = ['X', 'x2', 'x3', 'x4', 'x5', 'x6', 'Y'];
+            const rightLabels = ['U', 'u2', 'u3', 'u4', 'u5', 'u6', 'Z'];
+            const topHeaderLabels = ['X', '1', '2', '3', '4', '5', '6', 'U'];
+            const bottomHeaderLabels = ['Y', '7', '8', '9', '10', '11', '12', 'Z'];
+
+            // Update top header row if exists
+            const topHeaderEl = document.querySelector('.pg-grid-headers-x');
+            if (topHeaderEl) {
+                topHeaderEl.innerHTML = '<span></span>' + topHeaderLabels.map(l => `<span>${l}</span>`).join('') + '<span></span>';
+            }
+
             for (let y = 0; y < GRID_ROWS; y++) {
                 const rowWrap = document.createElement('div');
                 rowWrap.className = 'pg-grid-row-wrap';
 
-                const rowHdr = document.createElement('div');
-                rowHdr.className = 'pg-row-hdr';
-                rowHdr.textContent = `Y:${y}`;
-                rowWrap.appendChild(rowHdr);
+                // Left row label (X, x2..x6, Y)
+                const rowHdrLeft = document.createElement('div');
+                rowHdrLeft.className = 'pg-row-hdr pg-row-hdr-left';
+                rowHdrLeft.textContent = leftLabels[y] || `y${y}`;
+                rowWrap.appendChild(rowHdrLeft);
 
                 for (let x = 0; x < GRID_COLS; x++) {
                     const cell = this.state.getCell(x, y, this.state.activeCoord.z, this.state.activeCoord.u);
@@ -1205,7 +1228,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                     cellEl.setAttribute('data-u', cell.u);
                     cellEl.setAttribute('data-cell-id', cell.id);
                     cellEl.setAttribute('data-state', cell.state);
-                    cellEl.title = `Cell (${x}, ${y}, ${cell.z}, ${cell.u}) - ${cell.state}\nBound: ${cell.boundFunction || 'none'}`;
+                    cellEl.title = `Coordenada: V(x${x} u${cell.u}) F(${y+1})\nEstado: ${cell.state}\nArchivo: ${cell.boundFile || 'vacío'}`;
 
                     if (x === this.state.activeCoord.x && y === this.state.activeCoord.y) {
                         cellEl.classList.add('active');
@@ -1214,14 +1237,21 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                         cellEl.classList.add('selected');
                     }
 
-                    const indicator = document.createElement('div');
-                    indicator.className = 'pg-cell-indicator';
+                    // Vector Icon or Box
+                    if (cell.boundFile || cell.state === 'CONFIGURED' || cell.state === 'SUCCESS') {
+                        const iconBox = document.createElement('div');
+                        iconBox.className = 'pg-cell-icon-box';
+                        iconBox.innerHTML = SVG_BOX_ICON;
+                        cellEl.appendChild(iconBox);
+                    } else {
+                        const indicator = document.createElement('div');
+                        indicator.className = 'pg-cell-indicator';
+                        cellEl.appendChild(indicator);
+                    }
 
                     const coordLabel = document.createElement('div');
                     coordLabel.className = 'pg-cell-coord';
                     coordLabel.textContent = `${x},${y}`;
-
-                    cellEl.appendChild(indicator);
                     cellEl.appendChild(coordLabel);
 
                     cellEl.addEventListener('click', (e) => {
@@ -1229,13 +1259,32 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                             this.toggleCellSelection(x, y);
                         } else {
                             this.selectCell(x, y, cell.z, cell.u);
+                            if (cell.boundFile) {
+                                this.switchTab('explorer');
+                            }
                         }
                     });
 
                     rowWrap.appendChild(cellEl);
                 }
+
+                // Right row label (U, u2..u6, Z)
+                const rowHdrRight = document.createElement('div');
+                rowHdrRight.className = 'pg-row-hdr pg-row-hdr-right';
+                rowHdrRight.textContent = rightLabels[y] || `u${y}`;
+                rowWrap.appendChild(rowHdrRight);
+
                 container.appendChild(rowWrap);
             }
+
+            // Add bottom header row if not present
+            let bottomHeaderEl = document.querySelector('.pg-grid-headers-bottom');
+            if (!bottomHeaderEl) {
+                bottomHeaderEl = document.createElement('div');
+                bottomHeaderEl.className = 'pg-grid-headers-x pg-grid-headers-bottom';
+                container.parentNode.appendChild(bottomHeaderEl);
+            }
+            bottomHeaderEl.innerHTML = '<span></span>' + bottomHeaderLabels.map(l => `<span>${l}</span>`).join('') + '<span></span>';
         }
 
         selectCell(x, y, z = 0, u = 0) {

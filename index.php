@@ -10686,7 +10686,7 @@ if (!headers_sent()) {
 
             <!-- Tkinter Menu Bar -->
             <div class="tk-menu-bar">
-                <button type="button" class="tk-menu-item" id="polyglotUploadFolderBtn"><u>F</u>ile</button>
+                <button type="button" class="tk-menu-item" id="polyglotUploadFolderBtn" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal()"><u>F</u>ile</button>
                 <input type="file" id="polyglotDirInput" webkitdirectory directory multiple style="display:none;" aria-hidden="true">
                 <button type="button" class="tk-menu-item" id="polyglotExportBtn"><u>E</u>dit</button>
                 <button type="button" class="tk-menu-item" id="polyglotImportBtn"><u>V</u>iew</button>
@@ -10820,7 +10820,7 @@ if (!headers_sent()) {
                 <!-- Pane 2: Directory Upload & File Explorer -->
                 <section class="pg-pane" data-pane="explorer" aria-label="Explorador de archivos y carpetas">
                     <div class="pg-pane-head">
-                        <span>Directory Explorer — Tkinter File Tree</span>
+                        <span>Directory Explorer — <strong id="pgExplorerBoxHeader" style="color:#000080;">Caja [V: x3, F: 1]</strong></span>
                         <div style="display:flex; gap:8px;">
                             <select id="polyglotPresetSelect" class="tk-btn-action" style="padding:2px 6px; font-size:11px;">
                                 <option value="ml_analyzer.py">⚡ Preset: ML Inference (FastAPI / Sanic)</option>
@@ -10981,6 +10981,66 @@ if (!headers_sent()) {
                     </div>
                 </section>
             </div>
+
+            
+    <!-- Tkinter File Selection & Coordinate Router Modal Dialog -->
+    <div class="tk-modal-dialog-overlay" id="tkFileAssignModal">
+        <div class="tk-dialog-box">
+            <!-- Dialog Title Bar -->
+            <div class="tk-title-bar">
+                <div class="tk-title-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="14" height="14" style="flex-shrink:0;">
+                        <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="17.321,30 17.321,20 25.981,25 25.981,35"></polygon>
+                        <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="25.981,25 34.641,20 34.641,30 25.981,35"></polygon>
+                        <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="17.321,20 25.981,15 34.641,20 25.981,25"></polygon>
+                    </svg>
+                    <span class="tk-title-text">Krumbs — Asignar Archivo a Caja de Coordenadas</span>
+                </div>
+                <div class="tk-title-right">
+                    <button type="button" class="tk-btn-window" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeFileAssignModal()">✕</button>
+                </div>
+            </div>
+
+            <!-- Dialog Body -->
+            <div style="padding:10px; background:#ECE9D8; display:flex; flex-direction:column; gap:10px;">
+                <div style="font-weight:700; font-size:12px; color:#000000;">1. Selecciona el archivo de código:</div>
+                <div id="tkAssignFileList" style="height:180px; overflow-y:auto; background:#FFFFFF; border:1.5px solid #808080;"></div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#FFFFFF; padding:6px 10px; border:1.5px solid #808080;">
+                    <span style="font-size:11px; font-weight:700;">Archivo seleccionado:</span>
+                    <span id="tkSelectedAssignFileLabel" style="font-family:var(--tk-font-mono); font-size:11px; color:#000080; font-weight:700;">services/ml_analyzer.py</span>
+                </div>
+
+                <div style="font-weight:700; font-size:12px; color:#000000; margin-top:4px;">2. Destino: Coordenada de la Caja en la Matriz 8×7:</div>
+                <div style="display:flex; gap:10px; align-items:center; background:#FFFFFF; padding:8px 10px; border:1.5px solid #808080;">
+                    <span style="font-size:12px; font-weight:600;">Fila (V):</span>
+                    <select id="tkAssignCoordRow" style="padding:4px; font-weight:700; border:1px solid #808080;">
+                        <option value="1">Fila x2 (Row 1)</option>
+                        <option value="2" selected>Fila x3 (Row 2)</option>
+                        <option value="3">Fila x4 (Row 3)</option>
+                        <option value="4">Fila x5 (Row 4)</option>
+                        <option value="5">Fila x6 (Row 5)</option>
+                    </select>
+
+                    <span style="font-size:12px; font-weight:600; margin-left:8px;">Columna (F):</span>
+                    <select id="tkAssignCoordCol" style="padding:4px; font-weight:700; border:1px solid #808080;">
+                        <option value="1">Columna 1</option>
+                        <option value="2">Columna 2</option>
+                        <option value="3" selected>Columna 3</option>
+                        <option value="4">Columna 4</option>
+                        <option value="5">Columna 5</option>
+                        <option value="6">Columna 6</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                    <button type="button" class="tk-btn-action" style="padding:6px 14px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeFileAssignModal()">Cancelar</button>
+                    <button type="button" class="tk-btn-action" style="padding:6px 18px; font-weight:700; color:#000080;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.confirmFileAssignment()">📦 Asignar a Caja</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
             <!-- Global Status Bar -->
             <div class="tk-status-bar">

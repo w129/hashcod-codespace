@@ -598,3 +598,79 @@
 .pg-cell[data-state="SUCCESS"] { color: #008080; }
 .pg-cell[data-state="ERROR"] { color: #C00000; }
 .pg-cell[data-state="LOCKED"] { color: #555555; }
+
+/* ===== BOX FILE BADGE & EMPTY STATE ===== */
+.pg-box-file-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #000080;
+    color: #FFFFFF;
+    font-family: var(--tk-font-sans);
+    font-size: 10px;
+    font-weight: 800;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #FFFFFF;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.pg-empty-box-msg {
+    padding: 24px 16px;
+    text-align: center;
+    background: #ECE9D8;
+    border: 1.5px dashed #808080;
+    margin: 12px 0;
+}
+
+/* ===== TKINTER FILE ASSIGNMENT DIALOG ===== */
+.tk-modal-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 100000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--tk-font-sans);
+}
+
+.tk-dialog-box {
+    width: 520px;
+    max-width: 95vw;
+    background: var(--tk-bg-gray);
+    border: 2px solid #FFFFFF;
+    border-right-color: #404040;
+    border-bottom-color: #404040;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    padding: 3px;
+}
+
+.tk-assign-file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E5E5;
+    cursor: pointer;
+}
+.tk-assign-file-row:hover {
+    background: #f1f5f9;
+}
+.tk-assign-file-row.selected {
+    background: #000080;
+    color: #FFFFFF;
+}
+.tk-assign-file-row.selected * {
+    color: #FFFFFF !important;
+}

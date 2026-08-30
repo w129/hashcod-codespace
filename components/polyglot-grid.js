@@ -261,6 +261,7 @@ public class OrderService {
                         id: `cell-${x}-${y}-0-0`,
                         state: LIFECYCLE_STATES.IDLE,
                         boundFile: '',
+                        boundFiles: [],
                         boundFunction: '',
                         framework: FRAMEWORKS.FASTAPI,
                         route: `/api/cell/${x}/${y}`,
@@ -1255,15 +1256,13 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                             cellEl.classList.add('active-cell');
                         }
 
-                        if (item === 'RED_SQUARE') {
+                                                if (item === 'RED_SQUARE') {
                             cellEl.innerHTML = SVG_RED_SQUARE;
                             cellEl.title = `Entrada de Datos (V: x3, F: 1-7) - Subir Carpeta de Código\nCoordenada: [${dataX}, ${dataY}]`;
                             cellEl.addEventListener('click', () => {
                                 this.selectCell(dataX, dataY, cellStateObj.z, cellStateObj.u);
-                                this.appendLog('INFO', `Entrada de Datos seleccionada en V(xv3) F(${dataX}). Abriendo Explorador para cargar código.`, [dataX, dataY, 0, 0]);
-                                this.switchTab('explorer');
-                                const dirInput = document.getElementById('polyglotDirInput');
-                                if (dirInput) dirInput.click();
+                                this.appendLog('INFO', `Entrada de Datos seleccionada en V(xv3) F(${dataX}). Abriendo asignador de archivos.`, [dataX, dataY, 0, 0]);
+                                this.openFileAssignModal(dataX, dataY);
                             });
                         } else if (item === 'RED_TRIANGLE') {
                             cellEl.innerHTML = SVG_RED_TRIANGLE;
@@ -1288,7 +1287,16 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                             boxWrap.innerHTML = SVG_ISOMETRIC_BOX;
                             cellEl.appendChild(boxWrap);
 
-                            const fileInfo = cellStateObj.boundFile ? `\nArchivo: ${cellStateObj.boundFile}` : '';
+                            const assignedCount = (cellStateObj.boundFiles && cellStateObj.boundFiles.length) || (cellStateObj.boundFile ? 1 : 0);
+                            if (assignedCount > 0) {
+                                const badge = document.createElement('span');
+                                badge.className = 'pg-box-file-badge';
+                                badge.textContent = assignedCount;
+                                badge.title = `${assignedCount} archivo(s) asignado(s)`;
+                                cellEl.appendChild(badge);
+                            }
+
+                            const fileInfo = cellStateObj.boundFile ? `\nArchivos: ${cellStateObj.boundFile}` : '\n(Caja vacía - Sin archivos asignados)';
                             cellEl.title = `Caja de Código (V: x${r+1}, F: ${c})\nEstado: ${cellStateObj.state}${fileInfo}`;
 
                             cellEl.addEventListener('click', (e) => {
@@ -1297,7 +1305,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                                 } else {
                                     this.selectCell(dataX, dataY, cellStateObj.z, cellStateObj.u);
                                     this.switchTab('explorer');
-                                    this.appendLog('INFO', `Caja de Código inspeccionada en V(x${r+1}) F(${c}).`, [dataX, dataY, 0, 0]);
+                                    this.appendLog('INFO', `Caja V(x${r+1}) F(${c}) abierta. Archivos asignados: ${assignedCount}.`, [dataX, dataY, 0, 0]);
                                 }
                             });
                         }
@@ -1378,10 +1386,34 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             if (!treeContainer) return;
             treeContainer.innerHTML = '';
 
+            const activeCell = this.state.getCell(this.state.activeCoord.x, this.state.activeCoord.y, this.state.activeCoord.z, this.state.activeCoord.u);
+            const assignedList = (activeCell.boundFiles && activeCell.boundFiles.length > 0) 
+                ? activeCell.boundFiles 
+                : (activeCell.boundFile ? [activeCell.boundFile] : []);
+
+            const headerInfo = document.getElementById('pgExplorerBoxHeader');
+            if (headerInfo) {
+                headerInfo.textContent = `Caja [V: x${activeCell.y + 1}, F: ${activeCell.x}] (${assignedList.length} archivo${assignedList.length === 1 ? '' : 's'})`;
+            }
+
+            if (assignedList.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'pg-empty-box-msg';
+                emptyMsg.innerHTML = `
+                    <div style="font-size:28px; margin-bottom:8px;">📦</div>
+                    <div style="font-weight:700; font-size:13px; color:#000000;">Caja V(x${activeCell.y + 1}) F(${activeCell.x}) Vacía</div>
+                    <div style="font-size:11.5px; color:#555555; margin:6px 0 12px;">Esta caja no tiene archivos asignados.</div>
+                    <button type="button" class="tk-btn-action" style="margin:0 auto; padding:6px 14px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal(${activeCell.x}, ${activeCell.y})">📁 Asignar Archivos a esta Caja</button>
+                `;
+                treeContainer.appendChild(emptyMsg);
+                return;
+            }
+
             const q = (filterQuery || '').toLowerCase();
             const ext = (extFilter || 'all').toLowerCase();
 
-            this.state.files.forEach((file, path) => {
+            assignedList.forEach(path => {
+                const file = this.state.files.get(path) || { name: path.split('/').pop(), path: path, lines: 10, content: '' };
                 if (q && !path.toLowerCase().includes(q)) return;
                 if (ext !== 'all' && !path.toLowerCase().endsWith(ext)) return;
 
@@ -1396,11 +1428,12 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 const label = document.createElement('span');
                 label.textContent = path;
                 label.style.flex = '1';
+                label.style.fontWeight = '600';
 
                 const sizeBadge = document.createElement('span');
-                sizeBadge.style.fontSize = '9px';
-                sizeBadge.style.color = '#64748b';
-                sizeBadge.textContent = `${file.lines}L`;
+                sizeBadge.style.fontSize = '10px';
+                sizeBadge.style.color = '#000080';
+                sizeBadge.textContent = `${file.lines || 10}L`;
 
                 item.appendChild(icon);
                 item.appendChild(label);
@@ -1424,6 +1457,86 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             if (p.endsWith('.json')) return '📋';
             if (p.endsWith('.yaml') || p.endsWith('.yml')) return '📄';
             return '📁';
+        }
+
+        openFileAssignModal(targetX = null, targetY = null) {
+            if (typeof document === 'undefined') return;
+            const modal = document.getElementById('tkFileAssignModal');
+            if (!modal) return;
+
+            // Populate all available workspace files
+            const listEl = document.getElementById('tkAssignFileList');
+            if (listEl) {
+                listEl.innerHTML = '';
+                this.state.files.forEach((file, path) => {
+                    const row = document.createElement('div');
+                    row.className = 'tk-assign-file-row';
+                    row.innerHTML = `
+                        <span style="font-size:15px;">${this.getFileIcon(path)}</span>
+                        <div style="flex:1; text-align:left;">
+                            <div style="font-weight:700; font-size:12px; color:#000000;">${path}</div>
+                            <div style="font-size:10px; color:#666666;">${file.language.toUpperCase()} · ${file.lines} líneas · ${file.size} bytes</div>
+                        </div>
+                        <button type="button" class="tk-btn-action" style="padding:3px 8px; font-size:11px;">Seleccionar</button>
+                    `;
+                    row.addEventListener('click', () => {
+                        document.querySelectorAll('.tk-assign-file-row').forEach(r => r.classList.remove('selected'));
+                        row.classList.add('selected');
+                        this.pendingAssignFile = path;
+                        const labelEl = document.getElementById('tkSelectedAssignFileLabel');
+                        if (labelEl) labelEl.textContent = path;
+                    });
+                    listEl.appendChild(row);
+                });
+            }
+
+            // Set default coordinate selectors
+            const selRow = document.getElementById('tkAssignCoordRow');
+            const selCol = document.getElementById('tkAssignCoordCol');
+            if (selRow && targetY !== null) selRow.value = targetY;
+            if (selCol && targetX !== null) selCol.value = targetX;
+
+            modal.style.display = 'flex';
+        }
+
+        closeFileAssignModal() {
+            if (typeof document === 'undefined') return;
+            const modal = document.getElementById('tkFileAssignModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        confirmFileAssignment() {
+            const selRow = document.getElementById('tkAssignCoordRow');
+            const selCol = document.getElementById('tkAssignCoordCol');
+            const rowVal = selRow ? parseInt(selRow.value, 10) : this.state.activeCoord.y;
+            const colVal = selCol ? parseInt(selCol.value, 10) : this.state.activeCoord.x;
+            const filePath = this.pendingAssignFile || this.state.selectedFilePath;
+
+            if (!filePath) {
+                alert('Por favor selecciona un archivo de la lista.');
+                return;
+            }
+
+            const targetCell = this.state.getCell(colVal, rowVal, this.state.activeCoord.z, this.state.activeCoord.u);
+            if (!targetCell.boundFiles) targetCell.boundFiles = [];
+            if (!targetCell.boundFiles.includes(filePath)) {
+                targetCell.boundFiles.push(filePath);
+            }
+            targetCell.boundFile = filePath;
+            targetCell.state = LIFECYCLE_STATES.CONFIGURED;
+
+            const lang = (filePath.split('.').pop() || 'python').toLowerCase();
+            const fileObj = this.state.files.get(filePath);
+            const content = fileObj ? fileObj.content : '';
+            const functions = PolyglotConverter.extractSignatures(content, lang);
+            targetCell.boundFunction = functions[0] ? functions[0].name : 'executeHandler';
+
+            this.closeFileAssignModal();
+            this.selectCell(colVal, rowVal, targetCell.z, targetCell.u);
+            this.renderGrid();
+            this.renderFileTree();
+            this.updateActiveCellInspector();
+            this.appendLog('SUCCESS', `Archivo '${filePath}' asignado con éxito a la Caja [V: x${rowVal + 1}, F: ${colVal}].`, [colVal, rowVal, 0, 0]);
         }
 
         selectFile(path) {

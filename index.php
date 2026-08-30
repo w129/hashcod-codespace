@@ -11042,6 +11042,71 @@ if (!headers_sent()) {
     </div>
 
 
+            
+    <!-- Krumbs Retro Tkinter IDE & IdeaVim Code Editor Modal -->
+    <div class="tk-ide-modal-overlay" id="tkKrumbsIdeModal">
+        <div class="tk-ide-window">
+            <!-- IDE Title Bar -->
+            <div class="tk-title-bar">
+                <div class="tk-title-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="flex-shrink:0;">
+    <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="17.321,30 17.321,20 25.981,25 25.981,35"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="25.981,25 34.641,20 34.641,30 25.981,35"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="17.321,20 25.981,15 34.641,20 25.981,25"></polygon>
+</svg>
+                    <span class="tk-title-text" id="tkIdeModalTitle">Krumbs IDE — [editor.py]</span>
+                </div>
+                <div class="tk-title-right">
+                    <button type="button" class="tk-btn-window" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeIdeModal()">-</button>
+                    <button type="button" class="tk-btn-window">□</button>
+                    <button type="button" class="tk-btn-window" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeIdeModal()">✕</button>
+                </div>
+            </div>
+
+            <!-- IDE Menu Bar -->
+            <div class="tk-menu-bar">
+                <button type="button" class="tk-menu-item" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.saveIdeChanges()"><u>F</u>ile</button>
+                <button type="button" class="tk-menu-item"><u>E</u>dit</button>
+                <button type="button" class="tk-menu-item"><u>V</u>iew</button>
+                <button type="button" class="tk-menu-item" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.saveIdeChanges(); window.PolyglotGridStudio && window.PolyglotGridStudio.switchTab('studio'); window.PolyglotGridStudio && window.PolyglotGridStudio.closeIdeModal();"><u>R</u>un (REST API)</button>
+                <button type="button" class="tk-menu-item"><u>H</u>elp</button>
+            </div>
+
+            <!-- IDE Toolbar & IdeaVim Mode Indicator -->
+            <div class="tk-ide-toolbar">
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button type="button" class="tk-btn-action" style="padding:3px 10px; font-weight:700; color:#000080;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.saveIdeChanges()">💾 Guardar (Ctrl+S)</button>
+                    <button type="button" class="tk-btn-action" style="padding:3px 8px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.saveIdeChanges(); window.PolyglotGridStudio && window.PolyglotGridStudio.switchTab('studio'); window.PolyglotGridStudio && window.PolyglotGridStudio.closeIdeModal();">⚡ Sintetizar API</button>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <span style="font-size:11px; font-weight:600; color:#555555;">IdeaVim Engine:</span>
+                    <div class="tk-ide-vim-pill" id="tkIdeVimModePill" title="Modo Vim activo (Presiona 'i' para INSERT, 'Esc' para NORMAL, ':' para comandos)">-- NORMAL --</div>
+                </div>
+            </div>
+
+            <!-- Editor Split Container (Line Gutter + Textarea) -->
+            <div class="tk-ide-editor-container">
+                <div class="tk-ide-gutter" id="tkIdeLineGutter">
+                    <div>1</div>
+                </div>
+                <textarea class="tk-ide-textarea" id="tkIdeEditorTextarea" spellcheck="false" placeholder="Escribe o edita el código aquí..."></textarea>
+            </div>
+
+            <!-- Vim Command Bar (:) -->
+            <div class="tk-ide-vim-cmdline">
+                <span>:</span>
+                <input type="text" id="tkIdeVimCmdInput" placeholder="Escribe comandos Vim (:w guardar, :q salir, :wq guardar y salir, :%s/old/new/g)">
+            </div>
+
+            <!-- IDE Status Bar (Win98 / Tkinter 3D Inset) -->
+            <div class="tk-ide-status-bar">
+                <div class="tk-status-left" id="tkIdeStatusLeft" style="flex:1;">Ln: 1, Col: 1 | UTF-8 | [NORMAL]</div>
+                <div class="tk-status-right" id="tkIdeStatusSaved" style="width:110px; text-align:center;">Ready</div>
+            </div>
+        </div>
+    </div>
+
+
             <!-- Global Status Bar -->
             <div class="tk-status-bar">
                 <div class="tk-status-left" id="tkGlobalStatusLeft">Ready</div>

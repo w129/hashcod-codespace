@@ -674,3 +674,149 @@
 .tk-assign-file-row.selected * {
     color: #FFFFFF !important;
 }
+
+/* ===== KRUMBS RETRO TKINTER IDE WINDOW (IDEAVIM INTEGRATION) ===== */
+.tk-ide-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 100002;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--tk-font-sans);
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+.tk-ide-window {
+    width: 880px;
+    height: 640px;
+    max-width: 96vw;
+    max-height: 92vh;
+    background: var(--tk-bg-gray);
+    border: 2.5px solid #FFFFFF;
+    border-right-color: #404040;
+    border-bottom-color: #404040;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    padding: 3px;
+    box-sizing: border-box;
+}
+
+.tk-ide-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px;
+    background: #ECE9D8;
+    border-top: 1px solid #FFFFFF;
+    border-bottom: 1px solid #808080;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tk-ide-vim-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border: 1.5px solid #808080;
+    border-right-color: #FFFFFF;
+    border-bottom-color: #FFFFFF;
+    background: #000000;
+    color: #00FF66;
+    font-family: var(--tk-font-mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+
+.tk-ide-editor-container {
+    flex: 1;
+    display: flex;
+    background: #1E1E1E;
+    border: 2px solid #808080;
+    border-right-color: #FFFFFF;
+    border-bottom-color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+}
+
+.tk-ide-gutter {
+    width: 48px;
+    background: #252526;
+    color: #858585;
+    font-family: var(--tk-font-mono);
+    font-size: 12px;
+    line-height: 20px;
+    padding: 10px 6px 10px 0;
+    text-align: right;
+    user-select: none;
+    border-right: 1px solid #333333;
+    overflow: hidden;
+}
+
+.tk-ide-textarea {
+    flex: 1;
+    background: #1E1E1E;
+    color: #D4D4D4;
+    font-family: var(--tk-font-mono);
+    font-size: 12.5px;
+    line-height: 20px;
+    padding: 10px;
+    border: none;
+    outline: none;
+    resize: none;
+    white-space: pre;
+    overflow: auto;
+    tab-size: 4;
+}
+
+.tk-ide-find-bar {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #ECE9D8;
+    border-bottom: 1.5px solid #808080;
+    font-size: 11px;
+}
+
+.tk-ide-vim-cmdline {
+    display: flex;
+    align-items: center;
+    background: #000000;
+    color: #FFFFFF;
+    padding: 3px 8px;
+    font-family: var(--tk-font-mono);
+    font-size: 12px;
+    border-top: 1px solid #333333;
+}
+
+.tk-ide-vim-cmdline input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #00FF66;
+    font-family: var(--tk-font-mono);
+    font-size: 12px;
+    outline: none;
+    margin-left: 4px;
+}
+
+.tk-ide-status-bar {
+    display: flex;
+    align-items: center;
+    padding: 3px 4px;
+    gap: 6px;
+    height: 24px;
+    background: var(--tk-bg-gray);
+    border-top: 1px solid #808080;
+    font-size: 11px;
+}

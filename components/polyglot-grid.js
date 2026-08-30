@@ -1041,6 +1041,146 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             this.modalEl = document.getElementById('polyglotGridOverlay') || document.getElementById('polyglotStudioModal');
         }
 
+        // ===== KRUMBS RETRO IDE & IDEAVIM CONTROLLER =====
+        openIdeModal(filePath = null) {
+            if (typeof document === 'undefined') return;
+            const targetPath = filePath || this.state.selectedFilePath;
+            if (!targetPath) return;
+
+            const modal = document.getElementById('tkKrumbsIdeModal');
+            const textarea = document.getElementById('tkIdeEditorTextarea');
+            const titleEl = document.getElementById('tkIdeModalTitle');
+            const modePill = document.getElementById('tkIdeVimModePill');
+            const statusGutter = document.getElementById('tkIdeLineGutter');
+            if (!modal || !textarea) return;
+
+            this.ideActiveFile = targetPath;
+            this.ideVimMode = true;
+            this.ideVimState = 'NORMAL'; // NORMAL | INSERT | VISUAL | COMMAND
+
+            const fileObj = this.state.files.get(targetPath) || { content: this.state.sourceCode, lines: 10, language: 'python' };
+            textarea.value = fileObj.content || '';
+            if (titleEl) titleEl.textContent = `Krumbs IDE — [${targetPath}]`;
+
+            this.updateIdeGutter();
+            this.updateIdeStatusBar();
+
+            modal.style.display = 'flex';
+            textarea.focus();
+            this.appendLog('INFO', `Krumbs IDE: Archivo '${targetPath}' abierto en modo IdeaVim.`, [0,0,0,0]);
+        }
+
+        closeIdeModal() {
+            if (typeof document === 'undefined') return;
+            const modal = document.getElementById('tkKrumbsIdeModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        updateIdeGutter() {
+            const textarea = document.getElementById('tkIdeEditorTextarea');
+            const gutter = document.getElementById('tkIdeLineGutter');
+            if (!textarea || !gutter) return;
+            const lineCount = (textarea.value.split('\n').length) || 1;
+            let gutterHtml = '';
+            for (let i = 1; i <= lineCount; i++) {
+                gutterHtml += `<div>${i}</div>`;
+            }
+            gutter.innerHTML = gutterHtml;
+        }
+
+        updateIdeStatusBar() {
+            const textarea = document.getElementById('tkIdeEditorTextarea');
+            const statusLeft = document.getElementById('tkIdeStatusLeft');
+            const modePill = document.getElementById('tkIdeVimModePill');
+            if (!textarea) return;
+
+            const val = textarea.value;
+            const cursor = textarea.selectionStart || 0;
+            const linesBefore = val.substring(0, cursor).split('\n');
+            const lineNum = linesBefore.length;
+            const colNum = linesBefore[linesBefore.length - 1].length + 1;
+            const totalLines = val.split('\n').length;
+
+            if (statusLeft) {
+                statusLeft.textContent = `Ln: ${lineNum}, Col: ${colNum} | Total: ${totalLines}L | UTF-8 | [${this.ideVimState || 'NORMAL'}]`;
+            }
+            if (modePill) {
+                modePill.textContent = `-- ${this.ideVimState || 'NORMAL'} --`;
+                modePill.style.color = this.ideVimState === 'INSERT' ? '#FFD700' : (this.ideVimState === 'VISUAL' ? '#00f3ff' : '#00FF66');
+            }
+        }
+
+        saveIdeChanges() {
+            const textarea = document.getElementById('tkIdeEditorTextarea');
+            if (!textarea || !this.ideActiveFile) return;
+
+            const newContent = textarea.value;
+            let fileObj = this.state.files.get(this.ideActiveFile);
+            if (!fileObj) {
+                fileObj = {
+                    name: this.ideActiveFile.split('/').pop(),
+                    path: this.ideActiveFile,
+                    language: (this.ideActiveFile.split('.').pop() || 'python').toLowerCase(),
+                    content: newContent,
+                    size: newContent.length,
+                    lines: newContent.split('\n').length
+                };
+                this.state.files.set(this.ideActiveFile, fileObj);
+            } else {
+                fileObj.content = newContent;
+                fileObj.size = newContent.length;
+                fileObj.lines = newContent.split('\n').length;
+            }
+
+            if (this.state.selectedFilePath === this.ideActiveFile) {
+                this.state.sourceCode = newContent;
+                const mainEditor = document.getElementById('polyglotSourceEditor');
+                if (mainEditor) mainEditor.value = newContent;
+            }
+
+            // Save to localStorage & regenerate
+            this.state.saveToStorage();
+            this.renderFileTree();
+            this.regenerateApi();
+            this.appendLog('SUCCESS', `Krumbs IDE: '${this.ideActiveFile}' guardado exitosamente (Persistido 💾).`, [0,0,0,0]);
+
+            const statusSaved = document.getElementById('tkIdeStatusSaved');
+            if (statusSaved) {
+                statusSaved.textContent = 'Guardado 💾';
+                setTimeout(() => { if (statusSaved) statusSaved.textContent = 'Ready'; }, 2500);
+            }
+        }
+
+        executeIdeVimCommand(cmd) {
+            const trimmed = (cmd || '').trim();
+            if (!trimmed) return;
+
+            if (trimmed === ':w' || trimmed === 'w') {
+                this.saveIdeChanges();
+            } else if (trimmed === ':q' || trimmed === 'q') {
+                this.closeIdeModal();
+            } else if (trimmed === ':wq' || trimmed === ':x' || trimmed === 'wq' || trimmed === 'x') {
+                this.saveIdeChanges();
+                this.closeIdeModal();
+            } else if (trimmed.startsWith(':%s/')) {
+                // Global replace :%s/find/replace/g
+                const parts = trimmed.split('/');
+                if (parts.length >= 3) {
+                    const findStr = parts[1];
+                    const repStr = parts[2];
+                    const textarea = document.getElementById('tkIdeEditorTextarea');
+                    if (textarea && findStr) {
+                        textarea.value = textarea.value.replaceAll(findStr, repStr);
+                        this.updateIdeGutter();
+                        this.updateIdeStatusBar();
+                        this.appendLog('INFO', `Vim: Reemplazado '${findStr}' por '${repStr}'.`, [0,0,0,0]);
+                    }
+                }
+            } else {
+                this.appendLog('INFO', `Vim Command ejecutado: ${trimmed}`, [0,0,0,0]);
+            }
+        }
+
         bindEvents() {
             if (typeof document === 'undefined') return;
             const dockBtn = document.getElementById('hashcodDockGridBtn');
@@ -1206,6 +1346,75 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             const importBtn = document.getElementById('polyglotImportBtn');
             const importInput = document.getElementById('polyglotImportInput');
             if (exportBtn) exportBtn.addEventListener('click', () => this.exportWorkspace());
+            // Krumbs IDE Event Bindings
+            const ideTextarea = document.getElementById('tkIdeEditorTextarea');
+            const ideGutter = document.getElementById('tkIdeLineGutter');
+            const ideVimInput = document.getElementById('tkIdeVimCmdInput');
+
+            if (ideTextarea) {
+                ideTextarea.addEventListener('input', () => {
+                    this.updateIdeGutter();
+                    this.updateIdeStatusBar();
+                });
+                ideTextarea.addEventListener('click', () => this.updateIdeStatusBar());
+                ideTextarea.addEventListener('keyup', (e) => {
+                    this.updateIdeStatusBar();
+                    if (e.key === 'Escape') {
+                        this.ideVimState = 'NORMAL';
+                        this.updateIdeStatusBar();
+                    }
+                });
+                ideTextarea.addEventListener('keydown', (e) => {
+                    // Sync gutter scroll
+                    if (ideGutter) ideGutter.scrollTop = ideTextarea.scrollTop;
+
+                    // Tab indent support
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const start = ideTextarea.selectionStart;
+                        const end = ideTextarea.selectionEnd;
+                        ideTextarea.value = ideTextarea.value.substring(0, start) + '    ' + ideTextarea.value.substring(end);
+                        ideTextarea.selectionStart = ideTextarea.selectionEnd = start + 4;
+                        this.updateIdeGutter();
+                        this.updateIdeStatusBar();
+                    }
+                    // Ctrl+S / Cmd+S save
+                    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                        e.preventDefault();
+                        this.saveIdeChanges();
+                    }
+                    // Vim modes toggle
+                    if (this.ideVimMode && this.ideVimState === 'NORMAL') {
+                        if (e.key === 'i' || e.key === 'a') {
+                            this.ideVimState = 'INSERT';
+                            this.updateIdeStatusBar();
+                        } else if (e.key === ':') {
+                            e.preventDefault();
+                            if (ideVimInput) {
+                                ideVimInput.value = ':';
+                                ideVimInput.focus();
+                            }
+                        }
+                    }
+                });
+                ideTextarea.addEventListener('scroll', () => {
+                    if (ideGutter) ideGutter.scrollTop = ideTextarea.scrollTop;
+                });
+            }
+
+            if (ideVimInput) {
+                ideVimInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.executeIdeVimCommand(ideVimInput.value);
+                        ideVimInput.value = '';
+                        if (ideTextarea) ideTextarea.focus();
+                    } else if (e.key === 'Escape') {
+                        ideVimInput.value = '';
+                        if (ideTextarea) ideTextarea.focus();
+                    }
+                });
+            }
             if (importBtn && importInput) importBtn.addEventListener('click', () => importInput.click());
             if (importInput) {
                 importInput.addEventListener('change', (e) => {
@@ -1495,12 +1704,21 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 sizeBadge.style.color = '#000080';
                 sizeBadge.textContent = `${file.lines || 10}L`;
 
+                item.title = `Doble clic para abrir y editar en Krumbs IDE (IdeaVim)\nLíneas: ${file.lines || 10} | Idioma: ${file.language || 'code'}`;
+
                 item.appendChild(icon);
                 item.appendChild(label);
                 item.appendChild(sizeBadge);
 
+                // Single click to select
                 item.addEventListener('click', () => {
                     this.selectFile(path);
+                });
+
+                // Double click to open in Krumbs Retro IDE (JetBrains IdeaVim style)
+                item.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    this.openIdeModal(path);
                 });
 
                 treeContainer.appendChild(item);

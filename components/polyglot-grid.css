@@ -908,3 +908,129 @@
     color: #000000;
     word-break: break-all;
 }
+
+
+/* ===== 8x7 EXACT SCREENSHOT MATRIX TABLE ===== */
+.pg-matrix-table-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    padding: 16px;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.pg-matrix-grid-table {
+    display: grid;
+    grid-template-columns: repeat(8, 76px);
+    grid-template-rows: repeat(7, 76px);
+    border: 2px solid #000000;
+    background: #ffffff;
+    gap: 0px;
+}
+
+.pg-table-cell {
+    width: 76px;
+    height: 76px;
+    background: #ffffff;
+    border: 1px solid #bfbfbf;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    color: #000000;
+    position: relative;
+    user-select: none;
+    box-sizing: border-box;
+    transition: all 0.15s ease;
+}
+
+.pg-table-cell.header-cell {
+    background: #ffffff;
+    font-size: 24px;
+    font-weight: 800;
+    color: #000000;
+    border: 1px solid #bfbfbf;
+}
+
+.pg-table-cell.header-lateral {
+    font-size: 22px;
+    font-weight: 800;
+    color: #000000;
+}
+
+.pg-table-cell.interactive-cell {
+    cursor: pointer;
+}
+
+.pg-table-cell.interactive-cell:hover {
+    background: #f8fafc;
+    border-color: #000000;
+    transform: scale(1.03);
+    z-index: 2;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.pg-table-cell.active-cell {
+    background: #f1f5f9;
+    border: 2.5px solid #000000 !important;
+    z-index: 3;
+}
+
+/* Red Square Entrada */
+.pg-red-square {
+    width: 44px;
+    height: 44px;
+    border: 3px solid #E61A1A;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+}
+.pg-table-cell:hover .pg-red-square {
+    transform: scale(1.08);
+}
+
+/* Black Circle Pathway */
+.pg-black-circle {
+    width: 44px;
+    height: 44px;
+    border: 3px solid #000000;
+    border-radius: 50%;
+    background: transparent;
+    transition: transform 0.15s ease;
+}
+.pg-table-cell:hover .pg-black-circle {
+    transform: scale(1.08);
+}
+
+/* Red Triangle Salida */
+.pg-red-triangle {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+}
+.pg-table-cell:hover .pg-red-triangle {
+    transform: scale(1.08);
+}
+
+/* Isometric Open Box Icon */
+.pg-box-icon-wrap {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+}
+.pg-table-cell:hover .pg-box-icon-wrap {
+    transform: scale(1.08);
+}

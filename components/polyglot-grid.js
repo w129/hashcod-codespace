@@ -1197,94 +1197,117 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             if (!container) return;
             container.innerHTML = '';
 
-            const leftLabels = ['X', 'x2', 'x3', 'x4', 'x5', 'x6', 'Y'];
-            const rightLabels = ['U', 'u2', 'u3', 'u4', 'u5', 'u6', 'Z'];
-            const topHeaderLabels = ['X', '1', '2', '3', '4', '5', '6', 'U'];
-            const bottomHeaderLabels = ['Y', '7', '8', '9', '10', '11', '12', 'Z'];
+            // Matrix Layout Table
+            // Row 0: X, 1, 2, 3, 4, 5, 6, U
+            // Row 1: x2, Box, Box, Box, Box, Box, Box, u2
+            // Row 2: x3, Red Square, Circle, Box, Box, Box, Box, u3
+            // Row 3: x4, Box, Box, Circle, Box, Box, Box, u4
+            // Row 4: x5, Box, Box, Box, Circle, Circle, Red Triangle, u5
+            // Row 5: x6, Box, Box, Box, Box, Box, Box, u6
+            // Row 6: Y, 7, 8, 9, 10, 11, 12, Z
 
-            // Update top header row if exists
-            const topHeaderEl = document.querySelector('.pg-grid-headers-x');
-            if (topHeaderEl) {
-                topHeaderEl.innerHTML = '<span></span>' + topHeaderLabels.map(l => `<span>${l}</span>`).join('') + '<span></span>';
-            }
+            const SVG_ISOMETRIC_BOX = `<svg viewBox="0 0 64 64" width="38" height="38" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,22 32,32 52,22 32,12" fill="#ffffff"/><polyline points="12,22 12,46 32,56 32,32"/><polyline points="52,22 52,46 32,56"/><polygon points="12,22 4,16 24,8 32,12" fill="#ffffff"/><polygon points="52,22 60,16 40,8 32,12" fill="#ffffff"/></svg>`;
+            const SVG_RED_SQUARE = `<div class="pg-red-square" title="Entrada de Datos: Subir Carpeta de Código (V: xv3, F: 2)"></div>`;
+            const SVG_BLACK_CIRCLE = `<div class="pg-black-circle" title="Canal de Enrutamiento / Conexión de Flujo"></div>`;
+            const SVG_RED_TRIANGLE = `<svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="#E61A1A" stroke-width="3" stroke-linejoin="round" title="Salida / Lanzador a API REST (V: xv5, F: 6)"><polygon points="24,6 44,42 4,42"/></svg>`;
 
-            for (let y = 0; y < GRID_ROWS; y++) {
-                const rowWrap = document.createElement('div');
-                rowWrap.className = 'pg-grid-row-wrap';
+            const tableWrap = document.createElement('div');
+            tableWrap.className = 'pg-matrix-grid-table';
 
-                // Left row label (X, x2..x6, Y)
-                const rowHdrLeft = document.createElement('div');
-                rowHdrLeft.className = 'pg-row-hdr pg-row-hdr-left';
-                rowHdrLeft.textContent = leftLabels[y] || `y${y}`;
-                rowWrap.appendChild(rowHdrLeft);
+            const matrixDef = [
+                ['X', '1', '2', '3', '4', '5', '6', 'U'],
+                ['x2', 'BOX', 'BOX', 'BOX', 'BOX', 'BOX', 'BOX', 'u2'],
+                ['x3', 'RED_SQUARE', 'CIRCLE', 'BOX', 'BOX', 'BOX', 'BOX', 'u3'],
+                ['x4', 'BOX', 'BOX', 'CIRCLE', 'BOX', 'BOX', 'BOX', 'u4'],
+                ['x5', 'BOX', 'BOX', 'BOX', 'CIRCLE', 'CIRCLE', 'RED_TRIANGLE', 'u5'],
+                ['x6', 'BOX', 'BOX', 'BOX', 'BOX', 'BOX', 'BOX', 'u6'],
+                ['Y', '7', '8', '9', '10', '11', '12', 'Z']
+            ];
 
-                for (let x = 0; x < GRID_COLS; x++) {
-                    const cell = this.state.getCell(x, y, this.state.activeCoord.z, this.state.activeCoord.u);
+            for (let r = 0; r < 7; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const item = matrixDef[r][c];
                     const cellEl = document.createElement('div');
-                    cellEl.className = 'pg-cell';
-                    cellEl.setAttribute('data-x', x);
-                    cellEl.setAttribute('data-y', y);
-                    cellEl.setAttribute('data-z', cell.z);
-                    cellEl.setAttribute('data-u', cell.u);
-                    cellEl.setAttribute('data-cell-id', cell.id);
-                    cellEl.setAttribute('data-state', cell.state);
-                    cellEl.title = `Coordenada: V(x${x} u${cell.u}) F(${y+1})\nEstado: ${cell.state}\nArchivo: ${cell.boundFile || 'vacío'}`;
+                    cellEl.className = 'pg-table-cell';
 
-                    if (x === this.state.activeCoord.x && y === this.state.activeCoord.y) {
-                        cellEl.classList.add('active');
-                    }
-                    if (this.state.selectedCellKeys.has(`${x}:${y}`)) {
-                        cellEl.classList.add('selected');
-                    }
-
-                    // Vector Icon or Box
-                    if (cell.boundFile || cell.state === 'CONFIGURED' || cell.state === 'SUCCESS') {
-                        const iconBox = document.createElement('div');
-                        iconBox.className = 'pg-cell-icon-box';
-                        iconBox.innerHTML = SVG_BOX_ICON;
-                        cellEl.appendChild(iconBox);
+                    // Top/Bottom header or lateral column
+                    if (r === 0 || r === 6) {
+                        cellEl.classList.add('header-cell');
+                        cellEl.textContent = item;
+                    } else if (c === 0 || c === 7) {
+                        cellEl.classList.add('header-lateral');
+                        cellEl.textContent = item;
                     } else {
-                        const indicator = document.createElement('div');
-                        indicator.className = 'pg-cell-indicator';
-                        cellEl.appendChild(indicator);
+                        // Inner Grid Data Cell
+                        cellEl.classList.add('interactive-cell');
+                        const dataX = c;
+                        const dataY = r;
+                        const cellStateObj = this.state.getCell(dataX, dataY, this.state.activeCoord.z, this.state.activeCoord.u);
+
+                        cellEl.setAttribute('data-x', dataX);
+                        cellEl.setAttribute('data-y', dataY);
+                        cellEl.setAttribute('data-z', cellStateObj.z);
+                        cellEl.setAttribute('data-u', cellStateObj.u);
+                        cellEl.setAttribute('data-cell-id', cellStateObj.id);
+                        cellEl.setAttribute('data-state', cellStateObj.state);
+
+                        if (dataX === this.state.activeCoord.x && dataY === this.state.activeCoord.y) {
+                            cellEl.classList.add('active-cell');
+                        }
+
+                        if (item === 'RED_SQUARE') {
+                            cellEl.innerHTML = SVG_RED_SQUARE;
+                            cellEl.title = `Entrada de Datos (V: x3, F: 1-7) - Subir Carpeta de Código\nCoordenada: [${dataX}, ${dataY}]`;
+                            cellEl.addEventListener('click', () => {
+                                this.selectCell(dataX, dataY, cellStateObj.z, cellStateObj.u);
+                                this.appendLog('INFO', `Entrada de Datos seleccionada en V(xv3) F(${dataX}). Abriendo Explorador para cargar código.`, [dataX, dataY, 0, 0]);
+                                this.switchTab('explorer');
+                                const dirInput = document.getElementById('polyglotDirInput');
+                                if (dirInput) dirInput.click();
+                            });
+                        } else if (item === 'RED_TRIANGLE') {
+                            cellEl.innerHTML = SVG_RED_TRIANGLE;
+                            cellEl.title = `Salida / Lanzador de API REST (V: x5, F: 6)\nCoordenada: [${dataX}, ${dataY}]`;
+                            cellEl.addEventListener('click', () => {
+                                this.selectCell(dataX, dataY, cellStateObj.z, cellStateObj.u);
+                                this.appendLog('INFO', `Salida / Lanzador de API activado en V(xv5) F(${dataX}). Generando endpoints REST.`, [dataX, dataY, 0, 0]);
+                                this.switchTab('studio');
+                                this.regenerateApi();
+                            });
+                        } else if (item === 'CIRCLE') {
+                            cellEl.innerHTML = SVG_BLACK_CIRCLE;
+                            cellEl.title = `Canal de Enrutamiento / Flujo Interno\nCoordenada: [${dataX}, ${dataY}]`;
+                            cellEl.addEventListener('click', () => {
+                                this.selectCell(dataX, dataY, cellStateObj.z, cellStateObj.u);
+                                this.appendLog('INFO', `Canal de Enrutamiento activo en [${dataX}, ${dataY}].`, [dataX, dataY, 0, 0]);
+                            });
+                        } else {
+                            // Standard Box Icon
+                            const boxWrap = document.createElement('div');
+                            boxWrap.className = 'pg-box-icon-wrap';
+                            boxWrap.innerHTML = SVG_ISOMETRIC_BOX;
+                            cellEl.appendChild(boxWrap);
+
+                            const fileInfo = cellStateObj.boundFile ? `\nArchivo: ${cellStateObj.boundFile}` : '';
+                            cellEl.title = `Caja de Código (V: x${r+1}, F: ${c})\nEstado: ${cellStateObj.state}${fileInfo}`;
+
+                            cellEl.addEventListener('click', (e) => {
+                                if (e.shiftKey) {
+                                    this.toggleCellSelection(dataX, dataY);
+                                } else {
+                                    this.selectCell(dataX, dataY, cellStateObj.z, cellStateObj.u);
+                                    this.switchTab('explorer');
+                                    this.appendLog('INFO', `Caja de Código inspeccionada en V(x${r+1}) F(${c}).`, [dataX, dataY, 0, 0]);
+                                }
+                            });
+                        }
                     }
 
-                    const coordLabel = document.createElement('div');
-                    coordLabel.className = 'pg-cell-coord';
-                    coordLabel.textContent = `${x},${y}`;
-                    cellEl.appendChild(coordLabel);
-
-                    cellEl.addEventListener('click', (e) => {
-                        if (e.shiftKey) {
-                            this.toggleCellSelection(x, y);
-                        } else {
-                            this.selectCell(x, y, cell.z, cell.u);
-                            if (cell.boundFile) {
-                                this.switchTab('explorer');
-                            }
-                        }
-                    });
-
-                    rowWrap.appendChild(cellEl);
+                    tableWrap.appendChild(cellEl);
                 }
-
-                // Right row label (U, u2..u6, Z)
-                const rowHdrRight = document.createElement('div');
-                rowHdrRight.className = 'pg-row-hdr pg-row-hdr-right';
-                rowHdrRight.textContent = rightLabels[y] || `u${y}`;
-                rowWrap.appendChild(rowHdrRight);
-
-                container.appendChild(rowWrap);
             }
 
-            // Add bottom header row if not present
-            let bottomHeaderEl = document.querySelector('.pg-grid-headers-bottom');
-            if (!bottomHeaderEl) {
-                bottomHeaderEl = document.createElement('div');
-                bottomHeaderEl.className = 'pg-grid-headers-x pg-grid-headers-bottom';
-                container.parentNode.appendChild(bottomHeaderEl);
-            }
-            bottomHeaderEl.innerHTML = '<span></span>' + bottomHeaderLabels.map(l => `<span>${l}</span>`).join('') + '<span></span>';
+            container.appendChild(tableWrap);
         }
 
         selectCell(x, y, z = 0, u = 0) {

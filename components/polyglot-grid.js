@@ -1705,109 +1705,69 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
 
         renderLogs() {
             if (typeof document === 'undefined') return;
-            const stream = document.getElementById('polyglotTerminalConsole');
+            const stream = document.getElementById('polyglotConsoleOutput') || document.getElementById('polyglotTerminalConsole');
             if (!stream) return;
             stream.innerHTML = '';
 
             const lvl = this.state.logFilterLevel;
-            const q = this.state.logFilterQuery.toLowerCase();
+            const q = (this.state.logFilterQuery || '').toLowerCase();
 
             const filtered = this.state.executionLogs.filter(log => {
-                if (lvl !== 'ALL' && log.level !== lvl) return false;
+                if (lvl && lvl !== 'ALL' && log.level !== lvl) return false;
                 if (q && !log.message.toLowerCase().includes(q)) return false;
                 return true;
             });
 
             filtered.forEach(log => {
                 const line = document.createElement('div');
-                line.className = 'pg-log-line';
+                line.className = 'tk-log-line';
 
-                const time = document.createElement('span');
-                time.className = 'pg-log-time';
-                time.textContent = `[${log.timestamp}]`;
+                const d = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                const dateStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 
-                const level = document.createElement('span');
-                level.className = `pg-log-lvl-${log.level}`;
-                level.textContent = `[${log.level}]`;
+                let badgeClass = 'info';
+                if (log.level === 'SUCCESS' || log.level === 'CONFIGURED') badgeClass = 'success';
+                else if (log.level === 'WARN' || log.level === 'WARNING') badgeClass = 'warn';
+                else if (log.level === 'ERROR') badgeClass = 'error';
 
-                const cellBadge = document.createElement('span');
-                cellBadge.className = 'pg-log-cell';
-                cellBadge.textContent = `C(${log.cell.join(',')})`;
-
-                const msg = document.createElement('span');
-                msg.style.flex = '1';
-                msg.textContent = log.message;
-
-                line.appendChild(time);
-                line.appendChild(level);
-                line.appendChild(cellBadge);
-                line.appendChild(msg);
-
-                if (log.latency > 0) {
-                    const lat = document.createElement('span');
-                    lat.style.color = '#10b981';
-                    lat.style.fontSize = '9px';
-                    lat.textContent = `+${log.latency}ms`;
-                    line.appendChild(lat);
-                }
-
+                line.innerHTML = `<span class="tk-log-time">[${dateStr}]</span> <span class="tk-log-badge ${badgeClass}">${log.level}:</span> ${this.escapeHtml(log.message)}`;
                 stream.appendChild(line);
             });
 
             stream.scrollTop = stream.scrollHeight;
+
+            // Update Tkinter Status Bar line count
+            document.querySelectorAll('.tk-status-right').forEach(el => {
+                el.textContent = `Lines: ${filtered.length}`;
+            });
         }
 
-        addHistoryRecord(cell, result, latencyMs) {
-            const record = {
-                id: Date.now(),
+        escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        addHistoryRecord(cell, responseData, latencyMs) {
+            const entry = {
+                id: ++this.executionCounter,
+                timestamp: new Date().toISOString(),
                 cell: [cell.x, cell.y, cell.z, cell.u],
                 framework: cell.framework,
-                status: result && result.ok ? 200 : 500,
+                function: cell.boundFunction,
+                file: cell.boundFile,
+                status: (responseData && responseData.status !== undefined) ? responseData.status : (responseData && responseData.ok ? 200 : 500),
                 latency: latencyMs,
-                timestamp: new Date().toLocaleTimeString()
+                response: responseData
             };
-            this.state.historyLedger.unshift(record);
-            if (this.state.historyLedger.length > 50) this.state.historyLedger.pop();
-            this.renderHistory();
-        }
-
-        renderHistory() {
-            if (typeof document === 'undefined') return;
-            const drawer = document.getElementById('polyglotHistoryDrawer');
-            if (!drawer) return;
-            drawer.innerHTML = '';
-
-            this.state.historyLedger.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'pg-history-item';
-
-                const left = document.createElement('div');
-                left.textContent = `[${item.timestamp}] C(${item.cell.join(',')}) · ${item.framework.toUpperCase()}`;
-
-                const right = document.createElement('div');
-                right.style.display = 'flex';
-                right.style.gap = '6px';
-                right.style.alignItems = 'center';
-
-                const statusBadge = document.createElement('span');
-                statusBadge.className = `pg-badge-status ${item.status === 200 ? 'ok' : 'err'}`;
-                statusBadge.textContent = `${item.status} (${item.latency}ms)`;
-
-                const rerunBtn = document.createElement('button');
-                rerunBtn.className = 'pg-btn-sm';
-                rerunBtn.textContent = 'Replay';
-                rerunBtn.addEventListener('click', () => {
-                    const cell = this.state.getCell(item.cell[0], item.cell[1], item.cell[2], item.cell[3]);
-                    this.executeSpecificCell(cell);
-                });
-
-                right.appendChild(statusBadge);
-                right.appendChild(rerunBtn);
-
-                row.appendChild(left);
-                row.appendChild(right);
-                drawer.appendChild(row);
-            });
+            this.state.historyLedger.unshift(entry);
+            if (this.state.historyLedger.length > 50) {
+                this.state.historyLedger.pop();
+            }
         }
 
         exportWorkspace() {

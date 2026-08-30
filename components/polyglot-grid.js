@@ -972,7 +972,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             this.updateActiveCellInspector();
             this.regenerateApi();
             this.isInitialized = true;
-            this.appendLog('INFO', 'Polyglot Grid API Launcher & Code Studio initialized (56 cells ready).', [0,0,0,0]);
+            this.appendLog('INFO', 'Krumbs API Launcher & Code Studio initialized (56 cells ready).', [0,0,0,0]);
         }
 
         bindDOM() {

@@ -10492,15 +10492,13 @@ if (!headers_sent()) {
                 <button type="button" class="hashcod-dock-slot is-filled is-ready" id="hashcodDockBlogBtn" data-dock-slot="6" title="Blog de Publicaciones (Vista Excel)" aria-label="Abrir blog de publicaciones" onclick="toggleExcelBlog()">
                     <svg style="width:13px; height:13px; fill:#ffffff;" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
                 </button>
-                <button type="button" class="hashcod-dock-slot is-filled is-ready" id="hashcodDockGridBtn" data-dock-slot="7" title="Polyglot Grid API Launcher &amp; Code Studio" aria-label="Abrir Polyglot Grid API Launcher" onclick="togglePolyglotGridModal()">
-                    <svg style="width:13px; height:13px;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="2" y="2" width="20" height="20" rx="3" stroke="#00f3ff" stroke-width="1.5" fill="rgba(0, 243, 255, 0.1)"/>
-                        <line x1="2" y1="8" x2="22" y2="8" stroke="#00f3ff" stroke-width="1" stroke-dasharray="2 2"/>
-                        <line x1="2" y1="14" x2="22" y2="14" stroke="#00f3ff" stroke-width="1" stroke-dasharray="2 2"/>
-                        <line x1="8" y1="2" x2="8" y2="22" stroke="#00f3ff" stroke-width="1" stroke-dasharray="2 2"/>
-                        <line x1="14" y1="2" x2="14" y2="22" stroke="#00f3ff" stroke-width="1" stroke-dasharray="2 2"/>
-                        <circle cx="11" cy="11" r="2.5" fill="#00f3ff"/>
-                    </svg>
+                <button type="button" class="hashcod-dock-slot is-filled is-ready" id="hashcodDockGridBtn" data-dock-slot="7" title="Krumbs · 8x7 API Launcher &amp; Code Studio" aria-label="Abrir Krumbs API Launcher" onclick="togglePolyglotGridModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" style="width:14px; height:14px;">
+    <polygon fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="17.321,30 17.321,20 25.981,25 25.981,35"></polygon>
+    <polygon fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="25.981,25 34.641,20 34.641,30 25.981,35"></polygon>
+    <polygon fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="17.321,20 25.981,15 34.641,20 25.981,25"></polygon>
+    <circle cx="25.98" cy="25" r="3" fill="#000000"/>
+</svg>
                 </button>
                 <div class="hashcod-clock-pop" id="hashcodClockPop" role="dialog" aria-label="Hora actual" aria-hidden="true">
                     <div class="hashcod-clock-label">Hora actual</div>
@@ -10645,7 +10643,7 @@ if (!headers_sent()) {
                         <div class="tk-logo-bar-blue"></div>
                         <div class="tk-logo-bar-red"></div>
                     </div>
-                    <span class="tk-title-text" id="pgModalTitle">Grid View — Tkinter Polyglot Studio</span>
+                    <span class="tk-title-text" id="pgModalTitle">Krumbs — Grid View (8×7)</span>
                 </div>
                 <div class="tk-title-right">
                     <button type="button" class="tk-btn-window" id="pgBtnHelp" title="Help">?</button>
@@ -11100,20 +11098,46 @@ if (!headers_sent()) {
                         <div class="tb-corner-dot d-br"></div>
                     </div>
                     <!-- slot-2-3: Polyglot Grid API Launcher & Code Studio (Circle 7) -->
-                    <div class="tb-slot is-filled is-tool-grid-studio" id="slot-2-3" data-slot="2-3" title="Polyglot Grid · 8x7 API Launcher &amp; Code Studio" onclick="window.openPolyglotGridStudio ? window.openPolyglotGridStudio(event) : openPolyglotGridStudio(event)" role="button" tabindex="0" aria-label="Abrir Polyglot Grid API Launcher" style="cursor: pointer !important; pointer-events: auto !important;">
-                        <div class="tb-inner-ring" style="pointer-events: none; border-color: #00f3ff; background: rgba(0, 243, 255, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <svg class="tb-slot-icon" viewBox="0 0 46 46" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none;">
-                                <rect x="4" y="4" width="38" height="38" rx="6" stroke="#00f3ff" stroke-width="2" fill="rgba(6, 182, 212, 0.12)"/>
-                                <line x1="4" y1="15" x2="42" y2="15" stroke="#00f3ff" stroke-width="1" opacity="0.6"/>
-                                <line x1="4" y1="26" x2="42" y2="26" stroke="#00f3ff" stroke-width="1" opacity="0.6"/>
-                                <line x1="4" y1="34" x2="42" y2="34" stroke="#00f3ff" stroke-width="1" opacity="0.4"/>
-                                <line x1="15" y1="4" x2="15" y2="42" stroke="#00f3ff" stroke-width="1" opacity="0.6"/>
-                                <line x1="26" y1="4" x2="26" y2="42" stroke="#00f3ff" stroke-width="1" opacity="0.6"/>
-                                <line x1="34" y1="4" x2="34" y2="42" stroke="#00f3ff" stroke-width="1" opacity="0.4"/>
-                                <circle cx="20.5" cy="20.5" r="4.5" fill="#00f3ff" filter="drop-shadow(0 0 6px #00f3ff)"/>
-                            </svg>
+                    <div class="tb-slot is-filled is-tool-grid-studio" id="slot-2-3" data-slot="2-3" title="Krumbs · 8x7 API Launcher &amp; Code Studio" onclick="window.openPolyglotGridStudio ? window.openPolyglotGridStudio(event) : openPolyglotGridStudio(event)" role="button" tabindex="0" aria-label="Abrir Krumbs API Launcher" style="cursor: pointer !important; pointer-events: auto !important;">
+                        <div class="tb-inner-ring" style="pointer-events: none; border-color: #000000; background: rgba(0, 0, 0, 0.04); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="38" height="38" style="pointer-events: none;">
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="13.846,27.988 14.712,28.488 10.387,30.985 6.062,28.488 8.64,27.006"></polyline>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="11.238,29.482 13.836,28 13.836,18 11.238,19.5"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="11.238,19.5 8.64,18 8.64,28 11.238,29.5"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="11.268,9.518 15.583,12.009 11.258,14.506 6.933,12.009"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="6.933,17.003 6.933,12.009 11.258,14.506 11.289,19.5"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="6.062,33.482 6.062,28.488 10.387,30.985 10.387,35.979"></polygon>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="13.862,17.997 11.258,19.5 11.258,14.506 15.583,12.009"></polyline>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="19.883,18.479 12.99,14.5 12.99,17.5 17.321,20"></polyline>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="26.806,37.494 27.703,38.012 23.378,40.509 19.053,38.012 21.667,36.509"></polyline>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="10.387,30.985 14.712,28.488 14.712,33.482 10.387,35.979"></polygon>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="15.588,13 12.99,14.5 19.883,18.479"></polyline>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="32.909,19 34.641,20 25.981,25 17.321,20 26,15.012 27.747,16.021"></polyline>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="24.238,34 24.238,39 26.837,37.5 26.837,34.5"></polyline>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="19.053,43.006 19.053,38.012 23.378,40.509 23.378,45.503"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="24.238,34 21.64,32.5 21.64,37.5 24.238,39"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="17.321,30 17.321,20 25.981,25 25.981,35"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="23.378,40.509 27.703,38.012 27.703,43.006 23.378,45.503"></polygon>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="33.775,30.5 25.981,35 25.981,25 34.641,20 34.641,25.059"></polyline>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="38.105,30 32.043,26.5 32.043,29.5 36.383,32.006"></polyline>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="30.311,21.5 32.909,20 32.909,12 30.311,13.5"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="30.311,13.5 27.713,12 27.713,20 30.311,21.5"></polygon>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="38.956,27.491 34.641,25 32.043,26.5 36.383,29.006"></polyline>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="40.718,26.521 45.033,29.012 40.708,31.509 36.383,29.012"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="30.326,3.521 34.641,6.012 30.316,8.509 25.991,6.012"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="36.383,34.006 36.383,29.012 40.708,31.509 40.708,36.503"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="25.991,11.006 25.991,6.012 30.316,8.509 30.316,13.503"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="40.708,31.509 45.033,29.012 45.033,34.006 40.708,36.503"></polygon>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="32.86,12.034 30.316,13.503 30.316,8.509 34.641,6.012 34.641,7"></polyline>
+    <polyline fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="37.239,11.5 32.048,8.503 32.048,11.503 36.383,14.006"></polyline>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="34.646,7.003 32.048,8.503 37.239,11.5 39.837,10"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="40.708,9.503 45.023,11.994 40.698,14.491 36.373,11.994"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="36.373,16.988 36.373,11.994 40.698,14.491 40.698,19.485"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1" points="40.698,14.491 45.023,11.994 45.023,16.988 40.698,19.485"></polygon>
+    <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="21.651,32.5 21.651,36.5 19.073,38.012 19.053,43.006 23.378,45.503 27.713,43 27.713,38.018 26.837,37.494 26.847,34.5 33.775,30.506 36.383,32.012 36.383,34.006 40.708,36.503 45.033,34.006 45.033,29.012 40.739,26.521 38.971,27.5 34.641,25 34.641,20.012 32.909,19.012 32.909,12.012 36.383,14 36.383,17.006 40.708,19.503 45.033,17.006 45.023,11.982 40.729,9.503 39.837,10 34.641,7 34.641,6.012 30.316,3.515 25.991,6.012 25.991,11.018 27.703,11.994 27.703,15.994 25.991,15.006 22.568,17.03 15.588,13 15.599,12.018 11.279,9.512 6.949,12.006 6.938,17.006 8.681,18.012 8.681,27.03 6.083,28.524 6.083,33.494 10.408,35.991 14.733,33.512 14.733,28.494 13.867,27.994 13.877,18.012 17.321,20 17.321,29.988"></polygon>
+</svg>
                         </div>
-                        <div class="tb-slot-badge" style="color:#00f3ff; border-color:#00f3ff; background:#04141e; pointer-events:none;">GRID 8x7</div>
+                        <div class="tb-slot-badge" style="color:#000000; border-color:#000000; background:#FFFFFF; font-weight:700; pointer-events:none;">KRUMBS</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>

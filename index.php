@@ -10638,11 +10638,42 @@ if (!headers_sent()) {
             <!-- Tkinter Main Title Bar -->
             <div class="tk-title-bar">
                 <div class="tk-title-left">
-                    <div class="tk-logo-icon">
-                        <div class="tk-logo-bar-yellow"></div>
-                        <div class="tk-logo-bar-blue"></div>
-                        <div class="tk-logo-bar-red"></div>
-                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="flex-shrink:0;">
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="13.846,27.988 14.712,28.488 10.387,30.985 6.062,28.488 8.64,27.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.238,29.482 13.836,28 13.836,18 11.238,19.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.238,19.5 8.64,18 8.64,28 11.238,29.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.268,9.518 15.583,12.009 11.258,14.506 6.933,12.009"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="6.933,17.003 6.933,12.009 11.258,14.506 11.289,19.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="6.062,33.482 6.062,28.488 10.387,30.985 10.387,35.979"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="13.862,17.997 11.258,19.5 11.258,14.506 15.583,12.009"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="19.883,18.479 12.99,14.5 12.99,17.5 17.321,20"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="26.806,37.494 27.703,38.012 23.378,40.509 19.053,38.012 21.667,36.509"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="10.387,30.985 14.712,28.488 14.712,33.482 10.387,35.979"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="15.588,13 12.99,14.5 19.883,18.479"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="32.909,19 34.641,20 25.981,25 17.321,20 26,15.012 27.747,16.021"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="24.238,34 24.238,39 26.837,37.5 26.837,34.5"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="19.053,43.006 19.053,38.012 23.378,40.509 23.378,45.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="24.238,34 21.64,32.5 21.64,37.5 24.238,39"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="17.321,30 17.321,20 25.981,25 25.981,35"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="23.378,40.509 27.703,38.012 27.703,43.006 23.378,45.503"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="33.775,30.5 25.981,35 25.981,25 34.641,20 34.641,25.059"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="38.105,30 32.043,26.5 32.043,29.5 36.383,32.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.311,21.5 32.909,20 32.909,12 30.311,13.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.311,13.5 27.713,12 27.713,20 30.311,21.5"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="38.956,27.491 34.641,25 32.043,26.5 36.383,29.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.718,26.521 45.033,29.012 40.708,31.509 36.383,29.012"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.326,3.521 34.641,6.012 30.316,8.509 25.991,6.012"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="36.383,34.006 36.383,29.012 40.708,31.509 40.708,36.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="25.991,11.006 25.991,6.012 30.316,8.509 30.316,13.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.708,31.509 45.033,29.012 45.033,34.006 40.708,36.503"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="32.86,12.034 30.316,13.503 30.316,8.509 34.641,6.012 34.641,7"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="37.239,11.5 32.048,8.503 32.048,11.503 36.383,14.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="34.646,7.003 32.048,8.503 37.239,11.5 39.837,10"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.708,9.503 45.023,11.994 40.698,14.491 36.373,11.994"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="36.373,16.988 36.373,11.994 40.698,14.491 40.698,19.485"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.698,14.491 45.023,11.994 45.023,16.988 40.698,19.485"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="21.651,32.5 21.651,36.5 19.073,38.012 19.053,43.006 23.378,45.503 27.713,43 27.713,38.018 26.837,37.494 26.847,34.5 33.775,30.506 36.383,32.012 36.383,34.006 40.708,36.503 45.033,34.006 45.033,29.012 40.739,26.521 38.971,27.5 34.641,25 34.641,20.012 32.909,19.012 32.909,12.012 36.383,14 36.383,17.006 40.708,19.503 45.033,17.006 45.023,11.982 40.729,9.503 39.837,10 34.641,7 34.641,6.012 30.316,3.515 25.991,6.012 25.991,11.018 27.703,11.994 27.703,15.994 25.991,15.006 22.568,17.03 15.588,13 15.599,12.018 11.279,9.512 6.949,12.006 6.938,17.006 8.681,18.012 8.681,27.03 6.083,28.524 6.083,33.494 10.408,35.991 14.733,33.512 14.733,28.494 13.867,27.994 13.877,18.012 17.321,20 17.321,29.988"></polygon>
+</svg>
                     <span class="tk-title-text" id="pgModalTitle">Krumbs — Grid View (8×7)</span>
                 </div>
                 <div class="tk-title-right">
@@ -10686,11 +10717,42 @@ if (!headers_sent()) {
                         <div class="tk-history-window">
                             <div class="tk-history-title-bar">
                                 <div class="tk-title-left">
-                                    <div class="tk-logo-icon">
-                                        <div class="tk-logo-bar-yellow"></div>
-                                        <div class="tk-logo-bar-blue"></div>
-                                        <div class="tk-logo-bar-red"></div>
-                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="flex-shrink:0;">
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="13.846,27.988 14.712,28.488 10.387,30.985 6.062,28.488 8.64,27.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.238,29.482 13.836,28 13.836,18 11.238,19.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.238,19.5 8.64,18 8.64,28 11.238,29.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.268,9.518 15.583,12.009 11.258,14.506 6.933,12.009"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="6.933,17.003 6.933,12.009 11.258,14.506 11.289,19.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="6.062,33.482 6.062,28.488 10.387,30.985 10.387,35.979"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="13.862,17.997 11.258,19.5 11.258,14.506 15.583,12.009"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="19.883,18.479 12.99,14.5 12.99,17.5 17.321,20"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="26.806,37.494 27.703,38.012 23.378,40.509 19.053,38.012 21.667,36.509"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="10.387,30.985 14.712,28.488 14.712,33.482 10.387,35.979"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="15.588,13 12.99,14.5 19.883,18.479"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="32.909,19 34.641,20 25.981,25 17.321,20 26,15.012 27.747,16.021"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="24.238,34 24.238,39 26.837,37.5 26.837,34.5"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="19.053,43.006 19.053,38.012 23.378,40.509 23.378,45.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="24.238,34 21.64,32.5 21.64,37.5 24.238,39"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="17.321,30 17.321,20 25.981,25 25.981,35"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="23.378,40.509 27.703,38.012 27.703,43.006 23.378,45.503"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="33.775,30.5 25.981,35 25.981,25 34.641,20 34.641,25.059"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="38.105,30 32.043,26.5 32.043,29.5 36.383,32.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.311,21.5 32.909,20 32.909,12 30.311,13.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.311,13.5 27.713,12 27.713,20 30.311,21.5"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="38.956,27.491 34.641,25 32.043,26.5 36.383,29.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.718,26.521 45.033,29.012 40.708,31.509 36.383,29.012"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.326,3.521 34.641,6.012 30.316,8.509 25.991,6.012"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="36.383,34.006 36.383,29.012 40.708,31.509 40.708,36.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="25.991,11.006 25.991,6.012 30.316,8.509 30.316,13.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.708,31.509 45.033,29.012 45.033,34.006 40.708,36.503"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="32.86,12.034 30.316,13.503 30.316,8.509 34.641,6.012 34.641,7"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="37.239,11.5 32.048,8.503 32.048,11.503 36.383,14.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="34.646,7.003 32.048,8.503 37.239,11.5 39.837,10"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.708,9.503 45.023,11.994 40.698,14.491 36.373,11.994"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="36.373,16.988 36.373,11.994 40.698,14.491 40.698,19.485"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.698,14.491 45.023,11.994 45.023,16.988 40.698,19.485"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="21.651,32.5 21.651,36.5 19.073,38.012 19.053,43.006 23.378,45.503 27.713,43 27.713,38.018 26.837,37.494 26.847,34.5 33.775,30.506 36.383,32.012 36.383,34.006 40.708,36.503 45.033,34.006 45.033,29.012 40.739,26.521 38.971,27.5 34.641,25 34.641,20.012 32.909,19.012 32.909,12.012 36.383,14 36.383,17.006 40.708,19.503 45.033,17.006 45.023,11.982 40.729,9.503 39.837,10 34.641,7 34.641,6.012 30.316,3.515 25.991,6.012 25.991,11.018 27.703,11.994 27.703,15.994 25.991,15.006 22.568,17.03 15.588,13 15.599,12.018 11.279,9.512 6.949,12.006 6.938,17.006 8.681,18.012 8.681,27.03 6.083,28.524 6.083,33.494 10.408,35.991 14.733,33.512 14.733,28.494 13.867,27.994 13.877,18.012 17.321,20 17.321,29.988"></polygon>
+</svg>
                                     <span>Cell History</span>
                                 </div>
                                 <div class="tk-title-right">
@@ -10838,11 +10900,42 @@ if (!headers_sent()) {
                     <div class="tk-log-window-container">
                         <div class="tk-history-title-bar">
                             <div class="tk-title-left">
-                                <div class="tk-logo-icon">
-                                    <div class="tk-logo-bar-yellow"></div>
-                                    <div class="tk-logo-bar-blue"></div>
-                                    <div class="tk-logo-bar-red"></div>
-                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="flex-shrink:0;">
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="13.846,27.988 14.712,28.488 10.387,30.985 6.062,28.488 8.64,27.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.238,29.482 13.836,28 13.836,18 11.238,19.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.238,19.5 8.64,18 8.64,28 11.238,29.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="11.268,9.518 15.583,12.009 11.258,14.506 6.933,12.009"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="6.933,17.003 6.933,12.009 11.258,14.506 11.289,19.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="6.062,33.482 6.062,28.488 10.387,30.985 10.387,35.979"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="13.862,17.997 11.258,19.5 11.258,14.506 15.583,12.009"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="19.883,18.479 12.99,14.5 12.99,17.5 17.321,20"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="26.806,37.494 27.703,38.012 23.378,40.509 19.053,38.012 21.667,36.509"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="10.387,30.985 14.712,28.488 14.712,33.482 10.387,35.979"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="15.588,13 12.99,14.5 19.883,18.479"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="32.909,19 34.641,20 25.981,25 17.321,20 26,15.012 27.747,16.021"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="24.238,34 24.238,39 26.837,37.5 26.837,34.5"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="19.053,43.006 19.053,38.012 23.378,40.509 23.378,45.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="24.238,34 21.64,32.5 21.64,37.5 24.238,39"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="17.321,30 17.321,20 25.981,25 25.981,35"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="23.378,40.509 27.703,38.012 27.703,43.006 23.378,45.503"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="33.775,30.5 25.981,35 25.981,25 34.641,20 34.641,25.059"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="38.105,30 32.043,26.5 32.043,29.5 36.383,32.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.311,21.5 32.909,20 32.909,12 30.311,13.5"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.311,13.5 27.713,12 27.713,20 30.311,21.5"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="38.956,27.491 34.641,25 32.043,26.5 36.383,29.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.718,26.521 45.033,29.012 40.708,31.509 36.383,29.012"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="30.326,3.521 34.641,6.012 30.316,8.509 25.991,6.012"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="36.383,34.006 36.383,29.012 40.708,31.509 40.708,36.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="25.991,11.006 25.991,6.012 30.316,8.509 30.316,13.503"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.708,31.509 45.033,29.012 45.033,34.006 40.708,36.503"></polygon>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="32.86,12.034 30.316,13.503 30.316,8.509 34.641,6.012 34.641,7"></polyline>
+    <polyline fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="37.239,11.5 32.048,8.503 32.048,11.503 36.383,14.006"></polyline>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="34.646,7.003 32.048,8.503 37.239,11.5 39.837,10"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.708,9.503 45.023,11.994 40.698,14.491 36.373,11.994"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="36.373,16.988 36.373,11.994 40.698,14.491 40.698,19.485"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.2" points="40.698,14.491 45.023,11.994 45.023,16.988 40.698,19.485"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="21.651,32.5 21.651,36.5 19.073,38.012 19.053,43.006 23.378,45.503 27.713,43 27.713,38.018 26.837,37.494 26.847,34.5 33.775,30.506 36.383,32.012 36.383,34.006 40.708,36.503 45.033,34.006 45.033,29.012 40.739,26.521 38.971,27.5 34.641,25 34.641,20.012 32.909,19.012 32.909,12.012 36.383,14 36.383,17.006 40.708,19.503 45.033,17.006 45.023,11.982 40.729,9.503 39.837,10 34.641,7 34.641,6.012 30.316,3.515 25.991,6.012 25.991,11.018 27.703,11.994 27.703,15.994 25.991,15.006 22.568,17.03 15.588,13 15.599,12.018 11.279,9.512 6.949,12.006 6.938,17.006 8.681,18.012 8.681,27.03 6.083,28.524 6.083,33.494 10.408,35.991 14.733,33.512 14.733,28.494 13.867,27.994 13.877,18.012 17.321,20 17.321,29.988"></polygon>
+</svg>
                                 <span>Log Output</span>
                             </div>
                             <div class="tk-title-right">

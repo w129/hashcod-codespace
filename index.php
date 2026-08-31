@@ -9932,6 +9932,62 @@ if (!headers_sent()) {
             } catch (e) {}
         })();
     </script>
+    
+    <!-- Immediate Boot & Platform Entry Controller (Zero-latency fallback) -->
+    <script>
+    (function() {
+        window.l8EnterPlatform = async function() {
+            const overlay = document.getElementById('bootCliOverlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.style.display = 'none';
+            }
+            try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}
+            document.body.classList.remove('boot-locked');
+
+            let ok = false;
+            try {
+                if (typeof window.l8CheckAuthSession === 'function') {
+                    ok = await window.l8CheckAuthSession();
+                }
+            } catch (e) {}
+
+            if (ok) {
+                if (typeof window.l8UnlockPlatform === 'function') window.l8UnlockPlatform();
+                else {
+                    document.body.classList.remove('auth-locked');
+                    if (typeof restorePlatformState === 'function') restorePlatformState();
+                }
+            } else {
+                if (typeof window.l8ShowAuthGate === 'function') {
+                    window.l8ShowAuthGate();
+                } else {
+                    const authOverlay = document.getElementById('authOverlay');
+                    if (authOverlay) {
+                        authOverlay.classList.remove('hidden');
+                        authOverlay.style.display = 'flex';
+                    }
+                    document.body.classList.add('auth-locked');
+                }
+            }
+        };
+
+        // If boot was already completed in this session, auto-dismiss instantly
+        try {
+            if (sessionStorage.getItem('l8_boot_cli_done') === '1') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    const overlay = document.getElementById('bootCliOverlay');
+                    if (overlay) {
+                        overlay.classList.add('hidden');
+                        overlay.style.display = 'none';
+                    }
+                    document.body.classList.remove('boot-locked');
+                });
+            }
+        } catch (e) {}
+    })();
+    </script>
+
     <div id="bootCliOverlay" class="boot-cli-overlay" role="dialog" aria-modal="true" aria-label="l8 codespace blackhole">
             <button type="button" class="boot-mobile-toggle" id="bootMobileModeBtn" title="Versión móvil" aria-label="Activar versión móvil" aria-pressed="false" onclick="toggleMobileMode()">
                 <img src="mobile-mode-icon.png" alt="Versión móvil" class="mobile-toggle-img" style="width:30px; height:30px; object-fit:contain; display:block; border-radius:6px;">
@@ -9974,7 +10030,7 @@ if (!headers_sent()) {
                         </span>
                     </div>
                 </div>
-                <button type="button" class="boot-cli-enter" id="bootCliEnter">Enter platform ↵</button>
+                <button type="button" class="boot-cli-enter ready" id="bootCliEnter" onclick="window.l8EnterPlatform && window.l8EnterPlatform()" style="cursor:pointer !important; pointer-events:auto !important;">Enter platform ↵</button>
             </div>
         </div>
     </div>

@@ -926,3 +926,201 @@
     color: #B45309;
     border: 1px solid #FDE68A;
 }
+
+/* ===== RETRO 8-BIT PIXEL WINDOW MODAL (ON-DEMAND TOOLS) ===== */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+.tk-pixel-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 100020;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.tk-pixel-window-card {
+    --px-dark: #D96B47;
+    --px-main: #FF8C69;
+    --px-light: #FFB899;
+    --px-highlight: #FFE0D1;
+    --px-wa: #26AD61;
+    --px-wa-hover: #1e874b;
+
+    position: relative;
+    width: 280px;
+    height: 360px;
+    background: #FFFFFF;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 4px #000000;
+    border: 8px solid var(--px-dark);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    font-family: 'Press Start 2P', 'VT323', monospace;
+    user-select: none;
+    animation: tkPixelPop 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes tkPixelPop {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Pixel Title Bar */
+.tk-px-titlebar {
+    position: relative;
+    width: 100%;
+    height: 32px;
+    background: var(--px-main);
+    border-bottom: 6px solid var(--px-dark);
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    box-sizing: border-box;
+}
+
+.tk-px-titlebar-highlight {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    right: 4px;
+    height: 4px;
+    background: var(--px-light);
+    pointer-events: none;
+}
+
+.tk-px-dashes {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex: 1;
+}
+
+.tk-px-dash {
+    width: 14px;
+    height: 6px;
+    background: var(--px-dark);
+}
+
+.tk-px-dots {
+    display: flex;
+    gap: 4px;
+    margin-right: 4px;
+}
+
+.tk-px-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--px-highlight);
+}
+
+.tk-px-close-btn {
+    background: var(--px-dark);
+    color: #FFFFFF;
+    border: none;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+.tk-px-close-btn:hover {
+    background: #000000;
+}
+
+/* Pixel Body & Text */
+.tk-px-body {
+    flex: 1;
+    background: #FFFFFF;
+    position: relative;
+    padding: 14px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.tk-px-text-line {
+    font-size: 8.5px;
+    line-height: 14px;
+    color: var(--px-dark);
+    letter-spacing: 0.5px;
+    margin: 1px 0;
+    text-transform: uppercase;
+    word-break: break-word;
+}
+
+.tk-px-text-highlight {
+    color: var(--px-main);
+    font-weight: 700;
+}
+
+.tk-px-tool-name {
+    font-size: 9.5px;
+    line-height: 15px;
+    color: var(--px-main);
+    font-weight: 800;
+    margin: 2px 0 4px;
+    text-transform: uppercase;
+}
+
+/* WhatsApp Interactive Pixel Row */
+.tk-px-whatsapp-row {
+    margin: 4px 0;
+    padding: 4px 8px;
+    background: rgba(38, 173, 97, 0.08);
+    border: 2px dashed var(--px-wa);
+    color: var(--px-wa);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 8.5px;
+    text-decoration: none;
+    transition: all 0.1s ease;
+}
+.tk-px-whatsapp-row:hover {
+    background: var(--px-wa);
+    color: #FFFFFF;
+    transform: scale(1.04);
+}
+.tk-px-whatsapp-row:hover svg path {
+    fill: #FFFFFF !important;
+}
+
+.tk-px-price-val {
+    font-size: 9px;
+    color: var(--px-main);
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+/* Pixel Corner Curl Bottom Right */
+.tk-px-corner-curl {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 14px;
+    height: 14px;
+    background: var(--px-light);
+    border-top: 4px solid var(--px-dark);
+    border-left: 4px solid var(--px-dark);
+    pointer-events: none;
+}

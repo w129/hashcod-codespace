@@ -1041,6 +1041,113 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             this.modalEl = document.getElementById('polyglotGridOverlay') || document.getElementById('polyglotStudioModal');
         }
 
+        // Open IDE from Edit menu with options to write, upload, and integrate to box
+        openIdeFromEditMenu() {
+            const activeCell = this.state.getCell(this.state.activeCoord.x, this.state.activeCoord.y, this.state.activeCoord.z, this.state.activeCoord.u);
+            const currentFile = activeCell.boundFile || this.state.selectedFilePath;
+            this.openIdeModal(currentFile);
+        }
+
+        // Upload external code file directly into the IDE editor
+        handleIdeFileUpload(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                const fileName = file.name;
+                const textarea = document.getElementById('tkIdeEditorTextarea');
+                const titleEl = document.getElementById('tkIdeModalTitle');
+                const nameInput = document.getElementById('tkIdeFileNameInput');
+
+                if (textarea) textarea.value = content;
+                if (titleEl) titleEl.textContent = `Krumbs IDE — [${fileName}]`;
+                if (nameInput) nameInput.value = fileName;
+
+                this.ideActiveFile = fileName;
+                this.updateIdeGutter();
+                this.updateIdeStatusBar();
+                this.appendLog('INFO', `Krumbs IDE: Archivo '${fileName}' cargado en el editor. Listo para integrar a caja.`, [0,0,0,0]);
+            };
+            reader.readAsText(file);
+        }
+
+        // Open Coordinate Picker to integrate current IDE code into a specific box
+        openIdeCoordinateIntegrator() {
+            const modal = document.getElementById('tkIdeCoordPickerModal');
+            const nameInput = document.getElementById('tkIdeFileNameInput');
+            if (nameInput && this.ideActiveFile) {
+                nameInput.value = this.ideActiveFile;
+            }
+            if (modal) modal.style.display = 'flex';
+        }
+
+        closeIdeCoordinateIntegrator() {
+            const modal = document.getElementById('tkIdeCoordPickerModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        confirmIdeCodeIntegration() {
+            const textarea = document.getElementById('tkIdeEditorTextarea');
+            const nameInput = document.getElementById('tkIdeFileNameInput');
+            const selRow = document.getElementById('tkIdeIntegrateRow');
+            const selCol = document.getElementById('tkIdeIntegrateCol');
+
+            const content = textarea ? textarea.value : '';
+            let fileName = (nameInput ? nameInput.value.trim() : '') || this.ideActiveFile || 'custom_script.py';
+            if (!fileName.includes('.')) fileName += '.py';
+
+            const rowVal = selRow ? parseInt(selRow.value, 10) : this.state.activeCoord.y;
+            const colVal = selCol ? parseInt(selCol.value, 10) : this.state.activeCoord.x;
+
+            if (!content.trim()) {
+                alert('El editor no contiene código para integrar.');
+                return;
+            }
+
+            // 1. Store or update file in state
+            const lang = (fileName.split('.').pop() || 'python').toLowerCase();
+            const fileObj = {
+                name: fileName.split('/').pop(),
+                path: fileName,
+                language: lang,
+                content: content,
+                size: content.length,
+                lines: content.split('\n').length
+            };
+            this.state.files.set(fileName, fileObj);
+            this.state.selectedFilePath = fileName;
+            this.state.sourceCode = content;
+
+            // 2. Assign to target box cell
+            const targetCell = this.state.getCell(colVal, rowVal, this.state.activeCoord.z, this.state.activeCoord.u);
+            if (!targetCell.boundFiles) targetCell.boundFiles = [];
+            if (!targetCell.boundFiles.includes(fileName)) {
+                targetCell.boundFiles.push(fileName);
+            }
+            targetCell.boundFile = fileName;
+            targetCell.state = LIFECYCLE_STATES.CONFIGURED;
+
+            const functions = PolyglotConverter.extractSignatures(content, lang);
+            targetCell.boundFunction = functions[0] ? functions[0].name : 'executeHandler';
+
+            // 3. Save, update UI and grid
+            this.state.saveToStorage();
+            this.closeIdeCoordinateIntegrator();
+            this.selectCell(colVal, rowVal, targetCell.z, targetCell.u);
+            this.renderGrid();
+            this.renderFileTree();
+            this.updateActiveCellInspector();
+            this.regenerateApi();
+
+            this.appendLog('SUCCESS', `Código '${fileName}' integrado con éxito en la Caja [V: x${rowVal + 1}, F: ${colVal}] (Persistido 💾).`, [colVal, rowVal, 0, 0]);
+            
+            const statusSaved = document.getElementById('tkIdeStatusSaved');
+            if (statusSaved) {
+                statusSaved.textContent = `Integrado a Caja (x${rowVal+1}, ${colVal}) 💾`;
+                setTimeout(() => { if (statusSaved) statusSaved.textContent = 'Ready'; }, 3000);
+            }
+        }
+
         // ===== KRUMBS RETRO IDE & IDEAVIM CONTROLLER =====
         openIdeModal(filePath = null) {
             if (typeof document === 'undefined') return;
@@ -1345,7 +1452,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             const exportBtn = document.getElementById('polyglotExportBtn');
             const importBtn = document.getElementById('polyglotImportBtn');
             const importInput = document.getElementById('polyglotImportInput');
-            if (exportBtn) exportBtn.addEventListener('click', () => this.exportWorkspace());
+            if (exportBtn) exportBtn.addEventListener('click', () => this.openIdeFromEditMenu());
             // Krumbs IDE Event Bindings
             const ideTextarea = document.getElementById('tkIdeEditorTextarea');
             const ideGutter = document.getElementById('tkIdeLineGutter');

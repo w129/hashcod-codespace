@@ -10688,7 +10688,7 @@ if (!headers_sent()) {
             <div class="tk-menu-bar">
                 <button type="button" class="tk-menu-item" id="polyglotUploadFolderBtn" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal()"><u>F</u>ile</button>
                 <input type="file" id="polyglotDirInput" webkitdirectory directory multiple style="display:none;" aria-hidden="true">
-                <button type="button" class="tk-menu-item" id="polyglotExportBtn"><u>E</u>dit</button>
+                <button type="button" class="tk-menu-item" id="polyglotExportBtn" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openIdeFromEditMenu()"><u>E</u>dit</button>
                 <button type="button" class="tk-menu-item" id="polyglotImportBtn"><u>V</u>iew</button>
                 <input type="file" id="polyglotImportInput" accept=".json" style="display:none;" aria-hidden="true">
                 <button type="button" class="tk-menu-item" id="pgMenuHelp"><u>H</u>elp</button>
@@ -10764,7 +10764,7 @@ if (!headers_sent()) {
 
                             <div class="tk-history-menu">
                                 <span style="text-decoration:underline;">File</span>
-                                <span style="text-decoration:underline;">Edit</span>
+                                <span style="text-decoration:underline; cursor:pointer;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openIdeFromEditMenu()"><u>E</u>dit</span>
                                 <span style="text-decoration:underline;">View</span>
                                 <span style="text-decoration:underline;">Help</span>
                             </div>
@@ -10948,7 +10948,7 @@ if (!headers_sent()) {
 
                         <div class="tk-history-menu">
                             <span style="text-decoration:underline;">File</span>
-                            <span style="text-decoration:underline;">Edit</span>
+                            <span style="text-decoration:underline; cursor:pointer;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openIdeFromEditMenu()"><u>E</u>dit</span>
                             <span style="text-decoration:underline;">View</span>
                             <span style="text-decoration:underline;">Help</span>
                         </div>
@@ -11083,8 +11083,15 @@ if (!headers_sent()) {
 
             <!-- IDE Toolbar & IdeaVim Mode Indicator -->
             <div class="tk-ide-toolbar">
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <button type="button" class="tk-btn-action" style="padding:3px 10px; font-weight:700; color:#000080;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.saveIdeChanges()">💾 Guardar (Ctrl+S)</button>
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" class="tk-btn-action" style="padding:3px 8px; font-weight:700; color:#000080;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.saveIdeChanges()">💾 Guardar (Ctrl+S)</button>
+                    <button type="button" class="tk-btn-action" style="padding:3px 8px; display:inline-flex; align-items:center; gap:4px;" onclick="document.getElementById('tkIdeUploadFileInput').click()">
+                        📤 Subir Code...
+                    </button>
+                    <input type="file" id="tkIdeUploadFileInput" accept=".py,.js,.ts,.go,.c,.h,.java,.json,.txt" style="display:none;" onchange="window.PolyglotGridStudio && window.PolyglotGridStudio.handleIdeFileUpload(this.files[0])">
+                    <button type="button" class="tk-btn-action" style="padding:3px 8px; font-weight:700; color:#000080; display:inline-flex; align-items:center; gap:4px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openIdeCoordinateIntegrator()">
+                        📦 Integrar a Caja...
+                    </button>
                     <button type="button" class="tk-btn-action" style="padding:3px 8px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.saveIdeChanges(); window.PolyglotGridStudio && window.PolyglotGridStudio.switchTab('studio'); window.PolyglotGridStudio && window.PolyglotGridStudio.closeIdeModal();">⚡ Sintetizar API</button>
                 </div>
                 <div style="display:flex; gap:8px; align-items:center;">
@@ -11111,6 +11118,59 @@ if (!headers_sent()) {
             <div class="tk-ide-status-bar">
                 <div class="tk-status-left" id="tkIdeStatusLeft" style="flex:1;">Ln: 1, Col: 1 | UTF-8 | [NORMAL]</div>
                 <div class="tk-status-right" id="tkIdeStatusSaved" style="width:110px; text-align:center;">Ready</div>
+            </div>
+        </div>
+    </div>
+
+
+            
+    <!-- Tkinter IDE Coordinate Integrator Modal Dialog -->
+    <div class="tk-modal-dialog-overlay" id="tkIdeCoordPickerModal" style="z-index: 100005;">
+        <div class="tk-dialog-box" style="width: 460px;">
+            <div class="tk-title-bar">
+                <div class="tk-title-left">
+                    <svg viewBox="0 0 64 64" width="14" height="14" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12,22 32,32 52,22 32,12" fill="#FFFFFF"/>
+                        <polyline points="12,22 12,46 32,56 32,32"/>
+                        <polyline points="52,22 52,46 32,56"/>
+                    </svg>
+                    <span class="tk-title-text">Krumbs — Integrar Código a Caja</span>
+                </div>
+                <div class="tk-title-right">
+                    <button type="button" class="tk-btn-window" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeIdeCoordinateIntegrator()">✕</button>
+                </div>
+            </div>
+
+            <div style="padding:12px; background:#ECE9D8; display:flex; flex-direction:column; gap:10px;">
+                <div style="font-weight:700; font-size:12px; color:#000000;">Nombre del archivo de código:</div>
+                <input type="text" id="tkIdeFileNameInput" value="custom_service.py" style="padding:6px; font-family:var(--tk-font-mono); font-size:12px; border:1.5px solid #808080; background:#FFFFFF;">
+
+                <div style="font-weight:700; font-size:12px; color:#000000; margin-top:4px;">Selecciona la coordenada de la Caja destino (Matriz 8×7):</div>
+                <div style="display:flex; gap:10px; align-items:center; background:#FFFFFF; padding:8px 10px; border:1.5px solid #808080;">
+                    <span style="font-size:12px; font-weight:600;">Fila (V):</span>
+                    <select id="tkIdeIntegrateRow" style="padding:4px; font-weight:700; border:1px solid #808080;">
+                        <option value="1">Fila x2 (Row 1)</option>
+                        <option value="2" selected>Fila x3 (Row 2)</option>
+                        <option value="3">Fila x4 (Row 3)</option>
+                        <option value="4">Fila x5 (Row 4)</option>
+                        <option value="5">Fila x6 (Row 5)</option>
+                    </select>
+
+                    <span style="font-size:12px; font-weight:600; margin-left:8px;">Columna (F):</span>
+                    <select id="tkIdeIntegrateCol" style="padding:4px; font-weight:700; border:1px solid #808080;">
+                        <option value="1">Columna 1</option>
+                        <option value="2">Columna 2</option>
+                        <option value="3">Columna 3</option>
+                        <option value="4" selected>Columna 4</option>
+                        <option value="5">Columna 5</option>
+                        <option value="6">Columna 6</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                    <button type="button" class="tk-btn-action" style="padding:6px 14px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeIdeCoordinateIntegrator()">Cancelar</button>
+                    <button type="button" class="tk-btn-action" style="padding:6px 18px; font-weight:700; color:#000080;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.confirmIdeCodeIntegration()">📦 Confirmar e Integrar a Caja</button>
+                </div>
             </div>
         </div>
     </div>

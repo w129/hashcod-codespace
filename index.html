@@ -8,7 +8,7 @@
     <meta name="description" content="Hashcod codespace — plataforma de códigospace con terminal, toolkit, gateway y herramientas en el navegador.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://l8-codespace-1.onrender.com/">
-    <script>window.L8_BASE_PATH = ;</script>
+    <script>window.L8_BASE_PATH = '/';</script>
     <base href="">
     <link rel="icon" href="favicon.svg?v=10" type="image/svg+xml">
     <link rel="shortcut icon" href="favicon.svg?v=10" type="image/svg+xml">
@@ -12652,70 +12652,6 @@
 <body>
 <header>l8 codespace · <strong>${title}</strong> · <span>${terminalEscapeHtml(lang)}</span></header>
 <pre><code class="language-${terminalEscapeHtml(lang)}">${body}</code></pre>
-
-    <!-- Multi-Toolbox Carousel & Page Switcher Controller -->
-    <script>
-    (function() {
-        let currentToolboxPage = 1;
-        const totalToolboxPages = 4;
-
-        window.switchToolboxPage = function(pageNum) {
-            pageNum = Math.max(1, Math.min(totalToolboxPages, parseInt(pageNum) || 1));
-            currentToolboxPage = pageNum;
-
-            for (let i = 1; i <= totalToolboxPages; i++) {
-                const panelId = i === 1 ? 'toolboxPanel' : ('toolboxPanel' + i);
-                const panel = document.getElementById(panelId);
-                const chip = document.getElementById('tbChip' + i);
-
-                if (panel) {
-                    if (i === currentToolboxPage) {
-                        panel.style.display = 'flex';
-                        panel.classList.add('active');
-                    } else {
-                        panel.style.display = 'none';
-                        panel.classList.remove('active');
-                    }
-                }
-
-                if (chip) {
-                    if (i === currentToolboxPage) {
-                        chip.style.background = '#000000';
-                        chip.style.color = '#ffffff';
-                        chip.classList.add('active');
-                    } else {
-                        chip.style.background = '#ffffff';
-                        chip.style.color = '#000000';
-                        chip.classList.remove('active');
-                    }
-                }
-            }
-        };
-
-        window.nextToolboxPage = function() {
-            let next = currentToolboxPage + 1;
-            if (next > totalToolboxPages) next = 1;
-            window.switchToolboxPage(next);
-        };
-
-        window.prevToolboxPage = function() {
-            let prev = currentToolboxPage - 1;
-            if (prev < 1) prev = totalToolboxPages;
-            window.switchToolboxPage(prev);
-        };
-
-        // Keyboard arrow navigation for toolboxes
-        window.addEventListener('keydown', function(e) {
-            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
-            if (e.key === 'ArrowRight' && e.altKey) {
-                window.nextToolboxPage();
-            } else if (e.key === 'ArrowLeft' && e.altKey) {
-                window.prevToolboxPage();
-            }
-        });
-    })();
-    </script>
-
 </body>
 </html>
 `;
@@ -16812,72 +16748,7 @@
                 body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
                     String(title).replace(/</g, '&lt;') +
                     '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style></head><body><h1>' +
-                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '
-    <!-- Multi-Toolbox Carousel & Page Switcher Controller -->
-    <script>
-    (function() {
-        let currentToolboxPage = 1;
-        const totalToolboxPages = 4;
-
-        window.switchToolboxPage = function(pageNum) {
-            pageNum = Math.max(1, Math.min(totalToolboxPages, parseInt(pageNum) || 1));
-            currentToolboxPage = pageNum;
-
-            for (let i = 1; i <= totalToolboxPages; i++) {
-                const panelId = i === 1 ? 'toolboxPanel' : ('toolboxPanel' + i);
-                const panel = document.getElementById(panelId);
-                const chip = document.getElementById('tbChip' + i);
-
-                if (panel) {
-                    if (i === currentToolboxPage) {
-                        panel.style.display = 'flex';
-                        panel.classList.add('active');
-                    } else {
-                        panel.style.display = 'none';
-                        panel.classList.remove('active');
-                    }
-                }
-
-                if (chip) {
-                    if (i === currentToolboxPage) {
-                        chip.style.background = '#000000';
-                        chip.style.color = '#ffffff';
-                        chip.classList.add('active');
-                    } else {
-                        chip.style.background = '#ffffff';
-                        chip.style.color = '#000000';
-                        chip.classList.remove('active');
-                    }
-                }
-            }
-        };
-
-        window.nextToolboxPage = function() {
-            let next = currentToolboxPage + 1;
-            if (next > totalToolboxPages) next = 1;
-            window.switchToolboxPage(next);
-        };
-
-        window.prevToolboxPage = function() {
-            let prev = currentToolboxPage - 1;
-            if (prev < 1) prev = totalToolboxPages;
-            window.switchToolboxPage(prev);
-        };
-
-        // Keyboard arrow navigation for toolboxes
-        window.addEventListener('keydown', function(e) {
-            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
-            if (e.key === 'ArrowRight' && e.altKey) {
-                window.nextToolboxPage();
-            } else if (e.key === 'ArrowLeft' && e.altKey) {
-                window.prevToolboxPage();
-            }
-        });
-    })();
-    </script>
-
-</body></html>';
-            }
+                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '</body></html>';
             } else if (kind === 'md') {
                 ext = 'md';
                 mime = 'text/markdown;charset=utf-8';
@@ -20831,72 +20702,7 @@
                     if (!contentEl.value.trim()) contentEl.value = '# Python code for Hashcod platform\nimport streamlit as st\n\nst.title("Hashcod Codespace AI")\nst.write("Post-quantum quantum-resistant system initialized.")\n';
                 } else if (lang === 'html') {
                     adminPendingRow.platform_code_name = 'index.html';
-                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n<p>Post-quantum quantum-resistant system initialized.</p>\n
-    <!-- Multi-Toolbox Carousel & Page Switcher Controller -->
-    <script>
-    (function() {
-        let currentToolboxPage = 1;
-        const totalToolboxPages = 4;
-
-        window.switchToolboxPage = function(pageNum) {
-            pageNum = Math.max(1, Math.min(totalToolboxPages, parseInt(pageNum) || 1));
-            currentToolboxPage = pageNum;
-
-            for (let i = 1; i <= totalToolboxPages; i++) {
-                const panelId = i === 1 ? 'toolboxPanel' : ('toolboxPanel' + i);
-                const panel = document.getElementById(panelId);
-                const chip = document.getElementById('tbChip' + i);
-
-                if (panel) {
-                    if (i === currentToolboxPage) {
-                        panel.style.display = 'flex';
-                        panel.classList.add('active');
-                    } else {
-                        panel.style.display = 'none';
-                        panel.classList.remove('active');
-                    }
-                }
-
-                if (chip) {
-                    if (i === currentToolboxPage) {
-                        chip.style.background = '#000000';
-                        chip.style.color = '#ffffff';
-                        chip.classList.add('active');
-                    } else {
-                        chip.style.background = '#ffffff';
-                        chip.style.color = '#000000';
-                        chip.classList.remove('active');
-                    }
-                }
-            }
-        };
-
-        window.nextToolboxPage = function() {
-            let next = currentToolboxPage + 1;
-            if (next > totalToolboxPages) next = 1;
-            window.switchToolboxPage(next);
-        };
-
-        window.prevToolboxPage = function() {
-            let prev = currentToolboxPage - 1;
-            if (prev < 1) prev = totalToolboxPages;
-            window.switchToolboxPage(prev);
-        };
-
-        // Keyboard arrow navigation for toolboxes
-        window.addEventListener('keydown', function(e) {
-            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
-            if (e.key === 'ArrowRight' && e.altKey) {
-                window.nextToolboxPage();
-            } else if (e.key === 'ArrowLeft' && e.altKey) {
-                window.prevToolboxPage();
-            }
-        });
-    })();
-    </script>
-
-</body>\n</html>';
-                }
+                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n<p>Post-quantum quantum-resistant system initialized.</p>\n</body>\n</html>';
                 } else if (lang === 'typescript') {
                     adminPendingRow.platform_code_name = 'index.ts';
                     if (!contentEl.value.trim()) contentEl.value = 'export const platform = "Hashcod";\nexport function computeQuantumHash(data: string): string {\n    return `SPHINCS+:${data}`;\n}\n';
@@ -22661,6 +22467,7 @@ ${jsonPayload}
         }
     }, true);
     </script>
+
 
 
     <!-- Multi-Toolbox Carousel & Page Switcher Controller -->

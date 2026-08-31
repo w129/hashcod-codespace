@@ -56,7 +56,7 @@ root.innerHTML = `
       </div>
       <div>
         <h1>TipTap · Documento</h1>
-        <p>Hoja directa · TipTap · 300 fuentes · Vivid Vector Alphabet</p>
+        <p>Hoja directa · TipTap · ES→EN · 300 fuentes · Vivid Vector</p>
       </div>
     </div>
     <input class="title-input" id="docTitle" type="text" maxlength="120" value="Documento sin título" aria-label="Título del documento" />
@@ -393,8 +393,90 @@ function buildRibbon() {
     }),
   ])
 
-  ;[history, inline, fonts, blocks, align, insert, vivid].forEach((g) => ribbon.appendChild(g))
+  const translate = group('Traducir ES→EN', [
+    btn('trSel', 'ES→EN', 'Traducir selección (o todo) al inglés — sin OpenAI', () => {
+      void runTranslate('replace', false)
+    }),
+    btn('trDoc', 'Doc→EN', 'Traducir documento completo al inglés', () => {
+      void runTranslate('replace', true)
+    }),
+    btn('trBi', 'ES|EN', 'Bilingüe: español + inglés (párrafo a párrafo)', () => {
+      void runTranslate('bilingual', false)
+    }),
+  ])
+
+  ;[history, inline, fonts, blocks, align, insert, vivid, translate].forEach((g) =>
+    ribbon.appendChild(g)
+  )
   syncRibbon(editor)
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function plainTextToHtml(text: string): string {
+  const paras = text.split(/\n\s*\n/)
+  return paras
+    .map((p) => {
+      const inner = escapeHtml(p.trim()).replace(/\n/g, '<br>')
+      return inner ? `<p>${inner}</p>` : '<p></p>'
+    })
+    .join('')
+}
+
+function editorPlainText(wholeDoc: boolean): { text: string; hadSelection: boolean } {
+  const { from, to, empty } = editor.state.selection
+  if (!wholeDoc && !empty) {
+    return {
+      text: editor.state.doc.textBetween(from, to, '\n\n', '\n'),
+      hadSelection: true,
+    }
+  }
+  return { text: editor.state.doc.textBetween(0, editor.state.doc.content.size, '\n\n', '\n'), hadSelection: false }
+}
+
+async function runTranslate(mode: 'replace' | 'bilingual', forceWhole: boolean) {
+  const { text, hadSelection } = editorPlainText(forceWhole)
+  if (!text.trim()) {
+    setStatus('No hay texto para traducir', 'err')
+    return
+  }
+  try {
+        setStatus('Traduciendo ES→EN…')
+    const res = await fetch('/api/tiptap/translate', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, mode }),
+    })
+    const data = (await res.json()) as {
+      ok?: boolean
+      text?: string
+      english?: string
+      engine?: string
+      error?: string
+      hint?: string
+    }
+    if (!data.ok || !data.text?.trim()) {
+      setStatus(data.error || data.hint || 'Traducción no disponible', 'err')
+      return
+    }
+    const html = plainTextToHtml(data.text)
+    if (!forceWhole && hadSelection) {
+      editor.chain().focus().deleteSelection().insertContent(html).run()
+    } else {
+      editor.commands.setContent(html, false)
+    }
+    updateCounts(editor)
+    setStatus(`Traducido · ${data.engine || 'ES→EN'}`, 'ok')
+  } catch {
+    setStatus('Error de red al traducir', 'err')
+  }
 }
 
 buildRibbon()

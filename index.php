@@ -11240,6 +11240,70 @@ if (!headers_sent()) {
     </div>
 
 
+            
+    <!-- On-Demand Tool Order & Custom Build Modal Dialog -->
+    <div class="tk-modal-dialog-overlay" id="onDemandToolModal" style="z-index: 100010;">
+        <div class="tk-dialog-box" style="width: 540px; max-width: 95vw;">
+            <!-- Modal Title Bar -->
+            <div class="tk-title-bar">
+                <div class="tk-title-left">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="#FFFFFF"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="tk-title-text" id="odModalTitle">Krumbs Hub — Ficha de Módulo a Medida</span>
+                </div>
+                <div class="tk-title-right">
+                    <button type="button" class="tk-btn-window" onclick="window.closeOnDemandToolModal ? window.closeOnDemandToolModal() : document.getElementById('onDemandToolModal').style.display='none'">✕</button>
+                </div>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div style="padding:14px; background:#ECE9D8; display:flex; flex-direction:column; gap:12px;">
+                <!-- Header Product Card -->
+                <div style="display:flex; gap:14px; background:#FFFFFF; padding:12px; border:1.5px solid #808080; align-items:center;">
+                    <div id="odModalIconContainer" style="width:54px; height:54px; display:flex; align-items:center; justify-content:center; background:#F4F4F5; border-radius:8px; border:1px solid #D4D4D8; flex-shrink:0;">
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                            <h3 id="odModalToolName" style="margin:0; font-size:15px; font-weight:800; color:#000000;">Git Repository Vault &amp; Sync Engine</h3>
+                            <span id="odModalBadge" style="font-size:10px; font-weight:700; color:#F4511E; background:#FEE2E2; padding:2px 6px; border-radius:4px; border:1px solid #FECACA;">ON-DEMAND</span>
+                        </div>
+                        <div style="margin-top:4px; font-size:11.5px; color:#555555;">
+                            Código de Artículo: <strong id="odModalItemCode" style="font-family:var(--tk-font-mono); color:#000080;">HASHCOD-GIT-08</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description & Specs -->
+                <div style="background:#FFFFFF; padding:12px; border:1.5px solid #808080; display:flex; flex-direction:column; gap:8px;">
+                    <div style="font-weight:700; font-size:12px; color:#000000;">📋 Especificaciones del Módulo:</div>
+                    <div id="odModalDescription" style="font-size:11.5px; line-height:17px; color:#333333;">
+                        Módulo de sincronización y control de versiones distribuido con firma criptográfica PQC, integración con webhooks y despliegue automatizado de pipelines CI/CD.
+                    </div>
+
+                    <div style="margin-top:4px; display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11px;">
+                        <div style="background:#F8FAFC; padding:6px; border:1px solid #E2E8F0;">
+                            <span style="color:#64748B;">Tipo de Provisión:</span><br>
+                            <strong id="odModalDelivery">Fabricación a Medida (24-48h)</strong>
+                        </div>
+                        <div style="background:#F8FAFC; padding:6px; border:1px solid #E2E8F0;">
+                            <span style="color:#64748B;">Slot en Plataforma:</span><br>
+                            <strong id="odModalSlotName">Círculo #8 (Toolbox)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button WhatsApp -->
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:2px;">
+                    <button type="button" class="tk-btn-action" style="padding:6px 14px;" onclick="window.closeOnDemandToolModal ? window.closeOnDemandToolModal() : document.getElementById('onDemandToolModal').style.display='none'">Cerrar</button>
+                    <button type="button" id="odModalWhatsAppBtn" class="tk-btn-action" style="padding:8px 18px; font-weight:800; color:#FFFFFF; background:#16a34a !important; border-color:#15803d !important; display:inline-flex; align-items:center; gap:8px; cursor:pointer;" onclick="window.sendOnDemandWhatsAppOrder && window.sendOnDemandWhatsAppOrder()">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="#FFFFFF"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/></svg>
+                        <span>📱 Hacer Pedido / Cotizar vía WhatsApp</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
             <!-- Global Status Bar -->
             <div class="tk-status-bar">
                 <div class="tk-status-left" id="tkGlobalStatusLeft">Ready</div>
@@ -11494,11 +11558,14 @@ if (!headers_sent()) {
                         <div class="tb-corner-dot d-bl"></div>
                         <div class="tb-corner-dot d-br"></div>
                     </div>
-                    <!-- slot-2-4 -->
-                    <div class="tb-slot" id="slot-2-4" data-slot="2-4" title="Slot 2-4">
-                        <div class="tb-inner-ring">
-                            <div class="tb-focal-center"></div>
+                    <!-- slot-2-4: Git Vault Engine & CI/CD Hub (Circle 8) -->
+                    <div class="tb-slot is-filled is-tool-git-vault" id="slot-2-4" data-slot="2-4" title="Git Repository Vault · On-Demand Engine" onclick="window.openOnDemandToolModal ? window.openOnDemandToolModal('git-vault') : openOnDemandToolModal('git-vault')" role="button" tabindex="0" aria-label="Abrir Git Repository Vault" style="cursor: pointer !important; pointer-events: auto !important;">
+                        <div class="tb-inner-ring" style="pointer-events: none; border-color: #F4511E; background: rgba(244, 81, 30, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="38" height="38" style="pointer-events: none;">
+    <path fill="#F4511E" d="M42.2,22.1L25.9,5.8C25.4,5.3,24.7,5,24,5c0,0,0,0,0,0c-0.7,0-1.4,0.3-1.9,0.8l-3.5,3.5l4.1,4.1c0.4-0.2,0.8-0.3,1.3-0.3c1.7,0,3,1.3,3,3c0,0.5-0.1,0.9-0.3,1.3l4,4c0.4-0.2,0.8-0.3,1.3-0.3c1.7,0,3,1.3,3,3s-1.3,3-3,3c-1.7,0-3-1.3-3-3c0-0.5,0.1-0.9,0.3-1.3l-4-4c-0.1,0-0.2,0.1-0.3,0.1v10.4c1.2,0.4,2,1.5,2,2.8c0,1.7-1.3,3-3,3s-3-1.3-3-3c0-1.3,0.8-2.4,2-2.8V18.8c-1.2-0.4-2-1.5-2-2.8c0-0.5,0.1-0.9,0.3-1.3l-4.1-4.1L5.8,22.1C5.3,22.6,5,23.3,5,24c0,0.7,0.3,1.4,0.8,1.9l16.3,16.3c0,0,0,0,0,0c0.5,0.5,1.2,0.8,1.9,0.8s1.4-0.3,1.9-0.8l16.3-16.3c0.5-0.5,0.8-1.2,0.8-1.9C43,23.3,42.7,22.6,42.2,22.1z"></path>
+</svg>
                         </div>
+                        <div class="tb-slot-badge" style="color:#F4511E; border-color:#F4511E; background:#1e0804; font-weight:700; pointer-events:none;">GIT VAULT</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>

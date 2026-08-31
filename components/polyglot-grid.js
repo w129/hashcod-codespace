@@ -2533,6 +2533,19 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 light: '#FFB899',
                 highlight: '#FFE0D1'
             }
+        },
+        'typescript-suite': {
+            id: 'typescript-suite',
+            name: 'TYPESCRIPT ENGINE',
+            code: 'HASHCOD-TS-09',
+            slot: 'Círculo #9 (Toolbox)',
+            price: 'US$ 60.27',
+            palette: {
+                dark: '#0E4B7E',
+                main: '#1677C7',
+                light: '#4EA8DE',
+                highlight: '#90E0EF'
+            }
         }
     };
 

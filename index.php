@@ -10689,7 +10689,7 @@ if (!headers_sent()) {
                 <button type="button" class="tk-menu-item" id="polyglotUploadFolderBtn" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal()"><u>F</u>ile</button>
                 <input type="file" id="polyglotDirInput" webkitdirectory directory multiple style="display:none;" aria-hidden="true">
                 <button type="button" class="tk-menu-item" id="polyglotExportBtn" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openIdeFromEditMenu()"><u>E</u>dit</button>
-                <button type="button" class="tk-menu-item" id="polyglotImportBtn"><u>V</u>iew</button>
+                <button type="button" class="tk-menu-item" id="polyglotImportBtn" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileDistributionLogModal()"><u>V</u>iew</button>
                 <input type="file" id="polyglotImportInput" accept=".json" style="display:none;" aria-hidden="true">
                 <button type="button" class="tk-menu-item" id="pgMenuHelp"><u>H</u>elp</button>
             </div>
@@ -10765,7 +10765,7 @@ if (!headers_sent()) {
                             <div class="tk-history-menu">
                                 <span style="text-decoration:underline;">File</span>
                                 <span style="text-decoration:underline; cursor:pointer;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openIdeFromEditMenu()"><u>E</u>dit</span>
-                                <span style="text-decoration:underline;">View</span>
+                                <span style="text-decoration:underline; cursor:pointer;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileDistributionLogModal()"><u>V</u>iew</span>
                                 <span style="text-decoration:underline;">Help</span>
                             </div>
 
@@ -10949,7 +10949,7 @@ if (!headers_sent()) {
                         <div class="tk-history-menu">
                             <span style="text-decoration:underline;">File</span>
                             <span style="text-decoration:underline; cursor:pointer;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openIdeFromEditMenu()"><u>E</u>dit</span>
-                            <span style="text-decoration:underline;">View</span>
+                            <span style="text-decoration:underline; cursor:pointer;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileDistributionLogModal()"><u>V</u>iew</span>
                             <span style="text-decoration:underline;">Help</span>
                         </div>
 
@@ -11171,6 +11171,70 @@ if (!headers_sent()) {
                     <button type="button" class="tk-btn-action" style="padding:6px 14px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeIdeCoordinateIntegrator()">Cancelar</button>
                     <button type="button" class="tk-btn-action" style="padding:6px 18px; font-weight:700; color:#000080;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.confirmIdeCodeIntegration()">📦 Confirmar e Integrar a Caja</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
+            
+    <!-- Krumbs File Distribution & Location Log Modal (View Menu) -->
+    <div class="tk-dist-log-overlay" id="tkFileDistributionLogModal">
+        <div class="tk-dist-window">
+            <!-- Title Bar -->
+            <div class="tk-title-bar">
+                <div class="tk-title-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="16" height="16" style="flex-shrink:0;">
+    <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="17.321,30 17.321,20 25.981,25 25.981,35"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="25.981,25 34.641,20 34.641,30 25.981,35"></polygon>
+    <polygon fill="none" stroke="#ffffff" stroke-width="1.5" points="17.321,20 25.981,15 34.641,20 25.981,25"></polygon>
+</svg>
+                    <span class="tk-title-text">Krumbs — Registro de Distribución y Ubicación de Archivos en Cajas</span>
+                </div>
+                <div class="tk-title-right">
+                    <button type="button" class="tk-btn-window" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeFileDistributionLogModal()">-</button>
+                    <button type="button" class="tk-btn-window">□</button>
+                    <button type="button" class="tk-btn-window" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeFileDistributionLogModal()">✕</button>
+                </div>
+            </div>
+
+            <!-- Toolbar & Filter -->
+            <div class="tk-dist-toolbar">
+                <div style="display:flex; gap:8px; align-items:center; flex:1;">
+                    <span style="font-weight:700; font-size:11px;">🔍 Buscar:</span>
+                    <input type="search" id="tkFileDistSearchInput" placeholder="Filtrar por archivo, caja [V: x3, F: 1] o lenguaje..." style="flex:1; max-width:320px; padding:3px 6px; font-family:var(--tk-font-mono); font-size:11px; border:1px solid #808080;" oninput="window.PolyglotGridStudio && window.PolyglotGridStudio.renderFileDistributionTable(this.value)">
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button type="button" class="tk-btn-action" style="padding:3px 10px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.renderFileDistributionTable()">🔄 Refrescar</button>
+                    <button type="button" class="tk-btn-action" style="padding:3px 10px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeFileDistributionLogModal(); window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal();">📁 Asignar a Caja</button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="tk-dist-table-container">
+                <table class="tk-dist-table">
+                    <thead>
+                        <tr>
+                            <th style="width:34%;">Archivo de Código</th>
+                            <th style="width:28%;">Ubicación / Caja Destino</th>
+                            <th style="width:16%;">Lenguaje</th>
+                            <th style="width:14%;">Función API</th>
+                            <th style="width:8%; text-align:right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tkFileDistTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Statistics Sub-Bar -->
+            <div style="padding:4px 8px; background:#ECE9D8; border-top:1px solid #808080; font-size:11px;" id="tkFileDistStats">
+                Total Archivos: 6 | Cajas con Código: 1/56
+            </div>
+
+            <!-- Status Bar -->
+            <div class="tk-status-bar">
+                <div class="tk-status-left" style="flex:1;">Ready · Mapeo Activo en Memoria 💾</div>
+                <div class="tk-status-right" id="tkFileDistStatusCount" style="width:120px; text-align:center;">Archivos: 6</div>
             </div>
         </div>
     </div>

@@ -1148,6 +1148,131 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             }
         }
 
+        // ===== KRUMBS FILE DISTRIBUTION & LOCATION LOG CONTROLLER =====
+        openFileDistributionLogModal() {
+            if (typeof document === 'undefined') return;
+            const modal = document.getElementById('tkFileDistributionLogModal');
+            if (!modal) return;
+
+            this.renderFileDistributionTable();
+            modal.style.display = 'flex';
+            this.appendLog('INFO', 'Krumbs: Abriendo registro de distribución y mapeo de archivos en cajas.', [0,0,0,0]);
+        }
+
+        closeFileDistributionLogModal() {
+            if (typeof document === 'undefined') return;
+            const modal = document.getElementById('tkFileDistributionLogModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        renderFileDistributionTable(filterQuery = '') {
+            const tableBody = document.getElementById('tkFileDistTableBody');
+            const statsBar = document.getElementById('tkFileDistStats');
+            const statusCount = document.getElementById('tkFileDistStatusCount');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+            const q = (filterQuery || '').toLowerCase();
+
+            // Build map of file -> locations
+            const fileLocations = new Map(); // path -> Array of {x, y, coordLabel, state}
+            let totalAssignedBoxes = 0;
+
+            this.state.cells.forEach((cell) => {
+                const list = (cell.boundFiles && cell.boundFiles.length > 0)
+                    ? cell.boundFiles
+                    : (cell.boundFile ? [cell.boundFile] : []);
+                
+                if (list.length > 0) totalAssignedBoxes++;
+
+                list.forEach(filePath => {
+                    if (!fileLocations.has(filePath)) fileLocations.set(filePath, []);
+                    fileLocations.get(filePath).push({
+                        x: cell.x,
+                        y: cell.y,
+                        label: `[V: x${cell.y + 1}, F: ${cell.x}]`,
+                        state: cell.state,
+                        func: cell.boundFunction
+                    });
+                });
+            });
+
+            let renderedRows = 0;
+
+            this.state.files.forEach((file, path) => {
+                const locations = fileLocations.get(path) || [];
+                const locLabels = locations.map(l => l.label).join(' ');
+
+                if (q && !path.toLowerCase().includes(q) && !locLabels.toLowerCase().includes(q) && !file.language.toLowerCase().includes(q)) {
+                    return;
+                }
+
+                renderedRows++;
+                const tr = document.createElement('tr');
+
+                // Location cell content
+                let locationHtml = '';
+                if (locations.length > 0) {
+                    locationHtml = locations.map(l => `
+                        <span class="tk-dist-loc-badge assigned" title="Asignado a Caja ${l.label}">
+                            📦 Caja ${l.label}
+                        </span>
+                    `).join(' ');
+                } else {
+                    locationHtml = `<span class="tk-dist-loc-badge unassigned">⚠️ Global (Sin asignar a caja)</span>`;
+                }
+
+                const icon = this.getFileIcon(path);
+                const funcName = locations[0] ? locations[0].func : (PolyglotConverter.extractSignatures(file.content, file.language)[0]?.name || 'executeHandler');
+
+                tr.innerHTML = `
+                    <td style="font-weight:700;">
+                        <span style="font-size:14px; margin-right:6px;">${icon}</span>
+                        <span>${path}</span>
+                    </td>
+                    <td>${locationHtml}</td>
+                    <td>
+                        <span style="font-weight:700; color:#000080;">${file.language.toUpperCase()}</span>
+                        <span style="color:#666666; font-size:10px; margin-left:4px;">(${file.lines} líneas)</span>
+                    </td>
+                    <td style="font-family:var(--tk-font-mono); font-size:11px; color:#006600;">
+                        ${funcName}()
+                    </td>
+                    <td style="text-align:right;">
+                        <div style="display:inline-flex; gap:4px;">
+                            ${locations.length > 0 ? `
+                                <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" onclick="window.PolyglotGridStudio.jumpToFileBox(${locations[0].x}, ${locations[0].y})">
+                                    📦 Ir a Caja
+                                </button>
+                            ` : `
+                                <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" onclick="window.PolyglotGridStudio.closeFileDistributionLogModal(); window.PolyglotGridStudio.openFileAssignModal();">
+                                    🔗 Asignar
+                                </button>
+                            `}
+                            <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" onclick="window.PolyglotGridStudio.closeFileDistributionLogModal(); window.PolyglotGridStudio.openIdeModal('${path}')">
+                                ✏️ IDE
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            if (statsBar) {
+                statsBar.innerHTML = `Total Archivos: <strong>${this.state.files.size}</strong> &nbsp;|&nbsp; Cajas con Código: <strong>${totalAssignedBoxes}</strong>/56 &nbsp;|&nbsp; Archivos en Vista: <strong>${renderedRows}</strong>`;
+            }
+            if (statusCount) {
+                statusCount.textContent = `Archivos: ${this.state.files.size}`;
+            }
+        }
+
+        jumpToFileBox(x, y) {
+            this.closeFileDistributionLogModal();
+            this.selectCell(x, y);
+            this.switchTab('explorer');
+            this.appendLog('INFO', `Navegando a Caja [V: x${y + 1}, F: ${x}].`, [x, y, 0, 0]);
+        }
+
         // ===== KRUMBS RETRO IDE & IDEAVIM CONTROLLER =====
         openIdeModal(filePath = null) {
             if (typeof document === 'undefined') return;
@@ -1522,7 +1647,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                     }
                 });
             }
-            if (importBtn && importInput) importBtn.addEventListener('click', () => importInput.click());
+            if (importBtn) importBtn.addEventListener('click', () => this.openFileDistributionLogModal());
             if (importInput) {
                 importInput.addEventListener('change', (e) => {
                     if (e.target.files && e.target.files[0]) {

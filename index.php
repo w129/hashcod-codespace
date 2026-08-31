@@ -11323,7 +11323,21 @@ if (!headers_sent()) {
         <input type="hidden" id="cmdInput" value="">
 
         <!-- Panel Toolbox (16 slots 4x4 con Fondo Abstracto Geométrico y Decoraciones) -->
-        <div class="toolbox-panel" id="toolboxPanel">
+        
+        <!-- Retro Toolbox Carousel & Page Controller (Toolbox 1 to 4) -->
+        <div class="toolbox-pagination-bar" id="toolboxPaginationBar" style="display:flex; align-items:center; justify-content:center; gap:8px; margin: 8px auto 16px; user-select:none; z-index:10;">
+            <button type="button" class="tb-nav-arrow" id="tbNavPrevBtn" onclick="window.prevToolboxPage()" title="Toolbox Anterior" style="background:#ffffff; border:1.5px solid #000000; border-radius:6px; padding:4px 10px; font-weight:700; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:12px;">‹</button>
+            
+            <div class="tb-page-chips" style="display:flex; gap:6px;">
+                <button type="button" class="tb-page-chip active" id="tbChip1" onclick="window.switchToolboxPage(1)" style="padding:4px 12px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:'IBM Plex Mono', monospace; background:#000000; color:#ffffff; border:1.5px solid #000000;">Toolbox 1</button>
+                <button type="button" class="tb-page-chip" id="tbChip2" onclick="window.switchToolboxPage(2)" style="padding:4px 12px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:'IBM Plex Mono', monospace; background:#ffffff; color:#000000; border:1.5px solid #000000;">Toolbox 2</button>
+                <button type="button" class="tb-page-chip" id="tbChip3" onclick="window.switchToolboxPage(3)" style="padding:4px 12px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:'IBM Plex Mono', monospace; background:#ffffff; color:#000000; border:1.5px solid #000000;">Toolbox 3</button>
+                <button type="button" class="tb-page-chip" id="tbChip4" onclick="window.switchToolboxPage(4)" style="padding:4px 12px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:'IBM Plex Mono', monospace; background:#ffffff; color:#000000; border:1.5px solid #000000;">Toolbox 4</button>
+            </div>
+
+            <button type="button" class="tb-nav-arrow" id="tbNavNextBtn" onclick="window.nextToolboxPage()" title="Toolbox Siguiente" style="background:#ffffff; border:1.5px solid #000000; border-radius:6px; padding:4px 10px; font-weight:700; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:12px;">›</button>
+        </div>
+        <div class="toolbox-panel active" id="toolboxPanel" data-toolbox-page="1">
             <!-- abstract-bg -->
             <div class="toolbox-abstract-bg">
                 <!-- Rotated Lines -->
@@ -11655,6 +11669,585 @@ if (!headers_sent()) {
                     </div>
                     <!-- slot-4-4 -->
                     <div class="tb-slot" id="slot-4-4" data-slot="4-4" title="Slot 4-4">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Panel Toolbox 2 -->
+        <div class="toolbox-panel" id="toolboxPanel2" data-toolbox-page="2" style="display:none;">
+            <div class="toolbox-abstract-bg">
+                <div class="tb-line" style="width: 360.56px; left: 0px; top: 0px; transform: rotate(-33.69deg);"></div>
+                <div class="tb-line" style="width: 456.07px; left: 600px; top: 0px; transform: rotate(37.87deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 0px; top: 500px; transform: rotate(35.37deg);"></div>
+                <div class="tb-line" style="width: 318.52px; left: 700px; top: 600px; transform: rotate(-35.29deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 100px; top: 500px; transform: rotate(-35.37deg);"></div>
+                <div class="tb-line" style="width: 188.68px; left: 800px; top: 0px; transform: rotate(32.01deg);"></div>
+                <div class="tb-line" style="width: 223.61px; left: 0px; top: 250px; transform: rotate(-26.57deg);"></div>
+                <div class="tb-line" style="width: 232.59px; left: 750px; top: 400px; transform: rotate(25.46deg);"></div>
+
+                <div class="tb-ellipse" style="width: 9.07px; height: 9.07px; left: 75.47px; top: 35.47px;"></div>
+                <div class="tb-ellipse" style="width: 11.54px; height: 11.54px; left: 244.23px; top: 74.23px;"></div>
+                <div class="tb-ellipse" style="width: 9.46px; height: 9.46px; left: 495.27px; top: 25.27px;"></div>
+                <div class="tb-ellipse" style="width: 12.79px; height: 12.79px; left: 743.61px; top: 53.61px;"></div>
+                <div class="tb-ellipse" style="width: 10.49px; height: 10.49px; left: 894.76px; top: 114.76px;"></div>
+                <div class="tb-ellipse" style="width: 9.83px; height: 9.83px; left: 55.09px; top: 295.09px;"></div>
+                <div class="tb-ellipse" style="width: 13.4px; height: 13.4px; left: 343.3px; top: 243.3px;"></div>
+                <div class="tb-ellipse" style="width: 9.58px; height: 9.58px; left: 615.21px; top: 345.21px;"></div>
+                <div class="tb-ellipse" style="width: 7.66px; height: 7.66px; left: 876.17px; top: 276.17px;"></div>
+                <div class="tb-ellipse" style="width: 7.48px; height: 7.48px; left: 116.26px; top: 546.26px;"></div>
+
+                <div class="tb-cross-h" style="width: 19px; left: 140.5px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 19px; left: 150px; top: 90.5px;"></div>
+                <div class="tb-cross-h" style="width: 20.76px; left: 389.62px; top: 300px;"></div>
+                <div class="tb-cross-v" style="width: 20.76px; left: 400px; top: 289.62px;"></div>
+            </div>
+
+            <div class="tb-top-decorations">
+                <div class="tb-bracket-corner top-left"><div class="tb-h"></div><div class="tb-v"></div></div>
+                <div class="tb-bracket-corner top-right"><div class="tb-h"></div><div class="tb-v"></div></div>
+            </div>
+            <div class="tb-bottom-decorations">
+                <div class="tb-bracket-corner bottom-left"><div class="tb-h"></div><div class="tb-v"></div></div>
+                <div class="tb-bracket-corner bottom-right"><div class="tb-h"></div><div class="tb-v"></div></div>
+            </div>
+
+            <div class="tb-grid-container">
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t2-1-1" data-slot="t2-1-1" title="Toolbox 2 · Slot 1-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-1-2" data-slot="t2-1-2" title="Toolbox 2 · Slot 1-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-1-3" data-slot="t2-1-3" title="Toolbox 2 · Slot 1-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-1-4" data-slot="t2-1-4" title="Toolbox 2 · Slot 1-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t2-2-1" data-slot="t2-2-1" title="Toolbox 2 · Slot 2-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-2-2" data-slot="t2-2-2" title="Toolbox 2 · Slot 2-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-2-3" data-slot="t2-2-3" title="Toolbox 2 · Slot 2-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-2-4" data-slot="t2-2-4" title="Toolbox 2 · Slot 2-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t2-3-1" data-slot="t2-3-1" title="Toolbox 2 · Slot 3-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-3-2" data-slot="t2-3-2" title="Toolbox 2 · Slot 3-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-3-3" data-slot="t2-3-3" title="Toolbox 2 · Slot 3-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-3-4" data-slot="t2-3-4" title="Toolbox 2 · Slot 3-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t2-4-1" data-slot="t2-4-1" title="Toolbox 2 · Slot 4-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-4-2" data-slot="t2-4-2" title="Toolbox 2 · Slot 4-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-4-3" data-slot="t2-4-3" title="Toolbox 2 · Slot 4-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t2-4-4" data-slot="t2-4-4" title="Toolbox 2 · Slot 4-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Panel Toolbox 3 -->
+        <div class="toolbox-panel" id="toolboxPanel3" data-toolbox-page="3" style="display:none;">
+            <div class="toolbox-abstract-bg">
+                <div class="tb-line" style="width: 360.56px; left: 0px; top: 0px; transform: rotate(-33.69deg);"></div>
+                <div class="tb-line" style="width: 456.07px; left: 600px; top: 0px; transform: rotate(37.87deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 0px; top: 500px; transform: rotate(35.37deg);"></div>
+                <div class="tb-line" style="width: 318.52px; left: 700px; top: 600px; transform: rotate(-35.29deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 100px; top: 500px; transform: rotate(-35.37deg);"></div>
+                <div class="tb-line" style="width: 188.68px; left: 800px; top: 0px; transform: rotate(32.01deg);"></div>
+                <div class="tb-line" style="width: 223.61px; left: 0px; top: 250px; transform: rotate(-26.57deg);"></div>
+                <div class="tb-line" style="width: 232.59px; left: 750px; top: 400px; transform: rotate(25.46deg);"></div>
+
+                <div class="tb-ellipse" style="width: 9.07px; height: 9.07px; left: 75.47px; top: 35.47px;"></div>
+                <div class="tb-ellipse" style="width: 11.54px; height: 11.54px; left: 244.23px; top: 74.23px;"></div>
+                <div class="tb-ellipse" style="width: 9.46px; height: 9.46px; left: 495.27px; top: 25.27px;"></div>
+                <div class="tb-ellipse" style="width: 12.79px; height: 12.79px; left: 743.61px; top: 53.61px;"></div>
+                <div class="tb-ellipse" style="width: 10.49px; height: 10.49px; left: 894.76px; top: 114.76px;"></div>
+                <div class="tb-ellipse" style="width: 9.83px; height: 9.83px; left: 55.09px; top: 295.09px;"></div>
+                <div class="tb-ellipse" style="width: 13.4px; height: 13.4px; left: 343.3px; top: 243.3px;"></div>
+                <div class="tb-ellipse" style="width: 9.58px; height: 9.58px; left: 615.21px; top: 345.21px;"></div>
+                <div class="tb-ellipse" style="width: 7.66px; height: 7.66px; left: 876.17px; top: 276.17px;"></div>
+                <div class="tb-ellipse" style="width: 7.48px; height: 7.48px; left: 116.26px; top: 546.26px;"></div>
+
+                <div class="tb-cross-h" style="width: 19px; left: 140.5px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 19px; left: 150px; top: 90.5px;"></div>
+                <div class="tb-cross-h" style="width: 20.76px; left: 389.62px; top: 300px;"></div>
+                <div class="tb-cross-v" style="width: 20.76px; left: 400px; top: 289.62px;"></div>
+            </div>
+
+            <div class="tb-top-decorations">
+                <div class="tb-bracket-corner top-left"><div class="tb-h"></div><div class="tb-v"></div></div>
+                <div class="tb-bracket-corner top-right"><div class="tb-h"></div><div class="tb-v"></div></div>
+            </div>
+            <div class="tb-bottom-decorations">
+                <div class="tb-bracket-corner bottom-left"><div class="tb-h"></div><div class="tb-v"></div></div>
+                <div class="tb-bracket-corner bottom-right"><div class="tb-h"></div><div class="tb-v"></div></div>
+            </div>
+
+            <div class="tb-grid-container">
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t3-1-1" data-slot="t3-1-1" title="Toolbox 3 · Slot 1-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-1-2" data-slot="t3-1-2" title="Toolbox 3 · Slot 1-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-1-3" data-slot="t3-1-3" title="Toolbox 3 · Slot 1-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-1-4" data-slot="t3-1-4" title="Toolbox 3 · Slot 1-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t3-2-1" data-slot="t3-2-1" title="Toolbox 3 · Slot 2-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-2-2" data-slot="t3-2-2" title="Toolbox 3 · Slot 2-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-2-3" data-slot="t3-2-3" title="Toolbox 3 · Slot 2-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-2-4" data-slot="t3-2-4" title="Toolbox 3 · Slot 2-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t3-3-1" data-slot="t3-3-1" title="Toolbox 3 · Slot 3-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-3-2" data-slot="t3-3-2" title="Toolbox 3 · Slot 3-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-3-3" data-slot="t3-3-3" title="Toolbox 3 · Slot 3-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-3-4" data-slot="t3-3-4" title="Toolbox 3 · Slot 3-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t3-4-1" data-slot="t3-4-1" title="Toolbox 3 · Slot 4-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-4-2" data-slot="t3-4-2" title="Toolbox 3 · Slot 4-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-4-3" data-slot="t3-4-3" title="Toolbox 3 · Slot 4-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t3-4-4" data-slot="t3-4-4" title="Toolbox 3 · Slot 4-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Panel Toolbox 4 -->
+        <div class="toolbox-panel" id="toolboxPanel4" data-toolbox-page="4" style="display:none;">
+            <div class="toolbox-abstract-bg">
+                <div class="tb-line" style="width: 360.56px; left: 0px; top: 0px; transform: rotate(-33.69deg);"></div>
+                <div class="tb-line" style="width: 456.07px; left: 600px; top: 0px; transform: rotate(37.87deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 0px; top: 500px; transform: rotate(35.37deg);"></div>
+                <div class="tb-line" style="width: 318.52px; left: 700px; top: 600px; transform: rotate(-35.29deg);"></div>
+                <div class="tb-line" style="width: 490.57px; left: 100px; top: 500px; transform: rotate(-35.37deg);"></div>
+                <div class="tb-line" style="width: 188.68px; left: 800px; top: 0px; transform: rotate(32.01deg);"></div>
+                <div class="tb-line" style="width: 223.61px; left: 0px; top: 250px; transform: rotate(-26.57deg);"></div>
+                <div class="tb-line" style="width: 232.59px; left: 750px; top: 400px; transform: rotate(25.46deg);"></div>
+
+                <div class="tb-ellipse" style="width: 9.07px; height: 9.07px; left: 75.47px; top: 35.47px;"></div>
+                <div class="tb-ellipse" style="width: 11.54px; height: 11.54px; left: 244.23px; top: 74.23px;"></div>
+                <div class="tb-ellipse" style="width: 9.46px; height: 9.46px; left: 495.27px; top: 25.27px;"></div>
+                <div class="tb-ellipse" style="width: 12.79px; height: 12.79px; left: 743.61px; top: 53.61px;"></div>
+                <div class="tb-ellipse" style="width: 10.49px; height: 10.49px; left: 894.76px; top: 114.76px;"></div>
+                <div class="tb-ellipse" style="width: 9.83px; height: 9.83px; left: 55.09px; top: 295.09px;"></div>
+                <div class="tb-ellipse" style="width: 13.4px; height: 13.4px; left: 343.3px; top: 243.3px;"></div>
+                <div class="tb-ellipse" style="width: 9.58px; height: 9.58px; left: 615.21px; top: 345.21px;"></div>
+                <div class="tb-ellipse" style="width: 7.66px; height: 7.66px; left: 876.17px; top: 276.17px;"></div>
+                <div class="tb-ellipse" style="width: 7.48px; height: 7.48px; left: 116.26px; top: 546.26px;"></div>
+
+                <div class="tb-cross-h" style="width: 19px; left: 140.5px; top: 100px;"></div>
+                <div class="tb-cross-v" style="width: 19px; left: 150px; top: 90.5px;"></div>
+                <div class="tb-cross-h" style="width: 20.76px; left: 389.62px; top: 300px;"></div>
+                <div class="tb-cross-v" style="width: 20.76px; left: 400px; top: 289.62px;"></div>
+            </div>
+
+            <div class="tb-top-decorations">
+                <div class="tb-bracket-corner top-left"><div class="tb-h"></div><div class="tb-v"></div></div>
+                <div class="tb-bracket-corner top-right"><div class="tb-h"></div><div class="tb-v"></div></div>
+            </div>
+            <div class="tb-bottom-decorations">
+                <div class="tb-bracket-corner bottom-left"><div class="tb-h"></div><div class="tb-v"></div></div>
+                <div class="tb-bracket-corner bottom-right"><div class="tb-h"></div><div class="tb-v"></div></div>
+            </div>
+
+            <div class="tb-grid-container">
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t4-1-1" data-slot="t4-1-1" title="Toolbox 4 · Slot 1-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-1-2" data-slot="t4-1-2" title="Toolbox 4 · Slot 1-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-1-3" data-slot="t4-1-3" title="Toolbox 4 · Slot 1-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-1-4" data-slot="t4-1-4" title="Toolbox 4 · Slot 1-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t4-2-1" data-slot="t4-2-1" title="Toolbox 4 · Slot 2-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-2-2" data-slot="t4-2-2" title="Toolbox 4 · Slot 2-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-2-3" data-slot="t4-2-3" title="Toolbox 4 · Slot 2-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-2-4" data-slot="t4-2-4" title="Toolbox 4 · Slot 2-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t4-3-1" data-slot="t4-3-1" title="Toolbox 4 · Slot 3-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-3-2" data-slot="t4-3-2" title="Toolbox 4 · Slot 3-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-3-3" data-slot="t4-3-3" title="Toolbox 4 · Slot 3-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-3-4" data-slot="t4-3-4" title="Toolbox 4 · Slot 3-4" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                </div>
+                <div class="tb-grid-row">
+                    <div class="tb-slot" id="slot-t4-4-1" data-slot="t4-4-1" title="Toolbox 4 · Slot 4-1" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-4-2" data-slot="t4-4-2" title="Toolbox 4 · Slot 4-2" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-4-3" data-slot="t4-4-3" title="Toolbox 4 · Slot 4-3" role="button" tabindex="0">
+                        <div class="tb-inner-ring">
+                            <div class="tb-focal-center"></div>
+                        </div>
+                        <div class="tb-corner-dot d-tl"></div>
+                        <div class="tb-corner-dot d-tr"></div>
+                        <div class="tb-corner-dot d-bl"></div>
+                        <div class="tb-corner-dot d-br"></div>
+                    </div>
+                    <div class="tb-slot" id="slot-t4-4-4" data-slot="t4-4-4" title="Toolbox 4 · Slot 4-4" role="button" tabindex="0">
                         <div class="tb-inner-ring">
                             <div class="tb-focal-center"></div>
                         </div>
@@ -12116,6 +12709,70 @@ if (!headers_sent()) {
 <body>
 <header>l8 codespace · <strong>${title}</strong> · <span>${terminalEscapeHtml(lang)}</span></header>
 <pre><code class="language-${terminalEscapeHtml(lang)}">${body}</code></pre>
+
+    <!-- Multi-Toolbox Carousel & Page Switcher Controller -->
+    <script>
+    (function() {
+        let currentToolboxPage = 1;
+        const totalToolboxPages = 4;
+
+        window.switchToolboxPage = function(pageNum) {
+            pageNum = Math.max(1, Math.min(totalToolboxPages, parseInt(pageNum) || 1));
+            currentToolboxPage = pageNum;
+
+            for (let i = 1; i <= totalToolboxPages; i++) {
+                const panelId = i === 1 ? 'toolboxPanel' : ('toolboxPanel' + i);
+                const panel = document.getElementById(panelId);
+                const chip = document.getElementById('tbChip' + i);
+
+                if (panel) {
+                    if (i === currentToolboxPage) {
+                        panel.style.display = 'flex';
+                        panel.classList.add('active');
+                    } else {
+                        panel.style.display = 'none';
+                        panel.classList.remove('active');
+                    }
+                }
+
+                if (chip) {
+                    if (i === currentToolboxPage) {
+                        chip.style.background = '#000000';
+                        chip.style.color = '#ffffff';
+                        chip.classList.add('active');
+                    } else {
+                        chip.style.background = '#ffffff';
+                        chip.style.color = '#000000';
+                        chip.classList.remove('active');
+                    }
+                }
+            }
+        };
+
+        window.nextToolboxPage = function() {
+            let next = currentToolboxPage + 1;
+            if (next > totalToolboxPages) next = 1;
+            window.switchToolboxPage(next);
+        };
+
+        window.prevToolboxPage = function() {
+            let prev = currentToolboxPage - 1;
+            if (prev < 1) prev = totalToolboxPages;
+            window.switchToolboxPage(prev);
+        };
+
+        // Keyboard arrow navigation for toolboxes
+        window.addEventListener('keydown', function(e) {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
+            if (e.key === 'ArrowRight' && e.altKey) {
+                window.nextToolboxPage();
+            } else if (e.key === 'ArrowLeft' && e.altKey) {
+                window.prevToolboxPage();
+            }
+        });
+    })();
+    </script>
+
 </body>
 </html>
 `;
@@ -14671,7 +15328,7 @@ if (!headers_sent()) {
             swipe.addEventListener('click', function (ev) {
                 ev.preventDefault();
                 ev.stopPropagation();
-                setDockBarOpen(true);
+                toggleDockBar();
                 stDockRefreshSlots().catch(function () {});
             });
 
@@ -15030,7 +15687,7 @@ if (!headers_sent()) {
             handle.addEventListener('click', function (ev) {
                 ev.preventDefault();
                 ev.stopPropagation();
-                setFlyRailOpen(true);
+                toggleFlyRail();
             });
 
             if (panel) {
@@ -16212,7 +16869,71 @@ if (!headers_sent()) {
                 body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
                     String(title).replace(/</g, '&lt;') +
                     '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style></head><body><h1>' +
-                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '</body></html>';
+                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '
+    <!-- Multi-Toolbox Carousel & Page Switcher Controller -->
+    <script>
+    (function() {
+        let currentToolboxPage = 1;
+        const totalToolboxPages = 4;
+
+        window.switchToolboxPage = function(pageNum) {
+            pageNum = Math.max(1, Math.min(totalToolboxPages, parseInt(pageNum) || 1));
+            currentToolboxPage = pageNum;
+
+            for (let i = 1; i <= totalToolboxPages; i++) {
+                const panelId = i === 1 ? 'toolboxPanel' : ('toolboxPanel' + i);
+                const panel = document.getElementById(panelId);
+                const chip = document.getElementById('tbChip' + i);
+
+                if (panel) {
+                    if (i === currentToolboxPage) {
+                        panel.style.display = 'flex';
+                        panel.classList.add('active');
+                    } else {
+                        panel.style.display = 'none';
+                        panel.classList.remove('active');
+                    }
+                }
+
+                if (chip) {
+                    if (i === currentToolboxPage) {
+                        chip.style.background = '#000000';
+                        chip.style.color = '#ffffff';
+                        chip.classList.add('active');
+                    } else {
+                        chip.style.background = '#ffffff';
+                        chip.style.color = '#000000';
+                        chip.classList.remove('active');
+                    }
+                }
+            }
+        };
+
+        window.nextToolboxPage = function() {
+            let next = currentToolboxPage + 1;
+            if (next > totalToolboxPages) next = 1;
+            window.switchToolboxPage(next);
+        };
+
+        window.prevToolboxPage = function() {
+            let prev = currentToolboxPage - 1;
+            if (prev < 1) prev = totalToolboxPages;
+            window.switchToolboxPage(prev);
+        };
+
+        // Keyboard arrow navigation for toolboxes
+        window.addEventListener('keydown', function(e) {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
+            if (e.key === 'ArrowRight' && e.altKey) {
+                window.nextToolboxPage();
+            } else if (e.key === 'ArrowLeft' && e.altKey) {
+                window.prevToolboxPage();
+            }
+        });
+    })();
+    </script>
+
+</body></html>';
             }
             } else if (kind === 'md') {
                 ext = 'md';
@@ -17648,7 +18369,7 @@ if (!headers_sent()) {
             aria-expanded="false"
             aria-controls="flyRailPanel"
             onclick="toggleFlyRail()"
-            style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:6px;height:72px;background:#0b3d2e;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;z-index:9992;pointer-events:auto;"
+            style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:12px;min-width:12px;height:76px;background:#0b3d2e;border:1.5px solid #10b981;border-right:none;border-radius:999px 0 0 999px;padding:0;cursor:pointer;display:block;z-index:99999;pointer-events:auto;box-shadow:-2px 0 10px rgba(16,185,129,0.35);"
         ></button>
         <nav class="fly-rail-panel" id="flyRailPanel" aria-label="Herramientas Fly" aria-hidden="true" style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:#0b3d2e;z-index:9991;">
             <button type="button" class="fly-slot is-ready has-icon" id="flySlotIndicesBank" data-fly-slot="1" title="Banco de índices" aria-label="Abrir Banco de índices" onclick="setIndicesBankOpen(true)" style="pointer-events:auto;cursor:pointer;">
@@ -17678,7 +18399,7 @@ if (!headers_sent()) {
             aria-label="Abrir toolbar inferior"
             aria-expanded="false"
             aria-controls="dockToolbar"
-            style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:72px;height:6px;background:#000000;border:none;border-radius:999px;padding:0;cursor:pointer;display:block;"
+            style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:88px;height:8px;background:#000000;border:1.5px solid #475569;border-bottom:none;border-radius:999px 999px 0 0;padding:0;cursor:pointer;display:block;z-index:99999;pointer-events:auto;box-shadow:0 -2px 10px rgba(0,0,0,0.4);"
         ></button>
         <nav
             class="dock-toolbar"
@@ -20167,7 +20888,71 @@ if (!headers_sent()) {
                     if (!contentEl.value.trim()) contentEl.value = '# Python code for Hashcod platform\nimport streamlit as st\n\nst.title("Hashcod Codespace AI")\nst.write("Post-quantum quantum-resistant system initialized.")\n';
                 } else if (lang === 'html') {
                     adminPendingRow.platform_code_name = 'index.html';
-                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n<p>Post-quantum quantum-resistant system initialized.</p>\n</body>\n</html>';
+                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n<p>Post-quantum quantum-resistant system initialized.</p>\n
+    <!-- Multi-Toolbox Carousel & Page Switcher Controller -->
+    <script>
+    (function() {
+        let currentToolboxPage = 1;
+        const totalToolboxPages = 4;
+
+        window.switchToolboxPage = function(pageNum) {
+            pageNum = Math.max(1, Math.min(totalToolboxPages, parseInt(pageNum) || 1));
+            currentToolboxPage = pageNum;
+
+            for (let i = 1; i <= totalToolboxPages; i++) {
+                const panelId = i === 1 ? 'toolboxPanel' : ('toolboxPanel' + i);
+                const panel = document.getElementById(panelId);
+                const chip = document.getElementById('tbChip' + i);
+
+                if (panel) {
+                    if (i === currentToolboxPage) {
+                        panel.style.display = 'flex';
+                        panel.classList.add('active');
+                    } else {
+                        panel.style.display = 'none';
+                        panel.classList.remove('active');
+                    }
+                }
+
+                if (chip) {
+                    if (i === currentToolboxPage) {
+                        chip.style.background = '#000000';
+                        chip.style.color = '#ffffff';
+                        chip.classList.add('active');
+                    } else {
+                        chip.style.background = '#ffffff';
+                        chip.style.color = '#000000';
+                        chip.classList.remove('active');
+                    }
+                }
+            }
+        };
+
+        window.nextToolboxPage = function() {
+            let next = currentToolboxPage + 1;
+            if (next > totalToolboxPages) next = 1;
+            window.switchToolboxPage(next);
+        };
+
+        window.prevToolboxPage = function() {
+            let prev = currentToolboxPage - 1;
+            if (prev < 1) prev = totalToolboxPages;
+            window.switchToolboxPage(prev);
+        };
+
+        // Keyboard arrow navigation for toolboxes
+        window.addEventListener('keydown', function(e) {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
+            if (e.key === 'ArrowRight' && e.altKey) {
+                window.nextToolboxPage();
+            } else if (e.key === 'ArrowLeft' && e.altKey) {
+                window.prevToolboxPage();
+            }
+        });
+    })();
+    </script>
+
+</body>\n</html>';
                 }
                 } else if (lang === 'typescript') {
                     adminPendingRow.platform_code_name = 'index.ts';
@@ -21932,6 +22717,70 @@ ${jsonPayload}
             }
         }
     }, true);
+    </script>
+
+
+    <!-- Multi-Toolbox Carousel & Page Switcher Controller -->
+    <script>
+    (function() {
+        let currentToolboxPage = 1;
+        const totalToolboxPages = 4;
+
+        window.switchToolboxPage = function(pageNum) {
+            pageNum = Math.max(1, Math.min(totalToolboxPages, parseInt(pageNum) || 1));
+            currentToolboxPage = pageNum;
+
+            for (let i = 1; i <= totalToolboxPages; i++) {
+                const panelId = i === 1 ? 'toolboxPanel' : ('toolboxPanel' + i);
+                const panel = document.getElementById(panelId);
+                const chip = document.getElementById('tbChip' + i);
+
+                if (panel) {
+                    if (i === currentToolboxPage) {
+                        panel.style.display = 'flex';
+                        panel.classList.add('active');
+                    } else {
+                        panel.style.display = 'none';
+                        panel.classList.remove('active');
+                    }
+                }
+
+                if (chip) {
+                    if (i === currentToolboxPage) {
+                        chip.style.background = '#000000';
+                        chip.style.color = '#ffffff';
+                        chip.classList.add('active');
+                    } else {
+                        chip.style.background = '#ffffff';
+                        chip.style.color = '#000000';
+                        chip.classList.remove('active');
+                    }
+                }
+            }
+        };
+
+        window.nextToolboxPage = function() {
+            let next = currentToolboxPage + 1;
+            if (next > totalToolboxPages) next = 1;
+            window.switchToolboxPage(next);
+        };
+
+        window.prevToolboxPage = function() {
+            let prev = currentToolboxPage - 1;
+            if (prev < 1) prev = totalToolboxPages;
+            window.switchToolboxPage(prev);
+        };
+
+        // Keyboard arrow navigation for toolboxes
+        window.addEventListener('keydown', function(e) {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
+            if (e.key === 'ArrowRight' && e.altKey) {
+                window.nextToolboxPage();
+            } else if (e.key === 'ArrowLeft' && e.altKey) {
+                window.prevToolboxPage();
+            }
+        });
+    })();
     </script>
 
 </body>

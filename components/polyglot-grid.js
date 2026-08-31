@@ -1421,6 +1421,17 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
             const slot23 = document.getElementById('slot-2-3');
             if (slot23) slot23.addEventListener('click', () => this.openModal());
 
+            const slot24 = document.getElementById('slot-2-4');
+            if (slot24) {
+                slot24.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof window.openOnDemandToolModal === 'function') {
+                        window.openOnDemandToolModal('git-vault');
+                    }
+                });
+            }
+
             const closeBtn = document.getElementById('polyglotGridCloseBtn');
             if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
 

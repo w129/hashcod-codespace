@@ -11559,13 +11559,13 @@ if (!headers_sent()) {
                         <div class="tb-corner-dot d-br"></div>
                     </div>
                     <!-- slot-2-4: Git Vault Engine & CI/CD Hub (Circle 8) -->
-                    <div class="tb-slot is-filled is-tool-git-vault" id="slot-2-4" data-slot="2-4" title="Git Repository Vault · On-Demand Engine" onclick="window.openOnDemandToolModal ? window.openOnDemandToolModal('git-vault') : openOnDemandToolModal('git-vault')" role="button" tabindex="0" aria-label="Abrir Git Repository Vault" style="cursor: pointer !important; pointer-events: auto !important;">
-                        <div class="tb-inner-ring" style="pointer-events: none; border-color: #F4511E; background: rgba(244, 81, 30, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="38" height="38" style="pointer-events: none;">
-    <path fill="#F4511E" d="M42.2,22.1L25.9,5.8C25.4,5.3,24.7,5,24,5c0,0,0,0,0,0c-0.7,0-1.4,0.3-1.9,0.8l-3.5,3.5l4.1,4.1c0.4-0.2,0.8-0.3,1.3-0.3c1.7,0,3,1.3,3,3c0,0.5-0.1,0.9-0.3,1.3l4,4c0.4-0.2,0.8-0.3,1.3-0.3c1.7,0,3,1.3,3,3s-1.3,3-3,3c-1.7,0-3-1.3-3-3c0-0.5,0.1-0.9,0.3-1.3l-4-4c-0.1,0-0.2,0.1-0.3,0.1v10.4c1.2,0.4,2,1.5,2,2.8c0,1.7-1.3,3-3,3s-3-1.3-3-3c0-1.3,0.8-2.4,2-2.8V18.8c-1.2-0.4-2-1.5-2-2.8c0-0.5,0.1-0.9,0.3-1.3l-4.1-4.1L5.8,22.1C5.3,22.6,5,23.3,5,24c0,0.7,0.3,1.4,0.8,1.9l16.3,16.3c0,0,0,0,0,0c0.5,0.5,1.2,0.8,1.9,0.8s1.4-0.3,1.9-0.8l16.3-16.3c0.5-0.5,0.8-1.2,0.8-1.9C43,23.3,42.7,22.6,42.2,22.1z"></path>
-</svg>
+                    <div class="tb-slot is-filled is-tool-git-vault" id="slot-2-4" data-slot="2-4" title="Git Repository Vault · On-Demand Engine" role="button" tabindex="0" aria-label="Abrir Git Repository Vault" style="cursor: pointer !important; pointer-events: auto !important;">
+                        <div class="tb-inner-ring" style="pointer-events: none; display: flex; align-items: center; justify-content: center;">
+                            <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="46" height="46" style="pointer-events: none;" aria-hidden="true">
+                                <path fill="#F4511E" d="M42.2,22.1L25.9,5.8C25.4,5.3,24.7,5,24,5c0,0,0,0,0,0c-0.7,0-1.4,0.3-1.9,0.8l-3.5,3.5l4.1,4.1c0.4-0.2,0.8-0.3,1.3-0.3c1.7,0,3,1.3,3,3c0,0.5-0.1,0.9-0.3,1.3l4,4c0.4-0.2,0.8-0.3,1.3-0.3c1.7,0,3,1.3,3,3s-1.3,3-3,3c-1.7,0-3-1.3-3-3c0-0.5,0.1-0.9,0.3-1.3l-4-4c-0.1,0-0.2,0.1-0.3,0.1v10.4c1.2,0.4,2,1.5,2,2.8c0,1.7-1.3,3-3,3s-3-1.3-3-3c0-1.3,0.8-2.4,2-2.8V18.8c-1.2-0.4-2-1.5-2-2.8c0-0.5,0.1-0.9,0.3-1.3l-4.1-4.1L5.8,22.1C5.3,22.6,5,23.3,5,24c0,0.7,0.3,1.4,0.8,1.9l16.3,16.3c0,0,0,0,0,0c0.5,0.5,1.2,0.8,1.9,0.8s1.4-0.3,1.9-0.8l16.3-16.3c0.5-0.5,0.8-1.2,0.8-1.9C43,23.3,42.7,22.6,42.2,22.1z"></path>
+                            </svg>
                         </div>
-                        <div class="tb-slot-badge" style="color:#F4511E; border-color:#F4511E; background:#1e0804; font-weight:700; pointer-events:none;">GIT VAULT</div>
+                        <div class="tb-slot-badge">GIT VAULT</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -13095,6 +13095,21 @@ if (!headers_sent()) {
             window.open(whatsappUrl, '_blank');
         };
     })();
+    </script>
+
+
+    <!-- Global Delegated Listener for Slot 2-4 (Circle 8 Git Vault) -->
+    <script>
+    document.addEventListener('click', function(e) {
+        const slot = e.target && e.target.closest && (e.target.closest('#slot-2-4') || e.target.closest('.is-tool-git-vault'));
+        if (slot) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.openOnDemandToolModal === 'function') {
+                window.openOnDemandToolModal('git-vault');
+            }
+        }
+    }, true);
     </script>
 
 </body>
@@ -17308,6 +17323,21 @@ if (!headers_sent()) {
     })();
     </script>
 
+
+    <!-- Global Delegated Listener for Slot 2-4 (Circle 8 Git Vault) -->
+    <script>
+    document.addEventListener('click', function(e) {
+        const slot = e.target && e.target.closest && (e.target.closest('#slot-2-4') || e.target.closest('.is-tool-git-vault'));
+        if (slot) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.openOnDemandToolModal === 'function') {
+                window.openOnDemandToolModal('git-vault');
+            }
+        }
+    }, true);
+    </script>
+
 </body></html>';
             } else if (kind === 'md') {
                 ext = 'md';
@@ -21379,6 +21409,21 @@ if (!headers_sent()) {
     })();
     </script>
 
+
+    <!-- Global Delegated Listener for Slot 2-4 (Circle 8 Git Vault) -->
+    <script>
+    document.addEventListener('click', function(e) {
+        const slot = e.target && e.target.closest && (e.target.closest('#slot-2-4') || e.target.closest('.is-tool-git-vault'));
+        if (slot) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.openOnDemandToolModal === 'function') {
+                window.openOnDemandToolModal('git-vault');
+            }
+        }
+    }, true);
+    </script>
+
 </body>\n</html>';
                 } else if (lang === 'typescript') {
                     adminPendingRow.platform_code_name = 'index.ts';
@@ -23128,6 +23173,21 @@ ${jsonPayload}
             window.open(whatsappUrl, '_blank');
         };
     })();
+    </script>
+
+
+    <!-- Global Delegated Listener for Slot 2-4 (Circle 8 Git Vault) -->
+    <script>
+    document.addEventListener('click', function(e) {
+        const slot = e.target && e.target.closest && (e.target.closest('#slot-2-4') || e.target.closest('.is-tool-git-vault'));
+        if (slot) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.openOnDemandToolModal === 'function') {
+                window.openOnDemandToolModal('git-vault');
+            }
+        }
+    }, true);
     </script>
 
 </body>

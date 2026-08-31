@@ -1669,10 +1669,27 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 const emptyMsg = document.createElement('div');
                 emptyMsg.className = 'pg-empty-box-msg';
                 emptyMsg.innerHTML = `
-                    <div style="font-size:28px; margin-bottom:8px;">📦</div>
+                    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:8px;">
+                        <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12,22 32,32 52,22 32,12" fill="#ffffff"/>
+                            <polyline points="12,22 12,46 32,56 32,32"/>
+                            <polyline points="52,22 52,46 32,56"/>
+                            <polygon points="12,22 4,16 24,8 32,12" fill="#ffffff"/>
+                            <polygon points="52,22 60,16 40,8 32,12" fill="#ffffff"/>
+                        </svg>
+                    </div>
                     <div style="font-weight:700; font-size:13px; color:#000000;">Caja V(x${activeCell.y + 1}) F(${activeCell.x}) Vacía</div>
                     <div style="font-size:11.5px; color:#555555; margin:6px 0 12px;">Esta caja no tiene archivos asignados.</div>
-                    <button type="button" class="tk-btn-action" style="margin:0 auto; padding:6px 14px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal(${activeCell.x}, ${activeCell.y})">📁 Asignar Archivos a esta Caja</button>
+                    <button type="button" class="tk-btn-action" style="margin:0 auto; padding:6px 14px; display:inline-flex; align-items:center; gap:6px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal(${activeCell.x}, ${activeCell.y})">
+                        <svg viewBox="0 0 64 64" width="16" height="16" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;">
+                            <polygon points="12,22 32,32 52,22 32,12" fill="#ffffff"/>
+                            <polyline points="12,22 12,46 32,56 32,32"/>
+                            <polyline points="52,22 52,46 32,56"/>
+                            <polygon points="12,22 4,16 24,8 32,12" fill="#ffffff"/>
+                            <polygon points="52,22 60,16 40,8 32,12" fill="#ffffff"/>
+                        </svg>
+                        <span>Asignar Archivos a esta Caja</span>
+                    </button>
                 `;
                 treeContainer.appendChild(emptyMsg);
                 return;

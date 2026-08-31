@@ -11035,7 +11035,16 @@ if (!headers_sent()) {
 
                 <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
                     <button type="button" class="tk-btn-action" style="padding:6px 14px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.closeFileAssignModal()">Cancelar</button>
-                    <button type="button" class="tk-btn-action" style="padding:6px 18px; font-weight:700; color:#000080;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.confirmFileAssignment()">📦 Asignar a Caja</button>
+                    <button type="button" class="tk-btn-action" style="padding:6px 18px; font-weight:700; color:#000080; display:inline-flex; align-items:center; gap:6px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.confirmFileAssignment()">
+                        <svg viewBox="0 0 64 64" width="16" height="16" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;">
+                            <polygon points="12,22 32,32 52,22 32,12" fill="#ffffff"/>
+                            <polyline points="12,22 12,46 32,56 32,32"/>
+                            <polyline points="52,22 52,46 32,56"/>
+                            <polygon points="12,22 4,16 24,8 32,12" fill="#ffffff"/>
+                            <polygon points="52,22 60,16 40,8 32,12" fill="#ffffff"/>
+                        </svg>
+                        <span>Asignar a Caja</span>
+                    </button>
                 </div>
             </div>
         </div>

@@ -83,12 +83,24 @@ if (!headers_sent()) {
             padding: 0;
         }
 
-        body {
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
             background-color: #ffffff;
             color: #000000;
             font-family: 'IBM Plex Mono', monospace, ui-monospace;
             font-size: 13px;
             -webkit-font-smoothing: antialiased;
+        }
+
+        .platform-shell {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .top-bar {
@@ -104,6 +116,9 @@ if (!headers_sent()) {
             position: sticky;
             top: 0;
             z-index: 10;
+            flex: 0 0 44px;
+            height: 44px;
+            box-sizing: border-box;
         }
 
         .left-controls {
@@ -3834,17 +3849,20 @@ if (!headers_sent()) {
            ========================================================================== */
         /* terminal-console */
         .main-container {
+            flex: 1 1 auto;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
-            padding: 16px 12px;
-            gap: 16px;
-            position: relative;
-            width: 100%;
-            max-width: 1261px;
+            padding: 0;
             margin: 0 auto;
+            width: 100%;
+            height: calc(100vh - 44px);
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
             background: transparent;
+            box-sizing: border-box;
         }
 
         /* top-output-bar (Celda de ejecucion (=) en Liquid Glass Blanco) */
@@ -4069,14 +4087,15 @@ if (!headers_sent()) {
             position: relative;
             width: 960px;
             height: 784px;
-            max-width: 100%;
-            margin: 12px auto 32px auto;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 60px);
+            margin: auto;
             background: #FFFFFF;
             border: 2px dashed #000000;
             box-shadow: 0px 16px 32px rgba(0, 0, 0, 0.0784314);
             border-radius: 24px;
             overflow: hidden;
-            flex: none;
+            flex-shrink: 0;
             order: 2;
             flex-grow: 0;
             z-index: 1;
@@ -10566,7 +10585,6 @@ if (!headers_sent()) {
             </nav>
         </div>
         <div class="top-bar-right" style="display:flex; align-items:center; gap:8px;">
-           <!-- CUIDADO: Asegúrate de escribir la letra 'l' minúscula al inicio, no el número '1' -->
 <button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="window.l8LogoutSession && window.l8LogoutSession()">
 
  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" aria-hidden="true" style="overflow:visible;">
@@ -11040,8 +11058,9 @@ if (!headers_sent()) {
                     </div>
                 </section>
             </div>
+        </div>
+    </div>
 
-            
     <!-- Tkinter File Selection & Coordinate Router Modal Dialog -->
     <div class="tk-modal-dialog-overlay" id="tkFileAssignModal">
         <div class="tk-dialog-box">
@@ -11298,21 +11317,6 @@ if (!headers_sent()) {
         </div>
     </div>
 
-
-            
-    
-    
-
-
-            <!-- Global Status Bar -->
-            <div class="tk-status-bar">
-                <div class="tk-status-left" id="tkGlobalStatusLeft">Ready</div>
-                <div class="tk-status-right" id="tkGlobalStatusRight">Lines: 10</div>
-            </div>
-        </div>
-    </div>
-
-
     <div class="main-container">
         <!-- Hidden stubs for compatibility -->
         <div id="executionContent" style="display:none;"></div>
@@ -11552,7 +11556,7 @@ if (!headers_sent()) {
     <polygon fill="none" stroke="#060000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="21.651,32.5 21.651,36.5 19.073,38.012 19.053,43.006 23.378,45.503 27.713,43 27.713,38.018 26.837,37.494 26.847,34.5 33.775,30.506 36.383,32.012 36.383,34.006 40.708,36.503 45.033,34.006 45.033,29.012 40.739,26.521 38.971,27.5 34.641,25 34.641,20.012 32.909,19.012 32.909,12.012 36.383,14 36.383,17.006 40.708,19.503 45.033,17.006 45.023,11.982 40.729,9.503 39.837,10 34.641,7 34.641,6.012 30.316,3.515 25.991,6.012 25.991,11.018 27.703,11.994 27.703,15.994 25.991,15.006 22.568,17.03 15.588,13 15.599,12.018 11.279,9.512 6.949,12.006 6.938,17.006 8.681,18.012 8.681,27.03 6.083,28.524 6.083,33.494 10.408,35.991 14.733,33.512 14.733,28.494 13.867,27.994 13.877,18.012 17.321,20 17.321,29.988"></polygon>
 </svg>
                         </div>
-                        <div class="tb-slot-badge" style="color:#000000; border-color:#000000; background:#FFFFFF; font-weight:700; pointer-events:none;">KRUMBS</div>
+                        <div class="tb-slot-badge" style="color:#000000; border-color:#000000; background:#FFFFFF; font-weight:700; pointer-events:none;">GRID 8x7</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>
@@ -11662,6 +11666,7 @@ if (!headers_sent()) {
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script src="toolkit/pdf-inspector/toolkit-pdf-md.js?v=2"></script>
@@ -12107,162 +12112,10 @@ if (!headers_sent()) {
   }
   code { font-family: inherit; }
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
 <header>l8 codespace · <strong>${title}</strong> · <span>${terminalEscapeHtml(lang)}</span></header>
 <pre><code class="language-${terminalEscapeHtml(lang)}">${body}</code></pre>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var logoutBtn = document.getElementById('topBarLogoutBtn');
-        if (logoutBtn) {
-            logoutBtn.onclick = function(e) {
-                if (e && e.preventDefault) e.preventDefault();
-                if (typeof window.l8LogoutSession === 'function') {
-                    window.l8LogoutSession();
-                } else {
-                    if (confirm('¿Cerrar sesión de la cuenta?')) {
-                        sessionStorage.clear();
-                        localStorage.removeItem('l8_session_token');
-                        localStorage.removeItem('l8_auth_account_id');
-                        window.location.reload();
-                    }
-                }
-            };
-        }
-    });
-    </script>
-
-
-    <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
-    <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
-        <div class="tk-pixel-window-card" id="tkPixelCard">
-            <!-- Pixel Titlebar -->
-            <div class="tk-px-titlebar">
-                <div class="tk-px-titlebar-highlight"></div>
-                <div class="tk-px-dashes">
-                    <div class="tk-px-dash"></div>
-                    <div class="tk-px-dash"></div>
-                    <div class="tk-px-dash"></div>
-                </div>
-                <div class="tk-px-dots">
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                </div>
-                <button type="button" class="tk-px-close-btn" onclick="closeOnDemandToolModal()" title="Cerrar">✕</button>
-            </div>
-
-            <!-- Pixel Body Content matching Exact Design -->
-            <div class="tk-px-body">
-                <div class="tk-px-text-line">ESTA HERRAMIENTA</div>
-                <div class="tk-px-text-line">SE LLAMA</div>
-                <div class="tk-px-tool-name" id="pxToolName">GIT VAULT</div>
-
-                <div class="tk-px-text-line">LA PUEDES OBTENER</div>
-                <div class="tk-px-text-line">PARA HACER MCP</div>
-                <div class="tk-px-text-line">SI NOS CONTACTAS</div>
-                <div class="tk-px-text-line">AL</div>
-
-                <div class="tk-px-whatsapp-row" id="pxWhatsAppBtn" onclick="sendOnDemandWhatsAppOrder()" title="Contactar por WhatsApp">
-                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" style="flex-shrink:0;">
-                        <path fill="#26AD61" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/>
-                    </svg>
-                    <span>WHATSAPP ...</span>
-                </div>
-
-                <div class="tk-px-text-line" style="margin-top:2px;">ESTA TIENE UN</div>
-                <div class="tk-px-text-line">VALOR DE</div>
-                <div class="tk-px-price-val" id="pxToolPrice">US$ 60.27</div>
-
-                <!-- Corner Curl -->
-                <div class="tk-px-corner-curl"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    (function() {
-        const ON_DEMAND_TOOL_DATA = {
-            'git-vault': {
-                id: 'git-vault',
-                name: 'GIT VAULT',
-                code: 'HASHCOD-GIT-08',
-                slot: 'Círculo #8 (Toolbox)',
-                price: 'US$ 60.27',
-                palette: {
-                    dark: '#D96B47',
-                    main: '#FF8C69',
-                    light: '#FFB899',
-                    highlight: '#FFE0D1'
-                }
-            }
-        };
-
-        let currentActiveToolId = 'git-vault';
-
-        window.openOnDemandToolModal = function(toolId) {
-            currentActiveToolId = toolId || 'git-vault';
-            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
-            const modal = document.getElementById('onDemandPixelModal');
-            const card = document.getElementById('tkPixelCard');
-            if (!modal || !card) return;
-
-            if (tool.palette) {
-                card.style.setProperty('--px-dark', tool.palette.dark);
-                card.style.setProperty('--px-main', tool.palette.main);
-                card.style.setProperty('--px-light', tool.palette.light);
-                card.style.setProperty('--px-highlight', tool.palette.highlight);
-            }
-
-            const nameEl = document.getElementById('pxToolName');
-            const priceEl = document.getElementById('pxToolPrice');
-
-            if (nameEl) nameEl.textContent = tool.name;
-            if (priceEl) priceEl.textContent = tool.price || '(PRECIO QUE TE DIRE)';
-
-            modal.style.display = 'flex';
-        };
-
-        window.closeOnDemandToolModal = function() {
-            const modal = document.getElementById('onDemandPixelModal');
-            if (modal) modal.style.display = 'none';
-        };
-
-        window.sendOnDemandWhatsAppOrder = function() {
-            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
-            const now = new Date();
-            const timestamp = now.toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            const refId = 'ORD-' + tool.code.replace('HASHCOD-', '') + '-' + Math.floor(1000 + Math.random() * 9000);
-
-            const messageText = '╔═════════════════════════════════════════════════════════╗\n║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║\n╚═════════════════════════════════════════════════════════╝\n\n*Artículo Solicitado:* ' + tool.name + '\n*Código Ref:* `' + tool.code + '`\n*Ubicación:* ' + tool.slot + '\n*Precio Ref:* ' + tool.price + '\n*Voucher:* `' + refId + '`\n*Fecha:* ' + timestamp + '\n\nHola, deseo obtener la herramienta ' + tool.name + ' para hacer MCP vía WhatsApp.';
-
-            const whatsappUrl = 'https://wa.me/18294721257?text=' + encodeURIComponent(messageText);
-            window.open(whatsappUrl, '_blank');
-        };
-    })();
-    </script>
-
-
-    <!-- Global Delegated Listener for Slot 2-4 (Circle 8 Git Vault) -->
-    <script>
-    document.addEventListener('click', function(e) {
-        const slot = e.target && e.target.closest && (e.target.closest('#slot-2-4') || e.target.closest('.is-tool-git-vault'));
-        if (slot) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof window.openOnDemandToolModal === 'function') {
-                window.openOnDemandToolModal('git-vault');
-            }
-        }
-    }, true);
-    </script>
-
 </body>
 </html>
 `;
@@ -16358,138 +16211,9 @@ if (!headers_sent()) {
                 mime = 'text/html;charset=utf-8';
                 body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
                     String(title).replace(/</g, '&lt;') +
-                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style><link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-</head><body><h1>' +
-                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '
-    <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
-    <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
-        <div class="tk-pixel-window-card" id="tkPixelCard">
-            <!-- Pixel Titlebar -->
-            <div class="tk-px-titlebar">
-                <div class="tk-px-titlebar-highlight"></div>
-                <div class="tk-px-dashes">
-                    <div class="tk-px-dash"></div>
-                    <div class="tk-px-dash"></div>
-                    <div class="tk-px-dash"></div>
-                </div>
-                <div class="tk-px-dots">
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                </div>
-                <button type="button" class="tk-px-close-btn" onclick="closeOnDemandToolModal()" title="Cerrar">✕</button>
-            </div>
-
-            <!-- Pixel Body Content matching Exact Design -->
-            <div class="tk-px-body">
-                <div class="tk-px-text-line">ESTA HERRAMIENTA</div>
-                <div class="tk-px-text-line">SE LLAMA</div>
-                <div class="tk-px-tool-name" id="pxToolName">GIT VAULT</div>
-
-                <div class="tk-px-text-line">LA PUEDES OBTENER</div>
-                <div class="tk-px-text-line">PARA HACER MCP</div>
-                <div class="tk-px-text-line">SI NOS CONTACTAS</div>
-                <div class="tk-px-text-line">AL</div>
-
-                <div class="tk-px-whatsapp-row" id="pxWhatsAppBtn" onclick="sendOnDemandWhatsAppOrder()" title="Contactar por WhatsApp">
-                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" style="flex-shrink:0;">
-                        <path fill="#26AD61" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/>
-                    </svg>
-                    <span>WHATSAPP ...</span>
-                </div>
-
-                <div class="tk-px-text-line" style="margin-top:2px;">ESTA TIENE UN</div>
-                <div class="tk-px-text-line">VALOR DE</div>
-                <div class="tk-px-price-val" id="pxToolPrice">US$ 60.27</div>
-
-                <!-- Corner Curl -->
-                <div class="tk-px-corner-curl"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    (function() {
-        const ON_DEMAND_TOOL_DATA = {
-            'git-vault': {
-                id: 'git-vault',
-                name: 'GIT VAULT',
-                code: 'HASHCOD-GIT-08',
-                slot: 'Círculo #8 (Toolbox)',
-                price: 'US$ 60.27',
-                palette: {
-                    dark: '#D96B47',
-                    main: '#FF8C69',
-                    light: '#FFB899',
-                    highlight: '#FFE0D1'
-                }
+                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style></head><body><h1>' +
+                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '</body></html>';
             }
-        };
-
-        let currentActiveToolId = 'git-vault';
-
-        window.openOnDemandToolModal = function(toolId) {
-            currentActiveToolId = toolId || 'git-vault';
-            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
-            const modal = document.getElementById('onDemandPixelModal');
-            const card = document.getElementById('tkPixelCard');
-            if (!modal || !card) return;
-
-            if (tool.palette) {
-                card.style.setProperty('--px-dark', tool.palette.dark);
-                card.style.setProperty('--px-main', tool.palette.main);
-                card.style.setProperty('--px-light', tool.palette.light);
-                card.style.setProperty('--px-highlight', tool.palette.highlight);
-            }
-
-            const nameEl = document.getElementById('pxToolName');
-            const priceEl = document.getElementById('pxToolPrice');
-
-            if (nameEl) nameEl.textContent = tool.name;
-            if (priceEl) priceEl.textContent = tool.price || '(PRECIO QUE TE DIRE)';
-
-            modal.style.display = 'flex';
-        };
-
-        window.closeOnDemandToolModal = function() {
-            const modal = document.getElementById('onDemandPixelModal');
-            if (modal) modal.style.display = 'none';
-        };
-
-        window.sendOnDemandWhatsAppOrder = function() {
-            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
-            const now = new Date();
-            const timestamp = now.toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            const refId = 'ORD-' + tool.code.replace('HASHCOD-', '') + '-' + Math.floor(1000 + Math.random() * 9000);
-
-            const messageText = '╔═════════════════════════════════════════════════════════╗\n║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║\n╚═════════════════════════════════════════════════════════╝\n\n*Artículo Solicitado:* ' + tool.name + '\n*Código Ref:* `' + tool.code + '`\n*Ubicación:* ' + tool.slot + '\n*Precio Ref:* ' + tool.price + '\n*Voucher:* `' + refId + '`\n*Fecha:* ' + timestamp + '\n\nHola, deseo obtener la herramienta ' + tool.name + ' para hacer MCP vía WhatsApp.';
-
-            const whatsappUrl = 'https://wa.me/18294721257?text=' + encodeURIComponent(messageText);
-            window.open(whatsappUrl, '_blank');
-        };
-    })();
-    </script>
-
-
-    <!-- Global Delegated Listener for Slot 2-4 (Circle 8 Git Vault) -->
-    <script>
-    document.addEventListener('click', function(e) {
-        const slot = e.target && e.target.closest && (e.target.closest('#slot-2-4') || e.target.closest('.is-tool-git-vault'));
-        if (slot) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof window.openOnDemandToolModal === 'function') {
-                window.openOnDemandToolModal('git-vault');
-            }
-        }
-    }, true);
-    </script>
-
-</body></html>';
             } else if (kind === 'md') {
                 ext = 'md';
                 mime = 'text/markdown;charset=utf-8';
@@ -20443,137 +20167,8 @@ if (!headers_sent()) {
                     if (!contentEl.value.trim()) contentEl.value = '# Python code for Hashcod platform\nimport streamlit as st\n\nst.title("Hashcod Codespace AI")\nst.write("Post-quantum quantum-resistant system initialized.")\n';
                 } else if (lang === 'html') {
                     adminPendingRow.platform_code_name = 'index.html';
-                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title><link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-</head>\n<body>\n<h1>Hashcod AI View</h1>\n
-    <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
-    <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
-        <div class="tk-pixel-window-card" id="tkPixelCard">
-            <!-- Pixel Titlebar -->
-            <div class="tk-px-titlebar">
-                <div class="tk-px-titlebar-highlight"></div>
-                <div class="tk-px-dashes">
-                    <div class="tk-px-dash"></div>
-                    <div class="tk-px-dash"></div>
-                    <div class="tk-px-dash"></div>
-                </div>
-                <div class="tk-px-dots">
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                </div>
-                <button type="button" class="tk-px-close-btn" onclick="closeOnDemandToolModal()" title="Cerrar">✕</button>
-            </div>
-
-            <!-- Pixel Body Content matching Exact Design -->
-            <div class="tk-px-body">
-                <div class="tk-px-text-line">ESTA HERRAMIENTA</div>
-                <div class="tk-px-text-line">SE LLAMA</div>
-                <div class="tk-px-tool-name" id="pxToolName">GIT VAULT</div>
-
-                <div class="tk-px-text-line">LA PUEDES OBTENER</div>
-                <div class="tk-px-text-line">PARA HACER MCP</div>
-                <div class="tk-px-text-line">SI NOS CONTACTAS</div>
-                <div class="tk-px-text-line">AL</div>
-
-                <div class="tk-px-whatsapp-row" id="pxWhatsAppBtn" onclick="sendOnDemandWhatsAppOrder()" title="Contactar por WhatsApp">
-                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" style="flex-shrink:0;">
-                        <path fill="#26AD61" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/>
-                    </svg>
-                    <span>WHATSAPP ...</span>
-                </div>
-
-                <div class="tk-px-text-line" style="margin-top:2px;">ESTA TIENE UN</div>
-                <div class="tk-px-text-line">VALOR DE</div>
-                <div class="tk-px-price-val" id="pxToolPrice">US$ 60.27</div>
-
-                <!-- Corner Curl -->
-                <div class="tk-px-corner-curl"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    (function() {
-        const ON_DEMAND_TOOL_DATA = {
-            'git-vault': {
-                id: 'git-vault',
-                name: 'GIT VAULT',
-                code: 'HASHCOD-GIT-08',
-                slot: 'Círculo #8 (Toolbox)',
-                price: 'US$ 60.27',
-                palette: {
-                    dark: '#D96B47',
-                    main: '#FF8C69',
-                    light: '#FFB899',
-                    highlight: '#FFE0D1'
+                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n<p>Post-quantum quantum-resistant system initialized.</p>\n</body>\n</html>';
                 }
-            }
-        };
-
-        let currentActiveToolId = 'git-vault';
-
-        window.openOnDemandToolModal = function(toolId) {
-            currentActiveToolId = toolId || 'git-vault';
-            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
-            const modal = document.getElementById('onDemandPixelModal');
-            const card = document.getElementById('tkPixelCard');
-            if (!modal || !card) return;
-
-            if (tool.palette) {
-                card.style.setProperty('--px-dark', tool.palette.dark);
-                card.style.setProperty('--px-main', tool.palette.main);
-                card.style.setProperty('--px-light', tool.palette.light);
-                card.style.setProperty('--px-highlight', tool.palette.highlight);
-            }
-
-            const nameEl = document.getElementById('pxToolName');
-            const priceEl = document.getElementById('pxToolPrice');
-
-            if (nameEl) nameEl.textContent = tool.name;
-            if (priceEl) priceEl.textContent = tool.price || '(PRECIO QUE TE DIRE)';
-
-            modal.style.display = 'flex';
-        };
-
-        window.closeOnDemandToolModal = function() {
-            const modal = document.getElementById('onDemandPixelModal');
-            if (modal) modal.style.display = 'none';
-        };
-
-        window.sendOnDemandWhatsAppOrder = function() {
-            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
-            const now = new Date();
-            const timestamp = now.toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            const refId = 'ORD-' + tool.code.replace('HASHCOD-', '') + '-' + Math.floor(1000 + Math.random() * 9000);
-
-            const messageText = '╔═════════════════════════════════════════════════════════╗\n║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║\n╚═════════════════════════════════════════════════════════╝\n\n*Artículo Solicitado:* ' + tool.name + '\n*Código Ref:* `' + tool.code + '`\n*Ubicación:* ' + tool.slot + '\n*Precio Ref:* ' + tool.price + '\n*Voucher:* `' + refId + '`\n*Fecha:* ' + timestamp + '\n\nHola, deseo obtener la herramienta ' + tool.name + ' para hacer MCP vía WhatsApp.';
-
-            const whatsappUrl = 'https://wa.me/18294721257?text=' + encodeURIComponent(messageText);
-            window.open(whatsappUrl, '_blank');
-        };
-    })();
-    </script>
-
-
-    <!-- Global Delegated Listener for Slot 2-4 (Circle 8 Git Vault) -->
-    <script>
-    document.addEventListener('click', function(e) {
-        const slot = e.target && e.target.closest && (e.target.closest('#slot-2-4') || e.target.closest('.is-tool-git-vault'));
-        if (slot) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof window.openOnDemandToolModal === 'function') {
-                window.openOnDemandToolModal('git-vault');
-            }
-        }
-    }, true);
-    </script>
-
-</body>\n</html>';
                 } else if (lang === 'typescript') {
                     adminPendingRow.platform_code_name = 'index.ts';
                     if (!contentEl.value.trim()) contentEl.value = 'export const platform = "Hashcod";\nexport function computeQuantumHash(data: string): string {\n    return `SPHINCS+:${data}`;\n}\n';

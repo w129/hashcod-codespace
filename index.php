@@ -9909,6 +9909,9 @@ if (!headers_sent()) {
         setInterval(window.renderTurnstileWidgets, 500);
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 </head>
 <body class="boot-locked">
     <script>
@@ -12897,6 +12900,9 @@ if (!headers_sent()) {
   }
   code { font-family: inherit; }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
 <header>l8 codespace · <strong>${title}</strong> · <span>${terminalEscapeHtml(lang)}</span></header>
@@ -17130,7 +17136,10 @@ if (!headers_sent()) {
                 mime = 'text/html;charset=utf-8';
                 body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
                     String(title).replace(/</g, '&lt;') +
-                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style></head><body><h1>' +
+                    '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+</head><body><h1>' +
                     String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '
     <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
     <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
@@ -21199,7 +21208,10 @@ if (!headers_sent()) {
                     if (!contentEl.value.trim()) contentEl.value = '# Python code for Hashcod platform\nimport streamlit as st\n\nst.title("Hashcod Codespace AI")\nst.write("Post-quantum quantum-resistant system initialized.")\n';
                 } else if (lang === 'html') {
                     adminPendingRow.platform_code_name = 'index.html';
-                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n
+                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+</head>\n<body>\n<h1>Hashcod AI View</h1>\n
     <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
     <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
         <div class="tk-pixel-window-card" id="tkPixelCard">
@@ -22831,8 +22843,6 @@ ${jsonPayload}
             const enterBtn = document.getElementById('bootCliEnter');
             if (!overlay || !enterBtn) return;
 
-            const COMMAND = 'bunx --bun originkit@latest add blackhole';
-            let finished = false;
             let blackholeInstance = null;
 
             function presentBlackholeVisual() {
@@ -22845,58 +22855,68 @@ ${jsonPayload}
                         if (window.OriginkitBlackHole) {
                             clearInterval(checkTimer);
                             presentBlackholeVisual();
-                        } else if (attempts > 30) {
+                        } else if (attempts > 50) {
                             clearInterval(checkTimer);
                         }
                     }, 50);
                     return;
                 }
-                if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
-                const wide = window.innerWidth > 720;
-                blackholeInstance = window.OriginkitBlackHole.create(canvas, {
-                    showCenter: true,
-                    // sit left on desktop so brand fits cleanly on the right
-                    centre: { radius: 8, x: wide ? 38 : 50, y: wide ? 54 : 46 },
-                    background: '#ffffff',
-                    outerRadius: wide ? 78 : 82,
-                    particleCount: 2400,
-                    particleSize: 1.9,
-                    trail: 82,
-                    tilt: 70,
-                    tiltSideway: 12,
-                    orbitSpeed: 1.15,
-                    pullSpeed: 0.06,
-                    armCount: 9,
-                    colors: ['#111111', '#1a1a1a', '#2e2e2e', '#3d3d3d', '#555555', '#6a6a6a', '#888888', '#222222']
-                });
-                setTimeout(() => blackholeInstance && blackholeInstance.resize && blackholeInstance.resize(), 30);
+                try {
+                    if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
+                    const wide = window.innerWidth > 720;
+                    blackholeInstance = window.OriginkitBlackHole.create(canvas, {
+                        showCenter: true,
+                        centre: { radius: 8, x: wide ? 38 : 50, y: wide ? 54 : 46 },
+                        background: '#ffffff',
+                        outerRadius: wide ? 78 : 82,
+                        particleCount: 2400,
+                        particleSize: 1.9,
+                        trail: 82,
+                        tilt: 70,
+                        tiltSideway: 12,
+                        orbitSpeed: 1.15,
+                        pullSpeed: 0.06,
+                        armCount: 9,
+                        colors: ['#111111', '#1a1a1a', '#2e2e2e', '#3d3d3d', '#555555', '#6a6a6a', '#888888', '#222222']
+                    });
+                    setTimeout(() => blackholeInstance && blackholeInstance.resize && blackholeInstance.resize(), 30);
+                } catch (e) {
+                    console.warn('Blackhole visual init error:', e);
+                }
             }
 
             function markReady() {
-                finished = true;
-                enterBtn.classList.add('ready');
-                hintEl.textContent = 'Ready — click Enter platform to proceed';
+                if (enterBtn) enterBtn.classList.add('ready');
+                if (hintEl) hintEl.textContent = 'Ready — click Enter platform to proceed';
             }
 
             async function enterPlatform() {
-                if (!finished) return;
-                if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
-                overlay.classList.add('hidden');
+                if (blackholeInstance && blackholeInstance.stop) {
+                    try { blackholeInstance.stop(); } catch (e) {}
+                }
+                if (overlay) overlay.classList.add('hidden');
                 try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}
 
-                // Tras Enter: auth gate. Plataforma oculta hasta login/registro.
-                const ok = (typeof window.l8CheckAuthSession === 'function')
-                    ? await window.l8CheckAuthSession()
-                    : false;
+                document.body.classList.remove('boot-locked');
+
+                let ok = false;
+                try {
+                    ok = (typeof window.l8CheckAuthSession === 'function')
+                        ? await window.l8CheckAuthSession()
+                        : false;
+                } catch (e) {
+                    console.warn('Check auth session:', e);
+                }
+
                 if (ok) {
                     if (typeof window.l8UnlockPlatform === 'function') window.l8UnlockPlatform();
                     else {
-                        document.body.classList.remove('boot-locked');
                         document.body.classList.remove('auth-locked');
                         if (typeof restorePlatformState === 'function') restorePlatformState();
                     }
                     return;
                 }
+
                 if (typeof window.l8ShowAuthGate === 'function') {
                     window.l8ShowAuthGate();
                 } else {
@@ -22906,23 +22926,16 @@ ${jsonPayload}
 
             enterBtn.addEventListener('click', enterPlatform);
             window.addEventListener('keydown', (e) => {
-                if (!finished || overlay.classList.contains('hidden')) return;
+                if (overlay && overlay.classList.contains('hidden')) return;
                 if (e.key === 'Enter' || e.key === 'Escape') {
                     e.preventDefault();
                     enterPlatform();
                 }
             });
 
-            // Show drawing immediately; install runs quietly in the background.
+            // Instant readiness
             presentBlackholeVisual();
-            hintEl.textContent = 'blackhole…';
-            setTimeout(markReady, 700);
-
-            fetch('/api/cli/blackhole', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: COMMAND })
-            }).catch(function () { /* visual already running */ });
+            markReady();
         })();
     </script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>

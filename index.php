@@ -11242,54 +11242,7 @@ if (!headers_sent()) {
 
             
     
-    <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools) -->
-    <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" onclick="if(event.target===this) window.closeOnDemandToolModal && window.closeOnDemandToolModal()">
-        <div class="tk-pixel-window-card" id="tkPixelCard">
-            <!-- Pixel Titlebar -->
-            <div class="tk-px-titlebar">
-                <div class="tk-px-titlebar-highlight"></div>
-                <div class="tk-px-dashes">
-                    <div class="tk-px-dash"></div>
-                    <div class="tk-px-dash"></div>
-                    <div class="tk-px-dash"></div>
-                </div>
-                <div class="tk-px-dots">
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                    <div class="tk-px-dot"></div>
-                </div>
-                <button type="button" class="tk-px-close-btn" onclick="window.closeOnDemandToolModal && window.closeOnDemandToolModal()" title="Cerrar">✕</button>
-            </div>
-
-            <!-- Pixel Body Content matching Exact Design -->
-            <div class="tk-px-body">
-                <div class="tk-px-text-line">ESTA HERRAMIENTA</div>
-                <div class="tk-px-text-line">SE LLAMA</div>
-                <div class="tk-px-tool-name" id="pxToolName">(NOMBRE DE LA HERRAMIENTA)</div>
-
-                <div class="tk-px-text-line">LA PUEDES OBTENER</div>
-                <div class="tk-px-text-line">PARA HACER MCP</div>
-                <div class="tk-px-text-line">SI NOS CONTACTAS</div>
-                <div class="tk-px-text-line">AL</div>
-
-                <div class="tk-px-whatsapp-row" id="pxWhatsAppBtn" onclick="window.sendOnDemandWhatsAppOrder && window.sendOnDemandWhatsAppOrder()" title="Contactar por WhatsApp">
-                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" style="flex-shrink:0;">
-                        <path fill="#26AD61" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/>
-                    </svg>
-                    <span>WHATSAPP ...</span>
-                </div>
-
-                <div class="tk-px-text-line" style="margin-top:2px;">ESTA TIENE UN</div>
-                <div class="tk-px-text-line">VALOR DE</div>
-                <div class="tk-px-price-val" id="pxToolPrice">(PRECIO QUE TE DIRE)</div>
-
-                <!-- Corner Curl -->
-                <div class="tk-px-corner-curl"></div>
-            </div>
-        </div>
-    </div>
+    
 
 
             <!-- Global Status Bar -->
@@ -12968,6 +12921,118 @@ if (!headers_sent()) {
             };
         }
     });
+    </script>
+
+
+    <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
+    <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
+        <div class="tk-pixel-window-card" id="tkPixelCard">
+            <!-- Pixel Titlebar -->
+            <div class="tk-px-titlebar">
+                <div class="tk-px-titlebar-highlight"></div>
+                <div class="tk-px-dashes">
+                    <div class="tk-px-dash"></div>
+                    <div class="tk-px-dash"></div>
+                    <div class="tk-px-dash"></div>
+                </div>
+                <div class="tk-px-dots">
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                </div>
+                <button type="button" class="tk-px-close-btn" onclick="closeOnDemandToolModal()" title="Cerrar">✕</button>
+            </div>
+
+            <!-- Pixel Body Content matching Exact Design -->
+            <div class="tk-px-body">
+                <div class="tk-px-text-line">ESTA HERRAMIENTA</div>
+                <div class="tk-px-text-line">SE LLAMA</div>
+                <div class="tk-px-tool-name" id="pxToolName">GIT VAULT</div>
+
+                <div class="tk-px-text-line">LA PUEDES OBTENER</div>
+                <div class="tk-px-text-line">PARA HACER MCP</div>
+                <div class="tk-px-text-line">SI NOS CONTACTAS</div>
+                <div class="tk-px-text-line">AL</div>
+
+                <div class="tk-px-whatsapp-row" id="pxWhatsAppBtn" onclick="sendOnDemandWhatsAppOrder()" title="Contactar por WhatsApp">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" style="flex-shrink:0;">
+                        <path fill="#26AD61" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/>
+                    </svg>
+                    <span>WHATSAPP ...</span>
+                </div>
+
+                <div class="tk-px-text-line" style="margin-top:2px;">ESTA TIENE UN</div>
+                <div class="tk-px-text-line">VALOR DE</div>
+                <div class="tk-px-price-val" id="pxToolPrice">US$ 60.27</div>
+
+                <!-- Corner Curl -->
+                <div class="tk-px-corner-curl"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const ON_DEMAND_TOOL_DATA = {
+            'git-vault': {
+                id: 'git-vault',
+                name: 'GIT VAULT',
+                code: 'HASHCOD-GIT-08',
+                slot: 'Círculo #8 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#D96B47',
+                    main: '#FF8C69',
+                    light: '#FFB899',
+                    highlight: '#FFE0D1'
+                }
+            }
+        };
+
+        let currentActiveToolId = 'git-vault';
+
+        window.openOnDemandToolModal = function(toolId) {
+            currentActiveToolId = toolId || 'git-vault';
+            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
+            const modal = document.getElementById('onDemandPixelModal');
+            const card = document.getElementById('tkPixelCard');
+            if (!modal || !card) return;
+
+            if (tool.palette) {
+                card.style.setProperty('--px-dark', tool.palette.dark);
+                card.style.setProperty('--px-main', tool.palette.main);
+                card.style.setProperty('--px-light', tool.palette.light);
+                card.style.setProperty('--px-highlight', tool.palette.highlight);
+            }
+
+            const nameEl = document.getElementById('pxToolName');
+            const priceEl = document.getElementById('pxToolPrice');
+
+            if (nameEl) nameEl.textContent = tool.name;
+            if (priceEl) priceEl.textContent = tool.price || '(PRECIO QUE TE DIRE)';
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeOnDemandToolModal = function() {
+            const modal = document.getElementById('onDemandPixelModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.sendOnDemandWhatsAppOrder = function() {
+            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
+            const now = new Date();
+            const timestamp = now.toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const refId = 'ORD-' + tool.code.replace('HASHCOD-', '') + '-' + Math.floor(1000 + Math.random() * 9000);
+
+            const messageText = '╔═════════════════════════════════════════════════════════╗\n║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║\n╚═════════════════════════════════════════════════════════╝\n\n*Artículo Solicitado:* ' + tool.name + '\n*Código Ref:* `' + tool.code + '`\n*Ubicación:* ' + tool.slot + '\n*Precio Ref:* ' + tool.price + '\n*Voucher:* `' + refId + '`\n*Fecha:* ' + timestamp + '\n\nHola, deseo obtener la herramienta ' + tool.name + ' para hacer MCP vía WhatsApp.';
+
+            const whatsappUrl = 'https://wa.me/18294721257?text=' + encodeURIComponent(messageText);
+            window.open(whatsappUrl, '_blank');
+        };
+    })();
     </script>
 
 </body>
@@ -17066,7 +17131,119 @@ if (!headers_sent()) {
                 body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
                     String(title).replace(/</g, '&lt;') +
                     '</title><style>body{font-family:IBM Plex Mono,ui-monospace,monospace;max-width:820px;margin:32px auto;padding:0 16px;line-height:1.55;color:#111;background:#fff}pre{background:#f4f4f4;padding:12px;overflow:auto}</style></head><body><h1>' +
-                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '</body></html>';
+                    String(title).replace(/</g, '&lt;') + '</h1>' + (note.html || '') + '
+    <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
+    <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
+        <div class="tk-pixel-window-card" id="tkPixelCard">
+            <!-- Pixel Titlebar -->
+            <div class="tk-px-titlebar">
+                <div class="tk-px-titlebar-highlight"></div>
+                <div class="tk-px-dashes">
+                    <div class="tk-px-dash"></div>
+                    <div class="tk-px-dash"></div>
+                    <div class="tk-px-dash"></div>
+                </div>
+                <div class="tk-px-dots">
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                </div>
+                <button type="button" class="tk-px-close-btn" onclick="closeOnDemandToolModal()" title="Cerrar">✕</button>
+            </div>
+
+            <!-- Pixel Body Content matching Exact Design -->
+            <div class="tk-px-body">
+                <div class="tk-px-text-line">ESTA HERRAMIENTA</div>
+                <div class="tk-px-text-line">SE LLAMA</div>
+                <div class="tk-px-tool-name" id="pxToolName">GIT VAULT</div>
+
+                <div class="tk-px-text-line">LA PUEDES OBTENER</div>
+                <div class="tk-px-text-line">PARA HACER MCP</div>
+                <div class="tk-px-text-line">SI NOS CONTACTAS</div>
+                <div class="tk-px-text-line">AL</div>
+
+                <div class="tk-px-whatsapp-row" id="pxWhatsAppBtn" onclick="sendOnDemandWhatsAppOrder()" title="Contactar por WhatsApp">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" style="flex-shrink:0;">
+                        <path fill="#26AD61" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/>
+                    </svg>
+                    <span>WHATSAPP ...</span>
+                </div>
+
+                <div class="tk-px-text-line" style="margin-top:2px;">ESTA TIENE UN</div>
+                <div class="tk-px-text-line">VALOR DE</div>
+                <div class="tk-px-price-val" id="pxToolPrice">US$ 60.27</div>
+
+                <!-- Corner Curl -->
+                <div class="tk-px-corner-curl"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const ON_DEMAND_TOOL_DATA = {
+            'git-vault': {
+                id: 'git-vault',
+                name: 'GIT VAULT',
+                code: 'HASHCOD-GIT-08',
+                slot: 'Círculo #8 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#D96B47',
+                    main: '#FF8C69',
+                    light: '#FFB899',
+                    highlight: '#FFE0D1'
+                }
+            }
+        };
+
+        let currentActiveToolId = 'git-vault';
+
+        window.openOnDemandToolModal = function(toolId) {
+            currentActiveToolId = toolId || 'git-vault';
+            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
+            const modal = document.getElementById('onDemandPixelModal');
+            const card = document.getElementById('tkPixelCard');
+            if (!modal || !card) return;
+
+            if (tool.palette) {
+                card.style.setProperty('--px-dark', tool.palette.dark);
+                card.style.setProperty('--px-main', tool.palette.main);
+                card.style.setProperty('--px-light', tool.palette.light);
+                card.style.setProperty('--px-highlight', tool.palette.highlight);
+            }
+
+            const nameEl = document.getElementById('pxToolName');
+            const priceEl = document.getElementById('pxToolPrice');
+
+            if (nameEl) nameEl.textContent = tool.name;
+            if (priceEl) priceEl.textContent = tool.price || '(PRECIO QUE TE DIRE)';
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeOnDemandToolModal = function() {
+            const modal = document.getElementById('onDemandPixelModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.sendOnDemandWhatsAppOrder = function() {
+            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
+            const now = new Date();
+            const timestamp = now.toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const refId = 'ORD-' + tool.code.replace('HASHCOD-', '') + '-' + Math.floor(1000 + Math.random() * 9000);
+
+            const messageText = '╔═════════════════════════════════════════════════════════╗\n║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║\n╚═════════════════════════════════════════════════════════╝\n\n*Artículo Solicitado:* ' + tool.name + '\n*Código Ref:* `' + tool.code + '`\n*Ubicación:* ' + tool.slot + '\n*Precio Ref:* ' + tool.price + '\n*Voucher:* `' + refId + '`\n*Fecha:* ' + timestamp + '\n\nHola, deseo obtener la herramienta ' + tool.name + ' para hacer MCP vía WhatsApp.';
+
+            const whatsappUrl = 'https://wa.me/18294721257?text=' + encodeURIComponent(messageText);
+            window.open(whatsappUrl, '_blank');
+        };
+    })();
+    </script>
+
+</body></html>';
             } else if (kind === 'md') {
                 ext = 'md';
                 mime = 'text/markdown;charset=utf-8';
@@ -21022,7 +21199,119 @@ if (!headers_sent()) {
                     if (!contentEl.value.trim()) contentEl.value = '# Python code for Hashcod platform\nimport streamlit as st\n\nst.title("Hashcod Codespace AI")\nst.write("Post-quantum quantum-resistant system initialized.")\n';
                 } else if (lang === 'html') {
                     adminPendingRow.platform_code_name = 'index.html';
-                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n</body>\n</html>';
+                    if (!contentEl.value.trim()) contentEl.value = '<!DOCTYPE html>\n<html>\n<head><title>Hashcod AI</title></head>\n<body>\n<h1>Hashcod AI View</h1>\n
+    <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
+    <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
+        <div class="tk-pixel-window-card" id="tkPixelCard">
+            <!-- Pixel Titlebar -->
+            <div class="tk-px-titlebar">
+                <div class="tk-px-titlebar-highlight"></div>
+                <div class="tk-px-dashes">
+                    <div class="tk-px-dash"></div>
+                    <div class="tk-px-dash"></div>
+                    <div class="tk-px-dash"></div>
+                </div>
+                <div class="tk-px-dots">
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                </div>
+                <button type="button" class="tk-px-close-btn" onclick="closeOnDemandToolModal()" title="Cerrar">✕</button>
+            </div>
+
+            <!-- Pixel Body Content matching Exact Design -->
+            <div class="tk-px-body">
+                <div class="tk-px-text-line">ESTA HERRAMIENTA</div>
+                <div class="tk-px-text-line">SE LLAMA</div>
+                <div class="tk-px-tool-name" id="pxToolName">GIT VAULT</div>
+
+                <div class="tk-px-text-line">LA PUEDES OBTENER</div>
+                <div class="tk-px-text-line">PARA HACER MCP</div>
+                <div class="tk-px-text-line">SI NOS CONTACTAS</div>
+                <div class="tk-px-text-line">AL</div>
+
+                <div class="tk-px-whatsapp-row" id="pxWhatsAppBtn" onclick="sendOnDemandWhatsAppOrder()" title="Contactar por WhatsApp">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" style="flex-shrink:0;">
+                        <path fill="#26AD61" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/>
+                    </svg>
+                    <span>WHATSAPP ...</span>
+                </div>
+
+                <div class="tk-px-text-line" style="margin-top:2px;">ESTA TIENE UN</div>
+                <div class="tk-px-text-line">VALOR DE</div>
+                <div class="tk-px-price-val" id="pxToolPrice">US$ 60.27</div>
+
+                <!-- Corner Curl -->
+                <div class="tk-px-corner-curl"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const ON_DEMAND_TOOL_DATA = {
+            'git-vault': {
+                id: 'git-vault',
+                name: 'GIT VAULT',
+                code: 'HASHCOD-GIT-08',
+                slot: 'Círculo #8 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#D96B47',
+                    main: '#FF8C69',
+                    light: '#FFB899',
+                    highlight: '#FFE0D1'
+                }
+            }
+        };
+
+        let currentActiveToolId = 'git-vault';
+
+        window.openOnDemandToolModal = function(toolId) {
+            currentActiveToolId = toolId || 'git-vault';
+            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
+            const modal = document.getElementById('onDemandPixelModal');
+            const card = document.getElementById('tkPixelCard');
+            if (!modal || !card) return;
+
+            if (tool.palette) {
+                card.style.setProperty('--px-dark', tool.palette.dark);
+                card.style.setProperty('--px-main', tool.palette.main);
+                card.style.setProperty('--px-light', tool.palette.light);
+                card.style.setProperty('--px-highlight', tool.palette.highlight);
+            }
+
+            const nameEl = document.getElementById('pxToolName');
+            const priceEl = document.getElementById('pxToolPrice');
+
+            if (nameEl) nameEl.textContent = tool.name;
+            if (priceEl) priceEl.textContent = tool.price || '(PRECIO QUE TE DIRE)';
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeOnDemandToolModal = function() {
+            const modal = document.getElementById('onDemandPixelModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.sendOnDemandWhatsAppOrder = function() {
+            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
+            const now = new Date();
+            const timestamp = now.toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const refId = 'ORD-' + tool.code.replace('HASHCOD-', '') + '-' + Math.floor(1000 + Math.random() * 9000);
+
+            const messageText = '╔═════════════════════════════════════════════════════════╗\n║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║\n╚═════════════════════════════════════════════════════════╝\n\n*Artículo Solicitado:* ' + tool.name + '\n*Código Ref:* `' + tool.code + '`\n*Ubicación:* ' + tool.slot + '\n*Precio Ref:* ' + tool.price + '\n*Voucher:* `' + refId + '`\n*Fecha:* ' + timestamp + '\n\nHola, deseo obtener la herramienta ' + tool.name + ' para hacer MCP vía WhatsApp.';
+
+            const whatsappUrl = 'https://wa.me/18294721257?text=' + encodeURIComponent(messageText);
+            window.open(whatsappUrl, '_blank');
+        };
+    })();
+    </script>
+
+</body>\n</html>';
                 } else if (lang === 'typescript') {
                     adminPendingRow.platform_code_name = 'index.ts';
                     if (!contentEl.value.trim()) contentEl.value = 'export const platform = "Hashcod";\nexport function computeQuantumHash(data: string): string {\n    return `SPHINCS+:${data}`;\n}\n';
@@ -22660,5 +22949,117 @@ ${jsonPayload}
         }
     }, true);
     </script>
+
+    <!-- Retro 8-Bit Pixel Window Modal Dialog (On-Demand Tools - Root Level) -->
+    <div class="tk-pixel-modal-overlay" id="onDemandPixelModal" style="display:none; z-index:100050;" onclick="if(event.target===this) closeOnDemandToolModal();">
+        <div class="tk-pixel-window-card" id="tkPixelCard">
+            <!-- Pixel Titlebar -->
+            <div class="tk-px-titlebar">
+                <div class="tk-px-titlebar-highlight"></div>
+                <div class="tk-px-dashes">
+                    <div class="tk-px-dash"></div>
+                    <div class="tk-px-dash"></div>
+                    <div class="tk-px-dash"></div>
+                </div>
+                <div class="tk-px-dots">
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                    <div class="tk-px-dot"></div>
+                </div>
+                <button type="button" class="tk-px-close-btn" onclick="closeOnDemandToolModal()" title="Cerrar">✕</button>
+            </div>
+
+            <!-- Pixel Body Content matching Exact Design -->
+            <div class="tk-px-body">
+                <div class="tk-px-text-line">ESTA HERRAMIENTA</div>
+                <div class="tk-px-text-line">SE LLAMA</div>
+                <div class="tk-px-tool-name" id="pxToolName">GIT VAULT</div>
+
+                <div class="tk-px-text-line">LA PUEDES OBTENER</div>
+                <div class="tk-px-text-line">PARA HACER MCP</div>
+                <div class="tk-px-text-line">SI NOS CONTACTAS</div>
+                <div class="tk-px-text-line">AL</div>
+
+                <div class="tk-px-whatsapp-row" id="pxWhatsAppBtn" onclick="sendOnDemandWhatsAppOrder()" title="Contactar por WhatsApp">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" style="flex-shrink:0;">
+                        <path fill="#26AD61" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z"/>
+                    </svg>
+                    <span>WHATSAPP ...</span>
+                </div>
+
+                <div class="tk-px-text-line" style="margin-top:2px;">ESTA TIENE UN</div>
+                <div class="tk-px-text-line">VALOR DE</div>
+                <div class="tk-px-price-val" id="pxToolPrice">US$ 60.27</div>
+
+                <!-- Corner Curl -->
+                <div class="tk-px-corner-curl"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const ON_DEMAND_TOOL_DATA = {
+            'git-vault': {
+                id: 'git-vault',
+                name: 'GIT VAULT',
+                code: 'HASHCOD-GIT-08',
+                slot: 'Círculo #8 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#D96B47',
+                    main: '#FF8C69',
+                    light: '#FFB899',
+                    highlight: '#FFE0D1'
+                }
+            }
+        };
+
+        let currentActiveToolId = 'git-vault';
+
+        window.openOnDemandToolModal = function(toolId) {
+            currentActiveToolId = toolId || 'git-vault';
+            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
+            const modal = document.getElementById('onDemandPixelModal');
+            const card = document.getElementById('tkPixelCard');
+            if (!modal || !card) return;
+
+            if (tool.palette) {
+                card.style.setProperty('--px-dark', tool.palette.dark);
+                card.style.setProperty('--px-main', tool.palette.main);
+                card.style.setProperty('--px-light', tool.palette.light);
+                card.style.setProperty('--px-highlight', tool.palette.highlight);
+            }
+
+            const nameEl = document.getElementById('pxToolName');
+            const priceEl = document.getElementById('pxToolPrice');
+
+            if (nameEl) nameEl.textContent = tool.name;
+            if (priceEl) priceEl.textContent = tool.price || '(PRECIO QUE TE DIRE)';
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeOnDemandToolModal = function() {
+            const modal = document.getElementById('onDemandPixelModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.sendOnDemandWhatsAppOrder = function() {
+            const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
+            const now = new Date();
+            const timestamp = now.toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const refId = 'ORD-' + tool.code.replace('HASHCOD-', '') + '-' + Math.floor(1000 + Math.random() * 9000);
+
+            const messageText = '╔═════════════════════════════════════════════════════════╗\n║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║\n╚═════════════════════════════════════════════════════════╝\n\n*Artículo Solicitado:* ' + tool.name + '\n*Código Ref:* `' + tool.code + '`\n*Ubicación:* ' + tool.slot + '\n*Precio Ref:* ' + tool.price + '\n*Voucher:* `' + refId + '`\n*Fecha:* ' + timestamp + '\n\nHola, deseo obtener la herramienta ' + tool.name + ' para hacer MCP vía WhatsApp.';
+
+            const whatsappUrl = 'https://wa.me/18294721257?text=' + encodeURIComponent(messageText);
+            window.open(whatsappUrl, '_blank');
+        };
+    })();
+    </script>
+
 </body>
 </html>

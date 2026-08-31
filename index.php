@@ -4076,9 +4076,13 @@ if (!headers_sent()) {
            TOOLBOX PANEL (4x4 INTERACTIVE MATRIX & ABSTRACT SCHEMATIC SPECIFICATION)
            ========================================================================== */
         /* toolbox-panel */
+        .toolbox-panel.active {
+            display: flex !important;
+        }
+
         .toolbox-panel {
             box-sizing: border-box;
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -4317,7 +4321,11 @@ if (!headers_sent()) {
         .tb-corner-dot.d-br { left: 116px; top: 116px; }
 
         @media (max-width: 990px) {
-            .toolbox-panel {
+            .toolbox-panel.active {
+            display: flex !important;
+        }
+
+        .toolbox-panel {
                 width: 100%;
                 height: auto;
                 padding: 32px 16px;
@@ -11764,6 +11772,7 @@ if (!headers_sent()) {
                     </div>
                 </div>
             </div>
+        </div>
 
         <!-- Panel Toolbox 2 -->
         <div class="toolbox-panel" id="toolboxPanel2" data-toolbox-page="2" style="display:none;">
@@ -11958,6 +11967,7 @@ if (!headers_sent()) {
                 </div>
             </div>
         </div>
+
         <!-- Panel Toolbox 3 -->
         <div class="toolbox-panel" id="toolboxPanel3" data-toolbox-page="3" style="display:none;">
             <div class="toolbox-abstract-bg">
@@ -12151,6 +12161,7 @@ if (!headers_sent()) {
                 </div>
             </div>
         </div>
+
         <!-- Panel Toolbox 4 -->
         <div class="toolbox-panel" id="toolboxPanel4" data-toolbox-page="4" style="display:none;">
             <div class="toolbox-abstract-bg">
@@ -12344,7 +12355,6 @@ if (!headers_sent()) {
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <script src="toolkit/pdf-inspector/toolkit-pdf-md.js?v=2"></script>

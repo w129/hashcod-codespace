@@ -21,9 +21,9 @@ function cfSanitizeKey($val) {
 }
 
 function cfTurnstileConfig() {
-    // 1. Claves maestras por defecto para Hashcod Codespace
-    $siteKey = '0x4AAAAAAEfpecWchE9q2-cs';
-    $secretKey = '0x4AAAAAAEfpefehY9pZh507cWEuXnDN04k';
+    // 1. Claves resueltas dinámicamente para Hashcod Codespace
+    $siteKey = '';
+    $secretKey = '';
 
     // 2. Cargar archivo .env si existe
     if (function_exists('loadEnvFile')) {
@@ -328,7 +328,7 @@ function cfTurnstileHandleApi($uri) {
             $clearance = cfGenerateClearanceToken();
             $res['clearance_token'] = $clearance;
             if (!headers_sent()) {
-                header('Set-Cookie: cf_clearance=' . $clearance . '; Path=/; Max-Age=900; HttpOnly; SameSite=Lax');
+                header('Set-Cookie: cf_clearance=' . $clearance . '; Path=/; Max-Age=900; HttpOnly; Secure; SameSite=Strict');
             }
         }
         echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

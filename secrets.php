@@ -204,20 +204,21 @@ function secretsDataKey() {
     return $k;
 }
 
-function secretsEncrypt($plaintext) {
+function secretsEncrypt($plaintext, $key = null) {
     $plaintext = (string) $plaintext;
     if ($plaintext === '') return '';
+    $encKey = $key ? (strlen($key) === 32 ? $key : hash('sha256', (string)$key, true)) : secretsDataKey();
     if (!function_exists('openssl_encrypt')) {
         return 'l8e0:' . base64_encode($plaintext); // fallback marcado (sin GCM)
     }
     $iv = random_bytes(12);
     $tag = '';
-    $ct = openssl_encrypt($plaintext, 'aes-256-gcm', secretsDataKey(), OPENSSL_RAW_DATA, $iv, $tag);
+    $ct = openssl_encrypt($plaintext, 'aes-256-gcm', $encKey, OPENSSL_RAW_DATA, $iv, $tag);
     if ($ct === false) return '';
     return 'l8e1:' . base64_encode($iv) . ':' . base64_encode($tag) . ':' . base64_encode($ct);
 }
 
-function secretsDecrypt($blob) {
+function secretsDecrypt($blob, $key = null) {
     $blob = (string) $blob;
     if ($blob === '') return '';
     if (strpos($blob, 'l8e0:') === 0) {
@@ -234,7 +235,8 @@ function secretsDecrypt($blob) {
     $tag = base64_decode($parts[2], true);
     $ct = base64_decode($parts[3], true);
     if ($iv === false || $tag === false || $ct === false) return '';
-    $pt = openssl_decrypt($ct, 'aes-256-gcm', secretsDataKey(), OPENSSL_RAW_DATA, $iv, $tag);
+    $encKey = $key ? (strlen($key) === 32 ? $key : hash('sha256', (string)$key, true)) : secretsDataKey();
+    $pt = openssl_decrypt($ct, 'aes-256-gcm', $encKey, OPENSSL_RAW_DATA, $iv, $tag);
     return $pt === false ? '' : $pt;
 }
 

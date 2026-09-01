@@ -318,7 +318,8 @@ declare
     'l8_activity_log', 'l8_account_sessions', 'l8_documents',
     'l8_documents_history', 'l8_gateway_transfers', 'l8_opencrypt_ledger',
     'l8_auth_accounts', 'l8_auth_identities', 'l8_token_accounts',
-    'l8_token_ledger', 'l8_hashcod_keys', 'l8_app_states'
+    'l8_token_ledger', 'l8_hashcod_keys', 'l8_app_states',
+    'l8_durable_objects', 'l8_durable_object_events'
   ];
 begin
   foreach tbl in array tbls loop

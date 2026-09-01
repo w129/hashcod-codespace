@@ -434,7 +434,7 @@ function securityRateChallengeJson(int $retryAfter = 15, string $bucket = 'api')
     header('Retry-After: ' . (int)$retryAfter);
     header('X-L8-Challenge: turnstile');
 
-    $siteKey = function_exists('cfTurnstileGetSiteKey') ? cfTurnstileGetSiteKey() : '0x4AAAAAAEfpecWchE9q2-cs';
+    $siteKey = function_exists('cfTurnstileGetSiteKey') ? cfTurnstileGetSiteKey() : (function_exists('secretGet') ? secretGet('CF_TURNSTILE_SITE_KEY', '') : '');
     echo json_encode([
         'ok' => false,
         'error' => 'Rate limit exceeded - Cloudflare Turnstile verification required',
@@ -699,19 +699,32 @@ function securityReadJsonBody($maxBytes = 262144) {
     return ['ok' => true, 'data' => $data];
 }
 
-function securityUploadMimeAllowed($mime, $filename = '') {
+function securityUploadMimeAllowed($mime, $filename = '', $sampleBytes = '') {
     $mime = strtolower(trim((string)$mime));
     $ext = strtolower(pathinfo((string)$filename, PATHINFO_EXTENSION));
-    $blockedExt = ['php', 'phtml', 'phar', 'cgi', 'exe', 'bat', 'cmd', 'sh', 'bash', 'ps1', 'dll', 'so'];
+    $blockedExt = ['php', 'phtml', 'phar', 'cgi', 'exe', 'bat', 'cmd', 'sh', 'bash', 'ps1', 'dll', 'so', 'vbs', 'com', 'scr', 'msi', 'jsp', 'asp', 'aspx'];
     if (in_array($ext, $blockedExt, true)) {
         return false;
     }
     $blockedMime = [
         'application/x-php', 'application/x-httpd-php', 'text/x-php',
-        'application/x-executable', 'application/x-msdownload',
+        'application/x-executable', 'application/x-msdownload', 'application/x-sharedlib',
+        'application/x-dosexec', 'application/x-shellscript', 'text/x-shellscript'
     ];
     if (in_array($mime, $blockedMime, true)) {
         return false;
+    }
+    // Real magic byte inspection if sample bytes provided
+    if ($sampleBytes !== '') {
+        $header = substr((string)$sampleBytes, 0, 16);
+        // ELF binary: \x7fELF
+        if (strpos($header, "\x7fELF") === 0) return false;
+        // Windows PE executable: MZ
+        if (strpos($header, "MZ") === 0) return false;
+        // PHP script tag: <?php or <?=
+        if (stripos($header, '<?php') !== false || stripos($header, '<?=') !== false) return false;
+        // Shell script shebang: #!/
+        if (strpos($header, '#!') === 0) return false;
     }
     return true;
 }
@@ -758,12 +771,9 @@ function securityRequireAccountSession() {
 }
 
 /**
- * Si L8_REQUIRE_AUTH_MUTATIONS=1, exige cuenta para mutaciones sensibles.
+ * Exige cuenta para mutaciones sensibles.
  */
 function securityRequireMutationAuthIfEnabled() {
-    if (!securityAuthMutationsRequired()) {
-        return null;
-    }
     return securityRequireAccountSession();
 }
 

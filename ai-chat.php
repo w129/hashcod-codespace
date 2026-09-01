@@ -99,9 +99,9 @@ function aiChatAccountKey() {
     @setcookie('l8_tokens_guest', $id, [
         'expires' => time() + 86400 * 400,
         'path' => '/',
-        'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
-        'httponly' => false,
-        'samesite' => 'Lax'
+        'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || true,
+        'httponly' => true,
+        'samesite' => 'Strict'
     ]);
     return $id;
 }

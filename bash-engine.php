@@ -772,7 +772,12 @@ function bashExecPlatformBuiltin($trimmedCmd, $startTime, $workspace, $cfg, $bas
             }
         }
         if (empty($pubKey)) {
-            $pubKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrX8QvR6P2bJ81N3K4vM9L1W7eT4zQ8X5Y2V6U1I3O0 hashcod@codespace';
+            if (function_exists('secretGet')) {
+                $pubKey = trim((string)secretGet('SSH_PUBLIC_KEY', ''));
+            }
+            if (empty($pubKey) && function_exists('envValue')) {
+                $pubKey = trim((string)envValue('SSH_PUBLIC_KEY', ''));
+            }
         }
 
         $stdout = "=== CLAVE SSH ED25519 DE LA PLATAFORMA ===\n";
@@ -1111,6 +1116,9 @@ function bashHandleApi($uri) {
 
     // 1. Ejecutar comando en Bash
     if ($uri === '/api/bash/exec' && $method === 'POST') {
+        if (function_exists('securityRequireAccountSession')) {
+            securityRequireAccountSession();
+        }
         $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
         $cmd = trim((string)($body['command'] ?? $body['cmd'] ?? ''));
 
@@ -1200,6 +1208,9 @@ function bashHandleApi($uri) {
     }
 
     if ($uri === '/api/catalyst/execute' && $method === 'POST') {
+        if (function_exists('securityRequireAccountSession')) {
+            securityRequireAccountSession();
+        }
         $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
         $channel = $body['channel'] ?? '/a';
         $action = $body['action'] ?? 'activate';

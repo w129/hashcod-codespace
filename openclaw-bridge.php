@@ -344,6 +344,9 @@ function openclawHandleApi($uri) {
             echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
             return true;
         }
+        if (function_exists('securityRequireAccountSession')) {
+            securityRequireAccountSession();
+        }
         $raw = file_get_contents('php://input');
         $data = json_decode($raw, true) ?: [];
         $prompt = trim((string)($data['prompt'] ?? ''));
@@ -359,6 +362,10 @@ function openclawHandleApi($uri) {
         $data = json_decode($raw, true) ?: [];
         $action = strtolower(trim((string)($data['action'] ?? 'status')));
         
+        if (in_array($action, ['start', 'stop', 'restart'], true) && function_exists('securityRequireAccountSession')) {
+            securityRequireAccountSession();
+        }
+
         $cfg = openclawGetConfig();
         $status = openclawGetStatus();
 

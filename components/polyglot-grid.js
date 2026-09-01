@@ -2573,6 +2573,19 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 highlight: '#FFCDD2'
             }
         },
+            'python-suite': {
+                id: 'python-suite',
+                name: 'PYTHON',
+                code: 'HASHCOD-PY-12',
+                slot: 'Círculo #12 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#01579B',
+                    main: '#0277BD',
+                    light: '#4FC3F7',
+                    highlight: '#FFD54F'
+                }
+            },
         'radar-suite': {
             id: 'rust-suite',
             name: 'RUST',
@@ -2585,7 +2598,20 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 light: '#EF5350',
                 highlight: '#FFCDD2'
             }
-        }
+        },
+            'python-suite': {
+                id: 'python-suite',
+                name: 'PYTHON',
+                code: 'HASHCOD-PY-12',
+                slot: 'Círculo #12 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#01579B',
+                    main: '#0277BD',
+                    light: '#4FC3F7',
+                    highlight: '#FFD54F'
+                }
+            }
     };
 
     let activeOnDemandToolId = 'git-vault';

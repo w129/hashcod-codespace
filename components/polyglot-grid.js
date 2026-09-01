@@ -2560,19 +2560,32 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 highlight: '#FFF9C4'
             }
         },
-            'radar-suite': {
-                id: 'radar-suite',
-                name: 'RADAR',
-                code: 'HASHCOD-RAD-11',
-                slot: 'Círculo #11 (Toolbox)',
-                price: 'US$ 60.27',
-                palette: {
-                    dark: '#B71C1C',
-                    main: '#F44336',
-                    light: '#EF5350',
-                    highlight: '#FFCDD2'
-                }
+                    'rust-suite': {
+            id: 'rust-suite',
+            name: 'RUST',
+            code: 'HASHCOD-RUST-11',
+            slot: 'Círculo #11 (Toolbox)',
+            price: 'US$ 60.27',
+            palette: {
+                dark: '#B71C1C',
+                main: '#F44336',
+                light: '#EF5350',
+                highlight: '#FFCDD2'
             }
+        },
+        'radar-suite': {
+            id: 'rust-suite',
+            name: 'RUST',
+            code: 'HASHCOD-RUST-11',
+            slot: 'Círculo #11 (Toolbox)',
+            price: 'US$ 60.27',
+            palette: {
+                dark: '#B71C1C',
+                main: '#F44336',
+                light: '#EF5350',
+                highlight: '#FFCDD2'
+            }
+        }
     };
 
     let activeOnDemandToolId = 'git-vault';

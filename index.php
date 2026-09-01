@@ -11712,14 +11712,14 @@ if (!headers_sent()) {
                         <div class="tb-corner-dot d-bl"></div>
                         <div class="tb-corner-dot d-br"></div>
                     </div>
-                                        <!-- slot-3-3: Radar Profiler Engine (Circle 11) -->
-                    <div class="tb-slot is-filled is-tool-radar" id="slot-3-3" data-slot="3-3" title="Radar Profiler Engine · On-Demand Studio" onclick="window.openOnDemandToolModal ? window.openOnDemandToolModal('radar-suite') : openOnDemandToolModal('radar-suite')" role="button" tabindex="0" aria-label="Abrir Radar Profiler Engine" style="cursor: pointer !important; pointer-events: auto !important;">
+                                        <!-- slot-3-3: Rust Systems Engine (Circle 11) -->
+                    <div class="tb-slot is-filled is-tool-rust" id="slot-3-3" data-slot="3-3" title="Rust Systems Engine · On-Demand Studio" onclick="window.openOnDemandToolModal ? window.openOnDemandToolModal('rust-suite') : openOnDemandToolModal('rust-suite')" role="button" tabindex="0" aria-label="Abrir Rust Systems Engine" style="cursor: pointer !important; pointer-events: auto !important;">
                         <div class="tb-inner-ring" style="pointer-events: none; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
                             <svg class="tb-slot-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="46" height="46" style="pointer-events: none;" aria-hidden="true">
 <path id="Layer_1" fill="#f44336" d="M42,37c0,2.8-2.2,5-5,5H11c-2.8,0-5-2.2-5-5V11c0-2.8,2.2-5,5-5h26c2.8,0,5,2.2,5,5V37z"></path><g id="Layer_7"><path fill="#37474f" d="M10.9,29.1v-6.8c0-0.5,0.5-0.9,1-0.8l5.6,1.2c0.4,0.1,0.6,0.4,0.6,0.8v4.3c0,0.4-0.3,0.7-0.6,0.8l-5.6,1.2 C11.4,30,10.9,29.6,10.9,29.1z"></path><path fill="#37474f" d="M23.1,10.2h6.8c0.5,0,0.9,0.5,0.8,1l-1.2,5.6c-0.1,0.4-0.4,0.6-0.8,0.6h-4.3c-0.4,0-0.7-0.3-0.8-0.6 l-1.2-5.6C22.2,10.7,22.6,10.2,23.1,10.2z"></path><path fill="#37474f" d="M37.8,32.2L33,37c-0.4,0.4-1,0.3-1.2-0.1l-3.1-4.8c-0.2-0.3-0.2-0.7,0.1-1l3-3c0.3-0.3,0.7-0.3,1-0.1 l4.8,3.1C38.1,31.3,38.1,31.9,37.8,32.2z"></path><path fill="#37474f" d="M24.4,25.2l0.7,0.7c0.3,0.3,0.9,0.3,1.2,0l0.7-0.7c0.3-0.3,0.3-0.9,0-1.2l-0.7-0.7c-0.3-0.3-0.9-0.3-1.2,0 L24.4,24C24,24.3,24,24.9,24.4,25.2z"></path><path fill="#37474f" d="M25.5,22h2c0.6,0,1-0.4,1-1v-0.3c0-0.6-0.4-1-1-1h-2c-0.6,0-1,0.4-1,1V21C24.5,21.6,24.9,22,25.5,22z"></path><path fill="#37474f" d="M20.5,24.7v2c0,0.6,0.4,1,1,1h0.3c0.6,0,1-0.4,1-1v-2c0-0.6-0.4-1-1-1h-0.3C21,23.7,20.5,24.1,20.5,24.7z"></path><path fill="#37474f" d="M28,25.8l-1.4,1.4c-0.4,0.4-0.4,1,0,1.4l0.2,0.2c0.4,0.4,1,0.4,1.4,0l1.4-1.4c0.4-0.4,0.4-1,0-1.4l-0.2-0.2 C29,25.4,28.3,25.4,28,25.8z"></path></g>
 </svg>
                         </div>
-                        <div class="tb-slot-badge" style="color:#f44336; border-color:#f44336; font-weight:700; pointer-events:none;">RADAR</div>
+                        <div class="tb-slot-badge" style="color:#f44336; border-color:#f44336; font-weight:700; pointer-events:none;">RUST</div>
                         <div class="tb-corner-dot d-tl"></div>
                         <div class="tb-corner-dot d-tr"></div>
                         <div class="tb-corner-dot d-bl"></div>

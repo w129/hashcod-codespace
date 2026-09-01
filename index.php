@@ -19191,14 +19191,15 @@ if (!headers_sent()) {
                     <span>Publications and Preview Blog</span>
                 </div>
                 <div class="filter-group">
-                    <div class="filter-search">
+                    <div class="filter-search" style="position:relative;display:inline-flex;align-items:center;">
                         <svg class="admin-grid-icon" style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <input type="text" id="excelBlogSearchInput" placeholder="Search user..." oninput="filterExcelBlog()">
+                        <input type="text" id="excelBlogSearchInput" placeholder="Search user..." oninput="filterExcelBlog()" style="padding-right:24px;">
+                        <button type="button" onclick="resetExcelBlogFilter()" title="Limpiar búsqueda" style="position:absolute;right:6px;background:none;border:none;color:#9CA3AF;cursor:pointer;font-size:11px;padding:2px 4px;">✕</button>
                     </div>
                     <button type="button" class="filter-all" onclick="resetExcelBlogFilter()">View All</button>
-                    <button type="button" class="btn-card-close" onclick="toggleExcelBlog(false)" title="Cerrar ventana">✕</button>
+                    <button type="button" class="btn-card-close" onclick="toggleExcelBlog(false)" title="Cerrar ventana" style="margin-left:8px;">✕</button>
                 </div>
             </div>
 
@@ -19356,7 +19357,7 @@ if (!headers_sent()) {
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <button type="button" class="reader-like-btn" id="readLikeBtn" onclick="likeCurrentPost()">
                                     <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                                    <span id="readLikeCount">14</span> Me gusta
+                                    <span id="readLikesCount">14</span> Me gusta
                                 </button>
                                 <span style="font-size:12px; color:#71717A;">Módulo auditado y validado en codespace</span>
                             </div>
@@ -19945,22 +19946,22 @@ if (!headers_sent()) {
         const L8_DATA_KEY = 'l8_admin_panel_records_v1';
         const L8_ACTIVE_COLS_KEY = 'l8_blog_active_columns_v1';
 
-        const L8_SYSTEM_COLUMNS = [
-            { key: 'identifier_code', label: 'identifier code', minWidth: '90px' },
-            { key: 'responsible_code', label: 'responsible party code', minWidth: '95px' },
-            { key: 'platform_code', label: 'Platform code', minWidth: '72px' },
-            { key: 'auth_signature', label: 'authorization signature', minWidth: '95px' },
-            { key: 'num_tokens', label: 'Number of tokens', minWidth: '95px' },
-            { key: 'cost_per_token', label: 'cost per token', minWidth: '95px' },
-            { key: 'icai_page', label: 'ICAI page', minWidth: '85px' },
-            { key: 'nspa_monthly', label: 'NSPA Monthly', minWidth: '90px' },
-            { key: 'cors_method', label: 'CORS Method', minWidth: '82px' },
-            { key: 'hasna_color', label: 'HASNA 371', minWidth: '82px' },
-            { key: 'time_to_create', label: 'How long did it take you to create it?', minWidth: '110px' },
-            { key: 'proof', label: 'Do you have proof that you lasted as long as you say?', minWidth: '135px' },
-            { key: 'manager_id', label: 'Code manager ID card', minWidth: '95px' },
-            { key: 'creator_name', label: 'Legal name of the code creator', minWidth: '120px' },
-            { key: 'phone', label: 'Phone number for calls', minWidth: '135px' },
+                const L8_SYSTEM_COLUMNS = [
+            { key: 'identifier_code', label: 'identifier code', minWidth: '100px' },
+            { key: 'responsible_code', label: 'responsible party code', minWidth: '130px' },
+            { key: 'platform_code', label: 'Platform code', minWidth: '90px' },
+            { key: 'auth_signature', label: 'authorization signature', minWidth: '130px' },
+            { key: 'num_tokens', label: 'Number of tokens', minWidth: '115px' },
+            { key: 'cost_per_token', label: 'cost per token', minWidth: '110px' },
+            { key: 'icai_page', label: 'ICAI page', minWidth: '95px' },
+            { key: 'nspa_monthly', label: 'NSPA Monthly', minWidth: '100px' },
+            { key: 'cors_method', label: 'CORS Method', minWidth: '95px' },
+            { key: 'hasna_color', label: 'HASNA 371', minWidth: '95px' },
+            { key: 'time_to_create', label: 'How long did it take you to create it?', minWidth: '150px' },
+            { key: 'proof', label: 'Do you have proof that you lasted as long as you say?', minWidth: '170px' },
+            { key: 'manager_id', label: 'Code manager ID card', minWidth: '125px' },
+            { key: 'creator_name', label: 'Legal name of the code creator', minWidth: '140px' },
+            { key: 'phone', label: 'Phone number for calls', minWidth: '140px' },
             { key: 'email', label: 'Reply email', minWidth: '160px' }
         ];
         window.L8_ALL_COLUMNS = L8_SYSTEM_COLUMNS;
@@ -20191,9 +20192,9 @@ if (!headers_sent()) {
             if (typeof window.showAdminToast === 'function') window.showAdminToast(`Registro [${targetCode}] eliminado de la base de datos.`);
         };
 
-        /* ===== EXCEL BLOG ENGINE (Toolbox Slot 1-1 - Vista Hoja de Cálculo) ===== */
+                /* ===== EXCEL BLOG ENGINE (Toolbox Slot 1-1 - Vista Hoja de Cálculo) ===== */
         (function initExcelBlogEngine() {
-            let selectedBlogRowIndex = 0;
+            let selectedBlogIdentifierCode = 'PUB-001';
 
             window.toggleExcelBlog = function (forceState) {
                 const overlay = document.getElementById('excelBlogOverlay');
@@ -20207,6 +20208,16 @@ if (!headers_sent()) {
                 }
             };
 
+            function getFilteredBlogRows() {
+                const rows = window.getSharedPublicationRows();
+                const q = (document.getElementById('excelBlogSearchInput')?.value || '').toLowerCase().trim();
+                if (!q) return rows;
+                return rows.filter(r => {
+                    const str = Object.values(r).join(' ').toLowerCase();
+                    return str.includes(q);
+                });
+            }
+
             function renderExcelTable() {
                 const table = document.getElementById('excelBlogTable');
                 if (!table) return;
@@ -20219,7 +20230,7 @@ if (!headers_sent()) {
                 let activeCols = allCols.filter(c => activeKeys.includes(c.key));
                 if (activeCols.length === 0) activeCols = allCols;
 
-                // Render Header de Solo Lectura (sin botones de borrado de columnas)
+                // Render Header
                 if (thead) {
                     let hHtml = '<tr class="table-column-header-tr">';
                     activeCols.forEach((col, idx) => {
@@ -20230,17 +20241,25 @@ if (!headers_sent()) {
                     thead.innerHTML = hHtml;
                 }
 
-                const rows = window.getSharedPublicationRows();
-                const q = (document.getElementById('excelBlogSearchInput')?.value || '').toLowerCase().trim();
+                const filteredRows = getFilteredBlogRows();
+
+                // Ensure selection is valid within filtered rows
+                if (!filteredRows.some(r => r.identifier_code === selectedBlogIdentifierCode)) {
+                    if (filteredRows.length > 0) {
+                        selectedBlogIdentifierCode = filteredRows[0].identifier_code;
+                    }
+                }
 
                 tbody.innerHTML = '';
-                rows.forEach((r, idx) => {
-                    if (q) {
-                        const str = Object.values(r).join(' ').toLowerCase();
-                        if (!str.includes(q)) return;
-                    }
+                if (filteredRows.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="${activeCols.length}" style="text-align:center;padding:32px;color:#71717A;font-weight:600;">No se encontraron publicaciones que coincidan con la búsqueda.</td>`;
+                    tbody.appendChild(tr);
+                    return;
+                }
 
-                    const isSelected = (idx === selectedBlogRowIndex);
+                filteredRows.forEach((r) => {
+                    const isSelected = (r.identifier_code === selectedBlogIdentifierCode);
                     const safeColor = r.hasna_color || '#E63333';
                     const tr = document.createElement('tr');
                     tr.className = 'table-data-tr' + (isSelected ? ' active-row' : '');
@@ -20316,7 +20335,7 @@ if (!headers_sent()) {
 
                     tr.addEventListener('click', (e) => {
                         if (e.target.closest('button')) return;
-                        selectedBlogRowIndex = idx;
+                        selectedBlogIdentifierCode = r.identifier_code;
                         renderExcelTable();
                     });
 
@@ -20340,16 +20359,17 @@ if (!headers_sent()) {
             };
 
             window.blogPrevRow = function () {
-                const rows = window.getSharedPublicationRows();
-                if (selectedBlogRowIndex > 0) {
-                    selectedBlogRowIndex--;
+                const filteredRows = getFilteredBlogRows();
+                const curIdx = filteredRows.findIndex(r => r.identifier_code === selectedBlogIdentifierCode);
+                if (curIdx > 0) {
+                    selectedBlogIdentifierCode = filteredRows[curIdx - 1].identifier_code;
                     renderExcelTable();
                 }
             };
 
             window.openSelectedBlogArticle = function () {
-                const rows = window.getSharedPublicationRows();
-                const selected = rows[selectedBlogRowIndex] || rows[0];
+                const filteredRows = getFilteredBlogRows();
+                const selected = filteredRows.find(r => r.identifier_code === selectedBlogIdentifierCode) || filteredRows[0];
                 if (selected) {
                     openBlogArticleDetails(selected.identifier_code);
                 }
@@ -20383,31 +20403,74 @@ if (!headers_sent()) {
                 const costTok = parseFloat(r.cost_per_token || 0.00015);
                 const totalCost = (numTok * costTok).toFixed(2);
 
-                document.getElementById('readTitle').textContent = `Publicación ${r.identifier_code} · ${r.creator_name || 'Diktatcart'}`;
-                document.getElementById('readAuthorName').textContent = r.creator_name || 'Diktatcart Platform Core';
-                document.getElementById('readAuthorEmail').textContent = r.email || 'admin@hashcod.io';
-                document.getElementById('readAuthorEmail').href = `mailto:${r.email || 'admin@hashcod.io'}`;
-                document.getElementById('readAuthorPhone').textContent = r.phone || '+1 800 HASHCOD';
-                document.getElementById('readAvatar').textContent = (r.creator_name ? r.creator_name.charAt(0).toUpperCase() : 'D');
-                document.getElementById('readViews').textContent = r.views || 1;
+                const readCat = document.getElementById('readCat');
+                if (readCat) readCat.textContent = r.icai_page || 'ICAI-v4';
 
-                document.getElementById('readTokensVal').textContent = Number(numTok).toLocaleString();
-                document.getElementById('readCostVal').textContent = `$${costTok} / token ($${totalCost})`;
-                document.getElementById('readIcaival').textContent = r.icai_page || 'ICAI-v4';
-                document.getElementById('readNspaVal').textContent = `${r.nspa_monthly || '100.0%'} SLA Uptime`;
-                document.getElementById('readCorsVal').textContent = `${r.cors_method === 'Yes' ? 'Habilitado (Yes)' : 'Restringido (No)'}`;
-                document.getElementById('readHasnaVal').textContent = `● Color ${r.hasna_color || '#E63333'}`;
-                document.getElementById('readTimeVal').textContent = r.time_to_create || '12 mins';
-                document.getElementById('readProofVal').textContent = r.proof || 'Git SHA-256';
-                document.getElementById('readRespVal').textContent = r.responsible_code || 'DKT-ROOT';
-                document.getElementById('readMgrVal').textContent = `Manager: ${r.manager_id || 'MGR-01'}`;
+                const readTitle = document.getElementById('readTitle');
+                if (readTitle) readTitle.textContent = `Publicación ${r.identifier_code} · ${r.creator_name || 'Diktatcart'}`;
 
-                document.getElementById('readCodeFileName').textContent = r.platform_code_name || 'main.py';
+                const readAuthorName = document.getElementById('readAuthorName');
+                if (readAuthorName) readAuthorName.textContent = r.creator_name || 'Diktatcart Platform Core';
+
+                const readAuthorEmail = document.getElementById('readAuthorEmail');
+                if (readAuthorEmail) {
+                    readAuthorEmail.textContent = r.email || 'admin@hashcod.io';
+                    readAuthorEmail.href = `mailto:${r.email || 'admin@hashcod.io'}`;
+                }
+
+                const readAuthorPhone = document.getElementById('readAuthorPhone');
+                if (readAuthorPhone) readAuthorPhone.textContent = r.phone || '+1 800 HASHCOD';
+
+                const readAvatar = document.getElementById('readAvatar');
+                if (readAvatar) readAvatar.textContent = (r.creator_name ? r.creator_name.charAt(0).toUpperCase() : 'D');
+
+                const readViews = document.getElementById('readViews');
+                if (readViews) readViews.textContent = r.views || 1;
+
+                const readTokensVal = document.getElementById('readTokensVal');
+                if (readTokensVal) readTokensVal.textContent = Number(numTok).toLocaleString();
+
+                const readCostVal = document.getElementById('readCostVal');
+                if (readCostVal) readCostVal.textContent = `$${costTok} / token ($${totalCost})`;
+
+                const readIcaival = document.getElementById('readIcaival');
+                if (readIcaival) readIcaival.textContent = r.icai_page || 'ICAI-v4';
+
+                const readNspaVal = document.getElementById('readNspaVal');
+                if (readNspaVal) readNspaVal.textContent = `${r.nspa_monthly || '100.0%'} SLA Uptime`;
+
+                const readCorsVal = document.getElementById('readCorsVal');
+                if (readCorsVal) readCorsVal.textContent = `${r.cors_method === 'Yes' ? 'Habilitado (Yes)' : 'Restringido (No)'}`;
+
+                const readHasnaVal = document.getElementById('readHasnaVal');
+                if (readHasnaVal) readHasnaVal.textContent = `● Color ${r.hasna_color || '#E63333'}`;
+
+                const readTimeVal = document.getElementById('readTimeVal');
+                if (readTimeVal) readTimeVal.textContent = r.time_to_create || '12 mins';
+
+                const readProofVal = document.getElementById('readProofVal');
+                if (readProofVal) readProofVal.textContent = r.proof || 'Git SHA-256';
+
+                const readRespVal = document.getElementById('readRespVal');
+                if (readRespVal) readRespVal.textContent = r.responsible_code || 'DKT-ROOT';
+
+                const readMgrVal = document.getElementById('readMgrVal');
+                if (readMgrVal) readMgrVal.textContent = `Manager: ${r.manager_id || 'MGR-01'}`;
+
+                const readCodeFileName = document.getElementById('readCodeFileName');
+                if (readCodeFileName) readCodeFileName.textContent = r.platform_code_name || 'main.py';
+
                 const codeSnippet = document.getElementById('readCodeSnippet');
                 if (codeSnippet) codeSnippet.textContent = r.platform_code || '# No platform code attached.';
 
-                const likesEl = document.getElementById('readLikesCount');
-                if (likesEl) likesEl.textContent = `${r.likes || 14} Me gusta`;
+                const likesEl = document.getElementById('readLikesCount') || document.getElementById('readLikeCount');
+                if (likesEl) likesEl.textContent = `${r.likes || 14}`;
+
+                const consoleOut = document.getElementById('readConsoleOutput');
+                if (consoleOut) {
+                    consoleOut.style.display = 'none';
+                    consoleOut.textContent = '';
+                }
 
                 const modal = document.getElementById('excelReaderModal');
                 if (modal) modal.classList.add('open');
@@ -20433,7 +20496,8 @@ if (!headers_sent()) {
             window.downloadCurrentPlatformCode = function () {
                 if (!currentViewingArticle) return;
                 const fileName = currentViewingArticle.platform_code_name || 'script.py';
-                const content = currentViewingArticle.platform_code || '# Hashcod platform script\n';
+                const content = currentViewingArticle.platform_code || '# Hashcod platform script
+';
                 const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -20446,19 +20510,23 @@ if (!headers_sent()) {
             };
 
             window.runSandboxTest = function () {
-                const btn = document.getElementById('btnRunSandbox');
-                const outBox = document.getElementById('sandboxOutputBox');
-                const outText = document.getElementById('sandboxOutputText');
+                const outBox = document.getElementById('sandboxOutputBox') || document.getElementById('readConsoleOutput');
+                const outText = document.getElementById('sandboxOutputText') || outBox;
                 if (!outBox || !outText) return;
 
                 outBox.style.display = 'block';
-                outText.textContent = 'Inicializando entorno seguro WASM...\nEjecutando script...';
+                outText.textContent = 'Inicializando entorno seguro WASM...
+Ejecutando script...';
 
                 setTimeout(() => {
-                    outText.textContent = `[SANDBOX OUTPUT: SUCCESS ✓]\n` +
-                        `Módulo: ${currentViewingArticle?.platform_code_name || 'main.py'}\n` +
-                        `Firma Cuántica: SLH-DSA-256s VERIFICADA\n` +
-                        `Tokens procesados: ${currentViewingArticle?.num_tokens || 250000}\n` +
+                    outText.textContent = `[SANDBOX OUTPUT: SUCCESS ✓]
+` +
+                        `Módulo: ${currentViewingArticle?.platform_code_name || 'main.py'}
+` +
+                        `Firma Cuántica: SLH-DSA-256s VERIFICADA
+` +
+                        `Tokens procesados: ${currentViewingArticle?.num_tokens || 250000}
+` +
                         `Estado de Ejecución: 0 Errores. Runtime 100% aislado.`;
                 }, 600);
             };
@@ -20471,9 +20539,10 @@ if (!headers_sent()) {
                 if (idx >= 0) rows[idx].likes = currentViewingArticle.likes;
                 window.saveSharedPublicationRows(rows);
 
-                const likesEl = document.getElementById('readLikesCount');
-                if (likesEl) likesEl.textContent = `${currentViewingArticle.likes} Me gusta`;
+                const likesEl = document.getElementById('readLikesCount') || document.getElementById('readLikeCount');
+                if (likesEl) likesEl.textContent = `${currentViewingArticle.likes}`;
             };
+            window.likeCurrentPost = window.toggleLike;
 
             document.addEventListener('DOMContentLoaded', () => {
                 renderExcelTable();

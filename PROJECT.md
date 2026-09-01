@@ -1,79 +1,63 @@
-# Project: Hashcod Codespace Enterprise Security Architecture Hardening
+# Project: Publications and Preview Blog Tool Audit, Repair, and Polish
 
 ## Architecture
-- **Host Architecture**: Native PHP Server-Side Rendered (SSR) monolithic application with modular frontend components (HTML5, CSS3, ES6+ JS) and unified JSON REST API (`api.php`, `auth.php`, `security.php`, `supabase.php`, `bash-engine.php`, `cloudflare-turnstile.php`, `openclaw-bridge.php`, `secrets.php`).
-- **Security Perimeter & Defense-in-Depth**:
-  - **Secret Vault & Key Decoupling**: Dynamic secret resolution (`secretGet()`), zero fallback secrets in source code, strict separation between public client access and server-side service keys (`SUPABASE_SECRET_KEY`).
-  - **Database Persistence & RLS**: PostgreSQL Row-Level Security on all 18 tables with explicit deny-all policies for untrusted roles (`anon`, `authenticated`), and scoped multi-tenant filtering (`account_key`) via backend proxy.
-  - **Field-Level Cryptography**: Authenticated AES-256-GCM field encryption (`l8e1:iv:tag:ct`), master vault sealing (`l8v1:iv:tag:ct`), and NIST ML-DSA-87 (Dilithium-5) post-quantum signature verification.
-  - **Authentication & Session Armor**: Mandatory server-side auth guards on all execution/privileged endpoints, `PASSWORD_ARGON2ID` password hashing with HMAC pepper pre-hashing, and session cookies with `HttpOnly; Secure; SameSite=Strict`, 2-hour idle timeout, and dynamic token rotation.
-  - **Adaptive Traffic & Bot Armor**: Sliding-window rate limiting (120 req/min global, 40 req/10s burst), strike-based IP lockout, Cloudflare Turnstile bot verification with signed HMAC clearance cookies.
-  - **Input Validation & XSS Neutralization**: Schema validation, bound JSON parser, contextual entity escaping (`htmlspecialchars` with `ENT_QUOTES | UTF-8`), and parameter tamper proofing on roles, account IDs, and pricing ($60.27/mo).
-  - **Sandboxed Uploads**: Binary magic byte verification, executable extension blacklist, `0600` sandboxed directory (`uploads/`), and response pagination limits.
-  - **Enterprise HTTP Headers**: HSTS (`max-age=31536000; includeSubDomains; preload`), CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`.
+The platform is an interactive web workspace driven primarily by `index.php` (which contains server-rendered HTML, embedded CSS styles, and client-side JavaScript tool engines), synchronized to static replicas `index.html` and `404.html` via `scripts/sync_static_html.js`.
+The Publications and Preview Blog tool (Toolbox Slot 1-1) consists of:
+1. `#excelBlogOverlay` / `.excel-blog-overlay`: Main preview table displaying a 16-column dataset with filtering, selection, and indicators.
+2. `#excelReaderModal` / `.reader-modal-overlay`: Reader modal showing article details, category badge, metadata bento box, code snippet pre-block, and like counter.
+3. `#platformCodeModal`: Code sandbox viewer and executor with runner console, copy-to-clipboard, and download actions.
 
 ## Feature Inventory
-| # | Feature | Description | Milestone | Source | Status |
-|---|---------|-------------|-----------|--------|--------|
-| 1 | Hardcoded Secret Purging | Purge fallback Dilithium-5 signatures, Turnstile secrets, SSH keys from `auth.php`, `api.php`, `cloudflare-turnstile.php`, `security.php`, `bash-engine.php` | M1 | ORIGINAL_REQUEST § R1 | DONE |
-| 2 | Secret Vault & Dynamic Resolution | Resolve secrets strictly via `secretGet()` -> `.env.local` / AES-256 vault without leaking keys in code or repo | M1 | ORIGINAL_REQUEST § R1 | DONE |
-| 3 | Database Key Decoupling | Client accesses DB only via scoped public key or server API proxy; `SUPABASE_SECRET_KEY` isolated server-side | M1 | ORIGINAL_REQUEST § R1 | DONE |
-| 4 | PostgreSQL Row-Level Security (RLS) | Enforce RLS on all 18 PostgreSQL tables (`l8_auth_accounts`, `l8_auth_identities`, `system_logs`, etc.) with deny-all on untrusted roles | M2 | ORIGINAL_REQUEST § R2 | DONE |
-| 5 | Field-Level AES-256-GCM / PQC Encryption | Encrypt sensitive user fields and keys prior to storage using `l8e1:iv:tag:ct` and NIST ML-DSA-87 Dilithium-5 signatures | M2 | ORIGINAL_REQUEST § R2 | DONE |
-| 6 | Real-Time Query Telemetry & Circuit Breaker | 3-state circuit breaker (`CLOSED`, `OPEN`, `HALF_OPEN`), fast-fail (<0.1ms), memory TTL caching, and secret-redacted logging | M2 | ORIGINAL_REQUEST § R2 | DONE |
-| 7 | Server-Side Auth on Privileged Routes | Mandatory `securityRequireAccountSession()` on `/api/bash/exec`, `/api/catalyst/execute`, `/api/grid/execute`, `/api/openclaw/*`, `/api/command` | M3 | ORIGINAL_REQUEST § R3 | DONE |
-| 8 | Argon2id Password Hashing & Pepper | Upgrade password hashing to Argon2id with high-cost parameters, salt generation, HMAC pepper, and transparent login upgrade | M3 | ORIGINAL_REQUEST § R3 | DONE |
-| 9 | Session Cookie Armor & Expiration | Set cookies with `HttpOnly; Secure; SameSite=Strict`, 2-hour idle timeout, 24-hour absolute lifespan, and dynamic token rotation | M3 | ORIGINAL_REQUEST § R3 | DONE |
-| 10 | System Log & Audit Protection | Restrict direct access to log files, audit registries, and debug endpoints to authorized admin contexts only | M3 | ORIGINAL_REQUEST § R3 | DONE |
-| 11 | Sliding-Window Adaptive Rate Limiting | Sliding-window rate limiters per IP and per account on auth routes and execution endpoints | M4 | ORIGINAL_REQUEST § R4 | DONE |
-| 12 | Exponential Backoff & Account Lockout | Strike-based IP lockout and exponential delay after consecutive failed login attempts | M4 | ORIGINAL_REQUEST § R4 | DONE |
-| 13 | Cloudflare Turnstile Bot Defense | Validate Turnstile tokens, issue signed HMAC clearance cookies with 5x rate limit elevation, challenge unverified traffic | M4 | ORIGINAL_REQUEST § R4 | DONE |
-| 14 | Universal Input Validation & Schema Checking | Enforce server-side schema checking, type validation, and bounded JSON body parser (`securityReadJsonBody`) | M5 | ORIGINAL_REQUEST § R5 | DONE |
-| 15 | Contextual Output Escaping (XSS Defense) | Contextually escape HTML entities (`ENT_QUOTES | UTF-8`), JS context variables, and strip ANSI codes to prevent XSS | M5 | ORIGINAL_REQUEST § R5 | DONE |
-| 16 | Parameter Tamper Proofing | Immutable server-side role assignment, session account ID binding, and fixed pricing ($60.27/mo) tamper protection | M5 | ORIGINAL_REQUEST § R5 | DONE |
-| 17 | Sandboxed File Upload Security | Validate binary magic bytes, block executable extensions, isolate uploads to `0600` sandboxed directory (`uploads/`) | M5 | ORIGINAL_REQUEST § R6 | DONE |
-| 18 | API Response Pagination & Truncation | Enforce response pagination and memory caps (6,000 files repo tree, 1,000 log ring buffer, 50 history ledger) | M5 | ORIGINAL_REQUEST § R6 | DONE |
-| 19 | Enterprise HTTP Security Headers | Enforce CSP, HSTS (`max-age=31536000; includeSubDomains; preload`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Permissions-Policy` | M6 | ORIGINAL_REQUEST § R7 | DONE |
-| 20 | Strict HTTPS Enforcement & Secret Redaction | Enforce HTTPS redirection and redact secrets (`securityRedactSecrets`) from all error logs and exception handlers | M6 | ORIGINAL_REQUEST § R7 | DONE |
-| 21 | Dependency Vulnerability Audit | Verify lockfile integrity (`package-lock.json`), audit production dependencies for 0 critical vulnerabilities | M6 | ORIGINAL_REQUEST § R7 | DONE |
-| 22 | 100% E2E Test Suite & Security Verification | Ensure 100% pass across all test suites (`test_polyglot_e2e_suite.js`, `test_challenger_ingestion_api.js`, `test_challenger_matrix_ast.js`, `test_polyglot_adversarial_tier5.js`, etc.) | M7 | Acceptance Criteria | DONE |
+| # | Feature | Description | Milestone | Source |
+|---|---------|-------------|-----------|--------|
+| 1 | Dynamic Column Widths & Viewport Responsiveness | 16-column table headers and cells adapt gracefully without text clipping or truncated borders across desktop (1366px–1920px); smooth horizontal scroll with visible edge indicators in `.data-table-wrap` | M1 | ORIGINAL_REQUEST R1 |
+| 2 | Search Filter & Row Selection Synchronization | Real-time `filterExcelBlog()`, index synchronization to active filtered row set, `openSelectedBlogArticle()` opens exact matched row, dedicated search clear 'X' button distinct from modal close | M1 | ORIGINAL_REQUEST R2 |
+| 3 | Visual Indicators & Active Row States | CORS checkboxes (Y/N), HASNA 371 color squares (#E63333, #33B34D, #3366E6, #FFFFFF), and `.active-row` styling across 16 columns | M1 | ORIGINAL_REQUEST R4 |
+| 4 | Reader Modal DOM IDs & Data Binding Fixes | Align DOM IDs (`readLikesCount`/`readLikeCount`, `readManagerVal`/`readMgrVal`, `readFilename`/`readCodeFileName`, `readCodePre`/`readCodeSnippet`); dynamic `#readCat` binding to `r.icai_page`; metadata fallbacks | M2 | ORIGINAL_REQUEST R3 |
+| 5 | Likes Counter & Event Handler Aliases | Fix `toggleLike()` and `likeCurrentPost()` synchronization and counter updates | M2 | ORIGINAL_REQUEST R3 |
+| 6 | Code Sandbox Runner & Viewer Stabilization | `openBlogCodeViewer()`, `runSandboxTest()` line breaks, console reset before runs, `copyPlatformCode`/`copyReaderCode` visual confirmation ("¡Copiado! ✓"), `downloadCurrentPlatformCode()` blob download | M3 | ORIGINAL_REQUEST R5 |
+| 7 | Static HTML Sync & DOM Tag Balance Invariant | Maintain strict HTML tag balance (`openDivs === closeDivs` / Δ = 0) and sync `index.html`/`404.html` via `scripts/sync_static_html.js` | M4 | Survey Invariant |
+| 8 | 4 Platform Test Suites & Master Verification Pass | 100% pass rate across `test_polyglot_e2e_suite.js`, `test_challenger_ingestion_api.js`, `test_challenger_matrix_ast.js`, `test_polyglot_adversarial_tier5.js` via `run_all_verifications.js` | M4 | ORIGINAL_REQUEST Acceptance |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Secret Purging, Vaulting & DB Decoupling | Purge hardcoded fallback secrets in `auth.php`, `api.php`, `cloudflare-turnstile.php`, `security.php`, `bash-engine.php`; enforce dynamic vaulting and DB key decoupling | none | DONE |
-| M2 | Database RLS, AES-256/PQC & Telemetry | PostgreSQL RLS deny-all policies in `schema.sql`, field-level AES-256-GCM (`l8e1:`) encryption, PQC signature verification, 3-state query circuit breaker | M1 | DONE |
-| M3 | Server-Side Auth, Argon2id & Session Armor | Mandatory session checks on execution routes (`/api/bash/exec`, `/api/catalyst/execute`, `/api/grid/execute`, `/api/openclaw/*`), Argon2id hashing, `SameSite=Strict; HttpOnly; Secure` cookies, idle expiration | M1, M2 | DONE |
-| M4 | Adaptive Rate Limiting & Bot Challenge | Sliding-window limiters, strike IP lockout, Cloudflare Turnstile bot verification & HMAC clearance tokens | M3 | DONE |
-| M5 | Input Validation, XSS & Upload Sandbox | Schema validation, contextual escaping (`ENT_QUOTES`), anti-tamper protections, upload magic byte check, `0600` sandbox, pagination limits | M3, M4 | DONE |
-| M6 | Security Headers, HTTPS & Dependency Audit | HSTS preload, CSP, X-Frame-Options, Permissions-Policy, HTTPS enforcement, exception secret redaction, lockfile audit | M1-M5 | DONE |
-| M7 | E2E Security Verification & Hardening | Pass 100% E2E test suites (Tiers 1-5), Reviewer/Challenger/Auditor validation | M1-M6 | DONE |
+| 1 | Table Architecture, Responsiveness & Search Filtering | Column widths, CSS word-wrap, horizontal scrollbar, search filter indexing, search clear button, CORS & HASNA indicators | none | PLANNED |
+| 2 | Reader Modal DOM IDs, Data Binding & Likes Synchronization | Modal DOM ID harmonization, `#readCat` binding, metadata fallbacks, like counter updates, event aliases | M1 | PLANNED |
+| 3 | Sandbox Runner, Code Viewer & Platform Actions | Code preview formatting, sandbox console reset/runner, copy badge ("¡Copiado! ✓"), blob download | M2 | PLANNED |
+| 4 | Static Sync, Verification Harness & Full Test Suite Pass | Run `sync_static_html.js`, DOM tag balance audit, and all 4 platform test suites | M3 | PLANNED |
 
 ## Interface Contracts
-### Auth & Session Contract
-- `securityRequireAccountSession()` -> `array{'ok': bool, 'session'?: array, 'error'?: string, 'status'?: int}`
-- `authHashPassword(string $plaintext)` -> `string` (Argon2id hash `$argon2id$v=19$m=65536,t=4,p=1$...`)
-- `authVerifyPassword(string $plaintext, string $storedHash)` -> `bool`
+### Excel Blog Engine ↔ Table DOM
+- `L8_SYSTEM_COLUMNS`: Array of 16 column definitions with responsive `minWidth` allocations.
+- `renderExcelTable()`: Renders filtered records, updates `.data-table-wrap`, maintains `filteredBlogRows` array and syncs `selectedBlogRowIndex`.
+- `filterExcelBlog()`: Reads `#excelBlogSearchInput`, updates table, auto-selects first filtered row index.
+- `resetExcelBlogFilter()`: Clears input and restores all rows.
 
-### Encryption & Vault Contract
-- `secretsEncrypt(string $plaintext, ?string $key)` -> `string` (`l8e1:<iv>:<tag>:<ct>`)
-- `secretsDecrypt(string $payload, ?string $key)` -> `string|null`
+### Reader Modal ↔ Publication Data Record
+- `openBlogArticleDetails(identifierCode)`: Reads record `r` from `getSharedPublicationRows()`.
+  - Sets `#readCat` = `r.icai_page || 'ICAI-v4'`
+  - Sets `#readLikeCount` / `#readLikesCount` = `r.likes || 14`
+  - Sets `#readFilename` / `#readCodeFileName` = `r.code_file || 'module.py'`
+  - Sets `#readCodePre` / `#readCodeSnippet` = formatted code snippet
+  - Sets `#readManagerVal` / `#readMgrVal` = `Manager ID: ${r.mgr || 'MGR-01'}`
+  - Populates metadata fields with safe fallbacks.
+- Event Handlers:
+  - `window.likeCurrentPost = window.toggleLike`
+  - `window.copyReaderCode = window.copyPlatformCode`
+  - `window.runReaderSandbox = window.runSandboxTest`
 
-### Rate Limiting & Bot Defense Contract
-- `securityRateAllowSliding(string $bucket, int $limit, int $windowSec, ?string $ip)` -> `bool`
-- `cfValidateClearanceToken(?string $token, ?string $ip)` -> `bool`
+### Code Sandbox & Viewer ↔ DOM
+- `runSandboxTest()`: Clears `#readConsoleOutput` / `#sandboxOutputBox`, executes sandbox simulation, formats output with timestamp.
+- `copyPlatformCode()` / `copyReaderCode()`: Copies text to clipboard, shows "¡Copiado! ✓" badge.
+- `downloadCurrentPlatformCode()`: Creates and triggers download of code blob.
 
 ## Code Layout
-- `auth.php`: Core authentication, password hashing (Argon2id), session management, Dilithium-5 verification.
-- `security.php`: Security headers, sliding-window rate limiting, IP bans, input sanitization, secret redaction, auth enforcement.
-- `secrets.php`: AES-256-GCM Master Vault, field-level encryption, environment key resolution.
-- `supabase.php`: Database client, 3-state circuit breaker, query cache, offline sync queue.
-- `cloudflare-turnstile.php`: Cloudflare Turnstile token validation, HMAC clearance tokens.
-- `bash-engine.php`: Sandboxed shell execution, Python catalyst execution with auth checks.
-- `openclaw-bridge.php`: OpenClaw AI gateway bridge with auth checks.
-- `api.php`: REST API endpoints, upload handler with magic-byte validation, route routers.
-- `supabase/schema.sql`: PostgreSQL schema and RLS policy definitions.
-- `tests/e2e/test_polyglot_e2e_suite.js`: Comprehensive E2E test suite covering Tiers 1-4.
-- `tests/e2e/test_challenger_ingestion_api.js`: Challenger 2 empirical verification suite.
-- `tests/e2e/test_challenger_matrix_ast.js`: Challenger 1 empirical verification suite.
-- `tests/e2e/test_polyglot_adversarial_tier5.js`: Tier 5 Adversarial & boundary stress harness.
+- `index.php`: Master application file (HTML templates lines ~19156–19372, CSS styles lines ~4421–4824, JS engine lines ~20195–20486).
+- `index.html` & `404.html`: Synchronized static builds generated via `scripts/sync_static_html.js`.
+- `scripts/sync_static_html.js`: Synchronization script.
+- `tests/e2e/run_all_verifications.js`: Master verification runner.
+- `tests/e2e/test_polyglot_e2e_suite.js`: Suite 1.
+- `tests/e2e/test_challenger_ingestion_api.js`: Suite 2.
+- `tests/e2e/test_challenger_matrix_ast.js`: Suite 3.
+- `tests/e2e/test_polyglot_adversarial_tier5.js`: Suite 4.

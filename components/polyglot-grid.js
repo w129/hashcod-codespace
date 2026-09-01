@@ -2560,7 +2560,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 highlight: '#FFF9C4'
             }
         },
-                    'rust-suite': {
+        'rust-suite': {
             id: 'rust-suite',
             name: 'RUST',
             code: 'HASHCOD-RUST-11',

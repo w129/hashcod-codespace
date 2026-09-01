@@ -2536,7 +2536,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
         },
         'typescript-suite': {
             id: 'typescript-suite',
-            name: 'TYPESCRIPT ENGINE',
+            name: 'TYPESCRIPT',
             code: 'HASHCOD-TS-09',
             slot: 'Círculo #9 (Toolbox)',
             price: 'US$ 60.27',

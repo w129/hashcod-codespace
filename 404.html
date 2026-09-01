@@ -22491,6 +22491,7 @@ ${jsonPayload}
 
     <script>
     (function() {
+
         const ON_DEMAND_TOOL_DATA = {
             'git-vault': {
                 id: 'git-vault',
@@ -22503,6 +22504,19 @@ ${jsonPayload}
                     main: '#FF8C69',
                     light: '#FFB899',
                     highlight: '#FFE0D1'
+                }
+            },
+            'typescript-suite': {
+                id: 'typescript-suite',
+                name: 'TYPESCRIPT',
+                code: 'HASHCOD-TS-09',
+                slot: 'Círculo #9 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#0E4B7E',
+                    main: '#1677C7',
+                    light: '#4EA8DE',
+                    highlight: '#90E0EF'
                 }
             }
         };
@@ -22541,13 +22555,25 @@ ${jsonPayload}
             const tool = ON_DEMAND_TOOL_DATA[currentActiveToolId] || ON_DEMAND_TOOL_DATA['git-vault'];
             const now = new Date();
             const timestamp = now.toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            const refId = 'ORD-' + tool.code.replace('HASHCOD-', '') + '-' + Math.floor(1000 + Math.random() * 9000);
+            const refId = `ORD-${tool.code.replace('HASHCOD-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-            const messageText = '╔═════════════════════════════════════════════════════════╗\n║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║\n╚═════════════════════════════════════════════════════════╝\n\n*Artículo Solicitado:* ' + tool.name + '\n*Código Ref:* `' + tool.code + '`\n*Ubicación:* ' + tool.slot + '\n*Precio Ref:* ' + tool.price + '\n*Voucher:* `' + refId + '`\n*Fecha:* ' + timestamp + '\n\nHola, deseo obtener la herramienta ' + tool.name + ' para hacer MCP vía WhatsApp.';
+            const messageText = `╔═════════════════════════════════════════════════════════╗
+║   HASHCOD CODESPACE — SOLICITUD DE ARTÍCULO A MEDIDA    ║
+╚═════════════════════════════════════════════════════════╝
 
-            const whatsappUrl = 'https://wa.me/18294721257?text=' + encodeURIComponent(messageText);
+*Artículo Solicitado:* ${tool.name}
+*Código Ref:* \`${tool.code}\`
+*Ubicación:* ${tool.slot}
+*Precio Ref:* ${tool.price}
+*Voucher:* \`${refId}\`
+*Fecha:* ${timestamp}
+
+Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
+
+            const whatsappUrl = `https://wa.me/18294721257?text=${encodeURIComponent(messageText)}`;
             window.open(whatsappUrl, '_blank');
         };
+
     })();
     </script>
 

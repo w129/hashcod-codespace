@@ -10196,7 +10196,7 @@
             if (typeof window.showAdminToast === 'function') window.showAdminToast(`Registro [${targetCode}] eliminado de la base de datos.`);
         };
 
-                /* ===== EXCEL BLOG ENGINE (Toolbox Slot 1-1 - Vista Hoja de Cálculo) ===== */
+                                /* ===== EXCEL BLOG ENGINE (Toolbox Slot 1-1 - Vista Hoja de Cálculo) ===== */
         (function initExcelBlogEngine() {
             let selectedBlogIdentifierCode = 'PUB-001';
 
@@ -10213,7 +10213,7 @@
             };
 
             function getFilteredBlogRows() {
-                const rows = window.getSharedPublicationRows();
+                const rows = (typeof window.getSharedPublicationRows === 'function') ? window.getSharedPublicationRows() : (window.L8_INITIAL_RECORDS || []);
                 const q = (document.getElementById('excelBlogSearchInput')?.value || '').toLowerCase().trim();
                 if (!q) return rows;
                 return rows.filter(r => {
@@ -10229,8 +10229,8 @@
                 const tbody = document.getElementById('excelBlogTableBody');
                 if (!tbody) return;
 
-                const allCols = L8_SYSTEM_COLUMNS;
-                const activeKeys = window.getActiveColumns();
+                const allCols = window.L8_SYSTEM_COLUMNS || L8_SYSTEM_COLUMNS;
+                const activeKeys = (typeof window.getActiveColumns === 'function') ? window.getActiveColumns() : allCols.map(c => c.key);
                 let activeCols = allCols.filter(c => activeKeys.includes(c.key));
                 if (activeCols.length === 0) activeCols = allCols;
 
@@ -10325,10 +10325,10 @@
                                 rowHtml += `
                                     <td style="${tdStyle}">
                                         <div class="cell-color-squares">
-                                            <div class="cell-color-rect ${safeColor==='#E63333'?'active':''}" style="background:#E63333;"></div>
-                                            <div class="cell-color-rect ${safeColor==='#33B34D'?'active':''}" style="background:#33B34D;"></div>
-                                            <div class="cell-color-rect ${safeColor==='#3366E6'?'active':''}" style="background:#3366E6;"></div>
-                                            <div class="cell-color-rect ${safeColor==='#FFFFFF'?'active':''}" style="background:#FFFFFF;"></div>
+                                            <div class="cell-color-rect ${safeColor === '#E63333' ? 'active' : ''}" style="background:#E63333;"></div>
+                                            <div class="cell-color-rect ${safeColor === '#33B34D' ? 'active' : ''}" style="background:#33B34D;"></div>
+                                            <div class="cell-color-rect ${safeColor === '#3366E6' ? 'active' : ''}" style="background:#3366E6;"></div>
+                                            <div class="cell-color-rect ${safeColor === '#FFFFFF' ? 'active' : ''}" style="background:#FFFFFF;"></div>
                                         </div>
                                     </td>`;
                                 break;
@@ -10380,7 +10380,7 @@
             };
 
             window.openBlogCodeViewer = function (identifierCode) {
-                const rows = window.getSharedPublicationRows();
+                const rows = (typeof window.getSharedPublicationRows === 'function') ? window.getSharedPublicationRows() : (window.L8_INITIAL_RECORDS || []);
                 const row = rows.find(r => r.identifier_code === identifierCode) || rows[0];
                 if (!row) return;
 
@@ -10395,13 +10395,15 @@
             let currentViewingArticle = null;
 
             window.openBlogArticleDetails = function (identifierCode) {
-                const rows = window.getSharedPublicationRows();
+                const rows = (typeof window.getSharedPublicationRows === 'function') ? window.getSharedPublicationRows() : (window.L8_INITIAL_RECORDS || []);
                 const r = rows.find(x => x.identifier_code === identifierCode) || rows[0];
                 if (!r) return;
 
                 currentViewingArticle = r;
                 r.views = (r.views || 0) + 1;
-                window.saveSharedPublicationRows(rows);
+                if (typeof window.saveSharedPublicationRows === 'function') {
+                    window.saveSharedPublicationRows(rows);
+                }
 
                 const numTok = parseFloat(r.num_tokens || 200000);
                 const costTok = parseFloat(r.cost_per_token || 0.00015);
@@ -10500,8 +10502,7 @@
             window.downloadCurrentPlatformCode = function () {
                 if (!currentViewingArticle) return;
                 const fileName = currentViewingArticle.platform_code_name || 'script.py';
-                const content = currentViewingArticle.platform_code || '# Hashcod platform script
-';
+                const content = currentViewingArticle.platform_code || '# Hashcod platform script';
                 const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -10519,8 +10520,7 @@
                 if (!outBox || !outText) return;
 
                 outBox.style.display = 'block';
-                outText.textContent = 'Inicializando entorno seguro WASM...
-Ejecutando script...';
+                outText.textContent = 'Inicializando entorno seguro WASM... Ejecutando script...';
 
                 setTimeout(() => {
                     outText.textContent = `[SANDBOX OUTPUT: SUCCESS ✓]
@@ -10538,10 +10538,12 @@ Ejecutando script...';
             window.toggleLike = function () {
                 if (!currentViewingArticle) return;
                 currentViewingArticle.likes = (currentViewingArticle.likes || 14) + 1;
-                const rows = window.getSharedPublicationRows();
+                const rows = (typeof window.getSharedPublicationRows === 'function') ? window.getSharedPublicationRows() : (window.L8_INITIAL_RECORDS || []);
                 const idx = rows.findIndex(x => x.identifier_code === currentViewingArticle.identifier_code);
                 if (idx >= 0) rows[idx].likes = currentViewingArticle.likes;
-                window.saveSharedPublicationRows(rows);
+                if (typeof window.saveSharedPublicationRows === 'function') {
+                    window.saveSharedPublicationRows(rows);
+                }
 
                 const likesEl = document.getElementById('readLikesCount') || document.getElementById('readLikeCount');
                 if (likesEl) likesEl.textContent = `${currentViewingArticle.likes}`;

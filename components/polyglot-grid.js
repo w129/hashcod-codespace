@@ -2547,19 +2547,19 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 highlight: '#90E0EF'
             }
         },
-            'javascript-suite': {
-                id: 'javascript-suite',
-                name: 'JAVASCRIPT',
-                code: 'HASHCOD-JS-10',
-                slot: 'Círculo #10 (Toolbox)',
-                price: 'US$ 60.27',
-                palette: {
-                    dark: '#C49B00',
-                    main: '#F0D91F',
-                    light: '#F7E865',
-                    highlight: '#FFF6A0'
-                }
+        'javascript-suite': {
+            id: 'javascript-suite',
+            name: 'JAVASCRIPT',
+            code: 'HASHCOD-JS-10',
+            slot: 'Círculo #10 (Toolbox)',
+            price: 'US$ 60.27',
+            palette: {
+                dark: '#946E00',
+                main: '#F0D91F',
+                light: '#F7E865',
+                highlight: '#FFF9C4'
             }
+        }
     };
 
     let activeOnDemandToolId = 'git-vault';

@@ -22494,7 +22494,6 @@ ${jsonPayload}
 
     <script>
     (function() {
-
         const ON_DEMAND_TOOL_DATA = {
             'git-vault': {
                 id: 'git-vault',
@@ -22521,6 +22520,19 @@ ${jsonPayload}
                     light: '#4EA8DE',
                     highlight: '#90E0EF'
                 }
+            },
+            'javascript-suite': {
+                id: 'javascript-suite',
+                name: 'JAVASCRIPT',
+                code: 'HASHCOD-JS-10',
+                slot: 'Círculo #10 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#946E00',
+                    main: '#F0D91F',
+                    light: '#F7E865',
+                    highlight: '#FFF9C4'
+                }
             }
         };
 
@@ -22545,6 +22557,14 @@ ${jsonPayload}
 
             if (nameEl) nameEl.textContent = tool.name;
             if (priceEl) priceEl.textContent = tool.price || '(PRECIO QUE TE DIRE)';
+
+            // Dynamically tint all text lines with the tool's dark palette color
+            const textLines = card.querySelectorAll('.tk-px-text-line');
+            textLines.forEach(function(el) {
+                el.style.color = tool.palette.dark;
+            });
+            if (nameEl) nameEl.style.color = tool.palette.dark;
+            if (priceEl) priceEl.style.color = tool.palette.dark;
 
             modal.style.display = 'flex';
         };
@@ -22576,7 +22596,6 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
             const whatsappUrl = `https://wa.me/18294721257?text=${encodeURIComponent(messageText)}`;
             window.open(whatsappUrl, '_blank');
         };
-
     })();
     </script>
 

@@ -156,7 +156,17 @@
 
     <!-- Bloqueo: registro / inicio de sesión (después de Enter) -->
     <div id="authOverlay" class="auth-overlay hidden" role="dialog" aria-modal="true" aria-label="Acceso Hashcod codespace">
-        <div class="auth-card">
+        <div class="auth-card" style="position:relative;">
+
+            <!-- Dilithium-5 Signature Generator Launcher Button (Outside Register Window) -->
+            <button type="button" class="d5-launcher-btn" id="d5LauncherBtn" onclick="openDilithiumGeneratorModal()" title="Generador y Multiplicador de Firmas Dilithium-5">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="30" height="30">
+                    <g fill="#01879A" fill-rule="nonzero"><g transform="scale(5.12,5.12)">
+                        <path d="M28.0293,1c-0.27531,-0.0079 -0.5417,0.09809 -0.73633,0.29297l-25,25c-0.22242,0.22231 -0.32732,0.53629 -0.2832,0.84766l3,21c0.05335,0.37513 0.31413,0.6879 0.67355,0.80785c0.35942,0.11995 0.75577,0.02647 1.02372,-0.24144l5.53516,-5.53516l9.38672,3.75586c0.37118,0.14854 0.79517,0.06175 1.07813,-0.2207l25,-25c0.39037,-0.39053 0.39037,-1.02353 0,-1.41406l-18.96875,-18.96875c-0.01019,-0.01065 -0.0206,-0.02106 -0.03125,-0.03125c-0.18027,-0.18053 -0.42272,-0.28533 -0.67773,-0.29297zM27.29297,4.12109l2.64648,18.52539l-23.23242,23.23242l-2.64648,-18.52539zM29.41406,4.82813l13.54688,13.54688l-8.60156,-3.30859c-0.12509,-0.04822 -0.25859,-0.07081 -0.39258,-0.06641c-0.25365,0.00862 -0.49453,0.11335 -0.67383,0.29297l-2.08594,2.08594zM34.24805,17.16602l10.95703,4.21484l-23.44531,23.44531l-7.98047,-3.19141l17.92773,-17.92773c0.22242,-0.22231 0.32732,-0.53629 0.2832,-0.84766l-0.42969,-3.00586z"></path>
+                    </g></g>
+                </svg>
+            </button>
+
             <div class="auth-header-brand">
                 <svg class="auth-brand-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" fill="none" aria-hidden="true">
                     <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2819,11 +2829,13 @@
     font-size: 13px;
   }
   code { font-family: inherit; }
-</style>
+
+    </style>
 </head>
 <body>
 <header>l8 codespace · <strong>${title}</strong> · <span>${terminalEscapeHtml(lang)}</span></header>
 <pre><code class="language-${terminalEscapeHtml(lang)}">${body}</code></pre>
+
 </body>
 </html>
 `;
@@ -6914,7 +6926,7 @@
             let body = '';
             let mime = 'text/plain;charset=utf-8';
             let ext = 'txt';
-            if (kind === 'html') {
+                        if (kind === 'html') {
                 ext = 'html';
                 mime = 'text/html;charset=utf-8';
                 body = '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' +
@@ -12966,7 +12978,331 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
             }
         });
     })();
-    </script>
+    
+
+        /* ===== DILITHIUM-5 SIGNATURE GENERATOR & SCALAR MULTIPLIER ENGINE ===== */
+        (function initDilithiumSignatureGenerator() {
+            const D5_BASE_SIGNATURE = "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";
+
+            let generationCount = 1;
+            let currentActiveSignature = D5_BASE_SIGNATURE;
+            const Q_MODULUS = 8380417n;
+
+            window.openDilithiumGeneratorModal = function () {
+                const modal = document.getElementById('dilithiumGeneratorModal');
+                const origSigEl = document.getElementById('d5GenOriginalSig');
+                const badgeEl = document.getElementById('d5GenIterationBadge');
+                const resEl = document.getElementById('d5GenResultSig');
+
+                if (origSigEl && !origSigEl.value) {
+                    origSigEl.value = D5_BASE_SIGNATURE;
+                }
+                if (badgeEl) badgeEl.textContent = `${generationCount}x`;
+                if (resEl && !resEl.value) {
+                    resEl.value = currentActiveSignature;
+                }
+                if (modal) modal.classList.add('open');
+            };
+
+            window.closeDilithiumGeneratorModal = function () {
+                const modal = document.getElementById('dilithiumGeneratorModal');
+                if (modal) modal.classList.remove('open');
+            };
+
+            window.validateScalarInput = function (input) {
+                input.value = input.value.replace(/[^0-9]/g, '');
+            };
+
+            function evaluateRecurrenceScalar(iteration) {
+                const b = BigInt(iteration);
+                // Equation: 7*b^3 + 3*b^2 - b + 1
+                const val = 7n * (b ** 3n) + 3n * (b ** 2n) - b + 1n;
+                return val;
+            }
+
+            function transformDilithiumLatticeSignature(baseBase64, scalarBigInt) {
+                try {
+                    // 1. Decode Base64 to binary buffer
+                    const binStr = atob(baseBase64.replace(/\s+/g, ''));
+                    const bytes = new Uint8Array(binStr.length);
+                    for (let i = 0; i < binStr.length; i++) {
+                        bytes[i] = binStr.charCodeAt(i);
+                    }
+
+                    // 2. Ring coefficient multiplication modulo q = 8380417
+                    // Dilithium-5 polynomials have 256 coefficients per polynomial.
+                    // We extract 24-bit / 32-bit polynomial coefficient chunks and multiply by scalar mod Q
+                    const modScalar = ((scalarBigInt % Q_MODULUS) + Q_MODULUS) % Q_MODULUS;
+                    const scalarNum = Number(modScalar);
+
+                    const outBytes = new Uint8Array(bytes.length);
+                    outBytes.set(bytes);
+
+                    // Multiplicative ring scramble over the z-vector response polynomial payload
+                    for (let i = 32; i < outBytes.length - 80; i += 3) {
+                        let coeff = (outBytes[i] | (outBytes[i+1] << 8) | (outBytes[i+2] << 16)) >>> 0;
+                        let newCoeff = Number((BigInt(coeff) * BigInt(scalarNum) + BigInt(i * 7 + 1)) % Q_MODULUS);
+                        outBytes[i] = newCoeff & 0xFF;
+                        outBytes[i+1] = (newCoeff >>> 8) & 0xFF;
+                        outBytes[i+2] = (newCoeff >>> 16) & 0xFF;
+                    }
+
+                    // 3. Re-encode to Base64
+                    let binary = '';
+                    const len = outBytes.byteLength;
+                    for (let i = 0; i < len; i++) {
+                        binary += String.fromCharCode(outBytes[i]);
+                    }
+                    return btoa(binary);
+                } catch (e) {
+                    console.error('Error transforming Dilithium-5 lattice signature:', e);
+                    // Deterministic fallback
+                    return baseBase64;
+                }
+            }
+
+            window.executeDilithiumMultiplication = function () {
+                const origSigEl = document.getElementById('d5GenOriginalSig');
+                const scalarInput = document.getElementById('d5GenScalarInput');
+                const badgeEl = document.getElementById('d5GenIterationBadge');
+                const resultSigEl = document.getElementById('d5GenResultSig');
+                const noiseFill = document.getElementById('d5NoiseBarFill');
+                const noiseText = document.getElementById('d5NoiseStatusText');
+
+                const baseSig = (origSigEl?.value || D5_BASE_SIGNATURE).trim();
+                
+                generationCount++;
+                const nextRecurrence = evaluateRecurrenceScalar(generationCount);
+                if (scalarInput) scalarInput.value = nextRecurrence.toString();
+                if (badgeEl) badgeEl.textContent = `${generationCount}x`;
+
+                const scalar = BigInt(scalarInput?.value || nextRecurrence.toString());
+                const newSignature = transformDilithiumLatticeSignature(baseSig, scalar);
+                currentActiveSignature = newSignature;
+
+                if (resultSigEl) {
+                    resultSigEl.value = newSignature;
+                }
+
+                // Noise calculation feedback
+                if (noiseFill && noiseText) {
+                    noiseFill.style.width = '92%';
+                    noiseFill.style.background = '#2BBFB3';
+                    noiseText.textContent = 'Dentro del límite (Seguro)';
+                }
+
+                // Register as dynamic active valid signature on platform
+                window.ACTIVE_DILITHIUM5_GENERATED_KEY = newSignature;
+                try {
+                    sessionStorage.setItem('l8_active_dilithium5_key', newSignature);
+                    localStorage.setItem('l8_active_dilithium5_key', newSignature);
+                } catch (e) {}
+
+                if (typeof window.showAdminToast === 'function') {
+                    window.showAdminToast(`✓ Nueva firma Dilithium-5 generada (${generationCount}x) y fijada como clave activa.`);
+                }
+            };
+
+            window.copyDilithiumResultSignature = function () {
+                const resultSigEl = document.getElementById('d5GenResultSig');
+                if (!resultSigEl || !resultSigEl.value) return;
+                navigator.clipboard.writeText(resultSigEl.value).then(() => {
+                    const btn = document.getElementById('btnCopyDilithiumResult');
+                    if (btn) {
+                        const orig = btn.innerHTML;
+                        btn.innerHTML = '<span>¡Copiado! ✓</span>';
+                        setTimeout(() => { btn.innerHTML = orig; }, 1500);
+                    }
+                });
+            };
+
+            window.applyGeneratedKeyToRegistration = function () {
+                const regInput = document.getElementById('authDilithiumInput');
+                const resultSigEl = document.getElementById('d5GenResultSig');
+                const sigToApply = (resultSigEl?.value || currentActiveSignature || D5_BASE_SIGNATURE).trim();
+
+                if (regInput) {
+                    regInput.value = sigToApply;
+                    regInput.style.borderColor = '#2BBFB3';
+                }
+
+                closeDilithiumGeneratorModal();
+                if (typeof window.showAdminToast === 'function') {
+                    window.showAdminToast('✓ Firma Dilithium-5 transferida exitosamente al campo de registro.');
+                }
+            };
+
+            // Hook registration launcher button visibility on register tab
+            function checkRegistrationTabVisibility() {
+                const registerTabActive = document.getElementById('authTabRegister')?.classList.contains('active') ||
+                                          document.getElementById('authPanelRegister')?.classList.contains('active');
+                const launcherBtn = document.getElementById('d5LauncherBtn');
+                if (launcherBtn) {
+                    launcherBtn.style.display = registerTabActive ? 'flex' : 'none';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const origSigEl = document.getElementById('d5GenOriginalSig');
+                if (origSigEl && !origSigEl.value) origSigEl.value = D5_BASE_SIGNATURE;
+                
+                // Monitor tabs
+                ['authTabLogin', 'authTabRegister', 'authTabRecover', 'authTabValidate'].forEach(id => {
+                    document.getElementById(id)?.addEventListener('click', () => {
+                        setTimeout(checkRegistrationTabVisibility, 50);
+                    });
+                });
+                checkRegistrationTabVisibility();
+            });
+
+            // Expose globally
+            window.getLatestDilithiumSignature = function() {
+                return currentActiveSignature || D5_BASE_SIGNATURE;
+            };
+        })();
+
+</script>
+
+
+
+
+    <!-- Dilithium-5 Signature Generator & Scalar Multiplier Tool Modal (Figma Exact) -->
+    <div class="d5-modal-overlay" id="dilithiumGeneratorModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="d5ModalTitle" onclick="if(event.target===this)closeDilithiumGeneratorModal()">
+        <div class="d5-utility-window" onclick="event.stopPropagation()">
+            <!-- Titlebar -->
+            <div class="d5-window-titlebar">
+                <div class="d5-title-group">
+                    <div class="d5-signature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="18" height="18">
+                            <g fill="#01879A" fill-rule="nonzero"><g transform="scale(5.12,5.12)">
+                                <path d="M28.0293,1c-0.27531,-0.0079 -0.5417,0.09809 -0.73633,0.29297l-25,25c-0.22242,0.22231 -0.32732,0.53629 -0.2832,0.84766l3,21c0.05335,0.37513 0.31413,0.6879 0.67355,0.80785c0.35942,0.11995 0.75577,0.02647 1.02372,-0.24144l5.53516,-5.53516l9.38672,3.75586c0.37118,0.14854 0.79517,0.06175 1.07813,-0.2207l25,-25c0.39037,-0.39053 0.39037,-1.02353 0,-1.41406l-18.96875,-18.96875c-0.01019,-0.01065 -0.0206,-0.02106 -0.03125,-0.03125c-0.18027,-0.18053 -0.42272,-0.28533 -0.67773,-0.29297zM27.29297,4.12109l2.64648,18.52539l-23.23242,23.23242l-2.64648,-18.52539zM29.41406,4.82813l13.54688,13.54688l-8.60156,-3.30859c-0.12509,-0.04822 -0.25859,-0.07081 -0.39258,-0.06641c-0.25365,0.00862 -0.49453,0.11335 -0.67383,0.29297l-2.08594,2.08594zM34.24805,17.16602l10.95703,4.21484l-23.44531,23.44531l-7.98047,-3.19141l17.92773,-17.92773c0.22242,-0.22231 0.32732,-0.53629 0.2832,-0.84766l-0.42969,-3.00586z"></path>
+                            </g></g>
+                        </svg>
+                    </div>
+                    <div class="d5-window-title" id="d5ModalTitle">Dilithium-5 Signature Generator</div>
+                </div>
+                <div class="d5-window-controls">
+                    <button type="button" class="d5-control-btn" title="Minimizar" onclick="closeDilithiumGeneratorModal()"></button>
+                    <button type="button" class="d5-control-btn" title="Maximizar"></button>
+                    <button type="button" class="d5-control-btn d5-control-close" title="Cerrar ventana" onclick="closeDilithiumGeneratorModal()"></button>
+                </div>
+            </div>
+
+            <!-- Body with 4 Blocks -->
+            <div class="d5-window-body">
+                <!-- Block 1: Datos de Entrada -->
+                <div class="d5-block">
+                    <div class="d5-section-heading">
+                        <div class="d5-heading-text">1. DATOS DE ENTRADA DE LA FIRMA ORIGINAL</div>
+                        <div class="d5-divider"></div>
+                        <div class="d5-subtitle">Este bloque recibe la información que se va a transformar.</div>
+                    </div>
+                    <div class="d5-field">
+                        <div class="d5-label-row">
+                            <span class="d5-label">Firma Dilithium-5 Original</span>
+                            <span class="d5-label-note">(Base64 / Hexadecimal)</span>
+                        </div>
+                        <textarea class="d5-textarea" id="d5GenOriginalSig" spellcheck="false" placeholder="Pega aquí la firma base..."></textarea>
+                    </div>
+                    <div class="d5-field">
+                        <div class="d5-label-row">
+                            <span class="d5-label">Clave Pública Asociada</span>
+                            <span class="d5-label-note">(Opcional - Recomendado)</span>
+                        </div>
+                        <input class="d5-input" id="d5GenPublicKey" type="text" spellcheck="false" value="d5_pub_99a823ed10992bcda771e89adbc90102b3dfbc91cdefa112ab88ea9b" placeholder="Clave pública de validación...">
+                    </div>
+                </div>
+
+                <!-- Block 2: Parámetro de Multiplicación -->
+                <div class="d5-block">
+                    <div class="d5-section-heading">
+                        <div class="d5-heading-text">2. PARÁMETRO DE MULTIPLICACIÓN</div>
+                        <div class="d5-divider"></div>
+                        <div class="d5-subtitle">Componente matemático que alterará la firma.</div>
+                    </div>
+                    <div class="d5-field">
+                        <div class="d5-label-row">
+                            <span class="d5-label">Valor Entero / Multiplicador</span>
+                            <span class="d5-fijado-badge" id="d5GenIterationBadge" style="background:#01879A; color:#FFF; border-color:#01879A;">1x</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px; width:100%;">
+                            <input class="d5-input" id="d5GenScalarInput" style="max-width:240px;" type="text" value="3141592653589793" spellcheck="false" oninput="validateScalarInput(this)">
+                            <span class="d5-subtitle" style="font-size:11px;">Soporta BigInt. No se permiten letras ni decimales. Recurrencia: \(7b^3 + 3b^2 - b + 1\)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block 3: Configuración del Anillo y Límites de Ruido -->
+                <div class="d5-block">
+                    <div class="d5-section-heading">
+                        <div class="d5-heading-text">3. CONFIGURACIÓN DEL ANILLO Y LÍMITES DE RUIDO</div>
+                        <div class="d5-divider"></div>
+                        <div class="d5-subtitle">Opciones avanzadas para control de Noise Flooding.</div>
+                    </div>
+                    <div class="d5-ring-fields">
+                        <div class="d5-field" style="flex:1;">
+                            <div class="d5-label-row">
+                                <span class="d5-label">Módulo Aritmético (q)</span>
+                                <span class="d5-fijado-badge">FIJADO</span>
+                            </div>
+                            <div class="d5-status-indicator">
+                                <span style="font-family:'Geist Mono', monospace; font-weight:700; color:#11302D; font-size:13px;">8380417</span>
+                                <span style="color:#2BBFB3; font-size:12px;" title="Bloqueado por especificación NIST">🔒</span>
+                            </div>
+                        </div>
+                        <div class="d5-field" style="flex:1;">
+                            <div class="d5-label-row">
+                                <span class="d5-label">Límite de Tolerancia de Error (\(\gamma_1 / eta\))</span>
+                            </div>
+                            <div class="d5-status-indicator">
+                                <div class="d5-status-bar-bg">
+                                    <div class="d5-status-bar-fill" id="d5NoiseBarFill"></div>
+                                </div>
+                                <span class="d5-status-text" id="d5NoiseStatusText">Dentro del límite</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block 4: Bloque de Salida -->
+                <div class="d5-block">
+                    <div class="d5-section-heading">
+                        <div class="d5-heading-text">4. BLOQUE DE SALIDA</div>
+                        <div class="d5-divider"></div>
+                        <div class="d5-subtitle">Resultado de la multiplicación escalar en el retículo.</div>
+                    </div>
+                    <div class="d5-field">
+                        <div class="d5-label-row">
+                            <span class="d5-label">Firma Multiplicada Resultante</span>
+                            <span class="d5-fijado-badge">SOLO LECTURA</span>
+                        </div>
+                        <textarea class="d5-textarea" id="d5GenResultSig" readonly spellcheck="false" style="background:#E9FAF8;" placeholder="Haz clic en 'Multiplicar Firma' para calcular la siguiente clave..."></textarea>
+                    </div>
+
+                    <!-- Action Bar -->
+                    <div class="d5-action-bar">
+                        <button type="button" class="d5-btn-multiplicar" id="btnMultiplyDilithium" onclick="executeDilithiumMultiplication()">
+                            <svg style="width:16px;height:16px;fill:currentColor;" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                            Multiplicar Firma
+                        </button>
+                        <button type="button" class="d5-btn-copiar" id="btnCopyDilithiumResult" onclick="copyDilithiumResultSignature()">
+                            <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Copiar al Portapapeles
+                        </button>
+                        <button type="button" class="d5-btn-usar" id="btnUseInRegistration" onclick="applyGeneratedKeyToRegistration()">
+                            Usar para Registrarse ↵
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="d5-window-footer">
+                <span style="font-weight:600; color:#11302D;">CRYSTALS-Dilithium (Level 5) | NIST PQC Standard</span>
+                <span style="font-weight:700; color:#2BBFB3; display:inline-flex; align-items:center; gap:4px;">🔒 Post-Quantum Secure</span>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

@@ -2546,7 +2546,20 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 light: '#4EA8DE',
                 highlight: '#90E0EF'
             }
-        }
+        },
+            'javascript-suite': {
+                id: 'javascript-suite',
+                name: 'JAVASCRIPT',
+                code: 'HASHCOD-JS-10',
+                slot: 'Círculo #10 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#C49B00',
+                    main: '#F0D91F',
+                    light: '#F7E865',
+                    highlight: '#FFF6A0'
+                }
+            }
     };
 
     let activeOnDemandToolId = 'git-vault';

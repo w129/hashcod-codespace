@@ -2599,6 +2599,32 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 highlight: '#FFD54F'
             }
         },
+            'octave-suite': {
+                id: 'octave-suite',
+                name: 'OCTAVE',
+                code: 'HASHCOD-OCT-13',
+                slot: 'Círculo #13 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#BF360C',
+                    main: '#E64A19',
+                    light: '#FF7043',
+                    highlight: '#FFCCBC'
+                }
+            },
+            'gnu-octave': {
+                id: 'octave-suite',
+                name: 'OCTAVE',
+                code: 'HASHCOD-OCT-13',
+                slot: 'Círculo #13 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#BF360C',
+                    main: '#E64A19',
+                    light: '#FF7043',
+                    highlight: '#FFCCBC'
+                }
+            },
         'py-suite': {
             id: 'python-suite',
             name: 'PYTHON',
@@ -2611,7 +2637,33 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                 light: '#4FC3F7',
                 highlight: '#FFD54F'
             }
-        }
+        },
+            'octave-suite': {
+                id: 'octave-suite',
+                name: 'OCTAVE',
+                code: 'HASHCOD-OCT-13',
+                slot: 'Círculo #13 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#BF360C',
+                    main: '#E64A19',
+                    light: '#FF7043',
+                    highlight: '#FFCCBC'
+                }
+            },
+            'gnu-octave': {
+                id: 'octave-suite',
+                name: 'OCTAVE',
+                code: 'HASHCOD-OCT-13',
+                slot: 'Círculo #13 (Toolbox)',
+                price: 'US$ 60.27',
+                palette: {
+                    dark: '#BF360C',
+                    main: '#E64A19',
+                    light: '#FF7043',
+                    highlight: '#FFCCBC'
+                }
+            }
     };
 
     let activeOnDemandToolId = 'git-vault';

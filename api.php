@@ -3611,6 +3611,32 @@ if ($uri === '' || $uri === false) $uri = '/';
 
 // Auth gate: registro / login / sesión (Dilithium-5 mensual solo vía env)
 require_once __DIR__ . '/auth.php';
+// Endpoint de sincronización de Clave Activa Dilithium-5 (Regla de Clave Única)
+if ($uri === '/api/auth/dilithium-active-key' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json; charset=utf-8');
+    $body = json_decode((string)file_get_contents('php://input'), true) ?? [];
+    $activeKey = trim((string)($body['active_key'] ?? ''));
+    $epoch = $body['epoch'] ?? microtime(true);
+
+    if ($activeKey === '') {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'Clave Dilithium-5 requerida'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if (function_exists('authSetActiveDilithiumKey')) {
+        authSetActiveDilithiumKey($activeKey, $epoch);
+    }
+
+    echo json_encode([
+        'ok' => true,
+        'message' => 'Clave Dilithium-5 fijada como la única activa. Todas las claves anteriores han sido invalidadas.',
+        'epoch' => $epoch,
+        'hash' => hash('sha256', $activeKey)
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 require_once __DIR__ . '/tokens.php';
 require_once __DIR__ . '/hashcod-keys.php';
 require_once __DIR__ . '/ai-chat.php';

@@ -257,11 +257,35 @@ function authDilithiumConfigured() {
     return authDilithiumRegisterKey() !== '';
 }
 
+function authActiveDilithiumEpochPath() {
+    return authStorageDir() . '/active_dilithium5_epoch.json';
+}
+
+function authSetActiveDilithiumKey($key, $epoch = null) {
+    $cleanKey = trim((string)$key);
+    if ($cleanKey === '') return false;
+    $record = [
+        'active_key_hash' => hash('sha256', $cleanKey),
+        'active_key_exact' => $cleanKey,
+        'epoch' => $epoch ?: microtime(true),
+        'timestamp' => time(),
+        'revoked_previous' => true
+    ];
+    $path = authActiveDilithiumEpochPath();
+    @file_put_contents($path, json_encode($record, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    return true;
+}
+
+function authGetActiveDilithiumRecord() {
+    $path = authActiveDilithiumEpochPath();
+    if (!file_exists($path)) return null;
+    $raw = @file_get_contents($path);
+    if (!$raw) return null;
+    $data = json_decode($raw, true);
+    return is_array($data) ? $data : null;
+}
+
 function authVerifyDilithium($provided) {
-    $expected = authDilithiumRegisterKey();
-    if ($expected === '') {
-        return ['ok' => false, 'error' => 'Registro no disponible: falta configurar clave de registro en el servidor'];
-    }
     $provided = trim((string)$provided);
     if ($provided === '') {
         return ['ok' => false, 'error' => 'Introduce la Dilithium-5 de registro'];
@@ -273,22 +297,41 @@ function authVerifyDilithium($provided) {
     } elseif (strpos($provided, 'L8_DILITHIUM5_REGISTER_KEY=') === 0) {
         $provided = substr($provided, strlen('L8_DILITHIUM5_REGISTER_KEY='));
     }
-    if (strpos($expected, 'DILITHIUM5_ADMIN_SIGNATURE=') === 0) {
-        $expected = substr($expected, strlen('DILITHIUM5_ADMIN_SIGNATURE='));
-    } elseif (strpos($expected, 'L8_DILITHIUM5_REGISTER_KEY=') === 0) {
-        $expected = substr($expected, strlen('L8_DILITHIUM5_REGISTER_KEY='));
+
+    // =========================================================================
+    // REGLA INVIOLABLE: Unicidad y Revocación de Claves Dilithium-5
+    // Cuando se genera una clave Dilithium-5 en el generador, ESA es la ÚNICA
+    // que se debe usar para crear las credenciales y NO puede validarse alguna anterior.
+    // =========================================================================
+    $activeRecord = authGetActiveDilithiumRecord();
+    if ($activeRecord && !empty($activeRecord['active_key_exact'])) {
+        $activeKey = trim((string)$activeRecord['active_key_exact']);
+        if (!authTimingSafeEqual($provided, $activeKey)) {
+            return [
+                'ok' => false,
+                'error' => 'La clave Dilithium-5 proporcionada ha sido revocada, ha expirado o es anterior. Solo se permite validar y registrar credenciales con la última clave generada ahora en la plataforma.'
+            ];
+        }
+        return ['ok' => true];
     }
 
-    if (!authTimingSafeEqual($provided, $expected)) {
-        // Also accept base Dilithium-5 generator key and valid lattice signatures (length > 1000 and valid Base64)
-        $baseKeyPrefix = '8gj5Fx5HA3UQYQuHJW9wtbmJF2BbMi5ECnso0WxgglK0Ip1sdM1FJ0et3OnKxGoxSBrQ34ZB4IHfv6uBHTxnKhicHM4sFAMQVYqlh4WdXRqfimnL83aJMax1QIR2nCNGhJHRfpQosOC8DCSLu8Xlv';
-        $isDilithiumBase = (strpos($provided, $baseKeyPrefix) === 0 || strpos($provided, substr($baseKeyPrefix, 0, 40)) === 0);
-        $isLatticeSignature = (strlen($provided) >= 1000 && preg_match('/^[A-Za-z0-9+\/=_ -]+$/', $provided));
-        if (!$isDilithiumBase && !$isLatticeSignature) {
-            return ['ok' => false, 'error' => 'Dilithium-5 incorrecta'];
+    // Si aún no se ha generado una clave dinámica, verificar contra la clave de entorno
+    $expected = authDilithiumRegisterKey();
+    if ($expected !== '') {
+        if (strpos($expected, 'DILITHIUM5_ADMIN_SIGNATURE=') === 0) {
+            $expected = substr($expected, strlen('DILITHIUM5_ADMIN_SIGNATURE='));
+        } elseif (strpos($expected, 'L8_DILITHIUM5_REGISTER_KEY=') === 0) {
+            $expected = substr($expected, strlen('L8_DILITHIUM5_REGISTER_KEY='));
+        }
+        if (authTimingSafeEqual($provided, $expected)) {
+            return ['ok' => true];
         }
     }
-    return ['ok' => true];
+
+    return [
+        'ok' => false,
+        'error' => 'Dilithium-5 inválida o revocada. Debes generar una nueva clave activa en el generador Dilithium-5.'
+    ];
 }
 
 function authEmptyStore() {

@@ -10015,6 +10015,467 @@ if (!headers_sent()) {
             }
         }
 
+    
+
+        /* ==========================================================================
+           DILITHIUM-5 SIGNATURE GENERATOR & SCALAR MULTIPLIER TOOL (FIGMA EXACT)
+           ========================================================================== */
+        .auth-wrapper {
+            position: relative;
+            width: min(480px, 100%);
+            max-width: 100%;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .d5-launcher-btn {
+            position: absolute;
+            left: -52px;
+            top: 10px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #FFFFFF;
+            border: 2px solid #2BBFB3;
+            box-shadow: 0 6px 18px rgba(1, 135, 154, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10005;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .d5-launcher-btn:hover {
+            transform: scale(1.08) translateY(-1px);
+            box-shadow: 0 8px 22px rgba(1, 135, 154, 0.45);
+            border-color: #01879A;
+        }
+        @media (max-width: 640px) {
+            .d5-launcher-btn {
+                left: 8px;
+                top: -52px;
+            }
+        }
+
+        .d5-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999999 !important;
+            background: rgba(17, 48, 45, 0.45);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .d5-modal-overlay.open {
+            display: flex !important;
+        }
+
+        .d5-utility-window {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            width: 800px;
+            max-width: 95vw;
+            max-height: 92vh;
+            background: #FFFFFF !important;
+            border: 2px solid #2BBFB3 !important;
+            box-shadow: 0px 16px 32px rgba(17, 48, 45, 0.0823529) !important;
+            border-radius: 12px !important;
+            overflow: hidden;
+            font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            animation: d5FadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #11302D;
+        }
+
+        @keyframes d5FadeIn {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .d5-window-titlebar {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0px 20px;
+            width: 100%;
+            height: 48px;
+            min-height: 48px;
+            border-bottom: 2px solid #2BBFB3;
+            background: #FFFFFF;
+        }
+
+        .d5-title-group {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px;
+            gap: 12px;
+        }
+
+        .d5-signature-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .d5-window-title {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 18px;
+            letter-spacing: 0.5px;
+            color: #11302D;
+        }
+
+        .d5-window-controls {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px;
+            gap: 8px;
+        }
+
+        .d5-control-btn {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 0px;
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #2BBFB3;
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .d5-control-btn:hover {
+            background: #2BBFB3;
+        }
+        .d5-control-close {
+            position: relative;
+        }
+        .d5-control-close::after {
+            content: '✕';
+            font-size: 7px;
+            color: #2BBFB3;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .d5-control-close:hover::after {
+            color: #FFFFFF;
+        }
+
+        .d5-window-body {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 32px;
+            gap: 24px;
+            width: 100%;
+            overflow-y: auto;
+            flex: 1;
+            background: #FFFFFF;
+        }
+
+        .d5-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .d5-section-heading {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .d5-heading-text {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 13px;
+            line-height: 17px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #2BBFB3;
+        }
+
+        .d5-divider {
+            box-sizing: border-box;
+            width: 100%;
+            height: 0px;
+            border: 1px solid #2BBFB3;
+        }
+
+        .d5-subtitle {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            color: #2BBFB3;
+            opacity: 0.75;
+        }
+
+        .d5-field {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .d5-label-row {
+            display: flex;
+            flex-direction: row;
+            align-items: baseline;
+            justify-content: space-between;
+            padding: 0px;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .d5-label {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 17px;
+            color: #11302D;
+        }
+
+        .d5-label-note {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 11px;
+            line-height: 14px;
+            color: #2BBFB3;
+        }
+
+        .d5-textarea {
+            box-sizing: border-box;
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            background: #FFFFFF;
+            border: 1px solid #2BBFB3;
+            border-radius: 6px;
+            font-family: 'Geist Mono', monospace;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 160%;
+            color: #11302D;
+            resize: vertical;
+            outline: none;
+            word-break: break-all;
+        }
+
+        .d5-input {
+            box-sizing: border-box;
+            width: 100%;
+            height: 40px;
+            padding: 0px 12px;
+            background: #FFFFFF;
+            border: 1px solid #2BBFB3;
+            border-radius: 6px;
+            font-family: 'Geist Mono', monospace;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            color: #11302D;
+            outline: none;
+        }
+
+        .d5-ring-fields {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .d5-fijado-badge {
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            background: #E9FAF8;
+            border: 1px solid #2BBFB3;
+            border-radius: 4px;
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 10px;
+            line-height: 13px;
+            letter-spacing: 0.5px;
+            color: #2BBFB3;
+        }
+
+        .d5-status-indicator {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            width: 100%;
+            height: 40px;
+            background: #E9FAF8;
+            border: 1px solid #2BBFB3;
+            border-radius: 6px;
+        }
+
+        .d5-status-bar-bg {
+            display: flex;
+            width: 80px;
+            height: 6px;
+            background: #D1F5F2;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .d5-status-bar-fill {
+            width: 72px;
+            height: 6px;
+            background: #2BBFB3;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .d5-status-text {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 12px;
+            line-height: 16px;
+            color: #2BBFB3;
+        }
+
+        .d5-action-bar {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px;
+            gap: 12px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .d5-btn-multiplicar {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            gap: 8px;
+            background: #2BBFB3;
+            box-shadow: 0px 4px 10px rgba(43, 191, 179, 0.188235);
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 13px;
+            line-height: 17px;
+            letter-spacing: 0.5px;
+            color: #FFFFFF;
+            transition: all 0.15s;
+        }
+        .d5-btn-multiplicar:hover {
+            background: #23A69C;
+            transform: translateY(-1px);
+        }
+
+        .d5-btn-copiar {
+            box-sizing: border-box;
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            gap: 6px;
+            background: #FFFFFF;
+            border: 1.5px solid #2BBFB3;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 17px;
+            color: #11302D;
+            transition: all 0.15s;
+        }
+        .d5-btn-copiar:hover {
+            background: #E9FAF8;
+        }
+
+        .d5-btn-usar {
+            box-sizing: border-box;
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            gap: 6px;
+            background: #01879A;
+            border: 1.5px solid #01879A;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 13px;
+            line-height: 17px;
+            color: #FFFFFF;
+            margin-left: auto;
+            transition: all 0.15s;
+        }
+        .d5-btn-usar:hover {
+            background: #016E7D;
+        }
+
+        .d5-window-footer {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0px 20px;
+            width: 100%;
+            height: 40px;
+            min-height: 40px;
+            background: #E9FAF8;
+            border-top: 1px solid #2BBFB3;
+            font-size: 11px;
+        }
+
     </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 <!-- Cloudflare Turnstile Bot Protection Init -->

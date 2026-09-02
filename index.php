@@ -11019,9 +11019,7 @@ if (!headers_sent()) {
             height: 380px;
             overflow-y: auto;
             margin-top: 10px;
-        }
-
-    </style>
+        }</style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 <!-- Cloudflare Turnstile Bot Protection Init -->
     <script>
@@ -23904,7 +23902,7 @@ ${jsonPayload}
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/polyglot-grid.js?v=2026.1"></script>
-    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-security-monitor.js?v=2026.1"></script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-security-monitor.js?v=2026.4"></script>
     <script>
     document.addEventListener('click', function(e) {
         var btn = e.target && e.target.closest && e.target.closest('#topBarLogoutBtn');

@@ -10500,7 +10500,7 @@
                 const langSel = document.getElementById('codeLangSelect');
                 if (contentEl) contentEl.value = row.platform_code || '# No hay código adjunto para esta publicación.';
                 if (langSel && row.platform_code_lang) langSel.value = row.platform_code_lang;
-                if (modal) modal.classList.add('open');
+                if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; modal.style.zIndex = '999999'; }
             };
 
             let currentViewingArticle = null;
@@ -10590,12 +10590,12 @@
                 }
 
                 const modal = document.getElementById('excelReaderModal');
-                if (modal) modal.classList.add('open');
+                if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; modal.style.zIndex = '999999'; }
             };
 
             window.closeExcelBlogReader = function () {
                 const modal = document.getElementById('excelReaderModal');
-                if (modal) modal.classList.remove('open');
+                if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
             };
 
             window.copyPlatformCode = function () {
@@ -10993,12 +10993,12 @@
                 const currentCode = adminPendingRow.platform_code || '';
                 if (contentEl) contentEl.value = currentCode;
                 refreshModalTokenStats(currentCode);
-                if (modal) modal.classList.add('open');
+                if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; modal.style.zIndex = '999999'; }
             };
 
             window.closePlatformCodeModal = function () {
                 const modal = document.getElementById('platformCodeModal');
-                if (modal) modal.classList.remove('open');
+                if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
             };
 
             window.handleCodeFileUpload = function (event) {
@@ -11098,7 +11098,7 @@
                     window.WarpTerminal.open();
                 } else {
                     const modal = document.getElementById('warpTerminalModal') || document.getElementById('tool3Modal');
-                    if (modal) modal.classList.add('open');
+                    if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; modal.style.zIndex = '999999'; }
                 }
             };
 
@@ -11107,7 +11107,7 @@
                     window.WarpTerminal.close();
                 }
                 const modal = document.getElementById('tool3Modal');
-                if (modal) modal.classList.remove('open');
+                if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
             };
 
             // --- Post-Quantum SPHINCS+ (SLH-DSA) Signature Generation (Admin Exclusivo) ---
@@ -11138,7 +11138,7 @@
                 }
 
                 const modal = document.getElementById('sphincsCertModal');
-                if (modal) modal.classList.add('open');
+                if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; modal.style.zIndex = '999999'; }
 
                 const btnLabel = document.getElementById('c1_authSigLabel');
                 if (btnLabel) btnLabel.textContent = 'Authorized ✓';
@@ -11152,7 +11152,7 @@
 
             window.closeSphincsCertModal = function () {
                 const modal = document.getElementById('sphincsCertModal');
-                if (modal) modal.classList.remove('open');
+                if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
             };
 
             // --- Render 16-Column Admin Table ---
@@ -12545,12 +12545,12 @@ ${jsonPayload}
         /* ===== PRIVACY POLICY MODAL CONTROLLER ===== */
         window.openPrivacyPolicyModal = function () {
             const modal = document.getElementById('privacyPolicyModal');
-            if (modal) modal.classList.add('open');
+            if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; modal.style.zIndex = '999999'; }
         };
 
         window.closePrivacyPolicyModal = function () {
             const modal = document.getElementById('privacyPolicyModal');
-            if (modal) modal.classList.remove('open');
+            if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
         };
 
         window.acceptAndClosePrivacyPolicy = function () {
@@ -13008,12 +13008,12 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 if (resEl && !resEl.value) {
                     resEl.value = currentActiveSignature;
                 }
-                if (modal) modal.classList.add('open');
+                if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; modal.style.zIndex = '999999'; }
             };
 
             window.closeDilithiumGeneratorModal = function () {
                 const modal = document.getElementById('dilithiumGeneratorModal');
-                if (modal) modal.classList.remove('open');
+                if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
             };
 
             window.validateScalarInput = function (input) {

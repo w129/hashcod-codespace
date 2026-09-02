@@ -11525,7 +11525,12 @@ if (!headers_sent()) {
             </nav>
         </div>
         <div class="top-bar-right" style="display:flex; align-items:center; gap:8px;">
-<button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="window.l8LogoutSession && window.l8LogoutSession()">
+            <button type="button" class="sec-status-badge score-healthy" id="secStatusBarBadge" title="Abrir Monitor de Seguridad & Watchdog en Vivo" onclick="window.openSecurityMonitor && window.openSecurityMonitor()">
+                <span class="sec-badge-dot"></span>
+                <span id="secBadgeScoreText">🛡️ Security: 100/100</span>
+                <span class="sec-pill-tag" id="secBadgeQuantumTag" style="font-size:9px; padding:1px 4px;">PQC 100%</span>
+            </button>
+            <button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="window.l8LogoutSession && window.l8LogoutSession()">
 
  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" aria-hidden="true" style="overflow:visible;">
 <circle cx="24" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="3"></circle>
@@ -23504,6 +23509,7 @@ ${jsonPayload}
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/polyglot-grid.js?v=2026.1"></script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-security-monitor.js?v=2026.1"></script>
     <script>
     document.addEventListener('click', function(e) {
         var btn = e.target && e.target.closest && e.target.closest('#topBarLogoutBtn');

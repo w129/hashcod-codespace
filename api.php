@@ -7,8 +7,11 @@ set_time_limit(15);
 @ini_set('expose_php', '0');
 
 require_once __DIR__ . '/cache.php';
+require_once __DIR__ . '/quantum-entropy.php';
+require_once __DIR__ . '/atomic-time.php';
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/vulnerability-auditor.php';
 require_once __DIR__ . '/secrets.php';
 loadEnvFile();
 securityBootstrap('api');
@@ -3616,6 +3619,7 @@ require_once __DIR__ . '/durable-objects.php';
 require_once __DIR__ . '/bash-engine.php';
 require_once __DIR__ . '/openclaw-bridge.php';
 require_once __DIR__ . '/cloudflare-turnstile.php';
+require_once __DIR__ . '/threat-intel.php';
 if (function_exists('authHandleApi') && authHandleApi($uri)) {
     exit;
 }
@@ -3641,6 +3645,15 @@ if (function_exists('openclawHandleApi') && openclawHandleApi($uri)) {
     exit;
 }
 if (function_exists('cfTurnstileHandleApi') && cfTurnstileHandleApi($uri)) {
+    exit;
+}
+if (function_exists('threatIntelHandleApi') && threatIntelHandleApi($uri)) {
+    exit;
+}
+if (function_exists('quantumEntropyHandleApi') && quantumEntropyHandleApi($uri)) {
+    exit;
+}
+if (function_exists('atomicTimeHandleApi') && atomicTimeHandleApi($uri)) {
     exit;
 }
 
@@ -5021,6 +5034,130 @@ if (strpos($uri, '/api/file/get/') === 0) {
     }
 }
 
+// ===== PLATFORM SECURITY HARDENING & AUDITING APIS (Milestone 2) =====
+
+// 1. Audit Package Manifest (OSV.dev Batch Query & NIST NVD Enrichment)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/security/audit-manifest') {
+    if (!securityRateAllow('audit_manifest', 30, 60)) {
+        securityRateDenyJson(20);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    $body = securityReadJsonBody(1048576);
+    $format = 'auto';
+    $content = '';
+
+    if (!empty($_FILES['manifest'])) {
+        $format = $_FILES['manifest']['name'] ?? 'package.json';
+        $content = @file_get_contents($_FILES['manifest']['tmp_name']) ?: '';
+    } elseif (!empty($body['ok']) && is_array($body['data'] ?? null)) {
+        $format = $body['data']['format'] ?? ($body['data']['filename'] ?? 'auto');
+        $content = $body['data']['content'] ?? ($body['data']['manifest'] ?? '');
+    } elseif (!empty($_POST['content'])) {
+        $format = $_POST['format'] ?? 'auto';
+        $content = $_POST['content'];
+    }
+
+    if (empty($content)) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'No manifest content provided'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $result = vulnerabilityAuditManifest($format, $content);
+    echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// 2. Audit Zip Archive (Zip-Slip & Bomb Prevention + Malware Heuristics)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/security/audit-zip') {
+    if (!securityRateAllow('audit_zip', 20, 60)) {
+        securityRateDenyJson(30);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    $targetZip = null;
+    $tempCreated = false;
+    $destDir = $STORAGE_DIR . '/security/zip_quarantine/' . bin2hex(random_bytes(8));
+
+    if (!empty($_FILES['zip']['tmp_name'])) {
+        $targetZip = $_FILES['zip']['tmp_name'];
+    } elseif (!empty($_FILES['file']['tmp_name'])) {
+        $targetZip = $_FILES['file']['tmp_name'];
+    } else {
+        $body = securityReadJsonBody(50000000);
+        if (!empty($body['ok']) && !empty($body['data']['zip_path']) && file_exists($body['data']['zip_path'])) {
+            $targetZip = $body['data']['zip_path'];
+        } elseif (!empty($body['ok']) && !empty($body['data']['base64_zip'])) {
+            $rawZip = base64_decode(preg_replace('#^data:[\w/]+;base64,#i', '', $body['data']['base64_zip']));
+            $tmpZip = sys_get_temp_dir() . '/audit_' . bin2hex(random_bytes(6)) . '.zip';
+            file_put_contents($tmpZip, $rawZip);
+            $targetZip = $tmpZip;
+            $tempCreated = true;
+        }
+    }
+
+    if (!$targetZip || !file_exists($targetZip)) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'No valid zip file provided for audit'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $result = vulnerabilityAuditZipArchive($targetZip, $destDir);
+    if ($tempCreated && file_exists($targetZip)) {
+        @unlink($targetZip);
+    }
+    echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// 3. Static Malware & Pattern Matcher for Code Snippet/File
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/security/scan-file') {
+    if (!securityRateAllow('scan_file', 60, 60)) {
+        securityRateDenyJson(15);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    $filename = 'snippet.js';
+    $content = '';
+
+    if (!empty($_FILES['file']['tmp_name'])) {
+        $filename = $_FILES['file']['name'] ?? 'uploaded_file';
+        $content = @file_get_contents($_FILES['file']['tmp_name']) ?: '';
+    } else {
+        $body = securityReadJsonBody(2097152);
+        if (!empty($body['ok']) && is_array($body['data'] ?? null)) {
+            $filename = $body['data']['filename'] ?? ($body['data']['name'] ?? 'snippet.js');
+            $content = $body['data']['content'] ?? ($body['data']['code'] ?? '');
+        } elseif (!empty($_POST['content'])) {
+            $filename = $_POST['filename'] ?? 'snippet.js';
+            $content = $_POST['content'];
+        }
+    }
+
+    $result = vulnerabilityScanFileContent($filename, $content);
+    echo json_encode(['ok' => true, 'scan' => $result], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// 4. Scan Entire Workspace Directory
+if (($uri === '/api/security/scan-workspace' || $uri === '/api/security/audit-workspace') && ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET')) {
+    if (!securityRateAllow('scan_workspace', 15, 60)) {
+        securityRateDenyJson(30);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    $scanDir = __DIR__;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $body = securityReadJsonBody(4096);
+        if (!empty($body['ok']) && !empty($body['data']['directory'])) {
+            $reqDir = realpath($body['data']['directory']);
+            if ($reqDir && str_starts_with($reqDir, realpath(__DIR__))) {
+                $scanDir = $reqDir;
+            }
+        }
+    }
+    $result = vulnerabilityScanDirectory($scanDir, 300);
+    echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Endpoint POST para subir cualquier tipo de archivo a la Super Base de Datos
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri === '/api/file/upload')) {
     if (!securityRateAllow('upload', 20, 60)) {
@@ -5044,12 +5181,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri ===
         }
         $dilithium5Hash = generateDilithium5Hash($tmpPath, true);
         $ext = pathinfo($origName, PATHINFO_EXTENSION);
+        $extLower = strtolower($ext);
         $fileId = 'file_' . substr(md5($dilithium5Hash), 0, 10) . '_' . time();
         $targetPath = $UPLOADS_DIR . '/' . $fileId . ($ext ? '.' . $ext : '');
 
         if (move_uploaded_file($tmpPath, $targetPath)) {
             @chmod($targetPath, 0600);
             $db->insertFile($fileId, $origName, $mime, $size, $dilithium5Hash, $targetPath);
+
+            // Automated Non-Blocking Security & Malware Audit
+            $securityAudit = null;
+            if ($extLower === 'zip') {
+                $quarantineDir = $STORAGE_DIR . '/security/zip_quarantine/' . $fileId;
+                $securityAudit = vulnerabilityAuditZipArchive($targetPath, $quarantineDir);
+            } elseif (in_array(strtolower($origName), ['package.json', 'requirements.txt', 'requirements-streamlit.txt', 'composer.json', 'cargo.lock', 'cargo.toml', 'go.mod'], true)) {
+                $manifestContent = @file_get_contents($targetPath) ?: '';
+                $securityAudit = vulnerabilityAuditManifest($origName, $manifestContent);
+            } elseif (in_array($extLower, ['js', 'ts', 'jsx', 'tsx', 'php', 'py', 'sh', 'bash', 'go', 'rs', 'c', 'cpp', 'java', 'rb', 'pl', 'ps1', 'bat', 'cmd', 'html', 'json', 'yaml', 'yml'], true)) {
+                $codeContent = @file_get_contents($targetPath) ?: '';
+                $securityAudit = vulnerabilityScanFileContent($origName, $codeContent);
+            }
+
             echo json_encode([
                 'ok' => true,
                 'message' => "Archivo '$origName' firmado con criptografía post-cuántica Dilithium 5 y subido a la super base de datos.",
@@ -5060,7 +5212,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri ===
                     'mime_type' => $mime,
                     'dilithium5_hash' => $dilithium5Hash,
                     'url' => '/api/file/get/' . $fileId
-                ]
+                ],
+                'security_audit' => $securityAudit
             ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
             exit;
         }
@@ -5077,11 +5230,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri ===
         $dilithium5Hash = generateDilithium5Hash($binaryData, false);
         $mime = $inputData['mime_type'] ?? 'application/octet-stream';
         $ext = pathinfo($origName, PATHINFO_EXTENSION);
+        $extLower = strtolower($ext);
         $fileId = 'file_' . substr(md5($dilithium5Hash), 0, 10) . '_' . time();
         $targetPath = $UPLOADS_DIR . '/' . $fileId . ($ext ? '.' . $ext : '');
 
         file_put_contents($targetPath, $binaryData);
         $db->insertFile($fileId, $origName, $mime, $size, $dilithium5Hash, $targetPath);
+
+        // Automated Non-Blocking Security & Malware Audit
+        $securityAudit = null;
+        if ($extLower === 'zip') {
+            $quarantineDir = $STORAGE_DIR . '/security/zip_quarantine/' . $fileId;
+            $securityAudit = vulnerabilityAuditZipArchive($targetPath, $quarantineDir);
+        } elseif (in_array(strtolower($origName), ['package.json', 'requirements.txt', 'requirements-streamlit.txt', 'composer.json', 'cargo.lock', 'cargo.toml', 'go.mod'], true)) {
+            $securityAudit = vulnerabilityAuditManifest($origName, $binaryData);
+        } elseif (in_array($extLower, ['js', 'ts', 'jsx', 'tsx', 'php', 'py', 'sh', 'bash', 'go', 'rs', 'c', 'cpp', 'java', 'rb', 'pl', 'ps1', 'bat', 'cmd', 'html', 'json', 'yaml', 'yml'], true)) {
+            $securityAudit = vulnerabilityScanFileContent($origName, $binaryData);
+        }
 
         echo json_encode([
             'ok' => true,
@@ -5093,7 +5258,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri ===
                 'mime_type' => $mime,
                 'dilithium5_hash' => $dilithium5Hash,
                 'url' => '/api/file/get/' . $fileId
-            ]
+            ],
+            'security_audit' => $securityAudit
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         exit;
     }

@@ -9,6 +9,8 @@
 
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/cache.php';
+require_once __DIR__ . '/quantum-entropy.php';
+require_once __DIR__ . '/atomic-time.php';
 if (!function_exists('secretGet')) {
     require_once __DIR__ . '/secrets.php';
 }
@@ -677,21 +679,24 @@ function authSaveStore(array $store, $targetAccountId = null) {
 }
 
 function authGenerateAes256Key() {
-    // 32 bytes → hex (representación AES-256)
+    // 32 bytes → hex (representación AES-256) con entropía híbrida cuántica
+    if (function_exists('quantumGenerateSecureNonce')) {
+        return strtoupper(quantumGenerateSecureNonce(32));
+    }
     return strtoupper(bin2hex(random_bytes(32)));
 }
 
 function authGenerateIdentityKey() {
     // Identificador de plataforma distinto a Dilithium-5 y a AES-256
     // Formato: L8ID-<base64url 48 bytes>
-    $raw = random_bytes(48);
+    $raw = function_exists('quantumHarvestEntropy') ? quantumHarvestEntropy(48) : random_bytes(48);
     $b64 = rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
     return 'L8ID-' . $b64;
 }
 
 function authGenerateRecoveryKey() {
     // Clave maestra de recuperación (offline). Formato: L8REC-<base64url 40 bytes>
-    $raw = random_bytes(40);
+    $raw = function_exists('quantumHarvestEntropy') ? quantumHarvestEntropy(40) : random_bytes(40);
     $b64 = rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
     return 'L8REC-' . $b64;
 }
@@ -700,7 +705,7 @@ function authGenerateBackupCodes($count = 8) {
     $codes = [];
     for ($i = 0; $i < $count; $i++) {
         // Grupos legibles: XXXX-XXXX-XXXX
-        $hex = strtoupper(bin2hex(random_bytes(6)));
+        $hex = strtoupper(function_exists('quantumGenerateSecureNonce') ? quantumGenerateSecureNonce(6) : bin2hex(random_bytes(6)));
         $codes[] = substr($hex, 0, 4) . '-' . substr($hex, 4, 4) . '-' . substr($hex, 8, 4);
     }
     return $codes;
@@ -796,11 +801,12 @@ function authGenerateUniqueKeyPair(array &$store) {
 }
 
 function authNewAccountId() {
-    return 'acct_' . bin2hex(random_bytes(8));
+    $hex = function_exists('quantumGenerateSecureNonce') ? quantumGenerateSecureNonce(8) : bin2hex(random_bytes(8));
+    return 'acct_' . $hex;
 }
 
 function authCreateSession(array &$store, $userId) {
-    $token = bin2hex(random_bytes(32));
+    $token = function_exists('quantumGenerateSecureNonce') ? quantumGenerateSecureNonce(32) : bin2hex(random_bytes(32));
     $tokenHash = authHashKey($token);
     // limpia sesiones vencidas
     $now = time();

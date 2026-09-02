@@ -67,10 +67,13 @@ const jsFilesToCheck = [
     'components/warp-terminal.js',
     'components/durable-objects.js',
     'components/codespace-ws.js',
+    'components/codespace-security-monitor.js',
+    'workers/security-scanner.worker.js',
     'tests/e2e/test_polyglot_e2e_suite.js',
     'tests/e2e/test_challenger_ingestion_api.js',
     'tests/e2e/test_challenger_matrix_ast.js',
     'tests/e2e/test_polyglot_adversarial_tier5.js',
+    'tests/e2e/test_platform_security_apis.js',
     'test_auditor_independent.js',
     'test_reviewer_2_adversarial.js',
     'test_reviewer_3_deep_verification.js',
@@ -101,12 +104,13 @@ const suites = [
     { name: 'Suite 2: Challenger Ingestion & REST API Suite', file: path.join(__dirname, 'test_challenger_ingestion_api.js') },
     { name: 'Suite 3: Challenger Matrix AST & Code Studio Suite', file: path.join(__dirname, 'test_challenger_matrix_ast.js') },
     { name: 'Suite 4: Polyglot Tier 5 Adversarial & Boundary Suite', file: path.join(__dirname, 'test_polyglot_adversarial_tier5.js') },
-    { name: 'Suite 5: Independent Victory Auditor Test Suite', file: path.resolve(__dirname, '../../test_auditor_independent.js') },
-    { name: 'Suite 6: Reviewer 2 Adversarial Suite', file: path.resolve(__dirname, '../../test_reviewer_2_adversarial.js') },
-    { name: 'Suite 7: Reviewer 3 Deep Verification Suite', file: path.resolve(__dirname, '../../test_reviewer_3_deep_verification.js') },
-    { name: 'Suite 8: Reviewer Adversarial Deep Suite', file: path.resolve(__dirname, '../../test_reviewer_adversarial_deep.js') },
-    { name: 'Suite 9: WhatsApp Adversarial Suite', file: path.resolve(__dirname, '../../test_whatsapp_adversarial.js') },
-    { name: 'Suite 10: WhatsApp Review Suite', file: path.resolve(__dirname, '../../test_whatsapp_review.js') }
+    { name: 'Suite 5: Platform Security APIs E2E Suite (Tiers 1-5)', file: path.join(__dirname, 'test_platform_security_apis.js') },
+    { name: 'Suite 6: Independent Victory Auditor Test Suite', file: path.resolve(__dirname, '../../test_auditor_independent.js') },
+    { name: 'Suite 7: Reviewer 2 Adversarial Suite', file: path.resolve(__dirname, '../../test_reviewer_2_adversarial.js') },
+    { name: 'Suite 8: Reviewer 3 Deep Verification Suite', file: path.resolve(__dirname, '../../test_reviewer_3_deep_verification.js') },
+    { name: 'Suite 9: Reviewer Adversarial Deep Suite', file: path.resolve(__dirname, '../../test_reviewer_adversarial_deep.js') },
+    { name: 'Suite 10: WhatsApp Adversarial Suite', file: path.resolve(__dirname, '../../test_whatsapp_adversarial.js') },
+    { name: 'Suite 11: WhatsApp Review Suite', file: path.resolve(__dirname, '../../test_whatsapp_review.js') }
 ];
 
 const origExit = process.exit;

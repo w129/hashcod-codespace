@@ -14,6 +14,18 @@ require_once __DIR__ . '/cache.php';
 if (!function_exists('cfTurnstileConfig')) {
     require_once __DIR__ . '/cloudflare-turnstile.php';
 }
+if (!function_exists('threatIntelCheckIp')) {
+    require_once __DIR__ . '/threat-intel.php';
+}
+if (!function_exists('circuitBreakerGetStatus')) {
+    require_once __DIR__ . '/circuit-breaker.php';
+}
+if (!function_exists('resilientProxyFetch')) {
+    require_once __DIR__ . '/resilient-proxy.php';
+}
+if (!function_exists('vulnerabilityAuditManifest')) {
+    require_once __DIR__ . '/vulnerability-auditor.php';
+}
 
 /** Headers de seguridad + ocultar fingerprint de PHP. */
 function securityApplyHeaders() {
@@ -901,13 +913,51 @@ function securityBootstrap($mode = 'web') {
         header('X-L8-Request-Id: ' . bin2hex(random_bytes(8)));
     }
 
-    if (securityIpIsBanned()) {
+    $clientIp = securityClientIp();
+    $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    $uri = is_string($uri) ? $uri : '/';
+
+    // 0. Intercepción pasiva de trampas Honeypot (decepción inmediata)
+    if (function_exists('threatIntelIsHoneypot') && threatIntelIsHoneypot($uri)) {
+        if (function_exists('threatIntelHoneypotTrigger')) {
+            threatIntelHoneypotTrigger($uri, $clientIp);
+        }
+        if (function_exists('threatIntelServeHoneypotDecoy')) {
+            threatIntelServeHoneypotDecoy($uri, $clientIp);
+        }
+    }
+
+    if (securityIpIsBanned($clientIp)) {
         if ($mode === 'api') securityIpBannedJson();
         securityNotFoundQuiet();
     }
 
-    $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-    $uri = is_string($uri) ? $uri : '/';
+    // 1. Verificación en tiempo real de Inteligencia de Amenazas y Reputación de IP
+    if (function_exists('threatIntelCheckIp')) {
+        $threat = threatIntelCheckIp($clientIp);
+        $threatStatus = $threat['status'] ?? 'ALLOW';
+        if ($threatStatus === 'BLOCK') {
+            if ($mode === 'api') {
+                http_response_code(403);
+                header('Content-Type: application/json; charset=utf-8');
+                header('Cache-Control: no-store');
+                echo json_encode([
+                    'ok' => false,
+                    'error' => 'Access denied: High threat reputation score detected',
+                    'code' => 'ip_reputation_blocked',
+                    'threat_score' => $threat['score'] ?? 100,
+                    'source' => $threat['source'] ?? 'threat_intel'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            securityNotFoundQuiet();
+        } elseif ($threatStatus === 'CHALLENGE') {
+            $resChallenge = securityRateAllowSliding('threat_challenge', 10, 60, $clientIp);
+            if (!$resChallenge['allowed']) {
+                securityRateChallengeJson($resChallenge['retry_after'] ?: 30, 'threat_reputation');
+            }
+        }
+    }
 
     $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
     if (securityIsScannerUa($ua)) {

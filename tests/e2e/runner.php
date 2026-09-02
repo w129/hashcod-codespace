@@ -36,6 +36,8 @@ require_once __DIR__ . '/tier1/test_f11_resource_guards.php';
 require_once __DIR__ . '/tier1/test_f12_shutdown_error_boundary.php';
 require_once __DIR__ . '/tier1/test_f13_circuit_breaker.php';
 require_once __DIR__ . '/tier1/test_f14_local_fallback_sync.php';
+require_once __DIR__ . '/tier1/test_f15_quantum_entropy.php';
+require_once __DIR__ . '/tier1/test_f16_atomic_time.php';
 
 // Tier 2 Suites
 require_once __DIR__ . '/tier2/test_b01_cache_boundaries.php';
@@ -106,6 +108,8 @@ $suiteClasses = [
     \Hashcod\Tests\Tier1\TestF12ShutdownErrorBoundary::class,
     \Hashcod\Tests\Tier1\TestF13CircuitBreaker::class,
     \Hashcod\Tests\Tier1\TestF14LocalFallbackSync::class,
+    \Hashcod\Tests\Tier1\TestF15QuantumEntropy::class,
+    \Hashcod\Tests\Tier1\TestF16AtomicTime::class,
 
     // Tier 2: Boundary & Corner Cases
     \Hashcod\Tests\Tier2\TestB01CacheBoundaries::class,

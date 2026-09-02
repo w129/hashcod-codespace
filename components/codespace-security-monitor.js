@@ -915,7 +915,7 @@
             // Update Top Bar Widget
             if (this.topBarBadgeEl) {
                 const textEl = document.getElementById('secBadgeScoreText');
-                if (textEl) textEl.textContent = `🛡️ Security: ${this.healthScore}/100`;
+                if (textEl) textEl.textContent = `Security: ${this.healthScore}/100`;
 
                 this.topBarBadgeEl.classList.remove('score-healthy', 'score-warning', 'score-critical');
                 if (this.healthScore >= 90) this.topBarBadgeEl.classList.add('score-healthy');

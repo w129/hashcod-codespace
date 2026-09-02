@@ -10627,6 +10627,400 @@ if (!headers_sent()) {
             border-radius: 12px;
         }
 
+    
+
+        /* ==========================================================================
+           CODESPACE SECURITY MONITOR & AUDIT DRAWER (PLATFORM THEME EXACT)
+           ========================================================================== */
+        .sec-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #FFFFFF;
+            color: #01879A;
+            border: 1.5px solid #2BBFB3;
+            font-family: 'IBM Plex Mono', 'Geist Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 6px rgba(43, 191, 179, 0.15);
+            text-decoration: none;
+            line-height: 1;
+        }
+        .sec-status-badge:hover {
+            background: #E9FAF8;
+            border-color: #01879A;
+            box-shadow: 0 4px 12px rgba(1, 135, 154, 0.25);
+            transform: translateY(-1px);
+        }
+        .sec-status-badge.score-healthy { color: #01879A; border-color: #2BBFB3; }
+        .sec-status-badge.score-warning { color: #d97706; border-color: #f59e0b; }
+        .sec-status-badge.score-critical { color: #dc2626; border-color: #ef4444; animation: secBadgePulse 1.5s infinite; }
+        
+        @keyframes secBadgePulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        .sec-badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #2BBFB3;
+            display: inline-block;
+        }
+
+        /* --- Drawer Overlay & Main Shell --- */
+        .sec-drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999999 !important;
+            background: rgba(17, 48, 45, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            justify-content: flex-end;
+            align-items: stretch;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .sec-drawer-overlay.open {
+            display: flex !important;
+            opacity: 1 !important;
+        }
+        .sec-drawer-shell {
+            width: min(940px, 94vw);
+            height: 100vh;
+            background: #FFFFFF !important;
+            border-left: 2px solid #2BBFB3 !important;
+            box-shadow: -16px 0 48px rgba(17, 48, 45, 0.15), 0 0 24px rgba(43, 191, 179, 0.1) !important;
+            display: flex;
+            flex-direction: column;
+            color: #11302D;
+            font-family: 'Geist', 'IBM Plex Mono', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            overflow: hidden;
+            transform: translateX(100%);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sec-drawer-overlay.open .sec-drawer-shell {
+            transform: translateX(0) !important;
+        }
+
+        /* Drawer Header */
+        .sec-drawer-head {
+            padding: 16px 24px;
+            background: #FFFFFF;
+            border-bottom: 2px solid #2BBFB3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .sec-drawer-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sec-drawer-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #E9FAF8;
+            border: 1.5px solid #2BBFB3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #01879A;
+        }
+        .sec-drawer-head h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #11302D;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+        .sec-pill-tag {
+            font-size: 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #E9FAF8;
+            color: #01879A;
+            border: 1px solid #2BBFB3;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .sec-head-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sec-btn-action-primary {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #2BBFB3;
+            color: #FFFFFF;
+            border: none;
+            box-shadow: 0 2px 8px rgba(43, 191, 179, 0.3);
+            transition: all 0.15s ease;
+        }
+        .sec-btn-action-primary:hover {
+            background: #01879A;
+            transform: translateY(-1px);
+        }
+        .sec-btn-action-ghost {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #FFFFFF;
+            color: #11302D;
+            border: 1.5px solid #2BBFB3;
+            transition: all 0.15s ease;
+        }
+        .sec-btn-action-ghost:hover {
+            background: #E9FAF8;
+        }
+        .sec-drawer-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid #E2E8F0;
+            color: #64748B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.15s;
+        }
+        .sec-drawer-close:hover {
+            background: #F1F5F9;
+            color: #11302D;
+            border-color: #CBD5E1;
+        }
+
+        /* Metric Summary Row */
+        .sec-summary-row {
+            padding: 16px 24px;
+            background: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .sec-gauge-card {
+            background: #E9FAF8;
+            border: 1.5px solid #2BBFB3;
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .sec-score-num {
+            font-size: 28px;
+            font-weight: 800;
+            color: #01879A;
+            font-family: 'IBM Plex Mono', monospace;
+            line-height: 1;
+        }
+        .sec-score-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #2BBFB3;
+            letter-spacing: 0.8px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+        .sec-kpi-card {
+            background: #FFFFFF;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sec-kpi-label {
+            font-size: 11px;
+            color: #64748B;
+            font-weight: 600;
+        }
+        .sec-kpi-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #01879A;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-top: 2px;
+        }
+        .sec-kpi-sub {
+            font-size: 10px;
+            color: #94A3B8;
+            margin-top: 2px;
+        }
+
+        /* Navigation Tabs Bar */
+        .sec-tabs-bar {
+            padding: 0 24px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+        .sec-tab-btn {
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #64748B;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }
+        .sec-tab-btn:hover {
+            color: #01879A;
+            background: #F8FAFC;
+        }
+        .sec-tab-btn.active {
+            color: #01879A;
+            border-bottom-color: #2BBFB3;
+            background: #E9FAF8;
+            font-weight: 700;
+        }
+
+        /* Drawer Body & Panes */
+        .sec-drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: #F8FAFC;
+        }
+        .sec-tab-pane {
+            display: none;
+        }
+        .sec-tab-pane.active {
+            display: block;
+        }
+
+        /* Subsystem Modules Grid */
+        .sec-subsystem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .sec-subsystem-card {
+            background: #FFFFFF;
+            border: 1.5px solid #2BBFB3;
+            border-radius: 8px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(17, 48, 45, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sec-subsystem-card:hover {
+            border-color: #01879A;
+            box-shadow: 0 6px 20px rgba(1, 135, 154, 0.12);
+            transform: translateY(-2px);
+        }
+        .sec-subsystem-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .sec-subsystem-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #11302D;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sec-vec-icon {
+            width: 18px;
+            height: 18px;
+            color: #01879A;
+            flex-shrink: 0;
+        }
+        .sec-subsystem-desc {
+            font-size: 11.5px;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            flex: 1;
+        }
+        .sec-subsystem-meta {
+            font-size: 10.5px;
+            font-family: 'IBM Plex Mono', monospace;
+            color: #01879A;
+            background: #E9FAF8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+
+        /* Panes content box */
+        .sec-pane-box {
+            background: #FFFFFF;
+            border: 1.5px solid #2BBFB3;
+            border-radius: 8px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(17, 48, 45, 0.04);
+        }
+        .sec-code-snippet {
+            background: #F1F5F9;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 14px;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            color: #0F172A;
+            overflow-x: auto;
+            white-space: pre;
+            margin-top: 10px;
+        }
+        .sec-log-console {
+            background: #0F172A;
+            color: #F8FAFC;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            height: 380px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
     </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 <!-- Cloudflare Turnstile Bot Protection Init -->

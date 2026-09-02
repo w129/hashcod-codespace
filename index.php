@@ -10579,6 +10579,50 @@ if (!headers_sent()) {
             text-align: center;
         }
 
+    
+
+        /* ===== HIGH-TECH LINEAR VECTOR BACKGROUND (CRISP & VISIBLE) ===== */
+        .auth-vector-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(43, 191, 179, 0.08) 0%, transparent 70%),
+                radial-gradient(circle at 10% 20%, rgba(1, 135, 154, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(1, 135, 154, 0.06) 0%, transparent 50%),
+                #f2f5f7;
+        }
+
+        .auth-vector-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .auth-wrapper {
+            position: relative;
+            width: min(480px, 100%);
+            max-width: 100%;
+            margin: 0 auto;
+            display: block;
+            z-index: 10;
+        }
+
+        .auth-card {
+            position: relative;
+            z-index: 10;
+            background: #ffffff !important;
+            border: 1.5px solid #2BBFB3 !important;
+            box-shadow: 0 20px 60px rgba(1, 135, 154, 0.18), 0 4px 16px rgba(17, 48, 45, 0.08) !important;
+            border-radius: 12px;
+        }
+
     </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 <!-- Cloudflare Turnstile Bot Protection Init -->
@@ -10777,107 +10821,115 @@ if (!headers_sent()) {
     <!-- Bloqueo: registro / inicio de sesión (después de Enter) -->
     <div id="authOverlay" class="auth-overlay hidden" role="dialog" aria-modal="true" aria-label="Acceso Hashcod codespace">
 
-        <!-- Linear Vector Graphic Background (Transparent & Legible Lattice & Quantum Blueprints) -->
+        <!-- Linear Vector Graphic Background (Transparent, Crisp & Prominently Visible) -->
         <div class="auth-vector-bg" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" class="auth-vector-svg">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" class="auth-vector-svg">
                 <defs>
-                    <!-- Subtle Isometric Grid Pattern -->
+                    <!-- Visible Blueprint Grid Pattern -->
                     <pattern id="authGridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(1, 135, 154, 0.06)" stroke-width="1"/>
-                        <circle cx="0" cy="0" r="1.5" fill="rgba(1, 135, 154, 0.15)"/>
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#2BBFB3" stroke-width="0.8" stroke-opacity="0.22"/>
+                        <circle cx="0" cy="0" r="1.5" fill="#01879A" fill-opacity="0.35"/>
+                        <path d="M 20 18 L 20 22 M 18 20 L 22 20" stroke="#01879A" stroke-width="0.6" stroke-opacity="0.25"/>
                     </pattern>
-                    <pattern id="authHexPattern" width="60" height="103.92" patternUnits="userSpaceOnUse" patternTransform="scale(0.8)">
-                        <path d="M 30 0 L 60 17.32 L 60 51.96 L 30 69.28 L 0 51.96 L 0 17.32 Z M 30 103.92 L 60 86.6 L 60 51.96 L 30 69.28 L 0 51.96 L 0 86.6 Z" fill="none" stroke="rgba(43, 191, 179, 0.05)" stroke-width="1"/>
+                    <!-- Hexagonal Lattice Pattern -->
+                    <pattern id="authHexPattern" width="80" height="138.56" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 80 23.09 L 80 69.28 L 40 92.38 L 0 69.28 L 0 23.09 Z M 40 138.56 L 80 115.47 L 80 69.28 L 40 92.38 L 0 69.28 L 0 115.47 Z" fill="none" stroke="#01879A" stroke-width="0.9" stroke-opacity="0.14" stroke-dasharray="3,3"/>
                     </pattern>
                 </defs>
 
-                <!-- Background Grid Fill -->
+                <!-- Full Blueprint Grids -->
                 <rect width="100%" height="100%" fill="url(#authGridPattern)"/>
                 <rect width="100%" height="100%" fill="url(#authHexPattern)"/>
 
-                <!-- TOP-LEFT: Concentric Radar & Quantum Lattice Coordinates -->
-                <g transform="translate(200, 180)" stroke="#01879A" stroke-width="1.2" fill="none" opacity="0.6">
-                    <circle cx="0" cy="0" r="140" stroke-dasharray="4,6" opacity="0.4"/>
-                    <circle cx="0" cy="0" r="110"/>
-                    <circle cx="0" cy="0" r="70" stroke-dasharray="2,4"/>
-                    <circle cx="0" cy="0" r="30"/>
-                    <line x1="-160" y1="0" x2="160" y2="0" stroke-dasharray="3,3"/>
-                    <line x1="0" y1="-160" x2="0" y2="160" stroke-dasharray="3,3"/>
-                    <!-- Lattice Nodes -->
-                    <circle cx="110" cy="0" r="3" fill="#2BBFB3"/>
-                    <circle cx="-110" cy="0" r="3" fill="#2BBFB3"/>
-                    <circle cx="0" cy="110" r="3" fill="#2BBFB3"/>
-                    <circle cx="0" cy="-110" r="3" fill="#2BBFB3"/>
-                    <circle cx="77.78" cy="77.78" r="2.5" fill="#01879A"/>
-                    <circle cx="-77.78" cy="77.78" r="2.5" fill="#01879A"/>
-                    <circle cx="77.78" cy="-77.78" r="2.5" fill="#01879A"/>
-                    <circle cx="-77.78" cy="-77.78" r="2.5" fill="#01879A"/>
-                    <text x="12" y="-120" fill="#01879A" font-family="'IBM Plex Mono', monospace" font-size="9" letter-spacing="1">q = 8380417 [NIST ML-DSA-87]</text>
-                    <text x="-140" y="135" fill="#2BBFB3" font-family="'IBM Plex Mono', monospace" font-size="8" letter-spacing="0.5">LATTICE: DILITHIUM-5 / 256-POLY</text>
+                <!-- LEFT SIDE VECTOR DRAWINGS (Visible adjacent to the card) -->
+                <g transform="translate(240, 450)" stroke="#01879A" fill="none">
+                    <!-- Concentric Radar Coordinates -->
+                    <circle cx="0" cy="0" r="180" stroke-width="1.2" stroke-opacity="0.3" stroke-dasharray="6,6"/>
+                    <circle cx="0" cy="0" r="140" stroke-width="1.5" stroke-opacity="0.45"/>
+                    <circle cx="0" cy="0" r="95" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4,4"/>
+                    <circle cx="0" cy="0" r="50" stroke-width="1.5" stroke-opacity="0.5"/>
+                    <circle cx="0" cy="0" r="6" fill="#2BBFB3" fill-opacity="0.6"/>
+
+                    <!-- Axis Crosshairs & Scale Ticks -->
+                    <line x1="-210" y1="0" x2="210" y2="0" stroke-width="1.2" stroke-opacity="0.4" stroke-dasharray="4,4"/>
+                    <line x1="0" y1="-210" x2="0" y2="210" stroke-width="1.2" stroke-opacity="0.4" stroke-dasharray="4,4"/>
+
+                    <!-- Degree Arc & Vectors -->
+                    <path d="M 0 -140 A 140 140 0 0 1 140 0" stroke="#2BBFB3" stroke-width="2.5" stroke-opacity="0.5"/>
+                    <line x1="0" y1="0" x2="120" y2="-120" stroke="#2BBFB3" stroke-width="1.5" stroke-opacity="0.5" stroke-dasharray="3,3"/>
+                    <circle cx="120" cy="-120" r="4" fill="#01879A" fill-opacity="0.7"/>
+
+                    <!-- Nodes and Labels -->
+                    <circle cx="140" cy="0" r="4" fill="#2BBFB3" fill-opacity="0.7"/>
+                    <circle cx="-140" cy="0" r="4" fill="#2BBFB3" fill-opacity="0.7"/>
+                    <circle cx="0" cy="140" r="4" fill="#2BBFB3" fill-opacity="0.7"/>
+                    <circle cx="0" cy="-140" r="4" fill="#2BBFB3" fill-opacity="0.7"/>
+
+                    <!-- Technical Labels (Clear & Legible) -->
+                    <text x="-190" y="-190" fill="#01879A" fill-opacity="0.8" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" letter-spacing="1.5">CRYSTALS-DILITHIUM-5</text>
+                    <text x="-190" y="-172" fill="#2BBFB3" fill-opacity="0.75" font-family="'IBM Plex Mono', monospace" font-size="9.5" letter-spacing="1">MODULUS: q = 8380417 | POLYNOMIAL DEG: 256</text>
+                    <text x="-190" y="195" fill="#11302D" fill-opacity="0.6" font-family="'IBM Plex Mono', monospace" font-size="9" letter-spacing="0.8">PQC LATTICE LAYER // SEC LEVEL 5</text>
                 </g>
 
-                <!-- TOP-RIGHT: Geometric Polyhedral Wireframe & Constellation Lines -->
-                <g transform="translate(1720, 200)" stroke="#2BBFB3" stroke-width="1.2" fill="none" opacity="0.6">
-                    <polygon points="0,-100 86,-50 86,50 0,100 -86,50 -86,-50" stroke-width="1.5"/>
-                    <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30" stroke-dasharray="4,4"/>
-                    <line x1="0" y1="-100" x2="0" y2="100"/>
-                    <line x1="86" y1="-50" x2="-86" y2="50"/>
-                    <line x1="86" y1="50" x2="-86" y2="-50"/>
-                    <circle cx="0" cy="-100" r="3" fill="#01879A"/>
-                    <circle cx="86" cy="-50" r="3" fill="#01879A"/>
-                    <circle cx="86" cy="50" r="3" fill="#01879A"/>
-                    <circle cx="0" cy="100" r="3" fill="#01879A"/>
-                    <circle cx="-86" cy="50" r="3" fill="#01879A"/>
-                    <circle cx="-86" cy="-50" r="3" fill="#01879A"/>
-                    <line x1="-180" y1="0" x2="-100" y2="0" stroke-dasharray="2,3"/>
-                    <line x1="0" y1="110" x2="0" y2="170" stroke-dasharray="2,3"/>
-                    <text x="-190" y="-110" fill="#01879A" font-family="'IBM Plex Mono', monospace" font-size="8.5" letter-spacing="1">ISOMETRIC PQC ENVELOPE</text>
+                <!-- TOP-LEFT: Data Flow Wave Lines & Angle Measurement -->
+                <g transform="translate(100, 100)" stroke="#2BBFB3" stroke-width="1.2" stroke-opacity="0.4" fill="none">
+                    <path d="M 0 0 L 120 0 L 160 40 L 280 40 L 320 0 L 440 0"/>
+                    <path d="M 0 20 L 100 20 L 140 60 L 260 60 L 300 20 L 400 20" stroke-dasharray="4,3"/>
+                    <circle cx="160" cy="40" r="3" fill="#01879A" fill-opacity="0.6"/>
+                    <circle cx="280" cy="40" r="3" fill="#01879A" fill-opacity="0.6"/>
+                    <circle cx="320" cy="0" r="3" fill="#2BBFB3" fill-opacity="0.6"/>
                 </g>
 
-                <!-- BOTTOM-LEFT: Circuit-Board Trace Nodes & Branching Vectors -->
-                <g transform="translate(160, 880)" stroke="#01879A" stroke-width="1.2" fill="none" opacity="0.6">
-                    <path d="M 0 0 L 80 0 L 140 -60 L 260 -60 L 300 -20 L 420 -20"/>
-                    <path d="M 40 40 L 120 40 L 180 -20 L 240 -20 L 280 20 L 380 20"/>
-                    <path d="M 0 80 L 100 80 L 160 20 L 220 20 L 260 60 L 340 60"/>
-                    <circle cx="0" cy="0" r="3" fill="#2BBFB3"/>
-                    <circle cx="420" cy="-20" r="3.5" fill="#01879A"/>
-                    <circle cx="40" cy="40" r="3" fill="#2BBFB3"/>
-                    <circle cx="380" cy="20" r="3" fill="#01879A"/>
-                    <circle cx="0" cy="80" r="3" fill="#2BBFB3"/>
-                    <circle cx="340" cy="60" r="3" fill="#01879A"/>
-                    <rect x="-60" y="-40" width="50" height="140" rx="4" stroke="#2BBFB3" stroke-width="1" stroke-dasharray="3,3"/>
-                    <text x="20" y="105" fill="#11302D" font-family="'IBM Plex Mono', monospace" font-size="8" letter-spacing="0.5">HARDWARE CRYPTO CORE // NIST FIPS 204</text>
+                <!-- RIGHT SIDE VECTOR DRAWINGS (Visible adjacent to the card) -->
+                <g transform="translate(1360, 450)" stroke="#01879A" fill="none">
+                    <!-- 3D Isometric Quantum Hypercube -->
+                    <polygon points="0,-120 104,-60 104,60 0,120 -104,60 -104,-60" stroke="#01879A" stroke-width="1.8" stroke-opacity="0.55"/>
+                    <polygon points="0,-70 60,-35 60,35 0,70 -60,35 -60,-35" stroke="#2BBFB3" stroke-width="1.2" stroke-opacity="0.45" stroke-dasharray="4,4"/>
+                    
+                    <!-- Internal Interconnecting Rays -->
+                    <line x1="0" y1="-120" x2="0" y2="120" stroke-width="1.2" stroke-opacity="0.35"/>
+                    <line x1="104" y1="-60" x2="-104" y2="60" stroke-width="1.2" stroke-opacity="0.35"/>
+                    <line x1="104" y1="60" x2="-104" y2="-60" stroke-width="1.2" stroke-opacity="0.35"/>
+
+                    <!-- Vertex Rings -->
+                    <circle cx="0" cy="-120" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
+                    <circle cx="104" cy="-60" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
+                    <circle cx="104" cy="60" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
+                    <circle cx="0" cy="120" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
+                    <circle cx="-104" cy="60" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
+                    <circle cx="-104" cy="-60" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
+
+                    <!-- Outer Orbit Ring -->
+                    <circle cx="0" cy="0" r="160" stroke="#2BBFB3" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="8,8"/>
+                    <circle cx="0" cy="0" r="195" stroke="#01879A" stroke-width="1.2" stroke-opacity="0.25"/>
+
+                    <!-- Technical Labels (Clear & Legible) -->
+                    <text x="-120" y="-145" fill="#01879A" fill-opacity="0.8" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" letter-spacing="1.5">QUANTUM LATTICE MATRIX</text>
+                    <text x="-120" y="-128" fill="#2BBFB3" fill-opacity="0.75" font-family="'IBM Plex Mono', monospace" font-size="9.5" letter-spacing="1">DIMENSIONS: ℝ^256 mod q</text>
+                    <text x="-120" y="165" fill="#11302D" fill-opacity="0.6" font-family="'IBM Plex Mono', monospace" font-size="9" letter-spacing="0.8">ZERO-KNOWLEDGE VERIFICATION</text>
                 </g>
 
-                <!-- BOTTOM-RIGHT: 3D Wireframe Quantum Hypercube Lattice -->
-                <g transform="translate(1700, 860)" stroke="#01879A" stroke-width="1.2" fill="none" opacity="0.6">
-                    <rect x="-80" y="-80" width="100" height="100" rx="2" stroke-width="1.3"/>
-                    <rect x="-40" y="-120" width="100" height="100" rx="2" stroke-dasharray="3,3" opacity="0.7"/>
-                    <line x1="-80" y1="-80" x2="-40" y2="-120"/>
-                    <line x1="20" y1="-80" x2="60" y2="-120"/>
-                    <line x1="20" y1="20" x2="60" y2="-20"/>
-                    <line x1="-80" y1="20" x2="-40" y2="-20"/>
-                    <circle cx="-80" cy="-80" r="3" fill="#2BBFB3"/>
-                    <circle cx="20" cy="-80" r="3" fill="#2BBFB3"/>
-                    <circle cx="20" cy="20" r="3" fill="#2BBFB3"/>
-                    <circle cx="-80" cy="20" r="3" fill="#2BBFB3"/>
-                    <circle cx="-40" cy="-120" r="2.5" fill="#01879A"/>
-                    <circle cx="60" cy="-120" r="2.5" fill="#01879A"/>
-                    <circle cx="60" cy="-20" r="2.5" fill="#01879A"/>
-                    <circle cx="-40" cy="-20" r="2.5" fill="#01879A"/>
-                    <line x1="-120" y1="20" x2="90" y2="20" stroke-dasharray="2,4"/>
-                    <text x="-120" y="45" fill="#01879A" font-family="'IBM Plex Mono', monospace" font-size="8" letter-spacing="1">DIMENSIONS: ℝ^256 mod q</text>
+                <!-- BOTTOM-RIGHT: Cybernetic PCB Circuit Node Branches -->
+                <g transform="translate(1200, 780)" stroke="#01879A" stroke-width="1.3" stroke-opacity="0.45" fill="none">
+                    <path d="M 0 0 L 60 0 L 100 -40 L 220 -40 L 260 0 L 360 0"/>
+                    <path d="M 20 20 L 80 20 L 120 -20 L 200 -20 L 240 20 L 320 20" stroke-dasharray="4,3"/>
+                    <circle cx="0" cy="0" r="3.5" fill="#2BBFB3" fill-opacity="0.7"/>
+                    <circle cx="100" cy="-40" r="3.5" fill="#01879A" fill-opacity="0.7"/>
+                    <circle cx="220" cy="-40" r="3.5" fill="#2BBFB3" fill-opacity="0.7"/>
+                    <circle cx="360" cy="0" r="4" fill="#01879A" fill-opacity="0.8"/>
+                    <text x="40" y="45" fill="#11302D" fill-opacity="0.55" font-family="'IBM Plex Mono', monospace" font-size="8.5" letter-spacing="0.5">HARDWARE CRYPTO CORE // NIST FIPS 204</text>
                 </g>
 
-                <!-- Concentric Linear Vector Orbit Rings (Ambient Center) -->
-                <g stroke="#2BBFB3" stroke-width="1" fill="none" opacity="0.35">
-                    <circle cx="960" cy="540" r="380" stroke-dasharray="6,8"/>
-                    <circle cx="960" cy="540" r="500" stroke-dasharray="3,6"/>
-                    <circle cx="960" cy="540" r="640" stroke-dasharray="10,12"/>
-                    <line x1="200" y1="540" x2="600" y2="540" stroke-dasharray="4,4"/>
-                    <line x1="1320" y1="540" x2="1720" y2="540" stroke-dasharray="4,4"/>
-                    <line x1="960" y1="60" x2="960" y2="200" stroke-dasharray="4,4"/>
-                    <line x1="960" y1="880" x2="960" y2="1020" stroke-dasharray="4,4"/>
+                <!-- CORNER BOUNDING BRACKETS & CALIBRATION CROSSHAIRS -->
+                <g stroke="#01879A" stroke-width="1.5" stroke-opacity="0.45" fill="none">
+                    <!-- Top Left Bracket -->
+                    <path d="M 30 60 L 30 30 L 60 30"/>
+                    <!-- Top Right Bracket -->
+                    <path d="M 1570 60 L 1570 30 L 1540 30"/>
+                    <!-- Bottom Left Bracket -->
+                    <path d="M 30 840 L 30 870 L 60 870"/>
+                    <!-- Bottom Right Bracket -->
+                    <path d="M 1570 840 L 1570 870 L 1540 870"/>
                 </g>
             </svg>
         </div>

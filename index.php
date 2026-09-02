@@ -10913,7 +10913,7 @@ if (!headers_sent()) {
         </div>
 
             <!-- Dilithium-5 Signature Generator Launcher Button (Outside Register Window) -->
-            <button type="button" class="d5-launcher-btn" id="d5LauncherBtn" onclick="openDilithiumGeneratorModal()" title="Generador y Multiplicador de Firmas Dilithium-5" style="display: none;">
+            <button type="button" class="d5-launcher-btn" id="d5LauncherBtn" onclick="openDilithiumSecurityGate()" title="Generador y Multiplicador de Firmas Dilithium-5" style="display: none;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="32" height="32">
                     <g fill="#01879A" fill-rule="nonzero"><g transform="scale(5.12,5.12)">
                         <path d="M28.0293,1c-0.27531,-0.0079 -0.5417,0.09809 -0.73633,0.29297l-25,25c-0.22242,0.22231 -0.32732,0.53629 -0.2832,0.84766l3,21c0.05335,0.37513 0.31413,0.6879 0.67355,0.80785c0.35942,0.11995 0.75577,0.02647 1.02372,-0.24144l5.53516,-5.53516l9.38672,3.75586c0.37118,0.14854 0.79517,0.06175 1.07813,-0.2207l25,-25c0.39037,-0.39053 0.39037,-1.02353 0,-1.41406l-18.96875,-18.96875c-0.01019,-0.01065 -0.0206,-0.02106 -0.03125,-0.03125c-0.18027,-0.18053 -0.42272,-0.28533 -0.67773,-0.29297zM27.29297,4.12109l2.64648,18.52539l-23.23242,23.23242l-2.64648,-18.52539zM29.41406,4.82813l13.54688,13.54688l-8.60156,-3.30859c-0.12509,-0.04822 -0.25859,-0.07081 -0.39258,-0.06641c-0.25365,0.00862 -0.49453,0.11335 -0.67383,0.29297l-2.08594,2.08594zM34.24805,17.16602l10.95703,4.21484l-23.44531,23.44531l-7.98047,-3.19141l17.92773,-17.92773c0.22242,-0.22231 0.32732,-0.53629 0.2832,-0.84766l-0.42969,-3.00586z"></path>
@@ -23615,7 +23615,64 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
             let currentActiveSignature = D5_BASE_SIGNATURE;
             const Q_MODULUS = 8380417n;
 
+let d5Unlocked = false;
+            const REQUIRED_D5_GATE_CODE = '36276217';
+
+            window.openDilithiumSecurityGate = function () {
+                if (d5Unlocked) {
+                    openDilithiumGeneratorModalInternal();
+                    return;
+                }
+                const gate = document.getElementById('dilithiumGateModal');
+                const input = document.getElementById('d5GatePasscodeInput');
+                const errMsg = document.getElementById('d5GateErrorMsg');
+                if (errMsg) errMsg.style.display = 'none';
+                if (input) {
+                    input.value = '';
+                    input.style.borderColor = '#2BBFB3';
+                }
+                if (gate) {
+                    gate.classList.add('open');
+                    gate.style.display = 'flex';
+                    gate.style.zIndex = '9999999';
+                    setTimeout(() => input && input.focus(), 60);
+                }
+            };
+
+            window.closeDilithiumGateModal = function () {
+                const gate = document.getElementById('dilithiumGateModal');
+                if (gate) {
+                    gate.classList.remove('open');
+                    gate.style.display = 'none';
+                }
+            };
+
+            window.verifyDilithiumGateCode = function () {
+                const input = document.getElementById('d5GatePasscodeInput');
+                const errMsg = document.getElementById('d5GateErrorMsg');
+                const val = (input?.value || '').trim();
+
+                if (val === REQUIRED_D5_GATE_CODE) {
+                    d5Unlocked = true;
+                    window.closeDilithiumGateModal();
+                    openDilithiumGeneratorModalInternal();
+                    if (typeof window.showAdminToast === 'function') {
+                        window.showAdminToast('✓ Código correcto: Dilithium-5 Generator desbloqueado.');
+                    }
+                } else {
+                    if (errMsg) errMsg.style.display = 'block';
+                    if (input) {
+                        input.style.borderColor = '#dc2626';
+                        input.focus();
+                    }
+                }
+            };
+
             window.openDilithiumGeneratorModal = function () {
+                window.openDilithiumSecurityGate();
+            };
+
+            function openDilithiumGeneratorModalInternal() {
                 const modal = document.getElementById('dilithiumGeneratorModal');
                 const origSigEl = document.getElementById('d5GenOriginalSig');
                 const badgeEl = document.getElementById('d5GenIterationBadge');
@@ -23628,8 +23685,12 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 if (resEl && !resEl.value) {
                     resEl.value = currentActiveSignature;
                 }
-                if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; modal.style.zIndex = '999999'; }
-            };
+                if (modal) {
+                    modal.classList.add('open');
+                    modal.style.display = 'flex';
+                    modal.style.zIndex = '999999';
+                }
+            }
 
             window.closeDilithiumGeneratorModal = function () {
                 const modal = document.getElementById('dilithiumGeneratorModal');

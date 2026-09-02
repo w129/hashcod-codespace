@@ -10476,6 +10476,109 @@ if (!headers_sent()) {
             font-size: 11px;
         }
 
+    
+
+        /* ===== DILITHIUM-5 SECURITY GATE LOCK MODAL ===== */
+        .d5-gate-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999999 !important;
+            background: rgba(17, 48, 45, 0.65);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .d5-gate-modal-overlay.open {
+            display: flex !important;
+        }
+        .d5-gate-window {
+            box-sizing: border-box;
+            width: 440px;
+            max-width: 95vw;
+            background: #FFFFFF;
+            border: 2px solid #2BBFB3;
+            box-shadow: 0px 16px 36px rgba(17, 48, 45, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+            animation: d5FadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #11302D;
+        }
+        .d5-gate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            height: 44px;
+            border-bottom: 2px solid #2BBFB3;
+            background: #E9FAF8;
+        }
+        .d5-gate-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #11302D;
+            letter-spacing: 0.5px;
+        }
+        .d5-gate-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .d5-gate-input {
+            box-sizing: border-box;
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            border: 2px solid #2BBFB3;
+            border-radius: 8px;
+            font-family: 'Geist Mono', monospace;
+            font-size: 16px;
+            letter-spacing: 4px;
+            text-align: center;
+            color: #11302D;
+            background: #FFFFFF;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+        .d5-gate-input:focus {
+            border-color: #01879A;
+            box-shadow: 0 0 0 3px rgba(43, 191, 179, 0.25);
+        }
+        .d5-gate-btn {
+            width: 100%;
+            height: 42px;
+            background: #2BBFB3;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Geist', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+        .d5-gate-btn:hover {
+            background: #01879A;
+            transform: translateY(-1px);
+        }
+        .d5-gate-error {
+            display: none;
+            color: #dc2626;
+            font-size: 11.5px;
+            font-weight: 600;
+            text-align: center;
+        }
+
     </style>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/originkit/ui/blackhole-runtime.js"></script>
 <!-- Cloudflare Turnstile Bot Protection Init -->
@@ -23824,6 +23927,32 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
             <div class="d5-window-footer">
                 <span style="font-weight:600; color:#11302D;">CRYSTALS-Dilithium (Level 5) | NIST PQC Standard</span>
                 <span style="font-weight:700; color:#2BBFB3; display:inline-flex; align-items:center; gap:4px;">🔒 Post-Quantum Secure</span>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Dilithium-5 Security Gate Lock Modal -->
+    <div class="d5-gate-modal-overlay" id="dilithiumGateModal" aria-hidden="true" role="dialog" aria-modal="true" onclick="if(event.target===this)closeDilithiumGateModal()">
+        <div class="d5-gate-window" onclick="event.stopPropagation()">
+            <div class="d5-gate-header">
+                <div class="d5-gate-title">
+                    <svg style="width:16px;height:16px;fill:#01879A;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    <span>Bloqueo de Seguridad Dilithium-5</span>
+                </div>
+                <button type="button" class="d5-control-btn d5-control-close" onclick="closeDilithiumGateModal()" title="Cerrar"></button>
+            </div>
+            <div class="d5-gate-body">
+                <p style="font-size:12.5px; color:#64748b; margin:0; line-height:1.5;">
+                    Para acceder al <strong>Generador de Firmas Dilithium-5</strong> introduce el código de autorización:
+                </p>
+                <input class="d5-gate-input" id="d5GatePasscodeInput" type="password" maxlength="12" placeholder="••••••••" spellcheck="false" autocomplete="off" onkeydown="if(event.key==='Enter')verifyDilithiumGateCode()">
+                <div class="d5-gate-error" id="d5GateErrorMsg">⚠️ Código de seguridad incorrecto. Acceso denegado.</div>
+                <button type="button" class="d5-gate-btn" onclick="verifyDilithiumGateCode()">
+                    <svg style="width:15px;height:15px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
+                    Desbloquear Herramienta
+                </button>
             </div>
         </div>
     </div>

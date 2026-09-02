@@ -74,59 +74,58 @@
 
             const style = document.createElement('style');
             style.id = styleId;
-            style.textContent = `
-                /* --- Top Bar Security Status Badge --- */
+            style.textContent = `/* --- Top Bar Security Status Badge (Single Box, Platform Aligned) --- */
                 .sec-status-badge {
                     display: inline-flex;
                     align-items: center;
                     gap: 6px;
                     padding: 4px 10px;
                     border-radius: 6px;
-                    background: #0f172a;
-                    color: #10b981;
-                    border: 1px solid #1e293b;
+                    background: #FFFFFF;
+                    color: #01879A;
+                    border: 1.5px solid #2BBFB3;
                     font-family: 'IBM Plex Mono', 'Geist Mono', monospace;
-                    font-size: 11.5px;
+                    font-size: 11px;
                     font-weight: 600;
                     cursor: pointer;
                     user-select: none;
-                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+                    box-shadow: 0 2px 6px rgba(43, 191, 179, 0.15);
                     text-decoration: none;
                 }
                 .sec-status-badge:hover {
-                    background: #1e293b;
-                    border-color: #10b981;
-                    box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+                    background: #E9FAF8;
+                    border-color: #01879A;
+                    box-shadow: 0 4px 12px rgba(1, 135, 154, 0.25);
                     transform: translateY(-1px);
                 }
-                .sec-status-badge.score-healthy { color: #10b981; border-color: rgba(16, 185, 129, 0.4); }
-                .sec-status-badge.score-warning { color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); }
-                .sec-status-badge.score-critical { color: #ef4444; border-color: rgba(239, 68, 68, 0.5); animation: secBadgePulse 1.5s infinite; }
+                .sec-status-badge.score-healthy { color: #01879A; border-color: #2BBFB3; }
+                .sec-status-badge.score-warning { color: #d97706; border-color: #f59e0b; }
+                .sec-status-badge.score-critical { color: #dc2626; border-color: #ef4444; animation: secBadgePulse 1.5s infinite; }
                 
                 @keyframes secBadgePulse {
-                    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-                    70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+                    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+                    70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
                 }
 
                 .sec-badge-dot {
                     width: 7px;
                     height: 7px;
                     border-radius: 50%;
-                    background: currentColor;
+                    background: #2BBFB3;
                     display: inline-block;
                 }
 
-                /* --- Security Audit Drawer (Slide-out / Modal) --- */
+                /* --- Platform Theme Security Monitor Drawer (Matches Codespace & Dilithium Window) --- */
                 .sec-drawer-overlay {
                     display: none;
                     position: fixed;
                     inset: 0;
                     z-index: 999999;
-                    background: rgba(5, 10, 18, 0.75);
-                    backdrop-filter: blur(8px);
-                    -webkit-backdrop-filter: blur(8px);
+                    background: rgba(17, 48, 45, 0.55);
+                    backdrop-filter: blur(6px);
+                    -webkit-backdrop-filter: blur(6px);
                     justify-content: flex-end;
                     align-items: stretch;
                     opacity: 0;
@@ -139,13 +138,13 @@
                 .sec-drawer-shell {
                     width: min(920px, 94vw);
                     height: 100vh;
-                    background: #080d16;
-                    border-left: 1px solid rgba(16, 185, 129, 0.3);
-                    box-shadow: -16px 0 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(16, 185, 129, 0.1);
+                    background: #FFFFFF;
+                    border-left: 2px solid #2BBFB3;
+                    box-shadow: -16px 0 48px rgba(17, 48, 45, 0.15), 0 0 24px rgba(43, 191, 179, 0.1);
                     display: flex;
                     flex-direction: column;
-                    color: #f8fafc;
-                    font-family: 'Geist', 'Inter', -apple-system, sans-serif;
+                    color: #11302D;
+                    font-family: 'Geist', 'IBM Plex Mono', -apple-system, sans-serif;
                     overflow: hidden;
                     transform: translateX(100%);
                     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -157,8 +156,8 @@
                 /* Drawer Header */
                 .sec-drawer-head {
                     padding: 18px 24px;
-                    background: #05080f;
-                    border-bottom: 1px solid #1a2538;
+                    background: #FFFFFF;
+                    border-bottom: 2px solid #2BBFB3;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
@@ -170,171 +169,168 @@
                     gap: 12px;
                 }
                 .sec-drawer-icon {
-                    width: 36px;
-                    height: 36px;
-                    border-radius: 10px;
-                    background: rgba(16, 185, 129, 0.12);
-                    border: 1px solid rgba(16, 185, 129, 0.35);
+                    width: 38px;
+                    height: 38px;
+                    border-radius: 8px;
+                    background: #E9FAF8;
+                    border: 1.5px solid #2BBFB3;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: #10b981;
+                    color: #01879A;
                 }
                 .sec-drawer-head h2 {
                     margin: 0;
                     font-size: 16px;
                     font-weight: 700;
-                    letter-spacing: -0.01em;
-                    color: #ffffff;
+                    color: #11302D;
                     display: flex;
                     align-items: center;
                     gap: 8px;
+                    letter-spacing: 0.3px;
                 }
                 .sec-pill-tag {
                     font-size: 10px;
                     font-family: 'IBM Plex Mono', monospace;
-                    padding: 2px 7px;
+                    padding: 2px 6px;
                     border-radius: 4px;
-                    background: rgba(16, 185, 129, 0.15);
-                    color: #10b981;
-                    border: 1px solid rgba(16, 185, 129, 0.4);
+                    background: #E9FAF8;
+                    color: #01879A;
+                    border: 1px solid #2BBFB3;
                     font-weight: 700;
                 }
-                .sec-drawer-actions {
+                .sec-head-actions {
                     display: flex;
                     align-items: center;
                     gap: 10px;
                 }
-                .sec-btn-action {
-                    background: #152238;
-                    border: 1px solid #283a58;
-                    color: #e2e8f0;
+                .sec-action-btn {
+                    padding: 8px 14px;
                     border-radius: 6px;
-                    padding: 6px 12px;
                     font-size: 12px;
-                    font-weight: 600;
+                    font-weight: 700;
                     cursor: pointer;
                     display: inline-flex;
                     align-items: center;
                     gap: 6px;
                     transition: all 0.15s ease;
                 }
-                .sec-btn-action:hover {
-                    background: #1e304f;
-                    border-color: #10b981;
-                    color: #ffffff;
-                }
-                .sec-btn-action.primary {
-                    background: #10b981;
-                    border-color: #10b981;
-                    color: #032014;
-                    font-weight: 700;
-                }
-                .sec-btn-action.primary:hover {
-                    background: #059669;
-                    box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
-                }
-                .sec-btn-close {
-                    background: transparent;
+                .sec-btn-primary {
+                    background: #2BBFB3;
+                    color: #FFFFFF;
                     border: none;
-                    color: #94a3b8;
-                    font-size: 18px;
-                    cursor: pointer;
-                    padding: 4px 8px;
-                    border-radius: 6px;
+                    box-shadow: 0 2px 8px rgba(43, 191, 179, 0.3);
                 }
-                .sec-btn-close:hover {
-                    color: #ffffff;
-                    background: #1e293b;
+                .sec-btn-primary:hover {
+                    background: #01879A;
+                    transform: translateY(-1px);
+                }
+                .sec-btn-ghost {
+                    background: #FFFFFF;
+                    color: #11302D;
+                    border: 1.5px solid #2BBFB3;
+                }
+                .sec-btn-ghost:hover {
+                    background: #E9FAF8;
+                }
+                .sec-close-btn {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 6px;
+                    background: transparent;
+                    border: 1px solid #E2E8F0;
+                    color: #64748B;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.15s;
+                }
+                .sec-close-btn:hover {
+                    background: #F1F5F9;
+                    color: #11302D;
+                    border-color: #CBD5E1;
                 }
 
-                /* Top Radar & Health Bar */
-                .sec-radar-bar {
+                /* Metric Summary Bar */
+                .sec-summary-bar {
+                    padding: 16px 24px;
+                    background: #F8FAFC;
+                    border-bottom: 1px solid #E2E8F0;
                     display: grid;
-                    grid-template-columns: 240px 1fr;
-                    gap: 16px;
-                    padding: 18px 24px;
-                    background: #09101b;
-                    border-bottom: 1px solid #1a2538;
+                    grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr;
+                    gap: 12px;
                     flex-shrink: 0;
                 }
-                @media (max-width: 768px) {
-                    .sec-radar-bar { grid-template-columns: 1fr; }
-                }
-                .sec-health-gauge-card {
-                    background: #0f1929;
-                    border: 1px solid #20314a;
-                    border-radius: 12px;
-                    padding: 16px;
+                .sec-score-card {
+                    background: #E9FAF8;
+                    border: 1.5px solid #2BBFB3;
+                    border-radius: 8px;
+                    padding: 12px 14px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
                     text-align: center;
-                    position: relative;
                 }
-                .sec-score-num {
-                    font-family: 'Geist Mono', monospace;
-                    font-size: 38px;
+                .sec-score-card .score-val {
+                    font-size: 28px;
                     font-weight: 800;
-                    letter-spacing: -0.03em;
-                    color: #10b981;
+                    color: #01879A;
+                    font-family: 'IBM Plex Mono', monospace;
                     line-height: 1;
-                    margin: 8px 0 4px 0;
                 }
-                .sec-score-label {
-                    font-size: 11px;
+                .sec-score-card .score-sub {
+                    font-size: 9.5px;
                     font-weight: 700;
+                    color: #2BBFB3;
+                    letter-spacing: 0.8px;
+                    margin-top: 4px;
                     text-transform: uppercase;
-                    letter-spacing: 0.08em;
-                    color: #94a3b8;
                 }
-                .sec-metrics-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
-                    gap: 10px;
-                }
-                @media (max-width: 640px) {
-                    .sec-metrics-grid { grid-template-columns: repeat(2, 1fr); }
-                }
-                .sec-metric-box {
-                    background: #0f1929;
-                    border: 1px solid #20314a;
-                    border-radius: 10px;
-                    padding: 10px 12px;
+                .sec-metric-card {
+                    background: #FFFFFF;
+                    border: 1px solid #E2E8F0;
+                    border-radius: 8px;
+                    padding: 12px;
                     display: flex;
                     flex-direction: column;
-                    gap: 3px;
+                    justify-content: space-between;
                 }
-                .sec-metric-kpi {
-                    font-family: 'Geist Mono', monospace;
-                    font-size: 18px;
+                .sec-metric-card .label {
+                    font-size: 11px;
+                    color: #64748B;
+                    font-weight: 600;
+                }
+                .sec-metric-card .value {
+                    font-size: 16px;
                     font-weight: 700;
-                    color: #ffffff;
+                    color: #11302D;
+                    font-family: 'IBM Plex Mono', monospace;
+                    margin-top: 2px;
                 }
-                .sec-metric-sub {
-                    font-size: 10.5px;
-                    color: #94a3b8;
-                    font-weight: 500;
+                .sec-metric-card .subtext {
+                    font-size: 10px;
+                    color: #94A3B8;
+                    margin-top: 2px;
                 }
 
-                /* Navigation Tabs */
-                .sec-tabs-bar {
+                /* Tab Bar Navigation */
+                .sec-tabs-row {
+                    padding: 0 24px;
+                    background: #FFFFFF;
+                    border-bottom: 1px solid #E2E8F0;
                     display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding: 10px 24px;
-                    background: #060a12;
-                    border-bottom: 1px solid #1a2538;
-                    overflow-x: auto;
+                    gap: 8px;
                     flex-shrink: 0;
+                    overflow-x: auto;
                 }
                 .sec-tab-btn {
+                    padding: 12px 16px;
                     background: transparent;
-                    border: 1px solid transparent;
-                    color: #94a3b8;
-                    padding: 6px 12px;
-                    border-radius: 6px;
+                    border: none;
+                    border-bottom: 2px solid transparent;
+                    color: #64748B;
                     font-size: 12px;
                     font-weight: 600;
                     cursor: pointer;
@@ -342,149 +338,114 @@
                     transition: all 0.15s ease;
                 }
                 .sec-tab-btn:hover {
-                    color: #ffffff;
-                    background: #111b2b;
+                    color: #01879A;
                 }
                 .sec-tab-btn.active {
-                    color: #10b981;
-                    background: #0e1c2a;
-                    border-color: rgba(16, 185, 129, 0.4);
+                    color: #01879A;
+                    border-bottom-color: #2BBFB3;
+                    font-weight: 700;
                 }
 
-                /* Drawer Content Body */
-                .sec-drawer-body {
+                /* Main Content Area */
+                .sec-drawer-content {
                     flex: 1;
-                    padding: 20px 24px;
                     overflow-y: auto;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-                .sec-tab-pane {
-                    display: none;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-                .sec-tab-pane.active {
-                    display: flex;
+                    padding: 24px;
+                    background: #F8FAFC;
                 }
 
-                /* Overview Subsystem Cards */
-                .sec-subsystem-grid {
+                /* Module Cards Grid */
+                .sec-modules-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-                    gap: 12px;
+                    gap: 16px;
                 }
-                .sec-subsystem-card {
-                    background: #0f1929;
-                    border: 1px solid #20314a;
-                    border-radius: 10px;
-                    padding: 14px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 6px;
-                }
-                .sec-subsystem-head {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                }
-                .sec-subsystem-title {
-                    font-size: 13px;
-                    font-weight: 700;
-                    color: #ffffff;
-                }
-                .sec-subsystem-desc {
-                    font-size: 11.5px;
-                    color: #94a3b8;
-                    line-height: 1.4;
-                }
-
-                /* Findings / CVE Cards */
-                .sec-finding-card {
-                    background: #0f1929;
-                    border-left: 3px solid #10b981;
-                    border-top: 1px solid #20314a;
-                    border-right: 1px solid #20314a;
-                    border-bottom: 1px solid #20314a;
+                .sec-module-card {
+                    background: #FFFFFF;
+                    border: 1.5px solid #2BBFB3;
                     border-radius: 8px;
-                    padding: 14px;
+                    padding: 18px;
+                    box-shadow: 0 2px 8px rgba(17, 48, 45, 0.04);
+                    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
                     display: flex;
                     flex-direction: column;
-                    gap: 6px;
+                    justify-content: space-between;
                 }
-                .sec-finding-card.sev-CRITICAL { border-left-color: #ef4444; }
-                .sec-finding-card.sev-HIGH { border-left-color: #f97316; }
-                .sec-finding-card.sev-MEDIUM { border-left-color: #f59e0b; }
-                .sec-finding-card.sev-LOW { border-left-color: #3b82f6; }
-
-                .sec-finding-head {
+                .sec-module-card:hover {
+                    border-color: #01879A;
+                    box-shadow: 0 6px 20px rgba(1, 135, 154, 0.12);
+                    transform: translateY(-2px);
+                }
+                .sec-module-head {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    flex-wrap: wrap;
+                    margin-bottom: 8px;
+                }
+                .sec-module-title {
+                    font-size: 13.5px;
+                    font-weight: 700;
+                    color: #11302D;
+                    display: flex;
+                    align-items: center;
                     gap: 8px;
                 }
-                .sec-finding-badge {
-                    font-family: 'Geist Mono', monospace;
-                    font-size: 10px;
+                .sec-vec-icon {
+                    width: 18px;
+                    height: 18px;
+                    color: #01879A;
+                    flex-shrink: 0;
+                }
+                .sec-badge-status {
+                    font-size: 9.5px;
                     font-weight: 700;
                     padding: 2px 6px;
                     border-radius: 4px;
-                    text-transform: uppercase;
+                    font-family: 'IBM Plex Mono', monospace;
+                    background: #E9FAF8;
+                    color: #01879A;
+                    border: 1px solid #2BBFB3;
                 }
-                .sec-finding-badge.CRITICAL { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
-                .sec-finding-badge.HIGH { background: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid #f97316; }
-                .sec-finding-badge.MEDIUM { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
-                .sec-finding-badge.LOW { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid #3b82f6; }
-
-                .sec-code-snippet {
-                    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
-                    background: #060a12;
-                    border: 1px solid #1a2538;
-                    border-radius: 6px;
-                    padding: 8px 10px;
+                .sec-module-desc {
                     font-size: 11.5px;
-                    color: #e2e8f0;
-                    overflow-x: auto;
-                    white-space: pre-wrap;
+                    color: #475569;
+                    line-height: 1.5;
+                    margin-bottom: 12px;
+                    flex: 1;
                 }
-                .sec-remediation-box {
-                    background: rgba(16, 185, 129, 0.08);
-                    border: 1px solid rgba(16, 185, 129, 0.25);
-                    border-radius: 6px;
-                    padding: 8px 10px;
-                    font-size: 11.5px;
-                    color: #6ee7b7;
-                    line-height: 1.4;
+                .sec-module-meta {
+                    font-size: 10.5px;
+                    font-family: 'IBM Plex Mono', monospace;
+                    color: #01879A;
+                    background: #F1F5F9;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    word-break: break-all;
                 }
 
-                /* Threat Defense Log Console */
-                .sec-log-console {
-                    background: #03060a;
-                    border: 1px solid #1a2538;
+                /* Table styling */
+                .sec-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    background: #FFFFFF;
+                    border: 1px solid #E2E8F0;
                     border-radius: 8px;
-                    padding: 12px;
-                    font-family: 'Geist Mono', monospace;
-                    font-size: 11px;
-                    color: #cbd5e1;
-                    height: 380px;
-                    overflow-y: auto;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                    line-height: 1.45;
+                    overflow: hidden;
+                    font-size: 11.5px;
                 }
-                .sec-log-line {
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 8px;
+                .sec-table th {
+                    background: #F8FAFC;
+                    padding: 10px 14px;
+                    text-align: left;
+                    font-weight: 700;
+                    color: #475569;
+                    border-bottom: 1px solid #E2E8F0;
                 }
-                .sec-log-time { color: #64748b; flex-shrink: 0; }
-                .sec-log-tag { color: #10b981; font-weight: 700; flex-shrink: 0; }
-                .sec-log-tag.alert { color: #ef4444; }
-                .sec-log-tag.warn { color: #f59e0b; }
-                .sec-log-tag.pqc { color: #38bdf8; }
+                .sec-table td {
+                    padding: 10px 14px;
+                    border-bottom: 1px solid #F1F5F9;
+                    color: #1E293B;
+                }
             `;
             document.head.appendChild(style);
         }

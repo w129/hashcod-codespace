@@ -859,8 +859,9 @@
         <div class="top-bar-right" style="display:flex; align-items:center; gap:8px;">
             <button type="button" class="sec-status-badge score-healthy" id="secStatusBarBadge" title="Abrir Monitor de Seguridad & Watchdog en Vivo" onclick="window.openSecurityMonitor && window.openSecurityMonitor()">
                 <span class="sec-badge-dot"></span>
-                <span id="secBadgeScoreText">🛡️ Security: 100/100</span>
-                <span class="sec-pill-tag" id="secBadgeQuantumTag" style="font-size:9px; padding:1px 4px;">PQC 100%</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span id="secBadgeScoreText">Security: 100/100</span>
+                <span class="sec-pill-tag" id="secBadgeQuantumTag" style="font-size:9px; padding:1px 5px;">PQC 100%</span>
             </button>
             <button type="button" class="icon-logout" id="topBarLogoutBtn" title="Cerrar sesión de la cuenta" aria-label="Cerrar sesión de la cuenta" onclick="window.l8LogoutSession && window.l8LogoutSession()">
 

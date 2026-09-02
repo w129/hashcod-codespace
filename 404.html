@@ -157,115 +157,160 @@
     <!-- Bloqueo: registro / inicio de sesión (después de Enter) -->
     <div id="authOverlay" class="auth-overlay hidden" role="dialog" aria-modal="true" aria-label="Acceso Hashcod codespace">
 
-        <!-- Linear Vector Graphic Background (Transparent, Crisp & Prominently Visible) -->
+        <!-- Linear Code Vector Background (Transparent Monochrome Black Line Art) -->
         <div class="auth-vector-bg" aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" class="auth-vector-svg">
                 <defs>
-                    <!-- Visible Blueprint Grid Pattern -->
-                    <pattern id="authGridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#2BBFB3" stroke-width="0.8" stroke-opacity="0.22"/>
-                        <circle cx="0" cy="0" r="1.5" fill="#01879A" fill-opacity="0.35"/>
-                        <path d="M 20 18 L 20 22 M 18 20 L 22 20" stroke="#01879A" stroke-width="0.6" stroke-opacity="0.25"/>
-                    </pattern>
-                    <!-- Hexagonal Lattice Pattern -->
-                    <pattern id="authHexPattern" width="80" height="138.56" patternUnits="userSpaceOnUse">
-                        <path d="M 40 0 L 80 23.09 L 80 69.28 L 40 92.38 L 0 69.28 L 0 23.09 Z M 40 138.56 L 80 115.47 L 80 69.28 L 40 92.38 L 0 69.28 L 0 115.47 Z" fill="none" stroke="#01879A" stroke-width="0.9" stroke-opacity="0.14" stroke-dasharray="3,3"/>
+                    <!-- Clean Monochrome Dot Grid Pattern -->
+                    <pattern id="authCodeGrid" width="36" height="36" patternUnits="userSpaceOnUse">
+                        <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#000000" stroke-width="0.75" stroke-opacity="0.08"/>
+                        <circle cx="0" cy="0" r="1.2" fill="#000000" fill-opacity="0.22"/>
+                        <path d="M 18 16 L 18 20 M 16 18 L 20 18" stroke="#000000" stroke-width="0.6" stroke-opacity="0.14"/>
                     </pattern>
                 </defs>
 
-                <!-- Full Blueprint Grids -->
-                <rect width="100%" height="100%" fill="url(#authGridPattern)"/>
-                <rect width="100%" height="100%" fill="url(#authHexPattern)"/>
+                <!-- Full Dot Grid Background -->
+                <rect width="100%" height="100%" fill="url(#authCodeGrid)"/>
 
-                <!-- LEFT SIDE VECTOR DRAWINGS (Visible adjacent to the card) -->
-                <g transform="translate(240, 450)" stroke="#01879A" fill="none">
-                    <!-- Concentric Radar Coordinates -->
-                    <circle cx="0" cy="0" r="180" stroke-width="1.2" stroke-opacity="0.3" stroke-dasharray="6,6"/>
-                    <circle cx="0" cy="0" r="140" stroke-width="1.5" stroke-opacity="0.45"/>
-                    <circle cx="0" cy="0" r="95" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4,4"/>
-                    <circle cx="0" cy="0" r="50" stroke-width="1.5" stroke-opacity="0.5"/>
-                    <circle cx="0" cy="0" r="6" fill="#2BBFB3" fill-opacity="0.6"/>
+                <!-- LEFT SIDE: CODE EDITOR, BRACKETS & TERMINAL LINE ART -->
+                <g transform="translate(180, 220)" stroke="#000000" fill="none">
+                    <!-- Floating IDE / Code Window Outline -->
+                    <rect x="0" y="0" width="300" height="240" rx="8" stroke-width="1.4" stroke-opacity="0.25"/>
+                    <line x1="0" y1="32" x2="300" y2="32" stroke-width="1.2" stroke-opacity="0.2"/>
+                    <!-- Window Controls (Linear Circles) -->
+                    <circle cx="16" cy="16" r="4" stroke-width="1.2" stroke-opacity="0.3"/>
+                    <circle cx="28" cy="16" r="4" stroke-width="1.2" stroke-opacity="0.3"/>
+                    <circle cx="40" cy="16" r="4" stroke-width="1.2" stroke-opacity="0.3"/>
+                    <!-- Code Tab Outline -->
+                    <path d="M 64 32 L 64 12 L 140 12 L 140 32" stroke-width="1.2" stroke-opacity="0.25"/>
+                    <text x="76" y="24" fill="#000000" fill-opacity="0.45" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="600">index.ts</text>
 
-                    <!-- Axis Crosshairs & Scale Ticks -->
-                    <line x1="-210" y1="0" x2="210" y2="0" stroke-width="1.2" stroke-opacity="0.4" stroke-dasharray="4,4"/>
-                    <line x1="0" y1="-210" x2="0" y2="210" stroke-width="1.2" stroke-opacity="0.4" stroke-dasharray="4,4"/>
-
-                    <!-- Degree Arc & Vectors -->
-                    <path d="M 0 -140 A 140 140 0 0 1 140 0" stroke="#2BBFB3" stroke-width="2.5" stroke-opacity="0.5"/>
-                    <line x1="0" y1="0" x2="120" y2="-120" stroke="#2BBFB3" stroke-width="1.5" stroke-opacity="0.5" stroke-dasharray="3,3"/>
-                    <circle cx="120" cy="-120" r="4" fill="#01879A" fill-opacity="0.7"/>
-
-                    <!-- Nodes and Labels -->
-                    <circle cx="140" cy="0" r="4" fill="#2BBFB3" fill-opacity="0.7"/>
-                    <circle cx="-140" cy="0" r="4" fill="#2BBFB3" fill-opacity="0.7"/>
-                    <circle cx="0" cy="140" r="4" fill="#2BBFB3" fill-opacity="0.7"/>
-                    <circle cx="0" cy="-140" r="4" fill="#2BBFB3" fill-opacity="0.7"/>
-
-                    <!-- Technical Labels (Clear & Legible) -->
-                    <text x="-190" y="-190" fill="#01879A" fill-opacity="0.8" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" letter-spacing="1.5">CRYSTALS-DILITHIUM-5</text>
-                    <text x="-190" y="-172" fill="#2BBFB3" fill-opacity="0.75" font-family="'IBM Plex Mono', monospace" font-size="9.5" letter-spacing="1">MODULUS: q = 8380417 | POLYNOMIAL DEG: 256</text>
-                    <text x="-190" y="195" fill="#11302D" fill-opacity="0.6" font-family="'IBM Plex Mono', monospace" font-size="9" letter-spacing="0.8">PQC LATTICE LAYER // SEC LEVEL 5</text>
-                </g>
-
-                <!-- TOP-LEFT: Data Flow Wave Lines & Angle Measurement -->
-                <g transform="translate(100, 100)" stroke="#2BBFB3" stroke-width="1.2" stroke-opacity="0.4" fill="none">
-                    <path d="M 0 0 L 120 0 L 160 40 L 280 40 L 320 0 L 440 0"/>
-                    <path d="M 0 20 L 100 20 L 140 60 L 260 60 L 300 20 L 400 20" stroke-dasharray="4,3"/>
-                    <circle cx="160" cy="40" r="3" fill="#01879A" fill-opacity="0.6"/>
-                    <circle cx="280" cy="40" r="3" fill="#01879A" fill-opacity="0.6"/>
-                    <circle cx="320" cy="0" r="3" fill="#2BBFB3" fill-opacity="0.6"/>
-                </g>
-
-                <!-- RIGHT SIDE VECTOR DRAWINGS (Visible adjacent to the card) -->
-                <g transform="translate(1360, 450)" stroke="#01879A" fill="none">
-                    <!-- 3D Isometric Quantum Hypercube -->
-                    <polygon points="0,-120 104,-60 104,60 0,120 -104,60 -104,-60" stroke="#01879A" stroke-width="1.8" stroke-opacity="0.55"/>
-                    <polygon points="0,-70 60,-35 60,35 0,70 -60,35 -60,-35" stroke="#2BBFB3" stroke-width="1.2" stroke-opacity="0.45" stroke-dasharray="4,4"/>
+                    <!-- Code Lines & Syntax Tree (Linear) -->
+                    <text x="18" y="60" fill="#000000" fill-opacity="0.25" font-family="'IBM Plex Mono', monospace" font-size="9">01</text>
+                    <text x="44" y="60" fill="#000000" fill-opacity="0.5" font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="600">import { QuantumCore } from '@pqc';</text>
                     
-                    <!-- Internal Interconnecting Rays -->
-                    <line x1="0" y1="-120" x2="0" y2="120" stroke-width="1.2" stroke-opacity="0.35"/>
-                    <line x1="104" y1="-60" x2="-104" y2="60" stroke-width="1.2" stroke-opacity="0.35"/>
-                    <line x1="104" y1="60" x2="-104" y2="-60" stroke-width="1.2" stroke-opacity="0.35"/>
+                    <text x="18" y="82" fill="#000000" fill-opacity="0.25" font-family="'IBM Plex Mono', monospace" font-size="9">02</text>
+                    <text x="44" y="82" fill="#000000" fill-opacity="0.5" font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="600">async function verifyCode(): Promise&lt;bool&gt; {</text>
+                    
+                    <text x="18" y="104" fill="#000000" fill-opacity="0.25" font-family="'IBM Plex Mono', monospace" font-size="9">03</text>
+                    <path d="M 64 100 L 160 100" stroke-width="1.5" stroke-opacity="0.2" stroke-dasharray="4,4"/>
+                    <text x="170" y="104" fill="#000000" fill-opacity="0.4" font-family="'IBM Plex Mono', monospace" font-size="9">// Deterministic AST</text>
+                    
+                    <text x="18" y="126" fill="#000000" fill-opacity="0.25" font-family="'IBM Plex Mono', monospace" font-size="9">04</text>
+                    <text x="64" y="126" fill="#000000" fill-opacity="0.5" font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="600">const sig = Dilithium5.sign(payload);</text>
+                    
+                    <text x="18" y="148" fill="#000000" fill-opacity="0.25" font-family="'IBM Plex Mono', monospace" font-size="9">05</text>
+                    <text x="64" y="148" fill="#000000" fill-opacity="0.5" font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="600">return sig.verify() === true;</text>
 
-                    <!-- Vertex Rings -->
-                    <circle cx="0" cy="-120" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
-                    <circle cx="104" cy="-60" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
-                    <circle cx="104" cy="60" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
-                    <circle cx="0" cy="120" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
-                    <circle cx="-104" cy="60" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
-                    <circle cx="-104" cy="-60" r="4.5" fill="#2BBFB3" fill-opacity="0.75"/>
+                    <text x="18" y="170" fill="#000000" fill-opacity="0.25" font-family="'IBM Plex Mono', monospace" font-size="9">06</text>
+                    <text x="44" y="170" fill="#000000" fill-opacity="0.5" font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="600">}</text>
 
-                    <!-- Outer Orbit Ring -->
-                    <circle cx="0" cy="0" r="160" stroke="#2BBFB3" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="8,8"/>
-                    <circle cx="0" cy="0" r="195" stroke="#01879A" stroke-width="1.2" stroke-opacity="0.25"/>
-
-                    <!-- Technical Labels (Clear & Legible) -->
-                    <text x="-120" y="-145" fill="#01879A" fill-opacity="0.8" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" letter-spacing="1.5">QUANTUM LATTICE MATRIX</text>
-                    <text x="-120" y="-128" fill="#2BBFB3" fill-opacity="0.75" font-family="'IBM Plex Mono', monospace" font-size="9.5" letter-spacing="1">DIMENSIONS: ℝ^256 mod q</text>
-                    <text x="-120" y="165" fill="#11302D" fill-opacity="0.6" font-family="'IBM Plex Mono', monospace" font-size="9" letter-spacing="0.8">ZERO-KNOWLEDGE VERIFICATION</text>
+                    <!-- Cursor Prompt -->
+                    <rect x="58" y="162" width="6" height="11" fill="#000000" fill-opacity="0.3"/>
                 </g>
 
-                <!-- BOTTOM-RIGHT: Cybernetic PCB Circuit Node Branches -->
-                <g transform="translate(1200, 780)" stroke="#01879A" stroke-width="1.3" stroke-opacity="0.45" fill="none">
-                    <path d="M 0 0 L 60 0 L 100 -40 L 220 -40 L 260 0 L 360 0"/>
-                    <path d="M 20 20 L 80 20 L 120 -20 L 200 -20 L 240 20 L 320 20" stroke-dasharray="4,3"/>
-                    <circle cx="0" cy="0" r="3.5" fill="#2BBFB3" fill-opacity="0.7"/>
-                    <circle cx="100" cy="-40" r="3.5" fill="#01879A" fill-opacity="0.7"/>
-                    <circle cx="220" cy="-40" r="3.5" fill="#2BBFB3" fill-opacity="0.7"/>
-                    <circle cx="360" cy="0" r="4" fill="#01879A" fill-opacity="0.8"/>
-                    <text x="40" y="45" fill="#11302D" fill-opacity="0.55" font-family="'IBM Plex Mono', monospace" font-size="8.5" letter-spacing="0.5">HARDWARE CRYPTO CORE // NIST FIPS 204</text>
+                <!-- LEFT SIDE LOWER: GIANT CODE BRACKETS & FUNCTION VECTORS -->
+                <g transform="translate(220, 640)" stroke="#000000" fill="none">
+                    <!-- Code Tag Icon < / > -->
+                    <g transform="translate(0, 0)" stroke-width="2.2" stroke-opacity="0.35" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="28,0 0,28 28,56"/>
+                        <line x1="42" y1="56" x2="62" y2="0"/>
+                        <polyline points="76,0 104,28 76,56"/>
+                    </g>
+                    
+                    <!-- Curly Braces { } -->
+                    <g transform="translate(140, 0)" stroke-width="1.8" stroke-opacity="0.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M 20,0 Q 8,0 8,14 Q 8,28 0,28 Q 8,28 8,42 Q 8,56 20,56"/>
+                        <path d="M 50,0 Q 62,0 62,14 Q 62,28 70,28 Q 62,28 62,42 Q 62,56 50,56"/>
+                    </g>
+
+                    <!-- Language Tags Pill Badges (Linear) -->
+                    <g transform="translate(0, 80)" stroke-width="1.2" stroke-opacity="0.25">
+                        <rect x="0" y="0" width="64" height="22" rx="4"/>
+                        <text x="12" y="15" fill="#000000" fill-opacity="0.45" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="700">PYTHON</text>
+
+                        <rect x="74" y="0" width="80" height="22" rx="4"/>
+                        <text x="84" y="15" fill="#000000" fill-opacity="0.45" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="700">TYPESCRIPT</text>
+
+                        <rect x="164" y="0" width="50" height="22" rx="4"/>
+                        <text x="174" y="15" fill="#000000" fill-opacity="0.45" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="700">RUST</text>
+                    </g>
                 </g>
 
-                <!-- CORNER BOUNDING BRACKETS & CALIBRATION CROSSHAIRS -->
-                <g stroke="#01879A" stroke-width="1.5" stroke-opacity="0.45" fill="none">
-                    <!-- Top Left Bracket -->
-                    <path d="M 30 60 L 30 30 L 60 30"/>
-                    <!-- Top Right Bracket -->
-                    <path d="M 1570 60 L 1570 30 L 1540 30"/>
-                    <!-- Bottom Left Bracket -->
-                    <path d="M 30 840 L 30 870 L 60 870"/>
-                    <!-- Bottom Right Bracket -->
-                    <path d="M 1570 840 L 1570 870 L 1540 870"/>
+                <!-- RIGHT SIDE: GIT GRAPH, BRANCH MERGES & API SCHEMA VECTORS -->
+                <g transform="translate(1120, 200)" stroke="#000000" fill="none">
+                    <!-- Git Version Control Branching Tree Line Art -->
+                    <g transform="translate(40, 40)">
+                        <!-- Main Trunk -->
+                        <line x1="0" y1="0" x2="0" y2="280" stroke-width="2" stroke-opacity="0.35"/>
+                        <!-- Feature Branch -->
+                        <path d="M 0 60 C 50 60 60 110 60 150 C 60 190 50 220 0 220" stroke-width="1.8" stroke-opacity="0.3" stroke-dasharray="4,4"/>
+                        <!-- Release Branch -->
+                        <path d="M 0 120 C -40 120 -50 160 -50 190 C -50 220 -30 250 0 250" stroke-width="1.8" stroke-opacity="0.3"/>
+
+                        <!-- Commit Nodes -->
+                        <circle cx="0" cy="20" r="5" fill="#ffffff" stroke-width="2" stroke-opacity="0.45"/>
+                        <circle cx="0" cy="60" r="5" fill="#000000" fill-opacity="0.35"/>
+                        <circle cx="0" cy="120" r="5" fill="#ffffff" stroke-width="2" stroke-opacity="0.45"/>
+                        <circle cx="0" cy="180" r="5" fill="#ffffff" stroke-width="2" stroke-opacity="0.45"/>
+                        <circle cx="0" cy="220" r="5" fill="#000000" fill-opacity="0.35"/>
+                        <circle cx="0" cy="260" r="6" fill="#000000" fill-opacity="0.5"/>
+
+                        <circle cx="60" cy="150" r="4.5" fill="#ffffff" stroke-width="1.8" stroke-opacity="0.4"/>
+                        <circle cx="-50" cy="190" r="4.5" fill="#ffffff" stroke-width="1.8" stroke-opacity="0.4"/>
+
+                        <!-- Git Commit Messages -->
+                        <text x="18" y="24" fill="#000000" fill-opacity="0.45" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="600">git: init quantum-core</text>
+                        <text x="74" y="154" fill="#000000" fill-opacity="0.4" font-family="'IBM Plex Mono', monospace" font-size="8.5">feat/polyglot-compiler</text>
+                        <text x="18" y="264" fill="#000000" fill-opacity="0.5" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="700">merge: release v2026.1</text>
+                    </g>
+
+                    <!-- Terminal Command Line Box -->
+                    <g transform="translate(0, 370)" stroke-width="1.3" stroke-opacity="0.25">
+                        <rect x="0" y="0" width="320" height="90" rx="6"/>
+                        <line x1="0" y1="24" x2="320" y2="24" stroke-width="1" stroke-opacity="0.2"/>
+                        <circle cx="12" cy="12" r="3" stroke-opacity="0.35"/>
+                        <circle cx="22" cy="12" r="3" stroke-opacity="0.35"/>
+                        <circle cx="32" cy="12" r="3" stroke-opacity="0.35"/>
+                        <text x="44" y="16" fill="#000000" fill-opacity="0.35" font-family="'IBM Plex Mono', monospace" font-size="8.5">terminal ~ bash</text>
+
+                        <!-- CLI Prompt -->
+                        <text x="14" y="46" fill="#000000" fill-opacity="0.6" font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="700">&gt; hashcod verify --dilithium5</text>
+                        <text x="14" y="66" fill="#000000" fill-opacity="0.4" font-family="'IBM Plex Mono', monospace" font-size="8.5">[OK] Post-quantum signature verified.</text>
+                    </g>
+                </g>
+
+                <!-- BOTTOM RIGHT: DATABASE & API SCHEMA NODE GRAPH -->
+                <g transform="translate(1120, 690)" stroke="#000000" fill="none">
+                    <!-- Schema Table Outline -->
+                    <rect x="0" y="0" width="160" height="85" rx="4" stroke-width="1.3" stroke-opacity="0.25"/>
+                    <line x1="0" y1="22" x2="160" y2="22" stroke-width="1" stroke-opacity="0.2"/>
+                    <text x="10" y="15" fill="#000000" fill-opacity="0.5" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="700">tbl_credentials</text>
+                    <text x="10" y="38" fill="#000000" fill-opacity="0.35" font-family="'IBM Plex Mono', monospace" font-size="8.5">PK  id: uuid</text>
+                    <text x="10" y="54" fill="#000000" fill-opacity="0.35" font-family="'IBM Plex Mono', monospace" font-size="8.5">    pqc_sig: text</text>
+                    <text x="10" y="70" fill="#000000" fill-opacity="0.35" font-family="'IBM Plex Mono', monospace" font-size="8.5">    created_at: int8</text>
+
+                    <!-- Relation Vector -->
+                    <path d="M 160 40 L 220 40 L 220 20 L 250 20" stroke-width="1.2" stroke-opacity="0.3" stroke-dasharray="3,3"/>
+                    <circle cx="250" cy="20" r="3" fill="#000000" fill-opacity="0.35"/>
+
+                    <!-- Secondary Table -->
+                    <rect x="250" y="0" width="130" height="60" rx="4" stroke-width="1.3" stroke-opacity="0.25"/>
+                    <line x1="250" y1="20" x2="380" y2="20" stroke-width="1" stroke-opacity="0.2"/>
+                    <text x="260" y="14" fill="#000000" fill-opacity="0.5" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="700">tbl_audit_log</text>
+                    <text x="260" y="36" fill="#000000" fill-opacity="0.35" font-family="'IBM Plex Mono', monospace" font-size="8.5">FK  acct_id: uuid</text>
+                    <text x="260" y="50" fill="#000000" fill-opacity="0.35" font-family="'IBM Plex Mono', monospace" font-size="8.5">    event: varchar</text>
+                </g>
+
+                <!-- TOP & BOTTOM CORNER ACCENTS: CODE SYMBOLS -->
+                <g stroke="#000000" stroke-width="1.2" stroke-opacity="0.3" fill="none">
+                    <!-- Top Left Code Marker -->
+                    <text x="30" y="50" fill="#000000" fill-opacity="0.35" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700">&lt;codespace:architecture/&gt;</text>
+                    <!-- Top Right Code Marker -->
+                    <text x="1380" y="50" fill="#000000" fill-opacity="0.35" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700">{ auth: "PQC_NIST_LEVEL5" }</text>
+                    <!-- Bottom Center Crosshairs -->
+                    <path d="M 780 860 L 820 860 M 800 840 L 800 880" stroke-width="1" stroke-opacity="0.25"/>
+                    <circle cx="800" cy="860" r="16" stroke-dasharray="3,3" stroke-opacity="0.2"/>
                 </g>
             </svg>
         </div>

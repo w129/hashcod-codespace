@@ -4451,7 +4451,6 @@ if (!headers_sent()) {
             flex-direction: column;
             align-items: flex-start;
             padding: 0px;
-            isolation: isolate;
             position: relative;
             width: 100%;
             max-width: 1360px;
@@ -4459,7 +4458,7 @@ if (!headers_sent()) {
             background: #FFFFFF;
             border: 1px solid #E4E4E7;
             border-radius: 12px;
-            overflow: hidden;
+            overflow: visible !important;
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12);
             margin: 0 auto;
         }
@@ -4589,7 +4588,9 @@ if (!headers_sent()) {
             order: 1;
             align-self: stretch;
             flex-grow: 0;
-            z-index: 1;
+            z-index: 50 !important;
+            position: relative !important;
+            overflow: visible !important;
             background: #FFFFFF;
             border-bottom: 1px solid #E4E4E7;
             gap: 16px;
@@ -4618,6 +4619,9 @@ if (!headers_sent()) {
             flex: none;
             order: 1;
             flex-grow: 0;
+            position: relative !important;
+            z-index: 55 !important;
+            overflow: visible !important;
         }
 
         .filter-search {
@@ -12096,16 +12100,15 @@ if (!headers_sent()) {
             flex-direction: column;
             align-items: flex-start;
             padding: 0px;
-            isolation: isolate;
             position: absolute;
             right: 0;
             top: 42px;
             width: 450px;
             height: 250px;
             background: #FFFFFF;
-            box-shadow: 0px 16px 32px -4px rgba(11, 13, 16, 0.14902);
+            box-shadow: 0px 20px 45px -4px rgba(11, 13, 16, 0.35), 0px 0px 1px 1px rgba(0,0,0,0.08);
             border-radius: 16px;
-            z-index: 100025;
+            z-index: 100060 !important;
             box-sizing: border-box;
             border: 1px solid #E1E4EA;
         }
@@ -23384,13 +23387,12 @@ if (!headers_sent()) {
                                     </td>`;
                                 break;
                             case 'user_text_data':
-                                const valPlain = (r.user_text_data || '').replace(/<[^>]*>?/gm, '').trim();
-                                const valDisplay = valPlain.length > 18 ? valPlain.substring(0, 18) + '...' : valPlain;
+                                const hasTextExcel = !!(r.user_text_data && r.user_text_data.trim());
                                 rowHtml += `
-                                    <td>
+                                    <td style="${tdStyle}">
                                         <div class="cell-text-editor-wrap">
-                                            <input type="text" class="input-field-figma" placeholder="Escribe texto..." value="${valDisplay}" onchange="updateCellData(${idx}, 'user_text_data', this.value)" oninput="updateCellDataRealtime(${idx}, 'user_text_data', this.value)" style="flex:1; min-width:60px;">
-                                            <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal(${idx})" title="Abrir Editor de Texto enriquecido">
+                                            <input type="password" class="input-field-figma" placeholder="${hasTextExcel ? '••••••••••••' : 'Escribe texto...'}" value="${hasTextExcel ? '••••••••••••' : ''}" readonly style="flex:1; min-width:60px; letter-spacing:2px; cursor:pointer;" title="${hasTextExcel ? 'Texto confidencial guardado - Solo accesible por el Administrador' : 'Escribe texto...'}" onclick="openTextEditorModal('${r.identifier_code}')">
+                                            <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal('${r.identifier_code}')" title="Abrir Editor de Texto (Confidencial)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" fill="currentColor">
                                                     <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M16,21h-2v-7h2V21z M15,11.5 c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,11.5,15,11.5z"></path>
                                                 </svg>
@@ -24239,13 +24241,13 @@ if (!headers_sent()) {
                                     </td>`;
                                 break;
                             case 'user_text_data':
-                                const valPlain = (r.user_text_data || '').replace(/<[^>]*>?/gm, '').trim();
-                                const valDisplay = valPlain.length > 18 ? valPlain.substring(0, 18) + '...' : valPlain;
+                                const isAuthedAdm = (sessionStorage.getItem(ADMIN_AUTH_KEY) === '1');
+                                const hasTextAdm = !!(r.user_text_data && r.user_text_data.trim());
                                 rowHtml += `
                                     <td>
                                         <div class="cell-text-editor-wrap">
-                                            <input type="text" class="input-field-figma" placeholder="Escribe texto..." value="${valDisplay}" onchange="updateCellData(${idx}, 'user_text_data', this.value)" oninput="updateCellDataRealtime(${idx}, 'user_text_data', this.value)" style="flex:1; min-width:60px;">
-                                            <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal(${idx})" title="Abrir Editor de Texto enriquecido">
+                                            <input type="password" class="input-field-figma" placeholder="${hasTextAdm ? '••••••••••••' : 'Escribe texto...'}" value="${hasTextAdm ? '••••••••••••' : ''}" readonly style="flex:1; min-width:60px; letter-spacing:2px; cursor:pointer;" title="${hasTextAdm ? (isAuthedAdm ? 'Texto protegido confidencial (Ver en Notificaciones o Presentación)' : 'Texto protegido confidencial - Solo Admin') : 'Escribe texto...'}" onclick="openTextEditorModal(${idx})">
+                                            <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal(${idx})" title="Abrir Editor de Texto (Confidencial)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" fill="currentColor">
                                                     <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M16,21h-2v-7h2V21z M15,11.5 c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,11.5,15,11.5z"></path>
                                                 </svg>
@@ -26638,8 +26640,11 @@ let d5Unlocked = false;
         window._activeEditingRowIndex = rowIndex;
         const rowData = (rowIndex >= 0 && rows[rowIndex]) ? rows[rowIndex] : {};
         const editArea = document.getElementById('textEditingArea');
+        const isAuthedAdmin = (sessionStorage.getItem('l8_admin_authenticated') === '1');
         if (editArea) {
-            editArea.innerHTML = rowData.user_text_data || '';
+            // Solo el admin puede ver y leer el texto previamente guardado; usuarios regulares ingresan nuevo texto
+            editArea.innerHTML = isAuthedAdmin ? (rowData.user_text_data || '') : '';
+            editArea.setAttribute('placeholder', isAuthedAdmin ? 'Escribe aquí tu contenido...' : 'Escribe tu mensaje confidencial para el Administrador...');
         }
         const modal = document.getElementById('textEditorModal');
         if (modal) {
@@ -26769,9 +26774,12 @@ let d5Unlocked = false;
         const dd = document.getElementById('adminNotificationsDropdown');
         if (!dd) return;
         const isOpen = (dd.style.display === 'flex');
-        dd.style.display = isOpen ? 'none' : 'flex';
         if (!isOpen) {
+            dd.style.setProperty('display', 'flex', 'important');
+            dd.style.setProperty('z-index', '100060', 'important');
             window.updateAdminNotificationsUI();
+        } else {
+            dd.style.setProperty('display', 'none', 'important');
         }
     };
 

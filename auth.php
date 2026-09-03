@@ -1857,6 +1857,129 @@ function authDeleteAccount($target = '') {
     return ['ok' => true, 'message' => 'Cuenta eliminada permanentemente.'];
 }
 
+function authListAccounts() {
+    $store = authLoadStore();
+    $list = [];
+    $seen = [];
+
+    // Collect from store['accounts']
+    if (!empty($store['accounts']) && is_array($store['accounts'])) {
+        foreach ($store['accounts'] as $accId => $data) {
+            $seen[$accId] = true;
+            $isSuspended = !empty($data['is_suspended']);
+            $list[] = [
+                'account_id' => $accId,
+                'created_at' => $data['created_at'] ?? ($data['registered_at'] ?? date('c')),
+                'is_suspended' => $isSuspended,
+                'status' => $isSuspended ? 'Suspendida' : 'Activa',
+                'identities_count' => isset($data['identities']) ? count($data['identities']) : 1
+            ];
+        }
+    }
+
+    // Collect from store['users'] if not already in list
+    if (!empty($store['users']) && is_array($store['users'])) {
+        foreach ($store['users'] as $userId => $data) {
+            if (isset($seen[$userId])) {
+                continue;
+            }
+            $isSuspended = !empty($data['is_suspended']);
+            $list[] = [
+                'account_id' => $userId,
+                'created_at' => $data['created_at'] ?? date('c'),
+                'is_suspended' => $isSuspended,
+                'status' => $isSuspended ? 'Suspendida' : 'Activa',
+                'identities_count' => 1
+            ];
+        }
+    }
+
+    // Fallback demonstration accounts if store is completely empty
+    if (empty($list)) {
+        $activeAcct = $store['active_account'] ?? 'acct_pqc_master_001';
+        $list[] = [
+            'account_id' => $activeAcct,
+            'created_at' => date('c'),
+            'is_suspended' => false,
+            'status' => 'Activa',
+            'identities_count' => 1
+        ];
+    }
+
+    return ['ok' => true, 'accounts' => $list, 'total' => count($list)];
+}
+
+function authSuspendAccount($accountId, $reason = '') {
+    $store = authLoadStore();
+    $accountId = trim((string)$accountId);
+    if ($accountId === '') {
+        return ['ok' => false, 'error' => 'Identificador de cuenta requerido'];
+    }
+
+    $found = false;
+    if (isset($store['accounts'][$accountId])) {
+        $store['accounts'][$accountId]['is_suspended'] = true;
+        $store['accounts'][$accountId]['suspended_at'] = date('c');
+        $store['accounts'][$accountId]['suspend_reason'] = $reason;
+        $found = true;
+    }
+    if (isset($store['users'][$accountId])) {
+        $store['users'][$accountId]['is_suspended'] = true;
+        $store['users'][$accountId]['suspended_at'] = date('c');
+        $store['users'][$accountId]['suspend_reason'] = $reason;
+        $found = true;
+    }
+
+    if (!$found) {
+        $store['accounts'][$accountId] = [
+            'id' => $accountId,
+            'is_suspended' => true,
+            'suspended_at' => date('c'),
+            'suspend_reason' => $reason
+        ];
+    }
+
+    // Invalidate active sessions immediately
+    authInvalidateUserSessions($store, $accountId);
+
+    $store['audit_log'][] = [
+        'type' => 'account_suspended',
+        'account_id' => $accountId,
+        'timestamp' => date('c'),
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
+    ];
+    authSaveStore($store);
+
+    return ['ok' => true, 'account_id' => $accountId, 'is_suspended' => true, 'message' => 'Cuenta suspendida correctamente'];
+}
+
+function authReactivateAccount($accountId) {
+    $store = authLoadStore();
+    $accountId = trim((string)$accountId);
+    if ($accountId === '') {
+        return ['ok' => false, 'error' => 'Identificador de cuenta requerido'];
+    }
+
+    if (isset($store['accounts'][$accountId])) {
+        $store['accounts'][$accountId]['is_suspended'] = false;
+        $store['accounts'][$accountId]['reactivated_at'] = date('c');
+    }
+    if (isset($store['users'][$accountId])) {
+        $store['users'][$accountId]['is_suspended'] = false;
+        $store['users'][$accountId]['reactivated_at'] = date('c');
+    }
+
+    $store['audit_log'][] = [
+        'type' => 'account_reactivated',
+        'account_id' => $accountId,
+        'timestamp' => date('c'),
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
+    ];
+    authSaveStore($store);
+
+    return ['ok' => true, 'account_id' => $accountId, 'is_suspended' => false, 'message' => 'Cuenta reactivada exitosamente'];
+}
+
 function authHandleApi($uri) {
     $uri = (string)$uri;
     $path = (string)(parse_url($uri, PHP_URL_PATH) ?: $uri);
@@ -2019,6 +2142,32 @@ function authHandleApi($uri) {
         return true;
     }
 
+    if ($path === '/api/auth/list-accounts' && ($method === 'GET' || $method === 'POST')) {
+        $res = authListAccounts();
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if ($path === '/api/auth/suspend-account' && $method === 'POST') {
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $data = !empty($body['data']) ? $body['data'] : $_POST;
+        $target = $data['account_id'] ?? ($data['id'] ?? '');
+        $reason = $data['reason'] ?? 'Suspensión administrativa por política de seguridad';
+        $res = authSuspendAccount($target, $reason);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if ($path === '/api/auth/reactivate-account' && $method === 'POST') {
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $data = !empty($body['data']) ? $body['data'] : $_POST;
+        $target = $data['account_id'] ?? ($data['id'] ?? '');
+        $res = authReactivateAccount($target);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+
     if ($path === '/api/auth/recover' && $method === 'POST') {
         if (!securityRateAllow('auth_recover', 15, 600)) {
             securityRateDenyJson(600);
@@ -2117,6 +2266,32 @@ function authHandleApi($uri) {
         echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
     }
+
+    if ($path === '/api/auth/list-accounts' && ($method === 'GET' || $method === 'POST')) {
+        $res = authListAccounts();
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if ($path === '/api/auth/suspend-account' && $method === 'POST') {
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $data = !empty($body['data']) ? $body['data'] : $_POST;
+        $target = $data['account_id'] ?? ($data['id'] ?? '');
+        $reason = $data['reason'] ?? 'Suspensión administrativa por política de seguridad';
+        $res = authSuspendAccount($target, $reason);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if ($path === '/api/auth/reactivate-account' && $method === 'POST') {
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $data = !empty($body['data']) ? $body['data'] : $_POST;
+        $target = $data['account_id'] ?? ($data['id'] ?? '');
+        $res = authReactivateAccount($target);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
 
     http_response_code(404);
     echo json_encode(['ok' => false, 'error' => 'Not found'], JSON_UNESCAPED_UNICODE);

@@ -436,6 +436,418 @@
             text-align: center;
         }
 
+
+        /* =========================================================================
+           TOOL: GESTOR DE SUSPENSIÓN DE CUENTAS (FIGMA DESIGN SPEC)
+           ========================================================================= */
+        .account-suspend-launcher-btn {
+            position: absolute;
+            left: -52px;
+            top: 118px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #FFFFFF;
+            border: 2px solid #000000;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10005;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .account-suspend-launcher-btn:hover {
+            transform: scale(1.08) translateY(-1px);
+            border-color: #e02f24;
+            box-shadow: 0 8px 22px rgba(224, 47, 36, 0.35);
+        }
+        .account-suspend-launcher-btn svg {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.18s ease;
+        }
+        .account-suspend-launcher-btn:hover svg {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 640px) {
+            .account-suspend-launcher-btn {
+                left: 112px;
+                top: -52px;
+            }
+        }
+
+        /* modal-overlay */
+        .account-suspend-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 16, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100030;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        /* modal-container */
+        .account-suspend-modal {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 32px;
+            gap: 28px;
+            position: relative;
+            width: 500px;
+            height: 729px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 32px);
+            box-sizing: border-box;
+            background: #FFFFFF;
+            box-shadow: 0px 16px 32px -4px rgba(11, 13, 16, 0.14902);
+            border-radius: 16px;
+            overflow-y: auto;
+        }
+
+        /* modal-header */
+        .suspend-modal-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+            gap: 16px;
+            width: 436px;
+            height: 120px;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* warning-icon-bg */
+        .suspend-modal-header .warning-icon-bg {
+            width: 56px;
+            height: 56px;
+            background: #EBEBEB;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+
+        /* title-stack */
+        .suspend-title-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+            gap: 8px;
+            width: 436px;
+            height: 48px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* title */
+        .suspend-title {
+            width: 436px;
+            height: 24px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 24px;
+            text-align: center;
+            color: #111317;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* warning-sub */
+        .suspend-warning-sub {
+            width: 436px;
+            height: 16px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 16px;
+            text-align: center;
+            text-transform: uppercase;
+            color: #000000;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* description-block */
+        .suspend-description-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            width: 436px;
+            height: 88px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* consequences-paragraph */
+        .suspend-consequences-paragraph {
+            width: 436px;
+            height: 88px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 22px;
+            text-align: center;
+            color: #525866;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* list-block */
+        .suspend-list-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 10px;
+            width: 436px;
+            height: 226px;
+            flex: none;
+            order: 2;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* input-label */
+        .suspend-input-label {
+            width: 436px;
+            height: 16px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 16px;
+            color: #111317;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* empty-list-container */
+        .suspend-empty-list-container {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 12px;
+            width: 436px;
+            height: 200px;
+            background: #FAFAFC;
+            border: 1.5px solid #E1E4EA;
+            border-radius: 8px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+            overflow-y: auto;
+            gap: 8px;
+        }
+
+        /* Account item in list */
+        .suspend-account-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #FFFFFF;
+            border: 1px solid #E1E4EA;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .suspend-account-row:hover {
+            border-color: #000000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .suspend-account-row.selected {
+            border-color: #e02f24;
+            background: #fff5f5;
+        }
+        .suspend-account-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .suspend-account-id {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: #111317;
+        }
+        .suspend-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+        .suspend-badge.activa {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+        .suspend-badge.suspendida {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        /* modal-actions */
+        .suspend-modal-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 12px;
+            width: 436px;
+            height: 147px;
+            flex: none;
+            order: 3;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* btn-destructive */
+        .suspend-btn-destructive {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 436px;
+            height: 41px;
+            background: #000000;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+            transition: opacity 0.15s ease;
+        }
+        .suspend-btn-destructive:hover {
+            opacity: 0.9;
+        }
+
+        .suspend-btn-destructive-text {
+            width: 233px;
+            height: 17px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            text-align: center;
+            color: #FFFFFF;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+
+        /* btn-reactivate */
+        .suspend-btn-reactivate {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 436px;
+            height: 41px;
+            background: #FFFFFF;
+            border: 1px solid #000000;
+            border-radius: 8px;
+            cursor: pointer;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+            transition: background 0.15s ease;
+        }
+        .suspend-btn-reactivate:hover {
+            background: #F4F4F6;
+        }
+
+        .suspend-btn-reactivate-text {
+            width: 115px;
+            height: 17px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            text-align: center;
+            color: #000000;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+
+        /* btn-cancel-text */
+        .suspend-btn-cancel {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 436px;
+            height: 41px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            flex: none;
+            order: 2;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        .suspend-btn-cancel-text {
+            width: 61px;
+            height: 17px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            text-align: center;
+            color: #525866;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+
 </style>
 </head>
 <body class="boot-locked">
@@ -876,6 +1288,32 @@
                 </svg>
             </button>
 
+            <!-- Account Suspension & Reactivation Launcher Button (Outside Register Window, Below Delete) -->
+            <button type="button" class="account-suspend-launcher-btn" id="accountSuspendLauncherBtn" onclick="window.openAccountSuspendTool && window.openAccountSuspendTool()" title="Gestor de Suspensión y Reactivación de Cuentas" style="display: none; cursor: pointer !important; pointer-events: auto !important;">
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256">
+                    <defs>
+                        <linearGradient x1="38.699" y1="10.68" x2="11.775" y2="37.604" gradientUnits="userSpaceOnUse" id="color-1_guiB0Qqk7Gyn_gr1">
+                            <stop offset="0.014" stop-color="#f81400"></stop>
+                            <stop offset="0.046" stop-color="#fe766a"></stop>
+                            <stop offset="0.208" stop-color="#fea097"></stop>
+                            <stop offset="0.37" stop-color="#ffc2bd"></stop>
+                            <stop offset="0.532" stop-color="#ffddda"></stop>
+                            <stop offset="0.692" stop-color="#fff0ee"></stop>
+                            <stop offset="0.849" stop-color="#fffbfb"></stop>
+                            <stop offset="1" stop-color="#ffffff"></stop>
+                        </linearGradient>
+                    </defs>
+                    <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="none" stroke-linecap="none" stroke-linejoin="none" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
+                        <g transform="scale(5.33333,5.33333)">
+                            <path d="M34.587,34.562c-0.124,-0.345 -0.261,-0.685 -0.411,-1.021l-1.583,-3.384c0.534,-0.361 0.886,-0.972 0.886,-1.665v-22.201c0,-1.109 -0.899,-2.008 -2.008,-2.008h-13.984c-1.109,0 -2.008,0.899 -2.008,2.008v13.878l-1.186,-2.026l-4.293,8.382c-0.804,1.807 -0.547,3.912 0.665,5.475c0.697,0.899 1.365,1.769 1.996,2.599l3.843,5.146c1.257,1.714 1.995,2.755 1.995,2.755v1c0,1.105 0.895,2 2,2h10.993c1.105,0 2,-0.895 2,-2v-0.692c1.591,-2.442 2.084,-5.504 1.095,-8.246z" fill="url(#color-1_guiB0Qqk7Gyn_gr1)" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter"></path>
+                            <path d="M16.504,39.745c1.257,1.714 1.995,2.755 1.995,2.755v1c0,1.105 0.895,2 2,2h10.993c1.105,0 2,-0.895 2,-2v-0.692c1.591,-2.442 2.084,-5.504 1.095,-8.246c-0.124,-0.345 -0.261,-0.685 -0.411,-1.021l-6.206,-13.264c-1.819,-4.117 -6.606,-1.819 -5.745,2.968l1.481,6.377c0.338,1.474 0.535,3.422 0.243,5.017" fill="none" stroke="#e02f24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M14.292,18.142l-4.293,8.382c-0.803,1.808 -0.546,3.913 0.666,5.476c0.697,0.899 1.364,1.769 1.996,2.599" fill="none" stroke="#e02f24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M33.492,19.936v-14.186c0,-1.243 -1.001,-2.25 -2.236,-2.25h-14.529c-1.235,0 -2.235,1.007 -2.235,2.25v22.5c0,1.243 1,2.25 2.235,2.25h6.706" fill="none" stroke="#e02f24" stroke-width="3.027" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </g>
+                    </g>
+                </svg>
+            </button>
+
     </div>
 </div>
 
@@ -922,6 +1360,57 @@
                 </button>
                 <button type="button" class="delete-btn-cancel" onclick="closeAccountDeleteModal()">
                     <span class="delete-btn-cancel-text">Cancelar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- =========================================================================
+         MODAL: GESTOR DE SUSPENSIÓN Y REACTIVACIÓN DE CUENTAS (FIGMA DESIGN SPEC)
+         ========================================================================= -->
+    <div id="accountSuspendModalOverlay" class="account-suspend-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeAccountSuspendModal()">
+        <div class="account-suspend-modal">
+            <!-- modal-header -->
+            <div class="suspend-modal-header">
+                <!-- warning-icon-bg with official platform logo -->
+                <div class="warning-icon-bg">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" width="28" height="28" fill="none" aria-hidden="true">
+                        <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                    </svg>
+                </div>
+                <!-- title-stack -->
+                <div class="suspend-title-stack">
+                    <div class="suspend-title">Gestor de Suspensión de Cuentas</div>
+                    <div class="suspend-warning-sub">CONTROL DE ACCESO Y SEGURIDAD PQC</div>
+                </div>
+            </div>
+
+            <!-- description-block -->
+            <div class="suspend-description-block">
+                <div class="suspend-consequences-paragraph">
+                    Las cuentas seleccionadas quedarán inmediatamente suspendidas y no podrán acceder a la plataforma hasta ser reactivadas con su firma Dilithium-5.
+                </div>
+            </div>
+
+            <!-- list-block -->
+            <div class="suspend-list-block">
+                <div class="suspend-input-label">Cuentas registradas en la plataforma</div>
+                <div class="suspend-empty-list-container" id="suspendAccountsContainer">
+                    <div id="suspendAccountsList" style="display:flex; flex-direction:column; gap:8px; width:100%;"></div>
+                </div>
+            </div>
+
+            <!-- modal-actions -->
+            <div class="suspend-modal-actions">
+                <button type="button" class="suspend-btn-destructive" id="suspendAccountConfirmBtn" onclick="executeAccountSuspend()">
+                    <span class="suspend-btn-destructive-text" id="suspendAccountBtnText">Suspender cuentas seleccionadas</span>
+                </button>
+                <button type="button" class="suspend-btn-reactivate" id="reactivateAccountConfirmBtn" onclick="executeAccountReactivate()">
+                    <span class="suspend-btn-reactivate-text" id="reactivateAccountBtnText">Reactivar cuenta</span>
+                </button>
+                <button type="button" class="suspend-btn-cancel" onclick="closeAccountSuspendModal()">
+                    <span class="suspend-btn-cancel-text">Cancelar</span>
                 </button>
             </div>
         </div>
@@ -13852,6 +14341,10 @@ let d5Unlocked = false;
                 if (delLauncherBtn) {
                     delLauncherBtn.style.display = registerTabActive ? 'flex' : 'none';
                 }
+                const suspLauncherBtn = document.getElementById('accountSuspendLauncherBtn');
+                if (suspLauncherBtn) {
+                    suspLauncherBtn.style.display = registerTabActive ? 'flex' : 'none';
+                }
             }
 
             document.addEventListener('DOMContentLoaded', () => {
@@ -13867,6 +14360,20 @@ let d5Unlocked = false;
                 checkRegistrationTabVisibility();
                 // Direct touch & click listener for account delete launcher
                 const delBtnDirect = document.getElementById('accountDeleteLauncherBtn');
+                // Direct touch & click listener for account suspend launcher
+                const suspBtnDirect = document.getElementById('accountSuspendLauncherBtn');
+                if (suspBtnDirect) {
+                    ['click', 'touchend'].forEach(evt => {
+                        suspBtnDirect.addEventListener(evt, (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (typeof window.openAccountSuspendTool === 'function') {
+                                window.openAccountSuspendTool();
+                            }
+                        }, { passive: false });
+                    });
+                }
+    
                 if (delBtnDirect) {
                     ['click', 'touchend'].forEach(evt => {
                         delBtnDirect.addEventListener(evt, (e) => {
@@ -14008,6 +14515,186 @@ let d5Unlocked = false;
             });
         }
     });
+
+
+    /* =========================================================================
+       ACCOUNT SUSPENSION & REACTIVATION TOOL LOGIC (DILITHIUM-5 GATE + FIGMA)
+       ========================================================================= */
+    window._selectedSuspendAccountId = null;
+
+    // Check Dilithium-5 key and unlock tool
+    window.openAccountSuspendTool = function() {
+        // 1. Dilithium-5 Security Gate Check
+        const hasDilithiumKey = !!(
+            localStorage.getItem('l8_dilithium_key') ||
+            localStorage.getItem('l8_active_key') ||
+            (window.getLatestDilithiumSignature && window.getLatestDilithiumSignature()) ||
+            document.getElementById('authDilithiumInput')?.value
+        );
+
+        if (!hasDilithiumKey) {
+            if (typeof window.showAdminToast === 'function') {
+                window.showAdminToast('🔒 Requiere firma Dilithium-5 (ML-DSA-87) activa para acceder al Gestor de Suspensión.');
+            }
+            // Open Dilithium Security Gate to authenticate
+            if (typeof window.openDilithiumSecurityGate === 'function') {
+                window.openDilithiumSecurityGate();
+            }
+            return;
+        }
+
+        const overlay = document.getElementById('accountSuspendModalOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            window.loadSuspendAccountsList();
+        }
+    };
+
+    window.closeAccountSuspendModal = function() {
+        const overlay = document.getElementById('accountSuspendModalOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+    };
+
+    window.loadSuspendAccountsList = async function() {
+        const container = document.getElementById('suspendAccountsList');
+        if (!container) return;
+        container.innerHTML = '<div style="text-align:center; padding:20px; font-size:13px; color:#64748b;">Cargando cuentas registradas...</div>';
+
+        try {
+            const apiUrl = (typeof window.L8_BASE_PATH !== 'undefined' && window.L8_BASE_PATH)
+                ? (window.L8_BASE_PATH + 'api/auth/list-accounts')
+                : '/api/auth/list-accounts';
+
+            const resp = await fetch(apiUrl);
+            const data = await resp.json();
+            const accounts = data.accounts || [];
+
+            if (accounts.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; font-size:13px; color:#64748b;">No hay cuentas registradas aún.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            accounts.forEach(acc => {
+                const row = document.createElement('div');
+                row.className = 'suspend-account-row' + (window._selectedSuspendAccountId === acc.account_id ? ' selected' : '');
+                row.dataset.accountId = acc.account_id;
+                row.dataset.isSuspended = acc.is_suspended ? '1' : '0';
+
+                const isSusp = acc.is_suspended;
+                row.innerHTML = `
+                    <div class="suspend-account-left">
+                        <input type="radio" name="suspendAccountRadio" value="${acc.account_id}" ${window._selectedSuspendAccountId === acc.account_id ? 'checked' : ''} style="cursor:pointer;">
+                        <div>
+                            <div class="suspend-account-id">${acc.account_id}</div>
+                            <div style="font-size:11px; color:#8e95a5;">${new Date(acc.created_at).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    <span class="suspend-badge ${isSusp ? 'suspendida' : 'activa'}">${isSusp ? 'Suspendida' : 'Activa'}</span>
+                `;
+
+                row.onclick = () => {
+                    window._selectedSuspendAccountId = acc.account_id;
+                    document.querySelectorAll('.suspend-account-row').forEach(r => r.classList.remove('selected'));
+                    row.classList.add('selected');
+                    const radio = row.querySelector('input[type="radio"]');
+                    if (radio) radio.checked = true;
+                };
+
+                container.appendChild(row);
+            });
+
+            // Default select first if none selected
+            if (!window._selectedSuspendAccountId && accounts.length > 0) {
+                window._selectedSuspendAccountId = accounts[0].account_id;
+                const firstRow = container.querySelector('.suspend-account-row');
+                if (firstRow) {
+                    firstRow.classList.add('selected');
+                    const radio = firstRow.querySelector('input[type="radio"]');
+                    if (radio) radio.checked = true;
+                }
+            }
+
+        } catch (e) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; font-size:13px; color:#ef4444;">Error al consultar el almacén de cuentas.</div>';
+        }
+    };
+
+    window.executeAccountSuspend = async function() {
+        if (!window._selectedSuspendAccountId) {
+            alert('Por favor selecciona una cuenta de la lista.');
+            return;
+        }
+
+        const btnText = document.getElementById('suspendAccountBtnText');
+        if (btnText) btnText.textContent = 'Suspendiendo cuenta...';
+
+        try {
+            const apiUrl = (typeof window.L8_BASE_PATH !== 'undefined' && window.L8_BASE_PATH)
+                ? (window.L8_BASE_PATH + 'api/auth/suspend-account')
+                : '/api/auth/suspend-account';
+
+            const resp = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ account_id: window._selectedSuspendAccountId })
+            });
+            const data = await resp.json();
+
+            if (data.ok) {
+                if (btnText) btnText.textContent = '✓ Cuenta Suspendida';
+                setTimeout(() => {
+                    if (btnText) btnText.textContent = 'Suspender cuentas seleccionadas';
+                    window.loadSuspendAccountsList();
+                }, 1000);
+            } else {
+                alert('Error al suspender: ' + (data.error || 'Fallo desconocido'));
+                if (btnText) btnText.textContent = 'Suspender cuentas seleccionadas';
+            }
+        } catch (err) {
+            alert('Error de red al suspender la cuenta.');
+            if (btnText) btnText.textContent = 'Suspender cuentas seleccionadas';
+        }
+    };
+
+    window.executeAccountReactivate = async function() {
+        if (!window._selectedSuspendAccountId) {
+            alert('Por favor selecciona una cuenta de la lista.');
+            return;
+        }
+
+        const btnText = document.getElementById('reactivateAccountBtnText');
+        if (btnText) btnText.textContent = 'Reactivando cuenta...';
+
+        try {
+            const apiUrl = (typeof window.L8_BASE_PATH !== 'undefined' && window.L8_BASE_PATH)
+                ? (window.L8_BASE_PATH + 'api/auth/reactivate-account')
+                : '/api/auth/reactivate-account';
+
+            const resp = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ account_id: window._selectedSuspendAccountId })
+            });
+            const data = await resp.json();
+
+            if (data.ok) {
+                if (btnText) btnText.textContent = '✓ Cuenta Reactivada';
+                setTimeout(() => {
+                    if (btnText) btnText.textContent = 'Reactivar cuenta';
+                    window.loadSuspendAccountsList();
+                }, 1000);
+            } else {
+                alert('Error al reactivar: ' + (data.error || 'Fallo desconocido'));
+                if (btnText) btnText.textContent = 'Reactivar cuenta';
+            }
+        } catch (err) {
+            alert('Error de red al reactivar la cuenta.');
+            if (btnText) btnText.textContent = 'Reactivar cuenta';
+        }
+    };
 
 </script>
 

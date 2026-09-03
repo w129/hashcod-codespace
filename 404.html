@@ -12367,6 +12367,67 @@
             color: #525866;
         }
 
+
+        /* =========================================================================
+           REDEFINED COLUMNS SPEC: ACCOUNT LINKAGE, TOKEN MATH & IMPENETRABLE SEAL
+           ========================================================================= */
+        .select-account-admin {
+            width: 100%;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #111317;
+            background: #FFFFFF;
+            border: 1px solid #E1E4EA;
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
+        }
+        .select-account-admin:focus {
+            border-color: #111317;
+        }
+        .impenetrable-seal-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            user-select: none;
+        }
+        .impenetrable-seal-badge.sealed {
+            background: #000000;
+            color: #FFFFFF;
+            border: 1px solid #000000;
+            cursor: not-allowed;
+        }
+        .btn-impenetrable-seal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #FFFFFF;
+            border: 1px solid #E1E4EA;
+            color: #111317;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-impenetrable-seal:hover {
+            background: #000000;
+            color: #FFFFFF;
+            border-color: #000000;
+        }
+
 </style>
 </head>
 <body class="boot-locked">
@@ -22918,13 +22979,15 @@
         const L8_DATA_KEY = 'l8_admin_panel_records_v1';
         const L8_ACTIVE_COLS_KEY = 'l8_blog_active_columns_v1';
 
-                const L8_SYSTEM_COLUMNS = [
-            { key: 'identifier_code', label: 'identifier code', minWidth: '100px' },
-            { key: 'responsible_code', label: 'responsible party code', minWidth: '130px' },
+                        const L8_SYSTEM_COLUMNS = [
+            { key: 'account_id', label: 'Active Account', minWidth: '130px' },
+            { key: 'upload_date', label: 'Upload Date / Revision', minWidth: '150px' },
             { key: 'platform_code', label: 'Platform code', minWidth: '90px' },
             { key: 'auth_signature', label: 'authorization signature', minWidth: '130px' },
             { key: 'num_tokens', label: 'Number of tokens', minWidth: '115px' },
-            { key: 'cost_per_token', label: 'cost per token', minWidth: '110px' },
+            { key: 'cost_per_token', label: 'cost per token ($0.015)', minWidth: '120px' },
+            { key: 'total_cost_usd', label: 'Total USD ($)', minWidth: '110px' },
+            { key: 'impenetrable_seal', label: 'Impenetrable Seal', minWidth: '130px' },
             { key: 'icai_page', label: 'ICAI page', minWidth: '95px' },
             { key: 'nspa_monthly', label: 'NSPA Monthly', minWidth: '100px' },
             { key: 'cors_method', label: 'CORS Method', minWidth: '95px' },
@@ -22939,17 +23002,22 @@
         ];
         window.L8_ALL_COLUMNS = L8_SYSTEM_COLUMNS;
 
-        const L8_INITIAL_RECORDS = [
+                const L8_INITIAL_RECORDS = [
             {
+                account_id: 'admin',
                 identifier_code: 'PUB-001',
                 responsible_code: 'DKT-ROOT',
+                upload_date: '2026-09-03 12:00',
+                revision_count: 1,
                 platform_code: 'import hashlib\nimport os\n\ndef init_platform_engine():\n    print("Hashcod platform codespace ready")\n',
                 platform_code_name: 'main.py',
                 platform_code_lang: 'python',
                 auth_signature: 'Authorized (SPHINCS+)',
-                auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
-                num_tokens: '250000',
-                cost_per_token: '0.00015',
+                auth_signature_digest: 'SPHINCS+-SLH-DSA-SHAKE-256s:AUTH:HASHCOD-ROOT-2026',
+                num_tokens: '250',
+                cost_per_token: '0.015',
+                total_cost_usd: '3.75',
+                impenetrable_seal: false,
                 icai_page: 'ICAI-v4',
                 nspa_monthly: '100.0%',
                 cors_method: 'Yes',
@@ -22960,123 +23028,38 @@
                 creator_name: 'Diktatcart',
                 phone: '+1 800 HASHCOD',
                 email: 'admin@hashcod.io',
+                user_text_data: '',
                 views: 12,
-                likes: 14
+                likes: 8
             },
             {
+                account_id: 'diktatcart',
                 identifier_code: 'PUB-002',
-                responsible_code: 'AUTH-882',
-                platform_code: '<div class="app">Hashcod AI codespace</div>',
-                platform_code_name: 'index.html',
-                platform_code_lang: 'html',
+                responsible_code: 'DKT-PROD',
+                upload_date: '2026-09-03 14:30',
+                revision_count: 1,
+                platform_code: 'const securityEngine = require("./sec");\nconsole.log("Deterministic engine initialized");\n',
+                platform_code_name: 'app.js',
+                platform_code_lang: 'javascript',
                 auth_signature: 'Authorized (SPHINCS+)',
-                auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
-                num_tokens: '500000',
-                cost_per_token: '0.00012',
+                auth_signature_digest: 'SPHINCS+-SLH-DSA-SHAKE-256s:AUTH:DIKTATC-PROD-2026',
+                num_tokens: '120',
+                cost_per_token: '0.015',
+                total_cost_usd: '1.80',
+                impenetrable_seal: false,
                 icai_page: 'ICAI-v3',
                 nspa_monthly: '99.8%',
                 cors_method: 'Yes',
                 hasna_color: '#33B34D',
-                time_to_create: '35 mins',
-                proof: 'Git SHA-256',
-                manager_id: 'MGR-02',
-                creator_name: 'Diktatcart',
-                phone: '+1 800 HASHCOD',
-                email: 'security@hashcod.io',
-                views: 8,
-                likes: 9
-            },
-            {
-                identifier_code: 'PUB-003',
-                responsible_code: 'AUTH-771',
-                platform_code: 'export const run = () => console.log("Hashcod TypeScript engine");',
-                platform_code_name: 'app.ts',
-                platform_code_lang: 'typescript',
-                auth_signature: 'Authorized (SPHINCS+)',
-                auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
-                num_tokens: '120000',
-                cost_per_token: '0.00020',
-                icai_page: 'ICAI-v5',
-                nspa_monthly: '100.0%',
-                cors_method: 'Yes',
-                hasna_color: '#3366E6',
                 time_to_create: '8 mins',
-                proof: 'Git SHA-256',
-                manager_id: 'MGR-01',
-                creator_name: 'Diktatcart',
-                phone: '+1 800 HASHCOD',
-                email: 'dev@hashcod.io',
-                views: 19,
-                likes: 21
-            },
-            {
-                identifier_code: 'PUB-004',
-                responsible_code: 'AUTH-650',
-                platform_code: 'const express = require("express");',
-                platform_code_name: 'server.js',
-                platform_code_lang: 'javascript',
-                auth_signature: 'Authorized (SPHINCS+)',
-                auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
-                num_tokens: '300000',
-                cost_per_token: '0.00018',
-                icai_page: 'ICAI-v2',
-                nspa_monthly: '98.5%',
-                cors_method: 'No',
-                hasna_color: '#FFFFFF',
-                time_to_create: '45 mins',
-                proof: 'Commit log',
-                manager_id: 'MGR-03',
-                creator_name: 'Diktatcart',
+                proof: 'SHA-512 Seal',
+                manager_id: 'MGR-02',
+                creator_name: 'Diktatcart Systems',
                 phone: '+1 800 HASHCOD',
                 email: 'ops@hashcod.io',
-                views: 5,
-                likes: 3
-            },
-            {
-                identifier_code: 'PUB-005',
-                responsible_code: 'AUTH-520',
-                platform_code: 'def benchmark(): pass',
-                platform_code_name: 'bench.py',
-                platform_code_lang: 'python',
-                auth_signature: 'Authorized (SPHINCS+)',
-                auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
-                num_tokens: '800000',
-                cost_per_token: '0.00010',
-                icai_page: 'ICAI-v6',
-                nspa_monthly: '100.0%',
-                cors_method: 'Yes',
-                hasna_color: '#E63333',
-                time_to_create: '1 hr',
-                proof: 'Git SHA-256',
-                manager_id: 'MGR-01',
-                creator_name: 'Diktatcart',
-                phone: '+1 800 HASHCOD',
-                email: 'admin@hashcod.io',
-                views: 14,
-                likes: 18
-            },
-            {
-                identifier_code: 'PUB-006',
-                responsible_code: 'AUTH-410',
-                platform_code: '{"status":"ok"}',
-                platform_code_name: 'config.json',
-                platform_code_lang: 'javascript',
-                auth_signature: 'Authorized (SPHINCS+)',
-                auth_signature_digest: 'SLH-DSA-SHAKE-256s-2026-NIST-PQC-OK',
-                num_tokens: '150000',
-                cost_per_token: '0.00016',
-                icai_page: 'ICAI-v1',
-                nspa_monthly: '99.1%',
-                cors_method: 'Yes',
-                hasna_color: '#33B34D',
-                time_to_create: '15 mins',
-                proof: 'Commit log',
-                manager_id: 'MGR-02',
-                creator_name: 'Diktatcart',
-                phone: '+1 800 HASHCOD',
-                email: 'info@hashcod.io',
-                views: 7,
-                likes: 6
+                user_text_data: '',
+                views: 9,
+                likes: 5
             }
         ];
 
@@ -23243,9 +23226,73 @@
                         const tdStyle = isLast ? 'border-right:none;' : '';
                         const key = col.key;
                         switch (key) {
+                            case 'account_id':
+                                rowHtml += `<td style="${tdStyle}"><span class="blog-cell-badge" style="font-weight:700; color:#111317;" title="Cuenta activa asignada por el Administrador">${r.account_id || r.identifier_code || 'admin'}</span></td>`;
+                                break;
+                            case 'upload_date':
+                                rowHtml += `<td style="${tdStyle}"><span class="blog-cell-badge" style="font-family:'Geist Mono',monospace;" title="Fecha de subida / revisión">${r.upload_date || 'Sin subida'}</span></td>`;
+                                break;
+                            case 'platform_code':
+                                const isSealedExcel = (r.impenetrable_seal === true);
+                                rowHtml += `
+                                    <td style="${tdStyle}">
+                                        <button type="button" class="cell-home-icon-btn" onclick="openBlogCodeViewer('${r.account_id || r.identifier_code}')" title="${isSealedExcel ? 'Publicación sellada permanentemente (Solo Lectura)' : 'Ver código adjunto (' + (r.platform_code_name || 'script') + ')'}">
+                                            <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                                        </button>
+                                    </td>`;
+                                break;
+                            case 'auth_signature':
+                                const isAuthed = (r.auth_signature && r.auth_signature.includes('Authorized'));
+                                rowHtml += `
+                                    <td style="${tdStyle}">
+                                        ${isAuthed
+                                            ? '<span class="btn-auth-figma signed" style="cursor:default;user-select:none;" title="Certificado SPHINCS+ emitido por Admin">Authorized ✓</span>'
+                                            : '<span style="font-size:11px;font-weight:600;color:#8C93A3;padding:4px 8px;border:1px solid #E1E4EA;border-radius:4px;" title="Pendiente de autorización manual por el Administrador">Pendiente</span>'
+                                        }
+                                    </td>`;
+                                break;
+                            case 'num_tokens':
+                                rowHtml += `<td style="${tdStyle}"><span class="blog-cell-badge" style="font-weight:600;" title="Cantidad de tokens calculados">${r.num_tokens || '0'}</span></td>`;
+                                break;
+                            case 'cost_per_token':
+                                rowHtml += `
+                                    <td style="${tdStyle}">
+                                        <div class="dollar-input-figma">
+                                            <span>$</span>
+                                            <input type="text" value="0.015" readonly style="background:#FAFAFC;cursor:default;" title="Costo fijo por token: $0.015">
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'total_cost_usd':
+                                const totalUsdExcel = ((Number(r.num_tokens) || 0) * 0.015).toFixed(2);
+                                rowHtml += `
+                                    <td style="${tdStyle}">
+                                        <div class="dollar-input-figma">
+                                            <span>$</span>
+                                            <input type="text" value="${totalUsdExcel}" readonly style="font-weight:700;color:#111317;background:#FAFAFC;cursor:default;" title="Total en dólares (Tokens × 0.015)">
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'impenetrable_seal':
+                                if (r.impenetrable_seal === true) {
+                                    rowHtml += `
+                                        <td style="${tdStyle}">
+                                            <span class="impenetrable-seal-badge sealed" title="Sello Impenetrable Activo - Publicación Inmutable">
+                                                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                                                SELLADO ✓
+                                            </span>
+                                        </td>`;
+                                } else {
+                                    rowHtml += `
+                                        <td style="${tdStyle}">
+                                            <button type="button" class="btn-impenetrable-seal" onclick="applyImpenetrableSeal('${r.account_id || r.identifier_code}')" title="Marcar Sello Impenetrable (Permanente)">
+                                                🔒 Marcar Sello
+                                            </button>
+                                        </td>`;
+                                }
+                                break;
                             case 'identifier_code':
                             case 'responsible_code':
-                            case 'num_tokens':
                             case 'icai_page':
                             case 'nspa_monthly':
                             case 'time_to_create':
@@ -23255,29 +23302,6 @@
                             case 'phone':
                             case 'email':
                                 rowHtml += `<td style="${tdStyle}"><span class="blog-cell-badge" title="${r[key] || ''}">${r[key] || ''}</span></td>`;
-                                break;
-                            case 'platform_code':
-                                rowHtml += `
-                                    <td style="${tdStyle}">
-                                        <button type="button" class="cell-home-icon-btn" onclick="openBlogCodeViewer('${r.identifier_code}')" title="Ver código adjunto (${r.platform_code_name || 'script'})">
-                                            <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
-                                        </button>
-                                    </td>`;
-                                break;
-                            case 'auth_signature':
-                                rowHtml += `
-                                    <td style="${tdStyle}">
-                                        <span class="btn-auth-figma signed" style="cursor:default;user-select:none;" title="Certificado SPHINCS+">Authorized ✓</span>
-                                    </td>`;
-                                break;
-                            case 'cost_per_token':
-                                rowHtml += `
-                                    <td style="${tdStyle}">
-                                        <div class="dollar-input-figma">
-                                            <span>$</span>
-                                            <input type="text" value="${r.cost_per_token || ''}" readonly>
-                                        </div>
-                                    </td>`;
                                 break;
                             case 'cors_method':
                                 rowHtml += `
@@ -23951,12 +23975,33 @@
             };
 
             window.savePlatformCodeAttachment = function () {
+                const rows = window.getSharedPublicationRows();
+                const currentRow = rows[selectedRowIndex];
+                if (currentRow && currentRow.impenetrable_seal === true) {
+                    alert('🛡️ Esta publicación cuenta con un Sello Impenetrable activo y no admite más subidas.');
+                    closePlatformCodeModal();
+                    return;
+                }
+
                 const contentEl = document.getElementById('platformCodeContent');
                 const content = (contentEl?.value || '').trim();
                 const tokenCount = calculateCodeTokens(content);
 
                 adminPendingRow.platform_code = content;
                 adminPendingRow.num_tokens = String(tokenCount);
+                adminPendingRow.cost_per_token = '0.015';
+                adminPendingRow.total_cost_usd = (tokenCount * 0.015).toFixed(2);
+
+                // Gestión determinista de fechas de subida y arreglos ('A ' + fecha)
+                const now = new Date();
+                const dateStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+                if (!adminPendingRow.upload_date || adminPendingRow.upload_date === 'Sin subida') {
+                    adminPendingRow.upload_date = dateStr;
+                    adminPendingRow.revision_count = 1;
+                } else {
+                    adminPendingRow.revision_count = (adminPendingRow.revision_count || 1) + 1;
+                    adminPendingRow.upload_date = `A ${dateStr}`;
+                }
 
                 const label = document.getElementById('c1_codeStatusLabel');
                 if (label) label.textContent = 'Code ' + (adminPendingRow.platform_code_name || 'script.py') + ' ✓';
@@ -23967,13 +24012,13 @@
                 closePlatformCodeModal();
 
                 // Update table
-                const rows = window.getSharedPublicationRows();
                 if (rows[selectedRowIndex]) {
                     rows[selectedRowIndex] = { ...adminPendingRow };
                     window.saveSharedPublicationRows(rows);
                     renderAdminTable();
+                    if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
                 }
-                window.showAdminToast(`✓ Código guardado: ${tokenCount.toLocaleString()} tokens asignados a [${adminPendingRow.identifier_code}].`);
+                window.showAdminToast(`✓ Código guardado: ${tokenCount.toLocaleString()} tokens ($${adminPendingRow.total_cost_usd} USD) asignados a [${adminPendingRow.account_id || adminPendingRow.identifier_code}].`);
             };
 
             // --- Toolbox Tool 3 (Warp Terminal & Bash Engine) ---
@@ -24097,9 +24142,83 @@
                     activeCols.forEach((col, colIdx) => {
                         const key = col.key;
                         switch (key) {
+                            case 'account_id':
+                                const activeAccs = (typeof window.getActiveAccountsList === 'function') ? window.getActiveAccountsList() : ['admin', 'diktatcart', 'user-01', 'user-02'];
+                                let accOptions = '';
+                                activeAccs.forEach(acc => {
+                                    const sel = (r.account_id === acc) ? 'selected' : '';
+                                    accOptions += `<option value="${acc}" ${sel}>${acc}</option>`;
+                                });
+                                rowHtml += `
+                                    <td>
+                                        <select class="select-account-admin" onchange="updateRowAccountId(${idx}, this.value)" title="Asignar cuenta activa (Solo Admin)">
+                                            ${accOptions}
+                                        </select>
+                                    </td>`;
+                                break;
+                            case 'upload_date':
+                                rowHtml += `<td><input type="text" class="input-field-figma" value="${r.upload_date || 'Sin subida'}" readonly style="font-family:'Geist Mono',monospace;background:#FAFAFC;cursor:default;" title="Fecha de subida / revisión"></td>`;
+                                break;
+                            case 'platform_code':
+                                const isSealedAdmin = (r.impenetrable_seal === true);
+                                rowHtml += `
+                                    <td>
+                                        <button type="button" class="cell-home-icon-btn" onclick="openPlatformCodeModal()" title="${isSealedAdmin ? 'Publicación sellada permanentemente (Lectura)' : 'Ver/subir código'}">
+                                            <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
+                                        </button>
+                                    </td>`;
+                                break;
+                            case 'auth_signature':
+                                const isAuthedAdm = (r.auth_signature && r.auth_signature.includes('Authorized'));
+                                rowHtml += `
+                                    <td>
+                                        <button type="button" class="btn-auth-figma signed" onclick="stampSphincsSignature()" title="Certificar manualmente con SPHINCS+ (Solo Admin)">
+                                            ${isAuthedAdm ? 'Authorized ✓' : 'Authorize (SPHINCS+)'}
+                                        </button>
+                                    </td>`;
+                                break;
+                            case 'num_tokens':
+                                rowHtml += `<td><input type="text" class="input-field-figma" value="${r.num_tokens || '0'}" onchange="updateCellData(${idx}, 'num_tokens', this.value)" oninput="updateCellDataRealtime(${idx}, 'num_tokens', this.value)" title="Cantidad de tokens"></td>`;
+                                break;
+                            case 'cost_per_token':
+                                rowHtml += `
+                                    <td>
+                                        <div class="dollar-input-figma">
+                                            <span>$</span>
+                                            <input type="text" value="0.015" readonly style="background:#FAFAFC;cursor:default;" title="Costo fijo por token: $0.015">
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'total_cost_usd':
+                                const totalUsdAdmin = ((Number(r.num_tokens) || 0) * 0.015).toFixed(2);
+                                rowHtml += `
+                                    <td>
+                                        <div class="dollar-input-figma">
+                                            <span>$</span>
+                                            <input type="text" value="${totalUsdAdmin}" readonly style="font-weight:700;color:#111317;background:#FAFAFC;cursor:default;" title="Total en dólares (Tokens × 0.015)">
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'impenetrable_seal':
+                                if (r.impenetrable_seal === true) {
+                                    rowHtml += `
+                                        <td>
+                                            <span class="impenetrable-seal-badge sealed" title="Sello Impenetrable Activo - Publicación Inmutable">
+                                                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                                                SELLADO ✓
+                                            </span>
+                                        </td>`;
+                                } else {
+                                    rowHtml += `
+                                        <td>
+                                            <button type="button" class="btn-impenetrable-seal" onclick="applyImpenetrableSeal(${idx})" title="Marcar Sello Impenetrable (Permanente)">
+                                                🔒 Marcar Sello
+                                            </button>
+                                        </td>`;
+                                }
+                                break;
                             case 'identifier_code':
                             case 'responsible_code':
-                            case 'num_tokens':
                             case 'icai_page':
                             case 'nspa_monthly':
                             case 'time_to_create':
@@ -24109,29 +24228,6 @@
                             case 'phone':
                             case 'email':
                                 rowHtml += `<td><input type="text" class="input-field-figma" value="${r[key] || ''}" onchange="updateCellData(${idx}, '${key}', this.value)" oninput="updateCellDataRealtime(${idx}, '${key}', this.value)"></td>`;
-                                break;
-                            case 'platform_code':
-                                rowHtml += `
-                                    <td>
-                                        <button type="button" class="cell-home-icon-btn" onclick="openPlatformCodeModal()" title="Ver/subir código">
-                                            <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
-                                        </button>
-                                    </td>`;
-                                break;
-                            case 'auth_signature':
-                                rowHtml += `
-                                    <td>
-                                        <button type="button" class="btn-auth-figma signed" onclick="stampSphincsSignature()" title="Certificar con SPHINCS+">Authorized</button>
-                                    </td>`;
-                                break;
-                            case 'cost_per_token':
-                                rowHtml += `
-                                    <td>
-                                        <div class="dollar-input-figma">
-                                            <span>$</span>
-                                            <input type="text" value="${r.cost_per_token || ''}" onchange="updateCellData(${idx}, 'cost_per_token', this.value)" oninput="updateCellDataRealtime(${idx}, 'cost_per_token', this.value)">
-                                        </div>
-                                    </td>`;
                                 break;
                             case 'cors_method':
                                 rowHtml += `
@@ -26736,6 +26832,77 @@ let d5Unlocked = false;
             }
         }
     });
+
+
+    /* =========================================================================
+       REDEFINED COLUMNS LOGIC: ACCOUNTS, TOKENS, MATH & IMPENETRABLE SEAL
+       ========================================================================= */
+    window.getActiveAccountsList = function() {
+        let accounts = ['admin', 'diktatcart', 'user-01', 'user-02'];
+        try {
+            const stored = localStorage.getItem('l8_active_accounts_v1');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch(e) {}
+        return accounts;
+    };
+
+    window.updateRowAccountId = function(rowIdx, newAccId) {
+        const isAuthedAdmin = (sessionStorage.getItem('l8_admin_authenticated') === '1');
+        if (!isAuthedAdmin) {
+            alert('Solo el Administrador puede reasignar cuentas.');
+            return;
+        }
+        const rows = window.getSharedPublicationRows();
+        if (rows[rowIdx]) {
+            rows[rowIdx].account_id = newAccId;
+            window.saveSharedPublicationRows(rows);
+            if (typeof window.renderAdminTable === 'function') window.renderAdminTable();
+            if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
+        }
+    };
+
+    window.calculateTotalCostUsd = function(tokens) {
+        const t = Number(tokens) || 0;
+        return (t * 0.015).toFixed(2);
+    };
+
+    window.applyImpenetrableSeal = function(target) {
+        const rows = window.getSharedPublicationRows();
+        let rowIdx = -1;
+        if (typeof target === 'number') rowIdx = target;
+        else if (typeof target === 'string') rowIdx = rows.findIndex(r => (r.account_id === target || r.identifier_code === target));
+        if (rowIdx === -1 && rows.length > 0) rowIdx = 0;
+
+        const row = rows[rowIdx];
+        if (!row) return;
+
+        if (row.impenetrable_seal === true) {
+            alert('🛡️ Este sello ya ha sido aplicado y es permanente e impenetrable. No se puede quitar.');
+            return;
+        }
+
+        const confirmSeal = confirm(
+            '🛡️ CONFIRMACIÓN DE SELLO IMPENETRABLE PERMANENTE:\n\n' +
+            '¿Deseas sellar permanentemente la publicación de la cuenta [' + (row.account_id || 'Activa') + ']?\n\n' +
+            '• Esta acción es 100% IRREVERSIBLE.\n' +
+            '• Confirmas que ya no subirás más código en esta fila.\n' +
+            '• Una vez marcado, el sello NO se puede desmarcar ni quitar.'
+        );
+
+        if (confirmSeal) {
+            row.impenetrable_seal = true;
+            row.seal_timestamp = new Date().toISOString();
+            window.saveSharedPublicationRows(rows);
+            if (typeof window.renderAdminTable === 'function') window.renderAdminTable();
+            if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
+            if (typeof window.showAdminToast === 'function') {
+                window.showAdminToast('🛡️ Sello Impenetrable aplicado permanentemente a [' + (row.account_id || 'Cuenta') + '].');
+            }
+        }
+    };
 
 </script>
 

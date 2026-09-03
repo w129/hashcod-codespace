@@ -22702,61 +22702,71 @@ if (!headers_sent()) {
         </div>
     </div>
 
-        <!-- Platform Code Uploader / Multi-File Polyglot Editor Modal (Folder & ZIP Support) -->
+            <!-- Platform Code Uploader / Multi-File Polyglot Editor Modal (Folder & ZIP Support) - MONOCHROMATIC VECTOR FIGMA SPEC -->
     <div class="admin-gate-overlay" id="platformCodeModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="codeModalTitle" style="align-items:center; justify-content:center; padding:16px;">
-        <div class="admin-gate-card" style="width:min(980px, 98vw); max-height:92vh; display:flex; flex-direction:column; padding:20px; border-radius:12px; box-shadow:0 25px 60px rgba(0,0,0,0.45); background:#FFFFFF;">
-            <!-- Header -->
-            <div class="admin-gate-header" style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #E5E7EB;">
-                <div>
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                        <span class="admin-gate-badge" style="background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE;">
-                            <svg style="width:13px;height:13px;fill:currentColor;margin-right:4px;" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
-                            PLATFORM CODE STUDIO · POLYGLOT & MULTI-FILE
-                        </span>
-                        <span style="font-size:10px; font-weight:700; background:#ECFDF5; color:#047857; padding:2px 6px; border-radius:4px; border:1px solid #A7F3D0;">ZIP & CARPETAS ACTIVADOS</span>
+        <div class="admin-gate-card" style="width:min(980px, 98vw); max-height:92vh; display:flex; flex-direction:column; padding:28px; border-radius:16px; box-shadow:0 20px 50px -10px rgba(11,13,16,0.25); background:#FFFFFF; border:1px solid #E1E4EA; box-sizing:border-box;">
+            <!-- Header with Platform Vector Icon Circle -->
+            <div class="admin-gate-header" style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #EBEBEB; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="width:52px; height:52px; border-radius:50%; background:#EBEBEB; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" width="26" height="26" fill="none" aria-hidden="true">
+                            <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                        </svg>
                     </div>
-                    <h2 class="admin-gate-title" id="codeModalTitle" style="font-size:16px; font-weight:700; color:#111827;">Gestor de Código de la Plataforma (Cualquier Lenguaje / ZIP / Carpetas)</h2>
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:10px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; background:#F4F4F6; color:#111317; border:1px solid #E1E4EA; padding:3px 8px; border-radius:4px; font-family:'Inter', sans-serif;">
+                                PLATFORM CODE STUDIO · POLYGLOT & MULTI-FILE
+                            </span>
+                            <span style="font-size:10px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; background:#000000; color:#FFFFFF; padding:3px 8px; border-radius:4px; font-family:'Inter', sans-serif;">
+                                ZIP & CARPETAS ACTIVADOS
+                            </span>
+                        </div>
+                        <h2 class="admin-gate-title" id="codeModalTitle" style="margin:0; font-size:18px; font-weight:700; color:#111317; font-family:'Inter', sans-serif;">Gestor de Código de la Plataforma (Cualquier Lenguaje / ZIP / Carpetas)</h2>
+                    </div>
                 </div>
-                <button type="button" class="admin-close-btn" onclick="closePlatformCodeModal()" title="Cerrar modal">
-                    <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 13.41 12z"/></svg>
+                <button type="button" class="admin-close-btn" onclick="closePlatformCodeModal()" title="Cerrar modal" style="width:34px; height:34px; border-radius:8px; border:1px solid #E1E4EA; background:#FFFFFF; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#111317; transition:background 0.15s ease;">
+                    <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
 
-            <!-- Upload Toolbar -->
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; background:#F8FAFC; padding:10px 12px; border-radius:8px; border:1px solid #E2E8F0; margin-bottom:12px;">
+            <!-- Upload Toolbar (Monochrome & Vector) -->
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#FAFAFC; padding:10px 14px; border-radius:10px; border:1px solid #E1E4EA; margin-bottom:14px;">
                 <!-- Upload Action Buttons -->
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <!-- Subir Carpeta -->
-                    <label class="btn-tool-upload" style="background:#3B82F6; color:#FFF; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;">
+                    <label class="btn-tool-upload" style="background:#000000; color:#FFFFFF; font-size:12px; font-weight:600; padding:7px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; border:1px solid #000000; transition:all 0.15s ease;">
                         <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
                         Subir Carpeta
                         <input type="file" id="platformFolderInput" webkitdirectory directory multiple style="display:none;" onchange="handlePlatformFolderUpload(event)">
                     </label>
 
                     <!-- Subir ZIP -->
-                    <label class="btn-tool-upload" style="background:#10B981; color:#FFF; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;">
+                    <label class="btn-tool-upload" style="background:#FFFFFF; color:#111317; font-size:12px; font-weight:600; padding:7px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; border:1px solid #E1E4EA; transition:all 0.15s ease;">
                         <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V7h4v2z"/></svg>
                         Subir Archivo .ZIP
                         <input type="file" id="platformZipInput" accept=".zip,application/zip,application/x-zip-compressed" style="display:none;" onchange="handlePlatformZipUpload(event)">
                     </label>
 
                     <!-- Subir Archivo Individual -->
-                    <label class="btn-tool-upload" style="background:#64748B; color:#FFF; font-size:12px; font-weight:600; padding:6px 12px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;">
+                    <label class="btn-tool-upload" style="background:#FFFFFF; color:#111317; font-size:12px; font-weight:600; padding:7px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; border:1px solid #E1E4EA; transition:all 0.15s ease;">
                         <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                         Subir Archivo
                         <input type="file" id="platformSingleFileInput" accept="*/*" style="display:none;" onchange="handlePlatformSingleFileUpload(event)">
                     </label>
 
                     <!-- Nuevo Archivo -->
-                    <button type="button" onclick="promptNewCodeFile()" style="background:#FFF; color:#475569; border:1px solid #CBD5E1; font-size:12px; font-weight:600; padding:6px 10px; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
-                        <span>+</span> Nuevo
+                    <button type="button" onclick="promptNewCodeFile()" style="background:#FFFFFF; color:#111317; border:1px solid #E1E4EA; font-size:12px; font-weight:600; padding:7px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Nuevo
                     </button>
                 </div>
 
                 <!-- Language Selector -->
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <label style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase;" for="codeLangSelect">Lenguaje:</label>
-                    <select id="codeLangSelect" style="padding:5px 8px; border:1px solid #CBD5E1; border-radius:6px; font-size:12px; font-weight:600; background:#FFF; color:#1E293B; outline:none;" onchange="onLanguageSelectChange()">
+                    <label style="font-size:11px; font-weight:700; color:#525866; text-transform:uppercase; letter-spacing:0.04em;" for="codeLangSelect">Lenguaje:</label>
+                    <select id="codeLangSelect" style="padding:6px 12px; border:1px solid #E1E4EA; border-radius:8px; font-size:12px; font-weight:600; background:#FFFFFF; color:#111317; outline:none; cursor:pointer;" onchange="onLanguageSelectChange()">
                         <option value="python">Python (.py)</option>
                         <option value="typescript">TypeScript (.ts, .tsx)</option>
                         <option value="javascript">JavaScript (.js, .jsx)</option>
@@ -22780,67 +22790,76 @@ if (!headers_sent()) {
                 </div>
             </div>
 
-            <!-- Workspace Split (File Tree on left, Code Editor on right) -->
-            <div style="display:flex; gap:12px; flex:1; min-height:280px; max-height:48vh; overflow:hidden;">
+            <!-- Workspace Split (File Tree on left, White Monochromatic Code Editor on right) -->
+            <div style="display:flex; gap:12px; flex:1; min-height:300px; max-height:48vh; overflow:hidden;">
                 <!-- Left Sidebar: Multi-file List -->
-                <div id="platformWorkspaceFileSidebar" style="width:230px; min-width:200px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; display:flex; flex-direction:column; overflow:hidden;">
-                    <div style="padding:8px 10px; background:#F1F5F9; border-bottom:1px solid #E2E8F0; display:flex; align-items:center; justify-content:space-between;">
-                        <span style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.5px;">📁 Archivos (<span id="workspaceFileCount">1</span>)</span>
-                        <button type="button" onclick="clearWorkspaceFiles()" title="Limpiar todos los archivos" style="background:none; border:none; color:#94A3B8; cursor:pointer; font-size:11px;">Limpiar</button>
+                <div id="platformWorkspaceFileSidebar" style="width:230px; min-width:200px; background:#FAFAFC; border:1px solid #E1E4EA; border-radius:10px; display:flex; flex-direction:column; overflow:hidden;">
+                    <div style="padding:10px 12px; background:#FFFFFF; border-bottom:1px solid #E1E4EA; display:flex; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <svg style="width:14px;height:14px;fill:#111317;" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                            <span style="font-size:11px; font-weight:700; color:#111317; text-transform:uppercase; letter-spacing:0.5px;">Archivos (<span id="workspaceFileCount">1</span>)</span>
+                        </div>
+                        <button type="button" onclick="clearWorkspaceFiles()" title="Limpiar todos los archivos" style="background:none; border:none; color:#525866; cursor:pointer; font-size:11px; font-weight:600;">Limpiar</button>
                     </div>
-                    <div id="platformWorkspaceFileList" style="flex:1; overflow-y:auto; padding:6px 4px; display:flex; flex-direction:column; gap:2px;">
+                    <div id="platformWorkspaceFileList" style="flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:4px;">
                         <!-- Dynamically populated files -->
                     </div>
                 </div>
 
-                <!-- Right Area: Editor + Dropzone -->
-                <div id="platformCodeDropZone" style="flex:1; display:flex; flex-direction:column; position:relative; border-radius:8px; overflow:hidden;" ondragover="handleCodeDragOver(event)" ondragleave="handleCodeDragLeave(event)" ondrop="handleCodeDrop(event)">
+                <!-- Right Area: White Monochromatic Editor + Dropzone -->
+                <div id="platformCodeDropZone" style="flex:1; display:flex; flex-direction:column; position:relative; border-radius:10px; overflow:hidden; border:1px solid #E1E4EA; background:#FFFFFF;" ondragover="handleCodeDragOver(event)" ondragleave="handleCodeDragLeave(event)" ondrop="handleCodeDrop(event)">
                     <!-- Active File Tab -->
-                    <div style="display:flex; align-items:center; justify-content:space-between; background:#1E293B; color:#F8FAFC; padding:6px 12px; font-size:12px; font-family:'Geist Mono', monospace;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:#FAFAFC; color:#111317; padding:8px 14px; font-size:12px; font-family:'Geist Mono', monospace; border-bottom:1px solid #E1E4EA;">
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span id="platformActiveFileName" style="font-weight:700; color:#38BDF8;">main.py</span>
-                            <span id="platformActiveFileSize" style="font-size:10px; color:#94A3B8;">0 KB</span>
+                            <span id="platformActiveFileName" style="font-weight:700; color:#111317;">main.py</span>
+                            <span id="platformActiveFileSize" style="font-size:11px; color:#525866;">0 KB</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span id="platformActiveFileLang" style="font-size:10px; text-transform:uppercase; background:#334155; padding:2px 6px; border-radius:4px; color:#E2E8F0;">python</span>
-                            <button type="button" onclick="copyCurrentModalCode()" style="background:none; border:none; color:#94A3B8; cursor:pointer; font-size:11px;" title="Copiar código">Copiar</button>
+                            <span id="platformActiveFileLang" style="font-size:10px; text-transform:uppercase; background:#EBEBEB; padding:2px 8px; border-radius:4px; color:#111317; font-weight:600; border:1px solid #E1E4EA;">python</span>
+                            <button type="button" onclick="copyCurrentModalCode()" style="background:#FFFFFF; border:1px solid #E1E4EA; border-radius:6px; color:#111317; cursor:pointer; font-size:11px; font-weight:600; padding:3px 10px; display:inline-flex; align-items:center; gap:4px; transition:background 0.15s ease;" title="Copiar código">
+                                <svg style="width:12px;height:12px;fill:currentColor;" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                                Copiar
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Code Textarea -->
-                    <textarea class="admin-gate-textarea" id="platformCodeContent" style="flex:1; width:100%; border:1px solid #CBD5E1; border-top:none; border-radius:0 0 8px 8px; font-family:'Geist Mono', monospace; font-size:12px; padding:12px; line-height:1.5; background:#0F172A; color:#E2E8F0; resize:none; outline:none;" placeholder="# Escribe o arrastra archivos/ZIP/carpetas de cualquier lenguaje aquí..." spellcheck="false" oninput="onPlatformCodeInput()"></textarea>
+                    <!-- Monochromatic White Code Textarea -->
+                    <textarea class="admin-gate-textarea" id="platformCodeContent" style="flex:1; width:100%; border:none; border-radius:0 0 10px 10px; font-family:'Geist Mono', 'Fira Code', monospace; font-size:13px; padding:16px; line-height:1.6; background:#FFFFFF; color:#111317; resize:none; outline:none; box-sizing:border-box;" placeholder="# Escribe o arrastra archivos/ZIP/carpetas de cualquier lenguaje aquí..." spellcheck="false" oninput="onPlatformCodeInput()"></textarea>
 
-                    <!-- Drag Overlay Overlay -->
-                    <div id="platformDragOverlay" style="display:none; position:absolute; inset:0; background:rgba(30, 58, 138, 0.85); backdrop-filter:blur(4px); align-items:center; justify-content:center; flex-direction:column; color:#FFF; font-weight:700; font-size:16px; z-index:10; border:2px dashed #60A5FA; border-radius:8px;">
-                        <svg style="width:42px;height:42px;fill:#60A5FA;margin-bottom:8px;" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                    <!-- Drag Overlay -->
+                    <div id="platformDragOverlay" style="display:none; position:absolute; inset:0; background:rgba(17,19,23,0.85); backdrop-filter:blur(4px); align-items:center; justify-content:center; flex-direction:column; color:#FFFFFF; font-weight:700; font-size:16px; z-index:10; border:2px dashed #FFFFFF; border-radius:10px;">
+                        <svg style="width:42px;height:42px;fill:#FFFFFF;margin-bottom:8px;" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
                         Suelta aquí tu Carpeta, ZIP o Archivos de Código
                     </div>
                 </div>
             </div>
 
-            <!-- Stats Bar -->
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:8px 4px; font-size:12px; border-top:1px solid #E5E7EB; margin-top:8px;">
+            <!-- Stats Bar (Monochrome & Vector) -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:10px 4px 0; font-size:12px; border-top:1px solid #EBEBEB; margin-top:12px;">
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span id="codeTokenCounterBadge" style="font-weight:700; color:#1D4ED8; background:#EFF6FF; border:1px solid #BFDBFE; padding:4px 10px; border-radius:6px;">
-                        🔢 Tokens Totales: <strong id="codeTokenCountDisplay">0</strong>
+                    <span id="codeTokenCounterBadge" style="font-weight:600; color:#111317; background:#FAFAFC; border:1px solid #E1E4EA; padding:5px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+                        <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                        Tokens Totales: <strong id="codeTokenCountDisplay">0</strong>
                     </span>
-                    <span style="color:#059669; font-size:11px; font-weight:600; background:#ECFDF5; padding:4px 8px; border-radius:6px; border:1px solid #A7F3D0;">
-                        ✓ Cálculo Inteligente en Tiempo Real
+                    <span style="color:#111317; font-size:11px; font-weight:600; background:#FFFFFF; padding:5px 12px; border-radius:8px; border:1px solid #E1E4EA; display:inline-flex; align-items:center; gap:6px;">
+                        <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+                        Cálculo Inteligente en Tiempo Real
                     </span>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <span id="codeStatsDisplay" style="color:#64748B; font-size:11px;">1 archivo · 0 líneas</span>
-                    <button type="button" onclick="downloadCurrentModalBundle()" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#334155; font-size:11px; font-weight:600; padding:3px 8px; border-radius:4px; cursor:pointer;" title="Descargar archivos adjuntos">
-                        📥 Descargar Bundle
+                    <span id="codeStatsDisplay" style="color:#525866; font-size:12px; font-weight:500;">1 archivo · 0 líneas</span>
+                    <button type="button" onclick="downloadCurrentModalBundle()" style="background:#FFFFFF; border:1px solid #E1E4EA; color:#111317; font-size:11px; font-weight:600; padding:6px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s ease;" title="Descargar archivos adjuntos">
+                        <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                        Descargar Bundle
                     </button>
                 </div>
             </div>
 
-            <!-- Footer Buttons -->
-            <div class="admin-gate-footer" style="margin-top:10px; padding-top:10px; border-top:1px solid #E5E7EB;">
-                <button type="button" class="admin-gate-btn secondary" onclick="closePlatformCodeModal()">Cancelar</button>
-                <button type="button" class="admin-gate-btn" onclick="savePlatformCodeAttachment()" style="background:#2563EB; color:#FFF; font-weight:700; padding:8px 18px; border-radius:6px; box-shadow:0 4px 12px rgba(37,99,235,0.35);">
-                    <svg style="width:14px;height:14px;fill:currentColor;margin-right:6px;" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+            <!-- Footer Buttons (Monochrome & Vector) -->
+            <div class="admin-gate-footer" style="margin-top:14px; padding-top:14px; border-top:1px solid #EBEBEB; display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" class="admin-gate-btn secondary" onclick="closePlatformCodeModal()" style="background:#FFFFFF; border:1px solid #E1E4EA; color:#525866; font-size:14px; font-weight:600; padding:10px 24px; border-radius:8px; cursor:pointer; transition:all 0.15s ease;">Cancelar</button>
+                <button type="button" class="admin-gate-btn" onclick="savePlatformCodeAttachment()" style="background:#000000; color:#FFFFFF; font-size:14px; font-weight:600; padding:10px 24px; border-radius:8px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:opacity 0.15s ease;">
+                    <svg style="width:14px;height:14px;fill:#FFFFFF;" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
                     Adjuntar Código y Aplicar Tokens
                 </button>
             </div>

@@ -31,6 +31,57 @@
     <link rel="stylesheet" href="components/durable-objects.css?v=2026.1">
     <link rel="stylesheet" href="components/warp-terminal.css?v=2026.1">
     <link rel="stylesheet" href="components/polyglot-grid.css?v=2026.1">
+    <style>
+        .auth-header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .auth-brand-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+        .auth-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .auth-card h1 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 700;
+            color: #111;
+            letter-spacing: -0.02em;
+            font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+        }
+        .auth-badge-pqc {
+            display: inline-flex;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            background: #000000;
+            color: #ffffff;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            height: 19px;
+            box-sizing: border-box;
+        }
+        .auth-badge-beta {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            height: 19px;
+            width: 36px;
+            flex-shrink: 0;
+            fill: #000000;
+        }
+    </style>
 </head>
 <body class="boot-locked">
     <script>
@@ -327,6 +378,9 @@
                 <div class="auth-title-wrap">
                     <h1>Hashcod codespace</h1>
                     <span class="auth-badge-pqc">PQC Auth</span>
+                    <svg class="auth-badge-beta" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 12 50 26" width="36" height="19" fill="#000000" aria-label="Beta" style="display:inline-flex; align-items:center; vertical-align:middle; flex-shrink:0;">
+                    <path d="M 4 12 C 1.79 12 0 13.79 0 16 L 0 34 C 0 36.21 1.79 38 4 38 L 46 38 C 48.21 38 50 36.21 50 34 L 50 16 C 50 13.79 48.21 12 46 12 L 4 12 z M 11 21.070312 L 14.429688 21.070312 C 15.959687 21.070312 16.869141 21.819297 16.869141 23.029297 C 16.869141 23.869297 16.249219 24.590938 15.449219 24.710938 L 15.449219 24.810547 C 16.489219 24.880547 17.240234 25.669687 17.240234 26.679688 C 17.240234 28.059687 16.199297 28.929688 14.529297 28.929688 L 11 28.929688 L 11 21.070312 z M 18.730469 21.070312 L 23.929688 21.070312 L 23.929688 22.480469 L 20.369141 22.480469 L 20.369141 24.310547 L 23.730469 24.310547 L 23.730469 25.609375 L 20.369141 25.609375 L 20.369141 27.519531 L 23.929688 27.519531 L 23.929688 28.929688 L 18.730469 28.929688 L 18.730469 21.070312 z M 25.210938 21.070312 L 31.570312 21.070312 L 31.570312 22.480469 L 29.210938 22.480469 L 29.210938 28.929688 L 27.570312 28.929688 L 27.570312 22.480469 L 25.210938 22.480469 L 25.210938 21.070312 z M 34.339844 21.070312 L 36.269531 21.070312 L 39 28.929688 L 37.220703 28.929688 L 36.630859 27.050781 L 33.869141 27.050781 L 33.259766 28.929688 L 31.609375 28.929688 L 34.339844 21.070312 z M 12.640625 22.330078 L 12.640625 24.330078 L 13.880859 24.330078 C 14.770859 24.330078 15.25 23.960078 15.25 23.330078 C 15.25 22.710078 14.799766 22.330078 14.009766 22.330078 L 12.640625 22.330078 z M 35.210938 22.710938 L 34.220703 25.789062 L 36.279297 25.789062 L 35.300781 22.710938 L 35.210938 22.710938 z M 12.640625 25.439453 L 12.640625 27.669922 L 14.109375 27.669922 C 15.049375 27.669922 15.570312 27.269063 15.570312 26.539062 C 15.570312 25.819063 15.040313 25.439453 14.070312 25.439453 L 12.640625 25.439453 z"></path>
+                </svg>
                 </div>
             </div>
             <p class="auth-sub">Accede o crea tu cuenta. Plataforma de certificación determinista de creaciones con IA y seguridad post-cuántica.</p>

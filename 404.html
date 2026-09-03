@@ -880,10 +880,6 @@
 </div>
 
     <!-- =========================================================================
-         POLÍTICA DE PRIVACIDAD, TRATAMIENTO DE DATOS Y CERTIFICACIÓN DETERMINISTA (DINÁMICA)
-         ========================================================================= -->
-    <div 
-    <!-- =========================================================================
          MODAL: ELIMINAR CUENTA PERMANENTEMENTE (FIGMA DESIGN SPEC)
          ========================================================================= -->
     <div id="accountDeleteModalOverlay" class="account-delete-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeAccountDeleteModal()">
@@ -931,7 +927,7 @@
         </div>
     </div>
 
-id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
+    <div id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
         <div class="privacy-modal-card">
             <!-- Header -->
             <div class="privacy-modal-header">
@@ -967,7 +963,7 @@ id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="d
                 </button>
                 <button type="button" class="privacy-tab-btn" onclick="showPrivacyTab('tab-license')" id="btnTab-license">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                    5. Licenciamiento FOSS
+                    5. Licencia & Propiedad
                 </button>
                 <button type="button" class="privacy-tab-btn" onclick="showPrivacyTab('tab-evidence')" id="btnTab-evidence">
                     <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
@@ -1106,18 +1102,19 @@ id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="d
                     <div class="privacy-highlight-box" style="background:#f8fafc; border-left:4px solid #475569; color:#0f172a; padding:14px 16px; margin-bottom:16px; border-radius:4px;">
                         <div style="font-weight:700; font-size:13px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
                             <svg style="width:16px;height:16px;fill:#475569;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                            Declaración Oficial de Licencias Open Source & Propiedad
+                            Propiedad Intelectual Propietaria & Peligro de Desarrollo Externo
                         </div>
                         <p style="margin:0; font-size:12px; line-height:1.55;">
                             Transparencia en el uso de componentes de código abierto y deslinde de licencias.
                         </p>
                     </div>
 
-                    <h3>⚖️ Desglose de Licencias</h3>
+                    <h3>⚖️ Estado de Licencia Propietaria & Peligro de Desarrollo Externo</h3>
                     <ul>
-                        <li><strong>GNU Bash (GNU GPLv3):</strong> La herramienta de terminal GNU Bash integrada para la ejecución de comandos es software libre distribuido bajo la <strong>GNU General Public License v3</strong>. Aplica exclusivamente a la ejecución del intérprete shell.</li>
-                        <li><strong>OpenClaw (Licencia MIT):</strong> El framework de gateway y agente OpenClaw es software de código abierto bajo licencia MIT.</li>
-                        <li><strong>Propiedad Intelectual de Hashcod:</strong> Todo el núcleo orquestador, la arquitectura Dual-Catalyst 4-ENV, las firmas post-cuánticas Dilithium-5, el panel Warp y la interfaz gráfica completa son propiedad exclusiva de <strong>Hashcod Codespace</strong>.</li>
+                        <li><strong>Sin Licencia de Código Abierto (No License / All Rights Reserved):</strong> Este repositorio es software propietario y de custodia exclusiva de DIKTATCART / Hashcod. Se ha revocado cualquier licencia MIT previa.</li>
+                        <li><strong>Peligro de Fractura Criptográfica PQC:</strong> Desarrollar o alterar las firmas Dilithium-5 (ML-DSA-87) sin la calibración matemática y certificación determinista de Hashcod/DIKTATCART expone el código a vulnerabilidades por canal lateral y pérdida total de soberanía.</li>
+                        <li><strong>Invalidez Jurídica:</strong> Cualquier derivación carece del respaldo legal de los registros ONAPI (#336973), DGII (40209369293) y RM (#3323LV-PF), quedando sin validez ante la Ley 126-02.</li>
+                        <li><strong>Propiedad Intelectual Exclusiva:</strong> La arquitectura Dual-Catalyst 4-ENV, el motor de certificación determinista de IA y la plataforma completa pertenecen exclusivamente a <strong>DIKTATCART / Hashcod</strong>.</li>
                     </ul>
                 </div>
 

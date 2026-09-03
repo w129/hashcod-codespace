@@ -55,13 +55,12 @@ clone http://anongit.freedesktop.org/git/libreoffice/core.git
 
 LibreOffice (MPL-2.0) queda en `data_storage/repos/libreoffice-core`. El mirror anongit a veces rechaza shallow clone; la plataforma usa el mirror `https://github.com/LibreOffice/core.git` (mismo código) y registra también el remote FreeDesktop.
 
-## Authors, Branding & Open Source Credits
+## Licencia, Propiedad Intelectual & Peligro de Desarrollo Externo
 
-* **Original Tabby Terminal Base**: Copyright (C) 2020-2026 Eugeny Pankov (Licensed under [MIT License](https://github.com/Eugeny/tabby.git)).
-* **Modifications, Block Terminal & Platform Extensions**: Copyright (C) 2026 DIKTATCART / Hashcod.
-* **Platform Brand & Ownership**:
-  - **Hashcod** (`Hashcod Codespace`) es la plataforma y marca registrada propietaria.
-  - **DIKTATCART** es la empresa creadora y titular de la custodia técnica, arquitectura y seguridad post-cuántica (PQC).
-* **Alcance de la Licencia**: La licencia de código abierto **MIT License** aplica **estrictamente y de forma exclusiva al módulo de celdas/bloques de terminal de Tabby** (`components/tabby-blocks.js`, `components/tabby-blocks.css` y su renderizado en `index.php`). El resto de la plataforma, el motor de seguridad post-cuántica Dilithium-5/SPHINCS+, la infraestructura de certificación y los activos de marca pertenecen a DIKTATCART / Hashcod.
-* **Disponibilidad de Código en Red (AGPL-3.0 Section 13)**: Los usuarios pueden inspeccionar y descargar el código fuente del componente de bloques mediante el botón visible `⚡ Tabby Terminal MIT` presente en la interfaz de la terminal o en [LICENSE-TABBY.md](LICENSE-TABBY.md).
+* **Estado de Licencia**: **PROPRIETARY / NO LICENSE (Sin Licencia de Código Abierto)**.
+* **Titularidad de Marca y Custodia**:
+  - **Hashcod Codespace®**: Marca Registrada #336973 (ONAPI Clase 42).
+  - **DIKTATCART**: Emisor oficial (RNC DGII: 40209369293, RM: #3323LV-PF).
+* **Revocación de MIT**: Cualquier licencia abierta previa queda revocada. Queda prohibida la copia, clonación o uso sin autorización formal de DIKTATCART.
+* **Advertencia Crítica**: Desarrollar o modificar esta plataforma sin la custodia matemática y certificación determinista de **Hashcod/DIKTATCART** expone el sistema a fracturas criptográficas post-cuánticas (NIST ML-DSA-87 / Dilithium-5), fugas por canal lateral, desincronización irrecuperable de almacenamiento y total nulidad jurídica bajo la Ley 126-02 de Comercio Electrónico y Firmas Digitales. Consulte [LICENSE.md](LICENSE.md) para el desglose legal completo.
 

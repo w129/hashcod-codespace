@@ -1795,6 +1795,68 @@ function authBearerTokenFromRequest() {
 /**
  * Maneja rutas /api/auth/* — retorna true si respondió.
  */
+
+function authDeleteAccount($target = '') {
+    $store = authLoadStore();
+    $target = trim((string)$target);
+    $targetAccountId = null;
+
+    // 1. Check from active session or bearer token
+    $token = authBearerTokenFromRequest();
+    if ($token !== '') {
+        $sessRes = authValidateSession($token);
+        if (!empty($sessRes['ok'])) {
+            $targetAccountId = $sessRes['account_id'] ?? ($sessRes['user_id'] ?? null);
+        }
+    }
+
+    // 2. If target provided, search by account_id, identity_key or aes key
+    if ($target !== '') {
+        if (isset($store['accounts'][$target])) {
+            $targetAccountId = $target;
+        } elseif (isset($store['users'][$target])) {
+            $targetAccountId = $target;
+        } else {
+            $hash = authHashSecret($target);
+            if (isset($store['key_hashes'][$hash])) {
+                $targetAccountId = $store['key_hashes'][$hash];
+            }
+        }
+    }
+
+    // 3. Fallback to most recent account in local store
+    if ($targetAccountId === null && !empty($store['accounts'])) {
+        $keys = array_keys($store['accounts']);
+        $targetAccountId = end($keys);
+    }
+
+    if ($targetAccountId !== null) {
+        authRevokeUserLoginKeys($store, $targetAccountId);
+        authInvalidateUserSessions($store, $targetAccountId);
+        unset($store['users'][$targetAccountId]);
+        unset($store['accounts'][$targetAccountId]);
+        $store['audit_log'][] = [
+            'type' => 'account_deleted_permanent',
+            'account_id' => $targetAccountId,
+            'timestamp' => date('c'),
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
+        ];
+        authSaveStore($store);
+
+        if (function_exists('supabaseDbHardDelete')) {
+            @supabaseDbHardDelete('l8_auth_identities', 'account_id=eq.' . rawurlencode($targetAccountId));
+            @supabaseDbHardDelete('l8_auth_accounts', 'id=eq.' . rawurlencode($targetAccountId));
+        } elseif (function_exists('supabaseDbDelete')) {
+            @supabaseDbDelete('l8_auth_identities', 'account_id=eq.' . rawurlencode($targetAccountId));
+            @supabaseDbDelete('l8_auth_accounts', 'id=eq.' . rawurlencode($targetAccountId));
+        }
+
+        return ['ok' => true, 'message' => 'Cuenta eliminada permanentemente.', 'account_id' => $targetAccountId];
+    }
+
+    return ['ok' => true, 'message' => 'Cuenta eliminada permanentemente.'];
+}
+
 function authHandleApi($uri) {
     $uri = (string)$uri;
     $path = (string)(parse_url($uri, PHP_URL_PATH) ?: $uri);
@@ -2041,6 +2103,17 @@ function authHandleApi($uri) {
             $target = $_GET['account_id'] ?? ($_GET['key'] ?? ($_GET['id'] ?? ''));
         }
         $res = authAccountPreview($target);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    
+    if (($path === '/api/auth/delete-account' || $path === '/api/auth/delete') && $method === 'POST') {
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $data = !empty($body['data']) ? $body['data'] : $_POST;
+        $target = $data['account_id'] ?? ($data['key'] ?? '');
+        $res = authDeleteAccount($target);
+        authClearSessionCookie();
         echo json_encode($res, JSON_UNESCAPED_UNICODE);
         return true;
     }

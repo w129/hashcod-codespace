@@ -81,7 +81,362 @@
             flex-shrink: 0;
             fill: #000000;
         }
-    </style>
+    
+        /* =========================================================================
+           TOOL: ELIMINAR CUENTA PERMANENTEMENTE (FIGMA DESIGN SPEC)
+           ========================================================================= */
+        .account-delete-launcher-btn {
+            position: absolute;
+            left: -52px;
+            top: 64px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #FFFFFF;
+            border: 2px solid #000000;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10005;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .account-delete-launcher-btn:hover {
+            transform: scale(1.08) translateY(-1px);
+            border-color: #ef4444;
+            box-shadow: 0 8px 22px rgba(239, 68, 68, 0.35);
+        }
+        .account-delete-launcher-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #000000;
+            transition: fill 0.18s ease;
+        }
+        .account-delete-launcher-btn:hover svg {
+            fill: #ef4444;
+        }
+
+        @media (max-width: 640px) {
+            .account-delete-launcher-btn {
+                left: 60px;
+                top: -52px;
+            }
+        }
+
+        /* modal-overlay */
+        .account-delete-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 16, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100030;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        /* modal-container */
+        .account-delete-modal {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 32px;
+            gap: 28px;
+            position: relative;
+            width: 500px;
+            height: 520px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 32px);
+            box-sizing: border-box;
+            background: #FFFFFF;
+            box-shadow: 0px 16px 32px -4px rgba(11, 13, 16, 0.14902);
+            border-radius: 16px;
+            overflow-y: auto;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* modal-header */
+        .delete-modal-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+            gap: 16px;
+            width: 436px;
+            max-width: 100%;
+            height: 120px;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* warning-icon-bg */
+        .delete-warning-icon-bg {
+            width: 56px;
+            height: 56px;
+            background: #EBEBEB;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+
+        /* title-stack */
+        .delete-title-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+            gap: 8px;
+            width: 436px;
+            max-width: 100%;
+            height: 48px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* title */
+        .delete-title {
+            width: 436px;
+            max-width: 100%;
+            height: 24px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 24px;
+            text-align: center;
+            color: #111317;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* warning-sub */
+        .delete-warning-sub {
+            width: 436px;
+            max-width: 100%;
+            height: 16px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 16px;
+            text-align: center;
+            text-transform: uppercase;
+            color: #000000;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* description-block */
+        .delete-description-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 12px;
+            width: 436px;
+            max-width: 100%;
+            height: 88px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* consequences-paragraph */
+        .delete-consequences-paragraph {
+            width: 436px;
+            max-width: 100%;
+            height: 88px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 22px;
+            text-align: center;
+            color: #525866;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* input-block */
+        .delete-input-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 10px;
+            width: 436px;
+            max-width: 100%;
+            height: 70px;
+            flex: none;
+            order: 2;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* input-label */
+        .delete-input-label {
+            width: 436px;
+            max-width: 100%;
+            height: 16px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 16px;
+            color: #111317;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* text-input */
+        .delete-text-input-wrap {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px 16px;
+            gap: 8px;
+            width: 436px;
+            max-width: 100%;
+            height: 44px;
+            background: #FAFAFC;
+            border: 1.5px solid #000000;
+            border-radius: 8px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        .delete-text-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-family: 'Inter', monospace;
+            font-size: 14px;
+            color: #111317;
+        }
+
+        /* modal-actions */
+        .delete-modal-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 12px;
+            width: 436px;
+            max-width: 100%;
+            height: 94px;
+            flex: none;
+            order: 3;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* btn-destructive */
+        .delete-btn-destructive {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 436px;
+            max-width: 100%;
+            height: 41px;
+            background: #000000;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+            transition: opacity 0.15s ease;
+        }
+        .delete-btn-destructive:hover {
+            opacity: 0.9;
+        }
+
+        .delete-btn-destructive-text {
+            width: 233px;
+            height: 17px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            color: #FFFFFF;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+            text-align: center;
+        }
+
+        /* btn-cancel */
+        .delete-btn-cancel {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 436px;
+            max-width: 100%;
+            height: 41px;
+            background: #FFFFFF;
+            border: 1px solid #E1E4EA;
+            border-radius: 8px;
+            cursor: pointer;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+            transition: background 0.15s ease;
+        }
+        .delete-btn-cancel:hover {
+            background: #F4F5F7;
+        }
+
+        .delete-btn-cancel-text {
+            width: 61px;
+            height: 17px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            color: #525866;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+            text-align: center;
+        }
+
+</style>
 </head>
 <body class="boot-locked">
     <script>
@@ -513,13 +868,70 @@
                     </g></g>
                 </svg>
             </button>
+
+            <!-- Account Permanent Delete Launcher Button (Outside Register Window, Below Dilithium) -->
+            <button type="button" class="account-delete-launcher-btn" id="accountDeleteLauncherBtn" onclick="openAccountDeleteModal()" title="Eliminar cuenta permanentemente" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <path d="M 67.962891 6 A 1.0001 1.0001 0 0 0 67.552734 6.1054688 L 57.923828 10.919922 L 52.316406 9.0507812 A 1.0001 1.0001 0 0 0 51.167969 9.4453125 L 47.464844 15 L 41.302734 15 L 35.554688 11.167969 A 1.0001 1.0001 0 0 0 34.988281 11 A 1.0001 1.0001 0 0 0 34.210938 11.386719 L 27.376953 20.171875 C 26.164543 20.220461 24.952246 20.263068 23.740234 20.320312 A 2.0002 2.0002 0 0 0 23.736328 20.322266 C 20.812493 20.465423 18.480072 22.915129 18.478516 25.841797 L 18.478516 31.978516 A 2.0002 2.0002 0 0 0 19.806641 33.859375 C 21.113602 54.545349 24.842767 64.417905 26.958984 88.117188 A 2.0002 2.0002 0 0 0 28.310547 89.833984 C 41.273343 94.221392 59.223207 93.523227 71.933594 88.978516 A 2.0002 2.0002 0 0 0 73.259766 87.142578 C 73.287315 85.991563 73.386247 84.423396 73.519531 82.654297 L 74.777344 82.503906 A 1.0005193 1.0005193 0 0 0 74.611328 80.509766 A 1.0001 1.0001 0 0 0 74.541016 80.517578 L 73.685547 80.619141 C 73.795649 79.319353 73.938238 77.845219 74.082031 76.363281 L 76.787109 75.660156 A 1.0001 1.0001 0 0 0 76.550781 73.689453 A 1.0001 1.0001 0 0 0 76.285156 73.724609 L 74.279297 74.244141 C 74.402575 73.030511 74.551969 71.704432 74.689453 70.423828 L 77.041016 70.724609 A 1.0002765 1.0002765 0 1 0 77.294922 68.740234 L 74.904297 68.435547 C 75.04359 67.167564 75.168782 65.965848 75.316406 64.669922 L 79.238281 63.896484 A 1.0001 1.0001 0 0 0 79.017578 61.912109 A 1.0001 1.0001 0 0 0 78.849609 61.933594 L 75.5625 62.583984 C 75.686304 61.51506 75.811282 60.458076 75.9375 59.392578 L 78.876953 58.810547 A 1.0001 1.0001 0 0 0 78.658203 56.826172 A 1.0001 1.0001 0 0 0 78.490234 56.847656 L 76.183594 57.304688 C 76.237994 56.851503 76.289363 56.384917 76.34375 55.935547 C 76.469013 54.900558 76.561667 54.220871 76.685547 53.212891 L 79.560547 52.869141 A 1.0001 1.0001 0 0 0 79.494141 50.875 A 1.0001 1.0001 0 0 0 79.324219 50.884766 L 76.941406 51.167969 C 77.105774 49.844125 77.246672 48.724075 77.402344 47.490234 A 1.0001189 1.0001189 0 0 0 77.542969 47.433594 L 80.771484 45.828125 A 1.0001 1.0001 0 0 0 80.333984 43.925781 A 1.0001 1.0001 0 0 0 79.882812 44.037109 L 77.699219 45.123047 C 77.88279 43.681148 78.113116 41.779958 78.271484 40.554688 L 81.279297 39.962891 A 1.0001 1.0001 0 0 0 81.060547 37.978516 A 1.0001 1.0001 0 0 0 80.890625 38 L 78.544922 38.464844 C 78.845004 36.170353 79.108012 34.17202 79.150391 33.855469 A 2.0002 2.0002 0 0 0 80.466797 31.978516 L 80.466797 25.037109 C 80.466797 22.56149 78.484844 20.485258 76.011719 20.369141 A 2.0002 2.0002 0 0 0 76.007812 20.369141 C 74.48483 20.299469 72.961911 20.242049 71.439453 20.183594 L 73.697266 14.910156 L 80.140625 13.990234 A 1.0001 1.0001 0 0 0 80.447266 12.105469 L 68.447266 6.1054688 A 1.0001 1.0001 0 0 0 67.962891 6 z M 68 8.1171875 L 76.689453 12.462891 L 72.859375 13.009766 A 1.0001 1.0001 0 0 0 72.080078 13.605469 L 69.296875 20.097656 C 64.750088 19.93898 60.206498 19.835298 55.664062 19.78125 L 52.837891 15.453125 A 1.0001 1.0001 0 0 0 52 15 L 49.869141 15 L 52.408203 11.189453 L 57.683594 12.949219 A 1.0001 1.0001 0 0 0 58.447266 12.894531 L 68 8.1171875 z M 63 13 A 1 1 0 0 0 63 15 A 1 1 0 0 0 63 13 z M 35.21875 13.347656 L 40.445312 16.832031 A 1.0001 1.0001 0 0 0 41 17 L 47.833984 17 A 1.0001 1.0001 0 0 0 48.150391 17 L 51.458984 17 L 53.263672 19.763672 C 52.125651 19.754891 50.987378 19.740215 49.849609 19.738281 C 43.225879 19.727028 36.605945 19.834964 29.992188 20.066406 L 35.21875 13.347656 z M 67 16 A 1 1 0 0 0 67 18 A 1 1 0 0 0 67 16 z M 49.841797 23.738281 C 58.490136 23.752981 67.151236 23.968614 75.822266 24.365234 C 76.20314 24.383114 76.466797 24.656728 76.466797 25.037109 L 76.466797 30.072266 C 71.700983 30.366384 67.016871 30.571354 62.404297 30.697266 L 63.599609 29.800781 A 1.0001 1.0001 0 0 0 63.023438 27.992188 A 1.0001 1.0001 0 0 0 62.400391 28.199219 L 58.982422 30.761719 C 57.850665 30.783404 56.711475 30.813493 55.587891 30.826172 L 57.707031 28.707031 A 1.0001 1.0001 0 0 0 56.980469 26.990234 A 1.0001 1.0001 0 0 0 56.292969 27.292969 L 52.748047 30.837891 C 51.535185 30.843671 50.31726 30.853644 49.113281 30.849609 L 50.800781 28.599609 A 1.0001 1.0001 0 0 0 50.037109 26.988281 A 1.0001 1.0001 0 0 0 49.199219 27.400391 L 46.628906 30.828125 C 45.751762 30.8204 44.876651 30.809475 44.003906 30.796875 L 44.832031 29.554688 A 1.0001 1.0001 0 0 0 43.980469 27.988281 A 1.0001 1.0001 0 0 0 43.167969 28.445312 L 41.623047 30.763672 C 40.530306 30.742451 39.447658 30.709986 38.361328 30.681641 L 38.970703 28.242188 A 1.0001 1.0001 0 0 0 38.033203 26.986328 A 1.0001 1.0001 0 0 0 37.029297 27.757812 L 36.310547 30.630859 C 31.650081 30.490327 27.040699 30.291676 22.478516 30.041016 L 22.478516 25.84375 L 22.478516 25.841797 C 22.479916 25.007426 23.100094 24.357216 23.933594 24.316406 C 32.55765 23.909147 41.193461 23.723586 49.841797 23.738281 z M 30 27 A 1 1 0 0 0 30 29 A 1 1 0 0 0 30 27 z M 23.837891 34.15625 C 40.124914 35.007782 57.024099 35.216278 75.076172 34.173828 C 74.817128 36.114196 73.680598 44.65143 72.373047 55.455078 C 71.228253 64.913941 70.126275 74.843397 69.621094 81.669922 A 1.0001687 1.0001687 0 0 0 69.582031 82.177734 C 69.495417 83.393439 69.422773 84.53757 69.380859 85.515625 C 67.533932 86.122346 65.551572 86.636271 63.492188 87.072266 L 57.283203 80.707031 L 62.455078 74.673828 L 66.275391 78.689453 A 1.0002018 1.0002018 0 1 0 67.724609 77.310547 L 63.763672 73.146484 L 66.759766 69.650391 A 1.0001264 1.0001264 0 0 0 65.240234 68.349609 L 62.376953 71.689453 L 55.771484 64.744141 L 61.554688 58.199219 L 67.306641 63.720703 A 1.0001 1.0001 0 1 0 68.693359 62.279297 L 62.880859 56.699219 L 67.761719 51.175781 L 69.292969 52.707031 A 1.0001 1.0001 0 1 0 70.707031 51.292969 L 69.087891 49.673828 L 71.75 46.662109 A 1.0004441 1.0004441 0 1 0 70.25 45.337891 L 67.669922 48.255859 L 62.974609 43.560547 L 67.716797 38.697266 A 1.0001 1.0001 0 1 0 66.283203 37.302734 L 61.560547 42.146484 L 56.707031 37.292969 A 1.0001 1.0001 0 1 0 55.292969 38.707031 L 60.164062 43.578125 L 54.869141 49.007812 L 48.111328 42.519531 L 50.734375 39.677734 A 1.0001 1.0001 0 1 0 49.265625 38.322266 L 46.667969 41.134766 L 43.693359 38.279297 A 1.0001 1.0001 0 1 0 42.306641 39.720703 L 45.3125 42.605469 L 40.091797 48.259766 L 33.9375 41.791016 L 37.734375 37.677734 A 1.0001 1.0001 0 1 0 36.265625 36.322266 L 32.556641 40.339844 L 28.724609 36.310547 A 1.0001 1.0001 0 0 0 28.015625 35.990234 A 1.0001 1.0001 0 0 0 27.275391 37.689453 L 31.197266 41.8125 L 25.431641 48.060547 L 25.238281 47.863281 C 24.663204 43.675469 24.173063 39.237443 23.837891 34.15625 z M 32.578125 43.263672 L 38.732422 49.734375 L 33.058594 55.878906 L 26.828125 49.492188 L 32.578125 43.263672 z M 46.753906 43.990234 L 53.472656 50.441406 L 47.75 56.310547 L 41.472656 49.710938 L 46.753906 43.990234 z M 61.578125 44.992188 L 66.34375 49.757812 L 61.435547 55.3125 L 56.3125 50.394531 L 61.578125 44.992188 z M 40.113281 51.185547 L 46.351562 57.744141 L 40.617188 63.626953 L 34.457031 57.3125 L 40.113281 51.185547 z M 25.724609 51.224609 L 31.701172 57.349609 L 27.460938 61.943359 C 26.85387 58.325195 26.266385 54.801593 25.724609 51.224609 z M 54.916016 51.826172 L 60.109375 56.8125 L 54.386719 63.289062 L 49.128906 57.761719 L 54.916016 51.826172 z M 33.099609 58.783203 L 39.220703 65.058594 L 33.291016 71.140625 L 28.082031 65.724609 C 28.013602 65.303275 27.947367 64.85309 27.878906 64.4375 L 33.099609 58.783203 z M 47.732422 59.195312 L 53.056641 64.792969 L 47.685547 70.871094 L 42.015625 65.058594 L 47.732422 59.195312 z M 54.441406 66.248047 L 61.068359 73.216797 L 55.880859 79.269531 L 49.087891 72.306641 L 54.441406 66.248047 z M 40.619141 66.490234 L 46.357422 72.373047 L 40.667969 78.8125 L 34.677734 72.582031 L 40.619141 66.490234 z M 28.623047 69.169922 L 31.894531 72.572266 L 29.464844 75.064453 C 29.189479 73.022138 28.910582 71.037942 28.623047 69.169922 z M 47.759766 73.810547 L 54.572266 80.794922 L 48.917969 87.392578 L 42.060547 80.259766 L 47.759766 73.810547 z M 33.28125 74.015625 L 39.339844 80.316406 L 33.376953 87.064453 C 32.49032 86.853143 31.618639 86.626425 30.779297 86.371094 C 30.479637 83.201578 30.150276 80.316089 29.806641 77.580078 L 33.28125 74.015625 z M 40.730469 81.763672 L 47.349609 88.646484 C 43.303146 88.610313 39.314967 88.249305 35.621094 87.544922 L 40.730469 81.763672 z M 55.976562 82.232422 L 61.140625 87.525391 C 57.719991 88.12259 54.122007 88.492256 50.509766 88.607422 L 55.976562 82.232422 z"></path>
+                </svg>
+            </button>
+
     </div>
 </div>
 
     <!-- =========================================================================
          POLÍTICA DE PRIVACIDAD, TRATAMIENTO DE DATOS Y CERTIFICACIÓN DETERMINISTA (DINÁMICA)
          ========================================================================= -->
-    <div id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
+    <div 
+    <!-- =========================================================================
+         MODAL: ELIMINAR CUENTA PERMANENTEMENTE (FIGMA DESIGN SPEC)
+         ========================================================================= -->
+    <div id="accountDeleteModalOverlay" class="account-delete-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeAccountDeleteModal()">
+        <div class="account-delete-modal">
+            <!-- modal-header -->
+            <div class="delete-modal-header">
+                <!-- warning-icon-bg with official platform logo -->
+                <div class="delete-warning-icon-bg">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" width="28" height="28" fill="none" aria-hidden="true">
+                        <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                    </svg>
+                </div>
+                <!-- title-stack -->
+                <div class="delete-title-stack">
+                    <div class="delete-title">Eliminar cuenta permanentemente</div>
+                    <div class="delete-warning-sub">ESTA ACCIÓN NO SE PUEDE DESHACER</div>
+                </div>
+            </div>
+
+            <!-- description-block -->
+            <div class="delete-description-block">
+                <div class="delete-consequences-paragraph">
+                    Se revocarán todas tus credenciales criptográficas, firmas Dilithium-5, claves AES-256 y accesos en Supabase. Escribe eliminar a continuación para confirmar.
+                </div>
+            </div>
+
+            <!-- input-block -->
+            <div class="delete-input-block">
+                <label class="delete-input-label" for="deleteAccountInput">Para confirmar, escribe "eliminar"</label>
+                <div class="delete-text-input-wrap">
+                    <input type="text" id="deleteAccountInput" class="delete-text-input" placeholder="eliminar" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+
+            <!-- modal-actions -->
+            <div class="delete-modal-actions">
+                <button type="button" class="delete-btn-destructive" id="deleteAccountConfirmBtn" onclick="executeAccountPermanentDelete()">
+                    <span class="delete-btn-destructive-text" id="deleteAccountBtnText">Eliminar cuenta permanentemente</span>
+                </button>
+                <button type="button" class="delete-btn-cancel" onclick="closeAccountDeleteModal()">
+                    <span class="delete-btn-cancel-text">Cancelar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+id="privacyPolicyModal" class="privacy-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle">
         <div class="privacy-modal-card">
             <!-- Header -->
             <div class="privacy-modal-header">
@@ -11857,6 +12269,10 @@
                                 const launcher = document.getElementById('d5LauncherBtn');
                 if (launcher) {
                     launcher.style.display = (name === 'register') ? 'flex' : 'none';
+                const delLauncher = document.getElementById('accountDeleteLauncherBtn');
+                if (delLauncher) {
+                    delLauncher.style.display = (name === 'register') ? 'flex' : 'none';
+                }
                 }
                 if (name === 'register' && typeof window.updateCheckoutVoucherUI === 'function') {
                     window.updateCheckoutVoucherUI();
@@ -13435,6 +13851,10 @@ let d5Unlocked = false;
                 const launcherBtn = document.getElementById('d5LauncherBtn');
                 if (launcherBtn) {
                     launcherBtn.style.display = registerTabActive ? 'flex' : 'none';
+                const delLauncherBtn = document.getElementById('accountDeleteLauncherBtn');
+                if (delLauncherBtn) {
+                    delLauncherBtn.style.display = registerTabActive ? 'flex' : 'none';
+                }
                 }
             }
 
@@ -13456,6 +13876,128 @@ let d5Unlocked = false;
                 return currentActiveSignature || D5_BASE_SIGNATURE;
             };
         })();
+
+
+    /* =========================================================================
+       ACCOUNT PERMANENT DELETION LOGIC (FIGMA & AUTO-TRIGGER ON 'eliminar')
+       ========================================================================= */
+    window.openAccountDeleteModal = function() {
+        const overlay = document.getElementById('accountDeleteModalOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            const input = document.getElementById('deleteAccountInput');
+            if (input) {
+                input.value = '';
+                setTimeout(() => input.focus(), 50);
+            }
+            const btnText = document.getElementById('deleteAccountBtnText');
+            if (btnText) btnText.textContent = 'Eliminar cuenta permanentemente';
+            const btn = document.getElementById('deleteAccountConfirmBtn');
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.background = '#000000';
+            }
+        }
+    };
+
+    window.closeAccountDeleteModal = function() {
+        const overlay = document.getElementById('accountDeleteModalOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+            const input = document.getElementById('deleteAccountInput');
+            if (input) input.value = '';
+        }
+    };
+
+    window._isAccountDeleting = false;
+    window.executeAccountPermanentDelete = async function() {
+        if (window._isAccountDeleting) return;
+        window._isAccountDeleting = true;
+
+        const btn = document.getElementById('deleteAccountConfirmBtn');
+        const btnText = document.getElementById('deleteAccountBtnText');
+        if (btnText) btnText.textContent = 'Eliminando cuenta...';
+        if (btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+        }
+
+        try {
+            const currentAccountId = localStorage.getItem('l8_auth_account_id') || sessionStorage.getItem('l8_auth_account_id') || '';
+            const token = localStorage.getItem('l8_auth_token') || '';
+            
+            const apiUrl = (typeof window.L8_BASE_PATH !== 'undefined' && window.L8_BASE_PATH) 
+                ? (window.L8_BASE_PATH + 'api/auth/delete-account') 
+                : '/api/auth/delete-account';
+
+            await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? ('Bearer ' + token) : ''
+                },
+                body: JSON.stringify({ account_id: currentAccountId })
+            }).catch(() => {});
+
+            // Clear all local credentials and storage permanently
+            try {
+                localStorage.removeItem('l8_auth_token');
+                localStorage.removeItem('l8_auth_account_id');
+                localStorage.removeItem('l8_auth_user');
+                localStorage.removeItem('l8_active_key');
+                localStorage.removeItem('l8_account_id');
+                sessionStorage.clear();
+                document.cookie = 'l8_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax';
+            } catch (e) {}
+
+            if (btnText) btnText.textContent = '✓ Cuenta eliminada permanentemente';
+            if (btn) btn.style.background = '#16a34a';
+
+            setTimeout(() => {
+                window.closeAccountDeleteModal();
+                window._isAccountDeleting = false;
+                if (btn) btn.style.background = '#000000';
+                
+                // Clear any credential inputs
+                ['authAesInput', 'authIdentityInput', 'authDilithiumInput', 'authRecoverInput'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+
+                // Lock workspace and show fresh auth screen if available
+                if (typeof window.l8ShowAuthModal === 'function') {
+                    window.l8ShowAuthModal();
+                } else {
+                    const overlay = document.getElementById('authOverlay');
+                    if (overlay) overlay.style.display = 'flex';
+                }
+            }, 1200);
+
+        } catch (err) {
+            if (btnText) btnText.textContent = 'Error al eliminar';
+            setTimeout(() => {
+                if (btnText) btnText.textContent = 'Eliminar cuenta permanentemente';
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+                window._isAccountDeleting = false;
+            }, 2000);
+        }
+    };
+
+    // Auto-eliminar trigger when user types 'eliminar'
+    document.addEventListener('DOMContentLoaded', function() {
+        const delInput = document.getElementById('deleteAccountInput');
+        if (delInput) {
+            delInput.addEventListener('input', function() {
+                if (this.value.trim().toLowerCase() === 'eliminar') {
+                    window.executeAccountPermanentDelete();
+                }
+            });
+        }
+    });
 
 </script>
 

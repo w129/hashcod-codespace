@@ -9660,16 +9660,16 @@ if (!headers_sent()) {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #16a34a;
-            box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
+            background: #000000;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
             display: inline-block;
         }
 
         .auth-checkout-price {
             font-size: 12px;
-            color: #15803d;
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
+            color: #ffffff;
+            background: #000000;
+            border: 1px solid #000000;
             border-radius: 6px;
             padding: 3px 9px;
             font-family: 'IBM Plex Mono', monospace;
@@ -9677,7 +9677,7 @@ if (!headers_sent()) {
         }
 
         .auth-checkout-price strong {
-            color: #15803d;
+            color: #ffffff;
             font-weight: 800;
             font-size: 13.5px;
         }
@@ -9741,7 +9741,7 @@ if (!headers_sent()) {
         }
 
         .auth-whatsapp-link {
-            color: #16a34a;
+            color: #000000;
             font-weight: 700;
             text-decoration: underline;
             text-underline-offset: 2px;
@@ -9749,7 +9749,7 @@ if (!headers_sent()) {
         }
 
         .auth-whatsapp-link:hover {
-            color: #15803d;
+            color: #334155;
         }
 
         .auth-checkout-actions {
@@ -9784,17 +9784,18 @@ if (!headers_sent()) {
         }
 
         .auth-btn-whatsapp {
-            background: #16a34a;
+            background: #000000;
             color: #ffffff;
-            border: 1px solid #15803d;
-            box-shadow: 0 1px 3px rgba(22, 163, 74, 0.25);
+            border: 1px solid #000000;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
             font-weight: 700;
         }
 
         .auth-btn-whatsapp:hover {
-            background: #15803d;
+            background: #27272a;
+            border-color: #27272a;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
             color: #ffffff;
         }
 
@@ -12894,15 +12895,15 @@ if (!headers_sent()) {
 
                     <div class="auth-checkout-features">
                         <div class="auth-checkout-feature-item">
-                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                             <span><strong>Certificación Determinista de IA:</strong> Certifica plataformas de IA y ofrece alojamiento seguro con criptografía post-cuántica.</span>
                         </div>
                         <div class="auth-checkout-feature-item">
-                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                             <span><strong>Aceptación de Términos:</strong> Al registrarte confirmas que aceptas la Política de Privacidad y la suscripción mensual de <strong>0.00015 BTC / mes</strong>.</span>
                         </div>
                         <div class="auth-checkout-feature-item">
-                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <svg class="auth-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                             <span><strong>Coordinación por WhatsApp:</strong> El pago se cordina vía a <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="16" height="16" fill="currentColor" style="vertical-align:middle; display:inline-block; margin:0 2px;" aria-hidden="true"><rect width="18.36" height="18.36" x="98.02" y="54.82" transform="rotate(-45 107.19 64)"></rect><rect width="18.36" height="18.36" x="11.63" y="54.82" transform="rotate(-45 20.81 64)"></rect><polygon points="64 94.22 42.48 72.7 29.5 85.68 64 120.18 98.5 85.68 85.52 72.7 64 94.22"></polygon><polygon points="64 33.78 85.52 55.3 98.5 42.32 64 7.82 29.5 42.32 42.48 55.3 64 33.78"></polygon><rect width="18.13" height="18.13" x="54.93" y="54.93" transform="rotate(-45 64 64)"></rect></svg> donde para hacer este proceso comuniquese al <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" id="authInlineWhatsappLink" class="auth-whatsapp-link">829-472-1257</a> para pagar y recibir su <strong>Dilithium-5</strong>.</span>
                         </div>
                     </div>

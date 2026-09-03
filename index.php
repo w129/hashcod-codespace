@@ -5670,7 +5670,7 @@ if (!headers_sent()) {
             display: none;
             position: fixed;
             inset: 0;
-            z-index: 98;
+            z-index: 100030;
             background: rgba(9, 9, 11, 0.7);
             backdrop-filter: blur(8px);
             align-items: center;
@@ -5800,7 +5800,7 @@ if (!headers_sent()) {
             display: none;
             position: fixed;
             inset: 0;
-            z-index: 96;
+            z-index: 100025;
             background: rgba(9, 9, 11, 0.65);
             backdrop-filter: blur(6px);
             align-items: center;
@@ -23324,7 +23324,7 @@ if (!headers_sent()) {
                     return;
                 }
 
-                filteredRows.forEach((r) => {
+                filteredRows.forEach((r, idx) => {
                     const isSelected = (r.identifier_code === selectedBlogIdentifierCode);
                     const safeColor = r.hasna_color || '#E63333';
                     const tr = document.createElement('tr');
@@ -23672,7 +23672,9 @@ if (!headers_sent()) {
             const EXACT_DILITHIUM5_SIG = "DILITHIUM5_SIG_V1_TklTVC1QUUMtTUwtRFNBLTg3OkRJTElUSElVTTU6TEVWRUw1OkFVVEhfUk9PVDoyMDI2.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";
 
             // --- Gate Access Authentication ---
-            window.openAdminPanelGate = function () {
+            window.openAdminPanelGate = function (ev) {
+                if (ev && ev.preventDefault) ev.preventDefault();
+                if (ev && ev.stopPropagation) ev.stopPropagation();
                 const isAuthed = (sessionStorage.getItem(ADMIN_AUTH_KEY) === '1');
                 if (isAuthed) {
                     toggleAdminPanel(true);
@@ -23688,12 +23690,22 @@ if (!headers_sent()) {
                 }
                 if (overlay) {
                     overlay.classList.add('open');
+                    overlay.style.setProperty('display', 'flex', 'important');
+                    overlay.style.setProperty('z-index', '100030', 'important');
+                    overlay.style.setProperty('opacity', '1', 'important');
+                    overlay.style.setProperty('pointer-events', 'auto', 'important');
                 }
             };
 
-            window.closeAdminPanelGate = function () {
+            window.closeAdminPanelGate = function (ev) {
+                if (ev && ev.preventDefault) ev.preventDefault();
+                if (ev && ev.stopPropagation) ev.stopPropagation();
                 const overlay = document.getElementById('adminDilithiumGateOverlay') || document.getElementById('adminGateOverlay');
-                if (overlay) overlay.classList.remove('open');
+                if (overlay) {
+                    overlay.classList.remove('open');
+                    overlay.style.setProperty('display', 'none', 'important');
+                    overlay.style.setProperty('pointer-events', 'none', 'important');
+                }
             };
 
             window.logoutAdminSession = function () {
@@ -24341,10 +24353,16 @@ if (!headers_sent()) {
 
             window.updateCellData = function (rowIdx, key, val) {
                 const rows = window.getSharedPublicationRows();
-                if (rows[rowIdx]) {
-                    rows[rowIdx][key] = val;
+                let targetIdx = -1;
+                if (typeof rowIdx === 'number') {
+                    targetIdx = rowIdx;
+                } else if (typeof rowIdx === 'string') {
+                    targetIdx = rows.findIndex(r => r.identifier_code === rowIdx);
+                }
+                if (targetIdx >= 0 && rows[targetIdx]) {
+                    rows[targetIdx][key] = val;
                     window.saveSharedPublicationRows(rows);
-                    if (rowIdx === selectedRowIndex) {
+                    if (targetIdx === selectedRowIndex) {
                         adminPendingRow[key] = val;
                         loadPendingRowIntoCards();
                     }
@@ -24353,10 +24371,16 @@ if (!headers_sent()) {
 
             window.updateCellDataRealtime = function (rowIdx, key, val) {
                 const rows = window.getSharedPublicationRows();
-                if (rows[rowIdx]) {
-                    rows[rowIdx][key] = val;
+                let targetIdx = -1;
+                if (typeof rowIdx === 'number') {
+                    targetIdx = rowIdx;
+                } else if (typeof rowIdx === 'string') {
+                    targetIdx = rows.findIndex(r => r.identifier_code === rowIdx);
+                }
+                if (targetIdx >= 0 && rows[targetIdx]) {
+                    rows[targetIdx][key] = val;
                     localStorage.setItem(L8_DATA_KEY, JSON.stringify(rows));
-                    if (rowIdx === selectedRowIndex) {
+                    if (targetIdx === selectedRowIndex) {
                         adminPendingRow[key] = val;
                         loadPendingRowIntoCards();
                     }
@@ -26602,17 +26626,25 @@ let d5Unlocked = false;
     window._activeEditingRowIndex = null;
     window.L8_ADMIN_NOTIFS_KEY = 'l8_admin_notifications_v1';
 
-    window.openTextEditorModal = function(rowIndex) {
-        window._activeEditingRowIndex = rowIndex;
+    window.openTextEditorModal = function(targetRow) {
         const rows = (typeof window.getSharedPublicationRows === 'function') ? window.getSharedPublicationRows() : [];
-        const rowData = rows[rowIndex] || {};
+        let rowIndex = -1;
+        if (typeof targetRow === 'number') {
+            rowIndex = targetRow;
+        } else if (typeof targetRow === 'string') {
+            rowIndex = rows.findIndex(r => r.identifier_code === targetRow);
+        }
+        if (rowIndex === -1 && rows.length > 0) rowIndex = 0;
+        window._activeEditingRowIndex = rowIndex;
+        const rowData = (rowIndex >= 0 && rows[rowIndex]) ? rows[rowIndex] : {};
         const editArea = document.getElementById('textEditingArea');
         if (editArea) {
             editArea.innerHTML = rowData.user_text_data || '';
         }
         const modal = document.getElementById('textEditorModal');
         if (modal) {
-            modal.style.display = 'flex';
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('z-index', '100045', 'important');
             setTimeout(() => editArea && editArea.focus(), 60);
         }
     };

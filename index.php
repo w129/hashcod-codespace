@@ -12388,6 +12388,54 @@ if (!headers_sent()) {
         <!-- =========================================================================
          MODAL: GESTOR DE SUSPENSIÓN Y REACTIVACIÓN DE CUENTAS (FIGMA DESIGN SPEC)
          ========================================================================= -->
+        <!-- =========================================================================
+         MODAL: COMPUERTA DE ACCESO DILITHIUM-5 PARA GESTOR DE SUSPENSIÓN
+         ========================================================================= -->
+    <div id="accountSuspendGateOverlay" class="account-suspend-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeAccountSuspendGateModal()">
+        <div class="account-suspend-modal" style="height: auto; min-height: 440px; max-height: 90vh;">
+            <!-- modal-header -->
+            <div class="suspend-modal-header">
+                <!-- warning-icon-bg with official platform logo -->
+                <div class="warning-icon-bg">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" width="28" height="28" fill="none" aria-hidden="true">
+                        <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                    </svg>
+                </div>
+                <!-- title-stack -->
+                <div class="suspend-title-stack">
+                    <div class="suspend-title">Acceso con Clave Dilithium-5</div>
+                    <div class="suspend-warning-sub">AUTENTICACIÓN CUÁNTICA OBLIGATORIA</div>
+                </div>
+            </div>
+
+            <!-- description-block -->
+            <div class="suspend-description-block" style="height: auto;">
+                <div class="suspend-consequences-paragraph" style="height: auto;">
+                    Para acceder al Gestor de Suspensión de Cuentas debes ingresar la clave o firma CRYSTALS-Dilithium Nivel 5 activa. Solo la clave cuántica autorizada desbloquea este panel.
+                </div>
+            </div>
+
+            <!-- input-block -->
+            <div class="suspend-list-block" style="height: auto; width: 100%;">
+                <div class="suspend-input-label">Clave / Firma Dilithium-5 (ML-DSA-87):</div>
+                <textarea id="suspendD5GateInput" placeholder="Pega aquí la firma o clave Dilithium-5 activa..." style="width: 100%; height: 110px; padding: 12px; border: 1.5px solid #E1E4EA; border-radius: 8px; font-family: monospace; font-size: 11px; line-height: 14px; resize: none; background: #FAFAFC; box-sizing: border-box; outline: none;"></textarea>
+                <div id="suspendD5GateError" style="display: none; color: #dc2626; font-size: 12px; font-weight: 600; margin-top: 4px;">❌ Clave Dilithium-5 inválida o no coincide con la clave cuántica activa.</div>
+            </div>
+
+            <!-- modal-actions -->
+            <div class="suspend-modal-actions" style="height: auto; width: 100%; gap: 10px;">
+                <button type="button" class="suspend-btn-destructive" id="verifySuspendD5Btn" onclick="verifySuspendD5Key()">
+                    <span class="suspend-btn-destructive-text">Validar Clave Dilithium-5 y Entrar</span>
+                </button>
+                <button type="button" class="suspend-btn-cancel" onclick="closeAccountSuspendGateModal()">
+                    <span class="suspend-btn-cancel-text">Cancelar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <div id="accountSuspendModalOverlay" class="account-suspend-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeAccountSuspendModal()">
         <div class="account-suspend-modal">
             <!-- modal-header -->
@@ -25542,31 +25590,66 @@ let d5Unlocked = false;
        ========================================================================= */
     window._selectedSuspendAccountId = null;
 
-    // Check Dilithium-5 key and unlock tool
+    // Open Dilithium-5 mandatory gate modal to require entering the active key
     window.openAccountSuspendTool = function() {
-        // 1. Dilithium-5 Security Gate Check
-        const hasDilithiumKey = !!(
-            localStorage.getItem('l8_dilithium_key') ||
-            localStorage.getItem('l8_active_key') ||
-            (window.getLatestDilithiumSignature && window.getLatestDilithiumSignature()) ||
-            document.getElementById('authDilithiumInput')?.value
+        const gate = document.getElementById('accountSuspendGateOverlay');
+        const input = document.getElementById('suspendD5GateInput');
+        const errMsg = document.getElementById('suspendD5GateError');
+        if (errMsg) errMsg.style.display = 'none';
+        if (input) {
+            input.value = '';
+            input.style.borderColor = '#E1E4EA';
+        }
+        if (gate) {
+            gate.style.display = 'flex';
+            setTimeout(() => input && input.focus(), 60);
+        }
+    };
+
+    window.closeAccountSuspendGateModal = function() {
+        const gate = document.getElementById('accountSuspendGateOverlay');
+        if (gate) {
+            gate.style.display = 'none';
+        }
+    };
+
+    window.verifySuspendD5Key = function() {
+        const input = document.getElementById('suspendD5GateInput');
+        const errMsg = document.getElementById('suspendD5GateError');
+        const enteredKey = (input?.value || '').trim();
+
+        // Retrieve active signature from quantum generator or base
+        const activeSig = (typeof window.getLatestDilithiumSignature === 'function' 
+            ? window.getLatestDilithiumSignature() 
+            : (typeof D5_BASE_SIGNATURE !== 'undefined' ? D5_BASE_SIGNATURE : '')).trim();
+
+        // Valid if matches active signature or contains the active key
+        const isValid = enteredKey.length > 30 && (
+            enteredKey === activeSig ||
+            activeSig.includes(enteredKey) ||
+            enteredKey.includes(activeSig.slice(0, 80))
         );
 
-        if (!hasDilithiumKey) {
+        if (isValid) {
+            if (errMsg) errMsg.style.display = 'none';
+            window.closeAccountSuspendGateModal();
+            const overlay = document.getElementById('accountSuspendModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                window.loadSuspendAccountsList();
+            }
             if (typeof window.showAdminToast === 'function') {
-                window.showAdminToast('🔒 Requiere firma Dilithium-5 (ML-DSA-87) activa para acceder al Gestor de Suspensión.');
+                window.showAdminToast('✓ Clave Dilithium-5 verificada: Acceso concedido al Gestor de Suspensión.');
             }
-            // Open Dilithium Security Gate to authenticate
-            if (typeof window.openDilithiumSecurityGate === 'function') {
-                window.openDilithiumSecurityGate();
+        } else {
+            if (errMsg) {
+                errMsg.textContent = '❌ Clave Dilithium-5 inválida o no coincide con la clave cuántica activa.';
+                errMsg.style.display = 'block';
             }
-            return;
-        }
-
-        const overlay = document.getElementById('accountSuspendModalOverlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-            window.loadSuspendAccountsList();
+            if (input) {
+                input.style.borderColor = '#dc2626';
+                input.focus();
+            }
         }
     };
 

@@ -36,9 +36,11 @@ const authPhpPath = path.join(repoDir, 'auth.php');
     assert(content.includes('.account-suspend-modal'), `Modal CSS missing in ${filename}`);
     assert(content.includes('height: 729px;'), `Modal height 729px missing in ${filename}`);
 
-    console.log(`[Test 4] Dilithium-5 Security Gate in ${filename}...`);
-    assert(content.includes('window.openAccountSuspendTool'), `openAccountSuspendTool missing in ${filename}`);
-    assert(content.includes('getLatestDilithiumSignature') || content.includes('dilithium'), `Dilithium gate check missing in ${filename}`);
+    console.log(`[Test 4] Dilithium-5 Mandatory Gate in ${filename}...`);
+    assert(content.includes('id="accountSuspendGateOverlay"'), `Dilithium-5 gate overlay missing in ${filename}`);
+    assert(content.includes('id="suspendD5GateInput"'), `Dilithium-5 input textarea missing in ${filename}`);
+    assert(content.includes('verifySuspendD5Key'), `verifySuspendD5Key function missing in ${filename}`);
+    assert(content.includes('closeAccountSuspendGateModal'), `closeAccountSuspendGateModal missing in ${filename}`);
 
     console.log(`[Test 5] Dynamic Account Listing & Action Handlers in ${filename}...`);
     assert(content.includes('window.loadSuspendAccountsList'), `loadSuspendAccountsList missing in ${filename}`);

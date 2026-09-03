@@ -848,6 +848,617 @@
             flex-grow: 0;
         }
 
+
+        /* =========================================================================
+           FIGMA SPEC: TEXT EDITOR, ADMIN NOTIFICATIONS & PRESENTATION MODALS
+           ========================================================================= */
+        .cell-text-editor-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            width: 100%;
+        }
+        .cell-text-editor-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: #FAFAFC;
+            border: 1px solid #E1E4EA;
+            color: #111317;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+        .cell-text-editor-btn:hover {
+            background: #111317;
+            color: #FFFFFF;
+            border-color: #111317;
+        }
+
+        /* text-editor-modal */
+        .text-editor-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 16, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100035;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .text-editor-modal {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 32px;
+            gap: 24px;
+            width: 600px;
+            height: 734px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 32px);
+            background: #FFFFFF;
+            box-shadow: 0px 16px 32px -4px rgba(11, 13, 16, 0.14902);
+            border-radius: 16px;
+            box-sizing: border-box;
+            position: relative;
+            overflow-y: auto;
+        }
+        .editor-modal-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+            gap: 12px;
+            width: 536px;
+            height: 112px;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .editor-icon-circle {
+            width: 56px;
+            height: 56px;
+            background: #EBEBEB;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+        .editor-title-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+            gap: 4px;
+            width: 536px;
+            height: 44px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .editor-title {
+            width: 536px;
+            height: 24px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 24px;
+            text-align: center;
+            color: #111317;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .editor-subtitle {
+            width: 536px;
+            height: 16px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 13px;
+            line-height: 16px;
+            text-align: center;
+            color: #525866;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+
+        /* formatting-toolbar */
+        .formatting-toolbar {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 6px;
+            gap: 8px;
+            width: 536px;
+            min-height: 44px;
+            background: #FAFAFC;
+            border: 1px solid #E1E4EA;
+            border-radius: 8px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+            flex-wrap: wrap;
+        }
+        .tb-style-group, .tb-alignment-group, .tb-list-group {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0px;
+            gap: 4px;
+        }
+        .toolbar-btn {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 6px;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .toolbar-btn:hover {
+            background: #E1E4EA;
+        }
+        .toolbar-btn.active {
+            background: #E1E4EA;
+            border-color: #cbd5e1;
+        }
+        .tb-divider {
+            width: 1px;
+            height: 20px;
+            background: #E1E4EA;
+            flex: none;
+        }
+        .font-size-display {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 4px 8px;
+            gap: 4px;
+            background: #FFFFFF;
+            border: 1px solid #E1E4EA;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #111317;
+            cursor: pointer;
+        }
+
+        /* text-editing-area */
+        .text-editing-area {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 16px;
+            width: 536px;
+            height: 280px;
+            background: #FFFFFF;
+            border: 1px solid #E1E4EA;
+            border-radius: 8px;
+            flex: none;
+            order: 2;
+            align-self: stretch;
+            flex-grow: 0;
+            overflow-y: auto;
+            outline: none;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
+            line-height: 22px;
+            color: #111317;
+        }
+        .text-editing-area:focus {
+            border-color: #111317;
+        }
+
+        /* editor-modal-actions */
+        .editor-modal-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 12px;
+            width: 536px;
+            height: 94px;
+            flex: none;
+            order: 3;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .btn-editor-save {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 536px;
+            height: 41px;
+            background: #000000;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+            transition: opacity 0.15s ease;
+        }
+        .btn-editor-save:hover {
+            opacity: 0.9;
+        }
+        .btn-editor-save-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            color: #FFFFFF;
+        }
+        .btn-editor-cancel {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 536px;
+            height: 41px;
+            background: #FFFFFF;
+            border: none;
+            cursor: pointer;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .btn-editor-cancel-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            color: #525866;
+        }
+
+        /* notifications-dropdown */
+        .notifications-dropdown {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            isolation: isolate;
+            position: absolute;
+            right: 0;
+            top: 42px;
+            width: 450px;
+            height: 250px;
+            background: #FFFFFF;
+            box-shadow: 0px 16px 32px -4px rgba(11, 13, 16, 0.14902);
+            border-radius: 16px;
+            z-index: 100025;
+            box-sizing: border-box;
+            border: 1px solid #E1E4EA;
+        }
+        .dropdown-arrow {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            right: 18px;
+            top: -7px;
+            background: #FFFFFF;
+            transform: rotate(45deg);
+            border-left: 1px solid #E1E4EA;
+            border-top: 1px solid #E1E4EA;
+            z-index: 0;
+        }
+        .dropdown-header {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px 12px;
+            width: 450px;
+            height: 47px;
+            border-bottom: 1px solid #EBEBEB;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+            z-index: 1;
+        }
+        .header-title {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 19px;
+            color: #111317;
+        }
+        .mark-all-read-link {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 15px;
+            color: #525866;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .mark-all-read-link:hover {
+            color: #111317;
+            text-decoration: underline;
+        }
+        .empty-notifications-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0px;
+            width: 450px;
+            height: 203px;
+            background: #FFFFFF;
+            border-radius: 0 0 16px 16px;
+            flex: none;
+            order: 2;
+            align-self: stretch;
+            flex-grow: 1;
+            z-index: 2;
+            overflow-y: auto;
+        }
+        .empty-circle {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0px;
+            width: 56px;
+            height: 56px;
+            background: #EBEBEB;
+            border-radius: 28px;
+            margin-bottom: 10px;
+        }
+        .empty-state-text {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 500;
+            font-size: 13px;
+            line-height: 16px;
+            text-align: center;
+            color: #8C93A3;
+        }
+        .notif-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-bottom: 1px solid #F1F3F5;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            transition: background 0.15s ease;
+        }
+        .notif-item-row:hover {
+            background: #FAFAFC;
+        }
+        .notif-item-row.unread {
+            background: #F0FDF4;
+        }
+
+        /* text-presentation-modal */
+        .text-presentation-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 16, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100040;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .text-presentation-modal {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 32px;
+            gap: 28px;
+            width: 550px;
+            height: 634px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 32px);
+            background: #FFFFFF;
+            box-shadow: 0px 16px 32px -4px rgba(11, 13, 16, 0.14902);
+            border-radius: 16px;
+            box-sizing: border-box;
+            position: relative;
+            overflow-y: auto;
+        }
+        .presentation-modal-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+            gap: 16px;
+            width: 486px;
+            height: 120px;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .presentation-icon-bg {
+            width: 56px;
+            height: 56px;
+            background: #EBEBEB;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: none;
+            order: 0;
+            flex-grow: 0;
+        }
+        .presentation-title-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+            gap: 8px;
+            width: 486px;
+            height: 48px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .presentation-title {
+            width: 486px;
+            height: 24px;
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 24px;
+            text-align: center;
+            color: #111317;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .presentation-subtitle {
+            width: 486px;
+            height: 16px;
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 16px;
+            text-align: center;
+            text-transform: uppercase;
+            color: #111317;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .text-display-zone {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 16px;
+            width: 486px;
+            height: 300px;
+            background: #FFFFFF;
+            border: 1px solid #E1E4EA;
+            border-radius: 8px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+            overflow-y: auto;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 22px;
+            color: #111317;
+        }
+        .presentation-modal-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px;
+            gap: 12px;
+            width: 486px;
+            height: 94px;
+            flex: none;
+            order: 2;
+            align-self: stretch;
+            flex-grow: 0;
+        }
+        .btn-presentation-close {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 486px;
+            height: 41px;
+            background: #000000;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            flex: none;
+            order: 0;
+            align-self: stretch;
+            flex-grow: 0;
+            transition: opacity 0.15s ease;
+        }
+        .btn-presentation-close:hover {
+            opacity: 0.9;
+        }
+        .btn-presentation-close-label {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            color: #FFFFFF;
+        }
+        .btn-presentation-copy {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 0px;
+            width: 486px;
+            height: 41px;
+            background: #FFFFFF;
+            border: 1px solid #E1E4EA;
+            border-radius: 8px;
+            cursor: pointer;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+            transition: background 0.15s ease;
+        }
+        .btn-presentation-copy:hover {
+            background: #F4F4F6;
+        }
+        .btn-presentation-copy-label {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            color: #525866;
+        }
+
 </style>
 </head>
 <body class="boot-locked">
@@ -1371,6 +1982,133 @@
         <!-- =========================================================================
          MODAL: COMPUERTA DE ACCESO DILITHIUM-5 PARA GESTOR DE SUSPENSIÓN
          ========================================================================= -->
+        <!-- =========================================================================
+         MODAL 1: TEXT EDITOR MODAL (FIGMA 600x734 SPEC - ATOM POWERED)
+         ========================================================================= -->
+    <div id="textEditorModal" class="text-editor-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeTextEditorModal()">
+        <div class="text-editor-modal">
+            <!-- modal-header -->
+            <div class="editor-modal-header">
+                <!-- icon-circle with platform logo -->
+                <div class="editor-icon-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" width="28" height="28" fill="none" aria-hidden="true">
+                        <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                    </svg>
+                </div>
+                <!-- title-stack -->
+                <div class="editor-title-stack">
+                    <div class="editor-title">Editor de Texto & Datos</div>
+                    <div class="editor-subtitle">EDICIÓN ENRIQUECIDA Y PUBLICACIÓN DETERMINISTA</div>
+                </div>
+            </div>
+
+            <!-- formatting-toolbar -->
+            <div class="formatting-toolbar">
+                <!-- style-group -->
+                <div class="tb-style-group style-group">
+                    <button type="button" class="toolbar-btn" onclick="formatTextCmd('bold')" title="Negrita (Bold)">
+                        <span style="font-weight:800; font-size:14px; color:#111317;">B</span>
+                    </button>
+                    <button type="button" class="toolbar-btn" onclick="formatTextCmd('italic')" title="Cursiva (Italic)">
+                        <span style="font-style:italic; font-weight:500; font-size:14px; color:#111317;">I</span>
+                    </button>
+                    <button type="button" class="toolbar-btn" onclick="formatTextCmd('underline')" title="Subrayado (Underline)">
+                        <span style="text-decoration:underline; font-weight:500; font-size:14px; color:#111317;">U</span>
+                    </button>
+                </div>
+
+                <div class="tb-divider"></div>
+
+                <!-- alignment-group -->
+                <div class="tb-alignment-group alignment-group">
+                    <button type="button" class="toolbar-btn" onclick="formatTextCmd('justifyLeft')" title="Alinear a la izquierda">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111317" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+                    </button>
+                    <button type="button" class="toolbar-btn" onclick="formatTextCmd('justifyCenter')" title="Centrar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111317" stroke-width="2"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>
+                    </button>
+                    <button type="button" class="toolbar-btn" onclick="formatTextCmd('justifyRight')" title="Alinear a la derecha">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111317" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
+                    </button>
+                </div>
+
+                <div class="tb-divider"></div>
+
+                <!-- list-group -->
+                <div class="tb-list-group list-group">
+                    <button type="button" class="toolbar-btn" onclick="formatTextCmd('insertUnorderedList')" title="Lista con viñetas">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111317" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    </button>
+                    <button type="button" class="toolbar-btn" onclick="formatTextCmd('insertOrderedList')" title="Lista numerada">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111317" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>
+                    </button>
+                </div>
+
+                <div class="tb-divider"></div>
+
+                <!-- font-size-display -->
+                <div class="font-size-display" title="Tamaño de fuente">
+                    <select id="editorFontSizeSelect" onchange="formatFontSize(this.value)" style="border:none; background:transparent; outline:none; font-family:'Inter', sans-serif; font-size:12px; font-weight:600; cursor:pointer;">
+                        <option value="3">14px</option>
+                        <option value="4" selected>16px</option>
+                        <option value="5">18px</option>
+                        <option value="6">24px</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- text-editing-area -->
+            <div class="text-editing-area" id="textEditingArea" contenteditable="true" role="textbox" aria-multiline="true" placeholder="Escribe aquí tu contenido..."></div>
+
+            <!-- modal-actions -->
+            <div class="editor-modal-actions">
+                <button type="button" class="btn-editor-save" id="textEditorSaveBtn" onclick="saveTextEditorData()">
+                    <span class="btn-editor-save-text">Guardar</span>
+                </button>
+                <button type="button" class="btn-editor-cancel" onclick="closeTextEditorModal()">
+                    <span class="btn-editor-cancel-text">Cancelar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         MODAL 3: TEXT PRESENTATION MODAL (FIGMA 550x634 SPEC)
+         ========================================================================= -->
+    <div id="textPresentationModal" class="text-presentation-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeTextPresentationModal()">
+        <div class="text-presentation-modal">
+            <!-- modal-header -->
+            <div class="presentation-modal-header">
+                <!-- empty-icon-bg with platform logo -->
+                <div class="presentation-icon-bg">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" width="28" height="28" fill="none" aria-hidden="true">
+                        <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                    </svg>
+                </div>
+                <!-- title-stack -->
+                <div class="presentation-title-stack">
+                    <div class="presentation-title">Visualización de Texto</div>
+                    <div class="presentation-subtitle">DATOS INGRESADOS POR EL USUARIO</div>
+                </div>
+            </div>
+
+            <!-- text-display-zone -->
+            <div class="text-display-zone" id="textPresentationDisplay"></div>
+
+            <!-- modal-actions -->
+            <div class="presentation-modal-actions">
+                <button type="button" class="btn-presentation-close" onclick="closeTextPresentationModal()">
+                    <span class="btn-presentation-close-label">Cerrar</span>
+                </button>
+                <button type="button" class="btn-presentation-copy" id="textPresentationCopyBtn" onclick="copyPresentationText()">
+                    <span class="btn-presentation-copy-label" id="textPresentationCopyLabel">Copiar texto</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="accountSuspendGateOverlay" class="account-suspend-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeAccountSuspendGateModal()">
         <div class="account-suspend-modal" style="height: auto; min-height: 440px; max-height: 90vh;">
             <!-- modal-header -->
@@ -10866,6 +11604,33 @@
                             <input type="text" id="adminTableSearchInput" placeholder="Search user..." oninput="filterAdminTable()">
                         </div>
                         <button type="button" class="filter-all" onclick="resetAdminTableFilter()">View All</button>
+                        <!-- Admin Notifications Dropdown Trigger & Popover (Figma 450x250 Spec) -->
+                        <div style="position:relative; display:inline-block;">
+                            <button type="button" class="btn-admin-notif-bell" id="adminNotifBellBtn" onclick="toggleAdminNotificationsDropdown(event)" title="Notificaciones de Administrador" style="position:relative; width:34px; height:34px; border-radius:8px; border:1px solid #E1E4EA; background:#FFFFFF; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#111317" stroke-width="2">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                                <span class="admin-notif-badge" id="adminNotifBadge" style="position:absolute; top:-4px; right:-4px; background:#e02f24; color:#FFFFFF; font-size:10px; font-weight:700; width:16px; height:16px; border-radius:50%; display:none; align-items:center; justify-content:center;">0</span>
+                            </button>
+
+                            <div class="notifications-dropdown" id="adminNotificationsDropdown" style="display:none;">
+                                <div class="dropdown-arrow"></div>
+                                <div class="dropdown-header">
+                                    <span class="header-title">Notificaciones</span>
+                                    <a href="javascript:void(0)" class="mark-all-read-link" onclick="markAllNotificationsRead()">Marcar todas como leídas</a>
+                                </div>
+                                <div class="empty-notifications-area" id="adminNotificationsArea">
+                                    <div class="empty-circle">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" width="28" height="28" fill="none" aria-hidden="true">
+                                            <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                                        </svg>
+                                    </div>
+                                    <span class="empty-state-text">No hay nuevas notificaciones</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -11242,7 +12007,8 @@
             { key: 'manager_id', label: 'Code manager ID card', minWidth: '125px' },
             { key: 'creator_name', label: 'Legal name of the code creator', minWidth: '140px' },
             { key: 'phone', label: 'Phone number for calls', minWidth: '140px' },
-            { key: 'email', label: 'Reply email', minWidth: '160px' }
+            { key: 'email', label: 'Reply email', minWidth: '160px' },
+            { key: 'user_text_data', label: 'Datos & Editor de Texto', minWidth: '160px' }
         ];
         window.L8_ALL_COLUMNS = L8_SYSTEM_COLUMNS;
 
@@ -11594,6 +12360,21 @@
                                             <span class="cell-chk-label">Y</span>
                                             <span class="cell-chk-box ${r.cors_method === 'No' ? 'checked' : ''}"></span>
                                             <span class="cell-chk-label">N</span>
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'user_text_data':
+                                const valPlain = (r.user_text_data || '').replace(/<[^>]*>?/gm, '').trim();
+                                const valDisplay = valPlain.length > 18 ? valPlain.substring(0, 18) + '...' : valPlain;
+                                rowHtml += `
+                                    <td>
+                                        <div class="cell-text-editor-wrap">
+                                            <input type="text" class="input-field-figma" placeholder="Escribe texto..." value="${valDisplay}" onchange="updateCellData(${idx}, 'user_text_data', this.value)" oninput="updateCellDataRealtime(${idx}, 'user_text_data', this.value)" style="flex:1; min-width:60px;">
+                                            <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal(${idx})" title="Abrir Editor de Texto enriquecido">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" fill="currentColor">
+                                                    <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M16,21h-2v-7h2V21z M15,11.5 c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,11.5,15,11.5z"></path>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </td>`;
                                 break;
@@ -12422,6 +13203,21 @@
                                             <span class="cell-chk-label">Y</span>
                                             <span class="cell-chk-box ${r.cors_method === 'No' ? 'checked' : ''}"></span>
                                             <span class="cell-chk-label">N</span>
+                                        </div>
+                                    </td>`;
+                                break;
+                            case 'user_text_data':
+                                const valPlain = (r.user_text_data || '').replace(/<[^>]*>?/gm, '').trim();
+                                const valDisplay = valPlain.length > 18 ? valPlain.substring(0, 18) + '...' : valPlain;
+                                rowHtml += `
+                                    <td>
+                                        <div class="cell-text-editor-wrap">
+                                            <input type="text" class="input-field-figma" placeholder="Escribe texto..." value="${valDisplay}" onchange="updateCellData(${idx}, 'user_text_data', this.value)" oninput="updateCellDataRealtime(${idx}, 'user_text_data', this.value)" style="flex:1; min-width:60px;">
+                                            <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal(${idx})" title="Abrir Editor de Texto enriquecido">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" fill="currentColor">
+                                                    <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M16,21h-2v-7h2V21z M15,11.5 c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,11.5,15,11.5z"></path>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </td>`;
                                 break;
@@ -14778,6 +15574,204 @@ let d5Unlocked = false;
             if (btnText) btnText.textContent = 'Reactivar cuenta';
         }
     };
+
+
+    /* =========================================================================
+       TEXT EDITOR & ADMIN NOTIFICATIONS ENGINE (ATOM & FIGMA POWERED)
+       ========================================================================= */
+    window._activeEditingRowIndex = null;
+    window.L8_ADMIN_NOTIFS_KEY = 'l8_admin_notifications_v1';
+
+    window.openTextEditorModal = function(rowIndex) {
+        window._activeEditingRowIndex = rowIndex;
+        const rows = (typeof window.getSharedPublicationRows === 'function') ? window.getSharedPublicationRows() : [];
+        const rowData = rows[rowIndex] || {};
+        const editArea = document.getElementById('textEditingArea');
+        if (editArea) {
+            editArea.innerHTML = rowData.user_text_data || '';
+        }
+        const modal = document.getElementById('textEditorModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => editArea && editArea.focus(), 60);
+        }
+    };
+
+    window.closeTextEditorModal = function() {
+        const modal = document.getElementById('textEditorModal');
+        if (modal) modal.style.display = 'none';
+        window._activeEditingRowIndex = null;
+    };
+
+    window.formatTextCmd = function(cmd, val = null) {
+        document.execCommand(cmd, false, val);
+        const editArea = document.getElementById('textEditingArea');
+        if (editArea) editArea.focus();
+    };
+
+    window.formatFontSize = function(sizeVal) {
+        document.execCommand('fontSize', false, sizeVal);
+        const editArea = document.getElementById('textEditingArea');
+        if (editArea) editArea.focus();
+    };
+
+    window.saveTextEditorData = function() {
+        const editArea = document.getElementById('textEditingArea');
+        const textContent = (editArea ? editArea.innerHTML : '').trim();
+        const plainText = (editArea ? editArea.innerText : '').trim();
+
+        if (window._activeEditingRowIndex !== null) {
+            const rows = window.getSharedPublicationRows();
+            if (rows[window._activeEditingRowIndex]) {
+                rows[window._activeEditingRowIndex].user_text_data = textContent;
+                window.saveSharedPublicationRows(rows);
+            }
+            if (typeof window.renderAdminTable === 'function') {
+                window.renderAdminTable();
+            }
+
+            // Emite notificación exclusiva para la administración
+            window.dispatchAdminNotification({
+                id: 'notif_' + Date.now(),
+                title: 'Nuevo texto ingresado',
+                snippet: plainText.substring(0, 45) || 'Contenido enriquecido',
+                fullText: textContent,
+                rowId: rows[window._activeEditingRowIndex]?.identifier_code || ('Fila #' + (window._activeEditingRowIndex + 1)),
+                timestamp: new Date().toISOString(),
+                read: false
+            });
+
+            if (typeof window.showAdminToast === 'function') {
+                window.showAdminToast('✓ Texto guardado y enviado al panel de administración.');
+            }
+        }
+
+        window.closeTextEditorModal();
+    };
+
+    window.dispatchAdminNotification = function(notif) {
+        let notifs = [];
+        try {
+            notifs = JSON.parse(localStorage.getItem(window.L8_ADMIN_NOTIFS_KEY) || '[]');
+        } catch(e) { notifs = []; }
+        notifs.unshift(notif);
+        localStorage.setItem(window.L8_ADMIN_NOTIFS_KEY, JSON.stringify(notifs));
+        window.updateAdminNotificationsUI();
+    };
+
+    window.updateAdminNotificationsUI = function() {
+        let notifs = [];
+        try {
+            notifs = JSON.parse(localStorage.getItem(window.L8_ADMIN_NOTIFS_KEY) || '[]');
+        } catch(e) { notifs = []; }
+
+        const badge = document.getElementById('adminNotifBadge');
+        const unreadCount = notifs.filter(n => !n.read).length;
+        if (badge) {
+            badge.textContent = unreadCount;
+            badge.style.display = unreadCount > 0 ? 'inline-flex' : 'none';
+        }
+
+        const container = document.getElementById('adminNotificationsArea');
+        if (!container) return;
+
+        if (notifs.length === 0) {
+            container.innerHTML = `
+                <div class="empty-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" width="28" height="28" fill="none" aria-hidden="true">
+                        <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
+                    </svg>
+                </div>
+                <span class="empty-state-text">No hay nuevas notificaciones</span>
+            `;
+            return;
+        }
+
+        container.innerHTML = '';
+        notifs.forEach((n, idx) => {
+            const item = document.createElement('div');
+            item.className = 'notif-item-row' + (n.read ? '' : ' unread');
+            item.innerHTML = `
+                <div style="display:flex; flex-direction:column; gap:2px; max-width:340px;">
+                    <div style="font-size:13px; font-weight:700; color:#111317;">${n.rowId} · ${n.title}</div>
+                    <div style="font-size:12px; color:#525866; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${n.snippet}</div>
+                    <div style="font-size:10px; color:#8C93A3;">${new Date(n.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                </div>
+                <div style="display:flex; align-items:center;">
+                    <span style="font-size:11px; font-weight:600; color:#111317; background:#EBEBEB; padding:3px 8px; border-radius:12px;">Ver texto</span>
+                </div>
+            `;
+            item.onclick = () => {
+                n.read = true;
+                localStorage.setItem(window.L8_ADMIN_NOTIFS_KEY, JSON.stringify(notifs));
+                window.updateAdminNotificationsUI();
+                window.openTextPresentationModal(n.fullText);
+            };
+            container.appendChild(item);
+        });
+    };
+
+    window.toggleAdminNotificationsDropdown = function(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        const dd = document.getElementById('adminNotificationsDropdown');
+        if (!dd) return;
+        const isOpen = (dd.style.display === 'flex');
+        dd.style.display = isOpen ? 'none' : 'flex';
+        if (!isOpen) {
+            window.updateAdminNotificationsUI();
+        }
+    };
+
+    window.markAllNotificationsRead = function() {
+        let notifs = [];
+        try {
+            notifs = JSON.parse(localStorage.getItem(window.L8_ADMIN_NOTIFS_KEY) || '[]');
+        } catch(e) { notifs = []; }
+        notifs.forEach(n => n.read = true);
+        localStorage.setItem(window.L8_ADMIN_NOTIFS_KEY, JSON.stringify(notifs));
+        window.updateAdminNotificationsUI();
+    };
+
+    window.openTextPresentationModal = function(fullHtml) {
+        const display = document.getElementById('textPresentationDisplay');
+        if (display) {
+            display.innerHTML = fullHtml || '<span style="color:#8C93A3;">Sin texto ingresado.</span>';
+        }
+        const modal = document.getElementById('textPresentationModal');
+        if (modal) modal.style.display = 'flex';
+    };
+
+    window.closeTextPresentationModal = function() {
+        const modal = document.getElementById('textPresentationModal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.copyPresentationText = function() {
+        const display = document.getElementById('textPresentationDisplay');
+        const text = display ? display.innerText : '';
+        const btnLabel = document.getElementById('textPresentationCopyLabel');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                if (btnLabel) btnLabel.textContent = '✓ Copiado';
+                setTimeout(() => { if (btnLabel) btnLabel.textContent = 'Copiar texto'; }, 1500);
+            });
+        } else {
+            if (btnLabel) btnLabel.textContent = '✓ Copiado';
+            setTimeout(() => { if (btnLabel) btnLabel.textContent = 'Copiar texto'; }, 1500);
+        }
+    };
+
+    // Close notifications dropdown on outer click
+    document.addEventListener('click', function(e) {
+        const dd = document.getElementById('adminNotificationsDropdown');
+        const bell = document.getElementById('adminNotifBellBtn');
+        if (dd && dd.style.display === 'flex') {
+            if (!dd.contains(e.target) && (!bell || !bell.contains(e.target))) {
+                dd.style.display = 'none';
+            }
+        }
+    });
 
 </script>
 

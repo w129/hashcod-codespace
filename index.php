@@ -11442,7 +11442,7 @@ if (!headers_sent()) {
                             <span class="auth-checkout-badge-dot"></span>
                             <span>PQC VOUCHER &amp; CHECKOUT</span>
                         </span>
-                        <span class="auth-checkout-price"><strong>US$ 60.27</strong> / mes</span>
+                        <span class="auth-checkout-price">Free for trial / then $10</span>
                     </div>
 
                     <div class="auth-voucher-terminal-bar">

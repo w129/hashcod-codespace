@@ -44,7 +44,7 @@ const requiredElements = [
     'id="authCaptureCheckoutBtn"',
     'id="authCopyWhatsappBtn"',
     'id="authCheckoutCheckbox"',
-    'US$ 60.27',
+    '10 US$/mes',
     '829-472-1257',
     'DIKTATCART',
     '3323LV-PF'

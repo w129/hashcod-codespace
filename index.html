@@ -9621,9 +9621,11 @@
             display: inline-block;
         }
 
-        .auth-checkout-price {
+        .auth-checkout-price,
+        .auth-checkout-price span,
+        .auth-checkout-price strong {
             font-size: 12px;
-            color: #ffffff;
+            color: #ffffff !important;
             background: #000000;
             border: 1px solid #000000;
             border-radius: 6px;
@@ -9633,7 +9635,7 @@
         }
 
         .auth-checkout-price strong {
-            color: #ffffff;
+            color: #ffffff !important;
             font-weight: 800;
             font-size: 13.5px;
         }
@@ -9739,20 +9741,24 @@
             user-select: none;
         }
 
-        .auth-btn-whatsapp {
+        .auth-btn-whatsapp,
+        .auth-btn-whatsapp span,
+        .auth-btn-whatsapp svg {
             background: #000000;
-            color: #ffffff;
+            color: #ffffff !important;
+            fill: #ffffff !important;
             border: 1px solid #000000;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
             font-weight: 700;
         }
 
-        .auth-btn-whatsapp:hover {
+        .auth-btn-whatsapp:hover,
+        .auth-btn-whatsapp:hover span {
             background: #27272a;
             border-color: #27272a;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-            color: #ffffff;
+            color: #ffffff !important;
         }
 
         .auth-btn-capture {
@@ -9841,6 +9847,15 @@
         .auth-checkout-checkbox-label span {
             color: #0f172a !important;
         }
+        /* Direct White Text Enforcers for Black Badges & Buttons */
+        .auth-checkout-box .auth-checkout-price,
+        .auth-checkout-box .auth-checkout-price *,
+        .auth-checkout-box .auth-btn-whatsapp,
+        .auth-checkout-box .auth-btn-whatsapp * {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+        }
+    
 
         /* ==========================================================================
            TOOLBOX PAGINATION BAR & ADAPTIVE VIEWPORT CONTROLS
@@ -12770,7 +12785,7 @@
                             <span class="auth-checkout-badge-dot"></span>
                             <span>PQC VOUCHER &amp; CHECKOUT</span>
                         </span>
-                        <span class="auth-checkout-price">Free for trial / then 0.00015 BTC</span>
+                        <span class="auth-checkout-price" style="color:#ffffff !important; background:#000000 !important; border:1px solid #000000 !important;">Free for trial / then 0.00015 BTC</span>
                     </div>
 
                     <div class="auth-voucher-terminal-bar">
@@ -12794,9 +12809,9 @@
                     </div>
                     
                     <div class="auth-checkout-actions">
-                        <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp" id="authWhatsappBtn" title="Abrir WhatsApp con confirmación formal de términos">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.879.814 2.795.815 3.179 0 5.767-2.587 5.768-5.766.001-3.18-2.585-5.767-5.767-5.801zm3.376 8.163c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.025-.48-1.583-.657-2.589-2.28-2.667-2.384-.078-.104-.633-.842-.633-1.608 0-.765.401-1.141.543-1.295.144-.155.312-.194.417-.194.104 0 .208.001.299.006.096.004.224-.036.35.267.13.312.443 1.077.482 1.156.039.078.065.169.013.273-.052.104-.078.169-.156.26-.078.091-.163.203-.234.273-.078.078-.16.163-.069.318.091.156.403.666.865 1.077.595.53 1.097.694 1.253.772.156.078.247.065.338-.039.091-.104.39-.455.494-.611.104-.156.208-.13.351-.078.143.052.91.429 1.066.507.156.078.26.117.299.182.039.065.039.377-.105.782z"/></svg>
-                            <span>WhatsApp: 829-472-1257</span>
+                        <a href="javascript:void(0)" onclick="openWhatsAppCheckout(event)" target="_blank" rel="noopener noreferrer" class="auth-btn-whatsapp" id="authWhatsappBtn" style="background:#000000 !important; color:#ffffff !important; border:1px solid #000000 !important;" title="Abrir WhatsApp con confirmación formal de términos">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="#ffffff" style="color:#ffffff !important; fill:#ffffff !important;"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.879.814 2.795.815 3.179 0 5.767-2.587 5.768-5.766.001-3.18-2.585-5.767-5.767-5.801zm3.376 8.163c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.025-.48-1.583-.657-2.589-2.28-2.667-2.384-.078-.104-.633-.842-.633-1.608 0-.765.401-1.141.543-1.295.144-.155.312-.194.417-.194.104 0 .208.001.299.006.096.004.224-.036.35.267.13.312.443 1.077.482 1.156.039.078.065.169.013.273-.052.104-.078.169-.156.26-.078.091-.163.203-.234.273-.078.078-.16.163-.069.318.091.156.403.666.865 1.077.595.53 1.097.694 1.253.772.156.078.247.065.338-.039.091-.104.39-.455.494-.611.104-.156.208-.13.351-.078.143.052.91.429 1.066.507.156.078.26.117.299.182.039.065.039.377-.105.782z"/></svg>
+                            <span style="color:#ffffff !important;">WhatsApp: 829-472-1257</span>
                         </a>
                         <button type="button" class="auth-btn-capture" id="authCaptureCheckoutBtn" onclick="triggerCheckoutCapture()" title="Descargar comprobante de aceptación de términos PNG">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>

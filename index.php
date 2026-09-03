@@ -4423,7 +4423,7 @@ if (!headers_sent()) {
             display: none;
             position: fixed;
             inset: 0;
-            z-index: 95;
+            z-index: 100020 !important;
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(6px);
             align-items: center;
@@ -23273,9 +23273,12 @@ if (!headers_sent()) {
                 const isOpening = (typeof forceState === 'boolean') ? forceState : !overlay.classList.contains('open');
                 if (isOpening) {
                     overlay.classList.add('open');
+                    overlay.style.setProperty('display', 'flex', 'important');
+                    overlay.style.setProperty('z-index', '100020', 'important');
                     renderExcelTable();
                 } else {
                     overlay.classList.remove('open');
+                    overlay.style.setProperty('display', 'none', 'important');
                 }
             };
 
@@ -24284,11 +24287,11 @@ if (!headers_sent()) {
                                     </td>`;
                                 break;
                             case 'auth_signature':
-                                const isAuthedAdm = (r.auth_signature && r.auth_signature.includes('Authorized'));
+                                const isAuthSigned = (r.auth_signature && r.auth_signature.includes('Authorized'));
                                 rowHtml += `
                                     <td>
                                         <button type="button" class="btn-auth-figma signed" onclick="stampSphincsSignature()" title="Certificar manualmente con SPHINCS+ (Solo Admin)">
-                                            ${isAuthedAdm ? 'Authorized ✓' : 'Authorize (SPHINCS+)'}
+                                            ${isAuthSigned ? 'Authorized ✓' : 'Authorize (SPHINCS+)'}
                                         </button>
                                     </td>`;
                                 break;
@@ -24356,12 +24359,12 @@ if (!headers_sent()) {
                                     </td>`;
                                 break;
                             case 'user_text_data':
-                                const isAuthedAdm = (sessionStorage.getItem(ADMIN_AUTH_KEY) === '1');
+                                const isUserTextAuthedAdmin = (sessionStorage.getItem(ADMIN_AUTH_KEY) === '1');
                                 const hasTextAdm = !!(r.user_text_data && r.user_text_data.trim());
                                 rowHtml += `
                                     <td>
                                         <div class="cell-text-editor-wrap">
-                                            <input type="password" class="input-field-figma" placeholder="${hasTextAdm ? '••••••••••••' : 'Escribe texto...'}" value="${hasTextAdm ? '••••••••••••' : ''}" readonly style="flex:1; min-width:60px; letter-spacing:2px; cursor:pointer;" title="${hasTextAdm ? (isAuthedAdm ? 'Texto protegido confidencial (Ver en Notificaciones o Presentación)' : 'Texto protegido confidencial - Solo Admin') : 'Escribe texto...'}" onclick="openTextEditorModal(${idx})">
+                                            <input type="password" class="input-field-figma" placeholder="${hasTextAdm ? '••••••••••••' : 'Escribe texto...'}" value="${hasTextAdm ? '••••••••••••' : ''}" readonly style="flex:1; min-width:60px; letter-spacing:2px; cursor:pointer;" title="${hasTextAdm ? (isUserTextAuthedAdmin ? 'Texto protegido confidencial (Ver en Notificaciones o Presentación)' : 'Texto protegido confidencial - Solo Admin') : 'Escribe texto...'}" onclick="openTextEditorModal(${idx})">
                                             <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal(${idx})" title="Abrir Editor de Texto (Confidencial)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" fill="currentColor">
                                                     <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M16,21h-2v-7h2V21z M15,11.5 c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,11.5,15,11.5z"></path>
@@ -27019,6 +27022,27 @@ let d5Unlocked = false;
         }
     };
 
+
+        // Direct click bindings for Blog (slot-1-1) and Admin (slot-1-2)
+        document.addEventListener('DOMContentLoaded', function() {
+            const blogSlot = document.getElementById('slot-1-1');
+            if (blogSlot) {
+                blogSlot.addEventListener('click', function(e) {
+                    if (typeof window.toggleExcelBlog === 'function') {
+                        window.toggleExcelBlog(true);
+                    }
+                });
+            }
+            const adminSlot = document.getElementById('slot-1-2');
+            if (adminSlot) {
+                adminSlot.addEventListener('click', function(e) {
+                    if (typeof window.openAdminPanelGate === 'function') {
+                        window.openAdminPanelGate(e);
+                    }
+                });
+            }
+        });
+    
 </script>
 
 

@@ -26928,6 +26928,487 @@ let d5Unlocked = false;
             }
         });
     
+
+    /* =========================================================================
+       PLATFORM CODE STUDIO: MULTI-FILE, FOLDER & ZIP UPLOAD & PERSISTENT STORAGE
+       ========================================================================= */
+    window.currentWorkspaceFiles = [];
+    window.activeWorkspaceFileIndex = 0;
+    window._activeModalRowIndex = 0;
+
+    function detectFileLanguage(filename) {
+        const ext = (filename || '').split('.').pop().toLowerCase();
+        const map = {
+            'py': 'python', 'js': 'javascript', 'jsx': 'javascript',
+            'ts': 'typescript', 'tsx': 'typescript', 'rs': 'rust',
+            'go': 'go', 'cpp': 'cpp', 'hpp': 'cpp', 'cc': 'cpp',
+            'c': 'c', 'h': 'c', 'java': 'java', 'm': 'octave',
+            'php': 'php', 'rb': 'ruby', 'kt': 'kotlin', 'swift': 'swift',
+            'html': 'html', 'htm': 'html', 'css': 'css', 'scss': 'css',
+            'sql': 'sql', 'sh': 'bash', 'zsh': 'bash', 'json': 'json',
+            'yaml': 'json', 'yml': 'json', 'toml': 'json', 'md': 'text', 'txt': 'text'
+        };
+        return map[ext] || 'text';
+    }
+
+    function formatByteSize(bytes) {
+        if (!bytes || bytes <= 0) return '0 B';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    window.renderWorkspaceFileList = function() {
+        const listEl = document.getElementById('platformWorkspaceFileList');
+        const countEl = document.getElementById('workspaceFileCount');
+        if (!listEl) return;
+
+        if (!window.currentWorkspaceFiles || window.currentWorkspaceFiles.length === 0) {
+            window.currentWorkspaceFiles = [{
+                name: 'main.py',
+                path: 'main.py',
+                content: '# Python code for Hashcod platform\nimport hashlib\nimport os\n\ndef init_platform_engine():\n    print("Hashcod platform codespace ready")\n',
+                size: 130
+            }];
+            window.activeWorkspaceFileIndex = 0;
+        }
+
+        if (countEl) countEl.textContent = String(window.currentWorkspaceFiles.length);
+
+        let html = '';
+        window.currentWorkspaceFiles.forEach((file, idx) => {
+            const isActive = (idx === window.activeWorkspaceFileIndex);
+            const bg = isActive ? '#EBEBEB' : '#FFFFFF';
+            const border = isActive ? '1px solid #111317' : '1px solid #E1E4EA';
+            const fontWt = isActive ? '700' : '500';
+            const displaySize = formatByteSize(file.size || (file.content ? file.content.length : 0));
+
+            html += `
+                <div class="workspace-file-item" onclick="switchActiveWorkspaceFile(${idx})" style="display:flex; align-items:center; justify-content:space-between; padding:6px 10px; border-radius:6px; background:${bg}; border:${border}; cursor:pointer; gap:6px; transition:all 0.15s ease;" title="${file.path || file.name}">
+                    <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
+                        <svg style="width:13px;height:13px;fill:#111317;flex-shrink:0;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        <span style="font-family:'Geist Mono',monospace; font-size:11px; font-weight:${fontWt}; color:#111317; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${file.name}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+                        <span style="font-size:10px; color:#525866;">${displaySize}</span>
+                        ${window.currentWorkspaceFiles.length > 1 ? `<button type="button" onclick="removeWorkspaceFile(${idx}, event)" style="background:none; border:none; color:#8C93A3; cursor:pointer; font-size:12px; padding:0 2px;" title="Eliminar archivo">✕</button>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+
+        listEl.innerHTML = html;
+    };
+
+    window.switchActiveWorkspaceFile = function(idx) {
+        if (!window.currentWorkspaceFiles || !window.currentWorkspaceFiles[idx]) return;
+        window.activeWorkspaceFileIndex = idx;
+        const file = window.currentWorkspaceFiles[idx];
+
+        const nameEl = document.getElementById('platformActiveFileName');
+        const sizeEl = document.getElementById('platformActiveFileSize');
+        const langEl = document.getElementById('platformActiveFileLang');
+        const contentEl = document.getElementById('platformCodeContent');
+        const langSel = document.getElementById('codeLangSelect');
+
+        const detectedLang = detectFileLanguage(file.name);
+        if (nameEl) nameEl.textContent = file.name;
+        if (sizeEl) sizeEl.textContent = formatByteSize(file.size || (file.content ? file.content.length : 0));
+        if (langEl) langEl.textContent = detectedLang;
+        if (langSel) langSel.value = detectedLang;
+        if (contentEl) contentEl.value = file.content || '';
+
+        window.renderWorkspaceFileList();
+        window.refreshModalTokenStats(file.content || '');
+    };
+
+    window.removeWorkspaceFile = function(idx, e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        if (window.currentWorkspaceFiles.length <= 1) return;
+        window.currentWorkspaceFiles.splice(idx, 1);
+        if (window.activeWorkspaceFileIndex >= window.currentWorkspaceFiles.length) {
+            window.activeWorkspaceFileIndex = window.currentWorkspaceFiles.length - 1;
+        }
+        window.switchActiveWorkspaceFile(window.activeWorkspaceFileIndex);
+    };
+
+    window.onPlatformCodeInput = function() {
+        const contentEl = document.getElementById('platformCodeContent');
+        const content = contentEl ? contentEl.value : '';
+        if (window.currentWorkspaceFiles && window.currentWorkspaceFiles[window.activeWorkspaceFileIndex]) {
+            window.currentWorkspaceFiles[window.activeWorkspaceFileIndex].content = content;
+            window.currentWorkspaceFiles[window.activeWorkspaceFileIndex].size = content.length;
+        }
+        const sizeEl = document.getElementById('platformActiveFileSize');
+        if (sizeEl) sizeEl.textContent = formatByteSize(content.length);
+        window.refreshModalTokenStats(content);
+    };
+
+    window.refreshModalTokenStats = function(activeContent) {
+        let totalTokens = 0;
+        let totalLines = 0;
+        let totalChars = 0;
+
+        if (window.currentWorkspaceFiles && window.currentWorkspaceFiles.length > 0) {
+            window.currentWorkspaceFiles.forEach(f => {
+                const c = f.content || '';
+                totalTokens += (typeof calculateCodeTokens === 'function') ? calculateCodeTokens(c) : Math.ceil(c.length / 4);
+                totalLines += c.split('\n').length;
+                totalChars += c.length;
+            });
+        } else {
+            const c = activeContent || '';
+            totalTokens = (typeof calculateCodeTokens === 'function') ? calculateCodeTokens(c) : Math.ceil(c.length / 4);
+            totalLines = c.split('\n').length;
+            totalChars = c.length;
+        }
+
+        const tokenBadge = document.getElementById('codeTokenCountDisplay');
+        if (tokenBadge) tokenBadge.textContent = totalTokens.toLocaleString();
+
+        const statsDisplay = document.getElementById('codeStatsDisplay');
+        if (statsDisplay) {
+            const fCount = (window.currentWorkspaceFiles && window.currentWorkspaceFiles.length) || 1;
+            statsDisplay.textContent = `${fCount} archivo${fCount > 1 ? 's' : ''} · ${totalChars.toLocaleString()} caracteres · ${totalLines.toLocaleString()} líneas`;
+        }
+        return totalTokens;
+    };
+
+    window.handlePlatformSingleFileUpload = function(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result || '';
+            const newFile = {
+                name: file.name,
+                path: file.name,
+                content: content,
+                size: file.size || content.length
+            };
+
+            if (!Array.isArray(window.currentWorkspaceFiles)) window.currentWorkspaceFiles = [];
+            const existingIdx = window.currentWorkspaceFiles.findIndex(f => f.name === file.name);
+            if (existingIdx !== -1) {
+                window.currentWorkspaceFiles[existingIdx] = newFile;
+                window.activeWorkspaceFileIndex = existingIdx;
+            } else {
+                window.currentWorkspaceFiles.push(newFile);
+                window.activeWorkspaceFileIndex = window.currentWorkspaceFiles.length - 1;
+            }
+
+            window.switchActiveWorkspaceFile(window.activeWorkspaceFileIndex);
+            if (typeof window.showAdminToast === 'function') {
+                window.showAdminToast(`✓ Archivo '${file.name}' cargado con éxito.`);
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    };
+
+    window.handlePlatformFolderUpload = function(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        let loadedCount = 0;
+        const totalFiles = files.length;
+        if (!Array.isArray(window.currentWorkspaceFiles)) window.currentWorkspaceFiles = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const relativePath = file.webkitRelativePath || file.name;
+            const reader = new FileReader();
+
+            reader.onload = (function(f, path) {
+                return function(e) {
+                    const content = e.target.result || '';
+                    const newFile = {
+                        name: f.name,
+                        path: path,
+                        content: content,
+                        size: f.size || content.length
+                    };
+
+                    const existingIdx = window.currentWorkspaceFiles.findIndex(item => item.path === path);
+                    if (existingIdx !== -1) {
+                        window.currentWorkspaceFiles[existingIdx] = newFile;
+                    } else {
+                        window.currentWorkspaceFiles.push(newFile);
+                    }
+
+                    loadedCount++;
+                    if (loadedCount === totalFiles) {
+                        window.activeWorkspaceFileIndex = 0;
+                        window.switchActiveWorkspaceFile(0);
+                        if (typeof window.showAdminToast === 'function') {
+                            window.showAdminToast(`✓ Carpeta cargada: ${totalFiles} archivo(s) procesados.`);
+                        }
+                    }
+                };
+            })(file, relativePath);
+
+            reader.readAsText(file);
+        }
+        event.target.value = '';
+    };
+
+    window.handlePlatformZipUpload = function(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        if (typeof JSZip === 'undefined') {
+            alert('El extractor de ZIP no está disponible.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const buffer = e.target.result;
+            JSZip.loadAsync(buffer).then(function(zip) {
+                const entries = [];
+                zip.forEach(function(relativePath, zipEntry) {
+                    if (!zipEntry.dir) {
+                        entries.push(zipEntry);
+                    }
+                });
+
+                if (entries.length === 0) {
+                    alert('El archivo ZIP no contiene archivos de código válidos.');
+                    return;
+                }
+
+                let processed = 0;
+                if (!Array.isArray(window.currentWorkspaceFiles)) window.currentWorkspaceFiles = [];
+
+                entries.forEach(function(entry) {
+                    entry.async('text').then(function(content) {
+                        const newFile = {
+                            name: entry.name.split('/').pop(),
+                            path: entry.name,
+                            content: content,
+                            size: content.length
+                        };
+
+                        const existingIdx = window.currentWorkspaceFiles.findIndex(item => item.path === entry.name);
+                        if (existingIdx !== -1) {
+                            window.currentWorkspaceFiles[existingIdx] = newFile;
+                        } else {
+                            window.currentWorkspaceFiles.push(newFile);
+                        }
+
+                        processed++;
+                        if (processed === entries.length) {
+                            window.activeWorkspaceFileIndex = 0;
+                            window.switchActiveWorkspaceFile(0);
+                            if (typeof window.showAdminToast === 'function') {
+                                window.showAdminToast(`✓ Archivo ZIP descomprimido: ${entries.length} archivo(s) listos.`);
+                            }
+                        }
+                    });
+                });
+            }).catch(function(err) {
+                alert('Error al leer el archivo ZIP: ' + err.message);
+            });
+        };
+        reader.readAsArrayBuffer(file);
+        event.target.value = '';
+    };
+
+    window.promptNewCodeFile = function() {
+        const name = prompt('Nombre del nuevo archivo (ej: app.js, utils.py):', 'nuevo.py');
+        if (!name || !name.trim()) return;
+        const cleanName = name.trim();
+
+        if (!Array.isArray(window.currentWorkspaceFiles)) window.currentWorkspaceFiles = [];
+        window.currentWorkspaceFiles.push({
+            name: cleanName,
+            path: cleanName,
+            content: `# Nuevo archivo ${cleanName}\n`,
+            size: cleanName.length + 15
+        });
+
+        window.activeWorkspaceFileIndex = window.currentWorkspaceFiles.length - 1;
+        window.switchActiveWorkspaceFile(window.activeWorkspaceFileIndex);
+    };
+
+    window.clearWorkspaceFiles = function() {
+        if (!confirm('¿Seguro que deseas limpiar todos los archivos de este espacio de trabajo?')) return;
+        window.currentWorkspaceFiles = [{
+            name: 'main.py',
+            path: 'main.py',
+            content: '# Python code for Hashcod platform\n',
+            size: 35
+        }];
+        window.activeWorkspaceFileIndex = 0;
+        window.switchActiveWorkspaceFile(0);
+    };
+
+    window.copyCurrentModalCode = function() {
+        const contentEl = document.getElementById('platformCodeContent');
+        if (!contentEl) return;
+        navigator.clipboard.writeText(contentEl.value).then(() => {
+            if (typeof window.showAdminToast === 'function') {
+                window.showAdminToast('✓ Código copiado al portapapeles');
+            } else {
+                alert('✓ Código copiado');
+            }
+        }).catch(() => {
+            contentEl.select();
+            document.execCommand('copy');
+            alert('✓ Código copiado');
+        });
+    };
+
+    window.onLanguageSelectChange = function() {
+        const langSel = document.getElementById('codeLangSelect');
+        const langEl = document.getElementById('platformActiveFileLang');
+        if (langSel && langEl) {
+            langEl.textContent = langSel.value;
+        }
+    };
+
+    window.downloadCurrentModalBundle = function() {
+        if (typeof JSZip === 'undefined') {
+            alert('JSZip no disponible');
+            return;
+        }
+        const zip = new JSZip();
+        (window.currentWorkspaceFiles || []).forEach(f => {
+            zip.file(f.path || f.name, f.content || '');
+        });
+        zip.generateAsync({ type: 'blob' }).then(function(blob) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'platform-code-bundle.zip';
+            link.click();
+        });
+    };
+
+    window.loadWorkspaceFilesForRow = function(row) {
+        if (!row) return;
+        const rowId = row.account_id || row.identifier_code || 'default';
+        let files = row.platform_code_files;
+
+        if (!files || !Array.isArray(files) || files.length === 0) {
+            try {
+                const stored = localStorage.getItem('l8_publication_files_' + rowId);
+                if (stored) files = JSON.parse(stored);
+            } catch(e) {}
+        }
+
+        if (!files || !Array.isArray(files) || files.length === 0) {
+            files = [{
+                name: row.platform_code_name || 'main.py',
+                path: row.platform_code_name || 'main.py',
+                content: row.platform_code || '# Python code for Hashcod platform\nimport hashlib\nimport os\n\ndef init_platform_engine():\n    print("Hashcod platform codespace ready")\n',
+                size: (row.platform_code || '').length || 120
+            }];
+        }
+
+        window.currentWorkspaceFiles = files;
+        window.activeWorkspaceFileIndex = 0;
+        window.switchActiveWorkspaceFile(0);
+    };
+
+    window.savePlatformCodeAttachment = function() {
+        const rows = window.getSharedPublicationRows();
+        const activeIdx = (typeof window._activeModalRowIndex === 'number' && window._activeModalRowIndex >= 0) ? window._activeModalRowIndex : selectedRowIndex;
+        const targetRow = rows[activeIdx] || rows[0];
+
+        if (targetRow && targetRow.impenetrable_seal === true) {
+            alert('🛡️ Esta publicación cuenta con un Sello Impenetrable permanente y no admite más subidas.');
+            closePlatformCodeModal();
+            return;
+        }
+
+        // Asegurar que el contenido activo actual quede sincronizado
+        const contentEl = document.getElementById('platformCodeContent');
+        const currentCode = contentEl ? contentEl.value : '';
+        if (window.currentWorkspaceFiles && window.currentWorkspaceFiles[window.activeWorkspaceFileIndex]) {
+            window.currentWorkspaceFiles[window.activeWorkspaceFileIndex].content = currentCode;
+            window.currentWorkspaceFiles[window.activeWorkspaceFileIndex].size = currentCode.length;
+        }
+
+        // Conteo total de tokens sumando todos los archivos de código
+        let totalTokens = 0;
+        (window.currentWorkspaceFiles || []).forEach(f => {
+            const c = f.content || '';
+            totalTokens += (typeof calculateCodeTokens === 'function') ? calculateCodeTokens(c) : Math.ceil(c.length / 4);
+        });
+
+        const activeFile = (window.currentWorkspaceFiles && window.currentWorkspaceFiles[window.activeWorkspaceFileIndex]) || { name: 'main.py' };
+        const rowId = targetRow.account_id || targetRow.identifier_code || 'default';
+
+        // Guardado seguro y persistente
+        targetRow.platform_code = currentCode;
+        targetRow.platform_code_name = activeFile.name;
+        targetRow.platform_code_lang = detectFileLanguage(activeFile.name);
+        targetRow.platform_code_files = window.currentWorkspaceFiles;
+        targetRow.num_tokens = String(totalTokens);
+        targetRow.cost_per_token = '0.015';
+        targetRow.total_cost_usd = (totalTokens * 0.015).toFixed(2);
+
+        try {
+            localStorage.setItem('l8_publication_files_' + rowId, JSON.stringify(window.currentWorkspaceFiles));
+        } catch(e) {}
+
+        // Fecha de subida: si es primera vez fecha normal, si es arreglo 'A ' + fecha
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+        if (!targetRow.upload_date || targetRow.upload_date === 'Sin subida') {
+            targetRow.upload_date = dateStr;
+            targetRow.revision_count = 1;
+        } else {
+            targetRow.revision_count = (targetRow.revision_count || 1) + 1;
+            targetRow.upload_date = `A ${dateStr}`;
+        }
+
+        window.saveSharedPublicationRows(rows);
+        closePlatformCodeModal();
+
+        if (typeof window.renderAdminTable === 'function') window.renderAdminTable();
+        if (typeof window.renderExcelTable === 'function') window.renderExcelTable();
+
+        if (typeof window.showAdminToast === 'function') {
+            window.showAdminToast(`✓ Código y archivos guardados de forma segura en [${targetRow.account_id || targetRow.identifier_code}]: ${totalTokens.toLocaleString()} tokens ($${targetRow.total_cost_usd} USD)`);
+        } else {
+            alert(`✓ Código y archivos guardados con éxito en [${targetRow.account_id || targetRow.identifier_code}]`);
+        }
+    };
+
+    window.openBlogCodeViewer = function(identifierCode) {
+        const rows = (typeof window.getSharedPublicationRows === 'function') ? window.getSharedPublicationRows() : (window.L8_INITIAL_RECORDS || []);
+        const targetRow = rows.find(r => r.identifier_code === identifierCode || r.account_id === identifierCode) || rows[0];
+        if (!targetRow) return;
+
+        window._activeModalRowIndex = rows.indexOf(targetRow);
+        window.loadWorkspaceFilesForRow(targetRow);
+
+        const modal = document.getElementById('platformCodeModal');
+        if (modal) {
+            modal.classList.add('open');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('z-index', '100040', 'important');
+        }
+    };
+
+    window.openPlatformCodeModal = function() {
+        const rows = window.getSharedPublicationRows();
+        const activeIdx = (typeof selectedRowIndex === 'number' && selectedRowIndex >= 0) ? selectedRowIndex : 0;
+        const targetRow = rows[activeIdx] || rows[0];
+
+        window._activeModalRowIndex = activeIdx;
+        window.loadWorkspaceFilesForRow(targetRow);
+
+        const modal = document.getElementById('platformCodeModal');
+        if (modal) {
+            modal.classList.add('open');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('z-index', '100040', 'important');
+        }
+    };
+
 </script>
 
 

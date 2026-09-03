@@ -23914,6 +23914,7 @@ ${jsonPayload}
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/polyglot-grid.js?v=2026.1"></script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/grpc-client.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-security-monitor.js?v=2026.4"></script>
     <script>
     document.addEventListener('click', function(e) {
@@ -24407,11 +24408,17 @@ let d5Unlocked = false;
                     localStorage.setItem('l8_active_dilithium5_key', newSignature);
                     localStorage.setItem('l8_active_dilithium5_epoch', currentEpoch);
                     
-                    fetch('/api/auth/dilithium-active-key', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ active_key: newSignature, epoch: currentEpoch })
-                    }).catch(() => {});
+                    // Register through SecurityTransportClient (gRPC-Web with automatic REST fallback)
+                    const transportClient = window.securityTransportClient || (window.SecurityTransportClient && new window.SecurityTransportClient());
+                    if (transportClient && typeof transportClient.registerActiveKey === 'function') {
+                        transportClient.registerActiveKey(newSignature, currentEpoch).catch(() => {});
+                    } else {
+                        fetch('/api/auth/dilithium-active-key', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ active_key: newSignature, epoch: currentEpoch })
+                        }).catch(() => {});
+                    }
                 } catch (e) {}
 
                 // Si el campo de registro ya contenía una clave anterior, reemplazarla automáticamente por la recién generada

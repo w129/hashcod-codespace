@@ -1,0 +1,170 @@
+syntax = "proto3";
+
+package hashcod.pqc.v1;
+
+option go_package = "hashcod-codespace/daemon/pb;pb";
+
+// SecurityTelemetryService streams real-time system metrics, threat intelligence,
+// and cryptographic state to frontend clients and peer services.
+service SecurityTelemetryService {
+  // StreamSecurityTelemetry streams live telemetry updates in real-time.
+  rpc StreamSecurityTelemetry(TelemetrySubscription) returns (stream SecurityTelemetryChunk);
+
+  // GetSecurityStatus returns a point-in-time snapshot of the platform security posture.
+  rpc GetSecurityStatus(SecurityStatusRequest) returns (SecurityStatusResponse);
+
+  // ReportSecurityEvent records a detected threat or honeypot hit.
+  rpc ReportSecurityEvent(SecurityEventRequest) returns (SecurityEventResponse);
+}
+
+// DilithiumService provides high-performance Post-Quantum Cryptography (PQC)
+// signature verification and active epoch management based on CRYSTALS-Dilithium Level 5
+// (NIST FIPS 204 ML-DSA-87).
+service DilithiumService {
+  // VerifySignature verifies a Dilithium-5 / ML-DSA-87 signature timing-safely
+  // against the currently active epoch key, enforcing the single-active-key invariant.
+  rpc VerifySignature(VerifyRequest) returns (VerifyResponse);
+
+  // RegisterActiveKey registers a newly generated Dilithium-5 key, immediately invalidating
+  // and revoking all prior keys, updating the active epoch timestamp and synchronizing state.
+  rpc RegisterActiveKey(RegisterKeyRequest) returns (RegisterKeyResponse);
+
+  // GetActiveKeyStatus returns metadata of the current active Dilithium-5 key.
+  rpc GetActiveKeyStatus(KeyStatusRequest) returns (KeyStatusResponse);
+
+  // DeriveKeySeed derives a 64-byte quantum-hardened lattice seed using RFC 8937 HKDF extraction.
+  rpc DeriveKeySeed(SeedRequest) returns (SeedResponse);
+}
+
+// TelemetrySubscription initiates a live streaming session.
+message TelemetrySubscription {
+  string client_id = 1;
+  bool include_raw_logs = 2;
+  int32 heartbeat_seconds = 3;
+}
+
+// SecurityTelemetryChunk represents a single real-time telemetry frame.
+message SecurityTelemetryChunk {
+  int32 health_score = 1;
+  int32 cves_scanned = 2;
+  int32 cves_detected = 3;
+  int32 threats_blocked = 4;
+  int32 honeypot_hits = 5;
+  int32 entropy_pool_bytes = 6;
+  string quantum_status = 7;
+  string atomic_time_status = 8;
+  string circuit_breaker_state = 9;
+  double last_edge_timestamp = 10;
+  int64 timestamp_unix_ms = 11;
+  string message = 12;
+  string active_key_hash = 13;
+}
+
+// SecurityStatusRequest requests an instantaneous snapshot of platform security metrics.
+message SecurityStatusRequest {
+  string requester_id = 1;
+}
+
+// SecurityStatusResponse contains a snapshot of platform security metrics.
+message SecurityStatusResponse {
+  int32 health_score = 1;
+  int32 cves_scanned = 2;
+  int32 cves_detected = 3;
+  int32 threats_blocked = 4;
+  int32 honeypot_hits = 5;
+  int32 entropy_pool_bytes = 6;
+  string quantum_status = 7;
+  string atomic_time_status = 8;
+  string circuit_breaker_state = 9;
+  double last_edge_timestamp = 10;
+  string active_key_hash = 11;
+  int64 timestamp_unix_ms = 12;
+  string daemon_version = 13;
+}
+
+// SecurityEventRequest records a blocked threat or security anomaly.
+message SecurityEventRequest {
+  string event_type = 1;
+  string source_ip = 2;
+  string severity = 3;
+  string description = 4;
+}
+
+// SecurityEventResponse confirms registration of the security event.
+message SecurityEventResponse {
+  bool recorded = 1;
+  string event_id = 2;
+  int32 threats_blocked_total = 3;
+}
+
+// VerifyRequest submits a Dilithium-5 signature or key for verification.
+message VerifyRequest {
+  string key_or_signature = 1;
+  bytes raw_signature = 2;
+  bytes message = 3;
+  bytes public_key = 4;
+  string context = 5;
+  bool enforce_active_epoch = 6;
+}
+
+// VerifyResponse returns the outcome of Dilithium-5 verification.
+message VerifyResponse {
+  bool valid = 1;
+  string verification_type = 2;
+  double epoch = 3;
+  string key_hash_sha256 = 4;
+  string error_message = 5;
+  int64 verified_at_unix_ms = 6;
+  bool is_revoked = 7;
+}
+
+// RegisterKeyRequest registers a newly generated Dilithium-5 key.
+message RegisterKeyRequest {
+  string active_key = 1;
+  bytes raw_key = 2;
+  double epoch = 3;
+  int64 timestamp = 4;
+  string operator_identity = 5;
+}
+
+// RegisterKeyResponse returns the status of active key registration.
+message RegisterKeyResponse {
+  bool ok = 1;
+  double epoch = 2;
+  string key_hash_sha256 = 3;
+  int64 revoked_prior_keys_count = 4;
+  string status_message = 5;
+}
+
+// KeyStatusRequest queries the current active key metadata.
+message KeyStatusRequest {
+  string requester_id = 1;
+}
+
+// KeyStatusResponse contains the active key metadata and revocation statistics.
+message KeyStatusResponse {
+  bool has_active_key = 1;
+  string active_key_hash = 2;
+  double epoch = 3;
+  int64 registered_at_unix = 4;
+  bool revoked_previous = 5;
+  string algorithm = 6;
+  int64 revoked_keys_count = 7;
+}
+
+// SeedRequest requests a derived quantum-hardened seed.
+message SeedRequest {
+  string context = 1;
+  int32 seed_bytes = 2;
+  bool require_true_quantum = 3;
+}
+
+// SeedResponse returns the derived seed and entropy pool metrics.
+message SeedResponse {
+  bool ok = 1;
+  string seed_hex = 2;
+  bytes seed_bytes = 3;
+  double quantum_ratio = 4;
+  repeated string entropy_sources = 5;
+  int64 harvested_at_unix = 6;
+}

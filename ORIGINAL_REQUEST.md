@@ -81,3 +81,48 @@ Implement platform hardening layers:
 - [ ] Quantum entropy is dynamically incorporated into Dilithium-5 key generation and session nonce rotation.
 - [ ] Circuit-breaker guarantees 100% platform uptime even under external network outages.
 - [ ] 0 syntax errors, 100% HTML tag balance maintained, and all existing test suites pass cleanly.
+
+## 2026-09-03T02:36:33Z
+
+Implement high-performance gRPC communication and binary Protobuf streaming in Hashcod Codespace to accelerate platform access, achieve sub-millisecond security telemetry, optimize Dilithium-5 signature verification, and deploy the verified implementation to GitHub main.
+
+Working directory: `C:\Users\morap\.gemini\antigravity\scratch\hashcod-codespace` (synchronized with `D:\laragon\www\l8`)
+Integrity mode: development
+
+## Requirements
+
+### R1. Protocol Buffers Definitions & High-Performance Go gRPC Daemon
+Define structured Protocol Buffers (`.proto`) specifications and build a lightweight, ultra-fast Go gRPC service:
+- Define RPC services for real-time Platform Security Telemetry streaming and Dilithium-5 Post-Quantum Signature Verification.
+- Enforce the platform's invariant: only the currently active generated Dilithium-5 key can be validated, rejecting all previous or revoked keys.
+
+### R2. Browser gRPC-Web & Multiplexed Gateway Layer
+Implement an integrated gRPC-Web / HTTP/2 transport gateway:
+- Allow modern web browsers to communicate directly with gRPC services without requiring raw socket support.
+- Support bidirectional and server-streaming for live telemetry with binary packing.
+
+### R3. Codespace Frontend Integration with Resilient Fallback
+Integrate the gRPC client into the Codespace frontend (`components/codespace-security-monitor.js` and Dilithium-5 tool):
+- The Security Monitor and Dilithium verification should prioritize high-speed gRPC streaming.
+- Implement an automatic, seamless fallback to existing HTTP/PHP REST endpoints if the gRPC daemon is not running, ensuring 100% platform uptime.
+
+### R4. Automated Verification Suite & Latency Benchmarks
+Develop an end-to-end automated verification script:
+- Benchmark Protobuf vs JSON latency, memory overhead, and throughput.
+- Validate end-to-end gRPC RPC calls under concurrency and verify Dilithium-5 key revocation invariance.
+
+### R5. Complete Workspace Synchronization & GitHub Deployment
+- Synchronize all changes and artifacts across both `C:\Users\morap\.gemini\antigravity\scratch\hashcod-codespace` and Laragon's `D:\laragon\www\l8`.
+- Commit and push all verified changes to GitHub `main` ensuring clean build status on GitHub Pages.
+
+## Acceptance Criteria
+
+### Performance & Latency
+- [ ] Protobuf `.proto` schemas compile and validate type-safe payloads for Security Telemetry and Dilithium-5 verification.
+- [ ] Go gRPC service and gateway compile and execute cleanly on Windows.
+- [ ] End-to-end RPC calls execute with sub-millisecond serialization and measurably lower latency than REST.
+- [ ] Browser Security Monitor connects and receives live telemetry via gRPC.
+- [ ] Single active Dilithium-5 key rule is enforced through gRPC with instant revocation of previous keys.
+- [ ] 100% resilient fallback: platform continues running without error if gRPC daemon is offline.
+- [ ] Automated test suite verifies all RPC endpoints with 100% clean passes.
+- [ ] Changes synchronized cleanly across both workspaces (`hashcod-codespace` and `D:\laragon\www\l8`) and deployed to GitHub `main`.

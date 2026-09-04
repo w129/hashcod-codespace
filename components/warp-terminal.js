@@ -244,7 +244,11 @@
             try {
                 const res = await fetch(l8ApiUrl('api/bash/exec'), {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-L8-CSRF': '1'
+                    },
                     body: JSON.stringify({ command: cmd })
                 });
                 const data = await res.json();
@@ -398,7 +402,11 @@
             try {
                 const res = await fetch(l8ApiUrl('api/bash/exec'), {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-L8-CSRF': '1'
+                    },
                     body: JSON.stringify({ command: command, cwd: curTab.cwd })
                 });
                 const data = await res.json();

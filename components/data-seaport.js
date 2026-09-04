@@ -132,11 +132,20 @@
         },
 
         handleCommand: async function (cmdLine) {
-            const raw = (cmdLine || '').trim();
+            let raw = (cmdLine || '').trim();
             if (!raw) return null;
+
+            // Limpiar indicadores de prompt si el usuario los escribió (ej: "$ port map" o "> port status")
+            raw = raw.replace(/^[\$>\#]\s*/, '').trim();
+            if (!raw) return null;
+
             const parts = raw.split(/\s+/);
             const root = parts[0].toLowerCase();
             const sub = (parts[1] || '').toLowerCase();
+
+            if (root === 'help' || root === 'ayuda') {
+                return this.cmdHelp();
+            }
 
             if (root === 'port' || root === 'puerto') {
                 if (!sub || sub === 'status' || sub === 'estado') {

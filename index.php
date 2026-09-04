@@ -25011,9 +25011,10 @@ if (!headers_sent()) {
                         timezone: timezone,
                         timezoneOffset: tzOffsetStr,
                         priceUsd: '60.27',
-                        currency: 'USD',
-                        service: 'Hashcod Codespace Pro + Hosting PQC + Certificación Determinista IA',
-                        plan: 'Suscripción Mensual (Monthly Subscription)',
+                        priceBtc: '0.00015',
+                        currency: 'BTC / USD',
+                        service: 'Hashcod Codespace Pro: Certificación y Tokenización de Código IA + Hosting PQC',
+                        plan: 'Free for trial / then 0.00015 BTC / mes',
                         issuer: 'DIKTATCART',
                         rnc: '40209369293',
                         onapi: '#336973',
@@ -25023,7 +25024,7 @@ if (!headers_sent()) {
                         privacyAccepted: true,
                         deterministicModelAccepted: true,
                         monthlyTermsAccepted: true,
-                        paymentCoordinationMethod: 'WhatsApp (829-472-1257) - Transferencia / Depósito Bancario',
+                        paymentCoordinationMethod: 'Comuníquese al 829-472-1257 para pagar y recibir su Dilithium-5 (0.00015 BTC / mes)',
                         quantumAlgorithm: 'ML-DSA-87 / Dilithium-5 (NIST FIPS 204)',
                         status: 'SOLICITUD_COORDINACION_PAGO_Y_LLAVE_DILITHIUM5'
                     };
@@ -25045,7 +25046,9 @@ if (!headers_sent()) {
                     plan: s.plan,
                     price_usd: 60.27,
                     currency: "USD",
-                    payment_mode: "COORDINACION_DIRECTA_TRANSFERENCIA_WHATSAPP",
+                    subscription_terms: "Free for trial / then 0.00015 BTC / mes",
+                    price_btc: "0.00015 BTC / mes",
+                    payment_mode: "COORDINACION_DIRECTA_WHATSAPP_8294721257",
                     settlement_status: "PENDIENTE_COORDINACION_NO_PREPAGADO",
                     issuer: s.issuer,
                     rnc: s.rnc,
@@ -25069,6 +25072,7 @@ if (!headers_sent()) {
                         privacy_policy: true,
                         deterministic_ai_certification: true,
                         monthly_subscription_terms: true,
+                        monthly_amount_btc: "0.00015 BTC / mes",
                         monthly_amount_usd: 60.27,
                         dilithium5_key_issuance_requested: true
                     },
@@ -25092,9 +25096,9 @@ if (!headers_sent()) {
 *│* *Día de la Semana:* *${s.dayOfWeek || "Sábado"}*
 *│* *Zona Horaria:* \`${s.timezone || "America/Santo_Domingo"} (${s.timezoneOffset || "UTC-04:00"})\`
 *│* *Servicio:* ${s.service}
-*│* *Monto Suscripción:* *US$ 60.27 / mes* (~US$ 90.00~ tarifa regular)
-*│* *Modalidad:* Coordinación y Liquidación Directa vía WhatsApp (No prepagado)
-*│* *Estado:* *ACEPTACIÓN CONFIRMADA · SOLICITUD DE COORDENADAS DE PAGO*
+*│* *Monto Suscripción:* *Free for trial / then 0.00015 BTC / mes* (~US$ 60.27 / mes · ref ~US$ 90.00~ tarifa regular)
+*│* *Modalidad:* Comuníquese al 829-472-1257 para pagar y recibir su Dilithium-5 (Coordinación Directa vía WhatsApp)
+*│* *Estado:* *ACEPTACIÓN CONFIRMADA · SOLICITUD DE CLAVE DILITHIUM-5 Y COORDINACIÓN DE PAGO (0.00015 BTC)*
 *└──*
 
 *🏛️ Validación Legal y Credenciales Gubernamentales (República Dominicana):*
@@ -25119,7 +25123,7 @@ ${jsonPayload}
 \`\`\`
 
 > 💬 *Mensaje del Cliente:*
-> _"Hola, confirmo que he leído y aceptado la Política de Privacidad, el Modelo de Certificación Determinista de IA y los Términos de Suscripción Mensual (US$ 60.27) de Hashcod Codespace. Solicito las coordenadas bancarias para coordinar mi pago y recibir la correspondiente clave Dilithium-5 de acceso."_`;
+> _"Hola, confirmo que he leído y aceptado la Política de Privacidad, los Términos de Suscripción (Free for trial / then 0.00015 BTC / mes · ref US$ 60.27) y el Modelo de Certificación de Hashcod Codespace. Me comunico al 829-472-1257 para realizar el proceso de pago y recibir mi correspondiente clave Dilithium-5 de acceso."_`;
 
                 return msg;
             };
@@ -25361,10 +25365,10 @@ ${jsonPayload}
 
                     ctx.fillStyle = '#e2e8f0';
                     ctx.font = '13.5px "IBM Plex Sans", -apple-system, sans-serif';
-                    ctx.fillText('• Servicio: Codespace Pro + Hosting Post-Cuántico + Certificación Determinista IA', 90, 186);
-                    ctx.fillText('• Plan: Suscripción Mensual (Acceso Ilimitado y Registro de Creaciones)', 90, 212);
-                    ctx.fillText('• Monto Mensual Acordado: US$ 60.27 / mes (Tarifa regular ~US$ 90.00~)', 90, 238);
-                    ctx.fillText('• Modalidad de Pago: Coordinación Directa vía WhatsApp (Transferencia / Depósito Bancario)', 90, 264);
+                    ctx.fillText('• Servicio: Codespace Pro: Certificación y Tokenización de Código IA + Hosting PQC', 90, 186);
+                    ctx.fillText('• Plan: Free for trial / then 0.00015 BTC / mes (Acceso Ilimitado y Tokenización)', 90, 212);
+                    ctx.fillText('• Monto Mensual Acordado: Free for trial / then 0.00015 BTC / mes (Ref US$ 60.27 / mes ~US$ 90.00~)', 90, 238);
+                    ctx.fillText('• Modalidad de Pago: Comuníquese al 829-472-1257 para pagar y recibir su Dilithium-5', 90, 264);
                     ctx.fillText('• Contacto Oficial WhatsApp: +1 (829) 472-1257', 90, 290);
 
                     // Official Credentials Box

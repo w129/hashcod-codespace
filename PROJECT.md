@@ -68,3 +68,19 @@ This project upgrades the authentication model from a static passcode (`36276217
 - `scripts/verify_tag_balance.js`: Verifies `openDiv === closeDiv` (`Diff: 0`).
 - `tests/e2e/test_dilithium_key_rotation_tdd.js`: Dedicated TDD unit and E2E test suite.
 - `tests/e2e/run_all_verifications.js`: Master verification runner.
+
+## Security & Hardening API Contracts
+The platform implements resilient Public APIs and contracts:
+- 	hreatIntelCheckIp: Threat reputation, Tor exit node, and bot IP check.
+- ulnerabilityAuditManifest: Scans dependency manifests (npm/pip) against OSV and CVE feeds.
+- quantumHarvestEntropy: Gathers quantum entropy from ANU and NIST Beacon for Dilithium-5 key generation and session nonces.
+- tomicTimeGetDeterministicTimestamp: Deterministic timestamping for immutable deployment certificates.
+- circuitBreakerExecute: Fault-tolerant circuit breaker proxy with SWR caching.
+
+## Security & Hardening API Contracts
+The platform implements resilient Public APIs and contracts:
+- `threatIntelCheckIp`: Threat reputation, Tor exit node, and bot IP check.
+- `vulnerabilityAuditManifest`: Scans dependency manifests (npm/pip) against OSV and CVE feeds.
+- `quantumHarvestEntropy`: Gathers quantum entropy from ANU and NIST Beacon for Dilithium-5 key generation and session nonces.
+- `atomicTimeGetDeterministicTimestamp`: Deterministic timestamping for immutable deployment certificates.
+- `circuitBreakerExecute`: Fault-tolerant circuit breaker proxy with SWR caching.

@@ -9622,6 +9622,7 @@ if (!headers_sent()) {
         }
 
         /* AUTH CHECKOUT CARD & WHATSAPP VOUCHER (DARK TERMINAL & VECTOR AESTHETIC) */
+        .auth-checkout-box::before { content: ''; display: none; }
         .auth-checkout-box {
             margin-top: 14px;
             padding: 16px 18px;
@@ -25487,11 +25488,54 @@ ${jsonPayload}
                 }
 
                 const dil = (document.getElementById('authDilithiumInput')?.value || '').trim();
-                const activeGeneratedKey = (window.ACTIVE_DILITHIUM5_GENERATED_KEY || sessionStorage.getItem('l8_active_dilithium5_key') || '').trim();
-                
-                // REGLA INVIOLABLE: Solo la clave Dilithium-5 generada actualmente es válida para crear credenciales
-                if (activeGeneratedKey && dil !== activeGeneratedKey) {
-                    setMsg('Error: Esta clave Dilithium-5 ha sido revocada o es anterior. Solo se permite usar la última clave generada en el generador.');
+                const activePlatformKey = (typeof window.getActivePlatformDilithiumKey === 'function')
+                    ? window.getActivePlatformDilithiumKey()
+                    : (window.ACTIVE_DILITHIUM5_GENERATED_KEY || sessionStorage.getItem('l8_active_dilithium5_key') || '').trim();
+                const consumedKeys = (typeof window.getConsumedDilithiumKeys === 'function')
+                    ? window.getConsumedDilithiumKeys()
+                    : [];
+
+                if (!dil) {
+                    setMsg('Introduce la Dilithium-5 de registro del mes.');
+                    return;
+                }
+
+                // REGLA INVIOLABLE: Clave consumida queda eliminada e invalidada (un solo uso)
+                if (consumedKeys.includes(dil) || (typeof window.isDilithiumKeyConsumed === 'function' && window.isDilithiumKeyConsumed(dil))) {
+                    setMsg('Error: Esta clave Dilithium-5 ya ha sido utilizada y consumida (un solo uso). Solo se permite usar la nueva clave activa generada en la herramienta ("la que toca").');
+                    const dInput = document.getElementById('authDilithiumInput');
+                    if (dInput) {
+                        dInput.style.borderColor = '#ef4444';
+                        dInput.focus();
+                    }
+                    return;
+                }
+
+                // REGLA INVIOLABLE: Solo la clave Dilithium-5 generada actualmente ("la que toca") es válida para crear credenciales
+                if (activePlatformKey && dil !== activePlatformKey) {
+                    setMsg('Error: Esta clave Dilithium-5 ha sido revocada o es anterior. Solo se permite usar la última clave activa generada en el generador ("la que toca").');
+                    const dInput = document.getElementById('authDilithiumInput');
+                    if (dInput) {
+                        dInput.style.borderColor = '#ef4444';
+                        dInput.focus();
+                    }
+                    return;
+                }
+
+                // REGLA INVIOLABLE: Clave consumida queda eliminada e invalidada (un solo uso)
+                if (consumedKeys.includes(dil) || (typeof window.isDilithiumKeyConsumed === 'function' && window.isDilithiumKeyConsumed(dil))) {
+                    setMsg('Error: Esta clave Dilithium-5 ya ha sido utilizada y consumida (un solo uso). Solo se permite usar la nueva clave activa generada en la herramienta ("la que toca").');
+                    const dInput = document.getElementById('authDilithiumInput');
+                    if (dInput) {
+                        dInput.style.borderColor = '#ef4444';
+                        dInput.focus();
+                    }
+                    return;
+                }
+
+                // REGLA INVIOLABLE: Solo la clave Dilithium-5 generada actualmente ("la que toca") es válida para crear credenciales
+                if (activePlatformKey && dil !== activePlatformKey) {
+                    setMsg('Error: Esta clave Dilithium-5 ha sido revocada o es anterior. Solo se permite usar la última clave activa generada en el generador ("la que toca").');
                     const dInput = document.getElementById('authDilithiumInput');
                     if (dInput) {
                         dInput.style.borderColor = '#ef4444';
@@ -25528,7 +25572,11 @@ ${jsonPayload}
                     if (document.getElementById('authDilithiumInput')) {
                         document.getElementById('authDilithiumInput').value = '';
                     }
-                    setMsg(formatPersistMsg(data, data.warning || 'Cuenta creada. Guarda el kit completo.'), true);
+                    // ROTACIÓN AUTOMÁTICA: Eliminar clave usada y generar la nueva válida
+                    if (typeof window.consumeAndRotateDilithiumKey === 'function') {
+                        window.consumeAndRotateDilithiumKey(dil);
+                    }
+                    setMsg(formatPersistMsg(data, data.warning || 'Cuenta creada. Clave Dilithium-5 consumida e invalidada ✓'), true);
                 } catch (e) {
                     resetTurnstile('cfTurnstileRegister');
                     setMsg('Error de red al registrar.');
@@ -26155,14 +26203,72 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
             const D5_BASE_SIGNATURE = "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";
 
             let generationCount = 1;
-            let currentActiveSignature = D5_BASE_SIGNATURE;
             const Q_MODULUS = 8380417n;
 
             let d5Unlocked = false;
             const DEFAULT_INITIAL_D5_GATE_CODE = '36276217';
+            const STORAGE_D5_ACTIVE_PLATFORM_KEY = 'l8_active_dilithium5_key';
+            const STORAGE_D5_CONSUMED_PLATFORM_KEYS = 'l8_consumed_dilithium5_keys';
             const STORAGE_D5_ACTIVE_KEY = 'l8_active_d5_gate_passcode';
             const STORAGE_D5_CONSUMED_KEYS = 'l8_consumed_d5_gate_passcodes';
 
+            let currentActiveSignature = D5_BASE_SIGNATURE;
+            try {
+                const stored = localStorage.getItem(STORAGE_D5_ACTIVE_PLATFORM_KEY) || sessionStorage.getItem(STORAGE_D5_ACTIVE_PLATFORM_KEY);
+                if (stored && typeof stored === 'string' && stored.trim().length > 20) {
+                    currentActiveSignature = stored.trim();
+                }
+            } catch (e) {}
+
+            function getActivePlatformDilithiumKey() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_D5_ACTIVE_PLATFORM_KEY) || sessionStorage.getItem(STORAGE_D5_ACTIVE_PLATFORM_KEY);
+                    if (stored && typeof stored === 'string' && stored.trim().length > 20) {
+                        return stored.trim();
+                    }
+                } catch (e) {}
+                if (window.ACTIVE_DILITHIUM5_GENERATED_KEY && typeof window.ACTIVE_DILITHIUM5_GENERATED_KEY === 'string' && window.ACTIVE_DILITHIUM5_GENERATED_KEY.trim().length > 20) {
+                    return window.ACTIVE_DILITHIUM5_GENERATED_KEY.trim();
+                }
+                return currentActiveSignature || D5_BASE_SIGNATURE;
+            }
+            window.getActivePlatformDilithiumKey = getActivePlatformDilithiumKey;
+
+            function getConsumedDilithiumKeys() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_D5_CONSUMED_PLATFORM_KEYS) || sessionStorage.getItem(STORAGE_D5_CONSUMED_PLATFORM_KEYS);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) return parsed;
+                    }
+                } catch (e) {}
+                return [];
+            }
+            window.getConsumedDilithiumKeys = getConsumedDilithiumKeys;
+
+            function markDilithiumKeyConsumed(key) {
+                const clean = (key || '').trim();
+                if (!clean) return;
+                const list = getConsumedDilithiumKeys();
+                if (!list.includes(clean)) {
+                    list.push(clean);
+                }
+                try {
+                    localStorage.setItem(STORAGE_D5_CONSUMED_PLATFORM_KEYS, JSON.stringify(list));
+                    sessionStorage.setItem(STORAGE_D5_CONSUMED_PLATFORM_KEYS, JSON.stringify(list));
+                } catch (e) {}
+                return list;
+            }
+            window.markDilithiumKeyConsumed = markDilithiumKeyConsumed;
+
+            function isDilithiumKeyConsumed(key) {
+                const clean = (key || '').trim();
+                if (!clean) return false;
+                return getConsumedDilithiumKeys().includes(clean);
+            }
+            window.isDilithiumKeyConsumed = isDilithiumKeyConsumed;
+
+            // Backward compatibility gate passcode helpers
             function getActiveDilithiumGatePasscode() {
                 try {
                     const stored = localStorage.getItem(STORAGE_D5_ACTIVE_KEY);
@@ -26196,6 +26302,7 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 } catch (e) {}
                 return list;
             }
+            window.markDilithiumGatePasscodeConsumed = markDilithiumGatePasscodeConsumed;
 
             function deriveNextActiveGatePasscode(prevCode) {
                 const consumed = getConsumedDilithiumGatePasscodes();
@@ -26208,16 +26315,34 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 return String(10000000n + combined);
             }
 
-            function updateActiveDilithiumPasscodeUI(passcode) {
-                const activeCode = passcode || getActiveDilithiumGatePasscode();
+            function updateActiveDilithiumPasscodeUI(sigOrCode) {
+                let active = sigOrCode;
+                if (!active) {
+                    try {
+                        const storedGate = localStorage.getItem(STORAGE_D5_ACTIVE_KEY);
+                        if (storedGate) {
+                            active = storedGate;
+                        } else {
+                            active = getActivePlatformDilithiumKey() || getActiveDilithiumGatePasscode();
+                        }
+                    } catch (e) {
+                        active = getActivePlatformDilithiumKey() || getActiveDilithiumGatePasscode();
+                    }
+                }
                 const displayEl = document.getElementById('d5NextActivePasscodeVal');
                 if (displayEl) {
-                    displayEl.value = activeCode;
+                    displayEl.value = active;
                 }
                 const badgeEl = document.getElementById('d5PasscodeConsumedBadge');
                 if (badgeEl) {
                     badgeEl.style.display = 'inline-flex';
-                    badgeEl.textContent = 'Clave anterior consumida e invalidada ✓';
+                    const consumedGate = getConsumedDilithiumGatePasscodes();
+                    const consumedPlat = getConsumedDilithiumKeys();
+                    if (consumedGate.length > 0 || consumedPlat.length > 0) {
+                        badgeEl.textContent = 'Clave anterior consumida e invalidada ✓';
+                    } else {
+                        badgeEl.textContent = 'Clave Dilithium-5 Activa ✓ (Un solo uso)';
+                    }
                 }
             }
             window.updateActiveDilithiumPasscodeUI = updateActiveDilithiumPasscodeUI;
@@ -26236,7 +26361,8 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
             }
 
             window.copyActiveDilithiumGatePasscode = function () {
-                const activeCode = getActiveDilithiumGatePasscode();
+                const displayEl = document.getElementById('d5NextActivePasscodeVal');
+                const activeCode = (displayEl && displayEl.value) ? displayEl.value : (getActivePlatformDilithiumKey() || getActiveDilithiumGatePasscode());
                 if (navigator && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
                     try {
                         navigator.clipboard.writeText(activeCode);
@@ -26247,38 +26373,52 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                     fallbackCopyPasscode(activeCode);
                 }
                 if (typeof window.showAdminToast === 'function') {
-                    window.showAdminToast('✓ Clave activa Dilithium-5 copiada al portapapeles: ' + activeCode);
+                    window.showAdminToast('✓ Clave activa copiada al portapapeles: ' + (activeCode.length > 32 ? activeCode.substring(0, 24) + '...' : activeCode));
                 }
             };
             window.copyNextActiveDilithiumPasscode = window.copyActiveDilithiumGatePasscode;
+            window.copyDilithiumResultSignature = window.copyActiveDilithiumGatePasscode;
+
+            window.applyGeneratedKeyToRegistration = function () {
+                const activeKey = getActivePlatformDilithiumKey();
+                const regInput = document.getElementById('authDilithiumInput');
+                if (regInput) {
+                    regInput.value = activeKey;
+                    regInput.style.borderColor = '#2BBFB3';
+                    regInput.style.boxShadow = '0 0 14px rgba(43, 191, 179, 0.45)';
+                    setTimeout(() => {
+                        regInput.style.boxShadow = '';
+                    }, 2500);
+                }
+                const regTab = document.getElementById('authTabRegister');
+                if (regTab && typeof regTab.click === 'function') {
+                    regTab.click();
+                }
+                window.closeDilithiumGeneratorModal();
+                if (regInput) {
+                    setTimeout(() => {
+                        regInput.focus();
+                        if (typeof regInput.scrollIntoView === 'function') {
+                            regInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100);
+                }
+                if (typeof window.showAdminToast === 'function') {
+                    window.showAdminToast('✓ Clave Dilithium-5 colocada en el campo de registro de la plataforma.');
+                }
+            };
 
             if (typeof window.addEventListener === 'function') {
                 window.addEventListener('storage', function(e) {
-                    if (e.key === STORAGE_D5_ACTIVE_KEY && e.newValue) {
+                    if ((e.key === STORAGE_D5_ACTIVE_PLATFORM_KEY || e.key === STORAGE_D5_ACTIVE_KEY) && e.newValue) {
                         updateActiveDilithiumPasscodeUI(e.newValue);
                     }
                 });
             }
 
             window.openDilithiumSecurityGate = function () {
-                if (d5Unlocked) {
-                    openDilithiumGeneratorModalInternal();
-                    return;
-                }
-                const gate = document.getElementById('dilithiumGateModal');
-                const input = document.getElementById('d5GatePasscodeInput');
-                const errMsg = document.getElementById('d5GateErrorMsg');
-                if (errMsg) errMsg.style.display = 'none';
-                if (input) {
-                    input.value = '';
-                    input.style.borderColor = '#2BBFB3';
-                }
-                if (gate) {
-                    gate.classList.add('open');
-                    gate.style.display = 'flex';
-                    gate.style.zIndex = '9999999';
-                    setTimeout(() => input && input.focus(), 60);
-                }
+                d5Unlocked = true;
+                openDilithiumGeneratorModalInternal();
             };
 
             window.closeDilithiumGateModal = function () {
@@ -26333,7 +26473,6 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                     return;
                 }
 
-                // Match: consume the key immediately
                 markDilithiumGatePasscodeConsumed(val);
                 const nextPasscode = deriveNextActiveGatePasscode(val);
 
@@ -26343,7 +26482,6 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 } catch (e) {}
 
                 d5Unlocked = true;
-
                 updateActiveDilithiumPasscodeUI(nextPasscode);
 
                 if (errMsg) errMsg.style.display = 'none';
@@ -26378,7 +26516,7 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 }
                 if (badgeEl) badgeEl.textContent = `${generationCount}x`;
                 if (resEl && !resEl.value) {
-                    resEl.value = currentActiveSignature;
+                    resEl.value = getActivePlatformDilithiumKey();
                 }
                 updateActiveDilithiumPasscodeUI();
                 if (modal) {
@@ -26400,30 +26538,24 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
 
             function evaluateRecurrenceScalar(iteration) {
                 const b = BigInt(iteration);
-                // Equation: 7*b^3 + 3*b^2 - b + 1
                 const val = 7n * (b ** 3n) + 3n * (b ** 2n) - b + 1n;
                 return val;
             }
 
             function transformDilithiumLatticeSignature(baseBase64, scalarBigInt) {
                 try {
-                    // 1. Decode Base64 to binary buffer
                     const binStr = atob(baseBase64.replace(/\s+/g, ''));
                     const bytes = new Uint8Array(binStr.length);
                     for (let i = 0; i < binStr.length; i++) {
                         bytes[i] = binStr.charCodeAt(i);
                     }
 
-                    // 2. Ring coefficient multiplication modulo q = 8380417
-                    // Dilithium-5 polynomials have 256 coefficients per polynomial.
-                    // We extract 24-bit / 32-bit polynomial coefficient chunks and multiply by scalar mod Q
                     const modScalar = ((scalarBigInt % Q_MODULUS) + Q_MODULUS) % Q_MODULUS;
                     const scalarNum = Number(modScalar);
 
                     const outBytes = new Uint8Array(bytes.length);
                     outBytes.set(bytes);
 
-                    // Multiplicative ring scramble over the z-vector response polynomial payload
                     for (let i = 32; i < outBytes.length - 80; i += 3) {
                         let coeff = (outBytes[i] | (outBytes[i+1] << 8) | (outBytes[i+2] << 16)) >>> 0;
                         let newCoeff = Number((BigInt(coeff) * BigInt(scalarNum) + BigInt(i * 7 + 1)) % Q_MODULUS);
@@ -26432,7 +26564,6 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                         outBytes[i+2] = (newCoeff >>> 16) & 0xFF;
                     }
 
-                    // 3. Re-encode to Base64
                     let binary = '';
                     const len = outBytes.byteLength;
                     for (let i = 0; i < len; i++) {
@@ -26441,10 +26572,52 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                     return btoa(binary);
                 } catch (e) {
                     console.error('Error transforming Dilithium-5 lattice signature:', e);
-                    // Deterministic fallback
                     return baseBase64;
                 }
             }
+
+            window.consumeAndRotateDilithiumKey = function (usedKey) {
+                markDilithiumKeyConsumed(usedKey);
+                generationCount++;
+                const nextRecurrence = evaluateRecurrenceScalar(generationCount);
+                const newSignature = transformDilithiumLatticeSignature(D5_BASE_SIGNATURE, nextRecurrence);
+                currentActiveSignature = newSignature;
+                window.ACTIVE_DILITHIUM5_GENERATED_KEY = newSignature;
+                const currentEpoch = Date.now();
+                window.ACTIVE_DILITHIUM5_EPOCH = currentEpoch;
+                try {
+                    localStorage.setItem(STORAGE_D5_ACTIVE_PLATFORM_KEY, newSignature);
+                    sessionStorage.setItem(STORAGE_D5_ACTIVE_PLATFORM_KEY, newSignature);
+                    localStorage.setItem('l8_active_dilithium5_epoch', currentEpoch);
+                    sessionStorage.setItem('l8_active_dilithium5_epoch', currentEpoch);
+                } catch (e) {}
+
+                updateActiveDilithiumPasscodeUI(newSignature);
+                const resEl = document.getElementById('d5GenResultSig');
+                if (resEl) resEl.value = newSignature;
+                const badgeEl = document.getElementById('d5GenIterationBadge');
+                if (badgeEl) badgeEl.textContent = `${generationCount}x`;
+                const scalarInput = document.getElementById('d5GenScalarInput');
+                if (scalarInput) scalarInput.value = nextRecurrence.toString();
+
+                try {
+                    const transportClient = window.securityTransportClient || (window.SecurityTransportClient && new window.SecurityTransportClient());
+                    if (transportClient && typeof transportClient.registerActiveKey === 'function') {
+                        transportClient.registerActiveKey(newSignature, currentEpoch).catch(() => {});
+                    } else {
+                        fetch('/api/auth/dilithium-active-key', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ active_key: newSignature, epoch: currentEpoch, consumed_key: usedKey })
+                        }).catch(() => {});
+                    }
+                } catch (e) {}
+
+                if (typeof window.showAdminToast === 'function') {
+                    window.showAdminToast(`✓ Clave anterior consumida. Nueva clave Dilithium-5 generada (${generationCount}x) como la única válida.`);
+                }
+                return newSignature;
+            };
 
             window.executeDilithiumMultiplication = function () {
                 const origSigEl = document.getElementById('d5GenOriginalSig');
@@ -26456,6 +26629,11 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
 
                 const baseSig = (origSigEl?.value || D5_BASE_SIGNATURE).trim();
                 
+                const prevKey = getActivePlatformDilithiumKey();
+                if (prevKey) {
+                    markDilithiumKeyConsumed(prevKey);
+                }
+
                 generationCount++;
                 const nextRecurrence = evaluateRecurrenceScalar(generationCount);
                 if (scalarInput) scalarInput.value = nextRecurrence.toString();
@@ -26469,14 +26647,14 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                     resultSigEl.value = newSignature;
                 }
 
-                // Noise calculation feedback
+                updateActiveDilithiumPasscodeUI(newSignature);
+
                 if (noiseFill && noiseText) {
                     noiseFill.style.width = '92%';
                     noiseFill.style.background = '#2BBFB3';
                     noiseText.textContent = 'Dentro del límite (Seguro)';
                 }
 
-                // Register as dynamic active valid signature on platform (REGLA DE CLAVE ÚNICA)
                 window.ACTIVE_DILITHIUM5_GENERATED_KEY = newSignature;
                 const currentEpoch = Date.now();
                 window.ACTIVE_DILITHIUM5_EPOCH = currentEpoch;
@@ -26486,7 +26664,6 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                     localStorage.setItem('l8_active_dilithium5_key', newSignature);
                     localStorage.setItem('l8_active_dilithium5_epoch', currentEpoch);
                     
-                    // Register through SecurityTransportClient (gRPC-Web with automatic REST fallback)
                     const transportClient = window.securityTransportClient || (window.SecurityTransportClient && new window.SecurityTransportClient());
                     if (transportClient && typeof transportClient.registerActiveKey === 'function') {
                         transportClient.registerActiveKey(newSignature, currentEpoch).catch(() => {});
@@ -26494,12 +26671,11 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                         fetch('/api/auth/dilithium-active-key', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ active_key: newSignature, epoch: currentEpoch })
+                            body: JSON.stringify({ active_key: newSignature, epoch: currentEpoch, consumed_key: prevKey })
                         }).catch(() => {});
                     }
                 } catch (e) {}
 
-                // Si el campo de registro ya contenía una clave anterior, reemplazarla automáticamente por la recién generada
                 const regInputAuto = document.getElementById('authDilithiumInput');
                 if (regInputAuto) {
                     regInputAuto.value = newSignature;
@@ -26511,7 +26687,6 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 }
             };
 
-            // Hook registration launcher button visibility on register tab
             function checkRegistrationTabVisibility() {
                 const registerTabActive = document.getElementById('authTabRegister')?.classList.contains('active') ||
                                           document.getElementById('authPanelRegister')?.classList.contains('active');
@@ -26533,7 +26708,6 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 const origSigEl = document.getElementById('d5GenOriginalSig');
                 if (origSigEl && !origSigEl.value) origSigEl.value = D5_BASE_SIGNATURE;
                 
-                // Monitor tabs
                 ['authTabLogin', 'authTabRegister', 'authTabRecover', 'authTabValidate'].forEach(id => {
                     document.getElementById(id)?.addEventListener('click', () => {
                         setTimeout(checkRegistrationTabVisibility, 50);
@@ -26541,13 +26715,18 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                 });
                 checkRegistrationTabVisibility();
                 updateActiveDilithiumPasscodeUI();
+
                 const copyActiveBtn = document.getElementById('btnCopyActiveD5Passcode');
                 if (copyActiveBtn) {
                     copyActiveBtn.addEventListener('click', window.copyActiveDilithiumGatePasscode);
                 }
-                // Direct touch & click listener for account delete launcher
+
+                const applyActiveBtn = document.getElementById('btnApplyActiveD5ToRegister');
+                if (applyActiveBtn) {
+                    applyActiveBtn.addEventListener('click', window.applyGeneratedKeyToRegistration);
+                }
+
                 const delBtnDirect = document.getElementById('accountDeleteLauncherBtn');
-                // Direct touch & click listener for account suspend launcher
                 const suspBtnDirect = document.getElementById('accountSuspendLauncherBtn');
                 if (suspBtnDirect) {
                     ['click', 'touchend'].forEach(evt => {
@@ -26572,17 +26751,14 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                         }, { passive: false });
                     });
                 }
-    
             });
 
-            // Expose globally
             window.getLatestDilithiumSignature = function() {
                 return currentActiveSignature || D5_BASE_SIGNATURE;
             };
         })();
 
-
-    /* =========================================================================
+/* =========================================================================
        ACCOUNT PERMANENT DELETION LOGIC (FIGMA & AUTO-TRIGGER ON 'eliminar')
        ========================================================================= */
     window.openAccountDeleteModal = function() {
@@ -27756,15 +27932,19 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
                             </div>
                         </div>
                         <div style="font-family: 'Geist', sans-serif; font-size: 12px; color: #11302D; line-height: 1.55; margin-bottom: 14px;">
-                            Esta clave es de <strong>un solo uso</strong>. Al desbloquear la compuerta, la clave anterior quedó revocada automáticamente y la siguiente clave generada es la <strong>única autorizada</strong> para el próximo acceso a la herramienta.
+                            Esta clave es de <strong>un solo uso</strong> para el campo <strong>'Dilithium-5 de registro (mensual)'</strong> de la plataforma. Cada vez que alguien ingresa con ella, queda <strong>eliminada e invalidada</strong> automáticamente y la siguiente clave generada es la <strong>única autorizada</strong> para la entrada.
                         </div>
-                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <div style="flex: 1; min-width: 220px; position: relative;">
-                                <input type="text" class="d5-next-passcode-field" id="d5NextActivePasscodeVal" readonly spellcheck="false" autocomplete="off" value="36276217" style="width: 100%; height: 44px; background: #FFFFFF; border: 2px solid #2BBFB3; border-radius: 8px; font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 700; color: #01879A; text-align: center; letter-spacing: 4px; box-sizing: border-box; outline: none; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);" title="Clave activa que se requerirá para el próximo ingreso">
+                                <input type="text" class="d5-next-passcode-field" id="d5NextActivePasscodeVal" readonly spellcheck="false" autocomplete="off" value="" style="width: 100%; height: 44px; background: #FFFFFF; border: 2px solid #2BBFB3; border-radius: 8px; font-family: 'Geist Mono', monospace; font-size: 12.5px; font-weight: 600; color: #01879A; text-align: left; padding: 0 12px; box-sizing: border-box; outline: none; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="Clave activa Dilithium-5 para registro en plataforma">
                             </div>
-                            <button type="button" class="d5-btn-copiar-activa" id="btnCopyActiveD5Passcode" onclick="copyActiveDilithiumGatePasscode()" onmouseover="this.style.background='#016E7D'" onmouseout="this.style.background='#01879A'" style="height: 44px; background: #01879A; color: #FFFFFF; border: 1.5px solid #01879A; border-radius: 8px; padding: 0 22px; font-family: 'Geist', sans-serif; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(1, 135, 154, 0.25);" title="Copiar próxima clave activa al portapapeles">
+                            <button type="button" class="d5-btn-copiar-activa" id="btnCopyActiveD5Passcode" onclick="copyActiveDilithiumGatePasscode()" onmouseover="this.style.background='#016E7D'" onmouseout="this.style.background='#01879A'" style="height: 44px; background: #01879A; color: #FFFFFF; border: 1.5px solid #01879A; border-radius: 8px; padding: 0 16px; font-family: 'Geist', sans-serif; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(1, 135, 154, 0.25);" title="Copiar clave activa al portapapeles">
                                 <svg style="width: 15px; height: 15px; fill: currentColor; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                                 <span>Copiar Clave Activa</span>
+                            </button>
+                            <button type="button" class="d5-btn-usar-activa" id="btnApplyActiveD5ToRegister" onclick="applyGeneratedKeyToRegistration()" onmouseover="this.style.background='#0D9488'" onmouseout="this.style.background='#14B8A6'" style="height: 44px; background: #14B8A6; color: #FFFFFF; border: 1.5px solid #14B8A6; border-radius: 8px; padding: 0 16px; font-family: 'Geist', sans-serif; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(20, 184, 166, 0.25);" title="Poner directamente en el campo 'Dilithium-5 de registro'">
+                                <svg style="width: 15px; height: 15px; fill: currentColor; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                <span>Usar para Registrarse ↵</span>
                             </button>
                         </div>
                     </div>

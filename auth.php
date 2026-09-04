@@ -285,6 +285,39 @@ function authGetActiveDilithiumRecord() {
     return is_array($data) ? $data : null;
 }
 
+function authConsumedDilithiumKeysPath() {
+    return authStorageDir() . '/consumed_dilithium5_keys.json';
+}
+
+function authGetConsumedDilithiumKeys() {
+    $path = authConsumedDilithiumKeysPath();
+    if (!file_exists($path)) return [];
+    $raw = @file_get_contents($path);
+    if (!$raw) return [];
+    $data = json_decode($raw, true);
+    return is_array($data) ? $data : [];
+}
+
+function authMarkDilithiumKeyConsumed($key) {
+    $clean = trim((string)$key);
+    if ($clean === '') return;
+    $hash = hash('sha256', $clean);
+    $list = authGetConsumedDilithiumKeys();
+    if (!in_array($hash, $list, true)) {
+        $list[] = $hash;
+        $path = authConsumedDilithiumKeysPath();
+        @file_put_contents($path, json_encode($list, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    }
+}
+
+function authIsDilithiumKeyConsumed($key) {
+    $clean = trim((string)$key);
+    if ($clean === '') return false;
+    $hash = hash('sha256', $clean);
+    $list = authGetConsumedDilithiumKeys();
+    return in_array($hash, $list, true);
+}
+
 function authVerifyDilithium($provided) {
     $provided = trim((string)$provided);
     if ($provided === '') {
@@ -296,6 +329,14 @@ function authVerifyDilithium($provided) {
         $provided = substr($provided, strlen('DILITHIUM5_ADMIN_SIGNATURE='));
     } elseif (strpos($provided, 'L8_DILITHIUM5_REGISTER_KEY=') === 0) {
         $provided = substr($provided, strlen('L8_DILITHIUM5_REGISTER_KEY='));
+    }
+
+    // Verificar si la clave ya fue consumida e invalidada (un solo uso)
+    if (authIsDilithiumKeyConsumed($provided)) {
+        return [
+            'ok' => false,
+            'error' => 'La clave Dilithium-5 proporcionada ya ha sido consumida y revocada (un solo uso). Debes usar la última clave activa generada en la plataforma ("la que toca").'
+        ];
     }
 
     // =========================================================================
@@ -1000,6 +1041,9 @@ function authRegister($dilithium5) {
     if (function_exists('supabaseLogActivity')) {
         @supabaseLogActivity('AUTH_REGISTER', $userId, ['account_id' => $userId], $userId);
     }
+
+    // Rotar y marcar como consumida la clave utilizada
+    authMarkDilithiumKeyConsumed($dilithium5);
 
     return [
         'ok' => true,
@@ -2015,6 +2059,25 @@ function authHandleApi($uri) {
             'authenticated' => true,
             'account_id' => $res['account_id'] ?? ($res['user_id'] ?? null)
         ], JSON_UNESCAPED_UNICODE);
+        return true;
+    }
+
+    if ($path === '/api/auth/dilithium-active-key' && $method === 'POST') {
+        $body = function_exists('securityReadJsonBody') ? securityReadJsonBody(65536) : ['ok' => true, 'data' => json_decode((string)file_get_contents('php://input'), true) ?? []];
+        $input = $body['data'] ?? [];
+        $activeKey = $input['active_key'] ?? '';
+        $epoch = $input['epoch'] ?? null;
+        $consumedKey = $input['consumed_key'] ?? '';
+        if ($consumedKey) {
+            authMarkDilithiumKeyConsumed($consumedKey);
+        }
+        if ($activeKey) {
+            authSetActiveDilithiumKey($activeKey, $epoch);
+            echo json_encode(['ok' => true, 'rotated' => true], JSON_UNESCAPED_UNICODE);
+            return true;
+        }
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'Missing active_key'], JSON_UNESCAPED_UNICODE);
         return true;
     }
 

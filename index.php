@@ -23776,6 +23776,9 @@ if (!headers_sent()) {
             window.logoutAdminSession = function () {
                 sessionStorage.removeItem(ADMIN_AUTH_KEY);
                 toggleAdminPanel(false);
+                if (typeof window.DataSeaport !== 'undefined' && typeof window.DataSeaport.ingestDilithiumEvent === 'function') {
+                    window.DataSeaport.ingestDilithiumEvent('ROTACION_DILITHIUM5', newSignature.substring(0, 16) + '...');
+                }
                 if (typeof window.showAdminToast === 'function') {
                     window.showAdminToast('Sesión de Administrador cerrada.');
                 }
@@ -25884,6 +25887,7 @@ ${jsonPayload}
         })();
     </script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/codespace-ws.js?v=2026.1"></script>
+    <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/data-seaport.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/warp-terminal.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/polyglot-grid.js?v=2026.1"></script>
     <script src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/grpc-client.js?v=2026.1"></script>

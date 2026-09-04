@@ -63,6 +63,7 @@
         plane: { title: 'Deploy & Despliegue Cloud', handler: (id) => showPlaceholderTool(id, 'Cloud Deployment') },
         airplane: { title: 'API Gateway & Storage Controller', handler: () => showApiGatewayWindow() },
         api: { title: 'API Gateway & Storage Controller', handler: () => showApiGatewayWindow() },
+        seaport: { title: 'Puerto Marítimo de Datos (LocalStack)', handler: () => showSeaportWindow() },
         potion: { title: 'Compilador & WebAssembly', handler: (id) => showPlaceholderTool(id, 'WASM Compiler') },
         dragon: { title: 'Motor de Inteligencia & Agentes', handler: (id) => showPlaceholderTool(id, 'Engine AI Core') },
         tractor: { title: 'Procesamiento Masivo de Datos', handler: (id) => showPlaceholderTool(id, 'Data Pipeline') },
@@ -352,6 +353,48 @@
             scrollFeedToBottom();
 
             const startTime = performance.now();
+
+            // Interceptación de Comandos del Puerto Marítimo de Datos (Data Seaport CLI)
+            if (typeof window !== 'undefined' && window.DataSeaport) {
+                try {
+                    const seaportResult = await window.DataSeaport.handleCommand(command);
+                    if (seaportResult !== null) {
+                        const durMs = Math.round(performance.now() - startTime);
+                        const statusEl = block.querySelector('.warp-block-status');
+                        const statusLbl = block.querySelector('.status-label');
+                        const durationEl = block.querySelector('.warp-block-duration');
+                        const outputEl = block.querySelector('.warp-block-output');
+
+                        if (statusEl) statusEl.className = 'warp-block-status success';
+                        if (statusLbl) statusLbl.textContent = '0';
+                        if (durationEl) {
+                            durationEl.textContent = durMs + 'ms';
+                            durationEl.style.display = 'inline-block';
+                        }
+                        if (outputEl) {
+                            outputEl.className = 'warp-block-output out-success';
+                            outputEl.style.whiteSpace = 'pre-wrap';
+                            outputEl.textContent = seaportResult;
+                        }
+
+                        curTab.feed.push({
+                            command: command,
+                            output: seaportResult,
+                            ok: true,
+                            exit_code: 0,
+                            duration_ms: durMs,
+                            cwd: curTab.cwd,
+                            timeStr: formatTimeNow(),
+                            time: Date.now()
+                        });
+                        scrollFeedToBottom();
+                        return;
+                    }
+                } catch (spErr) {
+                    console.warn('[WarpTerminal] Error al procesar comando de puerto:', spErr);
+                }
+            }
+
             try {
                 const res = await fetch(l8ApiUrl('api/bash/exec'), {
                     method: 'POST',
@@ -1088,6 +1131,100 @@
         }
     }
 
+    function showSeaportWindow() {
+        const term = document.getElementById('warpMainTerminal');
+        const sub = document.getElementById('warpToolSubwindow');
+        if (term) term.style.display = 'none';
+        if (!sub) return;
+
+        sub.classList.add('open');
+        const sp = (typeof window !== 'undefined' && window.DataSeaport) ? window.DataSeaport.getState() : null;
+        if (!sp) {
+            sub.innerHTML = '<div style="padding:20px; color:#EF4444;">Motor del Puerto Marítimo no inicializado.</div>';
+            return;
+        }
+
+        const lsStatus = sp.localstackConnected ? '<span style="color:#10B981;">ONLINE (REST 4566)</span>' : '<span style="color:#38BDF8;">VIRTUALIZADO (Emulado)</span>';
+
+        sub.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:16px; color:#ffffff; padding:4px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; padding-bottom:12px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:22px;">🚢</span>
+                        <div>
+                            <h2 style="font-size:16px; font-weight:700; margin:0; color:#F8FAFC;">Puerto Marítimo de Datos & LocalStack</h2>
+                            <div style="font-size:11.5px; color:#94A3B8;">Infraestructura de Buques, Muelles, Contenedores y Seguridad Dilithium-5</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button type="button" class="warp-env-btn" onclick="showTerminalView()" title="Volver a Terminal">Volver a Terminal</button>
+                        <button type="button" class="warp-sidebar-btn" onclick="selectSidebarTool('home')" style="width:28px; height:28px;" title="Cerrar">&times;</button>
+                    </div>
+                </div>
+
+                <!-- CARDS DE RESUMEN PORTUARIO -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                    <div style="background:#0F172A; border:1px solid #1E293B; border-radius:8px; padding:12px;">
+                        <div style="font-size:11px; color:#64748B; text-transform:uppercase;">Estado General</div>
+                        <div style="font-size:15px; font-weight:bold; color:#34D399; margin-top:4px;">OPERATIVO 100%</div>
+                        <div style="font-size:11px; color:#94A3B8; margin-top:2px;">4 Muelles Monitoreados</div>
+                    </div>
+                    <div style="background:#0F172A; border:1px solid #1E293B; border-radius:8px; padding:12px;">
+                        <div style="font-size:11px; color:#64748B; text-transform:uppercase;">LocalStack Enlace</div>
+                        <div style="font-size:15px; font-weight:bold; margin-top:4px;">${lsStatus}</div>
+                        <div style="font-size:11px; color:#94A3B8; margin-top:2px;">Token: ${escapeHtml(sp.authToken.substring(0, 10))}...</div>
+                    </div>
+                    <div style="background:#0F172A; border:1px solid #1E293B; border-radius:8px; padding:12px;">
+                        <div style="font-size:11px; color:#64748B; text-transform:uppercase;">Contenedores Procesados</div>
+                        <div style="font-size:15px; font-weight:bold; color:#38BDF8; margin-top:4px;">${sp.totalContainersProcessed} unidades</div>
+                        <div style="font-size:11px; color:#94A3B8; margin-top:2px;">Retenidos en Aduana: ${sp.quarantinedCount}</div>
+                    </div>
+                    <div style="background:#0F172A; border:1px solid #1E293B; border-radius:8px; padding:12px;">
+                        <div style="font-size:11px; color:#64748B; text-transform:uppercase;">Criptografía PQC</div>
+                        <div style="font-size:15px; font-weight:bold; color:#A78BFA; margin-top:4px;">Dilithium-5 Verified</div>
+                        <div style="font-size:11px; color:#94A3B8; margin-top:2px;">Clave única y rotación activa</div>
+                    </div>
+                </div>
+
+                <!-- MUELLES ACTIVOS -->
+                <div style="background:#0B1329; border:1px solid #1E293B; border-radius:8px; padding:14px;">
+                    <div style="font-size:13px; font-weight:bold; color:#F1F5F9; margin-bottom:10px; display:flex; justify-content:space-between;">
+                        <span>⚓ Muelles de Atraque y Descarga Concurrente</span>
+                        <span style="font-size:11px; color:#64748B;">Canales Kinesis / SQS / S3 / PQC</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+                        ${sp.docks.map(d => `
+                            <div style="background:#111C38; border:1px solid ${d.status === 'BERTHED' ? '#2563EB' : '#334155'}; border-radius:6px; padding:10px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <strong style="color:#E2E8F0; font-size:12px;">${escapeHtml(d.name)}</strong>
+                                    <span style="font-size:9.5px; padding:2px 6px; border-radius:4px; background:${d.status === 'BERTHED' ? '#1E3A8A' : '#1E293B'}; color:${d.status === 'BERTHED' ? '#93C5FD' : '#64748B'};">${d.status}</span>
+                                </div>
+                                <div style="font-size:11.5px; color:#94A3B8; margin-top:6px;">Buque: <span style="color:#38BDF8;">${d.vessel || 'Ninguno (Libre)'}</span></div>
+                                <div style="font-size:11px; color:#64748B; margin-top:2px;">Grúa: ${d.craneState} | Carga: ${d.load}%</div>
+                                <div style="height:4px; width:100%; background:#1E293B; border-radius:2px; margin-top:6px; overflow:hidden;">
+                                    <div style="height:100%; width:${d.load}%; background:#38BDF8;"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- CONSOLA NÁUTICA DIRECTA -->
+                <div style="background:#0F172A; border:1px solid #1E293B; border-radius:8px; padding:12px;">
+                    <div style="font-size:12px; font-weight:bold; color:#94A3B8; margin-bottom:8px;">Atajos de Comandos Marítimos en Bash:</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('port status');" style="font-size:11px;">$ port status</button>
+                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('port map');" style="font-size:11px;">$ port map</button>
+                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('cargo manifest dock-01');" style="font-size:11px;">$ cargo manifest</button>
+                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('cargo inspect CNT-D5-9821');" style="font-size:11px;">$ cargo inspect</button>
+                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('customs scan');" style="font-size:11px;">$ customs scan</button>
+                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('seaport health');" style="font-size:11px;">$ seaport health</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     function showPlaceholderTool(toolId, title) {
         const term = document.getElementById('warpMainTerminal');
         const sub = document.getElementById('warpToolSubwindow');
@@ -1160,6 +1297,8 @@
         window.closeTool3Modal = function () {
             WarpTerminal.close();
         };
+        window.showSeaportWindow = showSeaportWindow;
+        window.showTerminalView = showTerminalView;
     }
 
     if (document.readyState === 'loading') {

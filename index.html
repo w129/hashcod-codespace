@@ -11246,6 +11246,9 @@
             window.logoutAdminSession = function () {
                 sessionStorage.removeItem(ADMIN_AUTH_KEY);
                 toggleAdminPanel(false);
+                if (typeof window.DataSeaport !== 'undefined' && typeof window.DataSeaport.ingestDilithiumEvent === 'function') {
+                    window.DataSeaport.ingestDilithiumEvent('ROTACION_DILITHIUM5', newSignature.substring(0, 16) + '...');
+                }
                 if (typeof window.showAdminToast === 'function') {
                     window.showAdminToast('Sesión de Administrador cerrada.');
                 }
@@ -13354,6 +13357,7 @@ ${jsonPayload}
         })();
     </script>
     <script src="components/codespace-ws.js?v=2026.1"></script>
+    <script src="components/data-seaport.js?v=2026.1"></script>
     <script src="components/warp-terminal.js?v=2026.1"></script>
     <script src="components/polyglot-grid.js?v=2026.1"></script>
     <script src="components/grpc-client.js?v=2026.1"></script>

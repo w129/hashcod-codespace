@@ -26158,8 +26158,107 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
             let currentActiveSignature = D5_BASE_SIGNATURE;
             const Q_MODULUS = 8380417n;
 
-let d5Unlocked = false;
-            const REQUIRED_D5_GATE_CODE = '36276217';
+            let d5Unlocked = false;
+            const DEFAULT_INITIAL_D5_GATE_CODE = '36276217';
+            const STORAGE_D5_ACTIVE_KEY = 'l8_active_d5_gate_passcode';
+            const STORAGE_D5_CONSUMED_KEYS = 'l8_consumed_d5_gate_passcodes';
+
+            function getActiveDilithiumGatePasscode() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_D5_ACTIVE_KEY);
+                    if (stored && typeof stored === 'string' && stored.trim().length >= 8) {
+                        return stored.trim();
+                    }
+                } catch (e) {}
+                return DEFAULT_INITIAL_D5_GATE_CODE;
+            }
+            window.getActiveDilithiumGatePasscode = getActiveDilithiumGatePasscode;
+
+            function getConsumedDilithiumGatePasscodes() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_D5_CONSUMED_KEYS);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) return parsed;
+                    }
+                } catch (e) {}
+                return [];
+            }
+            window.getConsumedDilithiumGatePasscodes = getConsumedDilithiumGatePasscodes;
+
+            function markDilithiumGatePasscodeConsumed(code) {
+                const list = getConsumedDilithiumGatePasscodes();
+                if (!list.includes(code)) {
+                    list.push(code);
+                }
+                try {
+                    localStorage.setItem(STORAGE_D5_CONSUMED_KEYS, JSON.stringify(list));
+                } catch (e) {}
+                return list;
+            }
+
+            function deriveNextActiveGatePasscode(prevCode) {
+                const consumed = getConsumedDilithiumGatePasscodes();
+                const iter = BigInt(consumed.length + 1);
+                const b = iter;
+                const scalar = 7n * (b ** 3n) + 3n * (b ** 2n) - b + 1n;
+                const cleanDigits = String(prevCode || DEFAULT_INITIAL_D5_GATE_CODE).replace(/\D/g, '');
+                const salt = BigInt(cleanDigits.length > 0 ? cleanDigits : DEFAULT_INITIAL_D5_GATE_CODE);
+                const combined = ((scalar * 1337n + salt * 31n + 7n) % 90000000n + 90000000n) % 90000000n;
+                return String(10000000n + combined);
+            }
+
+            function updateActiveDilithiumPasscodeUI(passcode) {
+                const activeCode = passcode || getActiveDilithiumGatePasscode();
+                const displayEl = document.getElementById('d5NextActivePasscodeVal');
+                if (displayEl) {
+                    displayEl.value = activeCode;
+                }
+                const badgeEl = document.getElementById('d5PasscodeConsumedBadge');
+                if (badgeEl) {
+                    badgeEl.style.display = 'inline-flex';
+                    badgeEl.textContent = 'Clave anterior consumida e invalidada ✓';
+                }
+            }
+            window.updateActiveDilithiumPasscodeUI = updateActiveDilithiumPasscodeUI;
+
+            function fallbackCopyPasscode(text) {
+                try {
+                    const temp = document.createElement('textarea');
+                    temp.value = text;
+                    temp.style.position = 'fixed';
+                    temp.style.left = '-9999px';
+                    document.body.appendChild(temp);
+                    temp.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(temp);
+                } catch (e) {}
+            }
+
+            window.copyActiveDilithiumGatePasscode = function () {
+                const activeCode = getActiveDilithiumGatePasscode();
+                if (navigator && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    try {
+                        navigator.clipboard.writeText(activeCode);
+                    } catch (e) {
+                        fallbackCopyPasscode(activeCode);
+                    }
+                } else {
+                    fallbackCopyPasscode(activeCode);
+                }
+                if (typeof window.showAdminToast === 'function') {
+                    window.showAdminToast('✓ Clave activa Dilithium-5 copiada al portapapeles: ' + activeCode);
+                }
+            };
+            window.copyNextActiveDilithiumPasscode = window.copyActiveDilithiumGatePasscode;
+
+            if (typeof window.addEventListener === 'function') {
+                window.addEventListener('storage', function(e) {
+                    if (e.key === STORAGE_D5_ACTIVE_KEY && e.newValue) {
+                        updateActiveDilithiumPasscodeUI(e.newValue);
+                    }
+                });
+            }
 
             window.openDilithiumSecurityGate = function () {
                 if (d5Unlocked) {
@@ -26195,19 +26294,72 @@ let d5Unlocked = false;
                 const errMsg = document.getElementById('d5GateErrorMsg');
                 const val = (input?.value || '').trim();
 
-                if (val === REQUIRED_D5_GATE_CODE) {
-                    d5Unlocked = true;
-                    window.closeDilithiumGateModal();
-                    openDilithiumGeneratorModalInternal();
-                    if (typeof window.showAdminToast === 'function') {
-                        window.showAdminToast('✓ Código correcto: Dilithium-5 Generator desbloqueado.');
+                const activeKey = getActiveDilithiumGatePasscode();
+                const consumedList = getConsumedDilithiumGatePasscodes();
+
+                if (!val || val.length < 6) {
+                    if (errMsg) {
+                        errMsg.textContent = 'Código incorrecto o acceso denegado. Verifique la clave activa.';
+                        errMsg.style.display = 'block';
                     }
-                } else {
-                    if (errMsg) errMsg.style.display = 'block';
                     if (input) {
                         input.style.borderColor = '#dc2626';
                         input.focus();
                     }
+                    return;
+                }
+
+                if (consumedList.includes(val)) {
+                    if (errMsg) {
+                        errMsg.textContent = 'Esta clave ya ha sido utilizada e invalidada (un solo uso). Ingrese la clave activa actual.';
+                        errMsg.style.display = 'block';
+                    }
+                    if (input) {
+                        input.style.borderColor = '#dc2626';
+                        input.focus();
+                    }
+                    return;
+                }
+
+                if (val !== activeKey) {
+                    if (errMsg) {
+                        errMsg.textContent = 'Código incorrecto o acceso denegado. Clave no autorizada.';
+                        errMsg.style.display = 'block';
+                    }
+                    if (input) {
+                        input.style.borderColor = '#dc2626';
+                        input.focus();
+                    }
+                    return;
+                }
+
+                // Match: consume the key immediately
+                markDilithiumGatePasscodeConsumed(val);
+                const nextPasscode = deriveNextActiveGatePasscode(val);
+
+                try {
+                    localStorage.setItem(STORAGE_D5_ACTIVE_KEY, nextPasscode);
+                    sessionStorage.setItem(STORAGE_D5_ACTIVE_KEY, nextPasscode);
+                } catch (e) {}
+
+                d5Unlocked = true;
+
+                updateActiveDilithiumPasscodeUI(nextPasscode);
+
+                if (errMsg) errMsg.style.display = 'none';
+                if (input) {
+                    input.value = '';
+                    input.style.borderColor = '#2BBFB3';
+                }
+
+                window.closeDilithiumGateModal();
+                openDilithiumGeneratorModalInternal();
+                if (typeof window.executeDilithiumMultiplication === 'function') {
+                    window.executeDilithiumMultiplication();
+                }
+
+                if (typeof window.showAdminToast === 'function') {
+                    window.showAdminToast('✓ Código correcto: Dilithium-5 Generator desbloqueado.');
                 }
             };
 
@@ -26228,6 +26380,7 @@ let d5Unlocked = false;
                 if (resEl && !resEl.value) {
                     resEl.value = currentActiveSignature;
                 }
+                updateActiveDilithiumPasscodeUI();
                 if (modal) {
                     modal.classList.add('open');
                     modal.style.display = 'flex';
@@ -26238,6 +26391,7 @@ let d5Unlocked = false;
             window.closeDilithiumGeneratorModal = function () {
                 const modal = document.getElementById('dilithiumGeneratorModal');
                 if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
+                d5Unlocked = false;
             };
 
             window.validateScalarInput = function (input) {
@@ -26386,6 +26540,11 @@ let d5Unlocked = false;
                     });
                 });
                 checkRegistrationTabVisibility();
+                updateActiveDilithiumPasscodeUI();
+                const copyActiveBtn = document.getElementById('btnCopyActiveD5Passcode');
+                if (copyActiveBtn) {
+                    copyActiveBtn.addEventListener('click', window.copyActiveDilithiumGatePasscode);
+                }
                 // Direct touch & click listener for account delete launcher
                 const delBtnDirect = document.getElementById('accountDeleteLauncherBtn');
                 // Direct touch & click listener for account suspend launcher
@@ -27579,6 +27738,34 @@ let d5Unlocked = false;
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#01879A" stroke-width="2.5" style="flex-shrink:0; margin-top:1px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         <div>
                             <strong style="color:#01879A;">Regla de Clave Única:</strong> La clave generada ahora es la <u>única válida</u> para crear credenciales. Cualquier clave generada con anterioridad queda inmediatamente revocada y no podrá validarse.
+                        </div>
+                    </div>
+
+                    <!-- Seccion Prominente: Proxima Clave Dilithium-5 Activa (La que toca) (Requirement R2) -->
+                    <div class="d5-next-passcode-section" id="d5NextActivePasscodeSection" style="background: linear-gradient(135deg, #E9FAF8 0%, rgba(43, 191, 179, 0.12) 100%); border: 1.5px solid #2BBFB3; border-radius: 10px; padding: 16px 20px; margin-bottom: 18px; box-shadow: 0 4px 14px rgba(43, 191, 179, 0.12);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="d5-badge-title" style="background: #01879A; color: #FFFFFF; font-family: 'Geist', sans-serif; font-weight: 700; font-size: 11.5px; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <span>Próxima Clave Dilithium-5 Activa (La que toca)</span>
+                                </div>
+                            </div>
+                            <div class="d5-consumed-badge" id="d5PasscodeConsumedBadge" style="background: rgba(22, 163, 74, 0.12); border: 1px solid #16a34a; color: #15803d; font-family: 'Geist', sans-serif; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Clave anterior consumida e invalidada ✓</span>
+                            </div>
+                        </div>
+                        <div style="font-family: 'Geist', sans-serif; font-size: 12px; color: #11302D; line-height: 1.55; margin-bottom: 14px;">
+                            Esta clave es de <strong>un solo uso</strong>. Al desbloquear la compuerta, la clave anterior quedó revocada automáticamente y la siguiente clave generada es la <strong>única autorizada</strong> para el próximo acceso a la herramienta.
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 220px; position: relative;">
+                                <input type="text" class="d5-next-passcode-field" id="d5NextActivePasscodeVal" readonly spellcheck="false" autocomplete="off" value="36276217" style="width: 100%; height: 44px; background: #FFFFFF; border: 2px solid #2BBFB3; border-radius: 8px; font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 700; color: #01879A; text-align: center; letter-spacing: 4px; box-sizing: border-box; outline: none; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);" title="Clave activa que se requerirá para el próximo ingreso">
+                            </div>
+                            <button type="button" class="d5-btn-copiar-activa" id="btnCopyActiveD5Passcode" onclick="copyActiveDilithiumGatePasscode()" onmouseover="this.style.background='#016E7D'" onmouseout="this.style.background='#01879A'" style="height: 44px; background: #01879A; color: #FFFFFF; border: 1.5px solid #01879A; border-radius: 8px; padding: 0 22px; font-family: 'Geist', sans-serif; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(1, 135, 154, 0.25);" title="Copiar próxima clave activa al portapapeles">
+                                <svg style="width: 15px; height: 15px; fill: currentColor; flex-shrink: 0;" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                                <span>Copiar Clave Activa</span>
+                            </button>
                         </div>
                     </div>
     

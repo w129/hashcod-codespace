@@ -126,3 +126,49 @@ Develop an end-to-end automated verification script:
 - [ ] 100% resilient fallback: platform continues running without error if gRPC daemon is offline.
 - [ ] Automated test suite verifies all RPC endpoints with 100% clean passes.
 - [ ] Changes synchronized cleanly across both workspaces (`hashcod-codespace` and `D:\laragon\www\l8`) and deployed to GitHub `main`.
+
+## Follow-up — 2026-09-04T04:07:45Z
+
+Implementar mediante Metodología TDD la rotación automática de un solo uso de la clave de acceso Dilithium-5 en la herramienta de seguridad (`dilithiumGateModal` / `d5LauncherBtn`): cada vez que se desbloquee la herramienta con la clave que toca, la clave anterior queda eliminada e invalidada inmediatamente, generándose automáticamente una nueva clave que pasa a ser la única válida, y mostrándose dentro de la ventana desbloqueada cuál es la nueva clave activa que toca para el próximo acceso.
+
+Working directory: `C:\Users\morap\.gemini\antigravity\scratch\hashcod-codespace`  
+Integrity mode: development
+
+## Requirements
+
+### R1. Rotación Automática y Eliminación de Clave Usada (Single-Use Key Rotation)
+- Al ingresar el código/clave Dilithium-5 correcto en `dilithiumGateModal`:
+  1. Se desbloquea y abre la herramienta `dilithiumGeneratorModal`.
+  2. La clave ingresada queda **inmediatamente invalidada y eliminada** para futuros accesos. Si se intenta volver a ingresar con esa clave anterior, el sistema la rechazará como inválida o expirada.
+  3. El sistema ejecuta **automáticamente** el algoritmo criptográfico de multiplicación/generación escalar para crear la **nueva clave Dilithium-5 activa**.
+  4. La nueva clave generada pasa a ser de inmediato la **única clave válida y requerida** para la siguiente apertura.
+
+### R2. Visualización Clara Dentro de la Herramienta de "La Que Toca"
+- Al abrir la ventana de la herramienta (`dilithiumGeneratorModal`), se debe presentar una sección visual clara y prominente:
+  * **Título / Badge**: "Próxima Clave Dilithium-5 Activa (La que toca)".
+  * **Campo de Visualización**: Muestra la clave actual activa que se requerirá para el próximo ingreso.
+  * **Botón de Copiar**: Botón vectorial "Copiar Clave Activa" con notificación toast de confirmación.
+  * **Indicador de Estado**: Etiqueta que confirme "Clave anterior consumida e invalidada ✓".
+
+### R3. Persistencia y Sincronización de Estado
+- La clave activa rotada debe guardarse de forma segura en almacenamiento persistente (`localStorage` / `sessionStorage` bajo `l8_active_d5_gate_passcode`), de modo que permanezca vigente incluso si se recarga la página o se abre en otra pestaña del navegador.
+- Si no existe ninguna clave previa almacenada, inicializa con la clave base activa inicial y ejecuta la rotación a partir de ella.
+
+### R4. Metodología TDD e Invariantes
+- Crear la suite de pruebas unitarias y e2e [`tests/e2e/test_dilithium_key_rotation_tdd.js`](file:///C:/Users/morap/.gemini/antigravity/scratch/hashcod-codespace/tests/e2e/test_dilithium_key_rotation_tdd.js) cubriendo:
+  1. Acceso exitoso con la clave inicial.
+  2. Verificación de que la clave usada queda descartada y ya no permite el acceso.
+  3. Verificación de que la nueva clave autogenerada desbloquea el siguiente acceso.
+  4. Verificación de que la interfaz interior muestra correctamente la clave que toca.
+- Mantener balance DOM exacto en `index.php`, `index.html` y `404.html` (**`Diff: 0`**) y 0 errores en `node --check`.
+
+## Acceptance Criteria
+
+### Verification Guardrails
+- [ ] Al ingresar con la clave Dilithium-5 correcta, se desbloquea la herramienta y se genera automáticamente una nueva clave sin requerir acción manual adicional.
+- [ ] La clave utilizada previamente queda totalmente eliminada e invalidada; al volver a introducirla en la compuerta, se rechaza con mensaje de error.
+- [ ] La nueva clave generada es la única válida para el siguiente intento de desbloqueo.
+- [ ] Dentro de la ventana `dilithiumGeneratorModal` aparece visible y destacada la nueva clave que toca, con botón directo para copiarla.
+- [ ] La rotación se persiste correctamente tras recargar la página.
+- [ ] Todas las pruebas automatizadas en `tests/e2e/test_dilithium_key_rotation_tdd.js` y las suites existentes pasan al 100%.
+- [ ] El balance de etiquetas HTML en `index.php`, `index.html` y `404.html` se mantiene estrictamente en `Diff: 0`.

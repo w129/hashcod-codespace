@@ -197,6 +197,14 @@
                 return this.cmdTug(parts[1]);
             }
 
+            if (root === 'vision' || root === 'qr' || root === 'vector') {
+                if (typeof window !== 'undefined' && window.openVectorVisionModal) {
+                    window.openVectorVisionModal();
+                    return 'Abriendo herramienta Vector Vision & JAB/QR Matrix Studio (Círculo 10)...';
+                }
+                return 'Herramienta Vector Vision disponible en el Círculo #10 de la Toolbox.';
+            }
+
             if (root === 'seaport' || root === 'localstack') {
                 if (sub === 'connect' || sub === 'conectar') {
                     return this.setLocalstackUrl(parts[2]);

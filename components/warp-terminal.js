@@ -330,7 +330,10 @@
 
         async executeCommand(cmd) {
             if (!cmd || !cmd.trim()) return;
-            const command = cmd.trim();
+            let command = cmd.trim();
+            // Sanitizar prompt markers si se colaron
+            command = command.replace(/^[\$>\#]\s*/, '').trim();
+            if (!command) return;
             const curTab = getActiveTab();
 
             if (command === 'clear' || command === 'cls') {

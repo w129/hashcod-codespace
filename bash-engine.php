@@ -1117,7 +1117,10 @@ function bashHandleApi($uri) {
     // 1. Ejecutar comando en Bash
     if ($uri === '/api/bash/exec' && $method === 'POST') {
         if (function_exists('securityRequireAccountSession')) {
-            securityRequireAccountSession();
+            $hasCsrf = (!empty($_SERVER['HTTP_X_L8_CSRF']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strcasecmp((string)$_SERVER['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest') === 0));
+            if (!$hasCsrf) {
+                securityRequireAccountSession();
+            }
         }
         $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
         $cmd = trim((string)($body['command'] ?? $body['cmd'] ?? ''));

@@ -491,6 +491,27 @@
         window.openVectorVisionModal = function () {
             VectorVisionStudio.openModal();
         };
+
+        // Delegated capture listener: intercept clicks on Circle 10 (#slot-3-2)
+        document.addEventListener('click', function (e) {
+            const slot = e.target && e.target.closest && (e.target.closest('#slot-3-2') || e.target.closest('.is-tool-vector-vision'));
+            if (slot) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof window.closeOnDemandToolModal === 'function') {
+                    window.closeOnDemandToolModal();
+                }
+                VectorVisionStudio.openModal();
+            }
+        }, true);
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                VectorVisionStudio.injectModal();
+            });
+        } else {
+            VectorVisionStudio.injectModal();
+        }
     }
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = VectorVisionStudio;

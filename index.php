@@ -15936,6 +15936,7 @@ if (!headers_sent()) {
                             <div style="display:flex; gap:8px;">
                                 <button type="button" onclick="window.VectorVisionStudio.verifyPattern()" style="background:#10B981; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Verificar & Validar</button>
                                 <button type="button" onclick="window.VectorVisionStudio.downloadSvg()" style="background:#3B82F6; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Exportar SVG</button>
+                                <button type="button" onclick="window.VectorVisionStudio.downloadPng()" style="background:#8B5CF6; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Exportar PNG</button>
                             </div>
                         </div>
 
@@ -28192,6 +28193,9 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
             </div>
         </div>
     </div>
+
+    <!-- Vector Vision & JAB / QR Matrix Engine (Tool 10) -->
+    <script src="components/vector-vision.js"></script>
 
 </body>
 </html>

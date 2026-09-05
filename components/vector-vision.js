@@ -16,8 +16,22 @@
         '#E02E2A', '#E9DBBD', '#10B981', '#F0D91F'
     ];
 
+    const JABPaletteRGB = [
+        { r: 0x00, g: 0x00, b: 0x00 }, // 0: 000 #000000
+        { r: 0xFF, g: 0xFF, b: 0xFF }, // 1: 001 #FFFFFF
+        { r: 0x22, g: 0x70, b: 0xA8 }, // 2: 010 #2270A8
+        { r: 0x98, g: 0xD3, b: 0xD7 }, // 3: 011 #98D3D7
+        { r: 0xE0, g: 0x2E, b: 0x2A }, // 4: 100 #E02E2A
+        { r: 0xE9, g: 0xDB, b: 0xBD }, // 5: 101 #E9DBBD
+        { r: 0x10, g: 0xB9, b: 0x81 }, // 6: 110 #10B981
+        { r: 0xF0, g: 0xD9, b: 0x1F }  // 7: 111 #F0D91F
+    ];
+
     const VectorVisionStudio = {
+        JABColorPalette: JABColorPalette,
+        JABPaletteRGB: JABPaletteRGB,
         currentResult: null,
+        currentGrid: 20,
 
         openModal: function () {
             let modal = document.getElementById('vectorVisionModal');
@@ -140,6 +154,7 @@
                             <div style="display:flex; gap:8px;">
                                 <button type="button" onclick="window.VectorVisionStudio.verifyPattern()" style="background:#10B981; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Verificar & Validar</button>
                                 <button type="button" onclick="window.VectorVisionStudio.downloadSvg()" style="background:#3B82F6; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Exportar SVG</button>
+                                <button type="button" onclick="window.VectorVisionStudio.downloadPng()" style="background:#8B5CF6; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Exportar PNG</button>
                             </div>
                         </div>
 
@@ -203,8 +218,10 @@
                     }
                     if (noImg) noImg.style.display = 'none';
 
-                    document.getElementById('vvDimLabel').textContent = width + ' × ' + height + ' px';
-                    document.getElementById('vvSizeLabel').textContent = (sizeBytes / 1024).toFixed(1) + ' KB (' + sizeBytes + ' bytes)';
+                    const dimLabel = typeof document !== 'undefined' && document.getElementById('vvDimLabel');
+                    if (dimLabel) dimLabel.textContent = width + ' × ' + height + ' px';
+                    const sizeLabel = typeof document !== 'undefined' && document.getElementById('vvSizeLabel');
+                    if (sizeLabel) sizeLabel.textContent = (sizeBytes / 1024).toFixed(1) + ' KB (' + sizeBytes + ' bytes)';
 
                     this.extractVectorsAndGenerate(img, file.name, sizeBytes);
                 };
@@ -214,8 +231,10 @@
         },
 
         extractVectorsAndGenerate: function (img, fileName, sizeBytes) {
+            if (typeof document === 'undefined') return;
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
+            if (!ctx) return;
             canvas.width = 64;
             canvas.height = 64;
             ctx.drawImage(img, 0, 0, 64, 64);
@@ -225,22 +244,25 @@
             for (let i = 0; i < imgData.length; i += 4) {
                 hashSum = (hashSum + imgData[i] * 31 + imgData[i+1] * 17 + imgData[i+2]) % 0xFFFFFFFFF;
             }
-            const pseudoHash = '922c1139' + hashSum.toString(16).padStart(8, '0') + '...0e0b7';
-            document.getElementById('vvHashLabel').textContent = pseudoHash;
+            const pseudoHash = hashSum.toString(16).padStart(16, '0');
+            const hashLabel = typeof document !== 'undefined' && document.getElementById('vvHashLabel');
+            if (hashLabel) hashLabel.textContent = pseudoHash;
 
             const coffeeNums = this.buildCoffeeScriptNumerical(sizeBytes, img.width, img.height, imgData);
-            document.getElementById('vvCoffeeOutput').value = coffeeNums;
+            const pattern = this.extractNumericPattern(coffeeNums);
+            const coffeeOutputEl = typeof document !== 'undefined' && document.getElementById('vvCoffeeOutput');
+            if (coffeeOutputEl) coffeeOutputEl.value = coffeeNums;
 
-            this.renderJabCode(hashSum, img.width, img.height);
+            this.renderJabCode(pattern, img.width, img.height);
 
-            const badge = document.getElementById('vvValidationBadge');
-            const detail = document.getElementById('vvStatusDetail');
+            const badge = typeof document !== 'undefined' && document.getElementById('vvValidationBadge');
+            const detail = typeof document !== 'undefined' && document.getElementById('vvStatusDetail');
             if (badge) {
                 badge.style.display = 'inline-block';
                 badge.textContent = 'PATRÓN REGISTRADO & VALIDADO ✓';
             }
             if (detail) {
-                detail.textContent = 'Análisis completado: ' + img.width + 'x' + img.height + ' px. Puntos vectoriales y firma de paridad JAB Code emparejados al 100%.';
+                detail.textContent = 'Análisis completado: ' + img.width + 'x' + img.height + ' px. ' + pattern.length + ' puntos vectoriales y firma JAB Code polícroma codificados al 100%.';
             }
 
             this.currentResult = {
@@ -249,22 +271,26 @@
                 height: img.height,
                 sizeBytes: sizeBytes,
                 coffeeCode: coffeeNums,
+                numericPattern: pattern,
                 hash: pseudoHash
             };
         },
 
         loadDemoSeaport: function () {
-            const preview = document.getElementById('vvPreviewImg');
-            const noImg = document.getElementById('vvNoImgText');
+            const preview = typeof document !== 'undefined' && document.getElementById('vvPreviewImg');
+            const noImg = typeof document !== 'undefined' && document.getElementById('vvNoImgText');
             if (preview) {
                 preview.src = '.user_uploaded/media_1788580482612.jpg';
                 preview.style.display = 'block';
             }
             if (noImg) noImg.style.display = 'none';
 
-            document.getElementById('vvDimLabel').textContent = '1024 × 1024 px';
-            document.getElementById('vvSizeLabel').textContent = '448.1 KB (458,836 bytes)';
-            document.getElementById('vvHashLabel').textContent = '922c1139b47fda712915d13ec4897343bedef179daa44b2156c125bec070e0b7';
+            const dimLabel = typeof document !== 'undefined' && document.getElementById('vvDimLabel');
+            if (dimLabel) dimLabel.textContent = '1024 × 1024 px';
+            const sizeLabel = typeof document !== 'undefined' && document.getElementById('vvSizeLabel');
+            if (sizeLabel) sizeLabel.textContent = '448.1 KB (458,836 bytes)';
+            const hashLabel = typeof document !== 'undefined' && document.getElementById('vvHashLabel');
+            if (hashLabel) hashLabel.textContent = '922c1139b47fda712915d13ec4897343bedef179daa44b2156c125bec070e0b7';
 
             const demoCoffee = [
                 '[',
@@ -342,17 +368,20 @@
                 ']'
             ].join('\n');
 
-            document.getElementById('vvCoffeeOutput').value = demoCoffee;
-            this.renderJabCode(0x922C1139, 1024, 1024);
+            const pattern = this.extractNumericPattern(demoCoffee);
+            const coffeeOutputEl = typeof document !== 'undefined' && document.getElementById('vvCoffeeOutput');
+            if (coffeeOutputEl) coffeeOutputEl.value = demoCoffee;
 
-            const badge = document.getElementById('vvValidationBadge');
-            const detail = document.getElementById('vvStatusDetail');
+            this.renderJabCode(pattern, 1024, 1024);
+
+            const badge = typeof document !== 'undefined' && document.getElementById('vvValidationBadge');
+            const detail = typeof document !== 'undefined' && document.getElementById('vvStatusDetail');
             if (badge) {
                 badge.style.display = 'inline-block';
                 badge.textContent = 'PATRÓN REGISTRADO & VALIDADO ✓';
             }
             if (detail) {
-                detail.textContent = 'Ilustración Marítima verificada: Coordenadas de Fortaleza, Faro, Catedral y Costa validadas matemáticamente en matriz JAB Code.';
+                detail.textContent = 'Ilustración Marítima verificada: ' + pattern.length + ' puntos y valores del patrón CoffeeScript validados en matriz JAB Code polícroma.';
             }
 
             this.currentResult = {
@@ -361,6 +390,7 @@
                 height: 1024,
                 sizeBytes: 458836,
                 coffeeCode: demoCoffee,
+                numericPattern: pattern,
                 hash: '922c1139b47fda712915d13ec4897343bedef179daa44b2156c125bec070e0b7'
             };
         },
@@ -399,20 +429,233 @@
             return lines.join('\n');
         },
 
-        renderJabCode: function (seed, w, h) {
-            const canvas = document.getElementById('vvQrCanvas');
+        extractNumericPattern: function (coffeeInput) {
+            if (!coffeeInput) return [];
+            if (Array.isArray(coffeeInput)) {
+                return coffeeInput.flat(Infinity).map(v => parseInt(v, 10)).filter(n => Number.isInteger(n) && n >= 0);
+            }
+            if (typeof coffeeInput !== 'string') return [];
+            const matches = coffeeInput.match(/\b\d+\b/g);
+            if (!matches) return [];
+            return matches.map(s => parseInt(s, 10)).filter(n => Number.isInteger(n) && n >= 0);
+        },
+
+        _encodeVarInt: function (val) {
+            let num = Math.max(0, Math.floor(Number(val) || 0));
+            const bytes = [];
+            while (num >= 128) {
+                bytes.push((num & 0x7F) | 0x80);
+                num = Math.floor(num / 128);
+            }
+            bytes.push(num & 0x7F);
+            return bytes;
+        },
+
+        _decodeVarInt: function (bytes, offset) {
+            let result = 0;
+            let shift = 0;
+            while (offset < bytes.length) {
+                const b = bytes[offset++];
+                if (typeof b !== 'number' || isNaN(b) || b < 0 || b > 255) return null;
+                result += (b & 0x7F) * Math.pow(2, shift);
+                if ((b & 0x80) === 0) {
+                    return { value: result, nextOffset: offset };
+                }
+                shift += 7;
+                if (shift > 49) return null;
+            }
+            return null;
+        },
+
+        serializePatternToBits: function (integers) {
+            const list = Array.isArray(integers) ? integers : [];
+            const bytes = [];
+            // Encode length prefix as varint
+            const lenBytes = this._encodeVarInt(list.length);
+            for (let i = 0; i < lenBytes.length; i++) bytes.push(lenBytes[i]);
+
+            // Encode each integer as varint
+            for (let i = 0; i < list.length; i++) {
+                const itemBytes = this._encodeVarInt(list[i]);
+                for (let j = 0; j < itemBytes.length; j++) bytes.push(itemBytes[j]);
+            }
+
+            // Convert bytes to bitstream
+            let bits = '';
+            for (let i = 0; i < bytes.length; i++) {
+                bits += bytes[i].toString(2).padStart(8, '0');
+            }
+
+            // Pad to multiple of 3 bits (each polychrome cell holds 3 bits)
+            while (bits.length % 3 !== 0) {
+                bits += '0';
+            }
+            return bits;
+        },
+
+        deserializeBitsToPattern: function (bitString) {
+            if (!bitString || typeof bitString !== 'string') return [];
+            const bytes = [];
+            for (let i = 0; i + 8 <= bitString.length; i += 8) {
+                bytes.push(parseInt(bitString.slice(i, i + 8), 2));
+            }
+
+            if (bytes.length === 0) return [];
+
+            // Read count of integers
+            let offset = 0;
+            const countDec = this._decodeVarInt(bytes, offset);
+            if (!countDec) return [];
+            const count = countDec.value;
+            offset = countDec.nextOffset;
+            if (count < 0 || count > bytes.length - offset) return [];
+
+            const integers = [];
+            for (let k = 0; k < count; k++) {
+                const dec = this._decodeVarInt(bytes, offset);
+                if (!dec) break;
+                integers.push(dec.value);
+                offset = dec.nextOffset;
+            }
+            if (integers.length !== count) return [];
+            return integers;
+        },
+
+        bitsToColorIndices: function (bitString) {
+            if (!bitString || typeof bitString !== 'string') return [];
+            const indices = [];
+            for (let i = 0; i < bitString.length; i += 3) {
+                const chunk = bitString.slice(i, i + 3);
+                if (chunk.length === 3) {
+                    indices.push(parseInt(chunk, 2));
+                } else if (chunk.length > 0) {
+                    indices.push(parseInt(chunk.padEnd(3, '0'), 2));
+                }
+            }
+            return indices;
+        },
+
+        colorIndicesToBits: function (colorIndices) {
+            if (!Array.isArray(colorIndices)) return '';
+            let bits = '';
+            for (let i = 0; i < colorIndices.length; i++) {
+                const val = (colorIndices[i] || 0) & 7;
+                bits += val.toString(2).padStart(3, '0');
+            }
+            return bits;
+        },
+
+        findNearestPaletteColorIndex: function (r, g, b) {
+            const nr = Number.isFinite(Number(r)) ? Number(r) : 0;
+            const ng = Number.isFinite(Number(g)) ? Number(g) : 0;
+            const nb = Number.isFinite(Number(b)) ? Number(b) : 0;
+            let bestIdx = 0;
+            let minSqDist = Infinity;
+            for (let i = 0; i < JABPaletteRGB.length; i++) {
+                const p = JABPaletteRGB[i];
+                const dr = nr - p.r;
+                const dg = ng - p.g;
+                const db = nb - p.b;
+                const sqDist = dr * dr + dg * dg + db * db;
+                if (sqDist < minSqDist) {
+                    minSqDist = sqDist;
+                    bestIdx = i;
+                }
+            }
+            return bestIdx;
+        },
+
+        isFinderModule: function (r, c, grid) {
+            const isTL = r < 4 && c < 4;
+            const isTR = r < 4 && c >= grid - 4;
+            const isBL = r >= grid - 4 && c < 4;
+            const isBR = r >= grid - 4 && c >= grid - 4;
+            return isTL || isTR || isBL || isBR;
+        },
+
+        verifyFinderPatterns: function (canvas, grid) {
+            if (!canvas || !grid || grid < 8) return false;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return false;
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            const cellSizeX = canvas.width / grid;
+            const cellSizeY = canvas.height / grid;
+
+            const samplePixelAt = (x, y) => {
+                const px = Math.max(0, Math.min(canvas.width - 1, Math.floor(x)));
+                const py = Math.max(0, Math.min(canvas.height - 1, Math.floor(y)));
+                const offset = (py * canvas.width + px) * 4;
+                return this.findNearestPaletteColorIndex(imgData[offset], imgData[offset + 1], imgData[offset + 2]);
+            };
+
+            // Top-Left Finder (4x4): outer module (0, 0) == 2, center at (2.0, 2.0) == 4, white ring at (2.75, 2.0) == 1
+            if (samplePixelAt(0.5 * cellSizeX, 0.5 * cellSizeY) !== 2) return false;
+            if (samplePixelAt(2.0 * cellSizeX, 2.0 * cellSizeY) !== 4) return false;
+            if (samplePixelAt(2.75 * cellSizeX, 2.0 * cellSizeY) !== 1) return false;
+
+            // Top-Right Finder (4x4): outer module (0, grid - 1) == 4, center at (grid - 2.0, 2.0) == 6, white ring at (grid - 2.75, 2.0) == 1
+            if (samplePixelAt((grid - 0.5) * cellSizeX, 0.5 * cellSizeY) !== 4) return false;
+            if (samplePixelAt((grid - 2.0) * cellSizeX, 2.0 * cellSizeY) !== 6) return false;
+            if (samplePixelAt((grid - 2.75) * cellSizeX, 2.0 * cellSizeY) !== 1) return false;
+
+            // Bottom-Left Finder (4x4): outer module (grid - 1, 0) == 6, center at (2.0, grid - 2.0) == 0, white ring at (2.0, grid - 2.75) == 1
+            if (samplePixelAt(0.5 * cellSizeX, (grid - 0.5) * cellSizeY) !== 6) return false;
+            if (samplePixelAt(2.0 * cellSizeX, (grid - 2.0) * cellSizeY) !== 0) return false;
+            if (samplePixelAt(2.0 * cellSizeX, (grid - 2.75) * cellSizeY) !== 1) return false;
+
+            // Bottom-Right Finder (4x4): outer module (grid - 1, grid - 1) == 7, center at (grid - 2.0, grid - 2.0) == 1
+            if (samplePixelAt((grid - 0.5) * cellSizeX, (grid - 0.5) * cellSizeY) !== 7) return false;
+            if (samplePixelAt((grid - 2.0) * cellSizeX, (grid - 2.0) * cellSizeY) !== 1) return false;
+
+            return true;
+        },
+
+        renderJabCode: function (patternOrCoffee, w, h, targetCanvas) {
+            let pattern = [];
+            if (patternOrCoffee) {
+                if (Array.isArray(patternOrCoffee)) {
+                    const flat = Array.isArray(patternOrCoffee.flat) ? patternOrCoffee.flat(Infinity) : patternOrCoffee;
+                    pattern = flat.map(v => parseInt(v, 10)).filter(n => Number.isInteger(n) && n >= 0);
+                } else if (typeof patternOrCoffee === 'string') {
+                    pattern = this.extractNumericPattern(patternOrCoffee);
+                } else if (typeof patternOrCoffee === 'number' && this.currentResult && this.currentResult.numericPattern) {
+                    pattern = this.currentResult.numericPattern;
+                }
+            } else if (this.currentResult && this.currentResult.numericPattern) {
+                pattern = this.currentResult.numericPattern;
+            }
+
+            const canvas = targetCanvas || (typeof document !== 'undefined' && document.getElementById('vvQrCanvas'));
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
-            const size = 200;
+            if (!ctx) return;
+            ctx.imageSmoothingEnabled = false;
+
+            const size = Math.max(canvas.width || 200, 200);
             canvas.width = size;
             canvas.height = size;
 
+            // Serialize pattern to bit stream and 3-bit color blocks
+            const bitString = this.serializePatternToBits(pattern);
+            const colorIndices = this.bitsToColorIndices(bitString);
+
+            // Determine grid size (minimum 20, expanding by 4 to accommodate all data cells)
+            let grid = 20;
+            while (grid * grid - 64 < colorIndices.length) {
+                grid += 4;
+            }
+
+            this.currentGrid = grid;
+            if (canvas.dataset) canvas.dataset.grid = String(grid);
+            canvas._jabGrid = grid;
+
+            const cellSize = size / grid;
+
+            // Clean background
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, size, size);
 
-            const grid = 20;
-            const cellSize = size / grid;
-
+            // Draw 4 corner finder patterns (4x4 modules each)
             const drawFinder = (startX, startY, colorIdx) => {
                 ctx.fillStyle = JABColorPalette[colorIdx % JABColorPalette.length];
                 ctx.fillRect(startX * cellSize, startY * cellSize, cellSize * 4, cellSize * 4);
@@ -427,66 +670,252 @@
             drawFinder(0, grid - 4, 6);
             drawFinder(grid - 4, grid - 4, 7);
 
-            let currentSeed = seed || 123456789;
-            function nextRandom() {
-                currentSeed = (currentSeed * 1664525 + 1013904223) % 4294967296;
-                return currentSeed / 4294967296;
-            }
-
+            // Map binary data sequentially across non-finder modules
+            let dataIdx = 0;
             for (let r = 0; r < grid; r++) {
                 for (let c = 0; c < grid; c++) {
-                    const isTL = r < 4 && c < 4;
-                    const isTR = r < 4 && c >= grid - 4;
-                    const isBL = r >= grid - 4 && c < 4;
-                    const isBR = r >= grid - 4 && c >= grid - 4;
-                    if (isTL || isTR || isBL || isBR) continue;
+                    if (this.isFinderModule(r, c, grid)) continue;
 
-                    const colorIndex = Math.floor(nextRandom() * JABColorPalette.length);
+                    const colorIndex = dataIdx < colorIndices.length 
+                        ? colorIndices[dataIdx] 
+                        : 0; // Pad with 0 (Black #000000)
+
                     ctx.fillStyle = JABColorPalette[colorIndex];
-                    ctx.fillRect(c * cellSize + 0.5, r * cellSize + 0.5, cellSize - 1, cellSize - 1);
+                    ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+                    dataIdx++;
+                }
+            }
+
+            const caption = typeof document !== 'undefined' && document.getElementById('vvQrCaption');
+            if (caption) {
+                caption.textContent = 'JAB Code Matrix · 8 Colores · ' + grid + '×' + grid + ' (' + (grid * grid - 64) + ' Celdas de Datos)';
+            }
+        },
+
+        decodeJabMatrix: function (canvas, overrideGrid) {
+            const target = canvas || (typeof document !== 'undefined' && document.getElementById('vvQrCanvas'));
+            if (!target) return [];
+
+            const decodeForGrid = (grid) => {
+                const ctx = target.getContext('2d');
+                if (!ctx) return [];
+
+                const imgData = ctx.getImageData(0, 0, target.width, target.height).data;
+                const cellSizeX = target.width / grid;
+                const cellSizeY = target.height / grid;
+
+                const colorIndices = [];
+                for (let r = 0; r < grid; r++) {
+                    for (let c = 0; c < grid; c++) {
+                        if (this.isFinderModule(r, c, grid)) continue;
+
+                        // Sample pixel at center of cell
+                        const px = Math.max(0, Math.min(target.width - 1, Math.floor((c + 0.5) * cellSizeX)));
+                        const py = Math.max(0, Math.min(target.height - 1, Math.floor((r + 0.5) * cellSizeY)));
+                        const offset = (py * target.width + px) * 4;
+
+                        const red = imgData[offset];
+                        const green = imgData[offset + 1];
+                        const blue = imgData[offset + 2];
+
+                        const colIdx = this.findNearestPaletteColorIndex(red, green, blue);
+                        colorIndices.push(colIdx);
+                    }
+                }
+
+                const bitString = this.colorIndicesToBits(colorIndices);
+                return this.deserializeBitsToPattern(bitString);
+            };
+
+            // 1. If explicit overrideGrid provided, decode directly
+            if (overrideGrid) {
+                return decodeForGrid(overrideGrid);
+            }
+
+            // 2. Check annotated grid on dataset or property with finder verification
+            const annotatedGrid = (target.dataset && parseInt(target.dataset.grid, 10)) || target._jabGrid;
+            if (annotatedGrid && this.verifyFinderPatterns(target, annotatedGrid)) {
+                const res = decodeForGrid(annotatedGrid);
+                if (res && res.length > 0) return res;
+            }
+
+            // 3. Robust Finder-Pattern probing across candidate grids (from 20 to 128)
+            const candidateGrids = [20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 96, 128];
+            for (let i = 0; i < candidateGrids.length; i++) {
+                const g = candidateGrids[i];
+                if (this.verifyFinderPatterns(target, g)) {
+                    const probed = decodeForGrid(g);
+                    if (probed && probed.length > 0) return probed;
+                }
+            }
+
+            // 4. Fallback if finder patterns didn't match cleanly (e.g. mock or custom canvas)
+            const fallbackGrid = annotatedGrid || this.currentGrid || 20;
+            return decodeForGrid(fallbackGrid);
+        },
+
+        validatePatternMatch: function (patternA, patternB) {
+            if (!Array.isArray(patternA) || !Array.isArray(patternB)) return false;
+            if (patternA.length !== patternB.length) return false;
+            for (let i = 0; i < patternA.length; i++) {
+                if (patternA[i] !== patternB[i]) return false;
+            }
+            return true;
+        },
+
+        verifyPattern: function () {
+            const badge = typeof document !== 'undefined' && document.getElementById('vvValidationBadge');
+            const detail = typeof document !== 'undefined' && document.getElementById('vvStatusDetail');
+
+            if (!this.currentResult || !this.currentResult.numericPattern || this.currentResult.numericPattern.length === 0) {
+                if (typeof alert === 'function') alert('Por favor carga una imagen primero o pulsa en Demo.');
+                return false;
+            }
+
+            const canvas = typeof document !== 'undefined' && document.getElementById('vvQrCanvas');
+            const decoded = this.decodeJabMatrix(canvas);
+            const match = this.validatePatternMatch(this.currentResult.numericPattern, decoded);
+
+            if (match) {
+                if (badge) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = 'VALIDADO AL 100% ✓';
+                    badge.style.background = '#064E3B';
+                    badge.style.color = '#34D399';
+                    badge.style.border = '1px solid #059669';
+                }
+                if (detail) {
+                    detail.innerHTML = '<span style="color:#34D399; font-weight:700;">¡Validación Biométrica/Vectorial Exitosa!</span> La matriz JAB Code (8 colores, 3 bits/celda) decodificó los ' + decoded.length + ' enteros del patrón numérico con 100% de correspondencia y cero discrepancia de paridad.';
+                }
+            } else {
+                if (badge) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = 'DISCREPANCIA DETECTADA ✕';
+                    badge.style.background = '#7F1D1D';
+                    badge.style.color = '#FCA5A5';
+                    badge.style.border = '1px solid #DC2626';
+                }
+                if (detail) {
+                    detail.innerHTML = '<span style="color:#EF4444; font-weight:700;">¡Fallo de Validación!</span> Se detectó una alteración entre el patrón numérico de la imagen activa y la matriz JAB Code decodificada.';
+                }
+            }
+            return match;
+        },
+
+        copyCoffeeScript: function () {
+            const ta = typeof document !== 'undefined' && document.getElementById('vvCoffeeOutput');
+            if (ta && ta.value) {
+                if (navigator && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    navigator.clipboard.writeText(ta.value).then(() => {
+                        if (typeof alert === 'function') alert('¡CoffeeScript numérico copiado al portapapeles!');
+                    }).catch(() => {
+                        ta.select();
+                        if (typeof document.execCommand === 'function') document.execCommand('copy');
+                        if (typeof alert === 'function') alert('¡Copiado!');
+                    });
+                } else {
+                    ta.select();
+                    if (typeof document.execCommand === 'function') document.execCommand('copy');
+                    if (typeof alert === 'function') alert('¡Copiado!');
                 }
             }
         },
 
-        verifyPattern: function () {
-            const badge = document.getElementById('vvValidationBadge');
-            const detail = document.getElementById('vvStatusDetail');
-            if (!this.currentResult) {
-                alert('Por favor carga una imagen primero o pulsa en Demo.');
-                return;
+        generateJabSvg: function (patternOrCoffee) {
+            let pattern = [];
+            if (patternOrCoffee) {
+                if (Array.isArray(patternOrCoffee)) {
+                    const flat = Array.isArray(patternOrCoffee.flat) ? patternOrCoffee.flat(Infinity) : patternOrCoffee;
+                    pattern = flat.map(v => parseInt(v, 10)).filter(n => Number.isInteger(n) && n >= 0);
+                } else if (typeof patternOrCoffee === 'string') {
+                    pattern = this.extractNumericPattern(patternOrCoffee);
+                } else if (typeof patternOrCoffee === 'number' && this.currentResult && this.currentResult.numericPattern) {
+                    pattern = this.currentResult.numericPattern;
+                }
             }
-            if (badge) {
-                badge.style.display = 'inline-block';
-                badge.textContent = 'VALIDADO AL 100% ✓';
-                badge.style.background = '#064E3B';
-                badge.style.color = '#34D399';
+            if (pattern.length === 0) {
+                if (this.currentResult && this.currentResult.numericPattern && this.currentResult.numericPattern.length > 0) {
+                    pattern = this.currentResult.numericPattern;
+                } else {
+                    const canvas = typeof document !== 'undefined' && document.getElementById('vvQrCanvas');
+                    if (canvas) {
+                        pattern = this.decodeJabMatrix(canvas);
+                    }
+                }
             }
-            if (detail) {
-                detail.innerHTML = '<span style="color:#34D399; font-weight:700;">¡Validación Biométrica/Vectorial Exitosa!</span> La imagen coincide exactamente con el patrón numérico de CoffeeScript y la firma JAB Code de paridad.';
-            }
-        },
+            const bitString = this.serializePatternToBits(pattern);
+            const colorIndices = this.bitsToColorIndices(bitString);
 
-        copyCoffeeScript: function () {
-            const ta = document.getElementById('vvCoffeeOutput');
-            if (ta && ta.value) {
-                navigator.clipboard.writeText(ta.value).then(() => {
-                    alert('¡CoffeeScript numérico copiado al portapapeles!');
-                }).catch(() => {
-                    ta.select();
-                    document.execCommand('copy');
-                    alert('¡Copiado!');
-                });
+            let grid = 20;
+            while (grid * grid - 64 < colorIndices.length) {
+                grid += 4;
             }
+
+            const cellSize = 16;
+            const totalSize = grid * cellSize;
+            const rects = [];
+
+            rects.push(`<rect width="${totalSize}" height="${totalSize}" fill="#FFFFFF"/>`);
+
+            const drawFinderSvg = (startX, startY, colorIdx) => {
+                const c1 = JABColorPalette[colorIdx % 8];
+                const c2 = JABColorPalette[(colorIdx + 2) % 8];
+                rects.push(`<rect x="${startX * cellSize}" y="${startY * cellSize}" width="${4 * cellSize}" height="${4 * cellSize}" fill="${c1}"/>`);
+                rects.push(`<rect x="${(startX + 1) * cellSize}" y="${(startY + 1) * cellSize}" width="${2 * cellSize}" height="${2 * cellSize}" fill="#FFFFFF"/>`);
+                rects.push(`<rect x="${(startX + 1.5) * cellSize}" y="${(startY + 1.5) * cellSize}" width="${cellSize}" height="${cellSize}" fill="${c2}"/>`);
+            };
+
+            drawFinderSvg(0, 0, 2);
+            drawFinderSvg(grid - 4, 0, 4);
+            drawFinderSvg(0, grid - 4, 6);
+            drawFinderSvg(grid - 4, grid - 4, 7);
+
+            let dataIdx = 0;
+            for (let r = 0; r < grid; r++) {
+                for (let c = 0; c < grid; c++) {
+                    if (this.isFinderModule(r, c, grid)) continue;
+                    const colIdx = dataIdx < colorIndices.length ? colorIndices[dataIdx] : 0;
+                    rects.push(`<rect x="${c * cellSize}" y="${r * cellSize}" width="${cellSize}" height="${cellSize}" fill="${JABColorPalette[colIdx]}"/>`);
+                    dataIdx++;
+                }
+            }
+
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalSize} ${totalSize}" width="${totalSize}" height="${totalSize}">\n${rects.join('\n')}\n</svg>`;
         },
 
         downloadSvg: function () {
-            const svgUrl = 'vector_seaport_illustration.svg';
-            const a = document.createElement('a');
-            a.href = svgUrl;
-            a.download = 'vector_seaport_illustration.svg';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const svgContent = this.generateJabSvg();
+            if (typeof Blob !== 'undefined' && typeof URL !== 'undefined' && typeof document !== 'undefined') {
+                const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'jab_code_matrix_' + Date.now() + '.svg';
+                if (document.body) {
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+                setTimeout(() => {
+                    try { URL.revokeObjectURL(url); } catch (e) {}
+                }, 1500);
+            }
+        },
+
+        downloadPng: function () {
+            const canvas = typeof document !== 'undefined' && document.getElementById('vvQrCanvas');
+            if (!canvas) return;
+            if (typeof canvas.toDataURL === 'function' && typeof document !== 'undefined') {
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'jab_code_matrix_' + Date.now() + '.png';
+                if (document.body) {
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            }
         }
     };
 

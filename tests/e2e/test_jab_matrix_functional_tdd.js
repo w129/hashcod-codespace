@@ -720,6 +720,101 @@ runTest('SUITE 9', 'verifyPattern UI lifecycle updates badge and detail text on 
 });
 
 // ============================================================================
+// SUITE 11: DUAL QR ENGINE & EXTERNAL MATRIX SCANNER (MOBILE + JAB)
+// ============================================================================
+console.log('\n--- [SUITE 11] Dual QR Engine & External Matrix Scanner (Mobile + JAB) ---');
+
+runTest('SUITE 11', 'VectorVisionStudio exports dual mode matrixMode and qrEngine', () => {
+    assert(VectorVisionStudio.qrEngine, 'qrEngine must be defined');
+    assert.strictEqual(typeof VectorVisionStudio.qrEngine, 'function', 'qrEngine must be a constructor or generator function');
+    assert.strictEqual(typeof VectorVisionStudio.switchMatrixMode, 'function', 'switchMatrixMode must be defined');
+    assert.strictEqual(typeof VectorVisionStudio.renderStandardQr, 'function', 'renderStandardQr must be defined');
+    assert.strictEqual(typeof VectorVisionStudio.generateQrSvg, 'function', 'generateQrSvg must be defined');
+    assert.strictEqual(typeof VectorVisionStudio.scanUploadedMatrix, 'function', 'scanUploadedMatrix must be defined');
+    assert.strictEqual(typeof VectorVisionStudio.detectMatrixBoundingBox, 'function', 'detectMatrixBoundingBox must be defined');
+});
+
+runTest('SUITE 11', 'Standard QR (ISO/IEC 18004) generates valid canvas matrix and scalable vector SVG', () => {
+    const mockCanvas = new MockCanvas(200, 200);
+    const testPattern = [1055621, 4725, 4371, 1, 1, 24, 3, 8, 8, 8];
+    VectorVisionStudio.renderStandardQr(testPattern, mockCanvas);
+
+    assert(VectorVisionStudio.currentQrGrid >= 21, 'Standard QR grid must have at least 21 modules');
+    assert.strictEqual(mockCanvas.dataset.mode, 'qr', 'Canvas dataset mode must be qr');
+
+    // Test SVG generation
+    const svgStr = VectorVisionStudio.generateQrSvg(testPattern);
+    assert(typeof svgStr === 'string', 'generateQrSvg must return a string');
+    assert(svgStr.startsWith('<svg'), 'SVG must begin with <svg');
+    assert(svgStr.includes('fill="#000000"'), 'Standard QR SVG must include black modules');
+    assert(svgStr.includes('fill="#FFFFFF"'), 'Standard QR SVG must include white background');
+});
+
+runTest('SUITE 11', 'scanUploadedMatrix decodes external user image fixture losslessly (102 numbers)', () => {
+    const fixturePath = path.join(repoDir, 'tests/e2e/fixtures/user_scan_pixels.json');
+    assert(fs.existsSync(fixturePath), 'user_scan_pixels.json fixture must exist');
+    const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+
+    const mockCanvas = {
+        width: fixture.width,
+        height: fixture.height,
+        getContext: function(type) {
+            return {
+                getImageData: function() {
+                    return { data: fixture.data };
+                },
+                drawImage: function() {},
+                fillRect: function() {}
+            };
+        }
+    };
+
+    const scanResult = VectorVisionStudio.scanUploadedMatrix(mockCanvas);
+    assert.strictEqual(scanResult.success, true, 'scanUploadedMatrix must succeed on user fixture');
+    assert.strictEqual(scanResult.format, 'JAB_CODE', 'Detected format must be JAB_CODE');
+    assert.strictEqual(scanResult.pattern.length, 102, 'Must decode exactly 102 integers');
+    assert.strictEqual(scanResult.pattern[0], 1055621, 'First integer must match original pattern');
+    assert.strictEqual(scanResult.pattern[1], 4725, 'Second integer must match original pattern');
+    assert.strictEqual(scanResult.pattern[2], 4371, 'Third integer must match original pattern');
+    assert.strictEqual(scanResult.pattern[9], 8, 'Tenth integer must match original pattern');
+});
+
+runTest('SUITE 11', 'detectMatrixBoundingBox auto-crops screenshots with dark borders', () => {
+    // 10x10 mock canvas where pixels inside (2,2) to (7,7) are bright and borders are dark
+    const w = 10, h = 10;
+    const data = new Uint8ClampedArray(w * h * 4);
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            const off = (y * w + x) * 4;
+            if (x >= 2 && x <= 7 && y >= 3 && y <= 8) {
+                data[off] = 200; data[off+1] = 200; data[off+2] = 200; data[off+3] = 255;
+            } else {
+                data[off] = 20; data[off+1] = 20; data[off+2] = 20; data[off+3] = 255;
+            }
+        }
+    }
+    const mockCanvas = {
+        width: w,
+        height: h,
+        getContext: () => ({
+            getImageData: () => ({ data: data })
+        })
+    };
+    const bbox = VectorVisionStudio.detectMatrixBoundingBox(mockCanvas);
+    assert.strictEqual(bbox.x, 2, 'Bounding box X must start at 2');
+    assert.strictEqual(bbox.y, 3, 'Bounding box Y must start at 3');
+    assert.strictEqual(bbox.width, 6, 'Bounding box width must be 6 (2..7)');
+    assert.strictEqual(bbox.height, 6, 'Bounding box height must be 6 (3..8)');
+});
+
+runTest('SUITE 11', 'switchMatrixMode toggles active mode and updates rendering', () => {
+    VectorVisionStudio.switchMatrixMode('qr');
+    assert.strictEqual(VectorVisionStudio.matrixMode, 'qr', 'matrixMode must be qr');
+    VectorVisionStudio.switchMatrixMode('jab');
+    assert.strictEqual(VectorVisionStudio.matrixMode, 'jab', 'matrixMode must be jab');
+});
+
+// ============================================================================
 // SUITE 10: HTML TAG BALANCE (DIFF: 0) & JAVASCRIPT SYNTAX GUARDRAILS
 // ============================================================================
 console.log('\n--- [SUITE 10] HTML Tag Balance (Diff: 0) & JavaScript Syntax Guardrails ---');

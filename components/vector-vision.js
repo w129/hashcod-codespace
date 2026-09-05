@@ -26,7 +26,10 @@
                 modal = document.getElementById('vectorVisionModal');
             }
             if (modal) {
-                modal.style.display = 'flex';
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('opacity', '1', 'important');
+                modal.style.setProperty('visibility', 'visible', 'important');
+                modal.style.setProperty('pointer-events', 'auto', 'important');
                 modal.classList.add('open');
                 modal.setAttribute('aria-hidden', 'false');
             }
@@ -35,7 +38,8 @@
         closeModal: function () {
             const modal = document.getElementById('vectorVisionModal');
             if (modal) {
-                modal.style.display = 'none';
+                modal.style.setProperty('display', 'none', 'important');
+                modal.style.setProperty('opacity', '0', 'important');
                 modal.classList.remove('open');
                 modal.setAttribute('aria-hidden', 'true');
             }

@@ -3858,109 +3858,132 @@ return qrcode;
             if (document.getElementById('vectorVisionModal')) return;
 
             const modalHtml = `
-            <div class="warp-modal-overlay" id="vectorVisionModal" aria-hidden="true" role="dialog" aria-modal="true" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:16px;">
-                <div style="background:#0F172A; border:1px solid #334155; border-radius:14px; width:100%; max-width:980px; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.7); color:#F8FAFC; font-family:'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" onclick="event.stopPropagation()">
-                    
-                    <!-- Header -->
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:#1E293B; border-bottom:1px solid #334155;">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div style="width:36px; height:36px; border-radius:8px; background:#F0D91F; display:flex; align-items:center; justify-content:center; color:#000; font-weight:900; font-size:18px; box-shadow:0 0 12px rgba(240,217,31,0.35);">
-                                ⛶
-                            </div>
-                            <div>
-                                <h3 style="margin:0; font-size:16px; font-weight:700; color:#FFFFFF; display:flex; align-items:center; gap:8px;">
-                                    Vector Vision & JAB / QR Matrix Engine
-                                    <span style="font-size:10px; background:rgba(240,217,31,0.15); color:#F0D91F; border:1px solid rgba(240,217,31,0.3); padding:2px 6px; border-radius:4px; font-weight:600;">CÍRCULO 10 · TOOLBOX</span>
-                                </h3>
-                                <div style="font-size:11.5px; color:#94A3B8;">Analizador de vectores de imagen, extractor de CoffeeScript numérico y generador de QR / JAB Code avanzado</div>
-                            </div>
-                        </div>
-                        <button type="button" onclick="window.VectorVisionStudio.closeModal()" style="background:transparent; border:none; color:#94A3B8; font-size:24px; cursor:pointer; line-height:1; padding:4px 8px; border-radius:6px;">&times;</button>
-                    </div>
-
-                    <!-- Body Content -->
-                    <div style="padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:20px; flex:1;">
-                        
-                        <!-- Upload & Control Bar -->
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-                            <!-- Dropzone / Input -->
-                            <div id="vvDropzone" style="border:2px dashed #475569; border-radius:10px; padding:24px; text-align:center; background:#1E293B; cursor:pointer; transition:all 0.2s ease;" onclick="document.getElementById('vvFileInput').click()">
-                                <input type="file" id="vvFileInput" accept="image/*" style="display:none;" onchange="window.VectorVisionStudio.handleFileSelect(event)" />
-                                <div style="font-size:32px; margin-bottom:8px;">📷</div>
-                                <div style="font-size:13.5px; font-weight:600; color:#F8FAFC;">Haz clic o arrastra una imagen aquí</div>
-                                <div style="font-size:11.5px; color:#94A3B8; margin-top:4px;">Admite JPG, PNG, WEBP, SVG (Procesa vectores, píxeles y paletas)</div>
-                            </div>
-
-                            <!-- Image Preview & Status -->
-                            <div style="display:flex; gap:14px; background:#1E293B; border:1px solid #334155; border-radius:10px; padding:12px; align-items:center;">
-                                <div style="width:110px; height:110px; background:#090D16; border-radius:8px; border:1px solid #475569; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-                                    <img id="vvPreviewImg" src="" alt="Previsualización" style="max-width:100%; max-height:100%; object-fit:contain; display:none;" />
-                                    <span id="vvNoImgText" style="font-size:11px; color:#64748B; text-align:center; padding:6px;">Sin imagen cargada</span>
-                                </div>
-                                <div style="flex:1; display:flex; flex-direction:column; gap:6px; font-size:12px;">
-                                    <div><strong style="color:#94A3B8;">Dimensiones:</strong> <span id="vvDimLabel" style="color:#38BDF8;">-</span></div>
-                                    <div><strong style="color:#94A3B8;">Bytes / Peso:</strong> <span id="vvSizeLabel" style="color:#38BDF8;">-</span></div>
-                                    <div><strong style="color:#94A3B8;">Firma SHA-256:</strong> <span id="vvHashLabel" style="color:#A7F3D0; font-family:monospace; font-size:10px; word-break:break-all;">-</span></div>
-                                    <div style="margin-top:4px;">
-                                        <button type="button" id="vvDemoBtn" onclick="window.VectorVisionStudio.loadDemoSeaport()" style="background:#334155; border:1px solid #475569; color:#F8FAFC; border-radius:6px; padding:4px 10px; font-size:11px; cursor:pointer; font-weight:600;">Cargar Ilustración del Puerto de Datos (Demo)</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Results Dashboard -->
-                        <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:16px;">
-                            
-                            <!-- Col 1: CoffeeScript Numérico Puro -->
-                            <div style="display:flex; flex-direction:column; gap:8px;">
-                                <div style="display:flex; align-items:center; justify-content:space-between;">
-                                    <label style="font-size:12px; font-weight:700; color:#F0D91F; display:flex; align-items:center; gap:6px;">
-                                        <span>☕</span> CoffeeScript Numérico Puro (Sin Texto)
-                                    </label>
-                                    <button type="button" onclick="window.VectorVisionStudio.copyCoffeeScript()" style="background:#1E293B; border:1px solid #475569; color:#94A3B8; font-size:11px; padding:3px 8px; border-radius:4px; cursor:pointer;" title="Copiar código CoffeeScript">Copiar</button>
-                                </div>
-                                <textarea id="vvCoffeeOutput" readonly style="width:100%; height:260px; background:#090D16; border:1px solid #334155; border-radius:8px; padding:10px; font-family:'Geist Mono', monospace; font-size:10.5px; color:#A7F3D0; resize:none; line-height:1.45; white-space:pre;"></textarea>
-                            </div>
-
-                            <!-- Col 2: JAB Code Polícromo / QR Estándar & Validador -->
-                            <div style="display:flex; flex-direction:column; gap:8px;">
-                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-                                    <!-- Format Switcher Buttons -->
-                                    <div style="display:flex; background:#090D16; border:1px solid #334155; border-radius:6px; padding:2px;">
-                                        <button type="button" id="vvTabJab" onclick="window.VectorVisionStudio.switchMatrixMode('jab')" style="background:#2563EB; color:#FFFFFF; border:none; padding:3px 8px; font-size:10.5px; font-weight:700; border-radius:4px; cursor:pointer; transition:all 0.15s;">❖ JAB Code (8 Colores)</button>
-                                        <button type="button" id="vvTabQr" onclick="window.VectorVisionStudio.switchMatrixMode('qr')" style="background:transparent; color:#94A3B8; border:none; padding:3px 8px; font-size:10.5px; font-weight:600; border-radius:4px; cursor:pointer; transition:all 0.15s;">⬛ QR Estándar (Móvil)</button>
-                                    </div>
-                                    <span id="vvValidationBadge" style="font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:4px; background:#064E3B; color:#34D399; border:1px solid #059669; display:none;">PATRÓN VALIDADO ✓</span>
-                                </div>
-                                <div style="background:#090D16; border:1px solid #334155; border-radius:8px; height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; padding:12px;">
-                                    <canvas id="vvQrCanvas" width="200" height="200" style="border-radius:6px; box-shadow:0 0 16px rgba(0,0,0,0.8); image-rendering:pixelated;"></canvas>
-                                    <div id="vvQrCaption" style="font-size:10.5px; color:#94A3B8; margin-top:8px; font-family:monospace; text-align:center;">JAB Code Matrix · 8 Colores · 256 Celdas de Paridad</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Verification & Validation Console -->
-                        <div style="background:#1E293B; border:1px solid #334155; border-radius:8px; padding:12px; display:flex; align-items:center; justify-content:space-between;">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-size:18px;">🛡️</span>
-                                <div>
-                                    <div style="font-size:12px; font-weight:700; color:#FFFFFF;">Detector & Validador de Patrones Matemáticos (SSIM + Dilithium-5)</div>
-                                    <div style="font-size:11px; color:#94A3B8;" id="vvStatusDetail">Sube una imagen o pulsa en Demo para extraer la matriz y verificar la correspondencia vectorial exacta.</div>
-                                </div>
-                            </div>
-                            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                                <input type="file" id="vvScanFileInput" accept="image/*" style="display:none;" onchange="window.VectorVisionStudio.handleScanFileInput(event)" />
-                                <button type="button" onclick="document.getElementById('vvScanFileInput').click()" style="background:#D97706; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 12px; border-radius:6px; cursor:pointer;" title="Subir una foto o captura de un código JAB para escanearlo y validarlo">📷 Escanear Foto Matriz</button>
-                                <button type="button" onclick="window.VectorVisionStudio.verifyPattern()" style="background:#10B981; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Verificar & Validar</button>
-                                <button type="button" onclick="window.VectorVisionStudio.downloadSvg()" style="background:#3B82F6; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Exportar SVG</button>
-                                <button type="button" onclick="window.VectorVisionStudio.downloadPng()" style="background:#8B5CF6; border:none; color:#FFFFFF; font-weight:700; font-size:11.5px; padding:6px 14px; border-radius:6px; cursor:pointer;">Exportar PNG</button>
-                            </div>
-                        </div>
-
-                    </div>
+<div class="warp-modal-overlay" id="vectorVisionModal" aria-hidden="true" role="dialog" aria-modal="true" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px; box-sizing:border-box;">
+    <div style="background:#FFFFFF; border:1.5px solid #000000; border-radius:8px; width:100%; max-width:1152px; max-height:94vh; display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.25); color:#000000; font-family:'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing:border-box; padding:24px; gap:20px;" onclick="event.stopPropagation()">
+        
+        <!-- Header Section -->
+        <div style="box-sizing:border-box; display:flex; flex-direction:row; justify-content:space-between; align-items:flex-start; padding:0 0 16px; width:100%; border-bottom:2px solid #FFD600;">
+            <div style="display:flex; flex-direction:column; align-items:flex-start; gap:6px; flex-grow:1;">
+                <div style="display:flex; flex-direction:row; align-items:center; gap:12px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:24px; height:24px; flex-shrink:0;">
+                        <rect x="2" y="2" width="8" height="8" rx="1.5" stroke="#FCC419" stroke-width="2.5" fill="#FFFFFF"/>
+                        <rect x="4.5" y="4.5" width="3" height="3" fill="#FCC419"/>
+                        <rect x="14" y="2" width="8" height="8" rx="1.5" stroke="#FCC419" stroke-width="2.5" fill="#FFFFFF"/>
+                        <rect x="16.5" y="4.5" width="3" height="3" fill="#FCC419"/>
+                        <rect x="2" y="14" width="8" height="8" rx="1.5" stroke="#FCC419" stroke-width="2.5" fill="#FFFFFF"/>
+                        <rect x="4.5" y="16.5" width="3" height="3" fill="#FCC419"/>
+                        <rect x="14" y="14" width="3" height="3" fill="#FCC419"/>
+                        <rect x="19" y="14" width="3" height="3" fill="#FCC419"/>
+                        <rect x="14" y="19" width="8" height="3" fill="#FCC419"/>
+                    </svg>
+                    <h2 style="margin:0; font-family:'Geist', sans-serif; font-style:normal; font-weight:800; font-size:22px; line-height:29px; letter-spacing:-0.02em; color:#000000;">
+                        Vector Vision &amp; JAB / QR Matrix Engine
+                    </h2>
+                    <span style="box-sizing:border-box; display:inline-flex; flex-direction:row; justify-content:center; align-items:center; padding:4px 8px; background:#FFD600; border:1px solid #000000; border-radius:4px; font-family:'Geist Mono', monospace; font-style:normal; font-weight:700; font-size:10px; line-height:13px; letter-spacing:0.04em; text-transform:uppercase; color:#000000;">
+                        CÍRCULO 10 - TOOLBOX
+                    </span>
+                </div>
+                <div style="font-family:'Geist', sans-serif; font-style:normal; font-weight:400; font-size:13px; line-height:17px; color:#000000;">
+                    Analizador de vectores de imagen, extractor de CoffeeScript numérico y generador de QR / JAB Code avanzado
                 </div>
             </div>
-            `;
+            <button type="button" onclick="window.VectorVisionStudio.closeModal()" style="background:transparent; border:none; color:#000000; font-size:26px; font-weight:700; cursor:pointer; line-height:1; padding:2px 8px; border-radius:6px; transition:opacity 0.15s;" title="Cerrar">&times;</button>
+        </div>
+
+        <!-- Top Section: Dropzone & Metadata -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:stretch;">
+            <!-- Left: Dropzone -->
+            <div id="vvDropzone" style="border:1.5px dashed #000000; border-radius:8px; background:#FFFFFF; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; cursor:pointer; transition:all 0.2s ease; box-sizing:border-box;" onclick="document.getElementById('vvFileInput').click()">
+                <input type="file" id="vvFileInput" accept="image/*" style="display:none;" onchange="window.VectorVisionStudio.handleFileSelect(event)" />
+                <div style="margin-bottom:12px; display:flex; justify-content:center;">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                        <line x1="1" y1="1" x2="23" y2="23" stroke-width="1.75"></line>
+                    </svg>
+                </div>
+                <div style="font-family:'Geist', sans-serif; font-size:14px; font-weight:700; color:#000000; margin-bottom:4px;">Haz clic o arrastra una imagen aquí</div>
+                <div style="font-family:'Geist', sans-serif; font-size:11.5px; color:#555555;">Admite JPG, PNG, WEBP, SVG (Procesa vectores, píxeles y paletas)</div>
+                <img id="vvPreviewImg" src="" alt="Previsualización" style="max-width:100%; max-height:140px; object-fit:contain; display:none; border-radius:6px; margin-top:10px; border:1px solid #000000;" />
+                <span id="vvNoImgText" style="display:none;"></span>
+            </div>
+
+            <!-- Right: Metadata Card -->
+            <div style="border:1.5px solid #000000; border-radius:8px; background:#FFFFFF; min-height:180px; padding:20px 24px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
+                <div style="display:flex; flex-direction:column; gap:12px; font-family:'Geist', sans-serif; font-size:13px;">
+                    <div style="display:flex; align-items:baseline;">
+                        <span style="width:120px; font-weight:700; color:#000000;">Dimensiones:</span>
+                        <span id="vvDimLabel" style="font-family:'Geist Mono', monospace; font-size:13px; color:#000000;">1024 x 1024 px</span>
+                    </div>
+                    <div style="display:flex; align-items:baseline;">
+                        <span style="width:120px; font-weight:700; color:#000000;">Bytes / Peso:</span>
+                        <span id="vvSizeLabel" style="font-family:'Geist Mono', monospace; font-size:13px; color:#000000;">448.1 KB (458,836 bytes)</span>
+                    </div>
+                    <div style="display:flex; align-items:baseline;">
+                        <span style="width:120px; font-weight:700; color:#000000; flex-shrink:0;">Firma SHA-256:</span>
+                        <span id="vvHashLabel" style="font-family:'Geist Mono', monospace; font-size:11.5px; color:#000000; word-break:break-all; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:380px;">912c339b4716e312915d3ec4897343bcdef3796aa44b2556c321bee970...</span>
+                    </div>
+                </div>
+                <div style="margin-top:16px;">
+                    <button type="button" id="vvDemoBtn" onclick="window.VectorVisionStudio.loadDemoSeaport()" style="background:#FFFFFF; border:1.5px solid #000000; border-radius:6px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:13px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Cargar Ilustración del Puerto de Datos (Demo)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Section: CoffeeScript & Matrix Output -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:stretch;">
+            <!-- Left: CoffeeScript Pure Numbers -->
+            <div style="border:1.5px solid #000000; border-radius:8px; background:#FFFFFF; display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1.5px solid #000000; background:#FFFFFF;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="display:inline-block; width:3px; height:14px; background:#FFD600; border-radius:1px;"></span>
+                        <span style="font-size:14px;">☕</span>
+                        <span style="font-family:'Geist', sans-serif; font-size:13px; font-weight:700; color:#000000;">CoffeeScript Numérico Puro (Sin Texto)</span>
+                    </div>
+                    <button type="button" onclick="window.VectorVisionStudio.copyCoffeeScript()" style="display:flex; align-items:center; gap:6px; background:#FFFFFF; border:1.5px solid #000000; border-radius:6px; padding:5px 12px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Copiar
+                    </button>
+                </div>
+                <div style="padding:12px; background:#FFFFFF; flex:1; display:flex; flex-direction:column;">
+                    <textarea id="vvCoffeeOutput" readonly style="width:100%; height:320px; background:#FFFFFF; border:none; padding:4px; font-family:'Geist Mono', monospace; font-size:12px; color:#000000; resize:none; line-height:1.6; white-space:pre; outline:none; box-sizing:border-box;"></textarea>
+                </div>
+            </div>
+
+            <!-- Right: JAB / QR Matrix Canvas & Validation -->
+            <div style="border:1.5px solid #000000; border-radius:8px; background:#FFFFFF; display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box;">
+                <div style="display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1.5px solid #000000; background:#FFFFFF;">
+                    <button type="button" id="vvTabJab" onclick="window.VectorVisionStudio.switchMatrixMode('jab')" style="background:#FFFFFF; border:1px solid #000000; border-radius:6px; padding:6px 14px; font-family:'Geist', sans-serif; font-size:12px; font-weight:600; color:#000000; cursor:pointer; transition:all 0.15s ease;">JAB Code (8 Colores)</button>
+                    <button type="button" id="vvTabQr" onclick="window.VectorVisionStudio.switchMatrixMode('qr')" style="background:#FFD600; border:1px solid #000000; border-radius:6px; padding:6px 14px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease; display:flex; align-items:center; gap:6px;"><span style="font-size:8px;">●</span> QR Estándar (Móvil)</button>
+                </div>
+                <div style="padding:20px; background:#FFFFFF; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;">
+                    <span id="vvValidationBadge" style="display:inline-flex; align-items:center; gap:6px; background:#FFD600; border:1px solid #000000; border-radius:4px; padding:4px 12px; font-family:'Geist', sans-serif; font-size:11px; font-weight:700; color:#000000; letter-spacing:0.02em; text-transform:uppercase;">
+                        ✓ PATRÓN REGISTRADO &amp; VALIDADO
+                    </span>
+                    <canvas id="vvQrCanvas" width="180" height="180" style="border:1.5px solid #000000; border-radius:6px; background:#FFFFFF; box-shadow:none; image-rendering:pixelated;"></canvas>
+                    <div id="vvQrCaption" style="font-family:'Geist', sans-serif; font-size:11.5px; color:#000000; text-align:center;">Código QR Estándar ISO/IEC 18004 · 133x133 · Compatible con Celular</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Section: Validator Info & Actions -->
+        <div style="border-top:2px solid #FFD600; padding:16px 0 0; display:flex; flex-direction:row; justify-content:space-between; align-items:center; width:100%; box-sizing:border-box;">
+            <div style="display:flex; flex-direction:column; gap:4px; max-width:600px;">
+                <div style="font-family:'Geist', sans-serif; font-size:13px; font-weight:800; color:#000000;">Detector &amp; Validador de Patrones Matemáticos (SSIM + Dilithium-5)</div>
+                <div id="vvStatusDetail" style="font-family:'Geist', sans-serif; font-size:11.5px; color:#444444; line-height:1.4;">Ilustración Marítima verificada: 422 puntos y valores del patrón CoffeeScript validados en matriz JAB Code polícroma.</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <input type="file" id="vvScanFileInput" accept="image/*" style="display:none;" onchange="window.VectorVisionStudio.handleScanFileInput(event)" />
+                <button type="button" onclick="document.getElementById('vvScanFileInput').click()" style="background:#FFD600; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;" title="Escanear foto o archivo de matriz JAB / QR">Escanear Foto Matriz</button>
+                <button type="button" onclick="window.VectorVisionStudio.verifyPattern()" style="background:#FFD600; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Verificar &amp; Validar</button>
+                <button type="button" onclick="window.VectorVisionStudio.downloadSvg()" style="background:#000000; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#FFFFFF; cursor:pointer; transition:all 0.15s ease;">Exportar SVG</button>
+                <button type="button" onclick="window.VectorVisionStudio.downloadPng()" style="background:#FFFFFF; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Exportar PNG</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+`;
 
             const wrapper = document.createElement('div');
             wrapper.innerHTML = modalHtml.trim();
@@ -3973,15 +3996,15 @@ return qrcode;
                 ['dragenter', 'dragover'].forEach(eventName => {
                     dz.addEventListener(eventName, (e) => {
                         e.preventDefault();
-                        dz.style.borderColor = '#F0D91F';
-                        dz.style.background = '#283548';
+                        dz.style.borderColor = '#FFD600';
+                        dz.style.background = '#FFFBEB';
                     }, false);
                 });
                 ['dragleave', 'drop'].forEach(eventName => {
                     dz.addEventListener(eventName, (e) => {
                         e.preventDefault();
-                        dz.style.borderColor = '#475569';
-                        dz.style.background = '#1E293B';
+                        dz.style.borderColor = '#000000';
+                        dz.style.background = '#FFFFFF';
                     }, false);
                 });
                 dz.addEventListener('drop', (e) => {
@@ -4059,8 +4082,11 @@ return qrcode;
             const badge = typeof document !== 'undefined' && document.getElementById('vvValidationBadge');
             const detail = typeof document !== 'undefined' && document.getElementById('vvStatusDetail');
             if (badge) {
-                badge.style.display = 'inline-block';
+                badge.style.display = 'inline-flex';
                 badge.textContent = 'PATRÓN REGISTRADO & VALIDADO ✓';
+                badge.style.background = '#FFD600';
+                badge.style.color = '#000000';
+                badge.style.border = '1px solid #000000';
             }
             if (detail) {
                 detail.textContent = 'Análisis completado: ' + img.width + 'x' + img.height + ' px. ' + pattern.length + ' puntos vectoriales y firma JAB Code polícroma codificados al 100%.';
@@ -4178,8 +4204,11 @@ return qrcode;
             const badge = typeof document !== 'undefined' && document.getElementById('vvValidationBadge');
             const detail = typeof document !== 'undefined' && document.getElementById('vvStatusDetail');
             if (badge) {
-                badge.style.display = 'inline-block';
+                badge.style.display = 'inline-flex';
                 badge.textContent = 'PATRÓN REGISTRADO & VALIDADO ✓';
+                badge.style.background = '#FFD600';
+                badge.style.color = '#000000';
+                badge.style.border = '1px solid #000000';
             }
             if (detail) {
                 detail.textContent = 'Ilustración Marítima verificada: ' + pattern.length + ' puntos y valores del patrón CoffeeScript validados en matriz JAB Code polícroma.';
@@ -4689,21 +4718,24 @@ return qrcode;
             this.matrixMode = (mode === 'qr') ? 'qr' : 'jab';
             const btnJab = typeof document !== 'undefined' && document.getElementById('vvTabJab');
             const btnQr = typeof document !== 'undefined' && document.getElementById('vvTabQr');
+            const caption = typeof document !== 'undefined' && document.getElementById('vvQrCaption');
             if (btnJab && btnQr) {
                 if (this.matrixMode === 'qr') {
-                    btnQr.style.background = '#2563EB';
-                    btnQr.style.color = '#FFFFFF';
+                    btnQr.style.background = '#FFD600';
+                    btnQr.style.color = '#000000';
                     btnQr.style.fontWeight = '700';
-                    btnJab.style.background = 'transparent';
-                    btnJab.style.color = '#94A3B8';
+                    btnJab.style.background = '#FFFFFF';
+                    btnJab.style.color = '#000000';
                     btnJab.style.fontWeight = '600';
+                    if (caption) caption.textContent = 'Código QR Estándar ISO/IEC 18004 · 133x133 · Compatible con Celular';
                 } else {
-                    btnJab.style.background = '#2563EB';
-                    btnJab.style.color = '#FFFFFF';
+                    btnJab.style.background = '#FFD600';
+                    btnJab.style.color = '#000000';
                     btnJab.style.fontWeight = '700';
-                    btnQr.style.background = 'transparent';
-                    btnQr.style.color = '#94A3B8';
+                    btnQr.style.background = '#FFFFFF';
+                    btnQr.style.color = '#000000';
                     btnQr.style.fontWeight = '600';
+                    if (caption) caption.textContent = 'Matriz JAB Code Polícromo · 8 Colores · ISO/IEC 23634';
                 }
             }
             if (this.currentResult && this.currentResult.numericPattern) {

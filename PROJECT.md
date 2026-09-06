@@ -1,86 +1,68 @@
-# Project: Dilithium-5 Single-Use Key Rotation in Hashcod Codespace
+# Project: Post-Quantum Vector Crypto Signatures & Precision Scanner
 
 ## Architecture
-The Dilithium-5 Post-Quantum Security Gate protects access to the cryptographic signature generator (`dilithiumGeneratorModal`) via a floating launcher button (`d5LauncherBtn`) and authentication modal (`dilithiumGateModal`).
-This project upgrades the authentication model from a static passcode (`36276217`) to an autonomous, single-use key rotation engine with persistent state storage, immediate invalidation of burned keys, automatic scalar key generation on unlock, and clear visual presentation of the next active passcode ("La que toca") with one-click clipboard copying.
-
-### Data Flow & State Lifecycle
-1. **Initial Seed**: If `localStorage.getItem('l8_active_d5_gate_passcode')` is null, seed with base active key `'36276217'`.
-2. **Gate Authentication**: User enters passcode in `#d5GatePasscodeInput` within `#dilithiumGateModal`.
-3. **Validation & Burn**:
-   - Check against consumed list (`l8_consumed_d5_gate_passcodes`). If consumed, reject with `"⚠️ Este código de seguridad ya fue consumido e invalidado. Acceso denegado."`.
-   - Check against active key (`l8_active_d5_gate_passcode`). If mismatch, reject with `"⚠️ Código de seguridad incorrecto o expirado. Acceso denegado."`.
-   - On match: immediately add key to `l8_consumed_d5_gate_passcodes` blacklist.
-4. **Autonomous Key Generation**:
-   - Derive next 8-digit passcode using post-quantum recurrence relation $R(b) = 7b^3 + 3b^2 - b + 1 \pmod{8380417}$ and cryptographic entropy.
-   - Persist next active passcode to `localStorage` and `sessionStorage` under `l8_active_d5_gate_passcode`.
-5. **Tool Unlocking & Visualizer Binding**:
-   - Close `#dilithiumGateModal`, open `#dilithiumGeneratorModal`.
-   - Update `#d5NextActivePasscodeVal` with the newly generated active key.
-   - Display `#d5PasscodeConsumedBadge` ("Clave anterior consumida e invalidada ✓").
-   - Automatically execute scalar multiplication for lattice signature rotation.
-6. **Session Boundary**:
-   - On closing `#dilithiumGeneratorModal`, reset `d5Unlocked = false`.
-   - Subsequent access requires entering the newly generated active key.
-7. **HTML Parity & Static Sync**:
-   - In `index.php`, maintain exact `openDiv === closeDiv` (`Diff: 0`).
-   - Run `scripts/sync_static_html.js` to synchronize `index.html` and `404.html`.
+The Vector Vision platform (`components/vector-vision.js`, `#vectorVisionModal`) integrates an end-to-end post-quantum cryptographic steganography and verification pipeline:
+1. **Vector Node & Vertex Extractor**: Analyzes vector drawings, contours, and architectural silhouettes to extract sequential vertices $V_i = (x_i, y_i)$.
+2. **Post-Quantum Cryptographic Signature Engine**: Binds NIST Level 5 Dilithium-5 (ML-DSA-87) root signatures and deterministic 64-bit non-linear pseudo-random tags $S_i = \text{Trunc}_{64}(\text{HMAC-SHA256}(\text{Seed}_{D5}, i \parallel x_i \parallel y_i \parallel f_{NL}(x_i, y_i, i)))$ to each coordinate.
+3. **Steganographic Watermarking Engine**: Embeds coordinates and signatures directly into the vector drawing (SVG attributes, lossless sub-pixel mantissa displacement $<0.001\text{ px}$, and perimeter micro-markers) without defacing vector aesthetics.
+4. **Sequential Matrix Serialization Engine**: Serializes node indices, coordinates, and signatures into polychrome JAB Code (ISO/IEC 23634) and standard QR (ISO/IEC 18004). Incorporates a dual-checksum avalanche parity word ($\text{CRC32} \oplus \text{MurmurHash3\_32}$) such that altering any coordinate or swapping adjacent sequence order invalidates matrix parity.
+5. **Advanced Optical Scanner**: Adapted from `D:\improve-platform-accuracy.zip` (`CameraView.tsx`, `FaceScanApp.tsx`), featuring live camera streaming (`getUserMedia`), precision reticle (`.scan-reticle`), animated laser sweep line (`.scan-line`), real-time Q1–Q4 quadrant focus & exposure analysis, and auto-detection.
+6. **Bidirectional Verification Engine**: Supports both webcam stream capture and file/photo upload. Reconstructs sequence from drawing vs code and asserts 100% mathematical match (`VALIDADO AL 100% ✓`) or emits counterfeit alerts.
+7. **DOM & HTML Parity Guard**: Injected dynamically through `VectorVisionStudio` preserving exact tag balance (`Diff: 0`) in `index.php`, `index.html`, and `404.html`.
 
 ## Feature Inventory
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | Single-Use Key Invalidation | Immediately burn entered passcode and reject on replay attempts | M2 | ORIGINAL_REQUEST §R1 |
-| 2 | Autonomous Key Derivation | Auto-generate next 8-digit active Dilithium-5 key upon unlock | M2 | ORIGINAL_REQUEST §R1 |
-| 3 | Single Valid Key Invariant | Only the newly generated key can unlock subsequent attempts | M2 | ORIGINAL_REQUEST §R1 |
-| 4 | UI Visualizer Section | Display "Próxima Clave Dilithium-5 Activa (La que toca)" prominently | M2 | ORIGINAL_REQUEST §R2 |
-| 5 | Active Key Display Field | Readonly monospace field `#d5NextActivePasscodeVal` showing active key | M2 | ORIGINAL_REQUEST §R2 |
-| 6 | Copy Vector Button & Toast | Button `#btnCopyActiveD5Passcode` with toast confirmation | M2 | ORIGINAL_REQUEST §R2 |
-| 7 | Consumed Status Badge | Badge `#d5PasscodeConsumedBadge` showing "Clave anterior consumida e invalidada ✓" | M2 | ORIGINAL_REQUEST §R2 |
-| 8 | Persistent Storage Sync | Persist in `localStorage`/`sessionStorage` under `l8_active_d5_gate_passcode` | M2 | ORIGINAL_REQUEST §R3 |
-| 9 | Default Key Initializer | Fallback to base active key `'36276217'` if storage is uninitialized | M2 | ORIGINAL_REQUEST §R3 |
-| 10 | TDD Test Suite Creation | Pure Node.js test suite `tests/e2e/test_dilithium_key_rotation_tdd.js` covering 8 test suites | M1 | ORIGINAL_REQUEST §R4 |
-| 11 | HTML DOM Tag Balance | Maintain strict `Diff: 0` (`openDiv === closeDiv`) across `index.php`, `index.html`, and `404.html` | M2, M3 | ORIGINAL_REQUEST §R4 |
-| 12 | Syntax & Platform Regression | Zero errors in `node --check` and 100% pass on all existing platform test suites | M3 | ORIGINAL_REQUEST §R4 |
+| 1 | Vector Node & Vertex Extraction | Extract ordered coordinates $(x_i, y_i)$ from vector paths, contours, silhouettes | M1 | ORIGINAL_REQUEST §R1 |
+| 2 | Dilithium-5 & Non-Linear PQC Signatures | Generate lattice-based coordinate signatures $S_i$ using Dilithium-5 parameters | M1 | ORIGINAL_REQUEST §R1 |
+| 3 | Steganographic Visual & Math Embedding | Embed signatures into vector drawing preserving aesthetics ($\Delta E < 0.5$, $\text{SSIM} > 0.999$) | M1 | ORIGINAL_REQUEST §R1 |
+| 4 | Polychrome JAB Code Serialization | Encode ordered coordinates, indices, and signatures into 8-color JAB matrix | M1 | ORIGINAL_REQUEST §R2 |
+| 5 | Advanced QR Matrix Serialization | Encode ordered coordinates, indices, and signatures into standard QR matrix | M1 | ORIGINAL_REQUEST §R2 |
+| 6 | Parity Avalanche Protection | Dual checksum ($\text{CRC32} \oplus \text{MurmurHash3\_32}$) invalidating matrix on 1-point mutation | M1 | ORIGINAL_REQUEST §R2 |
+| 7 | Live Camera Stream & Lifecycle | `getUserMedia` integration with resolution constraints, mobile flip, and track cleanup | M1 | ORIGINAL_REQUEST §R3 |
+| 8 | Precision Reticle & Sweep Line | Visual capture reticle (`.scan-reticle`), corner brackets, and sweep line (`.scan-line`) | M1 | ORIGINAL_REQUEST §R3 |
+| 9 | Real-time Quadrant Auto-Calibration | Q1–Q4 discrete Laplacian gradient sharpness, exposure balance, auto-capture trigger | M1 | ORIGINAL_REQUEST §R3 |
+| 10 | Dual Scan Mode (Live + File Upload) | Bidirectional scanner supporting direct webcam feed and image/photo upload | M1 | ORIGINAL_REQUEST §R4 |
+| 11 | Bidirectional 100% Verification Engine | Extract vector points vs code, reconstruct sequence, calculate mathematical match | M1 | ORIGINAL_REQUEST §R4 |
+| 12 | Verification Verdict & Counterfeit Alert | Output "VALIDADO AL 100% ✓" or alert pinpointing modified node index and delta | M1 | ORIGINAL_REQUEST §R4 |
+| 13 | E2E TDD Test Suite Creation | Automated TDD suite in `tests/e2e/test_vector_crypto_signatures_tdd.js` | M_TEST | ORIGINAL_REQUEST §Guardrails |
+| 14 | Syntax Validation (0 errors) | Zero syntax errors validated via `node -c components/vector-vision.js` | M2 | ORIGINAL_REQUEST §Guardrails |
+| 15 | HTML Tag Balance (Diff: 0) | Strict preservation of tag balance in `index.php`, `index.html`, and `404.html` | M2 | ORIGINAL_REQUEST §Guardrails |
+| 16 | Git Commit & Push to origin/main | Commit and push all deliverables to main branch | M2 | ORIGINAL_REQUEST §Guardrails |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | TDD Test Suite Creation | Create `tests/e2e/test_dilithium_key_rotation_tdd.js` implementing all 8 verification suites | none | DONE |
-| M2 | Single-Use Rotation Engine & UI Visualizer | Implement key consumption, autonomous generation, persistence, UI visualizer in `index.php`, and sync to `index.html`/`404.html` | M1 | DONE |
-| M3 | Full E2E Pass, Adversarial Verification & Audit | Execute all test suites, verify DOM tag balance (`Diff: 0`), adversarial stress test, and forensic audit | M2 | DONE |
+| M_TEST | E2E Testing Track | Write comprehensive TDD suite `tests/e2e/test_vector_crypto_signatures_tdd.js` (Tiers 1-4) and publish `TEST_READY.md` | none | DONE |
+| M1 | PQC Crypto, Matrix & Precision Scanner Engine | Implement `VectorVisionCryptoEngine`, `VectorVisionMatrixEngine`, `VectorVisionScannerEngine`, and UI integration in `components/vector-vision.js` | M_TEST | DONE |
+| M2 | Final Milestone: Full E2E Pass, Guardrails & Git Push | Pass 100% of TDD tests, Tier 5 adversarial hardening, verify HTML balance `Diff: 0`, node syntax check, git commit & push | M1 | IN_PROGRESS |
 
 ## Interface Contracts
-### Gate Authentication & Rotation
-- `window.verifyDilithiumGateCode()`: Reads `#d5GatePasscodeInput`. Validates against `l8_active_d5_gate_passcode`. Burns used key to `l8_consumed_d5_gate_passcodes`. Generates new active key, updates `l8_active_d5_gate_passcode`. Unlocks `#dilithiumGeneratorModal`.
-- `window.copyActiveDilithiumGatePasscode()`: Copies active passcode from `#d5NextActivePasscodeVal` to clipboard, triggers `window.showAdminToast()`.
-- `window.updateActiveDilithiumPasscodeUI(passcode)`: Updates `#d5NextActivePasscodeVal` and displays `#d5PasscodeConsumedBadge`.
-- `window.closeDilithiumGeneratorModal()`: Closes modal and resets `d5Unlocked = false`.
+### PQC Signature Engine
+- `VectorVisionCryptoEngine.signVectorPath(points, options)`: Returns `{ rootSignature, points: [{ x, y, index, tag, signature }], digest }`.
+- `VectorVisionCryptoEngine.verifyVectorSignature(points, rootSignature, options)`: Returns `{ valid: boolean, matchedPoints, mismatchedPoints }`.
+- `VectorVisionCryptoEngine.embedSteganographicWatermark(svgElement, pointsWithSignatures)`: Attaches steganographic marks and returns modified SVG/DOM without aesthetic degradation.
 
-### Storage Keys
-- `l8_active_d5_gate_passcode`: string (8 digits, defaults to `'36276217'`).
-- `l8_consumed_d5_gate_passcodes`: JSON array of consumed string passcodes.
+### Matrix Serialization Engine
+- `VectorVisionMatrixEngine.serializeOrderedPoints(pointsWithSignatures)`: Returns binary payload with magic `0xD5`, coordinate counts, VarInt encoded coordinates, tags, and avalanche parity word.
+- `VectorVisionMatrixEngine.deserializeOrderedPoints(payloadBytes)`: Reconstructs `{ points, parityValid, rootSignature }`.
+- `VectorVisionMatrixEngine.generateJABMatrix(payloadBytes, canvas)`: Renders 8-color polychrome matrix with 4 corner finders.
+- `VectorVisionMatrixEngine.generateQRMatrix(payloadBytes, canvas)`: Renders standard QR matrix with embedded payload.
+
+### Advanced Scanner Engine
+- `VectorVisionScannerEngine.startCamera(videoElement, containerElement)`: Requests camera stream, attaches to video, mounts `.scan-reticle` and `.scan-line`.
+- `VectorVisionScannerEngine.stopCamera()`: Stops all stream tracks, cancels RAF loop.
+- `VectorVisionScannerEngine.analyzeFrameQuadrants(videoElement, offscreenCanvas)`: Returns `{ q1, q2, q3, q4, overallSharpness, balanced, readyToCapture }`.
+- `VectorVisionScannerEngine.scanFromImageFile(fileOrCanvas)`: Analyzes uploaded image for JAB/QR or vector drawing.
+
+### Bidirectional Verification UI
+- `VectorVisionStudio.verifyBidirectionalIntegrity(drawingPoints, matrixData)`: Computes point-by-point cryptographic match, checks sequence order, returns `{ status: "VALIDADO AL 100% ✓" | "ALERTA DE FALSIFICACIÓN ✕", score: 100, details }`.
 
 ## Code Layout
-- `index.php`: Main application template. Gate modal (lines 27702-27723), generator modal (lines 27552-27697), controller functions (lines 26154-26380).
-- `index.html`: Synchronized static entry point.
-- `404.html`: Synchronized static fallback.
-- `scripts/sync_static_html.js`: Propagates changes from `index.php` to `index.html` and `404.html`.
-- `scripts/verify_tag_balance.js`: Verifies `openDiv === closeDiv` (`Diff: 0`).
-- `tests/e2e/test_dilithium_key_rotation_tdd.js`: Dedicated TDD unit and E2E test suite.
-- `tests/e2e/run_all_verifications.js`: Master verification runner.
-
-## Security & Hardening API Contracts
-The platform implements resilient Public APIs and contracts:
-- 	hreatIntelCheckIp: Threat reputation, Tor exit node, and bot IP check.
-- ulnerabilityAuditManifest: Scans dependency manifests (npm/pip) against OSV and CVE feeds.
-- quantumHarvestEntropy: Gathers quantum entropy from ANU and NIST Beacon for Dilithium-5 key generation and session nonces.
-- tomicTimeGetDeterministicTimestamp: Deterministic timestamping for immutable deployment certificates.
-- circuitBreakerExecute: Fault-tolerant circuit breaker proxy with SWR caching.
-
-## Security & Hardening API Contracts
-The platform implements resilient Public APIs and contracts:
-- `threatIntelCheckIp`: Threat reputation, Tor exit node, and bot IP check.
-- `vulnerabilityAuditManifest`: Scans dependency manifests (npm/pip) against OSV and CVE feeds.
-- `quantumHarvestEntropy`: Gathers quantum entropy from ANU and NIST Beacon for Dilithium-5 key generation and session nonces.
-- `atomicTimeGetDeterministicTimestamp`: Deterministic timestamping for immutable deployment certificates.
-- `circuitBreakerExecute`: Fault-tolerant circuit breaker proxy with SWR caching.
+- `components/vector-vision.js`: Main monolithic engine housing `VectorVisionCryptoEngine`, `VectorVisionMatrixEngine`, `VectorVisionScannerEngine`, `VectorVisionStudio`, and modal templates.
+- `tests/e2e/test_vector_crypto_signatures_tdd.js`: Master TDD test suite validating point extraction, Dilithium-5 signatures, JAB/QR serialization, avalanche parity, and bidirectional 100% verification.
+- `index.php`: Host PHP template containing launcher button and modal roots.
+- `index.html`: Synchronized HTML entry point.
+- `404.html`: Synchronized fallback page.
+- `scripts/verify_tag_balance.js`: Static HTML tag balance validator (`Diff: 0`).
+- `scripts/sync_static_html.js`: Static HTML synchronization tool.

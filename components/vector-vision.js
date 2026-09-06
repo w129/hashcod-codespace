@@ -3961,7 +3961,7 @@ return qrcode;
                         ✓ PATRÓN REGISTRADO &amp; VALIDADO
                     </span>
                     <canvas id="vvQrCanvas" width="180" height="180" style="border:1.5px solid #000000; border-radius:6px; background:#FFFFFF; box-shadow:none; image-rendering:pixelated;"></canvas>
-                    <div id="vvQrCaption" style="font-family:'Geist', sans-serif; font-size:11.5px; color:#000000; text-align:center;">Código QR Estándar ISO/IEC 18004 · 133x133 · Compatible con Celular</div>
+                    <div id="vvQrCaption" style="font-family:'Geist', sans-serif; font-size:11.5px; color:#000000; text-align:center;">Código QR Estándar ISO/IEC 18004 · Margen 4M · Compatible con Celular</div>
                 </div>
             </div>
         </div>
@@ -4827,7 +4827,7 @@ return qrcode;
             let list = Array.isArray(patternOrText) ? patternOrText : (this.currentResult && this.currentResult.numericPattern);
             if (!list || list.length === 0) return '0';
             if (list.length <= 40) return list.join(',');
-            const hash = (this.currentResult && this.currentResult.hash) ? this.currentResult.hash.slice(0, 16) : '0';
+            const hash = (this.currentResult && this.currentResult.hash) ? this.currentResult.hash.slice(0, 8) : '0';
             const w = (this.currentResult && this.currentResult.width) || 1024;
             const h = (this.currentResult && this.currentResult.height) || 1024;
             return 'https://hashcod.codespace/verify?h=' + hash + '&w=' + w + '&h=' + h + '&pts=' + list.length;
@@ -4838,16 +4838,25 @@ return qrcode;
             const canvas = targetCanvas || (typeof document !== 'undefined' && document.getElementById('vvQrCanvas'));
             if (!canvas) return;
 
-            const qr = this.qrEngine(0, 'M');
+            const qr = this.qrEngine(0, 'L');
             qr.addData(text);
             qr.make();
 
             const moduleCount = qr.getModuleCount();
             this.currentQrGrid = moduleCount;
 
-            const size = Math.max(canvas.width || 280, 280);
+            const margin = 4;
+            const totalModules = moduleCount + margin * 2;
+            const cellSize = 8;
+            const size = totalModules * cellSize;
+
             canvas.width = size;
             canvas.height = size;
+            if (canvas.style) {
+                canvas.style.width = '200px';
+                canvas.style.height = '200px';
+            }
+
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
             ctx.imageSmoothingEnabled = false;
@@ -4856,13 +4865,8 @@ return qrcode;
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, size, size);
 
-            // ISO/IEC 18004 Quiet Zone: 4 modules margin around all 4 sides
-            const margin = 4;
-            const totalModules = moduleCount + margin * 2;
-            const cellSize = Math.max(2, Math.floor(size / totalModules));
-            const offset = Math.floor((size - totalModules * cellSize) / 2) + margin * cellSize;
-
-            // Draw black modules
+            // Draw single standard black modules
+            const offset = margin * cellSize;
             ctx.fillStyle = '#000000';
             for (let r = 0; r < moduleCount; r++) {
                 for (let c = 0; c < moduleCount; c++) {
@@ -4875,13 +4879,13 @@ return qrcode;
             if (canvas.dataset) canvas.dataset.mode = 'qr';
             const caption = typeof document !== 'undefined' && document.getElementById('vvQrCaption');
             if (caption) {
-                caption.textContent = 'Código QR Estándar ISO/IEC 18004 · ' + moduleCount + '×' + moduleCount + ' · Margen 4M · Escaneo Móvil Activo';
+                caption.textContent = 'Código QR Estándar ISO/IEC 18004 · ' + moduleCount + '×' + moduleCount + ' · Margen 4M · Compatible con Celular';
             }
         },
 
         generateQrSvg: function (patternOrText) {
             const text = this.resolveQrPayload(patternOrText);
-            const qr = this.qrEngine(0, 'M');
+            const qr = this.qrEngine(0, 'L');
             qr.addData(text);
             qr.make();
             const moduleCount = qr.getModuleCount();

@@ -15948,7 +15948,7 @@ if (!headers_sent()) {
                         ✓ PATRÓN REGISTRADO &amp; VALIDADO
                     </span>
                     <canvas id="vvQrCanvas" width="180" height="180" style="border:1.5px solid #000000; border-radius:6px; background:#FFFFFF; box-shadow:none; image-rendering:pixelated;"></canvas>
-                    <div id="vvQrCaption" style="font-family:'Geist', sans-serif; font-size:11.5px; color:#000000; text-align:center;">Código QR Estándar ISO/IEC 18004 · 133x133 · Compatible con Celular</div>
+                    <div id="vvQrCaption" style="font-family:'Geist', sans-serif; font-size:11.5px; color:#000000; text-align:center;">Código QR Estándar ISO/IEC 18004 · Margen 4M · Compatible con Celular</div>
                 </div>
             </div>
         </div>

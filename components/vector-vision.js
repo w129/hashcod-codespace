@@ -4802,7 +4802,7 @@ return qrcode;
                     btnJab.style.background = '#FFFFFF';
                     btnJab.style.color = '#000000';
                     btnJab.style.fontWeight = '600';
-                    if (caption) caption.textContent = 'Código QR Estándar ISO/IEC 18004 · 133x133 · Compatible con Celular';
+                    if (caption) caption.textContent = 'Código QR Estándar ISO/IEC 18004 · Compatible con Celular';
                 } else {
                     btnJab.style.background = '#FFD600';
                     btnJab.style.color = '#000000';
@@ -4822,46 +4822,52 @@ return qrcode;
             }
         },
 
-        renderStandardQr: function (patternOrText, targetCanvas) {
-            let text = '';
-            if (Array.isArray(patternOrText)) {
-                text = patternOrText.join(',');
-            } else if (typeof patternOrText === 'string') {
-                text = patternOrText;
-            } else if (this.currentResult && this.currentResult.numericPattern) {
-                text = this.currentResult.numericPattern.join(',');
-            }
-            if (!text) text = '0';
+        resolveQrPayload: function (patternOrText) {
+            if (typeof patternOrText === 'string') return patternOrText;
+            let list = Array.isArray(patternOrText) ? patternOrText : (this.currentResult && this.currentResult.numericPattern);
+            if (!list || list.length === 0) return '0';
+            if (list.length <= 40) return list.join(',');
+            const hash = (this.currentResult && this.currentResult.hash) ? this.currentResult.hash.slice(0, 16) : '0';
+            const w = (this.currentResult && this.currentResult.width) || 1024;
+            const h = (this.currentResult && this.currentResult.height) || 1024;
+            return 'https://hashcod.codespace/verify?h=' + hash + '&w=' + w + '&h=' + h + '&pts=' + list.length;
+        },
 
+        renderStandardQr: function (patternOrText, targetCanvas) {
+            const text = this.resolveQrPayload(patternOrText);
             const canvas = targetCanvas || (typeof document !== 'undefined' && document.getElementById('vvQrCanvas'));
             if (!canvas) return;
 
-            const qr = this.qrEngine(0, 'L');
+            const qr = this.qrEngine(0, 'M');
             qr.addData(text);
             qr.make();
 
             const moduleCount = qr.getModuleCount();
             this.currentQrGrid = moduleCount;
 
-            const size = Math.max(canvas.width || 200, 200);
+            const size = Math.max(canvas.width || 280, 280);
             canvas.width = size;
             canvas.height = size;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
             ctx.imageSmoothingEnabled = false;
 
-            const cellSize = size / moduleCount;
-
-            // Fill white background
+            // Fill entire canvas with white background
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, size, size);
+
+            // ISO/IEC 18004 Quiet Zone: 4 modules margin around all 4 sides
+            const margin = 4;
+            const totalModules = moduleCount + margin * 2;
+            const cellSize = Math.max(2, Math.floor(size / totalModules));
+            const offset = Math.floor((size - totalModules * cellSize) / 2) + margin * cellSize;
 
             // Draw black modules
             ctx.fillStyle = '#000000';
             for (let r = 0; r < moduleCount; r++) {
                 for (let c = 0; c < moduleCount; c++) {
                     if (qr.isDark(r, c)) {
-                        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+                        ctx.fillRect(offset + c * cellSize, offset + r * cellSize, cellSize, cellSize);
                     }
                 }
             }
@@ -4869,34 +4875,27 @@ return qrcode;
             if (canvas.dataset) canvas.dataset.mode = 'qr';
             const caption = typeof document !== 'undefined' && document.getElementById('vvQrCaption');
             if (caption) {
-                caption.textContent = 'Código QR Estándar ISO/IEC 18004 · ' + moduleCount + '×' + moduleCount + ' · Compatible con Celular';
+                caption.textContent = 'Código QR Estándar ISO/IEC 18004 · ' + moduleCount + '×' + moduleCount + ' · Margen 4M · Escaneo Móvil Activo';
             }
         },
 
         generateQrSvg: function (patternOrText) {
-            let text = '';
-            if (Array.isArray(patternOrText)) {
-                text = patternOrText.join(',');
-            } else if (typeof patternOrText === 'string') {
-                text = patternOrText;
-            } else if (this.currentResult && this.currentResult.numericPattern) {
-                text = this.currentResult.numericPattern.join(',');
-            }
-            if (!text) text = '0';
-
-            const qr = this.qrEngine(0, 'L');
+            const text = this.resolveQrPayload(patternOrText);
+            const qr = this.qrEngine(0, 'M');
             qr.addData(text);
             qr.make();
             const moduleCount = qr.getModuleCount();
             const cellSize = 8;
-            const totalSize = moduleCount * cellSize;
+            const margin = 4;
+            const totalSize = (moduleCount + margin * 2) * cellSize;
+            const offset = margin * cellSize;
 
             const rects = [];
             rects.push(`<rect width="${totalSize}" height="${totalSize}" fill="#FFFFFF"/>`);
             for (let r = 0; r < moduleCount; r++) {
                 for (let c = 0; c < moduleCount; c++) {
                     if (qr.isDark(r, c)) {
-                        rects.push(`<rect x="${c * cellSize}" y="${r * cellSize}" width="${cellSize}" height="${cellSize}" fill="#000000"/>`);
+                        rects.push(`<rect x="${offset + c * cellSize}" y="${offset + r * cellSize}" width="${cellSize}" height="${cellSize}" fill="#000000"/>`);
                     }
                 }
             }

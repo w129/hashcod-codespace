@@ -748,6 +748,15 @@ runTest('SUITE 11', 'Standard QR (ISO/IEC 18004) generates valid canvas matrix a
     assert(svgStr.startsWith('<svg'), 'SVG must begin with <svg');
     assert(svgStr.includes('fill="#000000"'), 'Standard QR SVG must include black modules');
     assert(svgStr.includes('fill="#FFFFFF"'), 'Standard QR SVG must include white background');
+
+    // Test mobile payload resolution and quiet zone
+    assert.strictEqual(typeof VectorVisionStudio.resolveQrPayload, 'function', 'resolveQrPayload must be exported');
+    const shortPayload = VectorVisionStudio.resolveQrPayload(testPattern);
+    assert.strictEqual(shortPayload, testPattern.join(','), 'Short pattern <= 40 items must be encoded directly');
+    const largePattern = new Array(100).fill(42);
+    const largePayload = VectorVisionStudio.resolveQrPayload(largePattern);
+    assert(largePayload.startsWith('https://hashcod.codespace/verify?'), 'Large pattern > 40 items must encode mobile verification URL');
+    assert(svgStr.includes('viewBox="0 0'), 'SVG must include viewBox with quiet zone margins');
 });
 
 runTest('SUITE 11', 'scanUploadedMatrix decodes external user image fixture losslessly (102 numbers)', () => {

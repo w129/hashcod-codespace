@@ -814,6 +814,60 @@ runTest('SUITE 11', 'switchMatrixMode toggles active mode and updates rendering'
     assert.strictEqual(VectorVisionStudio.matrixMode, 'jab', 'matrixMode must be jab');
 });
 
+runTest('SUITE 11', 'Uploaded matrix scan synchronizes state, updates CoffeeScript, and verifies 100% losslessly', () => {
+    const fixturePath = path.join(repoDir, 'tests/e2e/fixtures/user_scan_pixels.json');
+    const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    const mockCanvas = {
+        width: fixture.width,
+        height: fixture.height,
+        getContext: () => ({
+            getImageData: () => ({ data: fixture.data }),
+            drawImage: () => {},
+            fillRect: () => {}
+        })
+    };
+
+    // 1. Scan external matrix
+    const scanResult = VectorVisionStudio.scanUploadedMatrix(mockCanvas);
+    assert.strictEqual(scanResult.success, true);
+    assert.strictEqual(scanResult.pattern.length, 102);
+
+    // 2. Reconstruct coffee and update currentResult
+    const coffee = VectorVisionStudio.reconstructCoffeeScriptFromPattern(scanResult.pattern);
+    assert(typeof coffee === 'string' && coffee.startsWith('['), 'Must reconstruct valid CoffeeScript string');
+
+    VectorVisionStudio.currentResult = {
+        fileName: 'scanned_user_fixture.png',
+        width: 1024,
+        height: 1024,
+        sizeBytes: 458836,
+        coffeeCode: coffee,
+        numericPattern: scanResult.pattern,
+        hash: 'abc'
+    };
+
+    // 3. Render onto test canvas and verify
+    const testCanvas = new MockCanvas(200, 200);
+    VectorVisionStudio.renderJabCode(scanResult.pattern, 1024, 1024, testCanvas);
+
+    const oldGetElementById = global.document && global.document.getElementById;
+    const mockBadge = { style: {}, textContent: '' };
+    const mockDetail = { textContent: '', innerHTML: '' };
+    global.document = global.document || {};
+    global.document.getElementById = (id) => {
+        if (id === 'vvValidationBadge') return mockBadge;
+        if (id === 'vvStatusDetail') return mockDetail;
+        if (id === 'vvQrCanvas') return testCanvas;
+        return null;
+    };
+
+    const verified = VectorVisionStudio.verifyPattern();
+    assert.strictEqual(verified, true, 'Scanned pattern must verify 100% against rendered canvas');
+    assert.strictEqual(mockBadge.textContent, 'VALIDADO AL 100% ✓', 'Badge must show 100% validation success');
+
+    if (global.document) global.document.getElementById = oldGetElementById;
+});
+
 // ============================================================================
 // SUITE 10: HTML TAG BALANCE (DIFF: 0) & JAVASCRIPT SYNTAX GUARDRAILS
 // ============================================================================

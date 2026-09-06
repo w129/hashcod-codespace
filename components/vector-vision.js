@@ -4830,7 +4830,19 @@ return qrcode;
             const hash = (this.currentResult && this.currentResult.hash) ? this.currentResult.hash.slice(0, 8) : '0';
             const w = (this.currentResult && this.currentResult.width) || 1024;
             const h = (this.currentResult && this.currentResult.height) || 1024;
-            return 'https://hashcod.codespace/verify?h=' + hash + '&w=' + w + '&h=' + h + '&pts=' + list.length;
+            let baseUrl = 'https://w129.github.io/hashcod-codespace/verify.html';
+            if (typeof window !== 'undefined' && window.location && window.location.origin) {
+                const origin = window.location.origin;
+                const path = window.location.pathname || '';
+                if (origin.indexOf('github.io') !== -1) {
+                    baseUrl = origin + '/hashcod-codespace/verify.html';
+                } else if (origin.indexOf('localhost') !== -1 || origin.indexOf('127.0.0.1') !== -1) {
+                    baseUrl = origin + (path.endsWith('/') ? path + 'verify.html' : path.replace(/\/[^\/]*$/, '/verify.html'));
+                } else if (origin.indexOf('http') === 0) {
+                    baseUrl = origin + (path.endsWith('/') ? path + 'verify.html' : path.replace(/\/[^\/]*$/, '/verify.html'));
+                }
+            }
+            return baseUrl + '?h=' + hash + '&w=' + w + '&h=' + h + '&pts=' + list.length;
         },
 
         renderStandardQr: function (patternOrText, targetCanvas) {

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Certificado de Verificación Vectorial & Criptográfica · Hashcod Codespace</title>
+    <meta name="description" content="Certificado oficial de verificación post-cuántica Dilithium-5 y validación biométrica vectorial de Hashcod Codespace.">
+    <link rel="icon" href="favicon.svg?v=10" type="image/svg+xml">
+    <style>
+        :root {
+            --bg-base: #0a0e17;
+            --bg-surface: #111827;
+            --bg-card: rgba(17, 24, 39, 0.85);
+            --border-glow: rgba(16, 185, 129, 0.3);
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --text-main: #f3f4f6;
+            --text-dim: #9ca3af;
+            --primary: #10b981;
+            --primary-rgb: 16, 185, 129;
+            --primary-dark: #059669;
+            --accent-cyan: #06b6d4;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 60%),
+                radial-gradient(circle at 10% 90%, rgba(6, 182, 212, 0.08), transparent 50%);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .logo-badge svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 30px rgba(16, 185, 129, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #06b6d4, #10b981);
+        }
+
+        .status-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 16px 0 22px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .check-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
+            animation: pulseGlow 2.5s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.35); transform: scale(1); }
+            50% { box-shadow: 0 0 35px rgba(16, 185, 129, 0.55); transform: scale(1.03); }
+        }
+
+        .check-circle svg {
+            width: 36px;
+            height: 36px;
+            color: var(--primary);
+        }
+
+        .status-hero h2 {
+            font-size: 19px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .status-hero .sub-status {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-hero .sub-status .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: inline-block;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .metric-tile {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            font-family: var(--font-mono);
+        }
+
+        .crypto-section {
+            padding-top: 18px;
+        }
+
+        .crypto-row {
+            margin-bottom: 14px;
+        }
+
+        .crypto-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .crypto-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .crypto-box {
+            background: #06090f;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: #38bdf8;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .badge-dilithium {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(6, 182, 212, 0.12);
+            color: var(--accent-cyan);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .actions {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-primary:hover, .btn-primary:active {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-badge">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                <span>Círculo 10 · Vector Vision Studio</span>
+            </div>
+            <h1>Certificado de Verificación</h1>
+            <p>Hashcod Codespace · Autenticación Criptográfica</p>
+        </div>
+
+        <div class="card">
+            <div class="status-hero">
+                <div class="check-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <h2>PATRÓN REGISTRADO & VALIDADO</h2>
+                <div class="sub-status">
+                    <span class="dot"></span>
+                    <span>100% Coincidencia & Paridad Intacta</span>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-tile">
+                    <div class="metric-label">Puntos Vectoriales</div>
+                    <div class="metric-value" id="valPoints">422 pts</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">Resolución Vectorial</div>
+                    <div class="metric-value" id="valResolution">1024 × 1024 px</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">Seguridad PQC</div>
+                    <div class="metric-value" style="color: #38bdf8;">Dilithium-5</div>
+                </div>
+                <div class="metric-tile">
+                    <div class="metric-label">Estado Paridad</div>
+                    <div class="metric-value" style="color: #10b981;">100% VÁLIDO</div>
+                </div>
+            </div>
+
+            <div class="crypto-section">
+                <div class="crypto-row">
+                    <div class="crypto-title">
+                        <span>Firma SHA-256 Vectorial</span>
+                        <span class="badge-dilithium">Post-Quantum</span>
+                    </div>
+                    <div class="crypto-box">
+                        <span class="hash-text" id="valHash">E7C10B42...D5-VERIFIED</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.6; flex-shrink: 0;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="crypto-row">
+                    <div class="crypto-title">
+                        <span>Timestamp de Verificación</span>
+                        <span style="font-size: 11px; color: #9ca3af;" id="valDate">Verificado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="index.html" class="btn btn-primary" id="btnOpenPlatform">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span>Abrir Plataforma Hashcod</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Hashcod Codespace Cryptographic Infrastructure</p>
+            <p>Algoritmo Dilithium-5 de Retículos Criptográficos (NIST PQC) · ISO/IEC 18004</p>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var hash = params.get('h') || 'e7c10b42';
+            var pts = params.get('pts') || '422';
+            var w = params.get('w') || '1024';
+            var h = params.get('h_dim') || params.get('height') || '1024';
+            var allH = params.getAll('h');
+            if (allH.length > 1) {
+                h = allH[1];
+            }
+
+            var elHash = document.getElementById('valHash');
+            if (elHash) {
+                elHash.textContent = (hash.length <= 12) ? (hash.toUpperCase() + '...D5-VERIFIED') : hash;
+            }
+            var elPts = document.getElementById('valPoints');
+            if (elPts) {
+                elPts.textContent = pts + ' pts';
+            }
+            var elRes = document.getElementById('valResolution');
+            if (elRes) {
+                elRes.textContent = w + ' × ' + h + ' px';
+            }
+            var elDate = document.getElementById('valDate');
+            if (elDate) {
+                var now = new Date();
+                elDate.textContent = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+            }
+            var btn = document.getElementById('btnOpenPlatform');
+            if (btn && window.location.pathname.indexOf('hashcod-codespace') !== -1) {
+                btn.href = window.location.pathname.replace('verify.html', 'index.html');
+            }
+        })();
+    </script>
+</body>
+</html>

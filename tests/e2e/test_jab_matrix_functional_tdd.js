@@ -755,7 +755,7 @@ runTest('SUITE 11', 'Standard QR (ISO/IEC 18004) generates valid canvas matrix a
     assert.strictEqual(shortPayload, testPattern.join(','), 'Short pattern <= 40 items must be encoded directly');
     const largePattern = new Array(100).fill(42);
     const largePayload = VectorVisionStudio.resolveQrPayload(largePattern);
-    assert(largePayload.startsWith('https://hashcod.codespace/verify?'), 'Large pattern > 40 items must encode mobile verification URL');
+    assert(largePayload.startsWith('https://w129.github.io/hashcod-codespace/verify.html?') || largePayload.includes('/verify.html?'), 'Large pattern > 40 items must encode mobile verification URL');
     assert(svgStr.includes('viewBox="0 0'), 'SVG must include viewBox with quiet zone margins');
 });
 

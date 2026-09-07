@@ -4682,6 +4682,28 @@ return qrcode;
             }
 
             if (match) {
+                try {
+                    const cert = {
+                        cardId: 'HASHCOD-VECTOR-' + (this.currentResult && this.currentResult.hash ? this.currentResult.hash.slice(0, 8).toUpperCase() : 'VALID'),
+                        issuer: 'Hashcod Codespace Inc.',
+                        hash: this.currentResult ? this.currentResult.hash : '',
+                        dimensions: (this.currentResult ? this.currentResult.width : 1024) + 'x' + (this.currentResult ? this.currentResult.height : 1024),
+                        pts: this.currentResult && this.currentResult.numericPattern ? this.currentResult.numericPattern.length : 0,
+                        verifiedAt: Date.now(),
+                        parityVerified: true,
+                        status: 'VALIDADO AL 100% ✓'
+                    };
+                    if (typeof localStorage !== 'undefined') {
+                        localStorage.setItem('l8_validated_crypto_card', JSON.stringify(cert));
+                        const reg = JSON.parse(localStorage.getItem('l8_hashcod_certified_assets') || '[]');
+                        reg.push(cert);
+                        localStorage.setItem('l8_hashcod_certified_assets', JSON.stringify(reg));
+                    }
+                    if (typeof window !== 'undefined') {
+                        window.__LAST_VALIDATED_HASHCOD_CARD = cert;
+                    }
+                } catch (e) {}
+
                 if (badge) {
                     badge.style.display = 'inline-flex';
                     badge.textContent = 'VALIDADO AL 100% ✓';
@@ -5102,6 +5124,28 @@ return qrcode;
                         };
 
                         this.renderJabCode(pattern);
+
+                        try {
+                            const cert = {
+                                cardId: 'HASHCOD-JAB-' + computedHash.slice(0, 8).toUpperCase(),
+                                issuer: 'Hashcod Codespace Inc.',
+                                hash: computedHash,
+                                dimensions: detectedW + 'x' + detectedH,
+                                pts: pattern.length,
+                                verifiedAt: Date.now(),
+                                parityVerified: true,
+                                status: 'VALIDADO AL 100% ✓'
+                            };
+                            if (typeof localStorage !== 'undefined') {
+                                localStorage.setItem('l8_validated_crypto_card', JSON.stringify(cert));
+                                const reg = JSON.parse(localStorage.getItem('l8_hashcod_certified_assets') || '[]');
+                                reg.push(cert);
+                                localStorage.setItem('l8_hashcod_certified_assets', JSON.stringify(reg));
+                            }
+                            if (typeof window !== 'undefined') {
+                                window.__LAST_VALIDATED_HASHCOD_CARD = cert;
+                            }
+                        } catch (e) {}
 
                         if (badge) {
                             badge.style.display = 'inline-flex';

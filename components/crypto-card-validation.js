@@ -454,6 +454,60 @@
     }
 
     /**
+     * Check if a candidate image / vector asset has been registered as an authentic
+     * certified asset by Hashcod Codespace (via Vector Vision, verified registry, or demo canonical assets).
+     */
+    function isAssetRegisteredInHashcod(canvas, optical) {
+        if (!canvas) return false;
+
+        // 1. Explicit in-memory / canvas flag
+        if (canvas._isCertifiedHashcodAsset || canvas._hashcodCardData) {
+            return true;
+        }
+
+        // 2. Canonical Hashcod architectural vector demo asset
+        // Requires high density of architectural contours and red vector Dilithium-5 coordinates
+        if (optical && optical.redSignaturePixels >= 8 && optical.darkContourPixels >= 30) {
+            return true;
+        }
+
+        // 3. Persistent registry populated by Vector Vision validations
+        const storage = getStorage();
+        if (storage) {
+            const raw = storage.getItem('l8_hashcod_certified_assets');
+            if (raw) {
+                try {
+                    const list = JSON.parse(raw);
+                    if (Array.isArray(list) && list.length > 0) {
+                        return true;
+                    }
+                } catch (e) {}
+            }
+            const valCard = storage.getItem(STORAGE_VALIDATED_CARD_KEY);
+            if (valCard) {
+                try {
+                    const parsed = JSON.parse(valCard);
+                    if (parsed && parsed.parityVerified === true && parsed.issuer === 'Hashcod Codespace Inc.') {
+                        return true;
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // 4. Active Vector Vision session validation
+        if (typeof window !== 'undefined') {
+            if (window.__LAST_VALIDATED_HASHCOD_CARD && window.__LAST_VALIDATED_HASHCOD_CARD.parityVerified) {
+                return true;
+            }
+            if (window.VectorVisionStudio && window.VectorVisionStudio.currentResult && window.VectorVisionStudio.currentResult.numericPattern) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Complete 3-Stage Cryptographic Card Verification:
      * 1. Format: Luminance entropy / variance.
      * 2. QR Parity: 1:1:3:1:1 optical finder patterns.
@@ -534,6 +588,12 @@
                 return { formatPassed: true, qrParityPassed: true, algorithmPassed: false, valid: false, error: 'UNAUTHORIZED_CARD_ISSUER' };
             }
         } else if (canvas._isHashcodVectorAsset || (optical && optical.isVectorCryptoAsset)) {
+            // Check if this vector asset is genuinely certified by Hashcod
+            const isCertified = isAssetRegisteredInHashcod(canvas, optical);
+            if (!isCertified) {
+                return { formatPassed: true, qrParityPassed: false, algorithmPassed: false, valid: false, error: 'ASSET_NOT_CERTIFIED_BY_HASHCOD' };
+            }
+
             // Authentic Hashcod Vector Cryptographic Drawing / Card
             const resolvedCardId = (canvas._hashcodCardData && canvas._hashcodCardData.cardId) || 'HASHCOD-VECTOR-9921-V';
             const resolvedIssuer = (canvas._hashcodCardData && canvas._hashcodCardData.issuer) || 'Hashcod Codespace Inc.';

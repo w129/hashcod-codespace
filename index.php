@@ -12585,6 +12585,18 @@ if (!headers_sent()) {
     <!-- Immediate Boot & Platform Entry Controller (Zero-latency fallback) -->
     <script>
     (function() {
+        window.l8UnlockPlatform = function() {
+            document.body.classList.remove('boot-locked', 'auth-locked');
+            const authOverlay = document.getElementById('authOverlay');
+            if (authOverlay) {
+                authOverlay.classList.add('hidden');
+                authOverlay.style.display = 'none';
+            }
+            if (typeof restorePlatformState === 'function') {
+                try { restorePlatformState(); } catch (e) {}
+            }
+        };
+
         window.l8EnterPlatform = async function() {
             const overlay = document.getElementById('bootCliOverlay');
             if (overlay) {
@@ -13026,8 +13038,755 @@ if (!headers_sent()) {
                 </svg>
             </button>
 
+            <!-- Cryptographic ID Card Validation Launcher Button (First Tool Trigger) -->
+            <button type="button" class="crypto-card-launcher-btn" id="cryptoCardValidationLauncherBtn" onclick="window.openCryptoCardValidationWindow && window.openCryptoCardValidationWindow()" title="Validación Criptográfica de Tarjeta" style="position: absolute; right: -56px; top: 10px; width: 46px; height: 46px; border-radius: 12px; background: #FFFFFF; border: 2px solid #111827; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10005; transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);">
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="28" height="28" viewBox="0,0,256,256">
+                    <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
+                        <g transform="scale(2,2)">
+                            <path d="M24,94l40,-70l40,70h-30l-10,13l-10,-13z" fill="#ffffff"></path>
+                            <path d="M106.6,92.5l-40,-70c-0.5,-0.9 -1.5,-1.5 -2.6,-1.5c-1.1,0 -2.1,0.6 -2.6,1.5l-40,70c-0.5,0.9 -0.5,2.1 0,3c0.5,0.9 1.5,1.5 2.6,1.5h28.5l9.1,11.8c0.6,0.7 1.4,1.2 2.4,1.2c1,0 1.8,-0.4 2.4,-1.2l9.1,-11.8h28.5c1.1,0 2.1,-0.6 2.6,-1.5c0.5,-0.9 0.5,-2.1 0,-3zM74,91c-0.9,0 -1.8,0.4 -2.4,1.2l-5.8,7.5l-0.8,-37.7v0c0,-1.3 -0.9,-2.6 -2.3,-2.9c-1.6,-0.4 -3.2,0.6 -3.6,2.2l-7.4,29.7h-22.5l34.8,-61l34.8,61z" fill="#000000"></path>
+                        </g>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- Authenticated Card Direct Entry Launcher Button (Second Tool Trigger) -->
+            <button type="button" class="crypto-card-direct-launcher-btn" id="cryptoCardDirectLauncherBtn" onclick="window.openCryptoCardUploadPanel && window.openCryptoCardUploadPanel()" title="Acceso Directo con Tarjeta Criptográfica" style="position: absolute; right: -56px; top: 64px; width: 46px; height: 46px; border-radius: 12px; background: #FFFFFF; border: 2px solid #111827; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10005; transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                    <line x1="7" y1="8" x2="17" y2="8"></line>
+                    <line x1="7" y1="12" x2="13" y2="12"></line>
+                    <polyline points="15 15 17 17 21 13"></polyline>
+                </svg>
+            </button>
+
     </div>
 </div>
+
+    <!-- =========================================================================
+         MODAL: VALIDACIÓN CRIPTOGRÁFICA DE TARJETA (TOOL 1 — FIGMA DESIGN SPEC)
+         ========================================================================= -->
+    <style>
+        .crypto-card-launcher-btn {
+            position: absolute;
+            right: -56px;
+            top: 10px;
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: #FFFFFF;
+            border: 2px solid #111827;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10005;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .crypto-card-launcher-btn:hover {
+            transform: scale(1.08) translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        .crypto-card-direct-launcher-btn {
+            position: absolute;
+            right: -56px;
+            top: 64px;
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: #FFFFFF;
+            border: 2px solid #111827;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10005;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .crypto-card-direct-launcher-btn:hover {
+            transform: scale(1.08) translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        @media (max-width: 640px) {
+            .crypto-card-launcher-btn {
+                right: 12px;
+                top: -54px;
+            }
+            .crypto-card-direct-launcher-btn {
+                right: 66px;
+                top: -54px;
+            }
+        }
+
+        .validation-window-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10010;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .validation-window {
+            width: 480px;
+            max-width: calc(100vw - 32px);
+            height: min(1035px, 94vh);
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            background: #FFFFFF;
+            box-shadow: 0px 24px 48px -8px rgba(0, 0, 0, 0.5);
+            border-radius: 16px;
+            border: 1px solid #E5E7EB;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .validation-window-titlebar {
+            height: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            background: #FAFAFA;
+            border-bottom: 1px solid #F3F4F6;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+        .validation-titlebar-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .validation-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #000000;
+            display: inline-block;
+        }
+        .validation-titlebar-title {
+            font-family: 'Geist Mono', ui-monospace, 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: #4B5563;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .validation-close-btn {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 700;
+            color: #6B7280;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .validation-close-btn:hover {
+            color: #111827;
+            background: #E5E7EB;
+        }
+
+        .validation-window-body {
+            padding: 16px 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .validation-window-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .validation-header-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .validation-main-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .validation-sub-title {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #6B7280;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        .validation-divider {
+            height: 1px;
+            background: #E5E7EB;
+            width: 100%;
+        }
+
+        .validation-step-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .validation-step-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .validation-step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: #111827;
+            color: #FFFFFF;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: 'Geist Mono', monospace;
+        }
+        .validation-step-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .card-upload-zone {
+            border: 2px dashed #D1D5DB;
+            background: #F9FAFB;
+            border-radius: 12px;
+            padding: 20px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .card-upload-zone:hover, .card-upload-zone.dragover {
+            border-color: #111827;
+            background: #F3F4F6;
+        }
+        .upload-zone-prompt {
+            font-size: 12.5px;
+            color: #374151;
+            margin-bottom: 3px;
+        }
+        .upload-zone-subtext {
+            font-size: 10.5px;
+            color: #9CA3AF;
+        }
+
+        .card-preview-area {
+            width: 100%;
+            max-width: 432px;
+            height: 280px;
+            background: #0F172A;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px auto 0;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+        .card-real-uploaded-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            z-index: 2;
+            position: relative;
+        }
+        .card-demo-mockup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #64748B;
+            font-size: 11.5px;
+            gap: 8px;
+            padding: 16px;
+            text-align: center;
+            z-index: 1;
+        }
+        .scan-laser-line {
+            height: 2px;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #000000;
+            box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.9), 0 0 16px 4px rgba(0, 0, 0, 0.8);
+            z-index: 5;
+            pointer-events: none;
+            animation: laserScanSweep 1.8s ease-in-out infinite;
+        }
+        @keyframes laserScanSweep {
+            0% { top: 0%; }
+            50% { top: 98%; }
+            100% { top: 0%; }
+        }
+
+        .validation-checks-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .check-item {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .check-item.passed {
+            background: #F0FDF4;
+            border-color: #BBF7D0;
+            color: #15803D;
+        }
+        .check-item.failed {
+            background: #FEF2F2;
+            border-color: #FECACA;
+            color: #DC2626;
+        }
+        .check-status {
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .scan-progress-track {
+            width: 100%;
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .scan-progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #111827;
+            transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 999px;
+        }
+        .scan-progress-label {
+            font-size: 11px;
+            font-family: 'Geist Mono', monospace;
+            font-weight: 600;
+            color: #6B7280;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        .card-success-plate {
+            background: #F2F2F2;
+            border: 1px solid #CCCCCC;
+            border-radius: 8px;
+            padding: 14px;
+            box-sizing: border-box;
+            margin-top: 4px;
+        }
+        .success-plate-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #15803D;
+            background: #DCFCE7;
+            border: 1px solid #86EFAC;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .success-plate-field {
+            font-size: 12px;
+            color: #374151;
+            margin-top: 3px;
+        }
+        .success-plate-verdict {
+            font-size: 12px;
+            font-weight: 700;
+            color: #15803D;
+            margin-top: 8px;
+        }
+
+        .submit-login-button {
+            width: 100%;
+            height: 44px;
+            background: #111827;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.18s ease;
+        }
+        .submit-login-button:hover:not(:disabled) {
+            background: #000000;
+        }
+        .submit-login-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 1-Hour Lockout & Dilithium-5 Rescue Styles */
+        .card-lockout-banner {
+            background: #FEF2F2;
+            border: 1px solid #FCA5A5;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 14px 20px 0;
+        }
+        .lockout-banner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .lockout-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: #B91C1C;
+        }
+        .lockout-countdown {
+            font-family: 'Geist Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: #DC2626;
+            background: #FFFFFF;
+            border: 1px solid #FCA5A5;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+        .lockout-banner-desc {
+            font-size: 11.5px;
+            color: #7F1D1D;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        .lockout-rescue-block {
+            margin-top: 12px;
+            border-top: 1px dashed #FCA5A5;
+            padding-top: 10px;
+        }
+        .lockout-rescue-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+        .lockout-rescue-input {
+            width: 100%;
+            box-sizing: border-box;
+            font-family: 'Geist Mono', monospace;
+            font-size: 10.5px;
+            padding: 8px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            background: #FFFFFF;
+            color: #111827;
+            resize: vertical;
+        }
+        .rescue-error-msg {
+            font-size: 11px;
+            color: #DC2626;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        .btn-dilithium-rescue {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px;
+            background: #B91C1C;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.18s ease;
+        }
+        .btn-dilithium-rescue:hover {
+            background: #991B1B;
+        }
+
+        /* Tool 2: Authenticated Card Entry Panel */
+        .crypto-card-direct-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10010;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .crypto-card-upload-panel {
+            width: 400px;
+            max-width: 100%;
+            height: 370px;
+            background: #FFFFFF;
+            box-shadow: 0px 10px 28px -10px rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            border: 1px solid #E5E7EB;
+            padding: 24px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            position: relative;
+        }
+        .direct-panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .direct-panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+        .direct-panel-subtitle {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #6B7280;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+        .direct-panel-close-btn {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 700;
+            color: #9CA3AF;
+            cursor: pointer;
+            padding: 4px 6px;
+        }
+        .direct-panel-close-btn:hover {
+            color: #111827;
+        }
+        .direct-badge-container {
+            margin: 2px 0 6px;
+        }
+        .direct-validation-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #DCFCE7;
+            border: 1px solid #86EFAC;
+            color: #15803D;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .direct-card-dropzone {
+            border: 2px dashed #D1D5DB;
+            background: #F9FAFB;
+            border-radius: 12px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .direct-card-dropzone:hover, .direct-card-dropzone.dragover {
+            border-color: #111827;
+            background: #F3F4F6;
+        }
+        .direct-dropzone-prompt {
+            font-size: 12.5px;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .direct-dropzone-sub {
+            font-size: 10.5px;
+            color: #9CA3AF;
+        }
+        .direct-card-feedback {
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 6px;
+        }
+    </style>
+
+    <div id="cryptoCardValidationModalOverlay" class="validation-window-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeCryptoCardValidationWindow()">
+        <div id="validationWindow" class="validation-window" onclick="event.stopPropagation()">
+            <div class="validation-window-titlebar">
+                <div class="validation-titlebar-dots">
+                    <span class="validation-dot"></span>
+                    <span class="validation-dot"></span>
+                    <span class="validation-dot"></span>
+                </div>
+                <div class="validation-titlebar-title">SECURE VALIDATION LAYER</div>
+                <button type="button" id="closeValidationWindowBtn" class="validation-close-btn" onclick="closeCryptoCardValidationWindow()" title="Cerrar ventana">✕</button>
+            </div>
+
+            <div id="cardLockoutBanner" class="card-lockout-banner" style="display:none;">
+                <div class="lockout-banner-header">
+                    <span class="lockout-badge">⚠️ ACCESO BLOQUEADO (1 HORA)</span>
+                    <div id="cardLockoutCountdown" class="lockout-countdown">59:59</div>
+                </div>
+                <div class="lockout-banner-desc">
+                    Se detectó una tarjeta no autorizada o alterada. El sistema permanecerá bloqueado por seguridad durante 60 minutos.
+                </div>
+                <div class="lockout-rescue-block">
+                    <div class="lockout-rescue-title">Desbloqueo de Emergencia (Post-Quantum Dilithium-5)</div>
+                    <textarea id="cardLockDilithiumRescueInput" class="lockout-rescue-input" rows="3" placeholder="Pega aquí la firma post-cuántica Dilithium-5 de 2,880 caracteres para desbloqueo inmediato..."></textarea>
+                    <div id="cardRescueErrorMsg" class="rescue-error-msg" style="display:none;"></div>
+                    <button type="button" id="btnDilithiumRescueOverride" class="btn-dilithium-rescue" onclick="executeDilithiumRescueOverride()">
+                        Desbloquear con Firma PQC
+                    </button>
+                </div>
+            </div>
+
+            <div id="validationWindowBody" class="validation-window-body">
+                <div class="validation-window-header">
+                    <div class="validation-header-badge">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="validation-header-titles">
+                        <h2 class="validation-main-title">Validación Criptográfica</h2>
+                        <div class="validation-sub-title">CAPA DE SEGURIDAD &amp; AUTENTICACIÓN POST-CUÁNTICA</div>
+                    </div>
+                </div>
+
+                <div class="validation-divider"></div>
+
+                <div class="validation-step-section" id="validationSection01">
+                    <div class="validation-step-header">
+                        <span class="validation-step-number">01</span>
+                        <span class="validation-step-label">Seleccionar Tarjeta</span>
+                    </div>
+                    <div id="cardUploadZone" class="card-upload-zone" onclick="document.getElementById('cryptoCardFileInput').click()" ondragover="handleCardDragOver(event)" ondragleave="handleCardDragLeave(event)" ondrop="handleCardDrop(event)">
+                        <input type="file" id="cryptoCardFileInput" accept="image/*" style="display:none;" onchange="handleCryptoCardFileSelect(event)">
+                        <div class="upload-zone-content">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.8" style="margin-bottom:8px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <div class="upload-zone-prompt">Arrastra aquí la imagen de tu tarjeta o <strong>haz clic para examinar</strong></div>
+                            <div class="upload-zone-subtext">Formatos soportados: PNG, JPG, WEBP, SVG (Física o Digital)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="validation-step-section" id="validationSection02">
+                    <div class="validation-step-header">
+                        <span class="validation-step-number">02</span>
+                        <span class="validation-step-label">Escaneo &amp; Análisis</span>
+                    </div>
+                    <div id="cardPreviewArea" class="card-preview-area">
+                        <img id="cardRealUploadedImage" class="card-real-uploaded-img" src="" alt="Tarjeta Criptográfica Real" style="display:none;">
+                        <div id="cardDemoMockup" class="card-demo-mockup">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                            <span>Vista previa de tarjeta criptográfica física / digital</span>
+                        </div>
+                        <div id="scanLaserLine" class="scan-laser-line" style="display:none;"></div>
+                    </div>
+
+                    <div class="validation-checks-row">
+                        <div class="check-item" id="checkFormat">
+                            <span class="check-status" id="statusFormat">○</span>
+                            <span class="check-name">Formato</span>
+                        </div>
+                        <div class="check-item" id="checkQrParity">
+                            <span class="check-status" id="statusQrParity">○</span>
+                            <span class="check-name">Paridad QR</span>
+                        </div>
+                        <div class="check-item" id="checkAlgorithm">
+                            <span class="check-status" id="statusAlgorithm">○</span>
+                            <span class="check-name">Algoritmo</span>
+                        </div>
+                    </div>
+
+                    <div id="scanProgressTrack" class="scan-progress-track">
+                        <div id="scanProgressFill" class="scan-progress-fill"></div>
+                    </div>
+                    <div id="scanProgressLabel" class="scan-progress-label">0%</div>
+                </div>
+
+                <div class="validation-step-section" id="validationSection03">
+                    <div class="validation-step-header">
+                        <span class="validation-step-number">03</span>
+                        <span class="validation-step-label">Certificación Final</span>
+                    </div>
+                    <div id="cardSuccessPlate" class="card-success-plate" style="display:none;">
+                        <div class="success-plate-badge">✓ TARJETA CRIPTOGRÁFICA CERTIFICADA</div>
+                        <div class="success-plate-field" id="plateCardId"><strong>ID:</strong> HASHCOD-CARD-9921-X</div>
+                        <div class="success-plate-field" id="plateIssuer"><strong>Emisor:</strong> Hashcod Codespace Inc.</div>
+                        <div class="success-plate-field" id="plateExpiry"><strong>Caducidad:</strong> 2027-12-31 (VIGENTE)</div>
+                        <div class="success-plate-verdict" id="plateVerdict">VALIDADO AL 100% ✓</div>
+                    </div>
+
+                    <button type="button" id="submitLoginButton" class="submit-login-button" onclick="submitCryptoCardLogin()" disabled>
+                        Entrar a Hashcod Codespace ↵
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         MODAL: PANEL DE ACCESO CON TARJETA CRIPTOGRÁFICA (TOOL 2)
+         ========================================================================= -->
+    <div id="cryptoCardUploadPanelModal" class="crypto-card-direct-modal-overlay" style="display:none;" role="dialog" aria-modal="true" onclick="if(event.target===this)closeCryptoCardUploadPanel()">
+        <div id="cryptoCardUploadPanel" class="crypto-card-upload-panel" onclick="event.stopPropagation()">
+            <div class="direct-panel-header">
+                <div class="direct-header-titles">
+                    <h3 class="direct-panel-title">Acceso con Tarjeta Criptográfica</h3>
+                    <div class="direct-panel-subtitle">AUTENTICACIÓN DIRECTA MEDIANTE TARJETA CERTIFICADA</div>
+                </div>
+                <button type="button" class="direct-panel-close-btn" onclick="closeCryptoCardUploadPanel()" title="Cerrar panel">✕</button>
+            </div>
+
+            <div class="direct-badge-container">
+                <span class="direct-validation-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" style="vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>
+                    VALIDACIÓN DIRECTA
+                </span>
+            </div>
+
+            <div id="directCardDropzone" class="direct-card-dropzone" onclick="document.getElementById('directCardFileInput').click()" ondragover="handleDirectCardDragOver(event)" ondragleave="handleDirectCardDragLeave(event)" ondrop="handleDirectCardDrop(event)">
+                <input type="file" id="directCardFileInput" accept="image/*" style="display:none;" onchange="handleDirectCardFileSelect(event)">
+                <div class="direct-dropzone-content">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="margin-bottom:8px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <div class="direct-dropzone-prompt">Arrastra tu tarjeta certificada aquí o <strong>haz clic para ingresar</strong></div>
+                    <div class="direct-dropzone-sub">Acceso instantáneo para tarjetas validadas en el sistema</div>
+                </div>
+            </div>
+
+            <div id="directCardFeedback" class="direct-card-feedback" style="display:none;"></div>
+        </div>
+    </div>
+
 
     <!-- =========================================================================
          MODAL: ELIMINAR CUENTA PERMANENTEMENTE (FIGMA DESIGN SPEC)
@@ -28223,6 +28982,9 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
 
     <!-- Vector Vision & JAB / QR Matrix Engine (Tool 10) -->
     <script src="components/vector-vision.js"></script>
+
+    <!-- Cryptographic Card Validation & Authenticated Entry Layer -->
+    <script src="components/crypto-card-validation.js"></script>
 
 </body>
 </html>

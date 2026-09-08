@@ -67,6 +67,28 @@
     let scanInterval = null;
     let lockTimerInterval = null;
     let activeScanToken = 0;
+    let activeEntryToken = 0;
+    let completedScanRecord = null;
+
+    // Bind approval to file bytes, never to a filename, MIME type, or global flag.
+    async function fingerprintCardFile(file) {
+        if (!file || typeof file.arrayBuffer !== 'function' ||
+            typeof crypto === 'undefined' || !crypto.subtle) {
+            throw new Error('No se pudo leer la tarjeta de forma segura. Vuelve a seleccionar el archivo.');
+        }
+        const bytes = await file.arrayBuffer();
+        if (!bytes.byteLength) throw new Error('La imagen está vacía.');
+        const digest = await crypto.subtle.digest('SHA-256', bytes);
+        return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    function hasFileBinding(card) {
+        return card && card.parityVerified === true &&
+            typeof card.cardId === 'string' && card.cardId.trim().length > 0 &&
+            card.issuer === 'Hashcod Codespace Inc.' &&
+            card.fingerprintVersion === 1 && typeof card.fileSha256 === 'string' &&
+            /^[a-f0-9]{64}$/.test(card.fileSha256);
+    }
 
     // Helper: Safe localStorage access
     function getStorage() {
@@ -706,6 +728,7 @@
     }
 
     function closeCryptoCardUploadPanel() {
+        activeEntryToken++;
         const panelModal = document.getElementById('cryptoCardUploadPanelModal');
         if (panelModal) {
             panelModal.style.display = 'none';
@@ -894,6 +917,8 @@
     }
 
     function triggerSecurityLockout() {
+        activeEntryToken++;
+        completedScanRecord = null;
         const lockUntil = Date.now() + ONE_HOUR_MS;
         const storage = getStorage();
         if (storage) {
@@ -908,6 +933,8 @@
 
     function resetScanState() {
         activeScanToken++;
+        activeEntryToken++;
+        completedScanRecord = null;
         if (scanInterval) {
             clearInterval(scanInterval);
             scanInterval = null;
@@ -988,6 +1015,8 @@
             return;
         }
 
+        resetScanState();
+
         // Boundary case: MIME type check & null safety
         if (!file || !file.type || !file.type.startsWith('image/')) {
             if (typeof alert === 'function') {
@@ -996,12 +1025,11 @@
             return;
         }
 
-        resetScanState();
         const currentToken = activeScanToken;
 
         // Ingestion for mock canvas or buffer
         if (file && (file.mockCanvas || typeof file.getContext === 'function' || file.canvasBuffer || file._hashcodCardData || file.qrParity)) {
-            startVerificationSequence(file);
+            startVerificationSequence(file, file);
             return;
         }
 
@@ -1038,26 +1066,29 @@
                         } catch (err) {
                             canvas = null;
                         }
-                        startVerificationSequence(canvas || file);
+                        startVerificationSequence(canvas || file, file);
                     };
                     img.onerror = function () {
-                        startVerificationSequence(file);
+                        if (currentToken !== activeScanToken || isLockedOut()) return;
+                        startVerificationSequence(file, file);
                     };
                     img.src = dataUrl;
                 } else {
-                    startVerificationSequence(file);
+                    startVerificationSequence(file, file);
                 }
             };
             reader.readAsDataURL(file);
         } else {
-            startVerificationSequence(file);
+            startVerificationSequence(file, file);
         }
     }
 
-    function startVerificationSequence(file) {
+    async function startVerificationSequence(file, originalFile) {
         if (isLockedOut()) return;
 
         activeScanToken++;
+        activeEntryToken++;
+        completedScanRecord = null;
         const currentToken = activeScanToken;
         if (scanInterval) {
             clearInterval(scanInterval);
@@ -1083,6 +1114,19 @@
         updateCheckItem('checkFormat', 'statusFormat', '⏳', '');
         updateCheckItem('checkQrParity', 'statusQrParity', '⏳', '');
         updateCheckItem('checkAlgorithm', 'statusAlgorithm', '⏳', '');
+
+        let fileSha256 = null;
+        try {
+            if (analysis.valid) fileSha256 = await fingerprintCardFile(originalFile || file);
+        } catch (err) {
+            if (currentToken !== activeScanToken || isLockedOut()) return;
+            updateCheckItem('checkAlgorithm', 'statusAlgorithm', '✕', 'failed');
+            if (laser) laser.style.display = 'none';
+            if (typeof alert === 'function') alert(err.message);
+            return;
+        }
+        if (currentToken !== activeScanToken || isLockedOut()) return;
+
 
         const stepMs = (typeof window !== 'undefined' && window.__SCAN_STEP_MS) ? window.__SCAN_STEP_MS : 120;
 
@@ -1126,7 +1170,22 @@
 
                     const storage = getStorage();
                     if (storage) {
-                        storage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify(analysis.cardData));
+                        try {
+                            const record = JSON.stringify(Object.assign({}, analysis.cardData, {
+                                fingerprintVersion: 1,
+                                fileSha256: fileSha256
+                            }));
+                            storage.setItem(STORAGE_VALIDATED_CARD_KEY, record);
+                            completedScanRecord = record;
+                        } catch (err) {
+                            updateCheckItem('checkAlgorithm', 'statusAlgorithm', '✕', 'failed');
+                            if (typeof alert === 'function') alert('No se pudo guardar la validación. Revisa el almacenamiento del navegador y vuelve a intentarlo.');
+                            return;
+                        }
+                    } else {
+                        updateCheckItem('checkAlgorithm', 'statusAlgorithm', '✕', 'failed');
+                        if (typeof alert === 'function') alert('El almacenamiento del navegador no está disponible. No se ha autorizado el acceso.');
+                        return;
                     }
 
                     if (plate) plate.style.display = 'block';
@@ -1149,7 +1208,7 @@
 
         const storage = getStorage();
         const stored = storage ? storage.getItem(STORAGE_VALIDATED_CARD_KEY) : null;
-        if (!stored) {
+        if (!stored || stored !== completedScanRecord) {
             if (typeof alert === 'function') {
                 alert('⚠️ No se ha completado la validación criptográfica de la tarjeta.');
             }
@@ -1207,6 +1266,7 @@
     }
 
     function processDirectCardEntry(file) {
+        const entryToken = ++activeEntryToken;
         const feedback = document.getElementById('directCardFeedback');
 
         // 1. Enforce active 1-hour security lockout
@@ -1263,30 +1323,66 @@
             parsed.cardId.trim().length > 0 &&
             parsed.issuer === 'Hashcod Codespace Inc.';
 
-        if (isValidCardSchema) {
+        if (isValidCardSchema && !hasFileBinding(parsed)) {
             if (feedback) {
                 feedback.style.display = 'block';
-                feedback.style.background = '#F0FDF4';
-                feedback.style.color = '#15803D';
-                feedback.style.border = '1px solid #BBF7D0';
-                feedback.textContent = '✓ Tarjeta certificada detectada: ' + parsed.cardId + '. Desbloqueando plataforma...';
+                feedback.textContent = '⚠️ Valida de nuevo esta tarjeta para vincularla a su imagen.';
             }
+            return { error: 'Tarjeta sin huella de archivo. Valida de nuevo la tarjeta.' };
+        }
 
-            setTimeout(() => {
-                closeCryptoCardUploadPanel();
-                if (typeof window !== 'undefined' && typeof window.l8UnlockPlatform === 'function') {
-                    window.l8UnlockPlatform();
-                } else if (typeof document !== 'undefined' && document.body) {
-                    document.body.classList.remove('boot-locked', 'auth-locked');
-                    const overlay = document.getElementById('authOverlay');
-                    if (overlay) {
-                        overlay.classList.add('hidden');
-                        overlay.style.display = 'none';
+        if (isValidCardSchema) {
+            return (async () => {
+                let fingerprint;
+                try {
+                    fingerprint = await fingerprintCardFile(file);
+                } catch (err) {
+                    if (entryToken === activeEntryToken && feedback) {
+                        feedback.style.display = 'block';
+                        feedback.textContent = '⚠️ ' + err.message;
                     }
+                    return { error: 'No se pudo verificar la imagen' };
                 }
-            }, 600);
+                if (entryToken !== activeEntryToken || isLockedOut() ||
+                    storage.getItem(STORAGE_VALIDATED_CARD_KEY) !== stored) {
+                    return { error: 'La validación cambió. Vuelve a seleccionar la tarjeta.' };
+                }
+                if (fingerprint !== parsed.fileSha256) {
+                    if (feedback) {
+                        feedback.style.display = 'block';
+                        feedback.style.background = '#FEF2F2';
+                        feedback.style.color = '#B91C1C';
+                        feedback.style.border = '1px solid #FECACA';
+                        feedback.textContent = '⚠️ Esta imagen no corresponde a la tarjeta validada. Valídala primero en la Ventana de Validación Criptográfica.';
+                    }
+                    return { error: 'La imagen no coincide con la tarjeta validada' };
+                }
+                if (feedback) {
+                    feedback.style.display = 'block';
+                    feedback.style.background = '#F0FDF4';
+                    feedback.style.color = '#15803D';
+                    feedback.style.border = '1px solid #BBF7D0';
+                    feedback.textContent = '✓ Tarjeta certificada detectada: ' + parsed.cardId + '. Desbloqueando plataforma...';
+                }
 
-            return { success: true, card: parsed };
+                setTimeout(() => {
+                    if (entryToken !== activeEntryToken || isLockedOut() ||
+                        storage.getItem(STORAGE_VALIDATED_CARD_KEY) !== stored) return;
+                    closeCryptoCardUploadPanel();
+                    if (typeof window !== 'undefined' && typeof window.l8UnlockPlatform === 'function') {
+                        window.l8UnlockPlatform();
+                    } else if (typeof document !== 'undefined' && document.body) {
+                        document.body.classList.remove('boot-locked', 'auth-locked');
+                        const overlay = document.getElementById('authOverlay');
+                        if (overlay) {
+                            overlay.classList.add('hidden');
+                            overlay.style.display = 'none';
+                        }
+                    }
+                }, 600);
+
+                return { success: true, card: parsed };
+            })();
         } else {
             if (feedback) {
                 feedback.style.display = 'block';

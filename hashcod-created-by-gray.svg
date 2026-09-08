@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 142 16" role="img" aria-label="Created by diktatcart">
-  <text x="0" y="12.5" fill="#8a8a8a" font-family="'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5px" letter-spacing="-0.01em">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 16" role="img" aria-label="Created by diktatcart">
+  <svg x="0" y="0" width="20" height="16" viewBox="0 0 32 32" fill="#8a8a8a" aria-hidden="true">
+    <path d="M 3 6 L 3 7 L 3 26 L 29 26 L 29 6 L 3 6 z M 5 8 L 27 8 L 27 24 L 5 24 L 5 8 z M 10 11 L 10 15 L 14 15 L 14 11 L 10 11 z M 18 11 L 18 13 L 24 13 L 24 11 L 18 11 z M 18 15 L 18 17 L 24 17 L 24 15 L 18 15 z M 8 17 L 8 21 L 10 21 L 10 19 L 14 19 L 14 21 L 16 21 L 16 17 L 8 17 z"></path>
+  </svg>
+  <text x="24" y="12.5" fill="#8a8a8a" font-family="'Codec Pro', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5px" letter-spacing="-0.01em">
     <tspan font-weight="400">Created by </tspan><tspan font-weight="700">diktatcart</tspan>
   </text>
 </svg>

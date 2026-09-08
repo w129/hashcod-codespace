@@ -1,0 +1,74 @@
+/* Preserve the existing palette and geometry while allowing narrow viewports. */
+#authWrapper,
+#authWrapper .auth-card,
+.privacy-modal-card,
+.privacy-evidence-card {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.privacy-evidence-img,
+.evidence-img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    box-sizing: border-box;
+}
+
+#vvPreviewImg {
+    max-width: 100%;
+    object-fit: contain;
+}
+
+@media (max-width: 640px) {
+    #authOverlay {
+        padding: 16px;
+    }
+
+    #authWrapper {
+        padding-top: 60px;
+        max-height: calc(100vh - 32px);
+        max-height: calc(100dvh - 32px);
+    }
+
+    #authWrapper .auth-card {
+        width: 100%;
+        max-height: calc(100vh - 92px);
+        max-height: calc(100dvh - 92px);
+        padding: 20px 16px;
+    }
+
+    #authWrapper .crypto-card-launcher-btn,
+    #authWrapper .crypto-card-direct-launcher-btn {
+        top: 0;
+    }
+
+    #authWrapper .crypto-card-launcher-btn {
+        right: 0;
+    }
+
+    #authWrapper .crypto-card-direct-launcher-btn {
+        right: 56px;
+    }
+
+    #authWrapper .auth-title-wrap {
+        min-width: 0;
+    }
+
+    #authWrapper .auth-tab {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .privacy-modal-body {
+        padding: 18px 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    #authWrapper .auth-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+

@@ -178,7 +178,7 @@
 
         .vector-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
             gap: 14px;
             margin: 16px 0;
         }
@@ -273,6 +273,7 @@
             background: #1e293b;
         }
     </style>
+    <link rel="stylesheet" href="components/platform-media.css?v=20260908">
 </head>
 <body>
 
@@ -512,7 +513,7 @@
                 A continuación se presentan los registros públicos y resoluciones emitidas por los ministerios competentes:
             </p>
 
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-top:14px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap:20px; margin-top:14px;">
                 
                 <!-- 1. ONAPI Certificado Marca -->
                 <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
@@ -567,7 +568,7 @@
                         <span style="font-size:12px; color:#64748b;">Conforme a la Ley No. 3-02 y Ley No. 126-02 sobre Firma Digital</span>
                     </div>
 
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:14px;">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:16px; margin-bottom:14px;">
                         <div>
                             <div style="font-size:12px; font-weight:600; color:#334155; margin-bottom:6px;">Página 1: Titularidad & RNC</div>
                             <img src="gob-camara-comercio-registro-mercantil-p1.png" alt="Registro Mercantil Página 1" class="evidence-img" onclick="window.open('gob-camara-comercio-registro-mercantil-p1.png', '_blank')" title="Clic para ampliar Página 1" style="width:100%; border-radius:8px; border:1px solid #cbd5e1; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
@@ -619,3 +620,4 @@
 
 </body>
 </html>
+

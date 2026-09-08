@@ -507,11 +507,12 @@ runTest('TIER 3 (Cross-Feature)', 'Tool 1 card validation -> Storage registratio
         cardId: 'HASHCOD-CARD-9921-X',
         issuer: 'Hashcod Codespace Inc.'
     });
-    mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify(authCardCanvas._hashcodCardData));
+    const validFile = new Blob(['validated-card-bytes'], { type: 'image/png' });
+    await CryptoCardValidation.startVerificationSequence(authCardCanvas, validFile);
+    assert.strictEqual(await waitForScanCompletion(600), true);
 
     // 2. Call real component function CryptoCardValidation.processDirectCardEntry()
-    const validFile = { name: 'card.png', type: 'image/png' };
-    const res = CryptoCardValidation.processDirectCardEntry(validFile);
+    const res = await CryptoCardValidation.processDirectCardEntry(validFile);
 
     assert(res, 'Direct entry must return a result object');
     assert.strictEqual(res.success, true, 'Tool 2 entry must succeed for certified card');
@@ -580,7 +581,7 @@ runTest('TIER 4 (E2E Scenario)', 'Full end-to-end legitimate card validation and
     });
 
     // Step 3: Trigger real verification sequence
-    CryptoCardValidation.startVerificationSequence(authenticCard);
+    await CryptoCardValidation.startVerificationSequence(authenticCard, new Blob(['authentic-card'], { type: 'image/png' }));
 
     // Step 4: Await progress bar completion
     const completed = await waitForScanCompletion(600);
@@ -839,6 +840,155 @@ runTest('TIER 5 (Adversarial)', 'Cryptographic: Rejects payloads lacking 0xD5 he
 // ============================================================================
 // SUITE 6: STATIC GUARDRAILS & INTEGRITY
 // ============================================================================
+
+function cardFile(bytes = 'registered-card', name = 'card.png') {
+    return new File([bytes], name, { type: 'image/png' });
+}
+async function registerCard(file = cardFile()) {
+    mockStorage.clear();
+    CryptoCardValidation.resetScanState();
+    platformUnlocked = false;
+    await CryptoCardValidation.startVerificationSequence(
+        CryptoCardValidation.generateAuthenticHashcodCardCanvas(), file);
+    assert.strictEqual(await waitForScanCompletion(600), true);
+    return file;
+}
+const settleEntry = () => new Promise(resolve => setTimeout(resolve, 650));
+
+runTest('FILE BINDING', 'Different image with same name and MIME is rejected after validation', async () => {
+    await registerCard();
+    const result = await CryptoCardValidation.processDirectCardEntry(cardFile('unvalidated-image'));
+    assert.strictEqual(result.success, undefined);
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, false);
+});
+
+runTest('FILE BINDING', 'Exact file bytes remain accepted after rename and component reload', async () => {
+    await registerCard();
+    delete require.cache[require.resolve(componentPath)];
+    const reloaded = require(componentPath);
+    const result = await reloaded.processDirectCardEntry(cardFile('registered-card', 'renamed.png'));
+    assert.strictEqual(result.success, true);
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, true);
+});
+
+runTest('FILE BINDING', 'A second unvalidated legitimate-looking card is rejected', async () => {
+    await registerCard();
+    const other = cardFile('another-card');
+    other.mockCanvas = CryptoCardValidation.generateAuthenticHashcodCardCanvas({cardId: 'HASHCOD-CARD-OTHER'});
+    const result = await CryptoCardValidation.processDirectCardEntry(other);
+    assert.strictEqual(result.success, undefined);
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, false);
+});
+
+runTest('FILE BINDING', 'Legacy records require revalidation', async () => {
+    await registerCard();
+    const record = JSON.parse(mockStorage.getItem(STORAGE_VALIDATED_CARD_KEY));
+    delete record.fileSha256;
+    delete record.fingerprintVersion;
+    mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify(record));
+    assert.strictEqual((await CryptoCardValidation.processDirectCardEntry(cardFile())).success, undefined);
+    assert.strictEqual(platformUnlocked, false);
+});
+
+runTest('FILE BINDING', 'Unreadable, empty and metadata-only uploads fail closed', async () => {
+    await registerCard();
+    for (const file of [
+        cardFile(''),
+        {type: 'image/png', name: 'card.png'},
+        {type: 'image/png', arrayBuffer: async () => { throw new Error('read error'); }}
+    ]) {
+        assert.strictEqual((await CryptoCardValidation.processDirectCardEntry(file)).success, undefined);
+    }
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, false);
+});
+
+runTest('FILE BINDING', 'Later invalid upload cancels a pending successful unlock', async () => {
+    const file = await registerCard();
+    assert.strictEqual((await CryptoCardValidation.processDirectCardEntry(file)).success, true);
+    await CryptoCardValidation.processDirectCardEntry(cardFile('wrong'));
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, false);
+});
+
+runTest('FILE BINDING', 'Lockout and changed approval cancel pending unlock', async () => {
+    for (const change of [
+        () => mockStorage.setItem(STORAGE_LOCKOUT_KEY, String(Date.now() + ONE_HOUR_MS)),
+        () => mockStorage.removeItem(STORAGE_VALIDATED_CARD_KEY)
+    ]) {
+        const file = await registerCard();
+        await CryptoCardValidation.processDirectCardEntry(file);
+        change();
+        await settleEntry();
+        assert.strictEqual(platformUnlocked, false);
+    }
+});
+
+runTest('FILE BINDING', 'Slow hash cannot override a newer rejected upload', async () => {
+    const file = await registerCard();
+    let release;
+    const delayed = {type: 'image/png', arrayBuffer: () => new Promise(resolve => { release = resolve; })};
+    const pending = CryptoCardValidation.processDirectCardEntry(delayed);
+    await CryptoCardValidation.processDirectCardEntry(cardFile('wrong'));
+    release(await file.arrayBuffer());
+    assert.strictEqual((await pending).success, undefined);
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, false);
+});
+
+runTest('FILE BINDING', 'New Tool 1 selection invalidates old submit approval', async () => {
+    await registerCard();
+    CryptoCardValidation.processUploadedCard({type: 'text/plain'});
+    CryptoCardValidation.submitCryptoCardLogin();
+    assert.strictEqual(platformUnlocked, false);
+});
+
+runTest('FILE BINDING', 'Tool 1 ingestion persists the original file hash', async () => {
+    mockStorage.clear();
+    const file = cardFile('ingested-file');
+    file.mockCanvas = CryptoCardValidation.generateAuthenticHashcodCardCanvas();
+    CryptoCardValidation.processUploadedCard(file);
+    assert.strictEqual(await waitForScanCompletion(600), true);
+    const record = JSON.parse(mockStorage.getItem(STORAGE_VALIDATED_CARD_KEY));
+    assert.strictEqual(record.fileSha256, crypto.createHash('sha256').update('ingested-file').digest('hex'));
+    assert.strictEqual((await CryptoCardValidation.processDirectCardEntry(cardFile('ingested-file'))).success, true);
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, true);
+});
+
+
+
+runTest('FILE BINDING', 'FileReader and Image decoding retain original upload bytes', async () => {
+    mockStorage.clear();
+    CryptoCardValidation.resetScanState();
+    platformUnlocked = false;
+    const previousImage = global.Image;
+    const previousCreateElement = mockDocument.createElement;
+    global.Image = class {
+        constructor() { this.naturalWidth = 300; this.naturalHeight = 200; }
+        set src(value) { setTimeout(() => this.onload(), 0); }
+    };
+    mockDocument.createElement = tag => tag === 'canvas'
+        ? CryptoCardValidation.generateAuthenticHashcodCardCanvas()
+        : previousCreateElement(tag);
+    try {
+        CryptoCardValidation.processUploadedCard(cardFile('decoded-file-original-bytes'));
+        assert.strictEqual(await waitForScanCompletion(600), true);
+        const record = JSON.parse(mockStorage.getItem(STORAGE_VALIDATED_CARD_KEY));
+        assert.strictEqual(record.fileSha256,
+            crypto.createHash('sha256').update('decoded-file-original-bytes').digest('hex'));
+        assert.strictEqual((await CryptoCardValidation.processDirectCardEntry(cardFile('decoded-file-original-bytes'))).success, true);
+        await settleEntry();
+        assert.strictEqual(platformUnlocked, true);
+    } finally {
+        global.Image = previousImage;
+        mockDocument.createElement = previousCreateElement;
+    }
+});
+
 console.log('\n--- [SUITE 6: STATIC GUARDRAILS] HTML Tag Balance & Syntax Checks ---');
 
 // window.l8UnlockPlatform definition check

@@ -4107,10 +4107,15 @@ return qrcode;
             const preview = typeof document !== 'undefined' && document.getElementById('vvPreviewImg');
             const noImg = typeof document !== 'undefined' && document.getElementById('vvNoImgText');
             if (preview) {
-                preview.src = '.user_uploaded/media_1788580482612.jpg';
-                preview.style.display = 'block';
+                // The original demo upload is not a bundled application asset.
+                // Keep its numeric example available without requesting a missing image.
+                preview.removeAttribute('src');
+                preview.style.display = 'none';
             }
-            if (noImg) noImg.style.display = 'none';
+            if (noImg) {
+                noImg.style.display = 'block';
+                noImg.textContent = 'La imagen original de esta demostración no está incluida. Carga una imagen para previsualizarla.';
+            }
 
             const dimLabel = typeof document !== 'undefined' && document.getElementById('vvDimLabel');
             if (dimLabel) dimLabel.textContent = '1024 × 1024 px';
@@ -5270,3 +5275,4 @@ return qrcode;
         module.exports.VectorVisionScannerEngine = VectorVisionScannerEngine;
     }
 })();
+

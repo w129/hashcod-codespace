@@ -12561,6 +12561,8 @@ if (!headers_sent()) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <script src="components/asset-path.js?v=20260908"></script>
+    <link rel="stylesheet" href="components/platform-media.css?v=20260908">
 </head>
 <body class="boot-locked">
     <script>
@@ -13039,7 +13041,7 @@ if (!headers_sent()) {
             </button>
 
             <!-- Cryptographic ID Card Validation Launcher Button (First Tool Trigger) -->
-            <button type="button" class="crypto-card-launcher-btn" id="cryptoCardValidationLauncherBtn" onclick="window.openCryptoCardValidationWindow && window.openCryptoCardValidationWindow()" title="Validación Criptográfica de Tarjeta" style="position: absolute; right: -56px; top: 10px; width: 46px; height: 46px; border-radius: 12px; background: #FFFFFF; border: 2px solid #111827; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10005; transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);">
+            <button type="button" class="crypto-card-launcher-btn" id="cryptoCardValidationLauncherBtn" onclick="window.openCryptoCardValidationWindow && window.openCryptoCardValidationWindow()" title="Validación Criptográfica de Tarjeta">
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="28" height="28" viewBox="0,0,256,256">
                     <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
                         <g transform="scale(2,2)">
@@ -13051,7 +13053,7 @@ if (!headers_sent()) {
             </button>
 
             <!-- Authenticated Card Direct Entry Launcher Button (Second Tool Trigger) -->
-            <button type="button" class="crypto-card-direct-launcher-btn" id="cryptoCardDirectLauncherBtn" onclick="window.openCryptoCardUploadPanel && window.openCryptoCardUploadPanel()" title="Acceso Directo con Tarjeta Criptográfica" style="position: absolute; right: -56px; top: 64px; width: 46px; height: 46px; border-radius: 12px; background: #FFFFFF; border: 2px solid #111827; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10005; transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);">
+            <button type="button" class="crypto-card-direct-launcher-btn" id="cryptoCardDirectLauncherBtn" onclick="window.openCryptoCardUploadPanel && window.openCryptoCardUploadPanel()" title="Acceso Directo con Tarjeta Criptográfica">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="4" width="18" height="16" rx="2"></rect>
                     <line x1="7" y1="8" x2="17" y2="8"></line>
@@ -14301,7 +14303,7 @@ if (!headers_sent()) {
                     </p>
 
                     <!-- GRID DE DOCUMENTOS LEGALES -->
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:20px;">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:16px; margin-bottom:20px;">
                         
                         <!-- 1. ONAPI Certificado Marca -->
                         <div class="privacy-evidence-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:14px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
@@ -26660,15 +26662,7 @@ ${jsonPayload}
             }
         };
 
-        window.l8Asset = function (path) {
-            var p = String(path == null ? '' : path);
-            if (!p) return p;
-            if (/^(https?:|data:|blob:)/i.test(p)) return p;
-            var base = window.L8_BASE_PATH || '/';
-            if (p.charAt(0) === '/') p = p.slice(1);
-            if (!base || base === '/') return '/' + p;
-            return base.replace(/\/+$/, '/') + p;
-        };
+
 
         /* ===== BOOT: blackhole visual only (CLI hidden) ===== */
         (function bootBlackholeVisual() {
@@ -28988,3 +28982,4 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
 
 </body>
 </html>
+

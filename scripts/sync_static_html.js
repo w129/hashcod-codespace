@@ -20,7 +20,8 @@ const baseBootstrap = `<script>
       var b = document.createElement('base');
       b.href = base;
       var first = document.currentScript;
-      first.parentNode.insertBefore(b, first.nextSibling);
+      if (first && first.parentNode) first.parentNode.insertBefore(b, first.nextSibling);
+      else document.head.insertBefore(b, document.head.firstChild);
     })();
     </script>`;
 const phpBootstrap = /<script>window\.L8_BASE_PATH\s*=\s*<\?php[\s\S]*?\?>;<\/script>/;

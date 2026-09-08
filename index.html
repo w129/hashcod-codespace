@@ -20,7 +20,8 @@
       var b = document.createElement('base');
       b.href = base;
       var first = document.currentScript;
-      first.parentNode.insertBefore(b, first.nextSibling);
+      if (first && first.parentNode) first.parentNode.insertBefore(b, first.nextSibling);
+      else document.head.insertBefore(b, document.head.firstChild);
     })();
     </script>
     <link rel="icon" href="favicon.svg?v=10" type="image/svg+xml">

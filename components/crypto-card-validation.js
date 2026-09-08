@@ -728,6 +728,7 @@
     }
 
     function closeCryptoCardUploadPanel() {
+        activeEntryToken++;
         const panelModal = document.getElementById('cryptoCardUploadPanelModal');
         if (panelModal) {
             panelModal.style.display = 'none';
@@ -1110,6 +1111,10 @@
         // Perform authentic 3-stage optical & cryptographic analysis
         const analysis = verifyCardCryptographicIntegrity(file, file);
 
+        updateCheckItem('checkFormat', 'statusFormat', '⏳', '');
+        updateCheckItem('checkQrParity', 'statusQrParity', '⏳', '');
+        updateCheckItem('checkAlgorithm', 'statusAlgorithm', '⏳', '');
+
         let fileSha256 = null;
         try {
             if (analysis.valid) fileSha256 = await fingerprintCardFile(originalFile || file);
@@ -1122,9 +1127,6 @@
         }
         if (currentToken !== activeScanToken || isLockedOut()) return;
 
-        updateCheckItem('checkFormat', 'statusFormat', '⏳', '');
-        updateCheckItem('checkQrParity', 'statusQrParity', '⏳', '');
-        updateCheckItem('checkAlgorithm', 'statusAlgorithm', '⏳', '');
 
         const stepMs = (typeof window !== 'undefined' && window.__SCAN_STEP_MS) ? window.__SCAN_STEP_MS : 120;
 
@@ -1177,10 +1179,12 @@
                             completedScanRecord = record;
                         } catch (err) {
                             updateCheckItem('checkAlgorithm', 'statusAlgorithm', '✕', 'failed');
+                            if (typeof alert === 'function') alert('No se pudo guardar la validación. Revisa el almacenamiento del navegador y vuelve a intentarlo.');
                             return;
                         }
                     } else {
                         updateCheckItem('checkAlgorithm', 'statusAlgorithm', '✕', 'failed');
+                        if (typeof alert === 'function') alert('El almacenamiento del navegador no está disponible. No se ha autorizado el acceso.');
                         return;
                     }
 

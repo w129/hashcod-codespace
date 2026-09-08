@@ -241,6 +241,7 @@ const mockWindow = {
     }
 };
 
+if (!global.crypto) global.crypto = crypto.webcrypto;
 global.window = mockWindow;
 global.document = mockDocument;
 global.localStorage = mockStorage;
@@ -842,7 +843,7 @@ runTest('TIER 5 (Adversarial)', 'Cryptographic: Rejects payloads lacking 0xD5 he
 // ============================================================================
 
 function cardFile(bytes = 'registered-card', name = 'card.png') {
-    return new File([bytes], name, { type: 'image/png' });
+    return Object.assign(new Blob([bytes], { type: 'image/png' }), { name });
 }
 async function registerCard(file = cardFile()) {
     mockStorage.clear();
@@ -987,6 +988,25 @@ runTest('FILE BINDING', 'FileReader and Image decoding retain original upload by
         global.Image = previousImage;
         mockDocument.createElement = previousCreateElement;
     }
+});
+
+
+runTest('FILE BINDING', 'Closing the entry panel cancels pending hash and delayed unlock', async () => {
+    const file = await registerCard();
+    await CryptoCardValidation.processDirectCardEntry(file);
+    CryptoCardValidation.closeCryptoCardUploadPanel();
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, false);
+
+    let release;
+    const pending = CryptoCardValidation.processDirectCardEntry({
+        type: 'image/png', arrayBuffer: () => new Promise(resolve => { release = resolve; })
+    });
+    CryptoCardValidation.closeCryptoCardUploadPanel();
+    release(await file.arrayBuffer());
+    assert.strictEqual((await pending).success, undefined);
+    await settleEntry();
+    assert.strictEqual(platformUnlocked, false);
 });
 
 console.log('\n--- [SUITE 6: STATIC GUARDRAILS] HTML Tag Balance & Syntax Checks ---');

@@ -8374,6 +8374,15 @@ if (!headers_sent()) {
             pointer-events: none;
         }
 
+
+        .boot-cli-footer .boot-cli-hint-wrap { flex: 0 1 auto; }
+        .boot-card-icon { display: flex; flex: 1 0 32px; justify-content: center; align-items: center; color: #8a8a8a; }
+        .boot-card-icon svg { display: block; flex: 0 0 32px; }
+        @media (max-width: 640px) {
+            .boot-cli-footer { flex-wrap: wrap; }
+            .boot-cli-footer .boot-cli-hint-wrap { flex-basis: 100%; }
+        }
+
         .boot-cli-footer > * {
             pointer-events: auto;
         }
@@ -12693,6 +12702,7 @@ if (!headers_sent()) {
                         </span>
                     </div>
                 </div>
+                <span class="boot-card-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="currentColor"><path d="M 3 6 L 3 7 L 3 26 L 29 26 L 29 6 L 3 6 z M 5 8 L 27 8 L 27 24 L 5 24 L 5 8 z M 10 11 L 10 15 L 14 15 L 14 11 L 10 11 z M 18 11 L 18 13 L 24 13 L 24 11 L 18 11 z M 18 15 L 18 17 L 24 17 L 24 15 L 18 15 z M 8 17 L 8 21 L 10 21 L 10 19 L 14 19 L 14 21 L 16 21 L 16 17 L 8 17 z"></path></svg></span>
                 <button type="button" class="boot-cli-enter ready" id="bootCliEnter" onclick="window.l8EnterPlatform && window.l8EnterPlatform()" style="cursor:pointer !important; pointer-events:auto !important;">Enter platform ↵</button>
             </div>
         </div>

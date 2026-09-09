@@ -12571,7 +12571,7 @@ if (!headers_sent()) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <script src="components/asset-path.js?v=20260908"></script>
-    <link rel="stylesheet" href="components/platform-media.css?v=20260908">
+    <link rel="stylesheet" href="components/platform-media.css?v=20260908-2">
 </head>
 <body class="boot-locked">
     <script>

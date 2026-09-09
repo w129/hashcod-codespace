@@ -19,3 +19,5 @@ El almacenamiento efímero de Render puede cerrar sesiones al redesplegar; basta
 ## Pruebas
 
 Ejecutar `php tests/security/test-admin-device.php`, `node tests/security/test-admin-device.cjs` y `node tests/e2e/test_crypto_card_validation_gate.js`. PHP requiere OpenSSL; en Windows puede necesitar OPENSSL_CONF apuntando al openssl.cnf de la distribución oficial.
+
+Caddy elimina CF-Connecting-IP si el origen inmediato no está en las redes privadas de Render o en los rangos publicados de Cloudflare (https://www.cloudflare.com/ips-v4 y https://www.cloudflare.com/ips-v6). La red privada del workspace forma parte de la frontera de confianza; no deben exponerse accesos alternativos sin esta política. Los servicios gratuitos no reciben tráfico privado y Render limita esa red a servicios del mismo workspace/región: https://render.com/docs/private-network.

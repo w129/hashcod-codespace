@@ -1,6 +1,7 @@
 (function () {
     'use strict';
     let pending = null;
+    let pendingForced = false;
     let expiry = null;
     const base = '/api/admin-device/';
     const decode = value => Uint8Array.from(atob(value.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
@@ -50,11 +51,19 @@
     }
     window.HashcodAdmin = Object.freeze({
         require: async function (options = {}) {
-            if (!pending) pending = authenticate(options.force === true).catch(error => {
+            const force = options.force === true;
+            if (pending && force && !pendingForced) {
+                await pending;
+                return window.HashcodAdmin.require(options);
+            }
+            if (!pending) {
+                pendingForced = force;
+                pending = authenticate(force).catch(error => {
                 closeTools();
                 alert(error.name === 'NotAllowedError' ? 'Windows Hello no se completó. Usa la laptop registrada y confirma con tu PIN o huella.' : error.message);
                 return false;
             }).finally(() => { pending = null; });
+            }
             return pending;
         },
         logout: async function () { try { await request('logout', {}); } finally { closeTools(); } }

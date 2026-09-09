@@ -63,8 +63,8 @@ if (!headers_sent()) {
 <head>
     <style>html:not([data-admin-ip="allowed"]) #cryptoCardValidationLauncherBtn, html:not([data-admin-ip="allowed"]) #d5LauncherBtn { display:none !important; }</style>
     <script defer src="/components/admin-device.js?v=20260909-4"></script>
-    <link rel="stylesheet" href="/components/admin-hello-button.css?v=20260909-1">
-    <script defer src="/components/admin-hello-button.js?v=20260909-1"></script>
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/admin-hello-button.css?v=20260909-1">
+    <script defer src="<?php echo htmlspecialchars($L8_BASE, ENT_QUOTES, 'UTF-8'); ?>components/admin-hello-button.js?v=20260909-1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

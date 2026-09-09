@@ -24190,7 +24190,6 @@ if (!headers_sent()) {
                 const overlay = document.getElementById('excelBlogOverlay');
                 if (!overlay) return;
                 const isOpening = (typeof forceState === 'boolean') ? forceState : !overlay.classList.contains('open');
-                if (isOpening && (!window.HashcodAdmin || !await window.HashcodAdmin.require())) return;
                 if (isOpening) {
                     overlay.classList.add('open');
                     overlay.style.setProperty('display', 'flex', 'important');
@@ -24776,6 +24775,7 @@ if (!headers_sent()) {
                 const overlay = document.getElementById('adminPanelOverlay');
                 if (!overlay) return;
                 const isOpening = (typeof forceState === 'boolean') ? forceState : !overlay.classList.contains('open');
+                if (isOpening && (!window.HashcodAdmin || !await window.HashcodAdmin.require())) return;
                 if (isOpening) {
                     overlay.classList.add('open');
                     const rows = window.getSharedPublicationRows();

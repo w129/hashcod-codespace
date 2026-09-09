@@ -2038,6 +2038,9 @@ function authHandleApi($uri) {
     header('Content-Type: application/json; charset=utf-8');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
+    require_once __DIR__ . '/admin-device.php';
+    if (adminProtectedPath($path)) adminRequire();
+
     if ($path === '/api/auth/status' && $method === 'GET') {
         echo json_encode(authStatusPublic(), JSON_UNESCAPED_UNICODE);
         return true;

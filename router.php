@@ -14,6 +14,10 @@ $rawUri = is_string($rawUri) ? $rawUri : '/';
 $uri = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $rawUri);
 if ($uri === '' || $uri === false) $uri = '/';
 
+require_once __DIR__ . '/admin-device.php';
+adminDeviceApi($uri);
+if (adminProtectedPath($uri)) adminRequire();
+
 // Raíz / app principal — HTML completo en view-source (index.php)
 if ($uri === '/' || $uri === '/index.php' || $uri === '/index.html') {
     l8_require_html_page('index.php', true);

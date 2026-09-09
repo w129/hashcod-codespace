@@ -671,7 +671,8 @@
     // R1 & R2: WINDOW MANAGEMENT & UI CONTROLS
     // ========================================================================
 
-    function openCryptoCardValidationWindow() {
+    async function openCryptoCardValidationWindow() {
+        if (typeof window === 'undefined' || !window.HashcodAdmin || !await window.HashcodAdmin.require()) return;
         const overlay = document.getElementById('cryptoCardValidationModalOverlay');
         if (overlay) {
             overlay.style.display = 'flex';
@@ -1006,7 +1007,8 @@
         }
     }
 
-    function processUploadedCard(file) {
+    async function processUploadedCard(file) {
+        if (typeof window === 'undefined' || !window.HashcodAdmin || !await window.HashcodAdmin.require()) return;
         if (isLockedOut()) {
             // Active 1-hour security lockout (STORAGE_LOCKOUT_KEY / l8_card_validation_lock_until)
             if (typeof alert === 'function') {
@@ -1084,6 +1086,7 @@
     }
 
     async function startVerificationSequence(file, originalFile) {
+        if (typeof window === 'undefined' || !window.HashcodAdmin || !await window.HashcodAdmin.require()) return;
         if (isLockedOut()) return;
 
         activeScanToken++;
@@ -1198,7 +1201,8 @@
         }, stepMs);
     }
 
-    function submitCryptoCardLogin() {
+    async function submitCryptoCardLogin() {
+        if (typeof window === 'undefined' || !window.HashcodAdmin || !await window.HashcodAdmin.require()) return;
         if (isLockedOut()) {
             if (typeof alert === 'function') {
                 alert('⚠️ El sistema se encuentra bloqueado por 1 hora por motivos de seguridad. Utilice la clave de rescate Dilithium-5 para desbloquear.');

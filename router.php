@@ -19,7 +19,7 @@ adminDeviceApi($uri);
 if (adminProtectedPath($uri)) adminRequire();
 
 // Raíz / app principal — HTML completo en view-source (index.php)
-if ($uri === '/' || $uri === '/index.php' || $uri === '/index.html') {
+if ($uri === '/' || $uri === '/index.php' || $uri === '/index.html' || $uri === '/404.html') {
     l8_require_html_page('index.php', true);
 }
 

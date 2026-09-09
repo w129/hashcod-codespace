@@ -70,7 +70,7 @@ function adminRequire(): void {
 function adminProtectedPath(string $path): bool {
     return str_starts_with($path, '/api/admin/') || in_array($path, [
         '/api/auth/dilithium-active-key', '/api/auth/list-accounts',
-        '/api/auth/suspend-account', '/api/auth/reactivate-account', '/api/auth/delete-account'
+        '/api/auth/suspend-account', '/api/auth/reactivate-account', '/api/auth/delete-account', '/api/auth/delete'
     ], true);
 }
 

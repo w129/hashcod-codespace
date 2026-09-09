@@ -12,7 +12,7 @@ check(adminClientIp(array_replace($edge, ['HTTP_X_L8_RENDER_XFF'=>'unknown, 38.1
 putenv('RENDER=false'); check(adminClientIp($edge) === '', 'unconfigured deployment denied'); putenv('RENDER=true');
 check(!adminSameOrigin(['HTTP_HOST'=>ADMIN_DEVICE_RP, 'HTTP_ORIGIN'=>'https://evil.example']), 'foreign origin denied');
 check(adminSameOrigin(['HTTP_HOST'=>ADMIN_DEVICE_RP, 'HTTP_ORIGIN'=>ADMIN_DEVICE_ORIGIN]), 'same origin accepted');
-foreach (['/api/admin/dilithium-verify','/api/auth/dilithium-active-key','/api/auth/list-accounts','/api/auth/suspend-account','/api/auth/reactivate-account'] as $path) check(adminProtectedPath($path), $path);
+foreach (['/api/admin/dilithium-verify','/api/auth/dilithium-active-key','/api/auth/list-accounts','/api/auth/suspend-account','/api/auth/reactivate-account','/api/auth/delete-account','/api/auth/delete'] as $path) check(adminProtectedPath($path), $path);
 foreach (['/api/auth/login','/api/auth/register','/api/auth/recover','/api/auth/session'] as $path) check(!adminProtectedPath($path), 'user path remains public: ' . $path);
 $key = openssl_pkey_new(['private_key_type'=>OPENSSL_KEYTYPE_EC, 'curve_name'=>'prime256v1']);
 $details = openssl_pkey_get_details($key);

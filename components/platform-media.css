@@ -74,7 +74,7 @@
 
 
 /* Keep the two decorative boot icons centered as one group. */
-.boot-cli-footer .boot-card-icon { flex-basis: 76px; gap: 12px; }
+.boot-cli-footer .boot-card-icon { flex-basis: 120px; gap: 12px; }
 .boot-card-icon::after {
     content: "";
     display: block;
@@ -83,3 +83,6 @@
     flex: 0 0 32px;
     background: url("boot-celebration-icon.svg") center / contain no-repeat;
 }
+
+.boot-card-icon::after { order: 1; }
+.boot-card-icon .boot-bulb-icon { order: 2; }

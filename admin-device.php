@@ -4,7 +4,7 @@ declare(strict_types=1);
 // Public credential explicitly enrolled by the owner. No enrollment API can replace it.
 const ADMIN_DEVICE_RP = 'hashcod-codespace-1.onrender.com';
 const ADMIN_DEVICE_ORIGIN = 'https://' . ADMIN_DEVICE_RP;
-const ADMIN_DEVICE_IP = '38.196.115.73';
+const ADMIN_DEVICE_NETWORK = '38.196.115.0/24';
 const ADMIN_DEVICE_ID = '6NCenKRQlsDlMjqmJ-kX_UweDaHdj8XjlVEYCzFoX3k';
 const ADMIN_DEVICE_SPKI = 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEgz_jckNI4CqWa-hsLab58p3DDRIreQH_42zwu0U-L39eBCaJMh-mzfQHToIy_3apeX0HmaZ2RYGTy7G2__jUVA';
 
@@ -23,6 +23,12 @@ function adminClientIp(array $server): string {
     if (getenv('RENDER') !== 'true' || ($server['REMOTE_ADDR'] ?? '') !== '127.0.0.1') return '';
     $ip = trim((string)($server['HTTP_X_L8_RENDER_CF_IP'] ?? ''));
     return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
+}
+
+function adminIpAllowed(string $ip): bool {
+    // Exact IPv4 /24 approved by the owner; no IPv6 or textual prefix matching.
+    if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) return false;
+    return substr(inet_pton($ip), 0, 3) === substr(inet_pton(explode('/', ADMIN_DEVICE_NETWORK)[0]), 0, 3);
 }
 
 function adminSameOrigin(array $server): bool {
@@ -54,10 +60,10 @@ function adminSession(): void {
 }
 
 function adminAuthorized(): bool {
-    if (adminClientIp($_SERVER) !== ADMIN_DEVICE_IP || !adminSameOrigin($_SERVER)) return false;
+    if (!adminIpAllowed(adminClientIp($_SERVER)) || !adminSameOrigin($_SERVER)) return false;
     adminSession();
     return ($_SESSION['admin_until'] ?? 0) > time()
-        && ($_SESSION['admin_ip'] ?? '') === ADMIN_DEVICE_IP
+        && ($_SESSION['admin_network'] ?? '') === ADMIN_DEVICE_NETWORK
         && ($_SESSION['admin_credential'] ?? '') === hash('sha256', ADMIN_DEVICE_ID . ADMIN_DEVICE_SPKI);
 }
 
@@ -95,11 +101,11 @@ function adminVerifyAssertion(array $input, string $challenge, string $id = ADMI
 function adminDeviceApi(string $path): void {
     if (!str_starts_with($path, '/api/admin-device/')) return;
     if (!adminSameOrigin($_SERVER)) adminJson(403, ['ok'=>false, 'error'=>'Origen no autorizado']);
-    $allowed = adminClientIp($_SERVER) === ADMIN_DEVICE_IP;
+    $allowed = adminIpAllowed(adminClientIp($_SERVER));
     if ($path === '/api/admin-device/status' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
         adminJson(200, ['ok'=>true, 'ipAllowed'=>$allowed, 'detectedIp'=>adminClientIp($_SERVER), 'authenticated'=>$allowed && adminAuthorized()]);
     }
-    if (!$allowed) adminJson(403, ['ok'=>false, 'error'=>'Estas herramientas solo están disponibles desde la IP ' . ADMIN_DEVICE_IP . '.']);
+    if (!$allowed) adminJson(403, ['ok'=>false, 'error'=>'Estas herramientas requieren la red ' . ADMIN_DEVICE_NETWORK . ' y Windows Hello de la laptop registrada.']);
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') adminJson(405, ['ok'=>false, 'error'=>'Método no permitido']);
     adminSession();
     if ($path === '/api/admin-device/challenge') {
@@ -120,7 +126,7 @@ function adminDeviceApi(string $path): void {
         }
         session_regenerate_id(true);
         $_SESSION['admin_until'] = time() + 600;
-        $_SESSION['admin_ip'] = ADMIN_DEVICE_IP;
+        $_SESSION['admin_network'] = ADMIN_DEVICE_NETWORK;
         $_SESSION['admin_credential'] = hash('sha256', ADMIN_DEVICE_ID . ADMIN_DEVICE_SPKI);
         adminJson(200, ['ok'=>true, 'authenticated'=>true, 'expiresIn'=>600]);
     }

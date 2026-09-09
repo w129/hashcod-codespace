@@ -21,6 +21,8 @@ if ($uri === '/' || $uri === '/index.php' || $uri === '/index.html') {
 
 // Páginas HTML enrutadas (nunca servir el .php crudo por allowlist)
 $routedPages = [
+    '/admin-device-setup' => 'admin-device-setup.php',
+    '/admin-device-setup.php' => 'admin-device-setup.php',
     '/gateway' => 'gateway.php',
     '/gateway.php' => 'gateway.php',
     '/ubuntu' => 'ubuntu-cli.php',

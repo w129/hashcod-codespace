@@ -3610,6 +3610,9 @@ $uri = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $rawUri);
 if ($uri === '' || $uri === false) $uri = '/';
 
 // Auth gate: registro / login / sesión (Dilithium-5 mensual solo vía env)
+require_once __DIR__ . '/admin-device.php';
+adminDeviceApi($uri);
+if (adminProtectedPath($uri)) adminRequire();
 require_once __DIR__ . '/auth.php';
 // Endpoint de sincronización de Clave Activa Dilithium-5 (Regla de Clave Única)
 if ($uri === '/api/auth/dilithium-active-key' && $_SERVER['REQUEST_METHOD'] === 'POST') {

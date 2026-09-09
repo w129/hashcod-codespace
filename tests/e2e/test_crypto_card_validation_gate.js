@@ -242,6 +242,7 @@ const mockWindow = {
 };
 
 if (!global.crypto) global.crypto = crypto.webcrypto;
+mockWindow.HashcodAdmin = {require: async () => true};
 global.window = mockWindow;
 global.document = mockDocument;
 global.localStorage = mockStorage;
@@ -285,13 +286,13 @@ console.log('--- [SUITE 1: TIER 1] Feature Coverage (R1 to R4) ---');
 
 // R1: Activation Trigger Button
 files.forEach(({ name }) => {
-    runTest('TIER 1 (R1)', `[${name}] Launcher button #cryptoCardValidationLauncherBtn exists in authOverlay`, () => {
+    runTest('TIER 1 (R1)', `[${name}] Launcher button #cryptoCardValidationLauncherBtn exists in authOverlay`, async () => {
         const c = contents[name];
         assert(c.includes('id="cryptoCardValidationLauncherBtn"') || c.includes('id=\'cryptoCardValidationLauncherBtn\''),
             `#cryptoCardValidationLauncherBtn missing in ${name}`);
     });
 
-    runTest('TIER 1 (R1)', `[${name}] Launcher contains exact user dual-polygon SVG`, () => {
+    runTest('TIER 1 (R1)', `[${name}] Launcher contains exact user dual-polygon SVG`, async () => {
         const c = contents[name];
         assert(c.includes('M24,94l40,-70l40,70h-30l-10,13l-10,-13z'),
             `SVG inner polygon path missing in ${name}`);
@@ -302,7 +303,7 @@ files.forEach(({ name }) => {
 
 // R2: Validation Window Frame & Structure (Tool 1)
 files.forEach(({ name }) => {
-    runTest('TIER 1 (R2)', `[${name}] Modal overlay and 480px validation window container exist`, () => {
+    runTest('TIER 1 (R2)', `[${name}] Modal overlay and 480px validation window container exist`, async () => {
         const c = contents[name];
         assert(c.includes('id="cryptoCardValidationModalOverlay"') || c.includes('id="cryptoCardValidationOverlay"'),
             `Modal overlay #cryptoCardValidationModalOverlay missing in ${name}`);
@@ -310,7 +311,7 @@ files.forEach(({ name }) => {
             `Validation window container (.validation-window) missing in ${name}`);
     });
 
-    runTest('TIER 1 (R2)', `[${name}] CSS enforces 480px width, 1035px height, #FFFFFF, shadow and 16px radius`, () => {
+    runTest('TIER 1 (R2)', `[${name}] CSS enforces 480px width, 1035px height, #FFFFFF, shadow and 16px radius`, async () => {
         const c = contents[name] + '\n' + componentContent;
         assert(c.includes('480px'), `Width 480px rule missing in ${name}`);
         assert(c.includes('1035px'), `Height 1035px rule missing in ${name}`);
@@ -319,7 +320,7 @@ files.forEach(({ name }) => {
         assert(c.includes('16px'), `Border-radius 16px rule missing in ${name}`);
     });
 
-    runTest('TIER 1 (R2)', `[${name}] Title bar contains 3 dots (10px) and Geist Mono 11px label`, () => {
+    runTest('TIER 1 (R2)', `[${name}] Title bar contains 3 dots (10px) and Geist Mono 11px label`, async () => {
         const c = contents[name];
         assert(c.includes('SECURE VALIDATION LAYER'),
             `Title bar label "SECURE VALIDATION LAYER" missing in ${name}`);
@@ -327,7 +328,7 @@ files.forEach(({ name }) => {
             `Close button #closeValidationWindowBtn missing in ${name}`);
     });
 
-    runTest('TIER 1 (R2)', `[${name}] Header section displays Validación Criptográfica & subtitle`, () => {
+    runTest('TIER 1 (R2)', `[${name}] Header section displays Validación Criptográfica & subtitle`, async () => {
         const c = contents[name];
         assert(c.includes('Validación Criptográfica'),
             `Header title "Validación Criptográfica" missing in ${name}`);
@@ -335,7 +336,7 @@ files.forEach(({ name }) => {
             `Header subtitle "CAPA DE SEGURIDAD & AUTENTICACIÓN POST-CUÁNTICA" missing in ${name}`);
     });
 
-    runTest('TIER 1 (R2)', `[${name}] Section 01 contains dropzone and real file input`, () => {
+    runTest('TIER 1 (R2)', `[${name}] Section 01 contains dropzone and real file input`, async () => {
         const c = contents[name];
         assert(c.includes('Seleccionar Tarjeta'), `Section 01 label "Seleccionar Tarjeta" missing in ${name}`);
         assert(c.includes('id="cardUploadZone"'), `Dropzone #cardUploadZone missing in ${name}`);
@@ -343,14 +344,14 @@ files.forEach(({ name }) => {
         assert(c.includes('accept="image/*"') || c.includes('accept=\'image/*\''), `image/* accept missing in ${name}`);
     });
 
-    runTest('TIER 1 (R2)', `[${name}] Section 02 contains 432x280px preview area and real image element`, () => {
+    runTest('TIER 1 (R2)', `[${name}] Section 02 contains 432x280px preview area and real image element`, async () => {
         const c = contents[name];
         assert(c.includes('Escaneo & Análisis') || c.includes('Escaneo &amp; Análisis'), `Section 02 label "Escaneo & Análisis" missing in ${name}`);
         assert(c.includes('id="cardPreviewArea"'), `Preview area #cardPreviewArea missing in ${name}`);
         assert(c.includes('id="cardRealUploadedImage"'), `Real image element #cardRealUploadedImage missing in ${name}`);
     });
 
-    runTest('TIER 1 (R2)', `[${name}] Section 02 contains laser line, 3 checks and progress bar`, () => {
+    runTest('TIER 1 (R2)', `[${name}] Section 02 contains laser line, 3 checks and progress bar`, async () => {
         const c = contents[name];
         assert(c.includes('id="scanLaserLine"') || c.includes('class="scan-laser-line"'),
             `Laser scan line #scanLaserLine missing in ${name}`);
@@ -361,7 +362,7 @@ files.forEach(({ name }) => {
         assert(c.includes('id="scanProgressFill"'), `Progress fill #scanProgressFill missing in ${name}`);
     });
 
-    runTest('TIER 1 (R2)', `[${name}] Section 03 contains success plate and primary submit button`, () => {
+    runTest('TIER 1 (R2)', `[${name}] Section 03 contains success plate and primary submit button`, async () => {
         const c = contents[name];
         assert(c.includes('Certificación Final'), `Section 03 label "Certificación Final" missing in ${name}`);
         assert(c.includes('id="cardSuccessPlate"'), `Success plate #cardSuccessPlate missing in ${name}`);
@@ -372,20 +373,20 @@ files.forEach(({ name }) => {
 
 // R3: Cryptographic Validation, 1-Hour Lockout & Dilithium-5 Rescue Override
 files.forEach(({ name }) => {
-    runTest('TIER 1 (R3)', `[${name}] References persistent lockout and validated card storage keys`, () => {
+    runTest('TIER 1 (R3)', `[${name}] References persistent lockout and validated card storage keys`, async () => {
         const c = contents[name] + '\n' + componentContent;
         assert(c.includes(STORAGE_LOCKOUT_KEY), `Storage key '${STORAGE_LOCKOUT_KEY}' missing in ${name}`);
         assert(c.includes(STORAGE_VALIDATED_CARD_KEY), `Storage key '${STORAGE_VALIDATED_CARD_KEY}' missing in ${name}`);
     });
 
-    runTest('TIER 1 (R3)', `[${name}] Contains 60-min countdown timer container and rescue key input`, () => {
+    runTest('TIER 1 (R3)', `[${name}] Contains 60-min countdown timer container and rescue key input`, async () => {
         const c = contents[name];
         assert(c.includes('id="cardLockoutCountdown"'), `Countdown element #cardLockoutCountdown missing in ${name}`);
         assert(c.includes('id="cardLockDilithiumRescueInput"'), `Rescue input #cardLockDilithiumRescueInput missing in ${name}`);
         assert(c.includes('id="btnDilithiumRescueOverride"'), `Rescue button #btnDilithiumRescueOverride missing in ${name}`);
     });
 
-    runTest('TIER 1 (R3)', `[${name}] Verbatim 2,880-character Dilithium-5 signature embedded or accessible`, () => {
+    runTest('TIER 1 (R3)', `[${name}] Verbatim 2,880-character Dilithium-5 signature embedded or accessible`, async () => {
         const c = contents[name] + '\n' + componentContent;
         assert(c.includes(DILITHIUM5_RESCUE_OVERRIDE_SIGNATURE.substring(0, 60)),
             `Dilithium-5 rescue signature constant prefix missing in ${name}`);
@@ -396,7 +397,7 @@ files.forEach(({ name }) => {
 
 // R4: Authenticated Card Entry Panel (Tool 2)
 files.forEach(({ name }) => {
-    runTest('TIER 1 (R4)', `[${name}] Tool 2 panel #cryptoCardUploadPanel exists with 400x370px dimensions`, () => {
+    runTest('TIER 1 (R4)', `[${name}] Tool 2 panel #cryptoCardUploadPanel exists with 400x370px dimensions`, async () => {
         const c = contents[name];
         assert(c.includes('id="cryptoCardUploadPanel"') || c.includes('class="crypto-card-upload-panel"'),
             `Tool 2 container #cryptoCardUploadPanel missing in ${name}`);
@@ -408,7 +409,7 @@ files.forEach(({ name }) => {
             `Badge "VALIDACIÓN DIRECTA" missing in ${name}`);
     });
 
-    runTest('TIER 1 (R4)', `[${name}] Direct unlock calls window.l8UnlockPlatform() upon validated card`, () => {
+    runTest('TIER 1 (R4)', `[${name}] Direct unlock calls window.l8UnlockPlatform() upon validated card`, async () => {
         const c = contents[name] + '\n' + componentContent;
         assert(c.includes('l8UnlockPlatform'), `Platform unlock call window.l8UnlockPlatform missing in ${name}`);
     });
@@ -419,7 +420,7 @@ files.forEach(({ name }) => {
 // ============================================================================
 console.log('\n--- [SUITE 2: TIER 2] Boundary & Corner Cases ---');
 
-runTest('TIER 2 (Boundary)', 'Non-image file upload rejection prevents scanning and warns user', () => {
+runTest('TIER 2 (Boundary)', 'Non-image file upload rejection prevents scanning and warns user', async () => {
     const fullCode = contents['index.php'] + '\n' + componentContent;
     assert(
         fullCode.includes('image/') || fullCode.includes('.type.startsWith(\'image/\')') || fullCode.includes('.type.match(/^image\\//)'),
@@ -427,7 +428,7 @@ runTest('TIER 2 (Boundary)', 'Non-image file upload rejection prevents scanning 
     );
 });
 
-runTest('TIER 2 (Boundary)', 'Dilithium-5 rescue key input is trimmed to tolerate whitespace, tabs and newlines', () => {
+runTest('TIER 2 (Boundary)', 'Dilithium-5 rescue key input is trimmed to tolerate whitespace, tabs and newlines', async () => {
     const fullCode = contents['index.php'] + '\n' + componentContent;
     assert(
         fullCode.includes('.trim()') || fullCode.includes('replace(/^\\s+|\\s+$/g'),
@@ -440,7 +441,7 @@ runTest('TIER 2 (Boundary)', 'Dilithium-5 rescue key input is trimmed to tolerat
         'Trimmed key must exactly match the 2,880-character signature');
 });
 
-runTest('TIER 2 (Boundary)', 'Corrupted signature (1 character altered) is strictly rejected', () => {
+runTest('TIER 2 (Boundary)', 'Corrupted signature (1 character altered) is strictly rejected', async () => {
     const corruptedKey = DILITHIUM5_RESCUE_OVERRIDE_SIGNATURE.substring(0, 100) + 'X' + DILITHIUM5_RESCUE_OVERRIDE_SIGNATURE.substring(101);
     assert.notStrictEqual(corruptedKey, DILITHIUM5_RESCUE_OVERRIDE_SIGNATURE);
     
@@ -448,7 +449,7 @@ runTest('TIER 2 (Boundary)', 'Corrupted signature (1 character altered) is stric
     assert.strictEqual(isMatch(corruptedKey), false, 'Corrupted key must not pass comparison');
 });
 
-runTest('TIER 2 (Boundary)', 'Timer reload persistence restores countdown from remaining delta in localStorage', () => {
+runTest('TIER 2 (Boundary)', 'Timer reload persistence restores countdown from remaining delta in localStorage', async () => {
     const storage = new MockStorage();
     const futureTimestamp = Date.now() + 1800000;
     storage.setItem(STORAGE_LOCKOUT_KEY, String(futureTimestamp));
@@ -465,7 +466,7 @@ runTest('TIER 2 (Boundary)', 'Timer reload persistence restores countdown from r
     assert(/^29:[0-5][0-9]$|^30:00$/.test(formatted), `Countdown formatted as MM:SS (${formatted})`);
 });
 
-runTest('TIER 2 (Boundary)', 'Timer expiration naturally cleans storage key and unlocks dropzone', () => {
+runTest('TIER 2 (Boundary)', 'Timer expiration naturally cleans storage key and unlocks dropzone', async () => {
     const storage = new MockStorage();
     const pastTimestamp = Date.now() - 5000;
     storage.setItem(STORAGE_LOCKOUT_KEY, String(pastTimestamp));
@@ -486,7 +487,7 @@ runTest('TIER 2 (Boundary)', 'Timer expiration naturally cleans storage key and 
     assert.strictEqual(storage.getItem(STORAGE_LOCKOUT_KEY), null, 'Expired timestamp must be removed from storage');
 });
 
-runTest('TIER 2 (Boundary)', 'Rapid sequential file drops cleanly reset progress and checks', () => {
+runTest('TIER 2 (Boundary)', 'Rapid sequential file drops cleanly reset progress and checks', async () => {
     const fullCode = contents['index.php'] + '\n' + componentContent;
     assert(
         fullCode.includes('clearInterval') || fullCode.includes('clearTimeout') || fullCode.includes('resetScanState'),
@@ -520,11 +521,11 @@ runTest('TIER 3 (Cross-Feature)', 'Tool 1 card validation -> Storage registratio
     assert.strictEqual(res.card.cardId, 'HASHCOD-CARD-9921-X', 'Card ID must match certified record');
 
     // 3. Verify real submission from Tool 1 validation window submits and unlocks platform
-    CryptoCardValidation.submitCryptoCardLogin();
+    await CryptoCardValidation.submitCryptoCardLogin();
     assert.strictEqual(platformUnlocked, true, 'Platform must unlock via submitCryptoCardLogin()');
 });
 
-runTest('TIER 3 (Cross-Feature)', 'Counterfeit card -> Lockout -> Dilithium-5 rescue -> Normal restoration pipeline', () => {
+runTest('TIER 3 (Cross-Feature)', 'Counterfeit card -> Lockout -> Dilithium-5 rescue -> Normal restoration pipeline', async () => {
     mockStorage.clear();
 
     // 1. Trigger security lockout via real exported component method
@@ -549,7 +550,7 @@ runTest('TIER 3 (Cross-Feature)', 'Counterfeit card -> Lockout -> Dilithium-5 re
     assert.strictEqual(domStore['cryptoCardFileInput'].disabled, false, 'File input must be re-enabled');
 });
 
-runTest('TIER 3 (Cross-Feature)', 'Tool 2 rejection of uncertified card without prior Tool 1 validation', () => {
+runTest('TIER 3 (Cross-Feature)', 'Tool 2 rejection of uncertified card without prior Tool 1 validation', async () => {
     mockStorage.clear();
     platformUnlocked = false;
 
@@ -572,7 +573,7 @@ runTest('TIER 4 (E2E Scenario)', 'Full end-to-end legitimate card validation and
     platformUnlocked = false;
 
     // Step 1: Open validation window
-    CryptoCardValidation.openCryptoCardValidationWindow();
+    await CryptoCardValidation.openCryptoCardValidationWindow();
     assert.strictEqual(domStore['cryptoCardValidationModalOverlay'].style.display, 'flex', 'Validation modal opened');
 
     // Step 2: Generate genuine authentic Hashcod card canvas with optical finders & framing
@@ -596,7 +597,7 @@ runTest('TIER 4 (E2E Scenario)', 'Full end-to-end legitimate card validation and
     assert.strictEqual(domStore['submitLoginButton'].disabled, false, 'Submit button enabled');
 
     // Step 6: Submit login and verify platform unlocks
-    CryptoCardValidation.submitCryptoCardLogin();
+    await CryptoCardValidation.submitCryptoCardLogin();
     assert.strictEqual(platformUnlocked, true, 'Platform booted and unlocked cleanly via genuine workflow');
 });
 
@@ -605,7 +606,7 @@ runTest('TIER 4 (E2E Scenario)', 'Adversarial counterfeit assault -> Lockout eng
 
     // Attacker submits counterfeit blank image
     const blankCounterfeit = CryptoCardValidation.generateAuthenticHashcodCardCanvas({ blankImage: true });
-    CryptoCardValidation.startVerificationSequence(blankCounterfeit);
+    await CryptoCardValidation.startVerificationSequence(blankCounterfeit);
 
     const completed = await waitForScanCompletion(600);
     assert.strictEqual(completed, true, 'Scan completed');
@@ -636,7 +637,7 @@ runTest('TIER 4 (E2E Scenario)', 'Adversarial counterfeit assault -> Lockout eng
 console.log('\n--- [SUITE 5: TIER 5] Challenger Adversarial Stress Integration ---');
 
 // Dilithium-5 Key Mutations
-runTest('TIER 5 (Adversarial)', 'Dilithium-5: Single character flip at index 0, 1440, and 2879 rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Dilithium-5: Single character flip at index 0, 1440, and 2879 rejected', async () => {
     mockStorage.setItem(STORAGE_LOCKOUT_KEY, String(Date.now() + ONE_HOUR_MS));
 
     const sig = DILITHIUM5_RESCUE_OVERRIDE_SIGNATURE;
@@ -654,7 +655,7 @@ runTest('TIER 5 (Adversarial)', 'Dilithium-5: Single character flip at index 0, 
     });
 });
 
-runTest('TIER 5 (Adversarial)', 'Dilithium-5: 50 randomized character perturbations strictly rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Dilithium-5: 50 randomized character perturbations strictly rejected', async () => {
     mockStorage.setItem(STORAGE_LOCKOUT_KEY, String(Date.now() + ONE_HOUR_MS));
     const sig = DILITHIUM5_RESCUE_OVERRIDE_SIGNATURE;
 
@@ -669,7 +670,7 @@ runTest('TIER 5 (Adversarial)', 'Dilithium-5: 50 randomized character perturbati
     }
 });
 
-runTest('TIER 5 (Adversarial)', 'Dilithium-5: Truncated signatures (-1 character, 50% length) rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Dilithium-5: Truncated signatures (-1 character, 50% length) rejected', async () => {
     mockStorage.setItem(STORAGE_LOCKOUT_KEY, String(Date.now() + ONE_HOUR_MS));
     const sig = DILITHIUM5_RESCUE_OVERRIDE_SIGNATURE;
 
@@ -683,7 +684,7 @@ runTest('TIER 5 (Adversarial)', 'Dilithium-5: Truncated signatures (-1 character
     assert.strictEqual(CryptoCardValidation.executeDilithiumRescueOverride(), false, '50% truncated rejected');
 });
 
-runTest('TIER 5 (Adversarial)', 'Dilithium-5: Case sensitivity strictly enforced (lowercase "w" rejected)', () => {
+runTest('TIER 5 (Adversarial)', 'Dilithium-5: Case sensitivity strictly enforced (lowercase "w" rejected)', async () => {
     mockStorage.setItem(STORAGE_LOCKOUT_KEY, String(Date.now() + ONE_HOUR_MS));
     const sig = DILITHIUM5_RESCUE_OVERRIDE_SIGNATURE;
 
@@ -691,7 +692,7 @@ runTest('TIER 5 (Adversarial)', 'Dilithium-5: Case sensitivity strictly enforced
     assert.strictEqual(CryptoCardValidation.executeDilithiumRescueOverride(), false, 'Lowercase "w" rejected');
 });
 
-runTest('TIER 5 (Adversarial)', 'Dilithium-5: Hostile injection strings (SQLi, XSS, prototype, null bytes) 100% rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Dilithium-5: Hostile injection strings (SQLi, XSS, prototype, null bytes) 100% rejected', async () => {
     const injectionVectors = [
         "' OR '1'='1",
         "<script>alert('pwn')</script>",
@@ -709,7 +710,7 @@ runTest('TIER 5 (Adversarial)', 'Dilithium-5: Hostile injection strings (SQLi, X
 });
 
 // Tool 2 Injection Hardening
-runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — String "false" parityVerified strictly rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — String "false" parityVerified strictly rejected', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify({
         cardId: 'SPOOFED-CARD',
@@ -721,7 +722,7 @@ runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — String "false" parit
     assert.strictEqual(res.error, 'Paridad no válida', 'Paridad no válida returned');
 });
 
-runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — Truthy status string "PARITY_FAILED_UNAUTHORIZED" rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — Truthy status string "PARITY_FAILED_UNAUTHORIZED" rejected', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify({
         cardId: 'SPOOFED-CARD',
@@ -733,7 +734,7 @@ runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — Truthy status string
     assert.strictEqual(res.error, 'Paridad no válida');
 });
 
-runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — Numeric 1 parityVerified strictly rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — Numeric 1 parityVerified strictly rejected', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify({
         cardId: 'SPOOFED-CARD',
@@ -745,7 +746,7 @@ runTest('TIER 5 (Adversarial)', 'Tool 2: Type Confusion — Numeric 1 parityVeri
     assert.strictEqual(res.error, 'Paridad no válida');
 });
 
-runTest('TIER 5 (Adversarial)', 'Tool 2: Active 1-Hour Security Lockout strictly enforced', () => {
+runTest('TIER 5 (Adversarial)', 'Tool 2: Active 1-Hour Security Lockout strictly enforced', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_LOCKOUT_KEY, String(Date.now() + ONE_HOUR_MS));
     mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify({
@@ -759,7 +760,7 @@ runTest('TIER 5 (Adversarial)', 'Tool 2: Active 1-Hour Security Lockout strictly
     assert.strictEqual(res.error, 'Sistema bloqueado', 'Lockout error returned');
 });
 
-runTest('TIER 5 (Adversarial)', 'Tool 2: Naked object missing cardId/issuer strictly rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Tool 2: Naked object missing cardId/issuer strictly rejected', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify({
         parityVerified: true
@@ -770,7 +771,7 @@ runTest('TIER 5 (Adversarial)', 'Tool 2: Naked object missing cardId/issuer stri
     assert.strictEqual(res.error, 'Paridad no válida');
 });
 
-runTest('TIER 5 (Adversarial)', 'Tool 2: Forged issuer "Malicious Attacker Syndicate" strictly rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Tool 2: Forged issuer "Malicious Attacker Syndicate" strictly rejected', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify({
         cardId: 'FORGED-CARD-666',
@@ -783,7 +784,7 @@ runTest('TIER 5 (Adversarial)', 'Tool 2: Forged issuer "Malicious Attacker Syndi
     assert.strictEqual(res.error, 'Paridad no válida');
 });
 
-runTest('TIER 5 (Adversarial)', 'Tool 2: Arbitrary non-image file (.exe / .pdf) strictly rejected', () => {
+runTest('TIER 5 (Adversarial)', 'Tool 2: Arbitrary non-image file (.exe / .pdf) strictly rejected', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_VALIDATED_CARD_KEY, JSON.stringify({
         cardId: 'HASHCOD-CARD-9921-X',
@@ -797,7 +798,7 @@ runTest('TIER 5 (Adversarial)', 'Tool 2: Arbitrary non-image file (.exe / .pdf) 
 });
 
 // Temporal & Ingestion Hardening
-runTest('TIER 5 (Adversarial)', 'Temporal: Corrupted non-numeric / NaN lockout timestamp automatically cleaned', () => {
+runTest('TIER 5 (Adversarial)', 'Temporal: Corrupted non-numeric / NaN lockout timestamp automatically cleaned', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_LOCKOUT_KEY, 'CORRUPTED_NON_NUMERIC');
 
@@ -806,32 +807,32 @@ runTest('TIER 5 (Adversarial)', 'Temporal: Corrupted non-numeric / NaN lockout t
     assert.strictEqual(domStore['cardLockoutBanner'].style.display, 'none', 'Lockout banner dismissed');
 });
 
-runTest('TIER 5 (Adversarial)', 'Ingestion: Programmatic processUploadedCard() blocked during active lockout', () => {
+runTest('TIER 5 (Adversarial)', 'Ingestion: Programmatic processUploadedCard() blocked during active lockout', async () => {
     mockStorage.clear();
     mockStorage.setItem(STORAGE_LOCKOUT_KEY, String(Date.now() + ONE_HOUR_MS));
 
     let scanInitiated = false;
     const originalStart = CryptoCardValidation.startVerificationSequence;
-    CryptoCardValidation.processUploadedCard({ name: 'card.png', type: 'image/png' });
+    await CryptoCardValidation.processUploadedCard({ name: 'card.png', type: 'image/png' });
 
     assert.strictEqual(CryptoCardValidation.isLockedOut(), true, 'Lockout confirmed active');
 });
 
-runTest('TIER 5 (Adversarial)', 'Optical: Luminance variance rejects blank solid images', () => {
+runTest('TIER 5 (Adversarial)', 'Optical: Luminance variance rejects blank solid images', async () => {
     const blankCanvas = CryptoCardValidation.generateAuthenticHashcodCardCanvas({ blankImage: true });
     const analysis = CryptoCardValidation.analyzeCanvasPixels(blankCanvas);
     assert.strictEqual(analysis.formatPassed, false, 'Blank image must fail format check');
     assert.strictEqual(analysis.error, 'BLANK_OR_UNIFORM_IMAGE', 'Error code must indicate blank image');
 });
 
-runTest('TIER 5 (Adversarial)', 'Optical: Finder pattern scan rejects images without 1:1:3:1:1 finders', () => {
+runTest('TIER 5 (Adversarial)', 'Optical: Finder pattern scan rejects images without 1:1:3:1:1 finders', async () => {
     const noFindersCanvas = CryptoCardValidation.generateAuthenticHashcodCardCanvas({ tamperFinders: true });
     const analysis = CryptoCardValidation.analyzeCanvasPixels(noFindersCanvas);
     assert.strictEqual(analysis.formatPassed, true, 'Format check passes for non-blank image');
     assert.strictEqual(analysis.qrParityPassed, false, 'QR parity fails without 1:1:3:1:1 finders');
 });
 
-runTest('TIER 5 (Adversarial)', 'Cryptographic: Rejects payloads lacking 0xD5 header or avalanche parity', () => {
+runTest('TIER 5 (Adversarial)', 'Cryptographic: Rejects payloads lacking 0xD5 header or avalanche parity', async () => {
     const badFramingCanvas = CryptoCardValidation.generateAuthenticHashcodCardCanvas({ tamperFraming: true });
     const res = CryptoCardValidation.verifyCardCryptographicIntegrity(badFramingCanvas);
     assert.strictEqual(res.valid, false, 'Corrupted framing must be invalid');
@@ -942,8 +943,8 @@ runTest('FILE BINDING', 'Slow hash cannot override a newer rejected upload', asy
 
 runTest('FILE BINDING', 'New Tool 1 selection invalidates old submit approval', async () => {
     await registerCard();
-    CryptoCardValidation.processUploadedCard({type: 'text/plain'});
-    CryptoCardValidation.submitCryptoCardLogin();
+    await CryptoCardValidation.processUploadedCard({type: 'text/plain'});
+    await CryptoCardValidation.submitCryptoCardLogin();
     assert.strictEqual(platformUnlocked, false);
 });
 
@@ -951,7 +952,7 @@ runTest('FILE BINDING', 'Tool 1 ingestion persists the original file hash', asyn
     mockStorage.clear();
     const file = cardFile('ingested-file');
     file.mockCanvas = CryptoCardValidation.generateAuthenticHashcodCardCanvas();
-    CryptoCardValidation.processUploadedCard(file);
+    await CryptoCardValidation.processUploadedCard(file);
     assert.strictEqual(await waitForScanCompletion(600), true);
     const record = JSON.parse(mockStorage.getItem(STORAGE_VALIDATED_CARD_KEY));
     assert.strictEqual(record.fileSha256, crypto.createHash('sha256').update('ingested-file').digest('hex'));
@@ -976,7 +977,7 @@ runTest('FILE BINDING', 'FileReader and Image decoding retain original upload by
         ? CryptoCardValidation.generateAuthenticHashcodCardCanvas()
         : previousCreateElement(tag);
     try {
-        CryptoCardValidation.processUploadedCard(cardFile('decoded-file-original-bytes'));
+        await CryptoCardValidation.processUploadedCard(cardFile('decoded-file-original-bytes'));
         assert.strictEqual(await waitForScanCompletion(600), true);
         const record = JSON.parse(mockStorage.getItem(STORAGE_VALIDATED_CARD_KEY));
         assert.strictEqual(record.fileSha256,
@@ -1013,7 +1014,7 @@ console.log('\n--- [SUITE 6: STATIC GUARDRAILS] HTML Tag Balance & Syntax Checks
 
 // window.l8UnlockPlatform definition check
 files.forEach(({ name }) => {
-    runTest('GUARDRAILS', `[${name}] window.l8UnlockPlatform is explicitly defined`, () => {
+    runTest('GUARDRAILS', `[${name}] window.l8UnlockPlatform is explicitly defined`, async () => {
         const c = contents[name];
         assert(c.includes('window.l8UnlockPlatform =') || c.includes('window.l8UnlockPlatform='),
             `window.l8UnlockPlatform definition missing in ${name}`);
@@ -1022,7 +1023,7 @@ files.forEach(({ name }) => {
 
 // HTML Tag Balance Check (Diff: 0)
 files.forEach(({ name, path: filePath }) => {
-    runTest('GUARDRAILS', `[${name}] HTML <div> tag balance strictly maintained (Diff: 0)`, () => {
+    runTest('GUARDRAILS', `[${name}] HTML <div> tag balance strictly maintained (Diff: 0)`, async () => {
         if (!fs.existsSync(filePath)) return;
         const content = fs.readFileSync(filePath, 'utf8');
         const domOnly = content
@@ -1038,7 +1039,7 @@ files.forEach(({ name, path: filePath }) => {
 });
 
 // Syntax verification
-runTest('GUARDRAILS', 'JavaScript syntax verification across component code', () => {
+runTest('GUARDRAILS', 'JavaScript syntax verification across component code', async () => {
     if (fs.existsSync(componentPath)) {
         const compCode = fs.readFileSync(componentPath, 'utf8');
         try {
@@ -1052,6 +1053,21 @@ runTest('GUARDRAILS', 'JavaScript syntax verification across component code', ()
 // ============================================================================
 // SUITE SUMMARY & RESULT
 // ============================================================================
+runTest('ADMIN DEVICE', 'Denied Windows Hello cannot scan, approve or open administration', async () => {
+    mockStorage.clear();
+    platformUnlocked = false;
+    domStore['cryptoCardValidationModalOverlay'].style.display = 'none';
+    mockWindow.HashcodAdmin.require = async () => false;
+    try {
+        await CryptoCardValidation.openCryptoCardValidationWindow();
+        await CryptoCardValidation.startVerificationSequence(CryptoCardValidation.generateAuthenticHashcodCardCanvas({}), new Blob(['card'], {type:'image/png'}));
+        await CryptoCardValidation.submitCryptoCardLogin();
+        assert.strictEqual(domStore['cryptoCardValidationModalOverlay'].style.display, 'none');
+        assert.strictEqual(mockStorage.getItem(STORAGE_VALIDATED_CARD_KEY), null);
+        assert.strictEqual(platformUnlocked, false);
+    } finally { mockWindow.HashcodAdmin.require = async () => true; }
+});
+
 async function finalize() {
     await testQueue;
 

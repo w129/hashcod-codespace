@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(__dirname + '/../../components/admin-device.js', 'utf8');
-async function runScenario({ipAllowed = true, authenticated = false, cancel = false, rejected = false} = {}) {
+async function runScenario({ipAllowed = true, authenticated = false, cancel = false, rejected = false, force = false} = {}) {
     const calls = [], alerts = [], prompts = [];
     const context = {
         document: {documentElement: {dataset: {}}, getElementById: () => null},
@@ -31,7 +31,7 @@ async function runScenario({ipAllowed = true, authenticated = false, cancel = fa
     context.PublicKeyCredential = function () {};
     vm.runInNewContext(source,context);
     await new Promise(resolve => setImmediate(resolve));
-    const results = await Promise.all([context.HashcodAdmin.require(),context.HashcodAdmin.require()]);
+    const results = await Promise.all([context.HashcodAdmin.require({force}),context.HashcodAdmin.require({force})]);
     return {calls, alerts, prompts, results, context};
 }
 (async () => {
@@ -47,5 +47,7 @@ async function runScenario({ipAllowed = true, authenticated = false, cancel = fa
     assert.equal(test.calls.filter(x=>x.url.endsWith('/verify')).length,0);
     test = await runScenario({rejected:true}); assert.deepEqual(test.results,[false,false]);
     test = await runScenario({authenticated:true}); assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,0);
+    test = await runScenario({authenticated:true, force:true}); assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
     console.log('PASS: browser gate denies wrong IP, cancelled Hello and server rejection; one prompt for concurrent actions; valid session works');
 })().catch(error => {console.error(error); process.exitCode=1;});
+

@@ -1,0 +1,38 @@
+.admin-hello-access {
+    position: absolute;
+    left: calc(50% - max(29.5625vw, 52.555556vh));
+    top: calc(50% + max(19.375vw, 34.444444vh));
+    transform: translateX(-50%);
+    width: 240px;
+    z-index: 11;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+}
+#adminHelloButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 8px 16px;
+    border: 1px solid #a1a1aa;
+    border-radius: 10px;
+    background: #fff;
+    color: #18181b;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px #0000000a;
+}
+#adminHelloButton:hover { background: #f4f4f5; border-color: #18181b; }
+#adminHelloButton:focus-visible { outline: 2px solid #18181b; outline-offset: 4px; }
+#adminHelloButton:disabled { cursor: wait; opacity: .65; }
+#adminHelloButton svg { flex-shrink: 0; }
+#adminHelloStatus { margin: 8px 0 0; color: #52525b; font-size: 11px; line-height: 1.5; }
+.admin-hello-access.is-compact {
+    position: static;
+    transform: none;
+    width: 100%;
+    margin: 16px auto 0;
+    padding-bottom: 12px;
+}

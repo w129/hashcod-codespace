@@ -10,7 +10,9 @@
     const button = panel.querySelector('button');
     const status = panel.querySelector('[role="status"]');
     function position() {
-        const compact = window.innerWidth < 1100 || window.innerHeight < 650 || document.body.classList.contains('mobile-mode');
+        const scale = Math.max(window.innerWidth / 1600, window.innerHeight / 900);
+        const fitsArtwork = window.innerHeight / 2 + 310 * scale + 110 <= window.innerHeight;
+        const compact = window.innerWidth < 1100 || !fitsArtwork || document.body.classList.contains('mobile-mode');
         const parent = compact ? (wrapper.querySelector('.auth-card') || wrapper) : overlay;
         if (panel.parentElement !== parent) parent.appendChild(panel);
         panel.classList.toggle('is-compact', compact);

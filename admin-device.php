@@ -4,7 +4,7 @@ declare(strict_types=1);
 // Public credential explicitly enrolled by the owner. No enrollment API can replace it.
 const ADMIN_DEVICE_RP = 'hashcod-codespace-1.onrender.com';
 const ADMIN_DEVICE_ORIGIN = 'https://' . ADMIN_DEVICE_RP;
-const ADMIN_DEVICE_IP = '38.196.115.184';
+const ADMIN_DEVICE_IP = '38.196.115.73';
 const ADMIN_DEVICE_ID = '6NCenKRQlsDlMjqmJ-kX_UweDaHdj8XjlVEYCzFoX3k';
 const ADMIN_DEVICE_SPKI = 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEgz_jckNI4CqWa-hsLab58p3DDRIreQH_42zwu0U-L39eBCaJMh-mzfQHToIy_3apeX0HmaZ2RYGTy7G2__jUVA';
 
@@ -17,14 +17,12 @@ function adminUnb64($value): string {
 }
 
 function adminClientIp(array $server): string {
-    // Render overwrites the first XFF value with the client address. Caddy copies
-    // that incoming header into X-L8-Render-Xff, overwriting any client version.
-    // Never use PHP's ordinary forwarded headers or trust a non-loopback caller.
+    // Render's public ingress is protected by Cloudflare. Caddy overwrites this
+    // private upstream header with Cloudflare's single visitor address. XFF can
+    // contain an attacker-controlled prefix and must never authorize a client.
     if (getenv('RENDER') !== 'true' || ($server['REMOTE_ADDR'] ?? '') !== '127.0.0.1') return '';
-    $chain = explode(',', (string)($server['HTTP_X_L8_RENDER_XFF'] ?? ''));
-    if (count($chain) > 16) return '';
-    foreach ($chain as $ip) if (!filter_var(trim($ip), FILTER_VALIDATE_IP)) return '';
-    return trim($chain[0]);
+    $ip = trim((string)($server['HTTP_X_L8_RENDER_CF_IP'] ?? ''));
+    return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
 }
 
 function adminSameOrigin(array $server): bool {
@@ -99,9 +97,9 @@ function adminDeviceApi(string $path): void {
     if (!adminSameOrigin($_SERVER)) adminJson(403, ['ok'=>false, 'error'=>'Origen no autorizado']);
     $allowed = adminClientIp($_SERVER) === ADMIN_DEVICE_IP;
     if ($path === '/api/admin-device/status' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
-        adminJson(200, ['ok'=>true, 'ipAllowed'=>$allowed, 'authenticated'=>$allowed && adminAuthorized()]);
+        adminJson(200, ['ok'=>true, 'ipAllowed'=>$allowed, 'detectedIp'=>adminClientIp($_SERVER), 'authenticated'=>$allowed && adminAuthorized()]);
     }
-    if (!$allowed) adminJson(403, ['ok'=>false, 'error'=>'Estas herramientas solo están disponibles desde la IP 38.196.115.184.']);
+    if (!$allowed) adminJson(403, ['ok'=>false, 'error'=>'Estas herramientas solo están disponibles desde la IP ' . ADMIN_DEVICE_IP . '.']);
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') adminJson(405, ['ok'=>false, 'error'=>'Método no permitido']);
     adminSession();
     if ($path === '/api/admin-device/challenge') {

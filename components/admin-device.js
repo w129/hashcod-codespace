@@ -26,7 +26,7 @@
     async function authenticate() {
         const status = await request('status');
         document.documentElement.dataset.adminIp = status.ipAllowed ? 'allowed' : 'denied';
-        if (!status.ipAllowed) throw new Error('Administración disponible únicamente desde la IP 38.196.115.184.');
+        if (!status.ipAllowed) throw new Error('Administración disponible únicamente desde la IP 38.196.115.73.');
         if (status.authenticated) return true;
         if (!window.PublicKeyCredential || !navigator.credentials) throw new Error('Abre esta plataforma en Chrome o Edge en la laptop registrada para usar Windows Hello.');
         const options = await request('challenge', {});

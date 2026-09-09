@@ -18,7 +18,7 @@ header("Content-Security-Policy: default-src 'none'; script-src 'self'; style-sr
     <p class="eyebrow">HASHCOD CODESPACE</p>
     <h1>Registrar esta laptop</h1>
     <p>Usa Windows Hello en este equipo para preparar su acceso administrativo. Selecciona este dispositivo y confirma con tu PIN o huella.</p>
-    <p>La restricción final exigirá esta credencial y la IP <strong>38.196.115.184</strong>. Este paso prepara la clave pública: todavía no activa permisos ni cambia el acceso de la plataforma.</p>
+    <p>La restricción final exigirá esta credencial y la IP <strong>38.196.115.73</strong>. Este paso prepara la clave pública: todavía no activa permisos ni cambia el acceso de la plataforma.</p>
     <button id="enroll" type="button">Crear credencial con Windows Hello</button>
     <p id="status" role="status" aria-live="polite"></p>
     <section id="result" hidden>

@@ -125,7 +125,8 @@ http://:{$PORT:8000} {
 	handle {
 		encode zstd gzip
 		reverse_proxy 127.0.0.1:8001 {
-			header_up X-L8-Render-Xff {http.request.header.X-Forwarded-For}
+			header_up X-L8-Render-Cf-Ip {http.request.header.CF-Connecting-IP}
+			header_up -X-L8-Render-Xff
 			transport http {
 				dial_timeout 3s
 				response_header_timeout 60s

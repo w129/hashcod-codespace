@@ -1,6 +1,7 @@
 (function () {
     'use strict';
     let pending = null;
+    let pendingForced = false;
     let expiry = null;
     const base = '/api/admin-device/';
     const decode = value => Uint8Array.from(atob(value.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
@@ -16,6 +17,8 @@
         return data;
     }
     function closeTools() {
+        const verificationStatus = document.getElementById('adminHelloStatus');
+        if (verificationStatus) verificationStatus.textContent = 'Verifica esta laptop para administrar.';
         ['cryptoCardValidationModalOverlay', 'dilithiumGeneratorModal', 'dilithiumGateModal', 'adminDilithiumGateOverlay', 'adminGateOverlay'].forEach(id => {
             const el = document.getElementById(id);
             if (el) { el.style.display = 'none'; el.classList.remove('open'); }
@@ -23,11 +26,11 @@
         if (typeof window.toggleAdminPanel === 'function') window.toggleAdminPanel(false);
         sessionStorage.removeItem('l8_admin_authenticated');
     }
-    async function authenticate() {
+    async function authenticate(force = false) {
         const status = await request('status');
         document.documentElement.dataset.adminIp = status.ipAllowed ? 'allowed' : 'denied';
         if (!status.ipAllowed) throw new Error('Administración disponible únicamente desde la red 38.196.115.0–38.196.115.255 y con Windows Hello de la laptop registrada.');
-        if (status.authenticated) return true;
+        if (status.authenticated && !force) return true;
         if (!window.PublicKeyCredential || !navigator.credentials) throw new Error('Abre esta plataforma en Chrome o Edge en la laptop registrada para usar Windows Hello.');
         const options = await request('challenge', {});
         const credential = await navigator.credentials.get({publicKey: {
@@ -47,12 +50,20 @@
         return true;
     }
     window.HashcodAdmin = Object.freeze({
-        require: async function () {
-            if (!pending) pending = authenticate().catch(error => {
+        require: async function (options = {}) {
+            const force = options.force === true;
+            if (pending && force && !pendingForced) {
+                await pending;
+                return window.HashcodAdmin.require(options);
+            }
+            if (!pending) {
+                pendingForced = force;
+                pending = authenticate(force).catch(error => {
                 closeTools();
                 alert(error.name === 'NotAllowedError' ? 'Windows Hello no se completó. Usa la laptop registrada y confirma con tu PIN o huella.' : error.message);
                 return false;
             }).finally(() => { pending = null; });
+            }
             return pending;
         },
         logout: async function () { try { await request('logout', {}); } finally { closeTools(); } }

@@ -11,7 +11,7 @@
     const status = panel.querySelector('[role="status"]');
     function position() {
         const compact = window.innerWidth < 1100 || window.innerHeight < 650 || document.body.classList.contains('mobile-mode');
-        const parent = compact ? wrapper : overlay;
+        const parent = compact ? (wrapper.querySelector('.auth-card') || wrapper) : overlay;
         if (panel.parentElement !== parent) parent.appendChild(panel);
         panel.classList.toggle('is-compact', compact);
     }

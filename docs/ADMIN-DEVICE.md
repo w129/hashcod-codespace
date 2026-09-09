@@ -1,8 +1,8 @@
 # Acceso administrativo de la laptop
 
-El servidor exige simultáneamente la credencial ES256 registrada por el propietario mediante Windows Hello y la IP 38.196.115.73. El registro público inicial no concede permisos ni permite reemplazar la clave fijada en admin-device.php.
+El servidor exige simultáneamente la credencial ES256 registrada por el propietario mediante Windows Hello y la red 38.196.115.0/24. El registro público inicial no concede permisos ni permite reemplazar la clave fijada en admin-device.php.
 
-La sesión dura diez minutos, usa cookie Secure/HttpOnly/SameSite=Strict y se invalida si cambia la IP o la credencial configurada. Los desafíos duran dos minutos y se consumen incluso cuando falla la verificación. Se comprueban origen, RP, firma, presencia, verificación del usuario y ausencia de flags de backup/sincronización. No se almacena PIN, huella ni clave privada.
+La sesión dura diez minutos, usa cookie Secure/HttpOnly/SameSite=Strict y se invalida si sale de la red autorizada o cambia la credencial configurada. Los desafíos duran dos minutos y se consumen incluso cuando falla la verificación. Se comprueban origen, RP, firma, presencia, verificación del usuario y ausencia de flags de backup/sincronización. No se almacena PIN, huella ni clave privada.
 
 ## Alcance
 
@@ -21,3 +21,5 @@ El almacenamiento efímero de Render puede cerrar sesiones al redesplegar; basta
 Ejecutar `php tests/security/test-admin-device.php`, `node tests/security/test-admin-device.cjs` y `node tests/e2e/test_crypto_card_validation_gate.js`. PHP requiere OpenSSL; en Windows puede necesitar OPENSSL_CONF apuntando al openssl.cnf de la distribución oficial.
 
 Caddy elimina CF-Connecting-IP si el origen inmediato no está en las redes privadas de Render o en los rangos publicados de Cloudflare (https://www.cloudflare.com/ips-v4 y https://www.cloudflare.com/ips-v6). La red privada del workspace forma parte de la frontera de confianza; no deben exponerse accesos alternativos sin esta política. Los servicios gratuitos no reciben tráfico privado y Render limita esa red a servicios del mismo workspace/región: https://render.com/docs/private-network.
+
+El propietario autorizó explícitamente todo 38.196.115.0–38.196.115.255 debido a cambios de IP observados. Una sesión verificada permite cambios dentro de esa red durante sus diez minutos, pero salir del rango la rechaza. La política de red también se fija en la sesión; las sesiones de la configuración anterior deben verificar Windows Hello otra vez.

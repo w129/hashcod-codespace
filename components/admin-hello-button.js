@@ -78,6 +78,22 @@
             document.head.appendChild(link);
         }
 
+        if (!document.getElementById('platformEntrySloganStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'platformEntrySloganStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'platform-entry-slogan.css?v=20260910-1';
+            document.head.appendChild(link);
+        }
+
+        if (!document.querySelector('script[data-platform-entry-slogan]')) {
+            const sloganScript = document.createElement('script');
+            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260910-1';
+            sloganScript.defer = true;
+            sloganScript.dataset.platformEntrySlogan = 'true';
+            document.head.appendChild(sloganScript);
+        }
+
         function loadHoldScript() {
             if (document.querySelector('script[data-platform-entry-hold]')) return;
             const holdScript = document.createElement('script');

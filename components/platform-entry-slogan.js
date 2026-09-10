@@ -10,9 +10,9 @@
 
         const slogan = document.createElement('div');
         slogan.className = 'hashcod-hold-slogan';
-        slogan.setAttribute('aria-label', 'One world, one era, one empire, on your computer');
+        slogan.setAttribute('aria-label', 'One world, one epoca, one empire, on your computer');
         slogan.innerHTML = [
-            '<span class="hashcod-hold-slogan-main">One world, one era, one empire</span>',
+            '<span class="hashcod-hold-slogan-main">One world, one epoca, one empire</span>',
             '<span class="hashcod-hold-slogan-sub"><span aria-hidden="true">&gt;</span> on your computer</span>'
         ].join('');
         overlay.appendChild(slogan);

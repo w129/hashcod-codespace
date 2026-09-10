@@ -124,6 +124,58 @@ func (sm *DilithiumStateManager) loadFromDisk() error {
 	return nil
 }
 
+// refreshFromDisk keeps the long-running Go daemon synchronized with active keys
+// written by the PHP application. The registration-key endpoint and the gRPC
+// daemon share the same epoch file, so a key activated through PHP must become
+// visible to gRPC verification without restarting the daemon.
+func (sm *DilithiumStateManager) refreshFromDisk() {
+	if sm.storagePath == "" {
+		return
+	}
+
+	data, err := os.ReadFile(sm.storagePath)
+	if err != nil || len(data) == 0 {
+		return
+	}
+
+	var record DilithiumEpochRecord
+	if err := json.Unmarshal(data, &record); err != nil {
+		// Keep the last known-good in-memory record if a concurrent writer is in
+		// the middle of replacing the tiny JSON state file.
+		return
+	}
+	if record.ActiveKeyExact == "" {
+		return
+	}
+
+	cleanExact := CleanDilithiumKey(record.ActiveKeyExact)
+	if cleanExact == "" {
+		return
+	}
+	if record.ActiveKeyHash == "" {
+		h := sha256.Sum256([]byte(cleanExact))
+		record.ActiveKeyHash = hex.EncodeToString(h[:])
+	}
+	record.ActiveKeyExact = cleanExact
+
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	if sm.activeRecord.ActiveKeyHash == record.ActiveKeyHash &&
+		TimingSafeEqual(CleanDilithiumKey(sm.activeRecord.ActiveKeyExact), cleanExact) {
+		// Metadata can still move forward even when the key itself did not change.
+		sm.activeRecord.Epoch = record.Epoch
+		sm.activeRecord.Timestamp = record.Timestamp
+		sm.activeRecord.RevokedPrevious = record.RevokedPrevious
+		return
+	}
+
+	if sm.activeRecord.ActiveKeyHash != "" && sm.activeRecord.ActiveKeyHash != record.ActiveKeyHash {
+		sm.revokedHashes[sm.activeRecord.ActiveKeyHash] = time.Now().Unix()
+	}
+	sm.activeRecord = record
+}
+
 // saveToDisk writes the active epoch record atomically to disk.
 func (sm *DilithiumStateManager) saveToDiskLocked() error {
 	if sm.storagePath == "" {
@@ -172,6 +224,10 @@ func (sm *DilithiumStateManager) VerifyKey(candidateKey string) *pb.VerifyRespon
 			IsRevoked:        false,
 		}
 	}
+
+	// PHP can activate a new registration key while this daemon remains alive.
+	// Refresh first so verification never compares against a stale prior key.
+	sm.refreshFromDisk()
 
 	h := sha256.Sum256([]byte(cleanCandidate))
 	candidateHash := hex.EncodeToString(h[:])
@@ -278,6 +334,8 @@ func (sm *DilithiumStateManager) RegisterKey(newKey string, epoch float64, opera
 
 // GetStatus returns the current active Dilithium-5 key metadata.
 func (sm *DilithiumStateManager) GetStatus() *pb.KeyStatusResponse {
+	sm.refreshFromDisk()
+
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
 
@@ -295,6 +353,8 @@ func (sm *DilithiumStateManager) GetStatus() *pb.KeyStatusResponse {
 
 // GetActiveHash returns current active key hash.
 func (sm *DilithiumStateManager) GetActiveHash() string {
+	sm.refreshFromDisk()
+
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
 	return sm.activeRecord.ActiveKeyHash

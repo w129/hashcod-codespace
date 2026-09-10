@@ -4,6 +4,20 @@
     if (window.__hashcodAuthVectorLayoutFixLoaded) return;
     window.__hashcodAuthVectorLayoutFixLoaded = true;
 
+    (function loadExternalRailStyles() {
+        if (document.getElementById('authUtilityOutsideStylesheet')) return;
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+        const link = document.createElement('link');
+        link.id = 'authUtilityOutsideStylesheet';
+        link.rel = 'stylesheet';
+        link.href = componentBase + 'auth-utility-outside.css?v=20260910-1';
+        document.head.appendChild(link);
+    })();
+
     let queued = false;
     let scrollBound = false;
 
@@ -105,8 +119,8 @@
         let left = rect.right + gap;
         let side = 'right';
 
-        // Keep the controls outside the login card. On very narrow screens,
-        // fall back to the left side rather than pushing them into the card.
+        // The intended layout is outside the right edge, in one vertical column.
+        // Only fall back to the left if the viewport physically has no right-side room.
         if (left + buttonWidth > window.innerWidth - viewportPadding) {
             left = rect.left - gap - buttonWidth;
             side = 'left';
@@ -137,8 +151,7 @@
             if (button.parentElement !== dock) dock.appendChild(button);
         });
 
-        // Preserve the visual order used before the auth redesign:
-        // certified-card tool, direct-card tool, then Dilithium one-time key.
+        // Keep the familiar order vertically: card validation, direct access, Dilithium.
         const ordered = [
             document.getElementById('cryptoCardValidationLauncherBtn'),
             dock.querySelector('.crypto-card-direct-launcher-btn'),

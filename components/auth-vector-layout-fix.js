@@ -64,16 +64,13 @@
         });
     }
 
-    function removeMisplacedDecorations(wrapper) {
-        wrapper.querySelectorAll('.hashcod-auth-mode-plate, .hashcod-auth-system-line').forEach(function (node) {
-            node.remove();
-        });
-    }
-
     function apply() {
         const wrapper = document.getElementById('authWrapper');
         if (!wrapper) return false;
-        removeMisplacedDecorations(wrapper);
+
+        // The decorative mode/system rows stay in the DOM because the base theme
+        // expects them to exist. CSS hides them, which avoids an add/remove loop
+        // between the two MutationObservers.
         normalizeBadges(wrapper);
         normalizeChatLauncher(wrapper);
         normalizeUtilityLaunchers(wrapper);

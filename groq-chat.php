@@ -15,6 +15,8 @@ if (!function_exists('secretGet')) {
     @require_once __DIR__ . '/secrets.php';
 }
 
+const HASHCOD_GROQ_DEFAULT_MODEL = 'openai/gpt-oss-120b';
+
 function groqChatJson(int $status, array $payload): never {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
@@ -40,6 +42,35 @@ function groqChatClip(string $value, int $limit): string {
     $value = trim($value);
     if (function_exists('mb_substr')) return mb_substr($value, 0, $limit, 'UTF-8');
     return substr($value, 0, $limit);
+}
+
+/**
+ * Groq retired llama-3.3-70b-versatile for Free/Developer usage on 2026-08-16.
+ * Keep old Render configurations working by transparently migrating known
+ * retired model IDs to their Groq-recommended replacements.
+ */
+function groqChatResolveModel(string $configured): array {
+    $configured = trim($configured);
+    if ($configured === '') $configured = HASHCOD_GROQ_DEFAULT_MODEL;
+
+    $migrations = [
+        'llama-3.3-70b-versatile' => 'openai/gpt-oss-120b',
+        'llama-3.1-8b-instant' => 'openai/gpt-oss-20b',
+    ];
+
+    if (isset($migrations[$configured])) {
+        return [
+            'model' => $migrations[$configured],
+            'configured_model' => $configured,
+            'migrated' => true,
+        ];
+    }
+
+    return [
+        'model' => $configured,
+        'configured_model' => $configured,
+        'migrated' => false,
+    ];
 }
 
 /**
@@ -110,6 +141,76 @@ function groqChatSameOrigin(): bool {
     return false;
 }
 
+function groqChatRequest(string $key, string $model, array $messages): array {
+    $payload = json_encode([
+        'model' => $model,
+        'messages' => $messages,
+        'temperature' => 0.35,
+        'max_completion_tokens' => 1200,
+        'stream' => false
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    if ($payload === false) {
+        return ['ok' => false, 'status' => 0, 'error' => 'payload_encode_failed', 'data' => null];
+    }
+
+    $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
+    if ($ch === false) {
+        return ['ok' => false, 'status' => 0, 'error' => 'curl_init_failed', 'data' => null];
+    }
+
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT => 45,
+        CURLOPT_HTTPHEADER => [
+            'Accept: application/json',
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $key,
+            'User-Agent: Hashcod-Codespace/1.0'
+        ],
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2
+    ]);
+
+    $rawResponse = curl_exec($ch);
+    $curlError = curl_error($ch);
+    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($rawResponse === false) {
+        return [
+            'ok' => false,
+            'status' => 0,
+            'error' => $curlError !== '' ? $curlError : 'transport_error',
+            'data' => null
+        ];
+    }
+
+    $data = json_decode((string)$rawResponse, true);
+    return [
+        'ok' => $status >= 200 && $status < 300 && is_array($data),
+        'status' => $status,
+        'error' => null,
+        'data' => is_array($data) ? $data : null
+    ];
+}
+
+function groqChatLooksLikeModelError(array $result): bool {
+    $status = (int)($result['status'] ?? 0);
+    if ($status !== 400 && $status !== 404) return false;
+    $data = is_array($result['data'] ?? null) ? $result['data'] : [];
+    $error = is_array($data['error'] ?? null) ? $data['error'] : [];
+    $code = strtolower((string)($error['code'] ?? ''));
+    $message = strtolower((string)($error['message'] ?? ''));
+    return strpos($code, 'model') !== false
+        || strpos($message, 'model') !== false
+        || strpos($message, 'decommission') !== false
+        || strpos($message, 'deprecated') !== false;
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     header('Allow: POST');
     groqChatJson(405, ['ok' => false, 'error' => 'Método no permitido']);
@@ -156,7 +257,8 @@ if ($key === '') {
     ]);
 }
 
-$model = groqChatSecret('GROQ_CHAT_MODEL', 'llama-3.3-70b-versatile');
+$modelInfo = groqChatResolveModel(groqChatSecret('GROQ_CHAT_MODEL', HASHCOD_GROQ_DEFAULT_MODEL));
+$model = (string)$modelInfo['model'];
 $incoming = $input['messages'] ?? [];
 if (!is_array($incoming)) $incoming = [];
 
@@ -194,62 +296,52 @@ if (!$hasUser) {
     groqChatJson(400, ['ok' => false, 'error' => 'Escribe un mensaje para la IA.']);
 }
 
-$payload = json_encode([
-    'model' => $model,
-    'messages' => $messages,
-    'temperature' => 0.35,
-    'max_completion_tokens' => 1200,
-    'stream' => false
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$result = groqChatRequest($key, $model, $messages);
 
-if ($payload === false) {
-    groqChatJson(400, ['ok' => false, 'error' => 'No se pudo preparar el mensaje.']);
+// If Render contains another retired/removed model, recover once using the
+// current Groq production default instead of leaving the chat broken.
+if (empty($result['ok']) && $model !== HASHCOD_GROQ_DEFAULT_MODEL && groqChatLooksLikeModelError($result)) {
+    $model = HASHCOD_GROQ_DEFAULT_MODEL;
+    $modelInfo['migrated'] = true;
+    $result = groqChatRequest($key, $model, $messages);
 }
 
-$ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
-if ($ch === false) {
-    groqChatJson(503, ['ok' => false, 'error' => 'El servicio de IA no está disponible en este momento.']);
-}
+if (empty($result['ok'])) {
+    $status = (int)($result['status'] ?? 0);
+    $data = is_array($result['data'] ?? null) ? $result['data'] : [];
+    $providerError = is_array($data['error'] ?? null) ? $data['error'] : [];
+    $providerCode = (string)($providerError['code'] ?? '');
+    $providerMessage = trim((string)($providerError['message'] ?? ''));
 
-curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_CONNECTTIMEOUT => 10,
-    CURLOPT_TIMEOUT => 45,
-    CURLOPT_HTTPHEADER => [
-        'Accept: application/json',
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $key,
-        'User-Agent: Hashcod-Codespace/1.0'
-    ],
-    CURLOPT_POSTFIELDS => $payload,
-    CURLOPT_SSL_VERIFYPEER => true,
-    CURLOPT_SSL_VERIFYHOST => 2
-]);
-
-$rawResponse = curl_exec($ch);
-$status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($rawResponse === false) {
-    groqChatJson(502, [
-        'ok' => false,
-        'error' => 'No se pudo conectar con Groq. Inténtalo de nuevo.'
-    ]);
-}
-
-$data = json_decode((string)$rawResponse, true);
-if ($status < 200 || $status >= 300 || !is_array($data)) {
     $message = 'Groq no pudo responder en este momento.';
-    if ($status === 429) $message = 'Groq alcanzó temporalmente su límite de solicitudes. Inténtalo en unos segundos.';
-    if ($status === 401 || $status === 403) $message = 'La credencial de Groq configurada en el servidor no es válida.';
-    groqChatJson($status === 429 ? 429 : 502, [
+    $httpStatus = 502;
+    if ($status === 0) {
+        $message = 'No se pudo conectar con Groq. Inténtalo de nuevo.';
+    } elseif ($status === 429) {
+        $message = 'Groq alcanzó temporalmente su límite de solicitudes. Inténtalo en unos segundos.';
+        $httpStatus = 429;
+    } elseif ($status === 401) {
+        $message = 'La API key de Groq configurada en Render no es válida o fue revocada.';
+    } elseif ($status === 403) {
+        $message = 'Groq rechazó el acceso al modelo para este proyecto. Revisa los permisos del modelo en Groq.';
+    } elseif ($status === 400 || $status === 404) {
+        $message = 'Groq rechazó la solicitud o el modelo configurado no está disponible.';
+    }
+
+    // Return only provider diagnostics that are safe for the UI; never return
+    // request headers, API keys, stack traces or the raw upstream body.
+    $response = [
         'ok' => false,
         'error' => $message,
-        'provider_status' => $status
-    ]);
+        'provider_status' => $status,
+        'model' => $model,
+    ];
+    if ($providerCode !== '') $response['provider_code'] = $providerCode;
+    if ($providerMessage !== '') $response['provider_message'] = groqChatClip($providerMessage, 280);
+    groqChatJson($httpStatus, $response);
 }
 
+$data = is_array($result['data'] ?? null) ? $result['data'] : [];
 $content = trim((string)($data['choices'][0]['message']['content'] ?? ''));
 if ($content === '') {
     groqChatJson(502, ['ok' => false, 'error' => 'Groq devolvió una respuesta vacía.']);
@@ -258,5 +350,6 @@ if ($content === '') {
 groqChatJson(200, [
     'ok' => true,
     'content' => $content,
-    'model' => (string)($data['model'] ?? $model)
+    'model' => (string)($data['model'] ?? $model),
+    'model_migrated' => !empty($modelInfo['migrated'])
 ]);

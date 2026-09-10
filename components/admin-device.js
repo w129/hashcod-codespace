@@ -14,12 +14,12 @@
             const link = document.createElement('link');
             link.id = 'dilithiumOneTimeKeyStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'dilithium-one-time-key.css?v=20260910-1';
+            link.href = componentBase + 'dilithium-one-time-key.css?v=20260910-2';
             document.head.appendChild(link);
         }
         if (!document.querySelector('script[data-dilithium-one-time-key]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'dilithium-one-time-key.js?v=20260910-1';
+            script.src = componentBase + 'dilithium-one-time-key.js?v=20260910-2';
             script.defer = true;
             script.dataset.dilithiumOneTimeKey = 'true';
             document.head.appendChild(script);

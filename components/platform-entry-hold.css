@@ -27,6 +27,104 @@
     animation: hashcodHoldGridSettle 1100ms cubic-bezier(.2,.8,.2,1) forwards;
 }
 
+.hashcod-hold-side-field {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.hashcod-hold-side-icon {
+    position: absolute;
+    width: clamp(44px, 4.2vw, 74px);
+    height: clamp(44px, 4.2vw, 74px);
+    color: #111111;
+    opacity: 0;
+    filter: grayscale(1);
+    transform: translateY(12px) scale(0.92);
+    animation:
+        hashcodSideIconIn 620ms cubic-bezier(.2,.8,.2,1) calc(120ms + (var(--side-index) * 90ms)) forwards,
+        hashcodSideIconDrift 6.8s ease-in-out calc(900ms + (var(--side-index) * 130ms)) infinite alternate;
+}
+
+.hashcod-hold-side-icon::after {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border: 1px solid rgba(17, 17, 17, 0.08);
+    border-radius: 18px;
+    transform: scale(0.92);
+}
+
+.hashcod-hold-side-icon svg {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    fill: currentColor;
+}
+
+.hashcod-hold-side-strong {
+    --side-opacity: 0.30;
+}
+
+.hashcod-hold-side-mid {
+    --side-opacity: 0.20;
+}
+
+.hashcod-hold-side-soft {
+    --side-opacity: 0.13;
+}
+
+.hashcod-hold-side-left.hashcod-hold-side-upper {
+    left: clamp(6%, 10vw, 14%);
+    top: 17%;
+}
+
+.hashcod-hold-side-left.hashcod-hold-side-middle {
+    left: clamp(14%, 20vw, 24%);
+    top: 43%;
+    width: clamp(38px, 3.4vw, 60px);
+    height: clamp(38px, 3.4vw, 60px);
+}
+
+.hashcod-hold-side-left.hashcod-hold-side-lower {
+    left: clamp(7%, 12vw, 16%);
+    bottom: 16%;
+}
+
+.hashcod-hold-side-left.hashcod-hold-side-near {
+    left: calc(50% - min(430px, 34vw));
+    top: 29%;
+    width: clamp(30px, 2.7vw, 48px);
+    height: clamp(30px, 2.7vw, 48px);
+}
+
+.hashcod-hold-side-right.hashcod-hold-side-upper {
+    right: clamp(7%, 12vw, 16%);
+    top: 18%;
+}
+
+.hashcod-hold-side-right.hashcod-hold-side-middle {
+    right: clamp(14%, 20vw, 24%);
+    top: 46%;
+    width: clamp(42px, 3.8vw, 64px);
+    height: clamp(42px, 3.8vw, 64px);
+}
+
+.hashcod-hold-side-right.hashcod-hold-side-lower {
+    right: clamp(6%, 10vw, 14%);
+    bottom: 17%;
+}
+
+.hashcod-hold-side-right.hashcod-hold-side-near {
+    right: calc(50% - min(430px, 34vw));
+    top: 31%;
+    width: clamp(30px, 2.7vw, 48px);
+    height: clamp(30px, 2.7vw, 48px);
+}
+
 .hashcod-hold-frame {
     position: relative;
     z-index: 2;
@@ -184,6 +282,10 @@
     animation: hashcodHoldFrameOut 260ms ease forwards;
 }
 
+#hashcodEntryHold.is-leaving .hashcod-hold-side-icon {
+    animation: hashcodSideIconOut 260ms ease forwards !important;
+}
+
 #hashcodEntryHold.is-revealing {
     pointer-events: none;
     animation: hashcodHoldReveal 620ms cubic-bezier(.2,.8,.2,1) forwards;
@@ -198,6 +300,19 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes hashcodSideIconIn {
+    to { opacity: var(--side-opacity, 0.18); transform: translateY(0) scale(1); }
+}
+
+@keyframes hashcodSideIconDrift {
+    from { margin-top: 0; }
+    to { margin-top: -10px; }
+}
+
+@keyframes hashcodSideIconOut {
+    to { opacity: 0; transform: scale(0.94); }
+}
+
 @keyframes hashcodHoldFrameOut {
     to { opacity: 0; transform: scale(0.985); }
 }
@@ -205,6 +320,55 @@
 @keyframes hashcodHoldReveal {
     from { opacity: 1; }
     to { opacity: 0; }
+}
+
+@media (max-width: 1100px) {
+    .hashcod-hold-side-left.hashcod-hold-side-middle,
+    .hashcod-hold-side-right.hashcod-hold-side-middle {
+        display: none;
+    }
+
+    .hashcod-hold-side-left.hashcod-hold-side-near {
+        left: 8%;
+        top: 36%;
+    }
+
+    .hashcod-hold-side-right.hashcod-hold-side-near {
+        right: 8%;
+        top: 38%;
+    }
+}
+
+@media (max-width: 760px) {
+    .hashcod-hold-side-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .hashcod-hold-side-left.hashcod-hold-side-upper {
+        left: 4%;
+        top: 14%;
+    }
+
+    .hashcod-hold-side-right.hashcod-hold-side-upper {
+        right: 4%;
+        top: 14%;
+    }
+
+    .hashcod-hold-side-left.hashcod-hold-side-lower {
+        left: 4%;
+        bottom: 12%;
+    }
+
+    .hashcod-hold-side-right.hashcod-hold-side-lower {
+        right: 4%;
+        bottom: 12%;
+    }
+
+    .hashcod-hold-side-left.hashcod-hold-side-near,
+    .hashcod-hold-side-right.hashcod-hold-side-near {
+        display: none;
+    }
 }
 
 @media (max-width: 640px) {
@@ -218,6 +382,28 @@
 
     .hashcod-hold-title { font-size: 19px; }
     .hashcod-hold-continue { min-width: min(230px, 86vw); }
+
+    .hashcod-hold-side-icon::after {
+        inset: -8px;
+        border-radius: 12px;
+    }
+}
+
+@media (max-width: 520px) {
+    .hashcod-hold-side-left.hashcod-hold-side-upper,
+    .hashcod-hold-side-right.hashcod-hold-side-upper {
+        display: none;
+    }
+
+    .hashcod-hold-side-left.hashcod-hold-side-lower {
+        left: 6%;
+        bottom: 5%;
+    }
+
+    .hashcod-hold-side-right.hashcod-hold-side-lower {
+        right: 6%;
+        bottom: 5%;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -231,4 +417,5 @@
 
     #hashcodEntryHold { opacity: 1; }
     .hashcod-hold-icon { opacity: 1; transform: none; }
+    .hashcod-hold-side-icon { opacity: var(--side-opacity, 0.18); transform: none; }
 }

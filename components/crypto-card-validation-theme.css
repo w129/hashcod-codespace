@@ -1,0 +1,229 @@
+/* Hashcod Codespace — visual layer for the certified cryptographic-card access modal.
+   Functional validation remains in crypto-card-validation.js. */
+
+#cryptoCardUploadPanelModal.hashcod-crypto-card-modal,
+#cryptoCardUploadPanelModal {
+    background: rgba(10, 14, 18, 0.48) !important;
+    backdrop-filter: blur(12px) saturate(90%);
+    -webkit-backdrop-filter: blur(12px) saturate(90%);
+    padding: 18px !important;
+}
+
+#cryptoCardUploadPanel.hashcod-crypto-card-panel,
+.crypto-card-upload-panel.hashcod-crypto-card-panel {
+    position: relative;
+    width: min(448px, calc(100vw - 36px)) !important;
+    max-width: 448px !important;
+    height: auto !important;
+    min-height: 410px;
+    max-height: min(640px, calc(100vh - 36px));
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 28px !important;
+    border: 1px solid rgba(17, 24, 39, 0.14) !important;
+    border-radius: 20px !important;
+    background-color: #fbfbfa !important;
+    background-image:
+        linear-gradient(rgba(17, 24, 39, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 24, 39, 0.035) 1px, transparent 1px) !important;
+    background-size: 24px 24px !important;
+    color: #111827 !important;
+    box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.28),
+        0 8px 24px rgba(0, 0, 0, 0.10) !important;
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+#cryptoCardUploadPanel.hashcod-crypto-card-panel::before,
+.crypto-card-upload-panel.hashcod-crypto-card-panel::before {
+    content: "HASHCOD / CRYPTO ACCESS";
+    display: block;
+    width: max-content;
+    margin: 0 0 15px;
+    padding: 6px 9px;
+    border: 1px solid #111827;
+    border-radius: 999px;
+    background: #111827;
+    color: #ffffff;
+    font: 600 9px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: 0.13em;
+}
+
+#cryptoCardUploadPanel.hashcod-crypto-card-panel *,
+.crypto-card-upload-panel.hashcod-crypto-card-panel * {
+    box-sizing: border-box;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-title {
+    margin: 0 !important;
+    color: #111827 !important;
+    font-size: clamp(20px, 3vw, 25px) !important;
+    font-weight: 750 !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.035em !important;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-subtitle {
+    margin-top: 7px !important;
+    color: #6b7280 !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 1.45 !important;
+    letter-spacing: 0.10em !important;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    width: max-content !important;
+    max-width: 100%;
+    margin-top: 16px !important;
+    padding: 7px 10px !important;
+    border: 1px solid rgba(22, 163, 74, 0.26) !important;
+    border-radius: 999px !important;
+    background: rgba(22, 163, 74, 0.08) !important;
+    color: #166534 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.025em !important;
+    text-transform: uppercase;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-badge::before {
+    content: "✓";
+    display: grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    margin-right: 7px;
+    border-radius: 50%;
+    background: #166534;
+    color: #ffffff;
+    font-size: 10px;
+    line-height: 1;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-dropzone,
+#cryptoCardUploadPanel [data-hashcod-dropzone="true"] {
+    position: relative;
+    min-height: 190px !important;
+    margin-top: 22px !important;
+    padding: 28px 24px !important;
+    border: 1.5px dashed #9ca3af !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.82) !important;
+    color: #111827 !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.62) !important;
+    transition: border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease !important;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-dropzone:hover,
+#cryptoCardUploadPanel [data-hashcod-dropzone="true"]:hover {
+    border-color: #111827 !important;
+    background: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(17, 24, 39, 0.08) !important;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-dropzone:focus-within,
+#cryptoCardUploadPanel [data-hashcod-dropzone="true"]:focus-within {
+    outline: 2px solid #111827;
+    outline-offset: 3px;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-dropzone svg,
+#cryptoCardUploadPanel [data-hashcod-dropzone="true"] svg {
+    width: 40px !important;
+    height: 40px !important;
+    color: #111827 !important;
+    fill: none;
+    stroke: currentColor;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-instruction {
+    color: #374151 !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-instruction strong,
+#cryptoCardUploadPanel .hashcod-crypto-card-instruction b {
+    color: #111827 !important;
+    font-weight: 750 !important;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-caption {
+    color: #9ca3af !important;
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-close {
+    position: absolute !important;
+    top: 18px !important;
+    right: 18px !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    padding: 0 !important;
+    border: 1px solid rgba(17, 24, 39, 0.12) !important;
+    border-radius: 11px !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    color: #6b7280 !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06) !important;
+    transition: color 150ms ease, border-color 150ms ease, transform 150ms ease !important;
+}
+
+#cryptoCardUploadPanel .hashcod-crypto-card-close:hover {
+    color: #111827 !important;
+    border-color: rgba(17, 24, 39, 0.32) !important;
+    transform: translateY(-1px);
+}
+
+#cryptoCardUploadPanel input[type="file"]:focus-visible + *,
+#cryptoCardUploadPanel button:focus-visible,
+#cryptoCardUploadPanel [role="button"]:focus-visible {
+    outline: 2px solid #111827 !important;
+    outline-offset: 3px !important;
+}
+
+@media (max-width: 560px) {
+    #cryptoCardUploadPanel.hashcod-crypto-card-panel,
+    .crypto-card-upload-panel.hashcod-crypto-card-panel {
+        width: min(100%, calc(100vw - 24px)) !important;
+        max-height: calc(100vh - 24px);
+        min-height: 380px;
+        padding: 22px !important;
+        border-radius: 17px !important;
+    }
+
+    #cryptoCardUploadPanel.hashcod-crypto-card-panel::before,
+    .crypto-card-upload-panel.hashcod-crypto-card-panel::before {
+        margin-bottom: 13px;
+    }
+
+    #cryptoCardUploadPanel .hashcod-crypto-card-close {
+        top: 14px !important;
+        right: 14px !important;
+    }
+
+    #cryptoCardUploadPanel .hashcod-crypto-card-dropzone,
+    #cryptoCardUploadPanel [data-hashcod-dropzone="true"] {
+        min-height: 175px !important;
+        padding: 24px 18px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #cryptoCardUploadPanel .hashcod-crypto-card-dropzone,
+    #cryptoCardUploadPanel [data-hashcod-dropzone="true"],
+    #cryptoCardUploadPanel .hashcod-crypto-card-close {
+        transition: none !important;
+    }
+}

@@ -47,8 +47,6 @@
         if (!cleanKey) return;
         const cleanEpoch = Number(epoch) || Date.now();
 
-        // Keep every active-key representation used by the current and legacy
-        // authentication layers in agreement with the server-confirmed key.
         window.ACTIVE_DILITHIUM5_GENERATED_KEY = cleanKey;
         window.ACTIVE_DILITHIUM5_EPOCH = cleanEpoch;
 
@@ -61,9 +59,6 @@
             localStorage.setItem(STORAGE_LEGACY_GATE_KEY, cleanKey);
         } catch (error) {}
 
-        // Some legacy inline code exposes this accessor and may keep an older
-        // closure value. Preserve the old getter as fallback while making the
-        // newly server-confirmed value authoritative in this tab.
         try {
             if (typeof window.getActivePlatformDilithiumKey === 'function' && !window.__hashcodActiveKeyGetterSynced) {
                 const previousGetter = window.getActivePlatformDilithiumKey;
@@ -296,6 +291,10 @@
             if (closeButton) closeButton.focus({ preventScroll: true });
         });
     }
+
+    // Public opener used by the external vertical utility rail. The sensitive
+    // server action inside the tool still requires the authenticated admin session.
+    window.openDilithiumOneTimeKeyTool = openTool;
 
     function bindLauncher() {
         const launcher = document.getElementById('d5LauncherBtn');

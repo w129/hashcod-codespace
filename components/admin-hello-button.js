@@ -13,13 +13,13 @@
             const link = document.createElement('link');
             link.id = 'groqAuthChatStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'groq-auth-chat.css?v=20260910-2';
+            link.href = componentBase + 'groq-auth-chat.css?v=20260910-3';
             document.head.appendChild(link);
         }
 
         if (!document.querySelector('script[data-groq-auth-chat]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'groq-auth-chat.js?v=20260910-2';
+            script.src = componentBase + 'groq-auth-chat.js?v=20260910-3';
             script.defer = true;
             script.dataset.groqAuthChat = 'true';
             document.head.appendChild(script);

@@ -19,7 +19,7 @@
         }
         if (!document.querySelector('script[data-dilithium-one-time-key]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'dilithium-one-time-key.js?v=20260910-2';
+            script.src = componentBase + 'dilithium-one-time-key.js?v=20260910-3';
             script.defer = true;
             script.dataset.dilithiumOneTimeKey = 'true';
             document.head.appendChild(script);

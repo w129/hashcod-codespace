@@ -7,6 +7,9 @@
     const ROTATION_MS = 2 * 60 * 1000;
     const KEY_BYTES = 64;
     const MODAL_ID = 'd5OneTimeKeyModal';
+    const STORAGE_ACTIVE_KEY = 'l8_active_dilithium5_key';
+    const STORAGE_ACTIVE_EPOCH = 'l8_active_dilithium5_epoch';
+    const STORAGE_LEGACY_GATE_KEY = 'l8_active_d5_gate_passcode';
     let candidateKey = '';
     let rotationTimer = null;
     let progressTimer = null;
@@ -39,14 +42,49 @@
         return raw.endsWith('/') ? raw : raw + '/';
     }
 
-    async function activateKeyOnServer(key) {
+    function syncClientActiveKey(key, epoch) {
+        const cleanKey = String(key || '').trim();
+        if (!cleanKey) return;
+        const cleanEpoch = Number(epoch) || Date.now();
+
+        // Keep every active-key representation used by the current and legacy
+        // authentication layers in agreement with the server-confirmed key.
+        window.ACTIVE_DILITHIUM5_GENERATED_KEY = cleanKey;
+        window.ACTIVE_DILITHIUM5_EPOCH = cleanEpoch;
+
+        try {
+            sessionStorage.setItem(STORAGE_ACTIVE_KEY, cleanKey);
+            sessionStorage.setItem(STORAGE_ACTIVE_EPOCH, String(cleanEpoch));
+            sessionStorage.setItem(STORAGE_LEGACY_GATE_KEY, cleanKey);
+            localStorage.setItem(STORAGE_ACTIVE_KEY, cleanKey);
+            localStorage.setItem(STORAGE_ACTIVE_EPOCH, String(cleanEpoch));
+            localStorage.setItem(STORAGE_LEGACY_GATE_KEY, cleanKey);
+        } catch (error) {}
+
+        // Some legacy inline code exposes this accessor and may keep an older
+        // closure value. Preserve the old getter as fallback while making the
+        // newly server-confirmed value authoritative in this tab.
+        try {
+            if (typeof window.getActivePlatformDilithiumKey === 'function' && !window.__hashcodActiveKeyGetterSynced) {
+                const previousGetter = window.getActivePlatformDilithiumKey;
+                window.getActivePlatformDilithiumKey = function () {
+                    return window.ACTIVE_DILITHIUM5_GENERATED_KEY || previousGetter();
+                };
+                window.__hashcodActiveKeyGetterSynced = true;
+            }
+        } catch (error) {}
+    }
+
+    async function activateKeyOnServer(key, epoch) {
+        const activationEpoch = Number(epoch) || Date.now();
         const response = await fetch(getBasePath() + 'api/auth/dilithium-active-key', {
             method: 'POST',
             credentials: 'same-origin',
+            cache: 'no-store',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 active_key: key,
-                epoch: Date.now(),
+                epoch: activationEpoch,
                 source: 'd5-one-time-key-tool'
             })
         });
@@ -60,6 +98,8 @@
             }
             throw new Error(data.error || data.message || 'No se pudo activar la clave en el servidor.');
         }
+
+        syncClientActiveKey(key, data.epoch || activationEpoch);
         return data;
     }
 
@@ -164,7 +204,7 @@
                         '</button>',
                     '</div>',
                     '<div class="d5-otk-rule">',
-                        '<span>01</span><p>Copiar activa exactamente esa clave en el servidor.</p>',
+                        '<span>01</span><p>Copiar activa exactamente esa clave en el servidor y en la sesión del navegador.</p>',
                         '<span>02</span><p>El registro correcto consume la clave y bloquea cualquier reutilización.</p>',
                         '<span>03</span><p>La clave candidata visible cambia automáticamente cada 2 minutos.</p>',
                     '</div>',
@@ -191,12 +231,14 @@
         copyButton.addEventListener('click', async function () {
             if (!candidateKey || copyButton.disabled) return;
             const keyToActivate = candidateKey;
+            const activationEpoch = Date.now();
             copyButton.disabled = true;
             copyButton.setAttribute('aria-busy', 'true');
-            setStatus(modal, 'ACTIVANDO EN EL SERVIDOR…', 'working');
+            setStatus(modal, 'ACTIVANDO Y SINCRONIZANDO…', 'working');
 
             try {
-                await activateKeyOnServer(keyToActivate);
+                const activation = await activateKeyOnServer(keyToActivate, activationEpoch);
+                syncClientActiveKey(keyToActivate, activation.epoch || activationEpoch);
 
                 try {
                     await navigator.clipboard.writeText(keyToActivate);
@@ -209,12 +251,16 @@
                         selection.removeAllRanges();
                         selection.addRange(range);
                     }
-                    throw new Error('La clave quedó activa. Selecciónala y cópiala manualmente.');
+                    throw new Error('La clave quedó activa y sincronizada. Selecciónala y cópiala manualmente.');
                 }
 
-                setStatus(modal, 'COPIADA · ACTIVA PARA 1 REGISTRO', 'success');
+                setStatus(modal, 'COPIADA · SINCRONIZADA · ACTIVA PARA 1 REGISTRO', 'success');
                 window.dispatchEvent(new CustomEvent('hashcod:dilithium-key-activated', {
-                    detail: { fingerprint: fingerprint(keyToActivate), epoch: Date.now() }
+                    detail: {
+                        fingerprint: fingerprint(keyToActivate),
+                        epoch: activation.epoch || activationEpoch,
+                        activeKeyHash: activation.active_key_hash || activation.hash || ''
+                    }
                 }));
             } catch (error) {
                 setStatus(modal, error.message || 'No se pudo copiar y activar la clave.', 'error');

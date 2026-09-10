@@ -30,7 +30,7 @@
             const link = document.createElement('link');
             link.id = 'authVectorLayoutFixStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'auth-vector-layout-fix.css?v=20260910-3';
+            link.href = componentBase + 'auth-vector-layout-fix.css?v=20260910-4';
             document.head.appendChild(link);
         }
 
@@ -44,7 +44,7 @@
 
         if (!document.querySelector('script[data-auth-vector-layout-fix]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'auth-vector-layout-fix.js?v=20260910-3';
+            script.src = componentBase + 'auth-vector-layout-fix.js?v=20260910-4';
             script.defer = true;
             script.dataset.authVectorLayoutFix = 'true';
             document.head.appendChild(script);
@@ -76,15 +76,23 @@
         }
     })();
 
-    // Load the visual enhancement for the certified cryptographic-card access tool.
-    // The original validation logic remains untouched; this layer only adds classes,
-    // accessibility metadata and Hashcod-aligned styling.
+    // Load both the functional engine and the visual enhancement for the
+    // certified cryptographic-card tools. The engine exports the open* methods
+    // consumed by the external utility rail.
     (function loadCryptoCardThemeAssets() {
         const current = document.currentScript;
         const currentSrc = current && current.src ? current.src : '';
         const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
             ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
             : '/components/';
+
+        if (!document.querySelector('script[src*="crypto-card-validation.js"]')) {
+            const engine = document.createElement('script');
+            engine.id = 'hashcodCryptoCardValidationEngine';
+            engine.src = componentBase + 'crypto-card-validation.js?v=20260910-4';
+            engine.defer = true;
+            document.head.appendChild(engine);
+        }
 
         if (!document.getElementById('cryptoCardValidationThemeStylesheet')) {
             const link = document.createElement('link');
@@ -167,8 +175,6 @@
             existingMotion.addEventListener('load', loadHoldScript, { once: true });
         }
 
-        // Fallback for cached/dynamically inserted scripts whose load event may
-        // already have fired. The hold module safely waits for l8EnterPlatform.
         window.setTimeout(loadHoldScript, 600);
     })();
 

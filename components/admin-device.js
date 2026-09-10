@@ -1,5 +1,31 @@
 (function () {
     'use strict';
+
+    // Replacement for the legacy Dilithium generator: black one-time registration
+    // key tool. Loaded here because this module already owns the admin-only tools.
+    (function loadDilithiumOneTimeKeyTool() {
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+
+        if (!document.getElementById('dilithiumOneTimeKeyStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'dilithiumOneTimeKeyStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'dilithium-one-time-key.css?v=20260910-1';
+            document.head.appendChild(link);
+        }
+        if (!document.querySelector('script[data-dilithium-one-time-key]')) {
+            const script = document.createElement('script');
+            script.src = componentBase + 'dilithium-one-time-key.js?v=20260910-1';
+            script.defer = true;
+            script.dataset.dilithiumOneTimeKey = 'true';
+            document.head.appendChild(script);
+        }
+    })();
+
     let pending = null;
     let pendingForced = false;
     let expiry = null;
@@ -32,9 +58,9 @@
         setToolsState(false);
         const verificationStatus = document.getElementById('adminHelloStatus');
         if (verificationStatus) verificationStatus.textContent = 'Verifica esta laptop para administrar.';
-        ['cryptoCardValidationModalOverlay', 'dilithiumGeneratorModal', 'dilithiumGateModal', 'adminDilithiumGateOverlay', 'adminGateOverlay'].forEach(id => {
+        ['cryptoCardValidationModalOverlay', 'dilithiumGeneratorModal', 'dilithiumGateModal', 'd5OneTimeKeyModal', 'adminDilithiumGateOverlay', 'adminGateOverlay'].forEach(id => {
             const el = document.getElementById(id);
-            if (el) { el.style.display = 'none'; el.classList.remove('open'); }
+            if (el) { el.style.display = 'none'; el.classList.remove('open', 'is-open'); }
         });
         if (typeof window.toggleAdminPanel === 'function') window.toggleAdminPanel(false);
         sessionStorage.removeItem('l8_admin_authenticated');

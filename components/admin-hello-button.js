@@ -53,6 +53,32 @@
         }
     })();
 
+    // Load the monochrome Hashcod boot sequence and the Enter platform handoff.
+    // This is visual-only: the original l8EnterPlatform/authentication logic stays authoritative.
+    (function loadPlatformEntryMotionAssets() {
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+
+        if (!document.getElementById('platformEntryMotionStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'platformEntryMotionStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'platform-entry-motion.css?v=20260910-1';
+            document.head.appendChild(link);
+        }
+
+        if (!document.querySelector('script[data-platform-entry-motion]')) {
+            const script = document.createElement('script');
+            script.src = componentBase + 'platform-entry-motion.js?v=20260910-1';
+            script.defer = true;
+            script.dataset.platformEntryMotion = 'true';
+            document.head.appendChild(script);
+        }
+    })();
+
     const overlay = document.getElementById('authOverlay');
     const wrapper = document.getElementById('authWrapper');
     if (!overlay || !wrapper) return;

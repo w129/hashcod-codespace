@@ -25,26 +25,6 @@
     animation: hashcodHoldGridSettle 1100ms cubic-bezier(.2,.8,.2,1) forwards;
 }
 
-.hashcod-hold-topline {
-    position: absolute;
-    top: 28px;
-    left: 34px;
-    right: 34px;
-    z-index: 4;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(17, 17, 17, 0.16);
-    color: #666666;
-    font-size: 9px;
-    font-weight: 650;
-    letter-spacing: 0.12em;
-    opacity: 0;
-    animation: hashcodToplineIn 420ms ease 90ms forwards;
-}
-
 .hashcod-hold-side-field {
     position: absolute;
     inset: 0;
@@ -54,15 +34,15 @@
 
 .hashcod-hold-side-icon {
     position: absolute;
-    width: clamp(38px, 4.1vw, 72px);
-    height: clamp(38px, 4.1vw, 72px);
+    width: clamp(38px, 4vw, 72px);
+    height: clamp(38px, 4vw, 72px);
     color: #111111;
     opacity: 0;
     filter: grayscale(1);
     transform: translateY(12px) scale(0.92);
     animation:
-        hashcodSideIconIn 620ms cubic-bezier(.2,.8,.2,1) calc(100ms + (var(--side-index) * 70ms)) forwards,
-        hashcodSideIconDrift 7.4s ease-in-out calc(900ms + (var(--side-index) * 90ms)) infinite alternate;
+        hashcodSideIconIn 620ms cubic-bezier(.2,.8,.2,1) calc(100ms + (var(--side-index) * 65ms)) forwards,
+        hashcodSideIconDrift 7.4s ease-in-out calc(900ms + (var(--side-index) * 85ms)) infinite alternate;
     will-change: transform, opacity;
 }
 
@@ -79,94 +59,48 @@
     fill: currentColor;
 }
 
-.hashcod-hold-side-strong { --side-opacity: 0.28; }
-.hashcod-hold-side-mid { --side-opacity: 0.19; }
-.hashcod-hold-side-soft { --side-opacity: 0.11; }
+.hashcod-hold-side-strong { --side-opacity: 0.30; }
+.hashcod-hold-side-mid { --side-opacity: 0.20; }
+.hashcod-hold-side-soft { --side-opacity: 0.12; }
 
-/* Left field */
-.hashcod-hold-pos-01 { left: 7%; top: 15%; width: clamp(48px, 5vw, 82px); height: clamp(48px, 5vw, 82px); }
-.hashcod-hold-pos-02 { left: 20%; top: 24%; width: clamp(30px, 3vw, 52px); height: clamp(30px, 3vw, 52px); }
-.hashcod-hold-pos-03 { left: 10%; top: 43%; }
-.hashcod-hold-pos-04 { left: 23%; top: 58%; width: clamp(32px, 3.2vw, 56px); height: clamp(32px, 3.2vw, 56px); }
-.hashcod-hold-pos-05 { left: 8%; bottom: 14%; width: clamp(50px, 4.7vw, 78px); height: clamp(50px, 4.7vw, 78px); }
-.hashcod-hold-pos-06 { left: 31%; top: 16%; width: clamp(28px, 2.5vw, 44px); height: clamp(28px, 2.5vw, 44px); }
-.hashcod-hold-pos-07 { left: 32%; bottom: 21%; width: clamp(30px, 2.8vw, 48px); height: clamp(30px, 2.8vw, 48px); }
+/* Left scatter */
+.hashcod-hold-pos-01 { left: 6%; top: 12%; width: clamp(54px, 5.2vw, 88px); height: clamp(54px, 5.2vw, 88px); }
+.hashcod-hold-pos-02 { left: 21%; top: 20%; width: clamp(30px, 2.8vw, 50px); height: clamp(30px, 2.8vw, 50px); }
+.hashcod-hold-pos-03 { left: 10%; top: 38%; width: clamp(42px, 4vw, 68px); height: clamp(42px, 4vw, 68px); }
+.hashcod-hold-pos-04 { left: 26%; top: 51%; width: clamp(31px, 3vw, 54px); height: clamp(31px, 3vw, 54px); }
+.hashcod-hold-pos-05 { left: 7%; bottom: 16%; width: clamp(50px, 4.8vw, 82px); height: clamp(50px, 4.8vw, 82px); }
+.hashcod-hold-pos-06 { left: 33%; top: 13%; width: clamp(28px, 2.5vw, 44px); height: clamp(28px, 2.5vw, 44px); }
+.hashcod-hold-pos-07 { left: 34%; bottom: 18%; width: clamp(30px, 2.7vw, 48px); height: clamp(30px, 2.7vw, 48px); }
+.hashcod-hold-pos-15 { left: 18%; bottom: 33%; width: clamp(34px, 3.1vw, 56px); height: clamp(34px, 3.1vw, 56px); }
+.hashcod-hold-pos-16 { left: 40%; top: 31%; width: clamp(26px, 2.2vw, 40px); height: clamp(26px, 2.2vw, 40px); }
 
-/* Right field */
-.hashcod-hold-pos-08 { right: 8%; top: 16%; width: clamp(52px, 5vw, 84px); height: clamp(52px, 5vw, 84px); }
-.hashcod-hold-pos-09 { right: 21%; top: 28%; width: clamp(31px, 3vw, 52px); height: clamp(31px, 3vw, 52px); }
-.hashcod-hold-pos-10 { right: 9%; top: 45%; }
-.hashcod-hold-pos-11 { right: 23%; top: 61%; width: clamp(34px, 3.1vw, 54px); height: clamp(34px, 3.1vw, 54px); }
-.hashcod-hold-pos-12 { right: 8%; bottom: 14%; width: clamp(46px, 4.6vw, 76px); height: clamp(46px, 4.6vw, 76px); }
-.hashcod-hold-pos-13 { right: 32%; top: 17%; width: clamp(28px, 2.5vw, 44px); height: clamp(28px, 2.5vw, 44px); }
-.hashcod-hold-pos-14 { right: 32%; bottom: 21%; width: clamp(30px, 2.8vw, 48px); height: clamp(30px, 2.8vw, 48px); }
+/* Right scatter */
+.hashcod-hold-pos-08 { right: 7%; top: 13%; width: clamp(54px, 5.2vw, 90px); height: clamp(54px, 5.2vw, 90px); }
+.hashcod-hold-pos-09 { right: 22%; top: 23%; width: clamp(31px, 3vw, 52px); height: clamp(31px, 3vw, 52px); }
+.hashcod-hold-pos-10 { right: 9%; top: 41%; width: clamp(44px, 4.1vw, 72px); height: clamp(44px, 4.1vw, 72px); }
+.hashcod-hold-pos-11 { right: 25%; top: 57%; width: clamp(34px, 3.1vw, 56px); height: clamp(34px, 3.1vw, 56px); }
+.hashcod-hold-pos-12 { right: 8%; bottom: 16%; width: clamp(48px, 4.6vw, 78px); height: clamp(48px, 4.6vw, 78px); }
+.hashcod-hold-pos-13 { right: 34%; top: 15%; width: clamp(28px, 2.5vw, 44px); height: clamp(28px, 2.5vw, 44px); }
+.hashcod-hold-pos-14 { right: 35%; bottom: 20%; width: clamp(30px, 2.7vw, 48px); height: clamp(30px, 2.7vw, 48px); }
+.hashcod-hold-pos-17 { right: 18%; bottom: 35%; width: clamp(33px, 3vw, 54px); height: clamp(33px, 3vw, 54px); }
+.hashcod-hold-pos-18 { right: 42%; top: 35%; width: clamp(25px, 2.2vw, 40px); height: clamp(25px, 2.2vw, 40px); }
 
-.hashcod-hold-center {
-    position: absolute;
-    left: 50%;
-    top: 48%;
-    z-index: 3;
-    width: min(520px, 58vw);
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    pointer-events: none;
-}
-
-.hashcod-hold-status {
-    min-height: 18px;
-    color: #111111;
-    font-size: clamp(10px, 0.9vw, 12px);
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-align: center;
-    opacity: 0;
-    transform: translateY(7px);
-    animation: hashcodStatusIn 420ms ease 240ms forwards;
-}
-
-.hashcod-hold-progress {
-    width: min(440px, 54vw);
-    height: 2px;
-    margin-top: 18px;
-    overflow: hidden;
-    background: rgba(17, 17, 17, 0.15);
-}
-
-.hashcod-hold-progress span {
-    display: block;
-    width: 0;
-    height: 100%;
-    background: #111111;
-    transition: width 620ms cubic-bezier(.2,.8,.2,1);
-}
-
-.hashcod-hold-phase-line {
-    margin-top: 12px;
-    color: #777777;
-    font-size: 8px;
-    font-weight: 650;
-    letter-spacing: 0.12em;
-    text-align: center;
-}
-
+/* Only actionable UI on this scene: same dark control language, anchored to the right. */
 .hashcod-hold-cta-wrap {
     position: absolute;
-    left: 50%;
-    bottom: 34px;
+    right: clamp(30px, 4.5vw, 72px);
+    bottom: clamp(30px, 5vh, 58px);
     z-index: 5;
-    transform: translateX(-50%);
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: flex-end;
 }
 
 .hashcod-hold-continue {
     min-width: 232px;
     padding: 14px 18px;
     border: 1px solid #111111;
-    border-radius: 8px;
+    border-radius: 10px;
     background: #111111;
     color: #ffffff;
     display: inline-flex;
@@ -176,9 +110,9 @@
     font: 700 11px/1 'IBM Plex Mono', ui-monospace, monospace;
     letter-spacing: 0.055em;
     cursor: pointer;
-    opacity: 0.38;
+    opacity: 0.36;
     transform: translateY(4px);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
     transition:
         opacity 220ms ease,
         transform 180ms ease,
@@ -208,40 +142,23 @@
     transform: translateY(1px) scale(0.985);
 }
 
-.hashcod-hold-help {
-    margin-top: 10px;
-    color: #777777;
-    font-size: 8px;
-    letter-spacing: 0.035em;
-    text-align: center;
-}
-
-#hashcodEntryHold.is-leaving .hashcod-hold-center,
-#hashcodEntryHold.is-leaving .hashcod-hold-topline,
-#hashcodEntryHold.is-leaving .hashcod-hold-cta-wrap {
-    animation: hashcodOpenElementOut 260ms ease forwards;
-}
-
 #hashcodEntryHold.is-leaving .hashcod-hold-side-icon {
-    animation: hashcodSideIconOut 260ms ease forwards !important;
+    animation: hashcodSideIconOut 240ms ease forwards !important;
+}
+
+#hashcodEntryHold.is-leaving .hashcod-hold-continue {
+    opacity: 0;
+    transform: translateX(10px);
 }
 
 #hashcodEntryHold.is-revealing {
     pointer-events: none;
-    animation: hashcodHoldReveal 620ms cubic-bezier(.2,.8,.2,1) forwards;
+    animation: hashcodHoldReveal 560ms cubic-bezier(.2,.8,.2,1) forwards;
 }
 
 @keyframes hashcodHoldGridSettle {
-    from { transform: scale(1.025); opacity: 0.35; }
+    from { transform: scale(1.025); opacity: 0.45; }
     to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes hashcodToplineIn {
-    to { opacity: 1; }
-}
-
-@keyframes hashcodStatusIn {
-    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes hashcodSideIconIn {
@@ -257,93 +174,70 @@
     to { opacity: 0; transform: scale(0.94); }
 }
 
-@keyframes hashcodOpenElementOut {
-    to { opacity: 0; transform: translate(-50%, -8px); }
-}
-
 @keyframes hashcodHoldReveal {
     from { opacity: 1; }
     to { opacity: 0; }
 }
 
-@media (max-width: 1050px) {
-    .hashcod-hold-pos-02,
-    .hashcod-hold-pos-04,
+@media (max-width: 1100px) {
     .hashcod-hold-pos-06,
-    .hashcod-hold-pos-09,
-    .hashcod-hold-pos-11,
-    .hashcod-hold-pos-13 {
+    .hashcod-hold-pos-07,
+    .hashcod-hold-pos-13,
+    .hashcod-hold-pos-14,
+    .hashcod-hold-pos-16,
+    .hashcod-hold-pos-18 {
         display: none;
-    }
-
-    .hashcod-hold-center {
-        width: min(520px, 70vw);
-    }
-
-    .hashcod-hold-progress {
-        width: min(420px, 62vw);
     }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
     .hashcod-hold-grid { background-size: 24px 24px; }
-
-    .hashcod-hold-topline {
-        top: 18px;
-        left: 18px;
-        right: 18px;
-        font-size: 8px;
-    }
 
     .hashcod-hold-side-icon {
         width: 36px;
         height: 36px;
     }
 
-    .hashcod-hold-pos-03 { left: 5%; top: 35%; }
-    .hashcod-hold-pos-05 { left: 6%; bottom: 18%; }
-    .hashcod-hold-pos-07 { left: 18%; bottom: 27%; }
-    .hashcod-hold-pos-08 { right: 6%; top: 18%; }
-    .hashcod-hold-pos-10 { right: 5%; top: 37%; }
-    .hashcod-hold-pos-12 { right: 6%; bottom: 18%; }
-    .hashcod-hold-pos-14 { right: 18%; bottom: 27%; }
-
-    .hashcod-hold-pos-01,
-    .hashcod-hold-pos-08 {
-        width: 42px;
-        height: 42px;
+    .hashcod-hold-pos-02,
+    .hashcod-hold-pos-04,
+    .hashcod-hold-pos-09,
+    .hashcod-hold-pos-11,
+    .hashcod-hold-pos-15,
+    .hashcod-hold-pos-17 {
+        display: none;
     }
 
-    .hashcod-hold-center {
-        width: 74vw;
-        top: 46%;
-    }
-
-    .hashcod-hold-progress {
-        width: 66vw;
-    }
+    .hashcod-hold-pos-01 { left: 5%; top: 12%; }
+    .hashcod-hold-pos-03 { left: 9%; top: 40%; }
+    .hashcod-hold-pos-05 { left: 6%; bottom: 13%; }
+    .hashcod-hold-pos-08 { right: 5%; top: 12%; }
+    .hashcod-hold-pos-10 { right: 8%; top: 40%; }
+    .hashcod-hold-pos-12 { right: 6%; bottom: 13%; }
 
     .hashcod-hold-cta-wrap {
+        right: 20px;
         bottom: 24px;
     }
 
     .hashcod-hold-continue {
-        min-width: min(232px, 78vw);
+        min-width: 210px;
+        padding: 13px 16px;
     }
 }
 
 @media (max-width: 520px) {
-    .hashcod-hold-pos-07,
-    .hashcod-hold-pos-14 {
+    .hashcod-hold-pos-03,
+    .hashcod-hold-pos-10 {
         display: none;
     }
 
-    .hashcod-hold-center {
-        width: 80vw;
+    .hashcod-hold-cta-wrap {
+        right: 14px;
+        bottom: 18px;
     }
 
-    .hashcod-hold-progress {
-        width: 72vw;
+    .hashcod-hold-continue {
+        min-width: min(210px, calc(100vw - 28px));
     }
 }
 
@@ -357,7 +251,5 @@
     }
 
     #hashcodEntryHold { opacity: 1; }
-    .hashcod-hold-topline,
-    .hashcod-hold-status { opacity: 1; transform: none; }
     .hashcod-hold-side-icon { opacity: var(--side-opacity, 0.18); transform: none; }
 }

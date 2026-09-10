@@ -38,17 +38,35 @@ async function runScenario({ipAllowed = true, authenticated = false, cancel = fa
     let test = await runScenario({ipAllowed:false});
     assert.deepEqual(test.results,[false,false]); assert.equal(test.prompts.length,0);
     assert.equal(test.context.document.documentElement.dataset.adminIp,'denied');
+    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'false');
+
     test = await runScenario();
     assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
     assert.equal(test.prompts[0].publicKey.userVerification,'required');
     assert.equal(test.prompts[0].publicKey.allowCredentials[0].transports[0],'internal');
     assert.equal(test.calls.filter(x=>x.url.endsWith('/verify')).length,1);
-    test = await runScenario({cancel:true}); assert.deepEqual(test.results,[false,false]);
-    assert.equal(test.calls.filter(x=>x.url.endsWith('/verify')).length,0);
-    test = await runScenario({rejected:true}); assert.deepEqual(test.results,[false,false]);
-    test = await runScenario({authenticated:true}); assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,0);
-    test = await runScenario({authenticated:true, force:true}); assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
-    test = await runScenario({authenticated:true, force:true, mixed:true}); assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
-    console.log('PASS: browser gate denies wrong IP, cancelled Hello and server rejection; one prompt for concurrent actions; valid session works');
-})().catch(error => {console.error(error); process.exitCode=1;});
+    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'true');
 
+    test = await runScenario({cancel:true});
+    assert.deepEqual(test.results,[false,false]);
+    assert.equal(test.calls.filter(x=>x.url.endsWith('/verify')).length,0);
+    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'false');
+
+    test = await runScenario({rejected:true});
+    assert.deepEqual(test.results,[false,false]);
+    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'false');
+
+    test = await runScenario({authenticated:true});
+    assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,0);
+    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'true');
+
+    test = await runScenario({authenticated:true, force:true});
+    assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
+    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'true');
+
+    test = await runScenario({authenticated:true, force:true, mixed:true});
+    assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
+    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'true');
+
+    console.log('PASS: browser gate denies wrong IP, cancelled Hello and server rejection; hidden admin tools activate only after a valid Windows Hello session');
+})().catch(error => {console.error(error); process.exitCode=1;});

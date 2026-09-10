@@ -1,5 +1,31 @@
 (function () {
     'use strict';
+
+    // Load the auth-screen Groq chat without exposing provider credentials in HTML.
+    (function loadGroqAuthChatAssets() {
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+
+        if (!document.getElementById('groqAuthChatStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'groqAuthChatStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'groq-auth-chat.css?v=20260910-1';
+            document.head.appendChild(link);
+        }
+
+        if (!document.querySelector('script[data-groq-auth-chat]')) {
+            const script = document.createElement('script');
+            script.src = componentBase + 'groq-auth-chat.js?v=20260910-1';
+            script.defer = true;
+            script.dataset.groqAuthChat = 'true';
+            document.head.appendChild(script);
+        }
+    })();
+
     const overlay = document.getElementById('authOverlay');
     const wrapper = document.getElementById('authWrapper');
     if (!overlay || !wrapper) return;

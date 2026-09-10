@@ -10,12 +10,12 @@
         ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
         : '/components/';
 
-    (function loadExternalRailStyles() {
+    (function loadUtilityDockStyles() {
         if (document.getElementById('authUtilityOutsideStylesheet')) return;
         const link = document.createElement('link');
         link.id = 'authUtilityOutsideStylesheet';
         link.rel = 'stylesheet';
-        link.href = componentBase + 'auth-utility-outside.css?v=20260910-2';
+        link.href = componentBase + 'auth-utility-outside.css?v=20260910-3';
         document.head.appendChild(link);
     })();
 
@@ -152,15 +152,22 @@
         });
     }
 
-    function utilityDock() {
+    function utilityDock(wrapper) {
+        const card = wrapper.querySelector('.auth-card') || wrapper;
         let dock = document.getElementById('hashcodAuthUtilityDock');
         if (!dock) {
             dock = document.createElement('div');
             dock.id = 'hashcodAuthUtilityDock';
             dock.className = 'hashcod-auth-utility-dock';
             dock.setAttribute('aria-label', 'Herramientas rápidas de autenticación');
-            document.body.appendChild(dock);
         }
+
+        if (dock.parentElement !== card) card.appendChild(dock);
+        dock.dataset.side = 'inside';
+        dock.style.removeProperty('left');
+        dock.style.removeProperty('top');
+        dock.style.removeProperty('right');
+        dock.style.removeProperty('bottom');
         return dock;
     }
 
@@ -171,28 +178,16 @@
             return;
         }
 
-        const rect = card.getBoundingClientRect();
-        const gap = 14;
-        const buttonWidth = 52;
-        const viewportPadding = 10;
-        let left = rect.right + gap;
-        let side = 'right';
-
-        if (left + buttonWidth > window.innerWidth - viewportPadding) {
-            left = rect.left - gap - buttonWidth;
-            side = 'left';
-        }
-
-        left = Math.max(viewportPadding, Math.min(left, window.innerWidth - buttonWidth - viewportPadding));
-        const top = Math.max(viewportPadding, Math.min(rect.top + 18, window.innerHeight - 180));
-
-        dock.dataset.side = side;
-        dock.style.left = Math.round(left) + 'px';
-        dock.style.top = Math.round(top) + 'px';
+        if (dock.parentElement !== card) card.appendChild(dock);
+        dock.dataset.side = 'inside';
+        dock.style.removeProperty('left');
+        dock.style.removeProperty('top');
+        dock.style.removeProperty('right');
+        dock.style.removeProperty('bottom');
         dock.hidden = dock.children.length === 0;
     }
 
-    async function openWhenAvailable(fnName, retries) {
+    async function openWhenAvailable(fnName) {
         const ready = await ensureToolFunction(fnName);
         if (!ready) {
             console.error('[Hashcod] No se cargó la función ' + fnName + '.');
@@ -222,13 +217,14 @@
             button.setAttribute('title', 'Agregar tarjeta criptográfica validada');
         }
 
+        // Keep native launcher handlers intact. This listener is only the fallback
+        // for cases where the functional engine has not attached its handler yet.
         button.addEventListener('click', async function (event) {
             event.preventDefault();
-            event.stopImmediatePropagation();
 
             try {
                 if (isDirectCard) {
-                    await openWhenAvailable('openCryptoCardUploadPanel', 15);
+                    await openWhenAvailable('openCryptoCardUploadPanel');
                     return;
                 }
 
@@ -238,7 +234,7 @@
                         console.error('[Hashcod] No se pudo cargar Windows Hello para la validación de tarjeta.');
                         return;
                     }
-                    await openWhenAvailable('openCryptoCardValidationWindow', 15);
+                    await openWhenAvailable('openCryptoCardValidationWindow');
                     return;
                 }
 
@@ -252,16 +248,16 @@
                         const verified = await window.HashcodAdmin.require();
                         if (!verified) return;
                     }
-                    await openWhenAvailable('openDilithiumOneTimeKeyTool', 15);
+                    await openWhenAvailable('openDilithiumOneTimeKeyTool');
                 }
             } catch (error) {
                 console.error('[Hashcod] No se pudo abrir la herramienta solicitada:', error);
             }
-        }, true);
+        }, false);
     }
 
     function normalizeUtilityLaunchers(wrapper) {
-        const dock = utilityDock();
+        const dock = utilityDock(wrapper);
         const selectors = [
             '#cryptoCardValidationLauncherBtn',
             '#d5LauncherBtn',

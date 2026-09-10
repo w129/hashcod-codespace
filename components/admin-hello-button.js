@@ -74,14 +74,14 @@
             const link = document.createElement('link');
             link.id = 'platformEntryHoldStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'platform-entry-hold.css?v=20260910-1';
+            link.href = componentBase + 'platform-entry-hold.css?v=20260910-2';
             document.head.appendChild(link);
         }
 
         function loadHoldScript() {
             if (document.querySelector('script[data-platform-entry-hold]')) return;
             const holdScript = document.createElement('script');
-            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260910-1';
+            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260910-2';
             holdScript.defer = true;
             holdScript.dataset.platformEntryHold = 'true';
             document.head.appendChild(holdScript);

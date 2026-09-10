@@ -1,0 +1,339 @@
+/* Hashcod Dilithium-5 one-time registration key tool — monochrome replacement */
+#d5LauncherBtn {
+    background: #111111 !important;
+    border-color: #111111 !important;
+    color: #ffffff !important;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, .16) !important;
+}
+
+#d5LauncherBtn:hover,
+#d5LauncherBtn:focus-visible {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    outline: none !important;
+}
+
+#d5LauncherBtn svg,
+#d5LauncherBtn svg * {
+    color: #ffffff !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+.d5-otk-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483502;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+    font-family: 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.d5-otk-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.d5-otk-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .70);
+    backdrop-filter: blur(7px);
+}
+
+.d5-otk-panel {
+    position: relative;
+    width: min(720px, 96vw);
+    max-height: min(760px, 92vh);
+    overflow: auto;
+    border: 1px solid #303030;
+    border-radius: 16px;
+    background-color: #0d0d0d;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: #ffffff;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .48);
+    transform: translateY(10px) scale(.985);
+    transition: transform 190ms cubic-bezier(.2,.8,.2,1);
+}
+
+.d5-otk-modal.is-open .d5-otk-panel {
+    transform: translateY(0) scale(1);
+}
+
+.d5-otk-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 22px;
+    border-bottom: 1px solid #2b2b2b;
+    background: rgba(13, 13, 13, .96);
+    backdrop-filter: blur(10px);
+}
+
+.d5-otk-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.d5-otk-mark {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #ffffff;
+    border-radius: 10px;
+}
+
+.d5-otk-mark svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.d5-otk-kicker {
+    display: block;
+    margin-bottom: 5px;
+    color: #8d8d8d;
+    font-size: 8px;
+    font-weight: 650;
+    letter-spacing: .16em;
+}
+
+.d5-otk-header h2 {
+    margin: 0;
+    font-size: clamp(15px, 2.2vw, 21px);
+    line-height: 1.1;
+    letter-spacing: -.035em;
+}
+
+.d5-otk-close {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border: 1px solid #353535;
+    border-radius: 8px;
+    background: #151515;
+    color: #ffffff;
+    font: 500 22px/1 monospace;
+    cursor: pointer;
+}
+
+.d5-otk-close:hover,
+.d5-otk-close:focus-visible {
+    border-color: #ffffff;
+    outline: none;
+}
+
+.d5-otk-body {
+    padding: 24px 22px 26px;
+}
+
+.d5-otk-intro {
+    max-width: 640px;
+    margin: 0 0 20px;
+    color: #b7b7b7;
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+.d5-otk-intro strong { color: #ffffff; }
+
+.d5-otk-key-card {
+    border: 1px solid #3a3a3a;
+    border-radius: 12px;
+    background: #050505;
+    overflow: hidden;
+}
+
+.d5-otk-key-head,
+.d5-otk-fingerprint-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    color: #858585;
+    font-size: 8px;
+    font-weight: 650;
+    letter-spacing: .13em;
+}
+
+.d5-otk-key-head { border-bottom: 1px solid #242424; }
+.d5-otk-fingerprint-row { border-top: 1px solid #242424; }
+
+.d5-otk-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #bdbdbd;
+}
+
+.d5-otk-live i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+.d5-otk-key {
+    display: block;
+    min-height: 104px;
+    padding: 18px 16px;
+    color: #ffffff;
+    font: 600 clamp(11px, 1.55vw, 14px)/1.7 'IBM Plex Mono', 'Geist Mono', monospace;
+    overflow-wrap: anywhere;
+    user-select: text;
+}
+
+.d5-otk-progress {
+    height: 2px;
+    background: #202020;
+    overflow: hidden;
+}
+
+.d5-otk-progress span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    transform-origin: left center;
+}
+
+.d5-otk-progress span.is-running {
+    animation: d5OtkSecond 1s linear forwards;
+}
+
+.d5-otk-fingerprint-row code {
+    color: #ffffff;
+    font-size: 9px;
+    letter-spacing: .08em;
+}
+
+.d5-otk-status {
+    margin: 13px 0 0;
+    padding: 10px 12px;
+    border: 1px solid #2d2d2d;
+    border-radius: 8px;
+    background: #141414;
+    color: #aaaaaa;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.d5-otk-status[data-state="success"] {
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+.d5-otk-status[data-state="error"] {
+    border-style: dashed;
+    color: #ffffff;
+}
+
+.d5-otk-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+
+.d5-otk-copy {
+    min-width: 218px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 13px 16px;
+    border: 1px solid #ffffff;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #111111;
+    font: 750 10px/1 'IBM Plex Mono', 'Geist Mono', monospace;
+    letter-spacing: .055em;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.d5-otk-copy svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+}
+
+.d5-otk-copy:hover,
+.d5-otk-copy:focus-visible {
+    background: #111111;
+    color: #ffffff;
+    outline: none;
+}
+
+.d5-otk-copy:active { transform: scale(.985); }
+.d5-otk-copy:disabled { opacity: .55; cursor: wait; }
+
+.d5-otk-rule {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 9px 11px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #2a2a2a;
+}
+
+.d5-otk-rule > span {
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    border: 1px solid #3c3c3c;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 8px;
+}
+
+.d5-otk-rule p {
+    align-self: center;
+    margin: 0;
+    color: #8e8e8e;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+@keyframes d5OtkSecond {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+}
+
+@media (max-width: 640px) {
+    .d5-otk-modal { padding: 12px; }
+    .d5-otk-panel { max-height: 94vh; border-radius: 13px; }
+    .d5-otk-header { padding: 16px; }
+    .d5-otk-body { padding: 18px 16px 20px; }
+    .d5-otk-mark { width: 38px; height: 38px; flex-basis: 38px; }
+    .d5-otk-actions { justify-content: stretch; }
+    .d5-otk-copy { width: 100%; }
+    .d5-otk-key { min-height: 120px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .d5-otk-modal,
+    .d5-otk-panel,
+    .d5-otk-copy,
+    #d5LauncherBtn { transition: none !important; }
+    .d5-otk-progress span.is-running { animation: none !important; }
+}

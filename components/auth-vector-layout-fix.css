@@ -1,13 +1,17 @@
-/* Hashcod auth layout correction: fixes misplaced utility controls without changing auth behavior. */
+/* Hashcod auth layout correction: spacing + vector control alignment only. */
 
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-mode-plate,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-system-line {
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-system-line,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-label-icon,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-label-icon-redundant,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-input-icon-orphaned {
     display: none !important;
 }
 
 #authWrapper.hashcod-auth-enhanced .auth-card {
     position: relative !important;
     overflow-x: hidden !important;
+    padding: 24px 22px 34px !important;
 }
 
 #authWrapper.hashcod-auth-enhanced .auth-card::-webkit-scrollbar {
@@ -20,11 +24,29 @@
     height: 0 !important;
 }
 
+/* Header --------------------------------------------------------------- */
 #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
-    min-width: 0 !important;
-    padding-right: 112px !important;
+    display: flex !important;
     align-items: center !important;
     flex-wrap: wrap !important;
+    gap: 10px 12px !important;
+    min-width: 0 !important;
+    min-height: 54px !important;
+    margin: 0 0 14px !important;
+    padding-right: 186px !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > svg,
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > img {
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    margin: 0 !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-title {
+    margin: 0 !important;
+    line-height: 1.08 !important;
 }
 
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-header-badge {
@@ -37,12 +59,12 @@
     width: auto !important;
     min-width: 0 !important;
     max-width: none !important;
-    height: 24px !important;
-    min-height: 24px !important;
-    margin: 0 0 0 4px !important;
-    padding: 0 8px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    margin: 0 !important;
+    padding: 0 9px !important;
     border: 1px solid #111111 !important;
-    border-radius: 5px !important;
+    border-radius: 6px !important;
     background: #111111 !important;
     color: #ffffff !important;
     box-shadow: none !important;
@@ -55,88 +77,27 @@
     white-space: nowrap !important;
 }
 
-#authWrapper.hashcod-auth-enhanced .auth-tabs {
-    position: relative !important;
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) 58px !important;
-    width: 100% !important;
-    align-items: stretch !important;
-    gap: 0 !important;
-    overflow: hidden !important;
+#authWrapper.hashcod-auth-enhanced .auth-subtitle,
+#authWrapper.hashcod-auth-enhanced .auth-description {
+    max-width: 680px !important;
+    margin: 0 0 22px !important;
+    padding-right: 116px !important;
+    line-height: 1.55 !important;
 }
 
-#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher,
-#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.hashcod-auth-chat-tab-fixed {
-    position: static !important;
-    inset: auto !important;
-    grid-column: auto !important;
-    width: 58px !important;
-    min-width: 58px !important;
-    max-width: 58px !important;
-    height: auto !important;
-    min-height: 58px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    transform: none !important;
-    align-self: stretch !important;
-    justify-self: stretch !important;
-    border: 0 !important;
-    border-left: 1px solid #d8d8d2 !important;
-    border-radius: 0 !important;
-    background: #ffffff !important;
-    color: #111111 !important;
-    box-shadow: none !important;
-    z-index: auto !important;
-}
-
-#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher > svg {
-    display: block !important;
-    width: 22px !important;
-    height: 22px !important;
-    margin: 0 auto !important;
-    fill: currentColor !important;
-}
-
-#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher .hashcod-auth-tab-icon {
-    display: none !important;
-}
-
-#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher:hover,
-#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher:focus-visible,
-#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.active,
-#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher[aria-expanded="true"] {
-    background: #111111 !important;
-    color: #ffffff !important;
-    outline: none !important;
-}
-
-/* Field icons remain inside inputs; duplicated icons before labels are hidden. */
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-label-icon,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-label-icon-redundant {
-    display: none !important;
-}
-
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-label,
-#authWrapper.hashcod-auth-enhanced label.hashcod-auth-label {
-    display: flex !important;
-    align-items: center !important;
-    min-width: 0 !important;
-    gap: 0 !important;
-    line-height: 1.35 !important;
-}
-
+/* Admin utility dock ---------------------------------------------------- */
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock {
     position: absolute !important;
-    top: 18px !important;
-    right: 18px !important;
+    top: 20px !important;
+    right: 20px !important;
     left: auto !important;
     bottom: auto !important;
-    z-index: 30 !important;
+    z-index: 40 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
     flex-wrap: nowrap !important;
-    gap: 8px !important;
+    gap: 10px !important;
     width: auto !important;
     height: auto !important;
     margin: 0 !important;
@@ -157,20 +118,20 @@
     inset: auto !important;
     display: inline-grid !important;
     place-items: center !important;
-    flex: 0 0 44px !important;
-    width: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
+    flex: 0 0 46px !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
     margin: 0 !important;
-    padding: 9px !important;
+    padding: 10px !important;
     border: 1px solid #111111 !important;
-    border-radius: 10px !important;
+    border-radius: 11px !important;
     background: #ffffff !important;
     color: #111111 !important;
-    box-shadow: 0 5px 14px rgba(0,0,0,.08) !important;
+    box-shadow: 0 5px 14px rgba(0,0,0,.075) !important;
     transform: none !important;
     font-size: 0 !important;
     line-height: 1 !important;
@@ -182,50 +143,238 @@
     color: #ffffff !important;
 }
 
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn svg,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn svg,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn svg,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn svg,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock svg,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button svg {
     display: block !important;
-    width: 22px !important;
-    height: 22px !important;
-    max-width: 22px !important;
-    max-height: 22px !important;
+    width: 21px !important;
+    height: 21px !important;
+    max-width: 21px !important;
+    max-height: 21px !important;
     margin: 0 auto !important;
     fill: currentColor !important;
     color: currentColor !important;
 }
 
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn:hover,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn:focus-visible,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn:hover,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn:focus-visible,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn:hover,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn:focus-visible {
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock button:hover,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock button:focus-visible,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock a:hover,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock a:focus-visible {
+    outline: none !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Tabs ---------------------------------------------------------------- */
+#authWrapper.hashcod-auth-enhanced .auth-tabs {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 64px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    margin: 24px 0 22px !important;
+    overflow: hidden !important;
+    border: 1px solid #111111 !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-tab,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher {
+    position: static !important;
+    inset: auto !important;
+    min-width: 0 !important;
+    min-height: 64px !important;
+    margin: 0 !important;
+    padding: 10px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px !important;
+    border: 0 !important;
+    border-right: 1px solid #d8d8d2 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    color: #222222 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    text-align: center !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-tab.active,
+#authWrapper.hashcod-auth-enhanced .auth-tab[aria-selected="true"],
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher:hover,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher:focus-visible,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.active,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher[aria-expanded="true"] {
     background: #111111 !important;
     color: #ffffff !important;
     outline: none !important;
-    transform: translateY(-1px) !important;
 }
 
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn:hover,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn:focus-visible {
+#authWrapper.hashcod-auth-enhanced .auth-tab svg,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher svg {
+    display: block !important;
+    flex: 0 0 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+    fill: currentColor !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.hashcod-auth-chat-tab-fixed {
+    grid-column: auto !important;
+    width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+    padding: 0 !important;
+    border-right: 0 !important;
+    border-left: 0 !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher .hashcod-auth-tab-icon {
+    display: none !important;
+}
+
+/* Fields -------------------------------------------------------------- */
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-label,
+#authWrapper.hashcod-auth-enhanced label.hashcod-auth-label {
+    display: block !important;
+    min-width: 0 !important;
+    margin: 0 0 8px !important;
+    line-height: 1.4 !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-field-parent {
+    position: relative !important;
+    margin: 0 0 18px !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-field-parent .hashcod-auth-input-icon {
+    left: 14px !important;
+    top: 50% !important;
+    width: 17px !important;
+    height: 17px !important;
+    transform: translateY(-50%) !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-control,
+#authWrapper.hashcod-auth-enhanced input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#authWrapper.hashcod-auth-enhanced textarea,
+#authWrapper.hashcod-auth-enhanced select {
+    min-height: 52px !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-field-parent > .hashcod-auth-control {
+    padding-left: 44px !important;
+}
+
+/* Turnstile + status -------------------------------------------------- */
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-turnstile,
+#authWrapper.hashcod-auth-enhanced .cf-turnstile {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 10px auto 24px !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-message {
+    margin: 12px 0 18px !important;
+}
+
+/* Primary action ------------------------------------------------------ */
+#authWrapper.hashcod-auth-enhanced [type="submit"],
+#authWrapper.hashcod-auth-enhanced .auth-submit,
+#authWrapper.hashcod-auth-enhanced .btn-primary {
+    margin-top: 8px !important;
+    margin-bottom: 18px !important;
+}
+
+/* Legal/footer spacing ------------------------------------------------ */
+#authWrapper.hashcod-auth-enhanced .auth-footer,
+#authWrapper.hashcod-auth-enhanced .auth-legal,
+#authWrapper.hashcod-auth-enhanced .privacy-note {
+    margin-top: 18px !important;
+    line-height: 1.58 !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-privacy-link {
+    margin-top: 14px !important;
+}
+
+/* Windows Hello ------------------------------------------------------- */
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-windows-hello,
+#authWrapper.hashcod-auth-enhanced .admin-hello-access {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    width: min(100%, 340px) !important;
+    margin: 26px auto 0 !important;
+    padding: 0 0 4px !important;
+    text-align: center !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #adminHelloButton {
+    width: 100% !important;
+    min-height: 52px !important;
+    padding: 10px 16px !important;
+    border: 1px solid #111111 !important;
+    border-radius: 12px !important;
     background: #ffffff !important;
     color: #111111 !important;
-    outline: none !important;
-    transform: translateY(-1px) !important;
+    box-shadow: none !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #adminHelloStatus,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-windows-hello-status {
+    margin: 8px 0 0 !important;
+    color: #666666 !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+}
+
+@media (max-width: 860px) {
+    #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
+        padding-right: 170px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .auth-subtitle,
+    #authWrapper.hashcod-auth-enhanced .auth-description {
+        padding-right: 0 !important;
+    }
 }
 
 @media (max-width: 760px) {
+    #authWrapper.hashcod-auth-enhanced .auth-card {
+        padding: 18px 14px 28px !important;
+    }
+
     #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
-        padding-right: 0 !important;
+        min-height: 0 !important;
         padding-top: 58px !important;
+        padding-right: 0 !important;
+        gap: 8px 10px !important;
     }
 
     #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock {
-        top: 10px !important;
-        right: 10px !important;
+        top: 12px !important;
+        right: 12px !important;
+        gap: 8px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn,
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn,
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn,
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn,
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button {
+        flex-basis: 40px !important;
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        padding: 8px !important;
     }
 
     #authWrapper.hashcod-auth-enhanced .auth-tabs {
@@ -238,15 +387,15 @@
         width: 100% !important;
         min-width: 0 !important;
         max-width: none !important;
-        min-height: 44px !important;
-        border-left: 0 !important;
+        min-height: 46px !important;
         border-top: 1px solid #d8d8d2 !important;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button,
-    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher {
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher,
+    #authWrapper.hashcod-auth-enhanced #adminHelloButton {
         transition: none !important;
     }
 }

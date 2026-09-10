@@ -916,6 +916,7 @@ function securityBootstrap($mode = 'web') {
     $clientIp = securityClientIp();
     $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     $uri = is_string($uri) ? $uri : '/';
+    $isAdminDeviceApi = strpos($uri, '/api/admin-device/') === 0;
 
     // 0. Intercepción pasiva de trampas Honeypot (decepción inmediata)
     if (function_exists('threatIntelIsHoneypot') && threatIntelIsHoneypot($uri)) {
@@ -951,7 +952,9 @@ function securityBootstrap($mode = 'web') {
                 exit;
             }
             securityNotFoundQuiet();
-        } elseif ($threatStatus === 'CHALLENGE') {
+        } elseif ($threatStatus === 'CHALLENGE' && !$isAdminDeviceApi) {
+            // Windows Hello is itself the interactive challenge for admin-device routes.
+            // Do not interpose Turnstile there; hard BLOCK decisions still apply above.
             $resChallenge = securityRateAllowSliding('threat_challenge', 10, 60, $clientIp);
             if (!$resChallenge['allowed']) {
                 securityRateChallengeJson($resChallenge['retry_after'] ?: 30, 'threat_reputation');
@@ -983,6 +986,39 @@ function securityBootstrap($mode = 'web') {
 
     if (securityIsProbePath($uri) && strpos($uri, '/api/') !== 0) {
         securityNotFoundQuiet();
+    }
+
+    // Windows Hello / WebAuthn uses isolated buckets so normal platform API traffic
+    // cannot consume its allowance or force an unrelated Cloudflare Turnstile prompt.
+    if ($isAdminDeviceApi) {
+        $adminRoute = substr($uri, strlen('/api/admin-device/'));
+        $adminLimit = 30;
+        $adminBucket = 'other';
+
+        if ($adminRoute === 'status') {
+            $adminLimit = 180;
+            $adminBucket = 'status';
+        } elseif ($adminRoute === 'challenge') {
+            $adminLimit = 20;
+            $adminBucket = 'challenge';
+        } elseif ($adminRoute === 'verify') {
+            $adminLimit = 20;
+            $adminBucket = 'verify';
+        } elseif ($adminRoute === 'authorize') {
+            $adminLimit = 60;
+            $adminBucket = 'authorize';
+        } elseif ($adminRoute === 'logout') {
+            $adminLimit = 30;
+            $adminBucket = 'logout';
+        }
+
+        $resAdmin = securityRateAllowSliding('admin_device_' . $adminBucket, $adminLimit, 60, $clientIp);
+        if (!$resAdmin['allowed']) {
+            // Deliberately no Turnstile here: Windows Hello is the authoritative
+            // interactive verification mechanism for these endpoints.
+            securityRateDenyJson($resAdmin['retry_after']);
+        }
+        return;
     }
 
     // Rate limit adaptativo para API con desafío Turnstile

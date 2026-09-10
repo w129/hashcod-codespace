@@ -42,18 +42,72 @@ function groqChatClip(string $value, int $limit): string {
     return substr($value, 0, $limit);
 }
 
+/**
+ * Same-origin validation that survives Render/Cloudflare reverse proxies.
+ * Sec-Fetch-Site is a browser-controlled forbidden header, so an explicit
+ * same-origin value is authoritative for our browser fetch. When unavailable,
+ * validate Origin against the public forwarded host / request host.
+ */
 function groqChatSameOrigin(): bool {
-    $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
-    if ($origin === '') {
-        $site = strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')));
-        return $site === '' || $site === 'same-origin' || $site === 'none';
+    $site = strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')));
+    if ($site === 'cross-site' || $site === 'same-site') {
+        return false;
+    }
+    if ($site === 'same-origin' || $site === 'none') {
+        return true;
     }
 
-    $proto = strtolower(trim((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? 'https')));
-    if ($proto !== 'http' && $proto !== 'https') $proto = 'https';
-    $host = trim((string)($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? ''));
-    if ($host === '') return false;
-    return hash_equals($proto . '://' . $host, rtrim($origin, '/'));
+    $origin = rtrim(trim((string)($_SERVER['HTTP_ORIGIN'] ?? '')), '/');
+    if ($origin === '') {
+        // Non-browser clients do not get a free pass: require an XHR marker.
+        return strcasecmp(trim((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')), 'XMLHttpRequest') === 0;
+    }
+
+    $originParts = parse_url($origin);
+    if (!is_array($originParts) || empty($originParts['host'])) return false;
+    $originScheme = strtolower((string)($originParts['scheme'] ?? ''));
+    $originHost = strtolower((string)$originParts['host']);
+    $originPort = isset($originParts['port']) ? (int)$originParts['port'] : null;
+
+    $forwardedProto = trim((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    if (strpos($forwardedProto, ',') !== false) {
+        $forwardedProto = trim(explode(',', $forwardedProto, 2)[0]);
+    }
+    $scheme = strtolower($forwardedProto);
+    if ($scheme !== 'http' && $scheme !== 'https') {
+        $scheme = function_exists('securityIsHttps') && securityIsHttps() ? 'https' : 'http';
+    }
+
+    $hostCandidates = [];
+    foreach ([
+        $_SERVER['HTTP_X_FORWARDED_HOST'] ?? '',
+        $_SERVER['HTTP_HOST'] ?? '',
+        $_SERVER['SERVER_NAME'] ?? ''
+    ] as $rawHost) {
+        $rawHost = trim((string)$rawHost);
+        if ($rawHost === '') continue;
+        if (strpos($rawHost, ',') !== false) {
+            $rawHost = trim(explode(',', $rawHost, 2)[0]);
+        }
+        $parts = parse_url('//' . $rawHost);
+        if (!is_array($parts) || empty($parts['host'])) continue;
+        $hostCandidates[] = [
+            'host' => strtolower((string)$parts['host']),
+            'port' => isset($parts['port']) ? (int)$parts['port'] : null
+        ];
+    }
+
+    foreach ($hostCandidates as $candidate) {
+        if (!hash_equals($candidate['host'], $originHost)) continue;
+        $candidatePort = $candidate['port'];
+        $normalizedOriginPort = $originPort ?? ($originScheme === 'https' ? 443 : ($originScheme === 'http' ? 80 : null));
+        $normalizedCandidatePort = $candidatePort ?? ($scheme === 'https' ? 443 : 80);
+        if ($normalizedOriginPort !== $normalizedCandidatePort) continue;
+        if ($originScheme !== '' && $originScheme !== $scheme) continue;
+        return true;
+    }
+
+    return false;
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
@@ -174,7 +228,6 @@ curl_setopt_array($ch, [
 ]);
 
 $rawResponse = curl_exec($ch);
-$curlError = curl_error($ch);
 $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 

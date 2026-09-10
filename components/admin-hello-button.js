@@ -1,6 +1,32 @@
 (function () {
     'use strict';
 
+    // Load the unified Hashcod authentication visual system. This is deliberately
+    // presentation-only: existing IDs, forms, auth handlers and Turnstile remain intact.
+    (function loadAuthVectorThemeAssets() {
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+
+        if (!document.getElementById('authVectorThemeStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'authVectorThemeStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'auth-vector-theme.css?v=20260910-1';
+            document.head.appendChild(link);
+        }
+
+        if (!document.querySelector('script[data-auth-vector-theme]')) {
+            const script = document.createElement('script');
+            script.src = componentBase + 'auth-vector-theme.js?v=20260910-1';
+            script.defer = true;
+            script.dataset.authVectorTheme = 'true';
+            document.head.appendChild(script);
+        }
+    })();
+
     // Load the auth-screen Hashcod AI chat without exposing provider credentials in HTML.
     (function loadGroqAuthChatAssets() {
         const current = document.currentScript;

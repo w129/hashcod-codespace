@@ -15,10 +15,10 @@
         oneTime: 'M8 2L8 17 6 17 6 19 10 19 10 4 14 4 14 2 8 2zM14 4L14 6 16 6 16 4 14 4zM16 6L16 27 4 27 4 21 2 21 2 29 24 29 24 27 18 27 18 19 28 19 28 17 18 17 18 6 16 6zM28 19L28 25 30 25 30 19 28 19zM28 25L24 25 24 27 28 27 28 25zM4 21L6 21 6 19 4 19 4 21zM24 21L24 23 26 23 26 21 24 21zM6 23L6 25 8 25 8 23 6 23z',
         copy: 'M9 4L9 24 27 24 27 4 9 4zM11 6L25 6 25 22 11 22 11 6zM16 8L16 10 20 10 20 8 16 8zM20 10L20 13 22 13 22 10 20 10zM16 10L14 10 14 13 16 13 16 10zM5 9L5 28 22 28 22 26 7 26 7 9 5 9zM17 12L17 16 19 16 19 12 17 12zM14 15L14 18 16 18 16 15 14 15zM16 18L16 20 20 20 20 18 16 18zM20 18L22 18 22 15 20 15 20 18z',
         success: 'M17 10H20V12H17zM26 10H29V12H26zM20 8H26V10H20zM29 12H31V20H29zM15 12H17V20H15zM26 20H29V22H26zM17 20H20V22H17zM20 22H26V24H20zM3 10H6V12H3zM6 8H15V10H6zM1 12H3V20H1zM3 20H6V22H3zM6 22H15V24H6z',
-        error: 'M10 4L10 6 22 6 22 4 10 4zM22 6L22 8 24 8 24 6 22 6zM24 8L24 10 26 10 26 8 24 8zM26 10L26 22 28 22 28 10 26 10zM26 22L24 22 24 24 26 24 26 22zM24 24L22 24 22 26 24 26 24 24zM22 26L10 26 10 28 22 28 22 26zM10 26L10 24 8 24 8 26 10 26zM8 24L8 22 6 22 6 24 8 24zM6 22L6 10 4 10 4 22 6 22zM6 10L8 10 8 8 6 8 6 10zM8 8L10 8 10 6 8 6 8 8zM11 11L11 13 13 13 13 11 11 11zM13 13L13 15 15 15 15 13 13 13zM15 15L15 17 17 17 17 15 15 15zM17 15L19 15 19 13 17 13 17 15zM19 13L21 13 21 11 19 11 19 13zM17 17L17 19 19 19 19 17 17 17zM19 19L19 21 21 21 21 19 19 19zM15 17L13 17 13 19 15 19 15 17zM13 19L11 19 11 21 13 21 13 19z',
+        error: 'M10 4L10 6 22 6 22 4 10 4zM22 6L22 8 24 8 24 6 22 6zM24 8L24 10 26 10 26 8 24 8zM26 10L26 22 28 22 28 10 26 10zM26 22L24 22 24 24 26 24 26 22zM24 24L22 24 22 26 24 26 24 24zM22 26L10 26 10 28 22 28 22 26zM10 26L10 24 8 24 8 26 10 26zM8 24L8 22 6 22 6 24 8 24zM6 22L6 10 4 10 4 22 6 22zM6 10L8 10 8 8 6 8 6 10zM8 8L10 8 10 6 8 6 8 8zM11 11L11 13 13 13 13 11 11 11zM13 13L13 15 15 15 15 13 13 13zM15 15L15 17 17 17 17 15 15 15zM17 15L19 15 19 13 17 13 17 15zM19 13L21 13 21 11 19 11 19 13zM17 17L17 19 19 19 19 17zM19 19L19 21 21 21 21 19zM15 17L13 17 13 19 15 19zM13 19L11 19 11 21 13 21z',
         privacy: 'M7 20H9V24H7zM9 24H12V26H9zM12 26H15V28H12zM20 24H23V26H20zM17 26H20V28H17zM23 20H25V24H23zM15 28H17V30H15zM12 3H20V5H12zM7 20L5 20 5 5 12 5 12 7 7 7zM27 20L25 20 25 7 20 7 20 5 27 5zM14 9h4v4h-4zM20 22h-8v-7h8zm-6-2h4v-3h-4z',
         restore: 'M11.003906 3.0019531L11.003906 5.0019531 20.998047 5.0019531 20.998047 13 7 13 7 9 5 9 5 29 7 29 7 15 20.998047 15 20.998047 18 21 18 21 19 25 19 25 17 22.998047 17 22.998047 5 21.003906 5 21.003906 3.0019531zM25 19L25 21 27 21 27 19zM27 21L27 25 29 25 29 21zM27 25L25 25 25 27 27 27zM25 27L21 27 21 29 25 29zM21 27L21 25 19 25 19 27zM19 25L19 21 17 21 17 25zM19 21L21 21 21 19 19 19zM7 9L9 9 9 7 7 7zM9 7L11 7 11 5 9 5z',
-        info: 'M10 4L10 6 22 6 22 4 10 4zM22 6L22 8 24 8 24 6 22 6zM24 8L24 10 26 10 26 8 24 8zM26 10L26 22 28 22 28 10 26 10zM26 22L24 22 24 24 26 24zM24 24L22 24 22 26 24 26zM22 26L10 26 10 28 22 28zM10 26L10 24 8 24 8 26zM8 24L8 22 6 22 6 24zM6 22L6 10 4 10 4 22zM6 10L8 10 8 8 6 8zM8 8L10 8 10 6 8 6zM15 10L15 12 17 12 17 10zM14 14L14 16 15 16 15 22 18 22 18 20 17 20 17 14z',
+        info: 'M10 4L10 6 22 6 22 4 10 4zM22 6L22 8 24 8 24 6zM24 8L24 10 26 10 26 8zM26 10L26 22 28 22 28 10zM26 22L24 22 24 24 26 24zM24 24L22 24 22 26 24 26zM22 26L10 26 10 28 22 28zM10 26L10 24 8 24 8 26zM8 24L8 22 6 22 6 24zM6 22L6 10 4 10 4 22zM6 10L8 10 8 8 6 8zM8 8L10 8 10 6 8 6zM15 10L15 12 17 12 17 10zM14 14L14 16 15 16 15 22 18 22 18 20 17 20 17 14z',
         visibility: 'M12 5L12 7 20 7 20 5 12 5zM20 7L20 9 24 9 24 7zM24 9L24 11 26 11 26 9zM26 11L26 13 28 13 28 11zM28 13L28 19 30 19 30 13zM28 19L26 19 26 21 28 21zM26 21L24 21 24 23 26 23zM24 23L20 23 20 25 24 25zM20 25L12 25 12 27 20 27zM12 25L12 23 8 23 8 25zM8 23L8 21 6 21 6 23zM6 21L6 19 4 19 4 21zM4 19L4 13 2 13 2 19zM4 13L6 13 6 11 4 11zM6 11L8 11 8 9 6 9zM8 9L12 9 12 7 8 7zM12 12L12 20 20 20 20 15 17 15 17 12 12 12z',
         help: 'M10 4L10 6 22 6 22 4 10 4zM22 6L22 8 24 8 24 6zM24 8L24 10 26 10 26 8zM26 10L26 22 28 22 28 10zM26 22L24 22 24 24 26 24zM24 24L22 24 22 26 24 26zM22 26L10 26 10 28 22 28zM10 26L10 24 8 24 8 26zM8 24L8 22 6 22 6 24zM6 22L6 10 4 10 4 22zM6 10L8 10 8 8 6 8zM8 8L10 8 10 6 8 6zM12 10L12 12 20 12 20 10zM20 12L20 20 22 20 22 12zM20 20L12 20 12 22 20 22zM12 20L12 12 10 12 10 20z',
         close: 'M5 5L5 27 27 27 27 5 5 5zM7 7L25 7 25 25 7 25 7 7zM11 11L11 13 13 13 13 11zM13 13L13 15 15 15 15 13zM15 15L15 17 17 17 17 15zM17 15L19 15 19 13 17 13 17 15zM19 13L21 13 21 11 19 11 19 13zM17 17L17 19 19 19 19 17zM19 19L19 21 21 21 21 19zM15 17L13 17 13 19 15 19zM13 19L11 19 11 21 13 21z',
@@ -43,6 +43,8 @@
         { rx: /correo|email|e-mail/i, role: 'identity' },
         { rx: /clave|key|contrase/i, role: 'aes' }
     ];
+
+    let enhanceQueued = false;
 
     function svg(role, className) {
         const path = ROLE_PATHS[role] || ROLE_PATHS.info;
@@ -97,11 +99,12 @@
         const forId = label.getAttribute('for');
         if (forId) {
             try {
-                const byId = wrapper.querySelector('#' + CSS.escape(forId));
+                const escaped = window.CSS && typeof window.CSS.escape === 'function' ? window.CSS.escape(forId) : forId.replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+                const byId = wrapper.querySelector('#' + escaped);
                 if (byId) return byId;
             } catch (error) {}
         }
-        return label.querySelector('input, textarea, select') || label.parentElement && label.parentElement.querySelector('input, textarea, select');
+        return label.querySelector('input, textarea, select') || (label.parentElement && label.parentElement.querySelector('input, textarea, select'));
     }
 
     function enhanceFields(wrapper) {
@@ -115,12 +118,13 @@
             label.insertAdjacentHTML('afterbegin', '<span class="hashcod-auth-label-icon">' + svg(role) + '</span>');
 
             const parent = control.parentElement;
-            if (parent && !parent.classList.contains('hashcod-auth-input-shell')) {
+            if (parent && !control.dataset.hashcodFieldIcon) {
                 parent.classList.add('hashcod-auth-field-parent');
                 const icon = document.createElement('span');
                 icon.className = 'hashcod-auth-input-icon';
                 icon.innerHTML = svg(role);
                 parent.insertBefore(icon, control);
+                control.dataset.hashcodFieldIcon = role;
                 control.classList.add('hashcod-auth-control');
             }
         });
@@ -145,8 +149,7 @@
 
     function enhanceActions(wrapper) {
         wrapper.querySelectorAll('button, a').forEach(function (element) {
-            if (element.dataset.hashcodActionEnhanced === 'true') return;
-            if (element.closest('.cf-turnstile')) return;
+            if (element.dataset.hashcodActionEnhanced === 'true' || element.closest('.cf-turnstile')) return;
             const role = roleForAction(element);
             if (!role) return;
             element.dataset.hashcodActionEnhanced = 'true';
@@ -200,6 +203,7 @@
             tabs.insertAdjacentElement('afterend', plate);
         }
         const mode = modeFromActiveTab(wrapper);
+        if (plate.dataset.mode === mode && plate.childElementCount) return;
         const meta = MODE_META[mode] || MODE_META.login;
         plate.dataset.mode = mode;
         plate.innerHTML = '<span class="hashcod-auth-mode-icon">' + svg(meta.role) + '</span><span class="hashcod-auth-mode-copy"><small>AUTHENTICATION WINDOW</small><strong>' + meta.label + '</strong></span><span class="hashcod-auth-mode-number">' + meta.number + '</span>';
@@ -216,19 +220,31 @@
         enhanceMessages(wrapper);
     }
 
+    function queueEnhance(wrapper) {
+        if (enhanceQueued) return;
+        enhanceQueued = true;
+        window.requestAnimationFrame(function () {
+            enhanceQueued = false;
+            enhance(wrapper);
+        });
+    }
+
     function install() {
         const wrapper = document.getElementById('authWrapper');
-        if (!wrapper) return false;
+        if (!wrapper || wrapper.dataset.hashcodVectorThemeInstalled === 'true') return Boolean(wrapper);
+        wrapper.dataset.hashcodVectorThemeInstalled = 'true';
         enhance(wrapper);
 
         wrapper.addEventListener('click', function (event) {
-            if (event.target.closest('.auth-tab')) {
-                window.setTimeout(function () { enhance(wrapper); }, 0);
-            }
+            if (event.target.closest('.auth-tab')) window.setTimeout(function () { queueEnhance(wrapper); }, 0);
         });
 
-        const observer = new MutationObserver(function () {
-            window.requestAnimationFrame(function () { enhance(wrapper); });
+        const observer = new MutationObserver(function (records) {
+            const meaningful = records.some(function (record) {
+                if (record.type === 'childList') return record.addedNodes.length > 0 || record.removedNodes.length > 0;
+                return record.type === 'attributes';
+            });
+            if (meaningful) queueEnhance(wrapper);
         });
         observer.observe(wrapper, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-selected', 'style'] });
         return true;

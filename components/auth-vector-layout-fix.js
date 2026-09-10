@@ -4,13 +4,14 @@
     if (window.__hashcodAuthVectorLayoutFixLoaded) return;
     window.__hashcodAuthVectorLayoutFixLoaded = true;
 
+    const currentScript = document.currentScript;
+    const currentSrc = currentScript && currentScript.src ? currentScript.src : '';
+    const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+        ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+        : '/components/';
+
     (function loadExternalRailStyles() {
         if (document.getElementById('authUtilityOutsideStylesheet')) return;
-        const current = document.currentScript;
-        const currentSrc = current && current.src ? current.src : '';
-        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
-            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
-            : '/components/';
         const link = document.createElement('link');
         link.id = 'authUtilityOutsideStylesheet';
         link.rel = 'stylesheet';
@@ -20,6 +21,64 @@
 
     let queued = false;
     let scrollBound = false;
+
+    const TOOL_ASSETS = {
+        openCryptoCardUploadPanel: {
+            file: 'crypto-card-validation.js?v=20260910-4',
+            match: 'crypto-card-validation.js',
+            id: 'hashcodCryptoCardValidationEngine'
+        },
+        openCryptoCardValidationWindow: {
+            file: 'crypto-card-validation.js?v=20260910-4',
+            match: 'crypto-card-validation.js',
+            id: 'hashcodCryptoCardValidationEngine'
+        },
+        openDilithiumOneTimeKeyTool: {
+            file: 'dilithium-one-time-key.js?v=20260910-4',
+            match: 'dilithium-one-time-key.js',
+            id: 'hashcodDilithiumOneTimeKeyEngine'
+        }
+    };
+
+    function waitForCondition(test, retries, delay) {
+        if (test()) return Promise.resolve(true);
+        if (retries <= 0) return Promise.resolve(false);
+        return new Promise(function (resolve) {
+            window.setTimeout(function () {
+                resolve(waitForCondition(test, retries - 1, delay));
+            }, delay);
+        });
+    }
+
+    function ensureScript(file, match, id) {
+        let script = document.getElementById(id) || document.querySelector('script[src*="' + match + '"]');
+        if (!script) {
+            script = document.createElement('script');
+            script.id = id;
+            script.src = componentBase + file;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+        return script;
+    }
+
+    async function ensureAdminEngine() {
+        if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') return true;
+        ensureScript('admin-device.js?v=20260910-4', 'admin-device.js', 'hashcodAdminDeviceEngine');
+        return waitForCondition(function () {
+            return Boolean(window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function');
+        }, 60, 100);
+    }
+
+    async function ensureToolFunction(fnName) {
+        if (typeof window[fnName] === 'function') return true;
+        const asset = TOOL_ASSETS[fnName];
+        if (!asset) return false;
+        ensureScript(asset.file, asset.match, asset.id);
+        return waitForCondition(function () {
+            return typeof window[fnName] === 'function';
+        }, 60, 100);
+    }
 
     function smallestExactText(root, text) {
         const wanted = String(text || '').trim().toUpperCase();
@@ -133,17 +192,15 @@
         dock.hidden = dock.children.length === 0;
     }
 
-    function openWhenAvailable(fnName, retries) {
-        const fn = window[fnName];
-        if (typeof fn === 'function') {
-            return Promise.resolve(fn());
+    async function openWhenAvailable(fnName, retries) {
+        const ready = await ensureToolFunction(fnName);
+        if (!ready) {
+            console.error('[Hashcod] No se cargó la función ' + fnName + '.');
+            return false;
         }
-        if (retries <= 0) return Promise.resolve(false);
-        return new Promise(function (resolve) {
-            window.setTimeout(function () {
-                resolve(openWhenAvailable(fnName, retries - 1));
-            }, 80);
-        });
+        const fn = window[fnName];
+        if (typeof fn !== 'function') return false;
+        return fn();
     }
 
     function bindUtilityAction(button) {
@@ -158,9 +215,6 @@
         button.dataset.hashcodRailActionBound = 'true';
 
         if (isDirectCard) {
-            // This is the public entry point for an already validated card. It must
-            // remain usable without Windows Hello because the card itself is the
-            // credential that is verified by the upload panel.
             button.hidden = false;
             button.disabled = false;
             button.removeAttribute('aria-disabled');
@@ -179,15 +233,22 @@
                 }
 
                 if (isCardValidation) {
-                    // The validation/administration tool keeps its existing Windows
-                    // Hello requirement inside openCryptoCardValidationWindow().
+                    const adminReady = await ensureAdminEngine();
+                    if (!adminReady) {
+                        console.error('[Hashcod] No se pudo cargar Windows Hello para la validación de tarjeta.');
+                        return;
+                    }
                     await openWhenAvailable('openCryptoCardValidationWindow', 15);
                     return;
                 }
 
                 if (isDilithium) {
+                    const adminReady = await ensureAdminEngine();
+                    if (!adminReady) {
+                        console.error('[Hashcod] No se pudo cargar Windows Hello para Dilithium-5.');
+                        return;
+                    }
                     if (document.documentElement.dataset.adminAuthenticated !== 'true') {
-                        if (!window.HashcodAdmin || typeof window.HashcodAdmin.require !== 'function') return;
                         const verified = await window.HashcodAdmin.require();
                         if (!verified) return;
                     }

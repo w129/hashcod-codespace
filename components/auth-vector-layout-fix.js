@@ -45,12 +45,30 @@
         launcher.setAttribute('title', 'Abrir Hashcod AI');
     }
 
+    function controlIsVisible(control) {
+        if (!control || !control.isConnected) return false;
+        if (control.type === 'hidden') return false;
+        const style = window.getComputedStyle(control);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        const rect = control.getBoundingClientRect();
+        return rect.width > 1 && rect.height > 1;
+    }
+
     function normalizeFieldDecorations(wrapper) {
-        // The field itself already carries the vector icon. Hiding the duplicated
-        // leading label icon keeps rows such as Dilithium-5 aligned and readable.
+        // Labels already have strong text hierarchy. A second icon before every
+        // label produced visual noise, especially on the monthly Dilithium row.
         wrapper.querySelectorAll('.hashcod-auth-label-icon').forEach(function (icon) {
             icon.setAttribute('aria-hidden', 'true');
             icon.classList.add('hashcod-auth-label-icon-redundant');
+        });
+
+        // Keep only input icons whose associated control is actually visible.
+        // This prevents icons from inactive/hidden auth panes appearing by
+        // themselves between the L8ID field, Turnstile and CTA.
+        wrapper.querySelectorAll('.hashcod-auth-input-icon').forEach(function (icon) {
+            const parent = icon.parentElement;
+            const control = parent && parent.querySelector('input:not([type="hidden"]), textarea, select');
+            icon.classList.toggle('hashcod-auth-input-icon-orphaned', !controlIsVisible(control));
         });
     }
 
@@ -65,8 +83,9 @@
             card.appendChild(dock);
         }
 
-        // Legacy modules use a mixture of IDs and classes and can be mounted
-        // outside #authWrapper. Collect every known auth utility document-wide.
+        // Legacy modules mount these controls in different containers. Move the
+        // real buttons into one controlled dock without cloning or replacing
+        // them, so their original event listeners remain functional.
         const launchers = Array.from(document.querySelectorAll([
             '#cryptoCardValidationLauncherBtn',
             '#d5LauncherBtn',
@@ -74,14 +93,27 @@
             '.crypto-card-direct-launcher-btn'
         ].join(',')));
 
-        const unique = Array.from(new Set(launchers));
-        unique.forEach(function (button) {
+        Array.from(new Set(launchers)).forEach(function (button) {
             if (!button || button === document.getElementById('groqAuthChatLauncher')) return;
             button.classList.add('hashcod-auth-utility-button');
             if (button.parentElement !== dock) dock.appendChild(button);
         });
 
         dock.hidden = dock.children.length === 0;
+    }
+
+    function normalizeTurnstile(wrapper) {
+        wrapper.querySelectorAll('.cf-turnstile').forEach(function (node) {
+            node.classList.add('hashcod-auth-turnstile');
+        });
+    }
+
+    function normalizeWindowsHello(wrapper) {
+        const panel = wrapper.querySelector('.admin-hello-access');
+        if (!panel) return;
+        panel.classList.add('hashcod-auth-windows-hello');
+        const status = panel.querySelector('#adminHelloStatus');
+        if (status) status.classList.add('hashcod-auth-windows-hello-status');
     }
 
     function apply() {
@@ -92,6 +124,8 @@
         normalizeChatLauncher(wrapper);
         normalizeFieldDecorations(wrapper);
         normalizeUtilityLaunchers(wrapper);
+        normalizeTurnstile(wrapper);
+        normalizeWindowsHello(wrapper);
         wrapper.classList.add('hashcod-auth-layout-fixed');
         return true;
     }
@@ -114,6 +148,6 @@
     }
 
     const observer = new MutationObserver(queueApply);
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
     window.addEventListener('resize', queueApply, { passive: true });
 })();

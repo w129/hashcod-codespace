@@ -5,6 +5,7 @@
     window.__hashcodAuthVectorLayoutFixLoaded = true;
 
     let queued = false;
+    let scrollBound = false;
 
     function smallestExactText(root, text) {
         const wanted = String(text || '').trim().toUpperCase();
@@ -49,7 +50,7 @@
         if (!control || !control.isConnected) return false;
         if (control.type === 'hidden') return false;
         const style = window.getComputedStyle(control);
-        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
         const rect = control.getBoundingClientRect();
         return rect.width > 1 && rect.height > 1;
     }
@@ -78,31 +79,76 @@
         });
     }
 
-    function normalizeUtilityLaunchers(wrapper) {
-        const card = wrapper.querySelector('.auth-card') || wrapper;
-
-        let dock = card.querySelector('.hashcod-auth-utility-dock');
+    function utilityDock() {
+        let dock = document.getElementById('hashcodAuthUtilityDock');
         if (!dock) {
             dock = document.createElement('div');
+            dock.id = 'hashcodAuthUtilityDock';
             dock.className = 'hashcod-auth-utility-dock';
             dock.setAttribute('aria-label', 'Herramientas rápidas de autenticación');
-            card.appendChild(dock);
+            document.body.appendChild(dock);
+        }
+        return dock;
+    }
+
+    function positionUtilityDock(wrapper, dock) {
+        const card = wrapper.querySelector('.auth-card') || wrapper;
+        if (!controlIsVisible(card)) {
+            dock.hidden = true;
+            return;
         }
 
-        const launchers = Array.from(document.querySelectorAll([
+        const rect = card.getBoundingClientRect();
+        const gap = 14;
+        const buttonWidth = 52;
+        const viewportPadding = 10;
+        let left = rect.right + gap;
+        let side = 'right';
+
+        // Keep the controls outside the login card. On very narrow screens,
+        // fall back to the left side rather than pushing them into the card.
+        if (left + buttonWidth > window.innerWidth - viewportPadding) {
+            left = rect.left - gap - buttonWidth;
+            side = 'left';
+        }
+
+        left = Math.max(viewportPadding, Math.min(left, window.innerWidth - buttonWidth - viewportPadding));
+        const top = Math.max(viewportPadding, Math.min(rect.top + 18, window.innerHeight - 180));
+
+        dock.dataset.side = side;
+        dock.style.left = Math.round(left) + 'px';
+        dock.style.top = Math.round(top) + 'px';
+        dock.hidden = dock.children.length === 0;
+    }
+
+    function normalizeUtilityLaunchers(wrapper) {
+        const dock = utilityDock();
+        const selectors = [
             '#cryptoCardValidationLauncherBtn',
             '#d5LauncherBtn',
             '.crypto-card-launcher-btn',
             '.crypto-card-direct-launcher-btn'
-        ].join(',')));
+        ].join(',');
+        const launchers = Array.from(new Set(Array.from(document.querySelectorAll(selectors))));
 
-        Array.from(new Set(launchers)).forEach(function (button) {
+        launchers.forEach(function (button) {
             if (!button || button === document.getElementById('groqAuthChatLauncher')) return;
             button.classList.add('hashcod-auth-utility-button');
             if (button.parentElement !== dock) dock.appendChild(button);
         });
 
-        dock.hidden = dock.children.length === 0;
+        // Preserve the visual order used before the auth redesign:
+        // certified-card tool, direct-card tool, then Dilithium one-time key.
+        const ordered = [
+            document.getElementById('cryptoCardValidationLauncherBtn'),
+            dock.querySelector('.crypto-card-direct-launcher-btn'),
+            document.getElementById('d5LauncherBtn')
+        ].filter(Boolean);
+        ordered.forEach(function (button) {
+            if (button.parentElement === dock) dock.appendChild(button);
+        });
+
+        positionUtilityDock(wrapper, dock);
     }
 
     function normalizeTurnstile(wrapper) {
@@ -143,6 +189,12 @@
         });
     }
 
+    function bindScrollTracking() {
+        if (scrollBound) return;
+        scrollBound = true;
+        window.addEventListener('scroll', queueApply, { passive: true, capture: true });
+    }
+
     if (!apply()) {
         const wait = new MutationObserver(function () {
             if (apply()) wait.disconnect();
@@ -151,6 +203,7 @@
         window.setTimeout(function () { wait.disconnect(); }, 20000);
     }
 
+    bindScrollTracking();
     const observer = new MutationObserver(queueApply);
     observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
     window.addEventListener('resize', queueApply, { passive: true });

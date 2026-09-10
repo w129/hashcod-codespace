@@ -1,0 +1,91 @@
+#hashcodEntryHold .hashcod-hold-slogan {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    z-index: 4;
+    width: min(720px, 68vw);
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+    text-align: center;
+    color: #111111;
+    opacity: 0;
+    animation: hashcodEntrySloganIn 760ms cubic-bezier(.2,.8,.2,1) 420ms forwards;
+}
+
+#hashcodEntryHold .hashcod-hold-slogan-main {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: clamp(20px, 2.15vw, 38px);
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+}
+
+#hashcodEntryHold .hashcod-hold-slogan-sub {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: clamp(9px, .85vw, 13px);
+    font-weight: 650;
+    line-height: 1;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #666666;
+}
+
+#hashcodEntryHold .hashcod-hold-slogan-sub > span {
+    color: #111111;
+    font-size: 1.15em;
+}
+
+#hashcodEntryHold.is-leaving .hashcod-hold-slogan {
+    animation: hashcodEntrySloganOut 240ms ease forwards;
+}
+
+@keyframes hashcodEntrySloganIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, calc(-50% + 10px));
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes hashcodEntrySloganOut {
+    to {
+        opacity: 0;
+        transform: translate(-50%, calc(-50% - 8px));
+    }
+}
+
+@media (max-width: 760px) {
+    #hashcodEntryHold .hashcod-hold-slogan {
+        top: 46%;
+        width: min(86vw, 560px);
+        gap: 10px;
+    }
+
+    #hashcodEntryHold .hashcod-hold-slogan-main {
+        font-size: clamp(18px, 6vw, 28px);
+    }
+
+    #hashcodEntryHold .hashcod-hold-slogan-sub {
+        font-size: 9px;
+        letter-spacing: .09em;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #hashcodEntryHold .hashcod-hold-slogan {
+        opacity: 1;
+        animation: none !important;
+        transform: translate(-50%, -50%);
+    }
+}

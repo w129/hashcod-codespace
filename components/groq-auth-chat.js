@@ -188,8 +188,26 @@
 
                 const data = await response.json().catch(() => null);
                 if (!response.ok || !data || data.ok !== true) {
-                    let message = data && data.error ? data.error : 'No se pudo obtener respuesta de la IA.';
-                    if (data && data.provider_message) message += ' ' + data.provider_message;
+                    const providerMessage = data && data.provider_message ? String(data.provider_message) : '';
+                    const baseMessage = data && data.error ? String(data.error) : '';
+                    const diagnosticText = (baseMessage + ' ' + providerMessage).toLowerCase();
+                    const isCreditLimit = Boolean(data) && (
+                        Number(data.provider_status) === 402 ||
+                        diagnosticText.includes('key limit exceeded') ||
+                        diagnosticText.includes('total limit') ||
+                        diagnosticText.includes('credit limit') ||
+                        diagnosticText.includes('insufficient credit') ||
+                        diagnosticText.includes('insufficient credits') ||
+                        diagnosticText.includes('quota exceeded') ||
+                        diagnosticText.includes('usage limit')
+                    );
+
+                    if (isCreditLimit) {
+                        throw new Error('Llama al proveedor de esta IA para que te otorgue más créditos para seguir o comenzar.');
+                    }
+
+                    let message = baseMessage || 'No se pudo obtener respuesta de la IA.';
+                    if (providerMessage) message += ' ' + providerMessage;
                     throw new Error(message);
                 }
 

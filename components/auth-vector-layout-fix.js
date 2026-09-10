@@ -70,7 +70,9 @@
     function normalizeMessages(wrapper) {
         wrapper.querySelectorAll('.hashcod-auth-message').forEach(function (message) {
             const clone = message.cloneNode(true);
-            clone.querySelectorAll('.hashcod-auth-message-icon').forEach(function (icon) { icon.remove(); });
+            clone.querySelectorAll('.hashcod-auth-message-icon').forEach(function (icon) {
+                if (icon.parentNode) icon.parentNode.removeChild(icon);
+            });
             const meaningfulText = String(clone.textContent || '').replace(/\s+/g, ' ').trim();
             message.classList.toggle('hashcod-auth-message-empty', meaningfulText.length === 0);
         });

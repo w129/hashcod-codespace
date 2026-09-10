@@ -81,6 +81,13 @@ if (isset($routedPages[$uri])) {
     l8_require_html_page($page, true);
 }
 
+// Chat IA de la pantalla de acceso. Se enruta antes del backend general para
+// mantener la integración Groq aislada y la credencial únicamente en servidor.
+if ($uri === '/api/groq-chat') {
+    require __DIR__ . '/groq-chat.php';
+    exit;
+}
+
 // API
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

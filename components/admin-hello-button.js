@@ -26,6 +26,33 @@
         }
     })();
 
+    // Load the visual enhancement for the certified cryptographic-card access tool.
+    // The original validation logic remains untouched; this layer only adds classes,
+    // accessibility metadata and Hashcod-aligned styling.
+    (function loadCryptoCardThemeAssets() {
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+
+        if (!document.getElementById('cryptoCardValidationThemeStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'cryptoCardValidationThemeStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'crypto-card-validation-theme.css?v=20260910-1';
+            document.head.appendChild(link);
+        }
+
+        if (!document.querySelector('script[data-crypto-card-theme]')) {
+            const script = document.createElement('script');
+            script.src = componentBase + 'crypto-card-validation-theme.js?v=20260910-1';
+            script.defer = true;
+            script.dataset.cryptoCardTheme = 'true';
+            document.head.appendChild(script);
+        }
+    })();
+
     const overlay = document.getElementById('authOverlay');
     const wrapper = document.getElementById('authWrapper');
     if (!overlay || !wrapper) return;

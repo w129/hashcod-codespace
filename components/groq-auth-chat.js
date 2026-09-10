@@ -14,6 +14,8 @@
 
     function apiUrl() {
         const match = location.pathname.match(/^\/(?:l8|l8-codespace)(?=\/|$)/i);
+        // /api/groq-chat is kept as a backward-compatible route, but the
+        // server now forwards it exclusively to OpenRouter.
         return (match ? match[0] : '') + '/api/groq-chat';
     }
 
@@ -42,8 +44,8 @@
         launcher.type = 'button';
         launcher.id = 'groqAuthChatLauncher';
         launcher.className = 'auth-tab';
-        launcher.title = 'Abrir Hashcod AI con Groq';
-        launcher.setAttribute('aria-label', 'Abrir chat de IA con Groq');
+        launcher.title = 'Abrir Hashcod AI con OpenRouter';
+        launcher.setAttribute('aria-label', 'Abrir chat de IA con OpenRouter');
         launcher.setAttribute('aria-expanded', 'false');
         launcher.setAttribute('aria-controls', 'groqAuthChatPanel');
         launcher.innerHTML = iconSvg;
@@ -59,7 +61,7 @@
             '<header class="groq-chat-head">',
                 '<div class="groq-chat-brand">',
                     '<h2 class="groq-chat-title" id="groqAuthChatTitle">Hashcod AI</h2>',
-                    '<div class="groq-chat-provider"><span class="groq-chat-provider-dot"></span><span>Groq · listo</span></div>',
+                    '<div class="groq-chat-provider"><span class="groq-chat-provider-dot"></span><span>OpenRouter · listo</span></div>',
                 '</div>',
                 '<div class="groq-chat-head-actions">',
                     '<button type="button" id="groqAuthChatNew" title="Nuevo chat">Nuevo</button>',
@@ -75,7 +77,7 @@
                     '<textarea id="groqAuthChatInput" maxlength="6000" rows="1" placeholder="Escribe un mensaje…" aria-label="Mensaje para Hashcod AI"></textarea>',
                     '<button type="submit" id="groqAuthChatSend">Enviar</button>',
                 '</div>',
-                '<p class="groq-chat-foot">IA servida por Groq · la clave permanece únicamente en el servidor.</p>',
+                '<p class="groq-chat-foot">IA servida por OpenRouter · la clave permanece únicamente en el servidor.</p>',
             '</form>'
         ].join('');
         document.body.appendChild(panel);
@@ -108,7 +110,7 @@
             input.disabled = state.sending;
             send.disabled = state.sending;
             send.textContent = state.sending ? '...' : 'Enviar';
-            providerEl.textContent = state.sending ? 'Groq · pensando…' : 'Groq · listo';
+            providerEl.textContent = state.sending ? 'OpenRouter · pensando…' : 'OpenRouter · listo';
         }
 
         function placePanel() {
@@ -186,7 +188,8 @@
 
                 const data = await response.json().catch(() => null);
                 if (!response.ok || !data || data.ok !== true) {
-                    const message = data && data.error ? data.error : 'No se pudo obtener respuesta de la IA.';
+                    let message = data && data.error ? data.error : 'No se pudo obtener respuesta de la IA.';
+                    if (data && data.provider_message) message += ' ' + data.provider_message;
                     throw new Error(message);
                 }
 
@@ -194,7 +197,7 @@
                 if (!answer) throw new Error('La IA devolvió una respuesta vacía.');
                 state.messages.push({role: 'assistant', content: answer});
                 if (state.messages.length > 14) state.messages = state.messages.slice(-14);
-                if (data.model) providerEl.textContent = 'Groq · ' + String(data.model).replace(/^.*\//, '');
+                if (data.model) providerEl.textContent = 'OpenRouter · ' + String(data.model).replace(/^.*\//, '');
                 renderHistory();
             } catch (error) {
                 renderHistory();

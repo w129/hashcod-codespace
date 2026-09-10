@@ -216,7 +216,7 @@
 }
 
 .d5-otk-progress span.is-running {
-    animation: d5OtkSecond 1s linear forwards;
+    animation: d5OtkSecond 120s linear forwards;
 }
 
 .d5-otk-fingerprint-row code {

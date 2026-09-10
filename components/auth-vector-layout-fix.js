@@ -55,20 +55,24 @@
     }
 
     function normalizeFieldDecorations(wrapper) {
-        // Labels already have strong text hierarchy. A second icon before every
-        // label produced visual noise, especially on the monthly Dilithium row.
         wrapper.querySelectorAll('.hashcod-auth-label-icon').forEach(function (icon) {
             icon.setAttribute('aria-hidden', 'true');
             icon.classList.add('hashcod-auth-label-icon-redundant');
         });
 
-        // Keep only input icons whose associated control is actually visible.
-        // This prevents icons from inactive/hidden auth panes appearing by
-        // themselves between the L8ID field, Turnstile and CTA.
         wrapper.querySelectorAll('.hashcod-auth-input-icon').forEach(function (icon) {
             const parent = icon.parentElement;
             const control = parent && parent.querySelector('input:not([type="hidden"]), textarea, select');
             icon.classList.toggle('hashcod-auth-input-icon-orphaned', !controlIsVisible(control));
+        });
+    }
+
+    function normalizeMessages(wrapper) {
+        wrapper.querySelectorAll('.hashcod-auth-message').forEach(function (message) {
+            const clone = message.cloneNode(true);
+            clone.querySelectorAll('.hashcod-auth-message-icon').forEach(function (icon) { icon.remove(); });
+            const meaningfulText = String(clone.textContent || '').replace(/\s+/g, ' ').trim();
+            message.classList.toggle('hashcod-auth-message-empty', meaningfulText.length === 0);
         });
     }
 
@@ -83,9 +87,6 @@
             card.appendChild(dock);
         }
 
-        // Legacy modules mount these controls in different containers. Move the
-        // real buttons into one controlled dock without cloning or replacing
-        // them, so their original event listeners remain functional.
         const launchers = Array.from(document.querySelectorAll([
             '#cryptoCardValidationLauncherBtn',
             '#d5LauncherBtn',
@@ -123,6 +124,7 @@
         normalizeBadges(wrapper);
         normalizeChatLauncher(wrapper);
         normalizeFieldDecorations(wrapper);
+        normalizeMessages(wrapper);
         normalizeUtilityLaunchers(wrapper);
         normalizeTurnstile(wrapper);
         normalizeWindowsHello(wrapper);

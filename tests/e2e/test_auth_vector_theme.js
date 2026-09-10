@@ -5,6 +5,7 @@ const assert = require('assert');
 const repoDir = path.resolve(__dirname, '../..');
 const js = fs.readFileSync(path.join(repoDir, 'components/auth-vector-theme.js'), 'utf8');
 const css = fs.readFileSync(path.join(repoDir, 'components/auth-vector-theme.css'), 'utf8');
+const integrations = fs.readFileSync(path.join(repoDir, 'components/auth-vector-integrations.css'), 'utf8');
 const loader = fs.readFileSync(path.join(repoDir, 'components/admin-hello-button.js'), 'utf8');
 
 assert(js.includes("document.getElementById('authWrapper')"), 'theme must attach only to the existing auth wrapper');
@@ -28,7 +29,7 @@ assert(!js.includes('.submit()'), 'visual layer must not submit auth forms itsel
 assert(!js.includes("fetch('/api/auth"), 'visual layer must not replace auth API behavior');
 
 assert(css.includes('#authWrapper.hashcod-auth-enhanced .auth-card'), 'auth card redesign missing');
-assert(css.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'), 'desktop four-tab layout missing');
+assert(css.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'), 'desktop four-tab base layout missing');
 assert(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr));'), 'responsive two-column tab layout missing');
 assert(css.includes('.hashcod-auth-mode-plate'), 'per-window vector mode plate missing');
 assert(css.includes('.hashcod-auth-input-icon'), 'vector field integration missing');
@@ -36,7 +37,13 @@ assert(css.includes('.hashcod-auth-message'), 'status/error/success integration 
 assert(css.includes('.hashcod-auth-privacy-link'), 'privacy integration missing');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'reduced-motion handling missing');
 
-assert(loader.includes('auth-vector-theme.css?v=20260910-1'), 'auth vector stylesheet is not loaded');
-assert(loader.includes('auth-vector-theme.js?v=20260910-1'), 'auth vector script is not loaded');
+assert(integrations.includes('grid-template-columns: repeat(4, minmax(0, 1fr)) 58px'), 'AI launcher must integrate into desktop auth tabs');
+assert(integrations.includes('#groqAuthChatPanel'), 'AI chat panel integration missing');
+assert(integrations.includes('#adminHelloButton'), 'Windows Hello integration missing');
+assert(integrations.includes('.crypto-card-launcher-btn'), 'cryptographic card launcher integration missing');
+
+assert(loader.includes('auth-vector-theme.css?v=20260910-2'), 'auth vector stylesheet is not loaded');
+assert(loader.includes('auth-vector-integrations.css?v=20260910-1'), 'auth integration stylesheet is not loaded');
+assert(loader.includes('auth-vector-theme.js?v=20260910-2'), 'auth vector script is not loaded');
 
 console.log('auth vector theme contract: OK');

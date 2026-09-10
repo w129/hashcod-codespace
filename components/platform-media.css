@@ -88,3 +88,368 @@
 .boot-card-icon .boot-bulb-icon { order: 2; }
 
 .boot-card-icon .boot-glasses-icon { order: 3; }
+
+/* --------------------------------------------------------------------------
+   Hashcod privacy entry — compact vector control for the authentication screen
+   -------------------------------------------------------------------------- */
+#authWrapper a[href*="privacy"],
+#authWrapper a[href*="politica"] {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    max-width: 100%;
+    padding: 8px 12px 8px 9px;
+    border: 1px solid #111111;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #111111 !important;
+    text-decoration: none !important;
+    font-family: 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 650;
+    line-height: 1.25;
+    letter-spacing: .015em;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
+    transition: transform 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+#authWrapper a[href*="privacy"]::before,
+#authWrapper a[href*="politica"]::before {
+    content: "";
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23111111' d='M7 4h12l6 6v18H7V4zm2 2v20h14V11h-5V6H9zm11 1.4V9h1.6L20 7.4zM11 13h10v2H11v-2zm0 5h10v2H11v-2zm0 5h7v2h-7v-2z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
+}
+
+#authWrapper a[href*="privacy"]::after,
+#authWrapper a[href*="politica"]::after {
+    content: "↗";
+    margin-left: 3px;
+    font-size: 12px;
+    line-height: 1;
+    opacity: .62;
+}
+
+#authWrapper a[href*="privacy"]:hover,
+#authWrapper a[href*="privacy"]:focus-visible,
+#authWrapper a[href*="politica"]:hover,
+#authWrapper a[href*="politica"]:focus-visible {
+    background: #111111;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    outline: none;
+    box-shadow: 0 7px 18px rgba(0, 0, 0, .12);
+}
+
+#authWrapper a[href*="privacy"]:hover::before,
+#authWrapper a[href*="privacy"]:focus-visible::before,
+#authWrapper a[href*="politica"]:hover::before,
+#authWrapper a[href*="politica"]:focus-visible::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ffffff' d='M7 4h12l6 6v18H7V4zm2 2v20h14V11h-5V6H9zm11 1.4V9h1.6L20 7.4zM11 13h10v2H11v-2zm0 5h10v2H11v-2zm0 5h7v2h-7v-2z'/%3E%3C/svg%3E");
+}
+
+/* --------------------------------------------------------------------------
+   Privacy page — monochrome vector redesign. Keeps the existing legal content
+   and tab logic intact while replacing the older blue/green card aesthetic.
+   -------------------------------------------------------------------------- */
+body:has(.privacy-container) {
+    position: relative;
+    overflow-x: hidden;
+    display: block;
+    min-height: 100vh;
+    padding: 54px 20px 70px;
+    background-color: #f7f7f5 !important;
+    background-image:
+        linear-gradient(rgba(17, 17, 17, .055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 17, 17, .055) 1px, transparent 1px) !important;
+    background-size: 32px 32px !important;
+    color: #262626 !important;
+}
+
+body:has(.privacy-container)::before,
+body:has(.privacy-container)::after {
+    content: "";
+    position: fixed;
+    z-index: 0;
+    width: 240px;
+    height: 240px;
+    pointer-events: none;
+    opacity: .05;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+body:has(.privacy-container)::before {
+    left: 3vw;
+    top: 18vh;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23111111' d='M5 5h22v22H5V5zm2 2v18h18V7H7zm4 4h10v2H11v-2zm0 4h10v2H11v-2zm0 4h7v2h-7v-2z'/%3E%3C/svg%3E");
+}
+
+body:has(.privacy-container)::after {
+    right: 2vw;
+    bottom: 10vh;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23111111' d='M16 3l10 4v8c0 6.3-4.1 11.8-10 14-5.9-2.2-10-7.7-10-14V7l10-4zm0 2.2L8 8.4V15c0 5.1 3.2 9.7 8 11.7 4.8-2 8-6.6 8-11.7V8.4l-8-3.2zm-1 6.8h2v7h-2v-7zm0 9h2v2h-2v-2z'/%3E%3C/svg%3E");
+}
+
+body:has(.privacy-container) .privacy-container {
+    position: relative;
+    z-index: 1;
+    width: min(1080px, 100%) !important;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid #111111 !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, .96) !important;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .13) !important;
+}
+
+body:has(.privacy-container) .privacy-header {
+    position: relative;
+    padding: 28px 30px 24px !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #d4d4d0 !important;
+}
+
+body:has(.privacy-container) .privacy-header::after {
+    content: "HASHCOD / PRIVACY SYSTEM";
+    position: absolute;
+    right: 30px;
+    bottom: 8px;
+    color: #777777;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: .14em;
+}
+
+body:has(.privacy-container) .badge-pqc {
+    gap: 8px !important;
+    padding: 6px 9px !important;
+    border: 1px solid #111111 !important;
+    border-radius: 7px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    font-size: 10px !important;
+    letter-spacing: .045em;
+}
+
+body:has(.privacy-container) .badge-pqc svg,
+body:has(.privacy-container) .tab-btn svg,
+body:has(.privacy-container) .vector-card-head svg,
+body:has(.privacy-container) .btn-back svg {
+    fill: currentColor !important;
+}
+
+body:has(.privacy-container) .privacy-title {
+    max-width: 720px;
+    margin-top: 12px !important;
+    color: #111111 !important;
+    font-size: clamp(22px, 3vw, 34px) !important;
+    line-height: 1.08;
+    letter-spacing: -.045em;
+}
+
+body:has(.privacy-container) .btn-back {
+    border: 1px solid #111111 !important;
+    border-radius: 8px !important;
+    background: #111111 !important;
+    color: #ffffff !important;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    font-size: 11px !important;
+    letter-spacing: .025em;
+    transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+body:has(.privacy-container) .btn-back:hover,
+body:has(.privacy-container) .btn-back:focus-visible {
+    background: #ffffff !important;
+    color: #111111 !important;
+    transform: translateY(-1px);
+    outline: none;
+}
+
+body:has(.privacy-container) .privacy-tabs {
+    gap: 0 !important;
+    padding: 0 !important;
+    background: #f4f4f1 !important;
+    border-bottom: 1px solid #111111 !important;
+    scrollbar-width: thin;
+}
+
+body:has(.privacy-container) .tab-btn {
+    min-height: 48px;
+    padding: 10px 14px !important;
+    border-right: 1px solid #d4d4d0 !important;
+    border-radius: 0 !important;
+    color: #666666 !important;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    font-size: 10px !important;
+    letter-spacing: .025em;
+}
+
+body:has(.privacy-container) .tab-btn:hover {
+    background: #ffffff !important;
+    color: #111111 !important;
+}
+
+body:has(.privacy-container) .tab-btn.active {
+    background: #111111 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+body:has(.privacy-container) .privacy-content {
+    padding: 34px 38px 42px !important;
+    background: #ffffff;
+    color: #333333;
+    font-size: 13px !important;
+}
+
+body:has(.privacy-container) h3 {
+    color: #111111 !important;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    font-size: 13px !important;
+    letter-spacing: -.01em;
+}
+
+body:has(.privacy-container) .highlight-box {
+    position: relative;
+    overflow: hidden;
+    padding: 16px 18px 16px 20px !important;
+    border: 1px solid #111111 !important;
+    border-left: 4px solid #111111 !important;
+    border-radius: 8px !important;
+    background: #f7f7f5 !important;
+    color: #222222 !important;
+}
+
+body:has(.privacy-container) .highlight-box svg {
+    fill: #111111 !important;
+}
+
+body:has(.privacy-container) .vector-grid {
+    gap: 12px !important;
+}
+
+body:has(.privacy-container) .vector-card {
+    position: relative;
+    min-height: 118px;
+    padding: 16px !important;
+    overflow: hidden;
+    border: 1px solid #d4d4d0 !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+body:has(.privacy-container) .vector-card::after {
+    content: "";
+    position: absolute;
+    right: -17px;
+    bottom: -17px;
+    width: 62px;
+    height: 62px;
+    border: 1px solid #111111;
+    border-radius: 50%;
+    opacity: .06;
+}
+
+body:has(.privacy-container) .vector-card:hover {
+    transform: translateY(-2px) !important;
+    border-color: #111111 !important;
+    box-shadow: 0 9px 24px rgba(0, 0, 0, .07) !important;
+}
+
+body:has(.privacy-container) .vector-card-head {
+    color: #111111 !important;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+}
+
+body:has(.privacy-container) .vector-card-head svg {
+    fill: #111111 !important;
+}
+
+body:has(.privacy-container) .vector-card-desc {
+    color: #666666 !important;
+}
+
+body:has(.privacy-container) .evidence-img {
+    border: 1px solid #111111 !important;
+    border-radius: 8px !important;
+    filter: grayscale(1);
+}
+
+body:has(.privacy-container) .privacy-footer {
+    padding: 18px 30px !important;
+    border-top: 1px solid #d4d4d0 !important;
+    background: #f7f7f5 !important;
+    color: #666666;
+    font-family: 'Geist Mono', 'IBM Plex Mono', monospace;
+    font-size: 10px;
+}
+
+@media (max-width: 760px) {
+    body:has(.privacy-container) {
+        padding: 18px 10px 34px;
+        background-size: 24px 24px !important;
+    }
+
+    body:has(.privacy-container)::before,
+    body:has(.privacy-container)::after {
+        width: 130px;
+        height: 130px;
+    }
+
+    body:has(.privacy-container) .privacy-container {
+        border-radius: 10px !important;
+    }
+
+    body:has(.privacy-container) .privacy-header {
+        padding: 22px 18px 28px !important;
+    }
+
+    body:has(.privacy-container) .privacy-header::after {
+        left: 18px;
+        right: auto;
+        bottom: 8px;
+    }
+
+    body:has(.privacy-container) .privacy-content {
+        padding: 24px 18px 32px !important;
+    }
+
+    body:has(.privacy-container) .privacy-footer {
+        padding: 16px 18px !important;
+    }
+
+    #authWrapper a[href*="privacy"],
+    #authWrapper a[href*="politica"] {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    #authWrapper a[href*="privacy"]::after,
+    #authWrapper a[href*="politica"]::after {
+        margin-left: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #authWrapper a[href*="privacy"],
+    #authWrapper a[href*="politica"],
+    body:has(.privacy-container) .vector-card,
+    body:has(.privacy-container) .btn-back {
+        transition: none !important;
+    }
+}

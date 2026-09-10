@@ -52,6 +52,16 @@
     transition: transform 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease !important;
 }
 
+/* Direct entry with an already validated cryptographic card is intentionally
+   available before Windows Hello. The uploaded card is the credential checked
+   by the card-entry flow itself. */
+#hashcodAuthUtilityDock .crypto-card-direct-launcher-btn {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
 #hashcodAuthUtilityDock #d5LauncherBtn {
     background: #111111 !important;
     color: #ffffff !important;
@@ -89,17 +99,14 @@
     color: #111111 !important;
 }
 
-/* Server-backed admin visibility remains authoritative even after launchers
-   are moved from the auth card to document.body. */
+/* Only admin-only tools are hidden before Windows Hello. The direct validated
+   card entry button is deliberately excluded from this rule. */
 html:not([data-admin-authenticated="true"]) #hashcodAuthUtilityDock #cryptoCardValidationLauncherBtn,
 html:not([data-admin-authenticated="true"]) #hashcodAuthUtilityDock #d5LauncherBtn {
     display: none !important;
     pointer-events: none !important;
 }
 
-/* The rail stays vertical on desktop and compact screens. If the login card
-   nearly fills the viewport, JS moves the entire rail to the left side rather
-   than placing it back inside the card. */
 #hashcodAuthUtilityDock[data-side="left"] {
     align-items: center !important;
 }

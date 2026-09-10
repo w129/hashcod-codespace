@@ -1,0 +1,254 @@
+/* Integrations around the authentication card: AI chat, Windows Hello and auth utilities. */
+
+#authWrapper.hashcod-auth-enhanced .auth-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 58px !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher {
+    min-width: 58px !important;
+    width: 58px !important;
+    padding: 0 !important;
+    border-right: 0 !important;
+    border-left: 1px solid #d8d8d2 !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher .hashcod-auth-tab-icon {
+    display: none !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher > svg {
+    width: 22px !important;
+    height: 22px !important;
+    fill: currentColor !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher:hover,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher:focus-visible,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.active {
+    background: #111111 !important;
+    color: #ffffff !important;
+}
+
+#groqAuthChatPanel {
+    overflow: hidden !important;
+    border: 1px solid #111111 !important;
+    border-radius: 14px !important;
+    background-color: #ffffff !important;
+    background-image:
+        linear-gradient(rgba(17, 17, 17, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 17, 17, .045) 1px, transparent 1px) !important;
+    background-size: 28px 28px !important;
+    color: #111111 !important;
+    box-shadow: 0 20px 55px rgba(0, 0, 0, .16) !important;
+    font-family: 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+}
+
+#groqAuthChatPanel .groq-chat-head {
+    min-height: 58px;
+    padding: 11px 13px !important;
+    border-bottom: 1px solid #d8d8d2 !important;
+    background: rgba(255,255,255,.96) !important;
+    backdrop-filter: blur(9px);
+}
+
+#groqAuthChatPanel .groq-chat-title {
+    color: #111111 !important;
+    font-size: 13px !important;
+    letter-spacing: -.025em !important;
+}
+
+#groqAuthChatPanel .groq-chat-provider {
+    color: #6c6c67 !important;
+    font-size: 8px !important;
+}
+
+#groqAuthChatPanel .groq-chat-provider-dot {
+    width: 6px !important;
+    height: 6px !important;
+    border: 1px solid #111111 !important;
+    background: #111111 !important;
+}
+
+#groqAuthChatPanel .groq-chat-head-actions button {
+    min-width: 34px;
+    min-height: 32px;
+    border: 1px solid #111111 !important;
+    border-radius: 7px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    box-shadow: none !important;
+    font-family: inherit !important;
+    font-size: 9px !important;
+}
+
+#groqAuthChatPanel .groq-chat-head-actions button:hover,
+#groqAuthChatPanel .groq-chat-head-actions button:focus-visible {
+    background: #111111 !important;
+    color: #ffffff !important;
+    outline: none !important;
+}
+
+#groqAuthChatPanel #groqAuthChatMessages {
+    background: transparent !important;
+}
+
+#groqAuthChatPanel .groq-chat-bubble {
+    border: 1px solid #d8d8d2 !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    box-shadow: none !important;
+}
+
+#groqAuthChatPanel .groq-chat-message.user .groq-chat-bubble {
+    border-color: #111111 !important;
+    background: #111111 !important;
+    color: #ffffff !important;
+}
+
+#groqAuthChatPanel .groq-chat-empty {
+    color: #696964 !important;
+}
+
+#groqAuthChatPanel .groq-chat-empty strong {
+    color: #111111 !important;
+}
+
+#groqAuthChatPanel .groq-chat-compose {
+    border-top: 1px solid #d8d8d2 !important;
+    background: rgba(255,255,255,.96) !important;
+}
+
+#groqAuthChatPanel #groqAuthChatInput {
+    min-height: 46px !important;
+    border: 1px solid #c9c9c3 !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    box-shadow: none !important;
+    font-family: inherit !important;
+}
+
+#groqAuthChatPanel #groqAuthChatInput:focus {
+    border-color: #111111 !important;
+    box-shadow: 0 0 0 2px rgba(17,17,17,.08) !important;
+    outline: none !important;
+}
+
+#groqAuthChatPanel #groqAuthChatSend {
+    min-width: 92px;
+    min-height: 46px;
+    border: 1px solid #111111 !important;
+    border-radius: 8px !important;
+    background: #111111 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+    font-family: inherit !important;
+    font-size: 10px !important;
+    font-weight: 750 !important;
+}
+
+#groqAuthChatPanel #groqAuthChatSend:hover,
+#groqAuthChatPanel #groqAuthChatSend:focus-visible {
+    background: #ffffff !important;
+    color: #111111 !important;
+    outline: none !important;
+}
+
+#groqAuthChatPanel .groq-chat-error {
+    margin: 8px 12px !important;
+    padding: 9px 10px !important;
+    border: 1px dashed #111111 !important;
+    border-radius: 7px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-size: 9px !important;
+}
+
+#groqAuthChatPanel .groq-chat-foot {
+    color: #777772 !important;
+    font-size: 8px !important;
+}
+
+#authOverlay .admin-hello-access {
+    font-family: 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+}
+
+#authOverlay #adminHelloButton {
+    border: 1px solid #111111 !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    box-shadow: 0 7px 20px rgba(0,0,0,.10) !important;
+    transition: transform 140ms ease, background-color 140ms ease, color 140ms ease !important;
+}
+
+#authOverlay #adminHelloButton svg {
+    fill: currentColor !important;
+}
+
+#authOverlay #adminHelloButton:hover,
+#authOverlay #adminHelloButton:focus-visible,
+#authOverlay #adminHelloButton.is-verified {
+    background: #111111 !important;
+    color: #ffffff !important;
+    outline: none !important;
+    transform: translateY(-1px);
+}
+
+#authOverlay #adminHelloStatus {
+    max-width: 250px;
+    color: #676762 !important;
+    font-family: inherit !important;
+    font-size: 8px !important;
+    line-height: 1.45 !important;
+}
+
+#authOverlay .crypto-card-launcher-btn,
+#authOverlay .crypto-card-direct-launcher-btn {
+    border: 1px solid #111111 !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    box-shadow: 0 7px 20px rgba(0,0,0,.10) !important;
+}
+
+#authOverlay .crypto-card-launcher-btn:hover,
+#authOverlay .crypto-card-launcher-btn:focus-visible,
+#authOverlay .crypto-card-direct-launcher-btn:hover,
+#authOverlay .crypto-card-direct-launcher-btn:focus-visible {
+    background: #111111 !important;
+    color: #ffffff !important;
+    outline: none !important;
+}
+
+@media (max-width: 760px) {
+    #authWrapper.hashcod-auth-enhanced .auth-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher {
+        grid-column: 1 / -1;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 44px !important;
+        border-left: 0 !important;
+        border-top: 1px solid #d8d8d2 !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher > svg {
+        width: 20px !important;
+        height: 20px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #groqAuthChatPanel *,
+    #authOverlay #adminHelloButton,
+    #authOverlay .crypto-card-launcher-btn,
+    #authOverlay .crypto-card-direct-launcher-btn {
+        transition: none !important;
+    }
+}

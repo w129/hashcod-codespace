@@ -4,7 +4,8 @@
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-system-line,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-label-icon,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-label-icon-redundant,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-input-icon-orphaned {
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-input-icon-orphaned,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-message-empty {
     display: none !important;
 }
 

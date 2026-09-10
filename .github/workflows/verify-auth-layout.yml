@@ -1,0 +1,28 @@
+name: Verify auth utility dock
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - components/auth-vector-layout-fix.js
+      - components/auth-utility-outside.css
+      - tests/e2e/test_auth_vector_layout_fix.js
+      - .github/workflows/verify-auth-layout.yml
+  workflow_dispatch:
+
+jobs:
+  verify-auth-layout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Syntax check auth layout script
+        run: node --check components/auth-vector-layout-fix.js
+
+      - name: Verify auth layout contract
+        run: node tests/e2e/test_auth_vector_layout_fix.js
+
+      - name: Verify cryptographic card gate regression
+        run: node tests/e2e/test_crypto_card_validation_gate.js

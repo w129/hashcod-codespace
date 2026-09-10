@@ -116,6 +116,30 @@ html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock
     pointer-events: none !important;
 }
 
+/* Header brand alignment: visually center the platform mark with the title. */
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap {
+    align-items: center !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > svg,
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > img {
+    display: block !important;
+    align-self: center !important;
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    margin: 0 !important;
+    transform: translateY(-4px) !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-title {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
 @media (max-width: 760px) {
     #authWrapper #hashcodAuthUtilityDock.hashcod-auth-utility-dock {
         top: 12px !important;

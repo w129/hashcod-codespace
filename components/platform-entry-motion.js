@@ -6,6 +6,7 @@
 
     const INTRO_SESSION_KEY = 'hashcod_platform_intro_seen_v1';
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let entryTransitionPromise = null;
 
     const iconPaths = [
         'M 12 3 L 12 5 L 20 5 L 20 3 L 12 3 z M 20 5 L 20 7 L 25 7 L 25 20 L 27 20 L 27 5 L 20 5 z M 25 20 L 23 20 L 23 24 L 25 24 L 25 20 z M 23 24 L 20 24 L 20 26 L 23 26 L 23 24 z M 20 26 L 17 26 L 17 28 L 20 28 L 20 26 z M 17 28 L 15 28 L 15 30 L 17 30 L 17 28 z M 15 28 L 15 26 L 12 26 L 12 28 L 15 28 z M 12 26 L 12 24 L 9 24 L 9 26 L 12 26 z M 9 24 L 9 20 L 7 20 L 7 24 L 9 24 z M 7 20 L 7 7 L 12 7 L 12 5 L 5 5 L 5 20 L 7 20 z M 13 10 L 13 12 L 17 12 L 17 14 L 19 14 L 19 18 L 21 18 L 21 12 L 19 12 L 19 10 L 13 10 z M 19 18 L 15 18 L 15 16 L 13 16 L 13 12 L 11 12 L 11 18 L 13 18 L 13 20 L 19 20 L 19 18 z M 15 16 L 17 16 L 17 14 L 15 14 L 15 16 z',
@@ -153,80 +154,140 @@
         let attempts = 0;
         const timer = window.setInterval(function () {
             attempts += 1;
-            if (tryAnimate() || attempts >= 8) window.clearInterval(timer);
+            if (tryAnimate() || attempts >= 10) window.clearInterval(timer);
         }, 70);
     }
 
-    async function runEntryTransition(button) {
-        if (!button || button.dataset.hashcodMotionBusy === 'true') return;
+    function setButtonState(button, text, className) {
+        if (!button) return;
+        button.textContent = text;
+        button.classList.remove('hashcod-enter-verifying', 'hashcod-enter-granted');
+        if (className) button.classList.add(className);
+    }
 
-        const enterPlatform = window.l8EnterPlatform;
-        if (typeof enterPlatform !== 'function') return;
-
-        button.dataset.hashcodMotionBusy = 'true';
-        button.disabled = true;
-        const originalText = button.textContent;
+    async function runReducedEntryTransition(button, invokeOriginal) {
+        const originalText = button ? button.textContent : '';
         const transition = buildEntryTransition();
+        transition.classList.add('is-covering');
+        transition.style.setProperty('display', 'grid', 'important');
+        transition.querySelectorAll('.hashcod-entry-panel').forEach(function (panel) {
+            panel.style.setProperty('transform', 'translateX(0)', 'important');
+            panel.style.setProperty('transition', 'none', 'important');
+        });
+        const center = transition.querySelector('.hashcod-entry-center');
+        if (center) {
+            center.style.setProperty('opacity', '1', 'important');
+            center.style.setProperty('transform', 'none', 'important');
+            center.style.setProperty('transition', 'none', 'important');
+        }
         document.body.appendChild(transition);
 
+        if (button) {
+            button.disabled = true;
+            button.dataset.hashcodMotionBusy = 'true';
+            setButtonState(button, 'ACCESS GRANTED', 'hashcod-enter-granted');
+        }
+
         try {
-            button.textContent = 'VERIFYING';
-            button.classList.add('hashcod-enter-verifying');
-            await sleep(180);
-
-            button.textContent = 'ACCESS GRANTED';
-            button.classList.remove('hashcod-enter-verifying');
-            button.classList.add('hashcod-enter-granted');
-
-            requestAnimationFrame(function () {
-                transition.classList.add('is-covering');
-            });
-
-            await sleep(390);
-            await enterPlatform();
-            pulseDestination();
-            transition.classList.add('is-revealing');
-            await sleep(620);
-        } catch (error) {
-            console.error('[Hashcod entry motion] Platform entry failed:', error);
-            transition.classList.add('is-revealing');
             await sleep(260);
+            const result = await invokeOriginal();
+            pulseDestination();
+            await sleep(180);
+            return result;
         } finally {
             transition.remove();
-            button.textContent = originalText;
-            button.disabled = false;
-            button.classList.remove('hashcod-enter-verifying', 'hashcod-enter-granted');
-            delete button.dataset.hashcodMotionBusy;
+            if (button) {
+                button.disabled = false;
+                button.textContent = originalText;
+                button.classList.remove('hashcod-enter-verifying', 'hashcod-enter-granted');
+                delete button.dataset.hashcodMotionBusy;
+            }
         }
     }
 
-    function bindEnterButton(button) {
-        if (!button || button.dataset.hashcodMotionBound === 'true') return;
-        button.dataset.hashcodMotionBound = 'true';
+    async function runEntryTransition(button, invokeOriginal) {
+        const originalText = button ? button.textContent : '';
+        const transition = buildEntryTransition();
+        document.body.appendChild(transition);
 
-        button.addEventListener('click', function (event) {
-            if (reducedMotion) return;
-            if (button.dataset.hashcodMotionBusy === 'true') {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                return;
+        if (button) {
+            button.disabled = true;
+            button.dataset.hashcodMotionBusy = 'true';
+        }
+
+        try {
+            setButtonState(button, 'VERIFYING', 'hashcod-enter-verifying');
+            await sleep(220);
+
+            setButtonState(button, 'ACCESS GRANTED', 'hashcod-enter-granted');
+            transition.classList.add('is-covering');
+            await sleep(520);
+
+            const result = await invokeOriginal();
+            pulseDestination();
+
+            await sleep(140);
+            transition.classList.add('is-revealing');
+            await sleep(640);
+            return result;
+        } catch (error) {
+            console.error('[Hashcod entry motion] Platform entry failed:', error);
+            transition.classList.add('is-revealing');
+            await sleep(280);
+            throw error;
+        } finally {
+            transition.remove();
+            if (button) {
+                button.disabled = false;
+                button.textContent = originalText;
+                button.classList.remove('hashcod-enter-verifying', 'hashcod-enter-granted');
+                delete button.dataset.hashcodMotionBusy;
             }
-            if (typeof window.l8EnterPlatform !== 'function') return;
+        }
+    }
 
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            runEntryTransition(button);
-        }, true);
+    function installEnterPlatformWrapper() {
+        const current = window.l8EnterPlatform;
+        if (typeof current !== 'function') return false;
+        if (current.__hashcodMotionWrapped === true) return true;
+
+        const original = current;
+        const wrapped = function () {
+            const context = this;
+            const args = arguments;
+
+            if (entryTransitionPromise) return entryTransitionPromise;
+
+            const button = document.getElementById('bootCliEnter');
+            const invokeOriginal = function () {
+                return original.apply(context, args);
+            };
+
+            entryTransitionPromise = (reducedMotion
+                ? runReducedEntryTransition(button, invokeOriginal)
+                : runEntryTransition(button, invokeOriginal)
+            ).finally(function () {
+                entryTransitionPromise = null;
+            });
+
+            return entryTransitionPromise;
+        };
+
+        Object.defineProperty(wrapped, '__hashcodMotionWrapped', { value: true });
+        Object.defineProperty(wrapped, '__hashcodMotionOriginal', { value: original });
+        window.l8EnterPlatform = wrapped;
+        return true;
     }
 
     function init() {
         const bootOverlay = document.getElementById('bootCliOverlay');
         const enterButton = document.getElementById('bootCliEnter');
+        const wrapped = installEnterPlatformWrapper();
 
-        if (enterButton) bindEnterButton(enterButton);
         if (bootOverlay) playIntro(bootOverlay);
+        if (enterButton && wrapped) enterButton.dataset.hashcodMotionReady = 'true';
 
-        return Boolean(bootOverlay && enterButton);
+        return Boolean(bootOverlay && enterButton && wrapped);
     }
 
     if (!init()) {

@@ -4,7 +4,7 @@
     if (window.__hashcodDilithiumOneTimeKeyLoaded) return;
     window.__hashcodDilithiumOneTimeKeyLoaded = true;
 
-    const ROTATION_MS = 1000;
+    const ROTATION_MS = 2 * 60 * 1000;
     const KEY_BYTES = 64;
     const MODAL_ID = 'd5OneTimeKeyModal';
     let candidateKey = '';
@@ -85,11 +85,14 @@
         progress.classList.add('is-running');
     }
 
-    function rotateCandidate(modal) {
+    function rotateCandidate(modal, announce) {
         try {
             candidateKey = generateRegistrationKey();
             renderCandidate(modal, candidateKey);
             resetProgress(modal);
+            if (announce) {
+                setStatus(modal, 'NUEVA CANDIDATA LISTA · ROTACIÓN DE 2 MINUTOS', 'idle');
+            }
         } catch (error) {
             candidateKey = '';
             renderCandidate(modal, 'GENERADOR NO DISPONIBLE');
@@ -106,10 +109,10 @@
 
     function startRotation(modal) {
         stopRotation();
-        rotateCandidate(modal);
+        rotateCandidate(modal, false);
         rotationTimer = window.setInterval(function () {
             if (!modal.isConnected || !modal.classList.contains('is-open')) return;
-            rotateCandidate(modal);
+            rotateCandidate(modal, true);
         }, ROTATION_MS);
     }
 
@@ -140,11 +143,11 @@
                     '<button type="button" class="d5-otk-close" data-d5-close aria-label="Cerrar">×</button>',
                 '</header>',
                 '<div class="d5-otk-body">',
-                    '<p class="d5-otk-intro">Se genera una nueva clave candidata cada segundo. <strong>Solo la clave que copies se activa</strong> para un único registro; al usarse queda consumida y no puede reutilizarse.</p>',
+                    '<p class="d5-otk-intro">Se genera una nueva clave candidata cada 2 minutos. <strong>Solo la clave que copies se activa</strong> para un único registro; al usarse queda consumida y no puede reutilizarse.</p>',
                     '<div class="d5-otk-key-card">',
                         '<div class="d5-otk-key-head">',
                             '<span>CLAVE CANDIDATA</span>',
-                            '<span class="d5-otk-live"><i></i> 1 s</span>',
+                            '<span class="d5-otk-live"><i></i> 2 min</span>',
                         '</div>',
                         '<code class="d5-otk-key" data-d5-key>GENERANDO…</code>',
                         '<div class="d5-otk-progress"><span data-d5-progress></span></div>',
@@ -163,7 +166,7 @@
                     '<div class="d5-otk-rule">',
                         '<span>01</span><p>Copiar activa exactamente esa clave en el servidor.</p>',
                         '<span>02</span><p>El registro correcto consume la clave y bloquea cualquier reutilización.</p>',
-                        '<span>03</span><p>La siguiente clave que copies pasa a ser la nueva clave válida.</p>',
+                        '<span>03</span><p>La clave candidata visible cambia automáticamente cada 2 minutos.</p>',
                     '</div>',
                 '</div>',
             '</section>'
@@ -213,12 +216,6 @@
                 window.dispatchEvent(new CustomEvent('hashcod:dilithium-key-activated', {
                     detail: { fingerprint: fingerprint(keyToActivate), epoch: Date.now() }
                 }));
-
-                window.setTimeout(function () {
-                    if (!modal.isConnected || !modal.classList.contains('is-open')) return;
-                    rotateCandidate(modal);
-                    setStatus(modal, 'NUEVA CANDIDATA LISTA · LA COPIADA SIGUE ACTIVA', 'idle');
-                }, 420);
             } catch (error) {
                 setStatus(modal, error.message || 'No se pudo copiar y activar la clave.', 'error');
             } finally {

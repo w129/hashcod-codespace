@@ -46,9 +46,8 @@
     }
 
     function normalizeFieldDecorations(wrapper) {
-        // The base vector theme already places the field icon inside the input.
-        // Keep labels typographically clean so a second tiny icon never appears
-        // before text such as "Dilithium-5 de registro (mensual)".
+        // The field itself already carries the vector icon. Hiding the duplicated
+        // leading label icon keeps rows such as Dilithium-5 aligned and readable.
         wrapper.querySelectorAll('.hashcod-auth-label-icon').forEach(function (icon) {
             icon.setAttribute('aria-hidden', 'true');
             icon.classList.add('hashcod-auth-label-icon-redundant');
@@ -66,29 +65,29 @@
             card.appendChild(dock);
         }
 
-        // Some of these launchers are created outside #authWrapper by legacy
-        // code. Querying document-wide prevents them from being left floating
-        // at the edge of the authentication screen.
-        const launchers = Array.from(document.querySelectorAll(
-            '.crypto-card-launcher-btn, .crypto-card-direct-launcher-btn'
-        ));
+        // Legacy modules use a mixture of IDs and classes and can be mounted
+        // outside #authWrapper. Collect every known auth utility document-wide.
+        const launchers = Array.from(document.querySelectorAll([
+            '#cryptoCardValidationLauncherBtn',
+            '#d5LauncherBtn',
+            '.crypto-card-launcher-btn',
+            '.crypto-card-direct-launcher-btn'
+        ].join(',')));
 
-        launchers.forEach(function (button) {
-            if (!button || button.closest('#groqAuthChatPanel')) return;
+        const unique = Array.from(new Set(launchers));
+        unique.forEach(function (button) {
+            if (!button || button === document.getElementById('groqAuthChatLauncher')) return;
             button.classList.add('hashcod-auth-utility-button');
             if (button.parentElement !== dock) dock.appendChild(button);
         });
 
-        if (!dock.children.length) dock.hidden = true;
-        else dock.hidden = false;
+        dock.hidden = dock.children.length === 0;
     }
 
     function apply() {
         const wrapper = document.getElementById('authWrapper');
         if (!wrapper) return false;
 
-        // Decorative mode/system rows stay in the DOM because the base theme
-        // expects them to exist. CSS hides them, avoiding observer churn.
         normalizeBadges(wrapper);
         normalizeChatLauncher(wrapper);
         normalizeFieldDecorations(wrapper);

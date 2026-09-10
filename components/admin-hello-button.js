@@ -14,13 +14,21 @@
             const link = document.createElement('link');
             link.id = 'authVectorThemeStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'auth-vector-theme.css?v=20260910-1';
+            link.href = componentBase + 'auth-vector-theme.css?v=20260910-2';
+            document.head.appendChild(link);
+        }
+
+        if (!document.getElementById('authVectorIntegrationsStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'authVectorIntegrationsStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'auth-vector-integrations.css?v=20260910-1';
             document.head.appendChild(link);
         }
 
         if (!document.querySelector('script[data-auth-vector-theme]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'auth-vector-theme.js?v=20260910-1';
+            script.src = componentBase + 'auth-vector-theme.js?v=20260910-2';
             script.defer = true;
             script.dataset.authVectorTheme = 'true';
             document.head.appendChild(script);

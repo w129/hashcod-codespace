@@ -53,8 +53,8 @@
         }
     })();
 
-    // Load the monochrome Hashcod boot sequence and the Enter platform handoff.
-    // This is visual-only: the original l8EnterPlatform/authentication logic stays authoritative.
+    // Load the monochrome Hashcod boot sequence and manual entry handoff.
+    // The hold layer waits for a deliberate second click before the login is shown.
     (function loadPlatformEntryMotionAssets() {
         const current = document.currentScript;
         const currentSrc = current && current.src ? current.src : '';
@@ -70,13 +70,40 @@
             document.head.appendChild(link);
         }
 
-        if (!document.querySelector('script[data-platform-entry-motion]')) {
+        if (!document.getElementById('platformEntryHoldStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'platformEntryHoldStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'platform-entry-hold.css?v=20260910-1';
+            document.head.appendChild(link);
+        }
+
+        function loadHoldScript() {
+            if (document.querySelector('script[data-platform-entry-hold]')) return;
+            const holdScript = document.createElement('script');
+            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260910-1';
+            holdScript.defer = true;
+            holdScript.dataset.platformEntryHold = 'true';
+            document.head.appendChild(holdScript);
+        }
+
+        const existingMotion = document.querySelector('script[data-platform-entry-motion]');
+        if (!existingMotion) {
             const script = document.createElement('script');
             script.src = componentBase + 'platform-entry-motion.js?v=20260910-2';
             script.defer = true;
             script.dataset.platformEntryMotion = 'true';
+            script.addEventListener('load', loadHoldScript, { once: true });
             document.head.appendChild(script);
+        } else if (window.__hashcodPlatformEntryMotionLoaded) {
+            loadHoldScript();
+        } else {
+            existingMotion.addEventListener('load', loadHoldScript, { once: true });
         }
+
+        // Fallback for cached/dynamically inserted scripts whose load event may
+        // already have fired. The hold module safely waits for l8EnterPlatform.
+        window.setTimeout(loadHoldScript, 600);
     })();
 
     const overlay = document.getElementById('authOverlay');

@@ -40,13 +40,13 @@
             const link = document.createElement('link');
             link.id = 'cryptoCardValidationThemeStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'crypto-card-validation-theme.css?v=20260910-1';
+            link.href = componentBase + 'crypto-card-validation-theme.css?v=20260910-2';
             document.head.appendChild(link);
         }
 
         if (!document.querySelector('script[data-crypto-card-theme]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'crypto-card-validation-theme.js?v=20260910-1';
+            script.src = componentBase + 'crypto-card-validation-theme.js?v=20260910-2';
             script.defer = true;
             script.dataset.cryptoCardTheme = 'true';
             document.head.appendChild(script);

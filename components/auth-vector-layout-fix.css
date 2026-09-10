@@ -110,14 +110,32 @@
     outline: none !important;
 }
 
+/* Field icons remain inside inputs; duplicated icons before labels are hidden. */
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-label-icon,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-label-icon-redundant {
+    display: none !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-label,
+#authWrapper.hashcod-auth-enhanced label.hashcod-auth-label {
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    gap: 0 !important;
+    line-height: 1.35 !important;
+}
+
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock {
     position: absolute !important;
     top: 18px !important;
     right: 18px !important;
+    left: auto !important;
+    bottom: auto !important;
     z-index: 30 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
     gap: 8px !important;
     width: auto !important;
     height: auto !important;
@@ -126,8 +144,14 @@
     pointer-events: auto !important;
 }
 
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock[hidden] {
+    display: none !important;
+}
+
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button {
     position: static !important;
     inset: auto !important;
@@ -150,16 +174,25 @@
     transform: none !important;
     font-size: 0 !important;
     line-height: 1 !important;
+    overflow: hidden !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn {
+    background: #111111 !important;
+    color: #ffffff !important;
 }
 
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn svg,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn svg,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn svg,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn svg,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button svg {
     display: block !important;
     width: 22px !important;
     height: 22px !important;
     max-width: 22px !important;
     max-height: 22px !important;
+    margin: 0 auto !important;
     fill: currentColor !important;
     color: currentColor !important;
 }
@@ -167,9 +200,19 @@
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn:hover,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn:focus-visible,
 #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn:hover,
-#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn:focus-visible {
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn:focus-visible,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn:hover,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn:focus-visible {
     background: #111111 !important;
     color: #ffffff !important;
+    outline: none !important;
+    transform: translateY(-1px) !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn:hover,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn:focus-visible {
+    background: #ffffff !important;
+    color: #111111 !important;
     outline: none !important;
     transform: translateY(-1px) !important;
 }

@@ -1,0 +1,209 @@
+/* Hashcod auth layout correction: fixes misplaced utility controls without changing auth behavior. */
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-mode-plate,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-system-line {
+    display: none !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-card {
+    position: relative !important;
+    overflow-x: hidden !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-card::-webkit-scrollbar {
+    width: 7px !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-card::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap {
+    min-width: 0 !important;
+    padding-right: 112px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-header-badge {
+    position: static !important;
+    inset: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    margin: 0 0 0 4px !important;
+    padding: 0 8px !important;
+    border: 1px solid #111111 !important;
+    border-radius: 5px !important;
+    background: #111111 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+    transform: none !important;
+    font-family: 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+    font-size: 8px !important;
+    font-weight: 750 !important;
+    line-height: 1 !important;
+    letter-spacing: .055em !important;
+    white-space: nowrap !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-tabs {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 58px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.hashcod-auth-chat-tab-fixed {
+    position: static !important;
+    inset: auto !important;
+    grid-column: auto !important;
+    width: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+    height: auto !important;
+    min-height: 58px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    align-self: stretch !important;
+    justify-self: stretch !important;
+    border: 0 !important;
+    border-left: 1px solid #d8d8d2 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    box-shadow: none !important;
+    z-index: auto !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher > svg {
+    display: block !important;
+    width: 22px !important;
+    height: 22px !important;
+    margin: 0 auto !important;
+    fill: currentColor !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher .hashcod-auth-tab-icon {
+    display: none !important;
+}
+
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher:hover,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher:focus-visible,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.active,
+#authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher[aria-expanded="true"] {
+    background: #111111 !important;
+    color: #ffffff !important;
+    outline: none !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock {
+    position: absolute !important;
+    top: 18px !important;
+    right: 18px !important;
+    z-index: 30 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: auto !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button {
+    position: static !important;
+    inset: auto !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    margin: 0 !important;
+    padding: 9px !important;
+    border: 1px solid #111111 !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    box-shadow: 0 5px 14px rgba(0,0,0,.08) !important;
+    transform: none !important;
+    font-size: 0 !important;
+    line-height: 1 !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn svg,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn svg,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button svg {
+    display: block !important;
+    width: 22px !important;
+    height: 22px !important;
+    max-width: 22px !important;
+    max-height: 22px !important;
+    fill: currentColor !important;
+    color: currentColor !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn:hover,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn:focus-visible,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn:hover,
+#authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn:focus-visible {
+    background: #111111 !important;
+    color: #ffffff !important;
+    outline: none !important;
+    transform: translateY(-1px) !important;
+}
+
+@media (max-width: 760px) {
+    #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
+        padding-right: 0 !important;
+        padding-top: 58px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock {
+        top: 10px !important;
+        right: 10px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .auth-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher,
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.hashcod-auth-chat-tab-fixed {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        min-height: 44px !important;
+        border-left: 0 !important;
+        border-top: 1px solid #d8d8d2 !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button,
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher {
+        transition: none !important;
+    }
+}

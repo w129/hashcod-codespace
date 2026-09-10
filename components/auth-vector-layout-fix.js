@@ -45,10 +45,18 @@
         launcher.setAttribute('title', 'Abrir Hashcod AI');
     }
 
+    function normalizeFieldDecorations(wrapper) {
+        // The base vector theme already places the field icon inside the input.
+        // Keep labels typographically clean so a second tiny icon never appears
+        // before text such as "Dilithium-5 de registro (mensual)".
+        wrapper.querySelectorAll('.hashcod-auth-label-icon').forEach(function (icon) {
+            icon.setAttribute('aria-hidden', 'true');
+            icon.classList.add('hashcod-auth-label-icon-redundant');
+        });
+    }
+
     function normalizeUtilityLaunchers(wrapper) {
         const card = wrapper.querySelector('.auth-card') || wrapper;
-        const launchers = Array.from(wrapper.querySelectorAll('.crypto-card-launcher-btn, .crypto-card-direct-launcher-btn'));
-        if (!launchers.length) return;
 
         let dock = card.querySelector('.hashcod-auth-utility-dock');
         if (!dock) {
@@ -58,21 +66,32 @@
             card.appendChild(dock);
         }
 
+        // Some of these launchers are created outside #authWrapper by legacy
+        // code. Querying document-wide prevents them from being left floating
+        // at the edge of the authentication screen.
+        const launchers = Array.from(document.querySelectorAll(
+            '.crypto-card-launcher-btn, .crypto-card-direct-launcher-btn'
+        ));
+
         launchers.forEach(function (button) {
+            if (!button || button.closest('#groqAuthChatPanel')) return;
             button.classList.add('hashcod-auth-utility-button');
             if (button.parentElement !== dock) dock.appendChild(button);
         });
+
+        if (!dock.children.length) dock.hidden = true;
+        else dock.hidden = false;
     }
 
     function apply() {
         const wrapper = document.getElementById('authWrapper');
         if (!wrapper) return false;
 
-        // The decorative mode/system rows stay in the DOM because the base theme
-        // expects them to exist. CSS hides them, which avoids an add/remove loop
-        // between the two MutationObservers.
+        // Decorative mode/system rows stay in the DOM because the base theme
+        // expects them to exist. CSS hides them, avoiding observer churn.
         normalizeBadges(wrapper);
         normalizeChatLauncher(wrapper);
+        normalizeFieldDecorations(wrapper);
         normalizeUtilityLaunchers(wrapper);
         wrapper.classList.add('hashcod-auth-layout-fixed');
         return true;

@@ -14,11 +14,34 @@
     }
 
     function addClassByText(panel, selector, needle, className) {
-        const target = Array.from(panel.querySelectorAll(selector)).find(function (node) {
-            return normalize(node.textContent).includes(needle);
-        });
+        const matches = Array.from(panel.querySelectorAll(selector))
+            .map(function (node) {
+                return { node: node, text: normalize(node.textContent) };
+            })
+            .filter(function (item) {
+                return item.text.includes(needle);
+            })
+            .sort(function (a, b) {
+                return a.text.length - b.text.length;
+            });
+
+        const target = matches.length ? matches[0].node : null;
         if (target) target.classList.add(className);
-        return target || null;
+        return target;
+    }
+
+    function findDropzone(panel, instruction) {
+        const dashed = panel.querySelector('[style*="dashed"]');
+        if (dashed) return dashed;
+
+        const semantic = panel.querySelector('[class*="dropzone"], [class*="drop-zone"]');
+        if (semantic) return semantic;
+
+        if (instruction) {
+            return instruction.closest('label,button,[role="button"],div') || instruction.parentElement;
+        }
+
+        return null;
     }
 
     function enhance() {
@@ -30,16 +53,13 @@
         panel.classList.add('hashcod-crypto-card-panel');
         panel.setAttribute('data-hashcod-theme', 'crypto-card-v2');
 
-        addClassByText(panel, 'h1,h2,h3,h4,strong,div,span', 'acceso con tarjeta criptografica', 'hashcod-crypto-card-title');
-        addClassByText(panel, 'p,span,div,small', 'autenticacion directa mediante tarjeta certificada', 'hashcod-crypto-card-subtitle');
-        addClassByText(panel, 'span,div,p,strong', 'validacion directa', 'hashcod-crypto-card-badge');
-        const instruction = addClassByText(panel, 'label,div,p,span,strong', 'arrastra tu tarjeta certificada', 'hashcod-crypto-card-instruction');
-        addClassByText(panel, 'p,span,div,small', 'acceso instantaneo', 'hashcod-crypto-card-caption');
+        addClassByText(panel, 'h1,h2,h3,h4,strong,span,div', 'acceso con tarjeta criptografica', 'hashcod-crypto-card-title');
+        addClassByText(panel, 'p,span,small,div', 'autenticacion directa mediante tarjeta certificada', 'hashcod-crypto-card-subtitle');
+        addClassByText(panel, 'span,p,strong,div', 'validacion directa', 'hashcod-crypto-card-badge');
+        const instruction = addClassByText(panel, 'label,p,span,strong,div', 'arrastra tu tarjeta certificada', 'hashcod-crypto-card-instruction');
+        addClassByText(panel, 'p,span,small,div', 'acceso instantaneo', 'hashcod-crypto-card-caption');
 
-        let dropzone = panel.querySelector('[style*="dashed"], [class*="drop"], [class*="upload"]');
-        if (!dropzone && instruction) {
-            dropzone = instruction.closest('label,button,div') || instruction.parentElement;
-        }
+        const dropzone = findDropzone(panel, instruction);
         if (dropzone && dropzone !== panel) {
             dropzone.classList.add('hashcod-crypto-card-dropzone');
             dropzone.setAttribute('data-hashcod-dropzone', 'true');

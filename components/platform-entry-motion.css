@@ -1,0 +1,443 @@
+/* Hashcod Codespace — monochrome boot and entry motion.
+   Visual-only layer: authentication and platform-entry logic remain authoritative elsewhere. */
+
+#bootCliOverlay {
+    isolation: isolate;
+}
+
+#hashcodBootIntro {
+    position: absolute;
+    inset: 0;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background-color: #f7f7f5;
+    background-image:
+        linear-gradient(rgba(17, 17, 17, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 17, 17, 0.055) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: #111111;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    opacity: 1;
+    transition: opacity 320ms ease, visibility 320ms ease;
+}
+
+#hashcodBootIntro::before,
+#hashcodBootIntro::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+
+#hashcodBootIntro::before {
+    width: min(74vw, 840px);
+    height: 1px;
+    background: #111111;
+    opacity: 0.16;
+    transform: scaleX(0);
+    animation: hashcodMotionRuleIn 700ms cubic-bezier(.2,.8,.2,1) 180ms forwards;
+}
+
+#hashcodBootIntro::after {
+    width: 1px;
+    height: min(70vh, 620px);
+    background: #111111;
+    opacity: 0.10;
+    transform: scaleY(0);
+    animation: hashcodMotionRuleInY 700ms cubic-bezier(.2,.8,.2,1) 260ms forwards;
+}
+
+#hashcodBootIntro.is-complete {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.hashcod-motion-corner {
+    position: absolute;
+    z-index: 2;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #6b6b6b;
+}
+
+.hashcod-motion-corner-a {
+    top: 24px;
+    left: 28px;
+}
+
+.hashcod-motion-corner-b {
+    right: 28px;
+    bottom: 24px;
+}
+
+.hashcod-motion-intro-core {
+    position: relative;
+    z-index: 3;
+    width: min(560px, calc(100vw - 48px));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.hashcod-motion-logo {
+    width: 92px;
+    height: 92px;
+    display: grid;
+    place-items: center;
+    color: #000000;
+    margin-bottom: 16px;
+}
+
+.hashcod-motion-logo-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.hashcod-motion-logo-frame {
+    stroke-dasharray: 1320;
+    stroke-dashoffset: 1320;
+    animation: hashcodLogoDraw 900ms cubic-bezier(.3,.7,.2,1) 80ms forwards;
+}
+
+.hashcod-motion-logo-triangle {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: translateY(18px) scale(0.82);
+    animation: hashcodLogoTriangle 440ms cubic-bezier(.2,.9,.2,1) 620ms forwards;
+}
+
+.hashcod-motion-wordmark {
+    font-family: Inter, 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: clamp(25px, 4vw, 36px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: hashcodTextIn 360ms ease 720ms forwards;
+}
+
+.hashcod-motion-rule {
+    width: 52px;
+    height: 2px;
+    margin: 16px 0 13px;
+    background: #111111;
+    transform: scaleX(0);
+    animation: hashcodMotionRuleIn 420ms ease 820ms forwards;
+}
+
+.hashcod-motion-status {
+    min-height: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    color: #555555;
+    opacity: 0;
+    animation: hashcodTextIn 300ms ease 880ms forwards;
+}
+
+.hashcod-motion-status-square {
+    width: 7px;
+    height: 7px;
+    border: 1px solid #111111;
+    background: #111111;
+    animation: hashcodStatusPulse 700ms steps(2, end) infinite;
+}
+
+.hashcod-motion-steps {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(58px, 1fr));
+    gap: 9px;
+    width: min(520px, 100%);
+}
+
+.hashcod-motion-step {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 5px;
+    border-top: 1px solid #d4d4d0;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: hashcodStepIn 340ms cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay: calc(900ms + (var(--step-index) * 110ms));
+}
+
+.hashcod-motion-step-icon {
+    width: 30px;
+    height: 30px;
+    color: #111111;
+}
+
+.hashcod-motion-step-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+    display: block;
+}
+
+.hashcod-motion-step span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 8px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    color: #626262;
+}
+
+.boot-cli-overlay.hashcod-intro-running > .boot-cli-window,
+.boot-cli-overlay.hashcod-intro-running > .boot-mobile-toggle {
+    opacity: 0 !important;
+    transform: scale(0.985) !important;
+    pointer-events: none !important;
+}
+
+.boot-cli-overlay.hashcod-intro-revealed > .boot-cli-window,
+.boot-cli-overlay.hashcod-intro-revealed > .boot-mobile-toggle {
+    animation: hashcodBootReveal 420ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+#bootCliEnter.hashcod-enter-verifying,
+#bootCliEnter.hashcod-enter-granted {
+    min-width: 178px;
+    transform: translateY(0) scale(0.98) !important;
+    letter-spacing: 0.05em;
+}
+
+#bootCliEnter.hashcod-enter-granted {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border-color: #111111 !important;
+    box-shadow: inset 0 0 0 1px #111111 !important;
+}
+
+#hashcodEntryTransition {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    pointer-events: all;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.hashcod-entry-panel {
+    min-width: 0;
+    background-color: #f7f7f5;
+    background-image:
+        linear-gradient(rgba(17, 17, 17, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 17, 17, 0.055) 1px, transparent 1px);
+    background-size: 32px 32px;
+    transition: transform 360ms cubic-bezier(.7,0,.2,1);
+    will-change: transform;
+}
+
+.hashcod-entry-panel-left {
+    transform: translateX(-100%);
+    border-right: 1px solid rgba(17, 17, 17, 0.16);
+}
+
+.hashcod-entry-panel-right {
+    transform: translateX(100%);
+}
+
+#hashcodEntryTransition.is-covering .hashcod-entry-panel {
+    transform: translateX(0);
+}
+
+#hashcodEntryTransition.is-revealing .hashcod-entry-panel-left {
+    transform: translateX(-100%);
+}
+
+#hashcodEntryTransition.is-revealing .hashcod-entry-panel-right {
+    transform: translateX(100%);
+}
+
+.hashcod-entry-center {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #111111;
+    opacity: 0;
+    transform: scale(0.985);
+    transition: opacity 180ms ease 150ms, transform 260ms ease 150ms;
+    pointer-events: none;
+}
+
+#hashcodEntryTransition.is-covering .hashcod-entry-center {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#hashcodEntryTransition.is-revealing .hashcod-entry-center {
+    opacity: 0;
+    transform: scale(0.98);
+    transition-delay: 0ms;
+}
+
+.hashcod-entry-symbol {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 15px;
+}
+
+.hashcod-entry-symbol svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
+
+.hashcod-entry-label {
+    padding: 8px 11px;
+    border: 1px solid #111111;
+    background: #111111;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+}
+
+.hashcod-entry-line {
+    width: min(420px, 62vw);
+    height: 1px;
+    margin: 18px 0 10px;
+    background: #111111;
+    transform: scaleX(0);
+    transform-origin: center;
+}
+
+#hashcodEntryTransition.is-covering .hashcod-entry-line {
+    animation: hashcodEntryLine 380ms cubic-bezier(.2,.8,.2,1) 180ms forwards;
+}
+
+.hashcod-entry-meta {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #6b6b6b;
+}
+
+#authOverlay.hashcod-auth-arrival .auth-card,
+#authOverlay.hashcod-auth-arrival .auth-wrapper,
+#authOverlay.hashcod-auth-arrival [class*="auth-card"] {
+    animation: hashcodAuthArrival 520ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes hashcodLogoDraw {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes hashcodLogoTriangle {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes hashcodTextIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hashcodStepIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hashcodMotionRuleIn {
+    to { transform: scaleX(1); }
+}
+
+@keyframes hashcodMotionRuleInY {
+    to { transform: scaleY(1); }
+}
+
+@keyframes hashcodStatusPulse {
+    0%, 45% { opacity: 1; }
+    46%, 100% { opacity: 0.3; }
+}
+
+@keyframes hashcodBootReveal {
+    from { opacity: 0; transform: translateY(8px) scale(0.99); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes hashcodEntryLine {
+    to { transform: scaleX(1); }
+}
+
+@keyframes hashcodAuthArrival {
+    from { opacity: 0; transform: translateY(12px) scale(0.99); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 720px) {
+    #hashcodBootIntro {
+        background-size: 24px 24px;
+    }
+
+    .hashcod-motion-corner {
+        font-size: 8px;
+    }
+
+    .hashcod-motion-corner-a {
+        top: 18px;
+        left: 18px;
+    }
+
+    .hashcod-motion-corner-b {
+        right: 18px;
+        bottom: 18px;
+    }
+
+    .hashcod-motion-logo {
+        width: 78px;
+        height: 78px;
+    }
+
+    .hashcod-motion-steps {
+        grid-template-columns: repeat(5, minmax(48px, 1fr));
+        gap: 4px;
+    }
+
+    .hashcod-motion-step {
+        padding-inline: 2px;
+    }
+
+    .hashcod-motion-step span {
+        font-size: 7px;
+        letter-spacing: 0.04em;
+    }
+
+    .hashcod-entry-panel {
+        background-size: 24px 24px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #hashcodBootIntro,
+    #hashcodEntryTransition {
+        display: none !important;
+    }
+
+    .boot-cli-overlay > .boot-cli-window,
+    .boot-cli-overlay > .boot-mobile-toggle,
+    #authOverlay .auth-card,
+    #authOverlay .auth-wrapper {
+        animation: none !important;
+        transition: none !important;
+    }
+}

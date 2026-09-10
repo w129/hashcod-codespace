@@ -1,0 +1,234 @@
+#hashcodEntryHold {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483500;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: #f7f7f5;
+    color: #111111;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    opacity: 0;
+    transition: opacity 280ms ease;
+}
+
+#hashcodEntryHold.is-visible {
+    opacity: 1;
+}
+
+.hashcod-hold-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(17, 17, 17, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 17, 17, 0.055) 1px, transparent 1px);
+    background-size: 32px 32px;
+    transform: scale(1.04);
+    animation: hashcodHoldGridSettle 1100ms cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.hashcod-hold-frame {
+    position: relative;
+    z-index: 2;
+    width: min(520px, calc(100vw - 40px));
+    min-height: 380px;
+    padding: 26px;
+    border: 1px solid #111111;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.16);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.hashcod-hold-topline {
+    position: absolute;
+    top: 18px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #d4d4d0;
+    font-size: 8px;
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    color: #6b6b6b;
+}
+
+.hashcod-hold-icon {
+    width: 52px;
+    height: 52px;
+    margin-top: 20px;
+    color: #111111;
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    animation: hashcodHoldElementIn 420ms ease 120ms forwards;
+}
+
+.hashcod-hold-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
+
+.hashcod-hold-title {
+    margin-top: 18px;
+    font-size: 22px;
+    font-weight: 750;
+    letter-spacing: -0.035em;
+}
+
+.hashcod-hold-status {
+    min-height: 18px;
+    margin-top: 12px;
+    color: #555555;
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.11em;
+    text-align: center;
+}
+
+.hashcod-hold-progress {
+    width: min(360px, 82%);
+    height: 2px;
+    margin-top: 18px;
+    overflow: hidden;
+    background: #d4d4d0;
+}
+
+.hashcod-hold-progress span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: #111111;
+    transition: width 620ms cubic-bezier(.2,.8,.2,1);
+}
+
+.hashcod-hold-steps {
+    width: min(390px, 88%);
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.hashcod-hold-steps span {
+    padding-top: 8px;
+    border-top: 1px solid #d4d4d0;
+    color: #9a9a96;
+    font-size: 7px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-align: center;
+    transition: color 260ms ease, border-color 260ms ease;
+}
+
+.hashcod-hold-steps span.is-active {
+    color: #111111;
+    border-color: #111111;
+}
+
+.hashcod-hold-continue {
+    min-width: 228px;
+    margin-top: 28px;
+    padding: 13px 18px;
+    border: 1px solid #111111;
+    border-radius: 8px;
+    background: #111111;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    font: 700 11px/1 'IBM Plex Mono', ui-monospace, monospace;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    opacity: 0.42;
+    transform: translateY(4px);
+    transition: opacity 220ms ease, transform 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.hashcod-hold-continue:disabled {
+    cursor: default;
+}
+
+#hashcodEntryHold.is-ready .hashcod-hold-continue {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#hashcodEntryHold.is-ready .hashcod-hold-continue:not(:disabled):hover,
+#hashcodEntryHold.is-ready .hashcod-hold-continue:not(:disabled):focus-visible {
+    background: #ffffff;
+    color: #111111;
+    outline: none;
+    box-shadow: inset 0 0 0 1px #111111;
+}
+
+#hashcodEntryHold.is-ready .hashcod-hold-continue:not(:disabled):active {
+    transform: scale(0.98);
+}
+
+.hashcod-hold-help {
+    margin-top: 12px;
+    color: #6b6b6b;
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    text-align: center;
+}
+
+#hashcodEntryHold.is-leaving .hashcod-hold-frame {
+    animation: hashcodHoldFrameOut 260ms ease forwards;
+}
+
+#hashcodEntryHold.is-revealing {
+    pointer-events: none;
+    animation: hashcodHoldReveal 620ms cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+@keyframes hashcodHoldGridSettle {
+    from { transform: scale(1.04); opacity: 0.35; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes hashcodHoldElementIn {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes hashcodHoldFrameOut {
+    to { opacity: 0; transform: scale(0.985); }
+}
+
+@keyframes hashcodHoldReveal {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@media (max-width: 640px) {
+    .hashcod-hold-grid { background-size: 24px 24px; }
+
+    .hashcod-hold-frame {
+        width: min(92vw, 460px);
+        min-height: 360px;
+        padding: 22px 18px;
+    }
+
+    .hashcod-hold-title { font-size: 19px; }
+    .hashcod-hold-continue { min-width: min(230px, 86vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #hashcodEntryHold,
+    #hashcodEntryHold *,
+    #hashcodEntryHold *::before,
+    #hashcodEntryHold *::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    #hashcodEntryHold { opacity: 1; }
+    .hashcod-hold-icon { opacity: 1; transform: none; }
+}

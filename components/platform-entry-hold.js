@@ -8,7 +8,7 @@
     let holdPromise = null;
 
     // Existing Hashcod vectors plus the six additional vectors supplied for the entry scene.
-    // Store complete SVG bodies so rect/polygon geometry is preserved exactly where applicable.
+    // Complete SVG bodies are preserved so rect/polygon geometry remains exact.
     const ICON_SVGS = [
         '<path d="M 12 3 L 12 5 L 20 5 L 20 3 L 12 3 z M 20 5 L 20 7 L 25 7 L 25 20 L 27 20 L 27 5 L 20 5 z M 25 20 L 23 20 L 23 24 L 25 24 L 25 20 z M 23 24 L 20 24 L 20 26 L 23 26 L 23 24 z M 20 26 L 17 26 L 17 28 L 20 28 L 20 26 z M 17 28 L 15 28 L 15 30 L 17 30 L 17 28 z M 15 28 L 15 26 L 12 26 L 12 28 L 15 28 z M 12 26 L 12 24 L 9 24 L 9 26 L 12 26 z M 9 24 L 9 20 L 7 20 L 7 24 L 9 24 z M 7 20 L 7 7 L 12 7 L 12 5 L 5 5 L 5 20 L 7 20 z M 13 10 L 13 12 L 17 12 L 17 14 L 19 14 L 19 18 L 21 18 L 21 12 L 19 12 L 19 10 L 13 10 z M 19 18 L 15 18 L 15 16 L 13 16 L 13 12 L 11 12 L 11 18 L 13 18 L 13 20 L 19 20 L 19 18 z M 15 16 L 17 16 L 17 14 L 15 14 L 15 16 z"></path>',
         '<path d="M 12 3 L 12 5 L 20 5 L 20 3 L 12 3 z M 20 5 L 20 7 L 25 7 L 25 20 L 27 20 L 27 5 L 20 5 z M 25 20 L 23 20 L 23 24 L 25 24 L 25 20 z M 23 24 L 20 24 L 20 26 L 23 26 L 23 24 z M 20 26 L 17 26 L 17 28 L 20 28 L 20 26 z M 17 28 L 15 28 L 15 30 L 17 30 L 17 28 z M 15 28 L 15 26 L 12 26 L 12 28 L 15 28 z M 12 26 L 12 24 L 9 24 L 9 26 L 12 26 z M 9 24 L 9 20 L 7 20 L 7 24 L 9 24 z M 7 20 L 7 7 L 12 7 L 12 5 L 5 5 L 5 20 L 7 20 z M 15 7 L 15 9 L 17 9 L 17 7 L 15 7 z M 17 9 L 17 11 L 19 11 L 19 9 L 17 9 z M 19 11 L 19 15 L 17 15 L 17 17 L 19 17 L 19 19 L 21 19 L 21 17 L 23 17 L 23 15 L 21 15 L 21 11 L 19 11 z M 11 11 L 11 13 L 9 13 L 9 15 L 11 15 L 11 19 L 13 19 L 13 15 L 15 15 L 15 13 L 13 13 L 13 11 L 11 11 z M 13 19 L 13 21 L 15 21 L 15 19 L 13 19 z M 15 21 L 15 23 L 17 23 L 17 21 L 15 21 z"></path>',
@@ -23,6 +23,7 @@
         '<path d="M 8 3 L 8 21 L 2 21 L 2 25 L 4 25 L 4 23 L 20 23 L 20 25 L 22 25 L 22 21 L 10 21 L 10 5 L 26 5 L 26 27 L 28 27 L 28 3 L 8 3 z M 26 27 L 24 27 L 24 25 L 22 25 L 22 27 L 6 27 L 6 29 L 26 29 L 26 27 z M 6 27 L 6 25 L 4 25 L 4 27 L 6 27 z"></path>'
     ];
 
+    // Intentionally irregular placement: a visual field, not a grid of icons.
     const SCATTER = [
         { icon: 0, pos: '01', tone: 'strong' },
         { icon: 5, pos: '02', tone: 'soft' },
@@ -37,7 +38,11 @@
         { icon: 3, pos: '11', tone: 'mid' },
         { icon: 5, pos: '12', tone: 'soft' },
         { icon: 8, pos: '13', tone: 'strong' },
-        { icon: 6, pos: '14', tone: 'soft' }
+        { icon: 6, pos: '14', tone: 'soft' },
+        { icon: 10, pos: '15', tone: 'mid' },
+        { icon: 7, pos: '16', tone: 'soft' },
+        { icon: 9, pos: '17', tone: 'mid' },
+        { icon: 4, pos: '18', tone: 'soft' }
     ];
 
     function sleep(ms) {
@@ -62,62 +67,26 @@
         overlay.setAttribute('aria-label', 'Acceso a Hashcod Codespace');
         overlay.innerHTML = [
             '<div class="hashcod-hold-grid" aria-hidden="true"></div>',
-            '<div class="hashcod-hold-topline">',
-                '<span>HASHCOD / SECURE ENTRY</span>',
-                '<span id="hashcodHoldCounter">01 / 04</span>',
-            '</div>',
             '<div class="hashcod-hold-side-field" aria-hidden="true">',
                 SCATTER.map(iconMarkup).join(''),
             '</div>',
-            '<div class="hashcod-hold-center">',
-                '<div class="hashcod-hold-status" id="hashcodHoldStatus" role="status" aria-live="polite">VERIFYING ACCESS</div>',
-                '<div class="hashcod-hold-progress" aria-hidden="true"><span id="hashcodHoldProgress"></span></div>',
-                '<div class="hashcod-hold-phase-line" id="hashcodHoldPhaseLine">IDENTITY / SESSION / CRYPTO / WORKSPACE</div>',
-            '</div>',
             '<div class="hashcod-hold-cta-wrap">',
-                '<button type="button" class="hashcod-hold-continue" id="hashcodHoldContinue" disabled>',
+                '<button type="button" class="hashcod-hold-continue" id="hashcodHoldContinue" disabled aria-label="Continuar al login de Hashcod">',
                     '<span>VERIFYING</span><span aria-hidden="true">↵</span>',
                 '</button>',
-                '<div class="hashcod-hold-help" id="hashcodHoldHelp">La entrada continuará cuando finalice la verificación.</div>',
             '</div>'
         ].join('');
         return overlay;
     }
 
     async function prepareOverlay(overlay) {
-        const status = overlay.querySelector('#hashcodHoldStatus');
-        const counter = overlay.querySelector('#hashcodHoldCounter');
-        const progress = overlay.querySelector('#hashcodHoldProgress');
         const continueButton = overlay.querySelector('#hashcodHoldContinue');
-        const help = overlay.querySelector('#hashcodHoldHelp');
-        const phaseLine = overlay.querySelector('#hashcodHoldPhaseLine');
-
-        const phases = [
-            { at: 0, text: 'VERIFYING ACCESS', counter: '01 / 04', width: '24%', phase: 'IDENTITY' },
-            { at: 900, text: 'VALIDATING SECURE SESSION', counter: '02 / 04', width: '49%', phase: 'SESSION' },
-            { at: 1800, text: 'CHECKING CRYPTO MODULES', counter: '03 / 04', width: '74%', phase: 'CRYPTO' },
-            { at: 2700, text: 'PREPARING HASHCOD WORKSPACE', counter: '04 / 04', width: '100%', phase: 'WORKSPACE' }
-        ];
-
-        phases.forEach(function (phase) {
-            window.setTimeout(function () {
-                if (!overlay.isConnected) return;
-                status.textContent = phase.text;
-                counter.textContent = phase.counter;
-                progress.style.width = phase.width;
-                phaseLine.textContent = phase.phase + ' / HASHCOD';
-            }, phase.at);
-        });
-
         await sleep(READY_DELAY_MS);
-        if (!overlay.isConnected) return;
+        if (!overlay.isConnected || !continueButton) return;
 
         overlay.classList.add('is-ready');
-        status.textContent = 'ACCESS GRANTED';
-        phaseLine.textContent = 'SECURE SESSION READY';
         continueButton.disabled = false;
         continueButton.querySelector('span').textContent = 'CONTINUAR AL LOGIN';
-        help.textContent = 'Pulsa el botón para continuar.';
         window.setTimeout(function () {
             try { continueButton.focus({ preventScroll: true }); } catch (error) { continueButton.focus(); }
         }, 80);
@@ -154,11 +123,11 @@
         try {
             await prepareOverlay(overlay);
             await waitForContinue(overlay);
-            await sleep(260);
+            await sleep(240);
 
             const result = await original.apply(context, args);
             overlay.classList.add('is-revealing');
-            await sleep(620);
+            await sleep(560);
             return result;
         } finally {
             overlay.remove();

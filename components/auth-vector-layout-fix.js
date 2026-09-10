@@ -14,7 +14,7 @@
         const link = document.createElement('link');
         link.id = 'authUtilityOutsideStylesheet';
         link.rel = 'stylesheet';
-        link.href = componentBase + 'auth-utility-outside.css?v=20260910-1';
+        link.href = componentBase + 'auth-utility-outside.css?v=20260910-2';
         document.head.appendChild(link);
     })();
 
@@ -119,8 +119,6 @@
         let left = rect.right + gap;
         let side = 'right';
 
-        // The intended layout is outside the right edge, in one vertical column.
-        // Only fall back to the left if the viewport physically has no right-side room.
         if (left + buttonWidth > window.innerWidth - viewportPadding) {
             left = rect.left - gap - buttonWidth;
             side = 'left';
@@ -135,6 +133,72 @@
         dock.hidden = dock.children.length === 0;
     }
 
+    function openWhenAvailable(fnName, retries) {
+        const fn = window[fnName];
+        if (typeof fn === 'function') {
+            return Promise.resolve(fn());
+        }
+        if (retries <= 0) return Promise.resolve(false);
+        return new Promise(function (resolve) {
+            window.setTimeout(function () {
+                resolve(openWhenAvailable(fnName, retries - 1));
+            }, 80);
+        });
+    }
+
+    function bindUtilityAction(button) {
+        if (!button || button.dataset.hashcodRailActionBound === 'true') return;
+
+        const isDirectCard = button.classList.contains('crypto-card-direct-launcher-btn');
+        const isCardValidation = button.id === 'cryptoCardValidationLauncherBtn' ||
+            (button.classList.contains('crypto-card-launcher-btn') && !isDirectCard);
+        const isDilithium = button.id === 'd5LauncherBtn';
+
+        if (!isDirectCard && !isCardValidation && !isDilithium) return;
+        button.dataset.hashcodRailActionBound = 'true';
+
+        if (isDirectCard) {
+            // This is the public entry point for an already validated card. It must
+            // remain usable without Windows Hello because the card itself is the
+            // credential that is verified by the upload panel.
+            button.hidden = false;
+            button.disabled = false;
+            button.removeAttribute('aria-disabled');
+            button.setAttribute('aria-label', 'Agregar tarjeta criptográfica validada');
+            button.setAttribute('title', 'Agregar tarjeta criptográfica validada');
+        }
+
+        button.addEventListener('click', async function (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            try {
+                if (isDirectCard) {
+                    await openWhenAvailable('openCryptoCardUploadPanel', 15);
+                    return;
+                }
+
+                if (isCardValidation) {
+                    // The validation/administration tool keeps its existing Windows
+                    // Hello requirement inside openCryptoCardValidationWindow().
+                    await openWhenAvailable('openCryptoCardValidationWindow', 15);
+                    return;
+                }
+
+                if (isDilithium) {
+                    if (document.documentElement.dataset.adminAuthenticated !== 'true') {
+                        if (!window.HashcodAdmin || typeof window.HashcodAdmin.require !== 'function') return;
+                        const verified = await window.HashcodAdmin.require();
+                        if (!verified) return;
+                    }
+                    await openWhenAvailable('openDilithiumOneTimeKeyTool', 15);
+                }
+            } catch (error) {
+                console.error('[Hashcod] No se pudo abrir la herramienta solicitada:', error);
+            }
+        }, true);
+    }
+
     function normalizeUtilityLaunchers(wrapper) {
         const dock = utilityDock();
         const selectors = [
@@ -147,11 +211,11 @@
 
         launchers.forEach(function (button) {
             if (!button || button === document.getElementById('groqAuthChatLauncher')) return;
+            bindUtilityAction(button);
             button.classList.add('hashcod-auth-utility-button');
             if (button.parentElement !== dock) dock.appendChild(button);
         });
 
-        // Keep the familiar order vertically: card validation, direct access, Dilithium.
         const ordered = [
             document.getElementById('cryptoCardValidationLauncherBtn'),
             dock.querySelector('.crypto-card-direct-launcher-btn'),
@@ -218,6 +282,6 @@
 
     bindScrollTracking();
     const observer = new MutationObserver(queueApply);
-    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
+    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden', 'disabled'] });
     window.addEventListener('resize', queueApply, { passive: true });
 })();

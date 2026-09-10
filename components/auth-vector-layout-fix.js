@@ -278,9 +278,14 @@
             dock.querySelector('.crypto-card-direct-launcher-btn'),
             document.getElementById('d5LauncherBtn')
         ].filter(Boolean);
-        ordered.forEach(function (button) {
-            if (button.parentElement === dock) dock.appendChild(button);
+        const orderMatches = ordered.every(function (button, index) {
+            return dock.children[index] === button;
         });
+        if (!orderMatches) {
+            ordered.forEach(function (button) {
+                if (button.parentElement === dock) dock.appendChild(button);
+            });
+        }
 
         positionUtilityDock(wrapper, dock);
     }

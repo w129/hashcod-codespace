@@ -7,9 +7,14 @@ const js = fs.readFileSync(path.join(repoDir, 'components/platform-entry-motion.
 const css = fs.readFileSync(path.join(repoDir, 'components/platform-entry-motion.css'), 'utf8');
 const favicon = fs.readFileSync(path.join(repoDir, 'favicon.svg'), 'utf8');
 
-assert(js.includes("document.getElementById('bootCliEnter')"), 'must bind the existing Enter platform button');
-assert(js.includes('await enterPlatform();'), 'must delegate to the existing platform-entry function');
-assert(js.includes('event.stopImmediatePropagation();'), 'must prevent the inline click from firing twice');
+assert(js.includes("document.getElementById('bootCliEnter')"), 'must target the existing Enter platform button');
+assert(js.includes('function installEnterPlatformWrapper()'), 'must wrap the authoritative platform-entry function');
+assert(js.includes('window.l8EnterPlatform = wrapped;'), 'must install the wrapper used by the inline Enter platform button');
+assert(js.includes('return original.apply(context, args);'), 'wrapper must delegate to the original platform-entry function');
+assert(js.includes('__hashcodMotionWrapped'), 'wrapper must be idempotent and avoid recursive installation');
+assert(js.includes('runEntryTransition(button, invokeOriginal)'), 'normal entry must execute the visual handoff before the original function');
+assert(js.includes('runReducedEntryTransition(button, invokeOriginal)'), 'reduced-motion users must still receive a non-moving access state before entry');
+assert(js.includes("style.setProperty('display', 'grid', 'important')"), 'reduced-motion handoff must override the CSS display suppression without adding movement');
 assert(js.includes('hashcod_platform_intro_seen_v1'), 'intro must be limited to once per session');
 assert(js.includes('prefers-reduced-motion'), 'JavaScript must respect reduced motion');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'CSS must respect reduced motion');

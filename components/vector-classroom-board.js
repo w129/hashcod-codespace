@@ -7,6 +7,7 @@
     const TOOL_ID = 'store-module';
     const SLOT = 1;
     const BOARD_ICON_SRC = '/components/classroom-board-icon.svg?v=20260911-1';
+    const BOARD_ICON_RIGHT_SRC = '/components/classroom-board-icon-right.svg?v=20260911-1';
 
     function ensureOverlay() {
         let overlay = document.getElementById('hashcodClassroomBoardOverlay');
@@ -30,7 +31,10 @@
                 '<div class="hashcod-classroom-board-stage">',
                     '<div class="hashcod-classroom-board-frame" aria-label="Pizarra de trabajo">',
                         '<div class="hashcod-classroom-board-surface">',
-                            '<img class="hashcod-classroom-board-emblem" src="' + BOARD_ICON_SRC + '" alt="" aria-hidden="true">',
+                            '<div class="hashcod-classroom-board-emblems" aria-hidden="true">',
+                                '<img class="hashcod-classroom-board-emblem" src="' + BOARD_ICON_SRC + '" alt="">',
+                                '<img class="hashcod-classroom-board-emblem hashcod-classroom-board-emblem-right" src="' + BOARD_ICON_RIGHT_SRC + '" alt="">',
+                            '</div>',
                         '</div>',
                         '<div class="hashcod-classroom-board-rail" aria-hidden="true"></div>',
                     '</div>',

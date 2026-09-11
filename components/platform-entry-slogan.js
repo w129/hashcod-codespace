@@ -30,7 +30,7 @@
             '#hashcodVectorTray{',
                 'position:absolute;',
                 'left:calc(50% - max(26vw,46.222222vh));',
-                'top:calc(50% + max(4.75vw,8.444444vh));',
+                'top:50%;',
                 'width:max(21.5vw,38.222222vh);',
                 'height:max(7.25vw,12.888889vh);',
                 'transform:translate(-50%,-50%);',
@@ -209,6 +209,20 @@
         return tray;
     }
 
+    function positionVectorTray(tray) {
+        const overlay = document.getElementById('authOverlay');
+        const card = document.querySelector('#authWrapper .auth-card');
+        if (!tray || !overlay || !card) return;
+
+        const overlayRect = overlay.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        if (!overlayRect.height || !cardRect.height) return;
+
+        const cardCenterY = cardRect.top - overlayRect.top + (cardRect.height / 2);
+        const nextTop = Math.round(cardCenterY) + 'px';
+        if (tray.style.top !== nextTop) tray.style.top = nextTop;
+    }
+
     function mountVectorTray() {
         const overlay = document.getElementById('authOverlay');
         if (!overlay) return null;
@@ -222,6 +236,7 @@
             overlay.appendChild(tray);
         }
 
+        positionVectorTray(tray);
         vectorTrayTools.forEach(function (tool, slot) {
             renderVectorTraySlot(slot, tool);
         });
@@ -325,4 +340,7 @@
     });
 
     observer.observe(document.documentElement, { childList: true, subtree: true });
+    window.addEventListener('resize', function () {
+        positionVectorTray(document.getElementById('hashcodVectorTray'));
+    }, { passive: true });
 })();

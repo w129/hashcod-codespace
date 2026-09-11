@@ -30,7 +30,7 @@
             const link = document.createElement('link');
             link.id = 'authVectorLayoutFixStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'auth-vector-layout-fix.css?v=20260910-4';
+            link.href = componentBase + 'auth-vector-layout-fix.css?v=20260910-5';
             document.head.appendChild(link);
         }
 
@@ -44,7 +44,7 @@
 
         if (!document.querySelector('script[data-auth-vector-layout-fix]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'auth-vector-layout-fix.js?v=20260910-4';
+            script.src = componentBase + 'auth-vector-layout-fix.js?v=20260910-5';
             script.defer = true;
             script.dataset.authVectorLayoutFix = 'true';
             document.head.appendChild(script);

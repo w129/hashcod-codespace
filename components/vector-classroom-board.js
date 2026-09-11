@@ -24,14 +24,14 @@
                     '<div class="hashcod-classroom-board-heading">',
                         '<span class="hashcod-classroom-board-index" aria-hidden="true">02</span>',
                         '<div>',
-                            '<h2 id="hashcodClassroomBoardTitle">Pizarra</h2>',
+                            '<h2 id="hashcodClassroomBoardTitle">Mercado de precios</h2>',
                             '<p>Vector workspace / classroom board</p>',
                         '</div>',
                     '</div>',
                     '<button type="button" class="hashcod-classroom-board-close" id="hashcodClassroomBoardClose" aria-label="Cerrar">×</button>',
                 '</header>',
                 '<div class="hashcod-classroom-board-stage">',
-                    '<div class="hashcod-classroom-board-frame" aria-label="Pizarra de trabajo">',
+                    '<div class="hashcod-classroom-board-frame" aria-label="Mercado de precios">',
                         '<div class="hashcod-classroom-board-surface">',
                             '<div class="hashcod-classroom-board-emblems" aria-hidden="true">',
                                 '<div class="hashcod-classroom-board-emblem-item">',
@@ -94,7 +94,7 @@
         window.HashcodVectorTray.registerTool({
             slot: SLOT,
             id: TOOL_ID,
-            label: 'Pizarra',
+            label: 'Mercado de precios',
             iconSvg: findCurrentIcon(),
             onClick: openBoard
         });

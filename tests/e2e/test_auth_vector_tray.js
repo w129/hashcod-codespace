@@ -24,6 +24,16 @@ assert(source.includes('registerTool: registerVectorTrayTool'), 'future icon-but
 assert(source.includes('removeTool: removeVectorTrayTool'), 'future tool removal API is missing');
 assert(source.includes('clear: clearVectorTray'), 'future tool reset API is missing');
 assert(source.includes('@media (max-width:1099px),(max-height:719px)'), 'tray must hide before overlapping compact login layouts');
+
+assert(source.includes('const HASHCOD_CARD_MODULE_ICON = ['), 'supplied first-slot card SVG is missing');
+assert(source.includes('viewBox="0 0 256 256"'), 'first-slot card icon must preserve its supplied SVG coordinate system');
+assert(source.includes("slot: 0"), 'supplied icon must be registered in the first tray cube');
+assert(source.includes("id: 'card-module'"), 'first tray icon must have a stable module id');
+assert(source.includes("iconSvg: HASHCOD_CARD_MODULE_ICON"), 'first tray cube must render the supplied card icon');
+assert(source.includes('function registerDefaultVectorTrayTools()'), 'default first-slot registration is missing');
+assert(source.includes('registerDefaultVectorTrayTools();'), 'first-slot icon must be mounted with the tray');
+assert(source.includes('width:72%;height:72%;max-width:34px;max-height:34px;'), 'detailed supplied SVG must be sized for the tray cube');
+
 assert(!source.includes('fetch('), 'visual tray must not introduce network behavior');
 assert(!source.includes('window.location'), 'visual tray must not introduce navigation behavior');
 

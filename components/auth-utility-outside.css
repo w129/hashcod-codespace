@@ -116,20 +116,33 @@ html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock
     pointer-events: none !important;
 }
 
-/* Header brand alignment: visually center the platform mark with the title. */
+/* Header brand alignment.
+   The platform mark is bottom-heavy because the triangle extends below the
+   screen frame, so mathematical flex centering still looks too low. Apply an
+   optical correction to the entire first logo element, not only its image box. */
 #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
     align-items: center !important;
 }
 
-#authWrapper.hashcod-auth-enhanced .auth-title-wrap > svg,
-#authWrapper.hashcod-auth-enhanced .auth-title-wrap > img {
-    display: block !important;
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child {
+    position: relative !important;
+    top: -9px !important;
     align-self: center !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > svg,
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > img,
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child > svg,
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child > img {
+    display: block !important;
     flex: 0 0 38px !important;
     width: 38px !important;
     height: 38px !important;
     margin: 0 !important;
-    transform: translateY(-4px) !important;
+    transform: none !important;
+    object-position: center !important;
 }
 
 #authWrapper.hashcod-auth-enhanced .auth-title {

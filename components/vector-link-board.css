@@ -1,0 +1,478 @@
+#hashcodLinkBoardOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483612;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+        linear-gradient(rgba(37,36,36,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,36,36,.035) 1px, transparent 1px),
+        radial-gradient(circle at 50% 38%, rgba(255,255,255,.97), rgba(241,241,238,.94) 75%),
+        #f4f4f1;
+    background-size: 28px 28px, 28px 28px, auto, auto;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #171717;
+    font-family: 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+#hashcodLinkBoardOverlay.is-open {
+    display: flex;
+}
+
+.hashcod-link-board-shell {
+    width: min(1440px, calc(100vw - 48px));
+    height: min(860px, calc(100vh - 48px));
+    display: grid;
+    grid-template-rows: auto auto minmax(0,1fr);
+    overflow: hidden;
+    border: 1px solid #161616;
+    border-radius: 20px;
+    background: #fbfbf9;
+    box-shadow:
+        0 38px 110px rgba(0,0,0,.18),
+        0 2px 0 rgba(255,255,255,.95) inset;
+}
+
+.hashcod-link-board-header {
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 14px 18px 14px 20px;
+    border-bottom: 1px solid #c9c9c4;
+    background: linear-gradient(180deg,#fff,#f7f7f4);
+}
+
+.hashcod-link-board-heading,
+.hashcod-link-board-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.hashcod-link-board-index {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 40px;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.hashcod-link-board-heading h2 {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.15;
+    letter-spacing: -.025em;
+}
+
+.hashcod-link-board-heading p {
+    margin: 4px 0 0;
+    color: #6f6f69;
+    font-size: 9px;
+    line-height: 1.35;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.hashcod-link-board-counter {
+    min-width: 78px;
+    padding: 7px 10px;
+    border: 1px solid #c7c7c2;
+    border-radius: 999px;
+    background: #fff;
+    color: #2d2d2b;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-align: center;
+}
+
+.hashcod-link-board-close {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #111;
+    border-radius: 10px;
+    background: #fff;
+    color: #111;
+    font: 700 20px/1 inherit;
+    cursor: pointer;
+}
+
+.hashcod-link-board-close:hover,
+.hashcod-link-board-close:focus-visible {
+    background: #111;
+    color: #fff;
+    outline: none;
+}
+
+.hashcod-link-board-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    min-height: 42px;
+    padding: 9px 18px;
+    border-bottom: 1px solid #d2d2cd;
+    background: #f4f4f1;
+}
+
+.hashcod-link-board-status {
+    min-width: 0;
+    color: #575751;
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.hashcod-link-board-status.is-error {
+    color: #111;
+    font-weight: 800;
+}
+
+.hashcod-link-board-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    color: #66665f;
+    font-size: 8px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.hashcod-link-board-legend i {
+    width: 8px;
+    height: 8px;
+    display: block;
+    border-radius: 50%;
+    background: #111;
+    box-shadow: 0 0 0 2px #bbb;
+}
+
+.hashcod-link-board-stage {
+    min-height: 0;
+    overflow: auto;
+    padding: clamp(18px,2.2vw,34px);
+    background:
+        linear-gradient(rgba(17,17,17,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17,17,17,.025) 1px, transparent 1px),
+        #efefec;
+    background-size: 24px 24px;
+}
+
+.hashcod-link-board-tablet {
+    position: relative;
+    min-height: 100%;
+    padding: clamp(22px,2.4vw,34px);
+    border: 1px solid #0f0f0f;
+    border-radius: 18px;
+    background: #252424;
+    box-shadow:
+        0 22px 42px rgba(0,0,0,.18),
+        0 3px 0 rgba(255,255,255,.05) inset,
+        0 -3px 0 rgba(0,0,0,.42) inset;
+}
+
+.hashcod-link-board-tablet::before {
+    content: 'HASHCOD / LINK BOARD / 200';
+    position: absolute;
+    top: 8px;
+    right: 22px;
+    color: rgba(255,255,255,.38);
+    font-size: 7px;
+    letter-spacing: .16em;
+}
+
+.hashcod-link-board-grid {
+    display: grid;
+    grid-template-columns: repeat(20, minmax(42px, 1fr));
+    gap: clamp(10px,1vw,16px) clamp(8px,.85vw,14px);
+    align-items: start;
+    padding: 18px;
+    border: 1px solid rgba(37,36,36,.45);
+    border-radius: 8px;
+    background:
+        radial-gradient(circle at 18% 24%, rgba(255,255,255,.45) 0 1px, transparent 1.3px),
+        linear-gradient(rgba(37,36,36,.024) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,36,36,.024) 1px, transparent 1px),
+        #e1e1e1;
+    background-size: 27px 27px, 42px 42px, 42px 42px, auto;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.68),
+        inset 0 0 36px rgba(0,0,0,.045);
+}
+
+.hashcod-link-cell {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #252424;
+    font: inherit;
+    cursor: pointer;
+}
+
+.hashcod-link-orb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    transition: transform 150ms ease, filter 150ms ease;
+}
+
+.hashcod-link-cell:hover .hashcod-link-orb,
+.hashcod-link-cell:focus-visible .hashcod-link-orb {
+    transform: translateY(-2px) scale(1.045);
+    filter: drop-shadow(0 5px 6px rgba(0,0,0,.13));
+}
+
+.hashcod-link-cell:focus-visible {
+    outline: none;
+}
+
+.hashcod-link-cell:focus-visible .hashcod-link-orb::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border: 1px solid #111;
+    border-radius: 50%;
+}
+
+.hashcod-link-ring,
+.hashcod-link-symbol {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+}
+
+.hashcod-link-ring svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.hashcod-link-symbol {
+    inset: 20%;
+}
+
+.hashcod-link-symbol svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.hashcod-link-cell.is-saved .hashcod-link-symbol {
+    inset: 16%;
+}
+
+.hashcod-link-cell.is-saved .hashcod-link-orb {
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,.08));
+}
+
+.hashcod-link-cell-number {
+    color: rgba(37,36,36,.6);
+    font-size: clamp(6px,.45vw,8px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: .07em;
+}
+
+.hashcod-link-board-dialog {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(245,245,242,.76);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.hashcod-link-board-dialog.is-open {
+    display: flex;
+}
+
+.hashcod-link-board-card {
+    width: min(470px, calc(100vw - 40px));
+    padding: 22px;
+    border: 1px solid #111;
+    border-radius: 16px;
+    background: #fbfbf9;
+    box-shadow: 0 24px 70px rgba(0,0,0,.18);
+}
+
+.hashcod-link-board-card-mark {
+    display: inline-flex;
+    margin-bottom: 12px;
+    padding: 5px 8px;
+    border: 1px solid #111;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: .11em;
+}
+
+.hashcod-link-board-card h3 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.2;
+}
+
+.hashcod-link-board-card > p {
+    margin: 6px 0 18px;
+    color: #6d6d67;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.hashcod-link-board-card label {
+    display: grid;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.hashcod-link-board-card label > span {
+    color: #5d5d57;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.hashcod-link-board-card input {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 42px;
+    padding: 10px 11px;
+    border: 1px solid #bcbcb7;
+    border-radius: 9px;
+    background: #fff;
+    color: #111;
+    font: 600 11px/1.35 inherit;
+    outline: none;
+}
+
+.hashcod-link-board-card input:focus {
+    border-color: #111;
+    box-shadow: 0 0 0 2px rgba(17,17,17,.08);
+}
+
+.hashcod-link-board-error {
+    min-height: 18px;
+    margin-top: 10px;
+    color: #111;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.hashcod-link-board-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.hashcod-link-board-card-actions button {
+    min-height: 38px;
+    padding: 8px 13px;
+    border: 1px solid #111;
+    border-radius: 9px;
+    background: #fff;
+    color: #111;
+    font: 800 9px/1 inherit;
+    cursor: pointer;
+}
+
+.hashcod-link-board-card-actions button[data-primary="true"] {
+    background: #111;
+    color: #fff;
+}
+
+.hashcod-link-board-card-actions button:hover,
+.hashcod-link-board-card-actions button:focus-visible {
+    transform: translateY(-1px);
+    outline: none;
+}
+
+@media (max-width: 1180px) {
+    .hashcod-link-board-grid {
+        grid-template-columns: repeat(14, minmax(42px,1fr));
+    }
+}
+
+@media (max-width: 860px) {
+    #hashcodLinkBoardOverlay {
+        padding: 12px;
+    }
+
+    .hashcod-link-board-shell {
+        width: calc(100vw - 24px);
+        height: calc(100vh - 24px);
+        border-radius: 14px;
+    }
+
+    .hashcod-link-board-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .hashcod-link-board-grid {
+        grid-template-columns: repeat(9, minmax(42px,1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .hashcod-link-board-heading p,
+    .hashcod-link-board-legend {
+        display: none;
+    }
+
+    .hashcod-link-board-header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .hashcod-link-board-stage {
+        padding: 12px;
+    }
+
+    .hashcod-link-board-tablet {
+        padding: 18px 10px 12px;
+        border-radius: 12px;
+    }
+
+    .hashcod-link-board-grid {
+        grid-template-columns: repeat(6, minmax(40px,1fr));
+        gap: 10px 7px;
+        padding: 12px 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hashcod-link-orb,
+    .hashcod-link-board-card-actions button {
+        transition: none;
+    }
+}

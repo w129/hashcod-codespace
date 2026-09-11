@@ -250,7 +250,22 @@
 
     mountAll();
 
+    // Observe only for the containers being recreated. Previously every DOM
+    // mutation called mountAll(), which rendered the tray again with innerHTML;
+    // that generated another childList mutation and created an endless microtask
+    // loop that could freeze the landing screen.
     const observer = new MutationObserver(function () {
+        const overlay = document.getElementById('authOverlay');
+        const hold = document.getElementById('hashcodEntryHold');
+        const trayMissing = Boolean(overlay && !document.getElementById('hashcodVectorTray'));
+        const sloganMissing = Boolean(hold && !hold.querySelector('.hashcod-hold-slogan'));
+        const firstSlotMissing = Boolean(
+            overlay &&
+            document.getElementById('hashcodVectorTray') &&
+            !document.querySelector('#hashcodVectorTray [data-vector-tray-slot="0"]')
+        );
+
+        if (!trayMissing && !sloganMissing && !firstSlotMissing) return;
         mountAll();
     });
 

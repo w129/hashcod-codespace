@@ -38,7 +38,7 @@
                                 '</div>',
                                 '<div class="hashcod-classroom-board-emblem-item">',
                                     '<img class="hashcod-classroom-board-emblem hashcod-classroom-board-emblem-right" src="' + BOARD_ICON_RIGHT_SRC + '" alt="">',
-                                    '<span class="hashcod-classroom-board-emblem-value">0.015</span>',
+                                    '<span class="hashcod-classroom-board-emblem-value">0.015 BTC</span>',
                                 '</div>',
                             '</div>',
                         '</div>',

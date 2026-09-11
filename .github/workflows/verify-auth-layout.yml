@@ -5,11 +5,15 @@ on:
     branches:
       - main
     paths:
+      - components/admin-hello-button.js
       - components/auth-vector-layout-fix.js
       - components/auth-utility-outside.css
       - components/platform-entry-slogan.js
+      - components/vector-image-vault.js
+      - components/vector-image-vault.css
       - tests/e2e/test_auth_vector_layout_fix.js
       - tests/e2e/test_auth_vector_tray.js
+      - tests/e2e/test_vector_image_vault.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
 
@@ -26,11 +30,17 @@ jobs:
       - name: Syntax check vector tray module
         run: node --check components/platform-entry-slogan.js
 
+      - name: Syntax check PNG vault module
+        run: node --check components/vector-image-vault.js
+
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
 
       - name: Verify 3D auth vector tray contract
         run: node tests/e2e/test_auth_vector_tray.js
+
+      - name: Verify PNG vault contract
+        run: node tests/e2e/test_vector_image_vault.js
 
       - name: Verify cryptographic card gate regression
         run: node tests/e2e/test_crypto_card_validation_gate.js

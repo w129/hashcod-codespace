@@ -18,6 +18,9 @@ assert(source.includes('onClick: openBoard'), 'second tray cube must open the cl
 assert(source.includes('hashcodClassroomBoardOverlay'), 'classroom board overlay missing');
 assert(source.includes('hashcod-classroom-board-frame'), 'school-style board frame missing');
 assert(source.includes('hashcod-classroom-board-surface'), 'board surface missing');
+assert(source.includes('<h2 id="hashcodClassroomBoardTitle">Mercado de precios</h2>'), 'Mercado de precios heading missing');
+assert(source.includes("label: 'Mercado de precios'"), 'Mercado de precios tray label missing');
+assert(source.includes('aria-label="Mercado de precios"'), 'Mercado de precios accessible label missing');
 assert(source.includes('hashcod-classroom-board-emblems'), 'board icon row markup missing');
 assert(source.includes('hashcod-classroom-board-emblem-right'), 'right board icon markup missing');
 assert(source.includes('hashcod-classroom-board-emblem-third'), 'third board icon markup missing');

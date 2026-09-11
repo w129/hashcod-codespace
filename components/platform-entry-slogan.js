@@ -7,8 +7,7 @@
     const VECTOR_TRAY_SLOTS = 6;
     const vectorTrayTools = new Map();
 
-    // User-supplied vector icon for the first tray cube. It is intentionally
-    // registered without behavior so its function can be wired later.
+    // User-supplied vector icon for the first tray cube.
     const HASHCOD_CARD_MODULE_ICON = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" focusable="false">',
             '<g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode:normal">',
@@ -21,6 +20,26 @@
                     '<path d="M42,80h12v6h-12z" fill="#b5b6b8"></path>',
                     '<path d="M60,80h12v6h-12z" fill="#b5b6b8"></path>',
                     '<path d="M78,80h12v6h-12z" fill="#b5b6b8"></path>',
+                '</g>',
+            '</g>',
+        '</svg>'
+    ].join('');
+
+    // User-supplied vector icon for the second tray cube. Behavior will be wired later.
+    const HASHCOD_STORE_MODULE_ICON = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" focusable="false">',
+            '<g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode:normal">',
+                '<g transform="scale(2,2)">',
+                    '<path d="M20,4c-3.3,0 -6,2.7 -6,6v62v52h110v-114c0,-3.3 -2.7,-6 -6,-6z" fill="#ffffff"></path>',
+                    '<path d="M13.1,8.4l-7.2,36c-1,5 2.8,9.6 7.8,9.6h80.4c5.7,0 10.6,-4 11.8,-9.6l7.2,-35.9l1.2,-4.4h-95.8z" fill="#ffffff"></path>',
+                    '<rect x="55" y="72" width="55" height="37" fill="#ffffff"></rect>',
+                    '<path d="M110,112h-55c-1.7,0 -3,-1.3 -3,-3v-37c0,-1.7 1.3,-3 3,-3h55c1.7,0 3,1.3 3,3v37c0,1.7 -1.3,3 -3,3zM58,106h49v-31h-49z" fill="#444b54"></path>',
+                    '<path d="M124,57c-1.7,0 -3,-1.3 -3,-3v-44.5c0,-1.4 -1.1,-2.5 -2.5,-2.5c-1.2,0 -2.2,0.8 -2.4,2l-7.2,35.9c-1.4,7 -7.6,12.1 -14.7,12.1h-80.4c-3.3,0 -6.4,-1.5 -8.5,-4c-2.1,-2.5 -3,-5.9 -2.3,-9.2l7.2,-36c0.8,-3.9 4.3,-6.8 8.3,-6.8h100c4.7,0 8.5,3.8 8.5,8.5v44.5c0,1.7 -1.3,3 -3,3zM18.5,7c-1.2,0 -2.2,0.8 -2.4,2l-7.2,36c-0.3,1.5 0.1,3 1,4.2c1,1.2 2.4,1.8 3.9,1.8h80.4c4.3,0 8,-3 8.8,-7.2l7.2,-35.9c0.1,-0.3 0.1,-0.6 0.2,-0.8h-91.9z" fill="#000000"></path>',
+                    '<path d="M23.9,47.4c-0.2,0 -0.4,0 -0.6,-0.1c-1.6,-0.3 -2.7,-1.9 -2.4,-3.5l6.1,-30.4c0.3,-1.6 1.9,-2.7 3.5,-2.4c1.6,0.3 2.7,1.9 2.4,3.5l-6,30.5c-0.3,1.4 -1.6,2.4 -3,2.4z" fill="#000000"></path>',
+                    '<path d="M44.9,47.4c-0.2,0 -0.4,0 -0.6,-0.1c-1.6,-0.3 -2.7,-1.9 -2.4,-3.5l6.1,-30.4c0.3,-1.6 1.9,-2.7 3.5,-2.4c1.6,0.3 2.7,1.9 2.4,3.5l-6,30.5c-0.3,1.4 -1.6,2.4 -3,2.4z" fill="#000000"></path>',
+                    '<path d="M65.9,47.4c-0.2,0 -0.4,0 -0.6,-0.1c-1.6,-0.3 -2.7,-1.9 -2.4,-3.5l6.1,-30.4c0.3,-1.6 1.9,-2.7 3.5,-2.4c1.6,0.3 2.7,1.9 2.4,3.5l-6,30.5c-0.3,1.4 -1.6,2.4 -3,2.4z" fill="#000000"></path>',
+                    '<path d="M86.9,47.4c-0.2,0 -0.4,0 -0.6,-0.1c-1.6,-0.3 -2.7,-1.9 -2.4,-3.5l6.1,-30.4c0.3,-1.6 1.9,-2.7 3.5,-2.4c1.6,0.3 2.7,1.9 2.4,3.5l-6,30.5c-0.3,1.4 -1.6,2.4 -3,2.4z" fill="#000000"></path>',
+                    '<path d="M124,127h-85c-1.7,0 -3,-1.3 -3,-3v-49h-19v49c0,1.7 -1.3,3 -3,3h-10c-1.7,0 -3,-1.3 -3,-3c0,-1.7 1.3,-3 3,-3h7v-49c0,-1.7 1.3,-3 3,-3h25c1.7,0 3,1.3 3,3v49h79v-39c0,-1.7 1.3,-3 3,-3c1.7,0 3,1.3 3,3v42c0,1.7 -1.3,3 -3,3z" fill="#444b54"></path>',
                 '</g>',
             '</g>',
         '</svg>'
@@ -76,7 +95,7 @@
             '#hashcodVectorTray .hashcod-vector-tray-slot:disabled{opacity:1;cursor:default;}',
             '#hashcodVectorTray .hashcod-vector-tray-slot-placeholder{width:22%;aspect-ratio:1;border:1px solid #c7c7c2;border-radius:2px;background:#f1f1ee;box-shadow:inset 0 1px 2px rgba(0,0,0,.07);}',
             '#hashcodVectorTray .hashcod-vector-tray-slot svg{display:block;width:72%;height:72%;max-width:34px;max-height:34px;}',
-            '#hashcodVectorTray .hashcod-vector-tray-slot[data-tool-id="card-module"]{background:linear-gradient(145deg,#fff 0%,#f9f9f6 65%,#eeeeea 100%);}',
+            '#hashcodVectorTray .hashcod-vector-tray-slot[data-tool-id="card-module"],#hashcodVectorTray .hashcod-vector-tray-slot[data-tool-id="store-module"]{background:linear-gradient(145deg,#fff 0%,#f9f9f6 65%,#eeeeea 100%);}',
             '#hashcodVectorTray.is-hidden{display:none!important;}',
             '@media (max-width:1099px),(max-height:719px){#hashcodVectorTray{display:none!important;}}',
             'body.mobile-mode #hashcodVectorTray{display:none!important;}',
@@ -225,13 +244,22 @@
     }
 
     function registerDefaultVectorTrayTools() {
-        if (vectorTrayTools.has(0)) return;
-        registerVectorTrayTool({
-            slot: 0,
-            id: 'card-module',
-            label: 'Módulo de tarjeta — función pendiente',
-            iconSvg: HASHCOD_CARD_MODULE_ICON
-        });
+        if (!vectorTrayTools.has(0)) {
+            registerVectorTrayTool({
+                slot: 0,
+                id: 'card-module',
+                label: 'Módulo de tarjeta — función pendiente',
+                iconSvg: HASHCOD_CARD_MODULE_ICON
+            });
+        }
+        if (!vectorTrayTools.has(1)) {
+            registerVectorTrayTool({
+                slot: 1,
+                id: 'store-module',
+                label: 'Módulo de tienda — función pendiente',
+                iconSvg: HASHCOD_STORE_MODULE_ICON
+            });
+        }
     }
 
     window.HashcodVectorTray = Object.freeze({

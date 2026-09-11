@@ -110,6 +110,13 @@
     }
 
     function loadLinkBoardAssets() {
+        if (!document.getElementById('mobilePlatformPolishStylesheet')) {
+            const mobile = document.createElement('link');
+            mobile.id = 'mobilePlatformPolishStylesheet';
+            mobile.rel = 'stylesheet';
+            mobile.href = '/components/mobile-platform-polish.css?v=20260911-1';
+            document.head.appendChild(mobile);
+        }
         if (!document.getElementById('vectorLinkBoardStylesheet')) {
             const link = document.createElement('link');
             link.id = 'vectorLinkBoardStylesheet';

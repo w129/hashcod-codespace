@@ -139,6 +139,8 @@ html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock
 #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
     align-self: center !important;
     align-items: center !important;
+    min-height: 38px !important;
+    margin: 0 !important;
 }
 
 #authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child,

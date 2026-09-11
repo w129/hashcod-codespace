@@ -205,6 +205,31 @@
         }
     })();
 
+    // Load the classroom-board workspace attached to the second cube.
+    (function loadVectorClassroomBoardAssets() {
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+
+        if (!document.getElementById('vectorClassroomBoardStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'vectorClassroomBoardStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'vector-classroom-board.css?v=20260911-1';
+            document.head.appendChild(link);
+        }
+
+        if (!document.querySelector('script[data-vector-classroom-board]')) {
+            const script = document.createElement('script');
+            script.src = componentBase + 'vector-classroom-board.js?v=20260911-1';
+            script.defer = true;
+            script.dataset.vectorClassroomBoard = 'true';
+            document.head.appendChild(script);
+        }
+    })();
+
     const overlay = document.getElementById('authOverlay');
     const wrapper = document.getElementById('authWrapper');
     if (!overlay || !wrapper) return;

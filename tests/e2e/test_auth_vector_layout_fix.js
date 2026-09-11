@@ -34,7 +34,7 @@ assert(js.includes("dock.dataset.side = 'inside'"), 'utility dock must declare i
 assert(js.includes("dock.style.removeProperty('left')"), 'stale external left coordinate must be cleared');
 assert(js.includes("dock.style.removeProperty('top')"), 'stale external top coordinate must be cleared');
 assert(!js.includes('event.stopImmediatePropagation()'), 'fallback handler must not suppress native launcher handlers');
-assert(js.includes("auth-utility-outside.css?v=20260910-3"), 'inside-dock stylesheet version must be loaded');
+assert(js.includes("auth-utility-outside.css?v=20260910-5"), 'inside-dock stylesheet v5 must be loaded');
 assert(!js.includes('.submit('), 'layout hotfix must not submit auth forms');
 assert(!js.includes('fetch('), 'layout hotfix must not replace authentication/network behavior');
 
@@ -54,10 +54,11 @@ assert(dockCss.includes('visibility: visible'), 'validated-card entry must remai
 assert(dockCss.includes('#cryptoCardValidationLauncherBtn'), 'crypto-card launcher styling missing');
 assert(dockCss.includes('#d5LauncherBtn'), 'Dilithium launcher styling missing');
 assert(dockCss.includes('html:not([data-admin-authenticated="true"])'), 'admin-only launcher visibility gate must remain');
+assert(dockCss.includes('top: -21px !important;'), 'platform logo optical alignment offset missing');
 
 assert(dilithium.includes('window.openDilithiumOneTimeKeyTool = openTool;'), 'Dilithium opener must be exposed for relocated launcher');
-assert(loader.includes('auth-vector-layout-fix.css?v=20260910-4'), 'base layout fix stylesheet v4 is not loaded');
-assert(loader.includes('auth-vector-layout-fix.js?v=20260910-4'), 'base layout fix script v4 is not loaded');
+assert(loader.includes('auth-vector-layout-fix.css?v=20260910-5'), 'base layout fix stylesheet v5 is not loaded');
+assert(loader.includes('auth-vector-layout-fix.js?v=20260910-5'), 'base layout fix script v5 is not loaded');
 assert(loader.includes('crypto-card-validation.js?v=20260910-4'), 'auth loader must preload the crypto-card functional engine');
 
 console.log('auth vector layout fix contract: OK');

@@ -1,0 +1,748 @@
+/* Hashcod Codespace · phone-first polish
+   Mobile-only overrides for the authentication surface and the vector tools.
+   Keeps the desktop geometry untouched while improving touch, safe areas and
+   small-screen access to the six-slot module tray. */
+
+@media (max-width: 760px), (hover: none) and (pointer: coarse) and (max-width: 900px) {
+    html,
+    body {
+        min-width: 0;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    button,
+    [role="button"],
+    a,
+    input,
+    textarea,
+    select {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button,
+    [role="button"] {
+        touch-action: manipulation;
+    }
+
+    /* ------------------------------------------------------------------
+       Authentication screen
+       ------------------------------------------------------------------ */
+    #authOverlay {
+        padding:
+            max(6px, env(safe-area-inset-top))
+            max(6px, env(safe-area-inset-right))
+            max(6px, env(safe-area-inset-bottom))
+            max(6px, env(safe-area-inset-left)) !important;
+        overscroll-behavior: none;
+    }
+
+    #authWrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        max-height: 100dvh !important;
+        padding-top: 0 !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .auth-card {
+        width: min(100%, 680px) !important;
+        max-height: calc(100dvh - max(12px, env(safe-area-inset-top) + env(safe-area-inset-bottom))) !important;
+        padding: 16px 12px calc(96px + env(safe-area-inset-bottom)) !important;
+        border-radius: 14px !important;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        scroll-padding-bottom: 100px;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
+        min-height: 0 !important;
+        padding-top: 54px !important;
+        padding-right: 0 !important;
+        margin-bottom: 10px !important;
+        gap: 8px 9px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .auth-title {
+        font-size: clamp(20px, 7vw, 25px) !important;
+        overflow-wrap: anywhere;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .auth-subtitle,
+    #authWrapper.hashcod-auth-enhanced .auth-description {
+        margin-bottom: 16px !important;
+        padding-right: 0 !important;
+        font-size: 11px !important;
+        line-height: 1.48 !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock {
+        top: 10px !important;
+        right: 10px !important;
+        gap: 7px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-launcher-btn,
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock .crypto-card-direct-launcher-btn,
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #cryptoCardValidationLauncherBtn,
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-dock #d5LauncherBtn,
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-utility-button {
+        flex-basis: 44px !important;
+        width: 44px !important;
+        min-width: 44px !important;
+        max-width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        max-height: 44px !important;
+        padding: 9px !important;
+        border-radius: 12px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .auth-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        margin: 18px 0 16px !important;
+        border-radius: 11px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .auth-tab,
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher {
+        min-height: 56px !important;
+        padding: 9px 7px !important;
+        font-size: 9px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher,
+    #authWrapper.hashcod-auth-enhanced #groqAuthChatLauncher.hashcod-auth-chat-tab-fixed {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        min-height: 48px !important;
+        border-top: 1px solid #d8d8d2 !important;
+    }
+
+    /* 16px prevents iOS Safari from zooming the viewport on focus. */
+    #authWrapper.hashcod-auth-enhanced input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+    #authWrapper.hashcod-auth-enhanced textarea,
+    #authWrapper.hashcod-auth-enhanced select {
+        min-height: 50px !important;
+        font-size: 16px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced [type="submit"],
+    #authWrapper.hashcod-auth-enhanced .auth-submit,
+    #authWrapper.hashcod-auth-enhanced .btn-primary,
+    #authWrapper.hashcod-auth-enhanced #adminHelloButton {
+        min-height: 50px !important;
+    }
+
+    #authWrapper.hashcod-auth-enhanced .hashcod-auth-windows-hello,
+    #authWrapper.hashcod-auth-enhanced .admin-hello-access {
+        width: 100% !important;
+        max-width: none !important;
+        margin-top: 20px !important;
+    }
+
+    /* ------------------------------------------------------------------
+       Six-slot vector tray becomes a usable phone dock instead of disappearing.
+       ------------------------------------------------------------------ */
+    html body #authOverlay #hashcodVectorTray,
+    html body.mobile-mode #authOverlay #hashcodVectorTray {
+        position: fixed !important;
+        left: 50% !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: max(8px, env(safe-area-inset-bottom)) !important;
+        display: block !important;
+        width: min(calc(100vw - 16px), 430px) !important;
+        height: 64px !important;
+        transform: translateX(-50%) !important;
+        z-index: 2147483000 !important;
+        pointer-events: auto !important;
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-shell {
+        width: 100% !important;
+        height: 100% !important;
+        padding: 7px !important;
+        border: 1px solid #111 !important;
+        border-radius: 16px !important;
+        background: rgba(255,255,255,.97) !important;
+        box-shadow: 0 12px 34px rgba(0,0,0,.18), inset 0 1px 0 #fff !important;
+        filter: none !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-shadow,
+    #hashcodVectorTray .hashcod-vector-tray-back,
+    #hashcodVectorTray .hashcod-vector-tray-plane,
+    #hashcodVectorTray .hashcod-vector-tray-front {
+        display: none !important;
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-slots {
+        position: static !important;
+        display: grid !important;
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        align-items: center !important;
+        gap: 6px !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 0 !important;
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-slot {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 48px !important;
+        max-height: 48px !important;
+        aspect-ratio: 1 !important;
+        border-radius: 11px !important;
+        box-shadow: inset 0 1px 0 #fff, inset 0 -2px 4px rgba(0,0,0,.05) !important;
+        touch-action: manipulation;
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-slot:not(:disabled):active {
+        transform: scale(.95) !important;
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-slot svg,
+    #hashcodVectorTray .hashcod-vector-tray-slot img {
+        width: 72% !important;
+        height: 72% !important;
+        max-width: 31px !important;
+        max-height: 31px !important;
+        object-fit: contain !important;
+    }
+
+    /* ------------------------------------------------------------------
+       Hashcod AI chat: use the actual phone viewport and keyboard-safe layout.
+       ------------------------------------------------------------------ */
+    #groqAuthChatPanel {
+        left: max(6px, env(safe-area-inset-left)) !important;
+        right: max(6px, env(safe-area-inset-right)) !important;
+        top: max(6px, env(safe-area-inset-top)) !important;
+        bottom: max(6px, env(safe-area-inset-bottom)) !important;
+        width: auto !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        border-radius: 14px !important;
+    }
+
+    .groq-chat-head {
+        min-height: 58px;
+        padding-top: 10px;
+    }
+
+    .groq-chat-head button {
+        min-width: 44px;
+        height: 44px;
+    }
+
+    #groqAuthChatMessages {
+        padding: 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .groq-chat-bubble {
+        max-width: 94%;
+        font-size: 12px;
+    }
+
+    #groqAuthChatInput {
+        min-height: 46px;
+        font-size: 16px;
+    }
+
+    #groqAuthChatSend {
+        min-width: 58px;
+        height: 46px;
+    }
+
+    /* ------------------------------------------------------------------
+       Collection gallery
+       ------------------------------------------------------------------ */
+    #hashcodImageVaultOverlay {
+        align-items: stretch !important;
+        justify-content: stretch !important;
+        padding: 0 !important;
+    }
+
+    .hashcod-image-vault {
+        width: 100vw !important;
+        height: 100dvh !important;
+        max-height: none !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .hashcod-image-vault-header {
+        min-height: 64px;
+        padding:
+            max(12px, env(safe-area-inset-top))
+            14px
+            12px !important;
+    }
+
+    .hashcod-image-vault-mark {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+        border-radius: 10px;
+    }
+
+    .hashcod-image-vault h2 {
+        font-size: 16px;
+    }
+
+    .hashcod-image-vault-kicker {
+        display: none;
+    }
+
+    .hashcod-image-vault-close {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+    }
+
+    .hashcod-image-vault-controlbar {
+        grid-template-columns: minmax(0,1fr) !important;
+        gap: 10px !important;
+        padding: 10px 14px !important;
+    }
+
+    .hashcod-image-vault-verify {
+        width: 100%;
+        min-height: 46px;
+    }
+
+    .hashcod-image-vault-main {
+        display: block !important;
+        min-height: 0;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .hashcod-image-vault-upload,
+    .hashcod-image-vault-gallery-pane {
+        padding: 14px !important;
+    }
+
+    .hashcod-image-vault-upload {
+        overflow: visible !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid #d0d0ca !important;
+    }
+
+    .hashcod-image-vault-dropzone {
+        min-height: 116px;
+        padding: 14px;
+    }
+
+    .hashcod-image-vault-field input {
+        height: 48px;
+        font-size: 16px;
+    }
+
+    .hashcod-image-vault-save,
+    .hashcod-image-vault-download {
+        min-height: 46px;
+    }
+
+    .hashcod-image-vault-gallery-pane {
+        min-height: 0 !important;
+        padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .hashcod-image-vault-gallery {
+        grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+        gap: 10px !important;
+        overflow: visible !important;
+    }
+
+    .hashcod-image-vault-code-dialog {
+        align-items: flex-end !important;
+        padding: 0 !important;
+    }
+
+    .hashcod-image-vault-code-card {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 20px 16px calc(18px + env(safe-area-inset-bottom)) !important;
+        border-right: 0 !important;
+        border-bottom: 0 !important;
+        border-left: 0 !important;
+        border-radius: 20px 20px 0 0 !important;
+    }
+
+    .hashcod-image-vault-code-card input {
+        font-size: 16px !important;
+    }
+
+    .hashcod-image-vault-code-actions button {
+        min-height: 46px;
+    }
+
+    /* ------------------------------------------------------------------
+       Mercado de precios
+       ------------------------------------------------------------------ */
+    #hashcodClassroomBoardOverlay {
+        align-items: stretch !important;
+        justify-content: stretch !important;
+        padding: 0 !important;
+    }
+
+    .hashcod-classroom-board-shell {
+        width: 100vw !important;
+        height: 100dvh !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .hashcod-classroom-board-header {
+        min-height: 64px;
+        padding:
+            max(10px, env(safe-area-inset-top))
+            12px
+            10px !important;
+    }
+
+    .hashcod-classroom-board-index {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+    }
+
+    .hashcod-classroom-board-heading h2 {
+        font-size: 15px;
+    }
+
+    .hashcod-classroom-board-heading p {
+        display: none;
+    }
+
+    .hashcod-classroom-board-close {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+    }
+
+    .hashcod-classroom-board-stage {
+        min-height: 0;
+        overflow: auto;
+        place-items: start center !important;
+        padding: 14px 10px calc(34px + env(safe-area-inset-bottom)) !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .hashcod-classroom-board-frame {
+        width: 100% !important;
+        height: min(70dvh, 560px) !important;
+        min-height: 470px !important;
+        padding: 13px 13px 26px !important;
+        border-radius: 14px !important;
+    }
+
+    .hashcod-classroom-board-emblems {
+        top: 14px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 14px 10px !important;
+        transform: none !important;
+    }
+
+    .hashcod-classroom-board-emblem-item {
+        width: calc(50% - 6px) !important;
+        min-width: 0 !important;
+        gap: 5px !important;
+    }
+
+    .hashcod-classroom-board-emblem {
+        width: 54px !important;
+        height: 54px !important;
+    }
+
+    .hashcod-classroom-board-emblem-value {
+        min-height: 22px;
+        padding: 4px 8px;
+        font-size: 8px;
+    }
+
+    /* ------------------------------------------------------------------
+       200-slot link board
+       ------------------------------------------------------------------ */
+    #hashcodLinkBoardOverlay {
+        align-items: stretch !important;
+        justify-content: stretch !important;
+        padding: 0 !important;
+    }
+
+    .hashcod-link-board-shell {
+        width: 100vw !important;
+        height: 100dvh !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .hashcod-link-board-header {
+        min-height: 64px !important;
+        padding:
+            max(10px, env(safe-area-inset-top))
+            10px
+            10px !important;
+        gap: 8px !important;
+    }
+
+    .hashcod-link-board-index {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+    }
+
+    .hashcod-link-board-heading {
+        min-width: 0;
+        gap: 8px !important;
+    }
+
+    .hashcod-link-board-heading h2 {
+        max-width: 42vw;
+        overflow: hidden;
+        font-size: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .hashcod-link-board-heading p,
+    .hashcod-link-board-legend {
+        display: none !important;
+    }
+
+    .hashcod-link-board-counter {
+        min-width: 64px;
+        padding: 7px 8px;
+    }
+
+    .hashcod-link-board-close {
+        width: 44px;
+        height: 44px;
+    }
+
+    .hashcod-link-board-toolbar {
+        min-height: 44px;
+        padding: 9px 12px !important;
+    }
+
+    .hashcod-link-board-status {
+        font-size: 8px;
+        line-height: 1.35;
+    }
+
+    .hashcod-link-board-stage {
+        padding: 10px 8px calc(16px + env(safe-area-inset-bottom)) !important;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .hashcod-link-board-tablet {
+        min-height: 100%;
+        padding: 18px 8px 12px !important;
+        border-radius: 13px !important;
+    }
+
+    .hashcod-link-board-tablet::before {
+        right: 12px;
+        top: 6px;
+        font-size: 6px;
+    }
+
+    .hashcod-link-board-grid {
+        grid-template-columns: repeat(5, minmax(48px, 1fr)) !important;
+        gap: 10px 7px !important;
+        padding: 11px 7px !important;
+        border-radius: 10px !important;
+    }
+
+    .hashcod-link-cell {
+        min-height: 58px;
+        gap: 4px;
+        touch-action: manipulation;
+    }
+
+    .hashcod-link-cell-number {
+        font-size: 7px;
+    }
+
+    .hashcod-link-board-dialog {
+        align-items: flex-end !important;
+        padding: 0 !important;
+    }
+
+    .hashcod-link-board-card {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 20px 16px calc(18px + env(safe-area-inset-bottom)) !important;
+        border-right: 0 !important;
+        border-bottom: 0 !important;
+        border-left: 0 !important;
+        border-radius: 20px 20px 0 0 !important;
+    }
+
+    .hashcod-link-board-card input {
+        min-height: 48px;
+        font-size: 16px;
+    }
+
+    .hashcod-link-board-card-actions button {
+        min-height: 46px;
+        flex: 1 1 0;
+    }
+
+    .hashcod-link-board-card-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* ------------------------------------------------------------------
+       Privacy/legal screen used by the same platform.
+       ------------------------------------------------------------------ */
+    body:has(.privacy-container) {
+        padding:
+            max(8px, env(safe-area-inset-top))
+            max(8px, env(safe-area-inset-right))
+            max(16px, env(safe-area-inset-bottom))
+            max(8px, env(safe-area-inset-left)) !important;
+    }
+
+    body:has(.privacy-container) .privacy-container {
+        width: 100% !important;
+        border-radius: 12px !important;
+    }
+
+    body:has(.privacy-container) .privacy-header {
+        padding: 18px 16px 16px !important;
+    }
+
+    body:has(.privacy-container) .privacy-header::after {
+        display: none;
+    }
+
+    body:has(.privacy-container) .privacy-title {
+        font-size: clamp(22px, 7vw, 28px) !important;
+    }
+
+    body:has(.privacy-container) .privacy-tabs {
+        display: flex !important;
+        overflow-x: auto !important;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+    }
+
+    body:has(.privacy-container) .tab-btn {
+        flex: 0 0 auto;
+        min-height: 48px;
+        scroll-snap-align: start;
+    }
+
+    body:has(.privacy-container) .privacy-content {
+        padding: 20px 16px 28px !important;
+        font-size: 12px !important;
+    }
+
+    body:has(.privacy-container) .vector-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 360px) {
+    #hashcodVectorTray .hashcod-vector-tray-shell {
+        padding: 6px !important;
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-slots {
+        gap: 4px !important;
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-slot {
+        min-height: 44px !important;
+        max-height: 44px !important;
+        border-radius: 10px !important;
+    }
+
+    .hashcod-image-vault-gallery {
+        grid-template-columns: 1fr !important;
+    }
+
+    .hashcod-link-board-grid {
+        grid-template-columns: repeat(4, minmax(50px, 1fr)) !important;
+    }
+
+    .hashcod-link-board-heading h2 {
+        max-width: 34vw;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) and (hover: none),
+       (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+    #authWrapper.hashcod-auth-enhanced .auth-card {
+        padding-bottom: 78px !important;
+    }
+
+    html body #authOverlay #hashcodVectorTray,
+    html body.mobile-mode #authOverlay #hashcodVectorTray {
+        bottom: max(5px, env(safe-area-inset-bottom)) !important;
+        height: 56px !important;
+    }
+
+    #hashcodVectorTray .hashcod-vector-tray-slot {
+        min-height: 42px !important;
+        max-height: 42px !important;
+    }
+
+    .hashcod-classroom-board-header,
+    .hashcod-link-board-header,
+    .hashcod-image-vault-header {
+        min-height: 54px !important;
+    }
+
+    .hashcod-classroom-board-stage {
+        padding-top: 8px !important;
+    }
+
+    .hashcod-classroom-board-frame {
+        height: 360px !important;
+        min-height: 360px !important;
+    }
+
+    .hashcod-classroom-board-emblems {
+        flex-wrap: nowrap !important;
+    }
+
+    .hashcod-classroom-board-emblem-item {
+        width: auto !important;
+        min-width: 70px !important;
+    }
+
+    .hashcod-link-board-grid {
+        grid-template-columns: repeat(10, minmax(42px, 1fr)) !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #hashcodVectorTray .hashcod-vector-tray-slot,
+    .hashcod-link-orb,
+    .hashcod-image-vault-card,
+    .groq-chat-bubble {
+        transition: none !important;
+    }
+}

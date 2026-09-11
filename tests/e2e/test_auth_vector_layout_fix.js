@@ -54,7 +54,14 @@ assert(dockCss.includes('visibility: visible'), 'validated-card entry must remai
 assert(dockCss.includes('#cryptoCardValidationLauncherBtn'), 'crypto-card launcher styling missing');
 assert(dockCss.includes('#d5LauncherBtn'), 'Dilithium launcher styling missing');
 assert(dockCss.includes('html:not([data-admin-authenticated="true"])'), 'admin-only launcher visibility gate must remain');
-assert(dockCss.includes('top: -21px !important;'), 'platform logo optical alignment offset missing');
+
+// Regression: the real logo is .auth-brand-icon, a sibling of .auth-title-wrap.
+// Moving .auth-title-wrap > :first-child moves the H1 and separates it from the icon.
+assert(dockCss.includes('.auth-header-brand'), 'brand row alignment selector missing');
+assert(dockCss.includes('.auth-brand-icon'), 'brand icon alignment selector missing');
+assert(dockCss.includes('align-items: center !important;'), 'brand row must vertically center its children');
+assert(dockCss.includes('top: auto !important;'), 'title/icon positional offsets must be reset');
+assert(!dockCss.includes('top: -21px !important;'), 'title must never be pulled away from the brand icon');
 
 assert(dilithium.includes('window.openDilithiumOneTimeKeyTool = openTool;'), 'Dilithium opener must be exposed for relocated launcher');
 assert(loader.includes('auth-vector-layout-fix.css?v=20260910-5'), 'base layout fix stylesheet v5 is not loaded');

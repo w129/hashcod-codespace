@@ -8,6 +8,7 @@ const css = fs.readFileSync(path.join(repoDir, 'components/vector-classroom-boar
 const icon = fs.readFileSync(path.join(repoDir, 'components/classroom-board-icon.svg'), 'utf8');
 const rightIcon = fs.readFileSync(path.join(repoDir, 'components/classroom-board-icon-right.svg'), 'utf8');
 const thirdIcon = fs.readFileSync(path.join(repoDir, 'components/classroom-board-icon-third.svg'), 'utf8');
+const fourthIcon = fs.readFileSync(path.join(repoDir, 'components/classroom-board-icon-fourth.svg'), 'utf8');
 const loader = fs.readFileSync(path.join(repoDir, 'components/admin-hello-button.js'), 'utf8');
 
 assert(source.includes("const TOOL_ID = 'store-module'"), 'second tray tool identity missing');
@@ -20,12 +21,15 @@ assert(source.includes('hashcod-classroom-board-surface'), 'board surface missin
 assert(source.includes('hashcod-classroom-board-emblems'), 'board icon row markup missing');
 assert(source.includes('hashcod-classroom-board-emblem-right'), 'right board icon markup missing');
 assert(source.includes('hashcod-classroom-board-emblem-third'), 'third board icon markup missing');
+assert(source.includes('hashcod-classroom-board-emblem-fourth'), 'fourth board icon markup missing');
 assert(source.includes("/components/classroom-board-icon.svg?v=20260911-1"), 'first board icon asset path missing');
 assert(source.includes("/components/classroom-board-icon-right.svg?v=20260911-1"), 'second board icon asset path missing');
 assert(source.includes("/components/classroom-board-icon-third.svg?v=20260911-1"), 'third board icon asset path missing');
+assert(source.includes("/components/classroom-board-icon-fourth.svg?v=20260911-1"), 'fourth board icon asset path missing');
 assert(source.includes('0.15 BTC'), 'first BTC value missing');
 assert(source.includes('0.015 BTC'), 'second BTC value missing');
 assert(source.includes('0.22 BTC'), 'third BTC value missing');
+assert(source.includes('0.05 BTC'), 'fourth BTC value missing');
 assert(source.includes('window.HashcodClassroomBoard'), 'board public API missing');
 
 assert(css.includes('.hashcod-classroom-board-surface'), 'board surface style missing');
@@ -44,6 +48,8 @@ assert(rightIcon.includes('viewBox="0 0 135 135"'), 'second board SVG viewBox mi
 assert(rightIcon.includes('<path d="M 67.5 5.3007812'), 'second board SVG path missing');
 assert(thirdIcon.includes('viewBox="0 0 135 135"'), 'third board SVG viewBox missing');
 assert(thirdIcon.includes('<path d="M 67.5 5.1992188'), 'third board SVG path missing');
+assert(fourthIcon.includes('viewBox="0 0 135 135"'), 'fourth board SVG viewBox missing');
+assert(fourthIcon.includes('<path d="M 67.5 5.3007812'), 'fourth board SVG path missing');
 
 assert(loader.includes("vector-classroom-board.css?v=20260911-2"), 'classroom board stylesheet is not loaded with current version');
 assert(loader.includes("vector-classroom-board.js?v=20260911-2"), 'classroom board script is not loaded with current version');

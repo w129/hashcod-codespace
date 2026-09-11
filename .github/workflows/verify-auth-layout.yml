@@ -13,10 +13,14 @@ on:
       - components/vector-image-vault.css
       - components/vector-classroom-board.js
       - components/vector-classroom-board.css
+      - components/vector-link-board.js
+      - components/vector-link-board.css
+      - components/vector-tray-icon-third.svg
       - tests/e2e/test_auth_vector_layout_fix.js
       - tests/e2e/test_auth_vector_tray.js
       - tests/e2e/test_vector_image_vault.js
       - tests/e2e/test_vector_classroom_board.js
+      - tests/e2e/test_vector_link_board.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
 
@@ -39,6 +43,9 @@ jobs:
       - name: Syntax check classroom board module
         run: node --check components/vector-classroom-board.js
 
+      - name: Syntax check link board module
+        run: node --check components/vector-link-board.js
+
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
 
@@ -50,6 +57,9 @@ jobs:
 
       - name: Verify classroom board contract
         run: node tests/e2e/test_vector_classroom_board.js
+
+      - name: Verify 200-slot link board contract
+        run: node tests/e2e/test_vector_link_board.js
 
       - name: Verify cryptographic card gate regression
         run: node tests/e2e/test_crypto_card_validation_gate.js

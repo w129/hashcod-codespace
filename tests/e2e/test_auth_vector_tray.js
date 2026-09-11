@@ -34,6 +34,14 @@ assert(source.includes('function registerDefaultVectorTrayTools()'), 'default fi
 assert(source.includes('registerDefaultVectorTrayTools();'), 'first-slot icon must be mounted with the tray');
 assert(source.includes('width:72%;height:72%;max-width:34px;max-height:34px;'), 'detailed supplied SVG must be sized for the tray cube');
 
+// Freeze regression: internal tray rendering changes child nodes. The observer
+// must not respond to every childList mutation by rendering the tray again.
+assert(source.includes('const trayMissing = Boolean('), 'observer must check whether the tray is actually missing');
+assert(source.includes('const sloganMissing = Boolean('), 'observer must check whether the slogan is actually missing');
+assert(source.includes('const firstSlotMissing = Boolean('), 'observer must check structural tray damage before remounting');
+assert(source.includes('if (!trayMissing && !sloganMissing && !firstSlotMissing) return;'), 'observer must ignore ordinary DOM mutations');
+assert(!source.includes("const observer = new MutationObserver(function () {\n        mountAll();\n    });"), 'observer must never unconditionally remount on every DOM mutation');
+
 assert(!source.includes('fetch('), 'visual tray must not introduce network behavior');
 assert(!source.includes('window.location'), 'visual tray must not introduce navigation behavior');
 

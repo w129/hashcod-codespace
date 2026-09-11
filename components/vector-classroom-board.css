@@ -181,12 +181,21 @@
     left: 50%;
     z-index: 3;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    gap: clamp(16px, 2vw, 28px);
+    gap: clamp(18px, 2.4vw, 34px);
     transform: translateX(-50%);
     pointer-events: none;
     user-select: none;
+}
+
+.hashcod-classroom-board-emblem-item {
+    min-width: clamp(70px, 7vw, 94px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
 }
 
 .hashcod-classroom-board-emblem {
@@ -201,6 +210,24 @@
 
 .hashcod-classroom-board-emblem-right {
     opacity: .88;
+}
+
+.hashcod-classroom-board-emblem-value {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    padding: 4px 9px;
+    border: 1px solid rgba(37,36,36,.22);
+    border-radius: 999px;
+    background: rgba(255,255,255,.48);
+    color: #252424;
+    box-shadow: 0 1px 0 rgba(255,255,255,.72) inset;
+    font-size: clamp(8px, .72vw, 10px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: .045em;
+    white-space: nowrap;
 }
 
 .hashcod-classroom-board-surface::before {
@@ -302,8 +329,19 @@
         gap: 14px;
     }
 
+    .hashcod-classroom-board-emblem-item {
+        min-width: 66px;
+        gap: 5px;
+    }
+
     .hashcod-classroom-board-emblem {
         width: 54px;
         height: 54px;
+    }
+
+    .hashcod-classroom-board-emblem-value {
+        min-height: 20px;
+        padding: 4px 7px;
+        font-size: 8px;
     }
 }

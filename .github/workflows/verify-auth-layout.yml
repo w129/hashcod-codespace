@@ -7,7 +7,9 @@ on:
     paths:
       - components/auth-vector-layout-fix.js
       - components/auth-utility-outside.css
+      - components/platform-entry-slogan.js
       - tests/e2e/test_auth_vector_layout_fix.js
+      - tests/e2e/test_auth_vector_tray.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
 
@@ -21,8 +23,14 @@ jobs:
       - name: Syntax check auth layout script
         run: node --check components/auth-vector-layout-fix.js
 
+      - name: Syntax check vector tray module
+        run: node --check components/platform-entry-slogan.js
+
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
+
+      - name: Verify 3D auth vector tray contract
+        run: node tests/e2e/test_auth_vector_tray.js
 
       - name: Verify cryptographic card gate regression
         run: node tests/e2e/test_crypto_card_validation_gate.js

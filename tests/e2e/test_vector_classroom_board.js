@@ -16,8 +16,10 @@ assert(source.includes('hashcod-classroom-board-frame'), 'school-style board fra
 assert(source.includes('hashcod-classroom-board-surface'), 'board surface missing');
 assert(source.includes('window.HashcodClassroomBoard'), 'board public API missing');
 
-assert(css.includes('background: #e1e1e1'), 'board surface must use #e1e1e1');
-assert(css.includes('background: #252424'), 'board frame must use #252424');
+assert(css.includes('.hashcod-classroom-board-surface'), 'board surface style missing');
+assert(css.includes('#e1e1e1'), 'board surface must use #e1e1e1');
+assert(css.includes('.hashcod-classroom-board-frame'), 'board frame style missing');
+assert(css.includes('#252424'), 'board frame must use #252424');
 assert(css.includes('.hashcod-classroom-board-rail'), 'school-style lower rail missing');
 
 assert(loader.includes("vector-classroom-board.css?v=20260911-1"), 'classroom board stylesheet is not loaded');

@@ -224,7 +224,7 @@
                     '<div class="hashcod-image-vault-title-group">',
                         '<span class="hashcod-image-vault-mark" aria-hidden="true">', fallbackIcon, '</span>',
                         '<div>',
-                            '<h2 id="hashcodImageVaultTitle">PNG Vault</h2>',
+                            '<h2 id="hashcodImageVaultTitle">Collection gallery</h2>',
                             '<p class="hashcod-image-vault-kicker">Windows Hello / protected local gallery</p>',
                         '</div>',
                     '</div>',
@@ -593,7 +593,7 @@
         window.HashcodVectorTray.registerTool({
             slot: 0,
             id: SLOT_ID,
-            label: 'PNG Vault — imágenes protegidas por code',
+            label: 'Collection gallery — imágenes protegidas por code',
             iconSvg: findCurrentIcon(),
             onClick: openVault
         });

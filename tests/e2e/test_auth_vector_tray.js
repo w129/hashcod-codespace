@@ -13,7 +13,11 @@ assert(source.includes('hashcod-vector-tray-plane'), '3D tray top plane is missi
 assert(source.includes('hashcod-vector-tray-front'), '3D tray front face is missing');
 assert(source.includes('hashcod-vector-tray-slots'), 'tool slot rail is missing');
 assert(source.includes("left:calc(50% - max(26vw,46.222222vh))"), 'tray must remain aligned with the left auth artwork');
-assert(source.includes("top:calc(50% + max(4.75vw,8.444444vh))"), 'tray must occupy the requested middle artwork area');
+assert(source.includes("top:50%"), 'tray must keep a centered fallback position');
+assert(source.includes('function positionVectorTray(tray)'), 'tray must expose card-relative positioning');
+assert(source.includes("document.querySelector('#authWrapper .auth-card')"), 'tray must align against the real auth card');
+assert(source.includes('const cardCenterY = cardRect.top - overlayRect.top + (cardRect.height / 2)'), 'tray must vertically center itself with the auth card');
+assert(source.includes("window.addEventListener('resize'"), 'tray must recalculate alignment after viewport changes');
 assert(source.includes('background:linear-gradient(180deg,#fff'), 'tray must remain white/monochrome');
 assert(source.includes("window.HashcodVectorTray = Object.freeze"), 'future tool registration API is missing');
 assert(source.includes('registerTool: registerVectorTrayTool'), 'future icon-button registration API is missing');

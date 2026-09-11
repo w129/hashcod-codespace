@@ -15,7 +15,7 @@
         const link = document.createElement('link');
         link.id = 'authUtilityOutsideStylesheet';
         link.rel = 'stylesheet';
-        link.href = componentBase + 'auth-utility-outside.css?v=20260910-3';
+        link.href = componentBase + 'auth-utility-outside.css?v=20260910-5';
         document.head.appendChild(link);
     })();
 
@@ -217,8 +217,6 @@
             button.setAttribute('title', 'Agregar tarjeta criptográfica validada');
         }
 
-        // Keep native launcher handlers intact. This listener is only the fallback
-        // for cases where the functional engine has not attached its handler yet.
         button.addEventListener('click', async function (event) {
             event.preventDefault();
 

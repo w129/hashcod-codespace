@@ -11,9 +11,12 @@ on:
       - components/platform-entry-slogan.js
       - components/vector-image-vault.js
       - components/vector-image-vault.css
+      - components/vector-classroom-board.js
+      - components/vector-classroom-board.css
       - tests/e2e/test_auth_vector_layout_fix.js
       - tests/e2e/test_auth_vector_tray.js
       - tests/e2e/test_vector_image_vault.js
+      - tests/e2e/test_vector_classroom_board.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
 
@@ -33,6 +36,9 @@ jobs:
       - name: Syntax check PNG vault module
         run: node --check components/vector-image-vault.js
 
+      - name: Syntax check classroom board module
+        run: node --check components/vector-classroom-board.js
+
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
 
@@ -41,6 +47,9 @@ jobs:
 
       - name: Verify PNG vault contract
         run: node tests/e2e/test_vector_image_vault.js
+
+      - name: Verify classroom board contract
+        run: node tests/e2e/test_vector_classroom_board.js
 
       - name: Verify cryptographic card gate regression
         run: node tests/e2e/test_crypto_card_validation_gate.js

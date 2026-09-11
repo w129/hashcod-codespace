@@ -109,6 +109,23 @@
         return true;
     }
 
+    function loadLinkBoardAssets() {
+        if (!document.getElementById('vectorLinkBoardStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'vectorLinkBoardStylesheet';
+            link.rel = 'stylesheet';
+            link.href = '/components/vector-link-board.css?v=20260911-1';
+            document.head.appendChild(link);
+        }
+        if (!document.querySelector('script[data-vector-link-board]')) {
+            const script = document.createElement('script');
+            script.src = '/components/vector-link-board.js?v=20260911-1';
+            script.defer = true;
+            script.dataset.vectorLinkBoard = 'true';
+            document.head.appendChild(script);
+        }
+    }
+
     function waitForTray() {
         if (registerTool()) return;
         let attempts = 0;
@@ -127,5 +144,6 @@
         close: closeBoard
     });
 
+    loadLinkBoardAssets();
     waitForTray();
 })();

@@ -217,13 +217,13 @@
             const link = document.createElement('link');
             link.id = 'vectorClassroomBoardStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'vector-classroom-board.css?v=20260911-1';
+            link.href = componentBase + 'vector-classroom-board.css?v=20260911-2';
             document.head.appendChild(link);
         }
 
         if (!document.querySelector('script[data-vector-classroom-board]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'vector-classroom-board.js?v=20260911-1';
+            script.src = componentBase + 'vector-classroom-board.js?v=20260911-2';
             script.defer = true;
             script.dataset.vectorClassroomBoard = 'true';
             document.head.appendChild(script);

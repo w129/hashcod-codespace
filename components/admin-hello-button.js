@@ -146,7 +146,7 @@
 
         if (!document.querySelector('script[data-platform-entry-slogan]')) {
             const sloganScript = document.createElement('script');
-            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260910-2';
+            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260911-1';
             sloganScript.defer = true;
             sloganScript.dataset.platformEntrySlogan = 'true';
             document.head.appendChild(sloganScript);
@@ -176,6 +176,33 @@
         }
 
         window.setTimeout(loadHoldScript, 600);
+    })();
+
+    // Load the PNG vault attached to the first cube in the 3D vector tray.
+    // The vault reuses the platform's existing Windows Hello session and keeps
+    // the landing artwork lightweight until the user opens the module.
+    (function loadVectorImageVaultAssets() {
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+
+        if (!document.getElementById('vectorImageVaultStylesheet')) {
+            const link = document.createElement('link');
+            link.id = 'vectorImageVaultStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'vector-image-vault.css?v=20260911-1';
+            document.head.appendChild(link);
+        }
+
+        if (!document.querySelector('script[data-vector-image-vault]')) {
+            const script = document.createElement('script');
+            script.src = componentBase + 'vector-image-vault.js?v=20260911-1';
+            script.defer = true;
+            script.dataset.vectorImageVault = 'true';
+            document.head.appendChild(script);
+        }
     })();
 
     const overlay = document.getElementById('authOverlay');

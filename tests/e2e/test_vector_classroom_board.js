@@ -9,6 +9,7 @@ const icon = fs.readFileSync(path.join(repoDir, 'components/classroom-board-icon
 const rightIcon = fs.readFileSync(path.join(repoDir, 'components/classroom-board-icon-right.svg'), 'utf8');
 const thirdIcon = fs.readFileSync(path.join(repoDir, 'components/classroom-board-icon-third.svg'), 'utf8');
 const fourthIcon = fs.readFileSync(path.join(repoDir, 'components/classroom-board-icon-fourth.svg'), 'utf8');
+const thirdTrayIcon = fs.readFileSync(path.join(repoDir, 'components/vector-tray-icon-third.svg'), 'utf8');
 const loader = fs.readFileSync(path.join(repoDir, 'components/admin-hello-button.js'), 'utf8');
 
 assert(source.includes("const TOOL_ID = 'store-module'"), 'second tray tool identity missing');
@@ -34,6 +35,16 @@ assert(source.includes('0.015 BTC'), 'second BTC value missing');
 assert(source.includes('0.22 BTC'), 'third BTC value missing');
 assert(source.includes('0.05 BTC'), 'fourth BTC value missing');
 assert(source.includes('window.HashcodClassroomBoard'), 'board public API missing');
+
+assert(source.includes("const THIRD_TRAY_ICON_SRC = '/components/vector-tray-icon-third.svg?v=20260911-1'"), 'third tray icon asset path missing');
+assert(source.includes('slot: 2'), 'third tray cube registration missing');
+assert(source.includes("id: 'grid-module'"), 'third tray tool identity missing');
+assert(source.includes("label: 'Módulo de cuadrícula — función pendiente'"), 'third tray placeholder label missing');
+assert(source.includes("iconSvg: '<img src=\"' + THIRD_TRAY_ICON_SRC"), 'third tray icon markup missing');
+assert(!source.includes("id: 'grid-module',\n            label: 'Módulo de cuadrícula — función pendiente',\n            onClick:"), 'third tray tool must remain without behavior until requested');
+assert(thirdTrayIcon.includes('viewBox="0 0 256 256"'), 'third tray SVG viewBox missing');
+assert(thirdTrayIcon.includes('color-4_gPS47EOOeWUd_gr4'), 'third tray SVG gradients missing');
+assert(thirdTrayIcon.includes('transform="scale(4,4)"'), 'third tray SVG geometry missing');
 
 assert(css.includes('.hashcod-classroom-board-surface'), 'board surface style missing');
 assert(css.includes('#e1e1e1'), 'board surface must use #e1e1e1');

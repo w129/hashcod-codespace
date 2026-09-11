@@ -10,6 +10,7 @@
     const BOARD_ICON_RIGHT_SRC = '/components/classroom-board-icon-right.svg?v=20260911-1';
     const BOARD_ICON_THIRD_SRC = '/components/classroom-board-icon-third.svg?v=20260911-1';
     const BOARD_ICON_FOURTH_SRC = '/components/classroom-board-icon-fourth.svg?v=20260911-1';
+    const THIRD_TRAY_ICON_SRC = '/components/vector-tray-icon-third.svg?v=20260911-1';
 
     function ensureOverlay() {
         let overlay = document.getElementById('hashcodClassroomBoardOverlay');
@@ -97,6 +98,13 @@
             label: 'Mercado de precios',
             iconSvg: findCurrentIcon(),
             onClick: openBoard
+        });
+
+        window.HashcodVectorTray.registerTool({
+            slot: 2,
+            id: 'grid-module',
+            label: 'Módulo de cuadrícula — función pendiente',
+            iconSvg: '<img src="' + THIRD_TRAY_ICON_SRC + '" alt="" aria-hidden="true" style="display:block;width:72%;height:72%;max-width:34px;max-height:34px;object-fit:contain">'
         });
         return true;
     }

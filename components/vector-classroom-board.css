@@ -175,10 +175,27 @@
         0 1px 0 rgba(255,255,255,.16);
 }
 
+.hashcod-classroom-board-emblem {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    z-index: 3;
+    width: clamp(54px, 5.4vw, 76px);
+    height: clamp(54px, 5.4vw, 76px);
+    display: block;
+    object-fit: contain;
+    transform: translateX(-50%);
+    opacity: .9;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 1px 0 rgba(255,255,255,.55));
+}
+
 .hashcod-classroom-board-surface::before {
     content: '';
     position: absolute;
     inset: 0;
+    z-index: 0;
     pointer-events: none;
     background:
         linear-gradient(rgba(37,36,36,.028) 1px, transparent 1px),
@@ -194,6 +211,7 @@
     content: '';
     position: absolute;
     inset: 12px;
+    z-index: 1;
     border: 1px solid rgba(37,36,36,.075);
     border-radius: 3px;
     box-shadow: 0 0 0 1px rgba(255,255,255,.34) inset;
@@ -265,5 +283,11 @@
     .hashcod-classroom-board-frame::after {
         right: 20px;
         font-size: 7px;
+    }
+
+    .hashcod-classroom-board-emblem {
+        top: 12px;
+        width: 54px;
+        height: 54px;
     }
 }

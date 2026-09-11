@@ -16,11 +16,13 @@ on:
       - components/vector-link-board.js
       - components/vector-link-board.css
       - components/vector-tray-icon-third.svg
+      - components/mobile-platform-polish.css
       - tests/e2e/test_auth_vector_layout_fix.js
       - tests/e2e/test_auth_vector_tray.js
       - tests/e2e/test_vector_image_vault.js
       - tests/e2e/test_vector_classroom_board.js
       - tests/e2e/test_vector_link_board.js
+      - tests/e2e/test_mobile_platform_polish.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
 
@@ -60,6 +62,9 @@ jobs:
 
       - name: Verify 200-slot link board contract
         run: node tests/e2e/test_vector_link_board.js
+
+      - name: Verify mobile platform polish
+        run: node tests/e2e/test_mobile_platform_polish.js
 
       - name: Verify cryptographic card gate regression
         run: node tests/e2e/test_crypto_card_validation_gate.js

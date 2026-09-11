@@ -6,6 +6,7 @@ const repoDir = path.resolve(__dirname, '../..');
 const source = fs.readFileSync(path.join(repoDir, 'components/vector-image-vault.js'), 'utf8');
 const css = fs.readFileSync(path.join(repoDir, 'components/vector-image-vault.css'), 'utf8');
 const loader = fs.readFileSync(path.join(repoDir, 'components/admin-hello-button.js'), 'utf8');
+const tray = fs.readFileSync(path.join(repoDir, 'components/platform-entry-slogan.js'), 'utf8');
 
 assert(source.includes("const DB_NAME = 'hashcod_image_vault_v1'"), 'PNG vault IndexedDB namespace missing');
 assert(source.includes("const STORE_NAME = 'images'"), 'PNG vault image store missing');
@@ -34,6 +35,11 @@ assert(css.includes('.hashcod-image-vault-code-dialog'), 'protected download cod
 
 assert(loader.includes("vector-image-vault.css?v=20260911-1"), 'PNG vault stylesheet is not loaded by the platform');
 assert(loader.includes("vector-image-vault.js?v=20260911-1"), 'PNG vault script is not loaded by the platform');
-assert(loader.includes("platform-entry-slogan.js?v=20260911-1"), 'tray script cache bust must include the current functional version');
+assert(loader.includes("platform-entry-slogan.js?v=20260911-2"), 'tray script cache bust must include the current functional version');
+
+assert(tray.includes('const HASHCOD_STORE_MODULE_ICON'), 'second tray icon constant missing');
+assert(tray.includes('slot: 1'), 'second vector tray cube must be registered');
+assert(tray.includes("id: 'store-module'"), 'second vector tray cube module id missing');
+assert(tray.includes('iconSvg: HASHCOD_STORE_MODULE_ICON'), 'second vector tray cube must render the supplied store icon');
 
 console.log('vector image vault contract: OK');

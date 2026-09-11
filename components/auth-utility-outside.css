@@ -116,38 +116,46 @@ html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock
     pointer-events: none !important;
 }
 
-/* Header brand alignment. The SVG is visually bottom-heavy, so move the actual
-   first logo element up until the mark's visual center matches the title text. */
+/* Header brand alignment.
+   The brand icon is a sibling of .auth-title-wrap. Never move the first child
+   of .auth-title-wrap because that child is the H1 title, not the logo. */
+#authWrapper.hashcod-auth-enhanced .auth-header-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+#authWrapper.hashcod-auth-enhanced .auth-brand-icon {
+    position: static !important;
+    top: auto !important;
+    align-self: center !important;
+    flex: 0 0 28px !important;
+    width: 28px !important;
+    height: 26px !important;
+    margin: 0 !important;
+    transform: none !important;
+}
+
 #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
+    align-self: center !important;
     align-items: center !important;
 }
 
-#authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child {
-    position: relative !important;
-    top: -21px !important;
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child,
+#authWrapper.hashcod-auth-enhanced .auth-title-wrap > h1,
+#authWrapper.hashcod-auth-enhanced .auth-title {
+    position: static !important;
+    top: auto !important;
     align-self: center !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-}
-
-#authWrapper.hashcod-auth-enhanced .auth-title-wrap > svg,
-#authWrapper.hashcod-auth-enhanced .auth-title-wrap > img,
-#authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child > svg,
-#authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child > img {
-    display: block !important;
-    flex: 0 0 38px !important;
-    width: 38px !important;
-    height: 38px !important;
-    margin: 0 !important;
     transform: none !important;
-    object-position: center !important;
 }
 
 #authWrapper.hashcod-auth-enhanced .auth-title {
     display: flex !important;
     align-items: center !important;
     min-height: 38px !important;
-    margin: 0 !important;
     line-height: 1 !important;
 }
 

@@ -8,6 +8,7 @@
     const SLOT = 1;
     const BOARD_ICON_SRC = '/components/classroom-board-icon.svg?v=20260911-1';
     const BOARD_ICON_RIGHT_SRC = '/components/classroom-board-icon-right.svg?v=20260911-1';
+    const BOARD_ICON_THIRD_SRC = '/components/classroom-board-icon-third.svg?v=20260911-1';
 
     function ensureOverlay() {
         let overlay = document.getElementById('hashcodClassroomBoardOverlay');
@@ -39,6 +40,10 @@
                                 '<div class="hashcod-classroom-board-emblem-item">',
                                     '<img class="hashcod-classroom-board-emblem hashcod-classroom-board-emblem-right" src="' + BOARD_ICON_RIGHT_SRC + '" alt="">',
                                     '<span class="hashcod-classroom-board-emblem-value">0.015 BTC</span>',
+                                '</div>',
+                                '<div class="hashcod-classroom-board-emblem-item">',
+                                    '<img class="hashcod-classroom-board-emblem hashcod-classroom-board-emblem-third" src="' + BOARD_ICON_THIRD_SRC + '" alt="">',
+                                    '<span class="hashcod-classroom-board-emblem-value">0.22 BTC</span>',
                                 '</div>',
                             '</div>',
                         '</div>',

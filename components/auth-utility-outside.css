@@ -116,17 +116,15 @@ html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock
     pointer-events: none !important;
 }
 
-/* Header brand alignment.
-   The platform mark is bottom-heavy because the triangle extends below the
-   screen frame, so mathematical flex centering still looks too low. Apply an
-   optical correction to the entire first logo element, not only its image box. */
+/* Header brand alignment. The SVG is visually bottom-heavy, so move the actual
+   first logo element up until the mark's visual center matches the title text. */
 #authWrapper.hashcod-auth-enhanced .auth-title-wrap {
     align-items: center !important;
 }
 
 #authWrapper.hashcod-auth-enhanced .auth-title-wrap > :first-child {
     position: relative !important;
-    top: -9px !important;
+    top: -21px !important;
     align-self: center !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;

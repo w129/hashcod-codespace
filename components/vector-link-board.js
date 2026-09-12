@@ -113,7 +113,10 @@
             await new Promise(function (resolve, reject) {
                 const tx = db.transaction(STORE_NAME, 'readwrite');
                 tx.objectStore(STORE_NAME).put(record);
-                tx.oncomplete = resolve;
+                tx.oncomplete = function () {
+                    resolve();
+                    window.dispatchEvent(new CustomEvent('hashcod:local-save'));
+                };
                 tx.onerror = function () { reject(tx.error || new Error('No se pudo guardar el enlace.')); };
                 tx.onabort = function () { reject(tx.error || new Error('No se pudo guardar el enlace.')); };
             });

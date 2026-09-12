@@ -198,7 +198,7 @@
 
         if (!document.querySelector('script[data-vector-image-vault]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'vector-image-vault.js?v=20260911-1';
+            script.src = componentBase + 'vector-image-vault.js?v=20260912-1';
             script.defer = true;
             script.dataset.vectorImageVault = 'true';
             document.head.appendChild(script);
@@ -223,7 +223,7 @@
 
         if (!document.querySelector('script[data-vector-classroom-board]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'vector-classroom-board.js?v=20260911-2';
+            script.src = componentBase + 'vector-classroom-board.js?v=20260912-1';
             script.defer = true;
             script.dataset.vectorClassroomBoard = 'true';
             document.head.appendChild(script);
@@ -241,7 +241,7 @@
             : '/components/';
         if (document.querySelector('script[data-hashcod-cloud-sync]')) return;
         const script = document.createElement('script');
-        script.src = componentBase + 'cloud-device-sync.js?v=20260911-1';
+        script.src = componentBase + 'cloud-device-sync.js?v=20260912-1';
         script.defer = true;
         script.dataset.hashcodCloudSync = 'true';
         document.head.appendChild(script);

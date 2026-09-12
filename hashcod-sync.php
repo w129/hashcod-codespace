@@ -110,6 +110,7 @@ function hcsLoadLinks(string $accountKey): array {
 
 function hcsSaveLinks(string $accountKey, array $incoming): array {
     $current = hcsLoadLinks($accountKey);
+    if (empty($current['ok'])) return $current;
     $merged = [];
     foreach (($current['links'] ?? []) as $row) {
         $n = hcsNormalizeLink($row);
@@ -304,8 +305,9 @@ if ($action === 'status' && $method === 'GET') {
         'ok' => true,
         'account_key' => $accountKey,
         'supabase_configured' => !empty($cfg['configured']),
-        'postgres' => !empty($health['db_ready']) || !empty($cfg['configured']),
-        'storage' => !empty($health['storage_ready']) || !empty($cfg['configured']),
+        'postgres' => !empty(supabaseDbSelect('l8_app_states', 'select=id&limit=1')['ok'])
+            && !empty(supabaseDbSelect('l8_files', 'select=id&limit=1')['ok']),
+        'storage' => !empty($health['storage_ready']) && empty($health['degraded']),
     ]);
 }
 

@@ -230,6 +230,23 @@
         }
     })();
 
+    // Cross-device persistence for browser-only tools. IndexedDB remains the
+    // offline cache, while Supabase Postgres + Storage becomes the shared source
+    // so laptop and phone converge to the same account state.
+    (function loadCloudDeviceSync() {
+        const current = document.currentScript;
+        const currentSrc = current && current.src ? current.src : '';
+        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+            : '/components/';
+        if (document.querySelector('script[data-hashcod-cloud-sync]')) return;
+        const script = document.createElement('script');
+        script.src = componentBase + 'cloud-device-sync.js?v=20260911-1';
+        script.defer = true;
+        script.dataset.hashcodCloudSync = 'true';
+        document.head.appendChild(script);
+    })();
+
     const overlay = document.getElementById('authOverlay');
     const wrapper = document.getElementById('authWrapper');
     if (!overlay || !wrapper) return;

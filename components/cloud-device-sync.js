@@ -10,6 +10,7 @@
     const IMAGE_DB = 'hashcod_image_vault_v1';
     const IMAGE_STORE = 'images';
     const SYNC_INTERVAL_MS = 15000;
+    let savePending = false;
 
     const state = {
         syncing: false,
@@ -235,7 +236,7 @@
         const downloads = [];
         for (const [id, meta] of remoteById.entries()) {
             if (!localById.has(id)) {
-                try { downloads.push(await fetchRemoteImage(meta)); } catch (_) {}
+                downloads.push(await fetchRemoteImage(meta));
             }
         }
         if (downloads.length) {
@@ -249,7 +250,7 @@
                     const uploaded = await uploadLocalImage(row);
                     if (uploaded) remoteById.set(id, normalizeImageMeta(uploaded));
                 } catch (error) {
-                    if (error && error.code === 'not_authenticated') throw error;
+                    throw error;
                 }
             }
         }
@@ -270,8 +271,10 @@
             const status = await jsonRequest('status');
             state.authenticated = true;
             if (!status.supabase_configured) throw new Error('Supabase no está configurado en el servidor.');
-            await syncLinks();
-            await syncImages();
+            if (status.postgres === false) throw new Error('El guardado en la nube no está disponible. Tus datos locales se conservan.');
+            const results = await Promise.allSettled([syncLinks(), syncImages()]);
+            const failed = results.find(result => result.status === 'rejected');
+            if (failed) throw failed.reason;
             state.lastSyncAt = Date.now();
             emit({ phase: 'complete', reason: reason || 'scheduled' });
             return true;
@@ -282,8 +285,17 @@
             return false;
         } finally {
             state.syncing = false;
+            if (savePending) {
+                savePending = false;
+                window.setTimeout(function () { syncAll('local-save'); }, 0);
+            }
         }
     }
+
+    window.addEventListener('hashcod:local-save', function () {
+        if (state.syncing) savePending = true;
+        else syncAll('local-save');
+    });
 
     window.addEventListener('online', function () {
         state.online = true;

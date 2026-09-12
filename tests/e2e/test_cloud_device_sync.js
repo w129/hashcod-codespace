@@ -31,7 +31,7 @@ assert(backend.includes("'code_hash' => $codeHash"), 'only the hashed gallery co
 assert(!backend.includes("'code' => $_POST"), 'plain gallery codes must never be written to cloud storage');
 assert(backend.includes("in_array($scheme, ['http', 'https'], true)"), 'synced links must remain HTTP/HTTPS only');
 
-assert(loader.includes("cloud-device-sync.js?v=20260911-1"), 'platform loader must start cloud-device sync');
+assert(loader.includes("cloud-device-sync.js?v=20260912-1"), 'platform loader must start cloud-device sync');
 assert(loader.includes('data-hashcod-cloud-sync'), 'cloud sync loader guard missing');
 
 console.log('Cloud device sync contract OK');

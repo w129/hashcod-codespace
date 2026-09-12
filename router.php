@@ -88,6 +88,12 @@ if ($uri === '/api/groq-chat') {
     exit;
 }
 
+// Explicit authenticated sync entrypoint; never fall through to the HTML page.
+if ($uri === '/hashcod-sync.php') {
+    require __DIR__ . '/hashcod-sync.php';
+    exit;
+}
+
 // API
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

@@ -5,6 +5,8 @@ on:
     branches:
       - main
     paths:
+      - hashcod-sync.php
+      - components/cloud-device-sync.js
       - components/admin-hello-button.js
       - components/auth-vector-layout-fix.js
       - components/auth-utility-outside.css
@@ -23,6 +25,7 @@ on:
       - tests/e2e/test_vector_classroom_board.js
       - tests/e2e/test_vector_link_board.js
       - tests/e2e/test_mobile_platform_polish.js
+      - tests/e2e/test_cloud_device_sync.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
 
@@ -48,6 +51,12 @@ jobs:
       - name: Syntax check link board module
         run: node --check components/vector-link-board.js
 
+      - name: Syntax check cloud device sync
+        run: node --check components/cloud-device-sync.js
+
+      - name: Syntax check cloud sync backend
+        run: php -l hashcod-sync.php
+
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
 
@@ -65,6 +74,9 @@ jobs:
 
       - name: Verify mobile platform polish
         run: node tests/e2e/test_mobile_platform_polish.js
+
+      - name: Verify cross-device Supabase sync
+        run: node tests/e2e/test_cloud_device_sync.js
 
       - name: Verify cryptographic card gate regression
         run: node tests/e2e/test_crypto_card_validation_gate.js

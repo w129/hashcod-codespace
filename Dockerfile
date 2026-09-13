@@ -92,6 +92,16 @@ RUN /opt/l8-py/bin/pip install --no-cache-dir -r /tmp/requirements-streamlit.txt
     && rm -f /tmp/requirements-streamlit.txt
 
 COPY . /var/www/html
+
+# Build the actual Rare UI React + Motion folder as a local browser bundle.
+# This keeps the PHP platform native while using the same React/Motion behavior
+# as `npx shadcn@latest add swamimalode07/rare-ui/folder-component`.
+RUN cd /var/www/html/rare-folder-build \
+    && npm install --no-fund --no-audit \
+    && npm run build \
+    && test -s /var/www/html/components/rare-folder-entry.bundle.js \
+    && rm -rf /var/www/html/rare-folder-build/node_modules /root/.npm
+
 RUN chown -R l8user:l8group /var/www/html \
     && mkdir -p /var/www/html/data_storage /var/www/html/uploads \
     && chown -R l8user:l8group /var/www/html/data_storage /var/www/html/uploads

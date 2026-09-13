@@ -126,7 +126,7 @@
         }
         if (!document.querySelector('script[data-vector-link-board]')) {
             const script = document.createElement('script');
-            script.src = '/components/vector-link-board.js?v=20260912-1';
+            script.src = '/components/vector-link-board.js?v=20260913-2';
             script.defer = true;
             script.dataset.vectorLinkBoard = 'true';
             document.head.appendChild(script);

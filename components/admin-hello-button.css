@@ -70,7 +70,7 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     height: 62px;
     background-image:
         url("boot-sequence-firebase.svg"),
-        url("boot-sequence-firebase.svg"),
+        url("boot-sequence-newmark.svg"),
         url("boot-sequence-lovable.svg"),
         url("boot-sequence-orange-blocks.svg"),
         url("boot-sequence-wave.svg"),

@@ -7,6 +7,7 @@ const assert = require('assert');
 const root = path.resolve(__dirname, '../..');
 const frontend = fs.readFileSync(path.join(root, 'components/toolbox-secure-links.js'), 'utf8');
 const styles = fs.readFileSync(path.join(root, 'components/toolbox-secure-links.css'), 'utf8');
+const rescue = fs.readFileSync(path.join(root, 'components/toolbox-secure-ui-rescue.js'), 'utf8');
 const backend = fs.readFileSync(path.join(root, 'toolbox-secure.php'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'l8-html.php'), 'utf8');
 const router = fs.readFileSync(path.join(root, 'router.php'), 'utf8');
@@ -74,12 +75,22 @@ check('in-platform browser keeps top navigation sandboxed', () => {
     assert(!frontend.includes('allow-top-navigation'));
 });
 
-check('new assets are cache-busted and secure Toolbox CSS has an inline fallback', () => {
-    assert(html.includes('toolbox-secure-links.css?v=20260913-2'));
-    assert(html.includes('toolbox-secure-links.js?v=20260913-2'));
+check('new assets are cache-busted and secure Toolbox has two production fallbacks', () => {
+    assert(html.includes('toolbox-secure-links.css?v=20260913-3'));
+    assert(html.includes('toolbox-secure-links.js?v=20260913-3'));
+    assert(html.includes('toolbox-secure-ui-rescue.js?v=20260913-1'));
     assert(html.includes('vector-link-board-reconcile.js?v=20260913-6'));
     assert(html.includes('hashcod-toolbox-secure-inline'));
+    assert(html.includes('hashcod-toolbox-ui-rescue-inline'));
     assert(html.includes("file_get_contents($secureCssPath)"));
+    assert(html.includes("file_get_contents($rescueJsPath)"));
+});
+
+check('rescue layer force-hides closed modals and browser', () => {
+    assert(rescue.includes("el.style.setProperty('display', open ? 'grid' : 'none', 'important')"));
+    assert(rescue.includes("browser.style.setProperty('display', browserOpen ? 'flex' : 'none', 'important')"));
+    assert(rescue.includes('MutationObserver'));
+    assert(rescue.includes('.hsl-modal.is-open'));
 });
 
 check('router explicitly admits both secure Toolbox controller paths', () => {

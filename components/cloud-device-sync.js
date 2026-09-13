@@ -5,9 +5,9 @@
     window.__hashcodCloudDeviceSyncLoaded = true;
 
     const ENDPOINT = '/hashcod-sync.php';
-    // Link persistence is handled directly by vector-link-board.js because link
-    // writes require the active Windows Hello administrator session. These names
-    // remain documented here so the local cache contract stays explicit.
+    // IndexedDB remains an offline cache. Protected link records may only be
+    // migrated to PostgreSQL after the existing Windows Hello admin session is
+    // positively verified; normal writes continue to be handled by the board.
     const LINK_DB = 'hashcod_link_board_v1';
     const LINK_STORE = 'links';
     const IMAGE_DB = 'hashcod_image_vault_v1';
@@ -24,7 +24,9 @@
         lastSyncAt: 0,
         lastError: '',
         linkCount: 0,
-        imageCount: 0
+        imageCount: 0,
+        linkBootstrapDone: false,
+        migratedLinkCount: 0
     };
 
     function emit(detail) {
@@ -114,18 +116,78 @@
         }
     }
 
-    // Link-board pull is public occupancy metadata. Link URLs/codes are never
-    // merged into a different browser by this generic worker; the board asks
-    // the server to open a slot only after its code has been verified.
+    function isAdminVerified() {
+        return document.documentElement.dataset.adminAuthenticated === 'true';
+    }
+
+    function normalizeLocalLink(row) {
+        if (!row || typeof row !== 'object') return null;
+        const slot = Number(row.slot);
+        const url = String(row.url || '').trim();
+        const codeHash = String(row.codeHash || '').trim().toLowerCase();
+        const createdAt = Number(row.createdAt || 0);
+        const updatedAt = Number(row.updatedAt || createdAt || 0);
+        if (!Number.isInteger(slot) || slot < 0 || slot > 199) return null;
+        if (!/^https?:\/\//i.test(url) || url.length > 4096) return null;
+        if (!/^[a-f0-9]{64}$/.test(codeHash)) return null;
+        if (!Number.isFinite(createdAt) || createdAt <= 0) return null;
+        return {
+            slot: slot,
+            url: url,
+            codeHash: codeHash,
+            createdAt: createdAt,
+            updatedAt: Math.max(createdAt, Number.isFinite(updatedAt) ? updatedAt : createdAt)
+        };
+    }
+
+    async function bootstrapProtectedLinks(remoteRows) {
+        if (state.linkBootstrapDone || !isAdminVerified()) return 0;
+
+        const remoteSlots = new Set();
+        (remoteRows || []).forEach(function (row) {
+            const slot = Number(row && row.slot);
+            if (Number.isInteger(slot) && slot >= 0 && slot <= 199) remoteSlots.add(slot);
+        });
+
+        const localRows = await getAll(LINK_DB, LINK_STORE, 'slot');
+        const missing = localRows
+            .map(normalizeLocalLink)
+            .filter(function (row) { return row && !remoteSlots.has(row.slot); });
+
+        if (!missing.length) {
+            state.linkBootstrapDone = true;
+            return 0;
+        }
+
+        const pushed = await jsonRequest('links.push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ links: missing })
+        });
+        state.linkBootstrapDone = true;
+        state.migratedLinkCount += missing.length;
+        state.linkCount = Array.isArray(pushed.links) ? pushed.links.length : Math.max(state.linkCount, remoteSlots.size + missing.length);
+        emit({ phase: 'protected-links-migrated', migrated: missing.length });
+        return missing.length;
+    }
+
+    // Everyone can read occupied link slots. Existing laptop-only records are
+    // uploaded exactly once only after a positive Windows Hello admin session,
+    // so old IndexedDB data becomes visible on the phone without weakening the
+    // original protected-write rule.
     async function syncLinks() {
+        let remote = await jsonRequest('links.pull');
+        state.linkCount = Array.isArray(remote.links) ? remote.links.length : 0;
+
+        const migrated = await bootstrapProtectedLinks(remote.links || []);
+        if (migrated > 0) {
+            remote = await jsonRequest('links.pull');
+            state.linkCount = Array.isArray(remote.links) ? remote.links.length : state.linkCount;
+        }
+
         if (window.HashcodLinkBoard && typeof window.HashcodLinkBoard.sync === 'function') {
             await window.HashcodLinkBoard.sync({ silent: true });
-            const boardStatus = await jsonRequest('links.pull');
-            state.linkCount = Array.isArray(boardStatus.links) ? boardStatus.links.length : 0;
-            return;
         }
-        const remote = await jsonRequest('links.pull');
-        state.linkCount = Array.isArray(remote.links) ? remote.links.length : 0;
     }
 
     function imageSetup(store) {
@@ -276,6 +338,12 @@
     window.addEventListener('hashcod:local-save', function () {
         if (state.syncing) savePending = true;
         else syncAll('local-save');
+    });
+
+    window.addEventListener('hashcod:admin-auth', function (event) {
+        if (!event.detail || event.detail.authenticated !== true) return;
+        state.linkBootstrapDone = false;
+        syncAll('admin-verified');
     });
 
     window.addEventListener('online', function () {

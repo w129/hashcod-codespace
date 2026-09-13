@@ -124,13 +124,14 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         // Production placement override for the real Rare UI React/Motion folder.
         // Keep it in the requested left-side blank area, vertically aligned with
-        // the Hashcod mark, and above all existing boot surfaces.
+        // the Hashcod mark, and above all existing boot surfaces. Scale it up on
+        // desktop for better visual balance while keeping responsive reductions.
         $rareFolderPlacementTag = '<style id="hashcod-rare-folder-placement">'
-            . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%)!important;}'
+            . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.20)!important;transform-origin:center center!important;}'
             . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
-            . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;}}'
-            . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;}}'
-            . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;}}'
+            . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;transform:translate(-50%,-50%) scale(1.12)!important;}}'
+            . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;transform:translate(-50%,-50%) scale(1.00)!important;}}'
+            . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;transform:translate(-50%,-50%) scale(0.90)!important;}}'
             . '</style>';
 
         $headPos = strripos($html, '</head>');

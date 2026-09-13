@@ -9,13 +9,15 @@
     const LINK_STORE = 'links';
     const IMAGE_DB = 'hashcod_image_vault_v1';
     const IMAGE_STORE = 'images';
-    const SYNC_INTERVAL_MS = 15000;
+    const SYNC_INTERVAL_MS = 5000;
     let savePending = false;
 
     const state = {
         syncing: false,
         online: navigator.onLine !== false,
         authenticated: null,
+        shared: false,
+        scope: 'unknown',
         lastSyncAt: 0,
         lastError: '',
         linkCount: 0,
@@ -246,12 +248,8 @@
 
         for (const [id, row] of localById.entries()) {
             if (!remoteById.has(id)) {
-                try {
-                    const uploaded = await uploadLocalImage(row);
-                    if (uploaded) remoteById.set(id, normalizeImageMeta(uploaded));
-                } catch (error) {
-                    throw error;
-                }
+                const uploaded = await uploadLocalImage(row);
+                if (uploaded) remoteById.set(id, normalizeImageMeta(uploaded));
             }
         }
 
@@ -270,8 +268,10 @@
         try {
             const status = await jsonRequest('status');
             state.authenticated = true;
+            state.shared = status.shared === true;
+            state.scope = String(status.scope || 'unknown');
             if (!status.supabase_configured) throw new Error('Supabase no está configurado en el servidor.');
-            if (status.postgres === false) throw new Error('El guardado en la nube no está disponible. Tus datos locales se conservan.');
+            if (status.postgres === false) throw new Error('El guardado compartido en PostgreSQL no está disponible. Tus datos locales se conservan.');
             const results = await Promise.allSettled([syncLinks(), syncImages()]);
             const failed = results.find(result => result.status === 'rejected');
             if (failed) throw failed.reason;
@@ -315,6 +315,6 @@
         status: function () { return Object.assign({}, state); }
     });
 
-    window.setTimeout(function () { syncAll('initial'); }, 1200);
+    window.setTimeout(function () { syncAll('initial'); }, 800);
     window.setInterval(function () { syncAll('scheduled'); }, SYNC_INTERVAL_MS);
 })();

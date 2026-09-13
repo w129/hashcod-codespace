@@ -3,22 +3,28 @@
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/l8-html.php';
 
-// hashcod-sync.php is a deliberate public controller. The generic security layer
-// denies direct *.php paths and its normal API bucket may trigger an interactive
-// Turnstile challenge for legitimate background polling on carrier/shared IPs.
-// Normalize only the sync controller to the existing isolated high-frequency
-// non-interactive status bucket before its own security bootstrap runs. Hard IP
-// threat blocks remain active, while link/image write authorization stays in
-// hashcod-sync.php (Windows Hello / authenticated account as applicable).
+// Background controllers are deliberate public entrypoints. The generic security
+// layer denies direct *.php paths and its normal API bucket may trigger an
+// interactive Turnstile challenge for legitimate polling/verification requests.
+// Normalize these isolated controllers to the existing high-frequency,
+// non-interactive status bucket before their own security bootstrap runs. Hard IP
+// threat blocks remain active, while write authorization stays inside each
+// controller (Windows Hello / Dilithium-5 / authenticated account as applicable).
 $bootstrapRequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
 $bootstrapRawPath = parse_url($bootstrapRequestUri, PHP_URL_PATH);
 $bootstrapRawPath = is_string($bootstrapRawPath) ? $bootstrapRawPath : '/';
 $bootstrapSyncPath = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $bootstrapRawPath);
+$bootstrapController = null;
 if (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], true)) {
+    $bootstrapController = __DIR__ . '/hashcod-sync.php';
+} elseif (in_array($bootstrapSyncPath, ['/toolbox-secure.php', '/api/toolbox-secure'], true)) {
+    $bootstrapController = __DIR__ . '/toolbox-secure.php';
+}
+if ($bootstrapController !== null) {
     $bootstrapQuery = parse_url($bootstrapRequestUri, PHP_URL_QUERY);
     $_SERVER['REQUEST_URI'] = '/api/admin-device/status'
         . (is_string($bootstrapQuery) && $bootstrapQuery !== '' ? '?' . $bootstrapQuery : '');
-    require __DIR__ . '/hashcod-sync.php';
+    require $bootstrapController;
     exit;
 }
 
@@ -108,9 +114,14 @@ if ($uri === '/api/groq-chat') {
     exit;
 }
 
-// Sync endpoint. Both supported routes are normalized before bootstrap above.
+// Isolated background controllers. Both supported routes are normalized before
+// bootstrap above, so these branches are also explicit for alternate frontends.
 if ($uri === '/hashcod-sync.php' || $uri === '/api/hashcod-sync') {
     require __DIR__ . '/hashcod-sync.php';
+    exit;
+}
+if ($uri === '/toolbox-secure.php' || $uri === '/api/toolbox-secure') {
+    require __DIR__ . '/toolbox-secure.php';
     exit;
 }
 

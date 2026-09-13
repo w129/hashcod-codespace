@@ -5,10 +5,12 @@ on:
     branches:
       - main
     paths:
+      - Dockerfile
       - hashcod-sync.php
       - toolbox-secure.php
       - router.php
       - l8-html.php
+      - rare-folder-build/**
       - components/cloud-device-sync.js
       - components/admin-hello-button.js
       - components/auth-vector-layout-fix.js
@@ -56,7 +58,15 @@ jobs:
       - name: Syntax check vector tray module
         run: node --check components/platform-entry-slogan.js
 
-      - name: Syntax check boot folder animation
+      - name: Build exact Rare UI React Motion folder
+        working-directory: rare-folder-build
+        run: |
+          npm install --no-fund --no-audit
+          npm run build
+          test -s ../components/rare-folder-entry.bundle.js
+          node --check ../components/rare-folder-entry.bundle.js
+
+      - name: Syntax check legacy boot folder fallback
         run: node --check components/boot-folder-animation.js
 
       - name: Syntax check PNG vault module
@@ -101,7 +111,7 @@ jobs:
       - name: Verify 3D auth vector tray contract
         run: node tests/e2e/test_auth_vector_tray.js
 
-      - name: Verify boot folder animation
+      - name: Verify exact Rare UI folder integration
         run: node tests/e2e/test_boot_folder_animation.js
 
       - name: Verify PNG vault contract

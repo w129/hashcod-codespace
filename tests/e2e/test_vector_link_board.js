@@ -41,12 +41,13 @@ assert(css.includes('.hashcod-link-board-grid'), 'link board grid styles missing
 assert(css.includes('grid-template-columns: repeat(20'), 'desktop layout must order circles in twenty columns');
 assert(css.includes('.hashcod-link-orb'), 'circular slot layout missing');
 assert(css.includes('#e1e1e1'), 'board surface must match the platform grey');
-assert(css.includes('#252424'), 'board frame must match the platform dark frame');
+assert(css.includes('.hashcod-link-board-tablet'), 'tablet frame style missing');
+assert(css.includes('background: #ffffff'), 'tablet frame must preserve the requested white finish');
 assert(css.includes('.hashcod-link-cell.is-saved'), 'saved-slot visual state missing');
 assert(css.includes('@media (max-width: 560px)'), 'link board must adapt to compact screens');
 
 assert(classroom.includes("vector-link-board.css?v=20260911-1"), 'link board stylesheet loader missing');
-assert(classroom.includes("vector-link-board.js?v=20260911-1"), 'link board script loader missing');
+assert(classroom.includes("vector-link-board.js?v=20260912-1"), 'link board script loader missing');
 assert(classroom.includes('loadLinkBoardAssets();'), 'link board assets must be activated by the second-module loader');
 
 assert(trayIcon.includes('viewBox="0 0 256 256"'), 'third tray icon must preserve its supplied viewBox');

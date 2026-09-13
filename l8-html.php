@@ -103,6 +103,27 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
     }
     l8_init_compression();
     l8_html_headers($ok, $cacheTtl);
+
+    // The main platform needs a fresh reconciliation layer even when older
+    // versioned JS assets are still cached as immutable by the browser/CDN.
+    // Buffer only index.php and inject the small cache-busted reconciler before
+    // </body>; all other routed pages keep the direct require fast path.
+    if ($file === 'index.php') {
+        ob_start();
+        require $path;
+        $html = (string) ob_get_clean();
+        $base = htmlspecialchars(l8_public_base_path(), ENT_QUOTES, 'UTF-8');
+        $tag = '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-5" data-hashcod-link-reconcile="true"></script>';
+        $bodyPos = strripos($html, '</body>');
+        if ($bodyPos !== false) {
+            $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);
+        } else {
+            $html .= $tag;
+        }
+        echo $html;
+        exit;
+    }
+
     require $path;
     exit;
 }

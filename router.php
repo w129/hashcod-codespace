@@ -2,6 +2,23 @@
 // router.php — front controller PHP (HTML nativo, no Vite/React SPA)
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/l8-html.php';
+
+// hashcod-sync.php is a deliberate public controller. The generic security layer
+// denies direct *.php paths, so normalize only this exact controller to an
+// extensionless API URI before the security bootstrap runs. This keeps every
+// other PHP file hidden while allowing the cross-device PostgreSQL endpoint.
+$bootstrapRequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
+$bootstrapRawPath = parse_url($bootstrapRequestUri, PHP_URL_PATH);
+$bootstrapRawPath = is_string($bootstrapRawPath) ? $bootstrapRawPath : '/';
+$bootstrapSyncPath = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $bootstrapRawPath);
+if ($bootstrapSyncPath === '/hashcod-sync.php') {
+    $bootstrapQuery = parse_url($bootstrapRequestUri, PHP_URL_QUERY);
+    $_SERVER['REQUEST_URI'] = '/api/hashcod-sync'
+        . (is_string($bootstrapQuery) && $bootstrapQuery !== '' ? '?' . $bootstrapQuery : '');
+    require __DIR__ . '/hashcod-sync.php';
+    exit;
+}
+
 securityBootstrap('web');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -88,8 +105,9 @@ if ($uri === '/api/groq-chat') {
     exit;
 }
 
-// Explicit authenticated sync entrypoint; never fall through to the HTML page.
-if ($uri === '/hashcod-sync.php') {
+// Sync endpoint. /hashcod-sync.php is normalized before bootstrap above;
+// /api/hashcod-sync is also accepted as the canonical extensionless route.
+if ($uri === '/hashcod-sync.php' || $uri === '/api/hashcod-sync') {
     require __DIR__ . '/hashcod-sync.php';
     exit;
 }

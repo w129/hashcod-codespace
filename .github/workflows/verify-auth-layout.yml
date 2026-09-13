@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - hashcod-sync.php
+      - toolbox-secure.php
+      - router.php
+      - l8-html.php
       - components/cloud-device-sync.js
       - components/admin-hello-button.js
       - components/auth-vector-layout-fix.js
@@ -19,6 +22,9 @@ on:
       - components/vector-link-board.css
       - components/vector-tray-icon-third.svg
       - components/mobile-platform-polish.css
+      - components/toolbox-secure-links.js
+      - components/toolbox-secure-links.css
+      - supabase/migrations/20260913_create_secure_toolbox_links.sql
       - tests/e2e/test_auth_vector_layout_fix.js
       - tests/e2e/test_auth_vector_tray.js
       - tests/e2e/test_vector_image_vault.js
@@ -26,6 +32,7 @@ on:
       - tests/e2e/test_vector_link_board.js
       - tests/e2e/test_mobile_platform_polish.js
       - tests/e2e/test_cloud_device_sync.js
+      - tests/e2e/test_secure_toolbox_links.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
 
@@ -54,8 +61,20 @@ jobs:
       - name: Syntax check cloud device sync
         run: node --check components/cloud-device-sync.js
 
+      - name: Syntax check secure Toolbox launcher
+        run: node --check components/toolbox-secure-links.js
+
       - name: Syntax check cloud sync backend
         run: php -l hashcod-sync.php
+
+      - name: Syntax check secure Toolbox backend
+        run: php -l toolbox-secure.php
+
+      - name: Syntax check PHP router
+        run: php -l router.php
+
+      - name: Syntax check HTML serving helper
+        run: php -l l8-html.php
 
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
@@ -77,6 +96,9 @@ jobs:
 
       - name: Verify cross-device Supabase sync
         run: node tests/e2e/test_cloud_device_sync.js
+
+      - name: Verify secure Toolbox link contract
+        run: node tests/e2e/test_secure_toolbox_links.js
 
       - name: Verify cryptographic card gate regression
         run: node tests/e2e/test_crypto_card_validation_gate.js

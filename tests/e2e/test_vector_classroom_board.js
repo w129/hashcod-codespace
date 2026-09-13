@@ -41,7 +41,7 @@ assert(source.includes('slot: 2'), 'third tray cube registration missing');
 assert(source.includes("id: 'grid-module'"), 'third tray tool identity missing');
 assert(source.includes("label: 'Módulo de cuadrícula — función pendiente'"), 'third tray placeholder label missing');
 assert(source.includes("iconSvg: '<img src=\"' + THIRD_TRAY_ICON_SRC"), 'third tray icon markup missing');
-assert(!source.includes("id: 'grid-module',\n            label: 'Módulo de cuadrícula — función pendiente',\n            onClick:"), 'third tray tool must remain without behavior until requested');
+assert(!source.includes("id: 'grid-module',\n            label: 'Módulo de cuadrícula — función pendiente',\n            onClick:"), 'third tray placeholder must not own behavior before the link-board module replaces it');
 assert(thirdTrayIcon.includes('viewBox="0 0 256 256"'), 'third tray SVG viewBox missing');
 assert(thirdTrayIcon.includes('color-4_gPS47EOOeWUd_gr4'), 'third tray SVG gradients missing');
 assert(thirdTrayIcon.includes('transform="scale(4,4)"'), 'third tray SVG geometry missing');
@@ -66,6 +66,6 @@ assert(fourthIcon.includes('viewBox="0 0 135 135"'), 'fourth board SVG viewBox m
 assert(fourthIcon.includes('<path d="M 67.5 5.3007812'), 'fourth board SVG path missing');
 
 assert(loader.includes("vector-classroom-board.css?v=20260911-2"), 'classroom board stylesheet is not loaded with current version');
-assert(loader.includes("vector-classroom-board.js?v=20260911-2"), 'classroom board script is not loaded with current version');
+assert(loader.includes("vector-classroom-board.js?v=20260912-1"), 'classroom board script is not loaded with current version');
 
 console.log('vector classroom board contract: OK');

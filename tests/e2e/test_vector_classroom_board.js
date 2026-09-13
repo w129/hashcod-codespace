@@ -66,6 +66,6 @@ assert(fourthIcon.includes('viewBox="0 0 135 135"'), 'fourth board SVG viewBox m
 assert(fourthIcon.includes('<path d="M 67.5 5.3007812'), 'fourth board SVG path missing');
 
 assert(loader.includes("vector-classroom-board.css?v=20260911-2"), 'classroom board stylesheet is not loaded with current version');
-assert(loader.includes("vector-classroom-board.js?v=20260912-1"), 'classroom board script is not loaded with current version');
+assert(loader.includes("vector-classroom-board.js?v=20260913-2"), 'classroom board script is not loaded with current version');
 
 console.log('vector classroom board contract: OK');

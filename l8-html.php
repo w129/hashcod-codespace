@@ -123,7 +123,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<style id="hashcod-toolbox-secure-inline">' . $secureCss . '</style>'
             : '';
         $cssTag = $inlineCssTag
-            . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-2" data-hashcod-toolbox-secure-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">';
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
             $html = substr($html, 0, $headPos) . $cssTag . substr($html, $headPos);
@@ -131,8 +131,20 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             $html = $cssTag . $html;
         }
 
-        $tag = '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
-            . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-2" data-hashcod-toolbox-secure="true"></script>';
+        // Rescue layer is injected inline as well as loaded as a versioned asset.
+        // It applies !important UI rules and direct CSSOM visibility so the
+        // Toolbox can never fall back to raw document-flow controls if a CSS
+        // response is stale, missing or overridden in production.
+        $rescueJsPath = __DIR__ . '/components/toolbox-secure-ui-rescue.js';
+        $rescueJs = is_file($rescueJsPath) ? (string) @file_get_contents($rescueJsPath) : '';
+        $inlineRescueTag = $rescueJs !== ''
+            ? '<script id="hashcod-toolbox-ui-rescue-inline">' . $rescueJs . '</script>'
+            : '';
+
+        $tag = $inlineRescueTag
+            . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
+            . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-3" data-hashcod-toolbox-secure="true"></script>'
+            . '<script defer src="' . $base . 'components/toolbox-secure-ui-rescue.js?v=20260913-1" data-hashcod-toolbox-ui-rescue="true"></script>';
         $bodyPos = strripos($html, '</body>');
         if ($bodyPos !== false) {
             $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);

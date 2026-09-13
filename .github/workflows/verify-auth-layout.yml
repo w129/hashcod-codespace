@@ -25,8 +25,10 @@ on:
       - components/toolbox-secure-links.js
       - components/toolbox-secure-links.css
       - components/toolbox-secure-ui-rescue.js
+      - components/toolbox-signature-copy.js
       - components/topbar-windows-hello.js
       - supabase/migrations/20260913_create_secure_toolbox_links.sql
+      - supabase/migrations/20260913_add_toolbox_access_signature_hash.sql
       - tests/e2e/test_auth_vector_layout_fix.js
       - tests/e2e/test_auth_vector_tray.js
       - tests/e2e/test_vector_image_vault.js
@@ -68,6 +70,9 @@ jobs:
 
       - name: Syntax check secure Toolbox rescue layer
         run: node --check components/toolbox-secure-ui-rescue.js
+
+      - name: Syntax check Toolbox signature copy
+        run: node --check components/toolbox-signature-copy.js
 
       - name: Syntax check top bar Windows Hello control
         run: node --check components/topbar-windows-hello.js

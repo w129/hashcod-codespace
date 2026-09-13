@@ -74,10 +74,12 @@ check('in-platform browser keeps top navigation sandboxed', () => {
     assert(!frontend.includes('allow-top-navigation'));
 });
 
-check('new assets are cache-busted into the main PHP page', () => {
-    assert(html.includes('toolbox-secure-links.css?v=20260913-1'));
-    assert(html.includes('toolbox-secure-links.js?v=20260913-1'));
+check('new assets are cache-busted and secure Toolbox CSS has an inline fallback', () => {
+    assert(html.includes('toolbox-secure-links.css?v=20260913-2'));
+    assert(html.includes('toolbox-secure-links.js?v=20260913-2'));
     assert(html.includes('vector-link-board-reconcile.js?v=20260913-6'));
+    assert(html.includes('hashcod-toolbox-secure-inline'));
+    assert(html.includes("file_get_contents($secureCssPath)"));
 });
 
 check('router explicitly admits both secure Toolbox controller paths', () => {

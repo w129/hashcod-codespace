@@ -2,9 +2,11 @@
 /**
  * Hashcod global cross-device sync.
  *
- * All authenticated platform users read the same shared PostgreSQL state so a
- * change made on phone, laptop or another computer becomes visible everywhere.
- * Browser IndexedDB remains only an offline/cache layer.
+ * Link-board occupancy is readable from every device that loads the platform,
+ * while link assignment remains protected by the registered Windows Hello
+ * administrator session. URLs are never returned by the public pull endpoint:
+ * they are released only after the matching per-link code is verified server-side.
+ * Browser IndexedDB is an offline/cache layer, not the source of truth.
  */
 
 declare(strict_types=1);
@@ -16,6 +18,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/admin-device.php';
 
 securityBootstrap('api');
 
@@ -47,9 +50,22 @@ function hcsSession(): array {
     ];
 }
 
+function hcsRequireAjaxPost(): void {
+    if (strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== 'POST') {
+        hcsJson(['ok' => false, 'error' => 'Método no permitido'], 405);
+    }
+    $xrw = (string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '');
+    if (strcasecmp($xrw, 'XMLHttpRequest') !== 0) {
+        hcsJson(['ok' => false, 'error' => 'Solicitud no autorizada', 'code' => 'csrf_check_failed'], 403);
+    }
+}
+
 function hcsReadJson(): array {
-    $raw = file_get_contents('php://input');
+    $raw = file_get_contents('php://input', false, null, 0, 524289);
     if (!is_string($raw) || trim($raw) === '') return [];
+    if (strlen($raw) > 524288) {
+        hcsJson(['ok' => false, 'error' => 'Payload demasiado grande'], 413);
+    }
     $decoded = json_decode($raw, true);
     return is_array($decoded) ? $decoded : [];
 }
@@ -88,18 +104,30 @@ function hcsNormalizeLink($row): ?array {
     ];
 }
 
-function hcsLoadLinks(): array {
-    $res = supabaseDbSelect(HCS_LINK_TABLE, 'select=slot,url,code_hash,created_at_ms,updated_at_ms&order=slot.asc&limit=200');
+/**
+ * Public link-board projection. It intentionally exposes only occupied slots
+ * and timestamps; destination URLs and code hashes stay on the server.
+ */
+function hcsLoadLinkSlots(): array {
+    $res = supabaseDbSelect(HCS_LINK_TABLE, 'select=slot,created_at_ms,updated_at_ms&order=slot.asc&limit=200');
     if (empty($res['ok'])) {
         return ['ok' => false, 'error' => $res['error'] ?? 'No se pudo leer PostgreSQL', 'links' => []];
     }
 
     $links = [];
     foreach (hcsRows($res['body'] ?? []) as $row) {
-        $n = hcsNormalizeLink($row);
-        if ($n) $links[] = $n;
+        $slot = filter_var($row['slot'] ?? null, FILTER_VALIDATE_INT);
+        if ($slot === false || $slot < 0 || $slot > 199) continue;
+        $createdAt = max(1, (int)($row['created_at_ms'] ?? 1));
+        $updatedAt = max($createdAt, (int)($row['updated_at_ms'] ?? $createdAt));
+        $links[] = [
+            'slot' => $slot,
+            'createdAt' => $createdAt,
+            'updatedAt' => $updatedAt,
+            'cloud' => true,
+        ];
     }
-    return ['ok' => true, 'links' => $links, 'scope' => HCS_SHARED_SCOPE];
+    return ['ok' => true, 'links' => $links, 'scope' => HCS_SHARED_SCOPE, 'shared' => true];
 }
 
 function hcsSaveLinks(array $incoming, string $actor): array {
@@ -108,27 +136,70 @@ function hcsSaveLinks(array $incoming, string $actor): array {
         $n = hcsNormalizeLink($row);
         if ($n) $normalized[] = $n;
     }
-
-    if ($normalized) {
-        $rpc = supabaseRequest('/rest/v1/rpc/hashcod_sync_upsert_links', [
-            'method' => 'POST',
-            'body' => [
-                'p_links' => $normalized,
-                'p_actor' => $actor,
-            ],
-            'headers' => ['Prefer: return=representation'],
-            'timeout' => 8,
-        ]);
-        if (empty($rpc['ok'])) {
-            return ['ok' => false, 'error' => $rpc['error'] ?? 'No se pudieron guardar los enlaces en PostgreSQL', 'links' => []];
-        }
+    if (!$normalized) {
+        return ['ok' => false, 'error' => 'No se recibió un enlace válido', 'links' => []];
     }
 
-    $current = hcsLoadLinks();
-    if (!empty($current['ok']) && $normalized) {
-        hcsLogEvent('link', 'board', 'sync', ['count' => count($normalized)], $actor);
+    $rpc = supabaseRequest('/rest/v1/rpc/hashcod_sync_upsert_links', [
+        'method' => 'POST',
+        'body' => [
+            'p_links' => $normalized,
+            'p_actor' => $actor,
+        ],
+        'headers' => ['Prefer: return=representation'],
+        'timeout' => 8,
+    ]);
+    if (empty($rpc['ok'])) {
+        return ['ok' => false, 'error' => $rpc['error'] ?? 'No se pudo guardar el enlace en PostgreSQL', 'links' => []];
     }
-    return $current;
+
+    hcsLogEvent('link', 'board', 'sync', ['count' => count($normalized)], $actor);
+    return hcsLoadLinkSlots();
+}
+
+/** Verify a per-slot code without ever sending the stored hash to the browser. */
+function hcsOpenLink(array $body): array {
+    $slot = filter_var($body['slot'] ?? null, FILTER_VALIDATE_INT);
+    $code = (string)($body['code'] ?? '');
+    if ($slot === false || $slot < 0 || $slot > 199) {
+        return ['ok' => false, 'error' => 'Slot inválido', 'status' => 400];
+    }
+    if (strlen($code) < 6 || strlen($code) > 256) {
+        return ['ok' => false, 'error' => 'Code incorrecto.', 'status' => 403];
+    }
+
+    $rate = securityRateAllowSliding('hashcod_link_open', 30, 60);
+    if (empty($rate['allowed'])) {
+        return [
+            'ok' => false,
+            'error' => 'Demasiados intentos. Espera antes de volver a probar.',
+            'status' => 429,
+            'retry_after' => (int)($rate['retry_after'] ?? 30),
+        ];
+    }
+
+    $query = 'select=slot,url,code_hash&slot=eq.' . rawurlencode((string)$slot) . '&limit=1';
+    $res = supabaseDbSelect(HCS_LINK_TABLE, $query);
+    $rows = !empty($res['ok']) ? hcsRows($res['body'] ?? []) : [];
+    if (!$rows) {
+        return ['ok' => false, 'error' => 'Este enlace ya no está disponible.', 'status' => 404];
+    }
+
+    $row = $rows[0];
+    $storedHash = strtolower((string)($row['code_hash'] ?? ''));
+    $suppliedHash = hash('sha256', $code);
+    if (!preg_match('/^[a-f0-9]{64}$/', $storedHash) || !hash_equals($storedHash, $suppliedHash)) {
+        return ['ok' => false, 'error' => 'Code incorrecto.', 'status' => 403];
+    }
+
+    $url = trim((string)($row['url'] ?? ''));
+    $parts = @parse_url($url);
+    $scheme = strtolower((string)($parts['scheme'] ?? ''));
+    if ($url === '' || !in_array($scheme, ['http', 'https'], true)) {
+        return ['ok' => false, 'error' => 'El enlace guardado no es válido.', 'status' => 422];
+    }
+
+    return ['ok' => true, 'url' => $url, 'slot' => $slot];
 }
 
 function hcsSafeClientId(string $id): string {
@@ -277,8 +348,6 @@ function hcsLogEvent(string $entityType, string $entityKey, string $action, arra
     ]);
 }
 
-$session = hcsSession();
-$actor = $session['actor'];
 $action = (string)($_GET['action'] ?? 'status');
 $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 
@@ -287,6 +356,10 @@ if ($action === 'status' && $method === 'GET') {
     $health = function_exists('supabaseHealthCheck') ? supabaseHealthCheck() : [];
     $linksReady = supabaseDbSelect(HCS_LINK_TABLE, 'select=slot&limit=1');
     $imagesReady = supabaseDbSelect(HCS_IMAGE_TABLE, 'select=id&limit=1');
+    $projectRef = '';
+    if (!empty($cfg['url']) && preg_match('#^https://([a-z0-9-]+)\.supabase\.co#i', (string)$cfg['url'], $m)) {
+        $projectRef = (string)$m[1];
+    }
     hcsJson([
         'ok' => true,
         'scope' => HCS_SHARED_SCOPE,
@@ -294,32 +367,49 @@ if ($action === 'status' && $method === 'GET') {
         'supabase_configured' => !empty($cfg['configured']),
         'postgres' => !empty($linksReady['ok']) && !empty($imagesReady['ok']),
         'storage' => !empty($health['storage_ready']) && empty($health['degraded']),
+        'project_ref' => $projectRef,
     ]);
 }
 
+// Safe public projection: every computer can see which circles are occupied.
 if ($action === 'links.pull' && $method === 'GET') {
-    $res = hcsLoadLinks();
+    $res = hcsLoadLinkSlots();
     hcsJson($res, !empty($res['ok']) ? 200 : 502);
 }
 
+// Only the registered laptop after positive Windows Hello may assign links.
 if ($action === 'links.push' && $method === 'POST') {
+    hcsRequireAjaxPost();
+    adminRequire();
     $body = hcsReadJson();
     $links = isset($body['links']) && is_array($body['links']) ? $body['links'] : [];
-    $res = hcsSaveLinks($links, $actor);
+    $res = hcsSaveLinks($links, 'admin-windows-hello');
     hcsJson($res, !empty($res['ok']) ? 200 : 502);
 }
 
+// Any platform device can open a shared slot only after supplying its code.
+if ($action === 'links.open' && $method === 'POST') {
+    hcsRequireAjaxPost();
+    $res = hcsOpenLink(hcsReadJson());
+    hcsJson($res, !empty($res['ok']) ? 200 : (int)($res['status'] ?? 403));
+}
+
+// Gallery sync is still tied to an authenticated account session.
 if ($action === 'images.list' && $method === 'GET') {
+    hcsSession();
     $res = hcsListImages();
     hcsJson($res, !empty($res['ok']) ? 200 : 502);
 }
 
 if ($action === 'images.upload' && $method === 'POST') {
-    $res = hcsUploadImage($actor);
+    hcsRequireAjaxPost();
+    $session = hcsSession();
+    $res = hcsUploadImage($session['actor']);
     hcsJson($res, !empty($res['ok']) ? 200 : 502);
 }
 
 if ($action === 'images.get' && $method === 'GET') {
+    hcsSession();
     hcsStreamImage((string)($_GET['id'] ?? ''));
 }
 

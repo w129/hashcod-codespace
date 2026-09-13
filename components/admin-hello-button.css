@@ -54,7 +54,8 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 }
 
 /* Welcome screen: Qwen sits immediately to the left of the existing first
-   supplied SVG. The original four icon positions stay unchanged. */
+   supplied SVG. The new blue supplied SVG sits directly below Qwen, forming
+   a left-side two-icon column while the original four icon positions stay unchanged. */
 .boot-cli-footer .boot-card-icon {
     position: relative;
 }
@@ -63,12 +64,12 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     content: "";
     position: absolute;
     left: calc(50% - 122px);
-    bottom: calc(100% + 6px);
+    bottom: 4px;
     width: 204px;
-    height: 28px;
-    background-image: url("boot-qwen-top-icon.svg"), url("boot-primary-top-icon.svg"), url("boot-second-top-icon.svg"), url("boot-third-top-icon.svg"), url("boot-fourth-top-icon.svg");
-    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-    background-position: 0 center, 40px center, 86px center, 128px center, 174px center;
-    background-size: 28px 28px, 32px 20px, 28px 28px, 32px 17px, 28px 28px;
+    height: 62px;
+    background-image: url("boot-qwen-top-icon.svg"), url("boot-qwen-bottom-icon.svg"), url("boot-primary-top-icon.svg"), url("boot-second-top-icon.svg"), url("boot-third-top-icon.svg"), url("boot-fourth-top-icon.svg");
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+    background-position: 0 0, 0 34px, 40px 0, 86px 0, 128px 0, 174px 0;
+    background-size: 28px 28px, 28px 28px, 32px 20px, 28px 28px, 32px 17px, 28px 28px;
     pointer-events: none;
 }

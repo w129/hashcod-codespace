@@ -62,9 +62,11 @@ jobs:
         working-directory: rare-folder-build
         run: |
           npm install --no-fund --no-audit
-          npm run build
+          npm run build 2>&1 | tee /tmp/rare-folder-build.log
+          ! grep -q "suspicious-define" /tmp/rare-folder-build.log
           test -s ../components/rare-folder-entry.bundle.js
           node --check ../components/rare-folder-entry.bundle.js
+          grep -q "hashcodRareFolderHost" ../components/rare-folder-entry.bundle.js
 
       - name: Syntax check legacy boot folder fallback
         run: node --check components/boot-folder-animation.js

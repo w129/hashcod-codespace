@@ -1,13 +1,14 @@
-/* Interactive folder animation adapted from the supplied React/Motion component.
-   Native CSS version for the existing PHP platform; geometry and motion states
-   intentionally mirror the source component. */
+/* Rare UI folder-component adapted for Hashcod's native PHP/HTML boot screen.
+   Source behavior preserved: hover fans cards, click opens folder, mouse-leave closes.
+   This layer uses only transforms/opacity so it stays responsive and does not
+   take over the main thread or block the rest of the boot interface. */
 
 #hashcodBootFolderAnimation {
     --hbf-scale: .82;
-    position: absolute;
-    left: 34%;
-    top: 54%;
-    z-index: 32;
+    position: fixed;
+    left: 31.5%;
+    top: 48%;
+    z-index: 2147482400;
     width: 321px;
     height: 270px;
     transform: translate(-50%, -50%) scale(var(--hbf-scale));
@@ -19,10 +20,11 @@
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
     outline: none;
+    contain: layout style paint;
 }
 
 #hashcodBootFolderAnimation:focus-visible {
-    filter: drop-shadow(0 0 0.5px #111) drop-shadow(0 0 7px rgba(0,0,0,.2));
+    filter: drop-shadow(0 0 0.5px #111) drop-shadow(0 0 7px rgba(0,0,0,.18));
 }
 
 #hashcodBootFolderAnimation .hbf-stage {
@@ -77,17 +79,17 @@
     filter: drop-shadow(0 5px 8px rgba(0,0,0,.08));
 }
 
-/* Source idle positions */
+/* Rare UI source idle positions. */
 #hashcodBootFolderAnimation .hbf-card-1 { transform: translate(40px,-10px) rotate(10deg); transition-delay: 0ms; }
 #hashcodBootFolderAnimation .hbf-card-2 { transform: translate(3px,-20px) rotate(2deg); transition-delay: 0ms; }
 #hashcodBootFolderAnimation .hbf-card-3 { transform: translate(-40px,-22px) rotate(-5deg); transition-delay: 0ms; }
 
-/* Source hover positions */
+/* Rare UI source hover positions. */
 #hashcodBootFolderAnimation.is-hovered .hbf-card-1 { transform: translate(40px,-30px) rotate(14deg); transition-delay: 120ms; }
 #hashcodBootFolderAnimation.is-hovered .hbf-card-2 { transform: translate(3px,-35px) rotate(-1deg); transition-delay: 60ms; }
 #hashcodBootFolderAnimation.is-hovered .hbf-card-3 { transform: translate(-40px,-44px) rotate(-9deg); transition-delay: 0ms; }
 
-/* Source clicked/open positions */
+/* Rare UI source clicked/open positions. */
 #hashcodBootFolderAnimation.is-open .hbf-card-1 { transform: translate(70px,-160px) rotate(18deg); transition-delay: 100ms; }
 #hashcodBootFolderAnimation.is-open .hbf-card-2 { transform: translate(0,-180px) rotate(-3deg); transition-delay: 50ms; }
 #hashcodBootFolderAnimation.is-open .hbf-card-3 { transform: translate(-65px,-170px) rotate(-14deg); transition-delay: 0ms; }
@@ -144,23 +146,34 @@
     100% { transform: scale(1); }
 }
 
-/* Keep the supplied component aligned inside the existing boot composition. */
+/* Keep the folder in the blank boot-canvas area, away from the Hashcod logo,
+   utility icons and Enter platform button. */
 @media (max-width: 1180px) {
     #hashcodBootFolderAnimation {
-        left: 31%;
-        top: 51%;
+        left: 30%;
+        top: 47%;
     }
 }
 
 @media (max-width: 900px) {
     #hashcodBootFolderAnimation {
         left: 50%;
-        top: 43%;
+        top: 40%;
     }
 }
 
 @media (max-width: 620px) {
     #hashcodBootFolderAnimation {
-        top: 40%;
+        left: 50%;
+        top: 38%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #hashcodBootFolderAnimation .hbf-card,
+    #hashcodBootFolderAnimation .hbf-front,
+    #hashcodBootFolderAnimation .hbf-stage {
+        transition-duration: 120ms !important;
+        animation-duration: 120ms !important;
     }
 }

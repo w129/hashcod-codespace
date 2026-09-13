@@ -240,7 +240,7 @@
             : '/components/';
         if (document.querySelector('script[data-hashcod-cloud-sync]')) return;
         const script = document.createElement('script');
-        script.src = componentBase + 'cloud-device-sync.js?v=20260913-2';
+        script.src = componentBase + 'cloud-device-sync.js?v=20260913-3';
         script.defer = true;
         script.dataset.hashcodCloudSync = 'true';
         document.head.appendChild(script);

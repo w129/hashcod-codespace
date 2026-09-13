@@ -17,7 +17,8 @@ assert(source.includes("jsonRequest('links.push'"), 'link state must push to Pos
 assert(source.includes("jsonRequest('images.list')"), 'gallery must pull cloud metadata');
 assert(source.includes('action=images.upload'), 'gallery must push PNG files to cloud storage');
 assert(source.includes('action=images.get'), 'gallery must download missing cloud PNG files');
-assert(source.includes('SYNC_INTERVAL_MS = 15000'), 'cross-device sync cadence missing');
+assert(source.includes('SYNC_INTERVAL_MS = 5000'), 'shared cross-device sync must refresh every five seconds');
+assert(source.includes('state.shared = status.shared === true'), 'client must track global shared mode');
 assert(source.includes("window.addEventListener('focus'"), 'phone/laptop focus must trigger reconciliation');
 assert(source.includes("window.HashcodCloudSync = Object.freeze"), 'manual cloud sync API missing');
 

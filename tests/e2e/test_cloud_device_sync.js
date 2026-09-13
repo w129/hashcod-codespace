@@ -36,7 +36,7 @@ assert(!backend.includes("'code' => $_POST"), 'plain gallery codes must never be
 assert(backend.includes("in_array($scheme, ['http', 'https'], true)"), 'synced links must remain HTTP/HTTPS only');
 assert(backend.includes("'shared' => true"), 'sync status must identify the shared global mode');
 
-assert(loader.includes("cloud-device-sync.js?v=20260912-1"), 'platform loader must start cloud-device sync');
+assert(loader.includes("cloud-device-sync.js?v=20260913-1"), 'platform loader must start the current cloud-device sync version');
 assert(loader.includes('data-hashcod-cloud-sync'), 'cloud sync loader guard missing');
 
 console.log('Cloud device sync contract OK');

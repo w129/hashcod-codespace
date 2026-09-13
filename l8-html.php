@@ -125,14 +125,15 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $cssTag = $inlineCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">';
 
-        // The user-supplied folder animation is part of the startup composition.
-        // Inline the CSS so it is immediately available and cannot disappear
-        // because of a stale static/CDN response.
+        // The Rare UI folder is critical boot UI. Inline it for immediate paint,
+        // and also load the same versioned stylesheet externally so restrictive
+        // CSP/CDN behavior cannot leave the boot canvas blank.
         $folderCssPath = __DIR__ . '/components/boot-folder-animation.css';
         $folderCss = is_file($folderCssPath) ? (string) @file_get_contents($folderCssPath) : '';
-        $folderCssTag = $folderCss !== ''
+        $folderCssTag = ($folderCss !== ''
             ? '<style id="hashcod-boot-folder-animation-critical">' . $folderCss . '</style>'
-            : '';
+            : '')
+            . '<link rel="stylesheet" href="' . $base . 'components/boot-folder-animation.css?v=20260913-6" data-hashcod-boot-folder-style="true">';
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
@@ -151,9 +152,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-toolbox-ui-rescue-inline">' . $rescueJs . '</script>'
             : '';
 
-        // Mount the interactive folder directly from the HTML response. The
-        // component sets the legacy intro session marker before the deferred
-        // platform-entry module runs, so the old full-screen intro cannot cover it.
+        // Mount the folder inline for the fastest paint, then load a same-origin
+        // external fallback. The JS is idempotent, so only one live instance is
+        // created even when both paths are allowed by the browser.
         $folderJsPath = __DIR__ . '/components/boot-folder-animation.js';
         $folderJs = is_file($folderJsPath) ? (string) @file_get_contents($folderJsPath) : '';
         if ($folderJs !== '') {
@@ -162,8 +163,10 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $inlineFolderTag = $folderJs !== ''
             ? '<script id="hashcod-boot-folder-animation-inline" data-hashcod-boot-folder-animation="true">' . $folderJs . '</script>'
             : '';
+        $externalFolderTag = '<script defer src="' . $base . 'components/boot-folder-animation.js?v=20260913-6" data-hashcod-boot-folder-animation-fallback="true"></script>';
 
         $tag = $inlineFolderTag
+            . $externalFolderTag
             . $inlineRescueTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'

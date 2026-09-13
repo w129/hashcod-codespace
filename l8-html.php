@@ -42,7 +42,7 @@ function l8_public_base_path() {
     $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
     if ($host !== '' && strpos($host, 'github.io') !== false) {
         $cachedBase = '/l8-codespace/';
-        return '/l8-codespace/';
+        return $cachedBase;
     }
 
     $cachedBase = '/';
@@ -113,7 +113,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $html = (string) ob_get_clean();
         $base = htmlspecialchars(l8_public_base_path(), ENT_QUOTES, 'UTF-8');
 
-        $cssTag = '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-1" data-hashcod-toolbox-secure-style="true">';
+        // Keep the normal stylesheet request, but also inline the same CSS as a
+        // production-safe fallback. This prevents the secure Toolbox controls
+        // from ever rendering as unstyled document flow if a stale CDN/static
+        // asset response is served while the JS bundle has already updated.
+        $secureCssPath = __DIR__ . '/components/toolbox-secure-links.css';
+        $secureCss = is_file($secureCssPath) ? (string) @file_get_contents($secureCssPath) : '';
+        $inlineCssTag = $secureCss !== ''
+            ? '<style id="hashcod-toolbox-secure-inline">' . $secureCss . '</style>'
+            : '';
+        $cssTag = $inlineCssTag
+            . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-2" data-hashcod-toolbox-secure-style="true">';
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
             $html = substr($html, 0, $headPos) . $cssTag . substr($html, $headPos);
@@ -122,7 +132,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         }
 
         $tag = '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
-            . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-1" data-hashcod-toolbox-secure="true"></script>';
+            . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-2" data-hashcod-toolbox-secure="true"></script>';
         $bodyPos = strripos($html, '</body>');
         if ($bodyPos !== false) {
             $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);

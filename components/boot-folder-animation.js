@@ -81,7 +81,8 @@
     function buildFolder() {
         const root = document.createElement('div');
         root.id = 'hashcodBootFolderAnimation';
-        root.setAttribute('data-slot', 'folder');
+        root.dataset.slot = 'folder';
+        root.dataset.source = 'swamimalode07/rare-ui/folder-component';
         root.setAttribute('role', 'button');
         root.setAttribute('tabindex', '0');
         root.setAttribute('aria-label', 'Carpeta interactiva Hashcod. Pulsa para abrir o cerrar.');
@@ -114,22 +115,9 @@
         root.style.setProperty('--hbf-scale', scale.toFixed(3));
     }
 
-    function mount() {
-        const overlay = document.getElementById('bootCliOverlay');
-        if (!overlay) return false;
-        if (document.getElementById('hashcodBootFolderAnimation')) return true;
-
-        // This folder replaces the previous full-screen boot intro. Mark the
-        // legacy intro as seen before its deferred module can create it.
-        try { window.sessionStorage.setItem(INTRO_SESSION_KEY, '1'); } catch (error) {}
-
-        const staleIntro = document.getElementById('hashcodBootIntro');
-        if (staleIntro) staleIntro.remove();
-        overlay.classList.remove('hashcod-intro-running', 'hashcod-intro-revealed');
-
-        const root = buildFolder();
-        overlay.appendChild(root);
-        setScale(root);
+    function wireFolder(root) {
+        if (!root || root.dataset.hbfWired === '1') return;
+        root.dataset.hbfWired = '1';
 
         let userInteracted = false;
         let isOpen = false;
@@ -187,8 +175,9 @@
 
         window.addEventListener('resize', function () { setScale(root); }, { passive: true });
 
-        // Brief automatic demonstration on load; after that the component stays
-        // fully interactive with the exact hover/click states from the source.
+        // One short demonstration, using only three timers. There is no render
+        // loop, broad MutationObserver or polling after mount, so the boot page
+        // remains responsive while the folder stays interactive indefinitely.
         window.setTimeout(function () {
             if (userInteracted || !root.isConnected) return;
             root.classList.add('is-previewing');
@@ -204,15 +193,49 @@
             setHovered(false);
             root.classList.remove('is-previewing');
         }, 2300);
+    }
 
+    function mount() {
+        const overlay = document.getElementById('bootCliOverlay');
+        if (!overlay) return false;
+
+        let root = document.getElementById('hashcodBootFolderAnimation');
+        if (!root) {
+            try { window.sessionStorage.setItem(INTRO_SESSION_KEY, '1'); } catch (error) {}
+
+            const staleIntro = document.getElementById('hashcodBootIntro');
+            if (staleIntro) staleIntro.remove();
+            overlay.classList.remove('hashcod-intro-running', 'hashcod-intro-revealed');
+
+            root = buildFolder();
+            overlay.appendChild(root);
+        }
+
+        root.style.setProperty('display', 'block', 'important');
+        root.style.setProperty('visibility', 'visible', 'important');
+        root.style.setProperty('opacity', '1', 'important');
+        setScale(root);
+        wireFolder(root);
         return true;
     }
 
-    if (mount()) return;
+    function boot() {
+        if (mount()) return;
 
-    const observer = new MutationObserver(function () {
-        if (mount()) observer.disconnect();
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-    window.setTimeout(function () { observer.disconnect(); }, 10000);
+        // Bounded retry is intentionally used instead of observing the whole DOM.
+        // It stops after 5 seconds and cannot create an unbounded mutation loop.
+        let attempts = 0;
+        const timer = window.setInterval(function () {
+            attempts += 1;
+            if (mount() || attempts >= 50) {
+                window.clearInterval(timer);
+            }
+        }, 100);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+        boot();
+    }
 })();

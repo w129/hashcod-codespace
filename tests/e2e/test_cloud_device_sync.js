@@ -14,7 +14,11 @@ assert(source.includes("const IMAGE_DB = 'hashcod_image_vault_v1'"), 'image-vaul
 assert(source.includes("credentials: 'same-origin'"), 'sync requests must keep same-origin credentials');
 assert(source.includes("'X-Requested-With': 'XMLHttpRequest'"), 'sync POSTs must carry the CSRF marker');
 assert(source.includes("jsonRequest('links.pull')"), 'background sync must observe shared link occupancy');
-assert(!source.includes("jsonRequest('links.push'"), 'generic background sync must not push protected links without Windows Hello');
+assert(source.includes("document.documentElement.dataset.adminAuthenticated === 'true'"), 'protected bootstrap must check the verified admin state');
+assert(source.includes("jsonRequest('links.push'"), 'verified laptop bootstrap must migrate protected local links to PostgreSQL');
+assert(source.includes("window.addEventListener('hashcod:admin-auth'"), 'positive Windows Hello must trigger protected local migration');
+assert(source.includes("event.detail.authenticated !== true"), 'link bootstrap must never run for an unverified admin event');
+assert(source.includes('!remoteSlots.has(row.slot)'), 'bootstrap must only upload laptop-only slots and never overwrite an existing cloud slot');
 assert(source.includes("jsonRequest('images.list')"), 'gallery must pull cloud metadata');
 assert(source.includes('action=images.upload'), 'gallery must push PNG files to cloud storage');
 assert(source.includes('action=images.get'), 'gallery must download missing cloud PNG files');
@@ -51,7 +55,7 @@ assert(!backend.includes("'code' => $_POST"), 'plain gallery codes must never be
 assert(backend.includes("'shared' => true"), 'sync status must identify the shared global mode');
 
 assert(loader.includes("vector-classroom-board.js?v=20260913-2"), 'platform must load the fresh link-board parent module');
-assert(loader.includes("cloud-device-sync.js?v=20260913-2"), 'platform loader must start the current cloud-device sync version');
+assert(loader.includes("cloud-device-sync.js?v=20260913-2") || loader.includes("cloud-device-sync.js?v=20260913-3"), 'platform loader must start the current cloud-device sync version');
 assert(loader.includes('data-hashcod-cloud-sync'), 'cloud sync loader guard missing');
 
 console.log('Cloud device sync contract OK');

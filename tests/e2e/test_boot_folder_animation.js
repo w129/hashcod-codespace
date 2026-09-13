@@ -30,12 +30,15 @@ assert(source.includes('attempts >= 40'), 'mount retries must remain bounded');
 assert(pkg.includes('"motion": "^12.40.0"'), 'build must use the same Motion major/version family as Rare UI');
 assert(pkg.includes('"react": "19.2.4"'), 'build must use Rare UI React version');
 assert(pkg.includes('rare-folder-entry.bundle.js'), 'isolated build must emit the local browser bundle');
+assert(pkg.includes("--define:process.env.NODE_ENV='\\\"production\\\"'"), 'esbuild NODE_ENV must be passed as a quoted string, not a bare production identifier');
 
 assert(docker.includes('cd /var/www/html/rare-folder-build'), 'Render image must build the Rare UI bundle');
 assert(docker.includes('test -s /var/www/html/components/rare-folder-entry.bundle.js'), 'Docker build must fail if the folder bundle is missing');
 
-assert(html.includes('hashcod-rare-folder-preboot'), 'obsolete intro must be suppressed before deferred scripts run');
-assert(html.includes('rare-folder-entry.bundle.js?v=20260913-2'), 'production HTML must load the new cache-busted local Rare UI bundle');
+assert(html.includes('hashcod-rare-folder-preboot'), 'obsolete intro must be suppressed before folder bootstrap');
+assert(html.includes("file_get_contents($rareFolderBundlePath)"), 'production PHP must inline the built Rare UI bundle');
+assert(html.includes('hashcod-rare-folder-inline'), 'production HTML must emit an inline Rare UI bundle for guaranteed execution');
+assert(html.includes('rare-folder-entry.bundle.js?v=20260913-3'), 'production HTML must also load a cache-busted local Rare UI fallback');
 assert(html.includes('hashcod-rare-folder-placement'), 'production HTML must include the visibility/placement override');
 assert(html.includes('left:38vw!important'), 'desktop folder must occupy the requested left-side blank area');
 assert(html.includes('top:50vh!important'), 'folder must be vertically centered with the Hashcod mark');

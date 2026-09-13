@@ -12,11 +12,6 @@ if (!function_exists('envValue')) {
  * Root PHP/Render → "/". GitHub Pages project site → "/l8-codespace/".
  * Override with L8_PUBLIC_BASE (e.g. "/app").
  */
-/**
- * Public URL base path ending with "/".
- * Root PHP/Render → "/". GitHub Pages project site → "/l8-codespace/".
- * Override with L8_PUBLIC_BASE (e.g. "/app").
- */
 function l8_public_base_path() {
     static $cachedBase = null;
     if ($cachedBase !== null) {
@@ -49,9 +44,7 @@ function l8_public_base_path() {
     return '/';
 }
 
-/**
- * Inicializa compresión de salida ligera (gzip/deflate) de forma segura.
- */
+/** Inicializa compresión de salida ligera (gzip/deflate) de forma segura. */
 function l8_init_compression(): bool {
     if (headers_sent() || ob_get_level() > 0) {
         return false;
@@ -125,48 +118,32 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $cssTag = $inlineCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">';
 
-        // The Rare UI folder is critical boot UI. Inline it for immediate paint,
-        // and also load the same versioned stylesheet externally so restrictive
-        // CSP/CDN behavior cannot leave the boot canvas blank.
-        $folderCssPath = __DIR__ . '/components/boot-folder-animation.css';
-        $folderCss = is_file($folderCssPath) ? (string) @file_get_contents($folderCssPath) : '';
-        $folderCssTag = ($folderCss !== ''
-            ? '<style id="hashcod-boot-folder-animation-critical">' . $folderCss . '</style>'
-            : '')
-            . '<link rel="stylesheet" href="' . $base . 'components/boot-folder-animation.css?v=20260913-6" data-hashcod-boot-folder-style="true">';
+        // Prevent the obsolete full-screen startup animation from racing the
+        // Rare UI folder. This runs before deferred entry scripts.
+        $rareFolderPrebootTag = '<script id="hashcod-rare-folder-preboot">try{sessionStorage.setItem("hashcod_platform_intro_seen_v1","1");}catch(e){};</script>';
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $folderCssTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $rareFolderPrebootTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $folderCssTag . $html;
+            $html = $cssTag . $rareFolderPrebootTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
-        // It applies !important UI rules and direct CSSOM visibility so the
-        // Toolbox can never fall back to raw document-flow controls if a CSS
-        // response is stale, missing or overridden in production.
         $rescueJsPath = __DIR__ . '/components/toolbox-secure-ui-rescue.js';
         $rescueJs = is_file($rescueJsPath) ? (string) @file_get_contents($rescueJsPath) : '';
         $inlineRescueTag = $rescueJs !== ''
             ? '<script id="hashcod-toolbox-ui-rescue-inline">' . $rescueJs . '</script>'
             : '';
 
-        // Mount the folder inline for the fastest paint, then load a same-origin
-        // external fallback. The JS is idempotent, so only one live instance is
-        // created even when both paths are allowed by the browser.
-        $folderJsPath = __DIR__ . '/components/boot-folder-animation.js';
-        $folderJs = is_file($folderJsPath) ? (string) @file_get_contents($folderJsPath) : '';
-        if ($folderJs !== '') {
-            $folderJs = str_ireplace('</script', '<\\/script', $folderJs);
-        }
-        $inlineFolderTag = $folderJs !== ''
-            ? '<script id="hashcod-boot-folder-animation-inline" data-hashcod-boot-folder-animation="true">' . $folderJs . '</script>'
+        // The Docker build generates this local bundle from the Rare UI
+        // React/Motion implementation. No CDN is needed at runtime.
+        $rareFolderBundlePath = __DIR__ . '/components/rare-folder-entry.bundle.js';
+        $rareFolderTag = is_file($rareFolderBundlePath)
+            ? '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260913-1" data-hashcod-rare-folder="true"></script>'
             : '';
-        $externalFolderTag = '<script defer src="' . $base . 'components/boot-folder-animation.js?v=20260913-6" data-hashcod-boot-folder-animation-fallback="true"></script>';
 
-        $tag = $inlineFolderTag
-            . $externalFolderTag
+        $tag = $rareFolderTag
             . $inlineRescueTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'

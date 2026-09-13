@@ -3,10 +3,11 @@
  * Secure Toolbox link launcher for Hashcod Codespace.
  *
  * Each 4x4 Toolbox circle can be assigned an HTTP(S) URL plus a sanitized SVG.
- * Configuration requires the registered Windows Hello admin session and the
- * platform Dilithium-5 credential. Opening a saved link requires the same
- * Dilithium-5 credential. Destination URLs and identity metadata are never
- * exposed by the public pull endpoint.
+ * Configuration requires the registered Windows Hello admin session. The user
+ * chooses a private access signature for each circle when saving it; only a
+ * one-way password hash of that signature is stored. Opening (or deleting) a
+ * saved link requires the same per-circle signature. Destination URLs and
+ * identity metadata are never exposed by the public pull endpoint.
  */
 
 declare(strict_types=1);
@@ -16,7 +17,6 @@ declare(strict_types=1);
 @set_time_limit(20);
 
 require_once __DIR__ . '/supabase.php';
-require_once __DIR__ . '/secrets.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/admin-device.php';
 
@@ -25,6 +25,7 @@ securityBootstrap('api');
 const HTL_TABLE = 'hashcod_toolbox_links';
 const HTL_MAX_SVG_BYTES = 32768;
 const HTL_MAX_BODY_BYTES = 131072;
+const HTL_MAX_SIGNATURE_BYTES = 32768;
 
 function htlJson(array $payload, int $status = 200): void {
     http_response_code($status);
@@ -65,36 +66,35 @@ function htlSlot($value): string {
     return preg_match('/^[1-4]-[1-4]$/', $slot) ? $slot : '';
 }
 
-function htlMasterSignature(): string {
-    $keys = [
-        'DILITHIUM5_ADMIN_SIGNATURE_EXACT',
-        'DILITHIUM5_ADMIN_SIGNATURE',
-        'L8_DILITHIUM5_REGISTER_KEY',
-    ];
-    foreach ($keys as $key) {
-        if (function_exists('secretGet')) {
-            $value = trim((string)secretGet($key, ''));
-            if ($value !== '') return $value;
-        }
-        if (function_exists('envValue')) {
-            $value = trim((string)envValue($key, ''));
-            if ($value !== '') return $value;
-        }
-        $value = trim((string)(getenv($key) ?: ''));
-        if ($value !== '') return $value;
-    }
-    return '';
-}
-
-function htlVerifySignature($value): bool {
+/**
+ * Access signatures are user-defined secrets. Leading/trailing whitespace is
+ * ignored so copied signatures do not fail because of an accidental newline.
+ */
+function htlNormalizeSignature($value): string {
     $signature = trim((string)$value);
-    if ($signature === '' || strlen($signature) > 32768) return false;
-    $master = htlMasterSignature();
-    return $master !== '' && hash_equals($master, $signature);
+    if ($signature === '' || strlen($signature) > HTL_MAX_SIGNATURE_BYTES) return '';
+    return $signature;
 }
 
-function htlRequireSignature(array $body): void {
-    $rate = securityRateAllowSliding('hashcod_toolbox_dilithium', 18, 60);
+/** Store no plaintext signature: SHA-512 prehash + password_hash. */
+function htlHashSignature($value): string {
+    $signature = htlNormalizeSignature($value);
+    if ($signature === '') return '';
+    $digest = hash('sha512', $signature);
+    $algorithm = defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_DEFAULT;
+    $hash = password_hash($digest, $algorithm);
+    return is_string($hash) ? $hash : '';
+}
+
+function htlVerifyStoredSignature($value, $storedHash): bool {
+    $signature = htlNormalizeSignature($value);
+    $storedHash = trim((string)$storedHash);
+    if ($signature === '' || $storedHash === '') return false;
+    return password_verify(hash('sha512', $signature), $storedHash);
+}
+
+function htlRequireStoredSignature(array $body, array $row): void {
+    $rate = securityRateAllowSliding('hashcod_toolbox_circle_signature', 18, 60);
     if (empty($rate['allowed'])) {
         htlJson([
             'ok' => false,
@@ -102,8 +102,17 @@ function htlRequireSignature(array $body): void {
             'retry_after' => (int)($rate['retry_after'] ?? 30),
         ], 429);
     }
-    if (!htlVerifySignature($body['signature'] ?? '')) {
-        htlJson(['ok' => false, 'error' => 'Firma Dilithium-5 incorrecta.'], 403);
+
+    $storedHash = trim((string)($row['access_signature_hash'] ?? ''));
+    if ($storedHash === '') {
+        htlJson([
+            'ok' => false,
+            'error' => 'Este círculo fue guardado antes del sistema de firma individual. Edítalo y guarda una firma nueva.',
+        ], 409);
+    }
+
+    if (!htlVerifyStoredSignature($body['signature'] ?? '', $storedHash)) {
+        htlJson(['ok' => false, 'error' => 'Firma del círculo incorrecta. Debes usar la misma que elegiste al guardarlo.'], 403);
     }
 }
 
@@ -202,7 +211,7 @@ function htlSanitizeSvg($raw): string {
 function htlFetchRow(string $slot): ?array {
     $res = supabaseDbSelect(
         HTL_TABLE,
-        'select=slot_key,url,icon_svg,label,identity_id,identity_name,identity_username,identity_email,is_deleted,created_at_ms,updated_at_ms,updated_by'
+        'select=slot_key,url,icon_svg,label,identity_id,identity_name,identity_username,identity_email,access_signature_hash,is_deleted,created_at_ms,updated_at_ms,updated_by'
         . '&slot_key=eq.' . rawurlencode($slot) . '&limit=1'
     );
     if (empty($res['ok'])) return null;
@@ -238,9 +247,11 @@ function htlSave(array $body): array {
     $slot = htlSlot($body['slot'] ?? '');
     $url = htlNormalizeUrl($body['url'] ?? '');
     $icon = htlSanitizeSvg($body['iconSvg'] ?? $body['icon_svg'] ?? '');
+    $signatureHash = htlHashSignature($body['signature'] ?? '');
     if ($slot === '') return ['ok' => false, 'error' => 'Círculo inválido.', 'status' => 400];
     if ($url === '') return ['ok' => false, 'error' => 'Introduce un enlace HTTP o HTTPS válido.', 'status' => 422];
     if ($icon === '') return ['ok' => false, 'error' => 'El SVG no es válido o contiene elementos no permitidos.', 'status' => 422];
+    if ($signatureHash === '') return ['ok' => false, 'error' => 'Elige una firma de acceso para este círculo.', 'status' => 422];
 
     $label = htlCleanText($body['label'] ?? '', 120);
     $identityName = htlCleanText($body['identityName'] ?? '', 120);
@@ -265,6 +276,7 @@ function htlSave(array $body): array {
         'identity_name' => $identityName,
         'identity_username' => $identityUsername,
         'identity_email' => $identityEmail,
+        'access_signature_hash' => $signatureHash,
         'is_deleted' => false,
         'created_at_ms' => $created,
         'updated_at_ms' => max($created, $now),
@@ -285,6 +297,7 @@ function htlOpen(array $body): array {
     if (!$row || !empty($row['is_deleted'])) {
         return ['ok' => false, 'error' => 'Este círculo todavía no tiene un enlace seguro.', 'status' => 404];
     }
+    htlRequireStoredSignature($body, $row);
     $url = htlNormalizeUrl($row['url'] ?? '');
     if ($url === '') return ['ok' => false, 'error' => 'El enlace guardado no es válido.', 'status' => 422];
     return [
@@ -307,6 +320,7 @@ function htlDelete(array $body): array {
     if ($slot === '') return ['ok' => false, 'error' => 'Círculo inválido.', 'status' => 400];
     $existing = htlFetchRow($slot);
     if (!$existing) return ['ok' => true, 'slot' => $slot];
+    htlRequireStoredSignature($body, $existing);
     $existing['is_deleted'] = true;
     $existing['updated_at_ms'] = max((int)($existing['created_at_ms'] ?? 1), (int)round(microtime(true) * 1000));
     $existing['updated_by'] = 'windows-hello-admin';
@@ -332,7 +346,6 @@ if ($action === 'save') {
     htlRequireAjaxPost();
     adminRequire();
     $body = htlReadJson();
-    htlRequireSignature($body);
     $result = htlSave($body);
     htlJson($result, (int)($result['status'] ?? (!empty($result['ok']) ? 200 : 422)));
 }
@@ -340,7 +353,6 @@ if ($action === 'save') {
 if ($action === 'open') {
     htlRequireAjaxPost();
     $body = htlReadJson();
-    htlRequireSignature($body);
     $result = htlOpen($body);
     htlJson($result, (int)($result['status'] ?? (!empty($result['ok']) ? 200 : 422)));
 }
@@ -349,7 +361,6 @@ if ($action === 'delete') {
     htlRequireAjaxPost();
     adminRequire();
     $body = htlReadJson();
-    htlRequireSignature($body);
     $result = htlDelete($body);
     htlJson($result, (int)($result['status'] ?? (!empty($result['ok']) ? 200 : 422)));
 }

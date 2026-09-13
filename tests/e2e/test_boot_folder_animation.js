@@ -22,7 +22,7 @@ assert(source.includes('y: isOpen ? -160 : isHovered ? -30 : -10'), 'card 1 Rare
 assert(source.includes('y: isOpen ? -180 : isHovered ? -35 : -20'), 'card 2 Rare UI motion states must be preserved');
 assert(source.includes('y: isOpen ? -170 : isHovered ? -44 : -22'), 'card 3 Rare UI motion states must be preserved');
 assert(source.includes('rotateX: isOpen ? -55 : isHovered ? -45 : -15'), 'Rare UI flap states must be preserved');
-assert(source.includes('findBrandRect'), 'folder must align dynamically to the Hashcod brand instead of a fixed right-side position');
+assert(source.includes('findBrandRect'), 'folder keeps brand-aware placement support in the React integration');
 assert(source.includes("pointerEvents: 'none'"), 'host must not block the rest of the startup screen');
 assert(!source.includes('new MutationObserver'), 'folder mount must not use a broad MutationObserver');
 assert(source.includes('attempts >= 40'), 'mount retries must remain bounded');
@@ -35,7 +35,12 @@ assert(docker.includes('cd /var/www/html/rare-folder-build'), 'Render image must
 assert(docker.includes('test -s /var/www/html/components/rare-folder-entry.bundle.js'), 'Docker build must fail if the folder bundle is missing');
 
 assert(html.includes('hashcod-rare-folder-preboot'), 'obsolete intro must be suppressed before deferred scripts run');
-assert(html.includes('rare-folder-entry.bundle.js?v=20260913-1'), 'production HTML must load the cache-busted local Rare UI bundle');
+assert(html.includes('rare-folder-entry.bundle.js?v=20260913-2'), 'production HTML must load the new cache-busted local Rare UI bundle');
+assert(html.includes('hashcod-rare-folder-placement'), 'production HTML must include the visibility/placement override');
+assert(html.includes('left:38vw!important'), 'desktop folder must occupy the requested left-side blank area');
+assert(html.includes('top:50vh!important'), 'folder must be vertically centered with the Hashcod mark');
+assert(html.includes('z-index:2147482500!important'), 'folder must render above the boot surface');
+assert(html.includes('[data-slot="folder"]{pointer-events:auto!important'), 'the folder itself must remain interactive');
 assert(!html.includes('boot-folder-animation.js?v=20260913-6'), 'old native folder fallback must no longer be loaded');
 assert(!html.includes('boot-folder-animation.css?v=20260913-6'), 'old native folder CSS must no longer be loaded');
 

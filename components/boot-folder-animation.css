@@ -1,0 +1,209 @@
+/* Interactive folder animation adapted from the supplied React/Motion component.
+   Native CSS version for the existing PHP platform; geometry and motion states
+   intentionally mirror the source component. */
+
+#hashcodBootFolderAnimation {
+    --hbf-scale: .82;
+    position: absolute;
+    left: 34%;
+    top: 54%;
+    z-index: 32;
+    width: 321px;
+    height: 270px;
+    transform: translate(-50%, -50%) scale(var(--hbf-scale));
+    transform-origin: center center;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    outline: none;
+}
+
+#hashcodBootFolderAnimation:focus-visible {
+    filter: drop-shadow(0 0 0.5px #111) drop-shadow(0 0 7px rgba(0,0,0,.2));
+}
+
+#hashcodBootFolderAnimation .hbf-stage {
+    position: relative;
+    width: 321px;
+    height: 270px;
+    perspective: 800px;
+}
+
+#hashcodBootFolderAnimation .hbf-back-wrap,
+#hashcodBootFolderAnimation .hbf-cards,
+#hashcodBootFolderAnimation .hbf-front {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#hashcodBootFolderAnimation .hbf-back {
+    width: 321px;
+    height: 270px;
+    border-radius: 25px;
+    background: #000;
+    box-shadow: inset 0 0 6px 2px rgba(255,255,255,.37), 0 18px 32px rgba(0,0,0,.10);
+}
+
+#hashcodBootFolderAnimation .hbf-cards {
+    width: 1px;
+    height: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+#hashcodBootFolderAnimation .hbf-card {
+    position: absolute;
+    width: 164px;
+    height: 214px;
+    will-change: transform;
+    transform-origin: center center;
+    transition-property: transform;
+    transition-duration: 430ms;
+    transition-timing-function: cubic-bezier(.22,1,.36,1);
+}
+
+#hashcodBootFolderAnimation .hbf-card svg {
+    display: block;
+    width: 164px;
+    height: 214px;
+    overflow: visible;
+    filter: drop-shadow(0 5px 8px rgba(0,0,0,.08));
+}
+
+/* Source idle positions */
+#hashcodBootFolderAnimation .hbf-card-1 { transform: translate(40px,-10px) rotate(10deg); transition-delay: 0ms; }
+#hashcodBootFolderAnimation .hbf-card-2 { transform: translate(3px,-20px) rotate(2deg); transition-delay: 0ms; }
+#hashcodBootFolderAnimation .hbf-card-3 { transform: translate(-40px,-22px) rotate(-5deg); transition-delay: 0ms; }
+
+/* Source hover positions */
+#hashcodBootFolderAnimation.is-hovered .hbf-card-1 { transform: translate(40px,-30px) rotate(14deg); transition-delay: 120ms; }
+#hashcodBootFolderAnimation.is-hovered .hbf-card-2 { transform: translate(3px,-35px) rotate(-1deg); transition-delay: 60ms; }
+#hashcodBootFolderAnimation.is-hovered .hbf-card-3 { transform: translate(-40px,-44px) rotate(-9deg); transition-delay: 0ms; }
+
+/* Source clicked/open positions */
+#hashcodBootFolderAnimation.is-open .hbf-card-1 { transform: translate(70px,-160px) rotate(18deg); transition-delay: 100ms; }
+#hashcodBootFolderAnimation.is-open .hbf-card-2 { transform: translate(0,-180px) rotate(-3deg); transition-delay: 50ms; }
+#hashcodBootFolderAnimation.is-open .hbf-card-3 { transform: translate(-65px,-170px) rotate(-14deg); transition-delay: 0ms; }
+
+#hashcodBootFolderAnimation .hbf-front {
+    width: 321px;
+    height: 241px;
+    margin-top: 16px;
+    z-index: 3;
+    transform-origin: bottom center;
+    transform-style: preserve-3d;
+    transform: translate(-50%, -50%) rotateX(-15deg);
+    transition: transform 440ms cubic-bezier(.22,1,.36,1);
+    will-change: transform;
+}
+
+#hashcodBootFolderAnimation.is-hovered .hbf-front {
+    transform: translate(-50%, -50%) rotateX(-45deg);
+}
+
+#hashcodBootFolderAnimation.is-open .hbf-front {
+    transform: translate(-50%, -50%) rotateX(-55deg);
+}
+
+#hashcodBootFolderAnimation .hbf-front-blur {
+    position: absolute;
+    inset: 0;
+    background: rgba(41,41,41,.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    clip-path: path("M0 25C0 11.1929 11.1929 0 25 0H136.084C143.044 0 149.689 2.90139 154.42 8.00608L178.08 33.5343C182.811 38.639 189.456 41.5404 196.416 41.5404H296C309.807 41.5404 321 52.7333 321 66.5404V216C321 229.807 309.807 241 296 241H25C11.1929 241 0 229.807 0 216V25Z");
+    -webkit-clip-path: path("M0 25C0 11.1929 11.1929 0 25 0H136.084C143.044 0 149.689 2.90139 154.42 8.00608L178.08 33.5343C182.811 38.639 189.456 41.5404 196.416 41.5404H296C309.807 41.5404 321 52.7333 321 66.5404V216C321 229.807 309.807 241 296 241H25C11.1929 241 0 229.807 0 216V25Z");
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+#hashcodBootFolderAnimation .hbf-front-svg {
+    position: absolute;
+    inset: 0;
+    width: 321px;
+    height: 241px;
+    display: block;
+    overflow: visible;
+}
+
+#hashcodBootFolderAnimation .hbf-label {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 18px);
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    font: 600 9px/1 'IBM Plex Mono','Geist Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    letter-spacing: .14em;
+    color: #656565;
+    opacity: .82;
+    pointer-events: none;
+}
+
+#hashcodBootFolderAnimation .hbf-label::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border: 1px solid #111;
+    background: #fff;
+}
+
+#hashcodBootFolderAnimation.is-open .hbf-label {
+    color: #111;
+    opacity: 1;
+}
+
+#hashcodBootFolderAnimation.is-previewing .hbf-stage {
+    animation: hbfPreviewPulse 520ms ease both;
+}
+
+@keyframes hbfPreviewPulse {
+    0% { transform: scale(.985); }
+    55% { transform: scale(1.015); }
+    100% { transform: scale(1); }
+}
+
+/* Keep the supplied component aligned inside the existing boot composition. */
+@media (max-width: 1180px) {
+    #hashcodBootFolderAnimation {
+        left: 31%;
+        top: 51%;
+    }
+}
+
+@media (max-width: 900px) {
+    #hashcodBootFolderAnimation {
+        left: 50%;
+        top: 43%;
+    }
+}
+
+@media (max-width: 620px) {
+    #hashcodBootFolderAnimation {
+        top: 40%;
+    }
+
+    #hashcodBootFolderAnimation .hbf-label {
+        top: calc(100% + 11px);
+        font-size: 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #hashcodBootFolderAnimation .hbf-card,
+    #hashcodBootFolderAnimation .hbf-front,
+    #hashcodBootFolderAnimation .hbf-stage {
+        transition-duration: 1ms !important;
+        animation-duration: 1ms !important;
+    }
+}

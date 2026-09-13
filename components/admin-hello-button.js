@@ -223,7 +223,7 @@
 
         if (!document.querySelector('script[data-vector-classroom-board]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'vector-classroom-board.js?v=20260912-1';
+            script.src = componentBase + 'vector-classroom-board.js?v=20260913-2';
             script.defer = true;
             script.dataset.vectorClassroomBoard = 'true';
             document.head.appendChild(script);
@@ -231,8 +231,7 @@
     })();
 
     // Global collaborative persistence for browser tools. IndexedDB is only the
-    // offline cache; Supabase PostgreSQL + Storage is the shared source of truth
-    // so authenticated users on phone, laptop and other computers converge.
+    // offline cache; Supabase PostgreSQL + Storage is the shared source of truth.
     (function loadCloudDeviceSync() {
         const current = document.currentScript;
         const currentSrc = current && current.src ? current.src : '';
@@ -241,7 +240,7 @@
             : '/components/';
         if (document.querySelector('script[data-hashcod-cloud-sync]')) return;
         const script = document.createElement('script');
-        script.src = componentBase + 'cloud-device-sync.js?v=20260913-1';
+        script.src = componentBase + 'cloud-device-sync.js?v=20260913-2';
         script.defer = true;
         script.dataset.hashcodCloudSync = 'true';
         document.head.appendChild(script);

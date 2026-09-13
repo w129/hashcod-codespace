@@ -143,7 +143,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $tag = $inlineRescueTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
-            . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-3" data-hashcod-toolbox-secure="true"></script>'
+            . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'
+            . '<script defer src="' . $base . 'components/toolbox-signature-copy.js?v=20260913-1" data-hashcod-toolbox-signature-copy="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-ui-rescue.js?v=20260913-1" data-hashcod-toolbox-ui-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/topbar-windows-hello.js?v=20260913-1" data-hashcod-topbar-windows-hello="true"></script>';
         $bodyPos = strripos($html, '</body>');

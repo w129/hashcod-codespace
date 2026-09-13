@@ -123,9 +123,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $rareFolderPrebootTag = '<script id="hashcod-rare-folder-preboot">try{sessionStorage.setItem("hashcod_platform_intro_seen_v1","1");}catch(e){};</script>';
 
         // Production placement override for the real Rare UI React/Motion folder.
-        // The previous host used z-index 40 and could sit behind the existing boot
-        // surface. Keep it in the requested left-side blank area, vertically
-        // aligned with the Hashcod mark, without intercepting the rest of the UI.
+        // Keep it in the requested left-side blank area, vertically aligned with
+        // the Hashcod mark, and above all existing boot surfaces.
         $rareFolderPlacementTag = '<style id="hashcod-rare-folder-placement">'
             . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%)!important;}'
             . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
@@ -148,14 +147,23 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-toolbox-ui-rescue-inline">' . $rescueJs . '</script>'
             : '';
 
-        // The Docker build generates this local bundle from the Rare UI
-        // React/Motion implementation. No CDN is needed at runtime.
+        // The Docker build generates this local bundle from the exact Rare UI
+        // React/Motion implementation. Inline the built artifact so the folder
+        // cannot disappear because of static-asset routing, CDN cache, or an
+        // external-script request failure. Keep a versioned external fallback;
+        // the bundle is idempotent and will not mount a second host.
         $rareFolderBundlePath = __DIR__ . '/components/rare-folder-entry.bundle.js';
-        $rareFolderTag = is_file($rareFolderBundlePath)
-            ? '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260913-2" data-hashcod-rare-folder="true"></script>'
+        $rareFolderBundle = is_file($rareFolderBundlePath) ? (string) @file_get_contents($rareFolderBundlePath) : '';
+        if ($rareFolderBundle !== '') {
+            $rareFolderBundle = str_ireplace('</script', '<\\/script', $rareFolderBundle);
+        }
+        $rareFolderInlineTag = $rareFolderBundle !== ''
+            ? '<script id="hashcod-rare-folder-inline" data-hashcod-rare-folder-inline="true">' . $rareFolderBundle . '</script>'
             : '';
+        $rareFolderExternalTag = '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260913-3" data-hashcod-rare-folder="true"></script>';
 
-        $tag = $rareFolderTag
+        $tag = $rareFolderInlineTag
+            . $rareFolderExternalTag
             . $inlineRescueTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'

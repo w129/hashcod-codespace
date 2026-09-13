@@ -124,11 +124,18 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             : '';
         $cssTag = $inlineCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">';
+
+        // The boot animation used to be suppressed for the rest of the browser
+        // session after it ran once. Reset that marker while the document is
+        // still parsing so the existing deferred motion script can show the
+        // original Hashcod startup animation on every full platform load.
+        $introReplayTag = '<script id="hashcod-boot-intro-reset">try{sessionStorage.removeItem("hashcod_platform_intro_seen_v1");}catch(e){}</script>';
+
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $introReplayTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $html;
+            $html = $cssTag . $introReplayTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.

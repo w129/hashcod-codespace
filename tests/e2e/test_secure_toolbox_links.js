@@ -85,7 +85,7 @@ check('in-platform browser keeps top navigation sandboxed', () => {
 check('new assets are cache-busted and secure Toolbox has production fallbacks', () => {
     assert(html.includes('toolbox-secure-links.css?v=20260913-3'));
     assert(html.includes('toolbox-secure-links.js?v=20260913-4'));
-    assert(html.includes('toolbox-signature-copy.js?v=20260913-1'));
+    assert(html.includes('toolbox-signature-copy.js?v=20260913-2'));
     assert(html.includes('toolbox-secure-ui-rescue.js?v=20260913-1'));
     assert(html.includes('vector-link-board-reconcile.js?v=20260913-6'));
     assert(html.includes('hashcod-toolbox-secure-inline'));
@@ -98,6 +98,12 @@ check('signature UI tells users to choose and repeat their own signature', () =>
     assert(signatureCopy.includes('Elige cualquier firma secreta que quieras'));
     assert(signatureCopy.includes('Escribe la misma firma que elegiste'));
     assert(signatureCopy.includes('MISMA FIRMA DEL CÍRCULO'));
+});
+
+check('signature copy layer cannot leave a page-wide mutation loop running', () => {
+    assert(signatureCopy.includes('if (applyCopy()) return;'));
+    assert(signatureCopy.includes('observer.disconnect()'));
+    assert(signatureCopy.includes("node.textContent !== value"));
 });
 
 check('rescue layer force-hides closed modals and browser', () => {

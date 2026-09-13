@@ -24,6 +24,7 @@ on:
       - components/mobile-platform-polish.css
       - components/toolbox-secure-links.js
       - components/toolbox-secure-links.css
+      - components/toolbox-secure-ui-rescue.js
       - supabase/migrations/20260913_create_secure_toolbox_links.sql
       - tests/e2e/test_auth_vector_layout_fix.js
       - tests/e2e/test_auth_vector_tray.js
@@ -63,6 +64,9 @@ jobs:
 
       - name: Syntax check secure Toolbox launcher
         run: node --check components/toolbox-secure-links.js
+
+      - name: Syntax check secure Toolbox rescue layer
+        run: node --check components/toolbox-secure-ui-rescue.js
 
       - name: Syntax check cloud sync backend
         run: php -l hashcod-sync.php

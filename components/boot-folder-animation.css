@@ -134,35 +134,6 @@
     overflow: visible;
 }
 
-#hashcodBootFolderAnimation .hbf-label {
-    position: absolute;
-    left: 50%;
-    top: calc(100% + 18px);
-    transform: translateX(-50%);
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    white-space: nowrap;
-    font: 600 9px/1 'IBM Plex Mono','Geist Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    letter-spacing: .14em;
-    color: #656565;
-    opacity: .82;
-    pointer-events: none;
-}
-
-#hashcodBootFolderAnimation .hbf-label::before {
-    content: "";
-    width: 5px;
-    height: 5px;
-    border: 1px solid #111;
-    background: #fff;
-}
-
-#hashcodBootFolderAnimation.is-open .hbf-label {
-    color: #111;
-    opacity: 1;
-}
-
 #hashcodBootFolderAnimation.is-previewing .hbf-stage {
     animation: hbfPreviewPulse 520ms ease both;
 }
@@ -191,19 +162,5 @@
 @media (max-width: 620px) {
     #hashcodBootFolderAnimation {
         top: 40%;
-    }
-
-    #hashcodBootFolderAnimation .hbf-label {
-        top: calc(100% + 11px);
-        font-size: 8px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    #hashcodBootFolderAnimation .hbf-card,
-    #hashcodBootFolderAnimation .hbf-front,
-    #hashcodBootFolderAnimation .hbf-stage {
-        transition-duration: 1ms !important;
-        animation-duration: 1ms !important;
     }
 }

@@ -29,7 +29,7 @@ assert(source.includes("window.HashcodCloudSync = Object.freeze"), 'manual cloud
 
 assert(board.includes("cloudRequest('links.push'"), 'link board itself must perform Windows Hello protected writes');
 assert(board.includes("cloudRequest('links.open'"), 'link board must verify remote codes server-side');
-assert(board.includes("cloudRequest('links.pull')"), 'link board must pull shared occupancy on every device');
+assert(board.includes("cloudRequest('links.pull'"), 'link board must pull shared occupancy on every device');
 
 assert(backend.includes("require_once __DIR__ . '/admin-device.php'"), 'link writes must reuse the Windows Hello server session');
 assert(backend.includes("const HCS_SHARED_SCOPE = 'global'"), 'all devices must converge on one shared scope');
@@ -55,7 +55,7 @@ assert(!backend.includes("'code' => $_POST"), 'plain gallery codes must never be
 assert(backend.includes("'shared' => true"), 'sync status must identify the shared global mode');
 
 assert(loader.includes("vector-classroom-board.js?v=20260913-2"), 'platform must load the fresh link-board parent module');
-assert(loader.includes("cloud-device-sync.js?v=20260913-2") || loader.includes("cloud-device-sync.js?v=20260913-3"), 'platform loader must start the current cloud-device sync version');
+assert(loader.includes("cloud-device-sync.js?v=20260913-3"), 'platform loader must bust cache for the current cloud-device sync version');
 assert(loader.includes('data-hashcod-cloud-sync'), 'cloud sync loader guard missing');
 
 console.log('Cloud device sync contract OK');

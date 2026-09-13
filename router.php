@@ -4,16 +4,19 @@ require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/l8-html.php';
 
 // hashcod-sync.php is a deliberate public controller. The generic security layer
-// denies direct *.php paths, so normalize only this exact controller to an
-// extensionless API URI before the security bootstrap runs. This keeps every
-// other PHP file hidden while allowing the cross-device PostgreSQL endpoint.
+// denies direct *.php paths and its normal API bucket may trigger an interactive
+// Turnstile challenge for legitimate background polling on carrier/shared IPs.
+// Normalize only the sync controller to the existing isolated high-frequency
+// non-interactive status bucket before its own security bootstrap runs. Hard IP
+// threat blocks remain active, while link/image write authorization stays in
+// hashcod-sync.php (Windows Hello / authenticated account as applicable).
 $bootstrapRequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
 $bootstrapRawPath = parse_url($bootstrapRequestUri, PHP_URL_PATH);
 $bootstrapRawPath = is_string($bootstrapRawPath) ? $bootstrapRawPath : '/';
 $bootstrapSyncPath = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $bootstrapRawPath);
-if ($bootstrapSyncPath === '/hashcod-sync.php') {
+if (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], true)) {
     $bootstrapQuery = parse_url($bootstrapRequestUri, PHP_URL_QUERY);
-    $_SERVER['REQUEST_URI'] = '/api/hashcod-sync'
+    $_SERVER['REQUEST_URI'] = '/api/admin-device/status'
         . (is_string($bootstrapQuery) && $bootstrapQuery !== '' ? '?' . $bootstrapQuery : '');
     require __DIR__ . '/hashcod-sync.php';
     exit;
@@ -105,8 +108,7 @@ if ($uri === '/api/groq-chat') {
     exit;
 }
 
-// Sync endpoint. /hashcod-sync.php is normalized before bootstrap above;
-// /api/hashcod-sync is also accepted as the canonical extensionless route.
+// Sync endpoint. Both supported routes are normalized before bootstrap above.
 if ($uri === '/hashcod-sync.php' || $uri === '/api/hashcod-sync') {
     require __DIR__ . '/hashcod-sync.php';
     exit;

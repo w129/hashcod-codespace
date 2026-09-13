@@ -174,12 +174,9 @@
         if (document.visibilityState === 'visible') schedule('visible', 100);
     });
 
-    const observer = new MutationObserver(function () {
-        const overlay = document.getElementById('hashcodLinkBoardOverlay');
-        if (overlay && overlay.classList.contains('is-open')) schedule('board-open', 100);
-    });
-    if (document.documentElement) observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-
+    // Keep retrying only while there are local-only records (or while an admin
+    // session is active), so an old cache is eventually published without a
+    // render/mutation observer loop.
     window.setInterval(function () {
         if (pendingCount > 0 || isAdminVerified()) reconcile('periodic');
     }, RETRY_MS);

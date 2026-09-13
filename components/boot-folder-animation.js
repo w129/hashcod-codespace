@@ -21,12 +21,12 @@
 
     function cardSvg(id) {
         const rows = [60.9939, 75.1122, 89.2306, 103.349, 117.467, 131.586, 145.704, 159.823, 173.941];
+        const rightRows = [60.9617,75.0801,89.1985,103.317,117.435,131.554,145.672,159.79,173.909];
         const filterId = 'hbf_card_filter_' + id;
         const lines = rows.map(function (y, index) {
-            const rightY = [60.9617,75.0801,89.1985,103.317,117.435,131.554,145.672,159.79,173.909][index];
             return [
                 '<rect x="14.8253" y="', y, '" width="64.5183" height="5.88276" rx="2.94138" fill="', theme.cardLineFill, '"/>',
-                '<rect x="84.4303" y="', rightY, '" width="64.5183" height="5.88276" rx="2.94138" fill="', theme.cardLineFill, '"/>'
+                '<rect x="84.4303" y="', rightRows[index], '" width="64.5183" height="5.88276" rx="2.94138" fill="', theme.cardLineFill, '"/>'
             ].join('');
         }).join('');
 
@@ -98,8 +98,7 @@
                     '<div class="hbf-front-blur"></div>',
                     flapSvg(),
                 '</div>',
-            '</div>',
-            '<div class="hbf-label">HASHCOD / WORKSPACE</div>'
+            '</div>'
         ].join('');
         return root;
     }
@@ -120,8 +119,8 @@
         if (!overlay) return false;
         if (document.getElementById('hashcodBootFolderAnimation')) return true;
 
-        // This new folder animation replaces the old transient boot intro.
-        // Mark the old intro as already seen before its deferred module runs.
+        // This folder replaces the previous full-screen boot intro. Mark the
+        // legacy intro as seen before its deferred module can create it.
         try { window.sessionStorage.setItem(INTRO_SESSION_KEY, '1'); } catch (error) {}
 
         const staleIntro = document.getElementById('hashcodBootIntro');
@@ -188,8 +187,8 @@
 
         window.addEventListener('resize', function () { setScale(root); }, { passive: true });
 
-        // Automatic one-time preview so the animation is visible immediately,
-        // while preserving the supplied hover/click behavior afterwards.
+        // Brief automatic demonstration on load; after that the component stays
+        // fully interactive with the exact hover/click states from the source.
         window.setTimeout(function () {
             if (userInteracted || !root.isConnected) return;
             root.classList.add('is-previewing');

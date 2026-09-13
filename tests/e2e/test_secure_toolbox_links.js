@@ -45,7 +45,7 @@ check('configuration writes remain Windows Hello admin protected', () => {
 check('SVG is sanitized on both client and server', () => {
     assert(frontend.includes('function sanitizeSvgClient'));
     assert(backend.includes('function htlSanitizeSvg'));
-    assert(backend.includes("'script'"));
+    assert(backend.includes('script|foreignObject|iframe|object|embed'));
     assert(backend.includes("stripos($svg, '<!DOCTYPE')"));
 });
 
@@ -60,7 +60,7 @@ check('links open inside the Hashcod browser, never via window.open(destination)
     assert(frontend.includes('id="hslBrowserFrame"'));
     assert(frontend.includes('function openBrowser'));
     assert(!frontend.includes('window.open(body.url'));
-    assert(frontend.includes("frame.src = state.frameUrl"));
+    assert(frontend.includes('frame.src = state.frameUrl'));
 });
 
 check('Hashcod identity handoff is explicit and origin-scoped', () => {

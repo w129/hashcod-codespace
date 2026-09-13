@@ -5,6 +5,9 @@
     window.__hashcodCloudDeviceSyncLoaded = true;
 
     const ENDPOINT = '/hashcod-sync.php';
+    // Link persistence is handled directly by vector-link-board.js because link
+    // writes require the active Windows Hello administrator session. These names
+    // remain documented here so the local cache contract stays explicit.
     const LINK_DB = 'hashcod_link_board_v1';
     const LINK_STORE = 'links';
     const IMAGE_DB = 'hashcod_image_vault_v1';
@@ -43,17 +46,19 @@
             cache: 'no-store'
         }, options || {});
         opts.headers = requestHeaders(opts.headers);
-        const response = await fetch(ENDPOINT + '?action=' + encodeURIComponent(action), opts);
+        const response = await fetch(ENDPOINT + '?action=' + encodeURIComponent(action) + '&_=' + Date.now(), opts);
         let body = null;
         try { body = await response.json(); } catch (_) { body = null; }
         if (response.status === 401 || response.status === 403) {
-            const error = new Error((body && body.error) || 'Inicia sesión para sincronizar tus dispositivos.');
+            const error = new Error((body && body.error) || 'Inicia sesión para sincronizar esta sección.');
             error.code = 'not_authenticated';
+            error.status = response.status;
             throw error;
         }
         if (!response.ok || !body || body.ok !== true) {
             const error = new Error((body && body.error) || ('Sincronización HTTP ' + response.status));
             error.code = 'sync_error';
+            error.status = response.status;
             throw error;
         }
         return body;
@@ -109,50 +114,18 @@
         }
     }
 
-    function normalizeLink(row) {
-        if (!row || typeof row !== 'object') return null;
-        const slot = Number(row.slot);
-        if (!Number.isInteger(slot) || slot < 0 || slot > 199) return null;
-        const url = String(row.url || '').trim();
-        const codeHash = String(row.codeHash || row.code_hash || '').trim().toLowerCase();
-        if (!/^https?:\/\//i.test(url) || !/^[a-f0-9]{64}$/.test(codeHash)) return null;
-        const createdAt = Math.max(1, Number(row.createdAt || row.created_at || Date.now()));
-        const updatedAt = Math.max(createdAt, Number(row.updatedAt || row.updated_at || createdAt));
-        return { slot: slot, url: url, codeHash: codeHash, createdAt: createdAt, updatedAt: updatedAt };
-    }
-
+    // Link-board pull is public occupancy metadata. Link URLs/codes are never
+    // merged into a different browser by this generic worker; the board asks
+    // the server to open a slot only after its code has been verified.
     async function syncLinks() {
-        const localRows = await getAll(LINK_DB, LINK_STORE, 'slot');
-        const remote = await jsonRequest('links.pull');
-        const merged = new Map();
-
-        (remote.links || []).forEach(function (row) {
-            const n = normalizeLink(row);
-            if (n) merged.set(n.slot, n);
-        });
-        localRows.forEach(function (row) {
-            const n = normalizeLink(row);
-            if (!n) return;
-            const prev = merged.get(n.slot);
-            if (!prev || n.updatedAt >= prev.updatedAt) merged.set(n.slot, n);
-        });
-
-        const rows = Array.from(merged.values()).sort(function (a, b) { return a.slot - b.slot; });
-        await putMany(LINK_DB, LINK_STORE, 'slot', rows);
-
-        const pushed = await jsonRequest('links.push', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ links: rows })
-        });
-        const finalRows = (pushed.links || []).map(normalizeLink).filter(Boolean);
-        await putMany(LINK_DB, LINK_STORE, 'slot', finalRows);
-        state.linkCount = finalRows.length;
-
-        const overlay = document.getElementById('hashcodLinkBoardOverlay');
-        if (overlay && overlay.classList.contains('is-open') && window.HashcodLinkBoard && typeof window.HashcodLinkBoard.open === 'function') {
-            window.HashcodLinkBoard.open().catch(function () {});
+        if (window.HashcodLinkBoard && typeof window.HashcodLinkBoard.sync === 'function') {
+            await window.HashcodLinkBoard.sync({ silent: true });
+            const boardStatus = await jsonRequest('links.pull');
+            state.linkCount = Array.isArray(boardStatus.links) ? boardStatus.links.length : 0;
+            return;
         }
+        const remote = await jsonRequest('links.pull');
+        state.linkCount = Array.isArray(remote.links) ? remote.links.length : 0;
     }
 
     function imageSetup(store) {
@@ -237,9 +210,7 @@
 
         const downloads = [];
         for (const [id, meta] of remoteById.entries()) {
-            if (!localById.has(id)) {
-                downloads.push(await fetchRemoteImage(meta));
-            }
+            if (!localById.has(id)) downloads.push(await fetchRemoteImage(meta));
         }
         if (downloads.length) {
             await putMany(IMAGE_DB, IMAGE_STORE, 'id', downloads, imageSetup);
@@ -267,19 +238,29 @@
         emit({ phase: 'start', reason: reason || 'scheduled' });
         try {
             const status = await jsonRequest('status');
-            state.authenticated = true;
             state.shared = status.shared === true;
             state.scope = String(status.scope || 'unknown');
             if (!status.supabase_configured) throw new Error('Supabase no está configurado en el servidor.');
             if (status.postgres === false) throw new Error('El guardado compartido en PostgreSQL no está disponible. Tus datos locales se conservan.');
-            const results = await Promise.allSettled([syncLinks(), syncImages()]);
-            const failed = results.find(result => result.status === 'rejected');
-            if (failed) throw failed.reason;
+
+            // The link board is available before account login. Keep that sync
+            // independent from the account-scoped image gallery.
+            await syncLinks();
+            try {
+                await syncImages();
+                state.authenticated = true;
+            } catch (imageError) {
+                if (imageError && imageError.code === 'not_authenticated') {
+                    state.authenticated = false;
+                } else {
+                    throw imageError;
+                }
+            }
+
             state.lastSyncAt = Date.now();
             emit({ phase: 'complete', reason: reason || 'scheduled' });
             return true;
         } catch (error) {
-            if (error && error.code === 'not_authenticated') state.authenticated = false;
             state.lastError = (error && error.message) ? error.message : 'No se pudo sincronizar.';
             emit({ phase: 'error', error: state.lastError, reason: reason || 'scheduled' });
             return false;

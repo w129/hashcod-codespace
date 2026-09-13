@@ -53,23 +53,72 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     padding-bottom: 12px;
 }
 
-/* Welcome screen: Qwen sits immediately to the left of the existing first
-   supplied SVG. The new blue supplied SVG sits directly below Qwen, forming
-   a left-side two-icon column while the original four icon positions stay unchanged. */
+/* Welcome screen integration strip.
+   Keep the existing Qwen column and original four icons fixed, then continue
+   leftward in two rows exactly in the supplied sequence: bottom first, top next. */
 .boot-cli-footer .boot-card-icon {
     position: relative;
+    overflow: visible;
 }
 
 .boot-cli-footer .boot-card-icon::before {
     content: "";
     position: absolute;
-    left: calc(50% - 122px);
+    left: calc(50% - 322px);
     bottom: 4px;
-    width: 204px;
+    width: 404px;
     height: 62px;
-    background-image: url("boot-qwen-top-icon.svg"), url("boot-qwen-bottom-icon.svg"), url("boot-primary-top-icon.svg"), url("boot-second-top-icon.svg"), url("boot-third-top-icon.svg"), url("boot-fourth-top-icon.svg");
-    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-    background-position: 0 0, 0 34px, 40px 0, 86px 0, 128px 0, 174px 0;
-    background-size: 28px 28px, 28px 28px, 32px 20px, 28px 28px, 32px 17px, 28px 28px;
+    background-image:
+        url("boot-sequence-firebase.svg"),
+        url("boot-sequence-firebase.svg"),
+        url("boot-sequence-lovable.svg"),
+        url("boot-sequence-orange-blocks.svg"),
+        url("boot-sequence-wave.svg"),
+        url("boot-sequence-claude.svg"),
+        url("boot-sequence-pixel.svg"),
+        url("boot-sequence-openai.svg"),
+        url("boot-sequence-hugging-face.svg"),
+        url("boot-qwen-top-icon.svg"),
+        url("boot-qwen-bottom-icon.svg"),
+        url("boot-primary-top-icon.svg"),
+        url("boot-second-top-icon.svg"),
+        url("boot-third-top-icon.svg"),
+        url("boot-fourth-top-icon.svg");
+    background-repeat:
+        no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+        no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+        no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+    background-position:
+        160px 34px,
+        160px 0,
+        120px 34px,
+        120px 0,
+        80px 34px,
+        80px 0,
+        40px 34px,
+        40px 0,
+        0 34px,
+        200px 0,
+        200px 34px,
+        240px 0,
+        286px 0,
+        328px 0,
+        374px 0;
+    background-size:
+        28px 28px,
+        28px 28px,
+        28px 28px,
+        28px 28px,
+        30px 18px,
+        28px 28px,
+        28px 26px,
+        28px 28px,
+        28px 26px,
+        28px 28px,
+        28px 28px,
+        32px 20px,
+        28px 28px,
+        32px 17px,
+        28px 28px;
     pointer-events: none;
 }

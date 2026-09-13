@@ -125,19 +125,20 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $cssTag = $inlineCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">';
 
-        // The startup animation is now critical UI. Inline its CSS so a stale
-        // or delayed static asset can no longer make the intro disappear.
-        $motionCssPath = __DIR__ . '/components/platform-entry-motion.css';
-        $motionCss = is_file($motionCssPath) ? (string) @file_get_contents($motionCssPath) : '';
-        $motionCssTag = $motionCss !== ''
-            ? '<style id="hashcod-platform-entry-motion-critical">' . $motionCss . '</style>'
+        // The user-supplied folder animation is part of the startup composition.
+        // Inline the CSS so it is immediately available and cannot disappear
+        // because of a stale static/CDN response.
+        $folderCssPath = __DIR__ . '/components/boot-folder-animation.css';
+        $folderCss = is_file($folderCssPath) ? (string) @file_get_contents($folderCssPath) : '';
+        $folderCssTag = $folderCss !== ''
+            ? '<style id="hashcod-boot-folder-animation-critical">' . $folderCss . '</style>'
             : '';
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $motionCssTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $folderCssTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $motionCssTag . $html;
+            $html = $cssTag . $folderCssTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -150,19 +151,19 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-toolbox-ui-rescue-inline">' . $rescueJs . '</script>'
             : '';
 
-        // Render the original Hashcod startup sequence directly from the HTML
-        // response before deferred loaders run. The helper marks the session key
-        // itself, so platform-entry-motion.js will not create a duplicate intro.
-        $bootForcePath = __DIR__ . '/components/boot-intro-force.js';
-        $bootForceJs = is_file($bootForcePath) ? (string) @file_get_contents($bootForcePath) : '';
-        if ($bootForceJs !== '') {
-            $bootForceJs = str_ireplace('</script', '<\\/script', $bootForceJs);
+        // Mount the interactive folder directly from the HTML response. The
+        // component sets the legacy intro session marker before the deferred
+        // platform-entry module runs, so the old full-screen intro cannot cover it.
+        $folderJsPath = __DIR__ . '/components/boot-folder-animation.js';
+        $folderJs = is_file($folderJsPath) ? (string) @file_get_contents($folderJsPath) : '';
+        if ($folderJs !== '') {
+            $folderJs = str_ireplace('</script', '<\\/script', $folderJs);
         }
-        $inlineBootTag = $bootForceJs !== ''
-            ? '<script id="hashcod-boot-intro-force-inline" data-hashcod-boot-intro-force="true">' . $bootForceJs . '</script>'
+        $inlineFolderTag = $folderJs !== ''
+            ? '<script id="hashcod-boot-folder-animation-inline" data-hashcod-boot-folder-animation="true">' . $folderJs . '</script>'
             : '';
 
-        $tag = $inlineBootTag
+        $tag = $inlineFolderTag
             . $inlineRescueTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'

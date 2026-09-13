@@ -122,11 +122,23 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // Rare UI folder. This runs before deferred entry scripts.
         $rareFolderPrebootTag = '<script id="hashcod-rare-folder-preboot">try{sessionStorage.setItem("hashcod_platform_intro_seen_v1","1");}catch(e){};</script>';
 
+        // Production placement override for the real Rare UI React/Motion folder.
+        // The previous host used z-index 40 and could sit behind the existing boot
+        // surface. Keep it in the requested left-side blank area, vertically
+        // aligned with the Hashcod mark, without intercepting the rest of the UI.
+        $rareFolderPlacementTag = '<style id="hashcod-rare-folder-placement">'
+            . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%)!important;}'
+            . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
+            . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;}}'
+            . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;}}'
+            . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;}}'
+            . '</style>';
+
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $rareFolderPrebootTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $rareFolderPrebootTag . $html;
+            $html = $cssTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -140,7 +152,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // React/Motion implementation. No CDN is needed at runtime.
         $rareFolderBundlePath = __DIR__ . '/components/rare-folder-entry.bundle.js';
         $rareFolderTag = is_file($rareFolderBundlePath)
-            ? '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260913-1" data-hashcod-rare-folder="true"></script>'
+            ? '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260913-2" data-hashcod-rare-folder="true"></script>'
             : '';
 
         $tag = $rareFolderTag

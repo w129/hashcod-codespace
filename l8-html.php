@@ -125,17 +125,19 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $cssTag = $inlineCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">';
 
-        // The boot animation used to be suppressed for the rest of the browser
-        // session after it ran once. Reset that marker while the document is
-        // still parsing so the existing deferred motion script can show the
-        // original Hashcod startup animation on every full platform load.
-        $introReplayTag = '<script id="hashcod-boot-intro-reset">try{sessionStorage.removeItem("hashcod_platform_intro_seen_v1");}catch(e){}</script>';
+        // The startup animation is now critical UI. Inline its CSS so a stale
+        // or delayed static asset can no longer make the intro disappear.
+        $motionCssPath = __DIR__ . '/components/platform-entry-motion.css';
+        $motionCss = is_file($motionCssPath) ? (string) @file_get_contents($motionCssPath) : '';
+        $motionCssTag = $motionCss !== ''
+            ? '<style id="hashcod-platform-entry-motion-critical">' . $motionCss . '</style>'
+            : '';
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $introReplayTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $motionCssTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $introReplayTag . $html;
+            $html = $cssTag . $motionCssTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -148,7 +150,20 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-toolbox-ui-rescue-inline">' . $rescueJs . '</script>'
             : '';
 
-        $tag = $inlineRescueTag
+        // Render the original Hashcod startup sequence directly from the HTML
+        // response before deferred loaders run. The helper marks the session key
+        // itself, so platform-entry-motion.js will not create a duplicate intro.
+        $bootForcePath = __DIR__ . '/components/boot-intro-force.js';
+        $bootForceJs = is_file($bootForcePath) ? (string) @file_get_contents($bootForcePath) : '';
+        if ($bootForceJs !== '') {
+            $bootForceJs = str_ireplace('</script', '<\\/script', $bootForceJs);
+        }
+        $inlineBootTag = $bootForceJs !== ''
+            ? '<script id="hashcod-boot-intro-force-inline" data-hashcod-boot-intro-force="true">' . $bootForceJs . '</script>'
+            : '';
+
+        $tag = $inlineBootTag
+            . $inlineRescueTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-signature-copy.js?v=20260913-2" data-hashcod-toolbox-signature-copy="true"></script>'

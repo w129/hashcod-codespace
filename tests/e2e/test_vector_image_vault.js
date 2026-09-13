@@ -34,7 +34,7 @@ assert(css.includes('.hashcod-image-vault-auth'), 'Windows Hello state style mis
 assert(css.includes('.hashcod-image-vault-code-dialog'), 'protected download code dialog style missing');
 
 assert(loader.includes("vector-image-vault.css?v=20260911-1"), 'PNG vault stylesheet is not loaded by the platform');
-assert(loader.includes("vector-image-vault.js?v=20260911-1"), 'PNG vault script is not loaded by the platform');
+assert(loader.includes("vector-image-vault.js?v=20260912-1"), 'PNG vault script is not loaded by the platform');
 assert(loader.includes("platform-entry-slogan.js?v=20260911-2"), 'tray script cache bust must include the current functional version');
 
 assert(tray.includes('const HASHCOD_STORE_MODULE_ICON'), 'second tray icon constant missing');

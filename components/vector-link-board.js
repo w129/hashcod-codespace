@@ -11,9 +11,14 @@
     const TOOL_ID = 'grid-module';
     const SLOT = 2;
     const TRAY_ICON_SRC = '/components/vector-tray-icon-third.svg?v=20260911-1';
+    const SYNC_ENDPOINT = '/hashcod-sync.php';
+    const CLOUD_REFRESH_MS = 5000;
     const state = {
         editSlot: null,
-        unlockSlot: null
+        unlockSlot: null,
+        cloudSlots: new Map(),
+        cloudReady: false,
+        syncing: false
     };
 
     function componentBase() {
@@ -125,6 +130,79 @@
         }
     }
 
+    async function cloudRequest(action, options) {
+        const opts = Object.assign({
+            method: 'GET',
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: {}
+        }, options || {});
+        opts.headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest' }, opts.headers || {});
+        const response = await fetch(SYNC_ENDPOINT + '?action=' + encodeURIComponent(action) + '&_=' + Date.now(), opts);
+        let body = null;
+        try { body = await response.json(); } catch (_) { body = null; }
+        if (!response.ok || !body || body.ok !== true) {
+            const error = new Error((body && body.error) || ('Sincronización HTTP ' + response.status));
+            error.status = response.status;
+            error.code = body && body.code ? body.code : 'cloud_sync_error';
+            throw error;
+        }
+        return body;
+    }
+
+    function normalizeCloudSlot(row) {
+        if (!row || typeof row !== 'object') return null;
+        const slot = Number(row.slot);
+        if (!Number.isInteger(slot) || slot < 0 || slot >= TOTAL_SLOTS) return null;
+        const createdAt = Math.max(1, Number(row.createdAt || row.created_at_ms || 1));
+        const updatedAt = Math.max(createdAt, Number(row.updatedAt || row.updated_at_ms || createdAt));
+        return { slot: slot, createdAt: createdAt, updatedAt: updatedAt, cloud: true };
+    }
+
+    async function pullCloudSlots() {
+        if (state.syncing) return state.cloudSlots;
+        state.syncing = true;
+        try {
+            const body = await cloudRequest('links.pull');
+            const next = new Map();
+            (body.links || []).forEach(function (row) {
+                const item = normalizeCloudSlot(row);
+                if (item) next.set(item.slot, item);
+            });
+            state.cloudSlots = next;
+            state.cloudReady = true;
+            return next;
+        } finally {
+            state.syncing = false;
+        }
+    }
+
+    async function pushCloudRecord(record) {
+        const body = await cloudRequest('links.push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ links: [record] })
+        });
+        const next = new Map();
+        (body.links || []).forEach(function (row) {
+            const item = normalizeCloudSlot(row);
+            if (item) next.set(item.slot, item);
+        });
+        if (next.size) state.cloudSlots = next;
+        else state.cloudSlots.set(Number(record.slot), normalizeCloudSlot(record));
+        state.cloudReady = true;
+        return body;
+    }
+
+    async function openCloudLink(slot, code) {
+        const body = await cloudRequest('links.open', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slot: Number(slot), code: String(code) })
+        });
+        return String(body.url || '');
+    }
+
     function bytesToHex(buffer) {
         return Array.from(new Uint8Array(buffer)).map(function (value) {
             return value.toString(16).padStart(2, '0');
@@ -229,7 +307,7 @@
                         '<span class="hashcod-link-board-index">03</span>',
                         '<div>',
                             '<h2 id="hashcodLinkBoardTitle">Tablilla de enlaces</h2>',
-                            '<p>200 slots / Windows Hello protected assignment</p>',
+                            '<p>200 slots / PostgreSQL shared board</p>',
                         '</div>',
                     '</div>',
                     '<div class="hashcod-link-board-header-actions">',
@@ -238,8 +316,8 @@
                     '</div>',
                 '</header>',
                 '<div class="hashcod-link-board-toolbar">',
-                    '<div class="hashcod-link-board-status" id="hashcodLinkBoardStatus" role="status" aria-live="polite">Toca un círculo vacío para asignar un enlace. Windows Hello se solicitará antes de guardar.</div>',
-                    '<span class="hashcod-link-board-legend"><i></i> enlace guardado</span>',
+                    '<div class="hashcod-link-board-status" id="hashcodLinkBoardStatus" role="status" aria-live="polite">Sincronizando los círculos con PostgreSQL…</div>',
+                    '<span class="hashcod-link-board-legend"><i></i> enlace sincronizado</span>',
                 '</div>',
                 '<div class="hashcod-link-board-stage">',
                     '<div class="hashcod-link-board-tablet">',
@@ -258,7 +336,7 @@
                     '<div class="hashcod-link-board-error" id="hashcodLinkBoardEditorError" role="alert"></div>',
                     '<div class="hashcod-link-board-card-actions">',
                         '<button type="button" id="hashcodLinkBoardEditorCancel">Cancelar</button>',
-                        '<button type="button" id="hashcodLinkBoardEditorSave" data-primary="true">Guardar enlace</button>',
+                        '<button type="button" id="hashcodLinkBoardEditorSave" data-primary="true">Guardar y sincronizar</button>',
                     '</div>',
                 '</div>',
             '</div>',
@@ -302,9 +380,10 @@
         if (!grid) return;
         try {
             const records = await getAllRecords();
-            const bySlot = new Map(records.map(function (record) { return [Number(record.slot), record]; }));
+            const localBySlot = new Map(records.map(function (record) { return [Number(record.slot), record]; }));
+            const occupied = new Set(Array.from(localBySlot.keys()).concat(Array.from(state.cloudSlots.keys())));
             grid.innerHTML = Array.from({ length: TOTAL_SLOTS }, function (_, slot) {
-                const saved = bySlot.has(slot);
+                const saved = occupied.has(slot);
                 return [
                     '<button type="button" class="hashcod-link-cell', saved ? ' is-saved' : '', '" data-link-slot="', slot, '" aria-label="', saved ? 'Enlace guardado ' : 'Espacio libre ', slotLabel(slot), '">',
                         '<span class="hashcod-link-orb">',
@@ -316,9 +395,23 @@
                 ].join('');
             }).join('');
             const counter = document.getElementById('hashcodLinkBoardCounter');
-            if (counter) counter.textContent = records.length + ' / ' + TOTAL_SLOTS;
+            if (counter) counter.textContent = occupied.size + ' / ' + TOTAL_SLOTS;
         } catch (error) {
             setStatus(error.message || 'No se pudo cargar la tablilla.', true);
+        }
+    }
+
+    async function syncCloudSlots(options) {
+        const opts = options || {};
+        try {
+            await pullCloudSlots();
+            await renderGrid();
+            if (!opts.silent) setStatus('PostgreSQL sincronizado. Los enlaces guardados aquí aparecen en los demás dispositivos.');
+            return true;
+        } catch (error) {
+            await renderGrid();
+            if (!opts.silent) setStatus('No se pudo leer PostgreSQL. Se muestra el cache local: ' + (error.message || 'error de sincronización'), true);
+            return false;
         }
     }
 
@@ -363,8 +456,8 @@
     }
 
     async function handleCell(slot) {
-        const record = await getRecord(slot);
-        if (record) {
+        const localRecord = await getRecord(slot);
+        if (localRecord || state.cloudSlots.has(Number(slot))) {
             openUnlock(slot);
             return;
         }
@@ -386,7 +479,9 @@
         const slot = state.editSlot;
         if (!Number.isInteger(slot)) return;
         const errorNode = document.getElementById('hashcodLinkBoardEditorError');
+        const button = document.getElementById('hashcodLinkBoardEditorSave');
         errorNode.textContent = '';
+        button.disabled = true;
         try {
             if (!isAdminVerified()) {
                 const verified = await verifyHello(true);
@@ -397,17 +492,29 @@
             const confirm = document.getElementById('hashcodLinkBoardCodeConfirm').value;
             if (code.length < 6) throw new Error('El code debe tener al menos 6 caracteres.');
             if (code !== confirm) throw new Error('Los codes no coinciden.');
-            await putRecord({
+            const now = Date.now();
+            const record = {
                 slot: slot,
                 url: url,
                 codeHash: await hashCode(code),
-                createdAt: Date.now()
-            });
+                createdAt: now,
+                updatedAt: now
+            };
+            await putRecord(record);
+            setStatus('Guardado local. Confirmando el enlace en PostgreSQL…');
+            try {
+                await pushCloudRecord(record);
+            } catch (cloudError) {
+                await renderGrid();
+                throw new Error('El enlace quedó guardado en esta computadora, pero PostgreSQL no confirmó la sincronización: ' + (cloudError.message || 'error de servidor'));
+            }
             closeEditor();
             await renderGrid();
-            setStatus('Enlace guardado en el slot ' + slotLabel(slot) + '. Para abrirlo se pedirá el code asignado.');
+            setStatus('Enlace guardado y sincronizado en PostgreSQL. Ya puede verse desde otro dispositivo.');
         } catch (error) {
             errorNode.textContent = error.message || 'No se pudo guardar el enlace.';
+        } finally {
+            button.disabled = false;
         }
     }
 
@@ -415,21 +522,38 @@
         const slot = state.unlockSlot;
         if (!Number.isInteger(slot)) return;
         const errorNode = document.getElementById('hashcodLinkBoardUnlockError');
+        const button = document.getElementById('hashcodLinkBoardUnlockOpen');
         errorNode.textContent = '';
+        button.disabled = true;
         try {
-            const record = await getRecord(slot);
-            if (!record) throw new Error('Este enlace ya no está disponible.');
             const code = document.getElementById('hashcodLinkBoardUnlockCode').value;
             if (!code) throw new Error('Introduce el code asignado a este enlace.');
-            const suppliedHash = await hashCode(code);
-            if (suppliedHash !== record.codeHash) throw new Error('Code incorrecto.');
-            const destination = normalizeUrl(record.url);
+
+            let destination = '';
+            let cloudError = null;
+            try {
+                destination = normalizeUrl(await openCloudLink(slot, code));
+            } catch (error) {
+                cloudError = error;
+            }
+
+            if (!destination) {
+                const localRecord = await getRecord(slot);
+                if (!localRecord) throw cloudError || new Error('Este enlace ya no está disponible.');
+                if (cloudError && cloudError.status === 403) throw cloudError;
+                const suppliedHash = await hashCode(code);
+                if (suppliedHash !== localRecord.codeHash) throw new Error('Code incorrecto.');
+                destination = normalizeUrl(localRecord.url);
+            }
+
             closeUnlock();
             setStatus('Code correcto. Abriendo el enlace del slot ' + slotLabel(slot) + '…');
             const opened = window.open(destination, '_blank', 'noopener,noreferrer');
             if (!opened) window.location.assign(destination);
         } catch (error) {
             errorNode.textContent = error.message || 'No se pudo abrir el enlace.';
+        } finally {
+            button.disabled = false;
         }
     }
 
@@ -457,7 +581,8 @@
         overlay.classList.add('is-open');
         overlay.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
-        await renderGrid();
+        setStatus('Sincronizando los círculos con PostgreSQL…');
+        await syncCloudSlots();
     }
 
     function closeBoard() {
@@ -506,9 +631,27 @@
         closeBoard();
     });
 
+    window.addEventListener('focus', function () {
+        const overlay = document.getElementById('hashcodLinkBoardOverlay');
+        if (overlay && overlay.classList.contains('is-open')) syncCloudSlots({ silent: true });
+    });
+
+    document.addEventListener('visibilitychange', function () {
+        const overlay = document.getElementById('hashcodLinkBoardOverlay');
+        if (document.visibilityState === 'visible' && overlay && overlay.classList.contains('is-open')) {
+            syncCloudSlots({ silent: true });
+        }
+    });
+
+    window.setInterval(function () {
+        const overlay = document.getElementById('hashcodLinkBoardOverlay');
+        if (overlay && overlay.classList.contains('is-open')) syncCloudSlots({ silent: true });
+    }, CLOUD_REFRESH_MS);
+
     window.HashcodLinkBoard = Object.freeze({
         open: openBoard,
         close: closeBoard,
+        sync: syncCloudSlots,
         slots: TOTAL_SLOTS
     });
 

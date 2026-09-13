@@ -126,9 +126,14 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // Keep it in the requested left-side blank area, vertically aligned with
         // the Hashcod mark, and above all existing boot surfaces. Scale it up on
         // desktop for better visual balance while keeping responsive reductions.
+        // The old "Loading blackhole…" label belongs to the retired Originkit
+        // startup visual, so hide it immediately while retaining the intentional
+        // GitHub/DIKTATCART credit marks beside it.
         $rareFolderPlacementTag = '<style id="hashcod-rare-folder-placement">'
             . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.20)!important;transform-origin:center center!important;}'
             . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
+            . '#bootCliHint{display:none!important;visibility:hidden!important;}'
+            . '.boot-cli-hint-wrap{min-width:0!important;}'
             . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;transform:translate(-50%,-50%) scale(1.12)!important;}}'
             . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;transform:translate(-50%,-50%) scale(1.00)!important;}}'
             . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;transform:translate(-50%,-50%) scale(0.90)!important;}}'
@@ -163,7 +168,13 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             : '';
         $rareFolderExternalTag = '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260913-3" data-hashcod-rare-folder="true"></script>';
 
-        $tag = $rareFolderInlineTag
+        // Remove the stale blackhole status from the DOM as well as hiding it.
+        // This prevents older boot scripts from leaving misleading loading text
+        // visible to assistive technology while the Rare UI folder is authoritative.
+        $legacyBlackholeCleanupTag = '<script id="hashcod-legacy-blackhole-cleanup">(function(){function cleanup(){var hint=document.getElementById("bootCliHint");if(!hint)return;hint.textContent="";hint.hidden=true;hint.setAttribute("aria-hidden","true");}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",cleanup,{once:true});}else{cleanup();}})();</script>';
+
+        $tag = $legacyBlackholeCleanupTag
+            . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'

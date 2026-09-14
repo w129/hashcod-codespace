@@ -62,6 +62,8 @@
         return script;
     }
 
+    ensureScript('auth-register-resilience.js?v=20260914-1', 'auth-register-resilience.js', 'hashcodAuthRegisterResilience');
+
     async function ensureAdminEngine() {
         if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') return true;
         ensureScript('admin-device.js?v=20260910-4', 'admin-device.js', 'hashcodAdminDeviceEngine');

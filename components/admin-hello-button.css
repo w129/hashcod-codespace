@@ -55,8 +55,8 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 
 /* Welcome screen integration strip.
    Keep the comfortable 40px spacing inside every icon group. The newest
-   supplied group now lives to the RIGHT of the existing strip with a 32px
-   inter-group gap, without moving the established icons or allowing overlap. */
+   supplied group lives to the RIGHT of the existing strip with a 32px
+   inter-group gap. Qdrant completes the fifth column on the lower row. */
 .boot-cli-footer .boot-card-icon {
     position: relative;
     overflow: visible;
@@ -79,6 +79,7 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         url("boot-left-07.svg"),
         url("boot-left-08.svg"),
         url("boot-left-09.svg"),
+        url("boot-right-10.svg"),
         url("boot-sequence-extra-a.svg"),
         url("boot-sequence-buildship.svg"),
         url("boot-sequence-runway.svg"),
@@ -118,6 +119,7 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         966px 34px,
         1006px 34px,
         1046px 34px,
+        1086px 34px,
         460px 34px,
         460px 0,
         420px 34px,
@@ -155,6 +157,7 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         28px 28px,
         32px 27px,
         20px 28px,
+        28px 28px,
         28px 28px,
         28px 28px,
         28px 28px,

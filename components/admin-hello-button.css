@@ -62,8 +62,8 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     overflow: visible;
 }
 
-/* The legacy inline card / bulb / glasses SVGs and the old celebration ::after
-   are superseded by the normalized background strip below. */
+/* Hide the legacy inline copies, but restore their shapes as normalized assets
+   inside the lower row so they remain visible and aligned with the icon grid. */
 .boot-cli-footer .boot-card-icon > svg {
     display: none !important;
 }
@@ -134,7 +134,11 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         url("boot-primary-top-icon.svg"),
         url("boot-second-top-icon.svg"),
         url("boot-third-top-icon.svg"),
-        url("boot-fourth-top-icon.svg");
+        url("boot-fourth-top-icon.svg"),
+        url("boot-celebration-icon.svg"),
+        url("boot-legacy-card.svg"),
+        url("boot-legacy-bulb.svg"),
+        url("boot-legacy-glasses.svg");
     background-repeat: no-repeat;
     background-position:
         0 5px,
@@ -186,7 +190,11 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         596px 0,
         642px 0,
         684px 0,
-        730px 0;
+        730px 0,
+        596px 34px,
+        642px 34px,
+        684px 34px,
+        730px 34px;
     background-size:
         52px 52px,
         28px 28px,
@@ -237,6 +245,10 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         32px 20px,
         28px 28px,
         32px 17px,
+        28px 28px,
+        28px 28px,
+        28px 28px,
+        28px 28px,
         28px 28px;
     pointer-events: none;
 }

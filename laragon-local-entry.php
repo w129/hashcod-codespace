@@ -1,0 +1,102 @@
+<?php
+/**
+ * Hashcod Codespace — entrada local para Laragon.
+ *
+ * El repositorio conserva 404.html como el documento HTML completo de la
+ * plataforma. En Render el front controller añade las capas dinámicas; esta
+ * entrada hace lo mismo cuando Apache/Laragon sirve el proyecto localmente.
+ */
+
+function hashcodLaragonBasePath(): string {
+    $script = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+    $dir = str_replace('\\', '/', dirname($script));
+    $dir = trim($dir);
+    if ($dir === '' || $dir === '.' || $dir === '/') {
+        return '/';
+    }
+
+    $parts = array_values(array_filter(explode('/', trim($dir, '/')), static function ($part) {
+        return $part !== '';
+    }));
+    if (!$parts) return '/';
+
+    return '/' . implode('/', array_map('rawurlencode', $parts)) . '/';
+}
+
+$source = __DIR__ . '/404.html';
+if (!is_file($source)) {
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'Hashcod Codespace local: falta 404.html, que contiene la interfaz completa.';
+    return;
+}
+
+$html = (string)file_get_contents($source);
+$baseRaw = hashcodLaragonBasePath();
+$baseAttr = htmlspecialchars($baseRaw, ENT_QUOTES, 'UTF-8');
+$baseJs = json_encode($baseRaw, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+// El HTML original usa / en Render. En Laragon puede vivir en
+// /Hashcod%20Codespace/, por lo que fijamos su base al directorio real.
+$html = str_replace("var base = '/';", 'var base = ' . $baseJs . ';', $html);
+
+$headExtras = '<base href="' . $baseAttr . '">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260914-5" data-hashcod-boot-brand-credit-relocate-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
+    . '<style id="hashcod-laragon-rare-folder-placement">'
+    . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.20)!important;transform-origin:center center!important;}'
+    . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
+    . '#bootCliHint{display:none!important;visibility:hidden!important;}'
+    . '.boot-cli-hint-wrap{min-width:0!important;}'
+    . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;transform:translate(-50%,-50%) scale(1.12)!important;}}'
+    . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;transform:translate(-50%,-50%) scale(1)!important;}}'
+    . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;transform:translate(-50%,-50%) scale(.90)!important;}}'
+    . '</style>'
+    . '<script id="hashcod-laragon-preboot">try{sessionStorage.setItem("hashcod_platform_intro_seen_v1","1");}catch(e){}</script>';
+
+$headPos = stripos($html, '</head>');
+if ($headPos !== false) {
+    $html = substr($html, 0, $headPos) . $headExtras . substr($html, $headPos);
+} else {
+    $html = $headExtras . $html;
+}
+
+// Cargar exactamente el bundle React/Motion de Rare UI usado en producción.
+$rarePath = __DIR__ . '/components/rare-folder-entry.bundle.js';
+$rareBundle = is_file($rarePath) ? (string)file_get_contents($rarePath) : '';
+if ($rareBundle !== '') {
+    $rareBundle = str_ireplace('</script', '<\\/script', $rareBundle);
+}
+$rareInline = $rareBundle !== ''
+    ? '<script id="hashcod-laragon-rare-folder-inline" data-hashcod-rare-folder-inline="true">' . $rareBundle . '</script>'
+    : '';
+
+$bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){function c(){var h=document.getElementById("bootCliHint");if(!h)return;h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",c,{once:true});}else{c();}})();</script>'
+    . $rareInline
+    . '<script defer src="' . $baseAttr . 'components/rare-folder-entry.bundle.js?v=20260914-local1" data-hashcod-rare-folder="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/toolbox-signature-copy.js?v=20260913-2" data-hashcod-toolbox-signature-copy="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/toolbox-secure-ui-rescue.js?v=20260913-1" data-hashcod-toolbox-ui-rescue="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/topbar-windows-hello.js?v=20260913-1" data-hashcod-topbar-windows-hello="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer-fix.js?v=20260913-1" data-hashcod-entry-capability-footer-fix="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260914-5" data-hashcod-boot-brand-credit-relocate="true"></script>';
+
+$bodyPos = strripos($html, '</body>');
+if ($bodyPos !== false) {
+    $html = substr($html, 0, $bodyPos) . $bodyExtras . substr($html, $bodyPos);
+} else {
+    $html .= $bodyExtras;
+}
+
+header('Content-Type: text/html; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+echo $html;

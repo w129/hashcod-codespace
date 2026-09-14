@@ -4,7 +4,7 @@
     if (window.__hashcodBootBrandCreditRelocateLoaded) return;
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
-    const CREDIT_ICON_VERSION = '20260914-2';
+    const CREDIT_ICON_VERSION = '20260914-4';
 
     function publicAsset(path) {
         const baseEl = document.querySelector('base[href]');
@@ -85,26 +85,37 @@
         credit.style.setProperty('pointer-events', 'none', 'important');
     }
 
-    function replaceCreditIcon(credit) {
+    function ensureCreditIcon(credit) {
         if (!credit) return;
-        const icon = credit.querySelector('.boot-github-logo');
-        if (!icon) return;
-        const src = publicAsset('components/boot-credit-crown-icon.svg?v=' + CREDIT_ICON_VERSION);
 
-        /* The existing node is reused only as a layout anchor. Its GitHub image
-           is completely replaced by the supplied crown asset. */
-        if (icon.tagName === 'IMG') {
-            if (icon.getAttribute('src') !== src) icon.setAttribute('src', src);
-            icon.setAttribute('alt', 'Corona');
-            icon.removeAttribute('aria-hidden');
-            return;
+        /* Never rely on the old GitHub node: hide it completely and create a
+           dedicated image node for the exact dotted crown icon supplied by the user. */
+        const legacyGithub = credit.querySelector('.boot-github-logo');
+        if (legacyGithub) {
+            legacyGithub.style.setProperty('display', 'none', 'important');
+            legacyGithub.setAttribute('aria-hidden', 'true');
         }
 
-        icon.textContent = '';
-        icon.style.setProperty('background-image', 'url("' + src + '")', 'important');
-        icon.style.setProperty('background-repeat', 'no-repeat', 'important');
-        icon.style.setProperty('background-position', 'center', 'important');
-        icon.style.setProperty('background-size', 'contain', 'important');
+        let icon = credit.querySelector('.hashcod-credit-crown-icon');
+        if (!icon) {
+            icon = document.createElement('img');
+            icon.className = 'hashcod-credit-crown-icon';
+            icon.alt = '';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.width = 24;
+            icon.height = 24;
+            credit.insertBefore(icon, credit.firstChild);
+        }
+
+        const src = publicAsset('components/boot-credit-dotted-crown-icon.svg?v=' + CREDIT_ICON_VERSION);
+        if (icon.getAttribute('src') !== src) icon.setAttribute('src', src);
+        icon.style.setProperty('display', 'block', 'important');
+        icon.style.setProperty('width', '24px', 'important');
+        icon.style.setProperty('height', '24px', 'important');
+        icon.style.setProperty('min-width', '24px', 'important');
+        icon.style.setProperty('object-fit', 'contain', 'important');
+        icon.style.setProperty('margin', '0 7px 0 0', 'important');
+        icon.style.setProperty('opacity', '.72', 'important');
     }
 
     function alignCredit(brand, credit) {
@@ -143,11 +154,11 @@
         }
 
         credit.classList.add('hashcod-credit-under-brand');
-        replaceCreditIcon(credit);
+        ensureCreditIcon(credit);
         forceBelowLayout(brand, credit);
 
         window.requestAnimationFrame(function () {
-            replaceCreditIcon(credit);
+            ensureCreditIcon(credit);
             alignCredit(brand, credit);
             forceBelowLayout(brand, credit);
         });

@@ -15,6 +15,10 @@
         + '<circle cx="4" cy="28" r="1"/><circle cx="7" cy="28" r="1"/><circle cx="10" cy="28" r="1"/><circle cx="13" cy="28" r="1"/><circle cx="16" cy="28" r="1"/><circle cx="19" cy="28" r="1"/><circle cx="22" cy="28" r="1"/><circle cx="25" cy="28" r="1"/><circle cx="28" cy="28" r="1"/>'
         + '</svg>';
 
+    const DOWNLOAD_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" aria-hidden="true" focusable="false">'
+        + '<path d="M15 1C14.448 1 14 1.448 14 2v4h2V2c0-.552-.448-1-1-1zm1 5v12.585938l2.292969-2.292969c.391-.391 1.023062-.391 1.414062 0 .391.391.391 1.023062 0 1.414062l-4 4A.997.997 0 0 1 15 22a.997.997 0 0 1-.707031-.292969l-4-4c-.391-.391-.391-1.023062 0-1.414062.391-.391 1.023062-.391 1.414062 0L14 18.585938V6H6c-1.105 0-2 .895-2 2v17c0 1.105.895 2 2 2h18c1.105 0 2-.895 2-2V8c0-1.105-.895-2-2-2h-8z"/>'
+        + '</svg>';
+
     function publicAsset(path) {
         const baseEl = document.querySelector('base[href]');
         const baseHref = baseEl ? baseEl.getAttribute('href') : '/';
@@ -23,6 +27,14 @@
         } catch (_) {
             return path;
         }
+    }
+
+    function isVirtualPlatform() {
+        const host = String(window.location.hostname || '').toLowerCase();
+        if (!host) return false;
+        if (host === 'localhost' || host === '127.0.0.1' || host === '::1') return false;
+        if (host.endsWith('.test')) return false;
+        return true;
     }
 
     function loadPercentFeatureAssets() {
@@ -139,6 +151,42 @@
         icon.style.setProperty('opacity', '1', 'important');
     }
 
+    function ensureLocalDownloadRow(brand) {
+        let row = brand.querySelector('.hashcod-local-download-row');
+
+        if (!isVirtualPlatform()) {
+            if (row) row.remove();
+            return;
+        }
+
+        if (!row) {
+            row = document.createElement('div');
+            row.className = 'hashcod-local-download-row';
+            row.setAttribute('data-hashcod-local-download', 'true');
+
+            const button = document.createElement('a');
+            button.className = 'hashcod-local-download-button';
+            button.href = publicAsset('download-local-version.php');
+            button.setAttribute('download', 'Hashcod-Codespace-Local-Installer.bat');
+            button.setAttribute('aria-label', 'Download the local version');
+            button.setAttribute('title', 'Download the local version');
+            button.innerHTML = DOWNLOAD_ICON_SVG;
+
+            const text = document.createElement('span');
+            text.className = 'hashcod-local-download-text';
+            text.textContent = 'Download the local version.';
+
+            row.appendChild(button);
+            row.appendChild(text);
+            brand.appendChild(row);
+        }
+
+        const button = row.querySelector('.hashcod-local-download-button');
+        if (button) {
+            button.href = publicAsset('download-local-version.php');
+        }
+    }
+
     function alignCredit(brand, credit) {
         const brandRect = visibleRect(brand);
         if (!brandRect) return;
@@ -148,21 +196,27 @@
         if (textRect) {
             const textLeft = textRect.left - brandRect.left;
             credit.style.setProperty('--hashcod-credit-text-left', textLeft.toFixed(2) + 'px');
+            brand.style.setProperty('--hashcod-credit-text-left', textLeft.toFixed(2) + 'px');
             return;
         }
 
         const childRects = Array.prototype.slice.call(brand.children)
-            .filter(function (child) { return child !== credit; })
+            .filter(function (child) {
+                return child !== credit && !child.classList.contains('hashcod-local-download-row');
+            })
             .map(visibleRect)
             .filter(Boolean);
 
         if (!childRects.length) {
             credit.style.removeProperty('--hashcod-credit-text-left');
+            brand.style.removeProperty('--hashcod-credit-text-left');
             return;
         }
 
         const fallbackLeft = Math.max.apply(null, childRects.map(function (rect) { return rect.left; })) - brandRect.left;
-        credit.style.setProperty('--hashcod-credit-text-left', fallbackLeft.toFixed(2) + 'px');
+        const fallbackValue = fallbackLeft.toFixed(2) + 'px';
+        credit.style.setProperty('--hashcod-credit-text-left', fallbackValue);
+        brand.style.setProperty('--hashcod-credit-text-left', fallbackValue);
     }
 
     function relocate() {
@@ -177,11 +231,13 @@
         credit.classList.add('hashcod-credit-under-brand');
         ensureCreditIcon(credit);
         forceBelowLayout(brand, credit);
+        ensureLocalDownloadRow(brand);
 
         window.requestAnimationFrame(function () {
             ensureCreditIcon(credit);
             alignCredit(brand, credit);
             forceBelowLayout(brand, credit);
+            ensureLocalDownloadRow(brand);
         });
         return true;
     }

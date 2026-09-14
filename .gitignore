@@ -48,5 +48,6 @@ data_storage/secrets.json
 # Hashcod Codespace desktop build output
 local-app/desktop/node_modules/
 local-app/desktop/payload/
+local-app/desktop/build/
 local-app/desktop/dist/
 local-app/desktop/package-lock.json

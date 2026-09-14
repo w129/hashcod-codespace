@@ -10,11 +10,13 @@ const APP_TITLE = 'Hashcod Codespace';
 const APP_ID = 'app.hashcod.codespace';
 const LOOPBACK_HOST = '127.0.0.1';
 const PRESERVE_PATHS = ['.env', 'LOCAL-DB-CREDENTIALS.txt', 'data_storage', 'uploads'];
+const MIN_SPLASH_TIME_MS = 1800;
 
 let mainWindow = null;
 let phpProcess = null;
 let localOrigin = '';
 let shuttingDown = false;
+let splashStartedAt = 0;
 
 function log(message) {
     try {
@@ -34,6 +36,10 @@ function resourcePath(name) {
 function desktopIconPath() {
     const iconPath = resourcePath('icon.png');
     return fs.existsSync(iconPath) ? iconPath : undefined;
+}
+
+function splashFilePath() {
+    return path.join(__dirname, 'splash.html');
 }
 
 function localRuntimeRoot() {
@@ -219,26 +225,32 @@ function loadingPage(message) {
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     })[char]);
 
-    return `<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${APP_TITLE}</title>
-<style>
-html,body{height:100%;margin:0;background:#fff;color:#111;font-family:Inter,Segoe UI,Arial,sans-serif}
-body{display:grid;place-items:center}
-.wrap{width:min(520px,calc(100% - 48px));text-align:center}
-.mark{width:58px;height:58px;border:1px solid #111;border-radius:16px;display:grid;place-items:center;margin:0 auto 22px;font-weight:700;font-size:22px;letter-spacing:-1px}
-h1{font-size:24px;margin:0 0 10px;font-weight:650}
-p{font-size:14px;line-height:1.5;color:#555;margin:0 auto 20px}
-.bar{height:3px;background:#ececec;overflow:hidden;border-radius:99px}
-.bar:after{content:"";display:block;width:38%;height:100%;background:#111;animation:move 1.15s ease-in-out infinite}
-@keyframes move{0%{transform:translateX(-110%)}100%{transform:translateX(320%)}}
-</style>
-</head>
-<body><main class="wrap"><div class="mark">HC</div><h1>Hashcod Codespace</h1><p>${safeMessage}</p><div class="bar"></div></main></body>
-</html>`;
+    return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${APP_TITLE}</title><style>html,body{height:100%;margin:0;background:#fff;color:#111;font-family:Inter,Segoe UI,Arial,sans-serif}body{display:grid;place-items:center}.wrap{width:min(520px,calc(100% - 48px));text-align:center}h1{font-size:24px;margin:0 0 10px}p{font-size:14px;color:#555}.bar{height:3px;background:#ececec;overflow:hidden;border-radius:99px}.bar:after{content:"";display:block;width:38%;height:100%;background:#111;animation:move 1.15s ease-in-out infinite}@keyframes move{0%{transform:translateX(-110%)}100%{transform:translateX(320%)}}</style></head><body><main class="wrap"><h1>Hashcod Codespace</h1><p>${safeMessage}</p><div class="bar"></div></main></body></html>`;
+}
+
+async function showStartupSplash(message) {
+    if (!mainWindow) return;
+    if (!splashStartedAt) splashStartedAt = Date.now();
+
+    const splashPath = splashFilePath();
+    if (fs.existsSync(splashPath)) {
+        await mainWindow.loadFile(splashPath, {
+            query: { message: String(message || '') }
+        });
+        return;
+    }
+
+    await mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(
+        loadingPage(message)
+    ));
+}
+
+async function waitForMinimumSplash() {
+    if (!splashStartedAt) return;
+    const remaining = MIN_SPLASH_TIME_MS - (Date.now() - splashStartedAt);
+    if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining));
+    }
 }
 
 function createWindow() {
@@ -278,7 +290,7 @@ function createWindow() {
     });
 
     mainWindow.webContents.on('will-navigate', (event, url) => {
-        if (!localOrigin || url.startsWith(localOrigin) || url.startsWith('data:text/html')) return;
+        if (!localOrigin || url.startsWith(localOrigin) || url.startsWith('data:text/html') || url.startsWith('file:')) return;
         event.preventDefault();
         if (/^https?:\/\//i.test(url)) {
             shell.openExternal(url).catch(() => {});
@@ -289,9 +301,9 @@ function createWindow() {
         log(`renderer gone: ${JSON.stringify(details)}`);
     });
 
-    mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(
-        loadingPage('Preparando la aplicación local en esta laptop…')
-    ));
+    showStartupSplash('Preparando la aplicación local en esta laptop…').catch((error) => {
+        log(`startup splash error: ${error.stack || error.message}`);
+    });
 }
 
 async function bootDesktop() {
@@ -299,21 +311,18 @@ async function bootDesktop() {
     try {
         const sitePath = ensureLocalSite();
         if (mainWindow) {
-            await mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(
-                loadingPage('Iniciando el servidor local seguro…')
-            ));
+            await showStartupSplash('Iniciando el servidor local seguro…');
         }
 
         const origin = await startLocalServer(sitePath);
+        await waitForMinimumSplash();
         if (mainWindow) {
             await mainWindow.loadURL(origin + '/');
         }
     } catch (error) {
         log(`startup failure: ${error.stack || error.message}`);
         if (mainWindow) {
-            await mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(
-                loadingPage('No se pudo iniciar la versión local. Revisa el mensaje de error.')
-            )).catch(() => {});
+            await showStartupSplash('No se pudo iniciar la versión local. Revisa el mensaje de error.').catch(() => {});
         }
         dialog.showMessageBox({
             type: 'error',

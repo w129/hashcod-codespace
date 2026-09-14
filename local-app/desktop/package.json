@@ -22,6 +22,8 @@
     "asar": true,
     "files": [
       "main.js",
+      "splash.html",
+      "rare-folder-entry.bundle.js",
       "package.json"
     ],
     "extraResources": [

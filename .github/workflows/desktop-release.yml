@@ -31,6 +31,26 @@ jobs:
           cache: npm
           cache-dependency-path: local-app/desktop/package.json
 
+      - name: Build Hashcod startup folder animation
+        working-directory: rare-folder-build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Stage startup folder animation for desktop shell
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Join-Path $env:GITHUB_WORKSPACE 'components\rare-folder-entry.bundle.js'
+          $destination = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\rare-folder-entry.bundle.js'
+          if (-not (Test-Path -LiteralPath $source)) {
+            throw "Rare UI startup folder bundle was not generated: $source"
+          }
+          Copy-Item -LiteralPath $source -Destination $destination -Force
+          if (-not (Test-Path -LiteralPath $destination)) {
+            throw "Desktop startup folder bundle was not staged: $destination"
+          }
+
       - name: Set up portable PHP runtime
         uses: shivammathur/setup-php@v2
         with:

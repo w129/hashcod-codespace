@@ -54,8 +54,8 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 }
 
 /* Welcome screen integration strip.
-   Keep every existing icon fixed in its visual position and continue the
-   supplied sequence toward the left in two rows: bottom first, top next. */
+   Keep the same sequence/order but use a compact 32px column pitch so the
+   28px icons sit close together instead of leaving wide horizontal gaps. */
 .boot-cli-footer .boot-card-icon {
     position: relative;
     overflow: visible;
@@ -64,9 +64,9 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 .boot-cli-footer .boot-card-icon::before {
     content: "";
     position: absolute;
-    left: calc(50% - 602px);
+    left: calc(50% - 456px);
     bottom: 4px;
-    width: 690px;
+    width: 544px;
     height: 62px;
     background-image:
         url("boot-sequence-extra-a.svg"),
@@ -103,34 +103,34 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
         no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
     background-position:
-        240px 34px,
-        240px 0,
-        200px 34px,
-        200px 0,
+        192px 34px,
+        192px 0,
         160px 34px,
         160px 0,
-        120px 34px,
-        120px 0,
-        80px 34px,
-        80px 0,
-        40px 34px,
-        40px 0,
+        128px 34px,
+        128px 0,
+        96px 34px,
+        96px 0,
+        64px 34px,
+        64px 0,
+        32px 34px,
+        32px 0,
         0 34px,
-        440px 34px,
-        440px 0,
-        400px 34px,
-        400px 0,
-        360px 34px,
-        360px 0,
+        352px 34px,
+        352px 0,
         320px 34px,
         320px 0,
-        280px 34px,
+        288px 34px,
+        288px 0,
+        256px 34px,
+        256px 0,
+        224px 34px,
+        384px 0,
+        384px 34px,
+        416px 0,
+        448px 0,
         480px 0,
-        480px 34px,
-        520px 0,
-        566px 0,
-        608px 0,
-        654px 0;
+        512px 0;
     background-size:
         28px 28px,
         28px 28px,
@@ -165,7 +165,7 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 
 @media (max-width: 1200px) {
     .boot-cli-footer .boot-card-icon::before {
-        transform: scale(.86);
+        transform: scale(.92);
         transform-origin: right bottom;
     }
 }

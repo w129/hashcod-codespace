@@ -62,7 +62,7 @@
         return script;
     }
 
-    ensureScript('auth-register-resilience.js?v=20260914-1', 'auth-register-resilience.js', 'hashcodAuthRegisterResilience');
+    ensureScript('auth-register-resilience.js?v=20260914-2', 'auth-register-resilience.js', 'hashcodAuthRegisterResilience');
 
     async function ensureAdminEngine() {
         if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') return true;

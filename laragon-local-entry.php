@@ -41,7 +41,7 @@ $baseJs = json_encode($baseRaw, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
 $html = str_replace("var base = '/';", 'var base = ' . $baseJs . ';', $html);
 
 $headExtras = '<base href="' . $baseAttr . '">'
-    . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbox-secure-links.css?v=20260914-retired1" data-hashcod-toolbox-secure-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
@@ -83,9 +83,9 @@ $bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){functi
     . $rareInline
     . '<script defer src="' . $baseAttr . 'components/rare-folder-entry.bundle.js?v=20260914-local2" data-hashcod-rare-folder="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/toolbox-signature-copy.js?v=20260913-2" data-hashcod-toolbox-signature-copy="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/toolbox-secure-ui-rescue.js?v=20260913-1" data-hashcod-toolbox-ui-rescue="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/toolbox-secure-ui-rescue.js?v=20260914-retired1" data-hashcod-toolbox-ui-rescue="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/toolbox-secure-links.js?v=20260914-retired1" data-hashcod-toolbox-secure="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/toolbox-signature-copy.js?v=20260914-retired1" data-hashcod-toolbox-signature-copy="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/topbar-windows-hello.js?v=20260913-1" data-hashcod-topbar-windows-hello="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'

@@ -1,0 +1,137 @@
+#hashcodPercentFeatureButton {
+    position: fixed;
+    z-index: 2147481200;
+    width: clamp(88px, 7.2vw, 116px);
+    height: clamp(88px, 7.2vw, 116px);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transform-origin: center center;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .18));
+    transition: transform .18s ease, filter .18s ease, opacity .18s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#hashcodPercentFeatureButton.is-visible {
+    display: inline-flex;
+}
+
+#hashcodPercentFeatureButton:hover {
+    transform: translate(-50%, -50%) scale(1.055);
+    filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .22));
+}
+
+#hashcodPercentFeatureButton:active {
+    transform: translate(-50%, -50%) scale(.97);
+}
+
+#hashcodPercentFeatureButton:focus-visible {
+    outline: 3px solid #111;
+    outline-offset: 5px;
+}
+
+#hashcodPercentFeatureButton img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+}
+
+#hashcodPercentFeatureModal[hidden] {
+    display: none !important;
+}
+
+#hashcodPercentFeatureModal {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482500;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(10, 10, 10, .24);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+#hashcodPercentFeatureWindow {
+    position: relative;
+    width: min(640px, calc(100vw - 40px));
+    height: min(420px, calc(100vh - 72px));
+    min-height: 260px;
+    overflow: hidden;
+    border: 1px solid rgba(17, 17, 17, .18);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .97);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .22);
+    animation: hashcodPercentWindowIn .24s cubic-bezier(.2,.8,.2,1) both;
+}
+
+#hashcodPercentFeatureContent {
+    width: 100%;
+    height: 100%;
+}
+
+#hashcodPercentFeatureClose {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(17, 17, 17, .14);
+    border-radius: 50%;
+    background: #fff;
+    color: #111;
+    font: 500 24px/1 Arial, sans-serif;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, .08);
+}
+
+#hashcodPercentFeatureClose:hover {
+    background: #f4f4f4;
+}
+
+#hashcodPercentFeatureClose:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+}
+
+@keyframes hashcodPercentWindowIn {
+    from { opacity: 0; transform: translateY(12px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 700px) {
+    #hashcodPercentFeatureButton {
+        width: 84px;
+        height: 84px;
+    }
+
+    #hashcodPercentFeatureModal {
+        padding: 14px;
+    }
+
+    #hashcodPercentFeatureWindow {
+        width: calc(100vw - 28px);
+        height: min(68vh, 420px);
+        border-radius: 18px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #hashcodPercentFeatureButton,
+    #hashcodPercentFeatureWindow {
+        transition: none !important;
+        animation: none !important;
+    }
+}

@@ -7,6 +7,7 @@ const net = require('net');
 const { spawn } = require('child_process');
 
 const APP_TITLE = 'Hashcod Codespace';
+const APP_ID = 'app.hashcod.codespace';
 const LOOPBACK_HOST = '127.0.0.1';
 const PRESERVE_PATHS = ['.env', 'LOCAL-DB-CREDENTIALS.txt', 'data_storage', 'uploads'];
 
@@ -28,6 +29,11 @@ function log(message) {
 
 function resourcePath(name) {
     return path.join(process.resourcesPath, name);
+}
+
+function desktopIconPath() {
+    const iconPath = resourcePath('icon.png');
+    return fs.existsSync(iconPath) ? iconPath : undefined;
 }
 
 function localRuntimeRoot() {
@@ -238,6 +244,7 @@ p{font-size:14px;line-height:1.5;color:#555;margin:0 auto 20px}
 function createWindow() {
     mainWindow = new BrowserWindow({
         title: APP_TITLE,
+        icon: desktopIconPath(),
         width: 1440,
         height: 900,
         minWidth: 980,
@@ -337,6 +344,9 @@ if (!gotLock) {
     });
 
     app.whenReady().then(async () => {
+        if (process.platform === 'win32') {
+            app.setAppUserModelId(APP_ID);
+        }
         session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
         await bootDesktop();
     });

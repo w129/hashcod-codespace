@@ -1,0 +1,86 @@
+/*
+ * Hashcod Codespace — Duo page transition.
+ * Browser adaptation inspired by Mac Duo by Makito:
+ * https://github.com/sumimakito/Mac-Duo
+ * Mac Duo is Apache-2.0 licensed, Copyright 2026 Makito.
+ *
+ * The web version keeps the same visual principles described by Mac Duo:
+ * bottom-edge hinge, perspective recession, progressive blur and dimming.
+ */
+
+:root {
+    --hashcod-duo-close-ms: 560ms;
+    --hashcod-duo-open-ms: 620ms;
+    --hashcod-duo-black: #000;
+}
+
+html.hashcod-duo-transitioning {
+    background: var(--hashcod-duo-black) !important;
+    overflow: hidden !important;
+}
+
+html.hashcod-duo-transitioning body {
+    transform-origin: 50% 100% !important;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform, filter, opacity;
+}
+
+/* The previous entry handoff stays functionally intact underneath, but its
+   older visual panels are hidden while the Duo transition is authoritative. */
+html.hashcod-duo-transitioning #hashcodEntryTransition {
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+#hashcodDuoShade {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483600;
+    pointer-events: none;
+    opacity: 0;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, .46) 0%,
+            rgba(0, 0, 0, .22) 42%,
+            rgba(0, 0, 0, .08) 72%,
+            rgba(0, 0, 0, 0) 100%
+        );
+    transform: translateZ(1px);
+    will-change: opacity;
+}
+
+#hashcodDuoHinge {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    z-index: 2147483601;
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(255, 255, 255, .2);
+    box-shadow: 0 -1px 18px rgba(0, 0, 0, .42);
+    will-change: opacity;
+}
+
+html.hashcod-duo-transitioning,
+html.hashcod-duo-transitioning body {
+    overscroll-behavior: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --hashcod-duo-close-ms: 130ms;
+        --hashcod-duo-open-ms: 150ms;
+    }
+
+    html.hashcod-duo-transitioning body {
+        transform: none !important;
+    }
+
+    #hashcodDuoShade {
+        background: rgba(0, 0, 0, .26);
+    }
+}

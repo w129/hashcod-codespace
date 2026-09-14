@@ -19,11 +19,11 @@
         brand.style.setProperty('overflow', 'visible', 'important');
 
         credit.style.setProperty('position', 'absolute', 'important');
-        credit.style.setProperty('left', 'var(--hashcod-credit-center-x, 50%)', 'important');
+        credit.style.setProperty('left', 'var(--hashcod-credit-text-left, 50%)', 'important');
         credit.style.setProperty('top', 'calc(100% + 10px)', 'important');
         credit.style.setProperty('right', 'auto', 'important');
         credit.style.setProperty('bottom', 'auto', 'important');
-        credit.style.setProperty('transform', 'translateX(-50%)', 'important');
+        credit.style.setProperty('transform', 'none', 'important');
         credit.style.setProperty('width', 'max-content', 'important');
         credit.style.setProperty('min-width', '0', 'important');
         credit.style.setProperty('height', 'auto', 'important');
@@ -31,7 +31,7 @@
         credit.style.setProperty('padding', '0', 'important');
         credit.style.setProperty('display', 'flex', 'important');
         credit.style.setProperty('align-items', 'center', 'important');
-        credit.style.setProperty('justify-content', 'center', 'important');
+        credit.style.setProperty('justify-content', 'flex-start', 'important');
         credit.style.setProperty('white-space', 'nowrap', 'important');
         credit.style.setProperty('z-index', '8', 'important');
         credit.style.setProperty('pointer-events', 'none', 'important');
@@ -41,20 +41,26 @@
         const brandRect = visibleRect(brand);
         if (!brandRect) return;
 
+        const text = brand.querySelector('.boot-brand-text');
+        const textRect = visibleRect(text);
+        if (textRect) {
+            const textLeft = textRect.left - brandRect.left;
+            credit.style.setProperty('--hashcod-credit-text-left', textLeft.toFixed(2) + 'px');
+            return;
+        }
+
         const childRects = Array.prototype.slice.call(brand.children)
             .filter(function (child) { return child !== credit; })
             .map(visibleRect)
             .filter(Boolean);
 
         if (!childRects.length) {
-            credit.style.removeProperty('--hashcod-credit-center-x');
+            credit.style.removeProperty('--hashcod-credit-text-left');
             return;
         }
 
-        const left = Math.min.apply(null, childRects.map(function (rect) { return rect.left; }));
-        const right = Math.max.apply(null, childRects.map(function (rect) { return rect.right; }));
-        const center = ((left + right) / 2) - brandRect.left;
-        credit.style.setProperty('--hashcod-credit-center-x', center.toFixed(2) + 'px');
+        const fallbackLeft = Math.max.apply(null, childRects.map(function (rect) { return rect.left; })) - brandRect.left;
+        credit.style.setProperty('--hashcod-credit-text-left', fallbackLeft.toFixed(2) + 'px');
     }
 
     function relocate() {

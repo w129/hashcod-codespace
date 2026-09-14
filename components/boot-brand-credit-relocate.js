@@ -4,6 +4,32 @@
     if (window.__hashcodBootBrandCreditRelocateLoaded) return;
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
+    function loadPercentFeatureAssets() {
+        const version = '20260913-1';
+        const baseEl = document.querySelector('base[href]');
+        const baseHref = baseEl ? baseEl.getAttribute('href') : '/';
+        let baseUrl = '/';
+        try {
+            baseUrl = new URL(baseHref, window.location.href).toString();
+        } catch (_) {}
+
+        if (!document.querySelector('link[data-hashcod-percent-feature-style]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = new URL('components/percent-feature-button.css?v=' + version, baseUrl).toString();
+            link.setAttribute('data-hashcod-percent-feature-style', 'true');
+            document.head.appendChild(link);
+        }
+
+        if (!document.querySelector('script[data-hashcod-percent-feature]')) {
+            const script = document.createElement('script');
+            script.defer = true;
+            script.src = new URL('components/percent-feature-button.js?v=' + version, baseUrl).toString();
+            script.setAttribute('data-hashcod-percent-feature', 'true');
+            document.head.appendChild(script);
+        }
+    }
+
     function visibleRect(element) {
         if (!element || typeof element.getBoundingClientRect !== 'function') return null;
         const rect = element.getBoundingClientRect();
@@ -85,6 +111,8 @@
     function scheduleRelocate() {
         window.requestAnimationFrame(relocate);
     }
+
+    loadPercentFeatureAssets();
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', scheduleRelocate, { once: true });

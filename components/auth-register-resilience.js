@@ -6,9 +6,14 @@
 
     const REGISTER_PATH = '/api/auth/register';
     const REQUEST_TIMEOUT_MS = 20000;
+    const AUTH_TOKEN_KEY = 'l8_auth_token';
+    const AUTH_ACCOUNT_KEY = 'l8_auth_account';
     const state = {
         requestInFlight: false,
-        lastRequestStartedAt: 0
+        lastRequestStartedAt: 0,
+        registeredSessionToken: '',
+        registeredAccountId: '',
+        registeredKeysText: ''
     };
 
     function setMessage(text, ok) {
@@ -109,25 +114,129 @@
         };
     }
 
+    function buildKeyKitText(data) {
+        const keys = data && data.keys ? data.keys : {};
+        const backups = Array.isArray(keys.backup_codes) ? keys.backup_codes : [];
+        return [
+            'AES-256:', keys.aes256 || '', '',
+            'L8ID:', keys.identity || '', '',
+            'L8REC (recuperación):', keys.recovery || '', '',
+            'Códigos de respaldo:', backups.join('\n')
+        ].join('\n');
+    }
+
+    function setOutputText(ids, value) {
+        for (let i = 0; i < ids.length; i += 1) {
+            const node = document.getElementById(ids[i]);
+            if (node) {
+                node.textContent = value || '';
+                return node;
+            }
+        }
+        return null;
+    }
+
     function renderKeyKit(data) {
         if (!data || !data.keys) return;
-        const aes = document.getElementById('authKeyAesOut');
-        const identity = document.getElementById('authKeyIdOut');
-        const recovery = document.getElementById('authKeyRecoveryOut');
-        const backups = document.getElementById('authKeyBackupsOut');
+        const values = Array.isArray(data.keys.backup_codes) ? data.keys.backup_codes : [];
         const box = document.getElementById('authKeysBox');
 
-        if (aes) aes.textContent = data.keys.aes256 || '';
-        if (identity) identity.textContent = data.keys.identity || '';
-        if (recovery) recovery.textContent = data.keys.recovery || '';
-        if (backups) {
-            const values = Array.isArray(data.keys.backup_codes) ? data.keys.backup_codes : [];
-            backups.textContent = values.join('\n');
-        }
+        setOutputText(['authKeyAesOut'], data.keys.aes256 || '');
+        setOutputText(['authKeyIdOut'], data.keys.identity || '');
+        setOutputText(['authKeyRecOut', 'authKeyRecoveryOut'], data.keys.recovery || '');
+        setOutputText(['authKeyBackupOut', 'authKeyBackupsOut'], values.join('\n'));
+
+        state.registeredSessionToken = String(data.session_token || '');
+        state.registeredAccountId = String(data.account_id || '');
+        state.registeredKeysText = buildKeyKitText(data);
+
         if (box) {
             box.style.display = 'block';
             box.hidden = false;
+            box.dataset.hashcodRegisterReady = state.registeredSessionToken ? 'true' : 'false';
         }
+    }
+
+    async function writeClipboardWithFallback(text) {
+        const value = String(text || '');
+        if (!value) throw new Error('Kit vacío');
+
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            try {
+                await navigator.clipboard.writeText(value);
+                return true;
+            } catch (error) {
+                // Continue to the DOM fallback. Some browsers deny Clipboard API
+                // even though a user gesture is active.
+            }
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.value = value;
+        textarea.setAttribute('readonly', '');
+        textarea.setAttribute('aria-hidden', 'true');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+
+        let copied = false;
+        try {
+            copied = typeof document.execCommand === 'function' && document.execCommand('copy');
+        } finally {
+            textarea.remove();
+        }
+        if (!copied) throw new Error('El navegador bloqueó el portapapeles');
+        return true;
+    }
+
+    async function copyRegisteredKit(button) {
+        if (!state.registeredKeysText) return false;
+        setBusy(button, true);
+        try {
+            await writeClipboardWithFallback(state.registeredKeysText);
+            setMessage('Kit completo copiado al portapapeles ✓', true);
+            return true;
+        } catch (error) {
+            setMessage('El navegador bloqueó la copia automática. Puedes seleccionar las claves visibles y copiarlas manualmente.');
+            return false;
+        } finally {
+            setBusy(button, false);
+        }
+    }
+
+    function enterRegisteredSession(button) {
+        if (!state.registeredSessionToken) return false;
+        setBusy(button, true);
+        try {
+            sessionStorage.setItem(AUTH_TOKEN_KEY, state.registeredSessionToken);
+            if (state.registeredAccountId) {
+                sessionStorage.setItem(AUTH_ACCOUNT_KEY, state.registeredAccountId);
+            }
+        } catch (error) {
+            setBusy(button, false);
+            setMessage('No se pudo guardar la sesión en este navegador. Habilita el almacenamiento del sitio y vuelve a intentarlo.');
+            return false;
+        }
+
+        setMessage('Kit confirmado. Entrando a Hashcod Codespace…', true);
+        const overlay = document.getElementById('authOverlay');
+        if (overlay) overlay.classList.add('hidden');
+        document.body.classList.remove('boot-locked');
+        document.body.classList.remove('auth-locked');
+        window.dispatchEvent(new CustomEvent('hashcod:auth-session-ready', {
+            detail: { account_id: state.registeredAccountId }
+        }));
+
+        // Reload with the newly stored session so the whole platform initializes
+        // through the same authenticated path used by a normal login.
+        window.setTimeout(function () {
+            window.location.reload();
+        }, 120);
+        return true;
     }
 
     async function fallbackRegister(button) {
@@ -201,6 +310,28 @@
         }
     }
 
+    function bindKitActions() {
+        document.addEventListener('click', function (event) {
+            const target = event.target && event.target.closest ? event.target : null;
+            if (!target) return;
+
+            const copyButton = target.closest('#authCopyKeysBtn');
+            if (copyButton && state.registeredKeysText) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                copyRegisteredKit(copyButton);
+                return;
+            }
+
+            const enterButton = target.closest('#authEnterAfterRegisterBtn');
+            if (enterButton && state.registeredSessionToken) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                enterRegisteredSession(enterButton);
+            }
+        }, true);
+    }
+
     function bindRegisterWatchdog() {
         document.addEventListener('click', function (event) {
             const button = event.target && event.target.closest ? event.target.closest('#authRegisterBtn') : null;
@@ -226,5 +357,6 @@
     }
 
     installFetchTimeout();
+    bindKitActions();
     bindRegisterWatchdog();
 })();

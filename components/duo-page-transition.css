@@ -14,9 +14,20 @@
     --hashcod-duo-black: #000;
 }
 
-html.hashcod-duo-transitioning {
+html.hashcod-duo-transitioning,
+html.hashcod-duo-arrival-pending {
     background: var(--hashcod-duo-black) !important;
+}
+
+html.hashcod-duo-transitioning {
     overflow: hidden !important;
+}
+
+/* A tiny preboot marker is set before first paint when the previous page
+   navigated with Duo. The runtime removes it immediately before the opening
+   animation, preventing a normal-page flash between close and open. */
+html.hashcod-duo-arrival-pending body {
+    opacity: 0 !important;
 }
 
 html.hashcod-duo-transitioning body {

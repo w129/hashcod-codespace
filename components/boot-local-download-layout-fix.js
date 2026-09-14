@@ -42,17 +42,17 @@
 
         row.style.setProperty('position', 'absolute', 'important');
         row.style.setProperty('left', 'var(--hashcod-credit-text-left, ' + left + ')', 'important');
-        row.style.setProperty('top', 'calc(100% + 43px)', 'important');
+        row.style.setProperty('top', 'calc(100% + 40px)', 'important');
         row.style.setProperty('right', 'auto', 'important');
         row.style.setProperty('bottom', 'auto', 'important');
         row.style.setProperty('display', 'flex', 'important');
         row.style.setProperty('align-items', 'center', 'important');
         row.style.setProperty('justify-content', 'flex-start', 'important');
-        row.style.setProperty('gap', '6px', 'important');
+        row.style.setProperty('gap', '5px', 'important');
         row.style.setProperty('width', 'max-content', 'important');
-        row.style.setProperty('max-width', '230px', 'important');
+        row.style.setProperty('max-width', '205px', 'important');
         row.style.setProperty('min-width', '0', 'important');
-        row.style.setProperty('height', '22px', 'important');
+        row.style.setProperty('height', '19px', 'important');
         row.style.setProperty('margin', '0', 'important');
         row.style.setProperty('padding', '0', 'important');
         row.style.setProperty('white-space', 'nowrap', 'important');
@@ -66,13 +66,13 @@
             button.style.setProperty('display', 'inline-flex', 'important');
             button.style.setProperty('align-items', 'center', 'important');
             button.style.setProperty('justify-content', 'center', 'important');
-            button.style.setProperty('width', '21px', 'important');
-            button.style.setProperty('height', '21px', 'important');
-            button.style.setProperty('min-width', '21px', 'important');
-            button.style.setProperty('max-width', '21px', 'important');
-            button.style.setProperty('min-height', '21px', 'important');
-            button.style.setProperty('max-height', '21px', 'important');
-            button.style.setProperty('flex', '0 0 21px', 'important');
+            button.style.setProperty('width', '18px', 'important');
+            button.style.setProperty('height', '18px', 'important');
+            button.style.setProperty('min-width', '18px', 'important');
+            button.style.setProperty('max-width', '18px', 'important');
+            button.style.setProperty('min-height', '18px', 'important');
+            button.style.setProperty('max-height', '18px', 'important');
+            button.style.setProperty('flex', '0 0 18px', 'important');
             button.style.setProperty('margin', '0', 'important');
             button.style.setProperty('padding', '0', 'important');
             button.style.setProperty('border', '0', 'important');
@@ -85,15 +85,15 @@
 
             const svg = button.querySelector('svg');
             if (svg) {
-                svg.setAttribute('width', '17');
-                svg.setAttribute('height', '17');
+                svg.setAttribute('width', '14');
+                svg.setAttribute('height', '14');
                 svg.style.setProperty('display', 'block', 'important');
-                svg.style.setProperty('width', '17px', 'important');
-                svg.style.setProperty('height', '17px', 'important');
-                svg.style.setProperty('min-width', '17px', 'important');
-                svg.style.setProperty('max-width', '17px', 'important');
-                svg.style.setProperty('min-height', '17px', 'important');
-                svg.style.setProperty('max-height', '17px', 'important');
+                svg.style.setProperty('width', '14px', 'important');
+                svg.style.setProperty('height', '14px', 'important');
+                svg.style.setProperty('min-width', '14px', 'important');
+                svg.style.setProperty('max-width', '14px', 'important');
+                svg.style.setProperty('min-height', '14px', 'important');
+                svg.style.setProperty('max-height', '14px', 'important');
                 svg.style.setProperty('fill', 'currentColor', 'important');
             }
         }
@@ -104,7 +104,7 @@
             text.style.setProperty('margin', '0', 'important');
             text.style.setProperty('padding', '0', 'important');
             text.style.setProperty('color', '#7b7b7b', 'important');
-            text.style.setProperty('font-size', '10px', 'important');
+            text.style.setProperty('font-size', '9.25px', 'important');
             text.style.setProperty('font-weight', '400', 'important');
             text.style.setProperty('line-height', '1', 'important');
             text.style.setProperty('letter-spacing', '-0.01em', 'important');

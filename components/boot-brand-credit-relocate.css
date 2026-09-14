@@ -22,7 +22,7 @@
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 0 !important;
+    gap: 7px !important;
     z-index: 8 !important;
     pointer-events: none !important;
     white-space: nowrap !important;
@@ -32,18 +32,34 @@
 .boot-brand > .boot-brand-logos.hashcod-credit-under-brand .boot-github-logo {
     display: none !important;
     visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    opacity: 0 !important;
 }
 
-/* Dedicated visible node for the exact dotted crown icon supplied by the user. */
+/* Dedicated inline SVG node for the exact dotted icon supplied by the user.
+   Keeping the SVG inline prevents asset/cache loading from making it disappear. */
 .boot-brand > .boot-brand-logos.hashcod-credit-under-brand .hashcod-credit-crown-icon {
-    display: block !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: 24px !important;
     height: 24px !important;
     min-width: 24px !important;
-    object-fit: contain !important;
-    margin: 0 7px 0 0 !important;
-    opacity: .72 !important;
-    visibility: visible !important;
+    flex: 0 0 24px !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+    color: #7f7f7f !important;
+}
+
+.boot-brand > .boot-brand-logos.hashcod-credit-under-brand .hashcod-credit-crown-icon svg {
+    display: block !important;
+    width: 24px !important;
+    height: 24px !important;
+    fill: currentColor !important;
+    overflow: visible !important;
 }
 
 .boot-brand > .boot-brand-logos.hashcod-credit-under-brand .boot-hashcod-logo {

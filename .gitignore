@@ -44,3 +44,9 @@ tiptap_editor/frontend/node_modules/
 .pepper
 data_storage/secrets.json
 /etc/secrets/
+
+# Hashcod Codespace desktop build output
+local-app/desktop/node_modules/
+local-app/desktop/payload/
+local-app/desktop/dist/
+local-app/desktop/package-lock.json

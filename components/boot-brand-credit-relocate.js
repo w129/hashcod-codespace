@@ -5,7 +5,7 @@
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
     function loadPercentFeatureAssets() {
-        const version = '20260913-1';
+        const version = '20260913-2';
         const baseEl = document.querySelector('base[href]');
         const baseHref = baseEl ? baseEl.getAttribute('href') : '/';
         let baseUrl = '/';

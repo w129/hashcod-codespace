@@ -170,3 +170,20 @@ ECC should improve the development process without making Hashcod Codespace depe
 - Prefer the current upstream ECC guidance when it has materially changed, but keep this repository's local instructions authoritative for Hashcod-specific architecture.
 
 The objective is not to imitate ECC mechanically. The objective is to consistently apply disciplined planning, testing, security review, verification, and maintainable implementation to every meaningful change in Hashcod Codespace.
+
+## 11. Virtual ↔ local desktop parity is mandatory
+
+Hashcod Codespace's hosted/virtual platform and downloadable Windows desktop application are two distributions of the same product. By default, user-facing improvements, bug fixes, components, routes, APIs, translations, assets, and security corrections added to the virtual platform must also be present in the local desktop package.
+
+Rules for every future development:
+
+1. Treat the repository root runtime source as canonical. Do not maintain a separate manual copy of platform features inside `local-app/desktop` unless the behavior is genuinely desktop-specific.
+2. When a feature or fix changes the virtual platform, verify that the same source is compatible with the local loopback runtime packaged by `local-app/desktop`.
+3. A change may be intentionally cloud-only only when the technical reason is explicit and documented. The desktop build must still fail gracefully or provide an appropriate local alternative instead of silently breaking.
+4. Database/schema, environment-variable, cache/version, storage, route, and provider changes must include any local-runtime handling needed by the desktop edition.
+5. Do not merge a user-facing runtime change while knowingly leaving the downloadable desktop build on older behavior.
+6. The Windows desktop workflow must continue to rebuild from the current `main` source and refresh the `desktop-latest` installer after successful pushes to `main`.
+7. Preserve the desktop packaging parity verification in `.github/workflows/desktop-release.yml`; it exists to detect tracked web/runtime files that were omitted or changed while staging the local installer.
+8. For relevant changes, test both the hosted execution path and the local `127.0.0.1`/Electron path, or explicitly state which local test is still pending.
+
+See `WEB_DESKTOP_PARITY.md` for the repository-wide release policy and acceptance checklist. This parity rule is a standing requirement for human contributors and AI coding agents unless the repository owner explicitly authorizes a documented exception.

@@ -4,7 +4,16 @@
     if (window.__hashcodBootBrandCreditRelocateLoaded) return;
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
-    const CREDIT_ICON_VERSION = '20260914-4';
+    const CREDIT_ICON_VERSION = '20260914-5';
+    const CREDIT_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" focusable="false">'
+        + '<circle cx="4" cy="7" r="1"/><circle cx="13" cy="7" r="1"/><circle cx="16" cy="7" r="1"/><circle cx="16" cy="4" r="1"/><circle cx="19" cy="7" r="1"/><circle cx="28" cy="7" r="1"/>'
+        + '<circle cx="4" cy="10" r="1"/><circle cx="1" cy="10" r="1"/><circle cx="7" cy="10" r="1"/><circle cx="16" cy="10" r="1"/><circle cx="25" cy="10" r="1"/><circle cx="28" cy="10" r="1"/><circle cx="31" cy="10" r="1"/>'
+        + '<circle cx="4" cy="13" r="1"/><circle cx="13" cy="13" r="1"/><circle cx="16" cy="13" r="1"/><circle cx="19" cy="13" r="1"/><circle cx="28" cy="13" r="1"/>'
+        + '<circle cx="4" cy="16" r="1"/><circle cx="7" cy="16" r="1"/><circle cx="13" cy="16" r="1"/><circle cx="16" cy="16" r="1"/><circle cx="19" cy="16" r="1"/><circle cx="25" cy="16" r="1"/><circle cx="28" cy="16" r="1"/>'
+        + '<circle cx="4" cy="19" r="1"/><circle cx="7" cy="19" r="1"/><circle cx="10" cy="19" r="1"/><circle cx="13" cy="19" r="1"/><circle cx="16" cy="19" r="1"/><circle cx="19" cy="19" r="1"/><circle cx="22" cy="19" r="1"/><circle cx="25" cy="19" r="1"/><circle cx="28" cy="19" r="1"/>'
+        + '<circle cx="4" cy="22" r="1"/><circle cx="7" cy="22" r="1"/><circle cx="10" cy="22" r="1"/><circle cx="13" cy="22" r="1"/><circle cx="16" cy="22" r="1"/><circle cx="19" cy="22" r="1"/><circle cx="22" cy="22" r="1"/><circle cx="25" cy="22" r="1"/><circle cx="28" cy="22" r="1"/>'
+        + '<circle cx="4" cy="28" r="1"/><circle cx="7" cy="28" r="1"/><circle cx="10" cy="28" r="1"/><circle cx="13" cy="28" r="1"/><circle cx="16" cy="28" r="1"/><circle cx="19" cy="28" r="1"/><circle cx="22" cy="28" r="1"/><circle cx="25" cy="28" r="1"/><circle cx="28" cy="28" r="1"/>'
+        + '</svg>';
 
     function publicAsset(path) {
         const baseEl = document.querySelector('base[href]');
@@ -88,34 +97,46 @@
     function ensureCreditIcon(credit) {
         if (!credit) return;
 
-        /* Never rely on the old GitHub node: hide it completely and create a
-           dedicated image node for the exact dotted crown icon supplied by the user. */
         const legacyGithub = credit.querySelector('.boot-github-logo');
         if (legacyGithub) {
             legacyGithub.style.setProperty('display', 'none', 'important');
+            legacyGithub.style.setProperty('visibility', 'hidden', 'important');
             legacyGithub.setAttribute('aria-hidden', 'true');
         }
 
         let icon = credit.querySelector('.hashcod-credit-crown-icon');
-        if (!icon) {
-            icon = document.createElement('img');
-            icon.className = 'hashcod-credit-crown-icon';
-            icon.alt = '';
-            icon.setAttribute('aria-hidden', 'true');
-            icon.width = 24;
-            icon.height = 24;
-            credit.insertBefore(icon, credit.firstChild);
+        if (icon && icon.tagName === 'IMG') {
+            const replacement = document.createElement('span');
+            replacement.className = 'hashcod-credit-crown-icon';
+            replacement.setAttribute('aria-hidden', 'true');
+            icon.replaceWith(replacement);
+            icon = replacement;
         }
 
-        const src = publicAsset('components/boot-credit-dotted-crown-icon.svg?v=' + CREDIT_ICON_VERSION);
-        if (icon.getAttribute('src') !== src) icon.setAttribute('src', src);
-        icon.style.setProperty('display', 'block', 'important');
+        if (!icon) {
+            icon = document.createElement('span');
+            icon.className = 'hashcod-credit-crown-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            const textMark = credit.querySelector('.boot-hashcod-logo');
+            if (textMark) {
+                credit.insertBefore(icon, textMark);
+            } else {
+                credit.insertBefore(icon, credit.firstChild);
+            }
+        }
+
+        if (icon.getAttribute('data-icon-version') !== CREDIT_ICON_VERSION) {
+            icon.innerHTML = CREDIT_ICON_SVG;
+            icon.setAttribute('data-icon-version', CREDIT_ICON_VERSION);
+        }
+
+        icon.style.setProperty('display', 'inline-flex', 'important');
+        icon.style.setProperty('visibility', 'visible', 'important');
         icon.style.setProperty('width', '24px', 'important');
         icon.style.setProperty('height', '24px', 'important');
         icon.style.setProperty('min-width', '24px', 'important');
-        icon.style.setProperty('object-fit', 'contain', 'important');
-        icon.style.setProperty('margin', '0 7px 0 0', 'important');
-        icon.style.setProperty('opacity', '.72', 'important');
+        icon.style.setProperty('color', '#7f7f7f', 'important');
+        icon.style.setProperty('opacity', '1', 'important');
     }
 
     function alignCredit(brand, credit) {

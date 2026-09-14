@@ -1,0 +1,51 @@
+/* Keep the GitHub / Created by diktatcart credit attached to the Hashcod Codespace brand. */
+.boot-brand {
+    overflow: visible !important;
+}
+
+.boot-brand > .boot-brand-logos.hashcod-credit-under-brand {
+    position: absolute !important;
+    left: var(--hashcod-credit-center-x, 50%) !important;
+    top: calc(100% + 10px) !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+    min-width: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    z-index: 8 !important;
+    pointer-events: none !important;
+    white-space: nowrap !important;
+}
+
+.boot-brand > .boot-brand-logos.hashcod-credit-under-brand .boot-github-logo {
+    display: block !important;
+    width: 24px !important;
+    height: 24px !important;
+    object-fit: contain !important;
+    margin: 0 6px 0 0 !important;
+    opacity: .75 !important;
+}
+
+.boot-brand > .boot-brand-logos.hashcod-credit-under-brand .boot-hashcod-logo {
+    display: block !important;
+    width: 114px !important;
+    height: 16px !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+    opacity: .66 !important;
+}
+
+@media (max-width: 760px) {
+    .boot-brand > .boot-brand-logos.hashcod-credit-under-brand {
+        top: calc(100% + 8px) !important;
+        transform: translateX(-50%) scale(.92) !important;
+        transform-origin: center top !important;
+    }
+}

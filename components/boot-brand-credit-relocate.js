@@ -166,7 +166,7 @@
 
             const button = document.createElement('a');
             button.className = 'hashcod-local-download-button';
-            button.href = publicAsset('download-local-version.php');
+            button.href = publicAsset('download-local-version');
             button.setAttribute('download', 'Hashcod-Codespace-Local-Installer.bat');
             button.setAttribute('aria-label', 'Download the local version');
             button.setAttribute('title', 'Download the local version');
@@ -183,7 +183,7 @@
 
         const button = row.querySelector('.hashcod-local-download-button');
         if (button) {
-            button.href = publicAsset('download-local-version.php');
+            button.href = publicAsset('download-local-version');
         }
     }
 

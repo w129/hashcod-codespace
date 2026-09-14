@@ -55,8 +55,8 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 
 /* Welcome screen integration strip.
    The lead icon stays larger with breathing room before the two-row integration
-   group. The whole strip sits a few pixels higher so the bottom row stays
-   comfortably inside the footer while remaining aligned with Enter platform. */
+   group. The whole strip sits slightly higher so the lower row has clear air
+   above the footer base while remaining aligned with Enter platform. */
 .boot-cli-footer .boot-card-icon {
     position: relative;
     overflow: visible;
@@ -78,7 +78,7 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     content: "";
     position: absolute;
     left: 50%;
-    top: calc(50% - 3px);
+    top: calc(50% - 8px);
     bottom: auto;
     width: 1218px;
     height: 62px;

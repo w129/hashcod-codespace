@@ -7,7 +7,7 @@
     const FOOTER_ID = 'hashcodEntryCapabilityFooter';
     const FOOTER_TEXT = 'We work with over 100 programming languages and more than 45 AI platforms...';
     const ICON = [
-        '<svg class="hashcod-hold-capability-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" focusable="false">',
+        '<svg class="hashcod-hold-capability-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="20" height="20" style="width:20px!important;height:20px!important;min-width:20px!important;max-width:20px!important;min-height:20px!important;max-height:20px!important;display:block!important;position:static!important;transform:none!important" aria-hidden="true" focusable="false">',
         '<g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode:normal">',
         '<g transform="scale(4,4)">',
         '<path d="M15,43c0,0 34,3.423 34,9v-13c0,0 0,-5.654 -34,-9z" fill="#000000"/>',

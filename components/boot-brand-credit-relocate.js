@@ -4,6 +4,18 @@
     if (window.__hashcodBootBrandCreditRelocateLoaded) return;
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
+    const CREDIT_ICON_VERSION = '20260914-1';
+
+    function publicAsset(path) {
+        const baseEl = document.querySelector('base[href]');
+        const baseHref = baseEl ? baseEl.getAttribute('href') : '/';
+        try {
+            return new URL(path, new URL(baseHref, window.location.href)).toString();
+        } catch (_) {
+            return path;
+        }
+    }
+
     function loadPercentFeatureAssets() {
         const version = '20260914-1';
         const baseEl = document.querySelector('base[href]');
@@ -73,6 +85,23 @@
         credit.style.setProperty('pointer-events', 'none', 'important');
     }
 
+    function replaceCreditIcon(credit) {
+        if (!credit) return;
+        const icon = credit.querySelector('.boot-github-logo');
+        if (!icon) return;
+        const src = publicAsset('components/boot-credit-cat-icon.svg?v=' + CREDIT_ICON_VERSION);
+        if (icon.tagName === 'IMG') {
+            if (icon.getAttribute('src') !== src) icon.setAttribute('src', src);
+            icon.setAttribute('alt', '');
+            icon.setAttribute('aria-hidden', 'true');
+            return;
+        }
+        icon.style.setProperty('background-image', 'url("' + src + '")', 'important');
+        icon.style.setProperty('background-repeat', 'no-repeat', 'important');
+        icon.style.setProperty('background-position', 'center', 'important');
+        icon.style.setProperty('background-size', 'contain', 'important');
+    }
+
     function alignCredit(brand, credit) {
         const brandRect = visibleRect(brand);
         if (!brandRect) return;
@@ -109,9 +138,11 @@
         }
 
         credit.classList.add('hashcod-credit-under-brand');
+        replaceCreditIcon(credit);
         forceBelowLayout(brand, credit);
 
         window.requestAnimationFrame(function () {
+            replaceCreditIcon(credit);
             alignCredit(brand, credit);
             forceBelowLayout(brand, credit);
         });

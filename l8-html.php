@@ -117,7 +117,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             : '';
         $cssTag = $inlineCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/admin-hello-button.css?v=20260913-sequence7" data-hashcod-boot-icons-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/admin-hello-button.css?v=20260913-sequence8" data-hashcod-boot-icons-style="true">';
 
         // Prevent the obsolete full-screen startup animation from racing the
         // Rare UI folder. This runs before deferred entry scripts.

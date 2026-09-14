@@ -54,18 +54,16 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 }
 
 /* Welcome screen integration strip.
-   The lead icon is slightly larger and receives extra breathing room before the
-   existing two-row integration group. The complete strip stays centered on the
-   same vertical axis as the Enter platform button. */
+   The lead icon stays larger with breathing room before the two-row integration
+   group. The whole strip sits a few pixels higher so the bottom row stays
+   comfortably inside the footer while remaining aligned with Enter platform. */
 .boot-cli-footer .boot-card-icon {
     position: relative;
     overflow: visible;
 }
 
 /* The legacy inline card / bulb / glasses SVGs and the old celebration ::after
-   were still being painted underneath the new background strip. They are now
-   fully superseded by the normalized icon assets below, so hide only those
-   legacy decorations and keep the main ::before integration strip authoritative. */
+   are superseded by the normalized background strip below. */
 .boot-cli-footer .boot-card-icon > svg {
     display: none !important;
 }
@@ -80,9 +78,9 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     content: "";
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: calc(50% - 3px);
     bottom: auto;
-    width: 1178px;
+    width: 1218px;
     height: 62px;
     transform: translate(-50%, -50%);
     transform-origin: center center;
@@ -107,6 +105,8 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         url("boot-right-17.svg"),
         url("boot-right-18.svg"),
         url("boot-right-19.svg"),
+        url("boot-right-20.svg"),
+        url("boot-right-21.svg"),
         url("boot-sequence-extra-a.svg"),
         url("boot-sequence-buildship.svg"),
         url("boot-sequence-runway.svg"),
@@ -157,6 +157,8 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         1110px 0,
         1110px 34px,
         1150px 0,
+        1156px 34px,
+        1190px 0,
         324px 34px,
         324px 0,
         284px 34px,
@@ -205,6 +207,8 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         28px 25px,
         32px 21px,
         28px 28px,
+        28px 28px,
+        16px 28px,
         28px 28px,
         28px 28px,
         28px 28px,

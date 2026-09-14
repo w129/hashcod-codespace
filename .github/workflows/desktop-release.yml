@@ -72,6 +72,8 @@ jobs:
           Remove-Item -LiteralPath $payload -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path $site, $phpDestination | Out-Null
 
+          # The repository root is canonical for both hosted and desktop editions.
+          # Keep this copy broad so new platform files automatically enter the local installer.
           $excludedRootEntries = @('.git', '.github', 'local-app')
           Get-ChildItem -LiteralPath $repo -Force | Where-Object {
             $excludedRootEntries -notcontains $_.Name
@@ -107,6 +109,47 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             throw 'router.php did not pass PHP syntax validation.'
           }
+
+      - name: Verify hosted source is present in desktop payload
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_WORKSPACE
+          $site = Join-Path $repo 'local-app\desktop\payload\site'
+          $mismatches = New-Object System.Collections.Generic.List[string]
+
+          $trackedFiles = git -C $repo ls-files
+          foreach ($relative in $trackedFiles) {
+            if ($relative -match '^\.github/' -or $relative -match '^local-app/') {
+              continue
+            }
+
+            $windowsRelative = $relative.Replace('/', '\')
+            $source = Join-Path $repo $windowsRelative
+            if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
+              continue
+            }
+
+            $packaged = Join-Path $site $windowsRelative
+            if (-not (Test-Path -LiteralPath $packaged -PathType Leaf)) {
+              $mismatches.Add("missing: $relative")
+              continue
+            }
+
+            $sourceHash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash
+            $packagedHash = (Get-FileHash -LiteralPath $packaged -Algorithm SHA256).Hash
+            if ($sourceHash -ne $packagedHash) {
+              $mismatches.Add("different: $relative")
+            }
+          }
+
+          if ($mismatches.Count -gt 0) {
+            $details = $mismatches -join [Environment]::NewLine
+            throw "Desktop payload is not in parity with the hosted source:`n$details"
+          }
+
+          Set-Content -LiteralPath (Join-Path $site '.hashcod-desktop-source') -Value $env:GITHUB_SHA -Encoding ASCII
+          Write-Host "Desktop payload parity verified for source commit $env:GITHUB_SHA"
 
       - name: Install desktop build dependencies
         working-directory: local-app/desktop
@@ -156,14 +199,16 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $asset = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\dist\Hashcod-Codespace-Setup.exe'
+          $releaseNotes = "Stable Windows desktop installer for the local Hashcod Codespace application.`n`nSource commit: $env:GITHUB_SHA"
 
           gh release view desktop-latest --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload desktop-latest $asset --clobber --repo $env:GITHUB_REPOSITORY
+            gh release edit desktop-latest --repo $env:GITHUB_REPOSITORY --notes $releaseNotes
           } else {
             gh release create desktop-latest $asset `
               --repo $env:GITHUB_REPOSITORY `
               --target $env:GITHUB_SHA `
               --title 'Hashcod Codespace Desktop - Latest' `
-              --notes 'Stable Windows desktop installer for the local Hashcod Codespace application.'
+              --notes $releaseNotes
           }

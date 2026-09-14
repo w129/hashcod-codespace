@@ -6,6 +6,7 @@
     const WINDOW_ID = 'hashcodPercentFeatureWindow';
     const CONTENT_ID = 'hashcodPercentFeatureContent';
     const CLOSE_ID = 'hashcodPercentFeatureClose';
+    const ASSET_VERSION = '20260913-3';
 
     function asset(path) {
         const base = document.querySelector('base[href]');
@@ -22,13 +23,23 @@
         if (!button) {
             button = document.createElement('button');
             button.id = BUTTON_ID;
-            button.type = 'button';
-            button.setAttribute('aria-label', 'Abrir ventana de función');
-            button.setAttribute('aria-haspopup', 'dialog');
-            button.setAttribute('data-anchor', 'auth-vector-tray');
-            button.innerHTML = '<img alt="" aria-hidden="true" src="' + asset('components/percent-feature-button.svg?v=20260913-2') + '">';
             document.body.appendChild(button);
         }
+
+        button.type = 'button';
+        button.hidden = false;
+        button.setAttribute('aria-label', 'Abrir ventana de función');
+        button.setAttribute('aria-haspopup', 'dialog');
+        button.setAttribute('data-anchor', 'auth-vector-tray');
+
+        let icon = button.querySelector('img');
+        if (!icon) {
+            icon = document.createElement('img');
+            icon.alt = '';
+            icon.setAttribute('aria-hidden', 'true');
+            button.replaceChildren(icon);
+        }
+        icon.src = asset('components/percent-feature-button.svg?v=' + ASSET_VERSION);
 
         let modal = document.getElementById(MODAL_ID);
         if (!modal) {
@@ -48,7 +59,7 @@
     }
 
     function isElementVisible(el) {
-        if (!el) return false;
+        if (!el || !el.isConnected) return false;
         const rect = el.getBoundingClientRect();
         if (rect.width < 1 || rect.height < 1) return false;
         const style = window.getComputedStyle(el);
@@ -56,30 +67,51 @@
         return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
     }
 
+    function getVisibleAuthOverlay() {
+        const overlays = Array.from(document.querySelectorAll('#authOverlay'));
+        return overlays.find(function (overlay) {
+            return !overlay.classList.contains('hidden') && isElementVisible(overlay);
+        }) || null;
+    }
+
+    function getVisibleTray(overlay) {
+        if (!overlay) return null;
+        const localTray = overlay.querySelector('#hashcodVectorTray');
+        if (localTray && isElementVisible(localTray)) return localTray;
+
+        return Array.from(document.querySelectorAll('#hashcodVectorTray')).find(isElementVisible) || null;
+    }
+
     function getAuthAnchor() {
-        const overlay = document.getElementById('authOverlay');
-        const tray = document.getElementById('hashcodVectorTray');
-        if (!overlay || !tray) return null;
-        if (overlay.classList.contains('hidden') || !isElementVisible(overlay) || !isElementVisible(tray)) return null;
+        const overlay = getVisibleAuthOverlay();
+        if (!overlay) return null;
+        const tray = getVisibleTray(overlay);
+        if (!tray) return null;
         return { overlay, tray };
     }
 
-    function positionButton() {
-        const button = document.getElementById(BUTTON_ID);
+    function hideButton(button) {
         if (!button) return;
+        button.classList.remove('is-visible');
+        button.setAttribute('aria-hidden', 'true');
+    }
 
+    function positionButton() {
+        const ui = createUi();
+        const button = ui.button;
         const anchor = getAuthAnchor();
+
         if (!anchor) {
-            button.classList.remove('is-visible');
+            hideButton(button);
             return;
         }
 
         const trayRect = anchor.tray.getBoundingClientRect();
         const buttonSize = window.innerWidth <= 700
             ? 84
-            : Math.max(92, Math.min(116, window.innerWidth * .068));
+            : Math.max(96, Math.min(118, window.innerWidth * .068));
         const sidePad = 18;
-        const gap = window.innerWidth <= 700 ? 14 : 22;
+        const gap = window.innerWidth <= 700 ? 14 : 24;
 
         const rawX = trayRect.left + trayRect.width / 2;
         const x = Math.max(buttonSize / 2 + sidePad, Math.min(window.innerWidth - buttonSize / 2 - sidePad, rawX));
@@ -88,6 +120,8 @@
 
         button.style.left = x + 'px';
         button.style.top = y + 'px';
+        button.style.zIndex = '2147483646';
+        button.removeAttribute('aria-hidden');
         button.classList.add('is-visible');
     }
 
@@ -118,47 +152,70 @@
 
     function bindUi() {
         const ui = createUi();
-        ui.button.addEventListener('click', openModal);
-        ui.modal.addEventListener('click', function (event) {
-            if (event.target === ui.modal) closeModal();
-        });
+
+        if (ui.button.dataset.hashcodPercentBound !== 'true') {
+            ui.button.dataset.hashcodPercentBound = 'true';
+            ui.button.addEventListener('click', openModal);
+        }
+
+        if (ui.modal.dataset.hashcodPercentBound !== 'true') {
+            ui.modal.dataset.hashcodPercentBound = 'true';
+            ui.modal.addEventListener('click', function (event) {
+                if (event.target === ui.modal) closeModal();
+            });
+        }
+
         const close = document.getElementById(CLOSE_ID);
-        if (close) close.addEventListener('click', closeModal);
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && !ui.modal.hidden) closeModal();
-        });
+        if (close && close.dataset.hashcodPercentBound !== 'true') {
+            close.dataset.hashcodPercentBound = 'true';
+            close.addEventListener('click', closeModal);
+        }
+
+        if (document.documentElement.dataset.hashcodPercentEscapeBound !== 'true') {
+            document.documentElement.dataset.hashcodPercentEscapeBound = 'true';
+            document.addEventListener('keydown', function (event) {
+                const modal = document.getElementById(MODAL_ID);
+                if (event.key === 'Escape' && modal && !modal.hidden) closeModal();
+            });
+        }
     }
 
     function init() {
-        if (document.getElementById(BUTTON_ID)) return;
         bindUi();
         positionButton();
 
         let frame = 0;
         const schedule = function () {
             cancelAnimationFrame(frame);
-            frame = requestAnimationFrame(positionButton);
+            frame = requestAnimationFrame(function () {
+                bindUi();
+                positionButton();
+            });
         };
 
-        window.addEventListener('resize', schedule, { passive: true });
-        window.addEventListener('scroll', schedule, { passive: true });
+        if (document.documentElement.dataset.hashcodPercentObserversBound !== 'true') {
+            document.documentElement.dataset.hashcodPercentObserversBound = 'true';
+            window.addEventListener('resize', schedule, { passive: true });
+            window.addEventListener('scroll', schedule, { passive: true });
 
-        const observer = new MutationObserver(schedule);
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['class', 'style', 'hidden']
-        });
+            const observer = new MutationObserver(schedule);
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style', 'hidden']
+            });
 
-        if ('ResizeObserver' in window) {
-            const resizeObserver = new ResizeObserver(schedule);
-            resizeObserver.observe(document.body);
+            if ('ResizeObserver' in window) {
+                const resizeObserver = new ResizeObserver(schedule);
+                resizeObserver.observe(document.body);
+            }
         }
 
-        window.setTimeout(schedule, 200);
-        window.setTimeout(schedule, 700);
-        window.setTimeout(schedule, 1500);
+        window.setTimeout(schedule, 100);
+        window.setTimeout(schedule, 350);
+        window.setTimeout(schedule, 800);
+        window.setTimeout(schedule, 1600);
         window.setTimeout(schedule, 3000);
     }
 

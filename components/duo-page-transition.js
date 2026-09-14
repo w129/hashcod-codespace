@@ -319,6 +319,15 @@
                 resolve();
             }
         });
+
+        /* Prepare the black/hinged arrival before releasing the preboot hide,
+           so the destination opens from the closed state without a white flash. */
+        beginState();
+        const layers = ensureLayers();
+        layers.shade.style.opacity = reducedMotion ? '.28' : '.92';
+        layers.hinge.style.opacity = reducedMotion ? '0' : '.74';
+        document.documentElement.classList.remove('hashcod-duo-arrival-pending');
+        await sleep(0);
         await playOpen();
     }
 

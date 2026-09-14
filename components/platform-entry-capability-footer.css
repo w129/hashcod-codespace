@@ -1,0 +1,81 @@
+/* Hashcod Codespace — centered capability note for the entry hold screen. */
+#hashcodEntryHold .hashcod-hold-capability-footer {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    z-index: 12;
+    width: min(860px, 72vw);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #1b1b1b;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: clamp(10px, .76vw, 13px);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: .025em;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    animation: hashcodCapabilityFooterIn 720ms cubic-bezier(.2,.8,.2,1) 620ms forwards;
+}
+
+#hashcodEntryHold .hashcod-hold-capability-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: block;
+}
+
+#hashcodEntryHold .hashcod-hold-capability-text {
+    display: block;
+    max-width: 760px;
+}
+
+#hashcodEntryHold.is-leaving .hashcod-hold-capability-footer {
+    animation: hashcodCapabilityFooterOut 220ms ease forwards;
+}
+
+@keyframes hashcodCapabilityFooterIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 7px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes hashcodCapabilityFooterOut {
+    to {
+        opacity: 0;
+        transform: translate(-50%, -6px);
+    }
+}
+
+@media (max-width: 760px) {
+    #hashcodEntryHold .hashcod-hold-capability-footer {
+        bottom: 84px;
+        width: min(88vw, 620px);
+        gap: 9px;
+        font-size: 9px;
+        letter-spacing: .015em;
+    }
+
+    #hashcodEntryHold .hashcod-hold-capability-icon {
+        width: 27px;
+        height: 27px;
+        flex-basis: 27px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #hashcodEntryHold .hashcod-hold-capability-footer {
+        opacity: 1;
+        animation: none !important;
+        transform: translateX(-50%);
+    }
+}

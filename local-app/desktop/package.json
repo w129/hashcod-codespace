@@ -1,0 +1,55 @@
+{
+  "name": "hashcod-codespace-desktop",
+  "productName": "Hashcod Codespace",
+  "version": "1.0.0",
+  "description": "Desktop edition of Hashcod Codespace for Windows.",
+  "main": "main.js",
+  "author": "Hashcod",
+  "private": true,
+  "scripts": {
+    "check": "node --check main.js",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "app.hashcod.codespace",
+    "productName": "Hashcod Codespace",
+    "asar": true,
+    "files": [
+      "main.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "payload/site",
+        "to": "site"
+      },
+      {
+        "from": "payload/php",
+        "to": "php"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "Hashcod-Codespace-Setup.exe"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Hashcod Codespace",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

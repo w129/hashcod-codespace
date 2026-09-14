@@ -1,0 +1,149 @@
+name: Build Hashcod Codespace Desktop
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hashcod-codespace-desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: local-app/desktop/package.json
+
+      - name: Set up portable PHP runtime
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, fileinfo, mbstring, openssl, zip
+          ini-values: memory_limit=512M, max_execution_time=120, upload_max_filesize=100M, post_max_size=100M
+          coverage: none
+
+      - name: Prepare desktop payload
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_WORKSPACE
+          $desktop = Join-Path $repo 'local-app\desktop'
+          $payload = Join-Path $desktop 'payload'
+          $site = Join-Path $payload 'site'
+          $phpDestination = Join-Path $payload 'php'
+
+          Remove-Item -LiteralPath $payload -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $site, $phpDestination | Out-Null
+
+          $excludedRootEntries = @('.git', '.github', 'local-app')
+          Get-ChildItem -LiteralPath $repo -Force | Where-Object {
+            $excludedRootEntries -notcontains $_.Name
+          } | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination $site -Recurse -Force
+          }
+
+          $phpExe = (Get-Command php.exe -ErrorAction Stop).Source
+          $phpHome = Split-Path -Parent $phpExe
+          Copy-Item -Path (Join-Path $phpHome '*') -Destination $phpDestination -Recurse -Force
+
+          $iniLines = @(
+            'memory_limit=512M',
+            'max_execution_time=120',
+            'upload_max_filesize=100M',
+            'post_max_size=100M',
+            'variables_order="EGPCS"',
+            'expose_php=Off',
+            'display_errors=Off',
+            'display_startup_errors=Off',
+            'log_errors=On',
+            'extension_dir="ext"'
+          )
+          foreach ($extension in @('curl', 'fileinfo', 'mbstring', 'openssl', 'zip')) {
+            $dll = Join-Path $phpDestination ("ext\php_{0}.dll" -f $extension)
+            if (Test-Path -LiteralPath $dll) {
+              $iniLines += "extension=$extension"
+            }
+          }
+          Set-Content -LiteralPath (Join-Path $phpDestination 'php.ini') -Value $iniLines -Encoding ASCII
+
+          & (Join-Path $phpDestination 'php.exe') -c (Join-Path $phpDestination 'php.ini') -l (Join-Path $site 'router.php')
+          if ($LASTEXITCODE -ne 0) {
+            throw 'router.php did not pass PHP syntax validation.'
+          }
+
+      - name: Install desktop build dependencies
+        working-directory: local-app/desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Stamp desktop build version
+        working-directory: local-app/desktop
+        shell: pwsh
+        run: npm version "1.0.${{ github.run_number }}" --no-git-tag-version --allow-same-version
+
+      - name: Validate Electron main process
+        working-directory: local-app/desktop
+        run: npm run check
+
+      - name: Build Windows installer
+        working-directory: local-app/desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run dist
+
+      - name: Verify installer artifact
+        shell: pwsh
+        run: |
+          $installer = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\dist\Hashcod-Codespace-Setup.exe'
+          if (-not (Test-Path -LiteralPath $installer)) {
+            throw "Installer was not generated: $installer"
+          }
+          $size = (Get-Item -LiteralPath $installer).Length
+          if ($size -lt 1000000) {
+            throw "Installer looks unexpectedly small: $size bytes"
+          }
+          Write-Host "Installer ready: $installer ($size bytes)"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hashcod-Codespace-Windows
+          path: local-app/desktop/dist/Hashcod-Codespace-Setup.exe
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish stable desktop download
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $asset = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\dist\Hashcod-Codespace-Setup.exe'
+
+          gh release view desktop-latest --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload desktop-latest $asset --clobber --repo $env:GITHUB_REPOSITORY
+          } else {
+            gh release create desktop-latest $asset `
+              --repo $env:GITHUB_REPOSITORY `
+              --target $env:GITHUB_SHA `
+              --title 'Hashcod Codespace Desktop - Latest' `
+              --notes 'Stable Windows desktop installer for the local Hashcod Codespace application.'
+          }

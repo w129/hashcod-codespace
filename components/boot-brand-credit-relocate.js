@@ -11,6 +11,32 @@
         return rect;
     }
 
+    function forceBelowLayout(brand, credit) {
+        const brandPosition = window.getComputedStyle(brand).position;
+        if (brandPosition === 'static') {
+            brand.style.setProperty('position', 'relative', 'important');
+        }
+        brand.style.setProperty('overflow', 'visible', 'important');
+
+        credit.style.setProperty('position', 'absolute', 'important');
+        credit.style.setProperty('left', 'var(--hashcod-credit-center-x, 50%)', 'important');
+        credit.style.setProperty('top', 'calc(100% + 10px)', 'important');
+        credit.style.setProperty('right', 'auto', 'important');
+        credit.style.setProperty('bottom', 'auto', 'important');
+        credit.style.setProperty('transform', 'translateX(-50%)', 'important');
+        credit.style.setProperty('width', 'max-content', 'important');
+        credit.style.setProperty('min-width', '0', 'important');
+        credit.style.setProperty('height', 'auto', 'important');
+        credit.style.setProperty('margin', '0', 'important');
+        credit.style.setProperty('padding', '0', 'important');
+        credit.style.setProperty('display', 'flex', 'important');
+        credit.style.setProperty('align-items', 'center', 'important');
+        credit.style.setProperty('justify-content', 'center', 'important');
+        credit.style.setProperty('white-space', 'nowrap', 'important');
+        credit.style.setProperty('z-index', '8', 'important');
+        credit.style.setProperty('pointer-events', 'none', 'important');
+    }
+
     function alignCredit(brand, credit) {
         const brandRect = visibleRect(brand);
         if (!brandRect) return;
@@ -41,8 +67,11 @@
         }
 
         credit.classList.add('hashcod-credit-under-brand');
+        forceBelowLayout(brand, credit);
+
         window.requestAnimationFrame(function () {
             alignCredit(brand, credit);
+            forceBelowLayout(brand, credit);
         });
         return true;
     }

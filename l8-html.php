@@ -193,7 +193,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260913-1" data-hashcod-entry-capability-footer-fix="true"></script>'
-            . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260913-1" data-hashcod-boot-brand-credit-relocate="true"></script>';
+            . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260913-2" data-hashcod-boot-brand-credit-relocate="true"></script>';
         $bodyPos = strripos($html, '</body>');
         if ($bodyPos !== false) {
             $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);

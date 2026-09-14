@@ -52,6 +52,10 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
     . '#bootCliHint{display:none!important;visibility:hidden!important;}'
     . '.boot-cli-hint-wrap{min-width:0!important;}'
+    // Local should show only the Rare UI folder. The retired Originkit blackhole
+    // is canvas-based and can still be present inside 404.html, so suppress it.
+    . '#bootCliOverlay canvas{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
+    . '#bootCliOverlay [id*="blackhole" i],#bootCliOverlay [class*="blackhole" i],[data-originkit-blackhole]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
     . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;transform:translate(-50%,-50%) scale(1.12)!important;}}'
     . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;transform:translate(-50%,-50%) scale(1)!important;}}'
     . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;transform:translate(-50%,-50%) scale(.90)!important;}}'
@@ -75,9 +79,9 @@ $rareInline = $rareBundle !== ''
     ? '<script id="hashcod-laragon-rare-folder-inline" data-hashcod-rare-folder-inline="true">' . $rareBundle . '</script>'
     : '';
 
-$bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){function c(){var h=document.getElementById("bootCliHint");if(!h)return;h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",c,{once:true});}else{c();}})();</script>'
+$bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline
-    . '<script defer src="' . $baseAttr . 'components/rare-folder-entry.bundle.js?v=20260914-local1" data-hashcod-rare-folder="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/rare-folder-entry.bundle.js?v=20260914-local2" data-hashcod-rare-folder="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/toolbox-signature-copy.js?v=20260913-2" data-hashcod-toolbox-signature-copy="true"></script>'

@@ -49,8 +49,14 @@ on:
     branches:
       - main
     paths:
+      - toolbox-secure.php
+      - components/toolbox-secure-links.js
+      - components/toolbox-secure-links.css
+      - components/toolbox-secure-ui-rescue.js
+      - components/toolbox-signature-copy.js
       - components/auth-vector-layout-fix.js
       - components/auth-register-resilience.js
+      - tests/e2e/test_secure_toolbox_links.js
       - tests/e2e/test_auth_register_resilience.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
@@ -147,7 +153,7 @@ jobs:
       - name: Verify cross-device Supabase sync
         run: node tests/e2e/test_cloud_device_sync.js
 
-      - name: Verify secure Toolbox link contract
+      - name: Verify retired Toolbox circle-link contract
         run: node tests/e2e/test_secure_toolbox_links.js
 
       - name: Verify cryptographic card gate regression

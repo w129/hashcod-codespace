@@ -1,4 +1,4 @@
-/* Keep the GitHub / Created by diktatcart credit directly under the Hashcod Codespace text block. */
+/* Keep the creator credit directly under the Hashcod Codespace text block. */
 .boot-brand {
     overflow: visible !important;
     /* Give the complete Hashcod Codespace lockup a stronger presence in the
@@ -28,6 +28,8 @@
     white-space: nowrap !important;
 }
 
+/* The original DOM node keeps its legacy class name, but its visible asset is
+   now the user-supplied crown icon instead of the GitHub mark. */
 .boot-brand > .boot-brand-logos.hashcod-credit-under-brand .boot-github-logo {
     display: block !important;
     width: 24px !important;
@@ -35,7 +37,7 @@
     object-fit: contain !important;
     margin: 0 6px 0 0 !important;
     opacity: .75 !important;
-    content: url("boot-credit-cat-icon.svg?v=20260914-1") !important;
+    content: url("boot-credit-crown-icon.svg?v=20260914-2") !important;
 }
 
 .boot-brand > .boot-brand-logos.hashcod-credit-under-brand .boot-hashcod-logo {

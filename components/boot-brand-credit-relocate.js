@@ -4,7 +4,7 @@
     if (window.__hashcodBootBrandCreditRelocateLoaded) return;
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
-    const CREDIT_ICON_VERSION = '20260914-1';
+    const CREDIT_ICON_VERSION = '20260914-2';
 
     function publicAsset(path) {
         const baseEl = document.querySelector('base[href]');
@@ -89,13 +89,18 @@
         if (!credit) return;
         const icon = credit.querySelector('.boot-github-logo');
         if (!icon) return;
-        const src = publicAsset('components/boot-credit-cat-icon.svg?v=' + CREDIT_ICON_VERSION);
+        const src = publicAsset('components/boot-credit-crown-icon.svg?v=' + CREDIT_ICON_VERSION);
+
+        /* The existing node is reused only as a layout anchor. Its GitHub image
+           is completely replaced by the supplied crown asset. */
         if (icon.tagName === 'IMG') {
             if (icon.getAttribute('src') !== src) icon.setAttribute('src', src);
-            icon.setAttribute('alt', '');
-            icon.setAttribute('aria-hidden', 'true');
+            icon.setAttribute('alt', 'Corona');
+            icon.removeAttribute('aria-hidden');
             return;
         }
+
+        icon.textContent = '';
         icon.style.setProperty('background-image', 'url("' + src + '")', 'important');
         icon.style.setProperty('background-repeat', 'no-repeat', 'important');
         icon.style.setProperty('background-position', 'center', 'important');

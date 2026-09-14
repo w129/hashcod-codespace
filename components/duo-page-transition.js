@@ -19,8 +19,11 @@
     const reducedMotion = Boolean(
         window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
     );
-    const CLOSE_MS = reducedMotion ? 130 : 560;
-    const OPEN_MS = reducedMotion ? 150 : 620;
+    // Deliberately slower than the first browser pass so the hinge, recession,
+    // blur and dimming can be clearly appreciated during every page handoff.
+    const CLOSE_MS = reducedMotion ? 180 : 1200;
+    const OPEN_MS = reducedMotion ? 200 : 1300;
+    const CLOSED_HOLD_MS = reducedMotion ? 20 : 220;
     let busy = false;
     let activeAnimations = [];
 
@@ -62,16 +65,28 @@
                 opacity: 1
             },
             {
-                offset: 0.34,
-                transform: 'perspective(1400px) rotateX(10deg) translateY(.2vh) scale(.997)',
-                filter: 'blur(1.4px) brightness(.91)',
+                offset: 0.22,
+                transform: 'perspective(1400px) rotateX(4deg) translateY(.05vh) scale(.999)',
+                filter: 'blur(.55px) brightness(.965)',
                 opacity: 1
             },
             {
-                offset: 0.7,
-                transform: 'perspective(1400px) rotateX(39deg) translateY(2.2vh) scale(.965)',
-                filter: 'blur(7px) brightness(.72)',
+                offset: 0.48,
+                transform: 'perspective(1400px) rotateX(18deg) translateY(.65vh) scale(.988)',
+                filter: 'blur(3.2px) brightness(.86)',
+                opacity: 1
+            },
+            {
+                offset: 0.72,
+                transform: 'perspective(1400px) rotateX(42deg) translateY(2.7vh) scale(.96)',
+                filter: 'blur(8.5px) brightness(.70)',
                 opacity: .985
+            },
+            {
+                offset: 0.9,
+                transform: 'perspective(1400px) rotateX(65deg) translateY(5.5vh) scale(.93)',
+                filter: 'blur(14px) brightness(.58)',
+                opacity: .68
             },
             {
                 offset: 1,
@@ -126,7 +141,7 @@
 
         const bodyAnimation = document.body.animate(closeFrames(), {
             duration: CLOSE_MS,
-            easing: reducedMotion ? 'linear' : 'cubic-bezier(.22,.61,.24,1)',
+            easing: reducedMotion ? 'linear' : 'cubic-bezier(.20,.56,.18,1)',
             fill: 'forwards'
         });
         const shadeAnimation = layers.shade.animate(
@@ -152,7 +167,7 @@
 
         const bodyAnimation = document.body.animate(openFrames(), {
             duration: OPEN_MS,
-            easing: reducedMotion ? 'linear' : 'cubic-bezier(.16,.84,.28,1)',
+            easing: reducedMotion ? 'linear' : 'cubic-bezier(.18,.72,.22,1)',
             fill: 'forwards'
         });
         const shadeAnimation = layers.shade.animate(
@@ -178,6 +193,7 @@
         let thrown;
         try {
             await playClose();
+            await sleep(CLOSED_HOLD_MS);
             try {
                 result = task();
             } catch (error) {
@@ -189,10 +205,10 @@
             if (result && typeof result.then === 'function') {
                 await Promise.race([
                     Promise.resolve(result).catch(function () { return undefined; }),
-                    sleep(reducedMotion ? 20 : 170)
+                    sleep(reducedMotion ? 25 : 220)
                 ]);
             } else {
-                await sleep(reducedMotion ? 10 : 70);
+                await sleep(reducedMotion ? 15 : 110);
             }
 
             await playOpen();
@@ -211,6 +227,7 @@
         busy = true;
         try {
             await playClose();
+            await sleep(CLOSED_HOLD_MS);
             try { window.sessionStorage.setItem(ARRIVAL_KEY, '1'); } catch (error) { /* optional */ }
             window.location.assign(url);
         } catch (error) {
@@ -327,7 +344,7 @@
         layers.shade.style.opacity = reducedMotion ? '.28' : '.92';
         layers.hinge.style.opacity = reducedMotion ? '0' : '.74';
         document.documentElement.classList.remove('hashcod-duo-arrival-pending');
-        await sleep(0);
+        await sleep(reducedMotion ? 0 : 120);
         await playOpen();
     }
 

@@ -92,6 +92,9 @@ if ($git) {
     New-Item -ItemType Directory -Force -Path $Destination | Out-Null
     Get-ChildItem -LiteralPath $Destination -Force | Remove-Item -Recurse -Force
     Copy-Item -Path (Join-Path $source.FullName '*') -Destination $Destination -Recurse -Force
+    Get-ChildItem -LiteralPath $source.FullName -Force |
+        Where-Object { $_.Name -like '.*' } |
+        ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force }
     Remove-Item -LiteralPath $zip -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $extract -Recurse -Force -ErrorAction SilentlyContinue
 }
@@ -118,8 +121,9 @@ if (-not (Test-Path $envFile)) {
     }
 }
 
-# Required when the project lives under http://localhost/Hashcod%20Codespace/
-Set-EnvValue $envFile 'L8_PUBLIC_BASE' '/Hashcod%20Codespace'
+# El router local calcula automaticamente / o /Hashcod%20Codespace/ segun como
+# se abra la plataforma, por eso no fijamos un L8_PUBLIC_BASE global.
+Set-EnvValue $envFile 'L8_PUBLIC_BASE' ''
 Set-EnvValue $envFile 'L8_TRUST_PROXY' '0'
 Set-EnvValue $envFile 'L8_CORS_ORIGINS' ''
 Set-EnvValue $envFile 'L8_REQUIRE_AUTH_MUTATIONS' '1'
@@ -131,6 +135,29 @@ foreach ($key in @('L8_AUTH_PEPPER','L8_VAULT_MASTER_KEY','L8_DATA_ENCRYPTION_KE
         Set-EnvValue $envFile $key (New-HexSecret 32)
         $current = Get-Content -LiteralPath $envFile -Raw
     }
+}
+
+Write-Step 'Activando la interfaz completa y la animacion Rare UI en Laragon'
+$localEntry = Join-Path $Destination 'laragon-local-entry.php'
+$localRouter = Join-Path $Destination 'laragon-router.php'
+$fullHtml = Join-Path $Destination '404.html'
+$rareBundle = Join-Path $Destination 'components\rare-folder-entry.bundle.js'
+foreach ($requiredFile in @($localEntry, $localRouter, $fullHtml, $rareBundle)) {
+    if (-not (Test-Path -LiteralPath $requiredFile)) {
+        throw "Falta un archivo requerido para la version local: $requiredFile"
+    }
+}
+
+# Apache/Laragon: la raiz del directorio debe abrir la entrada local completa,
+# no el index.php vacio que el proyecto conserva como punto de enrutamiento.
+$htaccessPath = Join-Path $Destination '.htaccess'
+if (Test-Path -LiteralPath $htaccessPath) {
+    $ht = Get-Content -LiteralPath $htaccessPath -Raw
+    if ($ht -notmatch '(?im)^\s*DirectoryIndex\s+laragon-local-entry\.php') {
+        $ht = "DirectoryIndex laragon-local-entry.php index.php index.html`r`n" + $ht
+    }
+    $ht = $ht -replace 'RewriteRule \^\(\.\*\)\$ router\.php \[QSA,L\]', 'RewriteRule ^(.*)$ laragon-router.php [QSA,L]'
+    Set-Content -LiteralPath $htaccessPath -Value $ht -Encoding UTF8
 }
 
 if (-not $SkipSupabasePrompt) {
@@ -180,7 +207,8 @@ if (-not $php) {
     } else {
         Write-Host 'Extensiones PHP principales: OK' -ForegroundColor Green
     }
-    & $php -l (Join-Path $Destination 'index.php')
+    & $php -l $localEntry
+    & $php -l $localRouter
     & $php -l (Join-Path $Destination 'router.php')
 }
 
@@ -197,13 +225,14 @@ $phpForBat = if ($php) { $php } else { 'php' }
 @echo off
 cd /d "$Destination"
 start "" "http://localhost:8000/"
-"$phpForBat" -S localhost:8000 router.php
+"$phpForBat" -S localhost:8000 laragon-router.php
 pause
 "@ | Set-Content -LiteralPath $serverBat -Encoding ASCII
 
 Write-Host ''
 Write-Host 'INSTALACION LOCAL COMPLETADA' -ForegroundColor Green
 Write-Host "Proyecto: $Destination"
+Write-Host 'La pantalla inicial local usa la misma animacion Rare UI/React-Motion de produccion.' -ForegroundColor Green
 Write-Host 'Opcion Laragon/Apache: http://localhost/Hashcod%20Codespace/'
 Write-Host 'Opcion servidor PHP: ejecuta SERVIDOR-PHP-8000.bat'
 Write-Host 'Si Laragon ya estaba abierto, pulsa Reload/Recargar para que Apache vea los cambios.'

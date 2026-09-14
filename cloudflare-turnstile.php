@@ -9,11 +9,11 @@
 if (!function_exists('secretGet')) {
     require_once __DIR__ . '/secrets.php';
 }
+require_once __DIR__ . '/desktop-runtime.php';
 
 function cfSanitizeKey($val) {
     if ($val === null || $val === false) return '';
     $val = trim((string)$val);
-    // Remover comillas accidentales de Render o .env
     if ((strlen($val) >= 2) && (($val[0] === '"' && substr($val, -1) === '"') || ($val[0] === "'" && substr($val, -1) === "'"))) {
         $val = trim(substr($val, 1, -1));
     }
@@ -21,16 +21,13 @@ function cfSanitizeKey($val) {
 }
 
 function cfTurnstileConfig() {
-    // 1. Claves resueltas dinámicamente para Hashcod Codespace
     $siteKey = '';
     $secretKey = '';
 
-    // 2. Cargar archivo .env si existe
     if (function_exists('loadEnvFile')) {
         loadEnvFile();
     }
 
-    // 3. Secret Files de Render (/etc/secrets/<KEY>)
     foreach (['/etc/secrets/CF_TURNSTILE_SITE_KEY', '/etc/secrets/cf_turnstile_site_key'] as $f) {
         if (is_readable($f)) {
             $val = cfSanitizeKey(@file_get_contents($f));
@@ -46,7 +43,6 @@ function cfTurnstileConfig() {
         }
     }
 
-    // 4. Bóveda cifrada AES-256-GCM
     if (function_exists('secretGet')) {
         $vSite = cfSanitizeKey(secretGet('CF_TURNSTILE_SITE_KEY', ''));
         if ($vSite !== '') $siteKey = $vSite;
@@ -54,7 +50,6 @@ function cfTurnstileConfig() {
         if ($vSec !== '') $secretKey = $vSec;
     }
 
-    // 5. Variables de entorno (.env / getenv)
     if (function_exists('envValue')) {
         $eSite = cfSanitizeKey(envValue('CF_TURNSTILE_SITE_KEY', ''));
         if ($eSite !== '') $siteKey = $eSite;
@@ -70,9 +65,10 @@ function cfTurnstileConfig() {
     $secretKey = cfSanitizeKey($secretKey);
 
     return [
-        'enabled' => !empty($siteKey) && !empty($secretKey),
-        'site_key' => $siteKey,
+        'enabled' => !empty($siteKey) && !empty($secretKey) && !hashcodDesktopBridgeValid(),
+        'site_key' => hashcodDesktopBridgeValid() ? '' : $siteKey,
         'secret_key' => $secretKey,
+        'desktop_bypass' => hashcodDesktopBridgeValid(),
     ];
 }
 
@@ -88,18 +84,20 @@ function cfTurnstileIsEnabled() {
 
 /**
  * Valida un token de Cloudflare Turnstile contra la API oficial.
- *
- * @param string $token Token obtenido en el frontend (cf-turnstile-response)
- * @param string|null $remoteIp Dirección IP del cliente (opcional)
- * @return array Resultado con 'ok', 'success', 'error_codes', etc.
  */
 function cfTurnstileVerify($token, $remoteIp = null) {
-    $token = trim((string)$token);
-    if ($token === '') {
+    // Cloudflare challenges are designed for the hosted public origin. The
+    // packaged desktop app is private loopback traffic authenticated by the
+    // Electron process bridge, so the public anti-bot challenge is unnecessary
+    // and would otherwise fail because 127.0.0.1 is not the production host.
+    if (hashcodDesktopBridgeValid()) {
         return [
-            'ok' => false,
-            'success' => false,
-            'error' => 'Token de Cloudflare Turnstile no suministrado'
+            'ok' => true,
+            'success' => true,
+            'bypassed' => true,
+            'desktop' => true,
+            'hostname' => '127.0.0.1',
+            'message' => 'Turnstile omitido dentro de la aplicación de escritorio autenticada.'
         ];
     }
 
@@ -113,7 +111,15 @@ function cfTurnstileVerify($token, $remoteIp = null) {
         ];
     }
 
-    // Soporte para tokens de prueba estándar de Cloudflare Turnstile
+    $token = trim((string)$token);
+    if ($token === '') {
+        return [
+            'ok' => false,
+            'success' => false,
+            'error' => 'Token de Cloudflare Turnstile no suministrado'
+        ];
+    }
+
     if ($token === '1x00000000000000000000AA' || $token === 'cf_test_pass_token') {
         return [
             'ok' => true,
@@ -144,7 +150,6 @@ function cfTurnstileVerify($token, $remoteIp = null) {
         'response' => $token
     ];
 
-    // Solo enviar remoteip si es una IP pública válida (evita errores con proxies locales o Render)
     $ip = $remoteIp ?: ($_SERVER['REMOTE_ADDR'] ?? '');
     if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
         $postData['remoteip'] = $ip;
@@ -152,7 +157,6 @@ function cfTurnstileVerify($token, $remoteIp = null) {
 
     $url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
-    // 1) Intentar con cURL
     if (function_exists('curl_init')) {
         $ch = curl_init($url);
         curl_setopt_array($ch, [
@@ -185,7 +189,6 @@ function cfTurnstileVerify($token, $remoteIp = null) {
         }
     }
 
-    // 2) Fallback con file_get_contents + stream_context
     $opts = [
         'http' => [
             'method' => 'POST',
@@ -217,10 +220,6 @@ function cfTurnstileVerify($token, $remoteIp = null) {
     ];
 }
 
-/**
- * Genera un token firmado HMAC de clearance para IPs que han completado Turnstile exitosamente.
- * Permite tráfico elevado sin desafíos por 15 minutos (900s).
- */
 function cfGenerateClearanceToken(?string $ip = null, int $ttl = 900): string {
     $ip = $ip ?: (function_exists('securityClientIp') ? securityClientIp() : ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'));
     $exp = time() + max(60, $ttl);
@@ -236,9 +235,6 @@ function cfGenerateClearanceToken(?string $ip = null, int $ttl = 900): string {
     return $encoded . '.' . $sig;
 }
 
-/**
- * Valida un token de clearance emitido por Cloudflare Turnstile.
- */
 function cfValidateClearanceToken(string $token, ?string $ip = null): bool {
     $token = trim($token);
     if ($token === '' || strpos($token, '.') === false) {
@@ -273,9 +269,6 @@ function cfValidateClearanceToken(string $token, ?string $ip = null): bool {
     return true;
 }
 
-/**
- * Dispatcher para endpoints de Cloudflare API / Turnstile
- */
 function cfTurnstileHandleApi($uri) {
     if (strpos($uri, '/api/cloudflare') !== 0) {
         return false;
@@ -284,20 +277,19 @@ function cfTurnstileHandleApi($uri) {
     header('Content-Type: application/json; charset=utf-8');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-    // 1. Configuración pública del widget (Site Key)
     if ($uri === '/api/cloudflare/turnstile/config' || $uri === '/api/cloudflare/config') {
         $cfg = cfTurnstileConfig();
         echo json_encode([
             'ok' => true,
             'enabled' => $cfg['enabled'],
             'site_key' => $cfg['site_key'],
+            'desktop_bypass' => !empty($cfg['desktop_bypass']),
             'service' => 'Cloudflare Turnstile',
-            'status' => 'active'
+            'status' => !empty($cfg['desktop_bypass']) ? 'desktop-local' : 'active'
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         return true;
     }
 
-    // 2. Estado general de Cloudflare (Turnstile + Durable Objects)
     if ($uri === '/api/cloudflare/status' || $uri === '/api/cloudflare') {
         $cfg = cfTurnstileConfig();
         $doConfigured = function_exists('doStorageDir') && is_dir(doStorageDir());
@@ -307,7 +299,7 @@ function cfTurnstileHandleApi($uri) {
             'turnstile' => [
                 'configured' => $cfg['enabled'],
                 'site_key' => $cfg['site_key'],
-                'mode' => 'managed'
+                'mode' => !empty($cfg['desktop_bypass']) ? 'desktop-loopback' : 'managed'
             ],
             'durable_objects' => [
                 'enabled' => $doConfigured,
@@ -318,7 +310,6 @@ function cfTurnstileHandleApi($uri) {
         return true;
     }
 
-    // 3. Verificación manual de token Turnstile
     if ($uri === '/api/cloudflare/turnstile/verify' && $method === 'POST') {
         $raw = file_get_contents('php://input');
         $data = json_decode($raw, true) ?: [];
@@ -328,7 +319,8 @@ function cfTurnstileHandleApi($uri) {
             $clearance = cfGenerateClearanceToken();
             $res['clearance_token'] = $clearance;
             if (!headers_sent()) {
-                header('Set-Cookie: cf_clearance=' . $clearance . '; Path=/; Max-Age=900; HttpOnly; Secure; SameSite=Strict');
+                $secure = hashcodDesktopEnabled() ? '' : '; Secure';
+                header('Set-Cookie: cf_clearance=' . $clearance . '; Path=/; Max-Age=900; HttpOnly' . $secure . '; SameSite=Strict');
             }
         }
         echo json_encode($res, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

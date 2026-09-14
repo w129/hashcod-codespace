@@ -51,3 +51,4 @@ local-app/desktop/payload/
 local-app/desktop/build/
 local-app/desktop/dist/
 local-app/desktop/package-lock.json
+local-app/desktop/rare-folder-entry.bundle.js

@@ -3,6 +3,18 @@
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/l8-html.php';
 
+// Public local-installer download. Route this before the generic security
+// bootstrap because direct *.php paths are deliberately denied elsewhere.
+// Support both a clean public URL and the legacy .php URL used by older clients.
+$bootstrapRequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
+$bootstrapRawPath = parse_url($bootstrapRequestUri, PHP_URL_PATH);
+$bootstrapRawPath = is_string($bootstrapRawPath) ? $bootstrapRawPath : '/';
+$bootstrapSyncPath = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $bootstrapRawPath);
+if (in_array($bootstrapSyncPath, ['/download-local-version', '/download-local-version.php'], true)) {
+    require __DIR__ . '/download-local-version.php';
+    exit;
+}
+
 // Background controllers are deliberate public entrypoints. The generic security
 // layer denies direct *.php paths and its normal API bucket may trigger an
 // interactive Turnstile challenge for legitimate polling/verification requests.
@@ -10,10 +22,6 @@ require_once __DIR__ . '/l8-html.php';
 // non-interactive status bucket before their own security bootstrap runs. Hard IP
 // threat blocks remain active, while write authorization stays inside each
 // controller (Windows Hello / Dilithium-5 / authenticated account as applicable).
-$bootstrapRequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
-$bootstrapRawPath = parse_url($bootstrapRequestUri, PHP_URL_PATH);
-$bootstrapRawPath = is_string($bootstrapRawPath) ? $bootstrapRawPath : '/';
-$bootstrapSyncPath = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $bootstrapRawPath);
 $bootstrapController = null;
 if (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], true)) {
     $bootstrapController = __DIR__ . '/hashcod-sync.php';

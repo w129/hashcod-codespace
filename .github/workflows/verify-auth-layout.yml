@@ -14,6 +14,7 @@ on:
       - components/cloud-device-sync.js
       - components/admin-hello-button.js
       - components/auth-vector-layout-fix.js
+      - components/auth-register-resilience.js
       - components/auth-utility-outside.css
       - components/platform-entry-slogan.js
       - components/boot-folder-animation.js
@@ -34,6 +35,7 @@ on:
       - supabase/migrations/20260913_create_secure_toolbox_links.sql
       - supabase/migrations/20260913_add_toolbox_access_signature_hash.sql
       - tests/e2e/test_auth_vector_layout_fix.js
+      - tests/e2e/test_auth_register_resilience.js
       - tests/e2e/test_auth_vector_tray.js
       - tests/e2e/test_boot_folder_animation.js
       - tests/e2e/test_vector_image_vault.js
@@ -42,6 +44,14 @@ on:
       - tests/e2e/test_mobile_platform_polish.js
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_secure_toolbox_links.js
+      - .github/workflows/verify-auth-layout.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - components/auth-vector-layout-fix.js
+      - components/auth-register-resilience.js
+      - tests/e2e/test_auth_register_resilience.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
 
@@ -54,6 +64,9 @@ jobs:
 
       - name: Syntax check auth layout script
         run: node --check components/auth-vector-layout-fix.js
+
+      - name: Syntax check auth registration resilience
+        run: node --check components/auth-register-resilience.js
 
       - name: Syntax check vector tray module
         run: node --check components/platform-entry-slogan.js
@@ -109,6 +122,9 @@ jobs:
 
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
+
+      - name: Verify account registration resilience
+        run: node tests/e2e/test_auth_register_resilience.js
 
       - name: Verify 3D auth vector tray contract
         run: node tests/e2e/test_auth_vector_tray.js

@@ -62,6 +62,20 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     overflow: visible;
 }
 
+/* The legacy inline card / bulb / glasses SVGs and the old celebration ::after
+   were still being painted underneath the new background strip. They are now
+   fully superseded by the normalized icon assets below, so hide only those
+   legacy decorations and keep the main ::before integration strip authoritative. */
+.boot-cli-footer .boot-card-icon > svg {
+    display: none !important;
+}
+
+.boot-cli-footer .boot-card-icon::after {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+}
+
 .boot-cli-footer .boot-card-icon::before {
     content: "";
     position: absolute;

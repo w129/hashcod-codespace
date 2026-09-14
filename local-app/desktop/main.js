@@ -4,19 +4,30 @@ const { app, BrowserWindow, dialog, shell, session } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const net = require('net');
+const crypto = require('crypto');
 const { spawn } = require('child_process');
 
 const APP_TITLE = 'Hashcod Codespace';
 const APP_ID = 'app.hashcod.codespace';
 const LOOPBACK_HOST = '127.0.0.1';
+const CLOUD_ORIGIN = 'https://hashcod-codespace-1.onrender.com';
 const PRESERVE_PATHS = ['.env', 'LOCAL-DB-CREDENTIALS.txt', 'data_storage', 'uploads'];
 const MIN_SPLASH_TIME_MS = 1800;
+const DESKTOP_ALLOWED_PERMISSIONS = new Set([
+    'media',
+    'clipboard-read',
+    'clipboard-sanitized-write',
+    'fullscreen',
+    'notifications',
+    'pointerLock'
+]);
 
 let mainWindow = null;
 let phpProcess = null;
 let localOrigin = '';
 let shuttingDown = false;
 let splashStartedAt = 0;
+let desktopBridgeToken = '';
 
 function log(message) {
     try {
@@ -44,6 +55,22 @@ function splashFilePath() {
 
 function localRuntimeRoot() {
     return path.join(app.getPath('userData'), 'runtime');
+}
+
+function ensureDesktopBridgeToken() {
+    if (!desktopBridgeToken) {
+        desktopBridgeToken = crypto.randomBytes(32).toString('hex');
+    }
+    return desktopBridgeToken;
+}
+
+function isLoopbackUrl(value) {
+    try {
+        const parsed = new URL(String(value || ''));
+        return parsed.protocol === 'http:' && parsed.hostname === LOOPBACK_HOST;
+    } catch (_) {
+        return false;
+    }
 }
 
 function copyPath(source, destination) {
@@ -179,6 +206,35 @@ function waitForPort(port, timeoutMs = 30000) {
     });
 }
 
+function installDesktopRequestBridge() {
+    const token = ensureDesktopBridgeToken();
+    session.defaultSession.webRequest.onBeforeSendHeaders(
+        { urls: ['http://127.0.0.1/*'] },
+        (details, callback) => {
+            const requestHeaders = Object.assign({}, details.requestHeaders || {});
+            requestHeaders['X-Hashcod-Desktop-Token'] = token;
+            requestHeaders['X-Hashcod-Desktop-App'] = APP_ID;
+            callback({ requestHeaders });
+        }
+    );
+}
+
+function installDesktopPermissionPolicy() {
+    const allowed = (webContents, permission, requestingOrigin) => {
+        const origin = String(requestingOrigin || (webContents && webContents.getURL ? webContents.getURL() : ''));
+        return isLoopbackUrl(origin) && DESKTOP_ALLOWED_PERMISSIONS.has(permission);
+    };
+
+    session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
+        const requestingOrigin = details && details.requestingUrl ? details.requestingUrl : '';
+        callback(allowed(webContents, permission, requestingOrigin));
+    });
+
+    session.defaultSession.setPermissionCheckHandler((webContents, permission, requestingOrigin) => {
+        return allowed(webContents, permission, requestingOrigin);
+    });
+}
+
 async function startLocalServer(sitePath) {
     const phpExe = resourcePath(path.join('php', 'php.exe'));
     const phpIni = resourcePath(path.join('php', 'php.ini'));
@@ -187,6 +243,7 @@ async function startLocalServer(sitePath) {
     }
 
     const port = await getFreePort();
+    localOrigin = `http://${LOOPBACK_HOST}:${port}`;
     const args = [];
     if (fs.existsSync(phpIni)) {
         args.push('-c', phpIni);
@@ -197,7 +254,11 @@ async function startLocalServer(sitePath) {
         ...process.env,
         APP_ENV: 'local',
         HASHCOD_DESKTOP: '1',
-        L8_TRUST_PROXY: '0'
+        HASHCOD_DESKTOP_ORIGIN: localOrigin,
+        HASHCOD_DESKTOP_ADMIN_TOKEN: ensureDesktopBridgeToken(),
+        HASHCOD_CLOUD_ORIGIN: CLOUD_ORIGIN,
+        L8_TRUST_PROXY: '0',
+        L8_REQUIRE_AUTH_MUTATIONS: '1'
     };
 
     phpProcess = spawn(phpExe, args, {
@@ -216,7 +277,6 @@ async function startLocalServer(sitePath) {
     });
 
     await waitForPort(port);
-    localOrigin = `http://${LOOPBACK_HOST}:${port}`;
     return localOrigin;
 }
 
@@ -280,7 +340,7 @@ function createWindow() {
     });
 
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-        if (localOrigin && url.startsWith(localOrigin)) {
+        if (isLoopbackUrl(url)) {
             return { action: 'allow' };
         }
         if (/^https?:\/\//i.test(url)) {
@@ -290,7 +350,7 @@ function createWindow() {
     });
 
     mainWindow.webContents.on('will-navigate', (event, url) => {
-        if (!localOrigin || url.startsWith(localOrigin) || url.startsWith('data:text/html') || url.startsWith('file:')) return;
+        if (isLoopbackUrl(url) || url.startsWith('data:text/html') || url.startsWith('file:')) return;
         event.preventDefault();
         if (/^https?:\/\//i.test(url)) {
             shell.openExternal(url).catch(() => {});
@@ -299,6 +359,11 @@ function createWindow() {
 
     mainWindow.webContents.on('render-process-gone', (_event, details) => {
         log(`renderer gone: ${JSON.stringify(details)}`);
+    });
+
+    mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+        if (!isMainFrame) return;
+        log(`load failure code=${errorCode} url=${validatedURL} description=${errorDescription}`);
     });
 
     showStartupSplash('Preparando la aplicación local en esta laptop…').catch((error) => {
@@ -356,7 +421,9 @@ if (!gotLock) {
         if (process.platform === 'win32') {
             app.setAppUserModelId(APP_ID);
         }
-        session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
+        ensureDesktopBridgeToken();
+        installDesktopRequestBridge();
+        installDesktopPermissionPolicy();
         await bootDesktop();
     });
 

@@ -54,9 +54,9 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 }
 
 /* Welcome screen integration strip.
-   Keep the comfortable 40px spacing inside every icon group. The new supplied
-   group is added to the left with a 32px group gap, without moving the existing
-   strip or allowing icons to collide. */
+   Keep the comfortable 40px spacing inside every icon group. The newest
+   supplied group now lives to the RIGHT of the existing strip with a 32px
+   inter-group gap, without moving the established icons or allowing overlap. */
 .boot-cli-footer .boot-card-icon {
     position: relative;
     overflow: visible;
@@ -67,7 +67,7 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     position: absolute;
     left: calc(50% - 810px);
     bottom: 4px;
-    width: 898px;
+    width: 1120px;
     height: 62px;
     background-image:
         url("boot-left-01.svg"),
@@ -109,15 +109,15 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         url("boot-fourth-top-icon.svg");
     background-repeat: no-repeat;
     background-position:
-        0 0,
-        40px 0,
-        80px 0,
-        120px 0,
-        160px 0,
-        0 34px,
-        40px 34px,
-        80px 34px,
-        120px 34px,
+        926px 0,
+        966px 0,
+        1006px 0,
+        1046px 0,
+        1086px 0,
+        926px 34px,
+        966px 34px,
+        1006px 34px,
+        1046px 34px,
         460px 34px,
         460px 0,
         420px 34px,
@@ -190,6 +190,6 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 @media (max-width: 1200px) {
     .boot-cli-footer .boot-card-icon::before {
         transform: scale(.86);
-        transform-origin: right bottom;
+        transform-origin: center bottom;
     }
 }

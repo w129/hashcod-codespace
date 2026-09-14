@@ -15,7 +15,7 @@ function Write-Step([string]$Message) {
 function Set-EnvValue([string]$File, [string]$Key, [string]$Value) {
     $escaped = [Regex]::Escape($Key)
     $lines = @()
-    if (Test-Path $File) { $lines = Get-Content -LiteralPath $File }
+    if (Test-Path -LiteralPath $File) { $lines = Get-Content -LiteralPath $File }
     $found = $false
     $out = foreach ($line in $lines) {
         if ($line -match "^$escaped=") {
@@ -31,90 +31,116 @@ function Set-EnvValue([string]$File, [string]$Key, [string]$Value) {
 
 function New-HexSecret([int]$Bytes = 32) {
     $data = New-Object byte[] $Bytes
-    [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($data)
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    try {
+        $rng.GetBytes($data)
+    } finally {
+        $rng.Dispose()
+    }
     return ([BitConverter]::ToString($data)).Replace('-', '').ToLowerInvariant()
 }
 
 function Find-LaragonPhp {
     $phpRoot = 'D:\laragon\bin\php'
-    if (-not (Test-Path $phpRoot)) { return $null }
+    if (-not (Test-Path -LiteralPath $phpRoot)) { return $null }
     $items = Get-ChildItem -Path $phpRoot -Filter php.exe -Recurse -ErrorAction SilentlyContinue |
         Sort-Object FullName -Descending
     if ($items) { return $items[0].FullName }
     return $null
 }
 
+function Copy-ProjectSafely([string]$Source, [string]$Target) {
+    New-Item -ItemType Directory -Force -Path $Target | Out-Null
+
+    # Nunca borrar el destino completo: data_storage puede tener archivos de cache
+    # abiertos por PHP/Laragon. Sincronizamos solo el codigo y preservamos el estado
+    # local (.env, data_storage y cualquier .git local).
+    $robocopy = Get-Command robocopy.exe -ErrorAction SilentlyContinue
+    if ($robocopy) {
+        Write-Host 'Sincronizando archivos sin tocar .env ni data_storage...' -ForegroundColor DarkCyan
+        $args = @(
+            $Source,
+            $Target,
+            '*',
+            '/E',
+            '/R:2',
+            '/W:1',
+            '/COPY:DAT',
+            '/DCOPY:DAT',
+            '/NFL',
+            '/NDL',
+            '/NP',
+            '/NJH',
+            '/NJS',
+            '/XD', '.git', 'data_storage',
+            '/XF', '.env'
+        )
+        & robocopy.exe @args
+        $roboCode = $LASTEXITCODE
+        if ($roboCode -ge 8) {
+            throw "Robocopy no pudo sincronizar el proyecto (codigo $roboCode)."
+        }
+        # Robocopy usa codigos 1-7 para resultados correctos; no deben convertirse
+        # en el codigo de salida del instalador.
+        $global:LASTEXITCODE = 0
+        return
+    }
+
+    Write-Host 'Robocopy no disponible; usando copia segura de PowerShell.' -ForegroundColor Yellow
+    Get-ChildItem -LiteralPath $Source -Force | ForEach-Object {
+        if ($_.Name -in @('.env', '.git', 'data_storage')) { return }
+        $dest = Join-Path $Target $_.Name
+        if ($_.PSIsContainer) {
+            New-Item -ItemType Directory -Force -Path $dest | Out-Null
+            Copy-Item -Path (Join-Path $_.FullName '*') -Destination $dest -Recurse -Force -ErrorAction Stop
+            Get-ChildItem -LiteralPath $_.FullName -Force |
+                Where-Object { $_.Name -like '.*' } |
+                ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $dest -Recurse -Force -ErrorAction Stop }
+        } else {
+            Copy-Item -LiteralPath $_.FullName -Destination $dest -Force -ErrorAction Stop
+        }
+    }
+}
+
 Write-Host 'Hashcod Codespace - Instalador local para Laragon' -ForegroundColor Green
 Write-Host "Destino: $Destination"
 
 $laragonRoot = 'D:\laragon'
-if (-not (Test-Path $laragonRoot)) {
+if (-not (Test-Path -LiteralPath $laragonRoot)) {
     throw 'No se encontro D:\laragon. Instala/ubica Laragon en D:\laragon o ejecuta este script con -Destination apuntando a tu carpeta www.'
 }
 
 $parent = Split-Path -Parent $Destination
 New-Item -ItemType Directory -Force -Path $parent | Out-Null
-
-# Preserve local-only state before refreshing project files.
-$tempKeep = Join-Path $env:TEMP ('hashcod-local-keep-' + [guid]::NewGuid().ToString('N'))
-New-Item -ItemType Directory -Force -Path $tempKeep | Out-Null
-foreach ($name in @('.env', 'data_storage')) {
-    $src = Join-Path $Destination $name
-    if (Test-Path $src) {
-        Copy-Item -LiteralPath $src -Destination $tempKeep -Recurse -Force
-    }
-}
+New-Item -ItemType Directory -Force -Path $Destination | Out-Null
 
 Write-Step 'Descargando la rama main completa desde GitHub'
-$git = Get-Command git -ErrorAction SilentlyContinue
-if ($git) {
-    if (Test-Path (Join-Path $Destination '.git')) {
-        Push-Location $Destination
-        try {
-            git fetch origin $Branch
-            git reset --hard "origin/$Branch"
-        } finally {
-            Pop-Location
-        }
-    } else {
-        if (Test-Path $Destination) {
-            Get-ChildItem -LiteralPath $Destination -Force | Remove-Item -Recurse -Force
-        }
-        git clone --branch $Branch --depth 1 "https://github.com/$Repo.git" "$Destination"
-    }
-} else {
-    $zip = Join-Path $env:TEMP ('hashcod-codespace-' + [guid]::NewGuid().ToString('N') + '.zip')
-    $extract = Join-Path $env:TEMP ('hashcod-codespace-' + [guid]::NewGuid().ToString('N'))
+$tempRoot = Join-Path $env:TEMP ('hashcod-codespace-install-' + [guid]::NewGuid().ToString('N'))
+$zip = Join-Path $tempRoot 'hashcod-codespace.zip'
+$extract = Join-Path $tempRoot 'extract'
+New-Item -ItemType Directory -Force -Path $tempRoot, $extract | Out-Null
+
+try {
     Invoke-WebRequest -Uri $RepoZip -OutFile $zip -UseBasicParsing
     Expand-Archive -LiteralPath $zip -DestinationPath $extract -Force
     $source = Get-ChildItem -LiteralPath $extract -Directory | Select-Object -First 1
     if (-not $source) { throw 'No se pudo extraer el repositorio descargado.' }
-    New-Item -ItemType Directory -Force -Path $Destination | Out-Null
-    Get-ChildItem -LiteralPath $Destination -Force | Remove-Item -Recurse -Force
-    Copy-Item -Path (Join-Path $source.FullName '*') -Destination $Destination -Recurse -Force
-    Get-ChildItem -LiteralPath $source.FullName -Force |
-        Where-Object { $_.Name -like '.*' } |
-        ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force }
-    Remove-Item -LiteralPath $zip -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath $extract -Recurse -Force -ErrorAction SilentlyContinue
+
+    Write-Step 'Sincronizando el codigo sin borrar tus datos locales'
+    Copy-ProjectSafely -Source $source.FullName -Target $Destination
+} finally {
+    Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-# Restore local-only files/state.
-foreach ($name in @('.env', 'data_storage')) {
-    $saved = Join-Path $tempKeep $name
-    if (Test-Path $saved) {
-        $dest = Join-Path $Destination $name
-        if (Test-Path $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
-        Copy-Item -LiteralPath $saved -Destination $dest -Recurse -Force
-    }
-}
-Remove-Item -LiteralPath $tempKeep -Recurse -Force -ErrorAction SilentlyContinue
+# Garantiza que exista el area de datos local sin reemplazar nada que ya tenga.
+$dataStorage = Join-Path $Destination 'data_storage'
+New-Item -ItemType Directory -Force -Path $dataStorage | Out-Null
 
 Write-Step 'Preparando variables locales'
 $envFile = Join-Path $Destination '.env'
 $envExample = Join-Path $Destination '.env.example'
-if (-not (Test-Path $envFile)) {
-    if (Test-Path $envExample) {
+if (-not (Test-Path -LiteralPath $envFile)) {
+    if (Test-Path -LiteralPath $envExample) {
         Copy-Item -LiteralPath $envExample -Destination $envFile -Force
     } else {
         New-Item -ItemType File -Path $envFile -Force | Out-Null
@@ -236,4 +262,5 @@ Write-Host 'La pantalla inicial local usa la misma animacion Rare UI/React-Motio
 Write-Host 'Opcion Laragon/Apache: http://localhost/Hashcod%20Codespace/'
 Write-Host 'Opcion servidor PHP: ejecuta SERVIDOR-PHP-8000.bat'
 Write-Host 'Si Laragon ya estaba abierto, pulsa Reload/Recargar para que Apache vea los cambios.'
+Write-Host 'Tu .env y data_storage se preservan durante futuras actualizaciones.' -ForegroundColor Green
 Write-Host 'Tu .env queda solo en la PC y no debe subirse a GitHub.' -ForegroundColor Yellow

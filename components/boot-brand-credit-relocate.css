@@ -38,8 +38,7 @@
     opacity: 0 !important;
 }
 
-/* Dedicated inline SVG node for the exact dotted icon supplied by the user.
-   Keeping the SVG inline prevents asset/cache loading from making it disappear. */
+/* Dedicated inline SVG node for the exact dotted icon supplied by the user. */
 .boot-brand > .boot-brand-logos.hashcod-credit-under-brand .hashcod-credit-crown-icon {
     display: inline-flex !important;
     visibility: visible !important;
@@ -71,51 +70,59 @@
     opacity: .66 !important;
 }
 
-/* Hosted/virtual platform only: local application download row. */
+/* Hosted/virtual platform only: compact local application download row.
+   It is a second metadata row directly below the crown + creator credit. */
 .boot-brand > .hashcod-local-download-row {
     position: absolute !important;
     left: var(--hashcod-credit-text-left, 50%) !important;
-    top: calc(100% + 45px) !important;
+    top: calc(100% + 43px) !important;
     right: auto !important;
     bottom: auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 7px !important;
+    gap: 6px !important;
     width: max-content !important;
-    max-width: 280px !important;
+    max-width: 230px !important;
+    min-width: 0 !important;
+    height: 22px !important;
     margin: 0 !important;
     padding: 0 !important;
     z-index: 9 !important;
     white-space: nowrap !important;
     pointer-events: auto !important;
-    color: #707070 !important;
+    color: #767676 !important;
     font-family: inherit !important;
+    line-height: 1 !important;
 }
 
 .boot-brand > .hashcod-local-download-row .hashcod-local-download-button {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 24px !important;
-    height: 24px !important;
-    min-width: 24px !important;
-    flex: 0 0 24px !important;
+    width: 21px !important;
+    height: 21px !important;
+    min-width: 21px !important;
+    max-width: 21px !important;
+    min-height: 21px !important;
+    max-height: 21px !important;
+    flex: 0 0 21px !important;
     margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
-    border-radius: 5px !important;
+    border-radius: 4px !important;
     background: transparent !important;
-    color: #111 !important;
+    color: #4a4a4a !important;
     text-decoration: none !important;
     cursor: pointer !important;
-    opacity: .88 !important;
+    opacity: .9 !important;
+    overflow: hidden !important;
     transition: transform .16s ease, opacity .16s ease, background-color .16s ease !important;
 }
 
 .boot-brand > .hashcod-local-download-row .hashcod-local-download-button:hover,
 .boot-brand > .hashcod-local-download-row .hashcod-local-download-button:focus-visible {
-    transform: translateY(-1px) scale(1.05) !important;
+    transform: translateY(-1px) !important;
     opacity: 1 !important;
     background: rgba(0,0,0,.045) !important;
     outline: none !important;
@@ -123,9 +130,14 @@
 
 .boot-brand > .hashcod-local-download-row .hashcod-local-download-button svg {
     display: block !important;
-    width: 18px !important;
-    height: 18px !important;
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+    max-width: 17px !important;
+    min-height: 17px !important;
+    max-height: 17px !important;
     fill: currentColor !important;
+    flex: 0 0 17px !important;
 }
 
 .boot-brand > .hashcod-local-download-row .hashcod-local-download-text {
@@ -133,9 +145,9 @@
     margin: 0 !important;
     padding: 0 !important;
     color: #7b7b7b !important;
-    font-size: 10.5px !important;
+    font-size: 10px !important;
     font-weight: 400 !important;
-    line-height: 1.15 !important;
+    line-height: 1 !important;
     letter-spacing: -0.01em !important;
     white-space: nowrap !important;
 }
@@ -160,7 +172,7 @@
     }
 
     .boot-brand > .hashcod-local-download-row {
-        top: calc(100% + 39px) !important;
+        top: calc(100% + 38px) !important;
         transform: scale(.94) !important;
         transform-origin: left top !important;
     }

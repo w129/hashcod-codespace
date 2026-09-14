@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/desktop-runtime.php';
+
 // Public credential explicitly enrolled by the owner. No enrollment API can replace it.
 const ADMIN_DEVICE_RP = 'hashcod-codespace-1.onrender.com';
 const ADMIN_DEVICE_ORIGIN = 'https://' . ADMIN_DEVICE_RP;
@@ -17,6 +19,10 @@ function adminUnb64($value): string {
 }
 
 function adminClientIp(array $server): string {
+    // The installed desktop shell is bound to loopback and authenticates every
+    // request with a random per-process bridge token that is never exposed to JS.
+    if (hashcodDesktopBridgeValid()) return '127.0.0.1';
+
     // Render's public ingress is protected by Cloudflare. Caddy overwrites this
     // private upstream header with Cloudflare's single visitor address. XFF can
     // contain an attacker-controlled prefix and must never authorize a client.
@@ -26,12 +32,14 @@ function adminClientIp(array $server): string {
 }
 
 function adminIpAllowed(string $ip): bool {
+    if (hashcodDesktopBridgeValid()) return true;
     // Exact IPv4 /24 approved by the owner; no IPv6 or textual prefix matching.
     if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) return false;
     return substr(inet_pton($ip), 0, 3) === substr(inet_pton(explode('/', ADMIN_DEVICE_NETWORK)[0]), 0, 3);
 }
 
 function adminSameOrigin(array $server): bool {
+    if (hashcodDesktopBridgeValid()) return true;
     if (($server['HTTP_HOST'] ?? '') !== ADMIN_DEVICE_RP) return false;
     if (isset($server['HTTP_ORIGIN'])) return $server['HTTP_ORIGIN'] === ADMIN_DEVICE_ORIGIN;
     return ($server['REQUEST_METHOD'] ?? '') === 'GET' && ($server['HTTP_SEC_FETCH_SITE'] ?? '') === 'same-origin';
@@ -54,12 +62,24 @@ function adminSession(): void {
     ini_set('session.use_only_cookies', '1');
     ini_set('session.gc_maxlifetime', '900');
     session_save_path($dir);
-    session_name('__Host-hashcod_admin');
-    session_set_cookie_params(['lifetime'=>0, 'path'=>'/', 'secure'=>true, 'httponly'=>true, 'samesite'=>'Strict']);
+
+    $desktop = hashcodDesktopEnabled();
+    session_name($desktop ? 'hashcod_desktop_admin' : '__Host-hashcod_admin');
+    session_set_cookie_params([
+        'lifetime'=>0,
+        'path'=>'/',
+        'secure'=>!$desktop,
+        'httponly'=>true,
+        'samesite'=>'Strict'
+    ]);
     if (!session_start()) adminJson(503, ['ok'=>false, 'error'=>'Sesión administrativa no disponible']);
 }
 
 function adminAuthorized(): bool {
+    // Desktop authorization is not a public bypass: the PHP server listens only
+    // on 127.0.0.1 and Electron injects a 256-bit process token into each request.
+    if (hashcodDesktopBridgeValid()) return true;
+
     if (!adminIpAllowed(adminClientIp($_SERVER)) || !adminSameOrigin($_SERVER)) return false;
     adminSession();
     return ($_SESSION['admin_until'] ?? 0) > time()
@@ -101,12 +121,33 @@ function adminVerifyAssertion(array $input, string $challenge, string $id = ADMI
 function adminDeviceApi(string $path): void {
     if (!str_starts_with($path, '/api/admin-device/')) return;
     if (!adminSameOrigin($_SERVER)) adminJson(403, ['ok'=>false, 'error'=>'Origen no autorizado']);
+
+    $desktop = hashcodDesktopBridgeValid();
     $allowed = adminIpAllowed(adminClientIp($_SERVER));
     if ($path === '/api/admin-device/status' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
-        adminJson(200, ['ok'=>true, 'ipAllowed'=>$allowed, 'detectedIp'=>adminClientIp($_SERVER), 'authenticated'=>$allowed && adminAuthorized()]);
+        adminJson(200, [
+            'ok'=>true,
+            'ipAllowed'=>$allowed,
+            'detectedIp'=>adminClientIp($_SERVER),
+            'authenticated'=>$desktop || ($allowed && adminAuthorized()),
+            'desktop'=>$desktop,
+            'authMode'=>$desktop ? 'desktop-loopback-bridge' : 'windows-hello'
+        ]);
     }
+
     if (!$allowed) adminJson(403, ['ok'=>false, 'error'=>'Estas herramientas requieren la red ' . ADMIN_DEVICE_NETWORK . ' y Windows Hello de la laptop registrada.']);
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') adminJson(405, ['ok'=>false, 'error'=>'Método no permitido']);
+
+    // In the packaged desktop app the trusted Electron bridge is the device
+    // boundary. No hosted-origin WebAuthn assertion can be generated from
+    // 127.0.0.1, so challenge/verify report the already-authenticated state.
+    if ($desktop && in_array($path, ['/api/admin-device/challenge', '/api/admin-device/verify', '/api/admin-device/authorize'], true)) {
+        adminJson(200, ['ok'=>true, 'authenticated'=>true, 'desktop'=>true, 'expiresIn'=>0]);
+    }
+    if ($desktop && $path === '/api/admin-device/logout') {
+        adminJson(200, ['ok'=>true, 'authenticated'=>true, 'desktop'=>true]);
+    }
+
     adminSession();
     if ($path === '/api/admin-device/challenge') {
         if (($_SESSION['last_challenge'] ?? 0) > time() - 2) adminJson(429, ['ok'=>false, 'error'=>'Espera un momento antes de reintentar.']);

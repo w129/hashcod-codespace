@@ -55,7 +55,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: curl, fileinfo, mbstring, openssl, zip
+          extensions: curl, fileinfo, mbstring, openssl, zip, gd, intl, sodium
           ini-values: memory_limit=512M, max_execution_time=120, upload_max_filesize=100M, post_max_size=100M
           coverage: none
 
@@ -90,14 +90,16 @@ jobs:
             'max_execution_time=120',
             'upload_max_filesize=100M',
             'post_max_size=100M',
+            'max_file_uploads=100',
             'variables_order="EGPCS"',
+            'allow_url_fopen=On',
             'expose_php=Off',
             'display_errors=Off',
             'display_startup_errors=Off',
             'log_errors=On',
             'extension_dir="ext"'
           )
-          foreach ($extension in @('curl', 'fileinfo', 'mbstring', 'openssl', 'zip')) {
+          foreach ($extension in @('curl', 'fileinfo', 'mbstring', 'openssl', 'zip', 'gd', 'intl', 'sodium')) {
             $dll = Join-Path $phpDestination ("ext\php_{0}.dll" -f $extension)
             if (Test-Path -LiteralPath $dll) {
               $iniLines += "extension=$extension"
@@ -105,10 +107,15 @@ jobs:
           }
           Set-Content -LiteralPath (Join-Path $phpDestination 'php.ini') -Value $iniLines -Encoding ASCII
 
-          & (Join-Path $phpDestination 'php.exe') -c (Join-Path $phpDestination 'php.ini') -l (Join-Path $site 'router.php')
-          if ($LASTEXITCODE -ne 0) {
-            throw 'router.php did not pass PHP syntax validation.'
+          $desktopPhp = Join-Path $phpDestination 'php.exe'
+          $desktopIni = Join-Path $phpDestination 'php.ini'
+          foreach ($file in @('router.php', 'desktop-runtime.php', 'admin-device.php', 'cloudflare-turnstile.php', 'hashcod-sync.php')) {
+            & $desktopPhp -c $desktopIni -l (Join-Path $site $file)
+            if ($LASTEXITCODE -ne 0) {
+              throw "$file did not pass PHP syntax validation."
+            }
           }
+          & $desktopPhp -c $desktopIni -m
 
       - name: Verify hosted source is present in desktop payload
         shell: pwsh
@@ -150,6 +157,65 @@ jobs:
 
           Set-Content -LiteralPath (Join-Path $site '.hashcod-desktop-source') -Value $env:GITHUB_SHA -Encoding ASCII
           Write-Host "Desktop payload parity verified for source commit $env:GITHUB_SHA"
+
+      - name: Verify desktop runtime contract
+        run: node tests/e2e/test_desktop_runtime_contract.js
+
+      - name: Smoke test local PHP desktop backend
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $site = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\payload\site'
+          $php = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\payload\php\php.exe'
+          $ini = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\payload\php\php.ini'
+
+          $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+          $listener.Start()
+          $port = ([System.Net.IPEndPoint]$listener.LocalEndpoint).Port
+          $listener.Stop()
+
+          $token = 'desktop-ci-' + ('a' * 64)
+          $origin = "http://127.0.0.1:$port"
+          $env:APP_ENV = 'local'
+          $env:HASHCOD_DESKTOP = '1'
+          $env:HASHCOD_DESKTOP_ORIGIN = $origin
+          $env:HASHCOD_DESKTOP_ADMIN_TOKEN = $token
+          $env:HASHCOD_CLOUD_ORIGIN = 'https://hashcod-codespace-1.onrender.com'
+          $env:L8_TRUST_PROXY = '0'
+
+          $stdout = Join-Path $env:RUNNER_TEMP 'hashcod-desktop-php-out.log'
+          $stderr = Join-Path $env:RUNNER_TEMP 'hashcod-desktop-php-err.log'
+          $proc = Start-Process -FilePath $php -ArgumentList @('-c', $ini, '-S', "127.0.0.1:$port", 'router.php') -WorkingDirectory $site -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru -WindowStyle Hidden
+
+          try {
+            $headers = @{ 'X-Hashcod-Desktop-Token' = $token; 'X-Hashcod-Desktop-App' = 'app.hashcod.codespace' }
+            $ready = $false
+            for ($i = 0; $i -lt 60; $i++) {
+              try {
+                $root = Invoke-WebRequest -Uri "$origin/" -Headers $headers -UseBasicParsing -TimeoutSec 2
+                if ($root.StatusCode -eq 200) { $ready = $true; break }
+              } catch {}
+              Start-Sleep -Milliseconds 250
+            }
+            if (-not $ready) {
+              Get-Content $stderr -ErrorAction SilentlyContinue
+              throw 'Desktop PHP server did not become ready.'
+            }
+
+            $admin = Invoke-RestMethod -Uri "$origin/api/admin-device/status" -Headers $headers -Method Get -TimeoutSec 5
+            if (-not $admin.ok -or -not $admin.authenticated -or -not $admin.desktop) {
+              throw "Desktop admin bridge failed: $($admin | ConvertTo-Json -Compress)"
+            }
+
+            $turnstile = Invoke-RestMethod -Uri "$origin/api/cloudflare/turnstile/config" -Headers $headers -Method Get -TimeoutSec 5
+            if (-not $turnstile.ok -or -not $turnstile.desktop_bypass -or $turnstile.enabled) {
+              throw "Desktop Turnstile compatibility failed: $($turnstile | ConvertTo-Json -Compress)"
+            }
+
+            Write-Host 'Desktop local backend smoke test: OK'
+          } finally {
+            if ($proc -and -not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+          }
 
       - name: Install desktop build dependencies
         working-directory: local-app/desktop

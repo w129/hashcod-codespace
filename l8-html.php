@@ -119,7 +119,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/admin-hello-button.css?v=20260913-sequence10" data-hashcod-boot-icons-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260913-1" data-hashcod-boot-brand-credit-relocate-style="true">';
 
         // If the previous page closed with Duo, mark this page before first paint
         // so it can open from the closed state without flashing the normal page.
@@ -191,7 +192,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/topbar-windows-hello.js?v=20260913-1" data-hashcod-topbar-windows-hello="true"></script>'
             . '<script defer src="' . $base . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260913-1" data-hashcod-entry-capability-footer-fix="true"></script>';
+            . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260913-1" data-hashcod-entry-capability-footer-fix="true"></script>'
+            . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260913-1" data-hashcod-boot-brand-credit-relocate="true"></script>';
         $bodyPos = strripos($html, '</body>');
         if ($bodyPos !== false) {
             $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);

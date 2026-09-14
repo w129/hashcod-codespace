@@ -1,16 +1,15 @@
 /* Keep the creator credit directly under the Hashcod Codespace text block. */
 .boot-brand {
     overflow: visible !important;
-    /* Give the complete Hashcod Codespace lockup a stronger presence in the
-       large white welcome area while preserving its current placement. */
-    scale: 1.42 !important;
+    /* Keep the complete lockup at the balanced reference size supplied by the user. */
+    scale: 1.40 !important;
     transform-origin: center center !important;
 }
 
 .boot-brand > .boot-brand-logos.hashcod-credit-under-brand {
     position: absolute !important;
     left: var(--hashcod-credit-text-left, 50%) !important;
-    top: calc(100% + 13px) !important;
+    top: calc(100% + 12px) !important;
     right: auto !important;
     bottom: auto !important;
     transform: none !important;
@@ -71,21 +70,21 @@
 }
 
 /* Hosted/virtual platform only: compact local application download row.
-   It is a second metadata row directly below the crown + creator credit. */
+   It stays inside the same visual footprint as the reference lockup. */
 .boot-brand > .hashcod-local-download-row {
     position: absolute !important;
     left: var(--hashcod-credit-text-left, 50%) !important;
-    top: calc(100% + 43px) !important;
+    top: calc(100% + 40px) !important;
     right: auto !important;
     bottom: auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 6px !important;
+    gap: 5px !important;
     width: max-content !important;
-    max-width: 230px !important;
+    max-width: 205px !important;
     min-width: 0 !important;
-    height: 22px !important;
+    height: 19px !important;
     margin: 0 !important;
     padding: 0 !important;
     z-index: 9 !important;
@@ -100,13 +99,13 @@
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 21px !important;
-    height: 21px !important;
-    min-width: 21px !important;
-    max-width: 21px !important;
-    min-height: 21px !important;
-    max-height: 21px !important;
-    flex: 0 0 21px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
+    flex: 0 0 18px !important;
     margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
@@ -130,14 +129,14 @@
 
 .boot-brand > .hashcod-local-download-row .hashcod-local-download-button svg {
     display: block !important;
-    width: 17px !important;
-    height: 17px !important;
-    min-width: 17px !important;
-    max-width: 17px !important;
-    min-height: 17px !important;
-    max-height: 17px !important;
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    max-width: 14px !important;
+    min-height: 14px !important;
+    max-height: 14px !important;
     fill: currentColor !important;
-    flex: 0 0 17px !important;
+    flex: 0 0 14px !important;
 }
 
 .boot-brand > .hashcod-local-download-row .hashcod-local-download-text {
@@ -145,24 +144,23 @@
     margin: 0 !important;
     padding: 0 !important;
     color: #7b7b7b !important;
-    font-size: 10px !important;
+    font-size: 9.25px !important;
     font-weight: 400 !important;
     line-height: 1 !important;
     letter-spacing: -0.01em !important;
     white-space: nowrap !important;
 }
 
-/* Scale down progressively so the larger lockup stays balanced and never
-   crowds nearby welcome-screen elements on narrower displays. */
+/* Scale down progressively while preserving the same proportions. */
 @media (max-width: 1100px) {
     .boot-brand {
-        scale: 1.28 !important;
+        scale: 1.25 !important;
     }
 }
 
 @media (max-width: 760px) {
     .boot-brand {
-        scale: 1.12 !important;
+        scale: 1.08 !important;
     }
 
     .boot-brand > .boot-brand-logos.hashcod-credit-under-brand {
@@ -172,7 +170,7 @@
     }
 
     .boot-brand > .hashcod-local-download-row {
-        top: calc(100% + 38px) !important;
+        top: calc(100% + 36px) !important;
         transform: scale(.94) !important;
         transform-origin: left top !important;
     }

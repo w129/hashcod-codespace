@@ -9,8 +9,8 @@
  */
 
 :root {
-    --hashcod-duo-close-ms: 560ms;
-    --hashcod-duo-open-ms: 620ms;
+    --hashcod-duo-close-ms: 1200ms;
+    --hashcod-duo-open-ms: 1300ms;
     --hashcod-duo-black: #000;
 }
 
@@ -83,8 +83,8 @@ html.hashcod-duo-transitioning body {
 
 @media (prefers-reduced-motion: reduce) {
     :root {
-        --hashcod-duo-close-ms: 130ms;
-        --hashcod-duo-open-ms: 150ms;
+        --hashcod-duo-close-ms: 180ms;
+        --hashcod-duo-open-ms: 200ms;
     }
 
     html.hashcod-duo-transitioning body {

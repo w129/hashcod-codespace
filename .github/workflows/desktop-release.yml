@@ -5,12 +5,15 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
 
 concurrency:
-  group: hashcod-codespace-desktop-release
+  group: hashcod-codespace-desktop-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -126,7 +129,7 @@ jobs:
           retention-days: 14
 
       - name: Publish stable desktop download
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}

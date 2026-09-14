@@ -1,46 +1,33 @@
 (function () {
     'use strict';
 
-    const BUTTON_ID = 'hashcodPercentFeatureButton';
+    if (window.__hashcodPercentFeatureTrayLoaded) return;
+    window.__hashcodPercentFeatureTrayLoaded = true;
+
+    const TOOL_ID = 'percent-feature';
+    const TRAY_SLOT = 3;
     const MODAL_ID = 'hashcodPercentFeatureModal';
     const WINDOW_ID = 'hashcodPercentFeatureWindow';
     const CONTENT_ID = 'hashcodPercentFeatureContent';
     const CLOSE_ID = 'hashcodPercentFeatureClose';
-    const ASSET_VERSION = '20260913-3';
 
-    function asset(path) {
-        const base = document.querySelector('base[href]');
-        const baseHref = base ? base.getAttribute('href') : '/';
-        try {
-            return new URL(path, new URL(baseHref, window.location.href)).toString();
-        } catch (_) {
-            return path;
-        }
+    // Exact user-supplied percent/starburst SVG. It belongs in the fourth
+    // Vector Module cube (slot 3), immediately after the three existing tools.
+    const PERCENT_ICON = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false" style="display:block;width:78%;height:78%;max-width:39px;max-height:39px;overflow:visible">',
+            '<polygon points="113,65 101.545,76.136 105.904,91.508 90.405,95.406 86.507,110.905 71.136,106.545 60,118 48.864,106.545 33.492,110.904 29.594,95.405 14.095,91.507 18.455,76.136 7,65 18.455,53.864 14.096,38.492 29.595,34.594 33.493,19.095 48.864,23.455 60,12 71.136,23.455 86.508,19.096 90.406,34.595 105.905,38.493 101.545,53.864" opacity=".35"></polygon>',
+            '<polygon fill="#ff1200" points="113,60 101.545,71.136 105.904,86.508 90.405,90.406 86.507,105.905 71.136,101.545 60,113 48.864,101.545 33.492,105.904 29.594,90.405 14.095,86.507 18.455,71.136 7,60 18.455,48.864 14.096,33.492 29.595,29.594 33.493,14.095 48.864,18.455 60,7 71.136,18.455 86.508,14.096 90.406,29.595 105.905,33.493 101.545,48.864"></polygon>',
+            '<path d="M44.746,39c6.986,0,12.372,5.13,12.372,12.63c0,7.37-5.386,12.563-12.372,12.563s-12.5-5.13-12.5-12.563C32.246,44.13,37.76,39,44.746,39z M50.45,51.63c0-4.165-2.884-6.409-5.705-6.409c-2.884,0-5.77,2.244-5.77,6.409c0,4.04,2.821,6.409,5.77,6.409C47.567,58.04,50.45,55.67,50.45,51.63z M71.859,40.153h7.821L48.206,87.909h-7.818L71.859,40.153z M75.385,63.744c6.986,0,12.37,5.125,12.37,12.625c0,7.437-5.384,12.63-12.37,12.63s-12.5-5.193-12.5-12.63C62.885,68.87,68.399,63.744,75.385,63.744z M75.385,82.784c2.821,0,5.705-2.312,5.705-6.414c0-4.165-2.884-6.341-5.705-6.341c-2.884,0-5.77,2.176-5.77,6.341C69.615,80.472,72.436,82.784,75.385,82.784z" opacity=".35"></path>',
+            '<path fill="#fff" d="M44.746,35c6.986,0,12.372,5.13,12.372,12.63c0,7.37-5.386,12.563-12.372,12.563s-12.5-5.13-12.5-12.563C32.246,40.13,37.76,35,44.746,35z M50.45,47.63c0-4.165-2.884-6.409-5.705-6.409c-2.884,0-5.77,2.244-5.77,6.409c0,4.04,2.821,6.409,5.77,6.409C47.567,54.04,50.45,51.67,50.45,47.63z M71.859,36.153h7.821L48.206,83.909h-7.818L71.859,36.153z M75.385,59.744c6.986,0,12.37,5.125,12.37,12.625c0,7.437-5.384,12.63-12.37,12.63s-12.5-5.193-12.5-12.63C62.885,64.87,68.399,59.744,75.385,59.744z M75.385,78.784c2.821,0,5.705-2.312,5.705-6.414c0-4.165-2.884-6.341-5.705-6.341c-2.884,0-5.77,2.176-5.77,6.341C69.615,80.472,72.436,78.784,75.385,78.784z"></path>',
+        '</svg>'
+    ].join('');
+
+    function removeLegacyFloatingButton() {
+        const legacy = document.getElementById('hashcodPercentFeatureButton');
+        if (legacy && legacy.parentNode) legacy.parentNode.removeChild(legacy);
     }
 
-    function createUi() {
-        let button = document.getElementById(BUTTON_ID);
-        if (!button) {
-            button = document.createElement('button');
-            button.id = BUTTON_ID;
-            document.body.appendChild(button);
-        }
-
-        button.type = 'button';
-        button.hidden = false;
-        button.setAttribute('aria-label', 'Abrir ventana de función');
-        button.setAttribute('aria-haspopup', 'dialog');
-        button.setAttribute('data-anchor', 'auth-vector-tray');
-
-        let icon = button.querySelector('img');
-        if (!icon) {
-            icon = document.createElement('img');
-            icon.alt = '';
-            icon.setAttribute('aria-hidden', 'true');
-            button.replaceChildren(icon);
-        }
-        icon.src = asset('components/percent-feature-button.svg?v=' + ASSET_VERSION);
-
+    function ensureModal() {
         let modal = document.getElementById(MODAL_ID);
         if (!modal) {
             modal = document.createElement('div');
@@ -54,81 +41,12 @@
                 '</div>';
             document.body.appendChild(modal);
         }
-
-        return { button, modal };
-    }
-
-    function isElementVisible(el) {
-        if (!el || !el.isConnected) return false;
-        const rect = el.getBoundingClientRect();
-        if (rect.width < 1 || rect.height < 1) return false;
-        const style = window.getComputedStyle(el);
-        if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
-        return rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
-    }
-
-    function getVisibleAuthOverlay() {
-        const overlays = Array.from(document.querySelectorAll('#authOverlay'));
-        return overlays.find(function (overlay) {
-            return !overlay.classList.contains('hidden') && isElementVisible(overlay);
-        }) || null;
-    }
-
-    function getVisibleTray(overlay) {
-        if (!overlay) return null;
-        const localTray = overlay.querySelector('#hashcodVectorTray');
-        if (localTray && isElementVisible(localTray)) return localTray;
-
-        return Array.from(document.querySelectorAll('#hashcodVectorTray')).find(isElementVisible) || null;
-    }
-
-    function getAuthAnchor() {
-        const overlay = getVisibleAuthOverlay();
-        if (!overlay) return null;
-        const tray = getVisibleTray(overlay);
-        if (!tray) return null;
-        return { overlay, tray };
-    }
-
-    function hideButton(button) {
-        if (!button) return;
-        button.classList.remove('is-visible');
-        button.setAttribute('aria-hidden', 'true');
-    }
-
-    function positionButton() {
-        const ui = createUi();
-        const button = ui.button;
-        const anchor = getAuthAnchor();
-
-        if (!anchor) {
-            hideButton(button);
-            return;
-        }
-
-        const trayRect = anchor.tray.getBoundingClientRect();
-        const buttonSize = window.innerWidth <= 700
-            ? 84
-            : Math.max(96, Math.min(118, window.innerWidth * .068));
-        const sidePad = 18;
-        const gap = window.innerWidth <= 700 ? 14 : 24;
-
-        const rawX = trayRect.left + trayRect.width / 2;
-        const x = Math.max(buttonSize / 2 + sidePad, Math.min(window.innerWidth - buttonSize / 2 - sidePad, rawX));
-        const rawY = trayRect.top - buttonSize / 2 - gap;
-        const y = Math.max(buttonSize / 2 + sidePad, Math.min(window.innerHeight - buttonSize / 2 - sidePad, rawY));
-
-        button.style.left = x + 'px';
-        button.style.top = y + 'px';
-        button.style.zIndex = '2147483646';
-        button.removeAttribute('aria-hidden');
-        button.classList.add('is-visible');
+        return modal;
     }
 
     function openModal() {
-        const modal = document.getElementById(MODAL_ID);
+        const modal = ensureModal();
         const close = document.getElementById(CLOSE_ID);
-        if (!modal) return;
         modal.hidden = false;
         modal.setAttribute('aria-hidden', 'false');
         document.documentElement.classList.add('hashcod-percent-window-open');
@@ -142,26 +60,20 @@
 
     function closeModal() {
         const modal = document.getElementById(MODAL_ID);
-        const button = document.getElementById(BUTTON_ID);
         if (!modal) return;
         modal.hidden = true;
         modal.setAttribute('aria-hidden', 'true');
         document.documentElement.classList.remove('hashcod-percent-window-open');
-        if (button && button.classList.contains('is-visible')) button.focus({ preventScroll: true });
+        const trayButton = document.querySelector('#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]');
+        if (trayButton && typeof trayButton.focus === 'function') trayButton.focus({ preventScroll: true });
     }
 
-    function bindUi() {
-        const ui = createUi();
-
-        if (ui.button.dataset.hashcodPercentBound !== 'true') {
-            ui.button.dataset.hashcodPercentBound = 'true';
-            ui.button.addEventListener('click', openModal);
-        }
-
-        if (ui.modal.dataset.hashcodPercentBound !== 'true') {
-            ui.modal.dataset.hashcodPercentBound = 'true';
-            ui.modal.addEventListener('click', function (event) {
-                if (event.target === ui.modal) closeModal();
+    function bindModal() {
+        const modal = ensureModal();
+        if (modal.dataset.hashcodPercentBound !== 'true') {
+            modal.dataset.hashcodPercentBound = 'true';
+            modal.addEventListener('click', function (event) {
+                if (event.target === modal) closeModal();
             });
         }
 
@@ -174,49 +86,53 @@
         if (document.documentElement.dataset.hashcodPercentEscapeBound !== 'true') {
             document.documentElement.dataset.hashcodPercentEscapeBound = 'true';
             document.addEventListener('keydown', function (event) {
-                const modal = document.getElementById(MODAL_ID);
-                if (event.key === 'Escape' && modal && !modal.hidden) closeModal();
+                const current = document.getElementById(MODAL_ID);
+                if (event.key === 'Escape' && current && !current.hidden) closeModal();
             });
         }
     }
 
-    function init() {
-        bindUi();
-        positionButton();
+    function registerTrayTool() {
+        removeLegacyFloatingButton();
+        if (!window.HashcodVectorTray || typeof window.HashcodVectorTray.registerTool !== 'function') return false;
 
-        let frame = 0;
-        const schedule = function () {
-            cancelAnimationFrame(frame);
-            frame = requestAnimationFrame(function () {
-                bindUi();
-                positionButton();
-            });
-        };
+        window.HashcodVectorTray.registerTool({
+            slot: TRAY_SLOT,
+            id: TOOL_ID,
+            label: 'Función porcentual',
+            iconSvg: PERCENT_ICON,
+            onClick: openModal
+        });
 
-        if (document.documentElement.dataset.hashcodPercentObserversBound !== 'true') {
-            document.documentElement.dataset.hashcodPercentObserversBound = 'true';
-            window.addEventListener('resize', schedule, { passive: true });
-            window.addEventListener('scroll', schedule, { passive: true });
-
-            const observer = new MutationObserver(schedule);
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true,
-                attributes: true,
-                attributeFilter: ['class', 'style', 'hidden']
-            });
-
-            if ('ResizeObserver' in window) {
-                const resizeObserver = new ResizeObserver(schedule);
-                resizeObserver.observe(document.body);
-            }
+        const slotButton = document.querySelector('#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]');
+        if (slotButton) {
+            slotButton.disabled = false;
+            slotButton.removeAttribute('disabled');
+            slotButton.setAttribute('aria-label', 'Abrir función porcentual');
+            slotButton.setAttribute('title', 'Función porcentual');
+            slotButton.style.setProperty('pointer-events', 'auto', 'important');
         }
+        return Boolean(slotButton);
+    }
 
-        window.setTimeout(schedule, 100);
-        window.setTimeout(schedule, 350);
-        window.setTimeout(schedule, 800);
-        window.setTimeout(schedule, 1600);
-        window.setTimeout(schedule, 3000);
+    function scheduleRegistration() {
+        const delays = [0, 80, 200, 450, 900, 1600, 2800, 4500, 7000];
+        delays.forEach(function (delay) {
+            window.setTimeout(registerTrayTool, delay);
+        });
+    }
+
+    function init() {
+        removeLegacyFloatingButton();
+        bindModal();
+        scheduleRegistration();
+
+        const observer = new MutationObserver(function () {
+            if (!document.querySelector('#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"] svg')) {
+                registerTrayTool();
+            }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
     if (document.readyState === 'loading') {

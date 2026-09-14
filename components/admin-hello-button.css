@@ -54,10 +54,9 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
 }
 
 /* Welcome screen integration strip.
-   The new lead icon occupies the far-left single slot. The existing two-row
-   integration group is shifted slightly to the right so it never collides with
-   that icon. The complete strip is vertically centered against the same footer
-   axis as the Enter platform button. */
+   The lead icon is slightly larger and receives extra breathing room before the
+   existing two-row integration group. The complete strip stays centered on the
+   same vertical axis as the Enter platform button. */
 .boot-cli-footer .boot-card-icon {
     position: relative;
     overflow: visible;
@@ -69,7 +68,7 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
     left: 50%;
     top: 50%;
     bottom: auto;
-    width: 1158px;
+    width: 1178px;
     height: 62px;
     transform: translate(-50%, -50%);
     transform-origin: center center;
@@ -124,56 +123,56 @@ html:not([data-admin-authenticated="true"]) #d5LauncherBtn {
         url("boot-fourth-top-icon.svg");
     background-repeat: no-repeat;
     background-position:
-        0 8px,
-        770px 0,
-        810px 0,
-        850px 0,
-        890px 0,
-        930px 0,
-        770px 34px,
-        810px 34px,
-        850px 34px,
-        890px 34px,
-        930px 34px,
-        970px 0,
-        970px 34px,
-        1010px 0,
-        1010px 34px,
-        1050px 0,
-        1050px 34px,
-        1090px 0,
-        1090px 34px,
-        1130px 0,
-        304px 34px,
-        304px 0,
-        264px 34px,
-        264px 0,
-        224px 34px,
-        224px 0,
-        184px 34px,
-        184px 0,
-        144px 34px,
-        144px 0,
-        104px 34px,
-        104px 0,
-        64px 34px,
-        496px 34px,
-        496px 0,
-        456px 34px,
-        456px 0,
-        416px 34px,
-        416px 0,
-        376px 34px,
-        376px 0,
-        336px 34px,
-        536px 0,
-        536px 34px,
-        576px 0,
-        622px 0,
-        664px 0,
-        710px 0;
+        0 5px,
+        790px 0,
+        830px 0,
+        870px 0,
+        910px 0,
+        950px 0,
+        790px 34px,
+        830px 34px,
+        870px 34px,
+        910px 34px,
+        950px 34px,
+        990px 0,
+        990px 34px,
+        1030px 0,
+        1030px 34px,
+        1070px 0,
+        1070px 34px,
+        1110px 0,
+        1110px 34px,
+        1150px 0,
+        324px 34px,
+        324px 0,
+        284px 34px,
+        284px 0,
+        244px 34px,
+        244px 0,
+        204px 34px,
+        204px 0,
+        164px 34px,
+        164px 0,
+        124px 34px,
+        124px 0,
+        84px 34px,
+        516px 34px,
+        516px 0,
+        476px 34px,
+        476px 0,
+        436px 34px,
+        436px 0,
+        396px 34px,
+        396px 0,
+        356px 34px,
+        556px 0,
+        556px 34px,
+        596px 0,
+        642px 0,
+        684px 0,
+        730px 0;
     background-size:
-        46px 46px,
+        52px 52px,
         28px 28px,
         28px 28px,
         28px 28px,

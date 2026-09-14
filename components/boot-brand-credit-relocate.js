@@ -5,7 +5,7 @@
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
     function loadPercentFeatureAssets() {
-        const version = '20260913-2';
+        const version = '20260913-3';
         const baseEl = document.querySelector('base[href]');
         const baseHref = baseEl ? baseEl.getAttribute('href') : '/';
         let baseUrl = '/';
@@ -13,20 +13,30 @@
             baseUrl = new URL(baseHref, window.location.href).toString();
         } catch (_) {}
 
-        if (!document.querySelector('link[data-hashcod-percent-feature-style]')) {
-            const link = document.createElement('link');
+        let link = document.querySelector('link[data-hashcod-percent-feature-style]');
+        if (!link) {
+            link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = new URL('components/percent-feature-button.css?v=' + version, baseUrl).toString();
             link.setAttribute('data-hashcod-percent-feature-style', 'true');
             document.head.appendChild(link);
         }
+        link.href = new URL('components/percent-feature-button.css?v=' + version, baseUrl).toString();
 
-        if (!document.querySelector('script[data-hashcod-percent-feature]')) {
-            const script = document.createElement('script');
-            script.defer = true;
-            script.src = new URL('components/percent-feature-button.js?v=' + version, baseUrl).toString();
-            script.setAttribute('data-hashcod-percent-feature', 'true');
-            document.head.appendChild(script);
+        let percentScript = document.querySelector('script[data-hashcod-percent-feature]');
+        if (!percentScript) {
+            percentScript = document.createElement('script');
+            percentScript.defer = true;
+            percentScript.setAttribute('data-hashcod-percent-feature', 'true');
+            percentScript.src = new URL('components/percent-feature-button.js?v=' + version, baseUrl).toString();
+            document.head.appendChild(percentScript);
+        }
+
+        if (!document.querySelector('script[data-hashcod-auth-tabs-rescue]')) {
+            const rescueScript = document.createElement('script');
+            rescueScript.defer = true;
+            rescueScript.src = new URL('components/auth-tabs-rescue.js?v=' + version, baseUrl).toString();
+            rescueScript.setAttribute('data-hashcod-auth-tabs-rescue', 'true');
+            document.head.appendChild(rescueScript);
         }
     }
 

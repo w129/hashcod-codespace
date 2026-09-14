@@ -92,7 +92,8 @@ $bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){functi
     . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer-fix.js?v=20260913-1" data-hashcod-entry-capability-footer-fix="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260914-5" data-hashcod-boot-brand-credit-relocate="true"></script>';
+    . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260914-5" data-hashcod-boot-brand-credit-relocate="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/laragon-credit-align.js?v=20260914-local1" data-hashcod-laragon-credit-align="true"></script>';
 
 $bodyPos = strripos($html, '</body>');
 if ($bodyPos !== false) {

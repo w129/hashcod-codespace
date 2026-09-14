@@ -35,6 +35,7 @@
     object-fit: contain !important;
     margin: 0 6px 0 0 !important;
     opacity: .75 !important;
+    content: url("boot-credit-cat-icon.svg?v=20260914-1") !important;
 }
 
 .boot-brand > .boot-brand-logos.hashcod-credit-under-brand .boot-hashcod-logo {

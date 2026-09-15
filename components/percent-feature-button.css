@@ -59,49 +59,84 @@
     z-index: 2147483647;
     display: grid;
     place-items: center;
-    padding: 24px;
-    background: rgba(10, 10, 10, .24);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    padding: clamp(14px, 2.4vw, 28px);
+    background: rgba(18, 18, 20, .22);
+    backdrop-filter: blur(15px) saturate(135%);
+    -webkit-backdrop-filter: blur(15px) saturate(135%);
 }
 
 #hashcodPercentFeatureWindow {
     position: relative;
-    width: min(640px, calc(100vw - 40px));
-    height: min(420px, calc(100vh - 72px));
-    min-height: 260px;
+    isolation: isolate;
+    width: min(680px, calc(100vw - 32px));
+    height: min(430px, calc(100svh - 56px));
+    min-height: 250px;
     overflow: hidden;
-    border: 1px solid rgba(17, 17, 17, .18);
-    border-radius: 22px;
-    background: rgba(255, 255, 255, .97);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, .22);
-    animation: hashcodPercentWindowIn .24s cubic-bezier(.2,.8,.2,1) both;
+    border: 1px solid rgba(255, 255, 255, .72);
+    border-radius: clamp(22px, 3vw, 32px);
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, .68), rgba(255, 255, 255, .34) 54%, rgba(248, 248, 250, .24));
+    box-shadow:
+        0 30px 90px rgba(0, 0, 0, .20),
+        inset 0 1px 0 rgba(255, 255, 255, .92),
+        inset 0 -1px 0 rgba(255, 255, 255, .34);
+    backdrop-filter: blur(34px) saturate(185%) contrast(104%);
+    -webkit-backdrop-filter: blur(34px) saturate(185%) contrast(104%);
+    animation: hashcodPercentWindowIn .28s cubic-bezier(.2,.8,.2,1) both;
+}
+
+#hashcodPercentFeatureWindow::before,
+#hashcodPercentFeatureWindow::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#hashcodPercentFeatureWindow::before {
+    inset: 0;
+    background:
+        radial-gradient(circle at 18% 6%, rgba(255, 255, 255, .95), transparent 34%),
+        linear-gradient(115deg, rgba(255, 255, 255, .40), transparent 37% 68%, rgba(255, 255, 255, .20));
+    opacity: .82;
+}
+
+#hashcodPercentFeatureWindow::after {
+    width: 48%;
+    height: 46%;
+    right: -12%;
+    bottom: -18%;
+    border-radius: 50%;
+    background: rgba(255, 18, 0, .07);
+    filter: blur(32px);
 }
 
 #hashcodPercentFeatureContent {
+    position: relative;
+    z-index: 1;
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: clamp(30px, 6vw, 64px);
+    padding: clamp(32px, 6vw, 66px);
     box-sizing: border-box;
 }
 
 .hashcod-percent-offer {
-    width: 100%;
+    width: min(100%, 590px);
     min-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: clamp(10px, 2vh, 20px);
+    gap: clamp(8px, 1.4vh, 16px);
     text-align: center;
     color: #ff1200;
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: 900;
-    line-height: .96;
-    letter-spacing: -0.045em;
+    font-family: "IBM Plex Sans", "Segoe UI Variable", "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 760;
+    line-height: .98;
+    letter-spacing: -0.038em;
     text-wrap: balance;
     user-select: none;
 }
@@ -109,48 +144,74 @@
 .hashcod-percent-offer-label {
     display: block;
     width: 100%;
-    font-size: clamp(42px, 7vw, 78px);
+    max-width: 12ch;
+    font-size: clamp(30px, 5.4vw, 56px);
+    font-weight: 720;
+    line-height: .98;
+    letter-spacing: -0.035em;
+    color: #ef1b0c;
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, .72),
+        0 10px 30px rgba(255, 18, 0, .10);
 }
 
 .hashcod-percent-offer-price {
     display: block;
     width: 100%;
+    font-size: clamp(58px, 10.2vw, 108px);
+    font-weight: 820;
+    line-height: .88;
+    letter-spacing: -0.052em;
     color: #ff1200;
-    font-size: clamp(72px, 13vw, 142px);
-    font-weight: 950;
-    line-height: .86;
-    letter-spacing: -0.055em;
+    background: linear-gradient(180deg, #ff453a 0%, #ff1200 52%, #dc0f00 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 12px 20px rgba(255, 18, 0, .12));
 }
 
 #hashcodPercentFeatureClose {
     position: absolute;
-    top: 14px;
-    right: 14px;
-    z-index: 2;
-    width: 36px;
-    height: 36px;
-    border: 1px solid rgba(17, 17, 17, .14);
+    top: clamp(12px, 2vw, 16px);
+    right: clamp(12px, 2vw, 16px);
+    z-index: 3;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(255, 255, 255, .78);
     border-radius: 50%;
-    background: #fff;
+    background: rgba(255, 255, 255, .48);
     color: #111;
-    font: 500 24px/1 Arial, sans-serif;
+    font: 600 23px/1 "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
     cursor: pointer;
     display: grid;
     place-items: center;
-    box-shadow: 0 5px 14px rgba(0, 0, 0, .08);
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, .10),
+        inset 0 1px 0 rgba(255, 255, 255, .90);
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
 }
 
 #hashcodPercentFeatureClose:hover {
-    background: #f4f4f4;
+    background: rgba(255, 255, 255, .70);
+    transform: scale(1.045);
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, .13),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+#hashcodPercentFeatureClose:active {
+    transform: scale(.96);
 }
 
 #hashcodPercentFeatureClose:focus-visible {
-    outline: 2px solid #111;
+    outline: 2px solid rgba(17, 17, 17, .82);
     outline-offset: 3px;
 }
 
 @keyframes hashcodPercentWindowIn {
-    from { opacity: 0; transform: translateY(12px) scale(.97); }
+    from { opacity: 0; transform: translateY(14px) scale(.965); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -161,31 +222,92 @@
     }
 
     #hashcodPercentFeatureModal {
-        padding: 14px;
+        padding: 12px;
     }
 
     #hashcodPercentFeatureWindow {
-        width: calc(100vw - 28px);
-        height: min(68vh, 420px);
-        border-radius: 18px;
+        width: calc(100vw - 24px);
+        height: min(64svh, 390px);
+        min-height: 280px;
+        border-radius: 24px;
     }
 
     #hashcodPercentFeatureContent {
-        padding: 28px 20px;
+        padding: 42px 22px 28px;
+    }
+
+    .hashcod-percent-offer {
+        gap: 8px;
     }
 
     .hashcod-percent-offer-label {
-        font-size: clamp(38px, 11vw, 64px);
+        max-width: 11ch;
+        font-size: clamp(28px, 9.2vw, 46px);
+        line-height: 1;
     }
 
     .hashcod-percent-offer-price {
-        font-size: clamp(68px, 21vw, 116px);
+        font-size: clamp(56px, 18vw, 92px);
+        line-height: .92;
+    }
+}
+
+@media (max-width: 420px) {
+    #hashcodPercentFeatureWindow {
+        height: min(58svh, 350px);
+        min-height: 250px;
+    }
+
+    #hashcodPercentFeatureContent {
+        padding: 44px 16px 24px;
+    }
+
+    .hashcod-percent-offer-label {
+        font-size: clamp(26px, 9.5vw, 38px);
+    }
+
+    .hashcod-percent-offer-price {
+        font-size: clamp(52px, 18.5vw, 78px);
+    }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+    #hashcodPercentFeatureWindow {
+        height: calc(100svh - 28px);
+        min-height: 220px;
+    }
+
+    #hashcodPercentFeatureContent {
+        padding: 28px 70px 24px;
+    }
+
+    .hashcod-percent-offer {
+        gap: 4px;
+    }
+
+    .hashcod-percent-offer-label {
+        font-size: clamp(24px, 5.6vh, 38px);
+    }
+
+    .hashcod-percent-offer-price {
+        font-size: clamp(48px, 13vh, 82px);
+    }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    #hashcodPercentFeatureWindow {
+        background: rgba(255, 255, 255, .94);
+    }
+
+    #hashcodPercentFeatureClose {
+        background: rgba(255, 255, 255, .92);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     #hashcodPercentFeatureButton,
-    #hashcodPercentFeatureWindow {
+    #hashcodPercentFeatureWindow,
+    #hashcodPercentFeatureClose {
         transition: none !important;
         animation: none !important;
     }

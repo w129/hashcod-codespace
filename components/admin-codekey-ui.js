@@ -5,7 +5,7 @@
     window.__hashcodAdminCodeKeyUiLoaded = true;
 
     const ENGINE_ID = 'hashcodCodeKeyAdminEngineV1';
-    const ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode:normal"><g transform="scale(5.33333,5.33333)"><path d="M33.5,10c-7.456,0 -13.5,6.044 -13.5,13.5c0,7.456 6.044,13.5 13.5,13.5c7.456,0 13.5,-6.044 13.5,-13.5c0,-7.456 -6.044,-13.5 -13.5,-13.5zM33.5,30c-3.59,0 -6.5,-2.91 -6.5,-6.5c0,-3.59 2.91,-6.5 6.5,-6.5c3.59,0 6.5,2.91 6.5,6.5c0,3.59 -2.91,6.5 -6.5,6.5z" fill="#000000"></path><path d="M19.14,28.051v-0.003c-1.18,1.204 -2.822,1.952 -4.64,1.952c-3.59,0 -6.5,-2.91 -6.5,-6.5c0,-3.59 2.91,-6.5 6.5,-6.5c1.83,0 3.481,0.759 4.662,1.976l3.75,-6.024c-2.308,-1.843 -5.229,-2.952 -8.412,-2.952c-7.456,0 -13.5,6.044 -13.5,13.5c0,7.456 6.044,13.5 13.5,13.5c3.164,0 6.067,-1.097 8.369,-2.919z" fill="#000000"></path><path d="M8,23.5c0,-1.787 0.722,-3.405 1.889,-4.58l-4.855,-5.038c-2.488,2.448 -4.034,5.851 -4.034,9.618c0,3.749 1.53,7.14 3.998,9.586l4.934,-4.964c-1.192,-1.178 -1.932,-2.813 -1.932,-4.622z" fill="#262626"></path><path d="M38.13,18.941c1.155,1.173 1.87,2.782 1.87,4.559c0,3.59 -2.91,6.5 -6.5,6.5c-1.826,0 -3.474,-0.755 -4.655,-1.968l-4.999,4.895c2.452,2.51 5.868,4.073 9.654,4.073c7.456,0 13.5,-6.044 13.5,-13.5c0,-3.684 -1.479,-7.019 -3.871,-9.455z" fill="#262626"></path></g></g></svg>';
+    const ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" aria-hidden="true" focusable="false" data-hashcod-codekey-icon="true"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode:normal"><g transform="scale(5.33333,5.33333)"><path d="M33.5,10c-7.456,0 -13.5,6.044 -13.5,13.5c0,7.456 6.044,13.5 13.5,13.5c7.456,0 13.5,-6.044 13.5,-13.5c0,-7.456 -6.044,-13.5 -13.5,-13.5zM33.5,30c-3.59,0 -6.5,-2.91 -6.5,-6.5c0,-3.59 2.91,-6.5 6.5,-6.5c3.59,0 6.5,2.91 6.5,6.5c0,3.59 -2.91,6.5 -6.5,6.5z" fill="#000000"></path><path d="M19.14,28.051v-0.003c-1.18,1.204 -2.822,1.952 -4.64,1.952c-3.59,0 -6.5,-2.91 -6.5,-6.5c0,-3.59 2.91,-6.5 6.5,-6.5c1.83,0 3.481,0.759 4.662,1.976l3.75,-6.024c-2.308,-1.843 -5.229,-2.952 -8.412,-2.952c-7.456,0 -13.5,6.044 -13.5,13.5c0,7.456 6.044,13.5 13.5,13.5c3.164,0 6.067,-1.097 8.369,-2.919z" fill="#000000"></path><path d="M8,23.5c0,-1.787 0.722,-3.405 1.889,-4.58l-4.855,-5.038c-2.488,2.448 -4.034,5.851 -4.034,9.618c0,3.749 1.53,7.14 3.998,9.586l4.934,-4.964c-1.192,-1.178 -1.932,-2.813 -1.932,-4.622z" fill="#262626"></path><path d="M38.13,18.941c1.155,1.173 1.87,2.782 1.87,4.559c0,3.59 -2.91,6.5 -6.5,6.5c-1.826,0 -3.474,-0.755 -4.655,-1.968l-4.999,4.895c2.452,2.51 5.868,4.073 9.654,4.073c7.456,0 13.5,-6.044 13.5,-13.5c0,-3.684 -1.479,-7.019 -3.871,-9.455z" fill="#262626"></path></g></g></svg>';
     const ICON_SMALL = ICON.replace('width="32" height="32"', 'width="22" height="22"');
 
     function componentBase() {
@@ -17,17 +17,23 @@
     const base = componentBase();
 
     function ensureCodeKeyEngine() {
+        if (window.HashcodAdmin && window.HashcodAdmin.authMode === 'codekey-ipynb') return Promise.resolve(true);
         let script = document.getElementById(ENGINE_ID);
-        if (script && script.dataset.loaded === 'true') return Promise.resolve(true);
+        if (script && script.dataset.loaded === 'true') {
+            return Promise.resolve(Boolean(window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function'));
+        }
         if (!script) {
             script = document.createElement('script');
             script.id = ENGINE_ID;
-            script.src = base + 'admin-device.js?v=20260915-codekey1';
+            script.src = base + 'admin-device.js?v=20260915-codekey2';
             script.defer = true;
             document.head.appendChild(script);
         }
         return new Promise(resolve => {
-            if (script.dataset.loaded === 'true') { resolve(true); return; }
+            if (script.dataset.loaded === 'true') {
+                resolve(Boolean(window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function'));
+                return;
+            }
             script.addEventListener('load', function () {
                 script.dataset.loaded = 'true';
                 resolve(Boolean(window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function'));
@@ -77,13 +83,16 @@
         const button = document.getElementById('adminHelloButton');
         if (!button) return false;
 
-        const label = button.querySelector('span');
-        const svg = button.querySelector('svg');
-        if (svg) svg.outerHTML = ICON;
-        else button.insertAdjacentHTML('afterbegin', ICON);
-        if (label) label.textContent = 'Increase the HVV';
-        else button.insertAdjacentHTML('beforeend', '<span>Increase the HVV</span>');
-        button.setAttribute('aria-label', 'Increase the HVV · cargar CodeKey Jupyter');
+        if (button.dataset.hashcodCodeKeyVisual !== 'true') {
+            const label = button.querySelector('span');
+            const svg = button.querySelector('svg');
+            if (svg) svg.outerHTML = ICON;
+            else button.insertAdjacentHTML('afterbegin', ICON);
+            if (label) label.textContent = 'Increase the HVV';
+            else button.insertAdjacentHTML('beforeend', '<span>Increase the HVV</span>');
+            button.setAttribute('aria-label', 'Increase the HVV · cargar CodeKey Jupyter');
+            button.dataset.hashcodCodeKeyVisual = 'true';
+        }
         renderState(button, document.documentElement.dataset.adminAuthenticated === 'true');
 
         if (button.dataset.hashcodCodeKeyBound === 'true') return true;
@@ -116,7 +125,10 @@
     function patchTopbarButton() {
         const button = document.getElementById('topBarWindowsHelloBtn');
         if (!button) return false;
-        button.innerHTML = ICON_SMALL;
+        if (button.dataset.hashcodCodeKeyVisual !== 'true') {
+            button.innerHTML = ICON_SMALL;
+            button.dataset.hashcodCodeKeyVisual = 'true';
+        }
         renderState(button, document.documentElement.dataset.adminAuthenticated === 'true');
         if (button.dataset.hashcodCodeKeyBound === 'true') return true;
         button.dataset.hashcodCodeKeyBound = 'true';

@@ -149,10 +149,22 @@
     font-weight: 720;
     line-height: .98;
     letter-spacing: -0.035em;
-    color: #ef1b0c;
-    text-shadow:
-        0 1px 0 rgba(255, 255, 255, .72),
-        0 10px 30px rgba(255, 18, 0, .10);
+    color: rgba(255, 18, 0, .58);
+    background: linear-gradient(115deg,
+        rgba(255, 255, 255, .78) 0%,
+        rgba(255, 95, 82, .72) 11%,
+        rgba(255, 18, 0, .56) 34%,
+        rgba(255, 255, 255, .34) 47%,
+        rgba(255, 18, 0, .52) 61%,
+        rgba(203, 12, 0, .44) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: .75px rgba(255, 255, 255, .24);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .40);
+    filter:
+        drop-shadow(0 6px 10px rgba(255, 18, 0, .10))
+        drop-shadow(0 14px 28px rgba(255, 18, 0, .08));
 }
 
 .hashcod-percent-offer-price {
@@ -162,12 +174,22 @@
     font-weight: 820;
     line-height: .88;
     letter-spacing: -0.052em;
-    color: #ff1200;
-    background: linear-gradient(180deg, #ff453a 0%, #ff1200 52%, #dc0f00 100%);
+    color: rgba(255, 18, 0, .58);
+    background: linear-gradient(112deg,
+        rgba(255, 255, 255, .84) 0%,
+        rgba(255, 103, 91, .76) 9%,
+        rgba(255, 18, 0, .58) 31%,
+        rgba(255, 255, 255, .38) 45%,
+        rgba(255, 18, 0, .54) 59%,
+        rgba(210, 14, 0, .46) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 12px 20px rgba(255, 18, 0, .12));
+    -webkit-text-stroke: 1px rgba(255, 255, 255, .26);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
+    filter:
+        drop-shadow(0 8px 14px rgba(255, 18, 0, .12))
+        drop-shadow(0 18px 34px rgba(255, 18, 0, .10));
 }
 
 #hashcodPercentFeatureClose {

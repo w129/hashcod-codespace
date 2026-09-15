@@ -22,9 +22,21 @@
         '</svg>'
     ].join('');
 
+    const OFFER_MARKUP =
+        '<div class="hashcod-percent-offer" aria-label="All services at: 10US$">' +
+            '<span class="hashcod-percent-offer-label">All services at:</span>' +
+            '<strong class="hashcod-percent-offer-price">10US$</strong>' +
+        '</div>';
+
     function removeLegacyFloatingButton() {
         const legacy = document.getElementById('hashcodPercentFeatureButton');
         if (legacy && legacy.parentNode) legacy.parentNode.removeChild(legacy);
+    }
+
+    function renderOffer() {
+        const content = document.getElementById(CONTENT_ID);
+        if (!content) return;
+        content.innerHTML = OFFER_MARKUP;
     }
 
     function ensureModal() {
@@ -35,18 +47,20 @@
             modal.hidden = true;
             modal.setAttribute('aria-hidden', 'true');
             modal.innerHTML =
-                '<div id="' + WINDOW_ID + '" role="dialog" aria-modal="true" aria-label="Ventana de función">' +
+                '<div id="' + WINDOW_ID + '" role="dialog" aria-modal="true" aria-label="All services at: 10US$">' +
                     '<button id="' + CLOSE_ID + '" type="button" aria-label="Cerrar">×</button>' +
-                    '<div id="' + CONTENT_ID + '" data-hashcod-percent-content="true"></div>' +
+                    '<div id="' + CONTENT_ID + '" data-hashcod-percent-content="true">' + OFFER_MARKUP + '</div>' +
                 '</div>';
             document.body.appendChild(modal);
         }
+        renderOffer();
         return modal;
     }
 
     function openModal() {
         const modal = ensureModal();
         const close = document.getElementById(CLOSE_ID);
+        renderOffer();
         modal.hidden = false;
         modal.setAttribute('aria-hidden', 'false');
         document.documentElement.classList.add('hashcod-percent-window-open');

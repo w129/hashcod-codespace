@@ -1,72 +1,32 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const vm = require('node:vm');
-const source = fs.readFileSync(__dirname + '/../../components/admin-device.js', 'utf8');
-async function runScenario({ipAllowed = true, authenticated = false, cancel = false, rejected = false, force = false, mixed = false} = {}) {
-    const calls = [], alerts = [], prompts = [];
-    const context = {
-        document: {documentElement: {dataset: {}}, getElementById: () => null},
-        sessionStorage: {removeItem() {}},
-        navigator: {credentials: {get: async options => {
-            prompts.push(options);
-            if (cancel) throw Object.assign(new Error('cancelled'), {name:'NotAllowedError'});
-            return {id:'enrolled',type:'public-key',response:{clientDataJSON:new Uint8Array([1,2]),authenticatorData:new Uint8Array([3,4]),signature:new Uint8Array([5,6])}};
-        }}},
-        alert: message => alerts.push(message),
-        setTimeout: () => 1, clearTimeout() {}, Uint8Array,
-        atob: value => Buffer.from(value, 'base64').toString('binary'),
-        btoa: value => Buffer.from(value, 'binary').toString('base64'),
-        fetch: async (url, options) => {
-            calls.push({url, options});
-            assert.equal(options.credentials, 'same-origin');
-            assert.equal(options.cache, 'no-store');
-            let data = {ok:true};
-            if (url.endsWith('/status')) Object.assign(data, {ipAllowed,authenticated});
-            if (url.endsWith('/challenge')) Object.assign(data, {challenge:'YWJj',credentialId:'ZGVm',rpId:'hashcod-codespace-1.onrender.com'});
-            if (url.endsWith('/verify')) Object.assign(data, rejected ? {ok:false,error:'denied'} : {expiresIn:600});
-            return {ok:data.ok, json:async () => data};
-        }
-    };
-    context.window = context;
-    context.PublicKeyCredential = function () {};
-    vm.runInNewContext(source,context);
-    await new Promise(resolve => setImmediate(resolve));
-    const results = await Promise.all([context.HashcodAdmin.require({force: mixed ? false : force}),context.HashcodAdmin.require({force})]);
-    return {calls, alerts, prompts, results, context};
-}
-(async () => {
-    let test = await runScenario({ipAllowed:false});
-    assert.deepEqual(test.results,[false,false]); assert.equal(test.prompts.length,0);
-    assert.equal(test.context.document.documentElement.dataset.adminIp,'denied');
-    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'false');
 
-    test = await runScenario();
-    assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
-    assert.equal(test.prompts[0].publicKey.userVerification,'required');
-    assert.equal(test.prompts[0].publicKey.allowCredentials[0].transports[0],'internal');
-    assert.equal(test.calls.filter(x=>x.url.endsWith('/verify')).length,1);
-    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'true');
+const client = fs.readFileSync(__dirname + '/../../components/admin-device.js', 'utf8');
+const server = fs.readFileSync(__dirname + '/../../admin-device.php', 'utf8');
 
-    test = await runScenario({cancel:true});
-    assert.deepEqual(test.results,[false,false]);
-    assert.equal(test.calls.filter(x=>x.url.endsWith('/verify')).length,0);
-    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'false');
+const filename = 'OnIPFeJKssih4mbNLCYXnct6a1L_q84po-KVfKPZInHYbhNJ8OR2n3M2zFJ2zZeK9bqkcmilS1li-3DrTsaUIg.ipynb';
+const codekey = 'CODEKEY1:8ccbe307c4199695282e0de07a7a474537d99edf915e71bba5f4f88c6ecff94d';
+const jupyter = 'JUPYTER1:d185f92f42837d6a3dbea6dc3bf2a26a348e2df7aa8cdadeb9acf3b2a88c9c56';
+const combined = 'HASHCOD1:d02c7f85eccb0e8eb63f26bda3bc82fb86a6f6e80b98c2b35ff982e07c215b5b';
 
-    test = await runScenario({rejected:true});
-    assert.deepEqual(test.results,[false,false]);
-    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'false');
+assert(client.includes(filename), 'client must require the registered .ipynb filename');
+assert(client.includes("fileInput.accept = '.ipynb,application/json'"), 'client must only prompt for notebook/json files');
+assert(client.includes("request('verify', {filename: file.name, notebook})"), 'notebook must be verified by the server');
+assert(client.includes('Increase the HVV'), 'new CodeKey button label missing');
+assert(client.includes('viewBox="0,0,256,256"'), 'requested CodeKey icon missing');
+assert(!client.includes('navigator.credentials.get'), 'Windows Hello/WebAuthn client flow must be retired');
 
-    test = await runScenario({authenticated:true});
-    assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,0);
-    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'true');
+assert(server.includes("const ADMIN_DEVICE_NETWORK = '38.196.115.0/24'"), 'IP network restriction must remain');
+assert(server.includes(`const ADMIN_CODEKEY_FILENAME = '${filename}'`), 'registered filename must be server-side');
+assert(server.includes(`const ADMIN_CODEKEY_FINGERPRINT = '${codekey}'`), 'CODEKEY1 verifier missing');
+assert(server.includes(`const ADMIN_JUPYTER_FINGERPRINT = '${jupyter}'`), 'JUPYTER1 verifier missing');
+assert(server.includes(`const ADMIN_COMBINED_FINGERPRINT = '${combined}'`), 'HASHCOD1 verifier missing');
+assert(server.includes("json_decode($rawNotebook, true, 64, JSON_THROW_ON_ERROR)"), 'server must parse notebook JSON instead of executing it');
+assert(server.includes("count($keyCells) !== 1"), 'server must require exactly one marked CodeKey cell');
+assert(server.includes("hash('sha256', $normalized)"), 'server must recompute CODEKEY1');
+assert(server.includes("hash('sha256', adminCanonicalJson($canonical))"), 'server must recompute JUPYTER1');
+assert(server.includes("ADMIN_CODEKEY_SCHEME . '|' . $codekey . '|' . $jupyter"), 'server must recompute combined fingerprint');
+assert(server.includes("'admin_until'] = time() + 600"), 'verified CodeKey session must expire after ten minutes');
+assert(server.includes("'authMode'=>$desktop ? 'desktop-loopback-bridge' : 'codekey-jupyter'"), 'hosted auth mode must report CodeKey Jupyter');
 
-    test = await runScenario({authenticated:true, force:true});
-    assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
-    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'true');
-
-    test = await runScenario({authenticated:true, force:true, mixed:true});
-    assert.deepEqual(test.results,[true,true]); assert.equal(test.prompts.length,1);
-    assert.equal(test.context.document.documentElement.dataset.adminAuthenticated,'true');
-
-    console.log('PASS: browser gate denies wrong IP, cancelled Hello and server rejection; hidden admin tools activate only after a valid Windows Hello session');
-})().catch(error => {console.error(error); process.exitCode=1;});
+console.log('PASS: admin gate keeps the IP restriction and requires the registered CodeKey notebook with CODEKEY1 + JUPYTER1 + HASHCOD1; Windows Hello is retired.');

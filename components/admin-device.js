@@ -113,6 +113,16 @@
     }
 
     async function authenticate(force = false) {
+        if (document.documentElement.dataset.adminAuthenticated === 'true' && !force) {
+            return true;
+        }
+
+        // The file chooser must be opened synchronously from the user's click.
+        // Waiting on a network request first causes browsers to drop the user-activation
+        // permission and the chooser may never appear.
+        const file = await pickNotebook();
+        if (!file) return false;
+
         const status = await request('status');
         document.documentElement.dataset.adminIp = status.ipAllowed ? 'allowed' : 'denied';
         if (!status.ipAllowed) throw new Error('Administración disponible únicamente desde la red 38.196.115.0–38.196.115.255 y con la CodeKey registrada.');
@@ -120,8 +130,7 @@
             setToolsState(true);
             return true;
         }
-        const file = await pickNotebook();
-        if (!file) return false;
+
         setStatus('Verificando CODEKEY1 + JUPYTER1 + HASHCOD1…');
         return verifyNotebook(file);
     }

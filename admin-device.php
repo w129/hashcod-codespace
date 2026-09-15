@@ -2,19 +2,32 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/desktop-runtime.php';
+if (!function_exists('secretGet')) {
+    require_once __DIR__ . '/secrets.php';
+}
 
 const ADMIN_DEVICE_RP = 'hashcod-codespace-1.onrender.com';
 const ADMIN_DEVICE_ORIGIN = 'https://' . ADMIN_DEVICE_RP;
 const ADMIN_DEVICE_NETWORK = '38.196.115.0/24';
-
-// Hashcod CodeKey notebook enrolled by the owner. The notebook is never executed;
-// it is parsed as JSON, canonicalized and checked against the three pinned fingerprints.
-const ADMIN_CODEKEY_FILENAME = 'OnIPFeJKssih4mbNLCYXnct6a1L_q84po-KVfKPZInHYbhNJ8OR2n3M2zFJ2zZeK9bqkcmilS1li-3DrTsaUIg.ipynb';
-const ADMIN_CODEKEY_CODEKEY1 = 'CODEKEY1:8ccbe307c4199695282e0de07a7a474537d99edf915e71bba5f4f88c6ecff94d';
-const ADMIN_CODEKEY_JUPYTER1 = 'JUPYTER1:d185f92f42837d6a3dbea6dc3bf2a26a348e2df7aa8cdadeb9acf3b2a88c9c56';
-const ADMIN_CODEKEY_HASHCOD1 = 'HASHCOD1:d02c7f85eccb0e8eb63f26bda3bc82fb86a6f6e80b98c2b35ff982e07c215b5b';
 const ADMIN_CODEKEY_FORMAT = 'HASHCOD-CODEKEY-IPYNB-1';
 const ADMIN_CODEKEY_SCHEME = 'HASHCOD-DUAL-FINGERPRINT-1';
+
+function adminCodeKeySecret(string $name): string {
+    $value = function_exists('secretGet') ? secretGet($name, '') : (string)(getenv($name) ?: '');
+    return trim((string)$value);
+}
+
+function adminCodeKeyConfig(): ?array {
+    $filename = adminCodeKeySecret('HASHCOD_ADMIN_CODEKEY_FILENAME');
+    $codekey1 = adminCodeKeySecret('HASHCOD_ADMIN_CODEKEY_CODEKEY1');
+    $jupyter1 = adminCodeKeySecret('HASHCOD_ADMIN_CODEKEY_JUPYTER1');
+    $hashcod1 = adminCodeKeySecret('HASHCOD_ADMIN_CODEKEY_HASHCOD1');
+    if ($filename === '' || strlen($filename) > 180 || !str_ends_with(strtolower($filename), '.ipynb')) return null;
+    if (!preg_match('/^CODEKEY1:[a-f0-9]{64}$/D', $codekey1)) return null;
+    if (!preg_match('/^JUPYTER1:[a-f0-9]{64}$/D', $jupyter1)) return null;
+    if (!preg_match('/^HASHCOD1:[a-f0-9]{64}$/D', $hashcod1)) return null;
+    return compact('filename', 'codekey1', 'jupyter1', 'hashcod1');
+}
 
 function adminClientIp(array $server): string {
     if (hashcodDesktopBridgeValid()) return '127.0.0.1';
@@ -69,15 +82,18 @@ function adminSession(): void {
 }
 
 function adminCredentialFingerprint(): string {
-    return hash('sha256', ADMIN_CODEKEY_HASHCOD1);
+    $config = adminCodeKeyConfig();
+    return $config ? hash('sha256', $config['hashcod1']) : '';
 }
 
 function adminAuthorized(): bool {
     if (!adminIpAllowed(adminClientIp($_SERVER)) || !adminSameOrigin($_SERVER)) return false;
+    $credential = adminCredentialFingerprint();
+    if ($credential === '') return false;
     adminSession();
     return ($_SESSION['admin_until'] ?? 0) > time()
         && ($_SESSION['admin_network'] ?? '') === ADMIN_DEVICE_NETWORK
-        && hash_equals(adminCredentialFingerprint(), (string)($_SESSION['admin_credential'] ?? ''));
+        && hash_equals($credential, (string)($_SESSION['admin_credential'] ?? ''));
 }
 
 function adminRequire(): void {
@@ -100,9 +116,7 @@ function adminArrayIsList(array $value): bool {
 
 function adminCanonicalSort($value) {
     if (!is_array($value)) return $value;
-    if (adminArrayIsList($value)) {
-        return array_map('adminCanonicalSort', $value);
-    }
+    if (adminArrayIsList($value)) return array_map('adminCanonicalSort', $value);
     ksort($value, SORT_STRING);
     foreach ($value as $key => $item) $value[$key] = adminCanonicalSort($item);
     return $value;
@@ -180,16 +194,17 @@ function adminNotebookFingerprints(array $notebook): array {
 }
 
 function adminVerifyCodeKeyNotebook(string $filename, array $notebook): bool {
-    if (!hash_equals(ADMIN_CODEKEY_FILENAME, $filename)) return false;
+    $config = adminCodeKeyConfig();
+    if (!$config || !hash_equals($config['filename'], $filename)) return false;
     try {
         $fp = adminNotebookFingerprints($notebook);
         $metadata = $fp['metadata'];
-        return hash_equals(ADMIN_CODEKEY_CODEKEY1, $fp['codekey1'])
-            && hash_equals(ADMIN_CODEKEY_JUPYTER1, $fp['jupyter1'])
-            && hash_equals(ADMIN_CODEKEY_HASHCOD1, $fp['hashcod1'])
-            && hash_equals(ADMIN_CODEKEY_CODEKEY1, (string)($metadata['codekey_fingerprint'] ?? ''))
-            && hash_equals(ADMIN_CODEKEY_JUPYTER1, (string)($metadata['jupyter_fingerprint'] ?? ''))
-            && hash_equals(ADMIN_CODEKEY_HASHCOD1, (string)($metadata['combined_fingerprint'] ?? ''));
+        return hash_equals($config['codekey1'], $fp['codekey1'])
+            && hash_equals($config['jupyter1'], $fp['jupyter1'])
+            && hash_equals($config['hashcod1'], $fp['hashcod1'])
+            && hash_equals($config['codekey1'], (string)($metadata['codekey_fingerprint'] ?? ''))
+            && hash_equals($config['jupyter1'], (string)($metadata['jupyter_fingerprint'] ?? ''))
+            && hash_equals($config['hashcod1'], (string)($metadata['combined_fingerprint'] ?? ''));
     } catch (Throwable $e) {
         return false;
     }
@@ -201,18 +216,21 @@ function adminDeviceApi(string $path): void {
 
     $desktop = hashcodDesktopBridgeValid();
     $allowed = adminIpAllowed(adminClientIp($_SERVER));
+    $configured = adminCodeKeyConfig() !== null;
 
     if ($path === '/api/admin-device/status' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
         adminJson(200, [
             'ok'=>true,
             'ipAllowed'=>$allowed,
             'detectedIp'=>adminClientIp($_SERVER),
-            'authenticated'=>$allowed && adminAuthorized(),
+            'authenticated'=>$configured && $allowed && adminAuthorized(),
+            'configured'=>$configured,
             'desktop'=>$desktop,
             'authMode'=>'codekey-ipynb'
         ]);
     }
 
+    if (!$configured) adminJson(503, ['ok'=>false, 'error'=>'La CodeKey administrativa no está configurada en el servidor.']);
     if (!$allowed) {
         adminJson(403, ['ok'=>false, 'error'=>'Estas herramientas requieren la red ' . ADMIN_DEVICE_NETWORK . ' y la CodeKey Jupyter autorizada.']);
     }

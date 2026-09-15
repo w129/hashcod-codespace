@@ -3,29 +3,21 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/desktop-runtime.php';
 
-// Public credential explicitly enrolled by the owner. No enrollment API can replace it.
 const ADMIN_DEVICE_RP = 'hashcod-codespace-1.onrender.com';
 const ADMIN_DEVICE_ORIGIN = 'https://' . ADMIN_DEVICE_RP;
 const ADMIN_DEVICE_NETWORK = '38.196.115.0/24';
-const ADMIN_DEVICE_ID = '6NCenKRQlsDlMjqmJ-kX_UweDaHdj8XjlVEYCzFoX3k';
-const ADMIN_DEVICE_SPKI = 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEgz_jckNI4CqWa-hsLab58p3DDRIreQH_42zwu0U-L39eBCaJMh-mzfQHToIy_3apeX0HmaZ2RYGTy7G2__jUVA';
 
-function adminB64(string $bytes): string { return rtrim(strtr(base64_encode($bytes), '+/', '-_'), '='); }
-function adminUnb64($value): string {
-    if (!is_string($value) || $value === '' || strlen($value) > 16384 || !preg_match('/^[A-Za-z0-9_-]+$/D', $value)) throw new RuntimeException('Codificación inválida');
-    $decoded = base64_decode(strtr($value, '-_', '+/'), true);
-    if ($decoded === false || adminB64($decoded) !== $value) throw new RuntimeException('Codificación inválida');
-    return $decoded;
-}
+// Hashcod CodeKey notebook enrolled by the owner. The notebook is never executed;
+// it is parsed as JSON, canonicalized and checked against the three pinned fingerprints.
+const ADMIN_CODEKEY_FILENAME = 'OnIPFeJKssih4mbNLCYXnct6a1L_q84po-KVfKPZInHYbhNJ8OR2n3M2zFJ2zZeK9bqkcmilS1li-3DrTsaUIg.ipynb';
+const ADMIN_CODEKEY_CODEKEY1 = 'CODEKEY1:8ccbe307c4199695282e0de07a7a474537d99edf915e71bba5f4f88c6ecff94d';
+const ADMIN_CODEKEY_JUPYTER1 = 'JUPYTER1:d185f92f42837d6a3dbea6dc3bf2a26a348e2df7aa8cdadeb9acf3b2a88c9c56';
+const ADMIN_CODEKEY_HASHCOD1 = 'HASHCOD1:d02c7f85eccb0e8eb63f26bda3bc82fb86a6f6e80b98c2b35ff982e07c215b5b';
+const ADMIN_CODEKEY_FORMAT = 'HASHCOD-CODEKEY-IPYNB-1';
+const ADMIN_CODEKEY_SCHEME = 'HASHCOD-DUAL-FINGERPRINT-1';
 
 function adminClientIp(array $server): string {
-    // The installed desktop shell is bound to loopback and authenticates every
-    // request with a random per-process bridge token that is never exposed to JS.
     if (hashcodDesktopBridgeValid()) return '127.0.0.1';
-
-    // Render's public ingress is protected by Cloudflare. Caddy overwrites this
-    // private upstream header with Cloudflare's single visitor address. XFF can
-    // contain an attacker-controlled prefix and must never authorize a client.
     if (getenv('RENDER') !== 'true' || ($server['REMOTE_ADDR'] ?? '') !== '127.0.0.1') return '';
     $ip = trim((string)($server['HTTP_X_L8_RENDER_CF_IP'] ?? ''));
     return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
@@ -33,7 +25,6 @@ function adminClientIp(array $server): string {
 
 function adminIpAllowed(string $ip): bool {
     if (hashcodDesktopBridgeValid()) return true;
-    // Exact IPv4 /24 approved by the owner; no IPv6 or textual prefix matching.
     if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) return false;
     return substr(inet_pton($ip), 0, 3) === substr(inet_pton(explode('/', ADMIN_DEVICE_NETWORK)[0]), 0, 3);
 }
@@ -57,7 +48,9 @@ function adminJson(int $status, array $body): never {
 function adminSession(): void {
     if (session_status() === PHP_SESSION_ACTIVE) return;
     $dir = __DIR__ . '/data_storage/admin-sessions';
-    if (!is_dir($dir) && !mkdir($dir, 0700, true) && !is_dir($dir)) adminJson(503, ['ok'=>false, 'error'=>'Almacenamiento administrativo no disponible']);
+    if (!is_dir($dir) && !mkdir($dir, 0700, true) && !is_dir($dir)) {
+        adminJson(503, ['ok'=>false, 'error'=>'Almacenamiento administrativo no disponible']);
+    }
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     ini_set('session.gc_maxlifetime', '900');
@@ -75,20 +68,22 @@ function adminSession(): void {
     if (!session_start()) adminJson(503, ['ok'=>false, 'error'=>'Sesión administrativa no disponible']);
 }
 
-function adminAuthorized(): bool {
-    // Desktop authorization is not a public bypass: the PHP server listens only
-    // on 127.0.0.1 and Electron injects a 256-bit process token into each request.
-    if (hashcodDesktopBridgeValid()) return true;
+function adminCredentialFingerprint(): string {
+    return hash('sha256', ADMIN_CODEKEY_HASHCOD1);
+}
 
+function adminAuthorized(): bool {
     if (!adminIpAllowed(adminClientIp($_SERVER)) || !adminSameOrigin($_SERVER)) return false;
     adminSession();
     return ($_SESSION['admin_until'] ?? 0) > time()
         && ($_SESSION['admin_network'] ?? '') === ADMIN_DEVICE_NETWORK
-        && ($_SESSION['admin_credential'] ?? '') === hash('sha256', ADMIN_DEVICE_ID . ADMIN_DEVICE_SPKI);
+        && hash_equals(adminCredentialFingerprint(), (string)($_SESSION['admin_credential'] ?? ''));
 }
 
 function adminRequire(): void {
-    if (!adminAuthorized()) adminJson(403, ['ok'=>false, 'error'=>'Acceso administrativo restringido: usa la laptop registrada, Windows Hello y la IP autorizada.']);
+    if (!adminAuthorized()) {
+        adminJson(403, ['ok'=>false, 'error'=>'Acceso administrativo restringido: carga la CodeKey Jupyter autorizada desde la red permitida.']);
+    }
 }
 
 function adminProtectedPath(string $path): bool {
@@ -98,24 +93,106 @@ function adminProtectedPath(string $path): bool {
     ], true);
 }
 
-// Verify the WebAuthn assertion, including the signed authenticator flags.
-function adminVerifyAssertion(array $input, string $challenge, string $id = ADMIN_DEVICE_ID, string $spki = ADMIN_DEVICE_SPKI): bool {
+function adminArrayIsList(array $value): bool {
+    if ($value === []) return true;
+    return array_keys($value) === range(0, count($value) - 1);
+}
+
+function adminCanonicalSort($value) {
+    if (!is_array($value)) return $value;
+    if (adminArrayIsList($value)) {
+        return array_map('adminCanonicalSort', $value);
+    }
+    ksort($value, SORT_STRING);
+    foreach ($value as $key => $item) $value[$key] = adminCanonicalSort($item);
+    return $value;
+}
+
+function adminCanonicalJson($value): string {
+    return json_encode(
+        adminCanonicalSort($value),
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+    );
+}
+
+function adminNormalizeCode(string $code): string {
+    return trim(str_replace(["\r\n", "\r"], "\n", $code));
+}
+
+function adminNotebookFingerprints(array $notebook): array {
+    if (($notebook['nbformat'] ?? null) !== 4 || ($notebook['nbformat_minor'] ?? null) !== 5) {
+        throw new RuntimeException('Formato Jupyter no autorizado');
+    }
+
+    $metadata = $notebook['metadata']['hashcod'] ?? null;
+    if (!is_array($metadata)
+        || ($metadata['format'] ?? '') !== ADMIN_CODEKEY_FORMAT
+        || ($metadata['fingerprint_scheme'] ?? '') !== ADMIN_CODEKEY_SCHEME
+        || ($metadata['access'] ?? '') !== 'ADMIN'
+        || ($metadata['scope'] ?? '') !== 'PRIVATE'
+        || (string)($metadata['version'] ?? '') !== '1') {
+        throw new RuntimeException('Metadata CodeKey no autorizada');
+    }
+
+    $cells = $notebook['cells'] ?? null;
+    if (!is_array($cells)) throw new RuntimeException('Notebook sin celdas');
+
+    $code = null;
+    $markedCells = 0;
+    foreach ($cells as $cell) {
+        if (!is_array($cell) || ($cell['cell_type'] ?? '') !== 'code') continue;
+        $cellMetadata = $cell['metadata'] ?? [];
+        if (!is_array($cellMetadata) || ($cellMetadata['hashcod_codekey'] ?? false) !== true) continue;
+        $markedCells++;
+        $source = $cell['source'] ?? '';
+        if (is_array($source)) {
+            foreach ($source as $line) if (!is_string($line)) throw new RuntimeException('Source inválido');
+            $source = implode('', $source);
+        }
+        if (!is_string($source)) throw new RuntimeException('Source inválido');
+        $code = adminNormalizeCode($source);
+    }
+
+    if ($markedCells !== 1 || $code === null || $code === '') {
+        throw new RuntimeException('CodeKey ausente o ambigua');
+    }
+
+    $codekey1 = 'CODEKEY1:' . hash('sha256', $code);
+    $sourceLines = array_map(static fn(string $line): string => $line . "\n", explode("\n", $code));
+    $canonicalJupyter = [
+        'nbformat'=>4,
+        'nbformat_minor'=>5,
+        'cells'=>[[
+            'cell_type'=>'code',
+            'metadata'=>['hashcod_codekey'=>true],
+            'source'=>$sourceLines
+        ]]
+    ];
+    $jupyter1 = 'JUPYTER1:' . hash('sha256', adminCanonicalJson($canonicalJupyter));
+    $hashcod1 = 'HASHCOD1:' . hash('sha256', ADMIN_CODEKEY_SCHEME . '|' . $codekey1 . '|' . $jupyter1);
+
+    return [
+        'codekey1'=>$codekey1,
+        'jupyter1'=>$jupyter1,
+        'hashcod1'=>$hashcod1,
+        'metadata'=>$metadata
+    ];
+}
+
+function adminVerifyCodeKeyNotebook(string $filename, array $notebook): bool {
+    if (!hash_equals(ADMIN_CODEKEY_FILENAME, $filename)) return false;
     try {
-        if (($input['type'] ?? '') !== 'public-key' || !hash_equals($id, (string)($input['id'] ?? ''))) return false;
-        $clientBytes = adminUnb64($input['clientDataJSON'] ?? null);
-        $client = json_decode($clientBytes, true, 16, JSON_THROW_ON_ERROR);
-        if (!is_array($client) || ($client['type'] ?? '') !== 'webauthn.get' || ($client['origin'] ?? '') !== ADMIN_DEVICE_ORIGIN
-            || ($client['crossOrigin'] ?? false) !== false || isset($client['topOrigin'])
-            || !hash_equals($challenge, (string)($client['challenge'] ?? ''))) return false;
-        $auth = adminUnb64($input['authenticatorData'] ?? null);
-        if (strlen($auth) < 37 || !hash_equals(hash('sha256', ADMIN_DEVICE_RP, true), substr($auth, 0, 32))) return false;
-        $flags = ord($auth[32]);
-        // Presence + verification; no backup eligibility/state or attested data.
-        if (($flags & 5) !== 5 || ($flags & 0x58) !== 0) return false;
-        if (($flags & 0x80) === 0 && strlen($auth) !== 37) return false;
-        $pem = "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode(adminUnb64($spki)), 64, "\n") . "-----END PUBLIC KEY-----\n";
-        return openssl_verify($auth . hash('sha256', $clientBytes, true), adminUnb64($input['signature'] ?? null), $pem, OPENSSL_ALGO_SHA256) === 1;
-    } catch (Throwable $e) { return false; }
+        $fp = adminNotebookFingerprints($notebook);
+        $metadata = $fp['metadata'];
+        return hash_equals(ADMIN_CODEKEY_CODEKEY1, $fp['codekey1'])
+            && hash_equals(ADMIN_CODEKEY_JUPYTER1, $fp['jupyter1'])
+            && hash_equals(ADMIN_CODEKEY_HASHCOD1, $fp['hashcod1'])
+            && hash_equals(ADMIN_CODEKEY_CODEKEY1, (string)($metadata['codekey_fingerprint'] ?? ''))
+            && hash_equals(ADMIN_CODEKEY_JUPYTER1, (string)($metadata['jupyter_fingerprint'] ?? ''))
+            && hash_equals(ADMIN_CODEKEY_HASHCOD1, (string)($metadata['combined_fingerprint'] ?? ''));
+    } catch (Throwable $e) {
+        return false;
+    }
 }
 
 function adminDeviceApi(string $path): void {
@@ -124,52 +201,51 @@ function adminDeviceApi(string $path): void {
 
     $desktop = hashcodDesktopBridgeValid();
     $allowed = adminIpAllowed(adminClientIp($_SERVER));
+
     if ($path === '/api/admin-device/status' && ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
         adminJson(200, [
             'ok'=>true,
             'ipAllowed'=>$allowed,
             'detectedIp'=>adminClientIp($_SERVER),
-            'authenticated'=>$desktop || ($allowed && adminAuthorized()),
+            'authenticated'=>$allowed && adminAuthorized(),
             'desktop'=>$desktop,
-            'authMode'=>$desktop ? 'desktop-loopback-bridge' : 'windows-hello'
+            'authMode'=>'codekey-ipynb'
         ]);
     }
 
-    if (!$allowed) adminJson(403, ['ok'=>false, 'error'=>'Estas herramientas requieren la red ' . ADMIN_DEVICE_NETWORK . ' y Windows Hello de la laptop registrada.']);
+    if (!$allowed) {
+        adminJson(403, ['ok'=>false, 'error'=>'Estas herramientas requieren la red ' . ADMIN_DEVICE_NETWORK . ' y la CodeKey Jupyter autorizada.']);
+    }
     if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') adminJson(405, ['ok'=>false, 'error'=>'Método no permitido']);
 
-    // In the packaged desktop app the trusted Electron bridge is the device
-    // boundary. No hosted-origin WebAuthn assertion can be generated from
-    // 127.0.0.1, so challenge/verify report the already-authenticated state.
-    if ($desktop && in_array($path, ['/api/admin-device/challenge', '/api/admin-device/verify', '/api/admin-device/authorize'], true)) {
-        adminJson(200, ['ok'=>true, 'authenticated'=>true, 'desktop'=>true, 'expiresIn'=>0]);
-    }
-    if ($desktop && $path === '/api/admin-device/logout') {
-        adminJson(200, ['ok'=>true, 'authenticated'=>true, 'desktop'=>true]);
-    }
-
     adminSession();
-    if ($path === '/api/admin-device/challenge') {
-        if (($_SESSION['last_challenge'] ?? 0) > time() - 2) adminJson(429, ['ok'=>false, 'error'=>'Espera un momento antes de reintentar.']);
-        $_SESSION['last_challenge'] = time();
-        $_SESSION['admin_challenge'] = adminB64(random_bytes(32));
-        $_SESSION['challenge_until'] = time() + 120;
-        adminJson(200, ['ok'=>true, 'challenge'=>$_SESSION['admin_challenge'], 'rpId'=>ADMIN_DEVICE_RP, 'credentialId'=>ADMIN_DEVICE_ID]);
-    }
+
     if ($path === '/api/admin-device/verify') {
-        $challenge = $_SESSION['admin_challenge'] ?? '';
-        $expires = $_SESSION['challenge_until'] ?? 0;
-        unset($_SESSION['admin_challenge'], $_SESSION['challenge_until'], $_SESSION['admin_until']);
-        $raw = file_get_contents('php://input', false, null, 0, 32769);
-        $input = strlen($raw) <= 32768 ? json_decode($raw, true) : null;
-        if ($challenge === '' || $expires <= time() || !is_array($input) || !adminVerifyAssertion($input, $challenge)) {
-            adminJson(403, ['ok'=>false, 'error'=>'No se pudo verificar la laptop. Vuelve a confirmar con Windows Hello.']);
+        unset($_SESSION['admin_until'], $_SESSION['admin_credential']);
+        $raw = file_get_contents('php://input', false, null, 0, 262145);
+        if (!is_string($raw) || strlen($raw) > 262144) {
+            adminJson(413, ['ok'=>false, 'error'=>'El archivo CodeKey supera el tamaño permitido.']);
         }
+        try {
+            $input = json_decode($raw, true, 64, JSON_THROW_ON_ERROR);
+        } catch (Throwable $e) {
+            $input = null;
+        }
+        $filename = is_array($input) ? (string)($input['filename'] ?? '') : '';
+        $notebook = is_array($input) ? ($input['notebook'] ?? null) : null;
+        if ($filename === '' || strlen($filename) > 180 || !is_array($notebook) || !adminVerifyCodeKeyNotebook($filename, $notebook)) {
+            adminJson(403, ['ok'=>false, 'error'=>'CodeKey Jupyter no autorizada.']);
+        }
+
         session_regenerate_id(true);
         $_SESSION['admin_until'] = time() + 600;
         $_SESSION['admin_network'] = ADMIN_DEVICE_NETWORK;
-        $_SESSION['admin_credential'] = hash('sha256', ADMIN_DEVICE_ID . ADMIN_DEVICE_SPKI);
-        adminJson(200, ['ok'=>true, 'authenticated'=>true, 'expiresIn'=>600]);
+        $_SESSION['admin_credential'] = adminCredentialFingerprint();
+        adminJson(200, ['ok'=>true, 'authenticated'=>true, 'expiresIn'=>600, 'authMode'=>'codekey-ipynb']);
+    }
+
+    if ($path === '/api/admin-device/challenge') {
+        adminJson(410, ['ok'=>false, 'error'=>'Windows Hello fue reemplazado por la CodeKey Jupyter.']);
     }
     if ($path === '/api/admin-device/authorize') { adminRequire(); adminJson(200, ['ok'=>true]); }
     if ($path === '/api/admin-device/logout') { $_SESSION = []; session_destroy(); adminJson(200, ['ok'=>true]); }

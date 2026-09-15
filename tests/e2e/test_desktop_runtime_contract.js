@@ -49,7 +49,7 @@ check('desktop mode is explicitly marked and stale web assets are cleared', () =
 check('admin-only tools remain protected on web but are available in the trusted desktop shell', () => {
     assert(admin.includes("require_once __DIR__ . '/desktop-runtime.php'"));
     assert(admin.includes('if (hashcodDesktopBridgeValid()) return true;'));
-    assert(admin.includes("'authMode'=>$desktop ? 'desktop-loopback-bridge' : 'windows-hello'"));
+    assert(admin.includes("'authMode'=>$desktop ? 'desktop-loopback-bridge' : 'codekey-jupyter'"));
     assert(admin.includes("ADMIN_DEVICE_NETWORK = '38.196.115.0/24'"));
 });
 

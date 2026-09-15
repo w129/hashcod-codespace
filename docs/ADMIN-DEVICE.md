@@ -1,25 +1,74 @@
-# Acceso administrativo de la laptop
+# Acceso administrativo con Hashcod CodeKey
 
-El servidor exige simultáneamente la credencial ES256 registrada por el propietario mediante Windows Hello y la red 38.196.115.0/24. El registro público inicial no concede permisos ni permite reemplazar la clave fijada en admin-device.php.
+El acceso administrativo ya no depende de Windows Hello. El servidor exige simultáneamente la red autorizada `38.196.115.0/24` y un notebook Jupyter `.ipynb` CodeKey registrado por el propietario.
 
-La sesión dura diez minutos, usa cookie Secure/HttpOnly/SameSite=Strict y se invalida si sale de la red autorizada o cambia la credencial configurada. Los desafíos duran dos minutos y se consumen incluso cuando falla la verificación. Se comprueban origen, RP, firma, presencia, verificación del usuario y ausencia de flags de backup/sincronización. No se almacena PIN, huella ni clave privada.
+El archivo CodeKey nunca se ejecuta. PHP lo recibe como JSON, valida su estructura, localiza exactamente una celda marcada con `metadata.hashcod_codekey=true`, normaliza las líneas y vuelve a calcular tres huellas: `CODEKEY1` para el código, `JUPYTER1` para la estructura Jupyter canónica y `HASHCOD1` para la combinación de ambas. También comprueba que las tres huellas almacenadas en la metadata del notebook coincidan con las calculadas y con los verificadores privados configurados en el servidor.
+
+La sesión administrativa dura diez minutos, usa cookie HttpOnly/SameSite=Strict (Secure en la versión alojada) y se invalida si sale de la red autorizada, expira o cambia la CodeKey configurada. La versión de escritorio conserva el puente local de Electron como transporte confiable, pero también exige una sesión CodeKey válida antes de autorizar rutas administrativas.
+
+## Secretos requeridos
+
+No se guardan verificadores CodeKey en el repositorio. Deben configurarse como variables de entorno, Render Secret Files o mediante la bóveda de secretos existente:
+
+- `HASHCOD_ADMIN_CODEKEY_FILENAME`
+- `HASHCOD_ADMIN_CODEKEY_CODEKEY1`
+- `HASHCOD_ADMIN_CODEKEY_JUPYTER1`
+- `HASHCOD_ADMIN_CODEKEY_HASHCOD1`
+
+Si falta cualquiera de estos valores o no tiene el formato esperado, `/api/admin-device/status` informa `configured=false` y el servidor no concede acceso administrativo.
+
+## Formato esperado
+
+El notebook debe usar `nbformat=4`, `nbformat_minor=5` y metadata Hashcod con:
+
+```json
+{
+  "format": "HASHCOD-CODEKEY-IPYNB-1",
+  "fingerprint_scheme": "HASHCOD-DUAL-FINGERPRINT-1",
+  "access": "ADMIN",
+  "scope": "PRIVATE",
+  "version": "1",
+  "codekey_fingerprint": "CODEKEY1:...",
+  "jupyter_fingerprint": "JUPYTER1:...",
+  "combined_fingerprint": "HASHCOD1:..."
+}
+```
+
+`JUPYTER1` es una huella definida por Hashcod sobre una representación canónica compatible con Jupyter. No es una firma oficial emitida por Jupyter ni por Google Colab.
+
+## Interfaz
+
+El antiguo control visual de Windows Hello se mantiene en la misma ubicación para preservar el layout, pero ahora muestra el icono CodeKey y el texto `Increase the HVV`. Al pulsarlo se abre el selector de archivos `.ipynb`; el navegador valida únicamente formato/tamaño básico y el servidor realiza la verificación autoritativa.
+
+La UI carga `components/admin-codekey-ui.js` como capa versionada para sustituir cualquier copia antigua del control que pueda seguir en caché. El motor de autorización continúa en `components/admin-device.js` y la verificación del servidor en `admin-device.php`.
 
 ## Alcance
 
-Se comprueban en el servidor las rutas /api/admin/*, los cambios de clave activa Dilithium, listado/suspensión/reactivación/eliminación de cuentas y el POST verify_dilithium. Los lanzadores de validación de tarjetas y generación de firmas, y sus operaciones de interfaz, solicitan la sesión administrativa. La entrada de usuarios con tarjetas previamente validadas conserva su funcionamiento actual. Los registros de tarjeta siguen siendo datos del navegador; esta modificación no los convierte en certificaciones persistidas o firmadas por el servidor.
+Se comprueban en el servidor las rutas `/api/admin/*`, los cambios de clave activa Dilithium, listado/suspensión/reactivación/eliminación de cuentas y las demás rutas incluidas por `adminProtectedPath()`. La visibilidad de un botón nunca concede permisos por sí sola.
 
-## Despliegue y recuperación
+El endpoint WebAuthn `/api/admin-device/challenge` queda retirado y devuelve HTTP 410. `/api/admin-device/verify` acepta únicamente el nombre de archivo y la estructura JSON del notebook CodeKey; no ejecuta Python, JavaScript ni ninguna celda del archivo.
 
-Este control está destinado al servicio Render indicado. Requiere RENDER=true y PHP detrás del Caddy local. Caddy sobrescribe X-L8-Render-Cf-Ip con CF-Connecting-IP recibido del ingreso Cloudflare de Render y elimina la antigua cabecera X-L8-Render-Xff. PHP solo acepta esa dirección individual desde 127.0.0.1 y con RENDER=true. No hay fallback a X-Forwarded-For: una prueba real confirmó que su prefijo puede venir del cliente. La prueba real también confirmó que intentar suministrar CF-Connecting-IP es rechazado en el borde. Referencias: https://developers.cloudflare.com/fundamentals/reference/http-headers/ y https://render.com/articles/how-render-handles-ddos-attacks.
+## Red y proxy
 
-Antes de considerar terminado el despliegue, probar con la laptop registrada y comprobar que otra IP no obtiene desafío ni accede a las rutas protegidas, incluso enviando cabeceras falsas. La verificación local no sustituye esa comprobación real de Windows Hello.
+El servicio alojado sigue requiriendo `RENDER=true` y el flujo de IP confiable existente. Caddy sobrescribe `X-L8-Render-Cf-Ip` con la dirección del visitante recibida a través del ingreso Cloudflare/Render. PHP no usa `X-Forwarded-For` como fuente de autorización.
 
-El almacenamiento efímero de Render puede cerrar sesiones al redesplegar; basta confirmar Windows Hello otra vez. Si cambia la IP o se pierde Windows Hello, el propietario debe actualizar explícitamente la configuración desde su acceso al repositorio. No existe una ruta web de autorregistro ni una clave de rescate que omita esta restricción.
+El propietario autorizó explícitamente el rango `38.196.115.0–38.196.115.255`. Una sesión CodeKey válida puede continuar dentro de ese rango durante sus diez minutos, pero salir del rango invalida la autorización.
 
 ## Pruebas
 
-Ejecutar `php tests/security/test-admin-device.php`, `node tests/security/test-admin-device.cjs` y `node tests/e2e/test_crypto_card_validation_gate.js`. PHP requiere OpenSSL; en Windows puede necesitar OPENSSL_CONF apuntando al openssl.cnf de la distribución oficial.
+Ejecutar como mínimo:
 
-Caddy elimina CF-Connecting-IP si el origen inmediato no está en las redes privadas de Render o en los rangos publicados de Cloudflare (https://www.cloudflare.com/ips-v4 y https://www.cloudflare.com/ips-v6). La red privada del workspace forma parte de la frontera de confianza; no deben exponerse accesos alternativos sin esta política. Los servicios gratuitos no reciben tráfico privado y Render limita esa red a servicios del mismo workspace/región: https://render.com/docs/private-network.
+```text
+php -l admin-device.php
+php tests/security/test-admin-device.php
+node --check components/admin-device.js
+node --check components/admin-codekey-ui.js
+node tests/security/test-admin-device.cjs
+node tests/e2e/test_crypto_card_validation_gate.js
+```
 
-El propietario autorizó explícitamente todo 38.196.115.0–38.196.115.255 debido a cambios de IP observados. Una sesión verificada permite cambios dentro de esa red durante sus diez minutos, pero salir del rango la rechaza. La política de red también se fija en la sesión; las sesiones de la configuración anterior deben verificar Windows Hello otra vez.
+Además debe hacerse una prueba real en producción: confirmar que el archivo CodeKey correcto abre Administración desde una IP autorizada, que un `.ipynb` alterado se rechaza y que una IP fuera del rango no obtiene acceso aunque presente el archivo correcto.
+
+## Rotación
+
+Para sustituir una CodeKey, generar un notebook nuevo y actualizar los cuatro secretos del servidor. No existe una ruta web para autorregistrar o sobrescribir la CodeKey. Cambiar los verificadores hace que las sesiones anteriores dejen de coincidir con la credencial administrativa configurada.

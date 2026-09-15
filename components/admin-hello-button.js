@@ -179,8 +179,6 @@
     })();
 
     // Load the PNG vault attached to the first cube in the 3D vector tray.
-    // The vault reuses the platform's existing Windows Hello session and keeps
-    // the landing artwork lightweight until the user opens the module.
     (function loadVectorImageVaultAssets() {
         const current = document.currentScript;
         const currentSrc = current && current.src ? current.src : '';
@@ -250,9 +248,17 @@
     const wrapper = document.getElementById('authWrapper');
     if (!overlay || !wrapper) return;
 
+    const current = document.currentScript;
+    const currentSrc = current && current.src ? current.src : '';
+    const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+        ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+        : '/components/';
+
+    const CODEKEY_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode:normal"><g transform="scale(5.33333,5.33333)"><path d="M33.5,10c-7.456,0 -13.5,6.044 -13.5,13.5c0,7.456 6.044,13.5 13.5,13.5c7.456,0 13.5,-6.044 13.5,-13.5c0,-7.456 -6.044,-13.5 -13.5,-13.5zM33.5,30c-3.59,0 -6.5,-2.91 -6.5,-6.5c0,-3.59 2.91,-6.5 6.5,-6.5c3.59,0 6.5,2.91 6.5,6.5c0,3.59 -2.91,6.5 -6.5,6.5z" fill="#000000"></path><path d="M19.14,28.051v-0.003c-1.18,1.204 -2.822,1.952 -4.64,1.952c-3.59,0 -6.5,-2.91 -6.5,-6.5c0,-3.59 2.91,-6.5 6.5,-6.5c1.83,0 3.481,0.759 4.662,1.976l3.75,-6.024c-2.308,-1.843 -5.229,-2.952 -8.412,-2.952c-7.456,0 -13.5,6.044 -13.5,13.5c0,7.456 6.044,13.5 13.5,13.5c3.164,0 6.067,-1.097 8.369,-2.919z" fill="#000000"></path><path d="M8,23.5c0,-1.787 0.722,-3.405 1.889,-4.58l-4.855,-5.038c-2.488,2.448 -4.034,5.851 -4.034,9.618c0,3.749 1.53,7.14 3.998,9.586l4.934,-4.964c-1.192,-1.178 -1.932,-2.813 -1.932,-4.622z" fill="#262626"></path><path d="M38.13,18.941c1.155,1.173 1.87,2.782 1.87,4.559c0,3.59 -2.91,6.5 -6.5,6.5c-1.826,0 -3.474,-0.755 -4.655,-1.968l-4.999,4.895c2.452,2.51 5.868,4.073 9.654,4.073c7.456,0 13.5,-6.044 13.5,-13.5c0,-3.684 -1.479,-7.019 -3.871,-9.455z" fill="#262626"></path></g></g></svg>';
+
     const panel = document.createElement('div');
     panel.className = 'admin-hello-access';
-    panel.innerHTML = '<button type="button" id="adminHelloButton" aria-describedby="adminHelloStatus" title="Verificar esta laptop con Windows Hello"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M 10 3 L 10 5 L 18 5 L 18 3 L 10 3 z M 18 5 L 18 23 L 20 23 L 20 5 L 18 5 z M 18 23 L 14 23 L 14 25 L 18 25 L 18 23 z M 14 23 L 14 10 L 12 10 L 12 23 L 14 23 z M 10 5 L 8 5 L 8 27 L 10 27 L 10 5 z M 10 27 L 10 29 L 22 29 L 22 27 L 10 27 z M 22 27 L 24 27 L 24 23 L 25 23 L 25 15 L 26 15 L 26 11 L 24 11 L 24 15 L 23 15 L 23 23 L 22 23 L 22 27 z"></path></svg><span>Windows Hello</span></button><p id="adminHelloStatus" role="status" aria-live="polite">Verifica esta laptop para administrar.</p>';
+    panel.innerHTML = '<button type="button" id="adminHelloButton" aria-describedby="adminHelloStatus" aria-label="Increase the HVV · cargar CodeKey Jupyter" title="Cargar CodeKey Jupyter para administrar">' + CODEKEY_ICON + '<span>Increase the HVV</span></button><p id="adminHelloStatus" role="status" aria-live="polite">Carga la CodeKey Jupyter (.ipynb) para administrar.</p>';
     wrapper.appendChild(panel);
 
     const button = panel.querySelector('button');
@@ -263,12 +269,12 @@
         const verified = authenticated === true;
         button.classList.toggle('is-verified', verified);
         button.dataset.verified = verified ? 'true' : 'false';
-        button.title = verified ? 'Windows Hello verificado. Pulsa para verificar de nuevo.' : 'Verificar esta laptop con Windows Hello';
-        label.textContent = verified ? 'Windows Hello verificado' : 'Windows Hello';
+        button.title = verified ? 'CodeKey verificada. Pulsa para validar de nuevo.' : 'Cargar CodeKey Jupyter para administrar';
+        label.textContent = 'Increase the HVV';
         if (!button.disabled) {
             status.textContent = verified
-                ? 'Administración habilitada. Las herramientas protegidas están activas.'
-                : 'Verifica esta laptop para administrar.';
+                ? 'Administración habilitada. La CodeKey está activa durante 10 minutos.'
+                : 'Carga la CodeKey Jupyter (.ipynb) para administrar.';
         }
     }
 
@@ -281,28 +287,54 @@
         panel.classList.toggle('is-compact', compact);
     }
 
+    function ensureAdminEngine() {
+        if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') return Promise.resolve(true);
+        let script = document.getElementById('hashcodAdminDeviceEngine') || document.querySelector('script[src*="admin-device.js"]');
+        if (!script) {
+            script = document.createElement('script');
+            script.id = 'hashcodAdminDeviceEngine';
+            script.src = componentBase + 'admin-device.js?v=20260915-codekey1';
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+        return new Promise(resolve => {
+            let tries = 0;
+            const timer = window.setInterval(function () {
+                tries += 1;
+                if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') {
+                    window.clearInterval(timer);
+                    resolve(true);
+                } else if (tries >= 60) {
+                    window.clearInterval(timer);
+                    resolve(false);
+                }
+            }, 100);
+        });
+    }
+
     position();
     renderAuthState(document.documentElement.dataset.adminAuthenticated === 'true');
     window.addEventListener('resize', position);
     window.addEventListener('hashcod:admin-auth', function (event) {
         renderAuthState(Boolean(event.detail && event.detail.authenticated));
     });
-    new MutationObserver(position).observe(document.body, {attributes: true, attributeFilter: ['class']});
+    new MutationObserver(position).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
     button.addEventListener('click', async function () {
         button.disabled = true;
         button.setAttribute('aria-busy', 'true');
-        status.textContent = 'Confirma Windows Hello en esta laptop…';
+        status.textContent = 'Selecciona la CodeKey Jupyter autorizada…';
         try {
-            if (!window.HashcodAdmin) throw new Error('No se pudo cargar la verificación. Recarga la página.');
-            const verified = await window.HashcodAdmin.require({force: true});
+            const ready = await ensureAdminEngine();
+            if (!ready) throw new Error('No se pudo cargar la verificación CodeKey. Recarga la página.');
+            const verified = await window.HashcodAdmin.require({ force: true });
             renderAuthState(verified);
             status.textContent = verified
-                ? 'Laptop verificada. Las herramientas protegidas están activas durante 10 minutos.'
-                : 'No se validó el acceso. Pulsa para reintentar.';
+                ? 'CodeKey verificada. Las herramientas protegidas están activas durante 10 minutos.'
+                : 'No se validó el archivo. Pulsa para reintentar.';
         } catch (error) {
             renderAuthState(false);
-            status.textContent = error.message || 'No se pudo verificar. Inténtalo de nuevo.';
+            status.textContent = error.message || 'No se pudo verificar la CodeKey. Inténtalo de nuevo.';
         } finally {
             button.disabled = false;
             button.removeAttribute('aria-busy');

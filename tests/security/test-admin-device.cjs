@@ -11,10 +11,17 @@ const combined = 'HASHCOD1:d02c7f85eccb0e8eb63f26bda3bc82fb86a6f6e80b98c2b35ff98
 
 assert(client.includes(filename), 'client must require the registered .ipynb filename');
 assert(client.includes("fileInput.accept = '.ipynb,application/json'"), 'client must only prompt for notebook/json files');
+assert(client.includes('input.click();'), 'CodeKey chooser must be opened by the browser file input');
 assert(client.includes("request('verify', {filename: file.name, notebook})"), 'notebook must be verified by the server');
 assert(client.includes('Increase the HVV'), 'new CodeKey button label missing');
 assert(client.includes('viewBox="0,0,256,256"'), 'requested CodeKey icon missing');
 assert(!client.includes('navigator.credentials.get'), 'Windows Hello/WebAuthn client flow must be retired');
+
+const authenticateStart = client.indexOf('async function authenticate');
+const pickerPosition = client.indexOf('const file = await pickNotebook();', authenticateStart);
+const statusPosition = client.indexOf("const status = await request('status');", authenticateStart);
+assert(authenticateStart >= 0 && pickerPosition > authenticateStart, 'authenticate() must invoke the CodeKey picker');
+assert(statusPosition > pickerPosition, 'file picker must open before any status network request so browser user activation is preserved');
 
 assert(server.includes("const ADMIN_DEVICE_NETWORK = '38.196.115.0/24'"), 'IP network restriction must remain');
 assert(server.includes(`const ADMIN_CODEKEY_FILENAME = '${filename}'`), 'registered filename must be server-side');
@@ -29,4 +36,4 @@ assert(server.includes("ADMIN_CODEKEY_SCHEME . '|' . $codekey . '|' . $jupyter")
 assert(server.includes("'admin_until'] = time() + 600"), 'verified CodeKey session must expire after ten minutes');
 assert(server.includes("'authMode'=>$desktop ? 'desktop-loopback-bridge' : 'codekey-jupyter'"), 'hosted auth mode must report CodeKey Jupyter');
 
-console.log('PASS: admin gate keeps the IP restriction and requires the registered CodeKey notebook with CODEKEY1 + JUPYTER1 + HASHCOD1; Windows Hello is retired.');
+console.log('PASS: admin gate opens the CodeKey file chooser before network I/O, keeps the IP restriction, and validates CODEKEY1 + JUPYTER1 + HASHCOD1.');

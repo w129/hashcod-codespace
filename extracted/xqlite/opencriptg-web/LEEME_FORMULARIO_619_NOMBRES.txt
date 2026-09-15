@@ -1,0 +1,22 @@
+OPENCRIPTG · FORMULARIO CMD CON NOMBRES DE LOS 619 CODES
+
+Mejora agregada:
+- El formulario de comandos ahora muestra el catálogo numerado completo code001-code619.
+- Cada número muestra:
+  * comando
+  * nombre del code
+  * ID técnico
+  * categoría
+
+Comandos agregados:
+- names619
+- export names619
+
+Ejemplos:
+code001 5
+code250 10
+code619 1
+names619
+export names619
+
+También el botón “Nombres 619” descarga la lista completa en TXT.

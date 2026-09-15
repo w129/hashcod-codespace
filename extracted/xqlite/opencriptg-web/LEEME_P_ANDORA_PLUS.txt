@@ -1,0 +1,23 @@
+OPENCRIPTG · P - ANDORA PLUS
+
+Mejoras incluidas:
+- 20 columnas (A-T)
+- 50 filas
+- varias hojas
+- guardado local automático
+- barra de fórmulas
+- fórmulas con referencias: =A1+B1
+- fórmulas de rango: SUM, AVG, MIN, MAX, COUNT
+- filtros
+- ordenamiento asc/desc por columna
+- celdas combinadas (merge / unmerge)
+- gráficos de barras
+- exportación CSV
+- incrustación de codes desde la base de datos de OpencriptG
+
+Uso:
+1. Abre P - ANDORA desde la barra superior.
+2. En la pestaña HOJA edita celdas, filtra y ordena.
+3. En FÓRMULAS usa ejemplos rápidos.
+4. En GRÁFICOS selecciona columnas para etiqueta y valor.
+5. Usa “Incrustar codes DB” para traer valores de la base de datos.

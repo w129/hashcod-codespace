@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hashcod - Service Order Request</title>
+  <link rel="icon" type="image/svg+xml" href="app/hashcod-platform-icon.svg?v=hashcod-classic-1" />
+  <style>
+    :root {
+      --ink:#111;
+      --muted:#707070;
+      --line:#cfcfca;
+      --paper:#f8f8f4;
+      --soft:rgba(255,255,255,.82);
+      --black:#070707;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      min-height:100vh;
+      color:var(--ink);
+      font-family:"Segoe UI",Arial,sans-serif;
+      background:
+        linear-gradient(90deg,rgba(0,0,0,.05) 1px,transparent 1px),
+        linear-gradient(rgba(0,0,0,.05) 1px,transparent 1px),
+        #f3f3ee;
+      background-size:24px 24px;
+    }
+    body::before {
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.28;
+      background:
+        linear-gradient(126deg, transparent 0 54%, rgba(0,0,0,.25) 54.12%, transparent 54.34%),
+        repeating-linear-gradient(136deg, transparent 0 32px, rgba(0,0,0,.22) 33px, transparent 34px),
+        repeating-linear-gradient(90deg, transparent 0 94px, rgba(0,0,0,.10) 95px, transparent 96px);
+      clip-path:polygon(53% 0,100% 0,100% 100%,76% 100%);
+    }
+    button,input,select,textarea { font:inherit; }
+    .topbar {
+      position:sticky;
+      top:0;
+      z-index:10;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      min-height:58px;
+      padding:0 18px;
+      color:#fff;
+      background:#050505;
+      border-bottom:3px solid #111;
+    }
+    .brand { display:flex;align-items:center;gap:12px;min-width:0; }
+    .brand img { width:30px;height:30px;filter:brightness(0) invert(1); }
+    .brand b { font-size:22px;font-weight:800;letter-spacing:-.03em; }
+    .brand span { color:#c8c8c8;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase; }
+    .topbar a { color:#fff;text-decoration:none;border:1px solid #fff;padding:10px 14px;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase; }
+    .hero {
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 360px;
+      gap:28px;
+      max-width:1280px;
+      margin:34px auto 0;
+      padding:0 22px;
+    }
+    .hero-card {
+      border:2px solid #111;
+      background:rgba(255,255,255,.78);
+      box-shadow:14px 14px 0 rgba(0,0,0,.13);
+      padding:28px;
+    }
+    .eyebrow { color:var(--muted);font-family:Consolas,monospace;font-size:11px;font-weight:900;letter-spacing:5px;text-transform:uppercase; }
+    h1 { margin:10px 0 14px;font-size:clamp(38px,7vw,88px);line-height:.9;letter-spacing:-.06em; }
+    .lead { max-width:850px;margin:0;color:#404040;font-size:18px;line-height:1.55; }
+    .statgrid { display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);margin-top:24px; }
+    .statgrid div { padding:16px;border-right:1px solid var(--line);background:rgba(255,255,255,.72); }
+    .statgrid div:last-child { border-right:0; }
+    .statgrid b { display:block;font-size:24px; }
+    .statgrid span { color:var(--muted);font-family:Consolas,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase; }
+    .side-note { border:2px solid #111;background:#fff;padding:18px;align-self:start;box-shadow:10px 10px 0 rgba(0,0,0,.12); }
+    .side-note h2 { margin:0 0 10px;font-size:22px; }
+    .side-note p { color:#555;line-height:1.55;margin:0; }
+    .shell {
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:390px minmax(0,1fr);
+      gap:22px;
+      max-width:1280px;
+      margin:28px auto 46px;
+      padding:0 22px;
+    }
+    .panel {
+      border:2px solid #111;
+      background:rgba(255,255,255,.82);
+      box-shadow:12px 12px 0 rgba(0,0,0,.12);
+    }
+    .panel h2 { margin:0;padding:18px 20px;border-bottom:1px solid var(--line);font-size:22px; }
+    .form { display:grid;gap:13px;padding:18px; }
+    label { display:grid;gap:7px;color:var(--muted);font-family:Consolas,monospace;font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase; }
+    input,select,textarea {
+      width:100%;
+      min-height:44px;
+      border:1px solid #aaa;
+      background:rgba(255,255,255,.88);
+      color:#111;
+      padding:10px 12px;
+      font-family:"Segoe UI",Arial,sans-serif;
+      font-size:14px;
+      letter-spacing:0;
+      text-transform:none;
+    }
+    input[readonly] {
+      cursor:not-allowed;
+      background:#ededeb;
+      color:#111;
+      font-weight:800;
+      border-color:#777;
+    }
+    textarea { min-height:104px;resize:vertical; }
+    .grid2 { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .actions { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px; }
+    button {
+      min-height:46px;
+      border:1px solid #111;
+      background:#fff;
+      color:#111;
+      font-family:Consolas,monospace;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      cursor:pointer;
+    }
+    button.primary { background:#111;color:#fff; }
+    button:hover { filter:invert(1); }
+    .quote { display:grid;gap:16px;padding:18px; }
+    .quote-card { border:1px solid #111;background:#f7f7f2;padding:18px; }
+    .quote-head { display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:2px solid #111;padding-bottom:14px;margin-bottom:14px; }
+    .quote-logo { display:flex;align-items:center;gap:12px; }
+    .quote-logo img { width:42px;height:42px; }
+    .quote-logo b { font-size:28px;letter-spacing:-.04em; }
+    .quote-logo small { display:block;margin-top:4px;color:#555;font-family:Consolas,monospace;font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase; }
+    .quote-id { font-family:Consolas,monospace;font-size:12px;font-weight:900;letter-spacing:1px;text-align:right; }
+    .quote-table { width:100%;border-collapse:collapse; }
+    .quote-table th,.quote-table td { border:1px solid var(--line);padding:10px;text-align:left;font-size:13px; }
+    .quote-table th { background:#111;color:#fff;font-family:Consolas,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase; }
+    .totalbox { display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #111; }
+    .totalbox div { padding:14px;border-right:1px solid #111;background:#fff; }
+    .totalbox div:last-child { border-right:0;background:#111;color:#fff; }
+    .totalbox span { display:block;color:var(--muted);font-family:Consolas,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase; }
+    .totalbox div:last-child span { color:#ddd; }
+    .totalbox b { font-size:23px; }
+    .registry { max-height:340px;overflow:auto;border:1px solid var(--line); }
+    .registry table { width:100%;border-collapse:collapse;background:#fff; }
+    .registry th,.registry td { border:1px solid var(--line);padding:8px;font-size:12px;text-align:left; }
+    .registry th { position:sticky;top:0;background:#111;color:#fff;font-family:Consolas,monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase; }
+    .service-list { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px; }
+    .service-pill { border:1px solid var(--line);background:rgba(255,255,255,.7);padding:10px; }
+    .service-pill b { display:block;font-size:13px; }
+    .service-pill span { color:var(--muted);font-family:Consolas,monospace;font-size:10px; }
+    @media (max-width:980px) {
+      .hero,.shell { grid-template-columns:1fr; }
+      .service-list { grid-template-columns:1fr 1fr; }
+    }
+    @media (max-width:620px) {
+      .topbar { align-items:flex-start;flex-direction:column;padding:12px; }
+      .statgrid,.totalbox,.grid2,.actions,.service-list { grid-template-columns:1fr; }
+      .hero-card { padding:20px; }
+      .shell,.hero { padding:0 12px; }
+    }
+    @media print {
+      body { background:#fff; }
+      body::before,.topbar,.hero,.form,.actions,.registry,.service-list { display:none !important; }
+      .shell { display:block;margin:0;padding:0;max-width:none; }
+      .panel { box-shadow:none;border:0; }
+      .panel:first-child { display:none; }
+      .quote-card { border:2px solid #111; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="brand">
+      <img src="app/hashcod-platform-icon.svg?v=hashcod-classic-1" alt="" />
+      <b>Hashcod</b>
+      <span>Service Order Portal</span>
+    </div>
+    <a href="/">Open platform</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-card">
+      <div class="eyebrow">Hashcod commercial request</div>
+      <h1>Pedido y solicitud de servicios</h1>
+      <p class="lead">Pagina independiente para cotizar, solicitar y registrar servicios de Hashcod: codigos criptograficos, certificados, tickets, sellos PDF, herramientas, auditorias, licencias y desarrollo privado.</p>
+      <div class="statgrid">
+        <div><b>10,000</b><span>Code catalog</span></div>
+        <div><b>80+</b><span>Tools & labs</span></div>
+        <div><b>PDF/JPG/QR</b><span>Deliverables</span></div>
+      </div>
+    </div>
+    <aside class="side-note">
+      <h2>Enlace directo</h2>
+      <p>Usa esta pagina para que un cliente haga su pedido sin entrar al generador principal. La solicitud queda guardada en este navegador y puede descargarse como comprobante o enviarse por WhatsApp/correo.</p>
+    </aside>
+  </section>
+
+  <main class="shell">
+    <section class="panel">
+      <h2>Crear pedido</h2>
+      <div class="form">
+        <label>Cliente<input id="customer" placeholder="Nombre completo o empresa" /></label>
+        <div class="grid2">
+          <label>Telefono<input id="phone" placeholder="829-000-0000" /></label>
+          <label>Email<input id="email" type="email" placeholder="cliente@email.com" /></label>
+        </div>
+        <label>Servicio
+          <select id="service"></select>
+        </label>
+        <div class="grid2">
+          <label>Cantidad<input id="qty" type="number" min="1" value="1" /></label>
+          <label>Prioridad
+            <select id="priority">
+              <option value="1">Normal</option>
+              <option value="1.25">Rapida +25%</option>
+              <option value="1.55">Urgente +55%</option>
+            </select>
+          </label>
+        </div>
+        <div class="grid2">
+          <label>Descuento fijo %<input id="discount" type="number" value="2" readonly aria-readonly="true" tabindex="-1" /></label>
+          <label>Impuesto fijo ITBIS %<input id="tax" type="number" value="18" readonly aria-readonly="true" tabindex="-1" /></label>
+        </div>
+        <label>Modo de entrega
+          <select id="delivery">
+            <option>Descarga digital</option>
+            <option>PDF certificado</option>
+            <option>ZIP con evidencias</option>
+            <option>Implementacion guiada</option>
+          </select>
+        </label>
+        <label>Notas<textarea id="notes" placeholder="Describe el servicio, cantidad de codes, archivos, QR, licencia o integracion que necesitas."></textarea></label>
+        <div class="actions">
+          <button class="primary" id="saveBtn">Guardar pedido</button>
+          <button id="printBtn">PDF / imprimir</button>
+          <button id="jsonBtn">Descargar JSON</button>
+          <button id="csvBtn">Descargar CSV</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Cotizacion generada</h2>
+      <div class="quote">
+        <article class="quote-card" id="quoteCard">
+          <header class="quote-head">
+            <div class="quote-logo">
+              <img src="app/hashcod-platform-icon.svg?v=hashcod-classic-1" alt="" />
+              <div><b>HASHCOD</b><div class="eyebrow">Service quote / order</div><small id="quoteRncHead">RNC 402-0936929-3</small></div>
+            </div>
+            <div class="quote-id" id="quoteId">HCO-ORDER</div>
+          </header>
+          <table class="quote-table">
+            <tbody id="quoteRows"></tbody>
+          </table>
+        </article>
+        <div class="totalbox">
+          <div><span>Subtotal</span><b id="subtotal">$0.00</b></div>
+          <div><span>Discount 2%</span><b id="discountValue">$0.00</b></div>
+          <div><span>Tax 18%</span><b id="taxValue">$0.00</b></div>
+          <div><span>Total</span><b id="total">$0.00</b></div>
+        </div>
+        <div class="registry">
+          <table>
+            <thead><tr><th>#</th><th>Cliente</th><th>Servicio</th><th>Total</th><th>Fecha</th></tr></thead>
+            <tbody id="registryRows"></tbody>
+          </table>
+        </div>
+        <div class="service-list" id="serviceList"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data/icons.js?v=orders-catalog-1"></script>
+  <script src="data/catalog.js?v=orders-catalog-1"></script>
+  <script>
+    const HASHCOD_RNC = '402-0936929-3';
+    const HASHCOD_FIXED_DISCOUNT = 2;
+    const HASHCOD_FIXED_TAX = 18;
+    const FAMILY_BASE = {
+      'PQC-KEM': 34, 'PQC-SIG': 36, 'HASH-SIG': 31, HPKE: 29, ZK: 42, MPC: 44, FHE: 58,
+      THRESH: 38, VDF: 33, VRF: 35, 'AEAD-LW': 24, XOF: 19, KDF: 18, MAC: 17, PAKE: 30,
+      ACCUM: 32, IBE: 37, ABE: 41, RING: 34, BLIND: 35
+    };
+    const CATEGORY_BASE = {
+      symmetric: 10, hashes: 8, mac: 12, kdf: 14, passwords: 10, asymmetric: 28,
+      signatures: 30, tokens: 12, ids: 7, pqc: 46, advanced_codes_100: 25,
+      advanced_codes_200: 32, neo_crypto_200: 52, apex_crypto_300: 58, hashcod_advanced_8282: 26
+    };
+    const baseServices = [
+      ['Cryptographic code batch', 'Codes', 1.2, 'Codes generated from Hashcod catalog'],
+      ['10,000 code catalog delivery', 'Catalog', 1800, 'Complete exported code catalog'],
+      ['Hashcod PDF stamp', 'PDF', 24, 'Black QR verified PDF stamp'],
+      ['Equet Matrix Ultra Math ticket', 'Math', 38, 'Directional parameter ticket JPG'],
+      ['QR Vault package', 'QR', 18, 'QR payload and verification bundle'],
+      ['Ticket Forge', 'Tickets', 35, 'YAML, PNG and JPG ticket design'],
+      ['DocuSeal document signature', 'Signature', 55, 'Signed PDF workflow'],
+      ['Warp cryptographic workspace', 'IDE', 90, 'Programming workspace setup'],
+      ['Evidence Vault certificate', 'Evidence', 75, 'Digital evidence certificate'],
+      ['License Shield', 'License', 68, 'Software license generation and verification'],
+      ['Token Inspector', 'Token', 45, 'JWT, API key and serial analysis'],
+      ['Secret Scanner', 'Security', 60, 'Project secret scan'],
+      ['Risk Engine analysis', 'Security', 95, 'Entropy, pattern and verdict report'],
+      ['Developer Vault setup', 'Vault', 120, 'Private credential vault design'],
+      ['Custom Hashcod tool development', 'Custom', 250, 'Private tool or workflow'],
+      ['Enterprise implementation session', 'Enterprise', 420, 'Deployment, training and support']
+    ];
+    const cleanText = value => String(value ?? '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7E]/g, ' ').replace(/\s+/g, ' ').trim();
+    const entropyBits = entropy => {
+      const match = String(entropy || '').match(/(\d+(?:\.\d+)?)\s*bits/i);
+      return match ? Number(match[1]) : 128;
+    };
+    const familyFromType = type => {
+      const label = `${type.originalLabel || type.label || ''} ${type.id || ''} ${type.engine || ''}`;
+      const hc = label.match(/\bHC-([A-Z0-9-]+)-/);
+      if (hc) return hc[1];
+      if (/AES|ChaCha|Salsa|Serpent|Twofish|SM4|GOST|Kuznyechik|Magma|Blowfish/i.test(label)) return 'SYMMETRIC';
+      if (/SHA|BLAKE|Keccak|RIPEMD|Whirlpool|Hash/i.test(label)) return 'HASH';
+      if (/JWT|Token|License|QR|TOTP|UUID|ULID|Nonce/i.test(label)) return 'TOKEN';
+      if (/RSA|ECDSA|EdDSA|Dilithium|Kyber|Falcon|SPHINCS|ML-/i.test(label)) return 'ASYMMETRIC';
+      return 'GENERAL';
+    };
+    const levelPremium = type => {
+      const text = `${type.label || ''} ${type.originalLabel || ''} ${type.entropy || ''} ${type.space || ''}`;
+      if (/L5|512|896|832/i.test(text)) return 1.95;
+      if (/L3|384|800|768/i.test(text)) return 1.55;
+      if (/256|704|640/i.test(text)) return 1.25;
+      if (/192/i.test(text)) return 1.12;
+      if (/128|L1/i.test(text)) return 1.0;
+      return 1.08;
+    };
+    const standardPremium = type => {
+      const text = `${type.std || ''} ${type.engine || ''} ${type.about || ''}`;
+      if (/deprecated|broken|legacy interop only/i.test(text)) return 0.62;
+      if (/NIST|FIPS|RFC|ISO|SP 800|IETF|W3C|IEEE/i.test(text)) return 1.22;
+      if (/post-quantum|zero-knowledge|homomorphic|threshold|identity-based|attribute-based/i.test(text)) return 1.38;
+      if (/Hashcod/i.test(text)) return 1.16;
+      return 1.0;
+    };
+    const rarityPremium = (index, categoryId) => {
+      if (categoryId === 'hashcod_advanced_8282') return 1 + ((index % 37) / 100);
+      if (/neo|apex|advanced/i.test(categoryId)) return 1.28 + ((index % 19) / 100);
+      return 1 + ((index % 11) / 100);
+    };
+    const complexityUnits = type => {
+      const text = `${type.engine || ''} ${type.about || ''} ${type.std || ''}`;
+      let score = 1;
+      if (/HMAC|signature|firma|signed|binding/i.test(text)) score += 0.35;
+      if (/nonce|salt|payload|route|checksum/i.test(text)) score += 0.3;
+      if (/SHA-512|SHA3|SHA-3|BLAKE3/i.test(text)) score += 0.2;
+      if (/post-quantum|zero-knowledge|homomorphic|multipartita|threshold/i.test(text)) score += 0.8;
+      return score;
+    };
+    const quoteCodePriceFor = ({ category, type, globalIndex }) => {
+      const family = familyFromType(type);
+      const catBase = CATEGORY_BASE[category.id] || 14;
+      const familyBase = FAMILY_BASE[family] || catBase;
+      const bits = entropyBits(type.entropy);
+      const entropyFactor = Math.max(0.85, Math.min(2.4, Math.log2(Math.max(bits, 64)) / 8));
+      const per10 = Math.max(1, Math.round(familyBase * levelPremium(type) * standardPremium(type) * rarityPremium(globalIndex, category.id) * complexityUnits(type) * entropyFactor));
+      return { family, per10, each: Number((per10 / 10).toFixed(2)) };
+    };
+    const catalogCodeServices = () => {
+      let n = 0;
+      return (window.OCG_CATALOG || []).flatMap(category => (category.types || []).map(type => {
+        n += 1;
+        const price = quoteCodePriceFor({ category, type, globalIndex: n });
+        const codeName = `${String(n).padStart(5, '0')} | ${cleanText(type.label || type.id)}`;
+        return [
+          codeName,
+          cleanText(category.label || category.id),
+          price.each,
+          `${price.family} · ${cleanText(type.entropy || '-')} · ${cleanText(type.std || type.engine || '-')}`,
+          true,
+          price.per10
+        ];
+      }));
+    };
+    const codeServices = catalogCodeServices();
+    const services = [...baseServices, ...codeServices];
+    const $ = id => document.getElementById(id);
+    const money = value => `$${Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const orderId = () => `HCO-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.random().toString(16).slice(2,8).toUpperCase()}`;
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const readOrders = () => {
+      try { return JSON.parse(localStorage.getItem('hashcod_service_orders') || '[]'); } catch { return []; }
+    };
+    const writeOrders = rows => localStorage.setItem('hashcod_service_orders', JSON.stringify(rows.slice(0, 500)));
+    const currentOrder = () => {
+      const selected = services[$('service').selectedIndex] || services[0];
+      const qty = Math.max(1, Number($('qty').value) || 1);
+      const priority = Number($('priority').value) || 1;
+      const discountRate = HASHCOD_FIXED_DISCOUNT / 100;
+      const taxRate = HASHCOD_FIXED_TAX / 100;
+      const subtotal = selected[2] * qty * priority;
+      const discount = subtotal * discountRate;
+      const taxable = subtotal - discount;
+      const tax = taxable * taxRate;
+      const total = taxable + tax;
+      return {
+        id: $('quoteId').dataset.id || orderId(),
+        at: new Date().toISOString(),
+        issuer: 'Hashcod',
+        rnc: HASHCOD_RNC,
+        customer: $('customer').value.trim(),
+        phone: $('phone').value.trim(),
+        email: $('email').value.trim(),
+        service: selected[0],
+        category: selected[1],
+        unit: selected[2],
+        description: selected[3] || '',
+        kind: selected[4] ? 'cryptographic_code' : 'service',
+        codePack10Price: selected[5] || '',
+        qty,
+        priority,
+        delivery: $('delivery').value,
+        notes: $('notes').value.trim(),
+        discountRatePct: HASHCOD_FIXED_DISCOUNT,
+        taxRatePct: HASHCOD_FIXED_TAX,
+        subtotal,
+        discount,
+        tax,
+        total
+      };
+    };
+    const renderQuote = () => {
+      const row = currentOrder();
+      $('quoteId').dataset.id = row.id;
+      $('quoteId').textContent = row.id;
+      $('quoteRows').innerHTML = [
+        ['Issuer', `${row.issuer} · RNC ${row.rnc}`],
+        ['Customer', row.customer || '---'],
+        ['Phone', row.phone || '---'],
+        ['Email', row.email || '---'],
+        ['Service', row.service],
+        ['Category', row.category],
+        ['Reference', row.description],
+        ['Quantity', row.qty],
+        ['Unit price', money(row.unit)],
+        ['Priority multiplier', `${row.priority.toFixed(2)}x`],
+        ['Fixed discount', `${row.discountRatePct}%`],
+        ['Fixed tax', `${row.taxRatePct}%`],
+        ['Delivery', row.delivery],
+        ['Notes', row.notes || '---']
+      ].map(([a,b]) => `<tr><th>${escapeHtml(a)}</th><td>${escapeHtml(b)}</td></tr>`).join('');
+      $('subtotal').textContent = money(row.subtotal);
+      $('discountValue').textContent = money(row.discount);
+      $('taxValue').textContent = money(row.tax);
+      $('total').textContent = money(row.total);
+    };
+    const renderRegistry = () => {
+      const rows = readOrders();
+      $('registryRows').innerHTML = rows.length ? rows.map((row, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(row.customer || '---')}</td><td>${escapeHtml(row.service)}</td><td>${money(row.total)}</td><td>${escapeHtml(String(row.at || '').slice(0,19))}</td></tr>`).join('') : '<tr><td colspan="5">No orders saved yet.</td></tr>';
+    };
+    const download = (name, text, type) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 500);
+    };
+    const renderServiceOptions = () => {
+      const select = $('service');
+      select.innerHTML = '';
+      const serviceGroup = document.createElement('optgroup');
+      serviceGroup.label = 'Hashcod services';
+      baseServices.forEach((row, index) => {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = `${row[0]} - ${money(row[2])}`;
+        serviceGroup.appendChild(option);
+      });
+      const codeGroup = document.createElement('optgroup');
+      codeGroup.label = `10,000 cryptographic codes priced from Hashcod PDF (${codeServices.length})`;
+      codeServices.forEach((row, index) => {
+        const option = document.createElement('option');
+        option.value = String(baseServices.length + index);
+        option.textContent = `${row[0]} - ${money(row[2])} each`;
+        codeGroup.appendChild(option);
+      });
+      select.appendChild(serviceGroup);
+      select.appendChild(codeGroup);
+    };
+    renderServiceOptions();
+    $('serviceList').innerHTML = [
+      ...baseServices.map(row => `<div class="service-pill"><b>${escapeHtml(row[0])}</b><span>${escapeHtml(row[1])} | ${money(row[2])}</span></div>`),
+      `<div class="service-pill"><b>10,000 cryptographic codes</b><span>Individual code prices loaded from Hashcod pricing PDF formula · ${codeServices.length.toLocaleString('en-US')} options in Service</span></div>`
+    ].join('');
+    $('discount').value = HASHCOD_FIXED_DISCOUNT;
+    $('tax').value = HASHCOD_FIXED_TAX;
+    document.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', renderQuote));
+    $('saveBtn').addEventListener('click', () => {
+      const row = currentOrder();
+      const rows = [row, ...readOrders()];
+      writeOrders(rows);
+      $('quoteId').dataset.id = orderId();
+      renderQuote();
+      renderRegistry();
+    });
+    $('printBtn').addEventListener('click', () => window.print());
+    $('jsonBtn').addEventListener('click', () => download(`Hashcod-order-${Date.now()}.json`, JSON.stringify(currentOrder(), null, 2), 'application/json;charset=utf-8'));
+    $('csvBtn').addEventListener('click', () => {
+      const rows = readOrders();
+      const headers = ['id','at','issuer','rnc','customer','phone','email','service','category','kind','description','qty','unit','codePack10Price','discountRatePct','taxRatePct','subtotal','discount','tax','total','delivery','notes'];
+      const csv = [headers.join(','), ...rows.map(row => headers.map(key => `"${String(row[key] ?? '').replace(/"/g,'""')}"`).join(','))].join('\n');
+      download(`Hashcod-orders-${Date.now()}.csv`, csv, 'text/csv;charset=utf-8');
+    });
+    renderQuote();
+    renderRegistry();
+  </script>
+</body>
+</html>

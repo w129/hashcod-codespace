@@ -1,0 +1,11 @@
+OpencriptG – Ivory DID Idea Vault Database FIX
+
+Corrección aplicada:
+- Se arregló el SyntaxError en app/app.jsx causado por una cadena de texto sin cerrar en la exportación CSV.
+- La línea de exportación ahora usa lines.join('\\n') correctamente.
+- La plataforma debe cargar sin el error de "Unterminated string constant".
+
+Módulo afectado:
+- IVORY DID IDEA VAULT
+- Base de datos de registros
+- Exportación CSV / JSON

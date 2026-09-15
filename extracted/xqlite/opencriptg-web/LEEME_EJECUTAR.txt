@@ -1,0 +1,21 @@
+OPENCRIPTG - V10 TEXT LAB ULTRA SUITE
+
+Cómo ejecutarlo:
+
+1. Descomprime esta carpeta.
+2. Abre una terminal dentro de la carpeta principal.
+3. Ejecuta:
+
+   npm install
+   npm start
+
+4. Abre el navegador en:
+
+   http://127.0.0.1:2340
+
+Incluye:
+- Cubo de entrada.
+- QR Vault.
+- Base de datos.
+- Text Lab Ultra Suite.
+- Editor con pestañas, biblioteca interna, modo oscuro, PDF, exportación HTML/MD/TXT, autocorrección y asistente de redacción.

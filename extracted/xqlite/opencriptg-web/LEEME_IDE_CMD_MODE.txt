@@ -1,0 +1,47 @@
+OPENCRIPTG · IDE CMD MODE
+
+Esta versión convierte la plataforma en un IDE manejado por comandos, manteniendo el diseño visual de OpencriptG.
+
+Cambios principales:
+- La pantalla principal ahora es una consola CMD/IDE.
+- Todos los módulos se abren por comandos.
+- Se conserva el diseño negro/blanco/monocromo de la plataforma.
+- Las herramientas existentes siguen integradas: base de datos, QR Vault, Text Lab, Drive Lab, P - ANDORA, DESK, OSDG -rest, Markdown, sequence - A y Certificados.
+
+Comandos principales:
+help
+status
+types
+search <texto>
+set type <id>
+set len <n>
+set qty <n>
+set prefix <texto>
+gen <cantidad>
+copy all
+export md
+export txt
+export json
+export csv
+open db
+open qr
+open text
+open drive
+open pandora
+open desk
+open osdg
+open markdown
+open sequence
+open certificates
+clear output
+clear db
+new session
+save
+lang es
+
+Ejemplo:
+set type aes256
+gen 100
+copy all
+open db
+export json

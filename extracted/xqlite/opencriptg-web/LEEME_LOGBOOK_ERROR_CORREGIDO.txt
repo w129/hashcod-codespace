@@ -1,0 +1,14 @@
+OpencriptG – Corrección del error LOG
+
+Se corrigió el SyntaxError:
+Unterminated string constant
+
+Causa:
+- La función del nuevo botón de librito cerrado usaba un salto de línea escrito de forma inválida en app.jsx.
+
+Corrección:
+- Se cambió la unión del contenido del archivo .log a lines.join('\n') correctamente.
+
+Resultado:
+- La plataforma carga sin ese error.
+- El icono de librito cerrado sigue descargando el archivo .log por cada code generado.

@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hashcod - Castor Pause Challenge</title>
+  <link rel="icon" type="image/svg+xml" href="app/hashcod-platform-icon.svg?v=hashcod-classic-1" />
+  <style>
+    :root {
+      --ink:#080808;
+      --paper:#f7f7f2;
+      --line:#111;
+      --muted:#777;
+      --danger:#b00020;
+      --ok:#11823b;
+    }
+    * { box-sizing:border-box; }
+    html,body { min-height:100%; }
+    body {
+      margin:0;
+      color:var(--ink);
+      font-family:"Segoe UI",Arial,sans-serif;
+      background:
+        linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px),
+        linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),
+        #efefea;
+      background-size:22px 22px;
+      overflow-x:hidden;
+    }
+    body::before {
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.23;
+      background:
+        repeating-linear-gradient(136deg,transparent 0 30px,rgba(0,0,0,.22) 31px,transparent 32px),
+        linear-gradient(126deg,transparent 0 52%,rgba(0,0,0,.20) 52.12%,transparent 52.32%);
+      clip-path:polygon(50% 0,100% 0,100% 100%,73% 100%);
+    }
+    button { font:inherit;cursor:pointer; }
+    .topbar {
+      position:sticky;
+      top:0;
+      z-index:5;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      min-height:58px;
+      padding:0 18px;
+      background:#050505;
+      color:#fff;
+      border-bottom:3px solid #111;
+    }
+    .brand { display:flex;align-items:center;gap:12px;min-width:0; }
+    .brand img { width:30px;height:30px;filter:brightness(0) invert(1); }
+    .brand b { font-size:22px;font-weight:800;letter-spacing:-.03em; }
+    .brand span { color:#d7d7d7;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase; }
+    .topbar a {
+      color:#fff;
+      text-decoration:none;
+      border:1px solid #fff;
+      padding:10px 14px;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .shell {
+      position:relative;
+      z-index:1;
+      width:min(1280px,calc(100% - 30px));
+      margin:28px auto 46px;
+      display:grid;
+      grid-template-columns:380px minmax(0,1fr);
+      gap:20px;
+    }
+    .panel,.arena-card {
+      border:2px solid #111;
+      background:rgba(255,255,255,.82);
+      box-shadow:12px 12px 0 rgba(0,0,0,.14);
+    }
+    .panel { padding:20px;align-self:start; }
+    .eyebrow {
+      color:var(--muted);
+      font-family:Consolas,"Courier New",monospace;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:4px;
+      text-transform:uppercase;
+    }
+    h1 { margin:10px 0 12px;font-size:clamp(34px,6vw,68px);line-height:.9;letter-spacing:-.055em; }
+    .lead { margin:0 0 18px;color:#444;line-height:1.5;font-size:16px; }
+    .score-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      border:1px solid #bbb;
+      margin:18px 0;
+    }
+    .score-grid div { padding:13px;border-right:1px solid #bbb;border-bottom:1px solid #bbb;background:#fff; }
+    .score-grid div:nth-child(2n) { border-right:0; }
+    .score-grid div:nth-last-child(-n+2) { border-bottom:0; }
+    .score-grid span {
+      display:block;
+      color:#777;
+      font-family:Consolas,monospace;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+    .score-grid b { display:block;margin-top:5px;font-size:26px; }
+    .controls { display:grid;gap:10px; }
+    .controls button {
+      min-height:48px;
+      border:1px solid #111;
+      background:#fff;
+      color:#111;
+      font-family:Consolas,monospace;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+    .controls button.primary { background:#111;color:#fff; }
+    .controls button:hover { filter:invert(1); }
+    .notice {
+      margin-top:14px;
+      border-left:4px solid #111;
+      background:#f7f7f2;
+      padding:12px;
+      color:#555;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .reward {
+      margin-top:14px;
+      border:2px solid #111;
+      background:#111;
+      color:#fff;
+      padding:14px;
+      font-family:Consolas,"Courier New",monospace;
+      font-size:12px;
+      line-height:1.45;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+    }
+    .reward b {
+      display:block;
+      margin-bottom:4px;
+      font-size:18px;
+      letter-spacing:2px;
+    }
+    .coupon {
+      display:none;
+      margin-top:12px;
+      border:2px dashed #11823b;
+      background:#f7fff9;
+      color:#11823b;
+      padding:12px;
+      font-family:Consolas,"Courier New",monospace;
+      font-size:13px;
+      font-weight:900;
+      line-height:1.45;
+    }
+    .coupon.is-visible { display:block; }
+    .arena-card { overflow:hidden; }
+    .arena-head {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:16px 18px;
+      border-bottom:1px solid #cfcfca;
+      background:rgba(255,255,255,.88);
+    }
+    .arena-head b {
+      font-family:Consolas,monospace;
+      font-size:12px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+    }
+    .arena-head span { color:#777;font-size:13px; }
+    .arena {
+      position:relative;
+      height:min(68vh,620px);
+      min-height:430px;
+      background:
+        linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px),
+        linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),
+        rgba(255,255,255,.62);
+      background-size:20px 20px;
+      overflow:hidden;
+      user-select:none;
+      touch-action:manipulation;
+    }
+    .danger-band {
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:radial-gradient(circle at var(--x,50%) var(--y,50%), transparent 0 80px, rgba(176,0,32,.055) 81px 160px, transparent 161px);
+      mix-blend-mode:multiply;
+    }
+    .target {
+      position:absolute;
+      width:122px;
+      height:122px;
+      border:5px solid #111;
+      background:rgba(17,130,59,.09);
+      box-shadow:inset 0 0 0 2px #fff, 0 0 0 2px rgba(0,0,0,.16);
+    }
+    .target.is-shifting {
+      outline:3px solid rgba(176,0,32,.45);
+      outline-offset:5px;
+    }
+    .target::before,.target::after {
+      content:"";
+      position:absolute;
+      background:#111;
+    }
+    .target::before { left:50%;top:-18px;width:4px;height:154px;transform:translateX(-50%); }
+    .target::after { top:50%;left:-18px;height:4px;width:154px;transform:translateY(-50%); }
+    .beaver {
+      position:absolute;
+      width:74px;
+      height:58px;
+      transform:translate3d(0,0,0);
+      will-change:transform;
+      filter:drop-shadow(6px 7px 0 rgba(0,0,0,.18));
+    }
+    .beaver svg { width:100%;height:100%;display:block;image-rendering:pixelated; }
+    .trail {
+      position:absolute;
+      width:6px;
+      height:6px;
+      background:#111;
+      opacity:.18;
+      pointer-events:none;
+    }
+    .bait {
+      position:absolute;
+      min-width:72px;
+      height:30px;
+      display:grid;
+      place-items:center;
+      border:2px solid #11823b;
+      background:#f7fff9;
+      color:#11823b;
+      font-family:Consolas,"Courier New",monospace;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:1.8px;
+      text-transform:uppercase;
+      box-shadow:4px 4px 0 rgba(17,130,59,.2);
+      pointer-events:none;
+      transform:translate3d(0,0,0);
+      will-change:transform;
+    }
+    .bait::before {
+      content:"BONUS";
+      position:absolute;
+      left:6px;
+      top:-12px;
+      color:#111;
+      font-size:8px;
+      letter-spacing:1px;
+    }
+    .bait.bad {
+      border-color:#b00020;
+      color:#b00020;
+      background:#fff7f8;
+      box-shadow:4px 4px 0 rgba(176,0,32,.16);
+    }
+    .target.is-hidden {
+      opacity:.16;
+      filter:blur(1px);
+    }
+    .fake-target {
+      position:absolute;
+      width:112px;
+      height:112px;
+      border:3px dashed #11823b;
+      background:rgba(17,130,59,.08);
+      opacity:.8;
+      pointer-events:none;
+    }
+    .result {
+      min-height:50px;
+      padding:14px 18px;
+      border-top:1px solid #cfcfca;
+      background:#fff;
+      font-family:Consolas,monospace;
+      font-size:13px;
+      line-height:1.45;
+    }
+    .result.win { color:var(--ok); }
+    .result.fail { color:var(--danger); }
+    @media (max-width:900px) {
+      .shell { grid-template-columns:1fr; }
+      .arena { min-height:470px; }
+    }
+    @media (max-width:620px) {
+      .topbar { flex-direction:column;align-items:flex-start;padding:12px; }
+      .shell { width:calc(100% - 20px);margin-top:18px; }
+      .panel { padding:16px; }
+      .score-grid { grid-template-columns:1fr; }
+      .score-grid div,.score-grid div:nth-child(2n),.score-grid div:nth-last-child(-n+2) { border-right:0;border-bottom:1px solid #bbb; }
+      .score-grid div:last-child { border-bottom:0; }
+      .target { width:104px;height:104px; }
+      .beaver { width:64px;height:50px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="brand">
+      <img src="app/hashcod-platform-icon.svg?v=hashcod-classic-1" alt="" />
+      <b>Hashcod</b>
+      <span>Castor Pause Challenge</span>
+    </div>
+    <a href="/">Open platform</a>
+  </nav>
+
+  <main class="shell">
+    <section class="panel">
+      <div class="eyebrow">Impossible timing lab</div>
+      <h1>Castor Castor</h1>
+      <p class="lead">Pausa el castor exactamente cuando cruce el cuadro. El cronometro corre acelerado, el castor cambia de direccion y la arena lanza bonus visuales que prometen ayudarte, aunque no todos dicen la verdad.</p>
+      <div class="score-grid">
+        <div><span>Cronometro</span><b id="clock">00:00.000</b></div>
+        <div><span>Velocidad</span><b id="speed">0x</b></div>
+        <div><span>Intentos</span><b id="tries">0</b></div>
+        <div><span>Mejor error</span><b id="best">---</b></div>
+        <div><span>Ayudas tomadas</span><b id="traps">0</b></div>
+        <div><span>Cuadro</span><b id="targetSize">122</b></div>
+      </div>
+      <div class="controls">
+        <button class="primary" id="startBtn">Iniciar</button>
+        <button id="pauseBtn">Pausar Castor</button>
+        <button id="resetBtn">Reiniciar</button>
+      </div>
+      <div class="notice">Regla: ganas solo si el centro del castor queda dentro del cuadro en el instante exacto de pausa. Si cae dentro, ganas; la arena lo vuelve casi imposible con campo de rechazo, cuadro movil y bonus que sabotean el intento.</div>
+      <div class="reward">
+        <b>Premio del reto</b>
+        Si logras pausar el castor dentro del cuadro, obtienes 50% de descuento en servicios Hashcod.
+      </div>
+      <div class="coupon" id="coupon">CUPON BLOQUEADO - gana el reto para activar el 50%.</div>
+    </section>
+
+    <section class="arena-card">
+      <div class="arena-head">
+        <b>Hashcod Reflex Arena</b>
+        <span id="state">Ready</span>
+      </div>
+      <div class="arena" id="arena">
+        <div class="target" id="target" aria-hidden="true"></div>
+        <div class="danger-band" id="dangerBand" aria-hidden="true"></div>
+        <div class="beaver" id="beaver" aria-label="Castor">
+          <svg viewBox="0 0 74 58" role="img">
+            <rect x="12" y="17" width="42" height="26" fill="#7a4a25"/>
+            <rect x="18" y="11" width="30" height="18" fill="#915a2e"/>
+            <rect x="24" y="4" width="8" height="10" fill="#5d3519"/>
+            <rect x="40" y="4" width="8" height="10" fill="#5d3519"/>
+            <rect x="24" y="17" width="6" height="6" fill="#080808"/>
+            <rect x="42" y="17" width="6" height="6" fill="#080808"/>
+            <rect x="33" y="24" width="8" height="5" fill="#111"/>
+            <rect x="27" y="31" width="8" height="7" fill="#fff"/>
+            <rect x="39" y="31" width="8" height="7" fill="#fff"/>
+            <rect x="0" y="30" width="16" height="16" fill="#4f2d16"/>
+            <rect x="54" y="29" width="18" height="18" fill="#4f2d16"/>
+            <rect x="10" y="43" width="46" height="8" fill="#563218"/>
+            <rect x="58" y="35" width="12" height="5" fill="#2a180c"/>
+          </svg>
+        </div>
+      </div>
+      <div class="result" id="result">Presiona iniciar. Atajo: barra espaciadora para pausar.</div>
+    </section>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const arena = $('arena');
+    const beaver = $('beaver');
+    const target = $('target');
+    const dangerBand = $('dangerBand');
+    const clockEl = $('clock');
+    const speedEl = $('speed');
+    const triesEl = $('tries');
+    const bestEl = $('best');
+    const trapsEl = $('traps');
+    const targetSizeEl = $('targetSize');
+    const stateEl = $('state');
+    const resultEl = $('result');
+    const couponEl = $('coupon');
+    const startBtn = $('startBtn');
+    const pauseBtn = $('pauseBtn');
+    const resetBtn = $('resetBtn');
+
+    let running = false;
+    let raf = 0;
+    let startedAt = 0;
+    let lastFrame = 0;
+    let gameMs = 0;
+    let tries = 0;
+    let bestError = Infinity;
+    let x = 0;
+    let y = 0;
+    let vx = 920;
+    let vy = 680;
+    let speedBoost = 1;
+    let targetBox = { x: 0, y: 0, w: 122, h: 122 };
+    let nextChaos = 0;
+    let lastCoupon = '';
+    let baits = [];
+    let fakeTarget = null;
+    let nextBait = 0;
+    let trapHits = 0;
+    let targetHiddenUntil = 0;
+    let baitSerial = 0;
+    let nextTargetShift = 0;
+    let repulsionLevel = 0;
+
+    const fmt = ms => {
+      const total = Math.floor(ms);
+      const minutes = String(Math.floor(total / 60000)).padStart(2, '0');
+      const seconds = String(Math.floor((total % 60000) / 1000)).padStart(2, '0');
+      const milli = String(total % 1000).padStart(3, '0');
+      return `${minutes}:${seconds}.${milli}`;
+    };
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const randomBetween = (a, b) => a + Math.random() * (b - a);
+    const bounds = () => {
+      const rect = arena.getBoundingClientRect();
+      return { w: rect.width, h: rect.height, bw: beaver.offsetWidth || 74, bh: beaver.offsetHeight || 58 };
+    };
+    const placeTarget = () => {
+      const b = bounds();
+      targetBox.w = Math.max(46, Math.min(68, b.w * 0.065));
+      targetBox.h = targetBox.w;
+      targetBox.x = randomBetween(32, Math.max(33, b.w - targetBox.w - 32));
+      targetBox.y = randomBetween(42, Math.max(43, b.h - targetBox.h - 42));
+      target.style.width = `${targetBox.w}px`;
+      target.style.height = `${targetBox.h}px`;
+      target.style.transform = `translate3d(${targetBox.x}px,${targetBox.y}px,0)`;
+      targetSizeEl.textContent = `${Math.round(targetBox.w)}`;
+    };
+    const shiftTargetAway = now => {
+      if (now < nextTargetShift) return;
+      target.classList.add('is-shifting');
+      placeTarget();
+      nextTargetShift = now + randomBetween(620, 980);
+      setTimeout(() => target.classList.remove('is-shifting'), 130);
+    };
+    const resetMotion = () => {
+      const b = bounds();
+      x = randomBetween(0, Math.max(1, b.w - b.bw));
+      y = randomBetween(0, Math.max(1, b.h - b.bh));
+      speedBoost = randomBetween(1.95, 2.9);
+      vx = randomBetween(880, 1280) * (Math.random() > .5 ? 1 : -1);
+      vy = randomBetween(720, 1120) * (Math.random() > .5 ? 1 : -1);
+      nextChaos = 0;
+      beaver.style.transform = `translate3d(${x}px,${y}px,0)`;
+    };
+    const repelFromTarget = now => {
+      const b = bounds();
+      const cx = x + b.bw / 2;
+      const cy = y + b.bh / 2;
+      const tx = targetBox.x + targetBox.w / 2;
+      const ty = targetBox.y + targetBox.h / 2;
+      const dx = cx - tx;
+      const dy = cy - ty;
+      const distance = Math.max(1, Math.hypot(dx, dy));
+      const radius = targetBox.w * 2.65 + 34;
+      repulsionLevel = Math.max(0, 1 - distance / radius);
+      if (repulsionLevel <= 0) return;
+      const force = 2100 * repulsionLevel * repulsionLevel;
+      vx += (dx / distance) * force;
+      vy += (dy / distance) * force;
+      vx = clamp(vx, -1900, 1900);
+      vy = clamp(vy, -1750, 1750);
+      if (distance < targetBox.w * .9 + 14) shiftTargetAway(now);
+    };
+    const scoreError = () => {
+      const cx = x + (beaver.offsetWidth || 74) / 2;
+      const cy = y + (beaver.offsetHeight || 58) / 2;
+      const tx = clamp(cx, targetBox.x, targetBox.x + targetBox.w);
+      const ty = clamp(cy, targetBox.y, targetBox.y + targetBox.h);
+      const inside = cx >= targetBox.x && cx <= targetBox.x + targetBox.w && cy >= targetBox.y && cy <= targetBox.y + targetBox.h;
+      const dist = Math.hypot(cx - tx, cy - ty);
+      return { inside, dist, cx, cy };
+    };
+    const drawTrail = () => {
+      if (Math.random() > .35) return;
+      const dot = document.createElement('i');
+      dot.className = 'trail';
+      dot.style.left = `${x + 20}px`;
+      dot.style.top = `${y + 20}px`;
+      arena.appendChild(dot);
+      setTimeout(() => dot.remove(), 360);
+    };
+    const clearBaits = () => {
+      baits.forEach(item => item.el.remove());
+      baits = [];
+      if (fakeTarget) {
+        fakeTarget.remove();
+        fakeTarget = null;
+      }
+      target.classList.remove('is-hidden');
+    };
+    const baitTypes = [
+      { key:'SLOW+', name:'Slow', action:'speed' },
+      { key:'WIDE+', name:'Wide', action:'shrink' },
+      { key:'AIM+', name:'Aim', action:'move' },
+      { key:'FOCUS+', name:'Focus', action:'hide' },
+      { key:'SAFE+', name:'Safe', action:'fake' }
+    ];
+    const spawnBait = now => {
+      const b = bounds();
+      const type = baitTypes[Math.floor(Math.random() * baitTypes.length)];
+      const el = document.createElement('div');
+      el.className = 'bait';
+      el.textContent = type.key;
+      arena.appendChild(el);
+      baits.push({
+        id: ++baitSerial,
+        type,
+        el,
+        x: randomBetween(24, Math.max(25, b.w - 120)),
+        y: randomBetween(34, Math.max(35, b.h - 80)),
+        vx: randomBetween(-90, 90),
+        vy: randomBetween(-70, 70),
+        born: now,
+      ttl: randomBetween(2400, 3800)
+      });
+    };
+    const activateTrap = item => {
+      trapHits += 1;
+      trapsEl.textContent = String(trapHits);
+      item.el.classList.add('bad');
+      item.el.textContent = 'TRAP';
+      if (item.type.action === 'speed') {
+        speedBoost = Math.min(5.4, speedBoost + 1.35);
+        vx *= 1.22;
+        vy *= 1.22;
+        stateEl.textContent = 'SLOW+ ACTIVATED: SPEED SPIKE';
+      } else if (item.type.action === 'shrink') {
+        targetBox.w = Math.max(22, targetBox.w * .58);
+        targetBox.h = targetBox.w;
+        target.style.width = `${targetBox.w}px`;
+        target.style.height = `${targetBox.h}px`;
+        targetSizeEl.textContent = `${Math.round(targetBox.w)}`;
+        stateEl.textContent = 'WIDE+ ACTIVATED: TARGET SHRINK';
+      } else if (item.type.action === 'move') {
+        placeTarget();
+        stateEl.textContent = 'AIM+ ACTIVATED: TARGET SHIFT';
+      } else if (item.type.action === 'hide') {
+        targetHiddenUntil = performance.now() + 900;
+        target.classList.add('is-hidden');
+        stateEl.textContent = 'FOCUS+ ACTIVATED: TARGET FADE';
+      } else if (item.type.action === 'fake') {
+        if (fakeTarget) fakeTarget.remove();
+        fakeTarget = document.createElement('div');
+        fakeTarget.className = 'fake-target';
+        fakeTarget.style.transform = `translate3d(${randomBetween(30, Math.max(31, bounds().w - 150))}px,${randomBetween(40, Math.max(41, bounds().h - 150))}px,0)`;
+        arena.appendChild(fakeTarget);
+        setTimeout(() => {
+          if (fakeTarget) {
+            fakeTarget.remove();
+            fakeTarget = null;
+          }
+        }, 1300);
+        stateEl.textContent = 'SAFE+ ACTIVATED: DECOY TARGET';
+      }
+      setTimeout(() => item.el.remove(), 120);
+    };
+    const updateBaits = (now, dt) => {
+      if (now >= nextBait && baits.length < 3) {
+        spawnBait(now);
+        nextBait = now + randomBetween(1050, 1650);
+      }
+      const b = bounds();
+      const cx = x + b.bw / 2;
+      const cy = y + b.bh / 2;
+      baits = baits.filter(item => {
+        const age = now - item.born;
+        if (age > item.ttl) {
+          item.el.remove();
+          return false;
+        }
+        item.x += item.vx * dt;
+        item.y += item.vy * dt;
+        if (item.x < 10 || item.x > b.w - 90) item.vx *= -1;
+        if (item.y < 18 || item.y > b.h - 48) item.vy *= -1;
+        item.x = clamp(item.x, 10, b.w - 90);
+        item.y = clamp(item.y, 18, b.h - 48);
+        item.el.style.transform = `translate3d(${item.x}px,${item.y}px,0)`;
+        const hit = Math.abs(cx - (item.x + 36)) < 56 && Math.abs(cy - (item.y + 15)) < 44;
+        if (hit) {
+          activateTrap(item);
+          return false;
+        }
+        return true;
+      });
+      if (targetHiddenUntil && now > targetHiddenUntil) {
+        targetHiddenUntil = 0;
+        target.classList.remove('is-hidden');
+      }
+    };
+    const shortDigest = async text => {
+      const data = new TextEncoder().encode(text);
+      const digest = await crypto.subtle.digest('SHA-256', data);
+      return [...new Uint8Array(digest)]
+        .slice(0, 8)
+        .map(n => n.toString(16).padStart(2, '0'))
+        .join('')
+        .toUpperCase();
+    };
+    const syncCoupon = () => {
+      couponEl.className = lastCoupon ? 'coupon is-visible' : 'coupon';
+      couponEl.textContent = lastCoupon
+        ? `CUPON ACTIVO: ${lastCoupon} - 50% OFF Hashcod.`
+        : 'CUPON BLOQUEADO - gana el reto para activar el 50%.';
+    };
+    const unlockCoupon = async (ms, hit) => {
+      const seed = `HASHCOD-CASTOR-50|${Date.now()}|${ms}|${hit.dist.toFixed(4)}|${tries}`;
+      lastCoupon = `HASHCOD-CASTOR-50-${await shortDigest(seed)}`;
+      couponEl.className = 'coupon is-visible';
+      couponEl.textContent = `DESCUENTO ACTIVADO: 50% OFF - CODIGO ${lastCoupon} - valida con captura del resultado.`;
+      try {
+        localStorage.setItem('hashcod_castor_discount_coupon', lastCoupon);
+        localStorage.setItem('hashcod_castor_discount_time', new Date().toISOString());
+      } catch {}
+    };
+    const tick = now => {
+      if (!running) return;
+      if (!lastFrame) lastFrame = now;
+      const dt = Math.min(0.032, (now - lastFrame) / 1000);
+      lastFrame = now;
+      gameMs = (now - startedAt) * 24;
+      const b = bounds();
+      nextChaos -= dt;
+      if (nextChaos <= 0) {
+        nextChaos = randomBetween(0.34, 0.72);
+        speedBoost = randomBetween(2.15, 3.85);
+        vx += randomBetween(-380, 380);
+        vy += randomBetween(-340, 340);
+        vx = clamp(vx, -1900, 1900);
+        vy = clamp(vy, -1750, 1750);
+      }
+      repelFromTarget(now);
+      x += vx * speedBoost * dt;
+      y += vy * speedBoost * dt;
+      if (x <= 0 || x >= b.w - b.bw) {
+        vx *= -1.04;
+        x = clamp(x, 0, b.w - b.bw);
+      }
+      if (y <= 0 || y >= b.h - b.bh) {
+        vy *= -1.04;
+        y = clamp(y, 0, b.h - b.bh);
+      }
+      const wobble = Math.sin(now / 24) * 5;
+      beaver.style.transform = `translate3d(${x}px,${y}px,0) rotate(${wobble}deg)`;
+      dangerBand.style.setProperty('--x', `${x + b.bw / 2}px`);
+      dangerBand.style.setProperty('--y', `${y + b.bh / 2}px`);
+      clockEl.textContent = fmt(gameMs);
+      speedEl.textContent = `${speedBoost.toFixed(2)}x`;
+      updateBaits(now, dt);
+      drawTrail();
+      raf = requestAnimationFrame(tick);
+    };
+    const start = () => {
+      if (running) return;
+      placeTarget();
+      resetMotion();
+      clearBaits();
+      nextBait = performance.now() + 950;
+      running = true;
+      startedAt = performance.now();
+      lastFrame = 0;
+      resultEl.className = 'result';
+      resultEl.textContent = 'El castor esta en movimiento. Pausa solo cuando el centro caiga dentro del cuadro.';
+      syncCoupon();
+      stateEl.textContent = 'RUNNING · NIGHTMARE';
+      startBtn.textContent = 'Corriendo';
+      raf = requestAnimationFrame(tick);
+    };
+    const pause = () => {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+      tries += 1;
+      triesEl.textContent = String(tries);
+      const hit = scoreError();
+      bestError = Math.min(bestError, hit.dist);
+      bestEl.textContent = `${bestError.toFixed(1)}px`;
+      if (hit.inside && hit.dist <= 0.001) {
+        resultEl.className = 'result win';
+        resultEl.textContent = `WIN imposible conseguido. Tiempo ${fmt(gameMs)} · centro exacto dentro del cuadro.`;
+        stateEl.textContent = 'WIN';
+        resultEl.textContent += ' Premio: 50% de descuento Hashcod.';
+        unlockCoupon(gameMs, hit);
+      } else if (hit.inside) {
+        resultEl.className = 'result win';
+        resultEl.textContent = `Casi perfecto: dentro del cuadro. Tiempo ${fmt(gameMs)} · error ${hit.dist.toFixed(2)}px.`;
+        stateEl.textContent = 'HIT';
+        resultEl.textContent += ' Premio: 50% de descuento Hashcod.';
+        unlockCoupon(gameMs, hit);
+      } else {
+        resultEl.className = 'result fail';
+        resultEl.textContent = `Fallo. El castor quedo fuera del cuadro por ${hit.dist.toFixed(2)}px. Reinicia para otro intento.`;
+        stateEl.textContent = 'FAILED';
+        syncCoupon();
+      }
+      startBtn.textContent = 'Iniciar otra vez';
+    };
+    const reset = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+      gameMs = 0;
+      clockEl.textContent = '00:00.000';
+      speedEl.textContent = '0x';
+      trapHits = 0;
+      trapsEl.textContent = '0';
+      resultEl.className = 'result';
+      resultEl.textContent = 'Reiniciado. Presiona iniciar cuando estes listo.';
+      syncCoupon();
+      stateEl.textContent = 'Ready';
+      startBtn.textContent = 'Iniciar';
+      clearBaits();
+      placeTarget();
+      resetMotion();
+    };
+    startBtn.addEventListener('click', start);
+    pauseBtn.addEventListener('click', pause);
+    resetBtn.addEventListener('click', reset);
+    arena.addEventListener('click', pause);
+    window.addEventListener('keydown', event => {
+      if (event.code === 'Space') {
+        event.preventDefault();
+        pause();
+      }
+    });
+    window.addEventListener('resize', reset);
+    try {
+      lastCoupon = localStorage.getItem('hashcod_castor_discount_coupon') || '';
+      syncCoupon();
+    } catch {}
+    placeTarget();
+    resetMotion();
+  </script>
+</body>
+</html>

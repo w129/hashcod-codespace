@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HSG2818 Phone OS</title>
+  <style>
+    :root { --ink:#111; --line:#d8d8d2; --paper:#fff; --bg:#f4f4f1; --mono: ui-monospace, SFMono-Regular, Consolas, monospace; --serif: Georgia, serif; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:linear-gradient(#e8e8e5 1px, transparent 1px),linear-gradient(90deg,#e8e8e5 1px,transparent 1px),var(--bg); background-size:32px 32px; color:var(--ink); font-family:var(--mono); }
+    main { min-height:100vh; display:grid; place-items:center; padding:18px; }
+    section { width:min(760px, 100%); background:var(--paper); border:1px solid #cfcfca; box-shadow:16px 16px 0 rgba(0,0,0,.07); }
+    header { padding:24px; border-bottom:1px solid var(--line); display:grid; gap:8px; }
+    h1 { margin:0; font-family:var(--serif); font-size:44px; font-weight:500; line-height:1; }
+    p { margin:0; color:#555; line-height:1.55; font-size:13px; }
+    .panel { padding:18px; display:grid; gap:12px; }
+    label { display:grid; gap:7px; }
+    span { color:#777; font-size:10px; letter-spacing:3px; text-transform:uppercase; }
+    input, textarea { width:100%; min-height:46px; border:1px solid #111; background:#fff; padding:10px 12px; font:14px var(--mono); }
+    textarea { min-height:120px; resize:vertical; line-height:1.45; }
+    button { min-height:46px; border:1px solid #111; background:#111; color:#fff; padding:0 14px; font:700 11px var(--mono); letter-spacing:2px; text-transform:uppercase; }
+    button.ghost { background:#fff; color:#111; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .status { border:1px solid var(--line); border-left:4px solid #177c43; background:#f7f7f4; padding:12px; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+    .list { display:grid; gap:10px; }
+    article { border:1px solid var(--line); background:#f7f7f4; padding:12px; display:grid; gap:7px; }
+    article.openable { cursor:pointer; border-left:4px solid #111; }
+    article.openable::after { content:"ABRIR EN PHONE BROWSER"; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#111; border-top:1px solid var(--line); padding-top:8px; }
+    article b, article code { overflow-wrap:anywhere; }
+    article code { white-space:pre-wrap; font-size:11px; color:#333; }
+    .phone-browser { border:1px solid #111; background:#fff; display:grid; gap:12px; padding:14px; }
+    .browser-bar { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; }
+    .browser-bar input { font-size:12px; }
+    .browser-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .browser-grid div { border:1px solid var(--line); padding:10px; background:#f7f7f4; display:grid; gap:6px; min-width:0; }
+    .browser-grid b { overflow-wrap:anywhere; font-size:12px; }
+    .browser-code { margin:0; border:1px solid var(--line); background:#f7f7f4; padding:12px; white-space:pre-wrap; overflow-wrap:anywhere; font:11px/1.55 var(--mono); max-height:360px; overflow:auto; }
+    .hidden { display:none; }
+    @media (max-width:640px) { h1{font-size:36px}.grid{grid-template-columns:1fr} section{box-shadow:10px 10px 0 rgba(0,0,0,.07)} }
+    @media (max-width:640px) { .browser-bar,.browser-grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <header>
+        <span>HSG2818 PHONE OS</span>
+        <h1>PC + Phone Link</h1>
+        <p>Conecta este teléfono con la plataforma. Todo code guardado o enviado desde la PC llega aquí como notificación.</p>
+      </header>
+      <div class="panel" id="pairPanel">
+        <label><span>Nombre del teléfono</span><input id="phoneName" placeholder="Mi Phone OS" /></label>
+        <label><span>Pairing key</span><input id="pairingKey" type="password" placeholder="Code admin / pairing key" /></label>
+        <button id="pairBtn">Conectar teléfono</button>
+        <div class="status" id="pairStatus">Usa el code admin para emparejar este teléfono.</div>
+      </div>
+      <div class="panel hidden" id="runPanel">
+        <div class="status" id="status">Phone OS listo.</div>
+        <div class="grid">
+          <button id="notifyBtn">Permitir notificaciones</button>
+          <button id="pollBtn">Buscar ahora</button>
+          <button class="ghost" id="forgetBtn">Desconectar</button>
+          <button class="ghost" id="testBtn">Notificación local</button>
+        </div>
+        <div class="phone-browser hidden" id="phoneBrowser">
+          <span>HSG2818 PHONE BROWSER</span>
+          <div class="browser-bar">
+            <input id="browserUrl" readonly />
+            <button class="ghost" id="closeBrowserBtn">Volver</button>
+          </div>
+          <div class="browser-grid">
+            <div><span>Route</span><b id="browserRoute">---</b></div>
+            <div><span>Action</span><b id="browserAction">---</b></div>
+            <div><span>Digest</span><b id="browserDigest">---</b></div>
+            <div><span>Match</span><b id="browserMatch">---</b></div>
+          </div>
+          <pre class="browser-code" id="browserCode"></pre>
+          <button id="copyBrowserBtn">Copiar code</button>
+        </div>
+        <div class="list" id="list"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const state = JSON.parse(localStorage.getItem('hashcod_phone_os_device') || '{}');
+    const save = (data) => localStorage.setItem('hashcod_phone_os_device', JSON.stringify(data));
+    const status = (text) => { $('status').textContent = text; };
+    let swReady = null;
+    const ensureServiceWorker = async () => {
+      if (!('serviceWorker' in navigator)) return null;
+      if (!swReady) {
+        swReady = navigator.serviceWorker.register('/phone-os-sw.js', { scope: '/' })
+          .then(() => navigator.serviceWorker.ready)
+          .catch(() => null);
+      }
+      return swReady;
+    };
+    const api = async (path, body) => {
+      const res = await fetch(path, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || 'request_failed');
+      return data;
+    };
+    let activeBrowserNote = null;
+    const extractHnsUrl = (note = {}) => {
+      const text = `${note.value || ''}\n${note.body || ''}`;
+      return (text.match(/hns:\/\/[^\s]+/i) || [])[0] || '';
+    };
+    const extractField = (text, name) => {
+      const re = new RegExp(`${name}:\\s*([^\\n]+?)(?=\\s+[A-Z]+:|$)`, 'i');
+      return (String(text || '').match(re) || [])[1]?.trim() || '---';
+    };
+    const openPhoneBrowser = (note = {}) => {
+      const body = note.body || note.value || '';
+      const hnsUrl = extractHnsUrl(note);
+      activeBrowserNote = note;
+      $('phoneBrowser').classList.remove('hidden');
+      $('browserUrl').value = hnsUrl || note.value || 'hashcod://notification';
+      $('browserRoute').textContent = extractField(body, 'ROUTE') || note.codeIndex || '---';
+      $('browserAction').textContent = extractField(body, 'ACTION') || note.type || '---';
+      $('browserDigest').textContent = extractField(body, 'DIGEST');
+      $('browserMatch').textContent = extractField(body, 'MATCH') || note.codeType || '---';
+      $('browserCode').textContent = body || JSON.stringify(note, null, 2);
+      status(hnsUrl ? `Abierto en Phone Browser: ${hnsUrl}` : 'Notificacion abierta en Phone Browser.');
+      $('phoneBrowser').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    const openFromUrlParam = () => {
+      const params = new URLSearchParams(location.search);
+      const encoded = params.get('open');
+      if (!encoded) return;
+      try {
+        const note = JSON.parse(decodeURIComponent(encoded));
+        openPhoneBrowser(note);
+        history.replaceState(null, '', '/phone-os.html');
+      } catch {}
+    };
+    const showRun = () => {
+      $('pairPanel').classList.add('hidden');
+      $('runPanel').classList.remove('hidden');
+      status(`Conectado como ${state.name || state.deviceId}. Mantén esta pestaña abierta para recibir notificaciones.`);
+    };
+    const showNotification = async (note) => {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return false;
+      const options = {
+        body: note.body || note.value || '',
+        tag: note.id || `hashcod-${Date.now()}`,
+        data: note,
+        icon: '/app/hashcod-platform-icon.svg?v=hashcod-icon-1',
+        badge: '/app/hashcod-platform-icon.svg?v=hashcod-icon-1',
+      };
+      try {
+        const reg = await ensureServiceWorker();
+        if (reg?.showNotification) {
+          await reg.showNotification(note.title || 'HSG2818', options);
+          return true;
+        }
+        new Notification(note.title || 'HSG2818', options);
+        return true;
+      } catch (err) {
+        status(`Notificacion nativa no disponible en este navegador. Se muestra en la lista: ${err.message}`);
+        return false;
+      }
+    };
+    const render = (notes) => {
+      const box = $('list');
+      notes.forEach(note => {
+        showNotification(note);
+        const el = document.createElement('article');
+        if (extractHnsUrl(note) || note.type === 'hns-control' || String(note.type || '').startsWith('hashcod-container')) {
+          el.className = 'openable';
+          el.onclick = () => openPhoneBrowser(note);
+        }
+        el.innerHTML = `<span>${note.type || 'HSG2818'}</span><b>${note.title || 'HSG2818 notification'}</b><p>${note.body || ''}</p><code>${note.value || ''}</code>`;
+        box.prepend(el);
+      });
+    };
+    $('pairBtn').onclick = async () => {
+      try {
+        const data = await api('/api/phone-os/register', { name: $('phoneName').value, pairingKey: $('pairingKey').value });
+        Object.assign(state, data);
+        save(state);
+        showRun();
+      } catch (err) {
+        $('pairStatus').textContent = `No se pudo conectar: ${err.message}`;
+      }
+    };
+    $('notifyBtn').onclick = async () => {
+      if (!('Notification' in window)) return status('Este navegador no soporta Notification API.');
+      await ensureServiceWorker();
+      const permission = await Notification.requestPermission();
+      status(permission === 'granted' ? 'Notificaciones activadas con Service Worker.' : 'Permiso de notificacion denegado.');
+    };
+    const poll = async () => {
+      if (!state.deviceId || !state.deviceSecret) return;
+      try {
+        const data = await api('/api/phone-os/poll', { deviceId: state.deviceId, deviceSecret: state.deviceSecret });
+        if (data.notifications && data.notifications.length) {
+          render(data.notifications);
+          await api('/api/phone-os/ack', { deviceId: state.deviceId, deviceSecret: state.deviceSecret, ids: data.notifications.map(n => n.id) });
+          status(`${data.notifications.length} notificación(es) recibida(s).`);
+        } else {
+          status('Sin notificaciones pendientes.');
+        }
+      } catch (err) {
+        status(`Phone OS error: ${err.message}`);
+      }
+    };
+    $('pollBtn').onclick = poll;
+    $('forgetBtn').onclick = () => { localStorage.removeItem('hashcod_phone_os_device'); location.reload(); };
+    $('closeBrowserBtn').onclick = () => $('phoneBrowser').classList.add('hidden');
+    $('copyBrowserBtn').onclick = async () => {
+      await navigator.clipboard?.writeText($('browserCode').textContent || '');
+      status('Code copiado desde Phone Browser.');
+    };
+    $('testBtn').onclick = async () => {
+      const ok = await showNotification({ id:'local-test', title:'HSG2818 Phone OS', body:'Notificacion local activa.' });
+      if (ok) status('Notificacion local enviada.');
+    };
+    navigator.serviceWorker?.addEventListener('message', (event) => {
+      if (event.data?.type === 'hashcod-open-note') openPhoneBrowser(event.data.note || {});
+    });
+    if (state.deviceId && state.deviceSecret) showRun();
+    ensureServiceWorker();
+    openFromUrlParam();
+    setInterval(poll, 7000);
+    if (state.deviceId && state.deviceSecret) poll();
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+OPENCRIPTG · sequence - A
+
+Cambio aplicado:
+- Se reemplazó el nombre Market in Notes / Market Note por sequence - A.
+- El menú superior ahora aparece como SEQUENCE - A.
+- El acceso dentro de DESK ahora aparece como sequence - A.
+- La exportación HTML/PDF usa el nuevo nombre.
+- La fórmula del índice se mantiene funcional:
+  Índice = (cantidad de codes / similitudes) × (base - 0.428)
+- Valores negativos aparecen en rojo y positivos en verde.

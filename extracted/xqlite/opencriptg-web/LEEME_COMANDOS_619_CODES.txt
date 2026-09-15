@@ -1,0 +1,41 @@
+OPENCRIPTG · COMMAND IDE · 619 CODE COMMANDS
+
+Se agregaron comandos directos para generar codes de los 619 tipos principales de la plataforma.
+
+Comandos nuevos:
+
+1. Ver la lista dentro del IDE:
+   codes619
+   codes619 2
+   codes619 10
+
+2. Descargar la lista completa de comandos:
+   cmd619
+   export commands619
+
+3. Generar por comando numerado:
+   code001 5
+   code050 10
+   code619 1
+
+4. Generar por número:
+   code 1 5
+   code 250 10
+   code 619 1
+
+5. Generar por ID técnico:
+   gen type aes256 10
+   gen type ascon_key 20
+
+6. Generar 1 code por cada uno de los 619 tipos:
+   gen all619
+
+7. Seleccionar un tipo usando número o comando:
+   set type code001
+   set type 250
+   set type aes256
+
+Notas:
+- Los comandos code001 hasta code619 se crean automáticamente desde el catálogo cargado de OpencriptG.
+- Cada code generado conserva integración con la base de datos, QR Vault, certificados, sequence - A y demás herramientas.
+- El archivo COMANDOS_619_CODES.txt contiene la lista completa.

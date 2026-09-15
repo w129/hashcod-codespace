@@ -1,0 +1,20 @@
+OpencriptG – Botón Pelícano / Ticket impreso
+
+Mejora aplicada:
+- Se agregó un nuevo botón en la parte derecha de cada code generado.
+- El nuevo botón usa un icono vectorial tipo pelícano adaptado al diseño de la plataforma.
+- Al hacer clic, abre la impresión de un ticket visual con:
+  * índice del code
+  * nombre de la primitiva
+  * ID técnico
+  * categoría
+  * estándar
+  * longitud en caracteres
+  * fecha/hora de generación
+  * postura de seguridad
+  * uso recomendado
+  * dónde evitar usarlo
+  * code completo
+  * QR del code generado
+  * storytelling del code
+- El ticket conserva un diseño coherente con OpencriptG.

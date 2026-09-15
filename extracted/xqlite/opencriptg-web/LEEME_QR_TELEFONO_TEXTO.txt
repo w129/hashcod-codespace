@@ -1,0 +1,10 @@
+OpencriptG – QR de billete legible desde teléfono
+
+Cambio aplicado:
+- El QR del billete ahora contiene texto plano legible.
+- Al escanearlo desde un teléfono, el lector QR mostrará directamente los datos del billete en texto.
+- Incluye: VALUE, BILL_ID, SERIAL, OWNER_DID, STATUS, TYPE, ISSUED, FINGERPRINT, CHECK, PAYLOAD, SALT, NONCE, ROUTE, VECTOR, MATRIX, CHAIN_HASH, UNIT_HASH, SIGNATURE y aviso legal interno.
+- El billete PNG usa el mismo payload de texto plano para que el QR descargado también sea funcional desde el teléfono.
+
+Nota:
+- Los lectores QR de cada teléfono muestran textos largos de manera diferente. Algunos permiten copiar el texto completo; otros muestran una vista resumida.

@@ -1,0 +1,15 @@
+OpencriptG – Mejora QR por code
+
+Se agregó un nuevo botón con icono vectorial de QR en la parte derecha de cada code generado.
+
+Qué hace:
+- Cada fila generada ahora muestra el botón QR.
+- Al hacer clic, descarga en PNG el QR de ese code específico.
+- El PNG sale con estilo adaptado a la plataforma.
+
+Ubicación:
+- En cada fila de salida, a la derecha del botón de copiar.
+
+Archivo actualizado:
+- app/app.jsx
+- app/styles.css

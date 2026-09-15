@@ -86,6 +86,7 @@ $bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){functi
     . '<script defer src="' . $baseAttr . 'components/toolbox-secure-ui-rescue.js?v=20260914-retired1" data-hashcod-toolbox-ui-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/toolbox-secure-links.js?v=20260914-retired1" data-hashcod-toolbox-secure="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/toolbox-signature-copy.js?v=20260914-retired1" data-hashcod-toolbox-signature-copy="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/admin-codekey-ui.js?v=20260915-1" data-hashcod-admin-codekey-ui="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/topbar-windows-hello.js?v=20260913-1" data-hashcod-topbar-windows-hello="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'

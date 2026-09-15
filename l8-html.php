@@ -121,7 +121,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260914-8" data-hashcod-boot-brand-credit-relocate-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-1" data-hashcod-efr-code-editor-style="true">';
 
         // If the previous page closed with Duo, mark this page before first paint
         // so it can open from the closed state without flashing the normal page.
@@ -197,6 +198,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260915-1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
+            . '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260915-1" data-hashcod-efr-code-editor="true"></script>'
             . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260914-7" data-hashcod-boot-brand-credit-relocate="true"></script>'
             . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260914-2" data-hashcod-local-download-layout-fix="true"></script>';
         $bodyPos = strripos($html, '</body>');

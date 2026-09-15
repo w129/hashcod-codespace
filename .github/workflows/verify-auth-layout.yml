@@ -10,6 +10,7 @@ on:
       - toolbox-secure.php
       - router.php
       - l8-html.php
+      - laragon-local-entry.php
       - rare-folder-build/**
       - components/cloud-device-sync.js
       - components/admin-hello-button.js
@@ -26,6 +27,8 @@ on:
       - components/vector-link-board.js
       - components/vector-link-board.css
       - components/vector-tray-icon-third.svg
+      - components/efr-code-editor.js
+      - components/efr-code-editor.css
       - components/mobile-platform-polish.css
       - components/toolbox-secure-links.js
       - components/toolbox-secure-links.css
@@ -41,6 +44,7 @@ on:
       - tests/e2e/test_vector_image_vault.js
       - tests/e2e/test_vector_classroom_board.js
       - tests/e2e/test_vector_link_board.js
+      - tests/e2e/test_efr_code_editor.js
       - tests/e2e/test_mobile_platform_polish.js
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_secure_toolbox_links.js
@@ -49,6 +53,8 @@ on:
     branches:
       - main
     paths:
+      - l8-html.php
+      - laragon-local-entry.php
       - toolbox-secure.php
       - components/toolbox-secure-links.js
       - components/toolbox-secure-links.css
@@ -56,6 +62,9 @@ on:
       - components/toolbox-signature-copy.js
       - components/auth-vector-layout-fix.js
       - components/auth-register-resilience.js
+      - components/efr-code-editor.js
+      - components/efr-code-editor.css
+      - tests/e2e/test_efr_code_editor.js
       - tests/e2e/test_secure_toolbox_links.js
       - tests/e2e/test_auth_register_resilience.js
       - .github/workflows/verify-auth-layout.yml
@@ -76,6 +85,9 @@ jobs:
 
       - name: Syntax check vector tray module
         run: node --check components/platform-entry-slogan.js
+
+      - name: Syntax check EFR code editor
+        run: node --check components/efr-code-editor.js
 
       - name: Build exact Rare UI React Motion folder
         working-directory: rare-folder-build
@@ -126,6 +138,9 @@ jobs:
       - name: Syntax check HTML serving helper
         run: php -l l8-html.php
 
+      - name: Syntax check Laragon entry
+        run: php -l laragon-local-entry.php
+
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
 
@@ -146,6 +161,9 @@ jobs:
 
       - name: Verify 200-slot link board contract
         run: node tests/e2e/test_vector_link_board.js
+
+      - name: Verify EFR code editor contract
+        run: node tests/e2e/test_efr_code_editor.js
 
       - name: Verify mobile platform polish
         run: node tests/e2e/test_mobile_platform_polish.js

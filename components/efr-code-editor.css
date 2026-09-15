@@ -1,0 +1,26 @@
+#hashcodEfrEditorModal[hidden]{display:none!important}
+#hashcodEfrEditorModal{position:fixed;inset:0;z-index:2147482600;display:grid;place-items:center;padding:24px;background:rgba(255,255,255,.78);backdrop-filter:blur(14px) saturate(110%);-webkit-backdrop-filter:blur(14px) saturate(110%);font-family:"IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#111}
+#hashcodEfrEditorWindow{width:min(1180px,94vw);height:min(760px,88vh);display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;background:rgba(255,255,255,.96);border:1px solid #111;border-radius:22px;box-shadow:0 26px 80px rgba(0,0,0,.16);overflow:hidden}
+.hashcod-efr-editor-header{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;padding:22px 24px 18px;border-bottom:1px solid #d8d8d3;background:linear-gradient(180deg,#fff,#fafaf8)}
+.hashcod-efr-editor-kicker{margin:0 0 5px;font-size:11px;letter-spacing:.17em;font-weight:700;color:#6f6f69}
+#hashcodEfrEditorTitle{margin:0;font-size:clamp(20px,2.2vw,30px);line-height:1.05;font-weight:700;letter-spacing:-.03em}
+.hashcod-efr-editor-subtitle{margin:8px 0 0;max-width:700px;font-size:12px;line-height:1.45;color:#666}
+.hashcod-efr-icon-button{width:38px;height:38px;flex:0 0 auto;border:1px solid #b9b9b4;border-radius:11px;background:#fff;color:#111;font:400 25px/1 Arial,sans-serif;cursor:pointer}
+.hashcod-efr-icon-button:hover{background:#111;color:#fff;border-color:#111}
+.hashcod-efr-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 18px;border-bottom:1px solid #d8d8d3;background:#f6f6f3}
+.hashcod-efr-name-wrap{min-width:0;display:flex;align-items:center;gap:8px;font-size:11px;color:#777}
+.hashcod-efr-name-wrap span{font-weight:700;letter-spacing:.12em}
+.hashcod-efr-name-wrap input{width:min(280px,36vw);border:0;border-bottom:1px solid #aaa;background:transparent;padding:7px 2px 6px;outline:none;font:500 13px/1.2 inherit;color:#111}
+.hashcod-efr-name-wrap input:focus{border-bottom-color:#111}
+.hashcod-efr-name-wrap b{font-size:12px;color:#111;font-weight:700}
+.hashcod-efr-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.hashcod-efr-actions button{border:1px solid #aaa;border-radius:10px;background:#fff;color:#111;padding:9px 13px;font:600 12px/1 inherit;cursor:pointer}
+.hashcod-efr-actions button:hover{border-color:#111}
+.hashcod-efr-actions button.is-primary{background:#111;color:#fff;border-color:#111}
+.hashcod-efr-actions button.is-primary:hover{background:#2a2a2a}
+.hashcod-efr-editor-body{min-height:0;background:#0e0e0e;padding:0}
+#hashcodEfrEditorTextarea{display:block;width:100%;height:100%;min-height:280px;box-sizing:border-box;resize:none;border:0;outline:0;padding:22px 24px;background:#0e0e0e;color:#f4f4ef;caret-color:#fff;font:400 14px/1.62 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4;white-space:pre;overflow:auto;letter-spacing:0}
+#hashcodEfrEditorTextarea::placeholder{color:#73736f}
+.hashcod-efr-editor-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 16px;border-top:1px solid #d8d8d3;background:#f6f6f3;color:#60605c;font-size:10px;line-height:1.35}
+html.hashcod-efr-editor-open,html.hashcod-efr-editor-open body{overflow:hidden!important}
+@media(max-width:760px){#hashcodEfrEditorModal{padding:10px}#hashcodEfrEditorWindow{width:100%;height:92vh;border-radius:16px}.hashcod-efr-editor-header{padding:16px 16px 13px}.hashcod-efr-editor-toolbar{padding:10px 12px}.hashcod-efr-toolbar{align-items:stretch;flex-direction:column}.hashcod-efr-name-wrap input{width:100%;flex:1}.hashcod-efr-actions{justify-content:stretch}.hashcod-efr-actions button{flex:1 1 auto}#hashcodEfrEditorTextarea{padding:17px 16px;font-size:13px}.hashcod-efr-editor-footer{align-items:flex-start;flex-direction:column}}

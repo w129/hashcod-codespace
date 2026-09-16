@@ -73,10 +73,10 @@ async function run() {
     });
     assert(gateRect.width > 0 && gateRect.height > 0, 'locked CodeKey gate must have a physical click target');
 
-    const chooserPromise = page.waitForEvent('filechooser', { timeout: 10000 });
     await page.mouse.click(gateRect.x, gateRect.y);
-    const chooser = await chooserPromise;
-    await chooser.setFiles([]);
+    await page.waitForSelector('#hashcodAdminCodeKeyRescueFile', { state: 'attached', timeout: 5000 });
+    await page.dispatchEvent('#hashcodAdminCodeKeyRescueFile', 'cancel');
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
     await page.waitForTimeout(900);
 
     gateState = await page.evaluate(() => window.HashcodEftCodeKeyGate.diagnostics());

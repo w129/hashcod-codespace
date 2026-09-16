@@ -14,6 +14,10 @@ assert(js.includes("const TRAY_SLOT = 4"), 'EFR editor must occupy the fifth tra
 assert(js.includes("id: TOOL_ID"), 'EFR editor tray registration missing');
 assert(js.includes("label: 'EFR Code Editor'"), 'EFR editor tray label missing');
 assert(js.includes('bindTrayClickRescue'), 'capture-phase tray click rescue missing');
+assert(js.includes("const PROXY_ID = 'hashcodEfrTrayClickProxy'"), 'top-level EFR click proxy missing');
+assert(js.includes("z-index:2147483647"), 'click proxy must sit above blocking auth surfaces');
+assert(js.includes("attributeFilter: ['disabled']"), 'disabled-state repair observer missing');
+assert(js.includes('repairTrayButton();'), 'tray repair loop missing');
 assert(js.includes("modal.style.setProperty('display', 'grid', 'important')"), 'editor open path must force visible display');
 assert(js.includes("modal.style.setProperty('z-index', MODAL_Z_INDEX, 'important')"), 'editor open path must force top stacking layer');
 assert(js.includes("new Blob([editor.value]"), 'download must preserve the editor text as a raw blob');
@@ -31,4 +35,4 @@ assert(local.includes('hashcod-laragon-efr-code-editor-inline'), 'local entry mu
 assert(local.includes('components/efr-code-editor.css?v=20260915-3'), 'local CSS cache-bust missing');
 assert(local.includes('components/efr-code-editor.js?v=20260915-3'), 'local JS cache-bust missing');
 
-console.log('PASS: fifth tray cube opens the fresh RAW EFR editor through direct registration plus capture-click rescue and downloads exact text as .efr.');
+console.log('PASS: fifth tray cube is force-unblocked by direct registration, disabled-state repair, and a top-level click proxy; RAW text downloads as .efr.');

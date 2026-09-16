@@ -69,7 +69,7 @@ async function run() {
 
     assert.equal(slotState.disabled, false, 'fifth tray cube must be enabled');
     assert.equal(slotState.toolId, 'efr-code-editor', 'fifth tray cube must keep stable internal tool id');
-    assert.match(slotState.label || '', /EFT CoffeeScript Notebook/i, 'fifth tray cube must expose EFT CoffeeScript label');
+    assert.match(slotState.label || '', /EFT CoffeeScript Algorithm Notebook/i, 'fifth tray cube must expose EFT algorithm label');
     assert(slotState.width > 0 && slotState.height > 0, 'fifth tray cube must have a clickable box');
 
     await page.mouse.click(slotState.x, slotState.y);
@@ -90,23 +90,34 @@ async function run() {
     assert.equal(runtime.format, 'HASHCOD-EFT-1');
     assert.equal(runtime.language, 'coffeescript');
     assert.equal(runtime.container, 'ipynb');
-    assert.equal(runtime.model.modelVersion, 2);
+    assert.equal(runtime.algorithmProfile, 'THEALGORITHMS-JUPYTER-1');
+    assert.equal(runtime.model.modelVersion, 3);
     assert.equal(runtime.model.nbformat, 4);
     assert.equal(runtime.model.nbformatMinor, 5);
 
-    await page.fill('#hashcodEfrEditorTextarea', 'square = (x) -> x * x\nconsole.log square 5');
-    await page.click('#hashcodEfrCell');
-    await page.keyboard.type('greet = (name) -> "Hello #{name}"');
-    await page.fill('#hashcodEfrEditorFilename', 'browser-verified');
+    await page.click('#hashcodEfrNew');
 
     runtime = await page.evaluate(() => window.HashcodEfrCodeEditor.diagnostics());
-    assert.equal(runtime.model.cellCount, 2, 'New Cell must create a structured second cell');
-    assert.equal(runtime.model.dirty, true, 'editing must mark the notebook dirty');
+    assert.equal(runtime.model.cellCount, 3, 'New Algorithm must create definition, implementation, and demo cells');
+    assert.equal(runtime.model.algorithm.score, 4, 'algorithm template must satisfy all four structural requirements');
+    assert.equal(runtime.model.algorithm.complete, true, 'algorithm template must be complete');
 
-    const modelJson = await page.evaluate(() => window.HashcodEfrCodeEditor.model.toJSON());
-    assert.equal(modelJson.cells.length, 2);
-    assert.equal(new Set(modelJson.cells.map((cell) => cell.id)).size, 2, 'cell IDs must be unique');
-    modelJson.cells.forEach((cell) => {
+    const templateNotebook = await page.evaluate(() => window.HashcodEfrCodeEditor.model.toJSON());
+    assert.equal(templateNotebook.metadata.hashcod.algorithm_profile, 'THEALGORITHMS-JUPYTER-1');
+    assert.equal(templateNotebook.metadata.hashcod.algorithm_reference, 'https://github.com/TheAlgorithms/Jupyter');
+    assert.deepEqual(templateNotebook.metadata.hashcod.algorithm_requirements, [
+      'commented_source',
+      'readable_naming',
+      'math_explanation',
+      'notebook_demo'
+    ]);
+    assert.equal(templateNotebook.cells.length, 3);
+    assert.deepEqual(templateNotebook.cells.map((cell) => cell.metadata.algorithm_role), [
+      'definition',
+      'implementation',
+      'demo'
+    ]);
+    templateNotebook.cells.forEach((cell) => {
       assert.match(cell.id, /^[A-Za-z0-9_-]{1,64}$/);
       assert.equal(cell.cell_type, 'code');
       assert.equal(cell.execution_count, null);
@@ -116,10 +127,42 @@ async function run() {
       assert.equal(cell.metadata.trusted, false);
     });
 
+    await page.fill('#hashcodEfrEditorFilename', 'algorithm-verified');
+    const implementation = [
+      '# ALGORITHM',
+      '# Name: Double Value',
+      '# Purpose: Double a numeric input.',
+      '# Math: output = input * 2',
+      '# Input: Number',
+      '# Output: Number',
+      '',
+      '# %% [EFT CELL]',
+      '',
+      '# IMPLEMENTATION',
+      '# Multiply the readable input value by two.',
+      'doubleValue = (inputValue) ->',
+      '  resultValue = inputValue * 2',
+      '  resultValue',
+      '',
+      '# %% [EFT CELL]',
+      '',
+      '# DEMO',
+      'exampleInput = 5',
+      'exampleOutput = doubleValue exampleInput',
+      'console.log exampleOutput'
+    ].join('\n');
+    await page.fill('#hashcodEfrEditorTextarea', implementation);
+    await page.click('#hashcodEfrCheck');
+
+    const report = await page.evaluate(() => window.HashcodEfrCodeEditor.checkAlgorithm());
+    assert.equal(report.score, 4);
+    assert.equal(report.complete, true);
+    assert.deepEqual(report.missing, []);
+
     const downloadPromise = page.waitForEvent('download', { timeout: 10000 });
     await page.click('#hashcodEfrDownload');
     const download = await downloadPromise;
-    assert.equal(download.suggestedFilename(), 'browser-verified.eft', 'download must use .eft');
+    assert.equal(download.suggestedFilename(), 'algorithm-verified.eft', 'download must use .eft');
 
     const payload = await readDownload(download);
     const eft = JSON.parse(payload);
@@ -129,11 +172,15 @@ async function run() {
     assert.equal(eft.metadata.language_info.name, 'coffeescript');
     assert.equal(eft.metadata.language_info.codemirror_mode, 'coffeescript');
     assert.equal(eft.metadata.hashcod.container, 'Jupyter Notebook');
-    assert.equal(eft.metadata.hashcod.model_version, 2);
+    assert.equal(eft.metadata.hashcod.model_version, 3);
     assert.equal(eft.metadata.hashcod.execution_policy, 'disabled');
-    assert.equal(eft.cells.length, 2);
-    assert.match(eft.cells[0].source.join(''), /square = \(x\) -> x \* x/);
-    assert.match(eft.cells[1].source.join(''), /greet = \(name\) ->/);
+    assert.equal(eft.metadata.hashcod.algorithm_profile, 'THEALGORITHMS-JUPYTER-1');
+    assert.equal(eft.metadata.hashcod.algorithm_validation.complete, true);
+    assert.equal(eft.metadata.hashcod.algorithm_validation.score, 4);
+    assert.equal(eft.cells.length, 3);
+    assert.match(eft.cells[0].source.join(''), /# Math: output = input \* 2/);
+    assert.match(eft.cells[1].source.join(''), /doubleValue = \(inputValue\) ->/);
+    assert.match(eft.cells[2].source.join(''), /# DEMO/);
 
     runtime = await page.evaluate(() => window.HashcodEfrCodeEditor.diagnostics());
     assert.equal(runtime.model.dirty, false, 'successful download must mark the notebook clean');
@@ -150,10 +197,11 @@ async function run() {
       return model.toJSON();
     });
     assert.equal(normalized.nbformat_minor, 5, 'older nbformat 4.x notebooks must be normalized to minor 5');
-    assert.equal(normalized.cells.length, 1, 'empty notebooks must receive one code cell');
+    assert.equal(normalized.cells.length, 1, 'empty imported notebooks must still receive one code cell');
     assert.match(normalized.cells[0].id, /^[A-Za-z0-9_-]{1,64}$/);
+    assert.equal(normalized.metadata.hashcod.algorithm_profile, 'THEALGORITHMS-JUPYTER-1');
 
-    console.log('PASS: physical Chromium click opens EFT; JupyterLab-inspired model tracks dirty state, normalizes nbformat 4.5, preserves cell IDs, and downloads CoffeeScript notebook JSON.');
+    console.log('PASS: physical Chromium click opens EFT; New Algorithm follows the TheAlgorithms/Jupyter-inspired definition/math → CoffeeScript implementation → demo profile and downloads validated IPYNB 4.5 .eft JSON.');
   } finally {
     await browser.close();
   }

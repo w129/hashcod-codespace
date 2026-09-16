@@ -1,4 +1,4 @@
-// swift-tools-version: 6.4
+// swift-tools-version: 6.3
 import PackageDescription
 
 let package = Package(
@@ -12,7 +12,10 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "HashcodCodespaceNativeSwift",
-            path: "Sources"
+            path: "Sources",
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
         )
     ]
 )

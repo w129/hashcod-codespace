@@ -34,7 +34,9 @@ Primary Apple local client for:
 
 Toolchain baseline:
 
-- Swift 6.4
+- Swift 6 language mode
+- CI validated with Swift 6.3.3 / Xcode 26.6
+- Ready to move to Swift 6.4 / Xcode 27 when the GitHub macOS runner provides that toolchain
 - SwiftUI
 - Foundation / CryptoKit
 

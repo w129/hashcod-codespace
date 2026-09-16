@@ -13,6 +13,7 @@
     const STATUS_ID = 'hashcodEfrEditorStatus';
     const STORAGE_KEY = 'hashcod_efr_editor_draft_v1';
     const NAME_STORAGE_KEY = 'hashcod_efr_editor_name_v1';
+    const MODAL_Z_INDEX = '2147483647';
 
     const EDITOR_ICON = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" style="display:block;width:72%;height:72%;max-width:38px;max-height:38px">',
@@ -223,7 +224,13 @@
         lastFocused = document.activeElement;
         modal.hidden = false;
         modal.setAttribute('aria-hidden', 'false');
+        modal.style.setProperty('z-index', MODAL_Z_INDEX, 'important');
+        modal.style.setProperty('pointer-events', 'auto', 'important');
+        modal.style.setProperty('visibility', 'visible', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
         document.documentElement.classList.add('hashcod-efr-editor-open');
+        const tray = document.getElementById('hashcodVectorTray');
+        if (tray) tray.style.setProperty('pointer-events', 'none', 'important');
         const editor = getEditor();
         window.requestAnimationFrame(function () {
             if (editor) editor.focus({ preventScroll: true });
@@ -237,7 +244,11 @@
         saveDraft();
         modal.hidden = true;
         modal.setAttribute('aria-hidden', 'true');
+        modal.style.removeProperty('visibility');
+        modal.style.removeProperty('opacity');
         document.documentElement.classList.remove('hashcod-efr-editor-open');
+        const tray = document.getElementById('hashcodVectorTray');
+        if (tray) tray.style.removeProperty('pointer-events');
         if (lastFocused && typeof lastFocused.focus === 'function') {
             try { lastFocused.focus({ preventScroll: true }); } catch (_) {}
         }

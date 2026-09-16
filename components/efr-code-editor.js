@@ -7,10 +7,10 @@
     const TOOL_ID = 'efr-code-editor';
     const TRAY_SLOT = 4;
     const MODAL_ID = 'hashcodEfrEditorModal';
-    const WINDOW_ID = 'hashcodEfrEditorWindow';
     const TEXTAREA_ID = 'hashcodEfrEditorTextarea';
     const NAME_ID = 'hashcodEfrEditorFilename';
     const STATUS_ID = 'hashcodEfrEditorStatus';
+    const HOTZONE_ID = 'hashcodEfrHotzone';
     const STORAGE_KEY = 'hashcod_efr_editor_draft_v1';
     const NAME_STORAGE_KEY = 'hashcod_efr_editor_name_v1';
     const TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]';
@@ -24,11 +24,16 @@
     ].join('');
 
     let importInput = null;
+    let trayObserver = null;
+    let rafId = 0;
     let lastFocused = null;
-    let repairTimer = null;
 
     function byId(id) {
         return document.getElementById(id);
+    }
+
+    function getTrayButton() {
+        return document.querySelector(TRAY_SELECTOR);
     }
 
     function getEditor() {
@@ -117,7 +122,6 @@
         importInput.type = 'file';
         importInput.accept = '.efr,text/*,*/*';
         importInput.hidden = true;
-        importInput.id = 'hashcodEfrImportInput';
         importInput.addEventListener('change', async function () {
             const file = importInput.files && importInput.files[0];
             if (!file) return;
@@ -155,9 +159,6 @@
         let modal = byId(MODAL_ID);
         if (modal) return modal;
 
-        // Native <dialog> puts the editor in the browser top layer. This avoids
-        // every z-index/stacking-context race with the login artwork, tray,
-        // Rare UI folder, transitions, or future overlays.
         modal = document.createElement('dialog');
         modal.id = MODAL_ID;
         modal.hidden = true;
@@ -174,7 +175,7 @@
         modal.style.setProperty('box-sizing', 'border-box', 'important');
         modal.style.setProperty('z-index', '2147483647', 'important');
         modal.innerHTML = [
-            '<section id="' + WINDOW_ID + '" role="document">',
+            '<section id="hashcodEfrEditorWindow" role="document">',
                 '<header class="hashcod-efr-editor-header">',
                     '<div>',
                         '<p class="hashcod-efr-editor-kicker">HASHCOD / EFR</p>',
@@ -225,11 +226,62 @@
 
     function modalIsOpen() {
         const modal = byId(MODAL_ID);
-        return Boolean(modal && (modal.open || (!modal.hidden && modal.getAttribute('aria-hidden') !== 'true')));
+        return Boolean(modal && modal.open && !modal.hidden && modal.getAttribute('aria-hidden') === 'false');
     }
 
-    function getTrayButton() {
-        return document.querySelector(TRAY_SELECTOR);
+    function openEditor() {
+        const modal = ensureModal();
+        lastFocused = document.activeElement;
+
+        modal.hidden = false;
+        modal.removeAttribute('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        modal.style.setProperty('display', 'grid', 'important');
+        modal.style.setProperty('visibility', 'visible', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
+        modal.style.setProperty('pointer-events', 'auto', 'important');
+
+        try {
+            if (typeof modal.showModal === 'function' && !modal.open) {
+                modal.showModal();
+            } else if (!modal.open) {
+                modal.setAttribute('open', '');
+            }
+        } catch (_) {
+            modal.setAttribute('open', '');
+        }
+
+        document.documentElement.classList.add('hashcod-efr-editor-open');
+        document.documentElement.dataset.hashcodEfrModalVisible = 'true';
+        window.requestAnimationFrame(function () {
+            const editor = getEditor();
+            if (editor) editor.focus({ preventScroll: true });
+        });
+        return true;
+    }
+
+    function closeEditor() {
+        const modal = byId(MODAL_ID);
+        if (!modal) return;
+        saveDraft();
+        try {
+            if (typeof modal.close === 'function' && modal.open) modal.close();
+            else modal.removeAttribute('open');
+        } catch (_) {
+            modal.removeAttribute('open');
+        }
+        modal.hidden = true;
+        modal.setAttribute('hidden', '');
+        modal.setAttribute('aria-hidden', 'true');
+        modal.style.removeProperty('display');
+        modal.style.removeProperty('visibility');
+        modal.style.removeProperty('opacity');
+        document.documentElement.classList.remove('hashcod-efr-editor-open');
+        document.documentElement.dataset.hashcodEfrModalVisible = 'false';
+        repairTrayButton();
+        if (lastFocused && typeof lastFocused.focus === 'function') {
+            try { lastFocused.focus({ preventScroll: true }); } catch (_) {}
+        }
     }
 
     function repairTrayButton() {
@@ -245,8 +297,8 @@
         button.setAttribute('title', 'EFR Code Editor');
         button.style.setProperty('pointer-events', 'auto', 'important');
         button.style.setProperty('cursor', 'pointer', 'important');
-
-        if (!button.querySelector('svg')) button.innerHTML = EDITOR_ICON;
+        button.style.setProperty('opacity', '1', 'important');
+        button.innerHTML = EDITOR_ICON;
         button.onclick = function (event) {
             if (event) {
                 event.preventDefault();
@@ -272,109 +324,97 @@
         return Boolean(target && button && (target === button || button.contains(target)));
     }
 
-    function openEditor() {
-        const modal = ensureModal();
-        lastFocused = document.activeElement;
-        document.documentElement.dataset.hashcodEfrOpenPending = 'false';
-
-        modal.hidden = false;
-        modal.removeAttribute('hidden');
-        modal.setAttribute('aria-hidden', 'false');
-        modal.style.setProperty('display', 'grid', 'important');
-        modal.style.setProperty('visibility', 'visible', 'important');
-        modal.style.setProperty('opacity', '1', 'important');
-        modal.style.setProperty('pointer-events', 'auto', 'important');
-
-        try {
-            if (typeof modal.showModal === 'function' && !modal.open) {
-                modal.showModal();
-            } else if (!modal.open) {
-                modal.setAttribute('open', '');
-            }
-        } catch (_) {
-            modal.setAttribute('open', '');
-        }
-
-        document.documentElement.classList.add('hashcod-efr-editor-open');
-        document.documentElement.dataset.hashcodEfrModalVisible = 'true';
-        const editor = getEditor();
-        window.requestAnimationFrame(function () {
-            if (editor) editor.focus({ preventScroll: true });
-        });
-        return true;
-    }
-
-    function closeEditor() {
-        const modal = byId(MODAL_ID);
-        if (!modal) return;
-        saveDraft();
-
-        try {
-            if (typeof modal.close === 'function' && modal.open) modal.close();
-            else modal.removeAttribute('open');
-        } catch (_) {
-            modal.removeAttribute('open');
-        }
-
-        modal.hidden = true;
-        modal.setAttribute('hidden', '');
-        modal.setAttribute('aria-hidden', 'true');
-        modal.style.removeProperty('display');
-        modal.style.removeProperty('visibility');
-        modal.style.removeProperty('opacity');
-        document.documentElement.classList.remove('hashcod-efr-editor-open');
-        document.documentElement.dataset.hashcodEfrModalVisible = 'false';
-        repairTrayButton();
-
-        if (lastFocused && typeof lastFocused.focus === 'function') {
-            try { lastFocused.focus({ preventScroll: true }); } catch (_) {}
-        }
-    }
-
-    function registerTrayTool() {
-        if (!window.HashcodVectorTray || typeof window.HashcodVectorTray.registerTool !== 'function') {
-            repairTrayButton();
-            return false;
-        }
-        window.HashcodVectorTray.registerTool({
-            slot: TRAY_SLOT,
-            id: TOOL_ID,
-            label: 'EFR Code Editor',
-            iconSvg: EDITOR_ICON,
-            onClick: openEditor
-        });
-        return Boolean(repairTrayButton());
-    }
-
     function handlePhysicalTrayPress(event) {
         if (modalIsOpen()) return;
         const button = repairTrayButton();
         if (!button) return;
-
-        // This rescue does not depend on the event target. If another overlay is
-        // physically on top of the cube, the capture listener still receives the
-        // pointer coordinates at window/document level and opens EFR when those
-        // coordinates are inside the visible fifth cube.
-        const hitsButton = eventTargetsButton(event, button) || pointInsideButton(event, button);
-        if (!hitsButton) return;
-
+        if (!eventTargetsButton(event, button) && !pointInsideButton(event, button)) return;
         event.preventDefault();
         event.stopPropagation();
         openEditor();
     }
 
-    function bindTrayInteractionRescue() {
-        if (document.documentElement.dataset.hashcodEfrTrayInteractionBound === 'true') return;
-        document.documentElement.dataset.hashcodEfrTrayInteractionBound = 'true';
+    function ensureHotzone() {
+        let zone = byId(HOTZONE_ID);
+        if (zone) return zone;
+        zone = document.createElement('button');
+        zone.type = 'button';
+        zone.id = HOTZONE_ID;
+        zone.setAttribute('aria-label', 'Open EFR Code Editor');
+        zone.title = 'EFR Code Editor';
+        zone.style.cssText = 'position:fixed;display:none;z-index:2147483646;border:0;padding:0;margin:0;background:transparent;opacity:.001;pointer-events:auto;cursor:pointer;';
+        zone.addEventListener('pointerdown', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            openEditor();
+        }, true);
+        zone.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            openEditor();
+        }, true);
+        document.body.appendChild(zone);
+        return zone;
+    }
 
-        window.addEventListener('pointerdown', handlePhysicalTrayPress, true);
-        window.addEventListener('mousedown', handlePhysicalTrayPress, true);
-        document.addEventListener('click', handlePhysicalTrayPress, true);
+    function syncHotzone() {
+        const zone = ensureHotzone();
+        const button = repairTrayButton();
+        const authOverlay = document.getElementById('authOverlay');
+        const authVisible = !authOverlay || (getComputedStyle(authOverlay).display !== 'none' && getComputedStyle(authOverlay).visibility !== 'hidden');
+
+        if (!button || !authVisible || modalIsOpen()) {
+            zone.style.display = 'none';
+            return;
+        }
+
+        const rect = button.getBoundingClientRect();
+        if (!rect.width || !rect.height || rect.bottom < 0 || rect.right < 0 || rect.top > innerHeight || rect.left > innerWidth) {
+            zone.style.display = 'none';
+            return;
+        }
+
+        zone.style.display = 'block';
+        zone.style.left = rect.left + 'px';
+        zone.style.top = rect.top + 'px';
+        zone.style.width = rect.width + 'px';
+        zone.style.height = rect.height + 'px';
+    }
+
+    function registerTrayTool() {
+        if (window.HashcodVectorTray && typeof window.HashcodVectorTray.registerTool === 'function') {
+            window.HashcodVectorTray.registerTool({
+                slot: TRAY_SLOT,
+                id: TOOL_ID,
+                label: 'EFR Code Editor',
+                iconSvg: EDITOR_ICON,
+                onClick: openEditor
+            });
+        }
+        repairTrayButton();
+    }
+
+    function watchTray() {
+        if (trayObserver) return;
+        trayObserver = new MutationObserver(function () {
+            registerTrayTool();
+            syncHotzone();
+        });
+        trayObserver.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['disabled', 'data-tool-id', 'class', 'style']
+        });
+    }
+
+    function animationLoop() {
+        registerTrayTool();
+        syncHotzone();
+        rafId = window.requestAnimationFrame(animationLoop);
     }
 
     function bindGlobalShortcuts() {
-        if (document.documentElement.dataset.hashcodEfrShortcutsBound === 'true') return;
-        document.documentElement.dataset.hashcodEfrShortcutsBound = 'true';
         document.addEventListener('keydown', function (event) {
             if (!modalIsOpen()) return;
             if (event.key === 'Escape') {
@@ -391,74 +431,54 @@
 
     function diagnostics() {
         const button = getTrayButton();
-        const modal = byId(MODAL_ID);
+        const zone = byId(HOTZONE_ID);
         return {
             ready: document.documentElement.dataset.hashcodEfrReady === 'true',
             buttonFound: Boolean(button),
-            buttonDisabled: Boolean(button && button.disabled),
+            buttonDisabled: button ? Boolean(button.disabled) : null,
             toolId: button ? button.getAttribute('data-tool-id') : null,
-            modalFound: Boolean(modal),
             modalOpen: modalIsOpen(),
-            dialogTopLayerCapable: Boolean(modal && typeof modal.showModal === 'function')
+            hotzoneVisible: Boolean(zone && zone.style.display !== 'none')
         };
     }
 
-    function init() {
+    function boot() {
         ensureModal();
         ensureImportInput();
-        bindTrayInteractionRescue();
+        ensureHotzone();
         bindGlobalShortcuts();
+        watchTray();
 
-        [0, 50, 120, 250, 500, 1000, 1800, 3000, 5000, 8000].forEach(function (delay) {
-            window.setTimeout(function () {
-                registerTrayTool();
-                repairTrayButton();
-            }, delay);
-        });
+        window.addEventListener('pointerdown', handlePhysicalTrayPress, true);
+        window.addEventListener('mousedown', handlePhysicalTrayPress, true);
+        document.addEventListener('click', handlePhysicalTrayPress, true);
+        window.addEventListener('resize', syncHotzone, { passive: true });
+        window.addEventListener('scroll', syncHotzone, true);
+        window.addEventListener('hashcod:platform-entered', syncHotzone);
 
-        const observer = new MutationObserver(function () {
-            repairTrayButton();
-            if (window.HashcodVectorTray && typeof window.HashcodVectorTray.registerTool === 'function') {
-                const button = getTrayButton();
-                if (!button || button.dataset.toolId !== TOOL_ID || button.disabled) registerTrayTool();
-            }
-        });
-        observer.observe(document.documentElement, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['disabled', 'data-tool-id', 'class', 'style']
-        });
-
-        repairTimer = window.setInterval(function () {
-            repairTrayButton();
-        }, 750);
+        registerTrayTool();
+        syncHotzone();
+        if (!rafId) rafId = window.requestAnimationFrame(animationLoop);
 
         document.documentElement.dataset.hashcodEfrReady = 'true';
         window.dispatchEvent(new CustomEvent('hashcod:efr-ready'));
-
-        if (document.documentElement.dataset.hashcodEfrOpenPending === 'true') {
-            openEditor();
-        }
     }
 
-    window.addEventListener('hashcod:efr-open-request', function () {
-        document.documentElement.dataset.hashcodEfrOpenPending = 'true';
-        openEditor();
-    });
-
-    window.HashcodEfrCodeEditor = Object.freeze({
+    window.HashcodEfrCodeEditor = {
         open: openEditor,
         close: closeEditor,
         download: downloadEfr,
-        newDocument: newDocument,
-        repair: repairTrayButton,
+        repair: function () {
+            registerTrayTool();
+            syncHotzone();
+            return Boolean(getTrayButton());
+        },
         diagnostics: diagnostics
-    });
+    };
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init, { once: true });
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
     } else {
-        init();
+        boot();
     }
 })();

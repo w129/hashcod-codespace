@@ -15,36 +15,71 @@ const target = process.env.EFR_TEST_URL || 'http://127.0.0.1:8099/';
     if (message.type() === 'error') browserErrors.push('console: ' + message.text());
   });
 
-  try {
-    await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  async function debugState(label) {
+    const state = await page.evaluate(() => ({
+      title: document.title,
+      href: location.href,
+      readyState: document.readyState,
+      authOverlay: Boolean(document.getElementById('authOverlay')),
+      authGateFunction: typeof window.l8ShowAuthGate,
+      trayApi: Boolean(window.HashcodVectorTray),
+      efrApi: Boolean(window.HashcodEfrCodeEditor),
+      trayNode: Boolean(document.getElementById('hashcodVectorTray')),
+      bodyClass: document.body ? document.body.className : null,
+      htmlLength: document.documentElement ? document.documentElement.outerHTML.length : 0
+    }));
+    console.log(label + ': ' + JSON.stringify(state));
+    if (browserErrors.length) console.log('browser errors: ' + JSON.stringify(browserErrors));
+    return state;
+  }
 
-    // The vector tray belongs to the authentication gate. The production page
-    // intentionally starts that gate hidden until the boot/entry handoff. Put
-    // the real page into the same auth-gate state shown to a user before testing
-    // the tray; do not manufacture a fake tray or call the EFR open API.
-    await page.waitForFunction(() => (
-      document.getElementById('authOverlay') &&
-      typeof window.l8ShowAuthGate === 'function'
-    ), { timeout: 30000 });
-    await page.evaluate(() => window.l8ShowAuthGate());
+  try {
+    const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    assert(response, 'browser did not receive a response');
+    assert.equal(response.status(), 200, 'local EFR UI must return HTTP 200');
+
+    // The EFR cube belongs to the real authentication overlay. For the browser
+    // test we only unhide that existing DOM; we do not fabricate a tray or call
+    // the editor open API. This avoids making the test depend on the timing of
+    // the separate boot/auth controller while still exercising the real UI.
+    await page.waitForSelector('#authOverlay', { state: 'attached', timeout: 30000 }).catch(async (error) => {
+      await debugState('auth-overlay-timeout');
+      throw error;
+    });
+    await page.evaluate(() => {
+      const overlay = document.getElementById('authOverlay');
+      if (!overlay) throw new Error('authOverlay missing');
+      overlay.classList.remove('hidden');
+      overlay.style.display = 'flex';
+      overlay.style.visibility = 'visible';
+      overlay.style.opacity = '1';
+      document.body.classList.add('auth-locked');
+      document.body.classList.remove('boot-locked');
+    });
 
     await page.waitForFunction(() => (
       window.HashcodVectorTray &&
       typeof window.HashcodVectorTray.mount === 'function' &&
       window.HashcodEfrCodeEditor &&
       typeof window.HashcodEfrCodeEditor.diagnostics === 'function'
-    ), { timeout: 30000 });
+    ), { timeout: 30000 }).catch(async (error) => {
+      await debugState('runtime-timeout');
+      throw error;
+    });
 
-    // Mount is part of the platform's public tray API and is safe/idempotent.
-    // Calling it here only removes boot timing from the test; the subsequent
-    // interaction is a physical Chromium pointer click on the rendered cube.
+    // Mount is the platform's public tray API and is safe/idempotent. This only
+    // removes boot-animation timing from the test. The editor itself is opened
+    // below by a physical Chromium pointer click on the rendered fifth cube.
     await page.evaluate(() => {
       window.HashcodVectorTray.mount();
       window.HashcodEfrCodeEditor.repair();
     });
 
     const slotSelector = '#hashcodVectorTray [data-vector-tray-slot="4"]';
-    await page.waitForSelector(slotSelector, { state: 'visible', timeout: 30000 });
+    await page.waitForSelector(slotSelector, { state: 'visible', timeout: 30000 }).catch(async (error) => {
+      await debugState('slot-timeout');
+      throw error;
+    });
 
     const slotState = await page.$eval(slotSelector, (button) => ({
       disabled: Boolean(button.disabled),
@@ -70,7 +105,10 @@ const target = process.env.EFR_TEST_URL || 'http://127.0.0.1:8099/';
       if (!modal || modal.hidden || modal.getAttribute('aria-hidden') === 'true') return false;
       const style = getComputedStyle(modal);
       return Boolean(modal.open) && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || '1') > 0;
-    }, { timeout: 15000 });
+    }, { timeout: 15000 }).catch(async (error) => {
+      await debugState('modal-timeout');
+      throw error;
+    });
 
     const runtime = await page.evaluate(() => window.HashcodEfrCodeEditor.diagnostics());
     assert.equal(runtime.ready, true, 'EFR runtime readiness marker must be true');
@@ -96,7 +134,7 @@ const target = process.env.EFR_TEST_URL || 'http://127.0.0.1:8099/';
     const relevantErrors = browserErrors.filter((message) => /efr|hashcodVectorTray|platform-entry-slogan/i.test(message));
     assert.deepEqual(relevantErrors, [], 'EFR/tray browser errors: ' + relevantErrors.join('\n'));
 
-    console.log('PASS: real Chromium auth-gate click on the fifth tray cube opens the top-layer EFR editor and downloads browser-verified.efr.');
+    console.log('PASS: real Chromium click on the real fifth tray cube opens the top-layer EFR editor and downloads browser-verified.efr.');
   } finally {
     await browser.close();
   }

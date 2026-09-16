@@ -17,10 +17,14 @@ assert(js.includes("document.createElement('dialog')"), 'EFR modal must use a na
 assert(js.includes("typeof modal.showModal === 'function'"), 'EFR modal must enter the browser top layer when supported');
 assert(js.includes('handlePhysicalTrayPress'), 'coordinate-based tray interaction rescue missing');
 assert(js.includes("window.addEventListener('pointerdown', handlePhysicalTrayPress, true)"), 'window capture pointer rescue missing');
-assert(js.includes('pointInsideButton(event, button)'), 'tray rescue must work even when another overlay receives the pointer target');
+assert(js.includes('pointInsideButton(event, button)'), 'tray rescue must work by physical coordinates');
 assert(js.includes("button.disabled = false"), 'fifth tray cube must be actively repaired to enabled state');
 assert(js.includes("button.onclick = function (event)"), 'direct button click fallback missing');
-assert(js.includes("attributeFilter: ['disabled', 'data-tool-id', 'class', 'style']"), 'tray mutation repair coverage is incomplete');
+assert(js.includes("const HOTZONE_ID = 'hashcodEfrHotzone'"), 'fixed click hotzone missing');
+assert(js.includes("z-index:2147483646"), 'hotzone must sit above regular auth/tray stacking contexts');
+assert(js.includes("repairTimer = window.setInterval(repairAndSync, 400)"), 'bounded periodic tray repair missing');
+assert(js.includes("childList: true"), 'tray replacement observer missing');
+assert(!js.includes("attributeFilter: ['disabled', 'data-tool-id', 'class', 'style']"), 'EFR must not observe the same attributes it continuously repairs');
 assert(js.includes("document.documentElement.dataset.hashcodEfrReady = 'true'"), 'runtime readiness marker missing');
 assert(js.includes("modal.style.setProperty('display', 'grid', 'important')"), 'editor open path must force visible display');
 assert(js.includes("new Blob([editor.value]"), 'download must preserve the editor text as a raw blob');
@@ -40,4 +44,4 @@ assert(local.includes('hashcod-laragon-efr-code-editor-inline'), 'local entry mu
 assert(local.includes('components/efr-code-editor.css?v=20260915-3'), 'local CSS fallback loader missing');
 assert(local.includes('components/efr-code-editor.js?v=20260915-3'), 'local JS fallback loader missing');
 
-console.log('PASS: fifth tray cube is repaired, captured by physical coordinates, opens a native top-layer EFR dialog, and downloads exact RAW text as .efr.');
+console.log('PASS: fifth tray cube is repaired without mutation feedback, has an independent top-layer click hotzone, opens EFR, and downloads exact RAW text as .efr.');

@@ -43,16 +43,55 @@ async function run() {
       typeof window.HashcodVectorTray.mount === 'function' &&
       window.HashcodEfrCodeEditor &&
       typeof window.HashcodEfrCodeEditor.repair === 'function' &&
-      window.HashcodEftNotebookModel
+      window.HashcodEftNotebookModel &&
+      window.HashcodEftCodeKeyGate &&
+      typeof window.HashcodEftCodeKeyGate.sync === 'function'
     ), { timeout: 15000 });
 
     await page.evaluate(() => {
       window.HashcodVectorTray.mount();
       window.HashcodEfrCodeEditor.repair();
+      document.documentElement.dataset.adminAuthenticated = 'false';
+      window.dispatchEvent(new CustomEvent('hashcod:admin-auth', { detail: { authenticated: false } }));
+      window.HashcodEftCodeKeyGate.sync();
     });
 
     const slotSelector = '#hashcodVectorTray [data-vector-tray-slot="4"]';
     await page.waitForSelector(slotSelector, { state: 'visible', timeout: 10000 });
+    await page.waitForSelector('#hashcodEftCodeKeyGate', { state: 'visible', timeout: 10000 });
+
+    let gateState = await page.evaluate(() => window.HashcodEftCodeKeyGate.diagnostics());
+    assert.equal(gateState.unlocked, false, 'EFT must start locked without a CodeKey session');
+    assert.equal(gateState.trayFound, true, 'CodeKey gate must find the fifth tray cube');
+    assert.equal(gateState.trayLocked, true, 'fifth tray cube must be marked CodeKey locked');
+    assert.equal(gateState.gateVisible, true, 'CodeKey gate must physically cover the EFT cube');
+    assert.equal(gateState.modalOpen, false, 'EFT modal must remain closed while CodeKey is locked');
+
+    const gateRect = await page.$eval('#hashcodEftCodeKeyGate', (gate) => {
+      const rect = gate.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, width: rect.width, height: rect.height };
+    });
+    assert(gateRect.width > 0 && gateRect.height > 0, 'locked CodeKey gate must have a physical click target');
+
+    const chooserPromise = page.waitForEvent('filechooser', { timeout: 10000 });
+    await page.mouse.click(gateRect.x, gateRect.y);
+    const chooser = await chooserPromise;
+    await chooser.setFiles([]);
+    await page.waitForTimeout(900);
+
+    gateState = await page.evaluate(() => window.HashcodEftCodeKeyGate.diagnostics());
+    assert.equal(gateState.unlocked, false, 'cancelling CodeKey selection must keep EFT locked');
+    assert.equal(gateState.modalOpen, false, 'cancelling CodeKey selection must never open EFT');
+
+    await page.evaluate(() => {
+      document.documentElement.dataset.adminAuthenticated = 'true';
+      window.dispatchEvent(new CustomEvent('hashcod:admin-auth', { detail: { authenticated: true } }));
+      window.HashcodEftCodeKeyGate.sync();
+    });
+    await page.waitForFunction(() => {
+      const state = window.HashcodEftCodeKeyGate.diagnostics();
+      return state.unlocked && !state.gateVisible;
+    }, { timeout: 5000 });
 
     const slotState = await page.$eval(slotSelector, (button) => {
       const rect = button.getBoundingClientRect();
@@ -67,10 +106,10 @@ async function run() {
       };
     });
 
-    assert.equal(slotState.disabled, false, 'fifth tray cube must be enabled');
+    assert.equal(slotState.disabled, false, 'fifth tray cube must be enabled after CodeKey unlock');
     assert.equal(slotState.toolId, 'efr-code-editor', 'fifth tray cube must keep stable internal tool id');
     assert.match(slotState.label || '', /EFT CoffeeScript Algorithm Notebook/i, 'fifth tray cube must expose EFT algorithm label');
-    assert(slotState.width > 0 && slotState.height > 0, 'fifth tray cube must have a clickable box');
+    assert(slotState.width > 0 && slotState.height > 0, 'unlocked fifth tray cube must have a clickable box');
 
     await page.mouse.click(slotState.x, slotState.y);
 
@@ -201,7 +240,22 @@ async function run() {
     assert.match(normalized.cells[0].id, /^[A-Za-z0-9_-]{1,64}$/);
     assert.equal(normalized.metadata.hashcod.algorithm_profile, 'THEALGORITHMS-JUPYTER-1');
 
-    console.log('PASS: physical Chromium click opens EFT; New Algorithm follows the TheAlgorithms/Jupyter-inspired definition/math → CoffeeScript implementation → demo profile and downloads validated IPYNB 4.5 .eft JSON.');
+    await page.evaluate(() => {
+      document.documentElement.dataset.adminAuthenticated = 'false';
+      window.dispatchEvent(new CustomEvent('hashcod:admin-auth', { detail: { authenticated: false } }));
+      window.HashcodEftCodeKeyGate.sync();
+    });
+    await page.waitForFunction(() => {
+      const gate = window.HashcodEftCodeKeyGate.diagnostics();
+      return !gate.unlocked && gate.gateVisible && !gate.modalOpen;
+    }, { timeout: 5000 });
+
+    gateState = await page.evaluate(() => window.HashcodEftCodeKeyGate.diagnostics());
+    assert.equal(gateState.unlocked, false, 'CodeKey expiration must relock EFT');
+    assert.equal(gateState.modalOpen, false, 'CodeKey expiration must close an open EFT editor');
+    assert.equal(gateState.gateVisible, true, 'CodeKey expiration must restore the physical gate');
+
+    console.log('PASS: EFT is physically blocked until CodeKey unlock, runs the TheAlgorithms/Jupyter CoffeeScript/IPYNB flow only while authenticated, and relocks when the session expires.');
   } finally {
     await browser.close();
   }

@@ -34,6 +34,21 @@ assert(rescue.includes('finish(currentFile(input));'), 'cancel/focus must re-che
 assert(!rescue.includes("input.addEventListener('cancel', () => finish(null)"), 'cancel must never immediately discard a valid selected file');
 assert(html.includes('admin-codekey-picker-rescue.js?v=20260915-1'), 'hosted HTML must cache-bust and load the CodeKey picker rescue');
 
+assert(rescue.includes("const EFT_TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot=\"4\"]'"), 'EFT CodeKey gate must target the fifth tray cube');
+assert(rescue.includes("const EFT_GATE_ID = 'hashcodEftCodeKeyGate'"), 'EFT CodeKey gate overlay missing');
+assert(rescue.includes("document.documentElement.dataset.adminAuthenticated === 'true'"), 'EFT gate must use the authoritative CodeKey admin session state');
+assert(rescue.includes('return codeKeyUnlocked() ? nativeRect() : zeroRect();'), 'locked EFT cube must be invisible to the legacy coordinate rescue');
+assert(rescue.includes("hotzone.style.setProperty('display', 'none', 'important')"), 'legacy EFT hotzone must be disabled while CodeKey is locked');
+assert(rescue.includes('unlockPending = pickNotebook().then'), 'locked EFT click must open the CodeKey picker immediately from user activation');
+assert(rescue.includes('const admin = await ensureAdminEngine();'), 'EFT gate must load/wait for the CodeKey engine after file selection');
+assert(rescue.includes('const verified = await admin.verifyNotebook(file);'), 'selected CodeKey must be verified through the server-backed admin engine');
+assert(rescue.includes('closeEftIfLocked();'), 'EFT must close when the CodeKey session is not active');
+assert(rescue.includes("window.addEventListener('hashcod:admin-auth'"), 'EFT gate must react immediately to CodeKey session changes');
+assert(rescue.includes('window.HashcodEftCodeKeyGate = Object.freeze'), 'EFT CodeKey gate diagnostics API missing');
+assert(rescue.includes("api.download = function ()"), 'programmatic EFT download must also be guarded');
+assert(rescue.includes('EFT sigue bloqueado. La CodeKey no fue verificada.'), 'locked-state feedback missing');
+assert(rescue.includes("const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js"), 'EFT gate must be able to load the CodeKey engine independently');
+
 assert(server.includes("const ADMIN_DEVICE_NETWORK = '38.196.115.0/24'"), 'IP network restriction must remain');
 assert(server.includes(`const ADMIN_CODEKEY_FILENAME = '${filename}'`), 'registered filename must be server-side');
 assert(server.includes(`const ADMIN_CODEKEY_FINGERPRINT = '${codekey}'`), 'CODEKEY1 verifier missing');
@@ -47,4 +62,4 @@ assert(server.includes("ADMIN_CODEKEY_SCHEME . '|' . $codekey . '|' . $jupyter")
 assert(server.includes("'admin_until'] = time() + 600"), 'verified CodeKey session must expire after ten minutes');
 assert(server.includes("'authMode'=>$desktop ? 'desktop-loopback-bridge' : 'codekey-jupyter'"), 'hosted auth mode must report CodeKey Jupyter');
 
-console.log('PASS: CodeKey picker tolerates native chooser cancel/focus ordering, loads through a fresh cache-busted rescue, keeps the IP restriction, and validates CODEKEY1 + JUPYTER1 + HASHCOD1.');
+console.log('PASS: CodeKey verifies CODEKEY1 + JUPYTER1 + HASHCOD1 and exclusively gates the EFT editor until the active admin session is unlocked.');

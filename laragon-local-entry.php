@@ -40,6 +40,12 @@ $baseJs = json_encode($baseRaw, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
 // /Hashcod%20Codespace/, por lo que fijamos su base al directorio real.
 $html = str_replace("var base = '/';", 'var base = ' . $baseJs . ';', $html);
 
+$efrCssPath = __DIR__ . '/components/efr-code-editor.css';
+$efrCss = is_file($efrCssPath) ? (string)file_get_contents($efrCssPath) : '';
+$inlineEfrCss = $efrCss !== ''
+    ? '<style id="hashcod-laragon-efr-code-editor-inline">' . $efrCss . '</style>'
+    : '';
+
 $headExtras = '<base href="' . $baseAttr . '">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbox-secure-links.css?v=20260914-retired1" data-hashcod-toolbox-secure-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
@@ -47,7 +53,8 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260914-5" data-hashcod-boot-brand-credit-relocate-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
-    . '<link rel="stylesheet" href="' . $baseAttr . 'components/efr-code-editor.css?v=20260915-1" data-hashcod-efr-code-editor-style="true">'
+    . $inlineEfrCss
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
     . '<style id="hashcod-laragon-rare-folder-placement">'
     . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.20)!important;transform-origin:center center!important;}'
     . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
@@ -80,8 +87,18 @@ $rareInline = $rareBundle !== ''
     ? '<script id="hashcod-laragon-rare-folder-inline" data-hashcod-rare-folder-inline="true">' . $rareBundle . '</script>'
     : '';
 
+$efrJsPath = __DIR__ . '/components/efr-code-editor.js';
+$efrJs = is_file($efrJsPath) ? (string)file_get_contents($efrJsPath) : '';
+if ($efrJs !== '') {
+    $efrJs = str_ireplace('</script', '<\\/script', $efrJs);
+}
+$inlineEfrJs = $efrJs !== ''
+    ? '<script id="hashcod-laragon-efr-code-editor-inline">' . $efrJs . '</script>'
+    : '';
+
 $bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline
+    . $inlineEfrJs
     . '<script defer src="' . $baseAttr . 'components/rare-folder-entry.bundle.js?v=20260914-local2" data-hashcod-rare-folder="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/toolbox-secure-ui-rescue.js?v=20260914-retired1" data-hashcod-toolbox-ui-rescue="true"></script>'
@@ -94,7 +111,7 @@ $bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){functi
     . '<script defer src="' . $baseAttr . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/admin-codekey-picker-rescue.js?v=20260915-1" data-hashcod-codekey-picker-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/efr-code-editor.js?v=20260915-1" data-hashcod-efr-code-editor="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/efr-code-editor.js?v=20260915-3" data-hashcod-efr-code-editor="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260914-5" data-hashcod-boot-brand-credit-relocate="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/laragon-credit-align.js?v=20260914-local1" data-hashcod-laragon-credit-align="true"></script>';
 

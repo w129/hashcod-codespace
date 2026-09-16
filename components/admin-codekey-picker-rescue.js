@@ -4,6 +4,12 @@
     if (window.__hashcodAdminCodeKeyPickerRescueLoaded) return;
     window.__hashcodAdminCodeKeyPickerRescueLoaded = true;
 
+    const selfScript = document.currentScript;
+    const selfSrc = selfScript && selfScript.src ? selfScript.src : '';
+    const componentBase = selfSrc && selfSrc.lastIndexOf('/') >= 0
+        ? selfSrc.slice(0, selfSrc.lastIndexOf('/') + 1)
+        : '/components/';
+    const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js?v=20260916-eft-gate1';
     const EXPECTED_FILENAME = 'OnIPFeJKssih4mbNLCYXnct6a1L_q84po-KVfKPZInHYbhNJ8OR2n3M2zFJ2zZeK9bqkcmilS1li-3DrTsaUIg.ipynb';
     const PICKER_SETTLE_DELAY_MS = 700;
     const EFT_TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot="4"]';
@@ -15,6 +21,7 @@
 
     let activeInput = null;
     let patchedApi = null;
+    let adminEnginePromise = null;
     let gateTimer = 0;
     let unlockPending = null;
     let guardedEftApi = null;
@@ -105,6 +112,48 @@
         if (status) status.textContent = message;
     }
 
+    function adminApiReady() {
+        return Boolean(window.HashcodAdmin &&
+            typeof window.HashcodAdmin.verifyNotebook === 'function' &&
+            typeof window.HashcodAdmin.require === 'function');
+    }
+
+    function ensureAdminEngine() {
+        if (adminApiReady()) {
+            install();
+            return Promise.resolve(window.HashcodAdmin);
+        }
+        if (adminEnginePromise) return adminEnginePromise;
+
+        adminEnginePromise = new Promise(function (resolve, reject) {
+            let script = document.querySelector('script[data-hashcod-eft-admin-engine],script[src*="admin-device.js"]');
+            if (!script) {
+                script = document.createElement('script');
+                script.src = ADMIN_DEVICE_SRC;
+                script.defer = true;
+                script.dataset.hashcodEftAdminEngine = 'true';
+                (document.head || document.documentElement).appendChild(script);
+            }
+
+            let attempts = 0;
+            const timer = window.setInterval(function () {
+                attempts += 1;
+                if (adminApiReady()) {
+                    window.clearInterval(timer);
+                    install();
+                    resolve(window.HashcodAdmin);
+                    return;
+                }
+                if (attempts >= 200) {
+                    window.clearInterval(timer);
+                    adminEnginePromise = null;
+                    reject(new Error('El motor CodeKey no pudo cargarse.'));
+                }
+            }, 50);
+        });
+        return adminEnginePromise;
+    }
+
     function install() {
         const api = window.HashcodAdmin;
         if (!api || typeof api.verifyNotebook !== 'function' || typeof api.require !== 'function') return false;
@@ -189,10 +238,6 @@
         gate.setAttribute('aria-label', 'Desbloquear EFT con CodeKey');
         gate.title = 'EFT bloqueado · verifica la CodeKey para abrir';
         gate.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4V6Zm3 9.73V18h-2v-2.27a2 2 0 1 1 2 0Z"/></svg>';
-        gate.addEventListener('pointerdown', function (event) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-        }, true);
         gate.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -250,19 +295,28 @@
         }
 
         const gate = ensureEftGate();
-        const admin = window.HashcodAdmin;
-        if (!admin || typeof admin.require !== 'function') {
-            setStatus('CodeKey aún no está disponible. Recarga la página e inténtalo de nuevo.');
-            return false;
-        }
-
         gate.setAttribute('aria-busy', 'true');
         setStatus('EFT bloqueado. Selecciona la CodeKey registrada para desbloquearlo…');
-        unlockPending = Promise.resolve(admin.require({force: true})).then(function (verified) {
+
+        // Open the native picker first, directly from the click, so browser user
+        // activation cannot be lost while the administrative engine is loading.
+        unlockPending = pickNotebook().then(async function (file) {
+            if (!file) {
+                setStatus('EFT sigue bloqueado. No se seleccionó una CodeKey.');
+                return false;
+            }
+            if (file.name !== EXPECTED_FILENAME) {
+                throw new Error('El nombre del archivo CodeKey no coincide con el registrado.');
+            }
+
+            setStatus('Verificando CODEKEY1 + JUPYTER1 + HASHCOD1…');
+            const admin = await ensureAdminEngine();
+            const verified = await admin.verifyNotebook(file);
             if (!verified || !codeKeyUnlocked()) {
                 setStatus('EFT sigue bloqueado. La CodeKey no fue verificada.');
                 return false;
             }
+
             syncEftGate();
             setStatus('CodeKey verificada. EFT desbloqueado durante la sesión administrativa.');
             guardEftApi();
@@ -332,7 +386,7 @@
             trayLocked: Boolean(button && button.dataset.codekeyLocked === 'true'),
             gateVisible: Boolean(gate && gate.style.display !== 'none'),
             modalOpen: Boolean(modal && modal.open && !modal.hidden),
-            adminApiReady: Boolean(window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function'),
+            adminApiReady: adminApiReady(),
             eftApiReady: Boolean(window.HashcodEfrCodeEditor && typeof window.HashcodEfrCodeEditor.open === 'function')
         };
     }
@@ -340,6 +394,7 @@
     function bootEftGate() {
         ensureGateStyle();
         ensureEftGate();
+        ensureAdminEngine().catch(function () {});
         syncEftGate();
         if (!gateTimer) gateTimer = window.setInterval(syncEftGate, EFT_SYNC_INTERVAL_MS);
         window.addEventListener('resize', syncEftGate, {passive: true});

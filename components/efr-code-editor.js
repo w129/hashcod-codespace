@@ -12,6 +12,7 @@
     const NAME_ID = 'hashcodEfrEditorFilename';
     const STATUS_ID = 'hashcodEfrEditorStatus';
     const HOTZONE_ID = 'hashcodEfrHotzone';
+    const CRITICAL_STYLE_ID = 'hashcodEfrCriticalTkinterStyle';
     const STORAGE_KEY = 'hashcod_efr_editor_draft_v1';
     const NAME_STORAGE_KEY = 'hashcod_efr_editor_name_v1';
     const TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]';
@@ -22,6 +23,28 @@
             '<path d="M25 23L16 32l9 9M39 23l9 9-9 9" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
             '<path d="M35 18L29 46" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>',
         '</svg>'
+    ].join('');
+
+    const TKINTER_CRITICAL_CSS = [
+        '#hashcodEfrEditorModal[hidden]{display:none!important}',
+        'dialog#hashcodEfrEditorModal{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;border:0!important;padding:18px!important;box-sizing:border-box!important;z-index:2147483647!important;display:grid!important;place-items:center!important;background:rgba(238,238,234,.86)!important;backdrop-filter:blur(10px)!important;font-family:"IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;color:#111!important}',
+        'dialog#hashcodEfrEditorModal::backdrop{background:rgba(238,238,234,.82)!important;backdrop-filter:blur(8px)!important}',
+        '#hashcodEfrEditorWindow{width:min(1060px,94vw)!important;height:min(720px,90vh)!important;display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;background:#d9d9d5!important;border:1px solid #6f6f6a!important;border-radius:8px!important;box-shadow:0 24px 70px rgba(0,0,0,.20),inset 1px 1px 0 #fff!important;overflow:hidden!important}',
+        '.hashcod-efr-editor-header{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:18px!important;padding:15px 16px 14px!important;border-bottom:1px solid #8d8d88!important;background:linear-gradient(180deg,#f4f4f1,#deded9)!important;box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 #bcbcb6!important}',
+        '.hashcod-efr-editor-kicker{margin:0 0 4px!important;font-size:10px!important;letter-spacing:.15em!important;font-weight:700!important;color:#55554f!important}',
+        '#hashcodEfrEditorTitle{margin:0!important;font-size:clamp(21px,2vw,28px)!important;line-height:1.05!important;font-weight:700!important;letter-spacing:-.025em!important}',
+        '.hashcod-efr-editor-subtitle{margin:7px 0 0!important;max-width:700px!important;font-size:11px!important;line-height:1.5!important;color:#55554f!important}',
+        '.hashcod-efr-icon-button{width:34px!important;height:30px!important;border:1px solid #777772!important;border-radius:3px!important;background:#e7e7e3!important;color:#111!important;font:400 18px/1 Arial,sans-serif!important;cursor:pointer!important;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #a5a5a0!important}',
+        '.hashcod-efr-toolbar{display:grid!important;grid-template-columns:minmax(300px,1fr) auto!important;align-items:center!important;gap:14px!important;padding:10px 12px!important;border-bottom:1px solid #8d8d88!important;background:#cfcfca!important;box-shadow:inset 0 1px 0 #efefec,inset 0 -1px 0 #b4b4ae!important}',
+        '.hashcod-efr-name-wrap{min-width:0!important;display:grid!important;grid-template-columns:auto minmax(120px,320px) auto!important;align-items:center!important;gap:8px!important;font-size:10px!important;color:#55554f!important}',
+        '.hashcod-efr-name-wrap input{width:100%!important;box-sizing:border-box!important;border:1px solid #71716d!important;border-radius:2px!important;background:#fff!important;padding:7px 8px!important;outline:none!important;color:#111!important;font:500 12px/1.2 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;box-shadow:inset 1px 1px 0 #b7b7b2,inset -1px -1px 0 #f5f5f2!important}',
+        '.hashcod-efr-actions{display:flex!important;gap:7px!important;flex-wrap:wrap!important;justify-content:flex-end!important}',
+        '.hashcod-efr-actions button{min-height:32px!important;border:1px solid #6f6f6a!important;border-radius:3px!important;background:#e7e7e3!important;color:#111!important;padding:7px 11px!important;font:600 11px/1 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;cursor:pointer!important;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #9f9f99!important}',
+        '.hashcod-efr-actions button.is-primary{background:#111!important;color:#fff!important;border-color:#111!important}',
+        '.hashcod-efr-editor-body{min-height:0!important;padding:12px!important;background:#bdbdb8!important;box-shadow:inset 0 1px 0 #ecece8!important}',
+        '#hashcodEfrEditorTextarea{display:block!important;width:100%!important;height:100%!important;min-height:300px!important;box-sizing:border-box!important;resize:none!important;border:1px solid #5e5e5a!important;border-radius:2px!important;outline:0!important;padding:16px 18px!important;background:#111!important;color:#f5f5f1!important;caret-color:#fff!important;font:400 13px/1.62 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;tab-size:4!important;white-space:pre!important;overflow:auto!important;box-shadow:inset 2px 2px 0 #050505,inset -1px -1px 0 #2e2e2e!important}',
+        '.hashcod-efr-editor-footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;padding:8px 12px!important;border-top:1px solid #8d8d88!important;background:#d6d6d1!important;color:#4e4e49!important;font-size:10px!important;line-height:1.35!important;box-shadow:inset 0 1px 0 #efefec!important}',
+        '@media(max-width:760px){dialog#hashcodEfrEditorModal{padding:8px!important}#hashcodEfrEditorWindow{width:100%!important;height:94vh!important}.hashcod-efr-toolbar{grid-template-columns:1fr!important}.hashcod-efr-name-wrap{grid-template-columns:auto minmax(0,1fr) auto!important}.hashcod-efr-actions{display:grid!important;grid-template-columns:1fr 1fr 1fr!important}.hashcod-efr-editor-body{padding:8px!important}.hashcod-efr-editor-footer{align-items:flex-start!important;flex-direction:column!important;gap:4px!important}}'
     ].join('');
 
     let importInput = null;
@@ -40,6 +63,17 @@
 
     function getTrayButton() {
         return document.querySelector(TRAY_SELECTOR);
+    }
+
+    function ensureCriticalStyles() {
+        let style = byId(CRITICAL_STYLE_ID);
+        if (style) return style;
+        style = document.createElement('style');
+        style.id = CRITICAL_STYLE_ID;
+        style.setAttribute('data-hashcod-efr-style-version', '20260916-tk1');
+        style.textContent = TKINTER_CRITICAL_CSS;
+        (document.head || document.documentElement).appendChild(style);
+        return style;
     }
 
     function sanitizeName(value) {
@@ -135,7 +169,7 @@
                 editor.value = await file.text();
                 name.value = sanitizeName(file.name.replace(/\.[^.]+$/, ''));
                 saveDraft();
-                updateStatus('Loaded ' + file.name + ' · no validation applied');
+                updateStatus('Loaded ' + file.name + ' · RAW text');
                 editor.focus();
             } catch (_) {
                 updateStatus('Could not read that file as text.');
@@ -159,6 +193,7 @@
     }
 
     function ensureModal() {
+        ensureCriticalStyles();
         let modal = byId(MODAL_ID);
         if (modal) return modal;
 
@@ -181,7 +216,7 @@
             '<section id="' + WINDOW_ID + '" role="document">',
                 '<header class="hashcod-efr-editor-header">',
                     '<div>',
-                        '<p class="hashcod-efr-editor-kicker">HASHCOD / EFR</p>',
+                        '<p class="hashcod-efr-editor-kicker">HASHCOD / EFR · DESKTOP WORKSPACE</p>',
                         '<h2 id="hashcodEfrEditorTitle">Universal Code Editor</h2>',
                         '<p class="hashcod-efr-editor-subtitle">Write any code as raw text. No parser, compiler or linter will reject it.</p>',
                     '</div>',
@@ -286,19 +321,17 @@
     function repairTrayButton() {
         const button = getTrayButton();
         if (!button) return null;
-
-        if (button.disabled) button.disabled = false;
-        if (button.hasAttribute('disabled')) button.removeAttribute('disabled');
-        if (button.getAttribute('aria-disabled') !== 'false') button.setAttribute('aria-disabled', 'false');
-        if (button.classList.contains('is-empty')) button.classList.remove('is-empty');
-        if (button.dataset.toolId !== TOOL_ID) button.dataset.toolId = TOOL_ID;
-        if (button.getAttribute('aria-label') !== 'EFR Code Editor') button.setAttribute('aria-label', 'EFR Code Editor');
-        if (button.getAttribute('title') !== 'EFR Code Editor') button.setAttribute('title', 'EFR Code Editor');
-        if (button.style.pointerEvents !== 'auto') button.style.setProperty('pointer-events', 'auto', 'important');
-        if (button.style.cursor !== 'pointer') button.style.setProperty('cursor', 'pointer', 'important');
-        if (button.style.opacity !== '1') button.style.setProperty('opacity', '1', 'important');
+        button.disabled = false;
+        button.removeAttribute('disabled');
+        button.setAttribute('aria-disabled', 'false');
+        button.classList.remove('is-empty');
+        button.dataset.toolId = TOOL_ID;
+        button.setAttribute('aria-label', 'EFR Code Editor');
+        button.setAttribute('title', 'EFR Code Editor');
+        button.style.setProperty('pointer-events', 'auto', 'important');
+        button.style.setProperty('cursor', 'pointer', 'important');
+        button.style.setProperty('opacity', '1', 'important');
         if (!button.querySelector('[data-hashcod-efr-icon="true"]')) button.innerHTML = EDITOR_ICON;
-
         if (button.dataset.hashcodEfrBound !== 'true') {
             button.dataset.hashcodEfrBound = 'true';
             button.onclick = function (event) {
@@ -365,12 +398,10 @@
         const button = getTrayButton();
         const authOverlay = document.getElementById('authOverlay');
         const authVisible = !authOverlay || (getComputedStyle(authOverlay).display !== 'none' && getComputedStyle(authOverlay).visibility !== 'hidden');
-
         if (!button || !authVisible || modalIsOpen()) {
             zone.style.display = 'none';
             return;
         }
-
         const rect = button.getBoundingClientRect();
         if (!rect.width || !rect.height || rect.bottom < 0 || rect.right < 0 || rect.top > innerHeight || rect.left > innerWidth) {
             zone.style.display = 'none';
@@ -407,19 +438,14 @@
     function watchTray() {
         if (trayObserver) return;
         trayObserver = new MutationObserver(function (records) {
-            let relevant = false;
             for (const record of records) {
                 if (record.type === 'childList') {
-                    relevant = true;
+                    window.requestAnimationFrame(repairAndSync);
                     break;
                 }
             }
-            if (relevant) window.requestAnimationFrame(repairAndSync);
         });
-        trayObserver.observe(document.documentElement, {
-            childList: true,
-            subtree: true
-        });
+        trayObserver.observe(document.documentElement, { childList: true, subtree: true });
     }
 
     function bindGlobalShortcuts() {
@@ -446,27 +472,26 @@
             buttonDisabled: button ? Boolean(button.disabled) : null,
             toolId: button ? button.getAttribute('data-tool-id') : null,
             modalOpen: modalIsOpen(),
-            hotzoneVisible: Boolean(zone && zone.style.display !== 'none')
+            hotzoneVisible: Boolean(zone && zone.style.display !== 'none'),
+            tkinterStyle: Boolean(byId(CRITICAL_STYLE_ID))
         };
     }
 
     function boot() {
+        ensureCriticalStyles();
         ensureModal();
         ensureImportInput();
         ensureHotzone();
         bindGlobalShortcuts();
         watchTray();
-
         window.addEventListener('pointerdown', handlePhysicalTrayPress, true);
         window.addEventListener('mousedown', handlePhysicalTrayPress, true);
         document.addEventListener('click', handlePhysicalTrayPress, true);
         window.addEventListener('resize', syncHotzone, { passive: true });
         window.addEventListener('scroll', syncHotzone, true);
         window.addEventListener('hashcod:platform-entered', repairAndSync);
-
         repairAndSync();
         repairTimer = window.setInterval(repairAndSync, 400);
-
         document.documentElement.dataset.hashcodEfrReady = 'true';
         window.dispatchEvent(new CustomEvent('hashcod:efr-ready'));
     }

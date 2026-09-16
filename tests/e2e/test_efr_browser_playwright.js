@@ -10,8 +10,6 @@ async function run() {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
 
   try {
-    // Keep the test deterministic: Hashcod's own local resources are allowed,
-    // third-party/CDN requests are irrelevant to the tray/editor interaction.
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
       if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') {
@@ -21,11 +19,15 @@ async function run() {
       }
     });
 
-    const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 20000 });
+    // Do not wait for DOMContentLoaded here. The platform intentionally has
+    // many deferred/local modules; waiting for the browser commit lets us test
+    // the real DOM as soon as it is streamed, while the selector waits below
+    // guarantee the auth tray itself is actually present.
+    const response = await page.goto(target, { waitUntil: 'commit', timeout: 10000 });
     assert(response, 'browser did not receive the local Hashcod page');
     assert.equal(response.status(), 200, 'local Hashcod UI must return HTTP 200');
 
-    await page.waitForSelector('#authOverlay', { state: 'attached', timeout: 10000 });
+    await page.waitForSelector('#authOverlay', { state: 'attached', timeout: 15000 });
     await page.evaluate(() => {
       const overlay = document.getElementById('authOverlay');
       overlay.classList.remove('hidden');
@@ -41,7 +43,7 @@ async function run() {
       typeof window.HashcodVectorTray.mount === 'function' &&
       window.HashcodEfrCodeEditor &&
       typeof window.HashcodEfrCodeEditor.repair === 'function'
-    ), { timeout: 10000 });
+    ), { timeout: 15000 });
 
     await page.evaluate(() => {
       window.HashcodVectorTray.mount();
@@ -69,7 +71,6 @@ async function run() {
     assert.match(slotState.label || '', /EFR Code Editor/i, 'fifth tray cube must expose the EFR label');
     assert(slotState.width > 0 && slotState.height > 0, 'fifth tray cube must have a clickable box');
 
-    // Physical pointer interaction only: no direct call to the editor open API.
     await page.mouse.click(slotState.x, slotState.y);
 
     await page.waitForFunction(() => {

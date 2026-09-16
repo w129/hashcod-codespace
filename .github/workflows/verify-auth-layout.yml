@@ -174,23 +174,23 @@ jobs:
 
       - name: Verify real fifth-cube click opens EFR in Chromium
         run: |
-          php -S 127.0.0.1:8099 router.php >/tmp/hashcod-efr-php.log 2>&1 &
+          php -S 127.0.0.1:8099 >/tmp/hashcod-efr-php.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" >/dev/null 2>&1 || true' EXIT
           ready=0
           for attempt in $(seq 1 45); do
-            if curl --fail --silent --show-error http://127.0.0.1:8099/ >/dev/null; then
+            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
               ready=1
               break
             fi
             sleep 1
           done
           if [ "$ready" -ne 1 ]; then
-            echo "Local Hashcod server did not become ready"
+            echo "Local Hashcod UI server did not become ready"
             cat /tmp/hashcod-efr-php.log || true
             exit 1
           fi
-          EFR_TEST_URL=http://127.0.0.1:8099/ node tests/e2e/test_efr_browser_playwright.js
+          EFR_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_efr_browser_playwright.js
 
       - name: Verify mobile platform polish
         run: node tests/e2e/test_mobile_platform_polish.js

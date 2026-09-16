@@ -75,14 +75,10 @@
             }
 
             function onCancel() {
-                // Chromium can report the dialog closing before FileList has
-                // fully settled. Never treat cancel as an immediate rejection.
                 settleAfterDialog();
             }
 
             function onWindowFocus() {
-                // Returning focus from the native picker is a reliable fallback
-                // on browsers that do not dispatch the input cancel event.
                 settleAfterDialog();
             }
 
@@ -150,30 +146,14 @@
     }
 
     function zeroRect() {
-        return {
-            x: 0,
-            y: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            width: 0,
-            height: 0,
-            toJSON: function () { return {}; }
-        };
+        return {x: 0, y: 0, top: 0, right: 0, bottom: 0, left: 0, width: 0, height: 0, toJSON: function () { return {}; }};
     }
 
     function patchTrayRect(button) {
         if (!button || button.__hashcodEftCodeKeyRectPatched === true) return;
         const nativeRect = button.getBoundingClientRect.bind(button);
-        Object.defineProperty(button, '__hashcodEftCodeKeyNativeRect', {
-            configurable: true,
-            value: nativeRect
-        });
-        Object.defineProperty(button, '__hashcodEftCodeKeyRectPatched', {
-            configurable: true,
-            value: true
-        });
+        Object.defineProperty(button, '__hashcodEftCodeKeyNativeRect', {configurable: true, value: nativeRect});
+        Object.defineProperty(button, '__hashcodEftCodeKeyRectPatched', {configurable: true, value: true});
         button.getBoundingClientRect = function () {
             return codeKeyUnlocked() ? nativeRect() : zeroRect();
         };
@@ -181,9 +161,7 @@
 
     function realTrayRect(button) {
         if (!button) return zeroRect();
-        if (typeof button.__hashcodEftCodeKeyNativeRect === 'function') {
-            return button.__hashcodEftCodeKeyNativeRect();
-        }
+        if (typeof button.__hashcodEftCodeKeyNativeRect === 'function') return button.__hashcodEftCodeKeyNativeRect();
         return button.getBoundingClientRect();
     }
 
@@ -214,11 +192,11 @@
         gate.addEventListener('pointerdown', function (event) {
             event.preventDefault();
             event.stopImmediatePropagation();
-            unlockEftAndOpen();
         }, true);
         gate.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopImmediatePropagation();
+            unlockEftAndOpen();
         }, true);
         (document.body || document.documentElement).appendChild(gate);
         return gate;
@@ -267,9 +245,7 @@
         if (codeKeyUnlocked()) {
             syncEftGate();
             if (originalEftOpen) return originalEftOpen();
-            if (window.HashcodEfrCodeEditor && typeof window.HashcodEfrCodeEditor.open === 'function') {
-                return window.HashcodEfrCodeEditor.open();
-            }
+            if (window.HashcodEfrCodeEditor && typeof window.HashcodEfrCodeEditor.open === 'function') return window.HashcodEfrCodeEditor.open();
             return false;
         }
 
@@ -291,9 +267,7 @@
             setStatus('CodeKey verificada. EFT desbloqueado durante la sesión administrativa.');
             guardEftApi();
             if (originalEftOpen) return originalEftOpen();
-            if (window.HashcodEfrCodeEditor && typeof window.HashcodEfrCodeEditor.open === 'function') {
-                return window.HashcodEfrCodeEditor.open();
-            }
+            if (window.HashcodEfrCodeEditor && typeof window.HashcodEfrCodeEditor.open === 'function') return window.HashcodEfrCodeEditor.open();
             return true;
         }).catch(function (error) {
             setStatus(error && error.message ? error.message : 'No se pudo verificar la CodeKey.');
@@ -396,9 +370,6 @@
         diagnostics: gateDiagnostics
     });
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bootEftGate, {once: true});
-    } else {
-        bootEftGate();
-    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootEftGate, {once: true});
+    else bootEftGate();
 })();

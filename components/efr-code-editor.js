@@ -1,628 +1,79 @@
-(function () {
-    'use strict';
-
-    if (window.__hashcodEfrCodeEditorLoaded) return;
-    window.__hashcodEfrCodeEditorLoaded = true;
-
-    const TOOL_ID = 'efr-code-editor';
-    const TRAY_SLOT = 4;
-    const MODAL_ID = 'hashcodEfrEditorModal';
-    const WINDOW_ID = 'hashcodEfrEditorWindow';
-    const TEXTAREA_ID = 'hashcodEfrEditorTextarea';
-    const NAME_ID = 'hashcodEfrEditorFilename';
-    const STATUS_ID = 'hashcodEfrEditorStatus';
-    const HOTZONE_ID = 'hashcodEfrHotzone';
-    const CRITICAL_STYLE_ID = 'hashcodEfrCriticalTkinterStyle';
-    const STORAGE_KEY = 'hashcod_eft_coffeescript_draft_v1';
-    const NAME_STORAGE_KEY = 'hashcod_eft_coffeescript_name_v1';
-    const CELL_SEPARATOR = '# %% [EFT CELL]';
-    const EFT_FORMAT = 'HASHCOD-EFT-1';
-    const TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]';
-
-    const EDITOR_ICON = [
-        '<svg data-hashcod-efr-icon="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" style="display:block;width:72%;height:72%;max-width:38px;max-height:38px">',
-            '<rect x="8" y="9" width="48" height="46" rx="8" fill="#fff" stroke="#111" stroke-width="3"/>',
-            '<path d="M25 23L16 32l9 9M39 23l9 9-9 9" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
-            '<path d="M35 18L29 46" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>',
-        '</svg>'
-    ].join('');
-
-    const TKINTER_CRITICAL_CSS = [
-        '#hashcodEfrEditorModal[hidden]{display:none!important}',
-        'dialog#hashcodEfrEditorModal{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;border:0!important;padding:18px!important;box-sizing:border-box!important;z-index:2147483647!important;display:grid!important;place-items:center!important;background:rgba(238,238,234,.86)!important;backdrop-filter:blur(10px)!important;font-family:"IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;color:#111!important}',
-        'dialog#hashcodEfrEditorModal::backdrop{background:rgba(238,238,234,.82)!important;backdrop-filter:blur(8px)!important}',
-        '#hashcodEfrEditorWindow{width:min(1060px,94vw)!important;height:min(720px,90vh)!important;display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;background:#d9d9d5!important;border:1px solid #6f6f6a!important;border-radius:8px!important;box-shadow:0 24px 70px rgba(0,0,0,.20),inset 1px 1px 0 #fff!important;overflow:hidden!important}',
-        '.hashcod-efr-editor-header{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:18px!important;padding:15px 16px 14px!important;border-bottom:1px solid #8d8d88!important;background:linear-gradient(180deg,#f4f4f1,#deded9)!important;box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 #bcbcb6!important}',
-        '.hashcod-efr-editor-kicker{margin:0 0 4px!important;font-size:10px!important;letter-spacing:.15em!important;font-weight:700!important;color:#55554f!important}',
-        '#hashcodEfrEditorTitle{margin:0!important;font-size:clamp(21px,2vw,28px)!important;line-height:1.05!important;font-weight:700!important;letter-spacing:-.025em!important}',
-        '.hashcod-efr-editor-subtitle{margin:7px 0 0!important;max-width:720px!important;font-size:11px!important;line-height:1.5!important;color:#55554f!important}',
-        '.hashcod-efr-icon-button{width:34px!important;height:30px!important;border:1px solid #777772!important;border-radius:3px!important;background:#e7e7e3!important;color:#111!important;font:400 18px/1 Arial,sans-serif!important;cursor:pointer!important;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #a5a5a0!important}',
-        '.hashcod-efr-toolbar{display:grid!important;grid-template-columns:minmax(360px,1fr) auto!important;align-items:center!important;gap:14px!important;padding:10px 12px!important;border-bottom:1px solid #8d8d88!important;background:#cfcfca!important;box-shadow:inset 0 1px 0 #efefec,inset 0 -1px 0 #b4b4ae!important}',
-        '.hashcod-eft-file-stack{display:grid!important;gap:7px!important;min-width:0!important}',
-        '.hashcod-efr-name-wrap{min-width:0!important;display:grid!important;grid-template-columns:auto minmax(120px,320px) auto!important;align-items:center!important;gap:8px!important;font-size:10px!important;color:#55554f!important}',
-        '.hashcod-efr-name-wrap input{width:100%!important;box-sizing:border-box!important;border:1px solid #71716d!important;border-radius:2px!important;background:#fff!important;padding:7px 8px!important;outline:none!important;color:#111!important;font:500 12px/1.2 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;box-shadow:inset 1px 1px 0 #b7b7b2,inset -1px -1px 0 #f5f5f2!important}',
-        '.hashcod-eft-modebar{display:flex!important;gap:6px!important;flex-wrap:wrap!important;align-items:center!important}',
-        '.hashcod-eft-modebar span{display:inline-flex!important;align-items:center!important;min-height:20px!important;padding:2px 7px!important;border:1px solid #8a8a84!important;border-radius:2px!important;background:#e9e9e5!important;color:#33332f!important;font-size:9px!important;font-weight:700!important;letter-spacing:.06em!important}',
-        '.hashcod-efr-actions{display:flex!important;gap:7px!important;flex-wrap:wrap!important;justify-content:flex-end!important}',
-        '.hashcod-efr-actions button{min-height:32px!important;border:1px solid #6f6f6a!important;border-radius:3px!important;background:#e7e7e3!important;color:#111!important;padding:7px 11px!important;font:600 11px/1 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;cursor:pointer!important;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #9f9f99!important}',
-        '.hashcod-efr-actions button.is-primary{background:#111!important;color:#fff!important;border-color:#111!important}',
-        '.hashcod-efr-editor-body{min-height:0!important;padding:12px!important;background:#bdbdb8!important;box-shadow:inset 0 1px 0 #ecece8!important}',
-        '#hashcodEfrEditorTextarea{display:block!important;width:100%!important;height:100%!important;min-height:300px!important;box-sizing:border-box!important;resize:none!important;border:1px solid #5e5e5a!important;border-radius:2px!important;outline:0!important;padding:16px 18px!important;background:#111!important;color:#f5f5f1!important;caret-color:#fff!important;font:400 13px/1.62 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;tab-size:2!important;white-space:pre!important;overflow:auto!important;box-shadow:inset 2px 2px 0 #050505,inset -1px -1px 0 #2e2e2e!important}',
-        '.hashcod-efr-editor-footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;padding:8px 12px!important;border-top:1px solid #8d8d88!important;background:#d6d6d1!important;color:#4e4e49!important;font-size:10px!important;line-height:1.35!important;box-shadow:inset 0 1px 0 #efefec!important}',
-        '@media(max-width:760px){dialog#hashcodEfrEditorModal{padding:8px!important}#hashcodEfrEditorWindow{width:100%!important;height:94vh!important}.hashcod-efr-toolbar{grid-template-columns:1fr!important}.hashcod-efr-name-wrap{grid-template-columns:auto minmax(0,1fr) auto!important}.hashcod-efr-actions{display:grid!important;grid-template-columns:1fr 1fr!important}.hashcod-efr-editor-body{padding:8px!important}.hashcod-efr-editor-footer{align-items:flex-start!important;flex-direction:column!important;gap:4px!important}}'
-    ].join('');
-
-    let importInput = null;
-    let trayObserver = null;
-    let repairTimer = null;
-    let lastFocused = null;
-    let registeredTrayApi = null;
-
-    function byId(id) { return document.getElementById(id); }
-    function getEditor() { return byId(TEXTAREA_ID); }
-    function getTrayButton() { return document.querySelector(TRAY_SELECTOR); }
-
-    function ensureCriticalStyles() {
-        let style = byId(CRITICAL_STYLE_ID);
-        if (style) return style;
-        style = document.createElement('style');
-        style.id = CRITICAL_STYLE_ID;
-        style.setAttribute('data-hashcod-eft-style-version', '20260916-eft1');
-        style.textContent = TKINTER_CRITICAL_CSS;
-        (document.head || document.documentElement).appendChild(style);
-        return style;
-    }
-
-    function sanitizeName(value) {
-        const cleaned = String(value || '')
-            .replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-')
-            .replace(/\s+/g, ' ')
-            .trim();
-        return (cleaned || 'untitled').replace(/\.(eft|efr|ipynb|coffee)$/i, '');
-    }
-
-    function splitCoffeeScriptCells(text) {
-        const normalized = String(text || '').replace(/\r\n?/g, '\n');
-        const pieces = normalized.split(new RegExp('^\\s*' + CELL_SEPARATOR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*$', 'm'));
-        return pieces.map(function (piece) { return piece.replace(/^\n+|\n+$/g, ''); });
-    }
-
-    function sourceLines(text) {
-        const normalized = String(text || '').replace(/\r\n?/g, '\n');
-        if (normalized === '') return [];
-        const lines = normalized.split('\n');
-        return lines.map(function (line, index) {
-            return index < lines.length - 1 ? line + '\n' : line;
-        });
-    }
-
-    function buildEftNotebook() {
-        const editor = getEditor();
-        const cells = splitCoffeeScriptCells(editor ? editor.value : '');
-        return {
-            eft_format: EFT_FORMAT,
-            nbformat: 4,
-            nbformat_minor: 5,
-            metadata: {
-                kernelspec: {
-                    display_name: 'CoffeeScript',
-                    language: 'coffeescript',
-                    name: 'coffeescript'
-                },
-                language_info: {
-                    name: 'coffeescript',
-                    mimetype: 'text/coffeescript',
-                    file_extension: '.coffee'
-                },
-                hashcod: {
-                    format: 'EFT',
-                    version: 1,
-                    source_language: 'CoffeeScript',
-                    container: 'Jupyter Notebook',
-                    cell_separator: CELL_SEPARATOR
-                }
-            },
-            cells: cells.map(function (cellSource, index) {
-                return {
-                    cell_type: 'code',
-                    execution_count: null,
-                    metadata: {
-                        language: 'coffeescript',
-                        eft_source: true,
-                        eft_cell_index: index
-                    },
-                    outputs: [],
-                    source: sourceLines(cellSource)
-                };
-            })
-        };
-    }
-
-    function notebookSourceToText(source) {
-        if (Array.isArray(source)) return source.join('');
-        return typeof source === 'string' ? source : '';
-    }
-
-    function isCoffeeScriptNotebook(notebook) {
-        if (!notebook || notebook.nbformat !== 4 || !Array.isArray(notebook.cells)) return false;
-        const metadata = notebook.metadata || {};
-        const languageInfo = metadata.language_info || {};
-        const kernel = metadata.kernelspec || {};
-        const hashcod = metadata.hashcod || {};
-        if (String(languageInfo.name || '').toLowerCase() === 'coffeescript') return true;
-        if (String(kernel.language || '').toLowerCase() === 'coffeescript') return true;
-        if (String(hashcod.source_language || '').toLowerCase() === 'coffeescript') return true;
-        return notebook.cells.some(function (cell) {
-            return cell && cell.cell_type === 'code' && String((cell.metadata || {}).language || '').toLowerCase() === 'coffeescript';
-        });
-    }
-
-    function notebookToCoffeeScript(notebook) {
-        if (!isCoffeeScriptNotebook(notebook)) throw new Error('Notebook is not CoffeeScript/IPYNB compatible.');
-        const codeCells = notebook.cells.filter(function (cell) { return cell && cell.cell_type === 'code'; });
-        return codeCells.map(function (cell) { return notebookSourceToText(cell.source).replace(/\s+$/g, ''); }).join('\n\n' + CELL_SEPARATOR + '\n\n');
-    }
-
-    function updateStatus(message) {
-        const editor = getEditor();
-        const status = byId(STATUS_ID);
-        if (!editor || !status) return;
-        if (message) {
-            status.textContent = message;
-            return;
-        }
-        const text = editor.value;
-        const lines = text === '' ? 1 : text.split('\n').length;
-        const cells = splitCoffeeScriptCells(text).length;
-        status.textContent = 'CoffeeScript · IPYNB structure · ' + cells + ' cell' + (cells === 1 ? '' : 's') + ' · ' + lines + ' lines';
-    }
-
-    function saveDraft() {
-        const editor = getEditor();
-        const name = byId(NAME_ID);
-        if (!editor || !name) return;
-        try {
-            localStorage.setItem(STORAGE_KEY, editor.value);
-            localStorage.setItem(NAME_STORAGE_KEY, sanitizeName(name.value));
-        } catch (_) {}
-        updateStatus();
-    }
-
-    function loadDraft() {
-        const editor = getEditor();
-        const name = byId(NAME_ID);
-        if (!editor || !name) return;
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            const savedName = localStorage.getItem(NAME_STORAGE_KEY);
-            if (saved !== null) editor.value = saved;
-            if (savedName) name.value = savedName;
-        } catch (_) {}
-        updateStatus();
-    }
-
-    function insertTab(event) {
-        if (event.key !== 'Tab') return;
-        event.preventDefault();
-        const editor = event.currentTarget;
-        const start = editor.selectionStart;
-        const end = editor.selectionEnd;
-        editor.setRangeText('  ', start, end, 'end');
-        saveDraft();
-    }
-
-    function insertCell() {
-        const editor = getEditor();
-        if (!editor) return;
-        const start = editor.selectionStart;
-        const before = editor.value.slice(0, start).replace(/\s*$/g, '');
-        const after = editor.value.slice(start).replace(/^\s*/g, '');
-        const insertion = (before ? '\n\n' : '') + CELL_SEPARATOR + '\n\n';
-        editor.value = before + insertion + after;
-        const next = before.length + insertion.length;
-        editor.setSelectionRange(next, next);
-        saveDraft();
-        editor.focus();
-    }
-
-    function downloadEft() {
-        const name = byId(NAME_ID);
-        if (!name) return false;
-        const filename = sanitizeName(name.value) + '.eft';
-        name.value = sanitizeName(name.value);
-        const notebook = buildEftNotebook();
-        const payload = JSON.stringify(notebook, null, 2);
-        const blob = new Blob([payload], { type: 'application/json;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = filename;
-        anchor.hidden = true;
-        document.body.appendChild(anchor);
-        anchor.click();
-        anchor.remove();
-        window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-        saveDraft();
-        updateStatus('Downloaded ' + filename + ' · CoffeeScript + IPYNB');
-        return true;
-    }
-
-    function ensureImportInput() {
-        if (importInput && importInput.isConnected) return importInput;
-        importInput = document.createElement('input');
-        importInput.type = 'file';
-        importInput.accept = '.eft,.ipynb,.coffee,application/json,text/plain';
-        importInput.hidden = true;
-        importInput.id = 'hashcodEfrImportInput';
-        importInput.addEventListener('change', async function () {
-            const file = importInput.files && importInput.files[0];
-            if (!file) return;
-            try {
-                const editor = getEditor();
-                const name = byId(NAME_ID);
-                if (!editor || !name) return;
-                const text = await file.text();
-                const lowerName = String(file.name || '').toLowerCase();
-                if (lowerName.endsWith('.coffee')) {
-                    editor.value = text.replace(/\r\n?/g, '\n');
-                } else {
-                    const notebook = JSON.parse(text);
-                    if (lowerName.endsWith('.eft') && notebook.eft_format !== EFT_FORMAT) {
-                        throw new Error('Unsupported EFT format.');
-                    }
-                    editor.value = notebookToCoffeeScript(notebook);
-                }
-                name.value = sanitizeName(file.name);
-                saveDraft();
-                updateStatus('Loaded ' + file.name + ' · CoffeeScript/IPYNB');
-                editor.focus();
-            } catch (_) {
-                updateStatus('Only CoffeeScript .coffee, CoffeeScript .ipynb, or HASHCOD-EFT-1 .eft files are accepted.');
-            } finally {
-                importInput.value = '';
-            }
-        });
-        document.body.appendChild(importInput);
-        return importInput;
-    }
-
-    function newDocument() {
-        const editor = getEditor();
-        const name = byId(NAME_ID);
-        if (!editor || !name) return;
-        editor.value = '';
-        name.value = 'untitled';
-        saveDraft();
-        updateStatus('New CoffeeScript/IPYNB document');
-        editor.focus();
-    }
-
-    function ensureModal() {
-        ensureCriticalStyles();
-        let modal = byId(MODAL_ID);
-        if (modal) return modal;
-
-        modal = document.createElement('dialog');
-        modal.id = MODAL_ID;
-        modal.hidden = true;
-        modal.setAttribute('aria-hidden', 'true');
-        modal.setAttribute('aria-labelledby', 'hashcodEfrEditorTitle');
-        modal.style.setProperty('position', 'fixed', 'important');
-        modal.style.setProperty('inset', '0', 'important');
-        modal.style.setProperty('width', '100vw', 'important');
-        modal.style.setProperty('height', '100vh', 'important');
-        modal.style.setProperty('max-width', 'none', 'important');
-        modal.style.setProperty('max-height', 'none', 'important');
-        modal.style.setProperty('margin', '0', 'important');
-        modal.style.setProperty('border', '0', 'important');
-        modal.style.setProperty('box-sizing', 'border-box', 'important');
-        modal.style.setProperty('z-index', '2147483647', 'important');
-        modal.innerHTML = [
-            '<section id="' + WINDOW_ID + '" role="document">',
-                '<header class="hashcod-efr-editor-header">',
-                    '<div>',
-                        '<p class="hashcod-efr-editor-kicker">HASHCOD / EFT · COFFEESCRIPT NOTEBOOK</p>',
-                        '<h2 id="hashcodEfrEditorTitle">EFT Code Editor</h2>',
-                        '<p class="hashcod-efr-editor-subtitle">CoffeeScript source only, stored as Jupyter Notebook cells (nbformat 4). The editor does not execute code.</p>',
-                    '</div>',
-                    '<button type="button" id="hashcodEfrEditorClose" class="hashcod-efr-icon-button" aria-label="Close editor">×</button>',
-                '</header>',
-                '<div class="hashcod-efr-toolbar">',
-                    '<div class="hashcod-eft-file-stack">',
-                        '<label class="hashcod-efr-name-wrap"><span>FILE</span><input id="' + NAME_ID + '" value="untitled" autocomplete="off" spellcheck="false"><b>.eft</b></label>',
-                        '<div class="hashcod-eft-modebar"><span>COFFEESCRIPT</span><span>IPYNB · NBFORMAT 4</span><span>HASHCOD-EFT-1</span></div>',
-                    '</div>',
-                    '<div class="hashcod-efr-actions">',
-                        '<button type="button" id="hashcodEfrNew">New</button>',
-                        '<button type="button" id="hashcodEfrCell">New Cell</button>',
-                        '<button type="button" id="hashcodEfrOpen">Open</button>',
-                        '<button type="button" id="hashcodEfrDownload" class="is-primary">Download .eft</button>',
-                    '</div>',
-                '</div>',
-                '<div class="hashcod-efr-editor-body">',
-                    '<textarea id="' + TEXTAREA_ID + '" data-language="coffeescript" aria-label="CoffeeScript notebook editor" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" wrap="off" placeholder="# CoffeeScript\nsquare = (x) -> x * x\nconsole.log square 5\n\n# Add another notebook cell with the New Cell button"></textarea>',
-                '</div>',
-                '<footer class="hashcod-efr-editor-footer">',
-                    '<span id="' + STATUS_ID + '">CoffeeScript · IPYNB structure · 1 cell</span>',
-                    '<span>Ctrl/Cmd + S → .eft · ' + CELL_SEPARATOR + '</span>',
-                '</footer>',
-            '</section>'
-        ].join('');
-        document.body.appendChild(modal);
-
-        const editor = getEditor();
-        const name = byId(NAME_ID);
-        editor.addEventListener('keydown', insertTab);
-        editor.addEventListener('input', saveDraft);
-        name.addEventListener('input', saveDraft);
-        byId('hashcodEfrEditorClose').addEventListener('click', closeEditor);
-        byId('hashcodEfrOpen').addEventListener('click', function () { ensureImportInput().click(); });
-        byId('hashcodEfrNew').addEventListener('click', newDocument);
-        byId('hashcodEfrCell').addEventListener('click', insertCell);
-        byId('hashcodEfrDownload').addEventListener('click', downloadEft);
-        modal.addEventListener('cancel', function (event) {
-            event.preventDefault();
-            closeEditor();
-        });
-        modal.addEventListener('click', function (event) {
-            if (event.target === modal) closeEditor();
-        });
-        loadDraft();
-        return modal;
-    }
-
-    function modalIsOpen() {
-        const modal = byId(MODAL_ID);
-        return Boolean(modal && modal.open && !modal.hidden && modal.getAttribute('aria-hidden') === 'false');
-    }
-
-    function openEditor() {
-        const modal = ensureModal();
-        lastFocused = document.activeElement;
-        modal.hidden = false;
-        modal.removeAttribute('hidden');
-        modal.setAttribute('aria-hidden', 'false');
-        modal.style.setProperty('display', 'grid', 'important');
-        modal.style.setProperty('visibility', 'visible', 'important');
-        modal.style.setProperty('opacity', '1', 'important');
-        modal.style.setProperty('pointer-events', 'auto', 'important');
-        try {
-            if (typeof modal.showModal === 'function' && !modal.open) modal.showModal();
-            else if (!modal.open) modal.setAttribute('open', '');
-        } catch (_) {
-            modal.setAttribute('open', '');
-        }
-        document.documentElement.classList.add('hashcod-efr-editor-open');
-        document.documentElement.dataset.hashcodEfrModalVisible = 'true';
-        const zone = byId(HOTZONE_ID);
-        if (zone) zone.style.display = 'none';
-        window.requestAnimationFrame(function () {
-            const editor = getEditor();
-            if (editor) editor.focus({ preventScroll: true });
-        });
-        return true;
-    }
-
-    function closeEditor() {
-        const modal = byId(MODAL_ID);
-        if (!modal) return;
-        saveDraft();
-        try {
-            if (typeof modal.close === 'function' && modal.open) modal.close();
-            else modal.removeAttribute('open');
-        } catch (_) {
-            modal.removeAttribute('open');
-        }
-        modal.hidden = true;
-        modal.setAttribute('hidden', '');
-        modal.setAttribute('aria-hidden', 'true');
-        modal.style.removeProperty('display');
-        modal.style.removeProperty('visibility');
-        modal.style.removeProperty('opacity');
-        document.documentElement.classList.remove('hashcod-efr-editor-open');
-        document.documentElement.dataset.hashcodEfrModalVisible = 'false';
-        repairTrayButton();
-        syncHotzone();
-        if (lastFocused && typeof lastFocused.focus === 'function') {
-            try { lastFocused.focus({ preventScroll: true }); } catch (_) {}
-        }
-    }
-
-    function repairTrayButton() {
-        const button = getTrayButton();
-        if (!button) return null;
-        button.disabled = false;
-        button.removeAttribute('disabled');
-        button.setAttribute('aria-disabled', 'false');
-        button.classList.remove('is-empty');
-        button.dataset.toolId = TOOL_ID;
-        button.setAttribute('aria-label', 'EFT CoffeeScript Notebook');
-        button.setAttribute('title', 'EFT CoffeeScript Notebook');
-        button.style.setProperty('pointer-events', 'auto', 'important');
-        button.style.setProperty('cursor', 'pointer', 'important');
-        button.style.setProperty('opacity', '1', 'important');
-        if (!button.querySelector('[data-hashcod-efr-icon="true"]')) button.innerHTML = EDITOR_ICON;
-        if (button.dataset.hashcodEfrBound !== 'true') {
-            button.dataset.hashcodEfrBound = 'true';
-            button.onclick = function (event) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                openEditor();
-            };
-        }
-        return button;
-    }
-
-    function pointInsideButton(event, button) {
-        if (!button || !event) return false;
-        const x = Number(event.clientX);
-        const y = Number(event.clientY);
-        if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
-        const rect = button.getBoundingClientRect();
-        if (!rect.width || !rect.height) return false;
-        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-    }
-
-    function eventTargetsButton(event, button) {
-        const target = event && event.target;
-        return Boolean(target && button && (target === button || button.contains(target)));
-    }
-
-    function handlePhysicalTrayPress(event) {
-        if (modalIsOpen()) return;
-        const button = getTrayButton();
-        if (!button) return;
-        if (!eventTargetsButton(event, button) && !pointInsideButton(event, button)) return;
-        event.preventDefault();
-        event.stopPropagation();
-        openEditor();
-    }
-
-    function ensureHotzone() {
-        let zone = byId(HOTZONE_ID);
-        if (zone) return zone;
-        zone = document.createElement('button');
-        zone.type = 'button';
-        zone.id = HOTZONE_ID;
-        zone.setAttribute('aria-label', 'Open EFT CoffeeScript Notebook');
-        zone.title = 'EFT CoffeeScript Notebook';
-        zone.style.cssText = 'position:fixed;display:none;z-index:2147483646;border:0;padding:0;margin:0;background:transparent;opacity:.001;pointer-events:auto;cursor:pointer;';
-        zone.addEventListener('pointerdown', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            openEditor();
-        }, true);
-        zone.addEventListener('click', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            openEditor();
-        }, true);
-        document.body.appendChild(zone);
-        return zone;
-    }
-
-    function syncHotzone() {
-        const zone = ensureHotzone();
-        const button = getTrayButton();
-        const authOverlay = document.getElementById('authOverlay');
-        const authVisible = !authOverlay || (getComputedStyle(authOverlay).display !== 'none' && getComputedStyle(authOverlay).visibility !== 'hidden');
-        if (!button || !authVisible || modalIsOpen()) {
-            zone.style.display = 'none';
-            return;
-        }
-        const rect = button.getBoundingClientRect();
-        if (!rect.width || !rect.height || rect.bottom < 0 || rect.right < 0 || rect.top > innerHeight || rect.left > innerWidth) {
-            zone.style.display = 'none';
-            return;
-        }
-        zone.style.display = 'block';
-        zone.style.left = rect.left + 'px';
-        zone.style.top = rect.top + 'px';
-        zone.style.width = rect.width + 'px';
-        zone.style.height = rect.height + 'px';
-    }
-
-    function registerTrayToolOnce() {
-        const api = window.HashcodVectorTray;
-        if (!api || typeof api.registerTool !== 'function') return false;
-        if (registeredTrayApi === api) return true;
-        api.registerTool({
-            slot: TRAY_SLOT,
-            id: TOOL_ID,
-            label: 'EFT CoffeeScript Notebook',
-            iconSvg: EDITOR_ICON,
-            onClick: openEditor
-        });
-        registeredTrayApi = api;
-        return true;
-    }
-
-    function repairAndSync() {
-        registerTrayToolOnce();
-        repairTrayButton();
-        syncHotzone();
-    }
-
-    function watchTray() {
-        if (trayObserver) return;
-        trayObserver = new MutationObserver(function (records) {
-            for (const record of records) {
-                if (record.type === 'childList') {
-                    window.requestAnimationFrame(repairAndSync);
-                    break;
-                }
-            }
-        });
-        trayObserver.observe(document.documentElement, { childList: true, subtree: true });
-    }
-
-    function bindGlobalShortcuts() {
-        document.addEventListener('keydown', function (event) {
-            if (!modalIsOpen()) return;
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                closeEditor();
-                return;
-            }
-            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
-                event.preventDefault();
-                downloadEft();
-            }
-        });
-    }
-
-    function diagnostics() {
-        const button = getTrayButton();
-        const zone = byId(HOTZONE_ID);
-        return {
-            ready: document.documentElement.dataset.hashcodEfrReady === 'true',
-            buttonFound: Boolean(button),
-            buttonDisabled: button ? Boolean(button.disabled) : null,
-            toolId: button ? button.getAttribute('data-tool-id') : null,
-            modalOpen: modalIsOpen(),
-            hotzoneVisible: Boolean(zone && zone.style.display !== 'none'),
-            format: EFT_FORMAT,
-            language: 'coffeescript',
-            container: 'ipynb'
-        };
-    }
-
-    function boot() {
-        ensureCriticalStyles();
-        ensureModal();
-        ensureImportInput();
-        ensureHotzone();
-        bindGlobalShortcuts();
-        watchTray();
-        window.addEventListener('pointerdown', handlePhysicalTrayPress, true);
-        window.addEventListener('mousedown', handlePhysicalTrayPress, true);
-        document.addEventListener('click', handlePhysicalTrayPress, true);
-        window.addEventListener('resize', syncHotzone, { passive: true });
-        window.addEventListener('scroll', syncHotzone, true);
-        window.addEventListener('hashcod:platform-entered', repairAndSync);
-        repairAndSync();
-        repairTimer = window.setInterval(repairAndSync, 400);
-        document.documentElement.dataset.hashcodEfrReady = 'true';
-        window.dispatchEvent(new CustomEvent('hashcod:efr-ready'));
-    }
-
-    window.HashcodEfrCodeEditor = {
-        open: openEditor,
-        close: closeEditor,
-        download: downloadEft,
-        buildNotebook: buildEftNotebook,
-        repair: function () {
-            repairAndSync();
-            return Boolean(getTrayButton());
-        },
-        diagnostics: diagnostics
-    };
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot, { once: true });
-    } else {
-        boot();
-    }
+(function(){
+'use strict';
+if(window.__hashcodEfrCodeEditorLoaded)return;window.__hashcodEfrCodeEditorLoaded=true;
+/* JupyterLab-informed model semantics: packages/notebook/src/model.ts and packages/nbformat/src/index.ts (Modified BSD). */
+const TOOL_ID='efr-code-editor',TRAY_SLOT=4,MODAL_ID='hashcodEfrEditorModal',TEXTAREA_ID='hashcodEfrEditorTextarea',NAME_ID='hashcodEfrEditorFilename',STATUS_ID='hashcodEfrEditorStatus',HOTZONE_ID='hashcodEfrHotzone',STYLE_ID='hashcodEfrCriticalTkinterStyle';
+const STORAGE_KEY='hashcod_eft_coffeescript_draft_v2',LEGACY_STORAGE_KEY='hashcod_eft_coffeescript_draft_v1',NAME_STORAGE_KEY='hashcod_eft_coffeescript_name_v1';
+const CELL_SEPARATOR='# %% [EFT CELL]',EFT_FORMAT='HASHCOD-EFT-1',MODEL_VERSION=2,NBFORMAT_MAJOR=4,NBFORMAT_MINOR=5,TRAY_SELECTOR='#hashcodVectorTray [data-vector-tray-slot="4"]',CELL_SEPARATOR_RE=/^\s*# %% \[EFT CELL\]\s*$/m;
+const EDITOR_ICON='<svg data-hashcod-efr-icon="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="9" width="48" height="46" rx="8" fill="#fff" stroke="#111" stroke-width="3"/><path d="M25 23L16 32l9 9M39 23l9 9-9 9" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 18L29 46" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/></svg>';
+const CRITICAL_CSS='#hashcodEfrEditorModal[hidden]{display:none!important}dialog#hashcodEfrEditorModal{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;border:0!important;padding:18px!important;box-sizing:border-box!important;z-index:2147483647!important;display:grid!important;place-items:center!important;background:rgba(238,238,234,.86)!important;font-family:"IBM Plex Mono",Consolas,monospace!important;color:#111!important}dialog#hashcodEfrEditorModal::backdrop{background:rgba(238,238,234,.82)!important}#hashcodEfrEditorWindow{width:min(1060px,94vw)!important;height:min(720px,90vh)!important;display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;background:#d9d9d5!important;border:1px solid #6f6f6a!important;border-radius:8px!important;overflow:hidden!important}.hashcod-efr-editor-header{display:flex!important;justify-content:space-between!important;gap:18px!important;padding:15px 16px!important;border-bottom:1px solid #8d8d88!important;background:#edede9!important}.hashcod-efr-editor-header h2,.hashcod-efr-editor-header p{margin:0!important}.hashcod-efr-toolbar{display:grid!important;grid-template-columns:minmax(320px,1fr) auto!important;gap:12px!important;align-items:center!important;padding:10px 12px!important;border-bottom:1px solid #8d8d88!important;background:#cfcfca!important}.hashcod-eft-file-stack{display:grid!important;gap:6px!important}.hashcod-efr-name-wrap{display:grid!important;grid-template-columns:auto minmax(120px,320px) auto!important;gap:8px!important;align-items:center!important}.hashcod-eft-modebar,.hashcod-efr-actions{display:flex!important;gap:7px!important;flex-wrap:wrap!important}.hashcod-eft-modebar span,.hashcod-efr-actions button,.hashcod-efr-name-wrap input,.hashcod-efr-icon-button{border:1px solid #6f6f6a!important;background:#f2f2ef!important;color:#111!important;border-radius:3px!important;padding:7px 9px!important;font:600 11px/1.1 inherit!important}.hashcod-efr-actions button.is-primary{background:#111!important;color:#fff!important}.hashcod-efr-editor-body{min-height:0!important;padding:12px!important;background:#bdbdb8!important}#hashcodEfrEditorTextarea{width:100%!important;height:100%!important;min-height:300px!important;box-sizing:border-box!important;resize:none!important;border:1px solid #555!important;outline:0!important;padding:16px!important;background:#111!important;color:#f5f5f1!important;font:400 13px/1.62 "IBM Plex Mono",Consolas,monospace!important;tab-size:2!important;white-space:pre!important}.hashcod-efr-editor-footer{display:flex!important;justify-content:space-between!important;gap:12px!important;padding:8px 12px!important;border-top:1px solid #8d8d88!important;background:#d6d6d1!important;font-size:10px!important}@media(max-width:760px){dialog#hashcodEfrEditorModal{padding:8px!important}#hashcodEfrEditorWindow{width:100%!important;height:94vh!important}.hashcod-efr-toolbar{grid-template-columns:1fr!important}.hashcod-efr-actions{display:grid!important;grid-template-columns:repeat(3,1fr)!important}}';
+let importInput=null,trayObserver=null,repairTimer=null,draftTimer=null,lastFocused=null,registeredTrayApi=null,suppressEditorSync=false;
+const byId=id=>document.getElementById(id),getEditor=()=>byId(TEXTAREA_ID),getTrayButton=()=>document.querySelector(TRAY_SELECTOR);
+function ensureStyles(){let s=byId(STYLE_ID);if(s)return s;s=document.createElement('style');s.id=STYLE_ID;s.textContent=CRITICAL_CSS;(document.head||document.documentElement).appendChild(s);return s;}
+function sanitizeName(v){const c=String(v||'').replace(/[\\/:*?"<>|\u0000-\u001f]/g,'-').replace(/\s+/g,' ').trim();return(c||'untitled').replace(/\.(eft|efr|ipynb|coffee)$/i,'');}
+const normalizeNewlines=v=>String(v||'').replace(/\r\n?/g,'\n');
+function clone(v){if(typeof structuredClone==='function'){try{return structuredClone(v);}catch(_){}}return JSON.parse(JSON.stringify(v));}
+const isObj=v=>!!v&&typeof v==='object'&&!Array.isArray(v),validId=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(v);
+function cellId(){const b=new Uint8Array(8);if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(b);else for(let i=0;i<b.length;i++)b[i]=Math.floor(Math.random()*256);return'c-'+Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');}
+function sourceText(source){if(Array.isArray(source)){if(!source.every(x=>typeof x==='string'))throw Error('Notebook source arrays must contain only strings.');return normalizeNewlines(source.join(''));}if(typeof source==='string')return normalizeNewlines(source);if(source==null)return'';throw Error('Notebook cell source must be text.');}
+function sourceLines(text){const n=normalizeNewlines(text);if(!n)return[];const a=n.split('\n');return a.map((line,i)=>i<a.length-1?line+'\n':line);}
+function splitCells(text){const a=normalizeNewlines(text).split(CELL_SEPARATOR_RE).map(x=>x.replace(/^\n+|\n+$/g,''));return a.length?a:[''];}
+function declaresCoffee(nb){if(!isObj(nb))return false;const m=isObj(nb.metadata)?nb.metadata:{},li=isObj(m.language_info)?m.language_info:{},k=isObj(m.kernelspec)?m.kernelspec:{},h=isObj(m.hashcod)?m.hashcod:{};if(String(li.name||'').toLowerCase()==='coffeescript'||String(k.language||'').toLowerCase()==='coffeescript'||String(k.name||'').toLowerCase().includes('coffee')||String(h.source_language||'').toLowerCase()==='coffeescript')return true;return Array.isArray(nb.cells)&&nb.cells.some(c=>c&&c.cell_type==='code'&&String((isObj(c.metadata)?c.metadata:{}).language||'').toLowerCase()==='coffeescript');}
+function metadata(input,minor){const m=isObj(input)?clone(input):{},h=isObj(m.hashcod)?m.hashcod:{};m.kernelspec={...(isObj(m.kernelspec)?m.kernelspec:{}),display_name:'CoffeeScript',language:'coffeescript',name:'coffeescript'};m.language_info={...(isObj(m.language_info)?m.language_info:{}),name:'coffeescript',mimetype:'text/coffeescript',file_extension:'.coffee',codemirror_mode:'coffeescript'};m.hashcod={...h,format:'EFT',version:1,model_version:MODEL_VERSION,source_language:'CoffeeScript',container:'Jupyter Notebook',cell_separator:CELL_SEPARATOR,execution_policy:'disabled',jupyterlab_model_reference:'packages/notebook/src/model.ts',source_nbformat_minor:Number.isInteger(minor)?minor:NBFORMAT_MINOR};return m;}
+function codeCell(input,index){const i=input||{},m=isObj(i.metadata)?clone(i.metadata):{};return{id:validId(i.id)?i.id:cellId(),cell_type:'code',execution_count:null,metadata:{...m,language:'coffeescript',eft_source:true,eft_cell_index:index,trusted:false},outputs:[],source:sourceLines(sourceText(i.source))};}
+function emptyNotebook(){return{eft_format:EFT_FORMAT,nbformat:NBFORMAT_MAJOR,nbformat_minor:NBFORMAT_MINOR,metadata:metadata({},NBFORMAT_MINOR),cells:[codeCell({source:''},0)]};}
+class EftNotebookModel{
+constructor(){this._listeners=new Set();this.deletedCells=[];this.revision=0;this.dirty=false;this._notebook=emptyNotebook();}
+get cellCount(){return this._notebook.cells.length;}get cells(){return clone(this._notebook.cells);}
+onChange(fn){if(typeof fn!=='function')return()=>{};this._listeners.add(fn);return()=>this._listeners.delete(fn);}
+_emit(type){this.revision++;this._listeners.forEach(fn=>{try{fn({type,revision:this.revision,dirty:this.dirty});}catch(_){}});}
+_touch(type){this.dirty=true;this._emit(type);}markClean(){if(this.dirty){this.dirty=false;this._emit('clean');}}
+toJSON(){const n=clone(this._notebook);n.eft_format=EFT_FORMAT;n.nbformat=NBFORMAT_MAJOR;n.nbformat_minor=Math.max(Number(n.nbformat_minor)||0,NBFORMAT_MINOR);n.metadata=metadata(n.metadata,n.metadata&&n.metadata.hashcod&&n.metadata.hashcod.source_nbformat_minor);if(!Array.isArray(n.cells)||!n.cells.length)n.cells=[codeCell({source:''},0)];n.cells=n.cells.map(codeCell);return n;}
+toString(){return JSON.stringify(this.toJSON());}fromString(v,o){this.fromJSON(JSON.parse(v),o);}
+fromJSON(v,o={}){if(!isObj(v))throw Error('Notebook JSON must be an object.');if(Number(v.nbformat)!==NBFORMAT_MAJOR)throw Error('Only Jupyter Notebook nbformat 4 is supported.');if(!Array.isArray(v.cells))throw Error('Notebook cells are missing.');if(!declaresCoffee(v))throw Error('Notebook must declare CoffeeScript.');const minor=Number.isInteger(v.nbformat_minor)?v.nbformat_minor:0,codes=v.cells.filter(c=>c&&c.cell_type==='code'),next=(codes.length?codes:[{source:''}]).map(codeCell),oldIds=new Set(this._notebook.cells.map(c=>c.id)),nextIds=new Set(next.map(c=>c.id));oldIds.forEach(id=>{if(!nextIds.has(id))this.deletedCells.push(id);});this._notebook={eft_format:EFT_FORMAT,nbformat:NBFORMAT_MAJOR,nbformat_minor:Math.max(minor,NBFORMAT_MINOR),metadata:metadata(v.metadata,minor),cells:next};this.dirty=o.markClean===false;this._emit('load');}
+replaceSources(sources,o={}){const s=Array.isArray(sources)&&sources.length?sources.map(normalizeNewlines):[''],p=this._notebook.cells;if(p.length===s.length&&p.every((c,i)=>sourceText(c.source)===s[i]))return false;const n=s.map((src,i)=>codeCell({...p[i],id:p[i]&&p[i].id,source:src,metadata:p[i]&&p[i].metadata},i));if(n.length<p.length)p.slice(n.length).forEach(c=>c&&c.id&&this.deletedCells.push(c.id));this._notebook.cells=n;o.markDirty===false?this._emit('replaceSources'):this._touch('replaceSources');return true;}
+insertCell(index,source=''){const t=Math.max(0,Math.min(Number(index)||0,this._notebook.cells.length));this._notebook.cells.splice(t,0,codeCell({source},t));this._notebook.cells=this._notebook.cells.map(codeCell);this._touch('insertCell');return t;}
+deleteCell(index){if(!this._notebook.cells.length)this._notebook.cells=[codeCell({source:''},0)];const t=Math.max(0,Math.min(Number(index)||0,this._notebook.cells.length-1));if(this._notebook.cells.length===1){const id=this._notebook.cells[0].id;this._notebook.cells[0]=codeCell({id,source:''},0);}else{const r=this._notebook.cells.splice(t,1)[0];if(r&&r.id)this.deletedCells.push(r.id);this._notebook.cells=this._notebook.cells.map(codeCell);}this._touch('deleteCell');return Math.min(t,this._notebook.cells.length-1);}
+moveCell(fromIndex,toIndex){const n=this._notebook.cells.length;if(n<2)return 0;const f=Math.max(0,Math.min(Number(fromIndex)||0,n-1)),t=Math.max(0,Math.min(Number(toIndex)||0,n-1));if(f===t)return t;const c=this._notebook.cells.splice(f,1)[0];this._notebook.cells.splice(t,0,c);this._notebook.cells=this._notebook.cells.map(codeCell);this._touch('moveCell');return t;}
+getCell(index){const t=Math.max(0,Math.min(Number(index)||0,this._notebook.cells.length-1));return clone(this._notebook.cells[t]);}
+setCellSource(index,source){const t=Math.max(0,Math.min(Number(index)||0,this._notebook.cells.length-1)),c=this._notebook.cells[t];if(sourceText(c.source)===normalizeNewlines(source))return false;this._notebook.cells[t]=codeCell({...c,source},t);this._touch('setCellSource');return true;}
+diagnostics(){return{format:EFT_FORMAT,modelVersion:MODEL_VERSION,nbformat:NBFORMAT_MAJOR,nbformatMinor:NBFORMAT_MINOR,cellCount:this.cellCount,dirty:this.dirty,revision:this.revision,deletedCells:this.deletedCells.slice()};}}
+const notebookModel=new EftNotebookModel();
+function editorText(){return notebookModel.cells.map(c=>sourceText(c.source).replace(/\s+$/g,'')).join('\n\n'+CELL_SEPARATOR+'\n\n');}
+function activeCell(text,cursor){return Math.max(0,Math.min(splitCells(String(text||'').slice(0,Math.max(0,Number(cursor)||0))).length-1,notebookModel.cellCount-1));}
+function cellOffset(index){const cells=notebookModel.cells;let n=0;for(let i=0;i<index&&i<cells.length;i++)n+=sourceText(cells[i].source).replace(/\s+$/g,'').length+('\n\n'+CELL_SEPARATOR+'\n\n').length;return n;}
+function syncEditor(markDirty=true){const e=getEditor();if(!e||suppressEditorSync)return;notebookModel.replaceSources(splitCells(e.value),{markDirty});}
+function renderModel(focus){const e=getEditor();if(!e)return;suppressEditorSync=true;e.value=editorText();suppressEditorSync=false;if(Number.isInteger(focus)){const p=Math.min(e.value.length,cellOffset(focus));e.setSelectionRange(p,p);}updateStatus();}
+function updateStatus(msg){const e=getEditor(),s=byId(STATUS_ID);if(!e||!s)return;if(msg){s.textContent=msg;return;}const d=notebookModel.diagnostics(),lines=e.value===''?1:e.value.split('\n').length;s.textContent='CoffeeScript · IPYNB '+d.nbformat+'.'+d.nbformatMinor+' · '+d.cellCount+' cell'+(d.cellCount===1?'':'s')+' · '+lines+' lines · '+(d.dirty?'modified':'saved');}
+function saveDraftNow(){if(draftTimer){clearTimeout(draftTimer);draftTimer=null;}const n=byId(NAME_ID);try{localStorage.setItem(STORAGE_KEY,notebookModel.toString());if(n)localStorage.setItem(NAME_STORAGE_KEY,sanitizeName(n.value));}catch(_){}}
+function scheduleDraft(){if(draftTimer)clearTimeout(draftTimer);draftTimer=setTimeout(saveDraftNow,180);}
+function loadDraft(){const n=byId(NAME_ID);let loaded=false;try{const saved=localStorage.getItem(STORAGE_KEY);if(saved){notebookModel.fromString(saved,{markClean:false});loaded=true;}else{const legacy=localStorage.getItem(LEGACY_STORAGE_KEY);if(legacy!==null){notebookModel.replaceSources(splitCells(legacy),{markDirty:true});loaded=true;}}const sn=localStorage.getItem(NAME_STORAGE_KEY);if(n&&sn)n.value=sanitizeName(sn);}catch(_){notebookModel.fromJSON(emptyNotebook(),{markClean:true});}renderModel();if(!loaded)notebookModel.markClean();}
+function editorInput(){syncEditor(true);scheduleDraft();updateStatus();}
+function insertTab(ev){if(ev.key!=='Tab')return;ev.preventDefault();const e=ev.currentTarget;e.setRangeText('  ',e.selectionStart,e.selectionEnd,'end');editorInput();}
+function insertCell(){const e=getEditor();if(!e)return;syncEditor(true);const i=notebookModel.insertCell(activeCell(e.value,e.selectionStart)+1,'');renderModel(i);saveDraftNow();e.focus();}
+function deleteCell(){const e=getEditor();if(!e)return;syncEditor(true);const i=notebookModel.deleteCell(activeCell(e.value,e.selectionStart));renderModel(i);saveDraftNow();e.focus();}
+function moveCell(delta){const e=getEditor();if(!e)return;syncEditor(true);const a=activeCell(e.value,e.selectionStart),t=Math.max(0,Math.min(a+delta,notebookModel.cellCount-1)),i=notebookModel.moveCell(a,t);renderModel(i);saveDraftNow();e.focus();}
+function buildEftNotebook(){syncEditor(false);return notebookModel.toJSON();}
+function notebookToCoffeeScript(nb){const m=new EftNotebookModel();m.fromJSON(nb,{markClean:true});return m.cells.map(c=>sourceText(c.source).replace(/\s+$/g,'')).join('\n\n'+CELL_SEPARATOR+'\n\n');}
+function downloadEft(){const n=byId(NAME_ID);if(!n)return false;syncEditor(true);const filename=sanitizeName(n.value)+'.eft';n.value=sanitizeName(n.value);const nb=notebookModel.toJSON(),blob=new Blob([JSON.stringify(nb,null,2)+'\n'],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.hidden=true;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notebookModel.markClean();saveDraftNow();updateStatus('Downloaded '+filename+' · CoffeeScript + IPYNB 4.5 · '+nb.cells.length+' cells');return true;}
+function ensureImport(){if(importInput&&importInput.isConnected)return importInput;importInput=document.createElement('input');importInput.type='file';importInput.accept='.eft,.ipynb,.coffee,application/json,text/plain';importInput.hidden=true;importInput.id='hashcodEfrImportInput';importInput.addEventListener('change',async()=>{const f=importInput.files&&importInput.files[0];if(!f)return;try{const text=await f.text(),lower=String(f.name||'').toLowerCase();if(lower.endsWith('.coffee')){notebookModel.replaceSources([normalizeNewlines(text)],{markDirty:false});notebookModel.markClean();}else{const nb=JSON.parse(text);if(lower.endsWith('.eft')&&nb.eft_format!==EFT_FORMAT)throw Error('Unsupported EFT format.');notebookModel.fromJSON(nb,{markClean:true});}const n=byId(NAME_ID);if(n)n.value=sanitizeName(f.name);renderModel(0);saveDraftNow();updateStatus('Loaded '+f.name+' · normalized to CoffeeScript/IPYNB 4.5');getEditor()&&getEditor().focus();}catch(_){updateStatus('Only CoffeeScript .coffee, CoffeeScript .ipynb, or HASHCOD-EFT-1 .eft files are accepted.');}finally{importInput.value='';}});document.body.appendChild(importInput);return importInput;}
+function newDocument(){notebookModel.fromJSON(emptyNotebook(),{markClean:false});const n=byId(NAME_ID);if(n)n.value='untitled';renderModel(0);saveDraftNow();updateStatus('New CoffeeScript/IPYNB document');getEditor()&&getEditor().focus();}
+function ensureModal(){ensureStyles();let m=byId(MODAL_ID);if(m)return m;m=document.createElement('dialog');m.id=MODAL_ID;m.hidden=true;m.setAttribute('aria-hidden','true');m.setAttribute('aria-labelledby','hashcodEfrEditorTitle');m.innerHTML='<section id="hashcodEfrEditorWindow" role="document"><header class="hashcod-efr-editor-header"><div><p class="hashcod-efr-editor-kicker">HASHCOD / EFT · COFFEESCRIPT NOTEBOOK</p><h2 id="hashcodEfrEditorTitle">EFT Code Editor</h2><p class="hashcod-efr-editor-subtitle">CoffeeScript source only, modeled as Jupyter Notebook nbformat 4.5 code cells with stable cell IDs, metadata normalization and document dirty-state tracking. Code is never executed.</p></div><button type="button" id="hashcodEfrEditorClose" class="hashcod-efr-icon-button" aria-label="Close editor">×</button></header><div class="hashcod-efr-toolbar"><div class="hashcod-eft-file-stack"><label class="hashcod-efr-name-wrap"><span>FILE</span><input id="'+NAME_ID+'" value="untitled" autocomplete="off" spellcheck="false"><b>.eft</b></label><div class="hashcod-eft-modebar"><span>COFFEESCRIPT</span><span>IPYNB · NBFORMAT 4.5</span><span>MODEL V2</span><span>HASHCOD-EFT-1</span></div></div><div class="hashcod-efr-actions"><button type="button" id="hashcodEfrNew">New</button><button type="button" id="hashcodEfrCell">New Cell</button><button type="button" id="hashcodEfrCellUp">↑ Cell</button><button type="button" id="hashcodEfrCellDown">↓ Cell</button><button type="button" id="hashcodEfrCellDelete">Delete Cell</button><button type="button" id="hashcodEfrOpen">Open</button><button type="button" id="hashcodEfrDownload" class="is-primary">Download .eft</button></div></div><div class="hashcod-efr-editor-body"><textarea id="'+TEXTAREA_ID+'" data-language="coffeescript" aria-label="CoffeeScript notebook editor" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" wrap="off" placeholder="# CoffeeScript\nsquare = (x) -> x * x"></textarea></div><footer class="hashcod-efr-editor-footer"><span id="'+STATUS_ID+'">CoffeeScript · IPYNB 4.5 · 1 cell · saved</span><span>Ctrl/Cmd + S → .eft · '+CELL_SEPARATOR+'</span></footer></section>';document.body.appendChild(m);const e=getEditor(),n=byId(NAME_ID);e.addEventListener('keydown',insertTab);e.addEventListener('input',editorInput);n.addEventListener('input',scheduleDraft);byId('hashcodEfrEditorClose').addEventListener('click',closeEditor);byId('hashcodEfrOpen').addEventListener('click',()=>ensureImport().click());byId('hashcodEfrNew').addEventListener('click',newDocument);byId('hashcodEfrCell').addEventListener('click',insertCell);byId('hashcodEfrCellUp').addEventListener('click',()=>moveCell(-1));byId('hashcodEfrCellDown').addEventListener('click',()=>moveCell(1));byId('hashcodEfrCellDelete').addEventListener('click',deleteCell);byId('hashcodEfrDownload').addEventListener('click',downloadEft);m.addEventListener('cancel',ev=>{ev.preventDefault();closeEditor();});m.addEventListener('click',ev=>{if(ev.target===m)closeEditor();});notebookModel.onChange(()=>updateStatus());loadDraft();return m;}
+function modalOpen(){const m=byId(MODAL_ID);return!!(m&&m.open&&!m.hidden&&m.getAttribute('aria-hidden')==='false');}
+function openEditor(){const m=ensureModal();lastFocused=document.activeElement;m.hidden=false;m.removeAttribute('hidden');m.setAttribute('aria-hidden','false');m.style.setProperty('display','grid','important');m.style.setProperty('visibility','visible','important');m.style.setProperty('opacity','1','important');m.style.setProperty('pointer-events','auto','important');try{if(typeof m.showModal==='function'&&!m.open)m.showModal();else if(!m.open)m.setAttribute('open','');}catch(_){m.setAttribute('open','');}document.documentElement.classList.add('hashcod-efr-editor-open');const z=byId(HOTZONE_ID);if(z)z.style.display='none';requestAnimationFrame(()=>getEditor()&&getEditor().focus({preventScroll:true}));return true;}
+function closeEditor(){const m=byId(MODAL_ID);if(!m)return;syncEditor(true);saveDraftNow();try{if(typeof m.close==='function'&&m.open)m.close();else m.removeAttribute('open');}catch(_){m.removeAttribute('open');}m.hidden=true;m.setAttribute('hidden','');m.setAttribute('aria-hidden','true');m.style.removeProperty('display');m.style.removeProperty('visibility');m.style.removeProperty('opacity');document.documentElement.classList.remove('hashcod-efr-editor-open');repairTrayButton();syncHotzone();if(lastFocused&&lastFocused.focus)try{lastFocused.focus({preventScroll:true});}catch(_){}}
+function repairTrayButton(){const b=getTrayButton();if(!b)return null;b.disabled=false;b.removeAttribute('disabled');b.setAttribute('aria-disabled','false');b.classList.remove('is-empty');b.dataset.toolId=TOOL_ID;b.setAttribute('aria-label','EFT CoffeeScript Notebook');b.title='EFT CoffeeScript Notebook';b.style.setProperty('pointer-events','auto','important');b.style.setProperty('cursor','pointer','important');b.style.setProperty('opacity','1','important');if(!b.querySelector('[data-hashcod-efr-icon="true"]'))b.innerHTML=EDITOR_ICON;if(b.dataset.hashcodEfrBound!=='true'){b.dataset.hashcodEfrBound='true';b.onclick=function(ev){ev&&ev.preventDefault();ev&&ev.stopPropagation();openEditor();};}return b;}
+function pointInsideButton(ev,b){if(!b||!ev)return false;const x=Number(ev.clientX),y=Number(ev.clientY),r=b.getBoundingClientRect();return Number.isFinite(x)&&Number.isFinite(y)&&r.width>0&&r.height>0&&x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom;}
+function handlePhysicalTrayPress(ev){if(modalOpen())return;const b=getTrayButton();if(!b)return;const t=ev.target;if(!(t&&(t===b||b.contains(t)))&&!pointInsideButton(ev,b))return;ev.preventDefault();ev.stopPropagation();openEditor();}
+function ensureHotzone(){let z=byId(HOTZONE_ID);if(z)return z;z=document.createElement('button');z.type='button';z.id=HOTZONE_ID;z.setAttribute('aria-label','Open EFT CoffeeScript Notebook');z.style.cssText='position:fixed;display:none;z-index:2147483646;border:0;padding:0;margin:0;background:transparent;opacity:.001;pointer-events:auto;cursor:pointer;';z.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();openEditor();},true);z.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();openEditor();},true);document.body.appendChild(z);return z;}
+function syncHotzone(){const z=ensureHotzone(),b=getTrayButton(),overlay=document.getElementById('authOverlay'),visible=!overlay||(getComputedStyle(overlay).display!=='none'&&getComputedStyle(overlay).visibility!=='hidden');if(!b||!visible||modalOpen()){z.style.display='none';return;}const r=b.getBoundingClientRect();if(!r.width||!r.height){z.style.display='none';return;}z.style.display='block';z.style.left=r.left+'px';z.style.top=r.top+'px';z.style.width=r.width+'px';z.style.height=r.height+'px';}
+function registerTray(){const api=window.HashcodVectorTray;if(!api||typeof api.registerTool!=='function')return false;if(registeredTrayApi===api)return true;api.registerTool({slot:TRAY_SLOT,id:TOOL_ID,label:'EFT CoffeeScript Notebook',iconSvg:EDITOR_ICON,onClick:openEditor});registeredTrayApi=api;return true;}
+function repairAndSync(){registerTray();repairTrayButton();syncHotzone();}
+function watchTray(){if(trayObserver)return;trayObserver=new MutationObserver(records=>{if(records.some(r=>r.type==='childList'))requestAnimationFrame(repairAndSync);});trayObserver.observe(document.documentElement,{childList:true,subtree:true});}
+function bindKeys(){document.addEventListener('keydown',ev=>{if(!modalOpen())return;if(ev.key==='Escape'){ev.preventDefault();closeEditor();}else if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='s'){ev.preventDefault();downloadEft();}});}
+function diagnostics(){const b=getTrayButton(),z=byId(HOTZONE_ID);return{ready:document.documentElement.dataset.hashcodEfrReady==='true',buttonFound:!!b,buttonDisabled:b?!!b.disabled:null,toolId:b?b.getAttribute('data-tool-id'):null,modalOpen:modalOpen(),hotzoneVisible:!!(z&&z.style.display!=='none'),format:EFT_FORMAT,language:'coffeescript',container:'ipynb',model:notebookModel.diagnostics()};}
+function boot(){ensureStyles();ensureModal();ensureImport();ensureHotzone();bindKeys();watchTray();window.addEventListener('pointerdown',handlePhysicalTrayPress,true);window.addEventListener('mousedown',handlePhysicalTrayPress,true);document.addEventListener('click',handlePhysicalTrayPress,true);window.addEventListener('resize',syncHotzone,{passive:true});window.addEventListener('scroll',syncHotzone,true);window.addEventListener('hashcod:platform-entered',repairAndSync);repairAndSync();repairTimer=window.setInterval(repairAndSync,400);document.documentElement.dataset.hashcodEfrReady='true';window.dispatchEvent(new CustomEvent('hashcod:efr-ready'));}
+window.HashcodEfrCodeEditor={open:openEditor,close:closeEditor,download:downloadEft,buildNotebook:buildEftNotebook,notebookToCoffeeScript,model:notebookModel,repair(){repairAndSync();return!!getTrayButton();},diagnostics};
+window.HashcodEftNotebookModel=EftNotebookModel;
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

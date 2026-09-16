@@ -81,8 +81,7 @@ private final class NativeAppState: ObservableObject {
     }
 }
 
-@main
-struct HashcodCodespaceNativeSwiftApp: App {
+private struct HashcodCodespaceNativeSwiftApp: App {
     @StateObject private var state = NativeAppState()
 
     var body: some Scene {
@@ -270,3 +269,5 @@ private struct ModulePanel: View {
         }
     }
 }
+
+HashcodCodespaceNativeSwiftApp.main()

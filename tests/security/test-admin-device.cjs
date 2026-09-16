@@ -39,12 +39,15 @@ assert(rescue.includes("const EFT_GATE_ID = 'hashcodEftCodeKeyGate'"), 'EFT Code
 assert(rescue.includes("document.documentElement.dataset.adminAuthenticated === 'true'"), 'EFT gate must use the authoritative CodeKey admin session state');
 assert(rescue.includes('return codeKeyUnlocked() ? nativeRect() : zeroRect();'), 'locked EFT cube must be invisible to the legacy coordinate rescue');
 assert(rescue.includes("hotzone.style.setProperty('display', 'none', 'important')"), 'legacy EFT hotzone must be disabled while CodeKey is locked');
-assert(rescue.includes("admin.require({force: true})"), 'locked EFT click must require a fresh CodeKey verification');
+assert(rescue.includes('unlockPending = pickNotebook().then'), 'locked EFT click must open the CodeKey picker immediately from user activation');
+assert(rescue.includes('const admin = await ensureAdminEngine();'), 'EFT gate must load/wait for the CodeKey engine after file selection');
+assert(rescue.includes('const verified = await admin.verifyNotebook(file);'), 'selected CodeKey must be verified through the server-backed admin engine');
 assert(rescue.includes('closeEftIfLocked();'), 'EFT must close when the CodeKey session is not active');
 assert(rescue.includes("window.addEventListener('hashcod:admin-auth'"), 'EFT gate must react immediately to CodeKey session changes');
 assert(rescue.includes('window.HashcodEftCodeKeyGate = Object.freeze'), 'EFT CodeKey gate diagnostics API missing');
 assert(rescue.includes("api.download = function ()"), 'programmatic EFT download must also be guarded');
 assert(rescue.includes('EFT sigue bloqueado. La CodeKey no fue verificada.'), 'locked-state feedback missing');
+assert(rescue.includes("const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js"), 'EFT gate must be able to load the CodeKey engine independently');
 
 assert(server.includes("const ADMIN_DEVICE_NETWORK = '38.196.115.0/24'"), 'IP network restriction must remain');
 assert(server.includes(`const ADMIN_CODEKEY_FILENAME = '${filename}'`), 'registered filename must be server-side');

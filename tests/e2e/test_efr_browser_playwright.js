@@ -5,6 +5,13 @@ const { chromium } = require('playwright');
 
 const target = process.env.EFR_TEST_URL || 'http://127.0.0.1:8099/laragon-local-entry.php';
 
+async function readDownload(download) {
+  const stream = await download.createReadStream();
+  let text = '';
+  for await (const chunk of stream) text += chunk.toString('utf8');
+  return text;
+}
+
 async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
@@ -12,17 +19,10 @@ async function run() {
   try {
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
-      if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') {
-        await route.continue();
-      } else {
-        await route.abort();
-      }
+      if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') await route.continue();
+      else await route.abort();
     });
 
-    // Do not wait for DOMContentLoaded here. The platform intentionally has
-    // many deferred/local modules; waiting for the browser commit lets us test
-    // the real DOM as soon as it is streamed, while the selector waits below
-    // guarantee the auth tray itself is actually present.
     const response = await page.goto(target, { waitUntil: 'commit', timeout: 10000 });
     assert(response, 'browser did not receive the local Hashcod page');
     assert.equal(response.status(), 200, 'local Hashcod UI must return HTTP 200');
@@ -67,8 +67,8 @@ async function run() {
     });
 
     assert.equal(slotState.disabled, false, 'fifth tray cube must be enabled');
-    assert.equal(slotState.toolId, 'efr-code-editor', 'fifth tray cube must belong to EFR');
-    assert.match(slotState.label || '', /EFR Code Editor/i, 'fifth tray cube must expose the EFR label');
+    assert.equal(slotState.toolId, 'efr-code-editor', 'fifth tray cube must keep stable internal tool id');
+    assert.match(slotState.label || '', /EFT CoffeeScript Notebook/i, 'fifth tray cube must expose EFT CoffeeScript label');
     assert(slotState.width > 0 && slotState.height > 0, 'fifth tray cube must have a clickable box');
 
     await page.mouse.click(slotState.x, slotState.y);
@@ -81,21 +81,47 @@ async function run() {
     }, { timeout: 10000 });
 
     const runtime = await page.evaluate(() => window.HashcodEfrCodeEditor.diagnostics());
-    assert.equal(runtime.ready, true, 'EFR runtime must be ready');
-    assert.equal(runtime.buttonFound, true, 'EFR runtime must find the fifth cube');
-    assert.equal(runtime.buttonDisabled, false, 'EFR runtime must report the fifth cube enabled');
-    assert.equal(runtime.toolId, 'efr-code-editor', 'EFR runtime must own slot 4');
-    assert.equal(runtime.modalOpen, true, 'EFR editor must be open after physical click');
+    assert.equal(runtime.ready, true, 'EFT runtime must be ready');
+    assert.equal(runtime.buttonFound, true, 'EFT runtime must find the fifth cube');
+    assert.equal(runtime.buttonDisabled, false, 'EFT runtime must report the fifth cube enabled');
+    assert.equal(runtime.toolId, 'efr-code-editor', 'EFT runtime must own slot 4');
+    assert.equal(runtime.modalOpen, true, 'EFT editor must be open after physical click');
+    assert.equal(runtime.format, 'HASHCOD-EFT-1', 'runtime must report HASHCOD-EFT-1');
+    assert.equal(runtime.language, 'coffeescript', 'runtime must report CoffeeScript');
+    assert.equal(runtime.container, 'ipynb', 'runtime must report IPYNB container');
 
-    await page.fill('#hashcodEfrEditorTextarea', 'function browserVerifiedEFR() {\n  return "works";\n}');
+    const coffee = [
+      'square = (x) -> x * x',
+      'console.log square 5',
+      '',
+      '# %% [EFT CELL]',
+      '',
+      'greet = (name) -> "Hello #{name}"'
+    ].join('\n');
+
+    await page.fill('#hashcodEfrEditorTextarea', coffee);
     await page.fill('#hashcodEfrEditorFilename', 'browser-verified');
 
     const downloadPromise = page.waitForEvent('download', { timeout: 10000 });
     await page.click('#hashcodEfrDownload');
     const download = await downloadPromise;
-    assert.equal(download.suggestedFilename(), 'browser-verified.efr', 'download must use .efr');
+    assert.equal(download.suggestedFilename(), 'browser-verified.eft', 'download must use .eft');
 
-    console.log('PASS: physical Chromium click on the fifth tray cube opens EFR and downloads browser-verified.efr.');
+    const payload = await readDownload(download);
+    const eft = JSON.parse(payload);
+    assert.equal(eft.eft_format, 'HASHCOD-EFT-1');
+    assert.equal(eft.nbformat, 4);
+    assert.equal(eft.nbformat_minor, 5);
+    assert.equal(eft.metadata.language_info.name, 'coffeescript');
+    assert.equal(eft.metadata.hashcod.container, 'Jupyter Notebook');
+    assert.equal(eft.cells.length, 2, 'cell separator must become two Jupyter code cells');
+    assert.equal(eft.cells[0].cell_type, 'code');
+    assert.equal(eft.cells[0].metadata.language, 'coffeescript');
+    assert.equal(eft.cells[0].outputs.length, 0);
+    assert.match(eft.cells[0].source.join(''), /square = \(x\) -> x \* x/);
+    assert.match(eft.cells[1].source.join(''), /greet = \(name\) ->/);
+
+    console.log('PASS: physical Chromium click opens EFT and downloads CoffeeScript source as HASHCOD-EFT-1/IPYNB nbformat 4 JSON.');
   } finally {
     await browser.close();
   }
@@ -103,7 +129,7 @@ async function run() {
 
 Promise.race([
   run(),
-  new Promise((_, reject) => setTimeout(() => reject(new Error('EFR browser verification exceeded 45 seconds')), 45000))
+  new Promise((_, reject) => setTimeout(() => reject(new Error('EFT browser verification exceeded 45 seconds')), 45000))
 ]).then(() => process.exit(0)).catch((error) => {
   console.error(error && error.stack || error);
   process.exit(1);

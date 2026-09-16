@@ -13,8 +13,10 @@
     const STATUS_ID = 'hashcodEfrEditorStatus';
     const HOTZONE_ID = 'hashcodEfrHotzone';
     const CRITICAL_STYLE_ID = 'hashcodEfrCriticalTkinterStyle';
-    const STORAGE_KEY = 'hashcod_efr_editor_draft_v1';
-    const NAME_STORAGE_KEY = 'hashcod_efr_editor_name_v1';
+    const STORAGE_KEY = 'hashcod_eft_coffeescript_draft_v1';
+    const NAME_STORAGE_KEY = 'hashcod_eft_coffeescript_name_v1';
+    const CELL_SEPARATOR = '# %% [EFT CELL]';
+    const EFT_FORMAT = 'HASHCOD-EFT-1';
     const TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]';
 
     const EDITOR_ICON = [
@@ -33,18 +35,21 @@
         '.hashcod-efr-editor-header{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:18px!important;padding:15px 16px 14px!important;border-bottom:1px solid #8d8d88!important;background:linear-gradient(180deg,#f4f4f1,#deded9)!important;box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 #bcbcb6!important}',
         '.hashcod-efr-editor-kicker{margin:0 0 4px!important;font-size:10px!important;letter-spacing:.15em!important;font-weight:700!important;color:#55554f!important}',
         '#hashcodEfrEditorTitle{margin:0!important;font-size:clamp(21px,2vw,28px)!important;line-height:1.05!important;font-weight:700!important;letter-spacing:-.025em!important}',
-        '.hashcod-efr-editor-subtitle{margin:7px 0 0!important;max-width:700px!important;font-size:11px!important;line-height:1.5!important;color:#55554f!important}',
+        '.hashcod-efr-editor-subtitle{margin:7px 0 0!important;max-width:720px!important;font-size:11px!important;line-height:1.5!important;color:#55554f!important}',
         '.hashcod-efr-icon-button{width:34px!important;height:30px!important;border:1px solid #777772!important;border-radius:3px!important;background:#e7e7e3!important;color:#111!important;font:400 18px/1 Arial,sans-serif!important;cursor:pointer!important;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #a5a5a0!important}',
-        '.hashcod-efr-toolbar{display:grid!important;grid-template-columns:minmax(300px,1fr) auto!important;align-items:center!important;gap:14px!important;padding:10px 12px!important;border-bottom:1px solid #8d8d88!important;background:#cfcfca!important;box-shadow:inset 0 1px 0 #efefec,inset 0 -1px 0 #b4b4ae!important}',
+        '.hashcod-efr-toolbar{display:grid!important;grid-template-columns:minmax(360px,1fr) auto!important;align-items:center!important;gap:14px!important;padding:10px 12px!important;border-bottom:1px solid #8d8d88!important;background:#cfcfca!important;box-shadow:inset 0 1px 0 #efefec,inset 0 -1px 0 #b4b4ae!important}',
+        '.hashcod-eft-file-stack{display:grid!important;gap:7px!important;min-width:0!important}',
         '.hashcod-efr-name-wrap{min-width:0!important;display:grid!important;grid-template-columns:auto minmax(120px,320px) auto!important;align-items:center!important;gap:8px!important;font-size:10px!important;color:#55554f!important}',
         '.hashcod-efr-name-wrap input{width:100%!important;box-sizing:border-box!important;border:1px solid #71716d!important;border-radius:2px!important;background:#fff!important;padding:7px 8px!important;outline:none!important;color:#111!important;font:500 12px/1.2 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;box-shadow:inset 1px 1px 0 #b7b7b2,inset -1px -1px 0 #f5f5f2!important}',
+        '.hashcod-eft-modebar{display:flex!important;gap:6px!important;flex-wrap:wrap!important;align-items:center!important}',
+        '.hashcod-eft-modebar span{display:inline-flex!important;align-items:center!important;min-height:20px!important;padding:2px 7px!important;border:1px solid #8a8a84!important;border-radius:2px!important;background:#e9e9e5!important;color:#33332f!important;font-size:9px!important;font-weight:700!important;letter-spacing:.06em!important}',
         '.hashcod-efr-actions{display:flex!important;gap:7px!important;flex-wrap:wrap!important;justify-content:flex-end!important}',
         '.hashcod-efr-actions button{min-height:32px!important;border:1px solid #6f6f6a!important;border-radius:3px!important;background:#e7e7e3!important;color:#111!important;padding:7px 11px!important;font:600 11px/1 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;cursor:pointer!important;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #9f9f99!important}',
         '.hashcod-efr-actions button.is-primary{background:#111!important;color:#fff!important;border-color:#111!important}',
         '.hashcod-efr-editor-body{min-height:0!important;padding:12px!important;background:#bdbdb8!important;box-shadow:inset 0 1px 0 #ecece8!important}',
-        '#hashcodEfrEditorTextarea{display:block!important;width:100%!important;height:100%!important;min-height:300px!important;box-sizing:border-box!important;resize:none!important;border:1px solid #5e5e5a!important;border-radius:2px!important;outline:0!important;padding:16px 18px!important;background:#111!important;color:#f5f5f1!important;caret-color:#fff!important;font:400 13px/1.62 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;tab-size:4!important;white-space:pre!important;overflow:auto!important;box-shadow:inset 2px 2px 0 #050505,inset -1px -1px 0 #2e2e2e!important}',
+        '#hashcodEfrEditorTextarea{display:block!important;width:100%!important;height:100%!important;min-height:300px!important;box-sizing:border-box!important;resize:none!important;border:1px solid #5e5e5a!important;border-radius:2px!important;outline:0!important;padding:16px 18px!important;background:#111!important;color:#f5f5f1!important;caret-color:#fff!important;font:400 13px/1.62 "IBM Plex Mono","Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;tab-size:2!important;white-space:pre!important;overflow:auto!important;box-shadow:inset 2px 2px 0 #050505,inset -1px -1px 0 #2e2e2e!important}',
         '.hashcod-efr-editor-footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;padding:8px 12px!important;border-top:1px solid #8d8d88!important;background:#d6d6d1!important;color:#4e4e49!important;font-size:10px!important;line-height:1.35!important;box-shadow:inset 0 1px 0 #efefec!important}',
-        '@media(max-width:760px){dialog#hashcodEfrEditorModal{padding:8px!important}#hashcodEfrEditorWindow{width:100%!important;height:94vh!important}.hashcod-efr-toolbar{grid-template-columns:1fr!important}.hashcod-efr-name-wrap{grid-template-columns:auto minmax(0,1fr) auto!important}.hashcod-efr-actions{display:grid!important;grid-template-columns:1fr 1fr 1fr!important}.hashcod-efr-editor-body{padding:8px!important}.hashcod-efr-editor-footer{align-items:flex-start!important;flex-direction:column!important;gap:4px!important}}'
+        '@media(max-width:760px){dialog#hashcodEfrEditorModal{padding:8px!important}#hashcodEfrEditorWindow{width:100%!important;height:94vh!important}.hashcod-efr-toolbar{grid-template-columns:1fr!important}.hashcod-efr-name-wrap{grid-template-columns:auto minmax(0,1fr) auto!important}.hashcod-efr-actions{display:grid!important;grid-template-columns:1fr 1fr!important}.hashcod-efr-editor-body{padding:8px!important}.hashcod-efr-editor-footer{align-items:flex-start!important;flex-direction:column!important;gap:4px!important}}'
     ].join('');
 
     let importInput = null;
@@ -53,24 +58,16 @@
     let lastFocused = null;
     let registeredTrayApi = null;
 
-    function byId(id) {
-        return document.getElementById(id);
-    }
-
-    function getEditor() {
-        return byId(TEXTAREA_ID);
-    }
-
-    function getTrayButton() {
-        return document.querySelector(TRAY_SELECTOR);
-    }
+    function byId(id) { return document.getElementById(id); }
+    function getEditor() { return byId(TEXTAREA_ID); }
+    function getTrayButton() { return document.querySelector(TRAY_SELECTOR); }
 
     function ensureCriticalStyles() {
         let style = byId(CRITICAL_STYLE_ID);
         if (style) return style;
         style = document.createElement('style');
         style.id = CRITICAL_STYLE_ID;
-        style.setAttribute('data-hashcod-efr-style-version', '20260916-tk1');
+        style.setAttribute('data-hashcod-eft-style-version', '20260916-eft1');
         style.textContent = TKINTER_CRITICAL_CSS;
         (document.head || document.documentElement).appendChild(style);
         return style;
@@ -81,7 +78,89 @@
             .replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-')
             .replace(/\s+/g, ' ')
             .trim();
-        return (cleaned || 'untitled').replace(/\.efr$/i, '');
+        return (cleaned || 'untitled').replace(/\.(eft|efr|ipynb|coffee)$/i, '');
+    }
+
+    function splitCoffeeScriptCells(text) {
+        const normalized = String(text || '').replace(/\r\n?/g, '\n');
+        const pieces = normalized.split(new RegExp('^\\s*' + CELL_SEPARATOR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*$', 'm'));
+        return pieces.map(function (piece) { return piece.replace(/^\n+|\n+$/g, ''); });
+    }
+
+    function sourceLines(text) {
+        const normalized = String(text || '').replace(/\r\n?/g, '\n');
+        if (normalized === '') return [];
+        const lines = normalized.split('\n');
+        return lines.map(function (line, index) {
+            return index < lines.length - 1 ? line + '\n' : line;
+        });
+    }
+
+    function buildEftNotebook() {
+        const editor = getEditor();
+        const cells = splitCoffeeScriptCells(editor ? editor.value : '');
+        return {
+            eft_format: EFT_FORMAT,
+            nbformat: 4,
+            nbformat_minor: 5,
+            metadata: {
+                kernelspec: {
+                    display_name: 'CoffeeScript',
+                    language: 'coffeescript',
+                    name: 'coffeescript'
+                },
+                language_info: {
+                    name: 'coffeescript',
+                    mimetype: 'text/coffeescript',
+                    file_extension: '.coffee'
+                },
+                hashcod: {
+                    format: 'EFT',
+                    version: 1,
+                    source_language: 'CoffeeScript',
+                    container: 'Jupyter Notebook',
+                    cell_separator: CELL_SEPARATOR
+                }
+            },
+            cells: cells.map(function (cellSource, index) {
+                return {
+                    cell_type: 'code',
+                    execution_count: null,
+                    metadata: {
+                        language: 'coffeescript',
+                        eft_source: true,
+                        eft_cell_index: index
+                    },
+                    outputs: [],
+                    source: sourceLines(cellSource)
+                };
+            })
+        };
+    }
+
+    function notebookSourceToText(source) {
+        if (Array.isArray(source)) return source.join('');
+        return typeof source === 'string' ? source : '';
+    }
+
+    function isCoffeeScriptNotebook(notebook) {
+        if (!notebook || notebook.nbformat !== 4 || !Array.isArray(notebook.cells)) return false;
+        const metadata = notebook.metadata || {};
+        const languageInfo = metadata.language_info || {};
+        const kernel = metadata.kernelspec || {};
+        const hashcod = metadata.hashcod || {};
+        if (String(languageInfo.name || '').toLowerCase() === 'coffeescript') return true;
+        if (String(kernel.language || '').toLowerCase() === 'coffeescript') return true;
+        if (String(hashcod.source_language || '').toLowerCase() === 'coffeescript') return true;
+        return notebook.cells.some(function (cell) {
+            return cell && cell.cell_type === 'code' && String((cell.metadata || {}).language || '').toLowerCase() === 'coffeescript';
+        });
+    }
+
+    function notebookToCoffeeScript(notebook) {
+        if (!isCoffeeScriptNotebook(notebook)) throw new Error('Notebook is not CoffeeScript/IPYNB compatible.');
+        const codeCells = notebook.cells.filter(function (cell) { return cell && cell.cell_type === 'code'; });
+        return codeCells.map(function (cell) { return notebookSourceToText(cell.source).replace(/\s+$/g, ''); }).join('\n\n' + CELL_SEPARATOR + '\n\n');
     }
 
     function updateStatus(message) {
@@ -94,7 +173,8 @@
         }
         const text = editor.value;
         const lines = text === '' ? 1 : text.split('\n').length;
-        status.textContent = lines + ' lines · ' + text.length + ' chars · RAW mode';
+        const cells = splitCoffeeScriptCells(text).length;
+        status.textContent = 'CoffeeScript · IPYNB structure · ' + cells + ' cell' + (cells === 1 ? '' : 's') + ' · ' + lines + ' lines';
     }
 
     function saveDraft() {
@@ -127,17 +207,32 @@
         const editor = event.currentTarget;
         const start = editor.selectionStart;
         const end = editor.selectionEnd;
-        editor.setRangeText('    ', start, end, 'end');
+        editor.setRangeText('  ', start, end, 'end');
         saveDraft();
     }
 
-    function downloadEfr() {
+    function insertCell() {
         const editor = getEditor();
+        if (!editor) return;
+        const start = editor.selectionStart;
+        const before = editor.value.slice(0, start).replace(/\s*$/g, '');
+        const after = editor.value.slice(start).replace(/^\s*/g, '');
+        const insertion = (before ? '\n\n' : '') + CELL_SEPARATOR + '\n\n';
+        editor.value = before + insertion + after;
+        const next = before.length + insertion.length;
+        editor.setSelectionRange(next, next);
+        saveDraft();
+        editor.focus();
+    }
+
+    function downloadEft() {
         const name = byId(NAME_ID);
-        if (!editor || !name) return false;
-        const filename = sanitizeName(name.value) + '.efr';
+        if (!name) return false;
+        const filename = sanitizeName(name.value) + '.eft';
         name.value = sanitizeName(name.value);
-        const blob = new Blob([editor.value], { type: 'text/plain;charset=utf-8' });
+        const notebook = buildEftNotebook();
+        const payload = JSON.stringify(notebook, null, 2);
+        const blob = new Blob([payload], { type: 'application/json;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement('a');
         anchor.href = url;
@@ -148,7 +243,7 @@
         anchor.remove();
         window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
         saveDraft();
-        updateStatus('Downloaded ' + filename + ' · RAW text preserved');
+        updateStatus('Downloaded ' + filename + ' · CoffeeScript + IPYNB');
         return true;
     }
 
@@ -156,7 +251,7 @@
         if (importInput && importInput.isConnected) return importInput;
         importInput = document.createElement('input');
         importInput.type = 'file';
-        importInput.accept = '.efr,text/*,*/*';
+        importInput.accept = '.eft,.ipynb,.coffee,application/json,text/plain';
         importInput.hidden = true;
         importInput.id = 'hashcodEfrImportInput';
         importInput.addEventListener('change', async function () {
@@ -166,13 +261,23 @@
                 const editor = getEditor();
                 const name = byId(NAME_ID);
                 if (!editor || !name) return;
-                editor.value = await file.text();
-                name.value = sanitizeName(file.name.replace(/\.[^.]+$/, ''));
+                const text = await file.text();
+                const lowerName = String(file.name || '').toLowerCase();
+                if (lowerName.endsWith('.coffee')) {
+                    editor.value = text.replace(/\r\n?/g, '\n');
+                } else {
+                    const notebook = JSON.parse(text);
+                    if (lowerName.endsWith('.eft') && notebook.eft_format !== EFT_FORMAT) {
+                        throw new Error('Unsupported EFT format.');
+                    }
+                    editor.value = notebookToCoffeeScript(notebook);
+                }
+                name.value = sanitizeName(file.name);
                 saveDraft();
-                updateStatus('Loaded ' + file.name + ' · RAW text');
+                updateStatus('Loaded ' + file.name + ' · CoffeeScript/IPYNB');
                 editor.focus();
             } catch (_) {
-                updateStatus('Could not read that file as text.');
+                updateStatus('Only CoffeeScript .coffee, CoffeeScript .ipynb, or HASHCOD-EFT-1 .eft files are accepted.');
             } finally {
                 importInput.value = '';
             }
@@ -188,7 +293,7 @@
         editor.value = '';
         name.value = 'untitled';
         saveDraft();
-        updateStatus('New RAW document');
+        updateStatus('New CoffeeScript/IPYNB document');
         editor.focus();
     }
 
@@ -216,26 +321,30 @@
             '<section id="' + WINDOW_ID + '" role="document">',
                 '<header class="hashcod-efr-editor-header">',
                     '<div>',
-                        '<p class="hashcod-efr-editor-kicker">HASHCOD / EFR · DESKTOP WORKSPACE</p>',
-                        '<h2 id="hashcodEfrEditorTitle">Universal Code Editor</h2>',
-                        '<p class="hashcod-efr-editor-subtitle">Write any code as raw text. No parser, compiler or linter will reject it.</p>',
+                        '<p class="hashcod-efr-editor-kicker">HASHCOD / EFT · COFFEESCRIPT NOTEBOOK</p>',
+                        '<h2 id="hashcodEfrEditorTitle">EFT Code Editor</h2>',
+                        '<p class="hashcod-efr-editor-subtitle">CoffeeScript source only, stored as Jupyter Notebook cells (nbformat 4). The editor does not execute code.</p>',
                     '</div>',
                     '<button type="button" id="hashcodEfrEditorClose" class="hashcod-efr-icon-button" aria-label="Close editor">×</button>',
                 '</header>',
                 '<div class="hashcod-efr-toolbar">',
-                    '<label class="hashcod-efr-name-wrap"><span>FILE</span><input id="' + NAME_ID + '" value="untitled" autocomplete="off" spellcheck="false"><b>.efr</b></label>',
+                    '<div class="hashcod-eft-file-stack">',
+                        '<label class="hashcod-efr-name-wrap"><span>FILE</span><input id="' + NAME_ID + '" value="untitled" autocomplete="off" spellcheck="false"><b>.eft</b></label>',
+                        '<div class="hashcod-eft-modebar"><span>COFFEESCRIPT</span><span>IPYNB · NBFORMAT 4</span><span>HASHCOD-EFT-1</span></div>',
+                    '</div>',
                     '<div class="hashcod-efr-actions">',
                         '<button type="button" id="hashcodEfrNew">New</button>',
+                        '<button type="button" id="hashcodEfrCell">New Cell</button>',
                         '<button type="button" id="hashcodEfrOpen">Open</button>',
-                        '<button type="button" id="hashcodEfrDownload" class="is-primary">Download .efr</button>',
+                        '<button type="button" id="hashcodEfrDownload" class="is-primary">Download .eft</button>',
                     '</div>',
                 '</div>',
                 '<div class="hashcod-efr-editor-body">',
-                    '<textarea id="' + TEXTAREA_ID + '" aria-label="Universal raw code editor" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" wrap="off" placeholder="// Write any code here...\n// Any language, syntax or notation is accepted as raw text."></textarea>',
+                    '<textarea id="' + TEXTAREA_ID + '" data-language="coffeescript" aria-label="CoffeeScript notebook editor" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" wrap="off" placeholder="# CoffeeScript\nsquare = (x) -> x * x\nconsole.log square 5\n\n# Add another notebook cell with the New Cell button"></textarea>',
                 '</div>',
                 '<footer class="hashcod-efr-editor-footer">',
-                    '<span id="' + STATUS_ID + '">1 line · 0 chars · RAW mode</span>',
-                    '<span>Ctrl/Cmd + S → .efr</span>',
+                    '<span id="' + STATUS_ID + '">CoffeeScript · IPYNB structure · 1 cell</span>',
+                    '<span>Ctrl/Cmd + S → .eft · ' + CELL_SEPARATOR + '</span>',
                 '</footer>',
             '</section>'
         ].join('');
@@ -249,7 +358,8 @@
         byId('hashcodEfrEditorClose').addEventListener('click', closeEditor);
         byId('hashcodEfrOpen').addEventListener('click', function () { ensureImportInput().click(); });
         byId('hashcodEfrNew').addEventListener('click', newDocument);
-        byId('hashcodEfrDownload').addEventListener('click', downloadEfr);
+        byId('hashcodEfrCell').addEventListener('click', insertCell);
+        byId('hashcodEfrDownload').addEventListener('click', downloadEft);
         modal.addEventListener('cancel', function (event) {
             event.preventDefault();
             closeEditor();
@@ -326,8 +436,8 @@
         button.setAttribute('aria-disabled', 'false');
         button.classList.remove('is-empty');
         button.dataset.toolId = TOOL_ID;
-        button.setAttribute('aria-label', 'EFR Code Editor');
-        button.setAttribute('title', 'EFR Code Editor');
+        button.setAttribute('aria-label', 'EFT CoffeeScript Notebook');
+        button.setAttribute('title', 'EFT CoffeeScript Notebook');
         button.style.setProperty('pointer-events', 'auto', 'important');
         button.style.setProperty('cursor', 'pointer', 'important');
         button.style.setProperty('opacity', '1', 'important');
@@ -376,8 +486,8 @@
         zone = document.createElement('button');
         zone.type = 'button';
         zone.id = HOTZONE_ID;
-        zone.setAttribute('aria-label', 'Open EFR Code Editor');
-        zone.title = 'EFR Code Editor';
+        zone.setAttribute('aria-label', 'Open EFT CoffeeScript Notebook');
+        zone.title = 'EFT CoffeeScript Notebook';
         zone.style.cssText = 'position:fixed;display:none;z-index:2147483646;border:0;padding:0;margin:0;background:transparent;opacity:.001;pointer-events:auto;cursor:pointer;';
         zone.addEventListener('pointerdown', function (event) {
             event.preventDefault();
@@ -421,7 +531,7 @@
         api.registerTool({
             slot: TRAY_SLOT,
             id: TOOL_ID,
-            label: 'EFR Code Editor',
+            label: 'EFT CoffeeScript Notebook',
             iconSvg: EDITOR_ICON,
             onClick: openEditor
         });
@@ -458,7 +568,7 @@
             }
             if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
                 event.preventDefault();
-                downloadEfr();
+                downloadEft();
             }
         });
     }
@@ -473,7 +583,9 @@
             toolId: button ? button.getAttribute('data-tool-id') : null,
             modalOpen: modalIsOpen(),
             hotzoneVisible: Boolean(zone && zone.style.display !== 'none'),
-            tkinterStyle: Boolean(byId(CRITICAL_STYLE_ID))
+            format: EFT_FORMAT,
+            language: 'coffeescript',
+            container: 'ipynb'
         };
     }
 
@@ -499,7 +611,8 @@
     window.HashcodEfrCodeEditor = {
         open: openEditor,
         close: closeEditor,
-        download: downloadEfr,
+        download: downloadEft,
+        buildNotebook: buildEftNotebook,
         repair: function () {
             repairAndSync();
             return Boolean(getTrayButton());

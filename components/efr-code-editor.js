@@ -11,6 +11,7 @@
     const TEXTAREA_ID = 'hashcodEfrEditorTextarea';
     const NAME_ID = 'hashcodEfrEditorFilename';
     const STATUS_ID = 'hashcodEfrEditorStatus';
+    const PROXY_ID = 'hashcodEfrTrayClickProxy';
     const STORAGE_KEY = 'hashcod_efr_editor_draft_v1';
     const NAME_STORAGE_KEY = 'hashcod_efr_editor_name_v1';
     const MODAL_Z_INDEX = '2147483647';
@@ -25,6 +26,7 @@
 
     let importInput = null;
     let lastFocused = null;
+    let repairTimer = null;
 
     function byId(id) { return document.getElementById(id); }
 
@@ -219,9 +221,91 @@
         return modal;
     }
 
+    function modalIsOpen() {
+        const modal = byId(MODAL_ID);
+        return Boolean(modal && !modal.hidden && modal.getAttribute('aria-hidden') !== 'true');
+    }
+
+    function getTrayButton() {
+        return document.querySelector('#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]');
+    }
+
+    function repairTrayButton() {
+        const button = getTrayButton();
+        if (!button) return null;
+        button.disabled = false;
+        button.removeAttribute('disabled');
+        button.setAttribute('aria-disabled', 'false');
+        button.setAttribute('aria-label', 'Open EFR Code Editor');
+        button.setAttribute('title', 'EFR Code Editor');
+        button.dataset.toolId = TOOL_ID;
+        button.style.setProperty('pointer-events', 'auto', 'important');
+        button.style.setProperty('cursor', 'pointer', 'important');
+        return button;
+    }
+
+    function ensureClickProxy() {
+        let proxy = byId(PROXY_ID);
+        if (proxy) return proxy;
+        proxy = document.createElement('button');
+        proxy.type = 'button';
+        proxy.id = PROXY_ID;
+        proxy.setAttribute('aria-label', 'Open EFR Code Editor');
+        proxy.setAttribute('title', 'EFR Code Editor');
+        proxy.tabIndex = -1;
+        proxy.style.cssText = [
+            'position:fixed',
+            'display:none',
+            'margin:0',
+            'padding:0',
+            'border:0',
+            'background:transparent',
+            'opacity:0.001',
+            'cursor:pointer',
+            'pointer-events:auto',
+            'z-index:2147483647',
+            '-webkit-tap-highlight-color:transparent'
+        ].join(';');
+        proxy.addEventListener('pointerdown', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            openEditor();
+        }, true);
+        proxy.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            openEditor();
+        }, true);
+        document.body.appendChild(proxy);
+        return proxy;
+    }
+
+    function syncClickProxy() {
+        const proxy = ensureClickProxy();
+        const button = repairTrayButton();
+        if (!button || modalIsOpen()) {
+            proxy.style.display = 'none';
+            return false;
+        }
+        const rect = button.getBoundingClientRect();
+        if (!rect.width || !rect.height || rect.bottom < 0 || rect.right < 0 || rect.top > window.innerHeight || rect.left > window.innerWidth) {
+            proxy.style.display = 'none';
+            return false;
+        }
+        proxy.style.left = Math.round(rect.left) + 'px';
+        proxy.style.top = Math.round(rect.top) + 'px';
+        proxy.style.width = Math.round(rect.width) + 'px';
+        proxy.style.height = Math.round(rect.height) + 'px';
+        proxy.style.borderRadius = window.getComputedStyle(button).borderRadius || '12px';
+        proxy.style.display = 'block';
+        return true;
+    }
+
     function openEditor() {
         const modal = ensureModal();
         lastFocused = document.activeElement;
+        const proxy = byId(PROXY_ID);
+        if (proxy) proxy.style.display = 'none';
         modal.hidden = false;
         modal.removeAttribute('hidden');
         modal.setAttribute('aria-hidden', 'false');
@@ -253,6 +337,7 @@
         document.documentElement.classList.remove('hashcod-efr-editor-open');
         const tray = document.getElementById('hashcodVectorTray');
         if (tray) tray.style.removeProperty('pointer-events');
+        window.requestAnimationFrame(syncClickProxy);
         if (lastFocused && typeof lastFocused.focus === 'function') {
             try { lastFocused.focus({ preventScroll: true }); } catch (_) {}
         }
@@ -267,20 +352,24 @@
             iconSvg: EDITOR_ICON,
             onClick: openEditor
         });
-        const button = document.querySelector('#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]');
-        if (button) {
-            button.disabled = false;
-            button.removeAttribute('disabled');
-            button.setAttribute('aria-label', 'Open EFR Code Editor');
-            button.setAttribute('title', 'EFR Code Editor');
-            button.style.setProperty('pointer-events', 'auto', 'important');
-        }
+        const button = repairTrayButton();
+        syncClickProxy();
         return Boolean(button);
     }
 
     function bindTrayClickRescue() {
         if (document.documentElement.dataset.hashcodEfrTrayClickBound === 'true') return;
         document.documentElement.dataset.hashcodEfrTrayClickBound = 'true';
+        document.addEventListener('pointerdown', function (event) {
+            const target = event.target;
+            if (!target || typeof target.closest !== 'function') return;
+            const button = target.closest('#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]');
+            if (!button) return;
+            repairTrayButton();
+            event.preventDefault();
+            event.stopPropagation();
+            openEditor();
+        }, true);
         document.addEventListener('click', function (event) {
             const target = event.target;
             if (!target || typeof target.closest !== 'function') return;
@@ -313,23 +402,41 @@
     function init() {
         ensureModal();
         ensureImportInput();
+        ensureClickProxy();
         bindTrayClickRescue();
         bindGlobalShortcuts();
         [0, 80, 220, 500, 1000, 1800, 3200, 5000, 8000].forEach(function (delay) {
             window.setTimeout(registerTrayTool, delay);
         });
         const observer = new MutationObserver(function () {
-            const slot = document.querySelector('#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]');
+            const slot = getTrayButton();
             if (!slot || !slot.querySelector('svg')) registerTrayTool();
+            repairTrayButton();
+            syncClickProxy();
         });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['disabled', 'data-tool-id', 'style', 'class']
+        });
+        window.addEventListener('resize', syncClickProxy, { passive: true });
+        window.addEventListener('scroll', syncClickProxy, { passive: true, capture: true });
+        repairTimer = window.setInterval(function () {
+            repairTrayButton();
+            syncClickProxy();
+        }, 350);
     }
 
     window.HashcodEfrCodeEditor = Object.freeze({
         open: openEditor,
         close: closeEditor,
         download: downloadEfr,
-        newDocument: newDocument
+        newDocument: newDocument,
+        repair: function () {
+            repairTrayButton();
+            return syncClickProxy();
+        }
     });
 
     if (document.readyState === 'loading') {

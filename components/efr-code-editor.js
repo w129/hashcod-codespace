@@ -7,6 +7,7 @@
     const TOOL_ID = 'efr-code-editor';
     const TRAY_SLOT = 4;
     const MODAL_ID = 'hashcodEfrEditorModal';
+    const WINDOW_ID = 'hashcodEfrEditorWindow';
     const TEXTAREA_ID = 'hashcodEfrEditorTextarea';
     const NAME_ID = 'hashcodEfrEditorFilename';
     const STATUS_ID = 'hashcodEfrEditorStatus';
@@ -16,7 +17,7 @@
     const TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]';
 
     const EDITOR_ICON = [
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" style="display:block;width:72%;height:72%;max-width:38px;max-height:38px">',
+        '<svg data-hashcod-efr-icon="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" style="display:block;width:72%;height:72%;max-width:38px;max-height:38px">',
             '<rect x="8" y="9" width="48" height="46" rx="8" fill="#fff" stroke="#111" stroke-width="3"/>',
             '<path d="M25 23L16 32l9 9M39 23l9 9-9 9" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
             '<path d="M35 18L29 46" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>',
@@ -25,19 +26,20 @@
 
     let importInput = null;
     let trayObserver = null;
-    let rafId = 0;
+    let repairTimer = null;
     let lastFocused = null;
+    let registeredTrayApi = null;
 
     function byId(id) {
         return document.getElementById(id);
     }
 
-    function getTrayButton() {
-        return document.querySelector(TRAY_SELECTOR);
-    }
-
     function getEditor() {
         return byId(TEXTAREA_ID);
+    }
+
+    function getTrayButton() {
+        return document.querySelector(TRAY_SELECTOR);
     }
 
     function sanitizeName(value) {
@@ -122,6 +124,7 @@
         importInput.type = 'file';
         importInput.accept = '.efr,text/*,*/*';
         importInput.hidden = true;
+        importInput.id = 'hashcodEfrImportInput';
         importInput.addEventListener('change', async function () {
             const file = importInput.files && importInput.files[0];
             if (!file) return;
@@ -175,7 +178,7 @@
         modal.style.setProperty('box-sizing', 'border-box', 'important');
         modal.style.setProperty('z-index', '2147483647', 'important');
         modal.innerHTML = [
-            '<section id="hashcodEfrEditorWindow" role="document">',
+            '<section id="' + WINDOW_ID + '" role="document">',
                 '<header class="hashcod-efr-editor-header">',
                     '<div>',
                         '<p class="hashcod-efr-editor-kicker">HASHCOD / EFR</p>',
@@ -219,7 +222,6 @@
         modal.addEventListener('click', function (event) {
             if (event.target === modal) closeEditor();
         });
-
         loadDraft();
         return modal;
     }
@@ -232,7 +234,6 @@
     function openEditor() {
         const modal = ensureModal();
         lastFocused = document.activeElement;
-
         modal.hidden = false;
         modal.removeAttribute('hidden');
         modal.setAttribute('aria-hidden', 'false');
@@ -240,19 +241,16 @@
         modal.style.setProperty('visibility', 'visible', 'important');
         modal.style.setProperty('opacity', '1', 'important');
         modal.style.setProperty('pointer-events', 'auto', 'important');
-
         try {
-            if (typeof modal.showModal === 'function' && !modal.open) {
-                modal.showModal();
-            } else if (!modal.open) {
-                modal.setAttribute('open', '');
-            }
+            if (typeof modal.showModal === 'function' && !modal.open) modal.showModal();
+            else if (!modal.open) modal.setAttribute('open', '');
         } catch (_) {
             modal.setAttribute('open', '');
         }
-
         document.documentElement.classList.add('hashcod-efr-editor-open');
         document.documentElement.dataset.hashcodEfrModalVisible = 'true';
+        const zone = byId(HOTZONE_ID);
+        if (zone) zone.style.display = 'none';
         window.requestAnimationFrame(function () {
             const editor = getEditor();
             if (editor) editor.focus({ preventScroll: true });
@@ -279,6 +277,7 @@
         document.documentElement.classList.remove('hashcod-efr-editor-open');
         document.documentElement.dataset.hashcodEfrModalVisible = 'false';
         repairTrayButton();
+        syncHotzone();
         if (lastFocused && typeof lastFocused.focus === 'function') {
             try { lastFocused.focus({ preventScroll: true }); } catch (_) {}
         }
@@ -288,24 +287,28 @@
         const button = getTrayButton();
         if (!button) return null;
 
-        button.disabled = false;
-        button.removeAttribute('disabled');
-        button.setAttribute('aria-disabled', 'false');
-        button.classList.remove('is-empty');
-        button.dataset.toolId = TOOL_ID;
-        button.setAttribute('aria-label', 'EFR Code Editor');
-        button.setAttribute('title', 'EFR Code Editor');
-        button.style.setProperty('pointer-events', 'auto', 'important');
-        button.style.setProperty('cursor', 'pointer', 'important');
-        button.style.setProperty('opacity', '1', 'important');
-        button.innerHTML = EDITOR_ICON;
-        button.onclick = function (event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            openEditor();
-        };
+        if (button.disabled) button.disabled = false;
+        if (button.hasAttribute('disabled')) button.removeAttribute('disabled');
+        if (button.getAttribute('aria-disabled') !== 'false') button.setAttribute('aria-disabled', 'false');
+        if (button.classList.contains('is-empty')) button.classList.remove('is-empty');
+        if (button.dataset.toolId !== TOOL_ID) button.dataset.toolId = TOOL_ID;
+        if (button.getAttribute('aria-label') !== 'EFR Code Editor') button.setAttribute('aria-label', 'EFR Code Editor');
+        if (button.getAttribute('title') !== 'EFR Code Editor') button.setAttribute('title', 'EFR Code Editor');
+        if (button.style.pointerEvents !== 'auto') button.style.setProperty('pointer-events', 'auto', 'important');
+        if (button.style.cursor !== 'pointer') button.style.setProperty('cursor', 'pointer', 'important');
+        if (button.style.opacity !== '1') button.style.setProperty('opacity', '1', 'important');
+        if (!button.querySelector('[data-hashcod-efr-icon="true"]')) button.innerHTML = EDITOR_ICON;
+
+        if (button.dataset.hashcodEfrBound !== 'true') {
+            button.dataset.hashcodEfrBound = 'true';
+            button.onclick = function (event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                openEditor();
+            };
+        }
         return button;
     }
 
@@ -326,7 +329,7 @@
 
     function handlePhysicalTrayPress(event) {
         if (modalIsOpen()) return;
-        const button = repairTrayButton();
+        const button = getTrayButton();
         if (!button) return;
         if (!eventTargetsButton(event, button) && !pointInsideButton(event, button)) return;
         event.preventDefault();
@@ -359,7 +362,7 @@
 
     function syncHotzone() {
         const zone = ensureHotzone();
-        const button = repairTrayButton();
+        const button = getTrayButton();
         const authOverlay = document.getElementById('authOverlay');
         const authVisible = !authOverlay || (getComputedStyle(authOverlay).display !== 'none' && getComputedStyle(authOverlay).visibility !== 'hidden');
 
@@ -373,7 +376,6 @@
             zone.style.display = 'none';
             return;
         }
-
         zone.style.display = 'block';
         zone.style.left = rect.left + 'px';
         zone.style.top = rect.top + 'px';
@@ -381,37 +383,43 @@
         zone.style.height = rect.height + 'px';
     }
 
-    function registerTrayTool() {
-        if (window.HashcodVectorTray && typeof window.HashcodVectorTray.registerTool === 'function') {
-            window.HashcodVectorTray.registerTool({
-                slot: TRAY_SLOT,
-                id: TOOL_ID,
-                label: 'EFR Code Editor',
-                iconSvg: EDITOR_ICON,
-                onClick: openEditor
-            });
-        }
+    function registerTrayToolOnce() {
+        const api = window.HashcodVectorTray;
+        if (!api || typeof api.registerTool !== 'function') return false;
+        if (registeredTrayApi === api) return true;
+        api.registerTool({
+            slot: TRAY_SLOT,
+            id: TOOL_ID,
+            label: 'EFR Code Editor',
+            iconSvg: EDITOR_ICON,
+            onClick: openEditor
+        });
+        registeredTrayApi = api;
+        return true;
+    }
+
+    function repairAndSync() {
+        registerTrayToolOnce();
         repairTrayButton();
+        syncHotzone();
     }
 
     function watchTray() {
         if (trayObserver) return;
-        trayObserver = new MutationObserver(function () {
-            registerTrayTool();
-            syncHotzone();
+        trayObserver = new MutationObserver(function (records) {
+            let relevant = false;
+            for (const record of records) {
+                if (record.type === 'childList') {
+                    relevant = true;
+                    break;
+                }
+            }
+            if (relevant) window.requestAnimationFrame(repairAndSync);
         });
         trayObserver.observe(document.documentElement, {
             childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['disabled', 'data-tool-id', 'class', 'style']
+            subtree: true
         });
-    }
-
-    function animationLoop() {
-        registerTrayTool();
-        syncHotzone();
-        rafId = window.requestAnimationFrame(animationLoop);
     }
 
     function bindGlobalShortcuts() {
@@ -454,11 +462,10 @@
         document.addEventListener('click', handlePhysicalTrayPress, true);
         window.addEventListener('resize', syncHotzone, { passive: true });
         window.addEventListener('scroll', syncHotzone, true);
-        window.addEventListener('hashcod:platform-entered', syncHotzone);
+        window.addEventListener('hashcod:platform-entered', repairAndSync);
 
-        registerTrayTool();
-        syncHotzone();
-        if (!rafId) rafId = window.requestAnimationFrame(animationLoop);
+        repairAndSync();
+        repairTimer = window.setInterval(repairAndSync, 400);
 
         document.documentElement.dataset.hashcodEfrReady = 'true';
         window.dispatchEvent(new CustomEvent('hashcod:efr-ready'));
@@ -469,8 +476,7 @@
         close: closeEditor,
         download: downloadEfr,
         repair: function () {
-            registerTrayTool();
-            syncHotzone();
+            repairAndSync();
             return Boolean(getTrayButton());
         },
         diagnostics: diagnostics

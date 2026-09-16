@@ -223,7 +223,9 @@
         const modal = ensureModal();
         lastFocused = document.activeElement;
         modal.hidden = false;
+        modal.removeAttribute('hidden');
         modal.setAttribute('aria-hidden', 'false');
+        modal.style.setProperty('display', 'grid', 'important');
         modal.style.setProperty('z-index', MODAL_Z_INDEX, 'important');
         modal.style.setProperty('pointer-events', 'auto', 'important');
         modal.style.setProperty('visibility', 'visible', 'important');
@@ -243,7 +245,9 @@
         if (!modal) return;
         saveDraft();
         modal.hidden = true;
+        modal.setAttribute('hidden', '');
         modal.setAttribute('aria-hidden', 'true');
+        modal.style.removeProperty('display');
         modal.style.removeProperty('visibility');
         modal.style.removeProperty('opacity');
         document.documentElement.classList.remove('hashcod-efr-editor-open');
@@ -274,6 +278,20 @@
         return Boolean(button);
     }
 
+    function bindTrayClickRescue() {
+        if (document.documentElement.dataset.hashcodEfrTrayClickBound === 'true') return;
+        document.documentElement.dataset.hashcodEfrTrayClickBound = 'true';
+        document.addEventListener('click', function (event) {
+            const target = event.target;
+            if (!target || typeof target.closest !== 'function') return;
+            const button = target.closest('#hashcodVectorTray [data-vector-tray-slot="' + TRAY_SLOT + '"]');
+            if (!button) return;
+            const toolId = button.getAttribute('data-tool-id');
+            if (toolId && toolId !== TOOL_ID) return;
+            openEditor();
+        }, true);
+    }
+
     function bindGlobalShortcuts() {
         if (document.documentElement.dataset.hashcodEfrShortcutsBound === 'true') return;
         document.documentElement.dataset.hashcodEfrShortcutsBound = 'true';
@@ -295,6 +313,7 @@
     function init() {
         ensureModal();
         ensureImportInput();
+        bindTrayClickRescue();
         bindGlobalShortcuts();
         [0, 80, 220, 500, 1000, 1800, 3200, 5000, 8000].forEach(function (delay) {
             window.setTimeout(registerTrayTool, delay);

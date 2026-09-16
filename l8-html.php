@@ -115,14 +115,24 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $inlineCssTag = $secureCss !== ''
             ? '<style id="hashcod-toolbox-secure-inline">' . $secureCss . '</style>'
             : '';
+
+        // EFR editor is also inlined so a stale immutable static asset can never
+        // keep an older non-opening modal implementation alive after deploy.
+        $efrCssPath = __DIR__ . '/components/efr-code-editor.css';
+        $efrCss = is_file($efrCssPath) ? (string) @file_get_contents($efrCssPath) : '';
+        $inlineEfrCssTag = $efrCss !== ''
+            ? '<style id="hashcod-efr-code-editor-inline">' . $efrCss . '</style>'
+            : '';
+
         $cssTag = $inlineCssTag
+            . $inlineEfrCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260914-8" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-1" data-hashcod-efr-code-editor-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">';
 
         // If the previous page closed with Duo, mark this page before first paint
         // so it can open from the closed state without flashing the normal page.
@@ -163,6 +173,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-toolbox-ui-rescue-inline">' . $rescueJs . '</script>'
             : '';
 
+        // Inline the EFR editor too. Its global idempotency guard means the
+        // external fallback can safely load afterward without mounting twice.
+        $efrJsPath = __DIR__ . '/components/efr-code-editor.js';
+        $efrJs = is_file($efrJsPath) ? (string) @file_get_contents($efrJsPath) : '';
+        if ($efrJs !== '') {
+            $efrJs = str_ireplace('</script', '<\\/script', $efrJs);
+        }
+        $inlineEfrJsTag = $efrJs !== ''
+            ? '<script id="hashcod-efr-code-editor-inline">' . $efrJs . '</script>'
+            : '';
+
         // The Docker build generates this local bundle from the exact Rare UI
         // React/Motion implementation. Inline the built artifact so the folder
         // cannot disappear because of static-asset routing, CDN cache, or an
@@ -187,6 +208,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag
+            . $inlineEfrJsTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-signature-copy.js?v=20260913-2" data-hashcod-toolbox-signature-copy="true"></script>'
@@ -198,7 +220,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260915-1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
-            . '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260915-1" data-hashcod-efr-code-editor="true"></script>'
+            . '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260915-3" data-hashcod-efr-code-editor="true"></script>'
             . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260914-7" data-hashcod-boot-brand-credit-relocate="true"></script>'
             . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260914-2" data-hashcod-local-download-layout-fix="true"></script>';
         $bodyPos = strripos($html, '</body>');

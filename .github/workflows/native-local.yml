@@ -1,0 +1,57 @@
+name: Verify native local clients
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hashcod-native-local-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kotlin-windows:
+    name: Kotlin native local / Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle 9.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.7.0'
+
+      - name: Compile Kotlin native client
+        run: gradle -p local-app/native-kotlin compileKotlin --stacktrace
+
+      - name: Build Kotlin distributable
+        run: gradle -p local-app/native-kotlin createDistributable --stacktrace
+
+  swift-macos:
+    name: Swift native local / macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify bundled Swift toolchain
+        run: swift --version
+
+      - name: Build Swift native client
+        run: swift build --package-path local-app/native-swift -c release

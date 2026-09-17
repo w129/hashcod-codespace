@@ -70,6 +70,13 @@ async function run() {
       return Boolean(modal.open) && !modal.hidden && style.display !== 'none';
     }, { timeout: 10000 });
 
+    await page.evaluate(() => {
+      localStorage.setItem('hashcod_dsh_port_v1', '3087');
+      window.__HASHCOD_DSH_READY__ = true;
+      window.__HASHCOD_DSH_ERROR__ = '';
+      window.dispatchEvent(new CustomEvent('hashcod:dsh-status', { detail: { ready: true, error: '' } }));
+    });
+
     const diagnostics = await page.evaluate(() => window.HashcodDeepSeekHarness.diagnostics());
     assert.equal(diagnostics.ready, true);
     assert.equal(diagnostics.toolId, 'deepseek-harness');
@@ -80,7 +87,16 @@ async function run() {
     assert.equal(diagnostics.host, '127.0.0.1');
     assert.equal(diagnostics.hostLocked, true);
     assert.equal(diagnostics.runtimeUrl, 'http://127.0.0.1:3080');
+    assert.equal(diagnostics.managedByDesktop, true);
+    assert.equal(diagnostics.managedPort, 3080);
     assert.equal(diagnostics.profile, 'HASHCOD-DSH-1');
+
+    const portInput = await page.$eval('#hashcodDeepSeekHarnessPort', (input) => ({
+      value: input.value,
+      disabled: input.disabled
+    }));
+    assert.equal(portInput.value, '3080', 'desktop-managed runtime must override stale browser port 3087');
+    assert.equal(portInput.disabled, true, 'desktop-managed runtime port must not be editable');
 
     await page.waitForSelector('#hashcodDeepSeekHarnessCommand', { state: 'visible' });
     const command = await page.textContent('#hashcodDeepSeekHarnessCommand');
@@ -92,7 +108,7 @@ async function run() {
       return modal && (!modal.open || modal.hidden);
     }, { timeout: 5000 });
 
-    console.log('PASS: physical sixth-cube click opens the loopback-only DeepSeek Harness Control Center.');
+    console.log('PASS: physical sixth-cube click keeps the desktop-managed DeepSeek Harness on 127.0.0.1:3080 even with stale port state.');
   } finally {
     await browser.close();
   }

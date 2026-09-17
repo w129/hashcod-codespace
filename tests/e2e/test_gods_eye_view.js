@@ -24,8 +24,8 @@ assert(js.includes("inPlatform: true"), 'GEV must declare in-platform execution'
 assert(js.includes("externalWindowRequired: false"), 'GEV must not require an external window');
 assert(!js.includes('window.open('), 'GEV must not open an external browser window');
 assert(!js.includes('<iframe'), 'GEV must not iframe an external application');
-assert(!js.includes('127.0.0.1:3080'), 'GEV must not depend on the old DeepSeek localhost runtime');
-assert(!js.toLowerCase().includes('deepseek'), 'GEV runtime must not retain DeepSeek references');
+assert(!js.includes('127.0.0.1:3080'), 'GEV must not depend on the retired localhost runtime');
+assert(!js.toLowerCase().includes('deepseek'), 'GEV runtime must not retain retired runtime references');
 
 assert(css.includes('.hashcod-gev-dialog'), 'GEV full-screen dialog styling missing');
 assert(css.includes('.hashcod-gev-stage canvas'), 'GEV canvas styling missing');
@@ -33,9 +33,9 @@ assert(css.includes('.hashcod-gev-panel'), 'GEV telemetry panel styling missing'
 assert(loader.includes('gods-eye-view.css?v=20260917-1'), 'GEV loader must load styling');
 assert(loader.includes('gods-eye-view.js?v=20260917-1'), 'GEV loader must load runtime');
 assert(sharedLoader.includes('gods-eye-view-loader.js?v=20260917-1'), 'shared platform layer must load GEV');
-assert(!sharedLoader.toLowerCase().includes('deepseek'), 'shared platform loader must no longer load DeepSeek');
-assert(!desktop.includes('@deepseek-ai/dsh'), 'desktop package must remove DeepSeek dependency');
-assert(!desktop.includes('test:harness'), 'desktop package must remove DeepSeek smoke script');
-assert(!bootstrap.toLowerCase().includes('deepseek'), 'desktop bootstrap must remove DeepSeek supervisor');
+assert(!sharedLoader.toLowerCase().includes('deepseek'), 'shared platform loader must no longer load the retired runtime');
+assert(!desktop.includes('@deepseek-ai/dsh'), 'desktop package must remove retired sidecar dependency');
+assert(!desktop.includes('test:harness'), 'desktop package must remove retired sidecar smoke script');
+assert(!bootstrap.toLowerCase().includes('deepseek'), 'desktop bootstrap must remove retired sidecar supervisor');
 
-console.log('PASS: God\'s Eye View replaces DeepSeek in slot 5 and runs inside Hashcod Codespace.');
+console.log('PASS: God\'s Eye View owns slot 5 and runs inside Hashcod Codespace.');

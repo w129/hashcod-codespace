@@ -109,8 +109,8 @@ $routedPages = [
 if (isset($routedPages[$uri])) {
     $page = $routedPages[$uri];
     if (!is_file(__DIR__ . '/' . $page)) {
-        // Página declarada pero ausente: volver al HTML principal (sin 404 vacío)
-        l8_require_html_page('index.php', true);
+        require __DIR__ . '/not-found.php';
+        exit;
     }
     l8_require_html_page($page, true);
 }
@@ -305,6 +305,6 @@ function l8_serve_static_asset(string $filePath, string $uri): void {
     exit;
 }
 
-// Soft-landing: rutas desconocidas → HTML nativo de la plataforma (view-source completo).
-// No es un fallback estilo Vite/React SPA: es la página PHP principal.
-l8_require_html_page('index.php', true);
+// Rutas desconocidas → 404 real, conservando APIs, assets y rutas protegidas anteriores.
+require __DIR__ . '/not-found.php';
+exit;

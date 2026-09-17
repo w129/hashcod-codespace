@@ -4,13 +4,28 @@
     if (window.__hashcodEntryCapabilityFooterFixLoaded) return;
     window.__hashcodEntryCapabilityFooterFixLoaded = true;
 
-    (function loadGodsEyeView() {
-        const current = document.currentScript;
-        const currentSrc = current && current.src ? current.src : '';
-        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
-            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
-            : '/components/';
+    const current = document.currentScript;
+    const currentSrc = current && current.src ? current.src : '';
+    const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
+        ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
+        : '/components/';
 
+    (function loadUxSystem() {
+        if (document.querySelector('script[data-hashcod-ux-system]')) return;
+        const style = document.createElement('link');
+        style.id = 'hashcodUxSystemStyles';
+        style.rel = 'stylesheet';
+        style.href = componentBase + 'hashcod-ux-system.css?v=20260917-1';
+        document.head.appendChild(style);
+
+        const script = document.createElement('script');
+        script.src = componentBase + 'hashcod-ux-system.js?v=20260917-1';
+        script.defer = true;
+        script.dataset.hashcodUxSystem = 'true';
+        document.head.appendChild(script);
+    })();
+
+    (function loadGodsEyeView() {
         if (document.querySelector('script[data-hashcod-gods-eye-view-loader]')) return;
         const script = document.createElement('script');
         script.src = componentBase + 'gods-eye-view-loader.js?v=20260917-starlink1';
@@ -57,7 +72,7 @@
         setImportant(footer, 'line-height', '1.3');
         setImportant(footer, 'letter-spacing', '.02em');
         setImportant(footer, 'text-align', 'center');
-        setImportant(footer, 'color', '#1b1b1b');
+        setImportant(footer, 'color', 'var(--hashcod-ux-text, #1b1b1b)');
         setImportant(footer, 'pointer-events', 'none');
 
         const icon = footer.querySelector('.hashcod-hold-capability-icon');

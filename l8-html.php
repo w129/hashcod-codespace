@@ -131,7 +131,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/temporary-platform-improvement-sign.css?v=20260917-1" data-hashcod-temporary-improvement-sign-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/temporary-platform-improvement-sign.css?v=20260917-2" data-hashcod-temporary-improvement-sign-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">';
 
@@ -212,7 +212,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $tag = $legacyBlackholeCleanupTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
-            . '<script defer src="' . $base . 'components/temporary-platform-improvement-sign.js?v=20260917-1" data-hashcod-temporary-improvement-sign="true"></script>'
+            . '<script defer src="' . $base . 'components/temporary-platform-improvement-sign.js?v=20260917-2" data-hashcod-temporary-improvement-sign="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

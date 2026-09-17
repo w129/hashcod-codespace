@@ -36,7 +36,7 @@ assert(loader.includes('gods-eye-view.css?v=20260917-1'), 'GEV loader must load 
 assert(loader.includes('gods-eye-view.js?v=20260917-1'), 'GEV loader must load runtime');
 assert(loader.includes('gods-eye-satellite-orbits.css?v=20260917-1'), 'GEV loader must load orbit tracker styling');
 assert(loader.includes('gods-eye-satellite-orbits.js?v=20260917-1'), 'GEV loader must load orbit tracker runtime');
-assert(sharedLoader.includes('gods-eye-view-loader.js?v=20260917-1'), 'shared platform layer must load GEV');
+assert(sharedLoader.includes('gods-eye-view-loader.js?v=20260917-orbits1'), 'shared platform layer must cache-bust the satellite-enabled GEV loader');
 assert(!sharedLoader.toLowerCase().includes('deepseek'), 'shared platform loader must no longer load the retired runtime');
 assert(!desktop.includes('@deepseek-ai/dsh'), 'desktop package must remove retired sidecar dependency');
 assert(!desktop.includes('test:harness'), 'desktop package must remove retired sidecar smoke script');

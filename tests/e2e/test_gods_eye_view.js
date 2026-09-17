@@ -10,6 +10,8 @@ const css = fs.readFileSync(path.join(repoDir, 'components/gods-eye-view.css'), 
 const loader = fs.readFileSync(path.join(repoDir, 'components/gods-eye-view-loader.js'), 'utf8');
 const orbitJs = fs.readFileSync(path.join(repoDir, 'components/gods-eye-satellite-orbits.js'), 'utf8');
 const orbitCss = fs.readFileSync(path.join(repoDir, 'components/gods-eye-satellite-orbits.css'), 'utf8');
+const starlinkJs = fs.readFileSync(path.join(repoDir, 'components/gods-eye-starlink.js'), 'utf8');
+const starlinkCss = fs.readFileSync(path.join(repoDir, 'components/gods-eye-starlink.css'), 'utf8');
 const sharedLoader = fs.readFileSync(path.join(repoDir, 'components/platform-entry-capability-footer-fix.js'), 'utf8');
 const desktop = fs.readFileSync(path.join(repoDir, 'local-app/desktop/package.json'), 'utf8');
 const bootstrap = fs.readFileSync(path.join(repoDir, 'local-app/desktop/bootstrap.js'), 'utf8');
@@ -36,7 +38,9 @@ assert(loader.includes('gods-eye-view.css?v=20260917-1'), 'GEV loader must load 
 assert(loader.includes('gods-eye-view.js?v=20260917-1'), 'GEV loader must load runtime');
 assert(loader.includes('gods-eye-satellite-orbits.css?v=20260917-1'), 'GEV loader must load orbit tracker styling');
 assert(loader.includes('gods-eye-satellite-orbits.js?v=20260917-1'), 'GEV loader must load orbit tracker runtime');
-assert(sharedLoader.includes('gods-eye-view-loader.js?v=20260917-orbits1'), 'shared platform layer must cache-bust the satellite-enabled GEV loader');
+assert(loader.includes('gods-eye-starlink.css?v=20260917-starlink1'), 'GEV loader must load Starlink styling');
+assert(loader.includes('gods-eye-starlink.js?v=20260917-starlink1'), 'GEV loader must load Starlink runtime');
+assert(sharedLoader.includes('gods-eye-view-loader.js?v=20260917-starlink1'), 'shared platform layer must cache-bust the Starlink-enabled GEV loader');
 assert(!sharedLoader.toLowerCase().includes('deepseek'), 'shared platform loader must no longer load the retired runtime');
 assert(!desktop.includes('@deepseek-ai/dsh'), 'desktop package must remove retired sidecar dependency');
 assert(!desktop.includes('test:harness'), 'desktop package must remove retired sidecar smoke script');
@@ -60,4 +64,20 @@ assert(orbitCss.includes('.hashcod-orbit-overlay'), 'Orbitron map overlay stylin
 assert(orbitCss.includes('.hashcod-orbit-coordinate-grid'), 'satellite coordinate grid styling missing');
 assert(orbitCss.includes('.hashcod-orbit-map-wrap canvas'), 'satellite map canvas styling missing');
 
-console.log('PASS: God\'s Eye View includes an in-platform CelesTrak Orbitron-style satellite tracker with coordinate propagation.');
+new Function(starlinkJs);
+assert(starlinkJs.includes('GROUP=STARLINK&FORMAT=JSON'), 'Starlink layer must query the full CelesTrak Starlink group');
+assert(starlinkJs.includes("https://api.spacexdata.com/v4/starlink/query"), 'SpaceX Community Starlink metadata API missing');
+assert(starlinkJs.includes('const MAX_CONSTELLATION_OBJECTS = 15000'), 'Starlink layer must support the full public constellation instead of the old 500-object cap');
+assert(starlinkJs.includes('const POSITION_BATCH_SIZE = 350'), 'Starlink propagation must be chunked for large constellations');
+assert(starlinkJs.includes('function recomputePositions()'), 'Starlink batched position update missing');
+assert(starlinkJs.includes('window.HashcodStarlinkLayer'), 'Starlink public integration API missing');
+assert(starlinkJs.includes("metadataApiCurrent: false"), 'historical SpaceX metadata must not be represented as current orbital data');
+assert(starlinkJs.includes("inPlatform: true"), 'Starlink layer must declare in-platform execution');
+assert(starlinkJs.includes("externalWindowRequired: false"), 'Starlink layer must remain inside Hashcod');
+assert(!starlinkJs.includes('window.open('), 'Starlink layer must not open external windows');
+assert(!starlinkJs.includes('<iframe'), 'Starlink layer must not embed an external application');
+assert(starlinkCss.includes('.hashcod-starlink-overlay'), 'Starlink constellation overlay styling missing');
+assert(starlinkCss.includes('.hashcod-starlink-coordinate-grid'), 'Starlink coordinate panel styling missing');
+assert(starlinkCss.includes('.hashcod-starlink-map-wrap canvas'), 'Starlink constellation canvas styling missing');
+
+console.log('PASS: God\'s Eye View includes in-platform orbital tracking plus a complete SpaceX/Starlink constellation layer.');

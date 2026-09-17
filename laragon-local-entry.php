@@ -52,7 +52,7 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-slogan.css?v=20260910-1" data-hashcod-vector-tray-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
-    . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260914-5" data-hashcod-boot-brand-credit-relocate-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
     . $inlineEfrCss
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
@@ -114,7 +114,7 @@ $bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){functi
     . '<script defer src="' . $baseAttr . 'components/admin-codekey-picker-rescue.js?v=20260915-1" data-hashcod-codekey-picker-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/efr-code-editor.js?v=20260915-3" data-hashcod-efr-code-editor="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260914-5" data-hashcod-boot-brand-credit-relocate="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260917-10" data-hashcod-boot-brand-credit-relocate="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/laragon-credit-align.js?v=20260914-local1" data-hashcod-laragon-credit-align="true"></script>';
 
 $bodyPos = strripos($html, '</body>');

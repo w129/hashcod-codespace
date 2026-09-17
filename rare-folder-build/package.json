@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "esbuild entry.jsx --bundle --minify --format=iife --target=es2020 --outfile=../components/rare-folder-entry.bundle.js --define:process.env.NODE_ENV='\"production\"'"
+    "build": "esbuild entry.jsx --bundle --minify --format=iife --target=es2020 --inject:folder-position-restore.js --outfile=../components/rare-folder-entry.bundle.js --define:process.env.NODE_ENV='\"production\"'"
   },
   "dependencies": {
     "motion": "^12.40.0",

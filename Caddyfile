@@ -15,12 +15,24 @@
 # Sin "http://:" Caddy trata el número como hostname y sirve HTTPS →
 # "Client sent an HTTP request to an HTTPS server."
 http://:{$PORT:8000} {
-	# SEO vía PHP (sin file_server ETag/304; GSC es sensible a eso)
+	# SEO público: servir robots y sitemap directamente desde Caddy.
+	# Esto evita que Googlebot atraviese el bootstrap de seguridad/Turnstile y
+	# garantiza respuestas 200 simples con el MIME correcto para Search Console.
 	handle /robots.txt {
-		reverse_proxy 127.0.0.1:8001
+		root * /var/www/html
+		header Content-Type "text/plain; charset=utf-8"
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
 	}
 	handle /sitemap.xml {
-		reverse_proxy 127.0.0.1:8001
+		root * /var/www/html
+		header Content-Type "application/xml; charset=utf-8"
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
 	}
 
 	# Streamlit slots (websockets vía reverse_proxy).

@@ -22,7 +22,14 @@ assert(source.includes('y: isOpen ? -160 : isHovered ? -30 : -10'), 'card 1 Rare
 assert(source.includes('y: isOpen ? -180 : isHovered ? -35 : -20'), 'card 2 Rare UI motion states must be preserved');
 assert(source.includes('y: isOpen ? -170 : isHovered ? -44 : -22'), 'card 3 Rare UI motion states must be preserved');
 assert(source.includes('rotateX: isOpen ? -55 : isHovered ? -45 : -15'), 'Rare UI flap states must be preserved');
-assert(source.includes('findBrandRect'), 'folder keeps brand-aware placement support in the React integration');
+assert(source.includes('findBrandNode'), 'folder keeps brand-aware placement support in the React integration');
+assert(source.includes('DESKTOP_COMPOSITION_MIN_WIDTH = 1181'), 'wide-screen composition breakpoint is missing');
+assert(source.includes('const totalWidth = folderVisualW + gap + brandRect.width'), 'folder and brand must be treated as one centered composition');
+assert(source.includes("host.style.setProperty('left'"), 'folder must override the stale fixed 38vw placement at runtime');
+assert(source.includes("'important'"), 'runtime folder placement must beat the legacy important placement rule');
+assert(source.includes('adjustHorizontalOffset(brand'), 'brand must be brought back toward the centered folder composition');
+assert(source.includes(".boot-cli-footer .boot-card-icon"), 'integration icon strip must be centered with the viewport');
+assert(source.includes('data-hashcod-composition-aligned'), 'desktop alignment state marker is missing');
 assert(source.includes("pointerEvents: 'none'"), 'host must not block the rest of the startup screen');
 assert(!source.includes('new MutationObserver'), 'folder mount must not use a broad MutationObserver');
 assert(source.includes('attempts >= 40'), 'mount retries must remain bounded');
@@ -40,8 +47,8 @@ assert(html.includes("file_get_contents($rareFolderBundlePath)"), 'production PH
 assert(html.includes('hashcod-rare-folder-inline'), 'production HTML must emit an inline Rare UI bundle for guaranteed execution');
 assert(html.includes('rare-folder-entry.bundle.js?v=20260913-3'), 'production HTML must also load a cache-busted local Rare UI fallback');
 assert(html.includes('hashcod-rare-folder-placement'), 'production HTML must include the visibility/placement override');
-assert(html.includes('left:38vw!important'), 'desktop folder must occupy the requested left-side blank area');
-assert(html.includes('top:50vh!important'), 'folder must be vertically centered with the Hashcod mark');
+assert(html.includes('left:38vw!important'), 'legacy desktop placement remains as a no-JS fallback');
+assert(html.includes('top:50vh!important'), 'legacy folder fallback remains vertically centered');
 assert(html.includes('z-index:2147482500!important'), 'folder must render above the boot surface');
 assert(html.includes('[data-slot="folder"]{pointer-events:auto!important'), 'the folder itself must remain interactive');
 assert(!html.includes('boot-folder-animation.js?v=20260913-6'), 'old native folder fallback must no longer be loaded');

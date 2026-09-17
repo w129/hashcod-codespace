@@ -13,7 +13,7 @@
 
         if (document.querySelector('script[data-hashcod-gods-eye-view-loader]')) return;
         const script = document.createElement('script');
-        script.src = componentBase + 'gods-eye-view-loader.js?v=20260917-orbits1';
+        script.src = componentBase + 'gods-eye-view-loader.js?v=20260917-starlink1';
         script.defer = true;
         script.dataset.hashcodGodsEyeViewLoader = 'true';
         document.head.appendChild(script);

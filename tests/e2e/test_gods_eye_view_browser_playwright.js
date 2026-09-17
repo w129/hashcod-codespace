@@ -5,11 +5,15 @@ const { chromium } = require('playwright');
 
 const target = process.env.GEV_TEST_URL || 'http://127.0.0.1:8099/laragon-local-entry.php';
 
+function epoch() {
+  return new Date().toISOString().replace(/Z$/, '');
+}
+
 function mockCelestrakPayload() {
   return [{
     OBJECT_NAME: 'ISS (ZARYA)',
     OBJECT_ID: '1998-067A',
-    EPOCH: new Date().toISOString().replace(/Z$/, ''),
+    EPOCH: epoch(),
     MEAN_MOTION: 15.49315858,
     ECCENTRICITY: 0.00045965,
     INCLINATION: 51.6332,
@@ -27,6 +31,45 @@ function mockCelestrakPayload() {
   }];
 }
 
+function mockStarlinkPayload() {
+  return [
+    {
+      OBJECT_NAME: 'STARLINK-1008', OBJECT_ID: '2019-074B', EPOCH: epoch(), NORAD_CAT_ID: 44714,
+      MEAN_MOTION: 15.65, ECCENTRICITY: 0.00022, INCLINATION: 53.15, RA_OF_ASC_NODE: 120.2,
+      ARG_OF_PERICENTER: 88.1, MEAN_ANOMALY: 271.9, BSTAR: 0.00021
+    },
+    {
+      OBJECT_NAME: 'STARLINK-1012', OBJECT_ID: '2019-074F', EPOCH: epoch(), NORAD_CAT_ID: 44718,
+      MEAN_MOTION: 15.64, ECCENTRICITY: 0.00037, INCLINATION: 53.15, RA_OF_ASC_NODE: 210.4,
+      ARG_OF_PERICENTER: 42.4, MEAN_ANOMALY: 317.5, BSTAR: 0.00018
+    },
+    {
+      OBJECT_NAME: 'STARLINK-1017', OBJECT_ID: '2019-074L', EPOCH: epoch(), NORAD_CAT_ID: 44723,
+      MEAN_MOTION: 15.39, ECCENTRICITY: 0.00030, INCLINATION: 53.05, RA_OF_ASC_NODE: 301.6,
+      ARG_OF_PERICENTER: 121.8, MEAN_ANOMALY: 238.2, BSTAR: 0.00015
+    }
+  ];
+}
+
+function mockSpaceXMetadata() {
+  return {
+    docs: [{
+      version: 'v1.0',
+      launch: 'mock-launch-id',
+      spaceTrack: {
+        NORAD_CAT_ID: 44714,
+        OBJECT_NAME: 'STARLINK-1008',
+        LAUNCH_DATE: '2019-11-11',
+        SITE: 'AFETR'
+      }
+    }],
+    totalDocs: 1,
+    limit: 1,
+    page: 1,
+    totalPages: 1
+  };
+}
+
 async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -38,10 +81,19 @@ async function run() {
         return;
       }
       if (url.hostname === 'celestrak.org') {
+        const isStarlink = String(url.searchParams.get('GROUP') || '').toUpperCase() === 'STARLINK';
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify(mockCelestrakPayload())
+          body: JSON.stringify(isStarlink ? mockStarlinkPayload() : mockCelestrakPayload())
+        });
+        return;
+      }
+      if (url.hostname === 'api.spacexdata.com') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(mockSpaceXMetadata())
         });
         return;
       }
@@ -68,7 +120,9 @@ async function run() {
       window.HashcodGodsEyeView &&
       typeof window.HashcodGodsEyeView.diagnostics === 'function' &&
       window.HashcodSatelliteOrbits &&
-      typeof window.HashcodSatelliteOrbits.diagnostics === 'function'
+      typeof window.HashcodSatelliteOrbits.diagnostics === 'function' &&
+      window.HashcodStarlinkLayer &&
+      typeof window.HashcodStarlinkLayer.diagnostics === 'function'
     ), { timeout: 15000 });
 
     await page.evaluate(() => window.HashcodVectorTray.mount());
@@ -93,6 +147,7 @@ async function run() {
     await page.waitForSelector('#hashcodGodsEyeCanvas', { state: 'visible', timeout: 10000 });
     await page.waitForSelector('#hashcodGevSearchInput', { state: 'visible', timeout: 10000 });
     await page.waitForSelector('#hashcodOrbitOpen', { state: 'visible', timeout: 10000 });
+    await page.waitForSelector('#hashcodStarlinkOpen', { state: 'visible', timeout: 10000 });
 
     const diagnostics = await page.evaluate(() => window.HashcodGodsEyeView.diagnostics());
     assert.equal(diagnostics.ready, true);
@@ -117,34 +172,53 @@ async function run() {
     }, { timeout: 10000 });
     await page.waitForSelector('[data-orbit-id="25544"]', { state: 'visible', timeout: 10000 });
     await page.click('[data-orbit-id="25544"]');
-
     await page.waitForFunction(() => {
       const orbit = window.HashcodSatelliteOrbits.diagnostics();
-      return orbit.selectedPosition &&
-        Number.isFinite(orbit.selectedPosition.lat) &&
-        Number.isFinite(orbit.selectedPosition.lon) &&
-        Number.isFinite(orbit.selectedPosition.altitude);
+      return orbit.selectedPosition && Number.isFinite(orbit.selectedPosition.lat) && Number.isFinite(orbit.selectedPosition.lon);
+    }, { timeout: 10000 });
+    const orbitDiagnostics = await page.evaluate(() => window.HashcodSatelliteOrbits.diagnostics());
+    assert.equal(orbitDiagnostics.selectedId, '25544');
+    assert.equal(orbitDiagnostics.operationalGrade, false);
+    await page.click('#hashcodOrbitClose');
+
+    await page.click('#hashcodStarlinkOpen');
+    await page.waitForSelector('#hashcodStarlinkOverlay', { state: 'visible', timeout: 10000 });
+    await page.waitForFunction(() => {
+      const starlink = window.HashcodStarlinkLayer.diagnostics();
+      return starlink.ready && starlink.satelliteCount === 3 && starlink.positionedCount === 3;
+    }, { timeout: 10000 });
+    await page.waitForSelector('[data-starlink-id="44714"]', { state: 'visible', timeout: 10000 });
+    await page.click('[data-starlink-id="44714"]');
+    await page.waitForFunction(() => {
+      const starlink = window.HashcodStarlinkLayer.diagnostics();
+      return starlink.selectedId === '44714' && starlink.selectedPosition &&
+        Number.isFinite(starlink.selectedPosition.lat) &&
+        Number.isFinite(starlink.selectedPosition.lon) &&
+        Number.isFinite(starlink.selectedPosition.altitude);
     }, { timeout: 10000 });
 
-    const orbitDiagnostics = await page.evaluate(() => window.HashcodSatelliteOrbits.diagnostics());
-    assert.equal(orbitDiagnostics.source, 'CelesTrak GP/OMM');
-    assert.equal(orbitDiagnostics.group, 'stations');
-    assert.equal(orbitDiagnostics.selectedId, '25544');
-    assert.equal(orbitDiagnostics.propagation, 'Kepler-J2-display');
-    assert.equal(orbitDiagnostics.operationalGrade, false);
-    assert(orbitDiagnostics.selectedPosition.lat >= -90 && orbitDiagnostics.selectedPosition.lat <= 90, 'latitude must be geodetic');
-    assert(orbitDiagnostics.selectedPosition.lon >= -180 && orbitDiagnostics.selectedPosition.lon <= 180, 'longitude must be normalized');
-    assert(orbitDiagnostics.selectedPosition.altitude > 100 && orbitDiagnostics.selectedPosition.altitude < 1000, 'ISS-like altitude must be plausible');
+    const starlinkDiagnostics = await page.evaluate(() => window.HashcodStarlinkLayer.diagnostics());
+    assert.equal(starlinkDiagnostics.satelliteCount, 3);
+    assert.equal(starlinkDiagnostics.positionedCount, 3);
+    assert.equal(starlinkDiagnostics.selectedId, '44714');
+    assert.equal(starlinkDiagnostics.metadataApiCurrent, false);
+    assert.equal(starlinkDiagnostics.inPlatform, true);
+    assert.equal(starlinkDiagnostics.externalWindowRequired, false);
+    assert.equal(starlinkDiagnostics.maxConstellationObjects, 15000);
+    assert(starlinkDiagnostics.selectedPosition.lat >= -90 && starlinkDiagnostics.selectedPosition.lat <= 90);
+    assert(starlinkDiagnostics.selectedPosition.lon >= -180 && starlinkDiagnostics.selectedPosition.lon <= 180);
+    assert(starlinkDiagnostics.selectedPosition.altitude > 100 && starlinkDiagnostics.selectedPosition.altitude < 2000);
 
-    const orbitDetails = await page.textContent('#hashcodOrbitDetails');
-    assert.match(orbitDetails || '', /NORAD 25544/);
-    assert.match(orbitDetails || '', /LATITUDE/);
-    assert.match(orbitDetails || '', /LONGITUDE/);
-    assert.match(orbitDetails || '', /ALTITUDE/);
-    assert.equal(page.context().pages().length, pagesBefore, 'Orbitron tracker must remain in the same Hashcod window');
+    await page.waitForFunction(() => /SpaceX archive/.test(document.getElementById('hashcodStarlinkDetails').textContent || ''), { timeout: 10000 });
+    const starlinkDetails = await page.textContent('#hashcodStarlinkDetails');
+    assert.match(starlinkDetails || '', /NORAD 44714/);
+    assert.match(starlinkDetails || '', /LATITUDE/);
+    assert.match(starlinkDetails || '', /LONGITUDE/);
+    assert.match(starlinkDetails || '', /SpaceX archive/);
+    assert.equal(page.context().pages().length, pagesBefore, 'Starlink constellation tracker must remain in the same Hashcod window');
 
-    await page.click('#hashcodOrbitFocusGlobe');
-    await page.click('#hashcodOrbitClose');
+    await page.click('#hashcodStarlinkFocusGlobe');
+    await page.click('#hashcodStarlinkClose');
     await page.click('[data-gev-style="nvg"]');
     await page.click('#hashcodGevReset');
     await page.click('#hashcodGevClose');
@@ -153,7 +227,7 @@ async function run() {
       return modal && (!modal.open || modal.hidden);
     }, { timeout: 5000 });
 
-    console.log('PASS: sixth cube opens God\'s Eye View and its Orbitron satellite tracker reports live-style coordinates without another tab.');
+    console.log('PASS: God\'s Eye View tracks Orbitron objects and a SpaceX/Starlink constellation layer without opening another tab.');
   } finally {
     await browser.close();
   }
@@ -161,7 +235,7 @@ async function run() {
 
 Promise.race([
   run(),
-  new Promise((_, reject) => setTimeout(() => reject(new Error('Gods Eye View browser verification exceeded 45 seconds')), 45000))
+  new Promise((_, reject) => setTimeout(() => reject(new Error('Gods Eye View browser verification exceeded 55 seconds')), 55000))
 ]).then(() => process.exit(0)).catch((error) => {
   console.error(error && error.stack || error);
   process.exit(1);

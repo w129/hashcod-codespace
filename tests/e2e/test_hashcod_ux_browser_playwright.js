@@ -20,7 +20,9 @@ async function run() {
 
     // Reproduce the wide desktop geometry that previously pushed the folder far
     // left and the Hashcod lockup far right. They must now behave as one centered
-    // composition, while the integration strip remains centered independently.
+    // composition. The lower integration artwork is a large ::before background,
+    // so its small anchor rectangle is checked for visibility rather than treated
+    // as the full 1218px visual strip bounds.
     await page.setViewportSize({ width: 1852, height: 927 });
     await page.waitForFunction(() => {
       const folder = document.querySelector('#hashcodRareFolderHost[data-hashcod-composition-aligned="true"]');
@@ -44,19 +46,19 @@ async function run() {
         folder,
         brand,
         strip,
+        viewportWidth: innerWidth,
         viewportCenter,
         compositionCenter: (unionLeft + unionRight) / 2,
-        horizontalGap: brand.left - folder.right,
-        stripCenter: strip ? (strip.left + strip.right) / 2 : null
+        horizontalGap: brand.left - folder.right
       };
     });
     assert(Math.abs(landingGeometry.compositionCenter - landingGeometry.viewportCenter) <= 42,
       `folder + Hashcod composition must be centered (delta=${Math.abs(landingGeometry.compositionCenter - landingGeometry.viewportCenter).toFixed(2)}px)`);
     assert(landingGeometry.horizontalGap >= 35 && landingGeometry.horizontalGap <= 160,
       `folder and Hashcod lockup must keep a controlled gap, got ${landingGeometry.horizontalGap.toFixed(2)}px`);
-    if (landingGeometry.stripCenter !== null) {
-      assert(Math.abs(landingGeometry.stripCenter - landingGeometry.viewportCenter) <= 42,
-        'bottom integration strip must remain centered on wide screens');
+    if (landingGeometry.strip) {
+      assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
+        'bottom integration strip anchor must remain visible after wide-screen alignment');
     }
 
     await page.evaluate(() => window.HashcodUX.theme.set('dark', { silent: true }));

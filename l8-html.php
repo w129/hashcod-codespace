@@ -216,7 +216,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/topbar-windows-hello.js?v=20260913-1" data-hashcod-topbar-windows-hello="true"></script>'
             . '<script defer src="' . $base . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260913-1" data-hashcod-entry-capability-footer-fix="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260917-restore2" data-hashcod-entry-capability-footer-fix="true"></script>'
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260915-1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'

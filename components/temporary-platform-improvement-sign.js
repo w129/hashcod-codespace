@@ -5,7 +5,7 @@
     window.__hashcodTemporaryImprovementSignLoaded = true;
 
     const SIGN_ID = 'hashcodPlatformImprovementSign';
-    const ASSET_PATH = 'assets/plataforma-en-mejora.svg?v=20260917-1';
+    const ASSET_PATH = 'assets/plataforma-en-mejora.svg?v=20260917-2';
 
     function publicBase() {
         const base = document.querySelector('base[href]');
@@ -35,6 +35,13 @@
             image.src = assetUrl();
             host.appendChild(image);
 
+            document.body.appendChild(host);
+        }
+
+        // Keep the notice at document root. Its non-interactive high stacking
+        // level deliberately sits above the legacy entry-hold surface while
+        // remaining below transitions and application modals.
+        if (host.parentElement !== document.body && document.body) {
             document.body.appendChild(host);
         }
 

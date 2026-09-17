@@ -213,6 +213,9 @@ jobs:
       - name: Verify legacy auth window retirement
         run: node tests/e2e/test_legacy_auth_retirement.js
 
+      - name: Verify temporary platform improvement sign
+        run: node tests/e2e/test_temporary_platform_improvement_sign.js
+
       - name: Install Playwright Chromium for browser verification
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0

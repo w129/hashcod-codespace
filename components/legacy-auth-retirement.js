@@ -65,13 +65,22 @@
     // Some legacy auth modules mount their DOM after parsing. Only watch for
     // newly inserted nodes; do not watch attributes so diagnostic tests and the
     // future replacement entry system can explicitly control their own UI.
+    const retiredSelector = RETIRED_SELECTORS.join(',');
+
     const observer = new MutationObserver(function (mutations) {
         let needsRetire = false;
         for (const mutation of mutations) {
-            if (mutation.addedNodes && mutation.addedNodes.length) {
-                needsRetire = true;
-                break;
+            for (const node of mutation.addedNodes || []) {
+                if (!node || node.nodeType !== 1) continue;
+                if (
+                    (typeof node.matches === 'function' && node.matches(retiredSelector)) ||
+                    (typeof node.querySelector === 'function' && node.querySelector(retiredSelector))
+                ) {
+                    needsRetire = true;
+                    break;
+                }
             }
+            if (needsRetire) break;
         }
         if (needsRetire) retireLegacyAuthUi();
     });

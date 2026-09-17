@@ -621,12 +621,42 @@
     state.mutationObserver.observe(document.documentElement, { childList: true, subtree: true });
   }
 
+  function isBrowserExtensionError(reason) {
+    if (!reason) return false;
+    const message = String(reason && reason.message ? reason.message : reason || '');
+    const stack = String(reason && reason.stack ? reason.stack : '');
+    const source = String(
+      reason && (reason.fileName || reason.filename || reason.sourceURL || reason.source)
+        ? (reason.fileName || reason.filename || reason.sourceURL || reason.source)
+        : ''
+    );
+    const combined = [stack, source].join('\n');
+
+    // Browser extensions execute inside the same page context and can reject
+    // promises that Hashcod did not create. Never surface those as platform
+    // failures. Keep first-party errors visible for real diagnostics.
+    if (/(?:chrome|moz|safari-web|edge)-extension:\/\//i.test(combined)) return true;
+
+    // Known extension regression currently seen in Chromium. Only suppress the
+    // signature when there is no Hashcod/HTTP(S) application frame attached.
+    if (
+      /Cannot read properties of undefined \(reading ['"]M_ID['"]\)/.test(message)
+      && !/https?:\/\//i.test(combined)
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
   function handleGlobalErrors() {
     window.addEventListener('unhandledrejection', function (event) {
+      const reason = event && event.reason;
+      if (isBrowserExtensionError(reason)) return;
+
       const now = Date.now();
       if (now - state.lastErrorToast < 2500) return;
       state.lastErrorToast = now;
-      const reason = event && event.reason;
       const message = reason && reason.message ? reason.message : 'A background operation failed.';
       toast(message, 'error', 3800);
     });

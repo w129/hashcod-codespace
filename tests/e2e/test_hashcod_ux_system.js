@@ -41,8 +41,10 @@ assert(css.includes('.hashcod-ux-skeleton'), 'skeleton styling missing');
 assert(css.includes('.hashcod-ux-reveal'), 'scroll reveal styling missing');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'reduced-motion accessibility missing');
 
-assert(loader.includes('hashcod-ux-system.css?v=20260917-1'), 'shared platform loader must load UX CSS');
-assert(loader.includes('hashcod-ux-system.js?v=20260917-1'), 'shared platform loader must load UX runtime');
+assert(/hashcod-ux-system\.css\?v=[A-Za-z0-9._-]+/.test(loader), 'shared platform loader must load versioned UX CSS');
+assert(/hashcod-ux-system\.js\?v=[A-Za-z0-9._-]+/.test(loader), 'shared platform loader must load versioned UX runtime');
+assert(js.includes('isBrowserExtensionError'), 'browser-extension error filter missing');
+assert(js.includes('chrome|moz|safari-web|edge'), 'browser-extension URL schemes must be filtered');
 assert(loader.includes('data-hashcod-ux-system') || loader.includes('dataset.hashcodUxSystem'), 'shared UX script marker missing');
 
 assert(notFound.includes('HTTP 404 · NOT FOUND'), 'custom branded 404 page missing');

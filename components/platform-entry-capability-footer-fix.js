@@ -13,7 +13,7 @@
 
         if (document.querySelector('script[data-hashcod-deepseek-harness-loader]')) return;
         const script = document.createElement('script');
-        script.src = componentBase + 'deepseek-harness-loader.js?v=20260916-1';
+        script.src = componentBase + 'deepseek-harness-loader.js?v=20260917-2';
         script.defer = true;
         script.dataset.hashcodDeepseekHarnessLoader = 'true';
         document.head.appendChild(script);

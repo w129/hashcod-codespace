@@ -4,7 +4,9 @@
     if (window.__hashcodBootBrandCreditRelocateLoaded) return;
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
-    const CREDIT_ICON_VERSION = '20260914-5';
+    const CREDIT_ICON_VERSION = '20260917-10';
+    const CREDIT_TEXT_VERSION = '20260917-1';
+    const DOWNLOAD_ICON_VERSION = '20260917-1';
     const CREDIT_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" focusable="false">'
         + '<circle cx="4" cy="7" r="1"/><circle cx="13" cy="7" r="1"/><circle cx="16" cy="7" r="1"/><circle cx="16" cy="4" r="1"/><circle cx="19" cy="7" r="1"/><circle cx="28" cy="7" r="1"/>'
         + '<circle cx="4" cy="10" r="1"/><circle cx="1" cy="10" r="1"/><circle cx="7" cy="10" r="1"/><circle cx="16" cy="10" r="1"/><circle cx="25" cy="10" r="1"/><circle cx="28" cy="10" r="1"/><circle cx="31" cy="10" r="1"/>'
@@ -130,7 +132,10 @@
             label.className = 'hashcod-credit-text';
             credit.appendChild(label);
         }
-        label.innerHTML = 'Created by <strong>diktatcart</strong>';
+        if (label.getAttribute('data-credit-text-version') !== CREDIT_TEXT_VERSION) {
+            label.innerHTML = 'Created by <strong>diktatcart</strong>';
+            label.setAttribute('data-credit-text-version', CREDIT_TEXT_VERSION);
+        }
 
         credit.querySelectorAll('.boot-github-logo,.boot-hashcod-logo').forEach(function (legacy) {
             legacy.style.setProperty('display', 'none', 'important');
@@ -179,7 +184,10 @@
             icon.setAttribute('aria-hidden', 'true');
             row.prepend(icon);
         }
-        icon.innerHTML = DOWNLOAD_ICON_SVG;
+        if (icon.getAttribute('data-download-icon-version') !== DOWNLOAD_ICON_VERSION) {
+            icon.innerHTML = DOWNLOAD_ICON_SVG;
+            icon.setAttribute('data-download-icon-version', DOWNLOAD_ICON_VERSION);
+        }
 
         let text = row.querySelector('.hashcod-local-download-text');
         if (!text) {
@@ -187,7 +195,9 @@
             text.className = 'hashcod-local-download-text';
             row.appendChild(text);
         }
-        text.textContent = 'Download the local version.';
+        if (text.textContent !== 'Download the local version.') {
+            text.textContent = 'Download the local version.';
+        }
     }
 
     function alignCredit(brand, credit) {

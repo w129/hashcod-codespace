@@ -11,6 +11,7 @@ import { motion } from "motion/react";
 const BASE_WIDTH = 321;
 const BASE_HEIGHT = 270;
 const INTRO_SESSION_KEY = "hashcod_platform_intro_seen_v1";
+const DESKTOP_COMPOSITION_MIN_WIDTH = 1181;
 const FLAP_PATH = "M0 25C0 11.1929 11.1929 0 25 0H136.084C143.044 0 149.689 2.90139 154.42 8.00608L178.08 33.5343C182.811 38.639 189.456 41.5404 196.416 41.5404H296C309.807 41.5404 321 52.7333 321 66.5404V216C321 229.807 309.807 241 296 241H25C11.1929 241 0 229.807 0 216V25Z";
 
 const theme = {
@@ -149,7 +150,14 @@ function Folder({ scale }) {
   );
 }
 
-function findBrandRect(overlay) {
+function visibleRect(node) {
+  if (!node || typeof node.getBoundingClientRect !== 'function') return null;
+  const rect = node.getBoundingClientRect();
+  if (!rect || rect.width <= 0 || rect.height <= 0) return null;
+  return rect;
+}
+
+function findBrandNode(overlay) {
   const directSelectors = [
     '[data-hashcod-brand]',
     '.boot-brand',
@@ -160,10 +168,8 @@ function findBrandRect(overlay) {
   ];
   for (const selector of directSelectors) {
     const node = overlay.querySelector(selector);
-    if (node) {
-      const rect = node.getBoundingClientRect();
-      if (rect.width > 80 && rect.height > 24) return rect;
-    }
+    const rect = visibleRect(node);
+    if (rect && rect.width > 80 && rect.height > 24) return node;
   }
 
   let best = null;
@@ -171,15 +177,53 @@ function findBrandRect(overlay) {
   overlay.querySelectorAll('div,section,header,main,span').forEach((node) => {
     const text = (node.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
     if (!text.includes('hashcod') || !text.includes('codespace')) return;
-    const rect = node.getBoundingClientRect();
-    if (rect.width < 130 || rect.height < 40 || rect.width > 720 || rect.height > 320) return;
+    const rect = visibleRect(node);
+    if (!rect || rect.width < 130 || rect.height < 40 || rect.width > 720 || rect.height > 320) return;
     const area = rect.width * rect.height;
     if (area < bestArea) {
-      best = rect;
+      best = node;
       bestArea = area;
     }
   });
   return best;
+}
+
+function findBrandRect(overlay) {
+  return visibleRect(findBrandNode(overlay));
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function adjustHorizontalOffset(node, targetCenterX, dataKey) {
+  if (!node) return;
+  const rect = visibleRect(node);
+  if (!rect) return;
+  const currentCenter = rect.left + (rect.width / 2);
+  const delta = targetCenterX - currentCenter;
+  if (!Number.isFinite(delta) || Math.abs(delta) < 0.35) return;
+  const currentOffset = Number(node.dataset[dataKey] || 0) || 0;
+  const nextOffset = currentOffset + delta;
+  node.dataset[dataKey] = String(nextOffset);
+  node.style.setProperty('translate', `${nextOffset.toFixed(2)}px 0px`, 'important');
+}
+
+function clearHorizontalOffset(node, dataKey) {
+  if (!node || !Object.prototype.hasOwnProperty.call(node.dataset, dataKey)) return;
+  delete node.dataset[dataKey];
+  node.style.removeProperty('translate');
+}
+
+function alignIntegrationStrip(overlayRect, enabled) {
+  const stripAnchor = document.querySelector('.boot-cli-footer .boot-card-icon');
+  if (!stripAnchor) return;
+  if (!enabled) {
+    clearHorizontalOffset(stripAnchor, 'hashcodLandingStripOffsetX');
+    return;
+  }
+  adjustHorizontalOffset(stripAnchor, overlayRect.left + (overlayRect.width / 2), 'hashcodLandingStripOffsetX');
+  stripAnchor.setAttribute('data-hashcod-composition-centered', 'true');
 }
 
 function computeScale(viewportWidth, viewportHeight) {
@@ -215,6 +259,8 @@ function mount() {
 
   const reactRoot = createRoot(host);
   let currentScale = 0.82;
+  let alignedBrand = null;
+  let alignedStrip = null;
 
   const render = () => reactRoot.render(<Folder scale={currentScale} />);
 
@@ -224,24 +270,60 @@ function mount() {
     currentScale = computeScale(overlayRect.width || window.innerWidth, overlayRect.height || window.innerHeight);
     const folderW = BASE_WIDTH * currentScale;
     const folderH = BASE_HEIGHT * currentScale;
+    const desktopComposition = overlayRect.width >= DESKTOP_COMPOSITION_MIN_WIDTH;
+    const brand = findBrandNode(overlay);
+    const brandRect = visibleRect(brand);
     let x = overlayRect.width * 0.31;
     let y = overlayRect.height * 0.50;
-    const brandRect = findBrandRect(overlay);
-    if (brandRect) {
-      const gap = Math.max(70, Math.min(145, overlayRect.width * 0.065));
-      x = (brandRect.left - overlayRect.left) - gap - (folderW / 2);
+
+    if (desktopComposition && brand && brandRect) {
+      const hostRect = visibleRect(host);
+      const folderVisualW = hostRect && hostRect.width > 40 ? hostRect.width : folderW * 1.20;
+      const gap = clamp(overlayRect.width * 0.05, 76, 112);
+      const totalWidth = folderVisualW + gap + brandRect.width;
+      const groupLeft = (overlayRect.width - totalWidth) / 2;
+      const targetBrandCenterLocal = groupLeft + folderVisualW + gap + (brandRect.width / 2);
+      x = groupLeft + (folderVisualW / 2);
       y = (brandRect.top - overlayRect.top) + (brandRect.height / 2);
+
+      host.style.setProperty('position', 'fixed', 'important');
+      host.style.setProperty('left', `${(overlayRect.left + x).toFixed(2)}px`, 'important');
+      host.style.setProperty('top', `${(overlayRect.top + y).toFixed(2)}px`, 'important');
+      host.setAttribute('data-hashcod-composition-aligned', 'true');
+
+      adjustHorizontalOffset(brand, overlayRect.left + targetBrandCenterLocal, 'hashcodLandingBrandOffsetX');
+      alignedBrand = brand;
+      alignIntegrationStrip(overlayRect, true);
+      alignedStrip = document.querySelector('.boot-cli-footer .boot-card-icon');
+    } else {
+      if (alignedBrand) clearHorizontalOffset(alignedBrand, 'hashcodLandingBrandOffsetX');
+      if (alignedStrip) clearHorizontalOffset(alignedStrip, 'hashcodLandingStripOffsetX');
+      alignedBrand = null;
+      alignedStrip = null;
+      host.removeAttribute('data-hashcod-composition-aligned');
+      host.style.removeProperty('position');
+      host.style.removeProperty('left');
+      host.style.removeProperty('top');
+
+      if (brandRect) {
+        const gap = Math.max(70, Math.min(145, overlayRect.width * 0.065));
+        x = (brandRect.left - overlayRect.left) - gap - (folderW / 2);
+        y = (brandRect.top - overlayRect.top) + (brandRect.height / 2);
+      }
+      if (overlayRect.width <= 900) {
+        x = overlayRect.width * 0.50;
+        y = overlayRect.height * 0.39;
+      }
     }
-    if (overlayRect.width <= 900) {
-      x = overlayRect.width * 0.50;
-      y = overlayRect.height * 0.39;
-    }
+
     const minX = folderW / 2 + 24;
     const maxX = overlayRect.width - folderW / 2 - 24;
     const minY = folderH / 2 + 70;
     const maxY = overlayRect.height - folderH / 2 - 80;
-    host.style.left = `${Math.max(minX, Math.min(maxX, x))}px`;
-    host.style.top = `${Math.max(minY, Math.min(maxY, y))}px`;
+    if (!desktopComposition) {
+      host.style.left = `${Math.max(minX, Math.min(maxX, x))}px`;
+      host.style.top = `${Math.max(minY, Math.min(maxY, y))}px`;
+    }
     host.style.width = `${folderW}px`;
     host.style.height = `${folderH}px`;
     render();
@@ -255,10 +337,14 @@ function mount() {
   };
   window.addEventListener('resize', schedulePlace, { passive: true });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedulePlace).catch(() => {});
+  setTimeout(schedulePlace, 40);
   setTimeout(schedulePlace, 120);
   setTimeout(schedulePlace, 700);
+  setTimeout(schedulePlace, 1500);
 
   window.addEventListener('hashcod:platform-entered', () => {
+    if (alignedBrand) clearHorizontalOffset(alignedBrand, 'hashcodLandingBrandOffsetX');
+    if (alignedStrip) clearHorizontalOffset(alignedStrip, 'hashcodLandingStripOffsetX');
     reactRoot.unmount();
     host.remove();
     window.removeEventListener('resize', schedulePlace);

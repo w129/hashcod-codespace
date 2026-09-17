@@ -3,6 +3,15 @@
 
     if (window.__hashcodLegacyAuthRetirementLoaded) return;
     window.__hashcodLegacyAuthRetirementLoaded = true;
+
+    // Browser diagnostics may explicitly opt into the retired UI so component
+    // regression tests can keep exercising its old tool mount points.
+    if (window.__hashcodAllowLegacyAuthDiagnostics === true) {
+        const prehide = document.getElementById('hashcod-legacy-auth-prehide');
+        if (prehide) prehide.remove();
+        return;
+    }
+
     window.__hashcodLegacyAuthRetired = true;
 
     const RETIRED_SELECTORS = [

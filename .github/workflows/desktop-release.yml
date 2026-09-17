@@ -221,6 +221,10 @@ jobs:
         working-directory: local-app/desktop
         run: npm install --no-audit --no-fund
 
+      - name: Smoke test DeepSeek Harness on 127.0.0.1:3080
+        working-directory: local-app/desktop
+        run: npm run test:harness
+
       - name: Stamp desktop build version
         working-directory: local-app/desktop
         shell: pwsh

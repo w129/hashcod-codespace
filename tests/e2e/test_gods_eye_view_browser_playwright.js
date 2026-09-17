@@ -73,6 +73,7 @@ function mockSpaceXMetadata() {
 async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.addInitScript(() => { window.__hashcodAllowLegacyAuthDiagnostics = true; });
   try {
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());

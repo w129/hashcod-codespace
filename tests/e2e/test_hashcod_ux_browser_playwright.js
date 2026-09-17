@@ -18,6 +18,49 @@ async function run() {
     assert.equal(initial.inPlatform, true);
     assert.equal(initial.palette, true);
 
+    // Reproduce the wide desktop geometry that previously pushed the folder far
+    // left and the Hashcod lockup far right. They must now behave as one centered
+    // composition. The lower integration artwork is a large ::before background,
+    // so its small anchor rectangle is checked for visibility rather than treated
+    // as the full 1218px visual strip bounds.
+    await page.setViewportSize({ width: 1852, height: 927 });
+    await page.waitForFunction(() => {
+      const folder = document.querySelector('#hashcodRareFolderHost[data-hashcod-composition-aligned="true"]');
+      const brand = document.querySelector('.boot-brand');
+      return Boolean(folder && brand && folder.getBoundingClientRect().width > 100 && brand.getBoundingClientRect().width > 100);
+    }, { timeout: 10000 });
+    await page.waitForTimeout(850);
+    const landingGeometry = await page.evaluate(() => {
+      const rectOf = (node) => {
+        if (!node) return null;
+        const r = node.getBoundingClientRect();
+        return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height };
+      };
+      const folder = rectOf(document.getElementById('hashcodRareFolderHost'));
+      const brand = rectOf(document.querySelector('.boot-brand'));
+      const strip = rectOf(document.querySelector('.boot-cli-footer .boot-card-icon'));
+      const viewportCenter = innerWidth / 2;
+      const unionLeft = Math.min(folder.left, brand.left);
+      const unionRight = Math.max(folder.right, brand.right);
+      return {
+        folder,
+        brand,
+        strip,
+        viewportWidth: innerWidth,
+        viewportCenter,
+        compositionCenter: (unionLeft + unionRight) / 2,
+        horizontalGap: brand.left - folder.right
+      };
+    });
+    assert(Math.abs(landingGeometry.compositionCenter - landingGeometry.viewportCenter) <= 42,
+      `folder + Hashcod composition must be centered (delta=${Math.abs(landingGeometry.compositionCenter - landingGeometry.viewportCenter).toFixed(2)}px)`);
+    assert(landingGeometry.horizontalGap >= 35 && landingGeometry.horizontalGap <= 160,
+      `folder and Hashcod lockup must keep a controlled gap, got ${landingGeometry.horizontalGap.toFixed(2)}px`);
+    if (landingGeometry.strip) {
+      assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
+        'bottom integration strip anchor must remain visible after wide-screen alignment');
+    }
+
     await page.evaluate(() => window.HashcodUX.theme.set('dark', { silent: true }));
     assert.equal(await page.getAttribute('html', 'data-hashcod-theme'), 'dark');
 
@@ -107,7 +150,7 @@ async function run() {
     assert.match(await notFoundPage.textContent('body') || '', /HASHCOD \/ ROUTING \/ 404/);
     await notFoundPage.close();
 
-    console.log('PASS: shared Hashcod UX works in-browser with dark mode, palette, shortcuts, autosave, skeleton/loading/error states, share/haptics and branded 404.');
+    console.log('PASS: shared Hashcod UX works in-browser with centered wide-screen landing, dark mode, palette, shortcuts, autosave, skeleton/loading/error states, share/haptics and branded 404.');
   } finally {
     await browser.close();
   }

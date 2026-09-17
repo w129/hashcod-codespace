@@ -55,6 +55,7 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/temporary-platform-improvement-sign.css?v=20260917-1" data-hashcod-temporary-improvement-sign-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
     . $inlineEfrCss
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
@@ -100,6 +101,7 @@ $inlineEfrJs = $efrJs !== ''
     : '';
 
 $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/temporary-platform-improvement-sign.js?v=20260917-1" data-hashcod-temporary-improvement-sign="true"></script>'
     . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline
     . '<script defer src="' . $baseAttr . 'components/platform-entry-slogan.js?v=20260911-2" data-platform-entry-slogan="true" data-hashcod-vector-tray="true"></script>'

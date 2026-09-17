@@ -32,8 +32,9 @@
         if (!left) {
             const brandRect = brand.getBoundingClientRect();
             const creditRect = credit.getBoundingClientRect();
+            const scale = brand.offsetWidth > 0 ? (brandRect.width / brand.offsetWidth || 1) : 1;
             if (brandRect.width > 0 && creditRect.width > 0) {
-                left = ((creditRect.left - brandRect.left) / (brandRect.width / brand.offsetWidth || 1)).toFixed(2) + 'px';
+                left = ((creditRect.left - brandRect.left) / scale).toFixed(2) + 'px';
                 brand.style.setProperty('--hashcod-credit-text-left', left);
             } else {
                 left = '50%';
@@ -42,75 +43,66 @@
 
         row.style.setProperty('position', 'absolute', 'important');
         row.style.setProperty('left', 'var(--hashcod-credit-text-left, ' + left + ')', 'important');
-        row.style.setProperty('top', 'calc(100% + 40px)', 'important');
+        row.style.setProperty('top', 'calc(100% + 36px)', 'important');
         row.style.setProperty('right', 'auto', 'important');
         row.style.setProperty('bottom', 'auto', 'important');
-        row.style.setProperty('display', 'flex', 'important');
+        row.style.setProperty('display', 'inline-flex', 'important');
+        row.style.setProperty('visibility', 'visible', 'important');
+        row.style.setProperty('opacity', '1', 'important');
         row.style.setProperty('align-items', 'center', 'important');
         row.style.setProperty('justify-content', 'flex-start', 'important');
-        row.style.setProperty('gap', '5px', 'important');
+        row.style.setProperty('gap', '6px', 'important');
         row.style.setProperty('width', 'max-content', 'important');
-        row.style.setProperty('max-width', '205px', 'important');
         row.style.setProperty('min-width', '0', 'important');
-        row.style.setProperty('height', '19px', 'important');
+        row.style.setProperty('min-height', '20px', 'important');
         row.style.setProperty('margin', '0', 'important');
-        row.style.setProperty('padding', '0', 'important');
+        row.style.setProperty('padding', '2px 3px 2px 0', 'important');
         row.style.setProperty('white-space', 'nowrap', 'important');
         row.style.setProperty('pointer-events', 'auto', 'important');
         row.style.setProperty('z-index', '9', 'important');
         row.style.setProperty('font-family', 'inherit', 'important');
-        row.style.setProperty('transform', 'none', 'important');
+        row.style.setProperty('text-decoration', 'none', 'important');
+        row.style.setProperty('cursor', 'pointer', 'important');
 
-        const button = row.querySelector('.hashcod-local-download-button');
-        if (button) {
-            button.style.setProperty('display', 'inline-flex', 'important');
-            button.style.setProperty('align-items', 'center', 'important');
-            button.style.setProperty('justify-content', 'center', 'important');
-            button.style.setProperty('width', '18px', 'important');
-            button.style.setProperty('height', '18px', 'important');
-            button.style.setProperty('min-width', '18px', 'important');
-            button.style.setProperty('max-width', '18px', 'important');
-            button.style.setProperty('min-height', '18px', 'important');
-            button.style.setProperty('max-height', '18px', 'important');
-            button.style.setProperty('flex', '0 0 18px', 'important');
-            button.style.setProperty('margin', '0', 'important');
-            button.style.setProperty('padding', '0', 'important');
-            button.style.setProperty('border', '0', 'important');
-            button.style.setProperty('border-radius', '4px', 'important');
-            button.style.setProperty('background', 'transparent', 'important');
-            button.style.setProperty('color', '#4a4a4a', 'important');
-            button.style.setProperty('overflow', 'hidden', 'important');
-            button.style.setProperty('text-decoration', 'none', 'important');
-            button.style.setProperty('cursor', 'pointer', 'important');
+        const icon = row.querySelector('.hashcod-local-download-icon');
+        if (icon) {
+            icon.style.setProperty('display', 'inline-flex', 'important');
+            icon.style.setProperty('visibility', 'visible', 'important');
+            icon.style.setProperty('align-items', 'center', 'important');
+            icon.style.setProperty('justify-content', 'center', 'important');
+            icon.style.setProperty('width', '18px', 'important');
+            icon.style.setProperty('height', '18px', 'important');
+            icon.style.setProperty('min-width', '18px', 'important');
+            icon.style.setProperty('flex', '0 0 18px', 'important');
+            icon.style.setProperty('color', '#4a4a4a', 'important');
 
-            const svg = button.querySelector('svg');
+            const svg = icon.querySelector('svg');
             if (svg) {
-                svg.setAttribute('width', '14');
-                svg.setAttribute('height', '14');
+                svg.setAttribute('width', '15');
+                svg.setAttribute('height', '15');
                 svg.style.setProperty('display', 'block', 'important');
-                svg.style.setProperty('width', '14px', 'important');
-                svg.style.setProperty('height', '14px', 'important');
-                svg.style.setProperty('min-width', '14px', 'important');
-                svg.style.setProperty('max-width', '14px', 'important');
-                svg.style.setProperty('min-height', '14px', 'important');
-                svg.style.setProperty('max-height', '14px', 'important');
+                svg.style.setProperty('width', '15px', 'important');
+                svg.style.setProperty('height', '15px', 'important');
                 svg.style.setProperty('fill', 'currentColor', 'important');
+                svg.style.setProperty('overflow', 'visible', 'important');
             }
         }
 
         const text = row.querySelector('.hashcod-local-download-text');
         if (text) {
             text.style.setProperty('display', 'inline-block', 'important');
+            text.style.setProperty('visibility', 'visible', 'important');
             text.style.setProperty('margin', '0', 'important');
             text.style.setProperty('padding', '0', 'important');
-            text.style.setProperty('color', '#7b7b7b', 'important');
-            text.style.setProperty('font-size', '9.25px', 'important');
+            text.style.setProperty('color', '#747474', 'important');
+            text.style.setProperty('font-size', '9.5px', 'important');
             text.style.setProperty('font-weight', '400', 'important');
-            text.style.setProperty('line-height', '1', 'important');
+            text.style.setProperty('line-height', '1.1', 'important');
             text.style.setProperty('letter-spacing', '-0.01em', 'important');
             text.style.setProperty('white-space', 'nowrap', 'important');
         }
 
+        row.setAttribute('data-hashcod-local-download-ready', 'true');
         return true;
     }
 
@@ -119,6 +111,7 @@
         setTimeout(apply, 80);
         setTimeout(apply, 300);
         setTimeout(apply, 900);
+        setTimeout(apply, 1800);
     }
 
     if (document.readyState === 'loading') {
@@ -127,9 +120,7 @@
         schedule();
     }
 
-    const observer = new MutationObserver(function () {
-        apply();
-    });
+    const observer = new MutationObserver(function () { apply(); });
     observer.observe(document.documentElement, { childList: true, subtree: true });
     window.addEventListener('resize', schedule, { passive: true });
 })();

@@ -9,6 +9,7 @@ on:
       - hashcod-sync.php
       - toolbox-secure.php
       - router.php
+      - not-found.php
       - l8-html.php
       - laragon-local-entry.php
       - rare-folder-build/**
@@ -19,6 +20,9 @@ on:
       - components/auth-utility-outside.css
       - components/platform-entry-slogan.js
       - components/platform-entry-capability-footer-fix.js
+      - components/hashcod-ux-system.js
+      - components/hashcod-ux-system.css
+      - components/hashcod-ux-dark-compat.css
       - components/boot-folder-animation.js
       - components/boot-folder-animation.css
       - components/vector-image-vault.js
@@ -52,6 +56,8 @@ on:
       - tests/e2e/test_efr_browser_playwright.js
       - tests/e2e/test_gods_eye_view.js
       - tests/e2e/test_gods_eye_view_browser_playwright.js
+      - tests/e2e/test_hashcod_ux_system.js
+      - tests/e2e/test_hashcod_ux_browser_playwright.js
       - tests/e2e/test_mobile_platform_polish.js
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_secure_toolbox_links.js
@@ -60,6 +66,8 @@ on:
     branches:
       - main
     paths:
+      - router.php
+      - not-found.php
       - l8-html.php
       - laragon-local-entry.php
       - toolbox-secure.php
@@ -70,6 +78,9 @@ on:
       - components/auth-vector-layout-fix.js
       - components/auth-register-resilience.js
       - components/platform-entry-capability-footer-fix.js
+      - components/hashcod-ux-system.js
+      - components/hashcod-ux-system.css
+      - components/hashcod-ux-dark-compat.css
       - components/efr-code-editor.js
       - components/efr-code-editor.css
       - components/gods-eye-view-loader.js
@@ -79,6 +90,8 @@ on:
       - tests/e2e/test_efr_browser_playwright.js
       - tests/e2e/test_gods_eye_view.js
       - tests/e2e/test_gods_eye_view_browser_playwright.js
+      - tests/e2e/test_hashcod_ux_system.js
+      - tests/e2e/test_hashcod_ux_browser_playwright.js
       - tests/e2e/test_secure_toolbox_links.js
       - tests/e2e/test_auth_register_resilience.js
       - .github/workflows/verify-auth-layout.yml
@@ -99,6 +112,9 @@ jobs:
 
       - name: Syntax check vector tray module
         run: node --check components/platform-entry-slogan.js
+
+      - name: Syntax check shared UX system
+        run: node --check components/hashcod-ux-system.js
 
       - name: Syntax check EFR code editor
         run: node --check components/efr-code-editor.js
@@ -155,6 +171,9 @@ jobs:
       - name: Syntax check PHP router
         run: php -l router.php
 
+      - name: Syntax check branded 404
+        run: php -l not-found.php
+
       - name: Syntax check HTML serving helper
         run: php -l l8-html.php
 
@@ -187,6 +206,9 @@ jobs:
 
       - name: Verify God's Eye View sixth-cube contract
         run: node tests/e2e/test_gods_eye_view.js
+
+      - name: Verify shared Hashcod UX contract
+        run: node tests/e2e/test_hashcod_ux_system.js
 
       - name: Install Playwright Chromium for browser verification
         run: |
@@ -232,6 +254,26 @@ jobs:
             exit 1
           fi
           GEV_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_gods_eye_view_browser_playwright.js
+
+      - name: Verify shared UX in Chromium
+        run: |
+          php -S 127.0.0.1:8099 >/tmp/hashcod-ux-php.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" >/dev/null 2>&1 || true' EXIT
+          ready=0
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "Local Hashcod UI server did not become ready"
+            cat /tmp/hashcod-ux-php.log || true
+            exit 1
+          fi
+          UX_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_hashcod_ux_browser_playwright.js
 
       - name: Verify mobile platform polish
         run: node tests/e2e/test_mobile_platform_polish.js

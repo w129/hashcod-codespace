@@ -15,6 +15,7 @@ async function readDownload(download) {
 async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+  await page.addInitScript(() => { window.__hashcodAllowLegacyAuthDiagnostics = true; });
 
   try {
     await page.route('**/*', async (route) => {

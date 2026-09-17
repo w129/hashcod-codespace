@@ -10,6 +10,15 @@
         ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
         : '/components/';
 
+    (function loadSeoSignals() {
+        if (document.querySelector('script[data-hashcod-seo]')) return;
+        const script = document.createElement('script');
+        script.src = componentBase + 'hashcod-seo.js?v=20260917-1';
+        script.defer = true;
+        script.dataset.hashcodSeo = 'true';
+        document.head.appendChild(script);
+    })();
+
     (function loadUxSystem() {
         if (document.querySelector('script[data-hashcod-ux-system]')) return;
         const style = document.createElement('link');

@@ -15,6 +15,10 @@
 # Sin "http://:" Caddy trata el número como hostname y sirve HTTPS →
 # "Client sent an HTTP request to an HTTPS server."
 http://:{$PORT:8000} {
+	# Canonical HTTP para la portada: Google lo recibe incluso antes de renderizar JS.
+	@home path / /index.php /index.html
+	header @home Link "<https://hashcod-codespace-1.onrender.com/>; rel=canonical"
+
 	# SEO público: servir robots y sitemap directamente desde Caddy.
 	# Esto evita que Googlebot atraviese el bootstrap de seguridad/Turnstile y
 	# garantiza respuestas 200 simples con el MIME correcto para Search Console.
@@ -108,6 +112,16 @@ http://:{$PORT:8000} {
 				response_header_timeout 120s
 			}
 		}
+	}
+
+	# Este loader contiene las señales SEO y debe poder actualizarse sin quedar
+	# congelado por el query-string histórico del landing.
+	handle /components/platform-entry-capability-footer-fix.js {
+		root * /var/www/html
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		file_server
 	}
 
 	# Static assets direct edge offloading & compression

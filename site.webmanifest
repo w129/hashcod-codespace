@@ -1,0 +1,17 @@
+{
+  "name": "Hashcod Codespace",
+  "short_name": "Hashcod",
+  "description": "Plataforma para desarrolladores con herramientas de IA, edición, automatización, seguridad y certificación de proyectos digitales.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

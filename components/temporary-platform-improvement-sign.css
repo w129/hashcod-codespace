@@ -1,0 +1,66 @@
+/* Temporary Hashcod Codespace improvement notice.
+   Keep this visible until the owner explicitly requests removal. */
+#hashcodPlatformImprovementSign {
+    position: fixed !important;
+    left: 63vw !important;
+    top: 50vh !important;
+    width: min(50vw, 760px) !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 2147482200 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+#hashcodPlatformImprovementSign img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    opacity: 1 !important;
+}
+
+html[data-hashcod-theme="dark"] #hashcodPlatformImprovementSign img,
+html.dark #hashcodPlatformImprovementSign img {
+    filter: invert(1) !important;
+}
+
+@media (max-width: 1180px) {
+    #hashcodPlatformImprovementSign {
+        left: 64vw !important;
+        top: 50vh !important;
+        width: min(56vw, 700px) !important;
+    }
+}
+
+@media (max-width: 900px) {
+    #hashcodPlatformImprovementSign {
+        left: 50vw !important;
+        top: 56vh !important;
+        width: min(88vw, 620px) !important;
+    }
+}
+
+@media (max-width: 620px) {
+    #hashcodPlatformImprovementSign {
+        left: 50vw !important;
+        top: 55vh !important;
+        width: 96vw !important;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    #hashcodPlatformImprovementSign {
+        animation: hashcodImprovementSignIn 360ms cubic-bezier(.2,.8,.2,1) both;
+    }
+}
+
+@keyframes hashcodImprovementSignIn {
+    from { opacity: 0; transform: translate(-50%, -48%) scale(.985); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}

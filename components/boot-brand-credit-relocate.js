@@ -4,7 +4,9 @@
     if (window.__hashcodBootBrandCreditRelocateLoaded) return;
     window.__hashcodBootBrandCreditRelocateLoaded = true;
 
-    const CREDIT_ICON_VERSION = '20260914-5';
+    const CREDIT_ICON_VERSION = '20260917-10';
+    const CREDIT_TEXT_VERSION = '20260917-1';
+    const DOWNLOAD_ICON_VERSION = '20260917-1';
     const CREDIT_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" focusable="false">'
         + '<circle cx="4" cy="7" r="1"/><circle cx="13" cy="7" r="1"/><circle cx="16" cy="7" r="1"/><circle cx="16" cy="4" r="1"/><circle cx="19" cy="7" r="1"/><circle cx="28" cy="7" r="1"/>'
         + '<circle cx="4" cy="10" r="1"/><circle cx="1" cy="10" r="1"/><circle cx="7" cy="10" r="1"/><circle cx="16" cy="10" r="1"/><circle cx="25" cy="10" r="1"/><circle cx="28" cy="10" r="1"/><circle cx="31" cy="10" r="1"/>'
@@ -109,45 +111,44 @@
     function ensureCreditIcon(credit) {
         if (!credit) return;
 
-        const legacyGithub = credit.querySelector('.boot-github-logo');
-        if (legacyGithub) {
-            legacyGithub.style.setProperty('display', 'none', 'important');
-            legacyGithub.style.setProperty('visibility', 'hidden', 'important');
-            legacyGithub.setAttribute('aria-hidden', 'true');
-        }
-
+        // Rebuild this row as a deterministic creator credit. Older builds used
+        // image assets inside .boot-brand-logos; when one of those assets was
+        // hidden or stale it left only the dotted icon visible.
         let icon = credit.querySelector('.hashcod-credit-crown-icon');
-        if (icon && icon.tagName === 'IMG') {
-            const replacement = document.createElement('span');
-            replacement.className = 'hashcod-credit-crown-icon';
-            replacement.setAttribute('aria-hidden', 'true');
-            icon.replaceWith(replacement);
-            icon = replacement;
-        }
-
         if (!icon) {
             icon = document.createElement('span');
             icon.className = 'hashcod-credit-crown-icon';
             icon.setAttribute('aria-hidden', 'true');
-            const textMark = credit.querySelector('.boot-hashcod-logo');
-            if (textMark) {
-                credit.insertBefore(icon, textMark);
-            } else {
-                credit.insertBefore(icon, credit.firstChild);
-            }
+            credit.prepend(icon);
         }
-
         if (icon.getAttribute('data-icon-version') !== CREDIT_ICON_VERSION) {
             icon.innerHTML = CREDIT_ICON_SVG;
             icon.setAttribute('data-icon-version', CREDIT_ICON_VERSION);
         }
 
+        let label = credit.querySelector('.hashcod-credit-text');
+        if (!label) {
+            label = document.createElement('span');
+            label.className = 'hashcod-credit-text';
+            credit.appendChild(label);
+        }
+        if (label.getAttribute('data-credit-text-version') !== CREDIT_TEXT_VERSION) {
+            label.innerHTML = 'Created by <strong>diktatcart</strong>';
+            label.setAttribute('data-credit-text-version', CREDIT_TEXT_VERSION);
+        }
+
+        credit.querySelectorAll('.boot-github-logo,.boot-hashcod-logo').forEach(function (legacy) {
+            legacy.style.setProperty('display', 'none', 'important');
+            legacy.style.setProperty('visibility', 'hidden', 'important');
+            legacy.setAttribute('aria-hidden', 'true');
+        });
+
         icon.style.setProperty('display', 'inline-flex', 'important');
         icon.style.setProperty('visibility', 'visible', 'important');
-        icon.style.setProperty('width', '24px', 'important');
-        icon.style.setProperty('height', '24px', 'important');
-        icon.style.setProperty('min-width', '24px', 'important');
-        icon.style.setProperty('color', '#7f7f7f', 'important');
+        icon.style.setProperty('width', '20px', 'important');
+        icon.style.setProperty('height', '20px', 'important');
+        icon.style.setProperty('min-width', '20px', 'important');
+        icon.style.setProperty('color', '#6f6f6f', 'important');
         icon.style.setProperty('opacity', '1', 'important');
     }
 
@@ -159,32 +160,43 @@
             return;
         }
 
-        if (!row) {
-            row = document.createElement('div');
-            row.className = 'hashcod-local-download-row';
-            row.setAttribute('data-hashcod-local-download', 'true');
-
-            const button = document.createElement('a');
-            button.className = 'hashcod-local-download-button';
-            button.href = publicAsset('download-local-version');
-            button.setAttribute('download', 'Hashcod-Codespace-Setup.exe');
-            button.setAttribute('aria-label', 'Download the local version');
-            button.setAttribute('title', 'Download the local version');
-            button.innerHTML = DOWNLOAD_ICON_SVG;
-
-            const text = document.createElement('span');
-            text.className = 'hashcod-local-download-text';
-            text.textContent = 'Download the local version.';
-
-            row.appendChild(button);
-            row.appendChild(text);
-            brand.appendChild(row);
+        // The complete row is the link. This prevents the old state where the
+        // label remained visible but the tiny icon/link disappeared.
+        if (!row || row.tagName !== 'A') {
+            const replacement = document.createElement('a');
+            replacement.className = 'hashcod-local-download-row hashcod-local-download-button';
+            replacement.setAttribute('data-hashcod-local-download', 'true');
+            if (row) row.replaceWith(replacement);
+            else brand.appendChild(replacement);
+            row = replacement;
         }
 
-        const button = row.querySelector('.hashcod-local-download-button');
-        if (button) {
-            button.href = publicAsset('download-local-version');
-            button.setAttribute('download', 'Hashcod-Codespace-Setup.exe');
+        row.href = publicAsset('download-local-version');
+        row.setAttribute('download', 'Hashcod-Codespace-Setup.exe');
+        row.setAttribute('aria-label', 'Download the local version');
+        row.setAttribute('title', 'Download the local version');
+        row.setAttribute('data-hashcod-local-download-ready', 'true');
+
+        let icon = row.querySelector('.hashcod-local-download-icon');
+        if (!icon) {
+            icon = document.createElement('span');
+            icon.className = 'hashcod-local-download-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            row.prepend(icon);
+        }
+        if (icon.getAttribute('data-download-icon-version') !== DOWNLOAD_ICON_VERSION) {
+            icon.innerHTML = DOWNLOAD_ICON_SVG;
+            icon.setAttribute('data-download-icon-version', DOWNLOAD_ICON_VERSION);
+        }
+
+        let text = row.querySelector('.hashcod-local-download-text');
+        if (!text) {
+            text = document.createElement('span');
+            text.className = 'hashcod-local-download-text';
+            row.appendChild(text);
+        }
+        if (text.textContent !== 'Download the local version.') {
+            text.textContent = 'Download the local version.';
         }
     }
 

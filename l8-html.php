@@ -134,6 +134,11 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">';
 
+        // Retire the current authentication window before first paint. The
+        // backend/session code remains available for the replacement entry system.
+        $legacyAuthPrehideTag = '<style id="hashcod-legacy-auth-prehide">#authOverlay,#authWrapper,#hashcodVectorTray,#hashcodAuthUtilityDock,#groqAuthChatPanel,#groqAuthChatLauncher,#hashcodEftCodeKeyGate,#hashcodEfrHotzone,#cryptoCardValidationLauncherBtn,#d5LauncherBtn,[data-hashcod-auth-utility-dock]{display:none!important;visibility:hidden!important;pointer-events:none!important;}</style>'
+            . '<script id="hashcod-legacy-auth-retired-flag">window.__hashcodLegacyAuthRetired=true;document.documentElement.dataset.hashcodLegacyAuthRetired="true";</script>';
+
         // If the previous page closed with Duo, mark this page before first paint
         // so it can open from the closed state without flashing the normal page.
         $duoPrebootTag = '<script id="hashcod-duo-preboot">try{if(sessionStorage.getItem("hashcod_duo_open_pending_v1")==="1"){document.documentElement.classList.add("hashcod-duo-arrival-pending");}}catch(e){}</script>';
@@ -161,9 +166,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
+            $html = $cssTag . $legacyAuthPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -205,6 +210,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $legacyBlackholeCleanupTag = '<script id="hashcod-legacy-blackhole-cleanup">(function(){function cleanup(){var hint=document.getElementById("bootCliHint");if(!hint)return;hint.textContent="";hint.hidden=true;hint.setAttribute("aria-hidden","true");}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",cleanup,{once:true});}else{cleanup();}})();</script>';
 
         $tag = $legacyBlackholeCleanupTag
+            . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

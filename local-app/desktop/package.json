@@ -8,13 +8,10 @@
   "private": true,
   "scripts": {
     "icon": "node build-icon.js",
-    "check": "node --check bootstrap.js && node --check main.js && node --check build-icon.js && node --check test-harness-runtime.js",
-    "test:harness": "node test-harness-runtime.js",
+    "check": "node --check bootstrap.js && node --check main.js && node --check build-icon.js",
     "dist": "npm run icon && electron-builder --win nsis --x64"
   },
-  "dependencies": {
-    "@deepseek-ai/dsh": "0.1.1-rc.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "electron": "37.6.0",
     "electron-builder": "^26.0.12",

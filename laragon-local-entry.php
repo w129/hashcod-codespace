@@ -47,6 +47,8 @@ $inlineEfrCss = $efrCss !== ''
     : '';
 
 $headExtras = '<base href="' . $baseAttr . '">'
+    . '<style id="hashcod-legacy-auth-prehide">#authOverlay,#authWrapper,#hashcodVectorTray,#hashcodAuthUtilityDock,#groqAuthChatPanel,#groqAuthChatLauncher,#hashcodEftCodeKeyGate,#hashcodEfrHotzone,#cryptoCardValidationLauncherBtn,#d5LauncherBtn,[data-hashcod-auth-utility-dock]{display:none!important;visibility:hidden!important;pointer-events:none!important;}</style>'
+    . '<script id="hashcod-legacy-auth-retired-flag">window.__hashcodLegacyAuthRetired=true;document.documentElement.dataset.hashcodLegacyAuthRetired="true";</script>'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbox-secure-links.css?v=20260914-retired1" data-hashcod-toolbox-secure-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-slogan.css?v=20260910-1" data-hashcod-vector-tray-style="true">'
@@ -97,7 +99,8 @@ $inlineEfrJs = $efrJs !== ''
     ? '<script id="hashcod-laragon-efr-code-editor-inline">' . $efrJs . '</script>'
     : '';
 
-$bodyExtras = '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
+$bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
+    . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline
     . '<script defer src="' . $baseAttr . 'components/platform-entry-slogan.js?v=20260911-2" data-platform-entry-slogan="true" data-hashcod-vector-tray="true"></script>'
     . $inlineEfrJs

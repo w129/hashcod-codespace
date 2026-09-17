@@ -19,11 +19,11 @@ async function run() {
     assert.equal(initial.palette, true);
 
     // Wide desktop: keep the Hashcod lockup in its original right-side position,
-    // bring the Rare UI folder next to it, and pin the global control group to
-    // the top-left instead of the lower-right corner.
+    // restore the Rare UI folder to its historical 38vw / 50vh anchor, and keep
+    // the global control group pinned to the top-left.
     await page.setViewportSize({ width: 1852, height: 927 });
     await page.waitForFunction(() => {
-      const folder = document.querySelector('#hashcodRareFolderHost[data-hashcod-brand-anchor-restored="true"]');
+      const folder = document.querySelector('#hashcodRareFolderHost[data-hashcod-folder-position-restored="true"]');
       const brand = document.querySelector('.boot-brand[data-hashcod-original-placement-restored="true"]');
       const controls = document.querySelector('#hashcodUxActions[data-hashcod-top-left-controls="true"]');
       return Boolean(folder && brand && controls && folder.getBoundingClientRect().width > 100 && brand.getBoundingClientRect().width > 100);
@@ -38,18 +38,24 @@ async function run() {
       const folderNode = document.getElementById('hashcodRareFolderHost');
       const brandNode = document.querySelector('.boot-brand');
       const controlsNode = document.getElementById('hashcodUxActions');
+      const overlayNode = document.getElementById('bootCliOverlay');
       const folder = rectOf(folderNode);
       const brand = rectOf(brandNode);
       const controls = rectOf(controlsNode);
+      const overlay = rectOf(overlayNode);
       const strip = rectOf(document.querySelector('.boot-cli-footer .boot-card-icon'));
       return {
         folder,
         brand,
         controls,
+        overlay,
         strip,
         viewportWidth: innerWidth,
         viewportCenter: innerWidth / 2,
-        horizontalGap: brand.left - folder.right,
+        folderCenterX: folder.left + folder.width / 2,
+        folderCenterY: folder.top + folder.height / 2,
+        expectedFolderCenterX: overlay.left + overlay.width * 0.38,
+        expectedFolderCenterY: overlay.top + overlay.height * 0.50,
         brandInlineTranslate: brandNode ? brandNode.style.translate : null,
         brandOffsetDataset: brandNode ? brandNode.dataset.hashcodLandingBrandOffsetX || '' : null
       };
@@ -58,15 +64,17 @@ async function run() {
       `Hashcod lockup must remain in its original right-side region, got left=${landingGeometry.brand.left.toFixed(2)}px`);
     assert.equal(landingGeometry.brandInlineTranslate, '', 'Hashcod lockup must not retain the temporary centering translate');
     assert.equal(landingGeometry.brandOffsetDataset, '', 'Hashcod lockup must not retain the temporary centering dataset');
-    assert(landingGeometry.horizontalGap >= 35 && landingGeometry.horizontalGap <= 160,
-      `folder must sit beside the restored Hashcod lockup, got gap ${landingGeometry.horizontalGap.toFixed(2)}px`);
+    assert(Math.abs(landingGeometry.folderCenterX - landingGeometry.expectedFolderCenterX) <= 18,
+      `folder must return to 38vw anchor, delta=${Math.abs(landingGeometry.folderCenterX - landingGeometry.expectedFolderCenterX).toFixed(2)}px`);
+    assert(Math.abs(landingGeometry.folderCenterY - landingGeometry.expectedFolderCenterY) <= 18,
+      `folder must return to 50vh anchor, delta=${Math.abs(landingGeometry.folderCenterY - landingGeometry.expectedFolderCenterY).toFixed(2)}px`);
     assert(landingGeometry.controls.left >= 0 && landingGeometry.controls.left <= 28,
       `global UX controls must be at the top-left, got left=${landingGeometry.controls.left.toFixed(2)}px`);
     assert(landingGeometry.controls.top >= 0 && landingGeometry.controls.top <= 28,
       `global UX controls must be at the top-left, got top=${landingGeometry.controls.top.toFixed(2)}px`);
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
-        'bottom integration strip anchor must remain visible after brand restoration');
+        'bottom integration strip anchor must remain visible after folder restoration');
     }
 
     await page.evaluate(() => window.HashcodUX.theme.set('dark', { silent: true }));
@@ -158,7 +166,7 @@ async function run() {
     assert.match(await notFoundPage.textContent('body') || '', /HASHCOD \/ ROUTING \/ 404/);
     await notFoundPage.close();
 
-    console.log('PASS: shared Hashcod UX restores the original right-side brand, keeps the folder adjacent, pins controls top-left, and preserves dark mode, palette, shortcuts, autosave, skeleton/loading/error states, share/haptics and branded 404.');
+    console.log('PASS: shared Hashcod UX restores the folder to 38vw/50vh, preserves the original right-side brand, pins controls top-left, and keeps dark mode, palette, shortcuts, autosave, skeleton/loading/error states, share/haptics and branded 404.');
   } finally {
     await browser.close();
   }

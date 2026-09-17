@@ -63,46 +63,47 @@
         return true;
     }
 
-    function restoreLandingBrandPlacement() {
-        if ((window.innerWidth || 0) < DESKTOP_LANDING_MIN_WIDTH) return false;
-
+    function restoreLandingFolderPosition() {
         const overlay = document.getElementById('bootCliOverlay');
         const brand = overlay && overlay.querySelector('.boot-brand');
         const folder = document.getElementById('hashcodRareFolderHost');
-        if (!overlay || !brand || !folder) return false;
 
-        // PR #140 temporarily translated the brand to center the whole lockup.
-        // The brand itself must remain in its original boot-screen position;
-        // only the Rare UI folder moves next to it.
-        if (brand.dataset.hashcodLandingBrandOffsetX) {
-            delete brand.dataset.hashcodLandingBrandOffsetX;
+        // Keep the Hashcod lockup in its original boot-screen position.
+        if (brand) {
+            if (brand.dataset.hashcodLandingBrandOffsetX) {
+                delete brand.dataset.hashcodLandingBrandOffsetX;
+            }
+            brand.style.removeProperty('translate');
+            brand.setAttribute('data-hashcod-original-placement-restored', 'true');
         }
-        brand.style.removeProperty('translate');
-        brand.setAttribute('data-hashcod-original-placement-restored', 'true');
 
+        if (!overlay || !folder) return false;
+        if ((window.innerWidth || 0) < DESKTOP_LANDING_MIN_WIDTH) {
+            folder.removeAttribute('data-hashcod-folder-position-restored');
+            folder.removeAttribute('data-hashcod-brand-anchor-restored');
+            return false;
+        }
+
+        // Restore the folder to the pre-PR141 desktop location: center-left,
+        // independent from the brand. The local and hosted shells historically
+        // anchored the Rare UI folder at 38vw / 50vh.
         const overlayRect = overlay.getBoundingClientRect();
-        const brandRect = brand.getBoundingClientRect();
-        const folderRect = folder.getBoundingClientRect();
-        if (!overlayRect.width || !brandRect.width || !folderRect.width) return false;
+        if (!overlayRect.width || !overlayRect.height) return false;
 
-        const gap = Math.max(76, Math.min(112, overlayRect.width * 0.05));
-        const halfFolder = folderRect.width / 2;
-        const minCenterX = overlayRect.left + halfFolder + 24;
-        const maxCenterX = overlayRect.right - halfFolder - 24;
-        const desiredCenterX = brandRect.left - gap - halfFolder;
-        const desiredCenterY = brandRect.top + (brandRect.height / 2);
-        const centerX = Math.max(minCenterX, Math.min(maxCenterX, desiredCenterX));
+        const desiredCenterX = overlayRect.left + (overlayRect.width * 0.38);
+        const desiredCenterY = overlayRect.top + (overlayRect.height * 0.50);
 
         setImportant(folder, 'position', 'fixed');
-        setImportant(folder, 'left', centerX.toFixed(2) + 'px');
+        setImportant(folder, 'left', desiredCenterX.toFixed(2) + 'px');
         setImportant(folder, 'top', desiredCenterY.toFixed(2) + 'px');
-        folder.setAttribute('data-hashcod-brand-anchor-restored', 'true');
+        folder.removeAttribute('data-hashcod-brand-anchor-restored');
+        folder.setAttribute('data-hashcod-folder-position-restored', 'true');
         return true;
     }
 
     function applyLayout() {
         applyUxActionPlacement();
-        restoreLandingBrandPlacement();
+        restoreLandingFolderPosition();
 
         const footer = document.getElementById(FOOTER_ID);
         if (!footer) return false;
@@ -179,7 +180,7 @@
     }
 
     // Rare UI performs a few delayed placement passes while fonts/assets settle.
-    // Re-apply after those passes so the restored brand location remains final.
+    // Re-apply after those passes so the restored folder anchor remains final.
     [60, 220, 850, 1650, 2200].forEach(function (delay) {
         window.setTimeout(scheduleApply, delay);
     });

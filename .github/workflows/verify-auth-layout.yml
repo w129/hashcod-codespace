@@ -18,6 +18,7 @@ on:
       - components/auth-register-resilience.js
       - components/auth-utility-outside.css
       - components/platform-entry-slogan.js
+      - components/platform-entry-capability-footer-fix.js
       - components/boot-folder-animation.js
       - components/boot-folder-animation.css
       - components/vector-image-vault.js
@@ -29,6 +30,10 @@ on:
       - components/vector-tray-icon-third.svg
       - components/efr-code-editor.js
       - components/efr-code-editor.css
+      - components/deepseek-harness-loader.js
+      - components/deepseek-harness-cube.js
+      - components/deepseek-harness-cube.css
+      - local-app/deepseek-harness-launcher.mjs
       - components/mobile-platform-polish.css
       - components/toolbox-secure-links.js
       - components/toolbox-secure-links.css
@@ -46,6 +51,8 @@ on:
       - tests/e2e/test_vector_link_board.js
       - tests/e2e/test_efr_code_editor.js
       - tests/e2e/test_efr_browser_playwright.js
+      - tests/e2e/test_deepseek_harness_cube.js
+      - tests/e2e/test_deepseek_harness_browser_playwright.js
       - tests/e2e/test_mobile_platform_polish.js
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_secure_toolbox_links.js
@@ -63,10 +70,17 @@ on:
       - components/toolbox-signature-copy.js
       - components/auth-vector-layout-fix.js
       - components/auth-register-resilience.js
+      - components/platform-entry-capability-footer-fix.js
       - components/efr-code-editor.js
       - components/efr-code-editor.css
+      - components/deepseek-harness-loader.js
+      - components/deepseek-harness-cube.js
+      - components/deepseek-harness-cube.css
+      - local-app/deepseek-harness-launcher.mjs
       - tests/e2e/test_efr_code_editor.js
       - tests/e2e/test_efr_browser_playwright.js
+      - tests/e2e/test_deepseek_harness_cube.js
+      - tests/e2e/test_deepseek_harness_browser_playwright.js
       - tests/e2e/test_secure_toolbox_links.js
       - tests/e2e/test_auth_register_resilience.js
       - .github/workflows/verify-auth-layout.yml
@@ -90,6 +104,15 @@ jobs:
 
       - name: Syntax check EFR code editor
         run: node --check components/efr-code-editor.js
+
+      - name: Syntax check DeepSeek Harness loader
+        run: node --check components/deepseek-harness-loader.js
+
+      - name: Syntax check DeepSeek Harness cube
+        run: node --check components/deepseek-harness-cube.js
+
+      - name: Syntax check DeepSeek Harness local launcher
+        run: node --check local-app/deepseek-harness-launcher.mjs
 
       - name: Build exact Rare UI React Motion folder
         working-directory: rare-folder-build
@@ -167,7 +190,10 @@ jobs:
       - name: Verify EFR code editor contract
         run: node tests/e2e/test_efr_code_editor.js
 
-      - name: Install Playwright Chromium for EFR browser verification
+      - name: Verify DeepSeek Harness sixth-cube contract
+        run: node tests/e2e/test_deepseek_harness_cube.js
+
+      - name: Install Playwright Chromium for browser verification
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
@@ -191,6 +217,26 @@ jobs:
             exit 1
           fi
           EFR_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_efr_browser_playwright.js
+
+      - name: Verify real sixth-cube click opens DeepSeek Harness Control Center
+        run: |
+          php -S 127.0.0.1:8099 >/tmp/hashcod-dsh-php.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" >/dev/null 2>&1 || true' EXIT
+          ready=0
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "Local Hashcod UI server did not become ready"
+            cat /tmp/hashcod-dsh-php.log || true
+            exit 1
+          fi
+          DSH_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_deepseek_harness_browser_playwright.js
 
       - name: Verify mobile platform polish
         run: node tests/e2e/test_mobile_platform_polish.js

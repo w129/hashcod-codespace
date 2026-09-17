@@ -18,6 +18,12 @@
         style.href = componentBase + 'hashcod-ux-system.css?v=20260917-1';
         document.head.appendChild(style);
 
+        const compat = document.createElement('link');
+        compat.id = 'hashcodUxDarkCompatStyles';
+        compat.rel = 'stylesheet';
+        compat.href = componentBase + 'hashcod-ux-dark-compat.css?v=20260917-1';
+        document.head.appendChild(compat);
+
         const script = document.createElement('script');
         script.src = componentBase + 'hashcod-ux-system.js?v=20260917-1';
         script.defer = true;

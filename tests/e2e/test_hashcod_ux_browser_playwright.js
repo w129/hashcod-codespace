@@ -39,16 +39,23 @@ async function run() {
       const brandNode = document.querySelector('.boot-brand');
       const controlsNode = document.getElementById('hashcodUxActions');
       const overlayNode = document.getElementById('bootCliOverlay');
+      const improvementSignNode = document.getElementById('hashcodPlatformImprovementSign');
       const folder = rectOf(folderNode);
       const brand = rectOf(brandNode);
       const controls = rectOf(controlsNode);
       const overlay = rectOf(overlayNode);
+      const improvementSign = rectOf(improvementSignNode);
       const strip = rectOf(document.querySelector('.boot-cli-footer .boot-card-icon'));
       return {
         folder,
         brand,
         controls,
         overlay,
+        improvementSign,
+        improvementSignDisplay: improvementSignNode ? getComputedStyle(improvementSignNode).display : null,
+        improvementSignVisibility: improvementSignNode ? getComputedStyle(improvementSignNode).visibility : null,
+        improvementSignOpacity: improvementSignNode ? Number(getComputedStyle(improvementSignNode).opacity) : null,
+        improvementSignZIndex: improvementSignNode ? Number(getComputedStyle(improvementSignNode).zIndex) : null,
         strip,
         viewportWidth: innerWidth,
         viewportCenter: innerWidth / 2,
@@ -72,6 +79,13 @@ async function run() {
       `global UX controls must be at the top-left, got left=${landingGeometry.controls.left.toFixed(2)}px`);
     assert(landingGeometry.controls.top >= 0 && landingGeometry.controls.top <= 28,
       `global UX controls must be at the top-left, got top=${landingGeometry.controls.top.toFixed(2)}px`);
+    assert(landingGeometry.improvementSign && landingGeometry.improvementSign.width > 200 && landingGeometry.improvementSign.height > 200,
+      'temporary platform improvement sign must have a visible desktop bounding box');
+    assert.equal(landingGeometry.improvementSignDisplay, 'block', 'temporary platform improvement sign must be displayed');
+    assert.equal(landingGeometry.improvementSignVisibility, 'visible', 'temporary platform improvement sign must be visible');
+    assert(landingGeometry.improvementSignOpacity > 0.9, 'temporary platform improvement sign must be opaque');
+    assert(landingGeometry.improvementSignZIndex > 2147483500,
+      'temporary platform improvement sign must render above the entry-hold layer');
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');

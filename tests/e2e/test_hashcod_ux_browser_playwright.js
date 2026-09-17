@@ -96,12 +96,14 @@ async function run() {
     assert.equal(await page.locator('#hashcodUxTheme').count(), 1, 'theme selector must exist');
     assert.equal(await page.locator('#hashcodUxShare').count(), 1, 'share action must exist');
 
-    const routerUrl = new URL(target);
-    routerUrl.pathname = '/router.php';
-    routerUrl.search = '';
+    // Verify the branded 404 controller directly under the same PHP test server.
+    // The static contract separately verifies that router.php delegates unknown routes to it.
+    const notFoundUrl = new URL(target);
+    notFoundUrl.pathname = '/not-found.php';
+    notFoundUrl.search = '';
     const notFoundPage = await browser.newPage({ viewport: { width: 1000, height: 700 } });
-    const notFoundResponse = await notFoundPage.goto(routerUrl.toString(), { waitUntil: 'domcontentloaded', timeout: 10000 });
-    assert(notFoundResponse && notFoundResponse.status() === 404, 'router unknown route must return HTTP 404');
+    const notFoundResponse = await notFoundPage.goto(notFoundUrl.toString(), { waitUntil: 'domcontentloaded', timeout: 10000 });
+    assert(notFoundResponse && notFoundResponse.status() === 404, 'branded 404 controller must return HTTP 404');
     assert.match(await notFoundPage.textContent('body') || '', /HASHCOD \/ ROUTING \/ 404/);
     await notFoundPage.close();
 

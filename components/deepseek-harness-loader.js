@@ -14,13 +14,13 @@
         const link = document.createElement('link');
         link.id = 'hashcodDeepSeekHarnessStylesheet';
         link.rel = 'stylesheet';
-        link.href = componentBase + 'deepseek-harness-cube.css?v=20260916-1';
+        link.href = componentBase + 'deepseek-harness-cube.css?v=20260917-2';
         document.head.appendChild(link);
     }
 
     if (!document.querySelector('script[data-hashcod-deepseek-harness-cube]')) {
         const script = document.createElement('script');
-        script.src = componentBase + 'deepseek-harness-cube.js?v=20260916-1';
+        script.src = componentBase + 'deepseek-harness-cube.js?v=20260917-2';
         script.defer = true;
         script.dataset.hashcodDeepseekHarnessCube = 'true';
         document.head.appendChild(script);

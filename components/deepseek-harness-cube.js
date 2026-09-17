@@ -7,12 +7,19 @@
   const TOOL_ID = 'deepseek-harness';
   const TRAY_SLOT = 5;
   const MODAL_ID = 'hashcodDeepSeekHarnessModal';
-  const STATUS_ID = 'hashcodDeepSeekHarnessStatus';
+  const STATUS_ID = 'hashcodDeepSeekHarnessStatusBadge';
   const PORT_KEY = 'hashcod_dsh_port_v1';
   const DEFAULT_PORT = 3080;
+  const DESKTOP_PORT = 3080;
   const LOCAL_HOST = '127.0.0.1';
   const UPSTREAM = 'https://github.com/wangbo178/Agi-deepseek-harnees';
-  const state = { status: 'idle', lastCheckedAt: null, lastError: '' };
+  const state = {
+    status: 'idle',
+    lastCheckedAt: null,
+    lastError: '',
+    managed: false,
+    managedReady: false
+  };
 
   const ICON = [
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false" style="display:block;width:78%;height:78%;max-width:39px;max-height:39px">',
@@ -26,7 +33,12 @@
     '</svg>'
   ].join('');
 
+  function desktopManaged() {
+    return state.managed || typeof window.__HASHCOD_DSH_READY__ === 'boolean';
+  }
+
   function readPort() {
+    if (desktopManaged()) return DESKTOP_PORT;
     try {
       const raw = Number(localStorage.getItem(PORT_KEY));
       if (Number.isInteger(raw) && raw >= 1024 && raw <= 65535) return raw;
@@ -35,6 +47,7 @@
   }
 
   function writePort(value) {
+    if (desktopManaged()) return DESKTOP_PORT;
     const port = Number(value);
     if (!Number.isInteger(port) || port < 1024 || port > 65535) return DEFAULT_PORT;
     try { localStorage.setItem(PORT_KEY, String(port)); } catch (_) {}
@@ -51,10 +64,14 @@
 
   function statusCopy() {
     if (state.status === 'online') return ['ONLINE', 'DeepSeek Harness respondió en el runtime local.'];
-    if (state.status === 'offline') return ['OFFLINE', 'No se detectó DeepSeek Harness en este puerto.'];
-    if (state.status === 'browser-limited') return ['LOCAL', 'Este origen no puede verificar HTTP local de forma fiable. Abre el runtime directamente.'];
-    if (state.status === 'checking') return ['CHECKING', 'Comprobando el runtime local…'];
-    return ['LOCAL ONLY', 'El runtime DSH permanece limitado a 127.0.0.1.'];
+    if (state.status === 'offline') {
+      return ['OFFLINE', desktopManaged()
+        ? (state.lastError || 'DeepSeek Harness no está disponible todavía en el runtime administrado por Hashcod Desktop.')
+        : 'No se detectó DeepSeek Harness en este puerto. Inicia el runtime con el comando LAUNCH y vuelve a intentarlo.'];
+    }
+    if (state.status === 'browser-limited') return ['LOCAL', 'Este origen no puede verificar HTTP local de forma fiable. Abre el runtime desde Hashcod Desktop o ejecútalo localmente.'];
+    if (state.status === 'checking') return ['CHECKING', desktopManaged() ? 'Hashcod Desktop está iniciando DeepSeek Harness…' : 'Comprobando el runtime local…'];
+    return ['LOCAL ONLY', desktopManaged() ? 'Hashcod Desktop administra DeepSeek Harness en 127.0.0.1:3080.' : 'El runtime DSH permanece limitado a 127.0.0.1.'];
   }
 
   function renderStatus() {
@@ -62,6 +79,7 @@
     const detail = document.getElementById('hashcodDeepSeekHarnessStatusDetail');
     const url = document.getElementById('hashcodDeepSeekHarnessRuntimeUrl');
     const port = document.getElementById('hashcodDeepSeekHarnessPort');
+    const command = document.getElementById('hashcodDeepSeekHarnessCommand');
     const pair = statusCopy();
     if (badge) {
       badge.textContent = pair[0];
@@ -69,7 +87,12 @@
     }
     if (detail) detail.textContent = pair[1];
     if (url) url.textContent = runtimeUrl();
-    if (port && document.activeElement !== port) port.value = String(readPort());
+    if (port) {
+      if (document.activeElement !== port || desktopManaged()) port.value = String(readPort());
+      port.disabled = desktopManaged();
+      port.title = desktopManaged() ? 'Hashcod Desktop administra el puerto 3080.' : 'Puerto local de DeepSeek Harness';
+    }
+    if (command) command.textContent = launchCommand();
   }
 
   function ensureModal() {
@@ -138,13 +161,22 @@
     document.getElementById('hashcodDeepSeekHarnessCopy').addEventListener('click', copyLaunchCommand);
     document.getElementById('hashcodDeepSeekHarnessPort').addEventListener('change', function (event) {
       writePort(event.target.value);
-      document.getElementById('hashcodDeepSeekHarnessCommand').textContent = launchCommand();
       state.status = 'idle';
+      state.lastError = '';
       renderStatus();
     });
 
     renderStatus();
     return modal;
+  }
+
+  function syncDesktopStatus(detail) {
+    state.managed = true;
+    state.managedReady = Boolean(detail && detail.ready);
+    state.lastCheckedAt = Date.now();
+    state.lastError = String(detail && detail.error ? detail.error : '');
+    state.status = state.managedReady ? 'online' : (state.lastError ? 'offline' : 'checking');
+    renderStatus();
   }
 
   function openModal() {
@@ -153,7 +185,12 @@
     modal.setAttribute('aria-hidden', 'false');
     if (typeof modal.showModal === 'function' && !modal.open) modal.showModal();
     else modal.setAttribute('open', '');
-    renderStatus();
+    if (desktopManaged()) {
+      syncDesktopStatus({ ready: Boolean(window.__HASHCOD_DSH_READY__), error: window.__HASHCOD_DSH_ERROR__ || '' });
+    } else {
+      renderStatus();
+      void checkRuntime();
+    }
     window.dispatchEvent(new CustomEvent('hashcod:deepseek-harness-open'));
   }
 
@@ -169,6 +206,11 @@
   }
 
   async function checkRuntime() {
+    if (desktopManaged()) {
+      syncDesktopStatus({ ready: Boolean(window.__HASHCOD_DSH_READY__), error: window.__HASHCOD_DSH_ERROR__ || '' });
+      return state.managedReady;
+    }
+
     const protocol = String(location.protocol || '').toLowerCase();
     if (protocol === 'https:') {
       state.status = 'browser-limited';
@@ -205,9 +247,12 @@
     }
   }
 
-  function openRuntime() {
+  async function openRuntime() {
+    const online = await checkRuntime();
+    if (!online) return false;
     const popup = window.open(runtimeUrl(), '_blank', 'noopener,noreferrer');
     if (popup) popup.opener = null;
+    return Boolean(popup);
   }
 
   async function copyLaunchCommand() {
@@ -248,6 +293,9 @@
 
   function boot() {
     ensureModal();
+    if (desktopManaged()) {
+      syncDesktopStatus({ ready: Boolean(window.__HASHCOD_DSH_READY__), error: window.__HASHCOD_DSH_ERROR__ || '' });
+    }
     if (registerTool()) return;
     let attempts = 0;
     const timer = setInterval(function () {
@@ -255,6 +303,10 @@
       if (registerTool() || attempts >= 80) clearInterval(timer);
     }, 125);
   }
+
+  window.addEventListener('hashcod:dsh-status', function (event) {
+    syncDesktopStatus(event && event.detail ? event.detail : {});
+  });
 
   window.HashcodDeepSeekHarness = Object.freeze({
     open: openModal,
@@ -278,6 +330,8 @@
         runtimeUrl: runtimeUrl(),
         host: LOCAL_HOST,
         hostLocked: LOCAL_HOST === '127.0.0.1',
+        managedByDesktop: desktopManaged(),
+        managedPort: desktopManaged() ? DESKTOP_PORT : null,
         upstream: UPSTREAM,
         profile: 'HASHCOD-DSH-1'
       };

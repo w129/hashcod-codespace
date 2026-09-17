@@ -267,14 +267,45 @@ jobs:
           $asset = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\dist\Hashcod-Codespace-Setup.exe'
           $releaseNotes = "Stable Windows desktop installer for the local Hashcod Codespace application.`n`nSource commit: $env:GITHUB_SHA"
 
+          if (-not (Test-Path -LiteralPath $asset)) {
+            throw "Desktop installer is missing before release publication: $asset"
+          }
+
+          # A missing stable release is an expected first-publish state, not a
+          # workflow failure. Probe it without letting PowerShell's native-command
+          # error handling abort before the create branch can run.
+          $previousPreference = $ErrorActionPreference
+          $ErrorActionPreference = 'Continue'
           gh release view desktop-latest --repo $env:GITHUB_REPOSITORY *> $null
-          if ($LASTEXITCODE -eq 0) {
+          $releaseExists = ($LASTEXITCODE -eq 0)
+          $ErrorActionPreference = $previousPreference
+
+          if ($releaseExists) {
             gh release upload desktop-latest $asset --clobber --repo $env:GITHUB_REPOSITORY
-            gh release edit desktop-latest --repo $env:GITHUB_REPOSITORY --notes $releaseNotes
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to replace desktop-latest installer asset.' }
+
+            gh release edit desktop-latest `
+              --repo $env:GITHUB_REPOSITORY `
+              --target $env:GITHUB_SHA `
+              --title 'Hashcod Codespace Desktop - Latest' `
+              --notes $releaseNotes
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to update desktop-latest release metadata.' }
           } else {
             gh release create desktop-latest $asset `
               --repo $env:GITHUB_REPOSITORY `
               --target $env:GITHUB_SHA `
               --title 'Hashcod Codespace Desktop - Latest' `
               --notes $releaseNotes
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to create desktop-latest release.' }
           }
+
+          $assetNames = gh release view desktop-latest `
+            --repo $env:GITHUB_REPOSITORY `
+            --json assets `
+            --jq '.assets[].name'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not verify desktop-latest release after publication.' }
+          if ($assetNames -notcontains 'Hashcod-Codespace-Setup.exe') {
+            throw "desktop-latest does not contain Hashcod-Codespace-Setup.exe. Assets: $($assetNames -join ', ')"
+          }
+
+          Write-Host 'Stable desktop release published and verified.'

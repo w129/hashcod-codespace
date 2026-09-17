@@ -19,6 +19,15 @@
         document.head.appendChild(script);
     })();
 
+    (function loadRareFolderRescue() {
+        if (document.querySelector('script[data-hashcod-rare-folder-rescue]')) return;
+        const script = document.createElement('script');
+        script.src = componentBase + 'rare-folder-rescue.js?v=20260917-rescue2';
+        script.defer = true;
+        script.dataset.hashcodRareFolderRescue = 'true';
+        document.head.appendChild(script);
+    })();
+
     (function loadUxSystem() {
         if (document.querySelector('script[data-hashcod-ux-system]')) return;
         const style = document.createElement('link');
@@ -76,6 +85,7 @@
         const overlay = document.getElementById('bootCliOverlay');
         const brand = overlay && overlay.querySelector('.boot-brand');
         const folder = document.getElementById('hashcodRareFolderHost');
+        const fallback = document.getElementById('hashcodBootFolderAnimation');
 
         // Keep the Hashcod lockup in its original boot-screen position.
         if (brand) {
@@ -86,28 +96,42 @@
             brand.setAttribute('data-hashcod-original-placement-restored', 'true');
         }
 
-        if (!overlay || !folder) return false;
+        if (!overlay) return false;
         if ((window.innerWidth || 0) < DESKTOP_LANDING_MIN_WIDTH) {
-            folder.removeAttribute('data-hashcod-folder-position-restored');
-            folder.removeAttribute('data-hashcod-brand-anchor-restored');
+            if (folder) {
+                folder.removeAttribute('data-hashcod-folder-position-restored');
+                folder.removeAttribute('data-hashcod-brand-anchor-restored');
+            }
             return false;
         }
 
-        // Restore the folder to the pre-PR141 desktop location: center-left,
-        // independent from the brand. The local and hosted shells historically
-        // anchored the Rare UI folder at 38vw / 50vh.
         const overlayRect = overlay.getBoundingClientRect();
         if (!overlayRect.width || !overlayRect.height) return false;
 
         const desiredCenterX = overlayRect.left + (overlayRect.width * 0.38);
         const desiredCenterY = overlayRect.top + (overlayRect.height * 0.50);
 
-        setImportant(folder, 'position', 'fixed');
-        setImportant(folder, 'left', desiredCenterX.toFixed(2) + 'px');
-        setImportant(folder, 'top', desiredCenterY.toFixed(2) + 'px');
-        folder.removeAttribute('data-hashcod-brand-anchor-restored');
-        folder.setAttribute('data-hashcod-folder-position-restored', 'true');
-        return true;
+        if (folder) {
+            setImportant(folder, 'position', 'fixed');
+            setImportant(folder, 'left', desiredCenterX.toFixed(2) + 'px');
+            setImportant(folder, 'top', desiredCenterY.toFixed(2) + 'px');
+            folder.removeAttribute('data-hashcod-brand-anchor-restored');
+            folder.setAttribute('data-hashcod-folder-position-restored', 'true');
+        }
+
+        // The lightweight native fallback uses the exact same desktop anchor.
+        // It is only present when the generated React/Motion bundle failed.
+        if (fallback) {
+            setImportant(fallback, 'position', 'fixed');
+            setImportant(fallback, 'left', desiredCenterX.toFixed(2) + 'px');
+            setImportant(fallback, 'top', desiredCenterY.toFixed(2) + 'px');
+            setImportant(fallback, 'display', 'block');
+            setImportant(fallback, 'visibility', 'visible');
+            setImportant(fallback, 'opacity', '1');
+            fallback.setAttribute('data-hashcod-folder-position-restored', 'true');
+        }
+
+        return Boolean(folder || fallback);
     }
 
     function applyLayout() {
@@ -189,8 +213,8 @@
     }
 
     // Rare UI performs a few delayed placement passes while fonts/assets settle.
-    // Re-apply after those passes so the restored folder anchor remains final.
-    [60, 220, 850, 1650, 2200].forEach(function (delay) {
+    // Re-apply after those passes so both primary and rescue folder anchors remain final.
+    [60, 220, 850, 1650, 2200, 3200, 4600].forEach(function (delay) {
         window.setTimeout(scheduleApply, delay);
     });
     if (document.fonts && document.fonts.ready) {

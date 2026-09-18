@@ -11,15 +11,60 @@ const crypto = require('crypto');
 
 const PORT = parseInt(process.env.WS_PORT || process.env.PORT || '8080', 10);
 const HOST = process.env.WS_HOST || '0.0.0.0';
-const SECRET_KEY = process.env.WS_SECRET || 'hashcod-codespace-secret-2026';
+const SECRET_KEY = String(process.env.WS_SECRET || '').trim();
+const ALLOWED_ORIGINS = new Set(
+    String(process.env.WS_ALLOWED_ORIGINS || process.env.HASHCOD_CLOUD_ORIGIN || '')
+        .split(',')
+        .map(v => v.trim().replace(/\/$/, ''))
+        .filter(Boolean)
+);
+
+if (SECRET_KEY.length < 32) {
+    throw new Error('WS_SECRET is required and must contain at least 32 characters');
+}
+
+function timingSafeEqualText(a, b) {
+    const aBuf = Buffer.from(String(a || ''), 'utf8');
+    const bBuf = Buffer.from(String(b || ''), 'utf8');
+    if (aBuf.length !== bBuf.length) return false;
+    return crypto.timingSafeEqual(aBuf, bBuf);
+}
+
+function requestSecret(req) {
+    const auth = String(req.headers.authorization || '');
+    if (auth.startsWith('Bearer ')) return auth.slice(7).trim();
+    const headerSecret = String(req.headers['x-ws-secret'] || '').trim();
+    if (headerSecret) return headerSecret;
+    try {
+        const url = new URL(req.url || '/', 'http://localhost');
+        return String(url.searchParams.get('token') || '').trim();
+    } catch (_) {
+        return '';
+    }
+}
+
+function requestOriginAllowed(req) {
+    const origin = String(req.headers.origin || '').trim().replace(/\/$/, '');
+    // Non-browser server-to-server callers may omit Origin.
+    if (!origin) return true;
+    return ALLOWED_ORIGINS.has(origin);
+}
+
+function requestAuthorized(req) {
+    return requestOriginAllowed(req) && timingSafeEqualText(requestSecret(req), SECRET_KEY);
+}
 
 // Mapa de clientes conectados: clientId -> { ws, ip, channels, connectedAt }
 const clients = new Map();
 
 // Servidor HTTP base (para healthcheck, estadísticas y bridge HTTP -> WS desde PHP)
 const server = http.createServer((req, res) => {
-    // Cabeceras CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // CORS is deny-by-default. Reflect only explicitly allowed browser origins.
+    const origin = String(req.headers.origin || '').trim().replace(/\/$/, '');
+    if (origin && ALLOWED_ORIGINS.has(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-WS-Secret');
 
@@ -49,6 +94,11 @@ const server = http.createServer((req, res) => {
 
     // Endpoint Bridge HTTP POST para que PHP (api.php) emita eventos WebSocket directamente
     if (req.method === 'POST' && url.pathname === '/api/broadcast') {
+        if (!requestAuthorized(req)) {
+            res.writeHead(401, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            res.end(JSON.stringify({ ok: false, error: 'Unauthorized' }));
+            return;
+        }
         let body = '';
         req.on('data', chunk => { body += chunk; });
         req.on('end', () => {
@@ -75,7 +125,11 @@ const server = http.createServer((req, res) => {
 });
 
 // Servidor WebSocket adjunto al servidor HTTP
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({
+    server,
+    maxPayload: 1024 * 1024,
+    verifyClient: ({ req }) => requestAuthorized(req)
+});
 
 /**
  * Obtiene el conteo de clientes por canal

@@ -542,6 +542,108 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     display: inline-block;
 }
 
+.hashcod-registration-faq {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 0;
+    margin-top: 6px;
+    border-top: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+.hashcod-registration-faq-item + .hashcod-registration-faq-item {
+    border-top: 1px solid #d4d4d4;
+}
+
+.hashcod-registration-faq-trigger {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    cursor: pointer;
+    text-align: left;
+    font: 700 11px/1.35 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-registration-faq-trigger:hover {
+    background: rgba(0,0,0,.025);
+}
+
+.hashcod-registration-faq-trigger:focus-visible {
+    outline: 1px solid #111;
+    outline-offset: 3px;
+    border-radius: 5px;
+}
+
+.hashcod-registration-faq-trigger svg {
+    flex: 0 0 auto;
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform .22s cubic-bezier(.2,.8,.2,1);
+}
+
+.hashcod-registration-faq-item.is-open .hashcod-registration-faq-trigger svg {
+    transform: rotate(180deg);
+}
+
+.hashcod-registration-faq-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+        grid-template-rows .26s cubic-bezier(.2,.8,.2,1),
+        opacity .2s ease;
+}
+
+.hashcod-registration-faq-item.is-open .hashcod-registration-faq-panel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+.hashcod-registration-faq-panel-inner {
+    min-height: 0;
+    overflow: hidden;
+    color: #666;
+    padding: 0 4px;
+    font: 500 10px/1.55 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-registration-faq-item.is-open .hashcod-registration-faq-panel-inner {
+    padding-bottom: 14px;
+}
+
+.hashcod-registration-faq-panel-inner strong {
+    color: #111;
+}
+
+.hashcod-registration-price-list {
+    display: grid;
+    gap: 7px;
+}
+
+.hashcod-registration-price-list > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: start;
+}
+
+.hashcod-registration-price-list strong {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
 .hashcod-registration-status { min-height: 20px; margin: 12px 0 0; font-size: 10.5px; color: #666; }
 .hashcod-registration-status.is-error { color: #9c1717; }
 .hashcod-registration-status.is-success { color: #176b39; }
@@ -624,6 +726,23 @@ html[data-hashcod-theme="dark"] .hashcod-registration-progress-indicator,
 html.dark .hashcod-registration-progress-indicator {
     background: #fff;
 }
+
+html[data-hashcod-theme="dark"] .hashcod-registration-faq,
+html.dark .hashcod-registration-faq,
+html[data-hashcod-theme="dark"] .hashcod-registration-faq-item + .hashcod-registration-faq-item,
+html.dark .hashcod-registration-faq-item + .hashcod-registration-faq-item {
+    border-color: #555;
+}
+html[data-hashcod-theme="dark"] .hashcod-registration-faq-trigger,
+html.dark .hashcod-registration-faq-trigger,
+html[data-hashcod-theme="dark"] .hashcod-registration-faq-panel-inner strong,
+html.dark .hashcod-registration-faq-panel-inner strong {
+    color: #fff;
+}
+html[data-hashcod-theme="dark"] .hashcod-registration-faq-panel-inner,
+html.dark .hashcod-registration-faq-panel-inner {
+    color: #bbb;
+}
 @media (max-width: 900px) {
     #hashcodPlatformRegistration {
         padding: 28px 24px 40px;
@@ -636,6 +755,7 @@ html.dark .hashcod-registration-progress-indicator {
     .hashcod-registration-grid { grid-template-columns: 1fr; }
     .hashcod-registration-platform-upload { grid-template-columns: minmax(0, 1fr) 48px; }
     .hashcod-registration-field.is-wide, .hashcod-registration-consent { grid-column: 1; }
+    .hashcod-registration-price-list > div { grid-template-columns: 1fr; gap: 2px; }
     .hashcod-registration-head { align-items: center; }
     .hashcod-registration-badge { display: none; }
     #hashcodRegistrationTableOverlay { padding: 10px; }
@@ -655,5 +775,9 @@ html.dark .hashcod-registration-progress-indicator {
     }
     .hashcod-registration-progress-indicator::after {
         animation: none !important;
+    }
+    .hashcod-registration-faq-panel,
+    .hashcod-registration-faq-trigger svg {
+        transition: none !important;
     }
 }

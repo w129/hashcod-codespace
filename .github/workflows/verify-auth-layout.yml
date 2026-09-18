@@ -14,6 +14,11 @@ on:
       - laragon-local-entry.php
       - access-intake.php
       - components/final-entry-registration.js
+      - components/platform-entry-hold.js
+      - components/platform-entry-hold.css
+      - components/platform-entry-motion.js
+      - components/platform-entry-motion.css
+      - components/admin-hello-button.js
       - components/final-entry-registration.css
       - supabase/migrations/20260917_create_hashcod_access_requests.sql
       - tests/e2e/test_final_entry_registration.js
@@ -78,6 +83,11 @@ on:
       - laragon-local-entry.php
       - access-intake.php
       - components/final-entry-registration.js
+      - components/platform-entry-hold.js
+      - components/platform-entry-hold.css
+      - components/platform-entry-motion.js
+      - components/platform-entry-motion.css
+      - components/admin-hello-button.js
       - components/final-entry-registration.css
       - supabase/migrations/20260917_create_hashcod_access_requests.sql
       - tests/e2e/test_final_entry_registration.js
@@ -195,6 +205,9 @@ jobs:
       - name: Syntax check final entry registration client
         run: node --check components/final-entry-registration.js
 
+      - name: Syntax check mandatory platform entry gate
+        run: node --check components/platform-entry-hold.js
+
       - name: Syntax check final entry registration backend
         run: php -l access-intake.php
 
@@ -233,6 +246,9 @@ jobs:
 
       - name: Verify final entry registration
         run: node tests/e2e/test_final_entry_registration.js
+
+      - name: Verify registration blocks original platform entry
+        run: node tests/e2e/test_platform_entry_hold.js
 
       - name: Verify final entry server validation
         run: php tests/security/test-access-intake.php

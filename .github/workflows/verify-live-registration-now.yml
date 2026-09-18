@@ -18,10 +18,10 @@ jobs:
         run: |
           set -euo pipefail
           url="https://hashcod-codespace-1.onrender.com/"
-          html="$(curl --compressed --fail --silent --show-error --max-time 30 "$url")"
-          printf '%s' "$html" | grep -q 'platform-registration-form.js?v=20260918-6'
-          printf '%s' "$html" | grep -q 'platform-registration-form.css?v=20260918-5'
-          printf '%s' "$html" | grep -q 'platform-entry-hold.js?v=20260918-4'
+          curl --compressed --fail --silent --show-error --max-time 30 "$url" -o /tmp/hashcod-live.html
+          grep -Fq 'platform-registration-form.js?v=20260918-6' /tmp/hashcod-live.html
+          grep -Fq 'platform-registration-form.css?v=20260918-5' /tmp/hashcod-live.html
+          grep -Fq 'platform-entry-hold.js?v=20260918-4' /tmp/hashcod-live.html
           echo "Live registration assets are deployed."
 
       - name: Verify production registration storage

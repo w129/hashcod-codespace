@@ -345,9 +345,10 @@
             </p>
             <p>
                 Estos datos se usan para gestionar el registro solicitado. Se envían al backend de Hashcod Codespace
-                y se almacenan en la base de datos configurada de Supabase. La consulta de la tabla completa está
-                restringida por el control administrativo de la plataforma; no se expone como una tabla pública ni
-                se utiliza para publicidad.
+                y se almacenan en la base de datos configurada de Supabase. El nombre, la cédula, el correo y el teléfono
+                se protegen en almacenamiento mediante el cifrado AES-256-GCM de la plataforma. La consulta de la tabla
+                completa está restringida por el control administrativo; no se expone como una tabla pública ni se utiliza
+                para publicidad.
             </p>
 
             <h3>🏛️ Arquitectura Operativa y Servicios Activos</h3>

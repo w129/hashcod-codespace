@@ -49,13 +49,13 @@ $inlineEfrCss = $efrCss !== ''
 $headExtras = '<base href="' . $baseAttr . '">'
     . '<style id="hashcod-legacy-auth-prehide">#authOverlay,#authWrapper,#hashcodVectorTray,#hashcodAuthUtilityDock,#groqAuthChatPanel,#groqAuthChatLauncher,#hashcodEftCodeKeyGate,#hashcodEfrHotzone,#cryptoCardValidationLauncherBtn,#d5LauncherBtn,[data-hashcod-auth-utility-dock]{display:none!important;visibility:hidden!important;pointer-events:none!important;}</style>'
     . '<script id="hashcod-legacy-auth-retired-flag">window.__hashcodLegacyAuthRetired=true;document.documentElement.dataset.hashcodLegacyAuthRetired="true";</script>'
+    . '<style id="hashcod-platform-improvement-inline-style">#hashcodPlatformImprovementSign{position:fixed!important;left:63vw!important;top:50vh!important;width:min(60vw,900px)!important;height:min(88vh,830px)!important;transform:translate(-50%,-50%)!important;z-index:2147483590!important;display:flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;pointer-events:none!important;user-select:none!important;overflow:visible!important;}#hashcodPlatformImprovementSign>svg{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;visibility:visible!important;opacity:1!important;overflow:visible!important;}html[data-hashcod-theme="dark"] #hashcodPlatformImprovementSign>svg,html.dark #hashcodPlatformImprovementSign>svg{filter:invert(1)!important;}@media(max-width:1180px){#hashcodPlatformImprovementSign{left:64vw!important;width:min(64vw,820px)!important;height:min(84vh,760px)!important;}}@media(max-width:900px){#hashcodPlatformImprovementSign{left:50vw!important;top:56vh!important;width:94vw!important;height:68vh!important;}}@media(max-width:620px){#hashcodPlatformImprovementSign{left:50vw!important;top:55vh!important;width:98vw!important;height:64vh!important;}}</style>'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbox-secure-links.css?v=20260914-retired1" data-hashcod-toolbox-secure-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-slogan.css?v=20260910-1" data-hashcod-vector-tray-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
-    . '<link rel="stylesheet" href="' . $baseAttr . 'components/temporary-platform-improvement-sign.css?v=20260917-2" data-hashcod-temporary-improvement-sign-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
     . $inlineEfrCss
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
@@ -100,8 +100,19 @@ $inlineEfrJs = $efrJs !== ''
     ? '<script id="hashcod-laragon-efr-code-editor-inline">' . $efrJs . '</script>'
     : '';
 
-$bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/temporary-platform-improvement-sign.js?v=20260917-2" data-hashcod-temporary-improvement-sign="true"></script>'
+$temporaryImprovementSvgPath = __DIR__ . '/assets/plataforma-en-mejora.svg';
+$temporaryImprovementSvg = is_file($temporaryImprovementSvgPath)
+    ? (string)file_get_contents($temporaryImprovementSvgPath)
+    : '';
+if ($temporaryImprovementSvg !== '') {
+    $temporaryImprovementSvg = (string)preg_replace('/<\\?xml[^>]*\\?>\\s*/i', '', $temporaryImprovementSvg, 1);
+}
+$temporaryImprovementSignTag = $temporaryImprovementSvg !== ''
+    ? '<div id="hashcodPlatformImprovementSign" data-hashcod-temporary-improvement-sign="inline" data-hashcod-auth-slot-replacement="true" role="img" aria-label="Plataforma en mejora">' . $temporaryImprovementSvg . '</div>'
+    : '';
+
+$bodyExtras = $temporaryImprovementSignTag
+    . '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
     . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline
     . '<script defer src="' . $baseAttr . 'components/platform-entry-slogan.js?v=20260911-2" data-platform-entry-slogan="true" data-hashcod-vector-tray="true"></script>'

@@ -81,7 +81,8 @@ async function run() {
       `global UX controls must be at the top-left, got top=${landingGeometry.controls.top.toFixed(2)}px`);
     assert(landingGeometry.improvementSign && landingGeometry.improvementSign.width > 200 && landingGeometry.improvementSign.height > 200,
       'temporary platform improvement sign must have a visible desktop bounding box');
-    assert.equal(landingGeometry.improvementSignDisplay, 'block', 'temporary platform improvement sign must be displayed');
+    assert(['block', 'flex', 'grid'].includes(landingGeometry.improvementSignDisplay),
+      `temporary platform improvement sign must be displayed, got ${landingGeometry.improvementSignDisplay}`);
     assert.equal(landingGeometry.improvementSignVisibility, 'visible', 'temporary platform improvement sign must be visible');
     assert(landingGeometry.improvementSignOpacity > 0.9, 'temporary platform improvement sign must be opaque');
     assert(landingGeometry.improvementSignZIndex > 2147483500,

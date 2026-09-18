@@ -177,20 +177,58 @@
         }
     }
 
-    function install() {
+    function markGateReady() {
+        const wasReady = window.__hashcodPlatformEntryHoldReady === true;
+        window.__hashcodPlatformEntryHoldReady = true;
+        document.documentElement.dataset.hashcodEntryGateReady = 'true';
+        if (!wasReady) {
+            window.dispatchEvent(new CustomEvent('hashcod:entry-gate-ready', {
+                detail: { source: 'platform-entry-hold', version: HOLD_RUNTIME_VERSION }
+            }));
+        }
+    }
+
+    function installDirectButtonGate() {
+        const button = document.getElementById('bootCliEnter');
+        if (!button) return false;
+
+        if (button.dataset.hashcodEntryGateVersion === HOLD_RUNTIME_VERSION) {
+            markGateReady();
+            return true;
+        }
+
+        button.dataset.hashcodEntryGateVersion = HOLD_RUNTIME_VERSION;
+        button.addEventListener('click', function (event) {
+            if (document.documentElement.dataset.hashcodPlatformEntered === 'true') return;
+
+            // This listener is the authoritative gate for real user clicks.
+            // Stop inline/legacy handlers before they can enter the platform.
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === 'function') {
+                event.stopImmediatePropagation();
+            }
+
+            if (holdPromise) return;
+            holdPromise = runHold(function () { return true; }, window, []).finally(function () {
+                holdPromise = null;
+            });
+        }, true);
+
+        markGateReady();
+        return true;
+    }
+
+    function installLegacyWrapper() {
         const current = window.l8EnterPlatform;
         if (typeof current !== 'function') return false;
         if (
             current.__hashcodHoldWrapped === true &&
             current.__hashcodHoldVersion === HOLD_RUNTIME_VERSION
-        ) {
-            window.__hashcodPlatformEntryHoldReady = true;
-            document.documentElement.dataset.hashcodEntryGateReady = 'true';
-            return true;
-        }
+        ) return true;
 
-        // A cached older hold wrapper may have installed first. Always unwrap it
-        // and replace it with the current authoritative controller.
+        // Programmatic callers are gated too. User clicks are intercepted by
+        // installDirectButtonGate(), so this wrapper is a secondary safeguard.
         const original = current.__hashcodHoldOriginal || current.__hashcodMotionOriginal || current;
 
         const wrapped = function () {
@@ -208,21 +246,27 @@
         Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: HOLD_RUNTIME_VERSION });
         Object.defineProperty(wrapped, '__hashcodHoldOriginal', { value: original });
         window.l8EnterPlatform = wrapped;
-        window.__hashcodPlatformEntryHoldReady = true;
-        document.documentElement.dataset.hashcodEntryGateReady = 'true';
-        window.dispatchEvent(new CustomEvent('hashcod:entry-gate-ready', {
-            detail: { source: 'platform-entry-hold', version: HOLD_RUNTIME_VERSION }
-        }));
         return true;
     }
 
+    function install() {
+        const directReady = installDirectButtonGate();
+        installLegacyWrapper();
+        return directReady;
+    }
+
     if (!install()) {
-        // Do not give up after a few seconds. The legacy entry function can be
-        // defined late by the large startup document or by a cached loader.
-        // The first-screen preboot guard remains fail-closed until install()
-        // succeeds, so platform access cannot bypass Screen 3.
+        const observer = new MutationObserver(function () {
+            if (install()) observer.disconnect();
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+
+        // Keep a low-frequency fallback for unusual document replacements.
         const timer = window.setInterval(function () {
-            if (install()) window.clearInterval(timer);
-        }, 100);
+            if (install()) {
+                window.clearInterval(timer);
+                observer.disconnect();
+            }
+        }, 250);
     }
 })();

@@ -132,6 +132,11 @@ assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click
 assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
 assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
 assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
+assert(js.includes("const HOLD_RUNTIME_VERSION = '20260918-5'"), 'hold runtime must be versioned');
+assert(js.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
+assert(!js.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
+assert(!js.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');
+
 
 assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'hosted form must be forcibly hidden before screen 3');

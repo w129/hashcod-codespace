@@ -1,8 +1,10 @@
 (function () {
     'use strict';
 
-    if (window.__hashcodPlatformEntryHoldLoaded) return;
+    const HOLD_RUNTIME_VERSION = '20260918-5';
+    if (window.__hashcodPlatformEntryHoldLoadedVersion === HOLD_RUNTIME_VERSION) return;
     window.__hashcodPlatformEntryHoldLoaded = true;
+    window.__hashcodPlatformEntryHoldLoadedVersion = HOLD_RUNTIME_VERSION;
 
     const READY_DELAY_MS = 3600;
     let holdPromise = null;
@@ -175,16 +177,58 @@
         }
     }
 
-    function install() {
+    function markGateReady() {
+        const wasReady = window.__hashcodPlatformEntryHoldReady === true;
+        window.__hashcodPlatformEntryHoldReady = true;
+        document.documentElement.dataset.hashcodEntryGateReady = 'true';
+        if (!wasReady) {
+            window.dispatchEvent(new CustomEvent('hashcod:entry-gate-ready', {
+                detail: { source: 'platform-entry-hold', version: HOLD_RUNTIME_VERSION }
+            }));
+        }
+    }
+
+    function installDirectButtonGate() {
+        const button = document.getElementById('bootCliEnter');
+        if (!button) return false;
+
+        if (button.dataset.hashcodEntryGateVersion === HOLD_RUNTIME_VERSION) {
+            markGateReady();
+            return true;
+        }
+
+        button.dataset.hashcodEntryGateVersion = HOLD_RUNTIME_VERSION;
+        button.addEventListener('click', function (event) {
+            if (document.documentElement.dataset.hashcodPlatformEntered === 'true') return;
+
+            // This listener is the authoritative gate for real user clicks.
+            // Stop inline/legacy handlers before they can enter the platform.
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === 'function') {
+                event.stopImmediatePropagation();
+            }
+
+            if (holdPromise) return;
+            holdPromise = runHold(function () { return true; }, window, []).finally(function () {
+                holdPromise = null;
+            });
+        }, true);
+
+        markGateReady();
+        return true;
+    }
+
+    function installLegacyWrapper() {
         const current = window.l8EnterPlatform;
         if (typeof current !== 'function') return false;
         if (
             current.__hashcodHoldWrapped === true &&
-            current.__hashcodHoldVersion === '20260918-4'
+            current.__hashcodHoldVersion === HOLD_RUNTIME_VERSION
         ) return true;
 
-        // A cached older hold wrapper may have installed first. Always unwrap it
-        // and replace it with the current authoritative controller.
+        // Programmatic callers are gated too. User clicks are intercepted by
+        // installDirectButtonGate(), so this wrapper is a secondary safeguard.
         const original = current.__hashcodHoldOriginal || current.__hashcodMotionOriginal || current;
 
         const wrapped = function () {
@@ -199,17 +243,30 @@
         };
 
         Object.defineProperty(wrapped, '__hashcodHoldWrapped', { value: true });
-        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: '20260918-4' });
+        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: HOLD_RUNTIME_VERSION });
         Object.defineProperty(wrapped, '__hashcodHoldOriginal', { value: original });
         window.l8EnterPlatform = wrapped;
         return true;
     }
 
+    function install() {
+        const directReady = installDirectButtonGate();
+        installLegacyWrapper();
+        return directReady;
+    }
+
     if (!install()) {
-        let attempts = 0;
+        const observer = new MutationObserver(function () {
+            if (install()) observer.disconnect();
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+
+        // Keep a low-frequency fallback for unusual document replacements.
         const timer = window.setInterval(function () {
-            attempts += 1;
-            if (install() || attempts >= 80) window.clearInterval(timer);
-        }, 50);
+            if (install()) {
+                window.clearInterval(timer);
+                observer.disconnect();
+            }
+        }, 250);
     }
 })();

@@ -1,0 +1,65 @@
+{
+  "manifest_version": "2026-09-18-1",
+  "purpose": "Evidence manifest for Hashcod Codespace / DIKTATCART institutional, commercial, tax and trademark registration documents supplied by the registrant.",
+  "evidence": [
+    {
+      "type": "registro_mercantil_persona_fisica",
+      "issuer": "Cámara de Comercio y Producción de La Vega",
+      "holder": "Emil Enmanuel Pieter Mora",
+      "registration": "3323LV-PF",
+      "establishment": "DIKTATCART",
+      "issued": "2026-06-16",
+      "expires": "2028-06-16",
+      "source_file": "CERTIFICADOREGISTROMERCANTIL.pdf",
+      "sha256": "ec1077ab5fd6d81685f0976ab3451ef7f4fa5be230e8ffe94761365708ab3e31"
+    },
+    {
+      "type": "nombre_comercial",
+      "issuer": "Oficina Nacional de la Propiedad Industrial (ONAPI)",
+      "holder": "Emil Enmanuel Pieter Mora",
+      "sign": "DIKTATCART",
+      "registration": "925063",
+      "granted": "2026-04-16",
+      "expires": "2036-04-16",
+      "source_file": "onapiedoc_639174240000000000.pdf",
+      "sha256": "ac08bd69f1003299d7dfd440ae11c2e413a5b211d55669ef366dbadfafa7e099"
+    },
+    {
+      "type": "marca_mixta",
+      "issuer": "Oficina Nacional de la Propiedad Industrial (ONAPI)",
+      "holder": "Emil Enmanuel Pieter Mora",
+      "sign": "HASHCOD",
+      "registration": "336973",
+      "international_class": "42",
+      "granted": "2026-08-18",
+      "expires": "2036-08-18",
+      "claimed_colors": [
+        "negro",
+        "blanco"
+      ],
+      "source_file": "onapiedoc_639239904000000000 (1).pdf",
+      "sha256": "696254deb3f1783f788d475c8b13b615ceb32440ce2b921ca946a030292464db"
+    },
+    {
+      "type": "rnc",
+      "issuer": "Dirección General de Impuestos Internos (DGII)",
+      "holder": "Emil Enmanuel Pieter Mora",
+      "rnc": "402-0936929-3",
+      "status": "ACTIVO",
+      "economic_activity": "DISEÑO Y DESARROLLO DE SOFTWARE",
+      "certificate_date": "2026-07-12",
+      "source_file": "Inscripcion RNC.pdf",
+      "sha256": "72cd3363c15d503adcee3bf97158a0ff437b7228a532e9222256cbca515c3fbd"
+    },
+    {
+      "type": "tramite_marca_complementario",
+      "issuer": "Oficina Nacional de la Propiedad Industrial (ONAPI)",
+      "sign": "Hashcod",
+      "reference": "PSDM/2026-140220",
+      "receipt": "707504",
+      "description": "Publicación de registro de marca figurativa y mixta. Evidencia complementaria del trámite; no sustituye al certificado de registro.",
+      "source_file": "onapiedoc_639183744000000000.pdf",
+      "sha256": "109a95be97f5ee39896f32cd1ab3be2e7e82f62b77ecf45035fb8bbd5d29e908"
+    }
+  ]
+}

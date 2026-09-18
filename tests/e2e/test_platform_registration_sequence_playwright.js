@@ -12,12 +12,54 @@ async function run() {
   page.on('console', msg => {
     if (msg.type() === 'error') console.error('[browser console]', msg.text());
   });
-  page.on('pageerror', error => console.error('[pageerror]', error.message));
+  page.on('pageerror', error => console.error('[pageerror]', error.stack || error.message));
   page.on('requestfailed', request => console.error('[requestfailed]', request.url(), request.failure()?.errorText || ''));
 
   try {
     const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 20000 });
     assert(response && response.status() === 200, 'platform must load');
+
+    await page.waitForTimeout(1800);
+
+    const diagnostic = await page.evaluate(() => {
+      const scriptState = (selector) => {
+        const node = document.querySelector(selector);
+        return node ? { present: true, src: node.src || '', nonce: Boolean(node.nonce) } : { present: false };
+      };
+      return {
+        readyState: document.readyState,
+        registrationMounted: Boolean(document.getElementById('hashcodPlatformRegistration')),
+        registrationLoadedFlag: Boolean(window.__hashcodPlatformRegistrationLoaded),
+        finalScreen: document.documentElement.dataset.hashcodFinalEntryScreen || '',
+        l8EnterPlatformType: typeof window.l8EnterPlatform,
+        holdWrapped: Boolean(window.l8EnterPlatform && window.l8EnterPlatform.__hashcodHoldWrapped),
+        motionWrapped: Boolean(window.l8EnterPlatform && window.l8EnterPlatform.__hashcodMotionWrapped),
+        registrationScript: scriptState('script[data-hashcod-platform-registration]'),
+        holdScript: scriptState('script[data-platform-entry-hold]'),
+        motionScript: scriptState('script[data-platform-entry-motion]')
+      };
+    });
+    console.error('[live-diagnostic]', JSON.stringify(diagnostic));
+
+    const assetPaths = [
+      'components/platform-registration-form.js?v=20260918-1',
+      'components/platform-entry-hold.js?v=20260918-1',
+      'components/platform-entry-motion.js?v=20260918-1'
+    ];
+    for (const asset of assetPaths) {
+      const assetUrl = new URL(asset, target).toString();
+      const assetResponse = await page.request.get(assetUrl);
+      const source = await assetResponse.text();
+      let syntax = 'ok';
+      try { new Function(source); } catch (error) { syntax = String(error && error.message || error); }
+      console.error('[asset-diagnostic]', JSON.stringify({
+        asset,
+        status: assetResponse.status(),
+        contentType: assetResponse.headers()['content-type'] || '',
+        bytes: source.length,
+        syntax
+      }));
+    }
 
     await page.waitForSelector('#bootCliEnter', { state: 'visible', timeout: 15000 });
     await page.waitForFunction(() => {

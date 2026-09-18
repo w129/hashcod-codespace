@@ -37,6 +37,10 @@ assert(js.includes('/^\\d{3}-\\d{7}-\\d$/'), 'client cedula format validation mi
 assert(js.includes('000-0000000-0'), 'cedula hyphen format hint missing');
 assert(js.includes('Number.isInteger(age) && age >= 18'), 'client 18+ validation missing');
 assert(js.includes('DATABASE_ICON'), 'database icon button missing');
+assert(js.includes('data-no-autosave data-hashcod-autosave="off"'),
+  'registration PII form must explicitly disable Hashcod local autosave');
+assert(js.includes('autocomplete="off"'),
+  'registration PII form must disable browser form autocomplete at form level');
 assert(js.includes('viewBox="0 0 50 50"'), 'requested database/cloud SVG viewBox missing');
 assert(js.includes('M 28.992188 8'), 'requested database/cloud SVG path missing');
 
@@ -71,7 +75,10 @@ for (const sql of [migration, schema]) {
   assert(sql.includes("email_enc text not null check (email_enc like 'l8e1:%')"), 'encrypted email column missing');
   assert(sql.includes("phone_enc text not null check (phone_enc like 'l8e1:%')"), 'encrypted phone column missing');
   assert(sql.includes('enable row level security'), 'registration RLS missing');
-  assert(sql.includes('revoke all on table public.hashcod_platform_registrations from anon, authenticated'), 'direct anon/authenticated access must be revoked');
+  assert(sql.includes('revoke all on table public.hashcod_platform_registrations from public, anon, authenticated'), 'direct PUBLIC/anon/authenticated access must be revoked');
+  assert(sql.includes('create policy hashcod_platform_registrations_deny_direct'), 'explicit deny-direct RLS policy missing');
+  assert(sql.includes('using (false)'), 'deny-direct RLS USING clause missing');
+  assert(sql.includes('with check (false)'), 'deny-direct RLS WITH CHECK clause missing');
   assert(sql.includes('grant select, insert on table public.hashcod_platform_registrations to service_role'), 'backend service-role grant missing');
 }
 

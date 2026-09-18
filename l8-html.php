@@ -241,6 +241,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . 'html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}'
             . '</style>';
 
+        $registrationGatePrebootTag = '<script id="hashcod-registration-gate-preboot">(function(){window.__hashcodPlatformEntryHoldReady=false;document.documentElement.dataset.hashcodEntryGateReady="false";var queued=false;document.addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest("#bootCliEnter"):null;if(!b)return;if(window.__hashcodPlatformEntryHoldReady===true)return;e.preventDefault();e.stopPropagation();if(typeof e.stopImmediatePropagation==="function")e.stopImmediatePropagation();if(queued)return;queued=true;var old=b.textContent;b.setAttribute("aria-busy","true");b.textContent="PREPARANDO ACCESO";window.addEventListener("hashcod:entry-gate-ready",function(){queued=false;b.removeAttribute("aria-busy");if(b.textContent==="PREPARANDO ACCESO")b.textContent=old;window.setTimeout(function(){b.click();},0);},{once:true});},true);})();</script>';
+
         // The retired authentication slot is now occupied by the adult
         // platform-registration form. Its component stays hidden until the
         // authoritative third-screen marker is set by platform-entry-hold.js.
@@ -272,9 +274,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $registrationPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $legacyAuthPrehideTag . $registrationPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
+            $html = $cssTag . $legacyAuthPrehideTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -318,7 +320,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $tag = $legacyBlackholeCleanupTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-4" data-platform-entry-hold="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-5" data-platform-entry-hold="true"></script>'
             . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260918-6" data-hashcod-platform-registration="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag

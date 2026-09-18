@@ -128,14 +128,19 @@ assert(local.includes('platform-registration-form.css?v=20260918-5'), 'local reg
 assert(local.includes('platform-registration-form.js?v=20260918-6'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
+assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');
+assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
+assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
+assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
+
 assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'hosted form must be forcibly hidden before screen 3');
 assert(local.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'local form must be forcibly hidden before screen 3');
 assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
-assert(hosted.includes('platform-entry-hold.js?v=20260918-4'), 'hosted second screen must load directly');
+assert(hosted.includes('platform-entry-hold.js?v=20260918-5'), 'hosted second screen must load directly');
 assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
-assert(local.includes('platform-entry-hold.js?v=20260918-4'), 'local second screen must load directly');
+assert(local.includes('platform-entry-hold.js?v=20260918-5'), 'local second screen must load directly');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

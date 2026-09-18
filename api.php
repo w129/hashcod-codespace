@@ -306,7 +306,7 @@ function getOrGenerateSshKey($forceRegenerate = false) {
         $pubKeyContent = trim(file_get_contents($pubKeyPath));
     }
 
-    $sshTestCmd = sprintf('ssh -T -i %s -o StrictHostKeyChecking=no git@github.com 2>&1', escapeshellarg($keyPath));
+    $sshTestCmd = sprintf('ssh -T -i %s -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/etc/ssh/ssh_known_hosts git@github.com 2>&1', escapeshellarg($keyPath));
     $sshOutput = @shell_exec($sshTestCmd) ?? 'No se pudo probar la conexión SSH';
 
     return [
@@ -967,7 +967,7 @@ function cloneOrUpdateRepository($repoTarget) {
         ];
     }
 
-    $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=no', escapeshellarg($keyPath));
+    $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/etc/ssh/ssh_known_hosts', escapeshellarg($keyPath));
     putenv("GIT_SSH_COMMAND=$gitSshCmd");
     putenv('GIT_TERMINAL_PROMPT=0');
 

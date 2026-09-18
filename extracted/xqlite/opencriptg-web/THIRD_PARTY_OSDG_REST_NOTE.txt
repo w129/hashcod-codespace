@@ -1,0 +1,16 @@
+OPENCRIPTG · OSDG -rest
+
+This module is an OpencriptG integration tool. It does not use the original repository/project name in the user interface.
+
+Purpose:
+- Analyze and export an adapted Rust workspace template.
+- Show dependency information.
+- Show license compliance reminders before use.
+- Adapt a Sphinx Makefile/documentation workflow into OpencriptG.
+- Generate build and docs commands.
+
+License workflow:
+- The user must accept Apache-2.0 and BSD-3-Clause reminders before opening the tool.
+- Keep original third-party license files and notices if third-party source code is actually integrated.
+- Do not use external project, author, or contributor names to promote OpencriptG without written permission.
+- Mark modified files when distributing adapted source code.

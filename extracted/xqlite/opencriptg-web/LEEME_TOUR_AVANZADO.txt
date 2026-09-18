@@ -1,0 +1,11 @@
+OpencriptG – Tour avanzado funcional
+
+Mejora aplicada:
+- Se agregó un tour guiado completo y funcional.
+- El tour aparece después de desbloquear la plataforma si el usuario no lo ha visto antes.
+- Se puede saltar con “Saltar tour”.
+- Se puede continuar con “Seguir aprendiendo”.
+- Se puede regresar con “Atrás”.
+- Se puede repetir desde el botón TOUR de la barra inferior o desde Ver > Repetir tour.
+- Explica la barra superior, herramientas, catálogo de codes, configuración, salida, iconos por code, QR, LOG, JSON, base de datos, QR Vault, Text Lab, Disco Lab, P-Andora, Desk, OSDG-rest, Markdown, Sequence-A, Certificados, Ivory DID y OCG Units.
+- Se adaptó al diseño visual de OpencriptG.

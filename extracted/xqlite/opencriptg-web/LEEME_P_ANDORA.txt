@@ -1,0 +1,24 @@
+OPENCRIPTG · P - ANDORA
+
+Nueva ventana agregada al lado de DISCO LAB / DRIVE LAB.
+
+Nombre:
+- P - ANDORA
+
+Funciones incluidas:
+- Libro de celdas tipo hoja de cálculo.
+- Varias hojas dentro del mismo libro.
+- Edición directa por celdas.
+- Barra de fórmula.
+- Fórmulas básicas: ejemplo =A1+B1 o =D5*0.18
+- Plantilla profesional de ejemplo.
+- Exportación CSV.
+- Incrustación de códigos desde la base de datos de OpencriptG.
+- Guardado local automático.
+
+Uso rápido:
+1. Abre P - ANDORA desde la barra superior.
+2. Selecciona una celda.
+3. Escribe texto o fórmulas.
+4. Usa el botón “Incrustar codes DB” para traer códigos de la base de datos.
+5. Descarga la hoja actual en CSV si lo deseas.

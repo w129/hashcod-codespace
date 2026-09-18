@@ -1,0 +1,1609 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050505" />
+  <title>Blind spot shell - Hashcod</title>
+  <link rel="icon" type="image/svg+xml" href="/app/hashcod-platform-icon.svg?v=hashcod-tab-1" />
+  <link rel="shortcut icon" type="image/svg+xml" href="/app/hashcod-platform-icon.svg?v=hashcod-tab-1" />
+  <link rel="apple-touch-icon" href="/app/hashcod-platform-icon.svg?v=hashcod-tab-1" />
+  <style>
+    :root {
+      --bg: #f5f4ef;
+      --ink: #090909;
+      --muted: #747474;
+      --line: #151515;
+      --soft: rgba(255,255,255,.82);
+      --dark: #090909;
+      --good: #10783d;
+      --warn: #9b4a00;
+      --bad: #b00020;
+      --shadow: rgba(0,0,0,.16);
+      font-family: "Segoe UI", "Inter", "Arial", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(255,255,255,.82), rgba(255,255,255,.82)),
+        repeating-linear-gradient(0deg, rgba(0,0,0,.045) 0 1px, transparent 1px 31px),
+        repeating-linear-gradient(90deg, rgba(0,0,0,.045) 0 1px, transparent 1px 31px),
+        var(--bg);
+    }
+    button, input, textarea, select {
+      font: inherit;
+      border-radius: 0;
+    }
+    button {
+      min-height: 48px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    button.primary {
+      background: var(--dark);
+      color: #fff;
+    }
+    button:disabled {
+      opacity: .42;
+      cursor: not-allowed;
+    }
+    .phone-shell {
+      width: min(100vw, 520px);
+      min-height: 100dvh;
+      margin: 0 auto;
+      background: rgba(255,255,255,.7);
+      border-left: 1px solid rgba(0,0,0,.1);
+      border-right: 1px solid rgba(0,0,0,.1);
+      box-shadow: 0 20px 70px var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #070707;
+      color: #fff;
+      padding: calc(12px + env(safe-area-inset-top)) 14px 12px;
+      border-bottom: 2px solid #000;
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255,255,255,.25);
+      padding: 5px;
+      filter: invert(1);
+      background: transparent;
+    }
+    .brand-text {
+      min-width: 0;
+    }
+    .eyebrow {
+      color: #a9a9a9;
+      font-size: 10px;
+      letter-spacing: .42em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 8vw, 42px);
+      letter-spacing: -.04em;
+      line-height: .95;
+    }
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(255,255,255,.16);
+      margin-top: 12px;
+    }
+    .status-strip div {
+      padding: 10px 8px 2px 0;
+      min-width: 0;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .36em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .topbar .label { color: #9d9d9d; }
+    .value {
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    main {
+      flex: 1;
+      padding: 14px 14px calc(92px + env(safe-area-inset-bottom));
+    }
+    .panel {
+      background: var(--soft);
+      border: 1px solid rgba(0,0,0,.18);
+      margin-bottom: 12px;
+      backdrop-filter: blur(8px);
+    }
+    .panel-pad { padding: 14px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .stack { display: grid; gap: 10px; }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(0,0,0,.35);
+      background: rgba(255,255,255,.86);
+      color: var(--ink);
+      padding: 12px;
+      outline: none;
+    }
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      line-height: 1.45;
+    }
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .notice {
+      border-left: 4px solid var(--good);
+      padding: 12px;
+      background: rgba(255,255,255,.66);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    .notice.warn { border-color: var(--warn); }
+    .notice.bad { border-color: var(--bad); }
+    .live-link-card {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .live-link-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .live-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--warn);
+      box-shadow: 0 0 0 2px rgba(155,74,0,.12);
+    }
+    .live-pill.on::before {
+      background: var(--good);
+      box-shadow: 0 0 0 2px rgba(16,120,61,.14);
+    }
+    .remote-preview {
+      min-height: 54px;
+      max-height: 128px;
+      overflow: auto;
+      border: 1px solid rgba(0,0,0,.18);
+      background: rgba(255,255,255,.72);
+      padding: 10px;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .live-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    body.remote-pulse .phone-shell {
+      animation: remotePulse .7s ease-out;
+    }
+    @keyframes remotePulse {
+      0% { box-shadow: 0 0 0 0 rgba(16,120,61,.38), 0 20px 70px var(--shadow); }
+      100% { box-shadow: 0 0 0 18px rgba(16,120,61,0), 0 20px 70px var(--shadow); }
+    }
+    .toolbar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100vw, 520px);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+      background: #070707;
+      border-top: 2px solid #000;
+      z-index: 20;
+    }
+    .toolbar button {
+      border-color: rgba(255,255,255,.22);
+      background: #111;
+      color: #fff;
+      min-height: 54px;
+      font-size: 11px;
+    }
+    .entry {
+      border: 1px solid rgba(0,0,0,.18);
+      background: rgba(255,255,255,.72);
+      margin-bottom: 10px;
+    }
+    .entry-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,.12);
+      padding: 10px 12px;
+      align-items: center;
+    }
+    .entry-id {
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-weight: 900;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .entry-time {
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+    }
+    .entry-text {
+      padding: 12px;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 180px;
+      overflow: auto;
+    }
+    .entry-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(0,0,0,.12);
+    }
+    .entry-actions button {
+      border: 0;
+      border-right: 1px solid rgba(0,0,0,.12);
+      min-height: 38px;
+      font-size: 10px;
+      background: transparent;
+    }
+    .entry-actions button:last-child { border-right: 0; }
+    .empty {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .bridge-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .bridge-grid button,
+    .bridge-grid label {
+      display: grid;
+      place-items: center;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      font-size: 12px;
+    }
+    .bridge-visual {
+      display: grid;
+      grid-template-columns: 156px 1fr;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 12px;
+    }
+    .qr-box {
+      min-height: 156px;
+      border: 1px solid var(--line);
+      background: #fff;
+      display: grid;
+      place-items: center;
+      padding: 8px;
+      overflow: hidden;
+    }
+    .qr-box canvas,
+    .qr-box img {
+      width: 136px !important;
+      height: 136px !important;
+      image-rendering: pixelated;
+    }
+    .bridge-payload {
+      min-height: 156px;
+      max-height: 156px;
+      font-size: 11px;
+    }
+    .camera {
+      display: none;
+      width: 100%;
+      max-height: 260px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      background: #111;
+      margin-top: 12px;
+    }
+    .camera.on { display: block; }
+    .file-input-hidden { display: none; }
+    .access-qr-dock {
+      position: fixed;
+      right: max(26px, calc((100vw - 520px) / 2 - 220px));
+      top: 50%;
+      transform: translateY(-50%);
+      width: 178px;
+      z-index: 12;
+      border: 1px solid rgba(0,0,0,.22);
+      background: rgba(255,255,255,.9);
+      box-shadow: 10px 10px 0 rgba(0,0,0,.07);
+      padding: 12px;
+      backdrop-filter: blur(8px);
+    }
+    .access-qr-title {
+      font-size: 10px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .access-qr-box {
+      width: 152px;
+      height: 152px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 6px;
+    }
+    .access-qr-box canvas,
+    .access-qr-box img {
+      width: 138px !important;
+      height: 138px !important;
+      image-rendering: pixelated;
+    }
+    .access-qr-id {
+      margin-top: 8px;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 10px;
+      font-weight: 900;
+      word-break: break-all;
+    }
+    .access-qr-note {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+    .access-qr-inline {
+      display: grid;
+      grid-template-columns: 174px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+    .access-qr-modes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(240px, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+    .access-qr-mode {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.7);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      align-items: start;
+      justify-items: center;
+      min-width: 0;
+    }
+    .access-qr-copy-wrap {
+      width: 100%;
+      min-width: 0;
+    }
+    .access-qr-inline .access-qr-box {
+      width: 174px;
+      height: 174px;
+    }
+    .access-qr-mode .access-qr-box {
+      width: 196px;
+      height: 196px;
+    }
+    .access-qr-inline .access-qr-box canvas,
+    .access-qr-inline .access-qr-box img {
+      width: 158px !important;
+      height: 158px !important;
+    }
+    .access-qr-mode .access-qr-box canvas,
+    .access-qr-mode .access-qr-box img {
+      width: 180px !important;
+      height: 180px !important;
+    }
+    .access-qr-copy {
+      width: 100%;
+      margin-top: 10px;
+    }
+    .micro-offline-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 8px;
+      padding: 6px 8px;
+      border: 1px solid #000;
+      background: #111;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .shell-lock {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(245,244,239,.96);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .shell-lock-card {
+      width: min(420px, 100%);
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 28px;
+      box-shadow: 14px 14px 0 rgba(0,0,0,.1);
+    }
+    .shell-lock-card h2 {
+      margin: 0 0 12px;
+      font-size: 34px;
+      letter-spacing: -.05em;
+    }
+    @media (min-width: 760px) {
+      body {
+        background:
+          linear-gradient(rgba(255,255,255,.88), rgba(255,255,255,.88)),
+          repeating-linear-gradient(0deg, rgba(0,0,0,.045) 0 1px, transparent 1px 31px),
+          repeating-linear-gradient(90deg, rgba(0,0,0,.045) 0 1px, transparent 1px 31px),
+          var(--bg);
+      }
+      .phone-shell { min-height: 92vh; margin-top: 4vh; border: 2px solid #000; }
+      .shell-lock { display: flex; }
+      body.desktop-unlocked .shell-lock { display: none; }
+    }
+    @media (max-width: 420px) {
+      .bridge-visual { grid-template-columns: 1fr; }
+      .qr-box { min-height: 220px; }
+      .qr-box canvas, .qr-box img { width: 192px !important; height: 192px !important; }
+      .bridge-payload { max-height: 170px; }
+      .access-qr-modes { grid-template-columns: 1fr; }
+      .access-qr-inline { grid-template-columns: 1fr; }
+      .access-qr-inline .access-qr-box { width: 100%; min-height: 226px; }
+      .access-qr-inline .access-qr-box canvas,
+      .access-qr-inline .access-qr-box img { width: 200px !important; height: 200px !important; }
+      .access-qr-mode .access-qr-box { width: 100%; min-height: 230px; }
+      .access-qr-mode .access-qr-box canvas,
+      .access-qr-mode .access-qr-box img { width: 204px !important; height: 204px !important; }
+    }
+    @media (max-width: 980px) {
+      .access-qr-dock {
+        position: static;
+        transform: none;
+        width: auto;
+        margin: 12px 14px 0;
+      }
+      .access-qr-box {
+        width: 100%;
+        min-height: 176px;
+      }
+      .access-qr-modes { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell-lock" aria-hidden="true">
+    <div class="shell-lock-card">
+      <span class="label">Phone only office</span>
+      <h2>Blind spot shell</h2>
+      <p class="hint">Esta oficina esta optimizada para telefonos. En escritorio puedes revisarla, pero su modo principal es guardar pegados del telefono sin internet despues de la primera carga.</p>
+      <button id="desktopUnlock" class="primary" type="button">Abrir vista escritorio</button>
+    </div>
+  </div>
+
+  <section class="phone-shell" aria-label="Blind spot shell offline office">
+    <header class="topbar">
+      <div class="brand-row">
+        <img class="brand-icon" src="/app/hashcod-platform-icon.svg?v=blind-spot-shell" alt="Hashcod" />
+        <div class="brand-text">
+          <div class="eyebrow">Hashcod mobile office</div>
+          <h1>Blind spot shell</h1>
+        </div>
+      </div>
+      <div class="status-strip" aria-live="polite">
+        <div>
+          <span class="label">Red</span>
+          <span class="value" id="netState">checking</span>
+        </div>
+        <div>
+          <span class="label">Offline</span>
+          <span class="value" id="offlineState">pending</span>
+        </div>
+        <div>
+          <span class="label">Clips</span>
+          <span class="value" id="clipCount">0</span>
+        </div>
+        <div>
+          <span class="label">Sync</span>
+          <span class="value" id="syncState">idle</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div id="message" class="notice">Abre esta pagina una vez con internet y pulsa Activar offline. Luego podras guardar pegados del telefono sin conexion.</div>
+
+      <section class="panel panel-pad live-link-card" aria-label="Conexion viva laptop telefono">
+        <div class="live-link-head">
+          <span class="label">Conexion viva laptop + telefono</span>
+          <span id="liveLinkState" class="live-pill">link off</span>
+        </div>
+        <p class="hint">Deja esta pagina abierta en el telefono y en la laptop. Cada texto guardado en un dispositivo se guarda, sincroniza y aparece como notificacion en el otro.</p>
+        <div id="lastRemoteText" class="remote-preview">Sin textos remotos recibidos todavia.</div>
+        <div class="live-actions">
+          <button id="notifyPermissionBtn" class="primary" type="button">Permitir notificaciones</button>
+          <button id="liveLinkBtn" type="button">Mantener conectado</button>
+        </div>
+      </section>
+
+      <section class="panel panel-pad">
+        <span class="label">QR unico para conectar</span>
+        <div class="access-qr-modes">
+          <div class="access-qr-mode">
+            <div id="accessQrInlineBox" class="access-qr-box">QR</div>
+            <div class="access-qr-copy-wrap">
+              <div id="accessQrInlineId" class="access-qr-id">BSS-ACCESS</div>
+              <p class="hint">Escanea este QR para abrir la oficina completa. Necesita internet una vez para guardar cache; despues vuelve a abrir offline en ese telefono.</p>
+              <button id="copyAccessLink" class="access-qr-copy" type="button">Copiar enlace QR</button>
+            </div>
+          </div>
+          <div class="access-qr-mode">
+            <div id="microShellQrBox" class="access-qr-box">QR</div>
+            <div class="access-qr-copy-wrap">
+              <div id="microShellQrId" class="access-qr-id">BSS-MICRO</div>
+              <p class="hint">Este QR contiene una mini oficina dentro del propio QR. En telefonos compatibles abre sin internet, guarda texto local y no depende del servidor.</p>
+              <button id="copyMicroShellLink" class="access-qr-copy" type="button">Copiar micro QR</button>
+              <span class="micro-offline-badge">offline real</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panel-pad">
+        <span class="label">Entrada local</span>
+        <textarea id="scratch" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pega aqui texto, claves, enlaces, notas o payloads copiados desde el telefono. Al pegar se guarda una copia local."></textarea>
+        <p class="hint">El navegador no permite leer el portapapeles en secreto. Blind spot shell guarda lo que pegues o lo que autorices leer con el boton.</p>
+      </section>
+
+      <section class="panel panel-pad stack">
+        <span class="label">Acciones rapidas</span>
+        <div class="grid-2">
+          <button id="pasteBtn" class="primary" type="button">Leer clipboard</button>
+          <button id="saveBtn" type="button">Guardar texto</button>
+          <button id="syncNowBtn" type="button">Sync now</button>
+          <button id="watchBtn" type="button">Modo escucha</button>
+          <button id="offlineBtn" type="button">Activar offline</button>
+        </div>
+      </section>
+
+      <section class="panel panel-pad">
+        <span class="label">Buscar oficina</span>
+        <input id="searchInput" autocomplete="off" placeholder="Buscar por texto, hash, fecha o origen" />
+      </section>
+
+      <section class="panel panel-pad stack">
+        <span class="label">Offline bridge NFC / QR / USB</span>
+        <div class="notice warn">Para comunicacion sin internet: NFC intercambia paquetes pequenos al acercar telefonos compatibles; QR muestra/lee un paquete visual; USB exporta/importa un archivo .bss.json para pasarlo por cable.</div>
+        <div class="bridge-grid">
+          <button id="nfcWriteBtn" type="button">NFC escribir</button>
+          <button id="nfcReadBtn" type="button">NFC leer</button>
+          <button id="qrBuildBtn" type="button">QR mostrar</button>
+          <button id="qrScanBtn" type="button">QR escanear</button>
+          <button id="usbExportBtn" type="button">USB export</button>
+          <label for="usbImportFile">USB import</label>
+        </div>
+        <input id="usbImportFile" class="file-input-hidden" type="file" accept=".json,.bss,.txt,application/json,text/plain" />
+        <div class="bridge-visual">
+          <div id="qrBox" class="qr-box">QR</div>
+          <textarea id="bridgePayload" class="bridge-payload" readonly placeholder="El paquete NFC/QR/USB se prepara aqui."></textarea>
+        </div>
+        <video id="qrVideo" class="camera" playsinline muted></video>
+      </section>
+
+      <section>
+        <span class="label">Registros guardados</span>
+        <div id="entries" class="entries"></div>
+      </section>
+    </main>
+
+    <nav class="toolbar" aria-label="Blind spot shell exports">
+      <button id="exportJson" type="button">JSON</button>
+      <button id="exportTxt" type="button">TXT</button>
+      <button id="copyAll" type="button">Copiar</button>
+      <button id="clearAll" type="button">Limpiar</button>
+    </nav>
+  </section>
+
+  <aside class="access-qr-dock" aria-label="QR unico de acceso offline">
+    <div class="access-qr-title">Access QR</div>
+    <div id="accessQrBox" class="access-qr-box">QR</div>
+    <div id="accessQrId" class="access-qr-id">BSS-ACCESS</div>
+    <p class="access-qr-note">Escanea una vez para abrir/cachear. El QR grande dentro de la oficina incluye tambien una micro version sin internet.</p>
+  </aside>
+
+  <script src="/vendor/qrcode.min.js?v=blind-spot-shell"></script>
+  <script>
+    (() => {
+      const DB_NAME = 'blind_spot_shell_v1';
+      const STORE = 'clips';
+      const SYNC_CHANNEL = 'blind-spot';
+      const SYNC_QUEUE_KEY = 'blind_spot_shell_sync_queue';
+      const SYNC_CURSOR_KEY = 'blind_spot_shell_sync_cursor';
+      const LIVE_LINK_KEY = 'blind_spot_shell_live_link';
+      const $ = (id) => document.getElementById(id);
+      let db = null;
+      let clips = [];
+      let watch = false;
+      let watchTimer = null;
+      let syncTimer = null;
+      let syncBusy = false;
+      let syncCursor = Number(localStorage.getItem(SYNC_CURSOR_KEY) || 0);
+      let lastReadHash = '';
+      let cameraStream = null;
+      let qrScanActive = false;
+
+      const state = {
+        message: $('message'),
+        netState: $('netState'),
+        offlineState: $('offlineState'),
+        syncState: $('syncState'),
+        clipCount: $('clipCount'),
+        scratch: $('scratch'),
+        entries: $('entries'),
+        searchInput: $('searchInput'),
+        qrBox: $('qrBox'),
+        bridgePayload: $('bridgePayload'),
+        qrVideo: $('qrVideo'),
+        notifyPermissionBtn: $('notifyPermissionBtn'),
+        liveLinkBtn: $('liveLinkBtn'),
+        liveLinkState: $('liveLinkState'),
+        lastRemoteText: $('lastRemoteText'),
+        accessQrBox: $('accessQrBox'),
+        accessQrId: $('accessQrId'),
+        accessQrInlineBox: $('accessQrInlineBox'),
+        accessQrInlineId: $('accessQrInlineId'),
+        microShellQrBox: $('microShellQrBox'),
+        microShellQrId: $('microShellQrId')
+      };
+
+      function isLiveLinkOn() {
+        return localStorage.getItem(LIVE_LINK_KEY) !== 'off';
+      }
+
+      function renderLiveLinkState(text) {
+        const online = navigator.onLine && isLiveLinkOn();
+        state.liveLinkState.textContent = text || (online ? 'live link' : navigator.onLine ? 'link paused' : 'offline');
+        state.liveLinkState.classList.toggle('on', online);
+        state.liveLinkBtn.textContent = isLiveLinkOn() ? 'Pausar enlace' : 'Mantener conectado';
+        const perm = 'Notification' in window ? Notification.permission : 'unsupported';
+        state.notifyPermissionBtn.textContent = perm === 'granted' ? 'Notificaciones ON' : 'Permitir notificaciones';
+        state.notifyPermissionBtn.disabled = perm === 'granted' || perm === 'unsupported';
+      }
+
+      function setMessage(text, kind = 'ok') {
+        state.message.textContent = text;
+        state.message.className = 'notice' + (kind === 'warn' ? ' warn' : kind === 'bad' ? ' bad' : '');
+      }
+
+      function setSyncState(text) {
+        if (state.syncState) state.syncState.textContent = text;
+        renderLiveLinkState(text === 'synced' ? undefined : text);
+      }
+
+      function openDb() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = () => {
+            const nextDb = req.result;
+            if (!nextDb.objectStoreNames.contains(STORE)) {
+              const store = nextDb.createObjectStore(STORE, { keyPath: 'id' });
+              store.createIndex('createdAt', 'createdAt');
+              store.createIndex('hash', 'hash');
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error || new Error('IndexedDB failed'));
+        });
+      }
+
+      function txStore(mode = 'readonly') {
+        return db.transaction(STORE, mode).objectStore(STORE);
+      }
+
+      function allClips() {
+        return new Promise((resolve, reject) => {
+          const req = txStore().getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      function putClip(record) {
+        return new Promise((resolve, reject) => {
+          const req = txStore('readwrite').put(record);
+          req.onsuccess = () => resolve(record);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      function deleteClip(id) {
+        return new Promise((resolve, reject) => {
+          const req = txStore('readwrite').delete(id);
+          req.onsuccess = resolve;
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      function clearClips() {
+        return new Promise((resolve, reject) => {
+          const req = txStore('readwrite').clear();
+          req.onsuccess = resolve;
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async function sha256(text) {
+        if (crypto && crypto.subtle) {
+          const bytes = new TextEncoder().encode(text);
+          const digest = await crypto.subtle.digest('SHA-256', bytes);
+          return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
+        }
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i += 1) {
+          hash ^= text.charCodeAt(i);
+          hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+        }
+        return ('00000000' + (hash >>> 0).toString(16)).slice(-8);
+      }
+
+      function download(name, blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 800);
+      }
+
+      function getDeviceId() {
+        const key = 'blind_spot_shell_device_id';
+        let id = localStorage.getItem(key);
+        if (!id) {
+          const random = crypto && crypto.getRandomValues ? Array.from(crypto.getRandomValues(new Uint8Array(9))).map((b) => b.toString(16).padStart(2, '0')).join('') : `${Date.now()}${Math.random()}`;
+          id = `BSS-DEVICE-${random.toUpperCase()}`;
+          localStorage.setItem(key, id);
+        }
+        return id;
+      }
+
+      function readSyncQueue() {
+        try {
+          const rows = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]');
+          return Array.isArray(rows) ? rows : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function writeSyncQueue(rows) {
+        localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(rows.slice(-80)));
+        setSyncState(rows.length ? `queued ${rows.length}` : 'ready');
+      }
+
+      function queueSyncEvent(event) {
+        const queue = readSyncQueue();
+        queue.push({ ...event, queuedAt: new Date().toISOString() });
+        writeSyncQueue(queue);
+      }
+
+      function rememberSyncCursor(seq) {
+        const next = Math.max(syncCursor, Number(seq || 0));
+        if (next !== syncCursor) {
+          syncCursor = next;
+          localStorage.setItem(SYNC_CURSOR_KEY, String(syncCursor));
+        }
+      }
+
+      async function requestNotificationAccess() {
+        if (!('Notification' in window)) {
+          setMessage('Este navegador no soporta notificaciones del sistema. La vista interna seguira avisando.', 'warn');
+          renderLiveLinkState();
+          return false;
+        }
+        if (Notification.permission === 'granted') {
+          renderLiveLinkState();
+          setMessage('Notificaciones ya estan activas para Blind spot shell.');
+          return true;
+        }
+        if (Notification.permission === 'denied') {
+          setMessage('Las notificaciones estan bloqueadas en el navegador. Activalas desde permisos del sitio.', 'warn');
+          renderLiveLinkState();
+          return false;
+        }
+        try {
+          const result = await Notification.requestPermission();
+          renderLiveLinkState();
+          setMessage(result === 'granted' ? 'Notificaciones activadas. El telefono avisara cuando la laptop guarde texto.' : 'Permiso de notificacion no concedido.', result === 'granted' ? 'ok' : 'warn');
+          return result === 'granted';
+        } catch (error) {
+          setMessage(`No se pudo pedir permiso de notificacion: ${error.message || error}`, 'warn');
+          renderLiveLinkState();
+          return false;
+        }
+      }
+
+      async function showSystemNotification(title, body, data = {}) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return false;
+        const cleanBody = String(body || '').replace(/\s+/g, ' ').slice(0, 220);
+        const options = {
+          body: cleanBody,
+          tag: data.tag || 'blind-spot-shell-live',
+          renotify: true,
+          icon: '/app/hashcod-platform-icon.svg',
+          badge: '/app/hashcod-platform-icon.svg',
+          data: { url: '/blind-spot-shell.html', ...data }
+        };
+        try {
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            if (reg && reg.showNotification) {
+              await reg.showNotification(title, options);
+              return true;
+            }
+          }
+        } catch {
+          // Fall back to page Notification below.
+        }
+        try {
+          const notification = new Notification(title, options);
+          notification.onclick = () => window.focus();
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      function previewText(text) {
+        const clean = String(text || '').trim();
+        return clean.length > 480 ? `${clean.slice(0, 480)}...` : clean;
+      }
+
+      async function announceRemoteClip(clip, event) {
+        const source = event?.deviceId ? `desde ${event.deviceId}` : 'desde otro dispositivo';
+        const body = previewText(clip.text);
+        state.lastRemoteText.textContent = `${source}\n${body}`;
+        document.body.classList.add('remote-pulse');
+        setTimeout(() => document.body.classList.remove('remote-pulse'), 900);
+        setMessage(`Texto recibido ${source}: ${clip.id}`);
+        await showSystemNotification('Hashcod Blind spot shell', body, {
+          tag: `bss-${clip.id}`,
+          clipId: clip.id,
+          sourceDevice: event?.deviceId || ''
+        });
+      }
+
+      async function postSyncEvent(event) {
+        const response = await fetch('/api/device-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ channel: SYNC_CHANNEL, deviceId: getDeviceId(), event })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) throw new Error(data.error || `sync_${response.status}`);
+        rememberSyncCursor(data.event && data.event.seq);
+        return data.event;
+      }
+
+      async function syncPushEvent(event) {
+        if (!event || !event.action) return;
+        if (!navigator.onLine) {
+          queueSyncEvent(event);
+          return;
+        }
+        try {
+          setSyncState('sending');
+          await postSyncEvent(event);
+          setSyncState('synced');
+        } catch {
+          queueSyncEvent(event);
+        }
+      }
+
+      async function flushSyncQueue() {
+        const queue = readSyncQueue();
+        if (!queue.length || !navigator.onLine) return;
+        const failed = [];
+        setSyncState(`flush ${queue.length}`);
+        for (const item of queue) {
+          try {
+            await postSyncEvent(item);
+          } catch {
+            failed.push(item);
+          }
+        }
+        writeSyncQueue(failed);
+      }
+
+      async function applySyncEvent(event) {
+        if (!event || event.deviceId === getDeviceId()) return false;
+        if (event.action === 'clip:save' && event.clip && event.clip.text) {
+          const saved = await saveText(event.clip.text, event.clip.source || `sync:${event.deviceId}`, {
+            id: event.clip.id,
+            hash: event.clip.hash,
+            size: event.clip.size,
+            createdAt: event.clip.createdAt,
+            skipSync: true,
+            silent: true
+          });
+          if (saved) await announceRemoteClip(saved, event);
+          return true;
+        }
+        if (event.action === 'clip:delete' && event.clipId) {
+          await deleteClip(event.clipId);
+          return true;
+        }
+        if (event.action === 'clip:clear') {
+          await clearClips();
+          return true;
+        }
+        return false;
+      }
+
+      async function pullDeviceSync() {
+        if (!navigator.onLine || !db) return 0;
+        const url = `/api/device-sync?channel=${encodeURIComponent(SYNC_CHANNEL)}&deviceId=${encodeURIComponent(getDeviceId())}&since=${encodeURIComponent(syncCursor)}`;
+        const response = await fetch(url);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.ok) throw new Error(data.error || `pull_${response.status}`);
+        let applied = 0;
+        for (const event of data.events || []) {
+          rememberSyncCursor(event.seq);
+          if (await applySyncEvent(event)) applied += 1;
+        }
+        if (applied) await refresh();
+        return applied;
+      }
+
+      async function syncNow(showMessage = true) {
+        if (syncBusy) return;
+        if (!isLiveLinkOn() && !showMessage) return;
+        syncBusy = true;
+        try {
+          if (!navigator.onLine) {
+            setSyncState('offline');
+            if (showMessage) setMessage('Sin conexion. Los cambios quedan en cola y se sincronizan al volver online.', 'warn');
+            return;
+          }
+          await flushSyncQueue();
+          const pulled = await pullDeviceSync();
+          setSyncState(pulled ? `${pulled} in` : 'synced');
+          if (showMessage) setMessage(pulled ? `Sincronizados ${pulled} cambios de otro dispositivo.` : 'Sincronizacion al dia entre telefono y laptop.');
+        } catch (error) {
+          setSyncState('failed');
+          if (showMessage) setMessage(`Sync fallo: ${error.message || error}`, 'bad');
+        } finally {
+          syncBusy = false;
+        }
+      }
+
+      function buildBridgePackage(limit = 12) {
+        const rows = filteredClips().slice(0, limit).map((item) => ({
+          id: item.id,
+          text: item.text,
+          source: item.source,
+          hash: item.hash,
+          size: item.size,
+          createdAt: item.createdAt
+        }));
+        return {
+          type: 'blind-spot-shell-transfer',
+          version: 1,
+          channel: 'NFC_QR_USB',
+          createdAt: new Date().toISOString(),
+          count: rows.length,
+          totalLocal: clips.length,
+          deviceHint: navigator.userAgent.slice(0, 120),
+          clips: rows
+        };
+      }
+
+      function buildCompactBridgePayload() {
+        const compact = buildBridgePackage(6);
+        compact.clips = compact.clips.map((item) => ({
+          id: item.id,
+          hash: item.hash,
+          createdAt: item.createdAt,
+          text: item.text.length > 360 ? item.text.slice(0, 360) + '...' : item.text
+        }));
+        return JSON.stringify(compact);
+      }
+
+      function setBridgePayload(payload) {
+        state.bridgePayload.value = payload;
+        return payload;
+      }
+
+      function drawFallbackMatrix(payload) {
+        state.qrBox.innerHTML = '';
+        const canvas = document.createElement('canvas');
+        const size = 136;
+        const cells = 29;
+        const cell = Math.floor(size / cells);
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, size, size);
+        ctx.fillStyle = '#000';
+        let seed = 0;
+        for (let i = 0; i < payload.length; i += 1) seed = (seed * 31 + payload.charCodeAt(i)) >>> 0;
+        for (let y = 0; y < cells; y += 1) {
+          for (let x = 0; x < cells; x += 1) {
+            seed = (seed * 1664525 + 1013904223) >>> 0;
+            const finder = (x < 7 && y < 7) || (x > cells - 8 && y < 7) || (x < 7 && y > cells - 8);
+            if (finder || ((seed >>> 28) & 1)) ctx.fillRect(x * cell, y * cell, cell, cell);
+          }
+        }
+        state.qrBox.appendChild(canvas);
+      }
+
+      function drawMatrixInto(target, payload, size = 138) {
+        target.innerHTML = '';
+        const canvas = document.createElement('canvas');
+        const cells = 29;
+        const cell = Math.floor(size / cells);
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, size, size);
+        ctx.fillStyle = '#000';
+        let seed = 0;
+        for (let i = 0; i < payload.length; i += 1) seed = (seed * 33 + payload.charCodeAt(i)) >>> 0;
+        for (let y = 0; y < cells; y += 1) {
+          for (let x = 0; x < cells; x += 1) {
+            seed = (seed * 1103515245 + 12345) >>> 0;
+            const finder = (x < 7 && y < 7) || (x > cells - 8 && y < 7) || (x < 7 && y > cells - 8);
+            if (finder || ((seed >>> 29) & 1)) ctx.fillRect(x * cell, y * cell, cell, cell);
+          }
+        }
+        target.appendChild(canvas);
+      }
+
+      function renderBridgeQr(payload = buildCompactBridgePayload()) {
+        setBridgePayload(payload);
+        state.qrBox.innerHTML = '';
+        if (window.QRCode) {
+          new window.QRCode(state.qrBox, {
+            text: payload,
+            width: 220,
+            height: 220,
+            correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : undefined
+          });
+          setMessage('QR offline creado. El otro telefono puede escanearlo sin internet.');
+        } else {
+          drawFallbackMatrix(payload);
+          setMessage('QR library no disponible; se genero matriz visual de respaldo.', 'warn');
+        }
+        return payload;
+      }
+
+      function getInstallId() {
+        const key = 'blind_spot_shell_access_id';
+        let id = localStorage.getItem(key);
+        if (!id) {
+          const random = crypto && crypto.getRandomValues ? Array.from(crypto.getRandomValues(new Uint8Array(8))).map((b) => b.toString(16).padStart(2, '0')).join('') : Date.now().toString(16);
+          id = `BSS-ACCESS-${random.toUpperCase()}`;
+          localStorage.setItem(key, id);
+        }
+        return id;
+      }
+
+      function renderAccessQr() {
+        const id = getInstallId();
+        const accessUrl = `${location.origin}/blind-spot-shell.html?entry=offline&access=${encodeURIComponent(id)}`;
+        const payload = JSON.stringify({
+          type: 'blind-spot-shell-access',
+          id,
+          url: accessUrl,
+          note: 'Open once with internet to cache Blind spot shell; then use offline.',
+          createdAt: new Date().toISOString()
+        });
+        state.accessQrId.textContent = id;
+        state.accessQrInlineId.textContent = id;
+        [
+          { node: state.accessQrBox, size: 152, fallback: 138 },
+          { node: state.accessQrInlineBox, size: 174, fallback: 158 }
+        ].filter((target) => target.node).forEach((target) => {
+          target.node.innerHTML = '';
+          if (window.QRCode) {
+            new window.QRCode(target.node, {
+              text: accessUrl,
+              width: target.size,
+              height: target.size,
+              correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : undefined
+            });
+          } else {
+            drawMatrixInto(target.node, payload, target.fallback);
+          }
+        });
+        return accessUrl;
+      }
+
+      function microOfflineShell() {
+        const html = [
+          '<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">',
+          '<title>Blind spot micro</title></head><body style="margin:16px;background:#f7f6f1;color:#111;font-family:Arial,sans-serif">',
+          '<h1 style="font-size:34px;margin:0 0 4px">Blind spot shell</h1>',
+          '<p style="margin:0 0 14px;color:#555">Micro oficina offline dentro del QR. Pega texto, guarda y carga sin internet.</p>',
+          '<textarea id=t style="width:100%;height:42vh;box-sizing:border-box;border:2px solid #111;padding:12px;font:16px monospace" placeholder="Pega texto aqui"></textarea>',
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">',
+          '<button style="padding:14px;font-weight:900" onclick="try{let a=JSON.parse(localStorage.bssm||\'[]\');a.unshift({d:new Date().toISOString(),v:t.value});localStorage.bssm=JSON.stringify(a);t.value=\'\';c.textContent=\'saved \'+a.length}catch(e){c.textContent=e.message}">SAVE</button>',
+          '<button style="padding:14px;font-weight:900" onclick="try{let a=JSON.parse(localStorage.bssm||\'[]\');t.value=a.map(x=>x.d+\'\\n\'+x.v).join(\'\\n---\\n\');c.textContent=\'loaded \'+a.length}catch(e){c.textContent=e.message}">LOAD</button>',
+          '<button style="padding:14px;font-weight:900" onclick="try{navigator.clipboard?navigator.clipboard.readText().then(x=>{t.value=x;c.textContent=\'clipboard\'}):c.textContent=\'paste manual\'}catch(e){c.textContent=\'paste manual\'}">PASTE</button>',
+          '</div><p id=c style="font:13px monospace;border-left:4px solid #111;padding:10px;background:#fff">ready offline</p>',
+          '</body></html>'
+        ].join('');
+        return `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
+      }
+
+      function renderMicroShellQr() {
+        if (!state.microShellQrBox) return '';
+        const payload = microOfflineShell();
+        const microId = `BSS-MICRO-${payload.length}B`;
+        state.microShellQrId.textContent = microId;
+        state.microShellQrBox.innerHTML = '';
+        if (window.QRCode) {
+          try {
+            new window.QRCode(state.microShellQrBox, {
+              text: payload,
+              width: 174,
+              height: 174,
+              correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.L : undefined
+            });
+          } catch (error) {
+            state.microShellQrBox.textContent = 'QR demasiado denso';
+            setMessage(`Micro QR no pudo renderizar: ${error.message || error}`, 'warn');
+          }
+        } else {
+          drawMatrixInto(state.microShellQrBox, payload, 158);
+        }
+        return payload;
+      }
+
+      async function importBridgePayload(payload, source = 'bridge') {
+        const raw = String(payload || '').trim();
+        if (!raw) {
+          setMessage('Paquete vacio.', 'warn');
+          return;
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed.type === 'blind-spot-shell-transfer' && Array.isArray(parsed.clips)) {
+            let imported = 0;
+            for (const item of parsed.clips) {
+              const saved = await saveText(item.text || '', `${source}:${item.id || 'remote'}`);
+              if (saved) imported += 1;
+            }
+            setMessage(`Paquete ${source} importado: ${imported} registros procesados.`);
+            return;
+          }
+        } catch {
+          // Plain text is also a valid transfer.
+        }
+        await saveText(raw, source);
+      }
+
+      async function writeNfcPackage() {
+        if (!('NDEFReader' in window)) {
+          setMessage('NFC no disponible. Usa Android Chrome con HTTPS, o usa QR/USB.', 'warn');
+          return;
+        }
+        try {
+          const payload = setBridgePayload(buildCompactBridgePayload());
+          const ndef = new NDEFReader();
+          await ndef.write({ records: [{ recordType: 'text', data: payload }] });
+          setMessage('NFC escrito. Acerca el otro dispositivo para recibir el paquete.');
+        } catch (error) {
+          setMessage(`NFC write fallo: ${error.message || error}`, 'bad');
+        }
+      }
+
+      async function readNfcPackage() {
+        if (!('NDEFReader' in window)) {
+          setMessage('NFC no disponible. Usa QR/USB como canal sin internet.', 'warn');
+          return;
+        }
+        try {
+          const ndef = new NDEFReader();
+          await ndef.scan();
+          setMessage('NFC escuchando. Acerca una etiqueta o telefono compatible.');
+          ndef.onreading = async (event) => {
+            for (const record of event.message.records) {
+              if (record.recordType === 'text' && record.data) {
+                const text = new TextDecoder(record.encoding || 'utf-8').decode(record.data);
+                await importBridgePayload(text, 'nfc');
+              }
+            }
+          };
+        } catch (error) {
+          setMessage(`NFC read fallo: ${error.message || error}`, 'bad');
+        }
+      }
+
+      function stopQrScanner() {
+        qrScanActive = false;
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+          cameraStream = null;
+        }
+        state.qrVideo.classList.remove('on');
+      }
+
+      async function scanQrPackage() {
+        if (!('BarcodeDetector' in window)) {
+          setMessage('El escaner QR nativo no esta disponible en este navegador. Usa la camara normal y pega el texto, o USB import.', 'warn');
+          return;
+        }
+        try {
+          const detector = new BarcodeDetector({ formats: ['qr_code'] });
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+          state.qrVideo.srcObject = cameraStream;
+          state.qrVideo.classList.add('on');
+          await state.qrVideo.play();
+          qrScanActive = true;
+          setMessage('Escaneando QR. Apunta al paquete del otro telefono.');
+          const loop = async () => {
+            if (!qrScanActive) return;
+            try {
+              const codes = await detector.detect(state.qrVideo);
+              if (codes && codes.length) {
+                stopQrScanner();
+                await importBridgePayload(codes[0].rawValue, 'qr');
+                return;
+              }
+            } catch {
+              stopQrScanner();
+              setMessage('No se pudo escanear QR desde la camara.', 'bad');
+              return;
+            }
+            requestAnimationFrame(loop);
+          };
+          loop();
+        } catch (error) {
+          stopQrScanner();
+          setMessage(`Camara QR no disponible: ${error.message || error}`, 'bad');
+        }
+      }
+
+      function exportUsbPackage() {
+        const pack = buildBridgePackage(5000);
+        const payload = JSON.stringify(pack, null, 2);
+        setBridgePayload(payload);
+        download(`blind-spot-shell-usb-${Date.now()}.bss.json`, new Blob([payload], { type: 'application/json' }));
+        setMessage(`Paquete USB creado con ${pack.count} registros. Pasalo por cable y usa USB import en el otro equipo.`);
+      }
+
+      async function saveText(text, source = 'manual', options = {}) {
+        const clean = String(text || '').trim();
+        if (!clean) {
+          if (!options.silent) setMessage('No hay texto para guardar.', 'warn');
+          return null;
+        }
+        const hash = options.hash || await sha256(clean);
+        const duplicate = clips.find((item) => item.hash === hash || (options.id && item.id === options.id));
+        if (duplicate) {
+          if (!options.silent) setMessage(`Ya estaba guardado como ${duplicate.id}.`, 'warn');
+          return duplicate;
+        }
+        const record = {
+          id: options.id || `BSS-${Date.now().toString(36).toUpperCase()}-${hash.slice(0, 8).toUpperCase()}`,
+          text: clean,
+          source,
+          hash,
+          size: options.size || new Blob([clean]).size,
+          createdAt: options.createdAt || new Date().toISOString()
+        };
+        await putClip(record);
+        lastReadHash = hash;
+        await refresh();
+        if (!options.silent) setMessage(`Guardado local: ${record.id}`);
+        if (!options.skipSync) {
+          syncPushEvent({
+            action: 'clip:save',
+            clip: record
+          });
+        }
+        return record;
+      }
+
+      function filteredClips() {
+        const q = state.searchInput.value.trim().toLowerCase();
+        const sorted = clips.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        if (!q) return sorted;
+        return sorted.filter((item) => {
+          return [item.id, item.text, item.hash, item.source, item.createdAt].some((value) => String(value || '').toLowerCase().includes(q));
+        });
+      }
+
+      function render() {
+        state.clipCount.textContent = String(clips.length);
+        const rows = filteredClips();
+        if (!rows.length) {
+          state.entries.innerHTML = '<div class="panel empty">No hay registros guardados en esta oficina.</div>';
+          return;
+        }
+        state.entries.innerHTML = rows.map((item) => {
+          const shortText = escapeHtml(item.text);
+          const when = new Date(item.createdAt).toLocaleString();
+          return `<article class="entry" data-id="${item.id}">
+            <div class="entry-head">
+              <div class="entry-id">${item.id}</div>
+              <div class="entry-time">${when}</div>
+            </div>
+            <div class="entry-text">${shortText}</div>
+            <div class="entry-actions">
+              <button type="button" data-act="copy">Copiar</button>
+              <button type="button" data-act="txt">TXT</button>
+              <button type="button" data-act="del">Quitar</button>
+            </div>
+          </article>`;
+        }).join('');
+      }
+
+      function escapeHtml(text) {
+        return String(text).replace(/[&<>"']/g, (ch) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[ch]);
+      }
+
+      async function refresh() {
+        clips = await allClips();
+        render();
+      }
+
+      async function readClipboardOnce() {
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+          setMessage('Este navegador no permite leer el portapapeles. Pega manualmente en el cuadro.', 'warn');
+          return null;
+        }
+        try {
+          const text = await navigator.clipboard.readText();
+          const hash = await sha256(text || '');
+          if (watch && hash && hash === lastReadHash) return null;
+          return saveText(text, 'clipboard');
+        } catch (error) {
+          setMessage(`Permiso de portapapeles no disponible: ${error.message || error}`, 'warn');
+          return null;
+        }
+      }
+
+      function toggleWatch() {
+        watch = !watch;
+        $('watchBtn').textContent = watch ? 'Escucha ON' : 'Modo escucha';
+        if (watch) {
+          setMessage('Modo escucha activo. En algunos telefonos el navegador pedira permiso cada vez.');
+          watchTimer = setInterval(() => {
+            if (document.visibilityState === 'visible') readClipboardOnce();
+          }, 3600);
+          readClipboardOnce();
+        } else {
+          clearInterval(watchTimer);
+          watchTimer = null;
+          setMessage('Modo escucha pausado. Los registros guardados siguen disponibles offline.');
+        }
+      }
+
+      async function registerOffline() {
+        if (!('serviceWorker' in navigator)) {
+          state.offlineState.textContent = 'unsupported';
+          setMessage('Este navegador no soporta modo offline con service worker.', 'warn');
+          return;
+        }
+        try {
+          const reg = await navigator.serviceWorker.register('/blind-spot-sw.js?v=device-sync-live-1');
+          await navigator.serviceWorker.ready;
+          state.offlineState.textContent = 'ready';
+          setMessage(`Blind spot shell listo offline. Scope: ${reg.scope}`);
+        } catch (error) {
+          state.offlineState.textContent = 'failed';
+          setMessage(`No se pudo activar offline: ${error.message || error}`, 'bad');
+        }
+      }
+
+      function updateOnlineState() {
+        state.netState.textContent = navigator.onLine ? 'online' : 'offline';
+        if (!navigator.onLine) setSyncState('offline');
+        renderLiveLinkState();
+      }
+
+      function exportRecords(format) {
+        const rows = filteredClips();
+        if (!rows.length) {
+          setMessage('No hay registros para exportar.', 'warn');
+          return;
+        }
+        if (format === 'json') {
+          download(`blind-spot-shell-${Date.now()}.json`, new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' }));
+        } else {
+          const body = rows.map((item) => `[${item.id}] ${item.createdAt}\nsource=${item.source}\nsha256=${item.hash}\n\n${item.text}\n\n---`).join('\n');
+          download(`blind-spot-shell-${Date.now()}.txt`, new Blob([body], { type: 'text/plain' }));
+        }
+        setMessage(`Exportados ${rows.length} registros en ${format.toUpperCase()}.`);
+      }
+
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          setMessage('Copiado al portapapeles.');
+        } catch {
+          state.scratch.value = text;
+          state.scratch.select();
+          setMessage('No se pudo copiar automaticamente. El texto quedo seleccionado.', 'warn');
+        }
+      }
+
+      function bindEvents() {
+        $('desktopUnlock').addEventListener('click', () => document.body.classList.add('desktop-unlocked'));
+        state.notifyPermissionBtn.addEventListener('click', requestNotificationAccess);
+        state.liveLinkBtn.addEventListener('click', () => {
+          const next = isLiveLinkOn() ? 'off' : 'on';
+          localStorage.setItem(LIVE_LINK_KEY, next);
+          renderLiveLinkState();
+          if (next === 'on') {
+            syncNow(true);
+            setMessage('Conexion viva activada. El telefono y la laptop se mantienen sincronizados mientras haya red.');
+          } else {
+            setMessage('Conexion viva pausada en este dispositivo.', 'warn');
+          }
+        });
+        $('pasteBtn').addEventListener('click', readClipboardOnce);
+        $('saveBtn').addEventListener('click', () => saveText(state.scratch.value, 'manual'));
+        $('syncNowBtn').addEventListener('click', () => syncNow(true));
+        $('watchBtn').addEventListener('click', toggleWatch);
+        $('offlineBtn').addEventListener('click', registerOffline);
+        $('nfcWriteBtn').addEventListener('click', writeNfcPackage);
+        $('nfcReadBtn').addEventListener('click', readNfcPackage);
+        $('qrBuildBtn').addEventListener('click', () => renderBridgeQr());
+        $('qrScanBtn').addEventListener('click', scanQrPackage);
+        $('usbExportBtn').addEventListener('click', exportUsbPackage);
+        $('usbImportFile').addEventListener('change', async (event) => {
+          const file = event.target.files && event.target.files[0];
+          if (!file) return;
+          const text = await file.text();
+          setBridgePayload(text);
+          await importBridgePayload(text, 'usb');
+          event.target.value = '';
+        });
+        $('copyAccessLink').addEventListener('click', () => copyText(renderAccessQr()));
+        $('copyMicroShellLink').addEventListener('click', () => copyText(renderMicroShellQr()));
+        $('exportJson').addEventListener('click', () => exportRecords('json'));
+        $('exportTxt').addEventListener('click', () => exportRecords('txt'));
+        $('copyAll').addEventListener('click', () => copyText(filteredClips().map((item) => item.text).join('\n\n')));
+        $('clearAll').addEventListener('click', async () => {
+          if (!confirm('Eliminar todos los registros locales de Blind spot shell?')) return;
+          await clearClips();
+          await refresh();
+          syncPushEvent({ action: 'clip:clear' });
+          setMessage('Oficina local limpiada.');
+        });
+        state.searchInput.addEventListener('input', render);
+        state.scratch.addEventListener('paste', () => {
+          setTimeout(() => saveText(state.scratch.value, 'paste-box'), 80);
+        });
+        state.entries.addEventListener('click', async (event) => {
+          const button = event.target.closest('button[data-act]');
+          const card = event.target.closest('.entry');
+          if (!button || !card) return;
+          const item = clips.find((row) => row.id === card.dataset.id);
+          if (!item) return;
+          if (button.dataset.act === 'copy') await copyText(item.text);
+          if (button.dataset.act === 'txt') download(`${item.id}.txt`, new Blob([item.text], { type: 'text/plain' }));
+          if (button.dataset.act === 'del') {
+            await deleteClip(item.id);
+            await refresh();
+            syncPushEvent({ action: 'clip:delete', clipId: item.id });
+            setMessage(`Registro quitado: ${item.id}`);
+          }
+        });
+        window.addEventListener('online', () => {
+          updateOnlineState();
+          syncNow(false);
+        });
+        window.addEventListener('offline', updateOnlineState);
+      }
+
+      async function boot() {
+        bindEvents();
+        updateOnlineState();
+        if (!localStorage.getItem(LIVE_LINK_KEY)) localStorage.setItem(LIVE_LINK_KEY, 'on');
+        renderLiveLinkState();
+        renderAccessQr();
+        renderMicroShellQr();
+        db = await openDb();
+        await refresh();
+        await syncNow(false);
+        syncTimer = setInterval(() => syncNow(false), 1800);
+        if ('serviceWorker' in navigator) {
+          registerOffline();
+        } else {
+          state.offlineState.textContent = 'unsupported';
+        }
+      }
+
+      boot().catch((error) => {
+        setMessage(`Blind spot shell no pudo iniciar: ${error.message || error}`, 'bad');
+      });
+    })();
+  </script>
+</body>
+</html>

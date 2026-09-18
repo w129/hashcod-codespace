@@ -1,0 +1,20 @@
+OpencriptG – Botón TXT por code generado
+
+Mejora aplicada:
+- Se agregó un nuevo botón vectorial TXT en la parte derecha de cada code generado.
+- El botón mantiene el mismo estilo visual de los iconos existentes.
+- Al tocarlo, descarga automáticamente un archivo .txt del code específico.
+
+El archivo TXT incluye:
+- índice del code
+- primitiva
+- type ID
+- categoría
+- estándar
+- longitud
+- fecha de generación
+- postura de seguridad
+- valor completo del code
+- perfil de uso
+- storytelling
+- nota OpencriptG / diktatcart

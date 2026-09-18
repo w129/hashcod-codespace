@@ -1,0 +1,8 @@
+OpencriptG – Captura PNG más completa
+
+Mejora aplicada:
+- El icono de captura ahora genera una imagen PNG más completa.
+- La captura incluye el índice, el code generado completo sin recortes, el contador de caracteres,
+  los iconos de la fila y la parte de storytelling.
+- Se adaptó al diseño visual de la plataforma.
+- El code ya no sale truncado: se ajusta en líneas para que se vean todos los caracteres.

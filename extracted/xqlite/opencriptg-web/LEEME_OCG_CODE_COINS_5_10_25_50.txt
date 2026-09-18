@@ -1,0 +1,44 @@
+OpencriptG – OCG Code Coins 5 / 10 / 25 / 50
+
+Mejora aplicada:
+- El sistema OCG Units ahora funciona como OCG Code Coins.
+- Se agregaron denominaciones internas: 5, 10, 25 y 50.
+- Cada moneda crea un billete digital interno con diseño adaptado a OpencriptG.
+- Cada billete contiene:
+  * valor de la moneda
+  * Bill ID
+  * serial único
+  * Ivory DID del propietario
+  * payload largo
+  * salt
+  * nonce
+  * route
+  * vector
+  * matrix
+  * chain previous
+  * chain hash
+  * unit hash
+  * signature
+  * fingerprint
+  * check
+  * fecha de emisión
+  * estado
+  * QR funcional
+- Se agregó verificación local antifalsificación:
+  * el billete debe existir en la base local
+  * el code debe coincidir completo
+  * el hash debe recalcular correctamente
+  * la firma interna debe coincidir
+  * el estado debe ser ACTIVE
+- Se mantiene la aclaración: estas monedas son unidades internas de OpencriptG/diktatcart, no moneda de curso legal, no inversión y no criptomoneda pública.
+
+Funciones:
+- Crear moneda
+- Ver billete digital
+- Copiar code
+- Imprimir certificado/PDF
+- Verificar moneda
+- Transferir a otro Ivory DID
+- Bloquear / activar
+- Usar dentro de OpencriptG
+- Exportar JSON / CSV

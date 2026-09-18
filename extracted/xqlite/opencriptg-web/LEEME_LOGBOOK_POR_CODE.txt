@@ -1,0 +1,26 @@
+OpencriptG – Icono librito cerrado / descarga LOG por code
+
+Mejora aplicada:
+- Se agregó un nuevo icono vectorial de librito cerrado en la parte derecha de cada code generado.
+- El icono está adaptado al diseño de la plataforma y a los demás botones.
+- Al hacer clic descarga un archivo .log del code específico.
+
+El archivo LOG incluye:
+- LOG ID
+- plataforma y versión
+- índice del code
+- primitiva
+- tipo técnico
+- categoría
+- estándar
+- longitud
+- fecha de generación
+- postura de seguridad
+- valor completo generado
+- perfil de uso
+- storytelling del code
+- nota de auditoría
+
+Archivo principal actualizado:
+- app/app.jsx
+- app/styles.css

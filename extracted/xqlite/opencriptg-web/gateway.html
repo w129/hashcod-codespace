@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HSG2818 Android SMS Gateway</title>
+  <style>
+    :root { --ink:#111; --line:#d8d8d2; --paper:#fff; --bg:#f4f4f1; --mono: ui-monospace, SFMono-Regular, Consolas, monospace; --serif: Georgia, serif; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:linear-gradient(#e8e8e5 1px, transparent 1px),linear-gradient(90deg,#e8e8e5 1px,transparent 1px),var(--bg); background-size:32px 32px; color:var(--ink); font-family:var(--mono); }
+    main { min-height:100vh; display:grid; place-items:center; padding:20px; }
+    section { width:min(760px, 100%); background:var(--paper); border:1px solid #cfcfca; box-shadow:16px 16px 0 rgba(0,0,0,.07); }
+    header { padding:24px; border-bottom:1px solid var(--line); display:grid; gap:8px; }
+    h1 { margin:0; font-family:var(--serif); font-size:42px; font-weight:500; line-height:1; }
+    p { margin:0; color:#555; line-height:1.55; font-size:13px; }
+    .panel { padding:18px; display:grid; gap:12px; }
+    label { display:grid; gap:7px; }
+    span { color:#777; font-size:10px; letter-spacing:3px; text-transform:uppercase; }
+    input, textarea { width:100%; min-height:46px; border:1px solid #111; background:#fff; padding:10px 12px; font:14px var(--mono); }
+    textarea { min-height:150px; resize:vertical; line-height:1.45; }
+    button, a.btn { min-height:46px; border:1px solid #111; background:#111; color:#fff; padding:0 14px; display:grid; place-items:center; text-decoration:none; font:700 11px var(--mono); letter-spacing:2px; text-transform:uppercase; }
+    button.ghost { background:#fff; color:#111; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .status { border:1px solid var(--line); border-left:4px solid #177c43; background:#f7f7f4; padding:12px; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+    .job { display:grid; gap:10px; border:1px solid var(--line); background:#f7f7f4; padding:12px; }
+    .job b { overflow-wrap:anywhere; }
+    .hidden { display:none; }
+    @media (max-width:640px) { h1{font-size:34px}.grid{grid-template-columns:1fr} section{box-shadow:10px 10px 0 rgba(0,0,0,.07)} }
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <header>
+        <span>HSG2818 MOBILE NODE</span>
+        <h1>Android SMS Gateway</h1>
+        <p>Conecta este Android a HSG2818. El servidor pondra SMS en cola y este telefono los enviara desde su SIM.</p>
+      </header>
+      <div class="panel" id="pairPanel">
+        <label><span>Nombre del dispositivo</span><input id="deviceName" placeholder="Android Gateway 01" /></label>
+        <label><span>Pairing key</span><input id="pairingKey" type="password" placeholder="Code admin / pairing key" /></label>
+        <button id="pairBtn">Emparejar gateway</button>
+        <div class="status" id="pairStatus">Usa el code admin para emparejar este Android como nodo SMS.</div>
+      </div>
+      <div class="panel hidden" id="runPanel">
+        <div class="status" id="status">Gateway listo.</div>
+        <div class="grid">
+          <button id="pollBtn">Buscar SMS pendiente</button>
+          <button class="ghost" id="forgetBtn">Olvidar dispositivo</button>
+        </div>
+        <div class="job hidden" id="jobBox">
+          <span>SMS pendiente</span>
+          <b id="jobTo"></b>
+          <textarea id="jobBody" readonly></textarea>
+          <div class="grid">
+            <a class="btn" id="openSms" href="#">Abrir SMS</a>
+            <button id="sentBtn">Marcar enviado</button>
+          </div>
+          <button class="ghost" id="failBtn">Marcar fallido</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const state = JSON.parse(localStorage.getItem('hashcod_gateway_device') || '{}');
+    let currentJob = null;
+    const save = (data) => localStorage.setItem('hashcod_gateway_device', JSON.stringify(data));
+    const showRun = () => {
+      $('pairPanel').classList.add('hidden');
+      $('runPanel').classList.remove('hidden');
+      $('status').textContent = `Conectado como ${state.name || state.deviceId}. Mantén este Android encendido y con señal.`;
+    };
+    const api = async (path, body) => {
+      const res = await fetch(path, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || 'request_failed');
+      return data;
+    };
+    $('pairBtn').onclick = async () => {
+      try {
+        const data = await api('/api/sms-gateway/register', { name: $('deviceName').value, pairingKey: $('pairingKey').value });
+        Object.assign(state, data);
+        save(state);
+        showRun();
+      } catch (err) {
+        $('pairStatus').textContent = `No se pudo emparejar: ${err.message}`;
+      }
+    };
+    const renderJob = (job) => {
+      currentJob = job;
+      if (!job) {
+        $('jobBox').classList.add('hidden');
+        $('status').textContent = 'Sin SMS pendientes. Buscando otra vez en unos segundos.';
+        return;
+      }
+      $('jobBox').classList.remove('hidden');
+      $('jobTo').textContent = job.to;
+      $('jobBody').value = job.body;
+      $('openSms').href = `sms:${job.to}?body=${encodeURIComponent(job.body)}`;
+      $('status').textContent = `Trabajo recibido: ${job.id}`;
+    };
+    const poll = async () => {
+      if (!state.deviceId || !state.deviceSecret) return;
+      try {
+        const data = await api('/api/sms-gateway/poll', { deviceId: state.deviceId, deviceSecret: state.deviceSecret });
+        renderJob(data.job);
+      } catch (err) {
+        $('status').textContent = `Gateway error: ${err.message}`;
+      }
+    };
+    const report = async (status) => {
+      if (!currentJob) return;
+      try {
+        await api('/api/sms-gateway/report', { deviceId: state.deviceId, deviceSecret: state.deviceSecret, messageId: currentJob.id, status });
+        renderJob(null);
+      } catch (err) {
+        $('status').textContent = `No se pudo reportar: ${err.message}`;
+      }
+    };
+    $('pollBtn').onclick = poll;
+    $('sentBtn').onclick = () => report('SENT');
+    $('failBtn').onclick = () => report('FAILED');
+    $('forgetBtn').onclick = () => { localStorage.removeItem('hashcod_gateway_device'); location.reload(); };
+    if (state.deviceId && state.deviceSecret) showRun();
+    setInterval(poll, 8000);
+    if (state.deviceId && state.deviceSecret) poll();
+  </script>
+</body>
+</html>

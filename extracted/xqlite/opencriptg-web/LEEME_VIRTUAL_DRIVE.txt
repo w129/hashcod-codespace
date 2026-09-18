@@ -1,0 +1,16 @@
+OPENCRIPTG · DRIVE LAB
+
+Se agregó una nueva ventana al lado de TEXT LAB llamada:
+- DRIVE LAB / DISCO LAB
+
+Funciones:
+- Crear unidades virtuales SSD, NVMe o HDD.
+- Definir capacidad en GB.
+- Guardar archivos internos dentro de cada unidad.
+- Importar códigos desde la base de datos copiada.
+- Descargar cada unidad como contenedor .ocgdrive, JSON o manifiesto TXT.
+
+Nota importante:
+Esta versión es funcional como contenedor virtual dentro de opencriptG.
+Por limitaciones del navegador, no puede montar automáticamente un nuevo HDD real en el sistema operativo del usuario.
+Para eso se necesitaría una versión nativa de escritorio (por ejemplo Electron/Tauri con privilegios del sistema).

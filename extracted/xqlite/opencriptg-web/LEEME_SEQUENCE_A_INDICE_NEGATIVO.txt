@@ -1,0 +1,18 @@
+OPENCRIPTG · sequence - A · Índice siempre negativo
+
+Cambio aplicado:
+- La fórmula ahora normaliza el resultado para que siempre sea negativo.
+
+Fórmula implementada:
+Índice = -ABS((cantidad de codes / similitudes) × (base - 0.428))
+
+Resultado visual:
+- El índice siempre aparece con signo negativo.
+- El número y el signo se muestran en color rojo.
+- El PDF/HTML exportado también muestra el índice negativo en rojo.
+
+Ejemplo:
+Codes = 7
+Similitudes = 2
+Base = 0.28
+Índice = -ABS((7 / 2) × (0.28 - 0.428)) = -0.518

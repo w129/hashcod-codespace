@@ -1,0 +1,25 @@
+OPENCRIPTG · P - ANDORA ULTRA
+
+Novedades agregadas:
+- pestañas visuales de hojas
+- múltiples gráficos (barras, línea y resumen)
+- fórmulas financieras: PMT, FV, ROI, MARGIN
+- impresión de la hoja actual
+- plantillas empresariales:
+  * dashboard de negocio
+  * presupuesto
+  * finanzas / préstamos
+- filtros por texto y columna
+- ordenamiento asc/desc
+- combinación y descombinación de celdas
+- incrustación de codes desde la base de datos
+- exportación CSV
+- guardado local automático
+
+Ejemplos de fórmulas:
+=SUM(B5:B10)
+=AVG(C5:C10)
+=PMT(0.015,24,25000)
+=FV(0.015,24,-1250,25000)
+=ROI(38000,25000)
+=MARGIN(780,310)

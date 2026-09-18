@@ -1,0 +1,13 @@
+OpencriptG – QR del billete con tabla al escanear
+
+Mejora aplicada:
+- El QR del billete ya no contiene solo texto plano.
+- Ahora contiene una página HTML local tipo data:text/html.
+- Al escanearlo desde un lector que abra enlaces data:text/html, se muestra una tabla con diseño OpencriptG.
+- La tabla muestra los datos completos del billete: valor, Bill ID, serial, owner DID, status, fingerprint, check, payload, salt, nonce, route, vector, matrix, hashes, firma y uso.
+- Dentro de la plataforma se agregó la opción Vista escaneo / Abrir tabla para comprobar cómo se verá al escanear.
+- El billete PNG descarga el QR con esta vista de tabla integrada.
+
+Nota técnica:
+- El QR funciona offline porque lleva la vista HTML dentro del propio QR.
+- Algunos lectores móviles bloquean enlaces data:text/html por seguridad; en esos casos se debe usar un lector QR que permita abrir data URLs o publicar la vista en un dominio de verificación.

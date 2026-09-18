@@ -1,0 +1,30 @@
+OPENCRIPTG · 100 ADVANCED CODES
+
+Se agregaron 100 nuevos tipos de codes avanzados a la plataforma.
+
+Nueva categoría:
+- Advanced Codes 100
+
+Incluye formatos para:
+- Quantum Vault Keys
+- Zero-Knowledge Proof Seeds
+- Post-Quantum Session Keys
+- Threshold Recovery Shares
+- Hardware Root Tokens
+- DID Identity Anchors
+- Secure Enclave Tickets
+- Hardened API Capsules
+- Mesh Node Credentials
+- Certificate Code Seals
+
+Cada code genera:
+- prefijo visible OCG
+- tipo de code
+- payload aleatorio
+- salt
+- nonce
+- fecha de emisión
+- uso sugerido
+- checksum de integridad
+
+Todos funcionan con la base de datos, QR Vault, certificados, sequence - A y las demás herramientas que usan codes generados.

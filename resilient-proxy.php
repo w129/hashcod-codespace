@@ -37,6 +37,52 @@ if (!isset($GLOBALS['__L8_RESILIENT_PROXY_CUSTOM_FALLBACKS'])) {
 }
 
 /**
+ * Restricts outbound HTTP to trusted public HTTPS providers.
+ * Extra providers must be explicitly supplied by trusted server-side code.
+ */
+function resilientProxyValidateUrl(string $url, array $options = []): bool {
+    $parts = parse_url($url);
+    if (!is_array($parts)) return false;
+    if (strtolower((string)($parts['scheme'] ?? '')) !== 'https') return false;
+    if (!empty($parts['user']) || !empty($parts['pass'])) return false;
+
+    $host = strtolower(rtrim((string)($parts['host'] ?? ''), '.'));
+    if ($host === '' || $host === 'localhost' || str_ends_with($host, '.localhost')) return false;
+
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        return filter_var(
+            $host,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        ) !== false;
+    }
+
+    $trustedSuffixes = [
+        'osv.dev',
+        'nist.gov',
+        'anu.edu.au',
+        'cloudflare.com',
+        'abuseipdb.com',
+        'ipqualityscore.com',
+        'stopforumspam.org',
+        'supabase.co',
+    ];
+    foreach (($options['allowed_hosts'] ?? []) as $extraHost) {
+        $extraHost = strtolower(rtrim(trim((string)$extraHost), '.'));
+        if ($extraHost !== '' && preg_match('/^[a-z0-9.-]+$/', $extraHost)) {
+            $trustedSuffixes[] = $extraHost;
+        }
+    }
+
+    foreach (array_unique($trustedSuffixes) as $suffix) {
+        if ($host === $suffix || str_ends_with($host, '.' . $suffix)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Returns root directory for resilient proxy disk cache.
  */
 function resilientProxyCacheBaseDir(): string {
@@ -420,6 +466,17 @@ function resilientProxyGenerateSyntheticFallback(string $service, string $url, a
  * Raw low-level HTTP client executing via cURL or stream context.
  */
 function resilientProxyHttpExecute(string $url, array $options = []): array {
+    if (!resilientProxyValidateUrl($url, $options)) {
+        return [
+            'ok' => false,
+            'status' => 0,
+            'raw_body' => '',
+            'headers' => [],
+            'error' => 'Outbound URL rejected by security policy',
+            'latency_ms' => 0.0,
+        ];
+    }
+
     $method = strtoupper($options['method'] ?? 'GET');
     $timeoutMs = (int)($options['timeout_ms'] ?? 1500);
     $headers = $options['headers'] ?? [];
@@ -440,11 +497,11 @@ function resilientProxyHttpExecute(string $url, array $options = []): array {
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeoutMs);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, min(1000, $timeoutMs));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 0);
 
         if (!empty($headers)) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -509,10 +566,13 @@ function resilientProxyHttpExecute(string $url, array $options = []): array {
             'timeout' => $timeoutMs / 1000.0,
             'header' => implode("\r\n", $headerLines) . "\r\n",
             'ignore_errors' => true,
+            'follow_location' => 0,
+            'max_redirects' => 0,
         ],
         'ssl' => [
-            'verify_peer' => false,
-            'verify_peer_name' => false,
+            'verify_peer' => true,
+            'verify_peer_name' => true,
+            'allow_self_signed' => false,
         ]
     ];
 

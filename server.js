@@ -200,6 +200,14 @@ const server = http.createServer((req, res) => {
         return res.end();
     }
 
+    // If an operator deliberately exposes the legacy server beyond loopback,
+    // authenticate every endpoint except a minimal health probe.
+    const requestPathOnly = String(req.url || '/').split('?')[0];
+    if (requestPathOnly !== '/health' && !legacyAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        return res.end(JSON.stringify({ ok: false, error: 'Unauthorized' }));
+    }
+
     if (req.url === '/api/stream') {
         res.writeHead(200, {
             'Content-Type': 'text/event-stream',
@@ -261,7 +269,13 @@ const server = http.createServer((req, res) => {
         }, null, 2));
     }
 
-    const requestPath = decodeURIComponent(String(req.url || '/').split('?')[0]);
+    let requestPath;
+    try {
+        requestPath = decodeURIComponent(String(req.url || '/').split('?')[0]);
+    } catch (_) {
+        res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end('Bad request');
+    }
     const relativePath = requestPath === '/' ? 'index.html' : requestPath.replace(/^\/+/, '');
     const filePath = path.resolve(PUBLIC_DIR, relativePath);
     const publicRoot = path.resolve(PUBLIC_DIR) + path.sep;

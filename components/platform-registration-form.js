@@ -624,7 +624,7 @@
 
             try {
                 const previewUrl = new URL(previewSrc, baseUrl());
-                previewUrl.searchParams.set('hashcod_preview_current', '20260918-16');
+                previewUrl.searchParams.set('hashcod_preview_current', '20260918-17');
                 const response = await fetch(previewUrl.toString(), {
                     method: 'GET',
                     credentials: 'same-origin',
@@ -677,7 +677,7 @@
                     try {
                         const cssUrl = new URL(href, previewUrl);
                         if (cssUrl.origin !== window.location.origin) continue;
-                        cssUrl.searchParams.set('hashcod_preview_current', '20260918-16');
+                        cssUrl.searchParams.set('hashcod_preview_current', '20260918-17');
                         const cssResponse = await fetch(cssUrl.toString(), {
                             credentials: 'same-origin',
                             cache: 'no-store',

@@ -4,7 +4,7 @@ declare(strict_types=1);
 function hashcodRegistrationContract(): array
 {
     return [
-        'version' => '2026.09.18-1',
+        'version' => '2026.09.18-2',
         'effective_date' => '18 de septiembre de 2026',
         'title' => 'Documento de Aceptación Contractual, Privacidad y Evidencia de Registro',
         'subtitle' => 'Hashcod Codespace® · DIKTATCART',
@@ -72,7 +72,23 @@ function hashcodRegistrationContract(): array
                 ],
             ],
             [
-                'title' => '8. Aceptación contractual electrónica',
+                'title' => '8. Evidencia institucional, comercial y de propiedad industrial',
+                'paragraphs' => [
+                    'Hashcod opera dentro de una actividad económica formalmente registrada en la República Dominicana. La evidencia aportada identifica al titular como persona física comerciante y vincula el establecimiento DIKTATCART con actividades de diseño y desarrollo de software, soluciones digitales, inteligencia artificial, automatización y herramientas criptográficas.',
+                    'Esta sección documenta la identidad registral y comercial presentada por Hashcod. No pretende convertir a una persona física en una sociedad mercantil distinta ni sustituir la consulta de los certificados originales ante las autoridades emisoras.'
+                ],
+                'bullets' => [
+                    'Registro Mercantil de Persona Física núm. 3323LV-PF, expedido por la Cámara de Comercio y Producción de La Vega a nombre de Emil Enmanuel Pieter Mora; fecha de emisión 16/06/2026 y vencimiento 16/06/2028. El establecimiento registrado figura como DIKTATCART.',
+                    'Nombre comercial DIKTATCART, Registro ONAPI núm. 925063, concedido el 16/04/2026 y con vencimiento el 16/04/2036. La actividad comercial declarada comprende desarrollo y comercialización de software, plataformas digitales, inteligencia artificial, ciencia de datos y productos tecnológicos.',
+                    'Registro Nacional de Contribuyentes (RNC) núm. 402-0936929-3, certificado por la Dirección General de Impuestos Internos (DGII) con estado ACTIVO y actividad económica “DISEÑO Y DESARROLLO DE SOFTWARE”.',
+                    'Marca mixta HASHCOD, Registro ONAPI núm. 336973, concedida el 18/08/2026 y con vencimiento el 18/08/2036, Clase Internacional 42. El certificado comprende, entre otros, desarrollo de software, SaaS, seguridad informática, criptografía aplicada a software, protección de datos digitales, autenticación y verificación de códigos, almacenamiento seguro de información digital y desarrollo de plataformas digitales.',
+                    'La marca mixta HASHCOD reivindica los colores negro y blanco según su certificado de registro.',
+                    'Como evidencia complementaria del trámite marcario se conserva el recibo ONAPI correspondiente a la publicación de la marca mixta HASHCOD; dicho recibo acredita una actuación del trámite, pero no sustituye al certificado de registro de la marca.',
+                    'Las huellas SHA-256 de los documentos aportados se registran en el manifiesto técnico de evidencia del repositorio para permitir verificar la integridad de las copias conservadas.'
+                ],
+            ],
+            [
+                'title' => '9. Aceptación contractual electrónica',
                 'paragraphs' => [
                     'Al marcar voluntariamente el checkbox de aceptación y posteriormente enviar el formulario, el Usuario manifiesta electrónicamente que ha tenido acceso a este documento, que declara haberlo leído y que acepta quedar vinculado por sus condiciones en lo que resulte legalmente aplicable.',
                     'La plataforma registra esa manifestación de voluntad junto con la versión y la huella SHA-256 del documento aceptado. Esta aceptación electrónica se utiliza como evidencia del consentimiento contractual y del contenido aceptado.',
@@ -80,49 +96,49 @@ function hashcodRegistrationContract(): array
                 ],
             ],
             [
-                'title' => '9. Documentos y mensajes electrónicos',
+                'title' => '10. Documentos y mensajes electrónicos',
                 'paragraphs' => [
                     'Las partes reconocen que la oferta, aceptación, comunicaciones y evidencias relacionadas con este registro pueden producirse y conservarse en formato digital. La versión, fecha y huella criptográfica del documento permiten comprobar si el texto presentado posteriormente coincide con el texto aceptado.',
                     'Hashcod podrá conservar registros digitales relacionados con la aceptación en la medida necesaria para documentar la transacción, resolver controversias, mantener la integridad del registro y cumplir obligaciones legales.'
                 ],
             ],
             [
-                'title' => '10. Uso lícito y prohibiciones',
+                'title' => '11. Uso lícito y prohibiciones',
                 'paragraphs' => [
                     'El Usuario se obliga a utilizar Hashcod de conformidad con las leyes de la República Dominicana, el orden público, los derechos de terceros y las condiciones particulares de los servicios que solicite.',
                     'No podrá utilizar el registro para atribuirse obras ajenas, suministrar material ilícito, vulnerar derechos de propiedad intelectual, introducir código malicioso o inducir a Hashcod a realizar actividades contrarias a la ley.'
                 ],
             ],
             [
-                'title' => '11. Propiedad intelectual y código generado por IA',
+                'title' => '12. Propiedad intelectual y código generado por IA',
                 'paragraphs' => [
                     'Cuando el Usuario suministre código o explicaciones generadas total o parcialmente mediante inteligencia artificial, será responsable de revisar su procedencia, licencias, dependencias, permisos de uso y posibles derechos de terceros antes de presentarlos como propios o autorizados.',
                     'El registro en Hashcod no constituye por sí solo una declaración estatal de autoría, patente, derecho de autor o titularidad exclusiva. Las evidencias técnicas sirven para documentar la información recibida y su integridad dentro del sistema.'
                 ],
             ],
             [
-                'title' => '12. Derechos del consumidor y normas imperativas',
+                'title' => '13. Derechos del consumidor y normas imperativas',
                 'paragraphs' => [
                     'Nada en este documento pretende eliminar derechos que la legislación dominicana reconozca de manera imperativa a consumidores o usuarios. Cuando la relación sea de consumo, resultarán aplicables las disposiciones obligatorias de la Ley núm. 358-05 y sus normas complementarias.',
                     'Si este documento llegara a utilizarse como contrato de adhesión frente a consumidores finales, Hashcod deberá observar los requisitos regulatorios que resulten aplicables a ese tipo de contrato.'
                 ],
             ],
             [
-                'title' => '13. Modificaciones y nuevas versiones',
+                'title' => '14. Modificaciones y nuevas versiones',
                 'paragraphs' => [
                     'Cada versión de este documento posee un número de versión y una huella SHA-256 propia. Una modificación material destinada a obligar nuevamente al Usuario deberá presentarse de forma identificable para una nueva aceptación cuando corresponda.',
                     'La evidencia de un registro anterior conservará la versión y huella del texto aceptado en ese momento, aunque posteriormente exista una versión más reciente.'
                 ],
             ],
             [
-                'title' => '14. Legislación aplicable y jurisdicción',
+                'title' => '15. Legislación aplicable y jurisdicción',
                 'paragraphs' => [
                     'Este documento se interpreta conforme a las leyes de la República Dominicana, en particular las normas aplicables a contratación electrónica, documentos y mensajes de datos, protección de datos personales y, cuando proceda, protección de consumidores y usuarios.',
                     'Las controversias se someterán a los mecanismos y autoridades competentes de la República Dominicana, sin perjuicio de cualquier derecho o jurisdicción imperativa que resulte aplicable.'
                 ],
             ],
             [
-                'title' => '15. Integridad del documento',
+                'title' => '16. Integridad del documento',
                 'paragraphs' => [
                     'Si una disposición resultare inválida o inaplicable, las demás conservarán su vigencia en la medida permitida por la ley. La interpretación del documento deberá procurar mantener su finalidad lícita sin ampliar obligaciones más allá de lo expresamente aceptado.'
                 ],
@@ -131,7 +147,9 @@ function hashcodRegistrationContract(): array
         'legal_references' => [
             'Ley núm. 126-02 sobre Comercio Electrónico, Documentos y Firmas Digitales, especialmente sus disposiciones sobre formación y validez de contratos, manifestaciones de voluntad, conservación documental y firma digital.',
             'Ley núm. 172-13 sobre Protección Integral de los Datos Personales.',
-            'Ley núm. 358-05 General de Protección de los Derechos del Consumidor o Usuario, cuando la relación califique como relación de consumo.'
+            'Ley núm. 358-05 General de Protección de los Derechos del Consumidor o Usuario, cuando la relación califique como relación de consumo.',
+            'Ley núm. 3-02 sobre Registro Mercantil, en relación con la evidencia de Registro Mercantil aportada.',
+            'Ley núm. 20-00 sobre Propiedad Industrial, en relación con el nombre comercial DIKTATCART y la marca mixta HASHCOD.'
         ],
     ];
 }

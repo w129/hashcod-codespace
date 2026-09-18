@@ -9,7 +9,9 @@ on:
       - components/platform-registration-form.css
       - platform-registration.php
       - components/platform-entry-hold.js
+      - components/platform-entry-hold.css
       - components/platform-entry-motion.js
+      - components/admin-hello-button.js
       - l8-html.php
       - laragon-local-entry.php
       - tests/e2e/test_platform_registration_sequence_playwright.js
@@ -22,6 +24,7 @@ on:
       - components/platform-registration-form.css
       - platform-registration.php
       - components/platform-entry-hold.js
+      - components/platform-entry-hold.css
       - components/admin-hello-button.js
       - l8-html.php
       - laragon-local-entry.php

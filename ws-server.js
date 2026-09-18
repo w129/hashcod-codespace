@@ -1,91 +1,177 @@
 /**
  * ============================================================================
- * HASHCOD CODESPACE · WEBSOCKET SERVER
- * Servidor WebSocket en tiempo real para Terminal Tabby, Gateway y Notepad
+ * HASHCOD CODESPACE · HARDENED WEBSOCKET SERVER
+ * Realtime bridge for Terminal, Gateway and Notepad.
  * ============================================================================
  */
+
+'use strict';
 
 const http = require('http');
 const { WebSocketServer, WebSocket } = require('ws');
 const crypto = require('crypto');
 
 const PORT = parseInt(process.env.WS_PORT || process.env.PORT || '8080', 10);
-const HOST = process.env.WS_HOST || '0.0.0.0';
-const SECRET_KEY = process.env.WS_SECRET || 'hashcod-codespace-secret-2026';
+const HOST = (process.env.WS_HOST || '127.0.0.1').trim();
+const SECRET_KEY = (process.env.WS_SECRET || '').trim();
+const ALLOW_REMOTE = /^(1|true|yes|on)$/i.test(process.env.WS_ALLOW_REMOTE || '');
+const ALLOWED_ORIGINS = new Set(
+    (process.env.WS_ALLOWED_ORIGINS || '')
+        .split(',')
+        .map(v => v.trim().replace(/\/$/, ''))
+        .filter(Boolean)
+);
 
-// Mapa de clientes conectados: clientId -> { ws, ip, channels, connectedAt }
-const clients = new Map();
+const MAX_HTTP_BODY = 64 * 1024;
+const MAX_WS_PAYLOAD = 128 * 1024;
+const MAX_MESSAGES_PER_WINDOW = 120;
+const MESSAGE_WINDOW_MS = 10_000;
+const ALLOWED_CHANNELS = new Set(['global', 'terminal', 'gateway', 'notepad', 'system']);
 
-// Servidor HTTP base (para healthcheck, estadísticas y bridge HTTP -> WS desde PHP)
-const server = http.createServer((req, res) => {
-    // Cabeceras CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
+function isLoopbackHost(host) {
+    return host === '127.0.0.1' || host === 'localhost' || host === '::1';
+}
+
+const LOOPBACK_ONLY = isLoopbackHost(HOST);
+
+if (!LOOPBACK_ONLY && !ALLOW_REMOTE) {
+    throw new Error('Refusing remote WebSocket bind. Set WS_ALLOW_REMOTE=1 explicitly.');
+}
+if (!LOOPBACK_ONLY && SECRET_KEY.length < 32) {
+    throw new Error('Remote WebSocket mode requires WS_SECRET with at least 32 characters.');
+}
+if (!LOOPBACK_ONLY && ALLOWED_ORIGINS.size === 0) {
+    throw new Error('Remote WebSocket mode requires WS_ALLOWED_ORIGINS.');
+}
+
+function safeEqual(a, b) {
+    const left = Buffer.from(String(a || ''));
+    const right = Buffer.from(String(b || ''));
+    if (left.length === 0 || left.length !== right.length) return false;
+    return crypto.timingSafeEqual(left, right);
+}
+
+function requestUrl(req) {
+    return new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+}
+
+function requestSecret(req, url = requestUrl(req)) {
+    const direct = String(req.headers['x-ws-secret'] || '').trim();
+    if (direct) return direct;
+
+    const auth = String(req.headers.authorization || '').trim();
+    if (/^Bearer\s+/i.test(auth)) return auth.replace(/^Bearer\s+/i, '').trim();
+
+    return String(url.searchParams.get('token') || '').trim();
+}
+
+function secretValid(req, url = requestUrl(req)) {
+    return SECRET_KEY.length >= 32 && safeEqual(requestSecret(req, url), SECRET_KEY);
+}
+
+function originAllowed(req) {
+    const raw = String(req.headers.origin || '').trim();
+    if (!raw) {
+        // Non-browser clients are acceptable only on loopback. Remote clients
+        // must authenticate with the secret and still use an explicit origin
+        // when operating from browsers.
+        return LOOPBACK_ONLY;
+    }
+
+    let parsed;
+    try {
+        parsed = new URL(raw);
+    } catch (_) {
+        return false;
+    }
+
+    const normalized = raw.replace(/\/$/, '');
+    if (LOOPBACK_ONLY) {
+        return ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname);
+    }
+    return ALLOWED_ORIGINS.has(normalized);
+}
+
+function websocketAuthorized(req, url) {
+    if (!originAllowed(req)) return false;
+    if (LOOPBACK_ONLY) return true;
+    return secretValid(req, url);
+}
+
+function applyCors(req, res) {
+    const origin = String(req.headers.origin || '').trim().replace(/\/$/, '');
+    let allowed = false;
+
+    if (origin) {
+        try {
+            const parsed = new URL(origin);
+            allowed = LOOPBACK_ONLY
+                ? ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname)
+                : ALLOWED_ORIGINS.has(origin);
+        } catch (_) {
+            allowed = false;
+        }
+    }
+
+    if (allowed) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-WS-Secret');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'no-store');
+}
 
-    if (req.method === 'OPTIONS') {
-        res.writeHead(204);
-        res.end();
-        return;
-    }
+function readJsonBody(req, callback) {
+    let body = '';
+    let bytes = 0;
+    let finished = false;
 
-    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const fail = (status, error) => {
+        if (finished) return;
+        finished = true;
+        callback({ status, error });
+    };
 
-    // Endpoint de salud y estadísticas
-    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/health' || url.pathname === '/stats')) {
-        const stats = {
-            ok: true,
-            server: 'Hashcod Codespace WebSocket Server',
-            version: '2.0.0',
-            uptime: Math.floor(process.uptime()),
-            timestamp: new Date().toISOString(),
-            connectedClients: clients.size,
-            channels: getChannelStats()
-        };
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify(stats, null, 2));
-        return;
-    }
+    req.on('data', chunk => {
+        if (finished) return;
+        bytes += chunk.length;
+        if (bytes > MAX_HTTP_BODY) {
+            fail(413, 'Payload too large');
+            req.destroy();
+            return;
+        }
+        body += chunk.toString('utf8');
+    });
 
-    // Endpoint Bridge HTTP POST para que PHP (api.php) emita eventos WebSocket directamente
-    if (req.method === 'POST' && url.pathname === '/api/broadcast') {
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
-            try {
-                const data = JSON.parse(body || '{}');
-                const channel = data.channel || 'global';
-                const event = data.event || 'message';
-                const payload = data.payload || data.data || {};
+    req.on('end', () => {
+        if (finished) return;
+        try {
+            const data = JSON.parse(body || '{}');
+            finished = true;
+            callback(null, data && typeof data === 'object' ? data : {});
+        } catch (_) {
+            fail(400, 'Invalid JSON');
+        }
+    });
+}
 
-                broadcast(channel, event, payload, null);
+function safeString(value, max = 256) {
+    return String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').slice(0, max);
+}
 
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ ok: true, deliveredTo: getChannelCount(channel) }));
-            } catch (err) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ ok: false, error: err.message }));
-            }
-        });
-        return;
-    }
+function allowedChannel(value, fallback = 'global') {
+    const channel = safeString(value || fallback, 32);
+    return ALLOWED_CHANNELS.has(channel) ? channel : null;
+}
 
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Endpoint no encontrado' }));
-});
+const clients = new Map();
 
-// Servidor WebSocket adjunto al servidor HTTP
-const wss = new WebSocketServer({ server });
-
-/**
- * Obtiene el conteo de clientes por canal
- */
 function getChannelStats() {
     const counts = {};
     for (const client of clients.values()) {
-        for (const ch of client.channels) {
-            counts[ch] = (counts[ch] || 0) + 1;
-        }
+        for (const ch of client.channels) counts[ch] = (counts[ch] || 0) + 1;
     }
     return counts;
 }
@@ -93,162 +179,262 @@ function getChannelStats() {
 function getChannelCount(channel) {
     let count = 0;
     for (const client of clients.values()) {
-        if (channel === 'global' || client.channels.has(channel)) {
-            count++;
-        }
+        if (channel === 'global' || client.channels.has(channel)) count++;
     }
     return count;
 }
 
-/**
- * Difunde un evento a un canal o a todos los clientes
- */
 function broadcast(channel, event, payload, senderWs = null) {
+    if (!ALLOWED_CHANNELS.has(channel)) return 0;
+
     const message = JSON.stringify({
         type: 'event',
-        channel: channel,
-        event: event,
-        payload: payload,
+        channel,
+        event: safeString(event || 'message', 64),
+        payload: payload && typeof payload === 'object' ? payload : {},
         timestamp: Date.now()
     });
 
+    let delivered = 0;
     for (const [id, client] of clients) {
-        if (client.ws === senderWs) continue; // no hacer eco al emisor si no es necesario
-        if (client.ws.readyState !== WebSocket.OPEN) continue;
-
-        if (channel === 'global' || client.channels.has(channel)) {
-            try {
-                client.ws.send(message);
-            } catch (e) {
-                console.error(`Error enviando mensaje a cliente ${id}:`, e.message);
-            }
+        if (client.ws === senderWs || client.ws.readyState !== WebSocket.OPEN) continue;
+        if (channel !== 'global' && !client.channels.has(channel)) continue;
+        try {
+            client.ws.send(message);
+            delivered++;
+        } catch (e) {
+            console.error(`[WS SEND ERROR] ${id}: ${e.message}`);
         }
     }
+    return delivered;
 }
 
-// Manejo de conexiones WebSocket entrantes
-wss.on('connection', (ws, req) => {
-    const clientId = 'c_' + crypto.randomBytes(6).toString('hex');
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+const server = http.createServer((req, res) => {
+    applyCors(req, res);
 
+    if (req.method === 'OPTIONS') {
+        if (!originAllowed(req)) {
+            res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
+            return res.end(JSON.stringify({ ok: false, error: 'Origin not allowed' }));
+        }
+        res.writeHead(204);
+        return res.end();
+    }
+
+    const url = requestUrl(req);
+
+    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/health')) {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({
+            ok: true,
+            server: 'Hashcod Codespace WebSocket Server',
+            version: '2.1.0',
+            timestamp: new Date().toISOString()
+        }));
+    }
+
+    if (req.method === 'GET' && url.pathname === '/stats') {
+        if (!secretValid(req, url)) {
+            res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' });
+            return res.end(JSON.stringify({ ok: false, error: 'Authentication required' }));
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({
+            ok: true,
+            uptime: Math.floor(process.uptime()),
+            connectedClients: clients.size,
+            channels: getChannelStats()
+        }));
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/broadcast') {
+        // The HTTP→WS bridge is privileged even on loopback. No secret means
+        // the bridge is disabled rather than silently becoming public.
+        if (!secretValid(req, url)) {
+            const status = SECRET_KEY.length >= 32 ? 401 : 503;
+            res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
+            return res.end(JSON.stringify({
+                ok: false,
+                error: status === 503 ? 'Broadcast bridge disabled' : 'Authentication required'
+            }));
+        }
+
+        return readJsonBody(req, (err, data) => {
+            if (err) {
+                res.writeHead(err.status, { 'Content-Type': 'application/json; charset=utf-8' });
+                return res.end(JSON.stringify({ ok: false, error: err.error }));
+            }
+
+            const channel = allowedChannel(data.channel);
+            if (!channel) {
+                res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+                return res.end(JSON.stringify({ ok: false, error: 'Invalid channel' }));
+            }
+
+            const event = safeString(data.event || 'message', 64);
+            const payload = data.payload && typeof data.payload === 'object'
+                ? data.payload
+                : (data.data && typeof data.data === 'object' ? data.data : {});
+
+            const deliveredTo = broadcast(channel, event, payload, null);
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            return res.end(JSON.stringify({ ok: true, deliveredTo }));
+        });
+    }
+
+    res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ ok: false, error: 'Endpoint not found' }));
+});
+
+const wss = new WebSocketServer({
+    noServer: true,
+    maxPayload: MAX_WS_PAYLOAD,
+    perMessageDeflate: false
+});
+
+server.on('upgrade', (req, socket, head) => {
+    const url = requestUrl(req);
+    if (!websocketAuthorized(req, url)) {
+        socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');
+        socket.destroy();
+        return;
+    }
+
+    wss.handleUpgrade(req, socket, head, ws => {
+        wss.emit('connection', ws, req);
+    });
+});
+
+wss.on('connection', (ws, req) => {
+    const clientId = 'c_' + crypto.randomBytes(12).toString('hex');
+    const ip = req.socket.remoteAddress || 'loopback';
     const clientInfo = {
-        ws: ws,
+        ws,
         id: clientId,
-        ip: ip,
+        ip,
         channels: new Set(['global', 'terminal', 'gateway', 'notepad']),
         connectedAt: Date.now(),
-        isAlive: true
+        isAlive: true,
+        windowStartedAt: Date.now(),
+        windowMessageCount: 0
     };
 
     clients.set(clientId, clientInfo);
-    console.log(`[WS CONNECT] Cliente conectado: ${clientId} (${ip}) · Total: ${clients.size}`);
 
-    // Enviar bienvenida y confirmación de ID
     ws.send(JSON.stringify({
         type: 'welcome',
-        clientId: clientId,
-        server: 'Hashcod Codespace WS v2.0',
+        clientId,
+        server: 'Hashcod Codespace WS v2.1',
         timestamp: Date.now(),
         channels: Array.from(clientInfo.channels)
     }));
 
-    // Notificar presencia a los demás
     broadcast('system', 'client_connected', { clientId, total: clients.size }, ws);
 
-    // Heartbeat ping-pong
     ws.on('pong', () => {
         clientInfo.isAlive = true;
     });
 
-    // Procesar mensajes entrantes del cliente
-    ws.on('message', (raw) => {
+    ws.on('message', raw => {
+        const now = Date.now();
+        if (now - clientInfo.windowStartedAt >= MESSAGE_WINDOW_MS) {
+            clientInfo.windowStartedAt = now;
+            clientInfo.windowMessageCount = 0;
+        }
+        clientInfo.windowMessageCount++;
+        if (clientInfo.windowMessageCount > MAX_MESSAGES_PER_WINDOW) {
+            ws.close(1008, 'Rate limit exceeded');
+            return;
+        }
+
         try {
             const data = JSON.parse(raw.toString());
-            const action = data.action || data.type;
+            if (!data || typeof data !== 'object') return;
+            const action = safeString(data.action || data.type, 32);
 
             switch (action) {
                 case 'ping':
                     ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
                     break;
 
-                case 'subscribe':
-                    if (data.channel) {
-                        clientInfo.channels.add(data.channel);
-                        ws.send(JSON.stringify({ type: 'subscribed', channel: data.channel }));
+                case 'subscribe': {
+                    const channel = allowedChannel(data.channel, '');
+                    if (!channel) {
+                        ws.send(JSON.stringify({ type: 'error', error: 'Invalid channel' }));
+                        break;
                     }
+                    clientInfo.channels.add(channel);
+                    ws.send(JSON.stringify({ type: 'subscribed', channel }));
                     break;
+                }
 
-                case 'unsubscribe':
-                    if (data.channel) {
-                        clientInfo.channels.delete(data.channel);
-                        ws.send(JSON.stringify({ type: 'unsubscribed', channel: data.channel }));
-                    }
+                case 'unsubscribe': {
+                    const channel = allowedChannel(data.channel, '');
+                    if (!channel) break;
+                    clientInfo.channels.delete(channel);
+                    ws.send(JSON.stringify({ type: 'unsubscribed', channel }));
                     break;
+                }
 
                 case 'broadcast':
-                case 'publish':
-                    const channel = data.channel || 'global';
-                    const event = data.event || 'message';
-                    const payload = data.payload || data.data || {};
-                    broadcast(channel, event, { ...payload, from: clientId }, ws);
+                case 'publish': {
+                    const channel = allowedChannel(data.channel);
+                    if (!channel) break;
+                    broadcast(
+                        channel,
+                        safeString(data.event || 'message', 64),
+                        data.payload && typeof data.payload === 'object' ? data.payload : {},
+                        ws
+                    );
                     break;
+                }
 
                 case 'terminal_command':
-                    // Retransmisión de comandos de terminal
                     broadcast('terminal', 'command_run', {
-                        command: data.command,
-                        user: data.user || 'tabby',
-                        cwd: data.cwd || '~/workspace',
+                        command: safeString(data.command, 4096),
+                        user: safeString(data.user || 'tabby', 64),
+                        cwd: safeString(data.cwd || '~/workspace', 512),
                         from: clientId
                     }, ws);
                     break;
 
                 case 'gateway_transfer':
-                    // Notificación de nuevo paquete generado en Gateway
                     broadcast('gateway', 'new_transfer', {
-                        code: data.code,
-                        label: data.label,
+                        code: safeString(data.code, 256),
+                        label: safeString(data.label, 256),
                         from: clientId
                     }, ws);
                     break;
 
                 case 'gateway_claimed':
-                    // Notificación de paquete reclamado / descargado
                     broadcast('gateway', 'transfer_claimed', {
-                        code: data.code,
+                        code: safeString(data.code, 256),
                         from: clientId
                     }, ws);
                     break;
 
                 default:
-                    // Mensaje genérico
-                    if (data.channel && data.event) {
-                        broadcast(data.channel, data.event, data.payload || {}, ws);
-                    }
+                    ws.send(JSON.stringify({ type: 'error', error: 'Unsupported action' }));
                     break;
             }
-        } catch (err) {
-            console.error('[WS ERROR] Error al procesar mensaje:', err.message);
+        } catch (_) {
+            ws.send(JSON.stringify({ type: 'error', error: 'Invalid message' }));
         }
     });
 
-    // Desconexión
     ws.on('close', () => {
         clients.delete(clientId);
-        console.log(`[WS DISCONNECT] Cliente desconectado: ${clientId} · Restantes: ${clients.size}`);
         broadcast('system', 'client_disconnected', { clientId, total: clients.size });
     });
 
-    ws.on('error', (err) => {
-        console.error(`[WS CLIENT ERROR] ${clientId}:`, err.message);
+    ws.on('error', err => {
+        console.error(`[WS CLIENT ERROR] ${clientId}: ${err.message}`);
     });
 });
 
-// Intervalo Heartbeat cada 25 segundos para limpiar conexiones muertas
 const pingInterval = setInterval(() => {
     for (const [id, client] of clients) {
         if (!client.isAlive) {
-            console.log(`[WS TIMEOUT] Terminando cliente inactivo: ${id}`);
             client.ws.terminate();
             clients.delete(id);
             continue;
@@ -256,24 +442,14 @@ const pingInterval = setInterval(() => {
         client.isAlive = false;
         try {
             client.ws.ping();
-        } catch (e) {
+        } catch (_) {
             clients.delete(id);
         }
     }
-}, 25000);
+}, 25_000);
 
-wss.on('close', () => {
-    clearInterval(pingInterval);
-});
+wss.on('close', () => clearInterval(pingInterval));
 
-// Iniciar servidor
 server.listen(PORT, HOST, () => {
-    console.log(`
-┌─────────────────────────────────────────────────────────────┐
-│  ⚡ HASHCOD CODESPACE · WEBSOCKET SERVER INICIADO           │
-│  · WebSocket: ws://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}                     │
-│  · HTTP API:  http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}/health                 │
-│  · Canales:   terminal, gateway, notepad, system, global    │
-└─────────────────────────────────────────────────────────────┘
-`);
+    console.log(`Hashcod Codespace WS listening on ${HOST}:${PORT} (${LOOPBACK_ONLY ? 'loopback-only' : 'remote-authenticated'})`);
 });

@@ -6,7 +6,7 @@ const repoDir = path.resolve(__dirname, '../..');
 const js = fs.readFileSync(path.join(repoDir, 'components/platform-entry-hold.js'), 'utf8');
 const css = fs.readFileSync(path.join(repoDir, 'components/platform-entry-hold.css'), 'utf8');
 
-assert(js.includes('const READY_DELAY_MS = 3600;'), 'entry sequence must remain visible before continuation is enabled');
+assert(js.includes('const READY_DELAY_MS = 1100;'), 'entry sequence must remain visible before continuation is enabled');
 assert(js.includes('await waitForContinue(overlay);'), 'login must wait for an explicit user click');
 assert(js.includes("root.dataset.hashcodFinalEntryScreen = 'true'"), 'third-screen state marker missing');
 assert(js.includes("new CustomEvent('hashcod:final-entry-screen'"), 'third-screen reveal event missing');
@@ -54,6 +54,8 @@ assert(css.includes('.hashcod-hold-pos-18'), 'full scattered placement map missi
 assert(css.includes('right: clamp(30px, 4.5vw, 72px);'), 'entry CTA must be anchored on the right');
 assert(!css.includes('.hashcod-hold-center'), 'central status CSS must remain removed');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'reduced-motion support missing');
+assert(!css.includes('hashcodSideIconDrift'), 'entry icons must not run continuous drift animations');
+assert(!css.includes('margin-top: -9px'), 'entry animation must not trigger layout every frame');
 
 const allowedHex = new Set([
     '#f7f7f5', '#111111', '#ffffff'

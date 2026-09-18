@@ -193,16 +193,6 @@ if ($method === 'POST') {
         hprJson(503, ['ok'=>false, 'error'=>'El almacenamiento seguro todavía no está disponible.']);
     }
 
-    $uploadedCode = supabaseStorageUpload(
-        $codeUpload['storage_path'],
-        $codeUpload['tmp_path'],
-        $codeUpload['mime_type'],
-        true
-    );
-    if (empty($uploadedCode['ok'])) {
-        hprJson(502, ['ok'=>false, 'error'=>'No se pudo subir el código de la plataforma en este momento.']);
-    }
-
     $row = [
         'full_name_enc'=>secretsEncrypt($validated['full_name']),
         'age'=>$validated['age'],
@@ -220,6 +210,16 @@ if ($method === 'POST') {
         if (!is_string($row[$encryptedField]) || !str_starts_with($row[$encryptedField], 'l8e1:')) {
             hprJson(503, ['ok'=>false, 'error'=>'No se pudo proteger el registro antes de almacenarlo.']);
         }
+    }
+
+    $uploadedCode = supabaseStorageUpload(
+        $codeUpload['storage_path'],
+        $codeUpload['tmp_path'],
+        $codeUpload['mime_type'],
+        true
+    );
+    if (empty($uploadedCode['ok'])) {
+        hprJson(502, ['ok'=>false, 'error'=>'No se pudo subir el código de la plataforma en este momento.']);
     }
 
     $res = supabaseDbRequest(HASHCOD_PLATFORM_REGISTRATION_TABLE, [

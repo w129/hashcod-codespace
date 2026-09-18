@@ -9,13 +9,16 @@ const css = fs.readFileSync(path.join(repoDir, 'components/platform-entry-hold.c
 assert(js.includes('const READY_DELAY_MS = 3600;'), 'entry sequence must remain visible before continuation is enabled');
 assert(js.includes('await waitForContinue(overlay);'), 'login must wait for an explicit user click');
 assert(js.includes("root.dataset.hashcodFinalEntryScreen = 'true'"), 'third-screen state marker missing');
+assert(js.includes("root.dataset.hashcodEntryStage = 'registration'"), 'registration stage marker missing');
 assert(js.includes("new CustomEvent('hashcod:final-entry-screen'"), 'third-screen reveal event missing');
-assert(js.includes('if (reachedFinalScreen) revealFinalEntryScreen();'), 'sign reveal must occur only after the second screen completes');
+assert(js.includes('await waitForRegistrationSubmission();'), 'platform entry must wait for a successfully saved registration');
+assert(js.indexOf('await waitForRegistrationSubmission();') < js.indexOf('return await original.apply(context, args);'), 'registration must finish before original platform entry executes');
+assert(js.includes('overlay.remove();\n\n            revealRegistrationScreen();'), 'second screen must close before third registration screen opens');
 assert(js.includes('id="hashcodHoldContinue" disabled'), 'continue button must begin disabled');
 assert(js.includes('continueButton.disabled = false;'), 'continue button must be enabled after verification delay');
 assert(js.includes('CONTINUAR AL LOGIN'), 'manual continuation label missing');
 assert(js.includes('current.__hashcodMotionOriginal || current'), 'manual gate must preserve the original platform entry function');
-assert(js.includes('await original.apply(context, args);'), 'manual gate must delegate to the original entry function');
+assert(js.includes('return await original.apply(context, args);'), 'manual gate must delegate to the original entry function only after registration');
 
 // Scene contract: only grid + dispersed vectors + right-side CTA. No central status block/card.
 assert(!js.includes('hashcod-hold-frame'), 'central card/window must remain removed');

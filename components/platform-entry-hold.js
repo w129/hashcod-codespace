@@ -105,19 +105,43 @@
         });
     }
 
-    function revealFinalEntryScreen() {
+    function revealRegistrationScreen() {
         const root = document.documentElement;
         root.dataset.hashcodFinalEntryScreen = 'true';
+        root.dataset.hashcodEntryStage = 'registration';
         window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', {
             detail: { screen: 3, source: 'platform-entry-hold' }
         }));
+        window.dispatchEvent(new CustomEvent('hashcod:entry-registration-stage', {
+            detail: { screen: 3, source: 'platform-entry-hold' }
+        }));
+    }
+
+    function closeRegistrationScreen() {
+        const root = document.documentElement;
+        root.removeAttribute('data-hashcod-final-entry-screen');
+        root.removeAttribute('data-hashcod-entry-stage');
+        window.dispatchEvent(new CustomEvent('hashcod:entry-registration-complete', {
+            detail: { screen: 3, source: 'platform-entry-hold' }
+        }));
+    }
+
+    async function waitForRegistrationSubmission() {
+        for (let attempt = 0; attempt < 120; attempt += 1) {
+            const registration = window.HashcodFinalEntryRegistration;
+            if (registration && typeof registration.waitForSubmission === 'function') {
+                return registration.waitForSubmission();
+            }
+            await sleep(50);
+        }
+        throw new Error('No se pudo iniciar la tercera ventana de registro.');
     }
 
     async function runHold(original, context, args) {
         const enterButton = document.getElementById('bootCliEnter');
         const enterOriginalText = enterButton ? enterButton.textContent : '';
         const overlay = buildOverlay();
-        let reachedFinalScreen = false;
+        let registrationVisible = false;
 
         if (enterButton) {
             enterButton.disabled = true;
@@ -125,6 +149,7 @@
         }
 
         document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
+        document.documentElement.removeAttribute('data-hashcod-entry-stage');
         document.body.appendChild(overlay);
         requestAnimationFrame(function () {
             overlay.classList.add('is-visible');
@@ -135,18 +160,29 @@
             await waitForContinue(overlay);
             await sleep(240);
 
-            const result = await original.apply(context, args);
+            // Window 2 closes here. The real platform entry is deliberately held
+            // until Window 3 (the registration form) has been validated and saved.
             overlay.classList.add('is-revealing');
-            await sleep(560);
-            reachedFinalScreen = true;
-            return result;
+            await sleep(420);
+            overlay.remove();
+
+            revealRegistrationScreen();
+            registrationVisible = true;
+            await waitForRegistrationSubmission();
+            await sleep(320);
+
+            closeRegistrationScreen();
+            registrationVisible = false;
+
+            // Only now execute the original Hashcod entry transition.
+            return await original.apply(context, args);
         } finally {
             overlay.remove();
+            if (registrationVisible) closeRegistrationScreen();
             if (enterButton) {
                 enterButton.disabled = false;
                 enterButton.textContent = enterOriginalText;
             }
-            if (reachedFinalScreen) revealFinalEntryScreen();
         }
     }
 

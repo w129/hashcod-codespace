@@ -14,6 +14,7 @@ const codeMigration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20
 const contractMigration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260918_add_registration_contract_evidence.sql'), 'utf8');
 const contractPhp = fs.readFileSync(path.join(repoDir, 'platform-registration-contract.php'), 'utf8');
 const privacy = fs.readFileSync(path.join(repoDir, 'privacy.php'), 'utf8');
+const evidenceManifest = fs.readFileSync(path.join(repoDir, 'legal-evidence/registration-evidence-manifest.json'), 'utf8');
 const schema = fs.readFileSync(path.join(repoDir, 'supabase/schema.sql'), 'utf8');
 const hosted = fs.readFileSync(path.join(repoDir, 'l8-html.php'), 'utf8');
 const local = fs.readFileSync(path.join(repoDir, 'laragon-local-entry.php'), 'utf8');
@@ -190,10 +191,16 @@ for (const sql of [contractMigration, schema]) {
   assert(sql.includes('acceptance_evidence_sha256'), 'acceptance evidence SHA-256 column missing');
 }
 
-assert(contractPhp.includes("'version' => '2026.09.18-1'"), 'canonical contract version missing');
+assert(contractPhp.includes("'version' => '2026.09.18-2'"), 'canonical contract version missing');
 assert(contractPhp.includes('hashcodRegistrationContractSha256'), 'canonical contract SHA-256 helper missing');
 assert(contractPhp.includes('El Usuario se compromete a suplir'), 'required user supply obligation missing');
 assert(contractPhp.includes('Esta aceptación por checkbox no se presenta como una “firma digital certificada”'), 'digital-signature legal precision missing');
+assert(contractPhp.includes('Registro Mercantil de Persona Física núm. 3323LV-PF'), 'mercantile registration evidence missing');
+assert(contractPhp.includes('Nombre comercial DIKTATCART, Registro ONAPI núm. 925063'), 'DIKTATCART commercial-name evidence missing');
+assert(contractPhp.includes('Marca mixta HASHCOD, Registro ONAPI núm. 336973'), 'HASHCOD trademark evidence missing');
+assert(contractPhp.includes('RNC) núm. 402-0936929-3'), 'RNC evidence missing');
+assert(evidenceManifest.includes('ec1077ab5fd6d81685f0976ab3451ef7f4fa5be230e8ffe94761365708ab3e31'), 'mercantile certificate SHA-256 missing');
+assert(evidenceManifest.includes('696254deb3f1783f788d475c8b13b615ceb32440ce2b921ca946a030292464db'), 'HASHCOD trademark certificate SHA-256 missing');
 assert(privacy.includes("require_once __DIR__ . '/platform-registration-contract.php'"), 'privacy page must render the canonical contract helper');
 assert(contractPhp.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'), 'contract document title missing');
 assert(privacy.includes('SHA-256 canónico'), 'contract document must display canonical hash');
@@ -201,16 +208,16 @@ assert(privacy.includes('Declaración de aceptación'), 'contract acceptance dec
 
 // Hosted/local wiring and retired sign removal.
 assert(hosted.includes('platform-registration-form.css?v=20260918-13'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-17'), 'hosted registration JS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-18'), 'hosted registration JS missing');
 assert(local.includes('platform-registration-form.css?v=20260918-13'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-17'), 'local registration JS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-18'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');
 assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
 assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
 assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
-assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-17'"), 'hold runtime must be versioned');
+assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-18'"), 'hold runtime must be versioned');
 assert(hold.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
 assert(!hold.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
 assert(!hold.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');
@@ -226,9 +233,9 @@ assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visi
 assert(local.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'local form must be forcibly hidden before screen 3');
 assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
-assert(hosted.includes('platform-entry-hold.js?v=20260918-17'), 'hosted second screen must load directly');
+assert(hosted.includes('platform-entry-hold.js?v=20260918-18'), 'hosted second screen must load directly');
 assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
-assert(local.includes('platform-entry-hold.js?v=20260918-17'), 'local second screen must load directly');
+assert(local.includes('platform-entry-hold.js?v=20260918-18'), 'local second screen must load directly');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

@@ -78,13 +78,8 @@ async function run() {
       `global UX controls must be at the top-left, got left=${landingGeometry.controls.left.toFixed(2)}px`);
     assert(landingGeometry.controls.top >= 0 && landingGeometry.controls.top <= 28,
       `global UX controls must be at the top-left, got top=${landingGeometry.controls.top.toFixed(2)}px`);
-    assert(landingGeometry.registration, 'platform registration form must be mounted');
-    assert.equal(landingGeometry.registrationDisplay, 'none',
-      'platform registration form must stay hidden on the first landing screen');
-    assert.equal(landingGeometry.registrationVisibility, 'hidden',
-      'platform registration form must not be visible before the third screen');
-    assert.equal(landingGeometry.registrationOpacity, 0,
-      'platform registration form must remain transparent before the third screen');
+    assert.equal(landingGeometry.registration, null,
+      'platform registration must not exist on the first landing screen');
 
     await page.evaluate(() => {
       document.documentElement.dataset.hashcodFinalEntryScreen = 'true';
@@ -119,11 +114,18 @@ async function run() {
         ageMax: age ? age.max : null,
         cedulaPlaceholder: cedula ? cedula.placeholder : null,
         submitDisabled: submit ? submit.disabled : null,
-        tableButtonVisible: tableButton ? getComputedStyle(tableButton).display !== 'none' : false
+        tableButtonVisible: tableButton ? getComputedStyle(tableButton).display !== 'none' : false,
+        viewportWidth: innerWidth,
+        viewportHeight: innerHeight,
+        screen: node.dataset.hashcodScreen || ''
       };
     });
-    assert(finalRegistration.width > 300 && finalRegistration.height > 300,
-      'platform registration form must have a visible bounding box on the third screen');
+    assert(finalRegistration.width >= finalRegistration.viewportWidth * 0.98,
+      'platform registration must own the full width of screen 3');
+    assert(finalRegistration.height >= finalRegistration.viewportHeight * 0.98,
+      'platform registration must own the full height of screen 3');
+    assert.equal(finalRegistration.screen, '3',
+      'platform registration must identify itself as the third screen');
     assert.equal(finalRegistration.visibility, 'visible',
       'platform registration form must be visible on the third screen');
     assert(finalRegistration.opacity > 0.9,

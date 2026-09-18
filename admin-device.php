@@ -112,6 +112,7 @@ function adminProtectedPath(string $path): bool {
         '/api/auth/dilithium-active-key', '/api/auth/list-accounts',
         '/api/auth/suspend-account', '/api/auth/reactivate-account', '/api/auth/delete-account', '/api/auth/delete',
         '/api/libreoffice/ensure',
+        '/api/command', '/cmd',
         '/api/openclaw/run', '/api/openclaw/gateway', '/api/openclaw/config'
     ], true);
 }

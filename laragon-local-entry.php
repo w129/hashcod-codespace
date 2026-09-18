@@ -52,6 +52,8 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-registration-form.css?v=20260917-1" data-hashcod-platform-registration-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbox-secure-links.css?v=20260914-retired1" data-hashcod-toolbox-secure-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-motion.css?v=20260918-1" data-hashcod-platform-entry-motion-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-hold.css?v=20260918-1" data-hashcod-platform-entry-hold-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-slogan.css?v=20260910-1" data-hashcod-vector-tray-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
@@ -101,7 +103,9 @@ $inlineEfrJs = $efrJs !== ''
     : '';
 
 $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/platform-registration-form.js?v=20260917-2" data-hashcod-platform-registration="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260918-1" data-platform-entry-hold="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-registration-form.js?v=20260918-1" data-hashcod-platform-registration="true"></script>'
 
     . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline

@@ -237,7 +237,7 @@
             await registration.waitForSuccessfulSubmission();
             await sleep(160);
 
-            registration.completePlatformEntry();
+            await registration.completePlatformEntry();
             return true;
         } catch (error) {
             console.error('[Hashcod entry hold] Registration handoff failed:', error);

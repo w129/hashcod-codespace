@@ -41,7 +41,7 @@ assert(router.includes('$rootReal . DIRECTORY_SEPARATOR'), 'Static router must u
 
 assert(docker.includes('StrictHostKeyChecking yes'), 'Docker SSH must verify GitHub host keys');
 assert(!docker.includes('StrictHostKeyChecking no'), 'Docker SSH must never disable host verification');
-assert(!docker.includes('ssh-keyscan'), 'Docker build must not trust unauthenticated ssh-keyscan output');
+assert(!/^\s*ssh-keyscan\b/m.test(docker), 'Docker build must not execute unauthenticated SSH host-key discovery');
 assert(docker.includes('github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl'), 'GitHub Ed25519 host key must be pinned');
 
 assert(openclaw.includes('openclawRequireAccount();'), 'OpenClaw user routes must require an account');

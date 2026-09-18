@@ -163,11 +163,14 @@
 
     function mount() {
         if (!document.body) return false;
+        if (document.documentElement.dataset.hashcodFinalEntryScreen !== 'true') return false;
+
         let root = document.getElementById(ROOT_ID);
         if (!root) {
             root = document.createElement('section');
             root.id = ROOT_ID;
-            root.setAttribute('aria-label', 'Registro de plataforma');
+            root.dataset.hashcodScreen = '3';
+            root.setAttribute('aria-label', 'Tercera pantalla: registro de plataforma');
             root.innerHTML = formMarkup();
             document.body.appendChild(root);
         }
@@ -418,7 +421,18 @@
 
     armFinalScreenFallback();
     armFinalScreenRecovery();
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
-    else mount();
-    window.addEventListener('hashcod:final-entry-screen', mount);
+
+    function mountIfThirdScreen() {
+        if (document.documentElement.dataset.hashcodFinalEntryScreen === 'true') mount();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', mountIfThirdScreen, { once: true });
+    } else {
+        mountIfThirdScreen();
+    }
+
+    window.addEventListener('hashcod:final-entry-screen', function (event) {
+        if (!event.detail || Number(event.detail.screen) === 3) mount();
+    });
 })();

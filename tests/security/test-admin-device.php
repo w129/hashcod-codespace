@@ -34,6 +34,22 @@ foreach ([
     '/api/django/status'
 ] as $path) check(adminProtectedPath($path), $path);
 foreach (['/api/auth/login','/api/auth/register','/api/auth/recover','/api/auth/session'] as $path) check(!adminProtectedPath($path), 'user path remains public: ' . $path);
+foreach ([
+    '/api/streamlit/run',
+    '/api/agent-browser/action',
+    '/api/agent-browser/shot',
+    '/api/ubuntu/exec',
+    '/api/zylon/exec',
+    '/api/claude/run',
+    '/api/macos/boot',
+    '/api/chromeos/boot',
+    '/api/libreoffice/ensure',
+    '/api/openclaw/run',
+    '/api/openclaw/gateway',
+    '/api/openclaw/config'
+] as $path) check(adminProtectedPath($path), 'process/admin path protected: ' . $path);
+check(!adminProtectedPath('/api/openclaw/webhook'), 'OpenClaw webhook uses dedicated secret, not admin session');
+
 $key = openssl_pkey_new(['private_key_type'=>OPENSSL_KEYTYPE_EC, 'curve_name'=>'prime256v1']);
 $details = openssl_pkey_get_details($key);
 $spki = adminB64(base64_decode(preg_replace('/-----[^-]+-----|\s/', '', $details['key'])));

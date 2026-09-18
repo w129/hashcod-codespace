@@ -189,7 +189,11 @@
     function install() {
         const current = window.l8EnterPlatform;
         if (typeof current !== 'function') return false;
-        if (current.__hashcodHoldWrapped === true) return true;
+        if (current.__hashcodHoldWrapped === true) {
+            window.__hashcodPlatformEntryHoldReady = true;
+            document.documentElement.dataset.hashcodEntryGateReady = 'true';
+            return true;
+        }
 
         // Bypass the earlier auto-advancing motion wrapper. This manual gate is authoritative.
         const original = current.__hashcodMotionOriginal || current;
@@ -208,6 +212,11 @@
         Object.defineProperty(wrapped, '__hashcodHoldWrapped', { value: true });
         Object.defineProperty(wrapped, '__hashcodHoldOriginal', { value: original });
         window.l8EnterPlatform = wrapped;
+        window.__hashcodPlatformEntryHoldReady = true;
+        document.documentElement.dataset.hashcodEntryGateReady = 'true';
+        window.dispatchEvent(new CustomEvent('hashcod:entry-gate-ready', {
+            detail: { source: 'platform-entry-hold' }
+        }));
         return true;
     }
 

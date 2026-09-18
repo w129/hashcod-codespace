@@ -18,6 +18,7 @@ checkBoundary(!resilientProxyValidateUrl('http://api.osv.dev/v1/querybatch'), 'p
 checkBoundary(!resilientProxyValidateUrl('https://localhost/admin'), 'localhost rejected');
 checkBoundary(!resilientProxyValidateUrl('https://127.0.0.1/admin'), 'loopback IPv4 rejected');
 checkBoundary(!resilientProxyValidateUrl('https://169.254.169.254/latest/meta-data'), 'link-local metadata endpoint rejected');
+checkBoundary(!resilientProxyValidateUrl('https://1.1.1.1/'), 'public IP literal rejected');
 checkBoundary(!resilientProxyValidateUrl('https://[::1]/admin'), 'loopback IPv6 rejected');
 checkBoundary(!resilientProxyValidateUrl('https://user:pass@api.osv.dev/v1/querybatch'), 'URL credentials rejected');
 checkBoundary(!resilientProxyValidateUrl('https://example.invalid/resource'), 'unknown provider rejected');

@@ -188,7 +188,7 @@ $rootReal = realpath(__DIR__);
 if (
     $filePath !== false
     && $rootReal !== false
-    && strpos($filePath, $rootReal) === 0
+    && ($filePath === $rootReal || str_starts_with($filePath, $rootReal . DIRECTORY_SEPARATOR))
     && is_file($filePath)
     && securityIsAllowedStatic($uri)
 ) {

@@ -57,6 +57,11 @@ assert(js.includes('hashcodRegistrationProgressIndicator'), 'progress indicator 
 assert(js.includes('hashcodRegistrationProgressValue'), 'progress percentage label missing');
 assert(js.includes("const steps = ['full_name', 'age', 'cedula', 'platform_name', 'code_file', 'email', 'phone']"), 'progress must track the seven pre-consent fields');
 assert(js.includes('updateProgress(v);'), 'form validation must update progress');
+assert(js.includes('consent.disabled = !complete'), 'consent checkbox must stay disabled until all pre-consent fields are complete');
+assert(js.includes('if (!complete && consent.checked)'), 'consent must be revoked if a completed field becomes invalid');
+assert(js.includes('Completa todos los campos y acepta el documento contractual antes de continuar.'), 'strict continuation error copy missing');
+assert(css.includes('.hashcod-registration-progress-hint'), 'completion lock hint styling missing');
+
 assert(css.includes('.hashcod-registration-progress-indicator'), 'progress indicator styling missing');
 assert(css.includes('transition: transform .28s'), 'progress animation missing');
 assert(css.includes('@keyframes hashcodRegistrationProgressSheen'), 'progress sheen animation missing');
@@ -216,17 +221,17 @@ assert(privacy.includes('SHA-256 canónico'), 'contract document must display ca
 assert(privacy.includes('Declaración de aceptación'), 'contract acceptance declaration missing');
 
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260918-14'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-19'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260918-14'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-19'), 'local registration JS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-15'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-20'), 'hosted registration JS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-15'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-20'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');
 assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
 assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
 assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
-assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-19'"), 'hold runtime must be versioned');
+assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-20'"), 'hold runtime must be versioned');
 assert(hold.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
 assert(!hold.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
 assert(!hold.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');
@@ -242,9 +247,9 @@ assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visi
 assert(local.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'local form must be forcibly hidden before screen 3');
 assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
-assert(hosted.includes('platform-entry-hold.js?v=20260918-19'), 'hosted second screen must load directly');
+assert(hosted.includes('platform-entry-hold.js?v=20260918-20'), 'hosted second screen must load directly');
 assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
-assert(local.includes('platform-entry-hold.js?v=20260918-19'), 'local second screen must load directly');
+assert(local.includes('platform-entry-hold.js?v=20260918-20'), 'local second screen must load directly');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

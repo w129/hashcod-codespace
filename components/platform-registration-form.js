@@ -653,18 +653,59 @@
                     control.setAttribute('disabled', 'disabled');
                 });
 
-                snapshot.replaceChildren(clone);
+                const shadow = snapshot.shadowRoot || snapshot.attachShadow({ mode: 'open' });
+                const style = document.createElement('style');
+                const sourceCss = Array.from(parsed.querySelectorAll('style'))
+                    .map(function (node) { return node.textContent || ''; })
+                    .join('\n')
+                    .replace(/:root\s*\{/g, ':host {');
+
+                style.textContent = sourceCss + '\n' + [
+                    ':host {',
+                    '  display:block;',
+                    '  position:absolute;',
+                    '  inset:0 auto auto 0;',
+                    '  width:1200px;',
+                    '  min-height:674px;',
+                    '  overflow:hidden;',
+                    '  pointer-events:none;',
+                    '  background:#090b10;',
+                    '  transform:scale(.3);',
+                    '  transform-origin:0 0;',
+                    '  font-family:Geist,Arial,sans-serif;',
+                    '}',
+                    '.privacy-container {',
+                    '  width:920px !important;',
+                    '  margin:30px auto !important;',
+                    '  max-height:none !important;',
+                    '}',
+                    '.privacy-content { min-height:520px !important; }',
+                    '.btn-back { pointer-events:none !important; }'
+                ].join('\n');
+
+                shadow.replaceChildren(style, clone);
                 snapshot.dataset.loaded = 'true';
             } catch (_) {
-                snapshot.innerHTML = [
-                    '<span class="hashcod-preview-fallback">',
-                    '<span class="hashcod-preview-fallback-badge">PQC / PRIVACY</span>',
+                const shadow = snapshot.shadowRoot || snapshot.attachShadow({ mode: 'open' });
+                const style = document.createElement('style');
+                style.textContent = [
+                    ':host { display:block; position:absolute; inset:0; background:#f8fafc; color:#0f172a; font-family:Arial,sans-serif; }',
+                    '.fallback { padding:28px; }',
+                    '.badge { display:inline-block; padding:5px 9px; border-radius:14px; background:#eff6ff; color:#1d4ed8; font-size:11px; font-weight:700; }',
+                    'strong { display:block; margin-top:14px; font-size:20px; }',
+                    '.line { display:block; height:9px; margin-top:16px; background:#e2e8f0; border-radius:4px; }',
+                    '.short { width:62%; }'
+                ].join('\n');
+                const fallback = document.createElement('span');
+                fallback.className = 'fallback';
+                fallback.innerHTML = [
+                    '<span class="badge">PQC / PRIVACY</span>',
                     '<strong>Política de Privacidad y Modelo Operativo</strong>',
                     '<span>Hashcod Codespace</span>',
-                    '<span class="hashcod-preview-fallback-line"></span>',
-                    '<span class="hashcod-preview-fallback-line short"></span>',
-                    '</span>'
+                    '<span class="line"></span>',
+                    '<span class="line short"></span>'
                 ].join('');
+                shadow.replaceChildren(style, fallback);
                 snapshot.dataset.loaded = 'fallback';
             } finally {
                 delete snapshot.dataset.loading;

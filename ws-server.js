@@ -11,15 +11,63 @@ const crypto = require('crypto');
 
 const PORT = parseInt(process.env.WS_PORT || process.env.PORT || '8080', 10);
 const HOST = process.env.WS_HOST || '0.0.0.0';
-const SECRET_KEY = process.env.WS_SECRET || 'hashcod-codespace-secret-2026';
+const SECRET_KEY = String(process.env.WS_SECRET || '').trim();
+const ALLOWED_ORIGINS = new Set(
+    String(process.env.WS_ALLOWED_ORIGINS || process.env.HASHCOD_CLOUD_ORIGIN || '')
+        .split(',')
+        .map(v => v.trim().replace(/\/$/, ''))
+        .filter(Boolean)
+);
+
+if (SECRET_KEY.length < 32) {
+    throw new Error('WS_SECRET is required and must contain at least 32 characters');
+}
+
+function timingSafeEqualText(a, b) {
+    const aBuf = Buffer.from(String(a || ''), 'utf8');
+    const bBuf = Buffer.from(String(b || ''), 'utf8');
+    if (aBuf.length !== bBuf.length) return false;
+    return crypto.timingSafeEqual(aBuf, bBuf);
+}
+
+function requestSecret(req) {
+    const auth = String(req.headers.authorization || '');
+    if (auth.startsWith('Bearer ')) return auth.slice(7).trim();
+    const headerSecret = String(req.headers['x-ws-secret'] || '').trim();
+    if (headerSecret) return headerSecret;
+
+    // Browser WebSocket clients cannot set Authorization headers. Use a
+    // subprotocol token instead of a URL query parameter so secrets do not land
+    // in access logs, history or proxy analytics.
+    const protocols = String(req.headers['sec-websocket-protocol'] || '')
+        .split(',')
+        .map(v => v.trim());
+    const authProtocol = protocols.find(v => v.startsWith('hashcod-auth.'));
+    return authProtocol ? authProtocol.slice('hashcod-auth.'.length) : '';
+}
+
+function requestOriginAllowed(req) {
+    const origin = String(req.headers.origin || '').trim().replace(/\/$/, '');
+    // Non-browser server-to-server callers may omit Origin.
+    if (!origin) return true;
+    return ALLOWED_ORIGINS.has(origin);
+}
+
+function requestAuthorized(req) {
+    return requestOriginAllowed(req) && timingSafeEqualText(requestSecret(req), SECRET_KEY);
+}
 
 // Mapa de clientes conectados: clientId -> { ws, ip, channels, connectedAt }
 const clients = new Map();
 
 // Servidor HTTP base (para healthcheck, estadísticas y bridge HTTP -> WS desde PHP)
 const server = http.createServer((req, res) => {
-    // Cabeceras CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // CORS is deny-by-default. Reflect only explicitly allowed browser origins.
+    const origin = String(req.headers.origin || '').trim().replace(/\/$/, '');
+    if (origin && ALLOWED_ORIGINS.has(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-WS-Secret');
 
@@ -31,27 +79,53 @@ const server = http.createServer((req, res) => {
 
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
-    // Endpoint de salud y estadísticas
-    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/health' || url.pathname === '/stats')) {
+    // Public healthcheck is intentionally minimal.
+    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/health')) {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify({ ok: true, server: 'Hashcod Codespace WebSocket Server', version: '2.0.0' }));
+        return;
+    }
+
+    // Operational statistics reveal connection/channel topology and require auth.
+    if (req.method === 'GET' && url.pathname === '/stats') {
+        if (!requestAuthorized(req)) {
+            res.writeHead(401, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            res.end(JSON.stringify({ ok: false, error: 'Unauthorized' }));
+            return;
+        }
         const stats = {
             ok: true,
-            server: 'Hashcod Codespace WebSocket Server',
             version: '2.0.0',
             uptime: Math.floor(process.uptime()),
             timestamp: new Date().toISOString(),
             connectedClients: clients.size,
             channels: getChannelStats()
         };
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify(stats, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify(stats));
         return;
     }
 
     // Endpoint Bridge HTTP POST para que PHP (api.php) emita eventos WebSocket directamente
     if (req.method === 'POST' && url.pathname === '/api/broadcast') {
+        if (!requestAuthorized(req)) {
+            res.writeHead(401, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            res.end(JSON.stringify({ ok: false, error: 'Unauthorized' }));
+            return;
+        }
         let body = '';
-        req.on('data', chunk => { body += chunk; });
+        let bodyTooLarge = false;
+        req.on('data', chunk => {
+            if (bodyTooLarge) return;
+            body += chunk;
+            if (Buffer.byteLength(body, 'utf8') > 1024 * 1024) {
+                bodyTooLarge = true;
+                res.writeHead(413, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+                res.end(JSON.stringify({ ok: false, error: 'Payload too large' }));
+            }
+        });
         req.on('end', () => {
+            if (bodyTooLarge) return;
             try {
                 const data = JSON.parse(body || '{}');
                 const channel = data.channel || 'global';
@@ -75,7 +149,12 @@ const server = http.createServer((req, res) => {
 });
 
 // Servidor WebSocket adjunto al servidor HTTP
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({
+    server,
+    maxPayload: 1024 * 1024,
+    verifyClient: ({ req }) => requestAuthorized(req),
+    handleProtocols: (protocols) => protocols.has('hashcod.v1') ? 'hashcod.v1' : false
+});
 
 /**
  * Obtiene el conteo de clientes por canal

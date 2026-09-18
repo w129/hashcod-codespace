@@ -306,7 +306,7 @@ function getOrGenerateSshKey($forceRegenerate = false) {
         $pubKeyContent = trim(file_get_contents($pubKeyPath));
     }
 
-    $sshTestCmd = sprintf('ssh -T -i %s -o StrictHostKeyChecking=no git@github.com 2>&1', escapeshellarg($keyPath));
+    $sshTestCmd = sprintf('ssh -T -i %s git@github.com 2>&1', escapeshellarg($keyPath));
     $sshOutput = @shell_exec($sshTestCmd) ?? 'No se pudo probar la conexión SSH';
 
     return [
@@ -967,7 +967,7 @@ function cloneOrUpdateRepository($repoTarget) {
         ];
     }
 
-    $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=no', escapeshellarg($keyPath));
+    $gitSshCmd = sprintf('ssh -i %s', escapeshellarg($keyPath));
     putenv("GIT_SSH_COMMAND=$gitSshCmd");
     putenv('GIT_TERMINAL_PROMPT=0');
 
@@ -3613,6 +3613,43 @@ if ($uri === '' || $uri === false) $uri = '/';
 require_once __DIR__ . '/admin-device.php';
 adminDeviceApi($uri);
 if (adminProtectedPath($uri)) adminRequire();
+// Server-side execution tools are administrative capabilities, not ordinary
+// account features. This protects process execution, local workspaces, provider
+// credentials and host diagnostics from authenticated-but-untrusted accounts.
+$hostExecutionPrefixes = [
+    '/api/bash/',
+    '/api/catalyst/',
+    '/api/storage/',
+    '/api/django/',
+    '/api/ubuntu/',
+    '/api/claude/',
+    '/api/zylon/',
+    '/api/macos/',
+    '/api/chromeos/',
+    '/api/streamlit/',
+    '/api/agent-browser/',
+    '/api/libreoffice/',
+    '/api/ssh/',
+    '/api/cli/',
+    '/api/originkit/',
+];
+foreach ($hostExecutionPrefixes as $hostExecutionPrefix) {
+    if (str_starts_with($uri, $hostExecutionPrefix)) {
+        adminRequire();
+        break;
+    }
+}
+
+// Stateful developer tools that do not need host-level administration still
+// require an authenticated account to prevent anonymous paste/state abuse.
+$accountToolPrefixes = ['/api/prs/', '/api/grid/'];
+foreach ($accountToolPrefixes as $accountToolPrefix) {
+    if (str_starts_with($uri, $accountToolPrefix)) {
+        securityRequireAccountSession();
+        break;
+    }
+}
+
 require_once __DIR__ . '/auth.php';
 // Endpoint de sincronización de Clave Activa Dilithium-5 (Regla de Clave Única)
 if ($uri === '/api/auth/dilithium-active-key' && $_SERVER['REQUEST_METHOD'] === 'POST') {

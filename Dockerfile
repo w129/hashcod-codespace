@@ -49,12 +49,16 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && chown -R l8user:l8group /opt/agent-browser \
     && rm -rf /var/lib/apt/lists/* /root/.npm
 
-# Configurar directorio SSH y archivo config de GitHub para root y l8user
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
-    echo "Host github.com\n\tStrictHostKeyChecking no\n\tIdentityFile /root/.ssh/id_ed25519_github\n" > /root/.ssh/config && \
+# Configurar SSH con validación estricta del host de GitHub.
+# known_hosts se obtiene durante el build y se reutiliza en runtime.
+RUN mkdir -p /root/.ssh /home/l8user/.ssh && \
+    chmod 700 /root/.ssh /home/l8user/.ssh && \
+    ssh-keyscan -t rsa,ecdsa,ed25519 github.com > /root/.ssh/known_hosts && \
+    cp /root/.ssh/known_hosts /home/l8user/.ssh/known_hosts && \
+    chmod 600 /root/.ssh/known_hosts /home/l8user/.ssh/known_hosts && \
+    echo "Host github.com\n\tStrictHostKeyChecking yes\n\tUserKnownHostsFile /root/.ssh/known_hosts\n\tIdentityFile /root/.ssh/id_ed25519_github\n" > /root/.ssh/config && \
     chmod 600 /root/.ssh/config && \
-    mkdir -p /home/l8user/.ssh && chmod 700 /home/l8user/.ssh && \
-    echo "Host github.com\n\tStrictHostKeyChecking no\n\tIdentityFile /home/l8user/.ssh/id_ed25519_github\n" > /home/l8user/.ssh/config && \
+    echo "Host github.com\n\tStrictHostKeyChecking yes\n\tUserKnownHostsFile /home/l8user/.ssh/known_hosts\n\tIdentityFile /home/l8user/.ssh/id_ed25519_github\n" > /home/l8user/.ssh/config && \
     chmod 600 /home/l8user/.ssh/config && \
     chown -R l8user:l8group /home/l8user/.ssh
 

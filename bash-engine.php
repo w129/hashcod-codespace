@@ -10,6 +10,7 @@
 
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/openclaw-bridge.php';
+require_once __DIR__ . '/admin-device.php';
 
 function bashDataStorageDir() {
     $dir = __DIR__ . '/data_storage';
@@ -1111,17 +1112,20 @@ function bashHandleApi($uri) {
     }
 
     header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, private');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+    // Every Bash/Catalyst/Storage/Django endpoint exposes privileged host capabilities
+    // or internal server state. Require the verified administrative boundary first.
+    // In desktop mode adminRequire() accepts only the authenticated loopback bridge.
+    adminRequire();
+
     $acct = function_exists('supabaseCurrentAccountKey') ? supabaseCurrentAccountKey() : 'global';
 
     // 1. Ejecutar comando en Bash
     if ($uri === '/api/bash/exec' && $method === 'POST') {
-        if (function_exists('securityRequireAccountSession')) {
-            $hasCsrf = (!empty($_SERVER['HTTP_X_L8_CSRF']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strcasecmp((string)$_SERVER['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest') === 0));
-            if (!$hasCsrf) {
-                securityRequireAccountSession();
-            }
-        }
+        // adminRequire() above is mandatory. Request headers such as X-Requested-With
+        // and X-L8-CSRF are never treated as authentication credentials.
         $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
         $cmd = trim((string)($body['command'] ?? $body['cmd'] ?? ''));
 

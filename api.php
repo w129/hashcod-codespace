@@ -1386,6 +1386,7 @@ class SuperGlobalDatabase {
                 $this->pdo->exec("PRAGMA synchronous = NORMAL;");
                 $this->pdo->exec("CREATE TABLE IF NOT EXISTS global_files (
                     id TEXT PRIMARY KEY,
+                    account_key TEXT NOT NULL DEFAULT 'global',
                     filename TEXT NOT NULL,
                     mime_type TEXT NOT NULL,
                     size_bytes INTEGER NOT NULL,
@@ -1393,6 +1394,17 @@ class SuperGlobalDatabase {
                     upload_date TEXT NOT NULL,
                     storage_path TEXT NOT NULL
                 )");
+                $cols = $this->pdo->query("PRAGMA table_info(global_files)")->fetchAll(PDO::FETCH_ASSOC);
+                $hasAccountKey = false;
+                foreach ($cols as $col) {
+                    if (($col['name'] ?? '') === 'account_key') {
+                        $hasAccountKey = true;
+                        break;
+                    }
+                }
+                if (!$hasAccountKey) {
+                    $this->pdo->exec("ALTER TABLE global_files ADD COLUMN account_key TEXT NOT NULL DEFAULT 'global'");
+                }
             } catch (Exception $e) {
                 $this->pdo = null;
             }
@@ -1401,6 +1413,7 @@ class SuperGlobalDatabase {
 
     public function insertFile($id, $filename, $mimeType, $sizeBytes, $hash, $storagePath) {
         $uploadDate = date('c');
+        $acct = function_exists('supabaseCurrentAccountKey') ? supabaseCurrentAccountKey() : 'global';
         $supabaseObject = null;
         if (function_exists('supabaseStorePlatformFile') && file_exists($storagePath)) {
             $remote = @supabaseStorePlatformFile($id, $storagePath, $mimeType, $filename);
@@ -1410,8 +1423,8 @@ class SuperGlobalDatabase {
         }
 
         if ($this->pdo) {
-            $stmt = $this->pdo->prepare("INSERT OR REPLACE INTO global_files (id, filename, mime_type, size_bytes, hash, upload_date, storage_path) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$id, $filename, $mimeType, $sizeBytes, $hash, $uploadDate, $storagePath]);
+            $stmt = $this->pdo->prepare("INSERT OR REPLACE INTO global_files (id, account_key, filename, mime_type, size_bytes, hash, upload_date, storage_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$id, $acct, $filename, $mimeType, $sizeBytes, $hash, $uploadDate, $storagePath]);
         }
         
         $fp = fopen($this->jsonDbPath, 'c+');
@@ -1424,6 +1437,7 @@ class SuperGlobalDatabase {
             }
             $files[$id] = [
                 'id' => $id,
+                'account_key' => $acct,
                 'filename' => $filename,
                 'mime_type' => $mimeType,
                 'size_bytes' => $sizeBytes,
@@ -1442,7 +1456,6 @@ class SuperGlobalDatabase {
         if (function_exists('supabaseSyncMetaFile')) {
             @supabaseSyncMetaFile($this->jsonDbPath, 'global_database_index.json');
         }
-        $acct = function_exists('supabaseCurrentAccountKey') ? supabaseCurrentAccountKey() : 'global';
         if (function_exists('supabaseSyncFileRecord')) {
             @supabaseSyncFileRecord([
                 'id' => $id,

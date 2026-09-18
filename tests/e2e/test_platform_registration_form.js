@@ -194,7 +194,8 @@ assert(contractPhp.includes("'version' => '2026.09.18-1'"), 'canonical contract 
 assert(contractPhp.includes('hashcodRegistrationContractSha256'), 'canonical contract SHA-256 helper missing');
 assert(contractPhp.includes('El Usuario se compromete a suplir'), 'required user supply obligation missing');
 assert(contractPhp.includes('Esta aceptación por checkbox no se presenta como una “firma digital certificada”'), 'digital-signature legal precision missing');
-assert(privacy.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'), 'contract document title missing');
+assert(privacy.includes("require_once __DIR__ . '/platform-registration-contract.php'"), 'privacy page must render the canonical contract helper');
+assert(contractPhp.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'), 'contract document title missing');
 assert(privacy.includes('SHA-256 canónico'), 'contract document must display canonical hash');
 assert(privacy.includes('Declaración de aceptación'), 'contract acceptance declaration missing');
 

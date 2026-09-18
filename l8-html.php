@@ -150,7 +150,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             $temporaryImprovementSvg = (string) preg_replace('/<\\?xml[^>]*\\?>\\s*/i', '', $temporaryImprovementSvg, 1);
         }
         $temporaryImprovementStyleTag = '<style id="hashcod-platform-improvement-inline-style">'
-            . '#hashcodPlatformImprovementSign{position:fixed!important;left:63vw!important;top:50vh!important;width:min(60vw,900px)!important;height:min(88vh,830px)!important;transform:translate(-50%,-50%)!important;z-index:2147483590!important;display:flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;pointer-events:none!important;user-select:none!important;overflow:visible!important;}'
+            . '#hashcodPlatformImprovementSign{position:fixed!important;left:63vw!important;top:50vh!important;width:min(60vw,900px)!important;height:min(88vh,830px)!important;transform:translate(-50%,-50%)!important;z-index:2147483590!important;display:none!important;align-items:center!important;justify-content:center!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;user-select:none!important;overflow:visible!important;}'
+            . 'html[data-hashcod-final-entry-screen="true"] #hashcodPlatformImprovementSign{display:flex!important;visibility:visible!important;opacity:1!important;}'
             . '#hashcodPlatformImprovementSign>svg{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;visibility:visible!important;opacity:1!important;overflow:visible!important;}'
             . 'html[data-hashcod-theme="dark"] #hashcodPlatformImprovementSign>svg,html.dark #hashcodPlatformImprovementSign>svg{filter:invert(1)!important;}'
             . '@media(max-width:1180px){#hashcodPlatformImprovementSign{left:64vw!important;width:min(64vw,820px)!important;height:min(84vh,760px)!important;}}'

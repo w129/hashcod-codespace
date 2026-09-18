@@ -73,6 +73,23 @@ function hprValidate(array $input): array {
 
 $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 
+if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
+    $cfg = supabaseConfig();
+    $storageConfigured = !empty($cfg['configured']) && !empty($cfg['secret_key']);
+    $tableReady = false;
+
+    if ($storageConfigured) {
+        $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id&limit=1');
+        $tableReady = !empty($probe['ok']);
+    }
+
+    hprJson($tableReady ? 200 : 503, [
+        'ok'=>$tableReady,
+        'storage_configured'=>$storageConfigured,
+        'table_ready'=>$tableReady,
+    ]);
+}
+
 if ($method === 'POST') {
     if (!hprSameOrigin()) hprJson(403, ['ok'=>false, 'error'=>'Origen no autorizado.']);
     if (strcasecmp((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''), 'XMLHttpRequest') !== 0) {

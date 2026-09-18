@@ -17,6 +17,7 @@ on:
       - components/final-entry-registration.css
       - supabase/migrations/20260917_create_hashcod_access_requests.sql
       - tests/e2e/test_final_entry_registration.js
+      - tests/security/test-access-intake.php
       - rare-folder-build/**
       - components/cloud-device-sync.js
       - components/admin-hello-button.js
@@ -80,6 +81,7 @@ on:
       - components/final-entry-registration.css
       - supabase/migrations/20260917_create_hashcod_access_requests.sql
       - tests/e2e/test_final_entry_registration.js
+      - tests/security/test-access-intake.php
       - toolbox-secure.php
       - components/toolbox-secure-links.js
       - components/toolbox-secure-links.css
@@ -231,6 +233,9 @@ jobs:
 
       - name: Verify final entry registration
         run: node tests/e2e/test_final_entry_registration.js
+
+      - name: Verify final entry server validation
+        run: php tests/security/test-access-intake.php
 
       - name: Install Playwright Chromium for browser verification
         run: |

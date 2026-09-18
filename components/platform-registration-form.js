@@ -213,7 +213,7 @@
                             </svg>
                         </span>
                         <span class="hashcod-registration-consent-text">
-                            Confirmo que tengo 18 años o más y autorizo el almacenamiento de estos datos para gestionar este registro. Consulta la
+                            Confirmo que tengo 18 años o más. He leído y acepto contractualmente el
                             <span class="hashcod-preview-link-card">
                                 <a
                                     id="hashcodPrivacyPreviewTrigger"
@@ -222,7 +222,7 @@
                                     target="_blank"
                                     rel="noopener"
                                     aria-describedby="hashcodPrivacyPreviewCard"
-                                >Política de Privacidad</a>
+                                >Documento Contractual y de Privacidad</a>
                                 <span
                                     id="hashcodPrivacyPreviewCard"
                                     class="hashcod-preview-link-card-content"
@@ -232,21 +232,21 @@
                                     <span class="hashcod-preview-link-card-browser">
                                         <span class="hashcod-preview-link-card-toolbar">
                                             <span class="hashcod-preview-link-card-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-                                            <span class="hashcod-preview-link-card-address">hashcod / privacy</span>
+                                            <span class="hashcod-preview-link-card-address">hashcod / contrato / privacidad</span>
                                         </span>
                                         <span class="hashcod-preview-link-card-viewport">
                                             <span
                                                 class="hashcod-preview-link-card-snapshot"
                                                 role="img"
-                                                aria-label="Vista previa de la Política de Privacidad"
+                                                aria-label="Vista previa del Documento Contractual y de Privacidad"
                                             >
                                                 <span class="hashcod-preview-link-card-loading">Cargando vista previa…</span>
                                             </span>
                                         </span>
                                     </span>
                                     <span class="hashcod-preview-link-card-meta">
-                                        <strong>Política de Privacidad</strong>
-                                        <span>Hashcod Codespace · abrir documento</span>
+                                        <strong>Documento Contractual y de Privacidad</strong>
+                                        <span>Versión 2026.09.18-1 · abrir documento</span>
                                     </span>
                                 </span>
                             </span>.
@@ -476,7 +476,7 @@
             document.querySelectorAll('#hashcodRegistrationForm input[aria-invalid]').forEach(function (input) {
                 input.setAttribute('aria-invalid', 'false');
             });
-            status('Registro enviado y guardado correctamente. Entrando a Hashcod Codespace…', 'success');
+            status('Registro y aceptación contractual guardados correctamente. Entrando a Hashcod Codespace…', 'success');
             window.dispatchEvent(new CustomEvent('hashcod:platform-registration-saved', {
                 detail: { screen: 3, saved: true }
             }));
@@ -535,7 +535,7 @@
             <table class="hashcod-registration-table">
                 <thead><tr>
                     <th>ID</th><th>Nombre con apellidos</th><th>Edad</th><th>Cédula</th>
-                    <th>Plataforma</th><th>Código</th><th>Correo electrónico</th><th>Teléfono</th><th>Fecha</th>
+                    <th>Plataforma</th><th>Código</th><th>Contrato</th><th>Evidencia</th><th>Correo electrónico</th><th>Teléfono</th><th>Fecha</th>
                 </tr></thead>
                 <tbody>${rows.map(function (row) {
                     return '<tr>' +
@@ -545,6 +545,8 @@
                         '<td>' + escapeHtml(row.cedula) + '</td>' +
                         '<td>' + escapeHtml(row.platform_name) + '</td>' +
                         '<td>' + escapeHtml(row.code_filename || '') + (row.code_size_bytes ? ' (' + escapeHtml(Math.round(Number(row.code_size_bytes) / 1024)) + ' KB)' : '') + '</td>' +
+                        '<td>' + escapeHtml(row.contract_version || '') + '<br><small>' + escapeHtml(row.contract_accepted_at || '') + '</small></td>' +
+                        '<td><small>' + escapeHtml((row.acceptance_evidence_sha256 || '').slice(0, 16)) + '…</small></td>' +
                         '<td>' + escapeHtml(row.email) + '</td>' +
                         '<td>' + escapeHtml(row.phone) + '</td>' +
                         '<td>' + escapeHtml(formatDate(row.created_at)) + '</td>' +

@@ -298,7 +298,7 @@
         try {
             const ready = await ensureAdminEngine();
             if (!ready) throw new Error('No se pudo cargar la verificación administrativa.');
-            const verified = await window.HashcodAdmin.require();
+            const verified = await window.HashcodAdmin.require({ force: true });
             if (!verified) {
                 status('La tabla requiere la CodeKey administrativa.', 'error');
                 return;

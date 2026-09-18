@@ -17,11 +17,24 @@ const goCore = read('engines/go-core/main.go');
 const daemonMain = read('daemon/main.go');
 const grpcGateway = read('daemon/gateway/grpc_web.go');
 const grpcEngine = read('daemon/pb/codespace_pqc_grpc.pb.go');
+const openclaw = read('openclaw-bridge.php');
 
-for (const prefix of ['/api/bash/', '/api/catalyst/', '/api/storage/', '/api/django/']) {
+for (const rootPath of [
+    '/api/bash',
+    '/api/catalyst',
+    '/api/storage',
+    '/api/django',
+    '/api/streamlit',
+    '/api/agent-browser',
+    '/api/ubuntu',
+    '/api/zylon',
+    '/api/claude',
+    '/api/macos',
+    '/api/chromeos'
+]) {
     assert(
-        admin.includes(`'${prefix}'`),
-        `adminProtectedPath must protect ${prefix}`
+        admin.includes(`'${rootPath}'`),
+        `adminProtectedPath must protect ${rootPath}`
     );
 }
 
@@ -84,6 +97,20 @@ assert(!grpcGateway.includes('Access-Control-Allow-Origin", "*"'),
     'gRPC-Web gateway must not use wildcard CORS');
 assert(!grpcEngine.includes('Access-Control-Allow-Origin", "*"'),
     'native gRPC HTTP engine must not use wildcard CORS');
+assert(admin.includes("'/api/libreoffice/ensure'"),
+    'LibreOffice process bootstrap must be admin-only');
+for (const openclawPath of ['/api/openclaw/run', '/api/openclaw/gateway', '/api/openclaw/config']) {
+    assert(admin.includes(`'${openclawPath}'`),
+        `OpenClaw privileged endpoint must be admin-only: ${openclawPath}`);
+}
+assert(openclaw.includes("secretGet('OPENCLAW_WEBHOOK_SECRET'"),
+    'OpenClaw webhook must require its dedicated secret');
+assert(openclaw.includes('hash_equals($expected, $provided)'),
+    'OpenClaw webhook secret must use constant-time comparison');
+assert(openclaw.includes("securityRateAllow('openclaw_webhook'"),
+    'OpenClaw webhook must be rate limited');
+assert(openclaw.includes('strlen($raw) > 65536'),
+    'OpenClaw webhook must bound request bodies');
 
 assert(!security.includes("'unsafe-eval'"),
     'CSP must not permit unsafe-eval');

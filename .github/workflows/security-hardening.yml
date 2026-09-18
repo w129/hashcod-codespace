@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -36,6 +41,7 @@ jobs:
       - name: JavaScript syntax checks
         run: |
           node --check ws-server.js
+          node --check server.js
           node --check components/codespace-ws.js
           node tests/security/test-platform-hardening.js
 
@@ -45,6 +51,12 @@ jobs:
           php -l bash-engine.php
           php -l security.php
           php -l api.php
+
+      - name: Go formatting and tests
+        run: |
+          test -z "$(gofmt -l engines/go-core/main.go daemon/main.go daemon/gateway/grpc_web.go daemon/pb/codespace_pqc_grpc.pb.go daemon/gateway/gateway_test.go)"
+          (cd engines/go-core && go test ./...)
+          (cd daemon && go test ./...)
 
       - name: Security authorization regression tests
         run: php tests/security/test-admin-device.php

@@ -232,8 +232,8 @@ func TestCorsPreflightOptions(t *testing.T) {
 	}
 
 	origin := resp.Header.Get("Access-Control-Allow-Origin")
-	if origin != "*" {
-		t.Errorf("expected Access-Control-Allow-Origin: *, got %q", origin)
+	if origin != "http://localhost:8000" {
+		t.Errorf("expected reflected loopback origin, got %q", origin)
 	}
 
 	methods := resp.Header.Get("Access-Control-Allow-Methods")
@@ -249,6 +249,26 @@ func TestCorsPreflightOptions(t *testing.T) {
 	exposeHeaders := strings.ToLower(resp.Header.Get("Access-Control-Expose-Headers"))
 	if !strings.Contains(exposeHeaders, "grpc-status") || !strings.Contains(exposeHeaders, "grpc-message") {
 		t.Errorf("missing grpc-status in expose-headers: %q", exposeHeaders)
+	}
+}
+
+func TestCorsPreflightRejectsExternalOrigin(t *testing.T) {
+	gw, _, _, cleanup := setupTestGateway(t)
+	defer cleanup()
+
+	req := httptest.NewRequest(http.MethodOptions, "/hashcod.pqc.v1.DilithiumService/VerifySignature", nil)
+	req.Header.Set("Origin", "https://evil.example")
+	req.Header.Set("Access-Control-Request-Method", "POST")
+
+	w := httptest.NewRecorder()
+	gw.ServeHTTP(w, req)
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusForbidden {
+		t.Errorf("expected external preflight to be rejected with 403, got %d", resp.StatusCode)
+	}
+	if resp.Header.Get("Access-Control-Allow-Origin") != "" {
+		t.Errorf("external origin must not receive ACAO")
 	}
 }
 
@@ -272,8 +292,8 @@ func TestCanaryHealthEndpoint(t *testing.T) {
 			t.Errorf("path %s: expected application/json, got %s", p, ct)
 		}
 
-		if resp.Header.Get("Access-Control-Allow-Origin") != "*" {
-			t.Errorf("path %s: missing CORS origin header", p)
+		if resp.Header.Get("Access-Control-Allow-Origin") != "" {
+			t.Errorf("path %s: health response without Origin must not emit ACAO", p)
 		}
 
 		var health gateway.CanaryHealthResponse

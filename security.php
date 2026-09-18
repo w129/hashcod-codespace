@@ -28,6 +28,14 @@ if (!function_exists('vulnerabilityAuditManifest')) {
 }
 
 /** Headers de seguridad + ocultar fingerprint de PHP. */
+function securityCspNonce(): string {
+    static $nonce = null;
+    if ($nonce === null) {
+        $nonce = rtrim(strtr(base64_encode(random_bytes(18)), '+/', '-_'), '=');
+    }
+    return $nonce;
+}
+
 function securityApplyHeaders() {
     static $done = false;
     if ($done) return;
@@ -61,7 +69,7 @@ function securityApplyHeaders() {
             "img-src 'self' data: blob: https:; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
-            "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; " .
+            "script-src 'self' 'nonce-" . securityCspNonce() . "' https://challenges.cloudflare.com; " .
             "connect-src 'self' https: wss: https://challenges.cloudflare.com; " .
             "frame-src 'self' https://challenges.cloudflare.com; " .
             "worker-src 'self' blob:; " .

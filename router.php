@@ -133,6 +133,14 @@ if ($uri === '/toolbox-secure.php' || $uri === '/api/toolbox-secure') {
     exit;
 }
 
+// Final-entry registration API. Public submit is validated/rate-limited;
+// record listing is protected by the server-backed administrative session.
+if ($uri === '/api/access-intake/submit' || $uri === '/api/access-intake/list') {
+    require __DIR__ . '/access-intake.php';
+    hashcodAccessIntakeApi($uri);
+    exit;
+}
+
 // API
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

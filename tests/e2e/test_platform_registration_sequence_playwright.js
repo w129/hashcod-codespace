@@ -1,5 +1,7 @@
 'use strict';
 
+// Live storage readiness recheck: this file change intentionally retriggers the PR workflow.
+
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
 

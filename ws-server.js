@@ -35,12 +35,15 @@ function requestSecret(req) {
     if (auth.startsWith('Bearer ')) return auth.slice(7).trim();
     const headerSecret = String(req.headers['x-ws-secret'] || '').trim();
     if (headerSecret) return headerSecret;
-    try {
-        const url = new URL(req.url || '/', 'http://localhost');
-        return String(url.searchParams.get('token') || '').trim();
-    } catch (_) {
-        return '';
-    }
+
+    // Browser WebSocket clients cannot set Authorization headers. Use a
+    // subprotocol token instead of a URL query parameter so secrets do not land
+    // in access logs, history or proxy analytics.
+    const protocols = String(req.headers['sec-websocket-protocol'] || '')
+        .split(',')
+        .map(v => v.trim());
+    const authProtocol = protocols.find(v => v.startsWith('hashcod-auth.'));
+    return authProtocol ? authProtocol.slice('hashcod-auth.'.length) : '';
 }
 
 function requestOriginAllowed(req) {
@@ -76,19 +79,30 @@ const server = http.createServer((req, res) => {
 
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
-    // Endpoint de salud y estadísticas
-    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/health' || url.pathname === '/stats')) {
+    // Public healthcheck is intentionally minimal.
+    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/health')) {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify({ ok: true, server: 'Hashcod Codespace WebSocket Server', version: '2.0.0' }));
+        return;
+    }
+
+    // Operational statistics reveal connection/channel topology and require auth.
+    if (req.method === 'GET' && url.pathname === '/stats') {
+        if (!requestAuthorized(req)) {
+            res.writeHead(401, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            res.end(JSON.stringify({ ok: false, error: 'Unauthorized' }));
+            return;
+        }
         const stats = {
             ok: true,
-            server: 'Hashcod Codespace WebSocket Server',
             version: '2.0.0',
             uptime: Math.floor(process.uptime()),
             timestamp: new Date().toISOString(),
             connectedClients: clients.size,
             channels: getChannelStats()
         };
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify(stats, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify(stats));
         return;
     }
 
@@ -100,8 +114,18 @@ const server = http.createServer((req, res) => {
             return;
         }
         let body = '';
-        req.on('data', chunk => { body += chunk; });
+        let bodyTooLarge = false;
+        req.on('data', chunk => {
+            if (bodyTooLarge) return;
+            body += chunk;
+            if (Buffer.byteLength(body, 'utf8') > 1024 * 1024) {
+                bodyTooLarge = true;
+                res.writeHead(413, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+                res.end(JSON.stringify({ ok: false, error: 'Payload too large' }));
+            }
+        });
         req.on('end', () => {
+            if (bodyTooLarge) return;
             try {
                 const data = JSON.parse(body || '{}');
                 const channel = data.channel || 'global';
@@ -128,7 +152,8 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocketServer({
     server,
     maxPayload: 1024 * 1024,
-    verifyClient: ({ req }) => requestAuthorized(req)
+    verifyClient: ({ req }) => requestAuthorized(req),
+    handleProtocols: (protocols) => protocols.has('hashcod.v1') ? 'hashcod.v1' : false
 });
 
 /**

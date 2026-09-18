@@ -133,6 +133,24 @@ async function run() {
     assert.equal(finalRegistration.cedulaPlaceholder, '000-0000000-0', 'cedula format must show hyphens');
     assert.equal(finalRegistration.submitDisabled, true, 'empty registration form submit must begin disabled');
     assert.equal(finalRegistration.tableButtonVisible, true, 'database table icon button must be visible beside submit');
+
+    // Runtime validation: under-18 users must remain blocked even when every
+    // other required field is valid. At 18+, the same completed form may submit.
+    await page.fill('#hashcodRegFullName', 'Prueba Usuario');
+    await page.fill('#hashcodRegCedula', '001-1234567-8');
+    await page.fill('#hashcodRegPlatform', 'Plataforma de prueba');
+    await page.fill('#hashcodRegEmail', 'prueba@example.com');
+    await page.fill('#hashcodRegPhone', '+1 809 000 0000');
+    await page.check('#hashcodRegConsent');
+    await page.fill('#hashcodRegAge', '17');
+    await page.waitForTimeout(100);
+    assert.equal(await page.isDisabled('#hashcodRegistrationSubmit'), true,
+      '17-year-old registration must remain blocked in the real browser');
+
+    await page.fill('#hashcodRegAge', '18');
+    await page.waitForTimeout(100);
+    assert.equal(await page.isEnabled('#hashcodRegistrationSubmit'), true,
+      '18+ completed registration must enable submit in the real browser');
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');

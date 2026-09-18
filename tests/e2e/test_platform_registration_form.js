@@ -6,6 +6,7 @@ const path = require('node:path');
 
 const repoDir = path.resolve(__dirname, '../..');
 const js = fs.readFileSync(path.join(repoDir, 'components/platform-registration-form.js'), 'utf8');
+const hold = fs.readFileSync(path.join(repoDir, 'components/platform-entry-hold.js'), 'utf8');
 const css = fs.readFileSync(path.join(repoDir, 'components/platform-registration-form.css'), 'utf8');
 const api = fs.readFileSync(path.join(repoDir, 'platform-registration.php'), 'utf8');
 const migration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260917_create_hashcod_platform_registrations.sql'), 'utf8');
@@ -132,10 +133,10 @@ assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click
 assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
 assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
 assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
-assert(js.includes("const HOLD_RUNTIME_VERSION = '20260918-5'"), 'hold runtime must be versioned');
-assert(js.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
-assert(!js.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
-assert(!js.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');
+assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-5'"), 'hold runtime must be versioned');
+assert(hold.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
+assert(!hold.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
+assert(!hold.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');
 
 
 assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),

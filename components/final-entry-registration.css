@@ -25,7 +25,7 @@
   isolation: isolate;
 }
 
-html[data-hashcod-final-entry-screen="true"] #hashcodFinalEntryRegistration {
+html[data-hashcod-entry-stage="registration"] #hashcodFinalEntryRegistration {
   display: flex;
 }
 

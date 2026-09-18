@@ -280,9 +280,13 @@ function privacy_h(string $value): string {
                 <?php endforeach; ?>
 
                 <?php if (!empty($section['bullets'])): ?>
-                    <?php if (str_starts_with((string)$section['title'], '7.')): ?>
+                    <?php if (str_starts_with((string)$section['title'], '7.') || str_starts_with((string)$section['title'], '8.')): ?>
                         <div class="evidence-box">
-                            <div class="evidence-box-head">EVIDENCIA TÉCNICA ASOCIADA AL REGISTRO</div>
+                            <div class="evidence-box-head">
+                                <?= str_starts_with((string)$section['title'], '8.')
+                                    ? 'EVIDENCIA INSTITUCIONAL, COMERCIAL Y DE MARCA'
+                                    : 'EVIDENCIA TÉCNICA ASOCIADA AL REGISTRO' ?>
+                            </div>
                             <div class="evidence-box-body">
                                 <ul>
                                     <?php foreach ($section['bullets'] as $bullet): ?>

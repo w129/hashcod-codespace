@@ -137,6 +137,11 @@ assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-5'"), 'hold runtime
 assert(hold.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
 assert(!hold.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
 assert(!hold.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');
+assert(hold.includes('function installDirectButtonGate()'), 'entry button must have an authoritative direct gate');
+assert(hold.includes("button.addEventListener('click'"), 'direct gate click interception missing');
+assert(hold.includes("button.dataset.hashcodEntryGateVersion = HOLD_RUNTIME_VERSION"), 'button gate version marker missing');
+assert(hold.includes('event.stopImmediatePropagation()'), 'direct gate must stop legacy click handlers before platform entry');
+
 
 
 assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),

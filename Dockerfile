@@ -50,11 +50,17 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && rm -rf /var/lib/apt/lists/* /root/.npm
 
 # Configurar directorio SSH y archivo config de GitHub para root y l8user
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://api.github.com/meta \
+    | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\\n".join("github.com "+k for k in d.get("ssh_keys", [])))' \
+    > /etc/ssh/ssh_known_hosts \
+    && test -s /etc/ssh/ssh_known_hosts \
+    && chmod 644 /etc/ssh/ssh_known_hosts
+
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
-    echo "Host github.com\n\tStrictHostKeyChecking no\n\tIdentityFile /root/.ssh/id_ed25519_github\n" > /root/.ssh/config && \
+    echo "Host github.com\n\tStrictHostKeyChecking yes\n\tIdentityFile /root/.ssh/id_ed25519_github\n" > /root/.ssh/config && \
     chmod 600 /root/.ssh/config && \
     mkdir -p /home/l8user/.ssh && chmod 700 /home/l8user/.ssh && \
-    echo "Host github.com\n\tStrictHostKeyChecking no\n\tIdentityFile /home/l8user/.ssh/id_ed25519_github\n" > /home/l8user/.ssh/config && \
+    echo "Host github.com\n\tStrictHostKeyChecking yes\n\tIdentityFile /home/l8user/.ssh/id_ed25519_github\n" > /home/l8user/.ssh/config && \
     chmod 600 /home/l8user/.ssh/config && \
     chown -R l8user:l8group /home/l8user/.ssh
 

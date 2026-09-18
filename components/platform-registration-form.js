@@ -274,7 +274,19 @@
                     </label>
                 </div>
                 <div class="hashcod-registration-actions">
-                    <button id="hashcodRegistrationSubmit" type="submit" disabled>ENVIAR REGISTRO</button>
+                    <div class="hashcod-registration-submit-flip">
+                        <button id="hashcodRegistrationSubmit" type="submit" aria-label="Enviar registro" disabled>
+                            <span class="hashcod-flip-stage" aria-hidden="true">
+                                <span class="hashcod-flip-face hashcod-flip-front">ENVIAR REGISTRO</span>
+                                <span class="hashcod-flip-face hashcod-flip-back">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 5v14M5 12h14"></path>
+                                    </svg>
+                                    <span>ENVIAR REGISTRO</span>
+                                </span>
+                            </span>
+                        </button>
+                    </div>
                     <button id="hashcodRegistrationTableButton" type="button" aria-label="Abrir tabla de registros" title="Tabla de registros">${DATABASE_ICON}</button>
                     <div class="hashcod-registration-validity-note" aria-label="Validez del proyecto generado por inteligencia artificial">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">

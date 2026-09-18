@@ -282,6 +282,63 @@
                         </svg>
                         <span>Haciendo que tu proyecto hecho por IA tenga validez legal</span>
                     </div>
+                    <div class="hashcod-registration-faq" data-hashcod-accordion>
+                        <div class="hashcod-registration-faq-item">
+                            <button
+                                type="button"
+                                class="hashcod-registration-faq-trigger"
+                                aria-expanded="false"
+                                aria-controls="hashcodFaqPanelTrust"
+                            >
+                                <span>¿Cómo sé que esto no es una estafa?</span>
+                                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                            </button>
+                            <div id="hashcodFaqPanelTrust" class="hashcod-registration-faq-panel" aria-hidden="true">
+                                <div class="hashcod-registration-faq-panel-inner">
+                                    Ve a donde dice <strong>Documento Contractual y de Privacidad</strong>.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hashcod-registration-faq-item">
+                            <button
+                                type="button"
+                                class="hashcod-registration-faq-trigger"
+                                aria-expanded="false"
+                                aria-controls="hashcodFaqPanelPrice"
+                            >
+                                <span>¿Cuánto cobran?</span>
+                                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                            </button>
+                            <div id="hashcodFaqPanelPrice" class="hashcod-registration-faq-panel" aria-hidden="true">
+                                <div class="hashcod-registration-faq-panel-inner">
+                                    <div class="hashcod-registration-price-list">
+                                        <div><span>Por someter a solicitud</span><strong>RD$567</strong></div>
+                                        <div><span>Por revisar tu code o lo que sea que hagas con IA</span><strong>RD$2,000</strong></div>
+                                        <div><span>Por alojar tu plataforma en nuestro codespace post-cuántico</span><strong>RD$6,900</strong></div>
+                                        <div><span>Por la Certificación</span><strong>RD$10,000</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hashcod-registration-faq-item">
+                            <button
+                                type="button"
+                                class="hashcod-registration-faq-trigger"
+                                aria-expanded="false"
+                                aria-controls="hashcodFaqPanelReady"
+                            >
+                                <span>¿Cuándo estará lista la Plataforma?</span>
+                                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5 10 12.5 15 7.5"></path></svg>
+                            </button>
+                            <div id="hashcodFaqPanelReady" class="hashcod-registration-faq-panel" aria-hidden="true">
+                                <div class="hashcod-registration-faq-panel-inner">
+                                    Lo avisaremos por nuestras redes sociales (<strong>hashcod.app</strong>).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <p id="hashcodRegistrationStatus" class="hashcod-registration-status" role="status" aria-live="polite"></p>
             </form>
@@ -680,6 +737,29 @@
         codeInput.addEventListener('change', function () {
             selectCodeFile(codeInput.files && codeInput.files[0] ? codeInput.files[0] : null);
         });
+
+        const accordion = form.querySelector('[data-hashcod-accordion]');
+        if (accordion) {
+            const triggers = Array.from(accordion.querySelectorAll('.hashcod-registration-faq-trigger'));
+
+            function setAccordionItem(trigger, open) {
+                const panelId = trigger.getAttribute('aria-controls');
+                const panel = panelId ? document.getElementById(panelId) : null;
+                const item = trigger.closest('.hashcod-registration-faq-item');
+                trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (panel) panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+                if (item) item.classList.toggle('is-open', open);
+            }
+
+            triggers.forEach(function (trigger) {
+                trigger.addEventListener('click', function () {
+                    const shouldOpen = trigger.getAttribute('aria-expanded') !== 'true';
+                    triggers.forEach(function (otherTrigger) {
+                        setAccordionItem(otherTrigger, otherTrigger === trigger && shouldOpen);
+                    });
+                });
+            });
+        }
         async function ensurePrivacyPreviewLoaded() {
             const snapshot = privacyCard.querySelector('.hashcod-preview-link-card-snapshot');
             if (!snapshot || snapshot.dataset.loaded === 'true' || snapshot.dataset.loading === 'true') return;

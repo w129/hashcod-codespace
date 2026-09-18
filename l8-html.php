@@ -151,35 +151,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260917-1" data-hashcod-platform-registration-style="true">';
 
         // Retire the current authentication window before first paint. The
         // backend/session code remains available for the replacement entry system.
         $legacyAuthPrehideTag = '<style id="hashcod-legacy-auth-prehide">#authOverlay,#authWrapper,#hashcodVectorTray,#hashcodAuthUtilityDock,#groqAuthChatPanel,#groqAuthChatLauncher,#hashcodEftCodeKeyGate,#hashcodEfrHotzone,#cryptoCardValidationLauncherBtn,#d5LauncherBtn,[data-hashcod-auth-utility-dock]{display:none!important;visibility:hidden!important;pointer-events:none!important;}</style>'
             . '<script id="hashcod-legacy-auth-retired-flag">window.__hashcodLegacyAuthRetired=true;document.documentElement.dataset.hashcodLegacyAuthRetired="true";</script>';
 
-        // Render the owner's exact temporary SVG directly in the vacated auth
-        // panel slot. This is intentionally server-injected so it cannot disappear
-        // because of deferred JS, asset timing, cache, or an entry overlay.
-        $temporaryImprovementSvgPath = __DIR__ . '/assets/plataforma-en-mejora.svg';
-        $temporaryImprovementSvg = is_file($temporaryImprovementSvgPath)
-            ? (string) @file_get_contents($temporaryImprovementSvgPath)
-            : '';
-        if ($temporaryImprovementSvg !== '') {
-            $temporaryImprovementSvg = (string) preg_replace('/<\\?xml[^>]*\\?>\\s*/i', '', $temporaryImprovementSvg, 1);
-        }
-        $temporaryImprovementStyleTag = '<style id="hashcod-platform-improvement-inline-style">'
-            . '#hashcodPlatformImprovementSign{position:fixed!important;left:63vw!important;top:50vh!important;width:min(60vw,900px)!important;height:min(88vh,830px)!important;transform:translate(-50%,-50%)!important;z-index:2147483590!important;display:none!important;align-items:center!important;justify-content:center!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;user-select:none!important;overflow:visible!important;}'
-            . 'html[data-hashcod-final-entry-screen="true"] #hashcodPlatformImprovementSign{display:flex!important;visibility:visible!important;opacity:1!important;}'
-            . '#hashcodPlatformImprovementSign>svg{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;visibility:visible!important;opacity:1!important;overflow:visible!important;}'
-            . 'html[data-hashcod-theme="dark"] #hashcodPlatformImprovementSign>svg,html.dark #hashcodPlatformImprovementSign>svg{filter:invert(1)!important;}'
-            . '@media(max-width:1180px){#hashcodPlatformImprovementSign{left:64vw!important;width:min(64vw,820px)!important;height:min(84vh,760px)!important;}}'
-            . '@media(max-width:900px){#hashcodPlatformImprovementSign{left:50vw!important;top:56vh!important;width:94vw!important;height:68vh!important;}}'
-            . '@media(max-width:620px){#hashcodPlatformImprovementSign{left:50vw!important;top:55vh!important;width:98vw!important;height:64vh!important;}}'
-            . '</style>';
-        $temporaryImprovementSignTag = $temporaryImprovementSvg !== ''
-            ? '<div id="hashcodPlatformImprovementSign" data-hashcod-temporary-improvement-sign="inline" data-hashcod-auth-slot-replacement="true" role="img" aria-label="Plataforma en mejora">' . $temporaryImprovementSvg . '</div>'
-            : '';
+        // The retired authentication slot is now occupied by the adult
+        // platform-registration form. Its component stays hidden until the
+        // authoritative third-screen marker is set by platform-entry-hold.js.
 
         // If the previous page closed with Duo, mark this page before first paint
         // so it can open from the closed state without flashing the normal page.
@@ -208,9 +190,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $temporaryImprovementStyleTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $legacyAuthPrehideTag . $temporaryImprovementStyleTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
+            $html = $cssTag . $legacyAuthPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -252,8 +234,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $legacyBlackholeCleanupTag = '<script id="hashcod-legacy-blackhole-cleanup">(function(){function cleanup(){var hint=document.getElementById("bootCliHint");if(!hint)return;hint.textContent="";hint.hidden=true;hint.setAttribute("aria-hidden","true");}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",cleanup,{once:true});}else{cleanup();}})();</script>';
 
         $tag = $legacyBlackholeCleanupTag
-            . $temporaryImprovementSignTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260917-1" data-hashcod-platform-registration="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

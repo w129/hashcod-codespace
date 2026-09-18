@@ -43,6 +43,11 @@ on:
       - components/toolbox-secure-ui-rescue.js
       - components/toolbox-signature-copy.js
       - components/topbar-windows-hello.js
+      - components/platform-registration-form.js
+      - components/platform-registration-form.css
+      - platform-registration.php
+      - supabase/schema.sql
+      - supabase/migrations/20260917_create_hashcod_platform_registrations.sql
       - supabase/migrations/20260913_create_secure_toolbox_links.sql
       - supabase/migrations/20260913_add_toolbox_access_signature_hash.sql
       - tests/e2e/test_auth_vector_layout_fix.js
@@ -61,6 +66,7 @@ on:
       - tests/e2e/test_mobile_platform_polish.js
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_secure_toolbox_links.js
+      - tests/e2e/test_platform_registration_form.js
       - .github/workflows/verify-auth-layout.yml
   pull_request:
     branches:
@@ -75,6 +81,11 @@ on:
       - components/toolbox-secure-links.css
       - components/toolbox-secure-ui-rescue.js
       - components/toolbox-signature-copy.js
+      - components/platform-registration-form.js
+      - components/platform-registration-form.css
+      - platform-registration.php
+      - supabase/schema.sql
+      - supabase/migrations/20260917_create_hashcod_platform_registrations.sql
       - components/auth-vector-layout-fix.js
       - components/auth-register-resilience.js
       - components/platform-entry-capability-footer-fix.js
@@ -93,6 +104,7 @@ on:
       - tests/e2e/test_hashcod_ux_system.js
       - tests/e2e/test_hashcod_ux_browser_playwright.js
       - tests/e2e/test_secure_toolbox_links.js
+      - tests/e2e/test_platform_registration_form.js
       - tests/e2e/test_auth_register_resilience.js
       - .github/workflows/verify-auth-layout.yml
   workflow_dispatch:
@@ -162,6 +174,12 @@ jobs:
       - name: Syntax check top bar Windows Hello control
         run: node --check components/topbar-windows-hello.js
 
+      - name: Syntax check platform registration form
+        run: node --check components/platform-registration-form.js
+
+      - name: Syntax check platform registration API
+        run: php -l platform-registration.php
+
       - name: Syntax check cloud sync backend
         run: php -l hashcod-sync.php
 
@@ -213,8 +231,8 @@ jobs:
       - name: Verify legacy auth window retirement
         run: node tests/e2e/test_legacy_auth_retirement.js
 
-      - name: Verify temporary platform improvement sign
-        run: node tests/e2e/test_temporary_platform_improvement_sign.js
+      - name: Verify final-screen platform registration form
+        run: node tests/e2e/test_platform_registration_form.js
 
       - name: Install Playwright Chromium for browser verification
         run: |

@@ -336,6 +336,21 @@
                 </p>
             </div>
 
+            <h3>🧾 Registro de plataforma (+18)</h3>
+            <p>
+                La tercera pantalla de entrada incluye un formulario voluntario para registrar una plataforma.
+                Ese formulario solicita <strong>nombre con apellidos, edad, cédula, nombre de la plataforma,
+                correo electrónico y número de teléfono</strong>. El envío está limitado a personas que declaren
+                tener 18 años o más y requiere una confirmación expresa antes de guardar los datos.
+            </p>
+            <p>
+                Estos datos se usan para gestionar el registro solicitado. Se envían al backend de Hashcod Codespace
+                y se almacenan en la base de datos configurada de Supabase. El nombre, la cédula, el correo y el teléfono
+                se protegen en almacenamiento mediante el cifrado AES-256-GCM de la plataforma. La consulta de la tabla
+                completa está restringida por el control administrativo; no se expone como una tabla pública ni se utiliza
+                para publicidad.
+            </p>
+
             <h3>🏛️ Arquitectura Operativa y Servicios Activos</h3>
             <p>La plataforma integra de forma real y funcional los siguientes módulos de cómputo y desarrollo:</p>
             <div class="vector-grid">

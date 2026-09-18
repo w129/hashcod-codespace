@@ -12,7 +12,6 @@
         '.boot-cli-overlay',
         '#hashcodRareFolderHost',
         '#hashcodBootFolderAnimation',
-        '#hashcodEntryHold',
         '#hashcodVectorTray',
         '#hashcodAuthUtilityDock',
         '#groqAuthChatPanel',

@@ -51,7 +51,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 
 # Configurar SSH con validación estricta y host key de GitHub fijada.
 # La clave Ed25519 se toma de la documentación oficial de GitHub y evita confiar
-# en un ssh-keyscan no autenticado durante el build.
+# en una consulta de red no autenticada durante el build.
 RUN mkdir -p /root/.ssh /home/l8user/.ssh && \
     chmod 700 /root/.ssh /home/l8user/.ssh && \
     printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > /root/.ssh/known_hosts && \

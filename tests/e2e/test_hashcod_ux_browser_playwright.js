@@ -39,23 +39,24 @@ async function run() {
       const brandNode = document.querySelector('.boot-brand');
       const controlsNode = document.getElementById('hashcodUxActions');
       const overlayNode = document.getElementById('bootCliOverlay');
-      const improvementSignNode = document.getElementById('hashcodPlatformImprovementSign');
+      const registrationNode = document.getElementById('hashcodFinalEntryRegistration');
       const folder = rectOf(folderNode);
       const brand = rectOf(brandNode);
       const controls = rectOf(controlsNode);
       const overlay = rectOf(overlayNode);
-      const improvementSign = rectOf(improvementSignNode);
+      const registration = rectOf(registrationNode);
       const strip = rectOf(document.querySelector('.boot-cli-footer .boot-card-icon'));
       return {
         folder,
         brand,
         controls,
         overlay,
-        improvementSign,
-        improvementSignDisplay: improvementSignNode ? getComputedStyle(improvementSignNode).display : null,
-        improvementSignVisibility: improvementSignNode ? getComputedStyle(improvementSignNode).visibility : null,
-        improvementSignOpacity: improvementSignNode ? Number(getComputedStyle(improvementSignNode).opacity) : null,
-        improvementSignZIndex: improvementSignNode ? Number(getComputedStyle(improvementSignNode).zIndex) : null,
+        registration,
+        registrationDisplay: registrationNode ? getComputedStyle(registrationNode).display : null,
+        registrationVisibility: registrationNode ? getComputedStyle(registrationNode).visibility : null,
+        registrationOpacity: registrationNode ? Number(getComputedStyle(registrationNode).opacity) : null,
+        registrationZIndex: registrationNode ? Number(getComputedStyle(registrationNode).zIndex) : null,
+        improvementSignPresent: Boolean(document.getElementById('hashcodPlatformImprovementSign')),
         strip,
         viewportWidth: innerWidth,
         viewportCenter: innerWidth / 2,
@@ -79,12 +80,14 @@ async function run() {
       `global UX controls must be at the top-left, got left=${landingGeometry.controls.left.toFixed(2)}px`);
     assert(landingGeometry.controls.top >= 0 && landingGeometry.controls.top <= 28,
       `global UX controls must be at the top-left, got top=${landingGeometry.controls.top.toFixed(2)}px`);
-    assert.equal(landingGeometry.improvementSignDisplay, 'none',
-      'temporary platform improvement sign must stay hidden on the first landing screen');
-    assert.equal(landingGeometry.improvementSignVisibility, 'hidden',
-      'temporary platform improvement sign must not be visible before the final screen');
-    assert.equal(landingGeometry.improvementSignOpacity, 0,
-      'temporary platform improvement sign must remain transparent before the final screen');
+    assert.equal(landingGeometry.improvementSignPresent, false,
+      'retired PLATAFORMA EN MEJORA sign must not exist');
+    assert.equal(landingGeometry.registrationDisplay, 'none',
+      'registration form must stay hidden on the first landing screen');
+    assert.equal(landingGeometry.registrationVisibility, 'hidden',
+      'registration form must not be visible before the final screen');
+    assert.equal(landingGeometry.registrationOpacity, 0,
+      'registration form must remain transparent before the final screen');
 
     await page.evaluate(() => {
       document.documentElement.dataset.hashcodFinalEntryScreen = 'true';
@@ -93,16 +96,19 @@ async function run() {
       }));
     });
     await page.waitForFunction(() => {
-      const node = document.getElementById('hashcodPlatformImprovementSign');
+      const node = document.getElementById('hashcodFinalEntryRegistration');
       if (!node) return false;
       const style = getComputedStyle(node);
       const rect = node.getBoundingClientRect();
       return style.display !== 'none' && style.visibility === 'visible' && Number(style.opacity) > 0.9
-        && rect.width > 200 && rect.height > 200;
+        && rect.width > 300 && rect.height > 300
+        && Boolean(node.querySelector('#hashcodEntryRegistrationForm'))
+        && Boolean(node.querySelector('#hashcodEntryRegistrationSubmit'))
+        && Boolean(node.querySelector('#hashcodEntryRegistrationRecords'));
     }, { timeout: 3000 });
 
-    const finalSignGeometry = await page.evaluate(() => {
-      const node = document.getElementById('hashcodPlatformImprovementSign');
+    const finalRegistrationGeometry = await page.evaluate(() => {
+      const node = document.getElementById('hashcodFinalEntryRegistration');
       const style = getComputedStyle(node);
       const rect = node.getBoundingClientRect();
       return {
@@ -111,19 +117,23 @@ async function run() {
         display: style.display,
         visibility: style.visibility,
         opacity: Number(style.opacity),
-        zIndex: Number(style.zIndex)
+        zIndex: Number(style.zIndex),
+        ageMin: node.querySelector('[name="age"]')?.getAttribute('min') || '',
+        fieldCount: node.querySelectorAll('.hashcod-entry-field input').length
       };
     });
-    assert(finalSignGeometry.width > 200 && finalSignGeometry.height > 200,
-      'temporary platform improvement sign must have a visible bounding box on the third screen');
-    assert(['block', 'flex', 'grid'].includes(finalSignGeometry.display),
-      `temporary platform improvement sign must display on the third screen, got ${finalSignGeometry.display}`);
-    assert.equal(finalSignGeometry.visibility, 'visible',
-      'temporary platform improvement sign must be visible on the third screen');
-    assert(finalSignGeometry.opacity > 0.9,
-      'temporary platform improvement sign must be opaque on the third screen');
-    assert(finalSignGeometry.zIndex > 2147483500,
-      'temporary platform improvement sign must render above the final-screen surface');
+    assert(finalRegistrationGeometry.width > 300 && finalRegistrationGeometry.height > 300,
+      'registration form must have a visible bounding box on the third screen');
+    assert(['block', 'flex', 'grid'].includes(finalRegistrationGeometry.display),
+      `registration form must display on the third screen, got ${finalRegistrationGeometry.display}`);
+    assert.equal(finalRegistrationGeometry.visibility, 'visible',
+      'registration form must be visible on the third screen');
+    assert(finalRegistrationGeometry.opacity > 0.9,
+      'registration form must be opaque on the third screen');
+    assert(finalRegistrationGeometry.zIndex > 2147483500,
+      'registration form must render above the final-screen surface');
+    assert.equal(finalRegistrationGeometry.ageMin, '18', 'age input must enforce an 18+ minimum');
+    assert.equal(finalRegistrationGeometry.fieldCount, 6, 'final registration must expose exactly six requested inputs');
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');

@@ -242,6 +242,12 @@ html[data-hashcod-theme="dark"] .hashcod-registration-table-close,
 html.dark .hashcod-registration-table-close {
     background: #171717; color: #fff; border-color: #777;
 }
+html[data-hashcod-theme="dark"] #hashcodRegCodeButton.is-loaded,
+html.dark #hashcodRegCodeButton.is-loaded {
+    background: #e4e4e4;
+    color: #111;
+    border-color: #9a9a9a;
+}
 @media (max-width: 900px) {
     #hashcodPlatformRegistration {
         padding: 28px 24px 40px;

@@ -258,5 +258,7 @@ function secretsKnownNames() {
         'L8_CORS_ORIGINS',
         'L8_TRUST_PROXY',
         'L8_REQUIRE_AUTH_MUTATIONS',
+        'OPENCLAW_WEBHOOK_SECRET',
+        'WS_SECRET',
     ];
 }

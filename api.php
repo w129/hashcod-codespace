@@ -3627,12 +3627,25 @@ $hostExecutionPrefixes = [
     '/api/macos/',
     '/api/chromeos/',
     '/api/streamlit/',
+    '/api/agent-browser/',
+    '/api/libreoffice/',
+    '/api/ssh/',
     '/api/cli/',
     '/api/originkit/',
 ];
 foreach ($hostExecutionPrefixes as $hostExecutionPrefix) {
     if (str_starts_with($uri, $hostExecutionPrefix)) {
         adminRequire();
+        break;
+    }
+}
+
+// Stateful developer tools that do not need host-level administration still
+// require an authenticated account to prevent anonymous paste/state abuse.
+$accountToolPrefixes = ['/api/prs/', '/api/grid/'];
+foreach ($accountToolPrefixes as $accountToolPrefix) {
+    if (str_starts_with($uri, $accountToolPrefix)) {
+        securityRequireAccountSession();
         break;
     }
 }

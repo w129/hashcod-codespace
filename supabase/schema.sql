@@ -362,7 +362,7 @@ create table if not exists public.hashcod_platform_registrations (
   platform_name text not null check (char_length(platform_name) between 2 and 120),
   code_filename text not null default '' check (char_length(code_filename) <= 255),
   code_mime_type text not null default 'application/octet-stream',
-  code_size_bytes bigint not null default 0 check (code_size_bytes between 0 and 10485760),
+  code_size_bytes bigint not null default 0 check (code_size_bytes between 0 and 31457280),
   code_sha256 text not null default '' check (code_sha256 = '' or code_sha256 ~ '^[a-f0-9]{64}
 alter table public.hashcod_platform_registrations enable row level security;
 

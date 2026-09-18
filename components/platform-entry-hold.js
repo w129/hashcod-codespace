@@ -174,10 +174,14 @@
     function install() {
         const current = window.l8EnterPlatform;
         if (typeof current !== 'function') return false;
-        if (current.__hashcodHoldWrapped === true) return true;
+        if (
+            current.__hashcodHoldWrapped === true &&
+            current.__hashcodHoldVersion === '20260918-3'
+        ) return true;
 
-        // Bypass the earlier auto-advancing motion wrapper. This manual gate is authoritative.
-        const original = current.__hashcodMotionOriginal || current;
+        // A cached older hold wrapper may have installed first. Always unwrap it
+        // and replace it with the current authoritative controller.
+        const original = current.__hashcodHoldOriginal || current.__hashcodMotionOriginal || current;
 
         const wrapped = function () {
             const context = this;
@@ -191,6 +195,7 @@
         };
 
         Object.defineProperty(wrapped, '__hashcodHoldWrapped', { value: true });
+        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: '20260918-3' });
         Object.defineProperty(wrapped, '__hashcodHoldOriginal', { value: original });
         window.l8EnterPlatform = wrapped;
         return true;

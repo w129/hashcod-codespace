@@ -55,18 +55,31 @@ function requestUrl(req) {
     return new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
 }
 
-function requestSecret(req, url = requestUrl(req)) {
+function requestSecret(req) {
     const direct = String(req.headers['x-ws-secret'] || '').trim();
     if (direct) return direct;
 
     const auth = String(req.headers.authorization || '').trim();
     if (/^Bearer\s+/i.test(auth)) return auth.replace(/^Bearer\s+/i, '').trim();
 
-    return String(url.searchParams.get('token') || '').trim();
+    // Browser WebSocket authentication travels in a subprotocol rather than
+    // the URL, so credentials do not leak through query-string access logs.
+    const protocols = String(req.headers['sec-websocket-protocol'] || '')
+        .split(',')
+        .map(v => v.trim());
+    const encoded = protocols.find(v => v.startsWith('hashcod.auth.'));
+    if (encoded) {
+        try {
+            return Buffer.from(encoded.slice('hashcod.auth.'.length), 'base64url').toString('utf8');
+        } catch (_) {
+            return '';
+        }
+    }
+    return '';
 }
 
-function secretValid(req, url = requestUrl(req)) {
-    return SECRET_KEY.length >= 32 && safeEqual(requestSecret(req, url), SECRET_KEY);
+function secretValid(req) {
+    return SECRET_KEY.length >= 32 && safeEqual(requestSecret(req), SECRET_KEY);
 }
 
 function originAllowed(req) {
@@ -95,7 +108,7 @@ function originAllowed(req) {
 function websocketAuthorized(req, url) {
     if (!originAllowed(req)) return false;
     if (LOOPBACK_ONLY) return true;
-    return secretValid(req, url);
+    return secretValid(req);
 }
 
 function applyCors(req, res) {
@@ -234,7 +247,7 @@ const server = http.createServer((req, res) => {
     }
 
     if (req.method === 'GET' && url.pathname === '/stats') {
-        if (!secretValid(req, url)) {
+        if (!secretValid(req)) {
             res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' });
             return res.end(JSON.stringify({ ok: false, error: 'Authentication required' }));
         }
@@ -289,7 +302,10 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocketServer({
     noServer: true,
     maxPayload: MAX_WS_PAYLOAD,
-    perMessageDeflate: false
+    perMessageDeflate: false,
+    handleProtocols(protocols) {
+        return protocols.has('hashcod.v1') ? 'hashcod.v1' : false;
+    }
 });
 
 server.on('upgrade', (req, socket, head) => {

@@ -62,12 +62,19 @@ assert(migration.includes('check (age between 18 and 120)'), 'database must enfo
 assert(router.includes("'/api/access-intake/submit'"), 'submit route missing');
 assert(router.includes("'/api/access-intake/list'"), 'records route missing');
 
-assert(hosted.includes('components/final-entry-registration.css?v=20260917-1'), 'hosted form CSS missing');
-assert(hosted.includes('components/final-entry-registration.js?v=20260917-1'), 'hosted form JS missing');
-assert(local.includes('components/final-entry-registration.css?v=20260917-1'), 'local form CSS missing');
-assert(local.includes('components/final-entry-registration.js?v=20260917-1'), 'local form JS missing');
+assert(hosted.includes('components/final-entry-registration.css?v=20260918-1'), 'hosted form CSS missing');
+assert(hosted.includes('components/final-entry-registration.js?v=20260918-1'), 'hosted form JS missing');
+assert(local.includes('components/final-entry-registration.css?v=20260918-1'), 'local form CSS missing');
+assert(local.includes('components/final-entry-registration.js?v=20260918-1'), 'local form JS missing');
 
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'old improvement sign must be removed from hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'old improvement sign must be removed from local entry');
+assert(hosted.includes('components/platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
+assert(hosted.includes('components/platform-entry-hold.js?v=20260918-2'), 'hosted mandatory gate must load directly');
+assert(local.includes('components/platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
+assert(local.includes('components/platform-entry-hold.js?v=20260918-2'), 'local mandatory gate must load directly');
+assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted fail-closed preboot gate missing');
+assert(local.includes('hashcod-registration-gate-preboot'), 'local fail-closed preboot gate missing');
+
 
 console.log('PASS: final entry registration is 18+, server-validated, encrypted, Postgres-backed, and admin-table protected.');

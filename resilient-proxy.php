@@ -49,12 +49,10 @@ function resilientProxyValidateUrl(string $url, array $options = []): bool {
     $host = strtolower(rtrim((string)($parts['host'] ?? ''), '.'));
     if ($host === '' || $host === 'localhost' || str_ends_with($host, '.localhost')) return false;
 
+    // Direct IP literals are not valid provider identities. This also blocks
+    // loopback, RFC1918, link-local, metadata and arbitrary public-IP targets.
     if (filter_var($host, FILTER_VALIDATE_IP)) {
-        return filter_var(
-            $host,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
-        ) !== false;
+        return false;
     }
 
     $trustedSuffixes = [

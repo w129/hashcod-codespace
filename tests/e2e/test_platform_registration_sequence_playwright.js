@@ -25,7 +25,25 @@ async function run() {
       if (!node) return false;
       const style = getComputedStyle(node);
       return style.display === 'none' && style.visibility === 'hidden';
-    }, { timeout: 10000 });
+    }, { timeout: 10000 }).catch(async error => {
+      const state = await page.evaluate(() => {
+        const node = document.getElementById('hashcodPlatformRegistration');
+        const style = node ? getComputedStyle(node) : null;
+        const cssLink = document.querySelector('link[data-hashcod-platform-registration-style]');
+        const prehide = document.getElementById('hashcod-platform-registration-prehide');
+        return {
+          nodePresent: Boolean(node),
+          display: style ? style.display : null,
+          visibility: style ? style.visibility : null,
+          opacity: style ? style.opacity : null,
+          cssHref: cssLink ? cssLink.href : '',
+          prehidePresent: Boolean(prehide),
+          finalScreen: document.documentElement.dataset.hashcodFinalEntryScreen || ''
+        };
+      });
+      console.error('[registration-first-screen-diagnostic]', JSON.stringify(state));
+      throw error;
+    });
 
     assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 1,
       'registration component must already be mounted while hidden on screen 1');

@@ -45,6 +45,10 @@ assert(js.includes('autocomplete="off"'),
   'registration PII form must disable browser form autocomplete at form level');
 assert(js.includes('viewBox="0 0 50 50"'), 'requested database/cloud SVG viewBox missing');
 assert(js.includes('M 28.992188 8'), 'requested database/cloud SVG path missing');
+assert(js.includes('C 34.444331 46.320593 34 45.631546 34 45 L 34 44.283203 z'),
+  'database/cloud SVG final cubic segment must be valid');
+assert(!js.includes('C 34.444331 46.320593 34 45 L 34 44.283203 z'),
+  'malformed database/cloud SVG segment must not return');
 
 // Submission and protected records table.
 assert(js.includes("method: 'POST'"), 'registration POST missing');
@@ -85,10 +89,16 @@ for (const sql of [migration, schema]) {
 }
 
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260917-1'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-2'), 'hosted registration CSS missing');
 assert(hosted.includes('platform-registration-form.js?v=20260918-1'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260917-1'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-2'), 'local registration CSS missing');
 assert(local.includes('platform-registration-form.js?v=20260918-1'), 'local registration JS missing');
+assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
+assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
+assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
+  'hosted form must be forcibly hidden before screen 3');
+assert(local.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
+  'local form must be forcibly hidden before screen 3');
 assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
 assert(hosted.includes('platform-entry-hold.js?v=20260918-1'), 'hosted second screen must load directly');
 assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');

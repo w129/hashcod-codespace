@@ -227,12 +227,19 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260917-1" data-hashcod-platform-registration-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260918-2" data-hashcod-platform-registration-style="true">';
 
         // Retire the current authentication window before first paint. The
         // backend/session code remains available for the replacement entry system.
         $legacyAuthPrehideTag = '<style id="hashcod-legacy-auth-prehide">#authOverlay,#authWrapper,#hashcodVectorTray,#hashcodAuthUtilityDock,#groqAuthChatPanel,#groqAuthChatLauncher,#hashcodEftCodeKeyGate,#hashcodEfrHotzone,#cryptoCardValidationLauncherBtn,#d5LauncherBtn,[data-hashcod-auth-utility-dock]{display:none!important;visibility:hidden!important;pointer-events:none!important;}</style>'
             . '<script id="hashcod-legacy-auth-retired-flag">window.__hashcodLegacyAuthRetired=true;document.documentElement.dataset.hashcodLegacyAuthRetired="true";</script>';
+
+        // Critical first-paint gate for the third-screen form. Keep this inline
+        // so stale/cached external CSS can never expose the form on screens 1–2.
+        $registrationPrehideTag = '<style id="hashcod-platform-registration-prehide">'
+            . '#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
+            . 'html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}'
+            . '</style>';
 
         // The retired authentication slot is now occupied by the adult
         // platform-registration form. Its component stays hidden until the
@@ -265,9 +272,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $registrationPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $legacyAuthPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
+            $html = $cssTag . $legacyAuthPrehideTag . $registrationPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.

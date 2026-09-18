@@ -70,6 +70,7 @@ function securityApplyHeaders() {
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
             "script-src 'self' 'nonce-" . securityCspNonce() . "' https://challenges.cloudflare.com; " .
+            "script-src-attr 'unsafe-inline'; " .
             "connect-src 'self' https: wss: https://challenges.cloudflare.com; " .
             "frame-src 'self' https://challenges.cloudflare.com; " .
             "worker-src 'self' blob:; " .
@@ -1059,6 +1060,7 @@ function securityAdminAuthorized() {
         : (function_exists('envValue') ? envValue('L8_ADMIN_DIAG_SECRET', '') : '');
     if ($secret === '') return false;
     $hdr = $_SERVER['HTTP_X_L8_ADMIN'] ?? '';
-    $q = $_GET['admin'] ?? '';
-    return hash_equals($secret, (string)$hdr) || hash_equals($secret, (string)$q);
+    // Never accept administrative secrets in URLs. Query strings can leak into
+    // browser history, reverse-proxy logs, analytics, referrers and screenshots.
+    return $hdr !== '' && hash_equals($secret, (string)$hdr);
 }

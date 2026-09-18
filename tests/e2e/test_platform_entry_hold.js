@@ -15,7 +15,8 @@ assert(js.includes('id="hashcodHoldContinue" disabled'), 'continue button must b
 assert(js.includes('continueButton.disabled = false;'), 'continue button must be enabled after verification delay');
 assert(js.includes('CONTINUAR AL LOGIN'), 'manual continuation label missing');
 assert(js.includes('current.__hashcodMotionOriginal || current'), 'manual gate must preserve the original platform entry function');
-assert(js.includes('const result = original.apply(context, args);'), 'manual gate must start the original entry function');\nassert(!js.includes('const result = await original.apply(context, args);'), 'final-screen reveal must not wait for the retired auth promise');
+assert(js.includes('const result = original.apply(context, args);'), 'manual gate must start the original entry function');
+assert(!js.includes('const result = await original.apply(context, args);'), 'final-screen reveal must not wait for the retired auth promise');
 
 // Scene contract: only grid + dispersed vectors + right-side CTA. No central status block/card.
 assert(!js.includes('hashcod-hold-frame'), 'central card/window must remain removed');

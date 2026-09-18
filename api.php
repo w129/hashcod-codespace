@@ -279,6 +279,71 @@ function getRepoFileContent($repoName, $filePath) {
 }
 
 /**
+ * Known-hosts de GitHub obtenidos exclusivamente sobre HTTPS verificado.
+ * Evita StrictHostKeyChecking=no y funciona tanto en Docker como en desktop.
+ */
+function githubKnownHostsFile() {
+    global $STORAGE_DIR;
+    $securityDir = rtrim((string)$STORAGE_DIR, '/\\') . '/security';
+    if (!is_dir($securityDir)) {
+        @mkdir($securityDir, 0700, true);
+    }
+
+    $path = $securityDir . '/github_known_hosts';
+    $fresh = is_file($path) && (time() - (int)@filemtime($path)) < 86400;
+    if ($fresh && (int)@filesize($path) > 0) {
+        return $path;
+    }
+
+    $ch = curl_init('https://api.github.com/meta');
+    if ($ch === false) {
+        throw new RuntimeException('No se pudo inicializar la verificación SSH de GitHub');
+    }
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_HTTPHEADER => [
+            'Accept: application/vnd.github+json',
+            'User-Agent: Hashcod-Codespace'
+        ]
+    ]);
+    $raw = curl_exec($ch);
+    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $meta = is_string($raw) ? json_decode($raw, true) : null;
+    $keys = is_array($meta) && isset($meta['ssh_keys']) && is_array($meta['ssh_keys'])
+        ? $meta['ssh_keys']
+        : [];
+    $lines = [];
+    foreach ($keys as $key) {
+        $key = trim((string)$key);
+        if (preg_match('/^(ssh-(?:ed25519|rsa)|ecdsa-sha2-nistp256)\\s+[A-Za-z0-9+\\/=]+(?:\\s.*)?$/', $key)) {
+            $lines[] = 'github.com ' . $key;
+        }
+    }
+    if ($status < 200 || $status >= 300 || !$lines) {
+        if (is_file($path) && (int)@filesize($path) > 0) return $path;
+        throw new RuntimeException('No se pudieron verificar las claves SSH públicas de GitHub');
+    }
+
+    $tmp = $path . '.tmp.' . bin2hex(random_bytes(4));
+    if (@file_put_contents($tmp, implode("\n", $lines) . "\n", LOCK_EX) === false) {
+        throw new RuntimeException('No se pudo guardar known_hosts de GitHub');
+    }
+    @chmod($tmp, 0600);
+    if (!@rename($tmp, $path)) {
+        @unlink($tmp);
+        throw new RuntimeException('No se pudo activar known_hosts de GitHub');
+    }
+    return $path;
+}
+
+/**
  * GESTOR Y GENERADOR DINÁMICO DE CLAVE SSH ED25519 DE LA PLATAFORMA
  */
 function getOrGenerateSshKey($forceRegenerate = false) {
@@ -306,7 +371,12 @@ function getOrGenerateSshKey($forceRegenerate = false) {
         $pubKeyContent = trim(file_get_contents($pubKeyPath));
     }
 
-    $sshTestCmd = sprintf('ssh -T -i %s -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/etc/ssh/ssh_known_hosts git@github.com 2>&1', escapeshellarg($keyPath));
+    $knownHostsPath = githubKnownHostsFile();
+    $sshTestCmd = sprintf(
+        'ssh -T -i %s -o StrictHostKeyChecking=yes -o UserKnownHostsFile=%s git@github.com 2>&1',
+        escapeshellarg($keyPath),
+        escapeshellarg($knownHostsPath)
+    );
     $sshOutput = @shell_exec($sshTestCmd) ?? 'No se pudo probar la conexión SSH';
 
     return [
@@ -967,7 +1037,12 @@ function cloneOrUpdateRepository($repoTarget) {
         ];
     }
 
-    $gitSshCmd = sprintf('ssh -i %s -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/etc/ssh/ssh_known_hosts', escapeshellarg($keyPath));
+    $knownHostsPath = githubKnownHostsFile();
+    $gitSshCmd = sprintf(
+        'ssh -i %s -o StrictHostKeyChecking=yes -o UserKnownHostsFile=%s',
+        escapeshellarg($keyPath),
+        escapeshellarg($knownHostsPath)
+    );
     putenv("GIT_SSH_COMMAND=$gitSshCmd");
     putenv('GIT_TERMINAL_PROMPT=0');
 

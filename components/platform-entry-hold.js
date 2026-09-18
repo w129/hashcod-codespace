@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    const HOLD_RUNTIME_VERSION = '20260918-5';
+    const HOLD_RUNTIME_VERSION = '20260918-6';
     if (window.__hashcodPlatformEntryHoldLoadedVersion === HOLD_RUNTIME_VERSION) return;
     window.__hashcodPlatformEntryHoldLoaded = true;
     window.__hashcodPlatformEntryHoldLoadedVersion = HOLD_RUNTIME_VERSION;
@@ -73,7 +73,7 @@
                 SCATTER.map(iconMarkup).join(''),
             '</div>',
             '<div class="hashcod-hold-cta-wrap">',
-                '<button type="button" class="hashcod-hold-continue" id="hashcodHoldContinue" disabled aria-label="Continuar al login de Hashcod">',
+                '<button type="button" class="hashcod-hold-continue" id="hashcodHoldContinue" disabled aria-label="Continuar al registro de plataforma de Hashcod">',
                     '<span>VERIFYING</span><span aria-hidden="true">↵</span>',
                 '</button>',
             '</div>'
@@ -88,7 +88,7 @@
 
         overlay.classList.add('is-ready');
         continueButton.disabled = false;
-        continueButton.querySelector('span').textContent = 'CONTINUAR AL LOGIN';
+        continueButton.querySelector('span').textContent = 'CONTINUAR AL REGISTRO';
         window.setTimeout(function () {
             try { continueButton.focus({ preventScroll: true }); } catch (error) { continueButton.focus(); }
         }, 80);

@@ -147,6 +147,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . $inlineEfrCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-motion.css?v=20260918-1" data-hashcod-platform-entry-motion-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-hold.css?v=20260918-1" data-hashcod-platform-entry-hold-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
@@ -235,7 +237,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $tag = $legacyBlackholeCleanupTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260917-2" data-hashcod-platform-registration="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-1" data-platform-entry-hold="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260918-1" data-hashcod-platform-registration="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

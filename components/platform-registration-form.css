@@ -283,6 +283,131 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     font-weight: 700;
     text-underline-offset: 2px;
 }
+
+.hashcod-preview-link-card {
+    display: inline;
+}
+
+.hashcod-preview-link-card-trigger {
+    position: relative;
+    color: #111 !important;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px !important;
+    cursor: pointer;
+}
+
+.hashcod-preview-link-card-trigger:hover {
+    text-decoration-thickness: 2px;
+}
+
+.hashcod-preview-link-card-content {
+    position: fixed;
+    z-index: 2147483652;
+    width: 360px;
+    height: 286px;
+    box-sizing: border-box;
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(5px) scale(.985);
+    transform-origin: 50% 100%;
+    transition:
+        opacity .14s ease,
+        transform .18s cubic-bezier(.2,.8,.2,1),
+        visibility 0s linear .18s;
+}
+
+.hashcod-preview-link-card-content.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    transition-delay: 0s;
+}
+
+.hashcod-preview-link-card-browser {
+    display: block;
+    overflow: hidden;
+    height: 232px;
+    border: 1px solid #c8c8c8;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 18px 50px rgba(0,0,0,.16);
+}
+
+.hashcod-preview-link-card-toolbar {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 10px;
+    border-bottom: 1px solid #dedede;
+    background: #f4f4f4;
+}
+
+.hashcod-preview-link-card-dots {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.hashcod-preview-link-card-dots i {
+    width: 6px;
+    height: 6px;
+    display: block;
+    border-radius: 50%;
+    background: #b7b7b7;
+}
+
+.hashcod-preview-link-card-address {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #777;
+    font: 500 9px/1 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-preview-link-card-viewport {
+    position: relative;
+    height: 202px;
+    display: block;
+    overflow: hidden;
+    background: #fff;
+}
+
+.hashcod-preview-link-card-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1200px;
+    height: 674px;
+    border: 0;
+    pointer-events: none;
+    transform: scale(.3);
+    transform-origin: 0 0;
+    background: #fff;
+}
+
+.hashcod-preview-link-card-meta {
+    height: 54px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 11px;
+    color: #111;
+}
+
+.hashcod-preview-link-card-meta strong {
+    font: 700 11px/1.2 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-preview-link-card-meta span {
+    color: #777;
+    font: 500 9px/1.2 "IBM Plex Mono", Consolas, monospace;
+}
 .hashcod-registration-actions {
     display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 10px; margin-top: 20px;
 }
@@ -385,5 +510,8 @@ html.dark #hashcodRegCodeButton.is-loaded {
     #hashcodPlatformRegistration * {
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
+    }
+    .hashcod-preview-link-card-content {
+        transition: none !important;
     }
 }

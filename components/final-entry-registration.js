@@ -52,7 +52,7 @@
           '</div>',
           '<span class="hashcod-entry-registration-badge">18+ REQUIRED</span>',
         '</header>',
-        '<form id="hashcodEntryRegistrationForm" class="hashcod-entry-registration-form" novalidate>',
+        '<form id="hashcodEntryRegistrationForm" class="hashcod-entry-registration-form" data-no-autosave data-hashcod-autosave="off" novalidate>',
           fieldMarkup('full_name', 'Nombre con apellidos', 'type="text" autocomplete="name" maxlength="160" placeholder="Nombre y apellidos" required', true),
           fieldMarkup('age', 'Edad', 'type="number" inputmode="numeric" min="18" max="120" step="1" placeholder="18+" required', false),
           fieldMarkup('cedula', 'Cédula con guiones', 'type="text" inputmode="numeric" autocomplete="off" maxlength="13" placeholder="000-0000000-0" required', false),

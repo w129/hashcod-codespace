@@ -41,7 +41,8 @@
 
     root = document.createElement('section');
     root.id = ROOT_ID;
-    root.setAttribute('aria-label', 'Formulario de registro de acceso');
+    root.dataset.hashcodScreen = '3';
+    root.setAttribute('aria-label', 'Tercera pantalla: formulario de registro de acceso');
     root.innerHTML = [
       '<div class="hashcod-entry-registration-card">',
         '<header class="hashcod-entry-registration-head">',
@@ -359,16 +360,19 @@
     });
   }
 
-  function syncFinalScreen() {
+  function mountThirdScreen() {
     removeRetiredNotice();
-    buildRoot();
+    const root = buildRoot();
+    buildRecordsModal();
+    root.dataset.hashcodActiveScreen = '3';
+    return root;
   }
 
   function init() {
     removeRetiredNotice();
-    buildRoot();
-    buildRecordsModal();
-    syncFinalScreen();
+    if (document.documentElement.dataset.hashcodFinalEntryScreen === 'true') {
+      mountThirdScreen();
+    }
   }
 
   if (document.readyState === 'loading') {
@@ -377,13 +381,18 @@
     init();
   }
 
-  window.addEventListener('hashcod:final-entry-screen', syncFinalScreen);
+  window.addEventListener('hashcod:final-entry-screen', function (event) {
+    if (!event.detail || Number(event.detail.screen) === 3) mountThirdScreen();
+  });
   window.addEventListener('hashcod:platform-entered', closeRecordsModal);
 
   window.HashcodFinalEntryRegistration = Object.freeze({
-    mount: buildRoot,
+    mountThirdScreen: mountThirdScreen,
     openRecords: function () {
-      const root = buildRoot();
+      if (document.documentElement.dataset.hashcodFinalEntryScreen !== 'true') {
+        return Promise.reject(new Error('La tabla solo está disponible desde la tercera pantalla.'));
+      }
+      const root = mountThirdScreen();
       const button = root.querySelector('#hashcodEntryRegistrationRecords');
       return openRecords(root, button);
     }

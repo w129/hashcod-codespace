@@ -174,6 +174,24 @@ async function run() {
         'bottom integration strip anchor must remain visible after folder restoration');
     }
 
+    // This suite manually entered screen 3 to inspect its layout. Finish that
+    // synthetic stage before testing normal in-platform UX such as autosave.
+    await page.evaluate(() => {
+      if (
+        window.HashcodPlatformRegistration &&
+        typeof window.HashcodPlatformRegistration.completePlatformEntry === 'function'
+      ) {
+        window.HashcodPlatformRegistration.completePlatformEntry();
+      } else {
+        document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
+        document.getElementById('hashcodPlatformRegistration')?.remove();
+      }
+    });
+    await page.waitForFunction(() => (
+      !document.documentElement.hasAttribute('data-hashcod-final-entry-screen')
+      && !document.getElementById('hashcodPlatformRegistration')
+    ), { timeout: 3000 });
+
     await page.evaluate(() => window.HashcodUX.theme.set('dark', { silent: true }));
     assert.equal(await page.getAttribute('html', 'data-hashcod-theme'), 'dark');
 

@@ -39,6 +39,8 @@ assert(js.includes('Number.isInteger(age) && age >= 18'), 'client 18+ validation
 assert(js.includes('DATABASE_ICON'), 'database icon button missing');
 assert(js.includes("target.closest('#hashcodHoldContinue')"), 'final-screen registration fallback must follow the second-screen continue action');
 assert(js.includes("revealFinalRegistration('platform-registration-continue-fallback')"), 'registration fallback reveal marker missing');
+assert(js.includes("revealFinalRegistration('platform-registration-hold-disconnected')"),
+  'registration must recover when the second-screen overlay disappears');
 assert(js.includes('data-no-autosave data-hashcod-autosave="off"'),
   'registration PII form must explicitly disable Hashcod local autosave');
 assert(js.includes('autocomplete="off"'),
@@ -95,10 +97,10 @@ for (const sql of [migration, schema]) {
 }
 
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260918-2'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-1'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260918-2'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-1'), 'local registration JS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-3'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-2'), 'hosted registration JS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-3'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-2'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
@@ -106,9 +108,9 @@ assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visi
 assert(local.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'local form must be forcibly hidden before screen 3');
 assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
-assert(hosted.includes('platform-entry-hold.js?v=20260918-1'), 'hosted second screen must load directly');
+assert(hosted.includes('platform-entry-hold.js?v=20260918-3'), 'hosted second screen must load directly');
 assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
-assert(local.includes('platform-entry-hold.js?v=20260918-1'), 'local second screen must load directly');
+assert(local.includes('platform-entry-hold.js?v=20260918-3'), 'local second screen must load directly');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

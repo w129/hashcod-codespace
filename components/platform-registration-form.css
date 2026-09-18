@@ -65,6 +65,16 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     from { opacity: .01; }
     to { opacity: 1; }
 }
+
+#hashcodPlatformRegistration.is-completing {
+    pointer-events: none;
+    animation: hashcodRegistrationOut 170ms ease-in both;
+}
+
+@keyframes hashcodRegistrationOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
 #hashcodPlatformRegistration > .hashcod-registration-head,
 #hashcodPlatformRegistration > #hashcodRegistrationForm {
     width: min(100%, 860px);

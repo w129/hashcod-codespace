@@ -5,6 +5,7 @@ require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/admin-device.php';
 require_once __DIR__ . '/secrets.php';
+require_once __DIR__ . '/platform-registration-contract.php';
 
 const HASHCOD_PLATFORM_REGISTRATION_TABLE = 'hashcod_platform_registrations';
 const HASHCOD_PLATFORM_CODE_MAX_BYTES = 31457280;
@@ -126,6 +127,28 @@ function hprDeleteStorageObject(string $objectPath): void {
     );
 }
 
+function hprAcceptanceEvidenceSha256(
+    array $validated,
+    array $codeUpload,
+    string $contractVersion,
+    string $contractSha256,
+    string $acceptedAt
+): string {
+    $evidence = [
+        'contract_version'=>$contractVersion,
+        'contract_sha256'=>$contractSha256,
+        'accepted_at'=>$acceptedAt,
+        'acceptance_method'=>'checkbox+submit',
+        'age'=>(int)$validated['age'],
+        'platform_name'=>(string)$validated['platform_name'],
+        'code_filename'=>(string)$codeUpload['filename'],
+        'code_size_bytes'=>(int)$codeUpload['size_bytes'],
+        'code_sha256'=>(string)$codeUpload['sha256'],
+    ];
+    ksort($evidence);
+    return hash('sha256', json_encode($evidence, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+}
+
 function hprValidate(array $input): array {
     $fullName = hprCleanText($input['full_name'] ?? '', 120);
     $age = filter_var($input['age'] ?? null, FILTER_VALIDATE_INT, ['options'=>['min_range'=>18, 'max_range'=>120]]);
@@ -143,7 +166,7 @@ function hprValidate(array $input): array {
     if (strlen($platformName) < 2) hprJson(422, ['ok'=>false, 'error'=>'Introduce el nombre de tu plataforma.']);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) hprJson(422, ['ok'=>false, 'error'=>'Introduce un correo electrónico válido.']);
     if (!preg_match('/^\+?[0-9][0-9\s().-]{6,24}$/', $phone)) hprJson(422, ['ok'=>false, 'error'=>'Introduce un número de teléfono válido.']);
-    if (!$consent) hprJson(422, ['ok'=>false, 'error'=>'Debes confirmar que tienes 18 años o más y aceptar el tratamiento de los datos.']);
+    if (!$consent) hprJson(422, ['ok'=>false, 'error'=>'Debes confirmar que tienes 18 años o más y aceptar el documento contractual y de privacidad.']);
 
     return [
         'full_name'=>$fullName, 'age'=>(int)$age, 'cedula'=>$cedula,
@@ -159,7 +182,7 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
     $tableReady = false;
 
     if ($storageConfigured) {
-        $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id,code_storage_path&limit=1');
+        $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256&limit=1');
         $tableReady = !empty($probe['ok']);
     }
 
@@ -193,6 +216,18 @@ if ($method === 'POST') {
         hprJson(503, ['ok'=>false, 'error'=>'El almacenamiento seguro todavía no está disponible.']);
     }
 
+    $contract = hashcodRegistrationContract();
+    $contractVersion = (string)($contract['version'] ?? '');
+    $contractSha256 = hashcodRegistrationContractSha256();
+    $acceptedAt = gmdate('c');
+    $acceptanceEvidenceSha256 = hprAcceptanceEvidenceSha256(
+        $validated,
+        $codeUpload,
+        $contractVersion,
+        $contractSha256,
+        $acceptedAt
+    );
+
     $row = [
         'full_name_enc'=>secretsEncrypt($validated['full_name']),
         'age'=>$validated['age'],
@@ -203,6 +238,11 @@ if ($method === 'POST') {
         'code_size_bytes'=>$codeUpload['size_bytes'],
         'code_sha256'=>$codeUpload['sha256'],
         'code_storage_path'=>$codeUpload['storage_path'],
+        'contract_version'=>$contractVersion,
+        'contract_sha256'=>$contractSha256,
+        'contract_accepted_at'=>$acceptedAt,
+        'acceptance_method'=>'checkbox+submit',
+        'acceptance_evidence_sha256'=>$acceptanceEvidenceSha256,
         'email_enc'=>secretsEncrypt($validated['email']),
         'phone_enc'=>secretsEncrypt($validated['phone']),
     ];
@@ -238,6 +278,13 @@ if ($method === 'POST') {
         if (str_contains($error, 'code_storage_path') || str_contains($error, 'code_filename')) {
             hprJson(503, ['ok'=>false, 'error'=>'La migración para guardar el código de la plataforma todavía no está aplicada.']);
         }
+        if (
+            str_contains($error, 'contract_version')
+            || str_contains($error, 'contract_sha256')
+            || str_contains($error, 'acceptance_evidence_sha256')
+        ) {
+            hprJson(503, ['ok'=>false, 'error'=>'La migración de evidencia contractual todavía no está aplicada.']);
+        }
         hprJson(502, ['ok'=>false, 'error'=>'No se pudo guardar el registro en este momento.']);
     }
 
@@ -248,6 +295,10 @@ if ($method === 'POST') {
         'code_uploaded'=>true,
         'code_filename'=>$codeUpload['filename'],
         'code_sha256'=>$codeUpload['sha256'],
+        'contract_version'=>$contractVersion,
+        'contract_sha256'=>$contractSha256,
+        'accepted_at'=>$acceptedAt,
+        'acceptance_evidence_sha256'=>$acceptanceEvidenceSha256,
     ]);
 }
 
@@ -259,7 +310,7 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     }
     $res = supabaseDbSelect(
         HASHCOD_PLATFORM_REGISTRATION_TABLE,
-        'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
+        'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,contract_version,contract_sha256,contract_accepted_at,acceptance_method,acceptance_evidence_sha256,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
     );
     if (empty($res['ok'])) hprJson(502, ['ok'=>false, 'error'=>'No se pudo cargar la tabla de registros.']);
 
@@ -278,6 +329,11 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             'code_size_bytes'=>(int)($stored['code_size_bytes'] ?? 0),
             'code_sha256'=>(string)($stored['code_sha256'] ?? ''),
             'code_uploaded'=>((string)($stored['code_storage_path'] ?? '')) !== '',
+            'contract_version'=>(string)($stored['contract_version'] ?? ''),
+            'contract_sha256'=>(string)($stored['contract_sha256'] ?? ''),
+            'contract_accepted_at'=>(string)($stored['contract_accepted_at'] ?? ''),
+            'acceptance_method'=>(string)($stored['acceptance_method'] ?? ''),
+            'acceptance_evidence_sha256'=>(string)($stored['acceptance_evidence_sha256'] ?? ''),
             'email'=>secretsDecrypt((string)($stored['email_enc'] ?? '')),
             'phone'=>secretsDecrypt((string)($stored['phone_enc'] ?? '')),
             'created_at'=>(string)($stored['created_at'] ?? ''),

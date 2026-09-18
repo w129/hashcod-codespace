@@ -79,14 +79,51 @@ async function run() {
       `global UX controls must be at the top-left, got left=${landingGeometry.controls.left.toFixed(2)}px`);
     assert(landingGeometry.controls.top >= 0 && landingGeometry.controls.top <= 28,
       `global UX controls must be at the top-left, got top=${landingGeometry.controls.top.toFixed(2)}px`);
-    assert(landingGeometry.improvementSign && landingGeometry.improvementSign.width > 200 && landingGeometry.improvementSign.height > 200,
-      'temporary platform improvement sign must have a visible desktop bounding box');
-    assert(['block', 'flex', 'grid'].includes(landingGeometry.improvementSignDisplay),
-      `temporary platform improvement sign must be displayed, got ${landingGeometry.improvementSignDisplay}`);
-    assert.equal(landingGeometry.improvementSignVisibility, 'visible', 'temporary platform improvement sign must be visible');
-    assert(landingGeometry.improvementSignOpacity > 0.9, 'temporary platform improvement sign must be opaque');
-    assert(landingGeometry.improvementSignZIndex > 2147483500,
-      'temporary platform improvement sign must render above the entry-hold layer');
+    assert.equal(landingGeometry.improvementSignDisplay, 'none',
+      'temporary platform improvement sign must stay hidden on the first landing screen');
+    assert.equal(landingGeometry.improvementSignVisibility, 'hidden',
+      'temporary platform improvement sign must not be visible before the final screen');
+    assert.equal(landingGeometry.improvementSignOpacity, 0,
+      'temporary platform improvement sign must remain transparent before the final screen');
+
+    await page.evaluate(() => {
+      document.documentElement.dataset.hashcodFinalEntryScreen = 'true';
+      window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', {
+        detail: { screen: 3, source: 'browser-regression-test' }
+      }));
+    });
+    await page.waitForFunction(() => {
+      const node = document.getElementById('hashcodPlatformImprovementSign');
+      if (!node) return false;
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
+      return style.display !== 'none' && style.visibility === 'visible' && Number(style.opacity) > 0.9
+        && rect.width > 200 && rect.height > 200;
+    }, { timeout: 3000 });
+
+    const finalSignGeometry = await page.evaluate(() => {
+      const node = document.getElementById('hashcodPlatformImprovementSign');
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
+      return {
+        width: rect.width,
+        height: rect.height,
+        display: style.display,
+        visibility: style.visibility,
+        opacity: Number(style.opacity),
+        zIndex: Number(style.zIndex)
+      };
+    });
+    assert(finalSignGeometry.width > 200 && finalSignGeometry.height > 200,
+      'temporary platform improvement sign must have a visible bounding box on the third screen');
+    assert(['block', 'flex', 'grid'].includes(finalSignGeometry.display),
+      `temporary platform improvement sign must display on the third screen, got ${finalSignGeometry.display}`);
+    assert.equal(finalSignGeometry.visibility, 'visible',
+      'temporary platform improvement sign must be visible on the third screen');
+    assert(finalSignGeometry.opacity > 0.9,
+      'temporary platform improvement sign must be opaque on the third screen');
+    assert(finalSignGeometry.zIndex > 2147483500,
+      'temporary platform improvement sign must render above the final-screen surface');
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');

@@ -10,12 +10,12 @@ assert(js.includes('const READY_DELAY_MS = 3600;'), 'entry sequence must remain 
 assert(js.includes('await waitForContinue(overlay);'), 'login must wait for an explicit user click');
 assert(js.includes("root.dataset.hashcodFinalEntryScreen = 'true'"), 'third-screen state marker missing');
 assert(js.includes("new CustomEvent('hashcod:final-entry-screen'"), 'third-screen reveal event missing');
-assert(js.includes('if (reachedFinalScreen) revealFinalEntryScreen();'), 'sign reveal must occur only after the second screen completes');
+assert(js.includes('reachedFinalScreen = true;\n            revealFinalEntryScreen();'), 'final registration must reveal after the second screen completes');
 assert(js.includes('id="hashcodHoldContinue" disabled'), 'continue button must begin disabled');
 assert(js.includes('continueButton.disabled = false;'), 'continue button must be enabled after verification delay');
 assert(js.includes('CONTINUAR AL LOGIN'), 'manual continuation label missing');
 assert(js.includes('current.__hashcodMotionOriginal || current'), 'manual gate must preserve the original platform entry function');
-assert(js.includes('await original.apply(context, args);'), 'manual gate must delegate to the original entry function');
+assert(js.includes('const result = original.apply(context, args);'), 'manual gate must start the original entry function');\nassert(!js.includes('const result = await original.apply(context, args);'), 'final-screen reveal must not wait for the retired auth promise');
 
 // Scene contract: only grid + dispersed vectors + right-side CTA. No central status block/card.
 assert(!js.includes('hashcod-hold-frame'), 'central card/window must remain removed');

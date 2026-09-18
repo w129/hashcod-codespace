@@ -5111,44 +5111,104 @@ if ($uri === '/api/streamlit/stop' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Endpoint para descarga/servido directo de archivos
+// Endpoint para descarga/servido directo de archivos — siempre account-scoped.
 if (strpos($uri, '/api/file/get/') === 0) {
+    $session = securityRequireAccountSession();
+    $acct = (string)($session['account_id'] ?? '');
+    if ($acct === '') {
+        http_response_code(401);
+        echo json_encode(['error' => 'No autorizado']);
+        exit;
+    }
+
     $fileId = basename($uri);
-    $allFiles = $db->getAllFiles();
+    if (!preg_match('/^file_[a-f0-9]{10}_[0-9]{1,20}$/', $fileId)) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Archivo no encontrado']);
+        exit;
+    }
+
     $targetFile = null;
-    foreach ($allFiles as $f) {
-        if ($f['id'] === $fileId) {
-            $targetFile = $f;
-            break;
+    foreach ($db->getAllFiles() as $candidate) {
+        if (($candidate['id'] ?? '') !== $fileId) continue;
+        $owner = (string)($candidate['account_key'] ?? '');
+        if ($owner !== '' && hash_equals($acct, $owner)) {
+            $targetFile = $candidate;
+        }
+        break;
+    }
+
+    // Registros históricos pueden no tener account_key en el índice local.
+    // Resolverlos únicamente si Supabase demuestra que pertenecen a la cuenta.
+    if ($targetFile === null && function_exists('supabaseDbSelect')) {
+        $q = 'select=id,account_key,filename,mime_type,size_bytes,hash,storage_path,supabase_object,upload_date'
+            . '&id=eq.' . rawurlencode($fileId)
+            . '&account_key=eq.' . rawurlencode($acct)
+            . '&is_deleted=eq.false&limit=1';
+        $res = supabaseDbSelect('l8_files', $q);
+        $rows = (!empty($res['ok']) && is_array($res['body'] ?? null)) ? $res['body'] : [];
+        if (!empty($rows[0]) && is_array($rows[0])) {
+            $targetFile = $rows[0];
         }
     }
 
-    // Si falta en disco local, hidratar desde Supabase Storage
-    if ($targetFile && !file_exists($targetFile['storage_path']) && function_exists('supabaseStorageDownload')) {
-        $object = $targetFile['supabase_object'] ?? null;
-        if (!$object) {
-            $ext = pathinfo($targetFile['filename'] ?? '', PATHINFO_EXTENSION);
-            $object = 'files/' . $fileId . ($ext ? ('.' . $ext) : '');
+    if ($targetFile === null) {
+        // 404 evita confirmar a otra cuenta que el ID existe.
+        http_response_code(404);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Archivo no encontrado']);
+        exit;
+    }
+
+    $safeName = securitySanitizeFilename($targetFile['filename'] ?? ($fileId . '.bin'));
+    $ext = strtolower(pathinfo($safeName, PATHINFO_EXTENSION));
+    $localPath = $UPLOADS_DIR . '/' . $fileId . ($ext !== '' ? ('.' . $ext) : '');
+
+    // Aceptar el path persistido solo si resuelve estrictamente dentro de uploads/.
+    $storedPath = (string)($targetFile['storage_path'] ?? '');
+    if ($storedPath !== '' && is_file($storedPath)) {
+        $uploadsReal = realpath($UPLOADS_DIR);
+        $storedReal = realpath($storedPath);
+        if ($uploadsReal !== false && $storedReal !== false
+            && ($storedReal === $uploadsReal || strpos($storedReal, $uploadsReal . DIRECTORY_SEPARATOR) === 0)) {
+            $localPath = $storedReal;
+        }
+    }
+
+    if (!is_file($localPath) && function_exists('supabaseStorageDownload')) {
+        $object = trim((string)($targetFile['supabase_object'] ?? ''));
+        if ($object === '') {
+            $object = 'files/' . $fileId . ($ext !== '' ? ('.' . $ext) : '');
         }
         $remote = @supabaseStorageDownload($object);
-        if (!empty($remote['ok']) && $remote['data'] !== null) {
-            $dir = dirname($targetFile['storage_path']);
-            if (!file_exists($dir)) @mkdir($dir, 0777, true);
-            file_put_contents($targetFile['storage_path'], $remote['data']);
+        if (!empty($remote['ok']) && is_string($remote['data'] ?? null)) {
+            if (!is_dir($UPLOADS_DIR)) @mkdir($UPLOADS_DIR, 0700, true);
+            @file_put_contents($localPath, $remote['data'], LOCK_EX);
+            @chmod($localPath, 0600);
         }
     }
 
-    if ($targetFile && file_exists($targetFile['storage_path'])) {
-        header('Content-Type: ' . $targetFile['mime_type']);
-        header('Content-Disposition: inline; filename="' . $targetFile['filename'] . '"');
-        header('Content-Length: ' . filesize($targetFile['storage_path']));
-        readfile($targetFile['storage_path']);
-        exit;
-    } else {
-        header("HTTP/1.1 404 Not Found");
-        echo json_encode(['error' => 'Archivo no encontrado en el servidor ni en Supabase Storage']);
+    if (!is_file($localPath)) {
+        http_response_code(404);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Archivo no encontrado']);
         exit;
     }
+
+    $mime = strtolower(trim((string)($targetFile['mime_type'] ?? 'application/octet-stream')));
+    if (!preg_match('#^[a-z0-9.+-]+/[a-z0-9.+-]+$#i', $mime)) {
+        $mime = 'application/octet-stream';
+    }
+    $inlineSafe = (bool)preg_match('#^image/(?:png|jpeg|gif|webp)$#', $mime);
+
+    header('Content-Type: ' . $mime);
+    header('Content-Disposition: ' . ($inlineSafe ? 'inline' : 'attachment') . '; filename="' . addcslashes($safeName, "\\\"") . '"');
+    header('Content-Length: ' . filesize($localPath));
+    header('Cache-Control: private, no-store, max-age=0');
+    header('X-Content-Type-Options: nosniff');
+    header('Content-Security-Policy: sandbox');
+    readfile($localPath);
+    exit;
 }
 
 // ===== PLATFORM SECURITY HARDENING & AUDITING APIS (Milestone 2) =====
@@ -5201,9 +5261,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $uri === '/api/security/audit-zip')
         $targetZip = $_FILES['file']['tmp_name'];
     } else {
         $body = securityReadJsonBody(50000000);
-        if (!empty($body['ok']) && !empty($body['data']['zip_path']) && file_exists($body['data']['zip_path'])) {
-            $targetZip = $body['data']['zip_path'];
-        } elseif (!empty($body['ok']) && !empty($body['data']['base64_zip'])) {
+        if (!empty($body['ok']) && !empty($body['data']['base64_zip'])) {
             $rawZip = base64_decode(preg_replace('#^data:[\w/]+;base64,#i', '', $body['data']['base64_zip']));
             $tmpZip = sys_get_temp_dir() . '/audit_' . bin2hex(random_bytes(6)) . '.zip';
             file_put_contents($tmpZip, $rawZip);
@@ -5289,8 +5347,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri ===
         $origName = securitySanitizeFilename($file['name'] ?? 'file.bin');
         $tmpPath = $file['tmp_name'];
         $size = $file['size'];
-        $mime = $file['type'] ?: 'application/octet-stream';
-        if (!securityUploadMimeAllowed($mime, $origName)) {
+        $mime = 'application/octet-stream';
+        if (class_exists('finfo')) {
+            $fi = new finfo(FILEINFO_MIME_TYPE);
+            $detected = @$fi->file($tmpPath);
+            if (is_string($detected) && $detected !== '') $mime = $detected;
+        }
+        $sampleBytes = (string)@file_get_contents($tmpPath, false, null, 0, 8192);
+        if (!securityUploadMimeAllowed($mime, $origName, $sampleBytes)) {
             securityBadRequestJson('Tipo de archivo no permitido', 'bad_upload_type');
         }
         if ((int)$size <= 0 || (int)$size > 100 * 1024 * 1024) {
@@ -5340,28 +5404,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/upload' || $uri ===
     $inputData = json_decode($rawInput, true);
 
     if (!empty($inputData['filename']) && !empty($inputData['base64_data'])) {
-        $origName = basename($inputData['filename']);
-        $base64 = preg_replace('#^data:[\w/]+;base64,#i', '', $inputData['base64_data']);
-        $binaryData = base64_decode($base64);
+        $origName = securitySanitizeFilename((string)$inputData['filename']);
+        $base64 = preg_replace('#^data:[\\w.+-]+/[\\w.+-]+;base64,#i', '', (string)$inputData['base64_data']);
+        $binaryData = base64_decode($base64, true);
+        if ($binaryData === false) {
+            securityBadRequestJson('Base64 inválido', 'bad_upload_encoding');
+        }
+
         $size = strlen($binaryData);
+        if ($size <= 0 || $size > 25 * 1024 * 1024) {
+            securityBadRequestJson('Tamaño Base64 inválido o demasiado grande', 'bad_upload_size');
+        }
+
+        $mime = 'application/octet-stream';
+        if (class_exists('finfo')) {
+            $fi = new finfo(FILEINFO_MIME_TYPE);
+            $detected = @$fi->buffer($binaryData);
+            if (is_string($detected) && $detected !== '') $mime = $detected;
+        }
+        if (!securityUploadMimeAllowed($mime, $origName, substr($binaryData, 0, 8192))) {
+            securityBadRequestJson('Tipo de archivo no permitido', 'bad_upload_type');
+        }
+
         $dilithium5Hash = generateDilithium5Hash($binaryData, false);
-        $mime = $inputData['mime_type'] ?? 'application/octet-stream';
         $ext = pathinfo($origName, PATHINFO_EXTENSION);
         $extLower = strtolower($ext);
         $fileId = 'file_' . substr(md5($dilithium5Hash), 0, 10) . '_' . time();
         $targetPath = $UPLOADS_DIR . '/' . $fileId . ($ext ? '.' . $ext : '');
 
-        file_put_contents($targetPath, $binaryData);
+        if (@file_put_contents($targetPath, $binaryData, LOCK_EX) === false) {
+            http_response_code(500);
+            echo json_encode(['ok' => false, 'error' => 'No se pudo almacenar el archivo']);
+            exit;
+        }
+        @chmod($targetPath, 0600);
         $db->insertFile($fileId, $origName, $mime, $size, $dilithium5Hash, $targetPath);
 
-        // Automated Non-Blocking Security & Malware Audit
         $securityAudit = null;
         if ($extLower === 'zip') {
             $quarantineDir = $STORAGE_DIR . '/security/zip_quarantine/' . $fileId;
             $securityAudit = vulnerabilityAuditZipArchive($targetPath, $quarantineDir);
         } elseif (in_array(strtolower($origName), ['package.json', 'requirements.txt', 'requirements-streamlit.txt', 'composer.json', 'cargo.lock', 'cargo.toml', 'go.mod'], true)) {
             $securityAudit = vulnerabilityAuditManifest($origName, $binaryData);
-        } elseif (in_array($extLower, ['js', 'ts', 'jsx', 'tsx', 'php', 'py', 'sh', 'bash', 'go', 'rs', 'c', 'cpp', 'java', 'rb', 'pl', 'ps1', 'bat', 'cmd', 'html', 'json', 'yaml', 'yml'], true)) {
+        } elseif (in_array($extLower, ['js', 'ts', 'jsx', 'tsx', 'py', 'go', 'rs', 'c', 'cpp', 'java', 'rb', 'json', 'yaml', 'yml'], true)) {
             $securityAudit = vulnerabilityScanFileContent($origName, $binaryData);
         }
 

@@ -170,10 +170,28 @@ func ParseTrailers(payload []byte) (int, string, string) {
 // 2. CORS Middleware
 // ============================================================================
 
-// SetCorsHeaders writes the complete gRPC-Web CORS specification headers to ResponseWriter.
-func SetCorsHeaders(w http.ResponseWriter) {
+func corsOriginAllowed(origin string) bool {
+	origin = strings.TrimSpace(origin)
+	if origin == "" {
+		return true
+	}
+	u, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+	host := strings.ToLower(u.Hostname())
+	return host == "localhost" || host == "127.0.0.1" || host == "::1"
+}
+
+// SetCorsHeaders writes gRPC-Web CORS headers only for explicit loopback origins.
+// Same-origin requests proxied by the main application do not need ACAO.
+func SetCorsHeaders(w http.ResponseWriter, r *http.Request) {
 	h := w.Header()
-	h.Set("Access-Control-Allow-Origin", "*")
+	origin := strings.TrimSpace(r.Header.Get("Origin"))
+	if origin != "" && corsOriginAllowed(origin) {
+		h.Set("Access-Control-Allow-Origin", origin)
+		h.Set("Vary", "Origin")
+	}
 	h.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 	h.Set("Access-Control-Allow-Headers", "Content-Type, X-User-Agent, X-Grpc-Web, Authorization, X-Accept-Content-Transfer-Encoding, X-Accept-Response-Streaming")
 	h.Set("Access-Control-Expose-Headers", "grpc-status, grpc-message, grpc-status-details-bin")
@@ -182,8 +200,13 @@ func SetCorsHeaders(w http.ResponseWriter) {
 // CorsMiddleware provides standard HTTP middleware for CORS handling.
 func CorsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		SetCorsHeaders(w)
+		SetCorsHeaders(w, r)
 		if r.Method == http.MethodOptions {
+			origin := strings.TrimSpace(r.Header.Get("Origin"))
+			if origin != "" && !corsOriginAllowed(origin) {
+				http.Error(w, "origin not allowed", http.StatusForbidden)
+				return
+			}
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
@@ -314,11 +337,17 @@ func (g *GrpcWebGateway) RegisterTelemetryService(svc pb.SecurityTelemetryServic
 
 // ServeHTTP handles gRPC-Web browser dispatches, CORS, health probes, and framing.
 func (g *GrpcWebGateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// 1. Inject mandatory CORS headers on all requests
-	SetCorsHeaders(w)
+	// 1. Emit CORS only for loopback browser clients. Reverse-proxied same-origin
+	// requests need no ACAO header.
+	SetCorsHeaders(w, r)
 
 	// 2. Handle CORS preflight OPTIONS
 	if r.Method == http.MethodOptions {
+		origin := strings.TrimSpace(r.Header.Get("Origin"))
+		if origin != "" && !corsOriginAllowed(origin) {
+			http.Error(w, "origin not allowed", http.StatusForbidden)
+			return
+		}
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}

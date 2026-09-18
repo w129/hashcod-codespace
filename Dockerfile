@@ -51,7 +51,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
 
 # Configurar directorio SSH y archivo config de GitHub para root y l8user
 RUN curl --proto '=https' --tlsv1.2 -fsSL https://api.github.com/meta \
-    | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\\n".join("github.com "+k for k in d.get("ssh_keys", [])))' \
+    | python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join("github.com "+k for k in d.get("ssh_keys", [])))' \
     > /etc/ssh/ssh_known_hosts \
     && test -s /etc/ssh/ssh_known_hosts \
     && chmod 644 /etc/ssh/ssh_known_hosts

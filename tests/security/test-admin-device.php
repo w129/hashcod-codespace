@@ -14,7 +14,25 @@ check(adminClientIp(['REMOTE_ADDR'=>'127.0.0.1','HTTP_CF_CONNECTING_IP'=>'38.196
 putenv('RENDER=false'); check(adminClientIp($edge) === '', 'unconfigured deployment denied'); putenv('RENDER=true');
 check(!adminSameOrigin(['HTTP_HOST'=>ADMIN_DEVICE_RP, 'HTTP_ORIGIN'=>'https://evil.example']), 'foreign origin denied');
 check(adminSameOrigin(['HTTP_HOST'=>ADMIN_DEVICE_RP, 'HTTP_ORIGIN'=>ADMIN_DEVICE_ORIGIN]), 'same origin accepted');
-foreach (['/api/admin/dilithium-verify','/api/auth/dilithium-active-key','/api/auth/list-accounts','/api/auth/suspend-account','/api/auth/reactivate-account','/api/auth/delete-account','/api/auth/delete'] as $path) check(adminProtectedPath($path), $path);
+foreach ([
+    '/api/admin/dilithium-verify',
+    '/api/auth/dilithium-active-key',
+    '/api/auth/list-accounts',
+    '/api/auth/suspend-account',
+    '/api/auth/reactivate-account',
+    '/api/auth/delete-account',
+    '/api/auth/delete',
+    '/api/bash/exec',
+    '/api/bash/workspace',
+    '/api/bash/workspace/connect',
+    '/api/bash/workspace/set-path',
+    '/api/catalyst/status',
+    '/api/catalyst/logs',
+    '/api/catalyst/execute',
+    '/api/storage/pools',
+    '/api/storage/fileshares',
+    '/api/django/status'
+] as $path) check(adminProtectedPath($path), $path);
 foreach (['/api/auth/login','/api/auth/register','/api/auth/recover','/api/auth/session'] as $path) check(!adminProtectedPath($path), 'user path remains public: ' . $path);
 $key = openssl_pkey_new(['private_key_type'=>OPENSSL_KEYTYPE_EC, 'curve_name'=>'prime256v1']);
 $details = openssl_pkey_get_details($key);

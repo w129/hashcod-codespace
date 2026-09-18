@@ -93,8 +93,8 @@ jobs:
           deployed=0
           for attempt in $(seq 1 100); do
             html="$(curl --compressed --fail --silent --show-error --max-time 20 "$LIVE_URL" || true)"
-            if printf '%s' "$html" | grep -q 'platform-entry-hold.js?v=20260918-15' \
-              && printf '%s' "$html" | grep -q 'platform-registration-form.js?v=20260918-15' \
+            if printf '%s' "$html" | grep -q 'platform-entry-hold.js?v=20260918-16' \
+              && printf '%s' "$html" | grep -q 'platform-registration-form.js?v=20260918-16' \
               && printf '%s' "$html" | grep -q 'platform-registration-form.css?v=20260918-13'; then
               echo "Render is serving the merged registration sequence."
               deployed=1

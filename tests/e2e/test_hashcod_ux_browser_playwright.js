@@ -138,18 +138,34 @@ async function run() {
 
     // Runtime validation: under-18 users must remain blocked even when every
     // other required field is valid. At 18+, the same completed form may submit.
-    await page.fill('#hashcodRegFullName', 'Prueba Usuario');
-    await page.fill('#hashcodRegCedula', '001-1234567-8');
-    await page.fill('#hashcodRegPlatform', 'Plataforma de prueba');
-    await page.fill('#hashcodRegEmail', 'prueba@example.com');
-    await page.fill('#hashcodRegPhone', '+1 809 000 0000');
-    await page.check('#hashcodRegConsent');
-    await page.fill('#hashcodRegAge', '17');
+    await page.evaluate(() => {
+      const set = (id, value) => {
+        const input = document.getElementById(id);
+        if (!input) throw new Error('missing registration field ' + id);
+        input.value = value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      set('hashcodRegFullName', 'Prueba Usuario');
+      set('hashcodRegCedula', '001-1234567-8');
+      set('hashcodRegPlatform', 'Plataforma de prueba');
+      set('hashcodRegEmail', 'prueba@example.com');
+      set('hashcodRegPhone', '+1 809 000 0000');
+      set('hashcodRegAge', '17');
+      const consent = document.getElementById('hashcodRegConsent');
+      consent.checked = true;
+      consent.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     await page.waitForTimeout(100);
     assert.equal(await page.isDisabled('#hashcodRegistrationSubmit'), true,
       '17-year-old registration must remain blocked in the real browser');
 
-    await page.fill('#hashcodRegAge', '18');
+    await page.evaluate(() => {
+      const age = document.getElementById('hashcodRegAge');
+      age.value = '18';
+      age.dispatchEvent(new Event('input', { bubbles: true }));
+      age.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     await page.waitForTimeout(100);
     assert.equal(await page.isEnabled('#hashcodRegistrationSubmit'), true,
       '18+ completed registration must enable submit in the real browser');

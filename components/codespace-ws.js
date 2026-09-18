@@ -42,13 +42,29 @@
             const protocol = isHttps ? 'wss:' : 'ws:';
             const host = window.location.hostname || 'localhost';
 
-            // Si corre en puerto local estándar de Laragon / Apache, conectar a :8080
+            // Local desktop/Laragon uses the loopback-only hardened WS server.
             if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.test') || host.endsWith('.local')) {
                 return `${protocol}//${host}:8080`;
             }
 
-            // En producción (Render / Nginx) usar el path /ws en el mismo host o puerto 8080
+            // Remote WS is opt-in. The server requires an explicit allowlist and
+            // a strong token; deployments that do not configure it simply stay offline.
             return `${protocol}//${window.location.host}/ws`;
+        }
+
+        connectionUrl() {
+            const token = typeof window.CODESPACE_WS_TOKEN === 'string'
+                ? window.CODESPACE_WS_TOKEN.trim()
+                : '';
+            if (!token) return this.wsUrl;
+
+            try {
+                const url = new URL(this.wsUrl, window.location.href);
+                url.searchParams.set('token', token);
+                return url.toString();
+            } catch (_) {
+                return this.wsUrl;
+            }
         }
 
         /**
@@ -63,7 +79,7 @@
             this.updateUiState('connecting');
 
             try {
-                this.ws = new WebSocket(this.wsUrl);
+                this.ws = new WebSocket(this.connectionUrl());
 
                 this.ws.onopen = () => {
                     this.isConnected = true;
@@ -71,7 +87,7 @@
                     this.reconnectAttempts = 0;
                     this.updateUiState('connected');
                     this.startHeartbeat();
-                    console.log(`%c⚡ [Codespace WS] Conectado en vivo (${this.wsUrl})`, 'color:#10B981; font-weight:bold;');
+                    console.log('%c⚡ [Codespace WS] Conectado en vivo', 'color:#10B981; font-weight:bold;');
 
                     // Resuscribir canales registrados
                     this.subscribedChannels.forEach(ch => {

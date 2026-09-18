@@ -205,9 +205,14 @@
                         <input id="hashcodRegPhone" name="phone" type="tel" maxlength="25" autocomplete="tel" required placeholder="+1 809 000 0000">
                         <span class="hashcod-registration-hint" data-hint="phone"></span>
                     </div>
-                    <label class="hashcod-registration-consent">
-                        <input id="hashcodRegConsent" name="consent" type="checkbox" required>
-                        <span>Confirmo que tengo 18 años o más y autorizo el almacenamiento de estos datos para gestionar este registro. Consulta la <a href="privacy" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+                    <label class="hashcod-registration-consent" for="hashcodRegConsent">
+                        <input id="hashcodRegConsent" class="hashcod-radix-checkbox-input" name="consent" type="checkbox" required>
+                        <span class="hashcod-radix-checkbox" aria-hidden="true">
+                            <svg viewBox="0 0 16 16" focusable="false">
+                                <path d="M3.25 8.15 6.45 11.2 12.8 4.9"></path>
+                            </svg>
+                        </span>
+                        <span class="hashcod-registration-consent-text">Confirmo que tengo 18 años o más y autorizo el almacenamiento de estos datos para gestionar este registro. Consulta la <a href="privacy" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
                     </label>
                 </div>
                 <div class="hashcod-registration-actions">

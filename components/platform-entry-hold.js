@@ -1,12 +1,18 @@
 (function () {
     'use strict';
 
-    const HOLD_RUNTIME_VERSION = '20260918-6';
+    const HOLD_RUNTIME_VERSION = '20260918-7';
     if (window.__hashcodPlatformEntryHoldLoadedVersion === HOLD_RUNTIME_VERSION) return;
     window.__hashcodPlatformEntryHoldLoaded = true;
     window.__hashcodPlatformEntryHoldLoadedVersion = HOLD_RUNTIME_VERSION;
 
     const READY_DELAY_MS = 3600;
+    const HOLD_SCRIPT_SRC = document.currentScript && document.currentScript.src ? document.currentScript.src : '';
+    const COMPONENT_BASE = HOLD_SCRIPT_SRC && HOLD_SCRIPT_SRC.lastIndexOf('/') >= 0
+        ? HOLD_SCRIPT_SRC.slice(0, HOLD_SCRIPT_SRC.lastIndexOf('/') + 1)
+        : '/components/';
+    const REGISTRATION_JS_VERSION = '20260918-7';
+    const REGISTRATION_CSS_VERSION = '20260918-6';
     let holdPromise = null;
 
     // Existing Hashcod vectors plus the six additional vectors supplied for the entry scene.
@@ -115,25 +121,84 @@
         }));
     }
 
+    function ensureRegistrationAssets(forceFallback) {
+        const hasCss = document.querySelector(
+            'link[data-hashcod-platform-registration-style], link[href*="platform-registration-form.css"]'
+        );
+        if (!hasCss) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = COMPONENT_BASE + 'platform-registration-form.css?v=' + REGISTRATION_CSS_VERSION;
+            link.dataset.hashcodPlatformRegistrationStyle = 'true';
+            document.head.appendChild(link);
+        }
+
+        if (window.HashcodPlatformRegistration) return;
+
+        const existing = document.querySelector(
+            'script[data-hashcod-platform-registration], script[src*="platform-registration-form.js"]'
+        );
+        if (existing && !forceFallback) return;
+        if (forceFallback && document.querySelector('script[data-hashcod-platform-registration-fallback]')) return;
+
+        const script = document.createElement('script');
+        script.src = COMPONENT_BASE + 'platform-registration-form.js?v=' + REGISTRATION_JS_VERSION
+            + (forceFallback ? '-fallback' : '');
+        script.async = true;
+        if (forceFallback) {
+            script.dataset.hashcodPlatformRegistrationFallback = 'true';
+        } else {
+            script.dataset.hashcodPlatformRegistration = 'true';
+        }
+        document.head.appendChild(script);
+    }
+
     async function waitForRegistrationGate() {
-        for (let attempt = 0; attempt < 120; attempt += 1) {
+        ensureRegistrationAssets(false);
+        for (let attempt = 0; attempt < 180; attempt += 1) {
             const registration = window.HashcodPlatformRegistration;
             if (
                 registration &&
                 typeof registration.waitForSuccessfulSubmission === 'function' &&
-                typeof registration.completePlatformEntry === 'function'
+                typeof registration.completePlatformEntry === 'function' &&
+                typeof registration.mount === 'function'
             ) {
                 return registration;
             }
+            if (attempt === 40) ensureRegistrationAssets(true);
             await sleep(50);
         }
         throw new Error('No se pudo iniciar la tercera ventana de registro.');
+    }
+
+    async function waitForRegistrationVisible(registration) {
+        registration.mount();
+        for (let attempt = 0; attempt < 120; attempt += 1) {
+            const node = document.getElementById('hashcodPlatformRegistration');
+            if (node) {
+                const style = window.getComputedStyle(node);
+                const rect = node.getBoundingClientRect();
+                if (
+                    document.documentElement.dataset.hashcodFinalEntryScreen === 'true' &&
+                    style.display !== 'none' &&
+                    style.visibility !== 'hidden' &&
+                    Number(style.opacity || '1') > 0.5 &&
+                    rect.width > 200 &&
+                    rect.height > 200
+                ) {
+                    return node;
+                }
+            }
+            await sleep(50);
+        }
+        throw new Error('La tercera ventana de registro no llegó a mostrarse.');
     }
 
     async function runHold(original, context, args) {
         const enterButton = document.getElementById('bootCliEnter');
         const enterOriginalText = enterButton ? enterButton.textContent : '';
         const overlay = buildOverlay();
+        let registrationHandoffReady = false;
 
         if (enterButton) {
             enterButton.disabled = true;
@@ -152,14 +217,17 @@
             await waitForContinue(overlay);
             await sleep(240);
 
-            // Window 2 ends here. Do not execute the legacy platform-entry
-            // function yet: Window 3 is an independent registration gate.
+            // Window 2 may only disappear after Window 3 is mounted and
+            // visibly covering the platform. This is deliberately fail-closed:
+            // a missing/late registration bundle must never expose Codespace.
+            revealFinalEntryScreen();
+            const registration = await waitForRegistrationGate();
+            await waitForRegistrationVisible(registration);
+            registrationHandoffReady = true;
+
             overlay.classList.add('is-revealing');
             await sleep(420);
             overlay.remove();
-
-            revealFinalEntryScreen();
-            const registration = await waitForRegistrationGate();
 
             // The platform stays behind the opaque third screen until the POST
             // succeeds. Validation or storage errors never advance this promise.
@@ -168,8 +236,29 @@
 
             registration.completePlatformEntry();
             return true;
+        } catch (error) {
+            console.error('[Hashcod entry hold] Registration handoff failed:', error);
+            if (!registrationHandoffReady && overlay.isConnected) {
+                overlay.classList.remove('is-leaving', 'is-revealing');
+                overlay.classList.add('is-visible', 'is-ready');
+                const retry = overlay.querySelector('#hashcodHoldContinue');
+                if (retry) {
+                    retry.disabled = false;
+                    const label = retry.querySelector('span');
+                    if (label) label.textContent = 'REINTENTAR REGISTRO';
+                    retry.addEventListener('click', function () {
+                        window.location.reload();
+                    }, { once: true });
+                }
+            }
+            return false;
         } finally {
-            overlay.remove();
+            if (
+                registrationHandoffReady ||
+                document.documentElement.dataset.hashcodPlatformEntered === 'true'
+            ) {
+                overlay.remove();
+            }
             if (enterButton) {
                 enterButton.disabled = false;
                 enterButton.textContent = enterOriginalText;

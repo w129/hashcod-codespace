@@ -162,12 +162,127 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
 .hashcod-registration-hint { min-height: 14px; color: #777; font-size: 10px; line-height: 1.35; }
 .hashcod-registration-hint.is-error { color: #9c1717; }
 .hashcod-registration-consent {
-    grid-column: 1 / -1; display: flex; gap: 9px; align-items: flex-start; margin-top: 2px; padding: 11px 12px;
-    border: 1px dashed #aaa; border-radius: 9px; background: rgba(255,255,255,.72); color: #555;
-    font-size: 10px; line-height: 1.45;
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 2px;
+    padding: 12px 13px;
+    border: 1px dashed #aaa;
+    border-radius: 9px;
+    background: rgba(255,255,255,.72);
+    color: #555;
+    font-size: 10px;
+    line-height: 1.45;
+    cursor: pointer;
+    user-select: none;
 }
-.hashcod-registration-consent input { margin-top: 2px; accent-color: #111; }
-.hashcod-registration-consent a { color: inherit; font-weight: 700; text-underline-offset: 2px; }
+
+.hashcod-radix-checkbox-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+.hashcod-radix-checkbox {
+    position: relative;
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    border: 1px solid #a7a7a7;
+    border-radius: 5px;
+    background: #fff;
+    color: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    transition:
+        background-color .16s ease,
+        border-color .16s ease,
+        box-shadow .16s ease,
+        transform .16s cubic-bezier(.2,.8,.2,1);
+}
+
+.hashcod-radix-checkbox svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.15;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    transform: scale(.55);
+    transition: opacity .13s ease, transform .18s cubic-bezier(.2,.9,.2,1.25);
+}
+
+.hashcod-registration-consent:hover .hashcod-radix-checkbox {
+    border-color: #555;
+    transform: translateY(-1px);
+}
+
+.hashcod-radix-checkbox-input:focus-visible + .hashcod-radix-checkbox {
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0,0,0,.10);
+}
+
+.hashcod-radix-checkbox-input:checked + .hashcod-radix-checkbox {
+    background: #111;
+    border-color: #111;
+}
+
+.hashcod-radix-checkbox-input:checked + .hashcod-radix-checkbox svg {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.hashcod-radix-checkbox-input:indeterminate + .hashcod-radix-checkbox {
+    background: #111;
+    border-color: #111;
+}
+
+.hashcod-radix-checkbox-input:indeterminate + .hashcod-radix-checkbox svg {
+    opacity: 0;
+}
+
+.hashcod-radix-checkbox-input:indeterminate + .hashcod-radix-checkbox::after {
+    content: "";
+    width: 10px;
+    height: 2px;
+    border-radius: 999px;
+    background: #fff;
+}
+
+.hashcod-radix-checkbox-input:disabled + .hashcod-radix-checkbox {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.hashcod-radix-checkbox-input:disabled ~ .hashcod-registration-consent-text {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.hashcod-registration-consent-text {
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.hashcod-registration-consent a {
+    color: inherit;
+    font-weight: 700;
+    text-underline-offset: 2px;
+}
 .hashcod-registration-actions {
     display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 10px; margin-top: 20px;
 }

@@ -508,11 +508,92 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     min-height: 50px; border: 1px solid #111; border-radius: 9px; cursor: pointer;
     transition: transform .14s ease, background .14s ease, color .14s ease, opacity .14s ease;
 }
-#hashcodRegistrationSubmit {
-    background: #111; color: #fff; font: 700 12px/1 "IBM Plex Mono", Consolas, monospace; letter-spacing: .05em;
+
+.hashcod-registration-submit-flip {
+    min-width: 0;
+    perspective: 700px;
 }
-#hashcodRegistrationSubmit:hover:not(:disabled), #hashcodRegistrationTableButton:hover:not(:disabled) { transform: translateY(-1px); }
-#hashcodRegistrationSubmit:disabled { opacity: .38; cursor: not-allowed; }
+
+#hashcodRegistrationSubmit {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    min-height: 50px;
+    padding: 0;
+    overflow: hidden;
+    background: #111;
+    color: #fff;
+    font: 700 12px/1 "IBM Plex Mono", Consolas, monospace;
+    letter-spacing: .05em;
+    transform-style: preserve-3d;
+}
+
+.hashcod-flip-stage {
+    position: absolute;
+    inset: 0;
+    display: block;
+    transform-style: preserve-3d;
+    transform-origin: 50% 50%;
+    transition: transform .38s cubic-bezier(.2,.8,.2,1);
+}
+
+.hashcod-flip-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.hashcod-flip-front {
+    background: #111;
+    color: #fff;
+    transform: rotateX(0deg) translateZ(25px);
+}
+
+.hashcod-flip-back {
+    background: #fff;
+    color: #111;
+    transform: rotateX(90deg) translateZ(25px);
+}
+
+.hashcod-flip-back svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.hashcod-registration-submit-flip:hover .hashcod-flip-stage,
+.hashcod-registration-submit-flip:focus-within .hashcod-flip-stage {
+    transform: rotateX(-90deg);
+}
+
+.hashcod-registration-submit-flip:hover #hashcodRegistrationSubmit:not(:disabled),
+#hashcodRegistrationTableButton:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+#hashcodRegistrationSubmit:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 3px;
+}
+
+#hashcodRegistrationSubmit:disabled {
+    opacity: .38;
+    cursor: not-allowed;
+}
+
+#hashcodRegistrationSubmit:disabled .hashcod-flip-back {
+    background: #d8d8d8;
+    color: #777;
+}
 #hashcodRegistrationTableButton {
     display: grid; place-items: center; padding: 0; background: #fff; color: #111;
 }
@@ -777,7 +858,8 @@ html.dark .hashcod-registration-faq-panel-inner {
         animation: none !important;
     }
     .hashcod-registration-faq-panel,
-    .hashcod-registration-faq-trigger svg {
+    .hashcod-registration-faq-trigger svg,
+    .hashcod-flip-stage {
         transition: none !important;
     }
 }

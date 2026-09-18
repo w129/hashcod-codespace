@@ -119,9 +119,13 @@
     }
 
     function armFinalScreenRecovery() {
-        const target = document.body || document.documentElement;
-        if (!target || typeof MutationObserver !== 'function') return;
+        if (!document.body) {
+            document.addEventListener('DOMContentLoaded', armFinalScreenRecovery, { once: true });
+            return;
+        }
+        if (typeof MutationObserver !== 'function') return;
 
+        const target = document.body;
         let sawHold = Boolean(document.getElementById('hashcodEntryHold'));
         const observer = new MutationObserver(function () {
             if (document.documentElement.dataset.hashcodFinalEntryScreen === 'true') {
@@ -516,14 +520,26 @@
         return registrationGatePromise;
     }
 
-    function completePlatformEntry() {
+    async function completePlatformEntry() {
         const root = document.getElementById(ROOT_ID);
         const tableOverlay = document.getElementById('hashcodRegistrationTableOverlay');
         if (tableOverlay) {
             tableOverlay.classList.remove('is-open');
             tableOverlay.setAttribute('aria-hidden', 'true');
         }
-        if (root) root.remove();
+
+        // Fade the registration layer instead of dropping a full-viewport node
+        // in a single frame. The platform is already painted underneath.
+        if (root) {
+            root.classList.add('is-completing');
+            await new Promise(function (resolve) {
+                window.requestAnimationFrame(function () {
+                    window.setTimeout(resolve, 170);
+                });
+            });
+            root.remove();
+        }
+
         fieldCache = null;
         Object.keys(hintCache).forEach(function (key) { delete hintCache[key]; });
         if (validationFrame) {

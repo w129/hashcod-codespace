@@ -43,7 +43,7 @@ assert(js.includes('M 28.992188 8'), 'requested database/cloud SVG path missing'
 // Submission and protected records table.
 assert(js.includes("method: 'POST'"), 'registration POST missing');
 assert(js.includes("'X-Requested-With': 'XMLHttpRequest'"), 'CSRF/same-origin marker missing');
-assert(js.includes('await window.HashcodAdmin.require()'), 'records table must require admin CodeKey');
+assert(js.includes('await window.HashcodAdmin.require({ force: true })'), 'records table must force admin CodeKey verification when opened');
 assert(js.includes("?view=admin"), 'admin records projection missing');
 assert(js.includes('escapeHtml(row.cedula)'), 'stored PII must be escaped before table rendering');
 

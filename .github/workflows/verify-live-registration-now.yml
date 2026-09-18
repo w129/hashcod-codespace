@@ -1,0 +1,48 @@
+name: Verify live registration now
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/verify-live-registration-now.yml
+  workflow_dispatch:
+
+jobs:
+  verify-live-registration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Verify deployed form assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://hashcod-codespace-1.onrender.com/"
+          html="$(curl --compressed --fail --silent --show-error --max-time 30 "$url")"
+          printf '%s' "$html" | grep -q 'platform-registration-form.js?v=20260918-6'
+          printf '%s' "$html" | grep -q 'platform-registration-form.css?v=20260918-5'
+          printf '%s' "$html" | grep -q 'platform-entry-hold.js?v=20260918-4'
+          echo "Live registration assets are deployed."
+
+      - name: Verify production registration storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const url = 'https://hashcod-codespace-1.onrender.com/api/platform-registration?status=1';
+          const response = await fetch(url, {
+            headers: { 'Accept': 'application/json' },
+            signal: AbortSignal.timeout(30000)
+          });
+          let body = {};
+          try { body = await response.json(); } catch (_) {}
+          console.log(JSON.stringify({
+            http_status: response.status,
+            ok: body.ok === true,
+            storage_configured: body.storage_configured === true,
+            table_ready: body.table_ready === true
+          }));
+          if (!response.ok || body.ok !== true || body.storage_configured !== true || body.table_ready !== true) {
+            throw new Error('Production registration storage is not ready.');
+          }
+          NODE

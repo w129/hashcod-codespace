@@ -12,6 +12,11 @@ on:
       - not-found.php
       - l8-html.php
       - laragon-local-entry.php
+      - access-intake.php
+      - components/final-entry-registration.js
+      - components/final-entry-registration.css
+      - supabase/migrations/20260917_create_hashcod_access_requests.sql
+      - tests/e2e/test_final_entry_registration.js
       - rare-folder-build/**
       - components/cloud-device-sync.js
       - components/admin-hello-button.js
@@ -70,6 +75,11 @@ on:
       - not-found.php
       - l8-html.php
       - laragon-local-entry.php
+      - access-intake.php
+      - components/final-entry-registration.js
+      - components/final-entry-registration.css
+      - supabase/migrations/20260917_create_hashcod_access_requests.sql
+      - tests/e2e/test_final_entry_registration.js
       - toolbox-secure.php
       - components/toolbox-secure-links.js
       - components/toolbox-secure-links.css
@@ -180,6 +190,12 @@ jobs:
       - name: Syntax check Laragon entry
         run: php -l laragon-local-entry.php
 
+      - name: Syntax check final entry registration client
+        run: node --check components/final-entry-registration.js
+
+      - name: Syntax check final entry registration backend
+        run: php -l access-intake.php
+
       - name: Verify auth layout contract
         run: node tests/e2e/test_auth_vector_layout_fix.js
 
@@ -213,8 +229,8 @@ jobs:
       - name: Verify legacy auth window retirement
         run: node tests/e2e/test_legacy_auth_retirement.js
 
-      - name: Verify temporary platform improvement sign
-        run: node tests/e2e/test_temporary_platform_improvement_sign.js
+      - name: Verify final entry registration
+        run: node tests/e2e/test_final_entry_registration.js
 
       - name: Install Playwright Chromium for browser verification
         run: |

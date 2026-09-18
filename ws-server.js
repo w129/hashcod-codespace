@@ -10,7 +10,7 @@ const { WebSocketServer, WebSocket } = require('ws');
 const crypto = require('crypto');
 
 const PORT = parseInt(process.env.WS_PORT || process.env.PORT || '8080', 10);
-const HOST = process.env.WS_HOST || '0.0.0.0';
+const HOST = process.env.WS_HOST || '127.0.0.1';
 const SECRET_KEY = String(process.env.WS_SECRET || '').trim();
 const ALLOWED_ORIGINS = new Set(
     String(process.env.WS_ALLOWED_ORIGINS || process.env.HASHCOD_CLOUD_ORIGIN || '')

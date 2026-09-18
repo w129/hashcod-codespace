@@ -33,7 +33,14 @@ function hashcodKeysSealField($value) {
     if (strpos($value, 'l8e1:') === 0 || strpos($value, 'l8e0:') === 0) {
         return $value;
     }
-    return function_exists('secretsEncrypt') ? secretsEncrypt($value) : $value;
+    if (!function_exists('secretsEncrypt')) {
+        throw new RuntimeException('Secret encryption is unavailable');
+    }
+    $sealed = secretsEncrypt($value);
+    if (!is_string($sealed) || strpos($sealed, 'l8e1:') !== 0) {
+        throw new RuntimeException('Secret encryption failed closed');
+    }
+    return $sealed;
 }
 
 function hashcodKeysOpenField($value) {

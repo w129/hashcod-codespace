@@ -147,10 +147,12 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . $inlineEfrCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-motion.css?v=20260918-1" data-platform-entry-motion-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-hold.css?v=20260918-1" data-platform-entry-hold-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/duo-page-transition.css?v=20260913-2" data-hashcod-duo-transition-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/final-entry-registration.css?v=20260917-1" data-hashcod-final-entry-registration-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/final-entry-registration.css?v=20260918-1" data-hashcod-final-entry-registration-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">';
 
@@ -158,6 +160,10 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // backend/session code remains available for the replacement entry system.
         $legacyAuthPrehideTag = '<style id="hashcod-legacy-auth-prehide">#authOverlay,#authWrapper,#hashcodVectorTray,#hashcodAuthUtilityDock,#groqAuthChatPanel,#groqAuthChatLauncher,#hashcodEftCodeKeyGate,#hashcodEfrHotzone,#cryptoCardValidationLauncherBtn,#d5LauncherBtn,[data-hashcod-auth-utility-dock]{display:none!important;visibility:hidden!important;pointer-events:none!important;}</style>'
             . '<script id="hashcod-legacy-auth-retired-flag">window.__hashcodLegacyAuthRetired=true;document.documentElement.dataset.hashcodLegacyAuthRetired="true";</script>';
+
+        // Fail closed until the authoritative entry wrapper is installed.
+        // This prevents a fast click or stale loader from bypassing Screen 3.
+        $registrationGatePrebootTag = '<script id="hashcod-registration-gate-preboot">(function(){document.documentElement.dataset.hashcodEntryGateReady="false";document.addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest("#bootCliEnter"):null;if(!b)return;if(window.__hashcodPlatformEntryHoldReady===true)return;e.preventDefault();e.stopPropagation();if(typeof e.stopImmediatePropagation==="function")e.stopImmediatePropagation();b.setAttribute("aria-busy","true");var old=b.textContent;b.textContent="PREPARANDO ACCESO";window.addEventListener("hashcod:entry-gate-ready",function(){b.removeAttribute("aria-busy");if(b.textContent==="PREPARANDO ACCESO")b.textContent=old;},{once:true});},true);})();</script>';
 
         // The retired login slot is now owned by the final-entry registration form.
         // If the previous page closed with Duo, mark this page before first paint
@@ -187,9 +193,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $legacyAuthPrehideTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
+            $html = $cssTag . $legacyAuthPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -231,8 +237,10 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $legacyBlackholeCleanupTag = '<script id="hashcod-legacy-blackhole-cleanup">(function(){function cleanup(){var hint=document.getElementById("bootCliHint");if(!hint)return;hint.textContent="";hint.hidden=true;hint.setAttribute("aria-hidden","true");}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",cleanup,{once:true});}else{cleanup();}})();</script>';
 
         $tag = $legacyBlackholeCleanupTag
+            . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-2" data-platform-entry-hold="true"></script>'
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260917-1" data-hashcod-legacy-auth-retirement="true"></script>'
-            . '<script defer src="' . $base . 'components/final-entry-registration.js?v=20260917-1" data-hashcod-final-entry-registration="true"></script>'
+            . '<script defer src="' . $base . 'components/final-entry-registration.js?v=20260918-1" data-hashcod-final-entry-registration="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

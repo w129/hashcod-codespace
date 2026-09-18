@@ -86,9 +86,13 @@ for (const sql of [migration, schema]) {
 
 // Hosted/local wiring and retired sign removal.
 assert(hosted.includes('platform-registration-form.css?v=20260917-1'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260917-2'), 'hosted registration JS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-1'), 'hosted registration JS missing');
 assert(local.includes('platform-registration-form.css?v=20260917-1'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260917-2'), 'local registration JS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-1'), 'local registration JS missing');
+assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
+assert(hosted.includes('platform-entry-hold.js?v=20260918-1'), 'hosted second screen must load directly');
+assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
+assert(local.includes('platform-entry-hold.js?v=20260918-1'), 'local second screen must load directly');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

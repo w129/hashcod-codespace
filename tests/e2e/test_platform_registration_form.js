@@ -61,6 +61,12 @@ assert(api.includes("secretsEncrypt($validated['phone'])"), 'phone must be encry
 assert(api.includes("secretsDecrypt((string)($stored['cedula_enc']"), 'admin projection must decrypt cedula only after authorization');
 assert(api.includes('adminRequire();'), 'stored records must be admin-only server-side');
 assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table constant missing');
+assert(api.includes("HASHCOD_PLATFORM_REGISTRATION_FALLBACK_TABLE = 'l8_durable_objects'"), 'protected durable storage fallback missing');
+assert(api.includes('hprMissingDedicatedTable'), 'missing-table detection for fallback missing');
+assert(api.includes('hprFallbackStore($row)'), 'submission fallback path missing');
+assert(api.includes('hprFallbackRows()'), 'admin fallback read path missing');
+assert(api.includes("'storage_data'=>['registration'=>$encryptedRow]"), 'fallback must store only encrypted registration payloads');
+assert(api.includes("hprDecryptRow($stored, true)"), 'admin table must decrypt protected fallback rows after authorization');
 
 // Database confidentiality.
 for (const sql of [migration, schema]) {

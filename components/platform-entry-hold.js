@@ -1,8 +1,10 @@
 (function () {
     'use strict';
 
-    if (window.__hashcodPlatformEntryHoldLoaded) return;
+    const HOLD_RUNTIME_VERSION = '20260918-5';
+    if (window.__hashcodPlatformEntryHoldLoadedVersion === HOLD_RUNTIME_VERSION) return;
     window.__hashcodPlatformEntryHoldLoaded = true;
+    window.__hashcodPlatformEntryHoldLoadedVersion = HOLD_RUNTIME_VERSION;
 
     const READY_DELAY_MS = 3600;
     let holdPromise = null;
@@ -180,7 +182,7 @@
         if (typeof current !== 'function') return false;
         if (
             current.__hashcodHoldWrapped === true &&
-            current.__hashcodHoldVersion === '20260918-5'
+            current.__hashcodHoldVersion === HOLD_RUNTIME_VERSION
         ) {
             window.__hashcodPlatformEntryHoldReady = true;
             document.documentElement.dataset.hashcodEntryGateReady = 'true';
@@ -203,22 +205,24 @@
         };
 
         Object.defineProperty(wrapped, '__hashcodHoldWrapped', { value: true });
-        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: '20260918-5' });
+        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: HOLD_RUNTIME_VERSION });
         Object.defineProperty(wrapped, '__hashcodHoldOriginal', { value: original });
         window.l8EnterPlatform = wrapped;
         window.__hashcodPlatformEntryHoldReady = true;
         document.documentElement.dataset.hashcodEntryGateReady = 'true';
         window.dispatchEvent(new CustomEvent('hashcod:entry-gate-ready', {
-            detail: { source: 'platform-entry-hold', version: '20260918-5' }
+            detail: { source: 'platform-entry-hold', version: HOLD_RUNTIME_VERSION }
         }));
         return true;
     }
 
     if (!install()) {
-        let attempts = 0;
+        // Do not give up after a few seconds. The legacy entry function can be
+        // defined late by the large startup document or by a cached loader.
+        // The first-screen preboot guard remains fail-closed until install()
+        // succeeds, so platform access cannot bypass Screen 3.
         const timer = window.setInterval(function () {
-            attempts += 1;
-            if (install() || attempts >= 80) window.clearInterval(timer);
-        }, 50);
+            if (install()) window.clearInterval(timer);
+        }, 100);
     }
 })();

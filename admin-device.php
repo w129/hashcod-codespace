@@ -88,6 +88,13 @@ function adminRequire(): void {
 }
 
 function adminProtectedPath(string $path): bool {
+    // Server-execution and infrastructure-inspection APIs are administrator-only.
+    // Desktop requests remain supported through the per-process bridge token
+    // validated by adminRequire()/hashcodDesktopBridgeValid().
+    foreach (['/api/bash/', '/api/catalyst/', '/api/storage/', '/api/django/'] as $prefix) {
+        if (str_starts_with($path, $prefix)) return true;
+    }
+
     return str_starts_with($path, '/api/admin/') || in_array($path, [
         '/api/auth/dilithium-active-key', '/api/auth/list-accounts',
         '/api/auth/suspend-account', '/api/auth/reactivate-account', '/api/auth/delete-account', '/api/auth/delete'

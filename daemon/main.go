@@ -54,7 +54,7 @@ func main() {
 
 	// 4. Start Native gRPC Server on port 50051
 	nativeServer := &http.Server{
-		Addr:           ":" + grpcPort,
+		Addr:           "127.0.0.1:" + grpcPort,
 		Handler:        nativeGrpcServer,
 		ReadTimeout:    30 * time.Second,
 		WriteTimeout:   30 * time.Second,
@@ -63,7 +63,7 @@ func main() {
 
 	// 5. Start gRPC-Web Gateway Server on port 50052
 	gatewayServer := &http.Server{
-		Addr:           ":" + gatewayPort,
+		Addr:           "127.0.0.1:" + gatewayPort,
 		Handler:        grpcWebGateway,
 		ReadTimeout:    30 * time.Second,
 		WriteTimeout:   30 * time.Second,
@@ -71,14 +71,14 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("📡 Native gRPC Server listening on http://127.0.0.1:%s (and [::]:%s)\n", grpcPort, grpcPort)
+		log.Printf("📡 Native gRPC Server listening on http://127.0.0.1:%s\n", grpcPort)
 		if err := nativeServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("[FATAL] Native gRPC listener failed: %v", err)
 		}
 	}()
 
 	go func() {
-		log.Printf("🌐 gRPC-Web Browser Gateway listening on http://127.0.0.1:%s (and [::]:%s)\n", gatewayPort, gatewayPort)
+		log.Printf("🌐 gRPC-Web Browser Gateway listening on http://127.0.0.1:%s\n", gatewayPort)
 		if err := gatewayServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Printf("[WARN] Gateway listener stopped or failed: %v\n", err)
 		}

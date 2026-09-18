@@ -53,7 +53,7 @@ assert(js.includes("button.classList.add('is-loaded')"), 'code icon must enter l
 assert(js.includes("button.setAttribute('aria-pressed', 'true')"), 'loaded code icon accessibility state missing');
 assert(css.includes('#hashcodRegCodeButton.is-loaded'), 'light-gray loaded icon style missing');
 assert(css.includes('background: #e4e4e4'), 'loaded code icon must use a light gray background');
-assert(js.includes('const MAX_CODE_FILE_BYTES = 10 * 1024 * 1024'), 'client code file limit missing');
+assert(js.includes('const MAX_CODE_FILE_BYTES = 30 * 1024 * 1024'), 'client code file limit missing');
 assert(js.includes("body.append('code_file', selectedCodeFile"), 'selected code file must be sent with the form');
 assert(js.includes('new FormData()'), 'registration submission must use multipart FormData');
 assert(!js.includes("'Content-Type': 'application/json'"), 'multipart upload must not force an application/json content type');
@@ -95,7 +95,7 @@ assert(!js.includes('C 34.444331 46.320593 34 45 L 34 44.283203 z'),
 assert(js.includes("method: 'POST'"), 'registration POST missing');
 assert(api.includes("str_starts_with($contentType, 'multipart/form-data')"), 'backend multipart parser missing');
 assert(api.includes("$_FILES['code_file']"), 'backend code-file intake missing');
-assert(api.includes('HASHCOD_PLATFORM_CODE_MAX_BYTES = 10485760'), 'server code file limit missing');
+assert(api.includes('HASHCOD_PLATFORM_CODE_MAX_BYTES = 31457280'), 'server code file limit missing');
 assert(api.includes('supabaseStorageUpload('), 'platform code must be uploaded to private Supabase Storage');
 assert(api.includes("'code_storage_path'=>$codeUpload['storage_path']"), 'registration row must persist the Storage object path');
 assert(api.includes("'code_sha256'=>$codeUpload['sha256']"), 'registration row must persist a code integrity hash');
@@ -153,7 +153,7 @@ for (const sql of [codeMigration, schema]) {
   assert(sql.includes('code_size_bytes'), 'code size column missing');
   assert(sql.includes('code_sha256'), 'code SHA-256 column missing');
   assert(sql.includes('code_storage_path'), 'private code Storage path column missing');
-  assert(sql.includes('10485760'), '10 MB database code-size guard missing');
+  assert(sql.includes('31457280'), '30 MB database code-size guard missing');
 }
 
 // Hosted/local wiring and retired sign removal.

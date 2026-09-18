@@ -7,7 +7,7 @@ require_once __DIR__ . '/admin-device.php';
 require_once __DIR__ . '/secrets.php';
 
 const HASHCOD_PLATFORM_REGISTRATION_TABLE = 'hashcod_platform_registrations';
-const HASHCOD_PLATFORM_CODE_MAX_BYTES = 10485760;
+const HASHCOD_PLATFORM_CODE_MAX_BYTES = 31457280;
 const HASHCOD_PLATFORM_CODE_EXTENSIONS = [
     'zip','tar','gz','txt','md','json','js','jsx','ts','tsx','html','htm','css',
     'php','py','java','go','rs','cs','c','cc','cpp','h','hpp','sql','xml','yaml',
@@ -80,7 +80,7 @@ function hprReadCodeUpload(): array {
 
     $size = (int)@filesize($tmp);
     if ($size <= 0 || $size > HASHCOD_PLATFORM_CODE_MAX_BYTES) {
-        hprJson(422, ['ok'=>false, 'error'=>'El código debe pesar entre 1 byte y 10 MB.']);
+        hprJson(422, ['ok'=>false, 'error'=>'El código debe pesar entre 1 byte y 30 MB.']);
     }
 
     $extension = strtolower((string)pathinfo($originalName, PATHINFO_EXTENSION));

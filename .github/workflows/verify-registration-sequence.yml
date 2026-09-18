@@ -7,6 +7,7 @@ on:
     paths:
       - components/platform-registration-form.js
       - components/platform-registration-form.css
+      - platform-registration.php
       - components/platform-entry-hold.js
       - components/platform-entry-motion.js
       - l8-html.php
@@ -19,6 +20,7 @@ on:
     paths:
       - components/platform-registration-form.js
       - components/platform-registration-form.css
+      - platform-registration.php
       - components/platform-entry-hold.js
       - components/admin-hello-button.js
       - l8-html.php
@@ -111,3 +113,20 @@ jobs:
         env:
           REGISTRATION_SEQUENCE_URL: https://hashcod-codespace-1.onrender.com/
         run: node tests/e2e/test_platform_registration_sequence_playwright.js
+
+      - name: Verify production registration storage
+        run: |
+          node - <<'NODE'
+          const url = 'https://hashcod-codespace-1.onrender.com/api/platform-registration?status=1';
+          const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+          let body = {};
+          try { body = await response.json(); } catch (_) {}
+          console.log(JSON.stringify({
+            http_status: response.status,
+            storage_configured: body.storage_configured === true,
+            table_ready: body.table_ready === true
+          }));
+          if (!response.ok || body.ok !== true || body.storage_configured !== true || body.table_ready !== true) {
+            throw new Error('Production registration storage is not ready.');
+          }
+          NODE

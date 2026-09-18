@@ -10,6 +10,7 @@ const hold = fs.readFileSync(path.join(repoDir, 'components/platform-entry-hold.
 const css = fs.readFileSync(path.join(repoDir, 'components/platform-registration-form.css'), 'utf8');
 const api = fs.readFileSync(path.join(repoDir, 'platform-registration.php'), 'utf8');
 const migration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260917_create_hashcod_platform_registrations.sql'), 'utf8');
+const codeMigration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260918_add_platform_registration_code_upload.sql'), 'utf8');
 const schema = fs.readFileSync(path.join(repoDir, 'supabase/schema.sql'), 'utf8');
 const hosted = fs.readFileSync(path.join(repoDir, 'l8-html.php'), 'utf8');
 const local = fs.readFileSync(path.join(repoDir, 'laragon-local-entry.php'), 'utf8');
@@ -31,6 +32,8 @@ for (const id of [
   'hashcodRegAge',
   'hashcodRegCedula',
   'hashcodRegPlatform',
+  'hashcodRegCodeFile',
+  'hashcodRegCodeButton',
   'hashcodRegEmail',
   'hashcodRegPhone',
   'hashcodRegistrationSubmit',
@@ -43,6 +46,17 @@ assert(js.includes('/^\\d{3}-\\d{7}-\\d$/'), 'client cedula format validation mi
 assert(js.includes('000-0000000-0'), 'cedula hyphen format hint missing');
 assert(js.includes('Number.isInteger(age) && age >= 18'), 'client 18+ validation missing');
 assert(js.includes('DATABASE_ICON'), 'database icon button missing');
+assert(js.includes('CODE_UPLOAD_ICON'), 'platform code upload icon missing');
+assert(js.includes('viewBox="0 0 32 32"'), 'requested platform code SVG viewBox missing');
+assert(js.includes('M 10 4 L 10 6 L 20 6'), 'requested platform code SVG path missing');
+assert(js.includes("button.classList.add('is-loaded')"), 'code icon must enter loaded state after a valid file is selected');
+assert(js.includes("button.setAttribute('aria-pressed', 'true')"), 'loaded code icon accessibility state missing');
+assert(css.includes('#hashcodRegCodeButton.is-loaded'), 'light-gray loaded icon style missing');
+assert(css.includes('background: #e4e4e4'), 'loaded code icon must use a light gray background');
+assert(js.includes('const MAX_CODE_FILE_BYTES = 10 * 1024 * 1024'), 'client code file limit missing');
+assert(js.includes("body.append('code_file', selectedCodeFile"), 'selected code file must be sent with the form');
+assert(js.includes('new FormData()'), 'registration submission must use multipart FormData');
+assert(!js.includes("'Content-Type': 'application/json'"), 'multipart upload must not force an application/json content type');
 assert(js.includes("target.closest('#hashcodHoldContinue')"), 'final-screen registration fallback must follow the second-screen continue action');
 assert(js.includes("revealFinalRegistration('platform-registration-continue-fallback')"), 'registration fallback reveal marker missing');
 assert(js.includes("revealFinalRegistration('platform-registration-hold-disconnected')"),
@@ -79,6 +93,13 @@ assert(!js.includes('C 34.444331 46.320593 34 45 L 34 44.283203 z'),
 
 // Submission and protected records table.
 assert(js.includes("method: 'POST'"), 'registration POST missing');
+assert(api.includes("str_starts_with($contentType, 'multipart/form-data')"), 'backend multipart parser missing');
+assert(api.includes("$_FILES['code_file']"), 'backend code-file intake missing');
+assert(api.includes('HASHCOD_PLATFORM_CODE_MAX_BYTES = 10485760'), 'server code file limit missing');
+assert(api.includes('supabaseStorageUpload('), 'platform code must be uploaded to private Supabase Storage');
+assert(api.includes("'code_storage_path'=>$codeUpload['storage_path']"), 'registration row must persist the Storage object path');
+assert(api.includes("'code_sha256'=>$codeUpload['sha256']"), 'registration row must persist a code integrity hash');
+assert(api.includes("'code_uploaded'=>true"), 'successful response must confirm code upload');
 assert(js.includes('function waitForSuccessfulSubmission()'), 'registration must expose a successful-submit gate');
 assert(js.includes('registrationGateResolve({ ok: true, saved: true })'), 'successful database save must release the entry gate');
 assert(js.includes('function completePlatformEntry()'), 'registration must own the final transition into the platform');
@@ -124,6 +145,15 @@ for (const sql of [migration, schema]) {
   assert(sql.includes('using (false)'), 'deny-direct RLS USING clause missing');
   assert(sql.includes('with check (false)'), 'deny-direct RLS WITH CHECK clause missing');
   assert(sql.includes('grant select, insert on table public.hashcod_platform_registrations to service_role'), 'backend service-role grant missing');
+}
+
+for (const sql of [codeMigration, schema]) {
+  assert(sql.includes('code_filename'), 'code filename column missing');
+  assert(sql.includes('code_mime_type'), 'code MIME column missing');
+  assert(sql.includes('code_size_bytes'), 'code size column missing');
+  assert(sql.includes('code_sha256'), 'code SHA-256 column missing');
+  assert(sql.includes('code_storage_path'), 'private code Storage path column missing');
+  assert(sql.includes('10485760'), '10 MB database code-size guard missing');
 }
 
 // Hosted/local wiring and retired sign removal.

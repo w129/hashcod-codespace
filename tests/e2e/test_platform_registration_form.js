@@ -52,6 +52,15 @@ assert(js.includes("root.dataset.hashcodScreen = '3'"),
   'registration root must identify itself as the third screen');
 assert(js.includes('function mountIfThirdScreen()'),
   'registration bootstrap must defer mounting until the third-screen marker exists');
+assert(js.includes('function hardRetireThirdScreen()'),
+  'screen 3 must hard-retire the old visual document before mounting the form');
+for (const selector of ['#authOverlay', '#authWrapper', '#bootCliOverlay', '#hashcodEntryHold', '#hashcodRareFolderHost']) {
+  assert(js.includes("'" + selector + "'"), 'screen 3 retire selector missing: ' + selector);
+}
+assert(js.includes('node.remove()'), 'third-screen legacy surfaces must be removed, not only visually covered');
+assert(css.includes('html[data-hashcod-final-entry-screen="true"] :is('),
+  'CSS fallback must hard-hide retired screen-3 surfaces');
+assert(css.includes('#bootCliOverlay'), 'CSS screen-3 kill switch must cover the boot document');
 assert(js.includes('data-no-autosave data-hashcod-autosave="off"'),
   'registration PII form must explicitly disable Hashcod local autosave');
 assert(js.includes('autocomplete="off"'),
@@ -108,10 +117,10 @@ for (const sql of [migration, schema]) {
 }
 
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260918-4'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-3'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260918-4'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-3'), 'local registration JS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-5'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-5'), 'hosted registration JS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-5'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-5'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),

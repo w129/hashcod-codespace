@@ -72,7 +72,15 @@ async function run() {
           'hashcodRegPhone'
         ].filter(id => document.getElementById(id)).length,
         submit: Boolean(document.getElementById('hashcodRegistrationSubmit')),
-        tableButton: Boolean(document.getElementById('hashcodRegistrationTableButton'))
+        tableButton: Boolean(document.getElementById('hashcodRegistrationTableButton')),
+        legacyNodes: [
+          'authOverlay',
+          'authWrapper',
+          'bootCliOverlay',
+          'hashcodEntryHold',
+          'hashcodRareFolderHost',
+          'hashcodBootFolderAnimation'
+        ].filter(id => document.getElementById(id)).length
       };
     });
 
@@ -87,6 +95,8 @@ async function run() {
     assert.equal(state.fields, 6, 'all six requested fields must be present');
     assert.equal(state.submit, true, 'submit button missing');
     assert.equal(state.tableButton, true, 'records icon button missing');
+    assert.equal(state.legacyNodes, 0,
+      'screen 3 must contain no legacy auth/boot/hold DOM behind the registration form');
 
     console.log('PASS: screens 1 and 2 contain no registration DOM; screen 3 is the full registration page.');
   } finally {

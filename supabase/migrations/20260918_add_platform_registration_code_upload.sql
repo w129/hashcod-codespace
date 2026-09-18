@@ -13,7 +13,7 @@ alter table public.hashcod_platform_registrations
     check (char_length(code_filename) <= 255),
   drop constraint if exists hashcod_platform_registrations_code_size_check,
   add constraint hashcod_platform_registrations_code_size_check
-    check (code_size_bytes between 0 and 10485760),
+    check (code_size_bytes between 0 and 31457280),
   drop constraint if exists hashcod_platform_registrations_code_sha256_check,
   add constraint hashcod_platform_registrations_code_sha256_check
     check (code_sha256 = '' or code_sha256 ~ '^[a-f0-9]{64}$');

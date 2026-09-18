@@ -135,10 +135,15 @@
             await waitForContinue(overlay);
             await sleep(240);
 
-            const result = await original.apply(context, args);
+            // Start the retired platform-entry handoff, but do not wait for its
+            // legacy promise to settle before revealing the replacement third screen.
+            // The old auth flow can remain pending after its UI is retired, which used
+            // to leave users on an empty final page forever.
+            const result = original.apply(context, args);
             overlay.classList.add('is-revealing');
             await sleep(560);
             reachedFinalScreen = true;
+            revealFinalEntryScreen();
             return result;
         } finally {
             overlay.remove();
@@ -146,7 +151,12 @@
                 enterButton.disabled = false;
                 enterButton.textContent = enterOriginalText;
             }
-            if (reachedFinalScreen) revealFinalEntryScreen();
+            if (
+                reachedFinalScreen &&
+                document.documentElement.dataset.hashcodFinalEntryScreen !== 'true'
+            ) {
+                revealFinalEntryScreen();
+            }
         }
     }
 

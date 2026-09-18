@@ -37,6 +37,8 @@ assert(js.includes('/^\\d{3}-\\d{7}-\\d$/'), 'client cedula format validation mi
 assert(js.includes('000-0000000-0'), 'cedula hyphen format hint missing');
 assert(js.includes('Number.isInteger(age) && age >= 18'), 'client 18+ validation missing');
 assert(js.includes('DATABASE_ICON'), 'database icon button missing');
+assert(js.includes("target.closest('#hashcodHoldContinue')"), 'final-screen registration fallback must follow the second-screen continue action');
+assert(js.includes("revealFinalRegistration('platform-registration-continue-fallback')"), 'registration fallback reveal marker missing');
 assert(js.includes('data-no-autosave data-hashcod-autosave="off"'),
   'registration PII form must explicitly disable Hashcod local autosave');
 assert(js.includes('autocomplete="off"'),
@@ -84,9 +86,9 @@ for (const sql of [migration, schema]) {
 
 // Hosted/local wiring and retired sign removal.
 assert(hosted.includes('platform-registration-form.css?v=20260917-1'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260917-1'), 'hosted registration JS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260917-2'), 'hosted registration JS missing');
 assert(local.includes('platform-registration-form.css?v=20260917-1'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260917-1'), 'local registration JS missing');
+assert(local.includes('platform-registration-form.js?v=20260917-2'), 'local registration JS missing');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

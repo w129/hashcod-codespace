@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/admin-device.php';
+require_once __DIR__ . '/secrets.php';
 
 const HASHCOD_PLATFORM_REGISTRATION_TABLE = 'hashcod_platform_registrations';
 
@@ -87,7 +88,21 @@ if ($method === 'POST') {
         }
     }
 
-    $row = hprValidate(hprReadBody());
+    $validated = hprValidate(hprReadBody());
+    $row = [
+        'full_name_enc'=>secretsEncrypt($validated['full_name']),
+        'age'=>$validated['age'],
+        'cedula_enc'=>secretsEncrypt($validated['cedula']),
+        'platform_name'=>$validated['platform_name'],
+        'email_enc'=>secretsEncrypt($validated['email']),
+        'phone_enc'=>secretsEncrypt($validated['phone']),
+    ];
+    foreach (['full_name_enc','cedula_enc','email_enc','phone_enc'] as $encryptedField) {
+        if (!is_string($row[$encryptedField]) || !str_starts_with($row[$encryptedField], 'l8e1:')) {
+            hprJson(503, ['ok'=>false, 'error'=>'No se pudo proteger el registro antes de almacenarlo.']);
+        }
+    }
+
     $cfg = supabaseConfig();
     if (empty($cfg['configured']) || empty($cfg['secret_key'])) {
         hprJson(503, ['ok'=>false, 'error'=>'El almacenamiento seguro todavía no está disponible.']);
@@ -120,10 +135,25 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     }
     $res = supabaseDbSelect(
         HASHCOD_PLATFORM_REGISTRATION_TABLE,
-        'select=id,full_name,age,cedula,platform_name,email,phone,created_at&order=created_at.desc&limit=500'
+        'select=id,full_name_enc,age,cedula_enc,platform_name,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
     );
     if (empty($res['ok'])) hprJson(502, ['ok'=>false, 'error'=>'No se pudo cargar la tabla de registros.']);
-    $rows = is_array($res['body'] ?? null) ? $res['body'] : [];
+
+    $storedRows = is_array($res['body'] ?? null) ? $res['body'] : [];
+    $rows = [];
+    foreach ($storedRows as $stored) {
+        if (!is_array($stored)) continue;
+        $rows[] = [
+            'id'=>$stored['id'] ?? null,
+            'full_name'=>secretsDecrypt((string)($stored['full_name_enc'] ?? '')),
+            'age'=>(int)($stored['age'] ?? 0),
+            'cedula'=>secretsDecrypt((string)($stored['cedula_enc'] ?? '')),
+            'platform_name'=>(string)($stored['platform_name'] ?? ''),
+            'email'=>secretsDecrypt((string)($stored['email_enc'] ?? '')),
+            'phone'=>secretsDecrypt((string)($stored['phone_enc'] ?? '')),
+            'created_at'=>(string)($stored['created_at'] ?? ''),
+        ];
+    }
     hprJson(200, ['ok'=>true, 'rows'=>$rows, 'count'=>count($rows)]);
 }
 

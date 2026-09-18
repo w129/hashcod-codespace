@@ -385,6 +385,76 @@ create index if not exists hashcod_platform_registrations_created_at_idx
   on public.hashcod_platform_registrations (created_at desc);
 ),
   code_storage_path text not null default '',
+  contract_version text not null default '',
+  contract_sha256 text not null default '' check (contract_sha256 = '' or contract_sha256 ~ '^[a-f0-9]{64}  phone_enc text not null check (phone_enc like 'l8e1:%'),
+  created_at timestamptz not null default now()
+);
+
+alter table public.hashcod_platform_registrations
+  add column if not exists code_filename text not null default '',
+  add column if not exists code_mime_type text not null default 'application/octet-stream',
+  add column if not exists code_size_bytes bigint not null default 0,
+  add column if not exists code_sha256 text not null default '',
+  add column if not exists code_storage_path text not null default '',
+  add column if not exists contract_version text not null default '',
+  add column if not exists contract_sha256 text not null default '',
+  add column if not exists contract_accepted_at timestamptz,
+  add column if not exists acceptance_method text not null default '',
+  add column if not exists acceptance_evidence_sha256 text not null default '';
+
+alter table public.hashcod_platform_registrations enable row level security;
+
+revoke all on table public.hashcod_platform_registrations from public, anon, authenticated;
+grant select, insert on table public.hashcod_platform_registrations to service_role;
+
+drop policy if exists hashcod_platform_registrations_deny_direct
+  on public.hashcod_platform_registrations;
+create policy hashcod_platform_registrations_deny_direct
+  on public.hashcod_platform_registrations
+  for all
+  to public
+  using (false)
+  with check (false);
+
+revoke all on sequence public.hashcod_platform_registrations_id_seq from public, anon, authenticated;
+grant usage, select on sequence public.hashcod_platform_registrations_id_seq to service_role;
+
+create index if not exists hashcod_platform_registrations_created_at_idx
+  on public.hashcod_platform_registrations (created_at desc);
+),
+  contract_accepted_at timestamptz,
+  acceptance_method text not null default '',
+  acceptance_evidence_sha256 text not null default '' check (acceptance_evidence_sha256 = '' or acceptance_evidence_sha256 ~ '^[a-f0-9]{64}  phone_enc text not null check (phone_enc like 'l8e1:%'),
+  created_at timestamptz not null default now()
+);
+
+alter table public.hashcod_platform_registrations
+  add column if not exists code_filename text not null default '',
+  add column if not exists code_mime_type text not null default 'application/octet-stream',
+  add column if not exists code_size_bytes bigint not null default 0,
+  add column if not exists code_sha256 text not null default '',
+  add column if not exists code_storage_path text not null default '';
+
+alter table public.hashcod_platform_registrations enable row level security;
+
+revoke all on table public.hashcod_platform_registrations from public, anon, authenticated;
+grant select, insert on table public.hashcod_platform_registrations to service_role;
+
+drop policy if exists hashcod_platform_registrations_deny_direct
+  on public.hashcod_platform_registrations;
+create policy hashcod_platform_registrations_deny_direct
+  on public.hashcod_platform_registrations
+  for all
+  to public
+  using (false)
+  with check (false);
+
+revoke all on sequence public.hashcod_platform_registrations_id_seq from public, anon, authenticated;
+grant usage, select on sequence public.hashcod_platform_registrations_id_seq to service_role;
+
+create index if not exists hashcod_platform_registrations_created_at_idx
+  on public.hashcod_platform_registrations (created_at desc);
+),
   email_enc text not null check (email_enc like 'l8e1:%'),
   phone_enc text not null check (phone_enc like 'l8e1:%'),
   created_at timestamptz not null default now()

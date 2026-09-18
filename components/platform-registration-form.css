@@ -161,6 +161,78 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
 }
 .hashcod-registration-hint { min-height: 14px; color: #777; font-size: 10px; line-height: 1.35; }
 .hashcod-registration-hint.is-error { color: #9c1717; }
+
+.hashcod-registration-progress {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.hashcod-registration-progress-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #5f5f5f;
+    font: 700 10px/1.2 "IBM Plex Mono", Consolas, monospace;
+    letter-spacing: .02em;
+}
+
+#hashcodRegistrationProgressValue {
+    min-width: 38px;
+    text-align: right;
+    color: #111;
+    font-variant-numeric: tabular-nums;
+}
+
+.hashcod-registration-progress-track {
+    position: relative;
+    height: 8px;
+    overflow: hidden;
+    border: 1px solid #b7b7b7;
+    border-radius: 999px;
+    background: #efefef;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.05);
+}
+
+.hashcod-registration-progress-indicator {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #111;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform .28s cubic-bezier(.2,.8,.2,1);
+    will-change: transform;
+}
+
+.hashcod-registration-progress-indicator::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0 42%, rgba(255,255,255,.26) 50%, transparent 58% 100%);
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.hashcod-registration-progress:not([data-progress="0"]) .hashcod-registration-progress-indicator::after {
+    opacity: 1;
+    animation: hashcodRegistrationProgressSheen .7s ease-out;
+}
+
+.hashcod-registration-progress.is-complete .hashcod-registration-progress-track {
+    border-color: #111;
+}
+
+.hashcod-registration-progress.is-complete .hashcod-registration-progress-head {
+    color: #111;
+}
+
+@keyframes hashcodRegistrationProgressSheen {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+}
 .hashcod-registration-consent {
     grid-column: 1 / -1;
     display: flex;
@@ -499,6 +571,24 @@ html.dark #hashcodRegCodeButton.is-loaded {
     color: #111;
     border-color: #9a9a9a;
 }
+
+html[data-hashcod-theme="dark"] .hashcod-registration-progress-head,
+html.dark .hashcod-registration-progress-head {
+    color: #c8c8c8;
+}
+html[data-hashcod-theme="dark"] #hashcodRegistrationProgressValue,
+html.dark #hashcodRegistrationProgressValue {
+    color: #fff;
+}
+html[data-hashcod-theme="dark"] .hashcod-registration-progress-track,
+html.dark .hashcod-registration-progress-track {
+    background: #2a2a2a;
+    border-color: #666;
+}
+html[data-hashcod-theme="dark"] .hashcod-registration-progress-indicator,
+html.dark .hashcod-registration-progress-indicator {
+    background: #fff;
+}
 @media (max-width: 900px) {
     #hashcodPlatformRegistration {
         padding: 28px 24px 40px;
@@ -524,5 +614,11 @@ html.dark #hashcodRegCodeButton.is-loaded {
     }
     .hashcod-preview-link-card-content {
         transition: none !important;
+    }
+    .hashcod-registration-progress-indicator {
+        transition: none !important;
+    }
+    .hashcod-registration-progress-indicator::after {
+        animation: none !important;
     }
 }

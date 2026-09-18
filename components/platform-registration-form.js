@@ -212,7 +212,46 @@
                                 <path d="M3.25 8.15 6.45 11.2 12.8 4.9"></path>
                             </svg>
                         </span>
-                        <span class="hashcod-registration-consent-text">Confirmo que tengo 18 años o más y autorizo el almacenamiento de estos datos para gestionar este registro. Consulta la <a href="privacy" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+                        <span class="hashcod-registration-consent-text">
+                            Confirmo que tengo 18 años o más y autorizo el almacenamiento de estos datos para gestionar este registro. Consulta la
+                            <span class="hashcod-preview-link-card">
+                                <a
+                                    id="hashcodPrivacyPreviewTrigger"
+                                    class="hashcod-preview-link-card-trigger"
+                                    href="privacy"
+                                    target="_blank"
+                                    rel="noopener"
+                                    aria-describedby="hashcodPrivacyPreviewCard"
+                                >Política de Privacidad</a>
+                                <span
+                                    id="hashcodPrivacyPreviewCard"
+                                    class="hashcod-preview-link-card-content"
+                                    aria-hidden="true"
+                                    data-preview-src="privacy"
+                                >
+                                    <span class="hashcod-preview-link-card-browser">
+                                        <span class="hashcod-preview-link-card-toolbar">
+                                            <span class="hashcod-preview-link-card-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                                            <span class="hashcod-preview-link-card-address">hashcod / privacy</span>
+                                        </span>
+                                        <span class="hashcod-preview-link-card-viewport">
+                                            <iframe
+                                                class="hashcod-preview-link-card-frame"
+                                                title="Vista previa de la Política de Privacidad"
+                                                tabindex="-1"
+                                                aria-hidden="true"
+                                                loading="lazy"
+                                                src="about:blank"
+                                            ></iframe>
+                                        </span>
+                                    </span>
+                                    <span class="hashcod-preview-link-card-meta">
+                                        <strong>Política de Privacidad</strong>
+                                        <span>Hashcod Codespace · abrir documento</span>
+                                    </span>
+                                </span>
+                            </span>.
+                        </span>
                     </label>
                 </div>
                 <div class="hashcod-registration-actions">
@@ -556,8 +595,10 @@
         const tableButton = document.getElementById('hashcodRegistrationTableButton');
         const codeButton = document.getElementById('hashcodRegCodeButton');
         const codeInput = document.getElementById('hashcodRegCodeFile');
+        const privacyTrigger = document.getElementById('hashcodPrivacyPreviewTrigger');
+        const privacyCard = document.getElementById('hashcodPrivacyPreviewCard');
         const overlay = document.getElementById('hashcodRegistrationTableOverlay');
-        if (!form || !cedula || !tableButton || !codeButton || !codeInput || !overlay) return;
+        if (!form || !cedula || !tableButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !overlay) return;
         bound = true;
         form.addEventListener('input', scheduleValidate);
         form.addEventListener('change', scheduleValidate);
@@ -573,6 +614,56 @@
         codeInput.addEventListener('change', function () {
             selectCodeFile(codeInput.files && codeInput.files[0] ? codeInput.files[0] : null);
         });
+        function ensurePrivacyPreviewLoaded() {
+            const frame = privacyCard.querySelector('.hashcod-preview-link-card-frame');
+            if (!frame || frame.dataset.loaded === 'true') return;
+            const previewSrc = privacyCard.dataset.previewSrc || privacyTrigger.getAttribute('href') || 'privacy';
+            frame.src = new URL(previewSrc, baseUrl()).toString();
+            frame.dataset.loaded = 'true';
+        }
+
+        function placePrivacyPreview(clientX, clientY) {
+            const width = 360;
+            const height = 286;
+            const gap = 14;
+            const pad = 12;
+            let left = Number.isFinite(clientX) ? clientX + gap : privacyTrigger.getBoundingClientRect().left;
+            let top = Number.isFinite(clientY) ? clientY - height - gap : privacyTrigger.getBoundingClientRect().top - height - gap;
+
+            if (left + width > window.innerWidth - pad) left = window.innerWidth - width - pad;
+            if (left < pad) left = pad;
+            if (top < pad) {
+                const rect = privacyTrigger.getBoundingClientRect();
+                top = Math.min(window.innerHeight - height - pad, rect.bottom + gap);
+            }
+
+            privacyCard.style.left = Math.round(left) + 'px';
+            privacyCard.style.top = Math.round(top) + 'px';
+        }
+
+        function openPrivacyPreview(event) {
+            ensurePrivacyPreviewLoaded();
+            placePrivacyPreview(event && event.clientX, event && event.clientY);
+            privacyCard.classList.add('is-open');
+            privacyCard.setAttribute('aria-hidden', 'false');
+        }
+
+        function closePrivacyPreview() {
+            privacyCard.classList.remove('is-open');
+            privacyCard.setAttribute('aria-hidden', 'true');
+        }
+
+        privacyTrigger.addEventListener('pointerenter', openPrivacyPreview);
+        privacyTrigger.addEventListener('pointermove', function (event) {
+            if (privacyCard.classList.contains('is-open')) placePrivacyPreview(event.clientX, event.clientY);
+        });
+        privacyTrigger.addEventListener('pointerleave', closePrivacyPreview);
+        privacyTrigger.addEventListener('focus', openPrivacyPreview);
+        privacyTrigger.addEventListener('blur', closePrivacyPreview);
+        privacyTrigger.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+
         tableButton.addEventListener('click', openTable);
         overlay.querySelector('.hashcod-registration-table-close').addEventListener('click', function () {
             overlay.classList.remove('is-open');

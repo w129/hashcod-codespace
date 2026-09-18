@@ -88,9 +88,32 @@ function adminRequire(): void {
 }
 
 function adminProtectedPath(string $path): bool {
+    // Server-execution and infrastructure-inspection APIs are administrator-only.
+    // Desktop requests remain supported through the per-process bridge token
+    // validated by adminRequire()/hashcodDesktopBridgeValid().
+    $privilegedRoots = [
+        '/api/bash',
+        '/api/catalyst',
+        '/api/storage',
+        '/api/django',
+        '/api/streamlit',
+        '/api/agent-browser',
+        '/api/ubuntu',
+        '/api/zylon',
+        '/api/claude',
+        '/api/macos',
+        '/api/chromeos'
+    ];
+    foreach ($privilegedRoots as $root) {
+        if ($path === $root || str_starts_with($path, $root . '/')) return true;
+    }
+
     return str_starts_with($path, '/api/admin/') || in_array($path, [
         '/api/auth/dilithium-active-key', '/api/auth/list-accounts',
-        '/api/auth/suspend-account', '/api/auth/reactivate-account', '/api/auth/delete-account', '/api/auth/delete'
+        '/api/auth/suspend-account', '/api/auth/reactivate-account', '/api/auth/delete-account', '/api/auth/delete',
+        '/api/libreoffice/ensure',
+        '/api/command', '/cmd',
+        '/api/openclaw/run', '/api/openclaw/gateway', '/api/openclaw/config'
     ], true);
 }
 

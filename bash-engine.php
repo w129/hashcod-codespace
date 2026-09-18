@@ -1110,18 +1110,22 @@ function bashHandleApi($uri) {
         return false;
     }
 
+    // Defense in depth: these endpoints expose shell execution, workspace
+    // configuration, storage internals, or runtime diagnostics. They must never
+    // rely solely on router-level authorization.
+    if (!function_exists('adminRequire')) {
+        require_once __DIR__ . '/admin-device.php';
+    }
+    adminRequire();
+
     header('Content-Type: application/json; charset=utf-8');
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     $acct = function_exists('supabaseCurrentAccountKey') ? supabaseCurrentAccountKey() : 'global';
 
     // 1. Ejecutar comando en Bash
     if ($uri === '/api/bash/exec' && $method === 'POST') {
-        if (function_exists('securityRequireAccountSession')) {
-            $hasCsrf = (!empty($_SERVER['HTTP_X_L8_CSRF']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strcasecmp((string)$_SERVER['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest') === 0));
-            if (!$hasCsrf) {
-                securityRequireAccountSession();
-            }
-        }
+        // adminRequire() above is unconditional. Request headers are never
+        // treated as authentication or as a bypass for authentication.
         $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
         $cmd = trim((string)($body['command'] ?? $body['cmd'] ?? ''));
 
@@ -1211,9 +1215,6 @@ function bashHandleApi($uri) {
     }
 
     if ($uri === '/api/catalyst/execute' && $method === 'POST') {
-        if (function_exists('securityRequireAccountSession')) {
-            securityRequireAccountSession();
-        }
         $body = json_decode((string)file_get_contents('php://input'), true) ?: $_POST;
         $channel = $body['channel'] ?? '/a';
         $action = $body['action'] ?? 'activate';

@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 )
@@ -71,9 +72,26 @@ func (s *GrpcServer) RegisterDilithiumServiceServer(srv DilithiumServiceServer) 
 	s.dilithiumService = srv
 }
 
-// SetCorsHeaders injects standard gRPC-Web and REST CORS headers.
-func SetCorsHeaders(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func corsOriginAllowed(origin string) bool {
+	origin = strings.TrimSpace(origin)
+	if origin == "" {
+		return true
+	}
+	u, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+	host := strings.ToLower(u.Hostname())
+	return host == "localhost" || host == "127.0.0.1" || host == "::1"
+}
+
+// SetCorsHeaders injects CORS headers only for explicit loopback browser origins.
+func SetCorsHeaders(w http.ResponseWriter, r *http.Request) {
+	origin := strings.TrimSpace(r.Header.Get("Origin"))
+	if origin != "" && corsOriginAllowed(origin) {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Vary", "Origin")
+	}
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-User-Agent, X-Grpc-Web, Authorization, X-Accept-Content-Transfer-Encoding, X-Accept-Response-Streaming")
 	w.Header().Set("Access-Control-Expose-Headers", "grpc-status, grpc-message, grpc-status-details-bin")
@@ -81,9 +99,14 @@ func SetCorsHeaders(w http.ResponseWriter) {
 
 // ServeHTTP handles gRPC and gRPC-Web RPC dispatches.
 func (s *GrpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	SetCorsHeaders(w)
+	SetCorsHeaders(w, r)
 
 	if r.Method == http.MethodOptions {
+		origin := strings.TrimSpace(r.Header.Get("Origin"))
+		if origin != "" && !corsOriginAllowed(origin) {
+			http.Error(w, "origin not allowed", http.StatusForbidden)
+			return
+		}
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}

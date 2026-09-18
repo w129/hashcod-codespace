@@ -1,0 +1,62 @@
+name: Security Hardening
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - 'security/**'
+
+permissions:
+  contents: read
+
+jobs:
+  hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, openssl, sodium
+          coverage: none
+
+      - name: JavaScript syntax checks
+        run: |
+          node --check ws-server.js
+          node --check server.js
+          node --check components/codespace-ws.js
+          node tests/security/test-platform-hardening.js
+
+      - name: PHP syntax checks
+        run: |
+          php -l admin-device.php
+          php -l bash-engine.php
+          php -l security.php
+          php -l api.php
+
+      - name: Go formatting and tests
+        run: |
+          test -z "$(gofmt -l engines/go-core/main.go daemon/main.go daemon/gateway/grpc_web.go daemon/pb/codespace_pqc_grpc.pb.go daemon/gateway/gateway_test.go)"
+          (cd engines/go-core && go test ./...)
+          (cd daemon && go test ./...)
+
+      - name: Security authorization regression tests
+        run: php tests/security/test-admin-device.php

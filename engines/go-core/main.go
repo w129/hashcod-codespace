@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
+	"strings"
 	"os"
 	"runtime"
 	"sync"
@@ -83,19 +85,68 @@ func (o *GoOrchestrator) CalculateQuantumSignature(seed string) string {
 	return "DILITHIUM-5-GO:" + hex.EncodeToString(hasher.Sum(nil))[:48]
 }
 
+func localOriginAllowed(origin string) bool {
+	origin = strings.TrimSpace(origin)
+	if origin == "" {
+		return true
+	}
+	u, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+	host := strings.ToLower(u.Hostname())
+	return host == "localhost" || host == "127.0.0.1" || host == "::1"
+}
+
+func prepareLocalResponse(w http.ResponseWriter, r *http.Request) bool {
+	origin := strings.TrimSpace(r.Header.Get("Origin"))
+	if origin != "" {
+		if !localOriginAllowed(origin) {
+			http.Error(w, "origin not allowed", http.StatusForbidden)
+			return false
+		}
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Vary", "Origin")
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return false
+	}
+	return true
+}
+
 func statusHandler(w http.ResponseWriter, r *http.Request) {
+	if !prepareLocalResponse(w, r) {
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	metrics := orchestrator.GetMetrics()
-	json.NewEncoder(w).Encode(metrics)
+	_ = json.NewEncoder(w).Encode(metrics)
 }
 
 func quantumSignHandler(w http.ResponseWriter, r *http.Request) {
+	if !prepareLocalResponse(w, r) {
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	seed := r.URL.Query().Get("seed")
+	if len(seed) > 256 {
+		http.Error(w, "seed too large", http.StatusBadRequest)
+		return
+	}
 	if seed == "" {
 		seed = "default_orchestrator_node"
 	}
@@ -107,7 +158,7 @@ func quantumSignHandler(w http.ResponseWriter, r *http.Request) {
 		"algorithm": "Dilithium-5 / SPHINCS+ Go Native",
 		"timestamp": time.Now().Format(time.RFC3339),
 	}
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func main() {
@@ -119,8 +170,9 @@ func main() {
 	http.HandleFunc("/api/go/status", statusHandler)
 	http.HandleFunc("/api/go/quantum_sign", quantumSignHandler)
 
-	log.Printf("⚡ Hashcod Go Micro-Engine listening on http://127.0.0.1:%s\n", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	addr := "127.0.0.1:" + port
+	log.Printf("⚡ Hashcod Go Micro-Engine listening on http://%s\n", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Printf("Go Micro-Engine stopped: %v\n", err)
 	}
 }

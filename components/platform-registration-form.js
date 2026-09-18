@@ -42,7 +42,7 @@
                 </div>
                 <span class="hashcod-registration-badge">18+ ONLY</span>
             </header>
-            <form id="hashcodRegistrationForm" novalidate autocomplete="on">
+            <form id="hashcodRegistrationForm" novalidate autocomplete="off" data-no-autosave data-hashcod-autosave="off">
                 <div class="hashcod-registration-grid">
                     <div class="hashcod-registration-field is-wide">
                         <label for="hashcodRegFullName">Nombre con apellidos</label>

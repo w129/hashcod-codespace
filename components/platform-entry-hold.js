@@ -180,8 +180,12 @@
         if (typeof current !== 'function') return false;
         if (
             current.__hashcodHoldWrapped === true &&
-            current.__hashcodHoldVersion === '20260918-4'
-        ) return true;
+            current.__hashcodHoldVersion === '20260918-5'
+        ) {
+            window.__hashcodPlatformEntryHoldReady = true;
+            document.documentElement.dataset.hashcodEntryGateReady = 'true';
+            return true;
+        }
 
         // A cached older hold wrapper may have installed first. Always unwrap it
         // and replace it with the current authoritative controller.
@@ -199,9 +203,14 @@
         };
 
         Object.defineProperty(wrapped, '__hashcodHoldWrapped', { value: true });
-        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: '20260918-4' });
+        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: '20260918-5' });
         Object.defineProperty(wrapped, '__hashcodHoldOriginal', { value: original });
         window.l8EnterPlatform = wrapped;
+        window.__hashcodPlatformEntryHoldReady = true;
+        document.documentElement.dataset.hashcodEntryGateReady = 'true';
+        window.dispatchEvent(new CustomEvent('hashcod:entry-gate-ready', {
+            detail: { source: 'platform-entry-hold', version: '20260918-5' }
+        }));
         return true;
     }
 

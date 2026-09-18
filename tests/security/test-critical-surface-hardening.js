@@ -14,6 +14,9 @@ const router = read('router.php');
 const html = read('l8-html.php');
 const docker = read('Dockerfile');
 const openclaw = read('openclaw-bridge.php');
+const proxy = read('resilient-proxy.php');
+const secrets = read('secrets.php');
+const keyRegistry = read('hashcod-keys.php');
 
 assert(bash.includes("adminRequire();"), 'Bash API surface must require verified admin access');
 assert(!bash.includes('$hasCsrf'), 'Headers must never bypass Bash authentication');
@@ -49,5 +52,16 @@ assert(openclaw.includes('adminRequire();'), 'OpenClaw configuration and daemon 
 assert(openclaw.includes("OPENCLAW_WEBHOOK_SECRET"), 'OpenClaw webhook must require a dedicated secret');
 assert(openclaw.includes("securityRateAllowSliding('openclaw_webhook'"), 'OpenClaw webhook must be rate limited');
 assert(openclaw.includes("strlen($message) > 12000"), 'OpenClaw webhook input must be bounded');
+
+assert(proxy.includes('resilientProxyValidateUrl'), 'Outbound proxy must validate target URLs');
+assert(proxy.includes('CURLOPT_SSL_VERIFYPEER, true'), 'Outbound proxy must verify TLS peers');
+assert(proxy.includes('CURLOPT_SSL_VERIFYHOST, 2'), 'Outbound proxy must verify TLS hostnames');
+assert(!proxy.includes('CURLOPT_SSL_VERIFYPEER, false'), 'Outbound proxy must never disable TLS peer verification');
+assert(proxy.includes('CURLOPT_FOLLOWLOCATION, false'), 'Outbound proxy must not follow unvalidated redirects');
+assert(proxy.includes("'follow_location' => 0"), 'Stream fallback must not follow redirects');
+
+assert(secrets.includes("throw new RuntimeException('Encryption unavailable: OpenSSL is required')"), 'Encryption must fail closed without OpenSSL');
+assert(!secrets.includes("return 'l8e0:' . base64_encode($plaintext)"), 'New secrets must never fall back to Base64');
+assert(!keyRegistry.includes("? secretsEncrypt($value) : $value"), 'Key registry must never persist plaintext when encryption is unavailable');
 
 console.log('critical surface hardening checks: OK');

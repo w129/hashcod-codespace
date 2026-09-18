@@ -235,14 +235,13 @@
                                             <span class="hashcod-preview-link-card-address">hashcod / privacy</span>
                                         </span>
                                         <span class="hashcod-preview-link-card-viewport">
-                                            <iframe
-                                                class="hashcod-preview-link-card-frame"
-                                                title="Vista previa de la Política de Privacidad"
-                                                tabindex="-1"
-                                                aria-hidden="true"
-                                                loading="lazy"
-                                                src="about:blank"
-                                            ></iframe>
+                                            <span
+                                                class="hashcod-preview-link-card-snapshot"
+                                                role="img"
+                                                aria-label="Vista previa de la Política de Privacidad"
+                                            >
+                                                <span class="hashcod-preview-link-card-loading">Cargando vista previa…</span>
+                                            </span>
                                         </span>
                                     </span>
                                     <span class="hashcod-preview-link-card-meta">
@@ -614,12 +613,62 @@
         codeInput.addEventListener('change', function () {
             selectCodeFile(codeInput.files && codeInput.files[0] ? codeInput.files[0] : null);
         });
-        function ensurePrivacyPreviewLoaded() {
-            const frame = privacyCard.querySelector('.hashcod-preview-link-card-frame');
-            if (!frame || frame.dataset.loaded === 'true') return;
+        async function ensurePrivacyPreviewLoaded() {
+            const snapshot = privacyCard.querySelector('.hashcod-preview-link-card-snapshot');
+            if (!snapshot || snapshot.dataset.loaded === 'true' || snapshot.dataset.loading === 'true') return;
+
+            snapshot.dataset.loading = 'true';
             const previewSrc = privacyCard.dataset.previewSrc || privacyTrigger.getAttribute('href') || 'privacy';
-            frame.src = new URL(previewSrc, baseUrl()).toString();
-            frame.dataset.loaded = 'true';
+
+            try {
+                const response = await fetch(new URL(previewSrc, baseUrl()).toString(), {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    cache: 'force-cache',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!response.ok) throw new Error('preview unavailable');
+
+                const html = await response.text();
+                const parsed = new DOMParser().parseFromString(html, 'text/html');
+                const source = parsed.querySelector('.privacy-container');
+                if (!source) throw new Error('privacy preview root missing');
+
+                const clone = source.cloneNode(true);
+                clone.querySelectorAll('script, iframe, object, embed, form').forEach(function (node) {
+                    node.remove();
+                });
+                clone.querySelectorAll('[onclick], [onload], [onerror], [onmouseover], [onmouseenter], [onmouseleave]').forEach(function (node) {
+                    ['onclick','onload','onerror','onmouseover','onmouseenter','onmouseleave'].forEach(function (name) {
+                        node.removeAttribute(name);
+                    });
+                });
+                clone.querySelectorAll('a').forEach(function (link) {
+                    link.removeAttribute('href');
+                    link.removeAttribute('target');
+                    link.removeAttribute('rel');
+                });
+                clone.querySelectorAll('button, input, select, textarea').forEach(function (control) {
+                    control.setAttribute('tabindex', '-1');
+                    control.setAttribute('disabled', 'disabled');
+                });
+
+                snapshot.replaceChildren(clone);
+                snapshot.dataset.loaded = 'true';
+            } catch (_) {
+                snapshot.innerHTML = [
+                    '<span class="hashcod-preview-fallback">',
+                    '<span class="hashcod-preview-fallback-badge">PQC / PRIVACY</span>',
+                    '<strong>Política de Privacidad y Modelo Operativo</strong>',
+                    '<span>Hashcod Codespace</span>',
+                    '<span class="hashcod-preview-fallback-line"></span>',
+                    '<span class="hashcod-preview-fallback-line short"></span>',
+                    '</span>'
+                ].join('');
+                snapshot.dataset.loaded = 'fallback';
+            } finally {
+                delete snapshot.dataset.loading;
+            }
         }
 
         function placePrivacyPreview(clientX, clientY) {

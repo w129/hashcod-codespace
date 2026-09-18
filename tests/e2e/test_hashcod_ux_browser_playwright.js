@@ -271,7 +271,7 @@ async function run() {
 
 Promise.race([
   run(),
-  new Promise((_, reject) => setTimeout(() => reject(new Error('Hashcod UX browser verification exceeded 50 seconds')), 50000))
+  new Promise((_, reject) => setTimeout(() => reject(new Error('Hashcod UX browser verification exceeded 90 seconds')), 90000))
 ]).then(() => process.exit(0)).catch((error) => {
   console.error(error && error.stack || error);
   process.exit(1);

@@ -32,6 +32,32 @@
         return text.length >= 4 && text.length <= 120 && /^\S+\s+\S+/u.test(text);
     }
 
+    function revealFinalRegistration(source) {
+        const root = document.documentElement;
+        if (root.dataset.hashcodFinalEntryScreen === 'true') return;
+        root.dataset.hashcodFinalEntryScreen = 'true';
+        window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', {
+            detail: { screen: 3, source: source || 'platform-registration' }
+        }));
+    }
+
+    function armFinalScreenFallback() {
+        document.addEventListener('click', function (event) {
+            const target = event.target;
+            const button = target && typeof target.closest === 'function'
+                ? target.closest('#hashcodHoldContinue')
+                : null;
+            if (!button || button.disabled) return;
+
+            // The hold overlay spends ~800 ms finishing its exit. If an older
+            // cached hold script never publishes the third-screen marker, make
+            // the registration component authoritative after that handoff.
+            window.setTimeout(function () {
+                revealFinalRegistration('platform-registration-continue-fallback');
+            }, 900);
+        }, true);
+    }
+
     function formMarkup() {
         return `
             <header class="hashcod-registration-head">
@@ -359,6 +385,7 @@
         });
     }
 
+    armFinalScreenFallback();
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
     else mount();
     window.addEventListener('hashcod:final-entry-screen', mount);

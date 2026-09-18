@@ -42,6 +42,12 @@ async function run() {
 
     // Screen 1.
     await page.waitForSelector('#bootCliEnter', { state: 'visible', timeout: 15000 });
+    await page.waitForFunction(() => (
+      window.__hashcodPlatformEntryHoldReady === true
+      && document.documentElement.dataset.hashcodEntryGateReady === 'true'
+      && window.l8EnterPlatform
+      && window.l8EnterPlatform.__hashcodHoldVersion === '20260918-5'
+    ), { timeout: 10000 });
     assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 0,
       'registration must not exist in the DOM on screen 1');
     assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',

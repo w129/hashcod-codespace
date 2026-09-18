@@ -280,7 +280,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
                             <path d="M 9 5 L 9 7 L 23 7 L 23 5 L 9 5 z M 23 7 L 23 10 L 25 10 L 25 7 L 23 7 z M 25 10 L 25 14 L 27 14 L 27 10 L 25 10 z M 27 14 L 27 17 L 5 17 L 5 14 L 3 14 L 3 27 L 29 27 L 29 14 L 27 14 z M 5 14 L 7 14 L 7 10 L 5 10 L 5 14 z M 7 10 L 9 10 L 9 7 L 7 7 L 7 10 z M 12 9 L 12 11 L 20 11 L 20 9 L 12 9 z M 20 11 L 20 13 L 22 13 L 22 11 L 20 11 z M 20 13 L 17 13 L 17 12 L 15 12 L 15 13 L 12 13 L 12 15 L 20 15 L 20 13 z M 12 13 L 12 11 L 10 11 L 10 13 L 12 13 z M 5 19 L 27 19 L 27 25 L 5 25 L 5 19 z M 23 21 L 23 23 L 25 23 L 25 21 L 23 21 z"></path>
                         </svg>
-                        <span>Haciendo que tu proyecto hecho por IA tenga validez regal</span>
+                        <span>Haciendo que tu proyecto hecho por IA tenga validez legal</span>
                     </div>
                 </div>
                 <p id="hashcodRegistrationStatus" class="hashcod-registration-status" role="status" aria-live="polite"></p>

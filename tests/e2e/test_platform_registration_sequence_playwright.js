@@ -47,7 +47,7 @@ async function run() {
       return window.__hashcodPlatformEntryHoldReady === true
         && document.documentElement.dataset.hashcodEntryGateReady === 'true'
         && button
-        && button.dataset.hashcodEntryGateVersion === '20260918-8';
+        && button.dataset.hashcodEntryGateVersion === '20260918-9';
     }, { timeout: 10000 });
     assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 0,
       'registration must not exist in the DOM on screen 1');

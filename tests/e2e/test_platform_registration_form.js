@@ -18,6 +18,11 @@ const router = fs.readFileSync(path.join(repoDir, 'router.php'), 'utf8');
 assert(css.includes('#hashcodPlatformRegistration'), 'registration root style missing');
 assert(css.includes('display: none'), 'registration must be hidden before the third screen');
 assert(css.includes('html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration'), 'third-screen reveal selector missing');
+assert(css.includes('inset: 0'), 'third screen registration must fill the viewport instead of reusing the old panel zone');
+assert(css.includes('width: 100vw'), 'third screen registration must own the full viewport width');
+assert(css.includes('height: 100dvh'), 'third screen registration must own the full viewport height');
+assert(!css.includes('left: 63vw'), 'registration must not reuse the previous right-side zone');
+assert(!css.includes('top: 50vh'), 'registration must not be positioned as the previous floating panel');
 
 // Required fields and 18+ rule.
 for (const id of [
@@ -41,6 +46,12 @@ assert(js.includes("target.closest('#hashcodHoldContinue')"), 'final-screen regi
 assert(js.includes("revealFinalRegistration('platform-registration-continue-fallback')"), 'registration fallback reveal marker missing');
 assert(js.includes("revealFinalRegistration('platform-registration-hold-disconnected')"),
   'registration must recover when the second-screen overlay disappears');
+assert(js.includes("if (document.documentElement.dataset.hashcodFinalEntryScreen !== 'true') return false;"),
+  'registration root must not mount before screen 3');
+assert(js.includes("root.dataset.hashcodScreen = '3'"),
+  'registration root must identify itself as the third screen');
+assert(js.includes('function mountIfThirdScreen()'),
+  'registration bootstrap must defer mounting until the third-screen marker exists');
 assert(js.includes('data-no-autosave data-hashcod-autosave="off"'),
   'registration PII form must explicitly disable Hashcod local autosave');
 assert(js.includes('autocomplete="off"'),
@@ -97,10 +108,10 @@ for (const sql of [migration, schema]) {
 }
 
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260918-3'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-2'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260918-3'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-2'), 'local registration JS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-4'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-3'), 'hosted registration JS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-4'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-3'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),

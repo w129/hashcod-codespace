@@ -198,6 +198,14 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
     if ($file === 'index.php') {
         $base = htmlspecialchars(l8_public_base_path(), ENT_QUOTES, 'UTF-8');
 
+        // index.php still contains a historical immutable query for this loader.
+        // Rewrite it at response time so browsers receive the registration-aware loader.
+        $html = str_replace(
+            'components/admin-hello-button.js?v=20260912-1',
+            'components/admin-hello-button.js?v=20260918-registration2',
+            $html
+        );
+
         // Keep the normal stylesheet request, but also inline the same CSS as a
         // production-safe fallback. This prevents the secure Toolbox controls
         // from ever rendering as unstyled document flow if a stale CDN/static
@@ -216,8 +224,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<style id="hashcod-efr-code-editor-inline">' . $efrCss . '</style>'
             : '';
 
+        // Inline the registration CSS as a fail-closed layer. If the versioned
+        // stylesheet is unavailable or stale, Screen 3 must still cover Codespace.
+        $registrationCssPath = __DIR__ . '/components/platform-registration-form.css';
+        $registrationCss = is_file($registrationCssPath) ? (string) @file_get_contents($registrationCssPath) : '';
+        $inlineRegistrationCssTag = $registrationCss !== ''
+            ? '<style id="hashcod-platform-registration-inline">' . $registrationCss . '</style>'
+            : '';
+
         $cssTag = $inlineCssTag
             . $inlineEfrCssTag
+            . $inlineRegistrationCssTag
             . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-motion.css?v=20260918-1" data-hashcod-platform-entry-motion-style="true">'
@@ -227,7 +244,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260918-5" data-hashcod-platform-registration-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260918-6" data-hashcod-platform-registration-style="true">';
 
         // Retire the current authentication window before first paint. The
         // backend/session code remains available for the replacement entry system.
@@ -297,6 +314,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-efr-code-editor-inline">' . $efrJs . '</script>'
             : '';
 
+        // Inline Screen 3 as the primary registration runtime. The external
+        // script remains as a cache-busted fallback and is idempotent.
+        $registrationJsPath = __DIR__ . '/components/platform-registration-form.js';
+        $registrationJs = is_file($registrationJsPath) ? (string) @file_get_contents($registrationJsPath) : '';
+        if ($registrationJs !== '') {
+            $registrationJs = str_ireplace('</script', '<\\/script', $registrationJs);
+        }
+        $inlineRegistrationJsTag = $registrationJs !== ''
+            ? '<script id="hashcod-platform-registration-inline-js">' . $registrationJs . '</script>'
+            : '';
+
         // The Docker build generates this local bundle from the exact Rare UI
         // React/Motion implementation. Inline the built artifact so the folder
         // cannot disappear because of static-asset routing, CDN cache, or an
@@ -318,10 +346,11 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $legacyBlackholeCleanupTag = '<script id="hashcod-legacy-blackhole-cleanup">(function(){function cleanup(){var hint=document.getElementById("bootCliHint");if(!hint)return;hint.textContent="";hint.hidden=true;hint.setAttribute("aria-hidden","true");}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",cleanup,{once:true});}else{cleanup();}})();</script>';
 
         $tag = $legacyBlackholeCleanupTag
+            . $inlineRegistrationJsTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-6" data-platform-entry-hold="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260918-6" data-hashcod-platform-registration="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-7" data-platform-entry-hold="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260918-7" data-hashcod-platform-registration="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

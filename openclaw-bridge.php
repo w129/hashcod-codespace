@@ -11,6 +11,7 @@ require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/secrets.php';
 require_once __DIR__ . '/tokens.php';
+require_once __DIR__ . '/admin-device.php';
 
 function openclawDataDir() {
     $dir = __DIR__ . '/data_storage/openclaw';
@@ -252,6 +253,9 @@ function openclawRunAgentTask($prompt, array $options = []) {
     if ($prompt === '') {
         return ['ok' => false, 'error' => 'El prompt de la tarea no puede estar vacío.'];
     }
+    if (strlen($prompt) > 12000) {
+        return ['ok' => false, 'error' => 'La tarea supera el límite permitido.'];
+    }
 
     $cfg = openclawGetConfig();
     $startTime = microtime(true);
@@ -314,21 +318,41 @@ function openclawRunAgentTask($prompt, array $options = []) {
 /**
  * Dispatcher para endpoints /api/openclaw/*
  */
+function openclawRequireAccount(): void {
+    if (function_exists('securityRequireAccountSession')) {
+        securityRequireAccountSession();
+        return;
+    }
+    securityUnauthorizedJson('Se requiere sesión de cuenta');
+}
+
+function openclawWebhookAuthorized(): bool {
+    $secret = function_exists('secretGet') ? trim((string)secretGet('OPENCLAW_WEBHOOK_SECRET', '')) : '';
+    if (strlen($secret) < 32) return false;
+    $supplied = trim((string)($_SERVER['HTTP_X_OPENCLAW_SECRET'] ?? ''));
+    return $supplied !== '' && hash_equals($secret, $supplied);
+}
+
 function openclawHandleApi($uri) {
     if (strpos($uri, '/api/openclaw') !== 0) {
         return false;
     }
 
     header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, private');
 
     // 1. Estado del Gateway
     if ($uri === '/api/openclaw/status' || $uri === '/api/openclaw') {
-        echo json_encode(openclawGetStatus(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        openclawRequireAccount();
+        $status = openclawGetStatus();
+        unset($status['binary'], $status['workspace'], $status['gateway_url'], $status['gateway_port']);
+        echo json_encode($status, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         return true;
     }
 
     // 2. Catálogo de Habilidades
     if ($uri === '/api/openclaw/skills') {
+        openclawRequireAccount();
         echo json_encode([
             'ok' => true,
             'total' => count(openclawGetSkillsCatalog()),
@@ -344,10 +368,13 @@ function openclawHandleApi($uri) {
             echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
             return true;
         }
-        if (function_exists('securityRequireAccountSession')) {
-            securityRequireAccountSession();
+        openclawRequireAccount();
+        $raw = file_get_contents('php://input', false, null, 0, 16385);
+        if (!is_string($raw) || strlen($raw) > 16384) {
+            http_response_code(413);
+            echo json_encode(['ok' => false, 'error' => 'Payload demasiado grande']);
+            return true;
         }
-        $raw = file_get_contents('php://input');
         $data = json_decode($raw, true) ?: [];
         $prompt = trim((string)($data['prompt'] ?? ''));
         $model = trim((string)($data['model'] ?? ''));
@@ -358,12 +385,13 @@ function openclawHandleApi($uri) {
 
     // 4. Control del Gateway Daemon (Start / Stop / Restart)
     if ($uri === '/api/openclaw/gateway') {
-        $raw = file_get_contents('php://input');
-        $data = json_decode($raw, true) ?: [];
+        openclawRequireAccount();
+        $raw = file_get_contents('php://input', false, null, 0, 16385);
+        $data = is_string($raw) ? (json_decode($raw, true) ?: []) : [];
         $action = strtolower(trim((string)($data['action'] ?? 'status')));
-        
-        if (in_array($action, ['start', 'stop', 'restart'], true) && function_exists('securityRequireAccountSession')) {
-            securityRequireAccountSession();
+
+        if (in_array($action, ['start', 'stop', 'restart'], true)) {
+            adminRequire();
         }
 
         $cfg = openclawGetConfig();
@@ -386,11 +414,26 @@ function openclawHandleApi($uri) {
 
     // 5. Configuración
     if ($uri === '/api/openclaw/config') {
+        adminRequire();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $raw = file_get_contents('php://input');
-            $data = json_decode($raw, true) ?: [];
+            $raw = file_get_contents('php://input', false, null, 0, 65537);
+            if (!is_string($raw) || strlen($raw) > 65536) {
+                http_response_code(413);
+                echo json_encode(['ok' => false, 'error' => 'Payload demasiado grande']);
+                return true;
+            }
+            $data = json_decode($raw, true);
+            if (!is_array($data)) {
+                http_response_code(400);
+                echo json_encode(['ok' => false, 'error' => 'JSON inválido']);
+                return true;
+            }
+            $allowed = array_intersect_key($data, array_flip([
+                'enabled', 'gateway_host', 'gateway_port', 'gateway_url',
+                'default_model', 'auto_daemon', 'channels', 'active_skills'
+            ]));
             $cfg = openclawGetConfig();
-            $updated = array_merge($cfg, $data);
+            $updated = array_merge($cfg, $allowed);
             openclawSaveConfig($updated);
             echo json_encode(['ok' => true, 'config' => $updated]);
             return true;
@@ -401,22 +444,48 @@ function openclawHandleApi($uri) {
 
     // 6. Webhook Multi-canal
     if ($uri === '/api/openclaw/webhook') {
-        $raw = file_get_contents('php://input');
-        $data = json_decode($raw, true) ?: [];
-        $sender = $data['sender'] ?? 'external';
-        $message = $data['message'] ?? ($data['text'] ?? '');
-        
-        $reply = "🦞 [OpenClaw Gateway Auto-Reply]: Mensaje recibido desde conector de canal. Tarea encolada hacia el workspace central.";
-        if ($message !== '') {
-            $taskRes = openclawRunAgentTask($message);
-            $reply = $taskRes['stdout'] ?? $reply;
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
+            return true;
+        }
+        if (!openclawWebhookAuthorized()) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'Unauthorized']);
+            return true;
+        }
+        if (function_exists('securityRateAllowSliding')) {
+            $rl = securityRateAllowSliding('openclaw_webhook', 30, 60);
+            if (empty($rl['allowed'])) {
+                securityRateDenyJson($rl['retry_after'] ?? 60);
+            }
+        }
+        $raw = file_get_contents('php://input', false, null, 0, 65537);
+        if (!is_string($raw) || strlen($raw) > 65536) {
+            http_response_code(413);
+            echo json_encode(['ok' => false, 'error' => 'Payload demasiado grande']);
+            return true;
+        }
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'JSON inválido']);
+            return true;
+        }
+        $sender = substr(trim((string)($data['sender'] ?? 'external')), 0, 128);
+        $message = trim((string)($data['message'] ?? ($data['text'] ?? '')));
+        if ($message === '' || strlen($message) > 12000) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Mensaje inválido']);
+            return true;
         }
 
+        $taskRes = openclawRunAgentTask($message);
         echo json_encode([
-            'ok' => true,
+            'ok' => !empty($taskRes['ok']),
             'source' => 'openclaw_multi_channel_gateway',
             'sender' => $sender,
-            'reply' => $reply,
+            'reply' => $taskRes['stdout'] ?? 'Tarea no procesada',
             'timestamp' => date('c')
         ]);
         return true;

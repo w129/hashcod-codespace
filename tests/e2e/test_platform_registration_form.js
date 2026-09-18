@@ -54,6 +54,11 @@ assert(api.includes("FILTER_VALIDATE_EMAIL"), 'server email validation missing')
 assert(api.includes("securityRateAllowSliding('platform_registration_submit'"), 'public submission rate limit missing');
 assert(api.includes("strcasecmp((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''), 'XMLHttpRequest')"), 'server AJAX/CSRF marker check missing');
 assert(api.includes("empty($cfg['secret_key'])"), 'backend must require Supabase secret key');
+assert(api.includes("require_once __DIR__ . '/secrets.php'"), 'backend encryption helper missing');
+assert(api.includes("secretsEncrypt($validated['cedula'])"), 'cedula must be encrypted before database storage');
+assert(api.includes("secretsEncrypt($validated['email'])"), 'email must be encrypted before database storage');
+assert(api.includes("secretsEncrypt($validated['phone'])"), 'phone must be encrypted before database storage');
+assert(api.includes("secretsDecrypt((string)($stored['cedula_enc']"), 'admin projection must decrypt cedula only after authorization');
 assert(api.includes('adminRequire();'), 'stored records must be admin-only server-side');
 assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table constant missing');
 
@@ -61,6 +66,10 @@ assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table const
 for (const sql of [migration, schema]) {
   assert(sql.includes('hashcod_platform_registrations'), 'registration table missing from SQL');
   assert(sql.includes('age smallint not null check (age between 18 and 120)'), 'DB 18+ constraint missing');
+  assert(sql.includes("full_name_enc text not null check (full_name_enc like 'l8e1:%')"), 'encrypted name column missing');
+  assert(sql.includes("cedula_enc text not null check (cedula_enc like 'l8e1:%')"), 'encrypted cedula column missing');
+  assert(sql.includes("email_enc text not null check (email_enc like 'l8e1:%')"), 'encrypted email column missing');
+  assert(sql.includes("phone_enc text not null check (phone_enc like 'l8e1:%')"), 'encrypted phone column missing');
   assert(sql.includes('enable row level security'), 'registration RLS missing');
   assert(sql.includes('revoke all on table public.hashcod_platform_registrations from anon, authenticated'), 'direct anon/authenticated access must be revoked');
   assert(sql.includes('grant select, insert on table public.hashcod_platform_registrations to service_role'), 'backend service-role grant missing');

@@ -22,7 +22,12 @@ async function run() {
       await route.fulfill({
         status: 201,
         contentType: 'application/json',
-        body: JSON.stringify({ ok: true, id: '00000000-0000-4000-8000-000000000001' })
+        body: JSON.stringify({
+          ok: true,
+          id: '00000000-0000-4000-8000-000000000001',
+          code_uploaded: true,
+          code_filename: 'hashcod-test.zip'
+        })
       });
       return;
     }
@@ -102,11 +107,13 @@ async function run() {
           'hashcodRegAge',
           'hashcodRegCedula',
           'hashcodRegPlatform',
+          'hashcodRegCodeFile',
           'hashcodRegEmail',
           'hashcodRegPhone'
         ].filter(id => document.getElementById(id)).length,
         submit: Boolean(document.getElementById('hashcodRegistrationSubmit')),
         tableButton: Boolean(document.getElementById('hashcodRegistrationTableButton')),
+        codeButton: Boolean(document.getElementById('hashcodRegCodeButton')),
         entryEvents: window.__registrationEntryEvents
       };
     });
@@ -121,9 +128,10 @@ async function run() {
     assert(state.height >= state.viewportHeight * 0.98,
       'screen 3 registration must occupy the viewport height');
     assert.equal(state.screen, '3', 'registration root must be explicitly identified as screen 3');
-    assert.equal(state.fields, 6, 'all six requested fields must be present');
+    assert.equal(state.fields, 7, 'registration fields plus the code upload input must be present');
     assert.equal(state.submit, true, 'submit button missing');
     assert.equal(state.tableButton, true, 'records icon button missing');
+    assert.equal(state.codeButton, true, 'platform code upload icon button missing');
 
     // Under 18 must remain blocked.
     await page.evaluate(() => {
@@ -144,6 +152,16 @@ async function run() {
       consent.checked = true;
       consent.dispatchEvent(new Event('change', { bubbles: true }));
     });
+
+    await page.setInputFiles('#hashcodRegCodeFile', {
+      name: 'hashcod-test.zip',
+      mimeType: 'application/zip',
+      buffer: Buffer.from('PK\u0003\u0004hashcod-test-code')
+    });
+    await page.waitForFunction(() => {
+      const button = document.getElementById('hashcodRegCodeButton');
+      return Boolean(button && button.classList.contains('is-loaded') && button.getAttribute('aria-pressed') === 'true');
+    }, { timeout: 3000 });
 
     assert.equal(await page.locator('#hashcodRegistrationSubmit').isDisabled(), true,
       'under-18 registration must keep submit disabled');

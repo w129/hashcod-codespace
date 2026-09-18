@@ -90,15 +90,88 @@ function l8_html_headers($ok = true, $cacheTtl = 0, $etag = null) {
  */
 function l8_apply_csp_nonce(string $html): string {
     if (!function_exists('securityCspNonce')) return $html;
-    $nonce = htmlspecialchars(securityCspNonce(), ENT_QUOTES, 'UTF-8');
-    return (string) preg_replace_callback(
-        '/<script\\b([^>]*)>/i',
-        static function (array $m) use ($nonce): string {
-            if (preg_match('/\\bnonce\\s*=/i', $m[1])) return $m[0];
-            return '<script nonce="' . $nonce . '"' . $m[1] . '>';
-        },
-        $html
-    );
+
+    $nonce = htmlspecialchars((string) securityCspNonce(), ENT_QUOTES, 'UTF-8');
+    if ($nonce === '' || $html === '') return $html;
+
+    $length = strlen($html);
+    $cursor = 0;
+    $output = '';
+
+    // Scan real HTML script elements instead of regex-replacing the whole
+    // document. A global regex also matches text such as
+    // const snippet = "<script data-demo='x'>";
+    // inside JavaScript and can inject nonce="..." into that JS string,
+    // causing production-only syntax errors when CSP is enabled.
+    $findTagEnd = static function (string $source, int $start, int $sourceLength): ?int {
+        $quote = null;
+        for ($i = $start; $i < $sourceLength; $i++) {
+            $ch = $source[$i];
+            if ($quote !== null) {
+                if ($ch === $quote) $quote = null;
+                continue;
+            }
+            if ($ch === '"' || $ch === "'") {
+                $quote = $ch;
+                continue;
+            }
+            if ($ch === '>') return $i;
+        }
+        return null;
+    };
+
+    while ($cursor < $length) {
+        $start = stripos($html, '<script', $cursor);
+        if ($start === false) {
+            $output .= substr($html, $cursor);
+            break;
+        }
+
+        $boundaryPos = $start + 7;
+        $boundary = $boundaryPos < $length ? $html[$boundaryPos] : '';
+        if ($boundary !== '' && !ctype_space($boundary) && $boundary !== '>' && $boundary !== '/') {
+            $output .= substr($html, $cursor, $boundaryPos - $cursor);
+            $cursor = $boundaryPos;
+            continue;
+        }
+
+        $output .= substr($html, $cursor, $start - $cursor);
+        $tagEnd = $findTagEnd($html, $start, $length);
+        if ($tagEnd === null) {
+            $output .= substr($html, $start);
+            break;
+        }
+
+        $openingTag = substr($html, $start, $tagEnd - $start + 1);
+        if (!preg_match('/\\bnonce\\s*=/i', $openingTag)) {
+            // "<script" is seven bytes in every supported casing.
+            $openingTag = substr($openingTag, 0, 7)
+                . ' nonce="' . $nonce . '"'
+                . substr($openingTag, 7);
+        }
+        $output .= $openingTag;
+
+        // HTML treats everything up to the matching closing script tag as raw
+        // text. Skip that entire region so "<script ...>" strings inside JS are
+        // never interpreted as HTML tags by this nonce injector.
+        $contentStart = $tagEnd + 1;
+        $closeStart = stripos($html, '</script', $contentStart);
+        if ($closeStart === false) {
+            $output .= substr($html, $contentStart);
+            break;
+        }
+
+        $closeEnd = $findTagEnd($html, $closeStart, $length);
+        if ($closeEnd === null) {
+            $output .= substr($html, $contentStart);
+            break;
+        }
+
+        $output .= substr($html, $contentStart, $closeEnd - $contentStart + 1);
+        $cursor = $closeEnd + 1;
+    }
+
+    return $output;
 }
 
 /**

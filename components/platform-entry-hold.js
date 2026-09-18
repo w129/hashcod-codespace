@@ -105,16 +105,26 @@
         });
     }
 
+    function revealFinalEntryScreen() {
+        const root = document.documentElement;
+        root.dataset.hashcodFinalEntryScreen = 'true';
+        window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', {
+            detail: { screen: 3, source: 'platform-entry-hold' }
+        }));
+    }
+
     async function runHold(original, context, args) {
         const enterButton = document.getElementById('bootCliEnter');
         const enterOriginalText = enterButton ? enterButton.textContent : '';
         const overlay = buildOverlay();
+        let reachedFinalScreen = false;
 
         if (enterButton) {
             enterButton.disabled = true;
             enterButton.textContent = 'VERIFYING';
         }
 
+        document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
         document.body.appendChild(overlay);
         requestAnimationFrame(function () {
             overlay.classList.add('is-visible');
@@ -128,6 +138,7 @@
             const result = await original.apply(context, args);
             overlay.classList.add('is-revealing');
             await sleep(560);
+            reachedFinalScreen = true;
             return result;
         } finally {
             overlay.remove();
@@ -135,6 +146,7 @@
                 enterButton.disabled = false;
                 enterButton.textContent = enterOriginalText;
             }
+            if (reachedFinalScreen) revealFinalEntryScreen();
         }
     }
 

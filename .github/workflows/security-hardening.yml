@@ -1,0 +1,42 @@
+name: Security hardening checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  security-hardening:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Lint security-sensitive PHP
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in api.php bash-engine.php security.php router.php l8-html.php; do
+            php -l "$file"
+          done
+
+      - name: Check Node server syntax
+        run: |
+          node --check ws-server.js
+          node --check server.js
+          node --check tests/security/test-critical-surface-hardening.js
+
+      - name: Run critical security regression checks
+        run: node tests/security/test-critical-surface-hardening.js

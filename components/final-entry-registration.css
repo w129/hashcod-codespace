@@ -1,0 +1,449 @@
+/* Hashcod Codespace — final entry registration.
+   Visible only on the third/final entry screen. */
+
+#hashcodFinalEntryRegistration {
+  position: fixed;
+  left: 64vw;
+  top: 50vh;
+  width: min(47vw, 760px);
+  max-height: 88vh;
+  transform: translate(-50%, -50%);
+  z-index: 2147483590;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  color: #111;
+}
+
+html[data-hashcod-final-entry-screen="true"] #hashcodFinalEntryRegistration {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hashcod-entry-registration-card {
+  position: relative;
+  overflow: auto;
+  max-height: 88vh;
+  padding: 24px;
+  border: 1px solid #111;
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(17,17,17,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,17,17,.055) 1px, transparent 1px),
+    rgba(255,255,255,.98);
+  background-size: 24px 24px;
+  box-shadow: 0 22px 55px rgba(0,0,0,.10);
+}
+
+.hashcod-entry-registration-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.hashcod-entry-registration-kicker {
+  margin: 0 0 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.hashcod-entry-registration-title {
+  margin: 0;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: clamp(22px, 2vw, 31px);
+  line-height: 1.05;
+  letter-spacing: -.035em;
+  font-weight: 800;
+}
+
+.hashcod-entry-registration-copy {
+  margin: 9px 0 0;
+  max-width: 44rem;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.hashcod-entry-registration-badge {
+  flex: 0 0 auto;
+  border: 1px solid #111;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #111;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+
+.hashcod-entry-registration-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.hashcod-entry-field {
+  min-width: 0;
+}
+
+.hashcod-entry-field--wide {
+  grid-column: 1 / -1;
+}
+
+.hashcod-entry-field label {
+  display: block;
+  margin: 0 0 6px;
+  color: #2c2c2c;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hashcod-entry-field input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  padding: 0 13px;
+  border: 1px solid #b7b7b7;
+  border-radius: 11px;
+  outline: none;
+  background: rgba(255,255,255,.96);
+  color: #111;
+  font: inherit;
+  font-size: 13px;
+  transition: border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+
+.hashcod-entry-field input::placeholder {
+  color: #999;
+}
+
+.hashcod-entry-field input:focus {
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(17,17,17,.08);
+}
+
+.hashcod-entry-field input.is-invalid {
+  border-color: #a40000;
+  box-shadow: 0 0 0 3px rgba(164,0,0,.08);
+}
+
+.hashcod-entry-field-error {
+  display: none;
+  margin: 5px 1px 0;
+  color: #9f0000;
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+
+.hashcod-entry-field-error.is-visible {
+  display: block;
+}
+
+.hashcod-entry-registration-note {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  padding: 10px 12px;
+  border-left: 2px solid #111;
+  background: rgba(255,255,255,.74);
+  color: #686868;
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+
+.hashcod-entry-registration-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  gap: 9px;
+  align-items: stretch;
+  margin-top: 4px;
+}
+
+#hashcodEntryRegistrationSubmit,
+#hashcodEntryRegistrationRecords {
+  min-height: 50px;
+  border: 1px solid #111;
+  border-radius: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform .14s ease, opacity .14s ease, background .14s ease, color .14s ease;
+}
+
+#hashcodEntryRegistrationSubmit {
+  padding: 0 18px;
+  background: #111;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+#hashcodEntryRegistrationRecords {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #fff;
+  color: #111;
+}
+
+#hashcodEntryRegistrationRecords svg {
+  display: block;
+  width: 27px;
+  height: 27px;
+  fill: currentColor;
+}
+
+#hashcodEntryRegistrationSubmit:hover,
+#hashcodEntryRegistrationRecords:hover {
+  transform: translateY(-1px);
+}
+
+#hashcodEntryRegistrationSubmit:disabled,
+#hashcodEntryRegistrationRecords:disabled {
+  cursor: wait;
+  opacity: .55;
+  transform: none;
+}
+
+.hashcod-entry-registration-status {
+  grid-column: 1 / -1;
+  min-height: 18px;
+  margin: 0;
+  color: #666;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.hashcod-entry-registration-status[data-tone="success"] { color: #126b36; }
+.hashcod-entry-registration-status[data-tone="error"] { color: #9f0000; }
+
+/* Admin-only records viewer */
+#hashcodAccessRecordsModal {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483650;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(10px);
+  color: #111;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+#hashcodAccessRecordsModal.is-open {
+  display: flex;
+}
+
+.hashcod-access-records-shell {
+  width: min(94vw, 1320px);
+  max-height: 90vh;
+  overflow: hidden;
+  border: 1px solid #111;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 28px 70px rgba(0,0,0,.16);
+}
+
+.hashcod-access-records-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #d5d5d5;
+  background:
+    linear-gradient(rgba(17,17,17,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,17,17,.045) 1px, transparent 1px),
+    #fff;
+  background-size: 22px 22px;
+}
+
+.hashcod-access-records-head h2 {
+  margin: 0;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 20px;
+  letter-spacing: -.025em;
+}
+
+.hashcod-access-records-head p {
+  margin: 4px 0 0;
+  color: #777;
+  font-size: 9.5px;
+}
+
+.hashcod-access-records-close {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #111;
+  border-radius: 10px;
+  background: #111;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.hashcod-access-records-table-wrap {
+  max-height: calc(90vh - 96px);
+  overflow: auto;
+}
+
+.hashcod-access-records-table {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.hashcod-access-records-table th,
+.hashcod-access-records-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #e5e5e5;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.hashcod-access-records-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f5f5f5;
+  color: #444;
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.hashcod-access-records-empty {
+  padding: 36px 20px;
+  color: #777;
+  text-align: center;
+  font-size: 11px;
+}
+
+/* Dark theme */
+html[data-hashcod-theme="dark"] #hashcodFinalEntryRegistration,
+html.dark #hashcodFinalEntryRegistration,
+html[data-hashcod-theme="dark"] #hashcodAccessRecordsModal,
+html.dark #hashcodAccessRecordsModal {
+  color: #f5f5f5;
+}
+
+html[data-hashcod-theme="dark"] .hashcod-entry-registration-card,
+html.dark .hashcod-entry-registration-card {
+  border-color: #f5f5f5;
+  background:
+    linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px),
+    rgba(18,18,18,.98);
+}
+
+html[data-hashcod-theme="dark"] .hashcod-entry-field label,
+html.dark .hashcod-entry-field label { color: #e5e5e5; }
+
+html[data-hashcod-theme="dark"] .hashcod-entry-field input,
+html.dark .hashcod-entry-field input {
+  border-color: #555;
+  background: #141414;
+  color: #fff;
+}
+
+html[data-hashcod-theme="dark"] .hashcod-entry-registration-note,
+html.dark .hashcod-entry-registration-note {
+  border-left-color: #fff;
+  background: rgba(0,0,0,.22);
+  color: #aaa;
+}
+
+html[data-hashcod-theme="dark"] #hashcodEntryRegistrationRecords,
+html.dark #hashcodEntryRegistrationRecords {
+  border-color: #eee;
+  background: #111;
+  color: #fff;
+}
+
+html[data-hashcod-theme="dark"] #hashcodAccessRecordsModal,
+html.dark #hashcodAccessRecordsModal {
+  background: rgba(10,10,10,.92);
+}
+
+html[data-hashcod-theme="dark"] .hashcod-access-records-shell,
+html.dark .hashcod-access-records-shell,
+html[data-hashcod-theme="dark"] .hashcod-access-records-head,
+html.dark .hashcod-access-records-head {
+  border-color: #444;
+  background-color: #111;
+}
+
+html[data-hashcod-theme="dark"] .hashcod-access-records-table th,
+html.dark .hashcod-access-records-table th { background: #1b1b1b; color: #ddd; }
+
+html[data-hashcod-theme="dark"] .hashcod-access-records-table td,
+html.dark .hashcod-access-records-table td { border-color: #303030; }
+
+@media (max-width: 1180px) {
+  #hashcodFinalEntryRegistration {
+    left: 63vw;
+    width: min(52vw, 720px);
+  }
+}
+
+@media (max-width: 900px) {
+  #hashcodFinalEntryRegistration {
+    left: 50vw;
+    top: 55vh;
+    width: min(92vw, 700px);
+  }
+  .hashcod-entry-registration-card { max-height: 82vh; }
+}
+
+@media (max-width: 620px) {
+  #hashcodFinalEntryRegistration {
+    left: 50vw;
+    top: 54vh;
+    width: 94vw;
+  }
+
+  .hashcod-entry-registration-card {
+    padding: 18px;
+    border-radius: 17px;
+  }
+
+  .hashcod-entry-registration-head {
+    display: block;
+  }
+
+  .hashcod-entry-registration-badge {
+    display: inline-block;
+    margin-top: 12px;
+  }
+
+  .hashcod-entry-registration-form {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .hashcod-entry-field--wide,
+  .hashcod-entry-registration-note,
+  .hashcod-entry-registration-actions,
+  .hashcod-entry-registration-status {
+    grid-column: 1;
+  }
+
+  #hashcodAccessRecordsModal { padding: 12px; }
+}

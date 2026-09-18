@@ -11,6 +11,7 @@ const ws = read('ws-server.js');
 const legacy = read('server.js');
 const security = read('security.php');
 const router = read('router.php');
+const html = read('l8-html.php');
 const docker = read('Dockerfile');
 
 assert(bash.includes("adminRequire();"), 'Bash API surface must require verified admin access');
@@ -28,6 +29,9 @@ assert(!legacy.includes("Access-Control-Allow-Origin', '*'"), 'Legacy server COR
 assert(legacy.includes('filePath.startsWith(publicRoot)'), 'Legacy static serving must enforce root containment');
 
 assert(!security.includes("'unsafe-eval'"), 'CSP must not allow unsafe-eval');
+assert(!security.includes("script-src 'self' 'unsafe-inline'"), 'CSP scripts must not allow unsafe-inline');
+assert(security.includes('securityCspNonce()'), 'CSP must use a per-request nonce');
+assert(html.includes('l8_apply_csp_nonce'), 'Native HTML pages must receive CSP nonces');
 assert(security.includes("'error' => 'Internal server error'"), 'Unhandled exceptions must not expose raw details');
 assert(router.includes('$rootReal . DIRECTORY_SEPARATOR'), 'Static router must use a separator-aware root boundary');
 

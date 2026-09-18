@@ -144,6 +144,18 @@
             document.head.appendChild(link);
         }
 
+        if (
+            !document.getElementById('platformRegistrationStylesheet') &&
+            !document.querySelector('link[data-hashcod-platform-registration-style]')
+        ) {
+            const link = document.createElement('link');
+            link.id = 'platformRegistrationStylesheet';
+            link.rel = 'stylesheet';
+            link.href = componentBase + 'platform-registration-form.css?v=20260918-6';
+            link.dataset.hashcodPlatformRegistrationStyle = 'true';
+            document.head.appendChild(link);
+        }
+
         if (!document.querySelector('script[data-platform-entry-slogan]')) {
             const sloganScript = document.createElement('script');
             sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260911-2';
@@ -152,10 +164,24 @@
             document.head.appendChild(sloganScript);
         }
 
+        function loadRegistrationScript() {
+            if (
+                window.HashcodPlatformRegistration ||
+                document.querySelector('script[data-hashcod-platform-registration]')
+            ) return;
+            const registrationScript = document.createElement('script');
+            registrationScript.src = componentBase + 'platform-registration-form.js?v=20260918-7';
+            registrationScript.defer = true;
+            registrationScript.dataset.hashcodPlatformRegistration = 'true';
+            document.head.appendChild(registrationScript);
+        }
+
         function loadHoldScript() {
+            // Screen 2 is not allowed to exist without its required Screen 3.
+            loadRegistrationScript();
             if (document.querySelector('script[data-platform-entry-hold]')) return;
             const holdScript = document.createElement('script');
-            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260918-6';
+            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260918-7';
             holdScript.defer = true;
             holdScript.dataset.platformEntryHold = 'true';
             document.head.appendChild(holdScript);

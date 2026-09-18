@@ -113,11 +113,25 @@
         }));
     }
 
+    async function waitForRegistrationGate() {
+        for (let attempt = 0; attempt < 120; attempt += 1) {
+            const registration = window.HashcodPlatformRegistration;
+            if (
+                registration &&
+                typeof registration.waitForSuccessfulSubmission === 'function' &&
+                typeof registration.completePlatformEntry === 'function'
+            ) {
+                return registration;
+            }
+            await sleep(50);
+        }
+        throw new Error('No se pudo iniciar la tercera ventana de registro.');
+    }
+
     async function runHold(original, context, args) {
         const enterButton = document.getElementById('bootCliEnter');
         const enterOriginalText = enterButton ? enterButton.textContent : '';
         const overlay = buildOverlay();
-        let reachedFinalScreen = false;
 
         if (enterButton) {
             enterButton.disabled = true;
@@ -125,6 +139,7 @@
         }
 
         document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
+        document.documentElement.removeAttribute('data-hashcod-platform-entered');
         document.body.appendChild(overlay);
         requestAnimationFrame(function () {
             overlay.classList.add('is-visible');
@@ -135,38 +150,27 @@
             await waitForContinue(overlay);
             await sleep(240);
 
-            // Start the retired platform-entry handoff, but do not wait for its
-            // legacy promise to settle before revealing the replacement third screen.
-            // The old auth flow can remain pending after its UI is retired, which used
-            // to leave users on an empty final page forever.
-            // The replacement third screen is authoritative. Mark it before
-            // invoking the retired entry function so a synchronous legacy error
-            // can never leave the user on a blank page.
+            // Window 2 ends here. Do not execute the legacy platform-entry
+            // function yet: Window 3 is an independent registration gate.
             overlay.classList.add('is-revealing');
-            reachedFinalScreen = true;
-            revealFinalEntryScreen();
+            await sleep(420);
+            overlay.remove();
 
-            let result = null;
-            try {
-                result = original.apply(context, args);
-            } catch (error) {
-                console.warn('[Hashcod] retired entry handoff failed; keeping registration screen visible.', error);
-            }
-
-            await sleep(560);
             revealFinalEntryScreen();
-            return result;
+            const registration = await waitForRegistrationGate();
+
+            // The platform stays behind the opaque third screen until the POST
+            // succeeds. Validation or storage errors never advance this promise.
+            await registration.waitForSuccessfulSubmission();
+            await sleep(360);
+
+            registration.completePlatformEntry();
+            return true;
         } finally {
             overlay.remove();
             if (enterButton) {
                 enterButton.disabled = false;
                 enterButton.textContent = enterOriginalText;
-            }
-            if (
-                reachedFinalScreen &&
-                document.documentElement.dataset.hashcodFinalEntryScreen !== 'true'
-            ) {
-                revealFinalEntryScreen();
             }
         }
     }
@@ -176,7 +180,7 @@
         if (typeof current !== 'function') return false;
         if (
             current.__hashcodHoldWrapped === true &&
-            current.__hashcodHoldVersion === '20260918-3'
+            current.__hashcodHoldVersion === '20260918-4'
         ) return true;
 
         // A cached older hold wrapper may have installed first. Always unwrap it
@@ -195,7 +199,7 @@
         };
 
         Object.defineProperty(wrapped, '__hashcodHoldWrapped', { value: true });
-        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: '20260918-3' });
+        Object.defineProperty(wrapped, '__hashcodHoldVersion', { value: '20260918-4' });
         Object.defineProperty(wrapped, '__hashcodHoldOriginal', { value: original });
         window.l8EnterPlatform = wrapped;
         return true;

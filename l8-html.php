@@ -318,8 +318,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $tag = $legacyBlackholeCleanupTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-3" data-platform-entry-hold="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260918-5" data-hashcod-platform-registration="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-4" data-platform-entry-hold="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260918-6" data-hashcod-platform-registration="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

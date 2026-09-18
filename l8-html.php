@@ -85,6 +85,23 @@ function l8_html_headers($ok = true, $cacheTtl = 0, $etag = null) {
 }
 
 /**
+ * Apply the per-request CSP nonce to every script tag emitted by native PHP
+ * pages, including dynamically injected compatibility scripts.
+ */
+function l8_apply_csp_nonce(string $html): string {
+    if (!function_exists('securityCspNonce')) return $html;
+    $nonce = htmlspecialchars(securityCspNonce(), ENT_QUOTES, 'UTF-8');
+    return (string) preg_replace_callback(
+        '/<script\\b([^>]*)>/i',
+        static function (array $m) use ($nonce): string {
+            if (preg_match('/\\bnonce\\s*=/i', $m[1])) return $m[0];
+            return '<script nonce="' . $nonce . '"' . $m[1] . '>';
+        },
+        $html
+    );
+}
+
+/**
  * Require a PHP/HTML page file with HTML headers.
  * $file is a basename under the project root (e.g. "index.php", "gateway.php").
  */
@@ -97,13 +114,15 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
     l8_init_compression();
     l8_html_headers($ok, $cacheTtl);
 
+    // Buffer every native HTML page so CSP nonces can be injected consistently.
+    ob_start();
+    require $path;
+    $html = (string) ob_get_clean();
+
     // The main platform needs fresh integration layers even when older
     // versioned assets are still cached as immutable by the browser/CDN.
     // Buffer only index.php and inject cache-busted assets dynamically.
     if ($file === 'index.php') {
-        ob_start();
-        require $path;
-        $html = (string) ob_get_clean();
         $base = htmlspecialchars(l8_public_base_path(), ENT_QUOTES, 'UTF-8');
 
         // Keep the normal stylesheet request, but also inline the same CSS as a
@@ -259,11 +278,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         } else {
             $html .= $tag;
         }
-        echo $html;
-        exit;
     }
 
-    require $path;
+    echo l8_apply_csp_nonce($html);
     exit;
 }
 

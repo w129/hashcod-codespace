@@ -13,10 +13,19 @@ create table if not exists public.hashcod_platform_registrations (
 
 alter table public.hashcod_platform_registrations enable row level security;
 
-revoke all on table public.hashcod_platform_registrations from anon, authenticated;
+revoke all on table public.hashcod_platform_registrations from public, anon, authenticated;
 grant select, insert on table public.hashcod_platform_registrations to service_role;
 
-revoke all on sequence public.hashcod_platform_registrations_id_seq from anon, authenticated;
+drop policy if exists hashcod_platform_registrations_deny_direct
+  on public.hashcod_platform_registrations;
+create policy hashcod_platform_registrations_deny_direct
+  on public.hashcod_platform_registrations
+  for all
+  to public
+  using (false)
+  with check (false);
+
+revoke all on sequence public.hashcod_platform_registrations_id_seq from public, anon, authenticated;
 grant usage, select on sequence public.hashcod_platform_registrations_id_seq to service_role;
 
 create index if not exists hashcod_platform_registrations_created_at_idx

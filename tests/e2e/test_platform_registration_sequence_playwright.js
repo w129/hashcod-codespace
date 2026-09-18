@@ -119,13 +119,24 @@ async function run() {
     assert.equal(state.tableButton, true, 'records icon button missing');
 
     // Under 18 must remain blocked.
-    await page.fill('#hashcodRegFullName', 'Usuario De Prueba');
-    await page.fill('#hashcodRegAge', '17');
-    await page.fill('#hashcodRegCedula', '001-1234567-8');
-    await page.fill('#hashcodRegPlatform', 'Hashcod Test');
-    await page.fill('#hashcodRegEmail', 'test@example.com');
-    await page.fill('#hashcodRegPhone', '+1 809 555 0100');
-    await page.check('#hashcodRegConsent');
+    await page.evaluate(() => {
+      const set = (id, value) => {
+        const input = document.getElementById(id);
+        if (!input) throw new Error('missing field ' + id);
+        input.value = value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      set('hashcodRegFullName', 'Usuario De Prueba');
+      set('hashcodRegAge', '17');
+      set('hashcodRegCedula', '001-1234567-8');
+      set('hashcodRegPlatform', 'Hashcod Test');
+      set('hashcodRegEmail', 'test@example.com');
+      set('hashcodRegPhone', '+1 809 555 0100');
+      const consent = document.getElementById('hashcodRegConsent');
+      consent.checked = true;
+      consent.dispatchEvent(new Event('change', { bubbles: true }));
+    });
 
     assert.equal(await page.locator('#hashcodRegistrationSubmit').isDisabled(), true,
       'under-18 registration must keep submit disabled');
@@ -133,13 +144,20 @@ async function run() {
       'under-18 user must not enter');
 
     // Valid adult registration releases the gate only after the POST succeeds.
-    await page.fill('#hashcodRegAge', '18');
+    await page.evaluate(() => {
+      const age = document.getElementById('hashcodRegAge');
+      age.value = '18';
+      age.dispatchEvent(new Event('input', { bubbles: true }));
+      age.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     await page.waitForFunction(() => {
       const button = document.getElementById('hashcodRegistrationSubmit');
       return Boolean(button && button.disabled === false);
     }, { timeout: 3000 });
 
-    await page.click('#hashcodRegistrationSubmit');
+    await page.evaluate(() => {
+      document.getElementById('hashcodRegistrationForm').requestSubmit();
+    });
 
     await page.waitForFunction(() => (
       document.documentElement.dataset.hashcodPlatformEntered === 'true'

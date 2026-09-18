@@ -7,6 +7,9 @@ require_once __DIR__ . '/admin-device.php';
 require_once __DIR__ . '/secrets.php';
 
 const HASHCOD_PLATFORM_REGISTRATION_TABLE = 'hashcod_platform_registrations';
+const HASHCOD_PLATFORM_REGISTRATION_FALLBACK_TABLE = 'l8_durable_objects';
+const HASHCOD_PLATFORM_REGISTRATION_FALLBACK_ACCOUNT = 'system_platform_registrations';
+const HASHCOD_PLATFORM_REGISTRATION_FALLBACK_NAMESPACE = 'platform_registration';
 
 function hprJson(int $status, array $body): never {
     http_response_code($status);
@@ -46,6 +49,66 @@ function hprReadBody(): array {
     }
     $data = json_decode((string)file_get_contents('php://input'), true);
     return is_array($data) ? $data : [];
+}
+
+function hprMissingDedicatedTable(array $res): bool {
+    if (!empty($res['ok'])) return false;
+    $status = (int)($res['status'] ?? 0);
+    $haystack = strtolower((string)json_encode([
+        $res['error'] ?? '',
+        $res['body'] ?? null,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    return $status === 404
+        || str_contains($haystack, 'pgrst205')
+        || str_contains($haystack, 'could not find the table')
+        || (str_contains($haystack, 'relation') && str_contains($haystack, 'does not exist'));
+}
+
+function hprFallbackStore(array $encryptedRow): array {
+    $id = 'platform_reg_' . gmdate('YmdHis') . '_' . bin2hex(random_bytes(8));
+    $now = gmdate('c');
+    return supabaseDbUpsert(HASHCOD_PLATFORM_REGISTRATION_FALLBACK_TABLE, [[
+        'id'=>$id,
+        'account_key'=>HASHCOD_PLATFORM_REGISTRATION_FALLBACK_ACCOUNT,
+        'namespace'=>HASHCOD_PLATFORM_REGISTRATION_FALLBACK_NAMESPACE,
+        'name'=>'platform_registration',
+        'storage_data'=>['registration'=>$encryptedRow],
+        'version'=>1,
+        'is_deleted'=>false,
+        'created_at'=>$now,
+        'updated_at'=>$now,
+    ]], 'id');
+}
+
+function hprFallbackRows(): array {
+    $query = 'select=id,storage_data,created_at'
+        . '&account_key=eq.' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_FALLBACK_ACCOUNT)
+        . '&namespace=eq.' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_FALLBACK_NAMESPACE)
+        . '&is_deleted=eq.false&order=created_at.desc&limit=500';
+    return supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_FALLBACK_TABLE, $query);
+}
+
+function hprDecryptRow(array $stored, bool $fallback = false): array {
+    $data = $stored;
+    if ($fallback) {
+        $storage = $stored['storage_data'] ?? [];
+        if (is_string($storage)) {
+            $decoded = json_decode($storage, true);
+            $storage = is_array($decoded) ? $decoded : [];
+        }
+        $data = is_array($storage['registration'] ?? null) ? $storage['registration'] : [];
+    }
+    return [
+        'id'=>$stored['id'] ?? ($data['id'] ?? null),
+        'full_name'=>secretsDecrypt((string)($data['full_name_enc'] ?? '')),
+        'age'=>(int)($data['age'] ?? 0),
+        'cedula'=>secretsDecrypt((string)($data['cedula_enc'] ?? '')),
+        'platform_name'=>(string)($data['platform_name'] ?? ''),
+        'email'=>secretsDecrypt((string)($data['email_enc'] ?? '')),
+        'phone'=>secretsDecrypt((string)($data['phone_enc'] ?? '')),
+        'created_at'=>(string)($stored['created_at'] ?? ($data['created_at'] ?? '')),
+        'storage_backend'=>$fallback ? 'protected-fallback' : 'dedicated',
+    ];
 }
 
 function hprValidate(array $input): array {
@@ -115,16 +178,22 @@ if ($method === 'POST') {
     ]);
 
     if (empty($res['ok'])) {
-        $status = (int)($res['status'] ?? 0);
-        $error = strtolower((string)($res['error'] ?? ''));
-        if ($status === 404 || str_contains($error, 'relation')) {
-            hprJson(503, ['ok'=>false, 'error'=>'La tabla de registros todavía no está inicializada.']);
+        if (!hprMissingDedicatedTable($res)) {
+            hprJson(502, ['ok'=>false, 'error'=>'No se pudo guardar el registro en este momento.']);
         }
-        hprJson(502, ['ok'=>false, 'error'=>'No se pudo guardar el registro en este momento.']);
+
+        // The dedicated migration may not have reached this deployment yet.
+        // Fall back to the already-protected durable-object table so submissions
+        // remain durable and service-role-only instead of being lost.
+        $fallback = hprFallbackStore($row);
+        if (empty($fallback['ok'])) {
+            hprJson(502, ['ok'=>false, 'error'=>'No se pudo guardar el registro en el almacenamiento seguro.']);
+        }
+        hprJson(201, ['ok'=>true, 'id'=>null, 'storage'=>'protected-fallback']);
     }
 
     $saved = is_array($res['body'] ?? null) && !empty($res['body'][0]) ? $res['body'][0] : [];
-    hprJson(201, ['ok'=>true, 'id'=>$saved['id'] ?? null]);
+    hprJson(201, ['ok'=>true, 'id'=>$saved['id'] ?? null, 'storage'=>'dedicated']);
 }
 
 if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
@@ -133,27 +202,33 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     if (empty($cfg['configured']) || empty($cfg['secret_key'])) {
         hprJson(503, ['ok'=>false, 'error'=>'El almacenamiento seguro todavía no está disponible.']);
     }
-    $res = supabaseDbSelect(
+    $dedicated = supabaseDbSelect(
         HASHCOD_PLATFORM_REGISTRATION_TABLE,
         'select=id,full_name_enc,age,cedula_enc,platform_name,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
     );
-    if (empty($res['ok'])) hprJson(502, ['ok'=>false, 'error'=>'No se pudo cargar la tabla de registros.']);
+    $fallback = hprFallbackRows();
 
-    $storedRows = is_array($res['body'] ?? null) ? $res['body'] : [];
-    $rows = [];
-    foreach ($storedRows as $stored) {
-        if (!is_array($stored)) continue;
-        $rows[] = [
-            'id'=>$stored['id'] ?? null,
-            'full_name'=>secretsDecrypt((string)($stored['full_name_enc'] ?? '')),
-            'age'=>(int)($stored['age'] ?? 0),
-            'cedula'=>secretsDecrypt((string)($stored['cedula_enc'] ?? '')),
-            'platform_name'=>(string)($stored['platform_name'] ?? ''),
-            'email'=>secretsDecrypt((string)($stored['email_enc'] ?? '')),
-            'phone'=>secretsDecrypt((string)($stored['phone_enc'] ?? '')),
-            'created_at'=>(string)($stored['created_at'] ?? ''),
-        ];
+    if (empty($dedicated['ok']) && !hprMissingDedicatedTable($dedicated) && empty($fallback['ok'])) {
+        hprJson(502, ['ok'=>false, 'error'=>'No se pudo cargar la tabla de registros.']);
     }
+
+    $rows = [];
+    if (!empty($dedicated['ok']) && is_array($dedicated['body'] ?? null)) {
+        foreach ($dedicated['body'] as $stored) {
+            if (is_array($stored)) $rows[] = hprDecryptRow($stored, false);
+        }
+    }
+    if (!empty($fallback['ok']) && is_array($fallback['body'] ?? null)) {
+        foreach ($fallback['body'] as $stored) {
+            if (is_array($stored)) $rows[] = hprDecryptRow($stored, true);
+        }
+    }
+
+    usort($rows, static function (array $a, array $b): int {
+        return strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? ''));
+    });
+    if (count($rows) > 500) $rows = array_slice($rows, 0, 500);
+
     hprJson(200, ['ok'=>true, 'rows'=>$rows, 'count'=>count($rows)]);
 }
 

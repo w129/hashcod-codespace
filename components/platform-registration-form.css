@@ -1,33 +1,42 @@
 /* Hashcod Codespace — final-screen adult platform registration. */
 #hashcodPlatformRegistration {
     position: fixed;
-    left: 63vw;
-    top: 50vh;
-    width: min(760px, 54vw);
-    max-height: 84vh;
-    transform: translate(-50%, -50%);
+    inset: 0;
     z-index: 2147483590;
+    box-sizing: border-box;
     display: none;
     visibility: hidden;
     opacity: 0;
+    width: 100vw;
+    min-width: 100vw;
+    height: 100dvh;
+    min-height: 100vh;
     overflow: auto;
-    padding: 26px;
-    border: 1px solid #111;
-    border-radius: 18px;
+    padding: clamp(28px, 5vh, 64px) max(24px, calc((100vw - 860px) / 2));
+    border: 0;
+    border-radius: 0;
+    transform: none;
     background:
         linear-gradient(rgba(0,0,0,.045) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0,0,0,.045) 1px, transparent 1px),
         #fff;
     background-size: 28px 28px;
     color: #111;
-    box-shadow: 0 18px 48px rgba(0,0,0,.08);
     font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+    isolation: isolate;
 }
 html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     display: block;
     visibility: visible;
     opacity: 1;
 }
+#hashcodPlatformRegistration > .hashcod-registration-head,
+#hashcodPlatformRegistration > #hashcodRegistrationForm {
+    width: min(100%, 860px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .hashcod-registration-head {
     display: flex; align-items: flex-start; justify-content: space-between; gap: 18px;
     padding-bottom: 18px; border-bottom: 1px solid #111; margin-bottom: 20px;
@@ -144,14 +153,15 @@ html[data-hashcod-theme="dark"] .hashcod-registration-table-close,
 html.dark .hashcod-registration-table-close {
     background: #171717; color: #fff; border-color: #777;
 }
-@media (max-width: 1050px) {
-    #hashcodPlatformRegistration { left: 64vw; width: min(64vw, 720px); }
-}
 @media (max-width: 900px) {
-    #hashcodPlatformRegistration { left: 50vw; top: 55vh; width: min(92vw, 700px); max-height: 78vh; padding: 20px; }
+    #hashcodPlatformRegistration {
+        padding: 28px 24px 40px;
+    }
 }
 @media (max-width: 620px) {
-    #hashcodPlatformRegistration { left: 50vw; top: 54vh; width: 94vw; max-height: 80vh; padding: 16px; border-radius: 13px; }
+    #hashcodPlatformRegistration {
+        padding: 18px 14px 28px;
+    }
     .hashcod-registration-grid { grid-template-columns: 1fr; }
     .hashcod-registration-field.is-wide, .hashcod-registration-consent { grid-column: 1; }
     .hashcod-registration-head { align-items: center; }

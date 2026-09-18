@@ -155,7 +155,7 @@
         function loadHoldScript() {
             if (document.querySelector('script[data-platform-entry-hold]')) return;
             const holdScript = document.createElement('script');
-            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260918-1';
+            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260918-2';
             holdScript.defer = true;
             holdScript.dataset.platformEntryHold = 'true';
             document.head.appendChild(holdScript);

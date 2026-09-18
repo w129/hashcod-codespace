@@ -52,19 +52,27 @@
             return `${protocol}//${window.location.host}/ws`;
         }
 
-        connectionUrl() {
+        connectionProtocols() {
+            const protocols = ['hashcod.v1'];
             const token = typeof window.CODESPACE_WS_TOKEN === 'string'
                 ? window.CODESPACE_WS_TOKEN.trim()
                 : '';
-            if (!token) return this.wsUrl;
+            if (!token) return protocols;
 
             try {
-                const url = new URL(this.wsUrl, window.location.href);
-                url.searchParams.set('token', token);
-                return url.toString();
+                const bytes = new TextEncoder().encode(token);
+                let binary = '';
+                bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+                const encoded = btoa(binary)
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=+$/g, '');
+                protocols.push('hashcod.auth.' + encoded);
             } catch (_) {
-                return this.wsUrl;
+                // Fail closed for remote mode: without a valid auth protocol the
+                // hardened server will reject the handshake.
             }
+            return protocols;
         }
 
         /**
@@ -79,7 +87,7 @@
             this.updateUiState('connecting');
 
             try {
-                this.ws = new WebSocket(this.connectionUrl());
+                this.ws = new WebSocket(this.wsUrl, this.connectionProtocols());
 
                 this.ws.onopen = () => {
                     this.isConnected = true;

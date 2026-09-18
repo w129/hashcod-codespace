@@ -139,10 +139,21 @@
             // legacy promise to settle before revealing the replacement third screen.
             // The old auth flow can remain pending after its UI is retired, which used
             // to leave users on an empty final page forever.
-            const result = original.apply(context, args);
+            // The replacement third screen is authoritative. Mark it before
+            // invoking the retired entry function so a synchronous legacy error
+            // can never leave the user on a blank page.
             overlay.classList.add('is-revealing');
-            await sleep(560);
             reachedFinalScreen = true;
+            revealFinalEntryScreen();
+
+            let result = null;
+            try {
+                result = original.apply(context, args);
+            } catch (error) {
+                console.warn('[Hashcod] retired entry handoff failed; keeping registration screen visible.', error);
+            }
+
+            await sleep(560);
             revealFinalEntryScreen();
             return result;
         } finally {

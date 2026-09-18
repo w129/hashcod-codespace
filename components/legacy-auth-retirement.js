@@ -33,9 +33,10 @@
         node.hidden = true;
         node.setAttribute('aria-hidden', 'true');
         node.setAttribute('data-hashcod-retired-auth-ui', 'true');
-        node.style.setProperty('display', 'none');
-        node.style.setProperty('visibility', 'hidden');
-        node.style.setProperty('pointer-events', 'none');
+        node.style.setProperty('display', 'none', 'important');
+        node.style.setProperty('visibility', 'hidden', 'important');
+        node.style.setProperty('opacity', '0', 'important');
+        node.style.setProperty('pointer-events', 'none', 'important');
     }
 
     function unlockPlatform() {
@@ -70,6 +71,17 @@
     }
 
     window.addEventListener('load', retireLegacyAuthUi, { once: true });
+
+    // On the third screen the old authentication document is not merely hidden:
+    // it is removed so legacy CSS or delayed scripts cannot resurrect it.
+    window.addEventListener('hashcod:final-entry-screen', function (event) {
+        if (event.detail && Number(event.detail.screen) !== 3) return;
+        RETIRED_SELECTORS.forEach(function (selector) {
+            document.querySelectorAll(selector).forEach(function (node) {
+                try { node.remove(); } catch (_) { hideNode(node); }
+            });
+        });
+    });
 
     // Some legacy auth modules mount their DOM after parsing. Only watch for
     // newly inserted nodes; do not watch attributes so diagnostic tests and the

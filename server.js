@@ -3,8 +3,20 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 
-const PORT = 8000;
+const PORT = parseInt(process.env.LEGACY_PORT || '8000', 10);
+const HOST = process.env.LEGACY_HOST || '127.0.0.1';
 const PUBLIC_DIR = __dirname;
+const LEGACY_TOKEN = String(process.env.LEGACY_SERVER_TOKEN || '').trim();
+const LEGACY_ALLOWED_ORIGIN = String(process.env.LEGACY_ALLOWED_ORIGIN || '').trim().replace(/\/$/, '');
+
+function legacyAuthorized(req) {
+    if (HOST === '127.0.0.1' || HOST === '::1' || HOST === 'localhost') return true;
+    if (LEGACY_TOKEN.length < 32) return false;
+    const auth = String(req.headers.authorization || '');
+    const supplied = auth.startsWith('Bearer ') ? auth.slice(7).trim() : String(req.headers['x-legacy-token'] || '').trim();
+    return supplied.length === LEGACY_TOKEN.length &&
+        require('crypto').timingSafeEqual(Buffer.from(supplied), Buffer.from(LEGACY_TOKEN));
+}
 
 const BROWSER_NAMES = ['chrome', 'brave', 'msedge', 'firefox', 'camoufox', 'opera', 'vivaldi', 'arc'];
 
@@ -175,9 +187,13 @@ function processCommand(cmdString) {
 }
 
 const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const origin = String(req.headers.origin || '').trim().replace(/\/$/, '');
+    if (origin && LEGACY_ALLOWED_ORIGIN && origin === LEGACY_ALLOWED_ORIGIN) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Legacy-Token');
 
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
@@ -206,9 +222,23 @@ const server = http.createServer((req, res) => {
     }
 
     if (req.method === 'POST' && (req.url === '/api/command' || req.url === '/cmd')) {
+        if (!legacyAuthorized(req)) {
+            res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+            return res.end(JSON.stringify({ ok: false, error: 'Unauthorized' }));
+        }
         let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
+        let bodyTooLarge = false;
+        req.on('data', chunk => {
+            if (bodyTooLarge) return;
+            body += chunk.toString();
+            if (body.length > 65536) {
+                bodyTooLarge = true;
+                res.writeHead(413, { 'Content-Type': 'application/json; charset=utf-8' });
+                res.end(JSON.stringify({ ok: false, error: 'Payload too large' }));
+            }
+        });
         req.on('end', () => {
+            if (bodyTooLarge) return;
             try {
                 const parsed = JSON.parse(body || '{}');
                 console.log(`[${new Date().toLocaleTimeString()}] ⌨️  Comando recibido: "${parsed.command}"`);
@@ -231,7 +261,14 @@ const server = http.createServer((req, res) => {
         }, null, 2));
     }
 
-    let filePath = path.join(PUBLIC_DIR, req.url === '/' ? 'index.html' : req.url);
+    const requestPath = decodeURIComponent(String(req.url || '/').split('?')[0]);
+    const relativePath = requestPath === '/' ? 'index.html' : requestPath.replace(/^\/+/, '');
+    const filePath = path.resolve(PUBLIC_DIR, relativePath);
+    const publicRoot = path.resolve(PUBLIC_DIR) + path.sep;
+    if (!filePath.startsWith(publicRoot)) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end('Not found');
+    }
     const ext = path.extname(filePath).toLowerCase();
 
     const MIME_TYPES = {
@@ -266,7 +303,7 @@ const server = http.createServer((req, res) => {
     });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
     console.log(`\n==================================================`);
     console.log(`l8 codespace — legado Node (preferir PHP router.php)`);
     console.log(`Puerto ${PORT} — HTML nativo, no Vite/React SPA`);

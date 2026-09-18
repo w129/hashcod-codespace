@@ -33,6 +33,8 @@ assert(client.includes("/^\\d{3}-\\d{7}-\\d$/"), 'client must require hyphenated
 assert(client.includes('M 28.992188 8 C 23.873188 8'), 'requested database/cloud SVG icon is missing');
 assert(client.includes("id=\"hashcodEntryRegistrationSubmit\""), 'send button missing');
 assert(client.includes("id=\"hashcodEntryRegistrationRecords\""), 'records icon button missing');
+assert(client.includes('data-no-autosave data-hashcod-autosave="off"'),
+  'PII registration form must opt out of browser/local autosave');
 
 assert(css.includes('html[data-hashcod-final-entry-screen="true"] #hashcodFinalEntryRegistration'),
   'form must reveal only on the third/final entry screen');

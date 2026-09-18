@@ -205,6 +205,23 @@
                         <input id="hashcodRegPhone" name="phone" type="tel" maxlength="25" autocomplete="tel" required placeholder="+1 809 000 0000">
                         <span class="hashcod-registration-hint" data-hint="phone"></span>
                     </div>
+                    <div
+                        id="hashcodRegistrationProgress"
+                        class="hashcod-registration-progress"
+                        role="progressbar"
+                        aria-label="Progreso del formulario"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="0"
+                    >
+                        <div class="hashcod-registration-progress-head">
+                            <span>Progreso del formulario</span>
+                            <span id="hashcodRegistrationProgressValue">0%</span>
+                        </div>
+                        <div class="hashcod-registration-progress-track" aria-hidden="true">
+                            <span id="hashcodRegistrationProgressIndicator" class="hashcod-registration-progress-indicator"></span>
+                        </div>
+                    </div>
                     <label class="hashcod-registration-consent" for="hashcodRegConsent">
                         <input id="hashcodRegConsent" class="hashcod-radix-checkbox-input" name="consent" type="checkbox" required>
                         <span class="hashcod-radix-checkbox" aria-hidden="true">
@@ -346,10 +363,31 @@
         };
     }
 
+    function updateProgress(v) {
+        const progress = document.getElementById('hashcodRegistrationProgress');
+        const indicator = document.getElementById('hashcodRegistrationProgressIndicator');
+        const value = document.getElementById('hashcodRegistrationProgressValue');
+        if (!progress || !indicator || !value) return 0;
+
+        const steps = ['full_name', 'age', 'cedula', 'platform_name', 'code_file', 'email', 'phone'];
+        const completed = steps.reduce(function (total, name) {
+            return total + (v[name] ? 1 : 0);
+        }, 0);
+        const percent = Math.round((completed / steps.length) * 100);
+
+        progress.setAttribute('aria-valuenow', String(percent));
+        progress.dataset.progress = String(percent);
+        progress.classList.toggle('is-complete', percent === 100);
+        value.textContent = percent + '%';
+        indicator.style.transform = 'scaleX(' + (percent / 100) + ')';
+        return percent;
+    }
+
     function validate() {
         const f = fields();
         if (!f.full_name) return false;
         const v = validity();
+        updateProgress(v);
         Object.keys(v).forEach(function (name) {
             if (name === 'consent' || name === 'code_file') return;
             const input = f[name];

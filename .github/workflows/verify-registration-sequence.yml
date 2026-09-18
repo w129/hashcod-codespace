@@ -27,6 +27,10 @@ on:
       - components/platform-registration-form.js
       - components/platform-registration-form.css
       - platform-registration.php
+      - platform-registration-contract.php
+      - privacy.php
+      - supabase/schema.sql
+      - supabase/migrations/20260918_add_registration_contract_evidence.sql
       - components/platform-entry-hold.js
       - components/platform-entry-hold.css
       - components/admin-hello-button.js

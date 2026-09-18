@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    const HOLD_RUNTIME_VERSION = '20260918-17';
+    const HOLD_RUNTIME_VERSION = '20260918-18';
     if (window.__hashcodPlatformEntryHoldLoadedVersion === HOLD_RUNTIME_VERSION) return;
     window.__hashcodPlatformEntryHoldLoaded = true;
     window.__hashcodPlatformEntryHoldLoadedVersion = HOLD_RUNTIME_VERSION;
@@ -11,7 +11,7 @@
     const COMPONENT_BASE = HOLD_SCRIPT_SRC && HOLD_SCRIPT_SRC.lastIndexOf('/') >= 0
         ? HOLD_SCRIPT_SRC.slice(0, HOLD_SCRIPT_SRC.lastIndexOf('/') + 1)
         : '/components/';
-    const REGISTRATION_JS_VERSION = '20260918-17';
+    const REGISTRATION_JS_VERSION = '20260918-18';
     const REGISTRATION_CSS_VERSION = '20260918-13';
     let holdPromise = null;
 

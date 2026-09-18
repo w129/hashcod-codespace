@@ -24,10 +24,12 @@
         '[data-hashcod-auth-utility-dock]',
         '[data-hashcod-third-screen-legacy]'
     ];
-    let finalScreenRetireObserver = null;
     let registrationSaved = false;
     let registrationGatePromise = null;
     let registrationGateResolve = null;
+    let fieldCache = null;
+    const hintCache = Object.create(null);
+    let validationFrame = 0;
     const DATABASE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 50 50" aria-hidden="true"><path d="M 28.992188 8 C 23.873188 8 19.388844 10.76825 17.214844 15.15625 C 16.078844 14.40325 14.747469 14 13.355469 14 C 9.7104688 14 6.6083281 17.027891 6.3613281 20.712891 C 2.6863281 22.110891 -1.1842379e-15 26.103078 0 30.330078 C 0 35.661078 4.3379219 40 9.6699219 40 L 30 40 L 30 38 L 9.6699219 38 C 5.4399219 38 2 34.559078 2 30.330078 C 2 26.755078 4.4719531 23.271437 7.6269531 22.398438 L 8.3886719 22.189453 L 8.3476562 21.183594 C 8.3476562 18.372594 10.641422 15.998047 13.357422 15.998047 C 14.694422 15.998047 15.952391 16.520703 16.900391 17.470703 L 18.005859 18.574219 L 18.546875 17.109375 C 20.145875 12.789375 24.246141 9.9980469 28.994141 9.9980469 C 35.062141 9.9990469 40 15.00275 40 21.21875 C 40 21.68575 39.999219 22.466906 39.949219 22.878906 L 39.8125 24 L 40.941406 24 L 41.027344 23.996094 C 43.228344 24.005094 45.223719 25.114969 46.511719 26.792969 C 47.740719 27.195969 48.753594 27.731281 49.558594 28.363281 C 48.478594 25.028281 45.510141 22.466688 41.994141 22.054688 C 42.000141 21.740687 42 21.425391 42 21.150391 C 42 13.899391 36.164187 8 28.992188 8 z M 41 28 C 38.446754 28 36.307206 28.456516 34.716797 29.283203 C 33.126388 30.10989 32 31.421546 32 33 L 32 37 L 32 41 L 32 45 C 32 46.578454 33.126388 47.89011 34.716797 48.716797 C 36.307206 49.543484 38.446754 50 41 50 C 43.553246 50 45.692794 49.543484 47.283203 48.716797 C 48.873612 47.89011 50 46.578454 50 45 L 50 41 L 50 37 L 50 33 C 50 31.421546 48.873612 30.10989 47.283203 29.283203 C 45.692794 28.456516 43.553246 28 41 28 z M 41 30 C 43.307754 30 45.166987 30.437781 46.361328 31.058594 C 47.555669 31.679407 48 32.368454 48 33 C 48 33.631546 47.555669 34.320593 46.361328 34.941406 C 45.166987 35.562219 43.307754 36 41 36 C 38.692246 36 36.833013 35.562219 35.638672 34.941406 C 34.444331 34.320593 34 33.631546 34 33 C 34 32.368454 34.444331 31.679407 35.638672 31.058594 C 36.833013 30.437781 38.692246 30 41 30 z M 34 36.283203 C 34.226833 36.438365 34.463816 36.585299 34.716797 36.716797 C 36.307206 37.543484 38.446754 38 41 38 C 43.553246 38 45.692794 37.543484 47.283203 36.716797 C 47.536184 36.585299 47.773167 36.438365 48 36.283203 L 48 37 C 48 37.631546 47.555669 38.320593 46.361328 38.941406 C 45.166987 39.562219 43.307754 40 41 40 C 38.692246 40 36.833013 39.562219 35.638672 38.941406 C 34.444331 38.320593 34 37.631546 34 37 L 34 36.283203 z M 34 40.283203 C 34.226833 40.438365 34.463816 40.585299 34.716797 40.716797 C 36.307206 41.543484 38.446754 42 41 42 C 43.553246 42 45.692794 41.543484 47.283203 40.716797 C 47.536184 40.585299 47.773167 40.438365 48 40.283203 L 48 41 C 48 41.631546 47.555669 42.320593 46.361328 42.941406 C 45.166987 43.562219 43.307754 44 41 44 C 38.692246 44 36.833013 43.562219 35.638672 42.941406 C 34.444331 42.320593 34 41.631546 34 41 L 34 40.283203 z M 34 44.283203 C 34.226833 44.438365 34.463816 44.585299 34.716797 44.716797 C 36.307206 45.543484 38.446754 46 41 46 C 43.553246 46 45.692794 45.543484 47.283203 44.716797 C 47.536184 44.585299 47.773167 44.438365 48 44.283203 L 48 45 C 48 45.631546 47.555669 46.320593 46.361328 46.941406 C 45.166987 47.562219 43.307754 48 41 48 C 38.692246 48 36.833013 47.562219 35.638672 46.941406 C 34.444331 46.320593 34 45.631546 34 45 L 34 44.283203 z"></path></svg>';
 
     function baseUrl() {
@@ -60,37 +62,29 @@
 
         const registrationRoot = document.getElementById(ROOT_ID);
         const tableOverlay = document.getElementById('hashcodRegistrationTableOverlay');
+        const selector = FINAL_SCREEN_LEGACY_SELECTORS.join(',');
 
-        FINAL_SCREEN_LEGACY_SELECTORS.forEach(function (selector) {
-            document.querySelectorAll(selector).forEach(function (node) {
-                if (!node || node === registrationRoot || node === tableOverlay) return;
-                if (registrationRoot && registrationRoot.contains(node)) return;
-                if (tableOverlay && tableOverlay.contains(node)) return;
-                try { node.remove(); } catch (_) {
-                    node.hidden = true;
-                    node.setAttribute('aria-hidden', 'true');
-                    node.style.setProperty('display', 'none', 'important');
-                    node.style.setProperty('visibility', 'hidden', 'important');
-                    node.style.setProperty('opacity', '0', 'important');
-                    node.style.setProperty('pointer-events', 'none', 'important');
-                }
-            });
+        // One selector pass is considerably cheaper than rescanning the complete
+        // document once per legacy selector. This cleanup is intentionally
+        // one-shot; legacy-auth-retirement owns any later compatibility mounts.
+        document.querySelectorAll(selector).forEach(function (node) {
+            if (!node || node === registrationRoot || node === tableOverlay) return;
+            if (registrationRoot && registrationRoot.contains(node)) return;
+            if (tableOverlay && tableOverlay.contains(node)) return;
+            try { node.remove(); } catch (_) {
+                node.hidden = true;
+                node.setAttribute('aria-hidden', 'true');
+                node.style.setProperty('display', 'none', 'important');
+                node.style.setProperty('visibility', 'hidden', 'important');
+                node.style.setProperty('opacity', '0', 'important');
+                node.style.setProperty('pointer-events', 'none', 'important');
+            }
         });
 
         document.body.classList.remove('auth-locked', 'boot-locked');
         document.body.removeAttribute('data-auth-locked');
         document.body.removeAttribute('aria-busy');
         document.documentElement.classList.remove('auth-locked', 'boot-locked');
-
-        if (!finalScreenRetireObserver && typeof MutationObserver === 'function') {
-            finalScreenRetireObserver = new MutationObserver(function () {
-                if (document.documentElement.dataset.hashcodFinalEntryScreen === 'true') {
-                    hardRetireThirdScreen();
-                }
-            });
-            finalScreenRetireObserver.observe(document.body, { childList: true, subtree: true });
-        }
-
         return true;
     }
 
@@ -98,7 +92,6 @@
         const root = document.documentElement;
         const alreadyFinal = root.dataset.hashcodFinalEntryScreen === 'true';
         root.dataset.hashcodFinalEntryScreen = 'true';
-        hardRetireThirdScreen();
         if (!alreadyFinal) {
             window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', {
                 detail: { screen: 3, source: source || 'platform-registration' }
@@ -126,34 +119,34 @@
     }
 
     function armFinalScreenRecovery() {
-        let sawHold = Boolean(document.getElementById('hashcodEntryHold'));
-        let checks = 0;
+        const target = document.body || document.documentElement;
+        if (!target || typeof MutationObserver !== 'function') return;
 
-        const check = function () {
-            checks += 1;
+        let sawHold = Boolean(document.getElementById('hashcodEntryHold'));
+        const observer = new MutationObserver(function () {
+            if (document.documentElement.dataset.hashcodFinalEntryScreen === 'true') {
+                observer.disconnect();
+                return;
+            }
+
             const hold = document.getElementById('hashcodEntryHold');
             if (hold) {
                 sawHold = true;
                 return;
             }
 
-            // Once the second screen existed and is then removed, the third
-            // screen must be the registration form regardless of what the
-            // retired legacy entry function did.
             if (sawHold) {
+                observer.disconnect();
                 revealFinalRegistration('platform-registration-hold-disconnected');
             }
+        });
 
-            if (
-                document.documentElement.dataset.hashcodFinalEntryScreen === 'true' ||
-                checks >= 240
-            ) {
-                window.clearInterval(timer);
-            }
-        };
-
-        const timer = window.setInterval(check, 100);
-        check();
+        // The hold overlay is appended directly to body, so subtree observation
+        // and a 100 ms polling loop are unnecessary.
+        observer.observe(target, { childList: true });
+        window.addEventListener('hashcod:final-entry-screen', function () {
+            observer.disconnect();
+        }, { once: true });
     }
 
     function formMarkup() {
@@ -232,12 +225,11 @@
         if (!document.body) return false;
         if (document.documentElement.dataset.hashcodFinalEntryScreen !== 'true') return false;
 
-        // Screen 3 is a hard replacement, never an extension of the retired
-        // login/boot document. Purge those surfaces before mounting the form.
-        hardRetireThirdScreen();
-
         let root = document.getElementById(ROOT_ID);
         if (!root) {
+            // Screen 3 is a hard replacement, never an extension of the retired
+            // login/boot document. Run the expensive cleanup only on first mount.
+            hardRetireThirdScreen();
             root = document.createElement('section');
             root.id = ROOT_ID;
             root.dataset.hashcodScreen = '3';
@@ -254,7 +246,10 @@
     }
 
     function fields() {
-        return {
+        if (fieldCache && fieldCache.full_name && fieldCache.full_name.isConnected) {
+            return fieldCache;
+        }
+        fieldCache = {
             full_name: document.getElementById('hashcodRegFullName'),
             age: document.getElementById('hashcodRegAge'),
             cedula: document.getElementById('hashcodRegCedula'),
@@ -263,10 +258,15 @@
             phone: document.getElementById('hashcodRegPhone'),
             consent: document.getElementById('hashcodRegConsent')
         };
+        return fieldCache;
     }
 
     function setHint(name, message, isError) {
-        const hint = document.querySelector('[data-hint="' + name + '"]');
+        let hint = hintCache[name];
+        if (!hint || !hint.isConnected) {
+            hint = document.querySelector('[data-hint="' + name + '"]');
+            hintCache[name] = hint;
+        }
         if (!hint) return;
         if (message !== undefined) hint.textContent = message;
         hint.classList.toggle('is-error', Boolean(isError));
@@ -302,6 +302,14 @@
         const submit = document.getElementById('hashcodRegistrationSubmit');
         if (submit) submit.disabled = !ok;
         return ok;
+    }
+
+    function scheduleValidate() {
+        if (validationFrame) return;
+        validationFrame = window.requestAnimationFrame(function () {
+            validationFrame = 0;
+            validate();
+        });
     }
 
     function payload() {
@@ -471,13 +479,13 @@
         const overlay = document.getElementById('hashcodRegistrationTableOverlay');
         if (!form || !cedula || !tableButton || !overlay) return;
         bound = true;
-        form.addEventListener('input', validate);
-        form.addEventListener('change', validate);
+        form.addEventListener('input', scheduleValidate);
+        form.addEventListener('change', scheduleValidate);
         form.addEventListener('submit', submitForm);
         cedula.addEventListener('input', function () {
             const next = formatCedula(cedula.value);
             if (cedula.value !== next) cedula.value = next;
-            validate();
+            scheduleValidate();
         });
         tableButton.addEventListener('click', openTable);
         overlay.querySelector('.hashcod-registration-table-close').addEventListener('click', function () {
@@ -516,6 +524,12 @@
             tableOverlay.setAttribute('aria-hidden', 'true');
         }
         if (root) root.remove();
+        fieldCache = null;
+        Object.keys(hintCache).forEach(function (key) { delete hintCache[key]; });
+        if (validationFrame) {
+            window.cancelAnimationFrame(validationFrame);
+            validationFrame = 0;
+        }
 
         document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
         document.documentElement.dataset.hashcodPlatformEntered = 'true';
@@ -524,11 +538,6 @@
             document.body.classList.remove('auth-locked', 'boot-locked');
             document.body.removeAttribute('data-auth-locked');
             document.body.removeAttribute('aria-busy');
-        }
-
-        if (finalScreenRetireObserver) {
-            finalScreenRetireObserver.disconnect();
-            finalScreenRetireObserver = null;
         }
 
         window.dispatchEvent(new CustomEvent('hashcod:platform-entered', {
@@ -552,7 +561,6 @@
 
     window.addEventListener('hashcod:final-entry-screen', function (event) {
         if (!event.detail || Number(event.detail.screen) === 3) {
-            hardRetireThirdScreen();
             mount();
         }
     });

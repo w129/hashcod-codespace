@@ -11,6 +11,9 @@ const css = fs.readFileSync(path.join(repoDir, 'components/platform-registration
 const api = fs.readFileSync(path.join(repoDir, 'platform-registration.php'), 'utf8');
 const migration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260917_create_hashcod_platform_registrations.sql'), 'utf8');
 const codeMigration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260918_add_platform_registration_code_upload.sql'), 'utf8');
+const contractMigration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260918_add_registration_contract_evidence.sql'), 'utf8');
+const contractPhp = fs.readFileSync(path.join(repoDir, 'platform-registration-contract.php'), 'utf8');
+const privacy = fs.readFileSync(path.join(repoDir, 'privacy.php'), 'utf8');
 const schema = fs.readFileSync(path.join(repoDir, 'supabase/schema.sql'), 'utf8');
 const hosted = fs.readFileSync(path.join(repoDir, 'l8-html.php'), 'utf8');
 const local = fs.readFileSync(path.join(repoDir, 'laragon-local-entry.php'), 'utf8');
@@ -114,6 +117,15 @@ assert(api.includes('supabaseStorageUpload('), 'platform code must be uploaded t
 assert(api.includes("'code_storage_path'=>$codeUpload['storage_path']"), 'registration row must persist the Storage object path');
 assert(api.includes("'code_sha256'=>$codeUpload['sha256']"), 'registration row must persist a code integrity hash');
 assert(api.includes("'code_uploaded'=>true"), 'successful response must confirm code upload');
+assert(api.includes("require_once __DIR__ . '/platform-registration-contract.php'"), 'canonical contract helper must be loaded by registration API');
+assert(api.includes("'contract_version'=>$contractVersion"), 'contract version must be stored with registration');
+assert(api.includes("'contract_sha256'=>$contractSha256"), 'contract SHA-256 must be stored with registration');
+assert(api.includes("'contract_accepted_at'=>$acceptedAt"), 'contract acceptance timestamp must be stored');
+assert(api.includes("'acceptance_method'=>'checkbox+submit'"), 'acceptance method must identify checkbox plus submit');
+assert(api.includes("'acceptance_evidence_sha256'=>$acceptanceEvidenceSha256"), 'acceptance evidence digest must be stored');
+assert(api.includes('hprAcceptanceEvidenceSha256('), 'acceptance evidence hashing helper missing');
+assert(js.includes('He leído y acepto contractualmente el'), 'checkbox copy must clearly express contractual acceptance');
+assert(js.includes('Documento Contractual y de Privacidad'), 'contract document link copy missing');
 assert(js.includes('function waitForSuccessfulSubmission()'), 'registration must expose a successful-submit gate');
 assert(js.includes('registrationGateResolve({ ok: true, saved: true })'), 'successful database save must release the entry gate');
 assert(js.includes('function completePlatformEntry()'), 'registration must own the final transition into the platform');
@@ -141,8 +153,8 @@ assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table const
 assert(api.includes("(string)($_GET['status'] ?? '') === '1'"), 'safe storage readiness probe missing');
 assert(api.includes("'storage_configured'=>$storageConfigured"), 'readiness probe storage flag missing');
 assert(api.includes("'table_ready'=>$tableReady"), 'readiness probe table flag missing');
-assert(api.includes("supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id&limit=1')"),
-  'readiness probe must query only the table identifier projection');
+assert(api.includes("select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256&limit=1"),
+  'readiness probe must verify code and contract evidence columns');
 assert(!api.includes("'error'=>$probe"), 'readiness probe must not expose raw database errors');
 
 // Database confidentiality.
@@ -169,6 +181,22 @@ for (const sql of [codeMigration, schema]) {
   assert(sql.includes('code_storage_path'), 'private code Storage path column missing');
   assert(sql.includes('31457280'), '30 MB database code-size guard missing');
 }
+
+for (const sql of [contractMigration, schema]) {
+  assert(sql.includes('contract_version'), 'contract version column missing');
+  assert(sql.includes('contract_sha256'), 'contract SHA-256 column missing');
+  assert(sql.includes('contract_accepted_at'), 'contract accepted-at column missing');
+  assert(sql.includes('acceptance_method'), 'acceptance method column missing');
+  assert(sql.includes('acceptance_evidence_sha256'), 'acceptance evidence SHA-256 column missing');
+}
+
+assert(contractPhp.includes("'version' => '2026.09.18-1'"), 'canonical contract version missing');
+assert(contractPhp.includes('hashcodRegistrationContractSha256'), 'canonical contract SHA-256 helper missing');
+assert(contractPhp.includes('El Usuario se compromete a suplir'), 'required user supply obligation missing');
+assert(contractPhp.includes('Esta aceptación por checkbox no se presenta como una “firma digital certificada”'), 'digital-signature legal precision missing');
+assert(privacy.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'), 'contract document title missing');
+assert(privacy.includes('SHA-256 canónico'), 'contract document must display canonical hash');
+assert(privacy.includes('Declaración de aceptación'), 'contract acceptance declaration missing');
 
 // Hosted/local wiring and retired sign removal.
 assert(hosted.includes('platform-registration-form.css?v=20260918-13'), 'hosted registration CSS missing');
@@ -204,8 +232,8 @@ assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvemen
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');
 
-console.log('PASS: third-screen 18+ registration form, protected admin table, and RLS-backed storage contract verified.');
+console.log('PASS: third-screen 18+ registration form, contractual acceptance evidence, protected admin table, and RLS-backed storage verified.');
 
 assert(js.includes("cache: 'no-store'"), 'current privacy preview must bypass stale browser cache');
-assert(js.includes("parsed.head.querySelectorAll('style, link[rel=\"stylesheet\"]')"), 'current privacy stylesheet must be fetched');
-assert(js.includes("body:has\\(\\.privacy-container\\)"), 'current privacy page body selectors must be adapted for Shadow DOM');
+assert(js.includes("parsed.head.querySelectorAll('style, link[rel=\"stylesheet\"]')"), 'current contract/privacy preview styles must be fetched');
+assert(js.includes("parsed.querySelector('.privacy-container')"), 'current contract/privacy document must be used by preview');

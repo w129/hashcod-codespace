@@ -221,6 +221,9 @@
                         <div class="hashcod-registration-progress-track" aria-hidden="true">
                             <span id="hashcodRegistrationProgressIndicator" class="hashcod-registration-progress-indicator"></span>
                         </div>
+                        <span id="hashcodRegistrationProgressHint" class="hashcod-registration-progress-hint">
+                            Completa todos los campos para habilitar la aceptación.
+                        </span>
                     </div>
                     <label class="hashcod-registration-consent" for="hashcodRegConsent">
                         <input id="hashcodRegConsent" class="hashcod-radix-checkbox-input" name="consent" type="checkbox" required>
@@ -367,6 +370,8 @@
         const progress = document.getElementById('hashcodRegistrationProgress');
         const indicator = document.getElementById('hashcodRegistrationProgressIndicator');
         const value = document.getElementById('hashcodRegistrationProgressValue');
+        const hint = document.getElementById('hashcodRegistrationProgressHint');
+        const consent = document.getElementById('hashcodRegConsent');
         if (!progress || !indicator || !value) return 0;
 
         const steps = ['full_name', 'age', 'cedula', 'platform_name', 'code_file', 'email', 'phone'];
@@ -374,12 +379,28 @@
             return total + (v[name] ? 1 : 0);
         }, 0);
         const percent = Math.round((completed / steps.length) * 100);
+        const complete = percent === 100;
 
         progress.setAttribute('aria-valuenow', String(percent));
         progress.dataset.progress = String(percent);
-        progress.classList.toggle('is-complete', percent === 100);
+        progress.classList.toggle('is-complete', complete);
         value.textContent = percent + '%';
         indicator.style.transform = 'scaleX(' + (percent / 100) + ')';
+
+        if (hint) {
+            hint.textContent = complete
+                ? 'Formulario completo. Ya puedes aceptar el documento contractual.'
+                : 'Completa todos los campos para habilitar la aceptación.';
+        }
+
+        if (consent) {
+            consent.disabled = !complete;
+            if (!complete && consent.checked) {
+                consent.checked = false;
+                v.consent = false;
+            }
+        }
+
         return percent;
     }
 
@@ -489,7 +510,7 @@
     async function submitForm(event) {
         event.preventDefault();
         if (!validate()) {
-            status('Revisa los campos. Para continuar debes tener 18 años o más.', 'error');
+            status('Completa todos los campos y acepta el documento contractual antes de continuar.', 'error');
             return;
         }
         const button = document.getElementById('hashcodRegistrationSubmit');

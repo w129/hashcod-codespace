@@ -376,17 +376,28 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     background: #fff;
 }
 
-.hashcod-preview-link-card-frame {
+.hashcod-preview-link-card-snapshot {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 1200px;
-    height: 674px;
-    border: 0;
-    pointer-events: none;
-    transform: scale(.3);
-    transform-origin: 0 0;
+    inset: 0;
+    display: block;
+    overflow: hidden;
     background: #fff;
+}
+
+.hashcod-preview-link-card-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #8a8a8a;
+    background:
+        linear-gradient(rgba(0,0,0,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.035) 1px, transparent 1px),
+        #f8f8f8;
+    background-size: 18px 18px;
+    font: 600 9px/1 "IBM Plex Mono", Consolas, monospace;
+    letter-spacing: .04em;
+    text-transform: uppercase;
 }
 
 .hashcod-preview-link-card-meta {

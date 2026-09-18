@@ -209,7 +209,7 @@ function secretsEncrypt($plaintext, $key = null) {
     if ($plaintext === '') return '';
     $encKey = $key ? (strlen($key) === 32 ? $key : hash('sha256', (string)$key, true)) : secretsDataKey();
     if (!function_exists('openssl_encrypt')) {
-        return 'l8e0:' . base64_encode($plaintext); // fallback marcado (sin GCM)
+        throw new RuntimeException('Encryption unavailable: OpenSSL is required');
     }
     $iv = random_bytes(12);
     $tag = '';

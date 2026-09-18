@@ -18,6 +18,10 @@ assert(js.includes('current.__hashcodMotionOriginal || current'), 'manual gate m
 assert(js.includes('waitForRegistrationGate()'), 'second screen must hand off to the third-screen registration gate');
 assert(js.includes('await registration.waitForSuccessfulSubmission();'), 'platform entry must wait for a successful registration POST');
 assert(js.includes('registration.completePlatformEntry();'), 'successful registration must complete platform entry');
+assert(js.includes('ensureRegistrationAssets(false)'), 'hold must guarantee the registration bundle is requested');
+assert(js.includes('waitForRegistrationVisible(registration)'), 'screen 2 must wait until screen 3 is visibly mounted');
+assert(js.includes('registrationHandoffReady'), 'handoff must track whether it is safe to uncover the platform');
+assert(js.includes('REINTENTAR REGISTRO'), 'registration failure must remain fail-closed with a retry state');
 assert(!js.includes('original.apply(context, args)'), 'retired entry function must not run underneath the registration screen');
 
 // Scene contract: only grid + dispersed vectors + right-side CTA. No central status block/card.

@@ -1,18 +1,18 @@
 (function () {
     'use strict';
 
-    const HOLD_RUNTIME_VERSION = '20260918-8';
+    const HOLD_RUNTIME_VERSION = '20260918-9';
     if (window.__hashcodPlatformEntryHoldLoadedVersion === HOLD_RUNTIME_VERSION) return;
     window.__hashcodPlatformEntryHoldLoaded = true;
     window.__hashcodPlatformEntryHoldLoadedVersion = HOLD_RUNTIME_VERSION;
 
-    const READY_DELAY_MS = 3600;
+    const READY_DELAY_MS = 1100;
     const HOLD_SCRIPT_SRC = document.currentScript && document.currentScript.src ? document.currentScript.src : '';
     const COMPONENT_BASE = HOLD_SCRIPT_SRC && HOLD_SCRIPT_SRC.lastIndexOf('/') >= 0
         ? HOLD_SCRIPT_SRC.slice(0, HOLD_SCRIPT_SRC.lastIndexOf('/') + 1)
         : '/components/';
-    const REGISTRATION_JS_VERSION = '20260918-8';
-    const REGISTRATION_CSS_VERSION = '20260918-7';
+    const REGISTRATION_JS_VERSION = '20260918-9';
+    const REGISTRATION_CSS_VERSION = '20260918-8';
     let holdPromise = null;
 
     // Existing Hashcod vectors plus the six additional vectors supplied for the entry scene.
@@ -173,23 +173,26 @@
 
     async function waitForRegistrationVisible(registration) {
         registration.mount();
-        for (let attempt = 0; attempt < 120; attempt += 1) {
+
+        // Mounting is synchronous and the final-screen visibility rule is inline.
+        // Avoid forced layout reads (getComputedStyle/getBoundingClientRect) while
+        // the previous screen is animating out; two paint frames are enough.
+        for (let attempt = 0; attempt < 30; attempt += 1) {
             const node = document.getElementById('hashcodPlatformRegistration');
-            if (node) {
-                const style = window.getComputedStyle(node);
-                const rect = node.getBoundingClientRect();
-                if (
-                    document.documentElement.dataset.hashcodFinalEntryScreen === 'true' &&
-                    style.display !== 'none' &&
-                    style.visibility !== 'hidden' &&
-                    Number(style.opacity || '1') > 0.5 &&
-                    rect.width > 200 &&
-                    rect.height > 200
-                ) {
-                    return node;
-                }
+            if (
+                node &&
+                node.isConnected &&
+                node.dataset.hashcodScreen === '3' &&
+                document.documentElement.dataset.hashcodFinalEntryScreen === 'true'
+            ) {
+                await new Promise(function (resolve) {
+                    window.requestAnimationFrame(function () {
+                        window.requestAnimationFrame(resolve);
+                    });
+                });
+                return node;
             }
-            await sleep(50);
+            await sleep(16);
         }
         throw new Error('La tercera ventana de registro no llegó a mostrarse.');
     }
@@ -215,7 +218,7 @@
         try {
             await prepareOverlay(overlay);
             await waitForContinue(overlay);
-            await sleep(240);
+            await sleep(80);
 
             // Window 2 may only disappear after Window 3 is mounted and
             // visibly covering the platform. This is deliberately fail-closed:
@@ -226,13 +229,13 @@
             registrationHandoffReady = true;
 
             overlay.classList.add('is-revealing');
-            await sleep(420);
+            await sleep(220);
             overlay.remove();
 
             // The platform stays behind the opaque third screen until the POST
             // succeeds. Validation or storage errors never advance this promise.
             await registration.waitForSuccessfulSubmission();
-            await sleep(360);
+            await sleep(160);
 
             registration.completePlatformEntry();
             return true;

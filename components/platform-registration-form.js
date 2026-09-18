@@ -621,11 +621,16 @@
             const previewSrc = privacyCard.dataset.previewSrc || privacyTrigger.getAttribute('href') || 'privacy';
 
             try {
-                const response = await fetch(new URL(previewSrc, baseUrl()).toString(), {
+                const previewUrl = new URL(previewSrc, baseUrl());
+                previewUrl.searchParams.set('hashcod_preview_current', '20260918-16');
+                const response = await fetch(previewUrl.toString(), {
                     method: 'GET',
                     credentials: 'same-origin',
-                    cache: 'force-cache',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    cache: 'no-store',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Cache-Control': 'no-cache'
+                    }
                 });
                 if (!response.ok) throw new Error('preview unavailable');
 
@@ -655,9 +660,36 @@
 
                 const shadow = snapshot.shadowRoot || snapshot.attachShadow({ mode: 'open' });
                 const style = document.createElement('style');
-                const sourceCss = Array.from(parsed.querySelectorAll('style'))
-                    .map(function (node) { return node.textContent || ''; })
-                    .join('\n')
+
+                const stylesheetNodes = Array.from(parsed.head.querySelectorAll('style, link[rel="stylesheet"]'));
+                const cssParts = [];
+                for (const node of stylesheetNodes) {
+                    if (node.tagName === 'STYLE') {
+                        cssParts.push(node.textContent || '');
+                        continue;
+                    }
+
+                    const href = node.getAttribute('href') || '';
+                    if (!href) continue;
+
+                    try {
+                        const cssUrl = new URL(href, previewUrl);
+                        if (cssUrl.origin !== window.location.origin) continue;
+                        cssUrl.searchParams.set('hashcod_preview_current', '20260918-16');
+                        const cssResponse = await fetch(cssUrl.toString(), {
+                            credentials: 'same-origin',
+                            cache: 'no-store',
+                            headers: { 'Cache-Control': 'no-cache' }
+                        });
+                        if (cssResponse.ok) cssParts.push(await cssResponse.text());
+                    } catch (_) {
+                        // Keep the preview usable even if an optional stylesheet fails.
+                    }
+                }
+
+                const sourceCss = cssParts.join('\n')
+                    .replace(/body:has\(\.privacy-container\)/g, ':host')
+                    .replace(/(^|[}\s])body\s*\{/g, '$1:host {')
                     .replace(/:root\s*\{/g, ':host {');
 
                 style.textContent = sourceCss + '\n' + [
@@ -669,16 +701,13 @@
                     '  min-height:674px;',
                     '  overflow:hidden;',
                     '  pointer-events:none;',
-                    '  background:#090b10;',
                     '  transform:scale(.3);',
                     '  transform-origin:0 0;',
                     '  font-family:Geist,Arial,sans-serif;',
+                    '  box-sizing:border-box;',
                     '}',
-                    '.privacy-container {',
-                    '  width:920px !important;',
-                    '  margin:30px auto !important;',
-                    '  max-height:none !important;',
-                    '}',
+                    ':host *, :host *::before, :host *::after { box-sizing:border-box; }',
+                    '.privacy-container { max-height:none !important; }',
                     '.privacy-content { min-height:520px !important; }',
                     '.btn-back { pointer-events:none !important; }'
                 ].join('\n');

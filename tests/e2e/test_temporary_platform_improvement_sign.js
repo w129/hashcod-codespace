@@ -16,11 +16,15 @@ assert(hosted.includes('hashcod-platform-improvement-inline-style'), 'hosted inl
 assert(hosted.includes('data-hashcod-auth-slot-replacement="true"'), 'hosted sign must explicitly replace the retired auth slot');
 assert(hosted.includes('left:63vw!important'), 'hosted desktop auth-slot placement missing');
 assert(hosted.includes('z-index:2147483590!important'), 'hosted sign must render above the entry-hold surface');
+assert(hosted.includes('display:none!important'), 'hosted sign must stay hidden during the first two screens');
+assert(hosted.includes('data-hashcod-final-entry-screen="true"] #hashcodPlatformImprovementSign{display:flex!important'), 'hosted sign must reveal only on the final screen');
 assert(hosted.includes('pointer-events:none!important'), 'hosted sign must not block the platform');
 assert(hosted.includes('$temporaryImprovementSignTag'), 'hosted server-rendered sign markup missing');
 
 assert(local.includes("$temporaryImprovementSvgPath = __DIR__ . '/assets/plataforma-en-mejora.svg'"), 'local entry must inline the exact uploaded SVG');
 assert(local.includes('hashcod-platform-improvement-inline-style'), 'local inline sign style missing');
+assert(local.includes('display:none!important'), 'local sign must stay hidden during the first two screens');
+assert(local.includes('data-hashcod-final-entry-screen="true"] #hashcodPlatformImprovementSign{display:flex!important'), 'local sign must reveal only on the final screen');
 assert(local.includes('data-hashcod-auth-slot-replacement="true"'), 'local sign must explicitly replace the retired auth slot');
 assert(local.includes('$temporaryImprovementSignTag'), 'local server-rendered sign markup missing');
 

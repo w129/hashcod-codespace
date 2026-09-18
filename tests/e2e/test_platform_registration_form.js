@@ -71,6 +71,12 @@ assert(api.includes("secretsEncrypt($validated['phone'])"), 'phone must be encry
 assert(api.includes("secretsDecrypt((string)($stored['cedula_enc']"), 'admin projection must decrypt cedula only after authorization');
 assert(api.includes('adminRequire();'), 'stored records must be admin-only server-side');
 assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table constant missing');
+assert(api.includes("(string)($_GET['status'] ?? '') === '1'"), 'safe storage readiness probe missing');
+assert(api.includes("'storage_configured'=>$storageConfigured"), 'readiness probe storage flag missing');
+assert(api.includes("'table_ready'=>$tableReady"), 'readiness probe table flag missing');
+assert(api.includes("supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id&limit=1')"),
+  'readiness probe must query only the table identifier projection');
+assert(!api.includes("'error'=>$probe"), 'readiness probe must not expose raw database errors');
 
 // Database confidentiality.
 for (const sql of [migration, schema]) {

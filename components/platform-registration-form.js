@@ -58,6 +58,37 @@
         }, true);
     }
 
+    function armFinalScreenRecovery() {
+        let sawHold = Boolean(document.getElementById('hashcodEntryHold'));
+        let checks = 0;
+
+        const check = function () {
+            checks += 1;
+            const hold = document.getElementById('hashcodEntryHold');
+            if (hold) {
+                sawHold = true;
+                return;
+            }
+
+            // Once the second screen existed and is then removed, the third
+            // screen must be the registration form regardless of what the
+            // retired legacy entry function did.
+            if (sawHold) {
+                revealFinalRegistration('platform-registration-hold-disconnected');
+            }
+
+            if (
+                document.documentElement.dataset.hashcodFinalEntryScreen === 'true' ||
+                checks >= 240
+            ) {
+                window.clearInterval(timer);
+            }
+        };
+
+        const timer = window.setInterval(check, 100);
+        check();
+    }
+
     function formMarkup() {
         return `
             <header class="hashcod-registration-head">
@@ -386,6 +417,7 @@
     }
 
     armFinalScreenFallback();
+    armFinalScreenRecovery();
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
     else mount();
     window.addEventListener('hashcod:final-entry-screen', mount);

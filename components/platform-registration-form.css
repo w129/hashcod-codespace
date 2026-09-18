@@ -1,3 +1,31 @@
+/* Screen 3 is intentionally a clean replacement. None of the historical
+   boot/auth document is allowed to remain visible behind the form. */
+html[data-hashcod-final-entry-screen="true"] :is(
+    #authOverlay,
+    #authWrapper,
+    #bootCliOverlay,
+    .boot-cli-overlay,
+    #hashcodRareFolderHost,
+    #hashcodBootFolderAnimation,
+    #hashcodEntryHold,
+    #hashcodVectorTray,
+    #hashcodAuthUtilityDock,
+    #groqAuthChatPanel,
+    #groqAuthChatLauncher,
+    #hashcodEftCodeKeyGate,
+    #hashcodEfrHotzone,
+    #cryptoCardValidationLauncherBtn,
+    #d5LauncherBtn,
+    #hashcodUxActions,
+    [data-hashcod-auth-utility-dock],
+    [data-hashcod-third-screen-legacy]
+) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 /* Hashcod Codespace — final-screen adult platform registration. */
 #hashcodPlatformRegistration {
     position: fixed;

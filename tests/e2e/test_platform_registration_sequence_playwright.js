@@ -20,39 +20,14 @@ async function run() {
     assert(response && response.status() === 200, 'platform must load');
 
     await page.waitForSelector('#bootCliEnter', { state: 'visible', timeout: 15000 });
-    await page.waitForFunction(() => {
-      const node = document.getElementById('hashcodPlatformRegistration');
-      if (!node) return false;
-      const style = getComputedStyle(node);
-      return style.display === 'none' && style.visibility === 'hidden';
-    }, { timeout: 10000 }).catch(async error => {
-      const state = await page.evaluate(() => {
-        const node = document.getElementById('hashcodPlatformRegistration');
-        const style = node ? getComputedStyle(node) : null;
-        const cssLink = document.querySelector('link[data-hashcod-platform-registration-style]');
-        const prehide = document.getElementById('hashcod-platform-registration-prehide');
-        return {
-          nodePresent: Boolean(node),
-          display: style ? style.display : null,
-          visibility: style ? style.visibility : null,
-          opacity: style ? style.opacity : null,
-          cssHref: cssLink ? cssLink.href : '',
-          prehidePresent: Boolean(prehide),
-          finalScreen: document.documentElement.dataset.hashcodFinalEntryScreen || ''
-        };
-      });
-      console.error('[registration-first-screen-diagnostic]', JSON.stringify(state));
-      throw error;
-    });
-
-    assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 1,
-      'registration component must already be mounted while hidden on screen 1');
+    assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 0,
+      'registration must not exist in the DOM on screen 1');
 
     await page.click('#bootCliEnter');
 
     await page.waitForSelector('#hashcodHoldContinue', { state: 'visible', timeout: 10000 });
-    assert.equal(await page.isVisible('#hashcodPlatformRegistration'), false,
-      'registration must remain hidden on screen 2');
+    assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 0,
+      'registration must not exist in the DOM on screen 2');
 
     await page.waitForFunction(() => {
       const button = document.getElementById('hashcodHoldContinue');
@@ -85,6 +60,9 @@ async function run() {
         opacity: style.opacity,
         width: rect.width,
         height: rect.height,
+        viewportWidth: innerWidth,
+        viewportHeight: innerHeight,
+        screen: root.dataset.hashcodScreen || '',
         fields: [
           'hashcodRegFullName',
           'hashcodRegAge',
@@ -101,12 +79,16 @@ async function run() {
     assert.equal(state.marker, 'true');
     assert.equal(state.visibility, 'visible');
     assert(Number(state.opacity) > 0.9);
-    assert(state.width > 300 && state.height > 300);
+    assert(state.width >= state.viewportWidth * 0.98,
+      'screen 3 registration must occupy the viewport width, not the previous panel zone');
+    assert(state.height >= state.viewportHeight * 0.98,
+      'screen 3 registration must occupy the viewport height');
+    assert.equal(state.screen, '3', 'registration root must be explicitly identified as screen 3');
     assert.equal(state.fields, 6, 'all six requested fields must be present');
     assert.equal(state.submit, true, 'submit button missing');
     assert.equal(state.tableButton, true, 'records icon button missing');
 
-    console.log('PASS: real screen 1 -> screen 2 -> screen 3 flow displays the registration form.');
+    console.log('PASS: screens 1 and 2 contain no registration DOM; screen 3 is the full registration page.');
   } finally {
     await browser.close();
   }

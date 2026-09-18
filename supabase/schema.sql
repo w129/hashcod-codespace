@@ -360,10 +360,42 @@ create table if not exists public.hashcod_platform_registrations (
   age smallint not null check (age between 18 and 120),
   cedula_enc text not null check (cedula_enc like 'l8e1:%'),
   platform_name text not null check (char_length(platform_name) between 2 and 120),
+  code_filename text not null default '' check (char_length(code_filename) <= 255),
+  code_mime_type text not null default 'application/octet-stream',
+  code_size_bytes bigint not null default 0 check (code_size_bytes between 0 and 10485760),
+  code_sha256 text not null default '' check (code_sha256 = '' or code_sha256 ~ '^[a-f0-9]{64}
+alter table public.hashcod_platform_registrations enable row level security;
+
+revoke all on table public.hashcod_platform_registrations from public, anon, authenticated;
+grant select, insert on table public.hashcod_platform_registrations to service_role;
+
+drop policy if exists hashcod_platform_registrations_deny_direct
+  on public.hashcod_platform_registrations;
+create policy hashcod_platform_registrations_deny_direct
+  on public.hashcod_platform_registrations
+  for all
+  to public
+  using (false)
+  with check (false);
+
+revoke all on sequence public.hashcod_platform_registrations_id_seq from public, anon, authenticated;
+grant usage, select on sequence public.hashcod_platform_registrations_id_seq to service_role;
+
+create index if not exists hashcod_platform_registrations_created_at_idx
+  on public.hashcod_platform_registrations (created_at desc);
+),
+  code_storage_path text not null default '',
   email_enc text not null check (email_enc like 'l8e1:%'),
   phone_enc text not null check (phone_enc like 'l8e1:%'),
   created_at timestamptz not null default now()
 );
+
+alter table public.hashcod_platform_registrations
+  add column if not exists code_filename text not null default '',
+  add column if not exists code_mime_type text not null default 'application/octet-stream',
+  add column if not exists code_size_bytes bigint not null default 0,
+  add column if not exists code_sha256 text not null default '',
+  add column if not exists code_storage_path text not null default '';
 
 alter table public.hashcod_platform_registrations enable row level security;
 

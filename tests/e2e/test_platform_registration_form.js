@@ -74,6 +74,11 @@ assert(!js.includes('C 34.444331 46.320593 34 45 L 34 44.283203 z'),
 
 // Submission and protected records table.
 assert(js.includes("method: 'POST'"), 'registration POST missing');
+assert(js.includes('function waitForSuccessfulSubmission()'), 'registration must expose a successful-submit gate');
+assert(js.includes('registrationGateResolve({ ok: true, saved: true })'), 'successful database save must release the entry gate');
+assert(js.includes('function completePlatformEntry()'), 'registration must own the final transition into the platform');
+assert(js.includes("dataset.hashcodPlatformEntered = 'true'"), 'platform entry state marker missing');
+assert(js.includes("new CustomEvent('hashcod:platform-entered'"), 'platform-entered event must fire only after registration completion');
 assert(js.includes("'X-Requested-With': 'XMLHttpRequest'"), 'CSRF/same-origin marker missing');
 assert(js.includes('await window.HashcodAdmin.require({ force: true })'), 'records table must force admin CodeKey verification when opened');
 assert(js.includes("?view=admin"), 'admin records projection missing');
@@ -118,9 +123,9 @@ for (const sql of [migration, schema]) {
 
 // Hosted/local wiring and retired sign removal.
 assert(hosted.includes('platform-registration-form.css?v=20260918-5'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-5'), 'hosted registration JS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-6'), 'hosted registration JS missing');
 assert(local.includes('platform-registration-form.css?v=20260918-5'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-5'), 'local registration JS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-6'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
@@ -128,9 +133,9 @@ assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visi
 assert(local.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'local form must be forcibly hidden before screen 3');
 assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
-assert(hosted.includes('platform-entry-hold.js?v=20260918-3'), 'hosted second screen must load directly');
+assert(hosted.includes('platform-entry-hold.js?v=20260918-4'), 'hosted second screen must load directly');
 assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
-assert(local.includes('platform-entry-hold.js?v=20260918-3'), 'local second screen must load directly');
+assert(local.includes('platform-entry-hold.js?v=20260918-4'), 'local second screen must load directly');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

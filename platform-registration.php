@@ -8,6 +8,7 @@ require_once __DIR__ . '/secrets.php';
 require_once __DIR__ . '/platform-registration-contract.php';
 
 const HASHCOD_PLATFORM_REGISTRATION_TABLE = 'hashcod_platform_registrations';
+const HASHCOD_PLATFORM_REGISTRATION_BUCKET = 'hashcod-registration-code';
 const HASHCOD_PLATFORM_CODE_MAX_BYTES = 31457280;
 const HASHCOD_PLATFORM_CODE_EXTENSIONS = [
     'zip','tar','gz','txt','md','json','js','jsx','ts','tsx','html','htm','css',
@@ -117,12 +118,111 @@ function hprReadCodeUpload(): array {
     ];
 }
 
+function hprEnsureRegistrationBucket(): array {
+    $bucket = HASHCOD_PLATFORM_REGISTRATION_BUCKET;
+    $desired = [
+        'id'=>$bucket,
+        'name'=>$bucket,
+        'public'=>false,
+        'file_size_limit'=>HASHCOD_PLATFORM_CODE_MAX_BYTES,
+        'allowed_mime_types'=>null,
+    ];
+
+    $get = supabaseRequest(
+        'storage/v1/bucket/' . rawurlencode($bucket),
+        ['method'=>'GET', 'use_secret'=>true, 'timeout'=>12]
+    );
+
+    if (!empty($get['ok'])) {
+        $body = is_array($get['body'] ?? null) ? $get['body'] : [];
+        $needsUpdate =
+            !array_key_exists('public', $body) || $body['public'] !== false
+            || (int)($body['file_size_limit'] ?? 0) !== HASHCOD_PLATFORM_CODE_MAX_BYTES
+            || (($body['allowed_mime_types'] ?? null) !== null);
+
+        if (!$needsUpdate) {
+            return ['ok'=>true, 'bucket'=>$bucket, 'created'=>false, 'updated'=>false];
+        }
+
+        $update = supabaseRequest(
+            'storage/v1/bucket/' . rawurlencode($bucket),
+            [
+                'method'=>'PUT',
+                'use_secret'=>true,
+                'body'=>$desired,
+                'timeout'=>12,
+            ]
+        );
+        if (!empty($update['ok'])) {
+            return ['ok'=>true, 'bucket'=>$bucket, 'created'=>false, 'updated'=>true];
+        }
+
+        return [
+            'ok'=>false,
+            'bucket'=>$bucket,
+            'status'=>(int)($update['status'] ?? 0),
+            'error'=>(string)($update['error'] ?? 'No se pudo actualizar el bucket de registros.'),
+        ];
+    }
+
+    $create = supabaseRequest(
+        'storage/v1/bucket',
+        [
+            'method'=>'POST',
+            'use_secret'=>true,
+            'body'=>$desired,
+            'timeout'=>12,
+        ]
+    );
+
+    if (!empty($create['ok']) || (int)($create['status'] ?? 0) === 409) {
+        return ['ok'=>true, 'bucket'=>$bucket, 'created'=>!empty($create['ok']), 'updated'=>false];
+    }
+
+    return [
+        'ok'=>false,
+        'bucket'=>$bucket,
+        'status'=>(int)($create['status'] ?? 0),
+        'error'=>(string)($create['error'] ?? $get['error'] ?? 'No se pudo preparar el bucket de registros.'),
+    ];
+}
+
+function hprUploadCodeStorage(array $codeUpload): array {
+    $ensure = hprEnsureRegistrationBucket();
+    if (empty($ensure['ok'])) return $ensure;
+
+    $binary = @file_get_contents((string)$codeUpload['tmp_path']);
+    if ($binary === false) {
+        return ['ok'=>false, 'status'=>0, 'error'=>'No se pudo leer el archivo temporal de la plataforma.'];
+    }
+
+    $path = ltrim(str_replace('\\', '/', (string)$codeUpload['storage_path']), '/');
+    $res = supabaseRequest(
+        'storage/v1/object/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET) . '/' . $path,
+        [
+            'method'=>'POST',
+            'use_secret'=>true,
+            'content_type'=>(string)$codeUpload['mime_type'],
+            'headers'=>['x-upsert: false'],
+            'body'=>$binary,
+            'timeout'=>120,
+        ]
+    );
+
+    return [
+        'ok'=>!empty($res['ok']),
+        'status'=>(int)($res['status'] ?? 0),
+        'error'=>$res['error'] ?? null,
+        'path'=>$path,
+        'bucket'=>HASHCOD_PLATFORM_REGISTRATION_BUCKET,
+        'body'=>$res['body'] ?? null,
+    ];
+}
+
 function hprDeleteStorageObject(string $objectPath): void {
     if ($objectPath === '') return;
-    $bucket = function_exists('supabaseStorageBucket') ? supabaseStorageBucket() : '';
-    if ($bucket === '') return;
     @supabaseRequest(
-        'storage/v1/object/' . rawurlencode($bucket) . '/' . ltrim(str_replace('\\', '/', $objectPath), '/'),
+        'storage/v1/object/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET) . '/' . ltrim(str_replace('\\', '/', $objectPath), '/'),
         ['method'=>'DELETE', 'use_secret'=>true, 'content_type'=>'', 'timeout'=>12]
     );
 }
@@ -274,13 +374,27 @@ if ($method === 'POST') {
         }
     }
 
-    $uploadedCode = supabaseStorageUpload(
-        $codeUpload['storage_path'],
-        $codeUpload['tmp_path'],
-        $codeUpload['mime_type'],
-        true
-    );
+    $uploadedCode = hprUploadCodeStorage($codeUpload);
     if (empty($uploadedCode['ok'])) {
+        $storageStatus = (int)($uploadedCode['status'] ?? 0);
+        $storageError = strtolower((string)($uploadedCode['error'] ?? ''));
+
+        if ($storageStatus === 413 || str_contains($storageError, 'too large') || str_contains($storageError, 'file size')) {
+            hprJson(413, ['ok'=>false, 'error'=>'El archivo supera el límite de 30 MB permitido para el registro.']);
+        }
+        if ($storageStatus === 415 || str_contains($storageError, 'mime')) {
+            hprJson(415, ['ok'=>false, 'error'=>'El tipo de archivo fue rechazado por el almacenamiento seguro.']);
+        }
+        if ($storageStatus === 401 || $storageStatus === 403) {
+            hprJson(503, ['ok'=>false, 'error'=>'El almacenamiento privado de registros no está autorizado correctamente.']);
+        }
+
+        error_log(
+            '[hashcod-platform-registration] storage upload failed'
+            . ' status=' . $storageStatus
+            . ' bucket=' . HASHCOD_PLATFORM_REGISTRATION_BUCKET
+            . ' error=' . substr((string)($uploadedCode['error'] ?? ''), 0, 500)
+        );
         hprJson(502, ['ok'=>false, 'error'=>'No se pudo subir el código de la plataforma en este momento.']);
     }
 

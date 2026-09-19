@@ -298,7 +298,21 @@
     });
 
     observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    let resizeFrame = 0;
     window.addEventListener('resize', function () {
-        positionVectorTray(document.getElementById('hashcodVectorTray'));
+        if (resizeFrame) return;
+        resizeFrame = requestAnimationFrame(function () {
+            resizeFrame = 0;
+            positionVectorTray(document.getElementById('hashcodVectorTray'));
+        });
     }, { passive: true });
+
+    function stopObserver() {
+        observer.disconnect();
+        if (resizeFrame) cancelAnimationFrame(resizeFrame);
+        resizeFrame = 0;
+    }
+    window.addEventListener('hashcod:final-entry-screen', stopObserver, { once: true });
+    window.addEventListener('hashcod:platform-entered', stopObserver, { once: true });
 })();

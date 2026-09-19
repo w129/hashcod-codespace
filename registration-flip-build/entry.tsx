@@ -15,22 +15,43 @@ const MOUNT_EVENT = 'hashcod:registration-form-mounted';
 let activeRoot: Root | null = null;
 let activeHost: HTMLElement | null = null;
 
-function readEnabled(): boolean {
+type SubmitState = {
+  enabled: boolean;
+  submitting: boolean;
+};
+
+function readState(): SubmitState {
   const host = document.getElementById(HOST_ID);
-  return host?.dataset.enabled === 'true';
+  return {
+    enabled: host?.dataset.enabled === 'true',
+    submitting: host?.dataset.submitting === 'true',
+  };
 }
 
 function HashcodRegistrationFlipButton() {
-  const [enabled, setEnabled] = React.useState(readEnabled);
+  const [state, setState] = React.useState<SubmitState>(readState);
+  const actionable = state.enabled && !state.submitting;
 
   React.useEffect(() => {
     const sync = (event?: Event) => {
-      const custom = event as CustomEvent<{ enabled?: boolean }>;
-      if (typeof custom?.detail?.enabled === 'boolean') {
-        setEnabled(custom.detail.enabled);
+      const custom = event as CustomEvent<Partial<SubmitState>>;
+      if (
+        typeof custom?.detail?.enabled === 'boolean' ||
+        typeof custom?.detail?.submitting === 'boolean'
+      ) {
+        setState((previous) => ({
+          enabled:
+            typeof custom.detail.enabled === 'boolean'
+              ? custom.detail.enabled
+              : previous.enabled,
+          submitting:
+            typeof custom.detail.submitting === 'boolean'
+              ? custom.detail.submitting
+              : previous.submitting,
+        }));
         return;
       }
-      setEnabled(readEnabled());
+      setState(readState());
     };
 
     window.addEventListener(STATE_EVENT, sync);
@@ -42,13 +63,14 @@ function HashcodRegistrationFlipButton() {
       id="hashcodRegistrationSubmit"
       data-animate-ui-flip="official"
       from="top"
-      tapScale={enabled ? 0.95 : 1}
-      type={enabled ? 'submit' : 'button'}
-      aria-disabled={enabled ? 'false' : 'true'}
+      tapScale={actionable ? 0.95 : 1}
+      type={actionable ? 'submit' : 'button'}
+      aria-disabled={actionable ? 'false' : 'true'}
+      aria-busy={state.submitting ? 'true' : 'false'}
       aria-label="Enviar registro"
       className="hashcod-animate-ui-flip-button"
       onClick={(event) => {
-        if (enabled) return;
+        if (actionable) return;
         event.preventDefault();
         event.stopPropagation();
       }}
@@ -58,7 +80,7 @@ function HashcodRegistrationFlipButton() {
         size="lg"
         className="hashcod-animate-ui-flip-face hashcod-animate-ui-flip-front"
       >
-        ENVIAR REGISTRO
+        {state.submitting ? 'ENVIANDO…' : 'ENVIAR REGISTRO'}
       </FlipButtonFront>
       <FlipButtonBack
         variant="outline"
@@ -66,7 +88,11 @@ function HashcodRegistrationFlipButton() {
         className="hashcod-animate-ui-flip-face hashcod-animate-ui-flip-back"
         aria-label="Enviar registro"
       >
-        <PlusIcon aria-hidden="true" />
+        {state.submitting ? (
+          <span className="hashcod-animate-ui-sending-dot" aria-hidden="true" />
+        ) : (
+          <PlusIcon aria-hidden="true" />
+        )}
       </FlipButtonBack>
     </FlipButton>
   );

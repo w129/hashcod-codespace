@@ -927,6 +927,47 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             }
         }
 
+        $registrationCodeReissued = false;
+        if ($registrationCode === '' && $rowIdKey !== '') {
+            // The original ciphertext may have been created with an ephemeral
+            // Render key that no longer exists. It cannot be reversed without
+            // that key, so create one persistent replacement exactly once.
+            $replacement = hprGenerateRegistrationCode();
+            $replacementEvidence = is_array($compatEvidence) ? $compatEvidence : [];
+            $replacementEvidence['format'] = 'HASHCOD-REGISTRATION-EVIDENCE-2';
+            $replacementEvidence['registration_row_id'] = $rowIdKey;
+            $replacementEvidence['platform_name'] = (string)($stored['platform_name'] ?? '');
+            $replacementEvidence['created_at'] = (string)($stored['created_at'] ?? gmdate('c'));
+            $replacementEvidence['registration_code_enc'] = hprRegistrationEncrypt($replacement['plain']);
+            $replacementEvidence['registration_code_sha256'] = $replacement['sha256'];
+            $replacementEvidence['registration_code_hint'] = $replacement['hint'];
+            $replacementEvidence['registration_code_status'] = 'reissued_after_key_loss';
+            $replacementEvidence['registration_code_reissued_at'] = gmdate('c');
+
+            $persistReplacement = hprUploadFallbackRegistrationEvidence(
+                'platform-registrations/evidence-by-row/' . $rowIdKey,
+                $replacementEvidence
+            );
+
+            if (!empty($persistReplacement['ok'])) {
+                $registrationCode = $replacement['plain'];
+                $compatEvidence = $replacementEvidence;
+                $compatEvidenceByRowId[$rowIdKey] = $replacementEvidence;
+                $registrationCodeReissued = true;
+            } else {
+                error_log(
+                    '[hashcod-platform-registration] replacement code persistence failed'
+                    . ' row_id=' . $rowIdKey
+                    . ' status=' . (int)($persistReplacement['status'] ?? 0)
+                );
+            }
+        } elseif (
+            is_array($compatEvidence)
+            && (string)($compatEvidence['registration_code_status'] ?? '') === 'reissued_after_key_loss'
+        ) {
+            $registrationCodeReissued = true;
+        }
+
         $rows[] = [
             'id'=>$stored['id'] ?? null,
             'full_name'=>hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? '')),
@@ -944,6 +985,7 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             'acceptance_method'=>(string)($stored['acceptance_method'] ?? ''),
             'acceptance_evidence_sha256'=>(string)($stored['acceptance_evidence_sha256'] ?? ''),
             'registration_code'=>$registrationCode,
+            'registration_code_reissued'=>$registrationCodeReissued,
             'registration_code_stored'=>$registrationCode !== '' || ((string)($stored['registration_code_sha256'] ?? '')) !== '',
             'registration_code_hint'=>(string)(
                 $stored['registration_code_hint']

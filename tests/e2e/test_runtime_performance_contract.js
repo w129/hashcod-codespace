@@ -35,6 +35,7 @@ assert(cloud.includes("window.addEventListener('focus'"), 'cloud sync must remai
 assert(ux.includes('const pendingRoots = new Set()'), 'UX mutation work must be batched');
 assert(ux.includes('requestIdleCallback'), 'UX mutation processing must use idle time when available');
 assert(ux.includes('processed >= 24'), 'UX mutation batches must be bounded');
+assert(ux.includes("document.visibilityState !== 'hidden'"), 'UX mutation work must pause while the tab is hidden');
 
 assert(tabs.includes('function stopAuthObserver()'), 'auth-tab observer must have a teardown path');
 assert(tabs.includes("'hashcod:final-entry-screen'"), 'auth-tab observer must stop when registration starts');

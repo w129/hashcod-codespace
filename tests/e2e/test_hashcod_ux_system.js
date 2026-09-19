@@ -31,6 +31,9 @@ assert(js.includes('hashcod-ux-error-state'), 'error state helper missing');
 assert(js.includes('AUTOSAVE_PREFIX'), 'form autosave storage missing');
 assert(js.includes('SENSITIVE_RE'), 'sensitive-field autosave exclusion missing');
 assert(js.includes('window.HashcodUX'), 'public Hashcod UX API missing');
+assert(js.includes('const pendingRoots = new Set()'), 'DOM enhancements must batch mutation roots');
+assert(js.includes('requestIdleCallback'), 'DOM enhancement work should run during idle time when available');
+assert(js.includes('processed >= 24'), 'DOM enhancement batches must be bounded');
 assert(js.includes('request: request'), 'request loading/error wrapper missing');
 assert(!js.includes('localStorage.setItem(field.value'), 'raw sensitive values must not be stored without a keyed form policy');
 

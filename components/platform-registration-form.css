@@ -1075,6 +1075,19 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     letter-spacing: .035em;
     user-select: all;
 }
+
+.hashcod-registration-code-reissued {
+    display: block;
+    margin-top: 4px;
+    color: #8a5a00;
+    font: 700 8px/1.2 "IBM Plex Mono", Consolas, monospace;
+    letter-spacing: .06em;
+}
+
+.hashcod-registration-code-missing {
+    color: #9c1717;
+    font: 700 9px/1.2 "IBM Plex Mono", Consolas, monospace;
+}
 .hashcod-registration-table th {
     position: sticky; top: 0; background: #111; color: #fff; z-index: 1; font-weight: 700;
 }

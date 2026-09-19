@@ -44,7 +44,7 @@
 
         if (!document.querySelector('script[data-auth-vector-layout-fix]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'auth-vector-layout-fix.js?v=20260910-5';
+            script.src = componentBase + 'auth-vector-layout-fix.js?v=20260919-perf1';
             script.defer = true;
             script.dataset.authVectorLayoutFix = 'true';
             document.head.appendChild(script);

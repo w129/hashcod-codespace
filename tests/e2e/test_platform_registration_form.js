@@ -36,7 +36,14 @@ assert(js.includes('Object.values(v).every(Boolean)'), 'WhatsApp/send gating mus
 assert(js.includes('syncWhatsappState(ok)'), 'WhatsApp button must follow complete-form validity');
 assert(js.includes('id="hashcodRegistrationWhatsappButton"'), 'WhatsApp action button missing');
 assert(js.includes('title="Enviar solicitud por WhatsApp" disabled'), 'WhatsApp button must start disabled');
-assert(js.includes('M 5 3 L 5 9 L 7 9 L 7 5'), 'requested replacement SVG icon missing');
+assert(js.includes('viewBox="0 0 36 32"'), 'responsive WhatsApp SVG viewBox missing');
+assert(js.includes('M 5 3 L 5 9 L 7 9 L 7 5'), 'requested replacement SVG path missing');
+assert(!js.includes('width="100" height="100" viewBox="0 0 32 32" aria-hidden="true"><path d="M 5 3'), 'WhatsApp icon must not keep fixed 100x100 SVG dimensions');
+assert(css.includes('width: 50px;'), 'desktop WhatsApp button size missing');
+assert(css.includes('width: 22px;'), 'desktop WhatsApp icon size missing');
+assert(css.includes('width: 46px;'), 'mobile WhatsApp button size missing');
+assert(css.includes('width: 20px;'), 'mobile WhatsApp icon size missing');
+assert(css.includes('#hashcodRegistrationWhatsappButton:not(:disabled):active'), 'WhatsApp active interaction state missing');
 
 assert(js.includes("const WHATSAPP_NUMBER = '18294721257'"), 'official WhatsApp destination missing');
 assert(js.includes('function generateRegistrationCode()'), 'local registration code generator missing');
@@ -85,9 +92,9 @@ assert(cleanup.includes("/empty'"), 'Storage bucket must be emptied through the 
 assert(cleanup.includes('supabaseDbHardDelete'), 'legacy registration rows must be purged');
 assert(!cleanup.includes('delete from storage.objects'), 'Storage metadata must never be deleted directly with SQL');
 
-assert(hosted.includes('platform-registration-form.js?v=20260919-40'), 'hosted registration JS cache version missing');
-assert(local.includes('platform-registration-form.js?v=20260919-40'), 'local registration JS cache version missing');
-assert(hosted.includes('platform-registration-form.css?v=20260919-29'), 'hosted registration CSS cache version missing');
-assert(local.includes('platform-registration-form.css?v=20260919-29'), 'local registration CSS cache version missing');
+assert(hosted.includes('platform-registration-form.js?v=20260919-41'), 'hosted registration JS cache version missing');
+assert(local.includes('platform-registration-form.js?v=20260919-41'), 'local registration JS cache version missing');
+assert(hosted.includes('platform-registration-form.css?v=20260919-30'), 'hosted registration CSS cache version missing');
+assert(local.includes('platform-registration-form.css?v=20260919-30'), 'local registration CSS cache version missing');
 
 console.log('PASS: registration is local-only, CodeKey/table persistence is retired, and the completed form dispatches all request data plus the HC1 code to WhatsApp.');

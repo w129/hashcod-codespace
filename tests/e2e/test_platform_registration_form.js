@@ -19,6 +19,10 @@ const schema = fs.readFileSync(path.join(repoDir, 'supabase/schema.sql'), 'utf8'
 const hosted = fs.readFileSync(path.join(repoDir, 'l8-html.php'), 'utf8');
 const local = fs.readFileSync(path.join(repoDir, 'laragon-local-entry.php'), 'utf8');
 const router = fs.readFileSync(path.join(repoDir, 'router.php'), 'utf8');
+const flipEntry = fs.readFileSync(path.join(repoDir, 'registration-flip-build/entry.tsx'), 'utf8');
+const flipPrimitive = fs.readFileSync(path.join(repoDir, 'registration-flip-build/src/primitives/buttons/flip.tsx'), 'utf8');
+const flipComponent = fs.readFileSync(path.join(repoDir, 'registration-flip-build/src/components/buttons/flip.tsx'), 'utf8');
+const flipPackage = fs.readFileSync(path.join(repoDir, 'registration-flip-build/package.json'), 'utf8');
 
 // Final-screen only.
 assert(css.includes('#hashcodPlatformRegistration'), 'registration root style missing');
@@ -237,18 +241,38 @@ assert(contractPhp.includes('Documento de Aceptación Contractual, Privacidad y 
 assert(privacy.includes('SHA-256 canónico'), 'contract document must display canonical hash');
 assert(privacy.includes('Declaración de aceptación'), 'contract acceptance declaration missing');
 
+// Official Animate UI FlipButton integration.
+assert(js.includes('hashcodRegistrationSubmitReactHost'), 'React host for official FlipButton missing');
+assert(js.includes("hashcod:registration-submit-state"), 'registration state event for React flip missing');
+assert(js.includes("data.animateUiFlip === 'official'"), 'official React flip state bridge missing');
+assert(!js.includes('hashcod-flip-stage'), 'handcrafted flip stage must be removed');
+assert(!css.includes('.hashcod-flip-stage'), 'handcrafted flip CSS must be removed');
+assert(flipPrimitive.includes('whileHover="hover"'), 'official Animate UI FlipButton primitive missing whileHover state');
+assert(flipPrimitive.includes("transition = { type: 'spring', stiffness: 280, damping: 20 }"), 'official Animate UI spring transition missing');
+assert(flipPrimitive.includes('data-slot="flip-button-front"'), 'official Animate UI front slot missing');
+assert(flipPrimitive.includes('data-slot="flip-button-back"'), 'official Animate UI back slot missing');
+assert(flipComponent.includes('FlipButtonPrimitive'), 'official Animate UI component wrapper missing');
+assert(flipEntry.includes("import { PlusIcon } from 'lucide-react'"), 'real lucide-react PlusIcon import missing');
+assert(flipEntry.includes('<FlipButton'), 'official FlipButton React island missing');
+assert(flipEntry.includes('<FlipButtonFront'), 'official FlipButtonFront usage missing');
+assert(flipEntry.includes('<FlipButtonBack'), 'official FlipButtonBack usage missing');
+assert(flipEntry.includes('data-animate-ui-flip="official"'), 'official flip marker missing');
+assert(flipPackage.includes('"lucide-react": "1.47.0"'), 'lucide-react dependency must be pinned');
+assert(hosted.includes('registration-flip.bundle.js'), 'hosted official flip bundle wiring missing');
+assert(local.includes('registration-flip.bundle.js'), 'local official flip bundle wiring missing');
+
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260918-18'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-24'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260918-18'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-24'), 'local registration JS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-19'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-25'), 'hosted registration JS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-19'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-25'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');
 assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
 assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
 assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
-assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-24'"), 'hold runtime must be versioned');
+assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-25'"), 'hold runtime must be versioned');
 assert(hold.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
 assert(!hold.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
 assert(!hold.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');

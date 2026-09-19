@@ -620,11 +620,13 @@ function hprListRegistrationEvidencePaths(string $prefix, int $depth = 0): array
 
 function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = []): array {
     $map = [];
+    $requestedIds = [];
 
     // Fast path for records created after the row-index fix.
     foreach ($rowIds as $rowId) {
         $rowId = trim((string)$rowId);
         if ($rowId === '') continue;
+        $requestedIds[$rowId] = true;
 
         $directPath = 'platform-registrations/evidence-by-row/'
             . rawurlencode($rowId)
@@ -634,6 +636,12 @@ function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = 
         if ($data) {
             $map[$rowId] = $data;
         }
+    }
+
+    // Avoid the recursive Storage walk when every requested row already has
+    // its deterministic evidence-by-row object.
+    if ($requestedIds !== [] && count($map) === count($requestedIds)) {
+        return $map;
     }
 
     // Build a cautious compatibility lookup for very early sidecars that
@@ -1004,11 +1012,10 @@ if ($method === 'POST') {
             hprDeleteStorageObject($codeUpload['storage_path']);
             hprJson(503, ['ok'=>false, 'error'=>'La tabla de registros todavía no está inicializada.']);
         }
-        if (hprMissingAnyColumn($error, ['code_storage_path','code_filename','code_sha256'])) {
-            hprDeleteStorageObject($codeUpload['storage_path']);
-            hprJson(503, ['ok'=>false, 'error'=>'La tabla de registros todavía no tiene soporte para archivos de plataforma.']);
-        }
-
+        // Missing post-launch columns are handled by the encrypted private
+        // evidence sidecar below. Do not abort before the compatibility retry:
+        // older deployed schemas can still preserve the uploaded source file,
+        // registration code, contract evidence and PII safely.
         $optionalColumns = [
             'code_filename','code_mime_type','code_size_bytes','code_sha256','code_storage_path',
             'contract_version','contract_sha256','contract_accepted_at',
@@ -1174,29 +1181,101 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     );
     $adminSchemaMode = 'dynamic';
     if (empty($res['ok'])) {
-        error_log(
-            '[hashcod-platform-registration] admin select failed'
-            . ' status=' . (int)($res['status'] ?? 0)
-            . ' error=' . substr((string)($res['error'] ?? ''), 0, 500)
+        $dynamicFailure = $res;
+
+        // If PostgREST is still serving the original registration schema,
+        // recover with the guaranteed base projection instead of failing the
+        // protected table. Optional fields are restored from encrypted Storage
+        // evidence below.
+        $res = supabaseDbRequest(
+            HASHCOD_PLATFORM_REGISTRATION_TABLE
+                . '?select=id,full_name_enc,age,cedula_enc,platform_name,email_enc,phone_enc,created_at'
+                . '&order=created_at.desc&limit=500',
+            [
+                'method'=>'GET',
+                'use_secret'=>true,
+                'bypass_circuit'=>true,
+                'timeout'=>12,
+            ]
         );
-        hprJson(502, [
-            'ok'=>false,
-            'error'=>'No se pudo cargar la tabla de registros.',
-            'code'=>'registration_table_read_failed',
-        ]);
+
+        if (!empty($res['ok'])) {
+            $adminSchemaMode = 'base-compatibility';
+        } else {
+            error_log(
+                '[hashcod-platform-registration] admin select failed'
+                . ' dynamic_status=' . (int)($dynamicFailure['status'] ?? 0)
+                . ' dynamic_error=' . substr((string)($dynamicFailure['error'] ?? ''), 0, 300)
+                . ' base_status=' . (int)($res['status'] ?? 0)
+                . ' base_error=' . substr((string)($res['error'] ?? ''), 0, 300)
+            );
+            hprJson(502, [
+                'ok'=>false,
+                'error'=>'No se pudo cargar la tabla de registros.',
+                'code'=>'registration_table_read_failed',
+            ]);
+        }
     }
 
     $storedRows = is_array($res['body'] ?? null) ? $res['body'] : [];
 
-    // Keep the CodeKey-protected table fast: do not recursively scan Storage
-    // before opening it. Current rows use registration_code_enc directly.
-    // Legacy rows that cannot be decrypted receive a stable deterministic
-    // replacement code derived from the persistent registration key.
-    $compatEvidenceByRowId = [];
+    // Recover encrypted sidecar metadata only for rows that actually need it.
+    // This keeps the normal full-schema path fast while making base/legacy
+    // registrations readable in the CodeKey-protected table.
+    $evidenceRowIds = [];
+    foreach ($storedRows as $stored) {
+        if (!is_array($stored)) continue;
+        $rowId = trim((string)($stored['id'] ?? ''));
+        if ($rowId === '') continue;
+
+        $identityNeedsEvidence =
+            hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? '')) === ''
+            || hprRegistrationDecrypt((string)($stored['cedula_enc'] ?? '')) === ''
+            || hprRegistrationDecrypt((string)($stored['email_enc'] ?? '')) === ''
+            || hprRegistrationDecrypt((string)($stored['phone_enc'] ?? '')) === '';
+
+        $metadataNeedsEvidence =
+            !array_key_exists('registration_code_enc', $stored)
+            || (string)($stored['registration_code_enc'] ?? '') === ''
+            || !array_key_exists('code_storage_path', $stored)
+            || !array_key_exists('contract_version', $stored)
+            || !array_key_exists('acceptance_evidence_sha256', $stored);
+
+        if ($identityNeedsEvidence || $metadataNeedsEvidence) {
+            $evidenceRowIds[] = $rowId;
+        }
+    }
+
+    $evidenceRowIds = array_values(array_unique($evidenceRowIds));
+    $compatEvidenceByRowId = $evidenceRowIds !== []
+        ? hprRegistrationEvidenceByRowId($evidenceRowIds, $storedRows)
+        : [];
 
     $rows = [];
     foreach ($storedRows as $stored) {
         if (!is_array($stored)) continue;
+
+        $rowId = trim((string)($stored['id'] ?? ''));
+        $compatEvidence = $rowId !== '' && is_array($compatEvidenceByRowId[$rowId] ?? null)
+            ? $compatEvidenceByRowId[$rowId]
+            : null;
+
+        if ($compatEvidence) {
+            foreach ([
+                'full_name_enc','cedula_enc','email_enc','phone_enc',
+                'code_filename','code_mime_type','code_size_bytes','code_sha256','code_storage_path',
+                'contract_version','contract_sha256','contract_accepted_at',
+                'acceptance_method','acceptance_evidence_sha256',
+                'registration_code_enc','registration_code_sha256','registration_code_hint'
+            ] as $field) {
+                $missing = !array_key_exists($field, $stored)
+                    || $stored[$field] === ''
+                    || $stored[$field] === null;
+                if ($missing && array_key_exists($field, $compatEvidence)) {
+                    $stored[$field] = $compatEvidence[$field];
+                }
+            }
+        }
 
         $fullName = hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? ''));
         $cedula = hprRegistrationDecrypt((string)($stored['cedula_enc'] ?? ''));

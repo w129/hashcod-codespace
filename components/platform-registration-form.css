@@ -538,6 +538,12 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     min-height: 50px;
 }
 
+.hashcod-registration-submit-react-host > #hashcodRegistrationSubmit:not([data-animate-ui-flip="official"]) {
+    border: 1px solid #111;
+    background: #111;
+    color: #fff;
+}
+
 #hashcodRegistrationSubmit [data-slot="flip-button-front"],
 #hashcodRegistrationSubmit [data-slot="flip-button-back"] {
     box-sizing: border-box;

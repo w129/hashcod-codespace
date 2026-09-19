@@ -325,6 +325,20 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-platform-registration-inline-js">' . $registrationJs . '</script>'
             : '';
 
+        // Official Animate UI FlipButton React/Motion island for the
+        // registration submit control. Prefer the locally built bundle so the
+        // component is self-contained and does not rely on a CDN.
+        $registrationFlipBundlePath = __DIR__ . '/components/registration-flip.bundle.js';
+        $registrationFlipBundle = is_file($registrationFlipBundlePath)
+            ? (string) @file_get_contents($registrationFlipBundlePath)
+            : '';
+        if ($registrationFlipBundle !== '') {
+            $registrationFlipBundle = str_ireplace('</script', '<\\/script', $registrationFlipBundle);
+        }
+        $registrationFlipTag = $registrationFlipBundle !== ''
+            ? '<script id="hashcod-registration-flip-inline" data-hashcod-registration-flip="official">' . $registrationFlipBundle . '</script>'
+            : '<script defer src="' . $base . 'components/registration-flip.bundle.js?v=20260918-1" data-hashcod-registration-flip="official"></script>';
+
         // The Docker build generates this local bundle from the exact Rare UI
         // React/Motion implementation. Inline the built artifact so the folder
         // cannot disappear because of static-asset routing, CDN cache, or an
@@ -347,6 +361,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $tag = $legacyBlackholeCleanupTag
             . $inlineRegistrationJsTag
+            . $registrationFlipTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-24" data-platform-entry-hold="true"></script>'

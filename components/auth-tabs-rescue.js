@@ -87,8 +87,30 @@
         bindAll();
     }
 
-    const observer = new MutationObserver(function () {
-        bindAll();
+    let bindFrame = 0;
+    const observer = new MutationObserver(function (records) {
+        const relevant = records.some(function (record) {
+            return Array.from(record.addedNodes || []).some(function (node) {
+                if (!node || node.nodeType !== 1) return false;
+                if (node.matches && node.matches('#authWrapper, .auth-card, .auth-tabs, .auth-tab[data-tab]')) return true;
+                return Boolean(node.querySelector && node.querySelector('.auth-tabs .auth-tab[data-tab]'));
+            });
+        });
+        if (!relevant || bindFrame) return;
+        bindFrame = requestAnimationFrame(function () {
+            bindFrame = 0;
+            bindAll();
+        });
     });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
+
+    function stopAuthObserver() {
+        observer.disconnect();
+        if (bindFrame) {
+            cancelAnimationFrame(bindFrame);
+            bindFrame = 0;
+        }
+    }
+    window.addEventListener('hashcod:final-entry-screen', stopAuthObserver, { once: true });
+    window.addEventListener('hashcod:platform-entered', stopAuthObserver, { once: true });
 })();

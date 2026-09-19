@@ -34,7 +34,7 @@ assert(rescue.includes("input.addEventListener('change', onChange)"), 'picker re
 assert(rescue.includes("if (typeof input.showPicker === 'function') input.showPicker();"), 'picker rescue should prefer the browser-native showPicker API');
 assert(rescue.includes('finish(currentFile(input));'), 'cancel/focus must re-check FileList instead of immediately treating the selection as empty');
 assert(!rescue.includes("input.addEventListener('cancel', () => finish(null)"), 'cancel must never immediately discard a valid selected file');
-assert(html.includes('admin-codekey-picker-rescue.js?v=20260915-1'), 'hosted HTML must cache-bust and load the CodeKey picker rescue');
+assert(html.includes('admin-codekey-picker-rescue.js?v=20260918-2'), 'hosted HTML must cache-bust and load the CodeKey picker rescue');
 
 assert(rescue.includes("const EFT_TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot=\"4\"]'"), 'EFT CodeKey gate must target the fifth tray cube');
 assert(rescue.includes("const EFT_GATE_ID = 'hashcodEftCodeKeyGate'"), 'EFT CodeKey gate overlay missing');

@@ -46,6 +46,13 @@ function hprCleanText(mixed $value, int $max): string {
     return function_exists('mb_substr') ? mb_substr($text, 0, $max, 'UTF-8') : substr($text, 0, $max);
 }
 
+function hprLower(string $value): string {
+    $value = trim($value);
+    return function_exists('mb_strtolower')
+        ? mb_strtolower($value, 'UTF-8')
+        : strtolower($value);
+}
+
 function hprReadBody(): array {
     $contentType = strtolower((string)($_SERVER['CONTENT_TYPE'] ?? ''));
     if (str_starts_with($contentType, 'multipart/form-data')) {
@@ -380,7 +387,7 @@ function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = 
     foreach ($storedRows as $storedRow) {
         if (!is_array($storedRow)) continue;
         $id = trim((string)($storedRow['id'] ?? ''));
-        $platform = mb_strtolower(trim((string)($storedRow['platform_name'] ?? '')), 'UTF-8');
+        $platform = hprLower((string)($storedRow['platform_name'] ?? ''));
         if ($id === '' || $platform === '') continue;
         $rowsByPlatform[$platform][] = [
             'id'=>$id,
@@ -399,7 +406,7 @@ function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = 
         $rowId = trim((string)($data['registration_row_id'] ?? ''));
 
         if ($rowId === '') {
-            $platform = mb_strtolower(trim((string)($data['platform_name'] ?? '')), 'UTF-8');
+            $platform = hprLower((string)($data['platform_name'] ?? ''));
             $candidates = $platform !== '' ? ($rowsByPlatform[$platform] ?? []) : [];
 
             if (count($candidates) === 1) {

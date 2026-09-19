@@ -7,6 +7,8 @@ on:
     paths:
       - components/platform-registration-form.js
       - components/platform-registration-form.css
+      - registration-flip-build/**
+      - Dockerfile
       - platform-registration.php
       - platform-registration-contract.php
       - privacy.php
@@ -49,6 +51,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Build official Animate UI FlipButton
+        working-directory: registration-flip-build
+        run: |
+          npm install --no-fund --no-audit
+          npm run build
+          test -s ../components/registration-flip.bundle.js
 
       - name: Syntax check registration and entry scripts
         run: |

@@ -9,8 +9,13 @@
     const componentBase = selfSrc && selfSrc.lastIndexOf('/') >= 0
         ? selfSrc.slice(0, selfSrc.lastIndexOf('/') + 1)
         : '/components/';
-    const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js?v=20260916-eft-gate1';
+    const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js?v=20260918-codekey2';
     const EXPECTED_FILENAME = 'OnIPFeJKssih4mbNLCYXnct6a1L_q84po-KVfKPZInHYbhNJ8OR2n3M2zFJ2zZeK9bqkcmilS1li-3DrTsaUIg.ipynb';
+    function codeKeyFilenameAllowed(name) {
+        const value = String(name || '');
+        if (value === EXPECTED_FILENAME) return true;
+        return value.replace(/\s*\(\d+\)(?=\.ipynb$)/i, '') === EXPECTED_FILENAME;
+    }
     const PICKER_SETTLE_DELAY_MS = 700;
     const EFT_TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot="4"]';
     const EFT_HOTZONE_ID = 'hashcodEfrHotzone';
@@ -174,7 +179,7 @@
                     setStatus('No se seleccionó una CodeKey.');
                     return false;
                 }
-                if (file.name !== EXPECTED_FILENAME) {
+                if (!codeKeyFilenameAllowed(file.name)) {
                     throw new Error('El nombre del archivo CodeKey no coincide con el registrado.');
                 }
 

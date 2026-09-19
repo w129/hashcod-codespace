@@ -35,7 +35,7 @@ assert(css.includes('.hashcod-image-vault-code-dialog'), 'protected download cod
 
 assert(loader.includes("vector-image-vault.css?v=20260911-1"), 'PNG vault stylesheet is not loaded by the platform');
 assert(loader.includes("vector-image-vault.js?v=20260912-1"), 'PNG vault script is not loaded by the platform');
-assert(loader.includes("platform-entry-slogan.js?v=20260911-2"), 'tray script cache bust must include the current functional version');
+assert(loader.includes("platform-entry-slogan.js?v=20260919-perf1"), 'tray script cache bust must include the current functional version');
 
 assert(tray.includes('const HASHCOD_STORE_MODULE_ICON'), 'second tray icon constant missing');
 assert(tray.includes('slot: 1'), 'second vector tray cube must be registered');

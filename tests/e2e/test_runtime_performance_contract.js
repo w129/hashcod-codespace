@@ -17,6 +17,7 @@ const slogan = read('components/platform-entry-slogan.js');
 const footer = read('components/platform-entry-capability-footer.js');
 const footerFix = read('components/platform-entry-capability-footer-fix.js');
 const admin = read('components/admin-device.js');
+const codekeyRescue = read('components/admin-codekey-picker-rescue.js');
 const hosted = read('l8-html.php');
 const local = read('laragon-local-entry.php');
 
@@ -61,6 +62,11 @@ assert(footerFix.includes('function stopLayoutWatch()'), 'entry layout observer 
 assert(admin.includes('let codeKeyObserver = null'), 'admin observer must be lifecycle-managed');
 assert(admin.includes('codeKeyObserver.observe(root'), 'admin observer must be scoped to its local root');
 assert(admin.includes("'hashcod:final-entry-screen'"), 'admin boot observer must stop after entry handoff');
+assert(!codekeyRescue.includes('EFT_SYNC_INTERVAL_MS = 160'), 'EFT CodeKey gate must not poll every 160ms');
+assert(!codekeyRescue.includes('window.setInterval(syncEftGate'), 'EFT CodeKey gate must be event-driven');
+assert(codekeyRescue.includes('function scheduleEftGateSync()'), 'EFT CodeKey gate work must be frame-batched');
+assert(codekeyRescue.includes('gateMutationRelevant'), 'EFT CodeKey observer must filter unrelated DOM changes');
+assert(codekeyRescue.includes("document.visibilityState === 'hidden'"), 'EFT CodeKey gate must pause hidden-tab layout work');
 
 assert(hosted.includes("$rareFolderExternalTag = $rareFolderBundle === ''"), 'production must not parse Rare UI twice when the inline bundle exists');
 assert(local.includes("$rareExternal = $rareBundle === ''"), 'local runtime must not parse Rare UI twice when the inline bundle exists');

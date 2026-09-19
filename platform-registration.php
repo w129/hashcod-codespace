@@ -354,7 +354,7 @@ function hprListRegistrationEvidencePaths(string $prefix, int $depth = 0): array
     return array_values(array_unique($paths));
 }
 
-function hprRegistrationEvidenceByRowId(array $rowIds = []): array {
+function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = []): array {
     $map = [];
 
     // Fast path for records created after the row-index fix.
@@ -372,6 +372,22 @@ function hprRegistrationEvidenceByRowId(array $rowIds = []): array {
         }
     }
 
+    // Build a cautious compatibility lookup for very early sidecars that
+    // predate registration_row_id. A sidecar is linked automatically only
+    // when platform_name uniquely identifies a row, or when a unique nearest
+    // timestamp match exists within five minutes.
+    $rowsByPlatform = [];
+    foreach ($storedRows as $storedRow) {
+        if (!is_array($storedRow)) continue;
+        $id = trim((string)($storedRow['id'] ?? ''));
+        $platform = mb_strtolower(trim((string)($storedRow['platform_name'] ?? '')), 'UTF-8');
+        if ($id === '' || $platform === '') continue;
+        $rowsByPlatform[$platform][] = [
+            'id'=>$id,
+            'created_at'=>(string)($storedRow['created_at'] ?? ''),
+        ];
+    }
+
     // Recovery path for records that were saved before evidence-by-row existed.
     // Storage list() is not recursive, so walk each folder level explicitly.
     $paths = hprListRegistrationEvidencePaths('platform-registrations/code');
@@ -381,7 +397,41 @@ function hprRegistrationEvidenceByRowId(array $rowIds = []): array {
         if (!$data) continue;
 
         $rowId = trim((string)($data['registration_row_id'] ?? ''));
+
+        if ($rowId === '') {
+            $platform = mb_strtolower(trim((string)($data['platform_name'] ?? '')), 'UTF-8');
+            $candidates = $platform !== '' ? ($rowsByPlatform[$platform] ?? []) : [];
+
+            if (count($candidates) === 1) {
+                $rowId = (string)$candidates[0]['id'];
+            } elseif (count($candidates) > 1) {
+                $evidenceTs = strtotime((string)($data['created_at'] ?? ''));
+                if ($evidenceTs !== false) {
+                    $ranked = [];
+                    foreach ($candidates as $candidate) {
+                        $candidateTs = strtotime((string)($candidate['created_at'] ?? ''));
+                        if ($candidateTs === false) continue;
+                        $delta = abs($candidateTs - $evidenceTs);
+                        if ($delta <= 300) {
+                            $ranked[] = ['id'=>(string)$candidate['id'], 'delta'=>$delta];
+                        }
+                    }
+                    usort($ranked, static fn(array $a, array $b): int => $a['delta'] <=> $b['delta']);
+                    if (
+                        count($ranked) === 1
+                        || (
+                            count($ranked) > 1
+                            && (int)$ranked[0]['delta'] < (int)$ranked[1]['delta']
+                        )
+                    ) {
+                        $rowId = (string)$ranked[0]['id'];
+                    }
+                }
+            }
+        }
+
         if ($rowId !== '' && !isset($map[$rowId])) {
+            $data['registration_row_id'] = $rowId;
             $map[$rowId] = $data;
 
             // Self-heal old registrations by creating the direct row index.
@@ -792,7 +842,7 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     }
 
     $compatEvidenceByRowId = $needsCompatibilityEvidence
-        ? hprRegistrationEvidenceByRowId($registrationRowIds)
+        ? hprRegistrationEvidenceByRowId($registrationRowIds, $storedRows)
         : [];
 
     $rows = [];

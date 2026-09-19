@@ -180,6 +180,17 @@ assert(js.includes('He leído y acepto contractualmente el'), 'checkbox copy mus
 assert(js.includes('Documento Contractual y de Privacidad'), 'contract document link copy missing');
 assert(js.includes('function waitForSuccessfulSubmission()'), 'registration must expose a successful-submit gate');
 assert(js.includes('hashcodRegistrationCodeReceipt'), 'private registration code receipt missing');
+assert(js.includes('hashcodRegistrationTurnstile'), 'registration Turnstile block missing');
+assert(js.includes("api/cloudflare/turnstile/config"), 'registration Turnstile config endpoint missing');
+assert(js.includes("api/cloudflare/turnstile/verify"), 'registration Turnstile verify endpoint missing');
+assert(js.includes("https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"), 'official Turnstile client script missing');
+assert(js.includes("window.turnstile.render(widget"), 'explicit Turnstile rendering missing');
+assert(js.includes("verifyTurnstileToken(token)"), 'Turnstile callback verification missing');
+assert(js.includes("response.status === 429"), 'registration must intercept rate-limit challenges');
+assert(js.includes("data.code === 'turnstile_challenge_required'"), 'Turnstile challenge response handling missing');
+assert(js.includes("turnstileVerifiedUntil = Date.now() + (14 * 60 * 1000)"), 'clearance safety window missing');
+assert(css.includes('.hashcod-registration-turnstile'), 'Turnstile registration styling missing');
+assert(api.includes("securityRateChallengeJson($retryAfter, 'platform_registration_submit')"), 'registration backend must return Turnstile challenge metadata');
 assert(js.includes('hashcodRegistrationPrivateCode'), 'private registration code display missing');
 assert(js.includes('COPIAR CÓDIGO'), 'registration code copy action missing');
 assert(js.includes('CONTINUAR A HASHCOD'), 'registration code acknowledgement action missing');
@@ -309,17 +320,17 @@ assert(css.includes('.hashcod-notification-list'), 'NotificationList visual styl
 assert(css.includes('.hashcod-notification-card'), 'NotificationList card styling missing');
 
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260918-21'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-27'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260918-21'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-27'), 'local registration JS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-22'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-28'), 'hosted registration JS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-22'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-28'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');
 assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
 assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
 assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
-assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-27'"), 'hold runtime must be versioned');
+assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-28'"), 'hold runtime must be versioned');
 assert(hold.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
 assert(!hold.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
 assert(!hold.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');
@@ -335,9 +346,9 @@ assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visi
 assert(local.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'local form must be forcibly hidden before screen 3');
 assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
-assert(hosted.includes('platform-entry-hold.js?v=20260918-27'), 'hosted second screen must load directly');
+assert(hosted.includes('platform-entry-hold.js?v=20260918-28'), 'hosted second screen must load directly');
 assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
-assert(local.includes('platform-entry-hold.js?v=20260918-27'), 'local second screen must load directly');
+assert(local.includes('platform-entry-hold.js?v=20260918-28'), 'local second screen must load directly');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

@@ -323,7 +323,16 @@ if ($method === 'POST') {
         $clientIp = function_exists('securityClientIp') ? securityClientIp() : (string)($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
         $rate = securityRateAllowSliding('platform_registration_submit', 8, 600, $clientIp);
         if (empty($rate['allowed'])) {
-            header('Retry-After: ' . max(1, (int)($rate['retry_after'] ?? 60)));
+            $retryAfter = max(1, (int)($rate['retry_after'] ?? 60));
+            if (
+                !empty($rate['challenge_required'])
+                && function_exists('securityRateChallengeJson')
+                && function_exists('cfTurnstileIsEnabled')
+                && cfTurnstileIsEnabled()
+            ) {
+                securityRateChallengeJson($retryAfter, 'platform_registration_submit');
+            }
+            header('Retry-After: ' . $retryAfter);
             hprJson(429, ['ok'=>false, 'error'=>'Demasiados intentos. Inténtalo de nuevo más tarde.']);
         }
     }

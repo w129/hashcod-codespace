@@ -133,14 +133,6 @@ if ($uri === '/toolbox-secure.php' || $uri === '/api/toolbox-secure') {
     exit;
 }
 
-// Public adult-registration intake + admin-only table projection.
-// The controller enforces same-origin/rate limiting for writes and calls
-// adminRequire() server-side before returning stored personal data.
-if ($uri === '/api/platform-registration') {
-    require __DIR__ . '/platform-registration.php';
-    exit;
-}
-
 // API
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

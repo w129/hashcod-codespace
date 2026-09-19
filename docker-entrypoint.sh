@@ -60,6 +60,16 @@ if [ "$(id -u)" = "0" ]; then
   chmod 700 /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh || true
 fi
 
+# Purga idempotente del antiguo flujo de solicitudes persistidas.
+# Usa únicamente las credenciales de producción del backend y no imprime secretos.
+if [ -f /var/www/html/cleanup-platform-registration.php ]; then
+  if [ "$(id -u)" = "0" ]; then
+    gosu l8user php /var/www/html/cleanup-platform-registration.php || true
+  else
+    php /var/www/html/cleanup-platform-registration.php || true
+  fi
+fi
+
 # Render inyecta PORT; Caddy escucha ahí y PHP queda interno
 export PORT="${PORT:-8000}"
 echo "[l8] public PORT=${PORT}"

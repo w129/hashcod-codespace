@@ -151,7 +151,7 @@
             const link = document.createElement('link');
             link.id = 'platformRegistrationStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'platform-registration-form.css?v=20260918-28';
+            link.href = componentBase + 'platform-registration-form.css?v=20260919-29';
             link.dataset.hashcodPlatformRegistrationStyle = 'true';
             document.head.appendChild(link);
         }
@@ -170,7 +170,7 @@
                 document.querySelector('script[data-hashcod-platform-registration]')
             ) return;
             const registrationScript = document.createElement('script');
-            registrationScript.src = componentBase + 'platform-registration-form.js?v=20260919-39';
+            registrationScript.src = componentBase + 'platform-registration-form.js?v=20260919-40';
             registrationScript.defer = true;
             registrationScript.dataset.hashcodPlatformRegistration = 'true';
             document.head.appendChild(registrationScript);

@@ -103,7 +103,7 @@ async function run() {
       const age = document.getElementById('hashcodRegAge');
       const cedula = document.getElementById('hashcodRegCedula');
       const submit = document.getElementById('hashcodRegistrationSubmit');
-      const tableButton = document.getElementById('hashcodRegistrationTableButton');
+      const whatsappButton = document.getElementById('hashcodRegistrationWhatsappButton');
       return {
         width: rect.width,
         height: rect.height,
@@ -114,7 +114,7 @@ async function run() {
         ageMax: age ? age.max : null,
         cedulaPlaceholder: cedula ? cedula.placeholder : null,
         submitDisabled: submit ? submit.disabled : null,
-        tableButtonVisible: tableButton ? getComputedStyle(tableButton).display !== 'none' : false,
+        whatsappButtonVisible: whatsappButton ? getComputedStyle(whatsappButton).display !== 'none' : false,
         viewportWidth: innerWidth,
         viewportHeight: innerHeight,
         screen: node.dataset.hashcodScreen || ''
@@ -134,7 +134,7 @@ async function run() {
     assert.equal(finalRegistration.ageMax, '120', 'registration age field must keep a sane maximum');
     assert.equal(finalRegistration.cedulaPlaceholder, '000-0000000-0', 'cedula format must show hyphens');
     assert.equal(finalRegistration.submitDisabled, true, 'empty registration form submit must begin disabled');
-    assert.equal(finalRegistration.tableButtonVisible, true, 'database table icon button must be visible beside submit');
+    assert.equal(finalRegistration.whatsappButtonVisible, true, 'WhatsApp request icon button must be visible beside submit');
 
     // Runtime validation: under-18 users must remain blocked even when every
     // other required field is valid. At 18+, the same completed form may submit.
@@ -156,9 +156,21 @@ async function run() {
       consent.checked = true;
       consent.dispatchEvent(new Event('change', { bubbles: true }));
     });
+    await page.setInputFiles('#hashcodRegCodeFile', {
+      name: 'hashcod-ux-test.zip',
+      mimeType: 'application/zip',
+      buffer: Buffer.from('PK\\u0003\\u0004hashcod-ux-test-code')
+    });
+    await page.waitForFunction(() => {
+      const codeButton = document.getElementById('hashcodRegCodeButton');
+      return Boolean(codeButton && codeButton.classList.contains('is-loaded'));
+    }, { timeout: 3000 });
+
     await page.waitForTimeout(100);
     assert.equal(await page.isDisabled('#hashcodRegistrationSubmit'), true,
       '17-year-old registration must remain blocked in the real browser');
+    assert.equal(await page.isDisabled('#hashcodRegistrationWhatsappButton'), true,
+      '17-year-old registration must keep the WhatsApp action disabled');
 
     await page.evaluate(() => {
       const age = document.getElementById('hashcodRegAge');
@@ -166,9 +178,24 @@ async function run() {
       age.dispatchEvent(new Event('input', { bubbles: true }));
       age.dispatchEvent(new Event('change', { bubbles: true }));
     });
+
+    await page.waitForFunction(() => {
+      const consent = document.getElementById('hashcodRegConsent');
+      return Boolean(consent && consent.disabled === false);
+    }, { timeout: 3000 });
+
+    await page.evaluate(() => {
+      const consent = document.getElementById('hashcodRegConsent');
+      consent.checked = true;
+      consent.dispatchEvent(new Event('input', { bubbles: true }));
+      consent.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
     await page.waitForTimeout(100);
     assert.equal(await page.isEnabled('#hashcodRegistrationSubmit'), true,
       '18+ completed registration must enable submit in the real browser');
+    assert.equal(await page.isEnabled('#hashcodRegistrationWhatsappButton'), true,
+      '18+ completed registration must enable the WhatsApp action in the real browser');
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');

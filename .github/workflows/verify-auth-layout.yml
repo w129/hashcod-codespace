@@ -45,9 +45,7 @@ on:
       - components/topbar-windows-hello.js
       - components/platform-registration-form.js
       - components/platform-registration-form.css
-      - platform-registration.php
       - supabase/schema.sql
-      - supabase/migrations/20260917_create_hashcod_platform_registrations.sql
       - supabase/migrations/20260913_create_secure_toolbox_links.sql
       - supabase/migrations/20260913_add_toolbox_access_signature_hash.sql
       - tests/e2e/test_auth_vector_layout_fix.js
@@ -83,9 +81,7 @@ on:
       - components/toolbox-signature-copy.js
       - components/platform-registration-form.js
       - components/platform-registration-form.css
-      - platform-registration.php
       - supabase/schema.sql
-      - supabase/migrations/20260917_create_hashcod_platform_registrations.sql
       - components/auth-vector-layout-fix.js
       - components/auth-register-resilience.js
       - components/platform-entry-capability-footer-fix.js
@@ -177,8 +173,8 @@ jobs:
       - name: Syntax check platform registration form
         run: node --check components/platform-registration-form.js
 
-      - name: Syntax check platform registration API
-        run: php -l platform-registration.php
+      - name: Syntax check retired registration cleanup
+        run: php -l cleanup-platform-registration.php
 
       - name: Syntax check CodeKey admin backend
         run: php -l admin-device.php

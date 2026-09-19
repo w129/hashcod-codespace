@@ -201,6 +201,16 @@ function hprRegistrationEncrypt(string $plaintext): string {
     return secretsEncrypt($plaintext, hprRegistrationCryptoKey());
 }
 
+function hprRegistrationRoundTrip(array $plain, array $encrypted): bool {
+    foreach (['full_name','cedula','email','phone'] as $field) {
+        $encField = $field . '_enc';
+        if (!isset($plain[$field], $encrypted[$encField])) return false;
+        $decoded = hprRegistrationDecrypt((string)$encrypted[$encField]);
+        if (!hash_equals((string)$plain[$field], (string)$decoded)) return false;
+    }
+    return true;
+}
+
 function hprRegistrationDecrypt(string $blob): string {
     if ($blob === '') return '';
 
@@ -827,6 +837,17 @@ if ($method === 'POST') {
         }
     }
 
+    // Fail closed: never persist an identity that cannot be read back using
+    // the same persistent registration key. This guards Render redeploys/key
+    // drift before any user data is committed.
+    if (!hprRegistrationRoundTrip($validated, $row)) {
+        hprJson(503, [
+            'ok'=>false,
+            'error'=>'La verificación de cifrado del registro falló. No se guardaron datos.',
+            'code'=>'registration_crypto_roundtrip_failed',
+        ]);
+    }
+
     $uploadedCode = hprUploadCodeStorage($codeUpload);
     if (empty($uploadedCode['ok'])) {
         $storageStatus = (int)($uploadedCode['status'] ?? 0);
@@ -1186,11 +1207,15 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
         }
 
         $identityRecoverable = $fullName !== '' || $cedula !== '' || $email !== '' || $phone !== '';
+        $identityStatus = $identityRecoverable
+            ? 'ok'
+            : 'legacy_key_unavailable';
 
         $rows[] = [
             'id'=>$stored['id'] ?? null,
             'full_name'=>$fullName,
             'identity_recoverable'=>$identityRecoverable,
+            'identity_status'=>$identityStatus,
             'age'=>(int)($stored['age'] ?? 0),
             'cedula'=>$cedula,
             'platform_name'=>(string)($stored['platform_name'] ?? ''),

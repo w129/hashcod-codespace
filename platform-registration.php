@@ -618,7 +618,11 @@ function hprListRegistrationEvidencePaths(string $prefix, int $depth = 0): array
     return array_values(array_unique($paths));
 }
 
-function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = []): array {
+function hprRegistrationEvidenceByRowId(
+    array $rowIds = [],
+    array $storedRows = [],
+    bool $allowLegacyScan = true
+): array {
     $map = [];
     $requestedIds = [];
 
@@ -643,6 +647,11 @@ function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = 
     if ($requestedIds !== [] && count($map) === count($requestedIds)) {
         return $map;
     }
+
+    // The interactive administrative table must not wait on a recursive
+    // Storage walk just to display rows. It can use deterministic evidence-by-row
+    // objects when present and gracefully fall back to the database fields.
+    if (!$allowLegacyScan) return $map;
 
     // Build a cautious compatibility lookup for very early sidecars that
     // predate registration_row_id. A sidecar is linked automatically only
@@ -1248,7 +1257,7 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
 
     $evidenceRowIds = array_values(array_unique($evidenceRowIds));
     $compatEvidenceByRowId = $evidenceRowIds !== []
-        ? hprRegistrationEvidenceByRowId($evidenceRowIds, $storedRows)
+        ? hprRegistrationEvidenceByRowId($evidenceRowIds, $storedRows, false)
         : [];
 
     $rows = [];

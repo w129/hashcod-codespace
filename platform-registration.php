@@ -724,6 +724,20 @@ function hprGenerateRegistrationCode(): array {
     ];
 }
 
+function hprLegacyReplacementCode(array $stored): array {
+    $rowId = (string)($stored['id'] ?? '');
+    $platform = (string)($stored['platform_name'] ?? '');
+    $created = (string)($stored['created_at'] ?? '');
+    $material = 'legacy-registration|' . $rowId . '|' . $platform . '|' . $created;
+    $hex = strtoupper(hash_hmac('sha256', $material, hprRegistrationCryptoKey()));
+    $plain = 'HC2-' . implode('-', str_split(substr($hex, 0, 32), 8));
+    return [
+        'plain'=>$plain,
+        'sha256'=>hash('sha256', $plain),
+        'hint'=>substr($plain, -8),
+    ];
+}
+
 function hprAcceptanceEvidenceSha256(
     array $validated,
     array $codeUpload,
@@ -1152,144 +1166,31 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
 
     $storedRows = is_array($res['body'] ?? null) ? $res['body'] : [];
 
-    // Only the CodeKey-protected administrative view resolves plaintext
-    // registration codes. Prefer the encrypted DB column; compatibility-mode
-    // rows can be recovered from their encrypted private sidecars.
-    $needsCompatibilityEvidence = false;
-    foreach ($storedRows as $storedRowProbe) {
-        if (!is_array($storedRowProbe)) continue;
-        $codeMissing = (string)($storedRowProbe['registration_code_enc'] ?? '') === '';
-        $identityEncrypted =
-            (string)($storedRowProbe['full_name_enc'] ?? '') !== ''
-            || (string)($storedRowProbe['cedula_enc'] ?? '') !== ''
-            || (string)($storedRowProbe['email_enc'] ?? '') !== ''
-            || (string)($storedRowProbe['phone_enc'] ?? '') !== '';
-        if ($codeMissing || $identityEncrypted) {
-            $needsCompatibilityEvidence = true;
-            break;
-        }
-    }
-    $registrationRowIds = [];
-    foreach ($storedRows as $storedRowIdProbe) {
-        if (!is_array($storedRowIdProbe)) continue;
-        $candidateId = trim((string)($storedRowIdProbe['id'] ?? ''));
-        if ($candidateId !== '') $registrationRowIds[] = $candidateId;
-    }
-
-    $compatEvidenceByRowId = $needsCompatibilityEvidence
-        ? hprRegistrationEvidenceByRowId($registrationRowIds, $storedRows)
-        : [];
+    // Keep the CodeKey-protected table fast: do not recursively scan Storage
+    // before opening it. Current rows use registration_code_enc directly.
+    // Legacy rows that cannot be decrypted receive a stable deterministic
+    // replacement code derived from the persistent registration key.
+    $compatEvidenceByRowId = [];
 
     $rows = [];
     foreach ($storedRows as $stored) {
         if (!is_array($stored)) continue;
 
         $registrationCode = '';
+        $registrationCodeReissued = false;
         $registrationCodeEnc = (string)($stored['registration_code_enc'] ?? '');
+
         if ($registrationCodeEnc !== '') {
             $registrationCode = hprRegistrationDecrypt($registrationCodeEnc);
         }
 
-        $compatEvidence = null;
-        $rowIdKey = (string)($stored['id'] ?? '');
-        if ($registrationCode === '' && $rowIdKey !== '' && isset($compatEvidenceByRowId[$rowIdKey])) {
-            $compatEvidence = $compatEvidenceByRowId[$rowIdKey];
-        } elseif (
-            $registrationCode === ''
-            && (string)($stored['code_storage_path'] ?? '') !== ''
-        ) {
-            $compatPath = (string)$stored['code_storage_path'] . '.registration-evidence.l8e1';
-            $compatDownload = hprDownloadRegistrationEvidence($compatPath);
-            if (!empty($compatDownload['ok']) && is_array($compatDownload['data'] ?? null)) {
-                $compatEvidence = $compatDownload['data'];
-            }
-        }
-
-        if ($registrationCode === '' && is_array($compatEvidence)) {
-            $compatCodeEnc = (string)($compatEvidence['registration_code_enc'] ?? '');
-            if ($compatCodeEnc !== '') {
-                $registrationCode = hprRegistrationDecrypt($compatCodeEnc);
-            }
-        }
-
-        $registrationCodeReissued = false;
-        if ($registrationCode === '' && $rowIdKey !== '') {
-            // The original ciphertext may have been created with an ephemeral
-            // Render key that no longer exists. It cannot be reversed without
-            // that key, so create one persistent replacement exactly once.
-            $replacement = hprGenerateRegistrationCode();
-            $replacementEvidence = is_array($compatEvidence) ? $compatEvidence : [];
-            $replacementEvidence['format'] = 'HASHCOD-REGISTRATION-EVIDENCE-2';
-            $replacementEvidence['registration_row_id'] = $rowIdKey;
-            $replacementEvidence['platform_name'] = (string)($stored['platform_name'] ?? '');
-            $replacementEvidence['created_at'] = (string)($stored['created_at'] ?? gmdate('c'));
-            $replacementEvidence['registration_code_enc'] = hprRegistrationEncrypt($replacement['plain']);
-            $replacementEvidence['registration_code_sha256'] = $replacement['sha256'];
-            $replacementEvidence['registration_code_hint'] = $replacement['hint'];
-            $replacementEvidence['registration_code_status'] = 'reissued_after_key_loss';
-            $replacementEvidence['registration_code_reissued_at'] = gmdate('c');
-
-            $persistReplacement = hprUploadFallbackRegistrationEvidence(
-                'platform-registrations/evidence-by-row/' . $rowIdKey,
-                $replacementEvidence
-            );
-
-            if (!empty($persistReplacement['ok'])) {
-                $registrationCode = $replacement['plain'];
-                $compatEvidence = $replacementEvidence;
-                $compatEvidenceByRowId[$rowIdKey] = $replacementEvidence;
-                $registrationCodeReissued = true;
-            } else {
-                error_log(
-                    '[hashcod-platform-registration] replacement code persistence failed'
-                    . ' row_id=' . $rowIdKey
-                    . ' status=' . (int)($persistReplacement['status'] ?? 0)
-                );
-            }
-        } elseif (
-            is_array($compatEvidence)
-            && (string)($compatEvidence['registration_code_status'] ?? '') === 'reissued_after_key_loss'
-        ) {
+        if ($registrationCode === '') {
+            $legacyReplacement = hprLegacyReplacementCode($stored);
+            $registrationCode = $legacyReplacement['plain'];
             $registrationCodeReissued = true;
         }
 
-        $fullName = hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? ''));
-        $cedula = hprRegistrationDecrypt((string)($stored['cedula_enc'] ?? ''));
-        $email = hprRegistrationDecrypt((string)($stored['email_enc'] ?? ''));
-        $phone = hprRegistrationDecrypt((string)($stored['phone_enc'] ?? ''));
-
-        if (
-            !is_array($compatEvidence)
-            && $rowIdKey !== ''
-            && ($fullName === '' || $cedula === '' || $email === '' || $phone === '')
-        ) {
-            $directIdentityEvidence = hprDownloadRegistrationEvidence(
-                'platform-registrations/evidence-by-row/' . $rowIdKey . '.registration-evidence.l8e1'
-            );
-            if (!empty($directIdentityEvidence['ok']) && is_array($directIdentityEvidence['data'] ?? null)) {
-                $compatEvidence = $directIdentityEvidence['data'];
-            }
-        }
-
-        if (is_array($compatEvidence)) {
-            if ($fullName === '') {
-                $fullName = hprRegistrationDecrypt((string)($compatEvidence['full_name_enc'] ?? ''));
-            }
-            if ($cedula === '') {
-                $cedula = hprRegistrationDecrypt((string)($compatEvidence['cedula_enc'] ?? ''));
-            }
-            if ($email === '') {
-                $email = hprRegistrationDecrypt((string)($compatEvidence['email_enc'] ?? ''));
-            }
-            if ($phone === '') {
-                $phone = hprRegistrationDecrypt((string)($compatEvidence['phone_enc'] ?? ''));
-            }
-        }
-
-        $identityRecoverable = $fullName !== '' || $cedula !== '' || $email !== '' || $phone !== '';
-        $identityStatus = $identityRecoverable
-            ? 'ok'
-            : 'legacy_key_unavailable';
+        $compatEvidence = null;
 
         $rows[] = [
             'id'=>$stored['id'] ?? null,
@@ -1312,14 +1213,8 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             'registration_code'=>$registrationCode,
             'registration_code_reissued'=>$registrationCodeReissued,
             'registration_code_stored'=>$registrationCode !== '' || ((string)($stored['registration_code_sha256'] ?? '')) !== '',
-            'registration_code_hint'=>(string)(
-                $stored['registration_code_hint']
-                ?? ($compatEvidence['registration_code_hint'] ?? '')
-            ),
-            'registration_code_sha256'=>(string)(
-                $stored['registration_code_sha256']
-                ?? ($compatEvidence['registration_code_sha256'] ?? '')
-            ),
+            'registration_code_hint'=>$registrationCode !== '' ? substr($registrationCode, -8) : '',
+            'registration_code_sha256'=>(string)($stored['registration_code_sha256'] ?? ($registrationCode !== '' ? hash('sha256', $registrationCode) : '')),
             'email'=>$email,
             'phone'=>$phone,
             'created_at'=>(string)($stored['created_at'] ?? ''),

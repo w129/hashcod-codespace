@@ -294,44 +294,107 @@ function hprDownloadRegistrationEvidence(string $path): array {
     return ['ok'=>true, 'data'=>$data];
 }
 
-function hprRegistrationEvidenceByRowId(): array {
+function hprListRegistrationEvidencePaths(string $prefix, int $depth = 0): array {
+    if ($depth > 6) return [];
+
+    $prefix = trim(str_replace('\\', '/', $prefix), '/');
+    if ($prefix === '') return [];
+
+    $paths = [];
+    $offset = 0;
+    $limit = 100;
+
+    while ($offset < 5000) {
+        $list = supabaseRequest(
+            'storage/v1/object/list/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET),
+            [
+                'method'=>'POST',
+                'use_secret'=>true,
+                'bypass_circuit'=>true,
+                'body'=>[
+                    'prefix'=>$prefix,
+                    'limit'=>$limit,
+                    'offset'=>$offset,
+                    'sortBy'=>['column'=>'name','order'=>'asc'],
+                ],
+                'timeout'=>20,
+            ]
+        );
+
+        if (empty($list['ok'])) break;
+        $items = is_array($list['body'] ?? null) ? $list['body'] : [];
+        if (!$items) break;
+
+        foreach ($items as $item) {
+            if (!is_array($item)) continue;
+            $name = trim((string)($item['name'] ?? ''), '/');
+            if ($name === '') continue;
+
+            $fullPath = str_starts_with($name, $prefix . '/')
+                ? $name
+                : $prefix . '/' . $name;
+
+            $isFolder = !array_key_exists('id', $item) || $item['id'] === null;
+            if ($isFolder) {
+                foreach (hprListRegistrationEvidencePaths($fullPath, $depth + 1) as $nested) {
+                    $paths[] = $nested;
+                }
+                continue;
+            }
+
+            if (str_ends_with($fullPath, '.registration-evidence.l8e1')) {
+                $paths[] = $fullPath;
+            }
+        }
+
+        if (count($items) < $limit) break;
+        $offset += $limit;
+    }
+
+    return array_values(array_unique($paths));
+}
+
+function hprRegistrationEvidenceByRowId(array $rowIds = []): array {
     $map = [];
-    $list = supabaseRequest(
-        'storage/v1/object/list/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET),
-        [
-            'method'=>'POST',
-            'use_secret'=>true,
-            'bypass_circuit'=>true,
-            'body'=>[
-                'prefix'=>'platform-registrations/code',
-                'limit'=>1000,
-                'offset'=>0,
-                'sortBy'=>['column'=>'created_at','order'=>'desc'],
-                'search'=>'.registration-evidence.l8e1',
-            ],
-            'timeout'=>20,
-        ]
-    );
 
-    $objects = is_array($list['body'] ?? null) ? $list['body'] : [];
-    foreach ($objects as $object) {
-        if (!is_array($object)) continue;
-        $name = (string)($object['name'] ?? '');
-        if ($name === '' || !str_ends_with($name, '.registration-evidence.l8e1')) continue;
+    // Fast path for records created after the row-index fix.
+    foreach ($rowIds as $rowId) {
+        $rowId = trim((string)$rowId);
+        if ($rowId === '') continue;
 
-        // Supabase list may return names relative to the requested prefix.
-        $path = str_starts_with($name, 'platform-registrations/code')
-            ? $name
-            : 'platform-registrations/code/' . ltrim($name, '/');
+        $directPath = 'platform-registrations/evidence-by-row/'
+            . rawurlencode($rowId)
+            . '.registration-evidence.l8e1';
+        $direct = hprDownloadRegistrationEvidence($directPath);
+        $data = is_array($direct['data'] ?? null) ? $direct['data'] : null;
+        if ($data) {
+            $map[$rowId] = $data;
+        }
+    }
 
+    // Recovery path for records that were saved before evidence-by-row existed.
+    // Storage list() is not recursive, so walk each folder level explicitly.
+    $paths = hprListRegistrationEvidencePaths('platform-registrations/code');
+    foreach ($paths as $path) {
         $evidence = hprDownloadRegistrationEvidence($path);
         $data = is_array($evidence['data'] ?? null) ? $evidence['data'] : null;
         if (!$data) continue;
-        $rowId = (string)($data['registration_row_id'] ?? '');
-        if ($rowId !== '') $map[$rowId] = $data;
+
+        $rowId = trim((string)($data['registration_row_id'] ?? ''));
+        if ($rowId !== '' && !isset($map[$rowId])) {
+            $map[$rowId] = $data;
+
+            // Self-heal old registrations by creating the direct row index.
+            hprUploadFallbackRegistrationEvidence(
+                'platform-registrations/evidence-by-row/' . $rowId,
+                $data
+            );
+        }
     }
+
     return $map;
 }
+
 
 function hprGenerateRegistrationCode(): array {
     // 128 bits of server-side CSPRNG entropy. The readable grouped hex format
@@ -635,6 +698,14 @@ if ($method === 'POST') {
                         $codeUpload['storage_path'],
                         $fallbackEvidence
                     );
+
+                    // Also create a deterministic private row index. This makes
+                    // the exact HC1 code retrievable in one request from the
+                    // CodeKey-protected administrative table.
+                    hprUploadFallbackRegistrationEvidence(
+                        'platform-registrations/evidence-by-row/' . (string)$savedCompat['id'],
+                        $fallbackEvidence
+                    );
                 }
             }
         }
@@ -713,8 +784,15 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             break;
         }
     }
+    $registrationRowIds = [];
+    foreach ($storedRows as $storedRowIdProbe) {
+        if (!is_array($storedRowIdProbe)) continue;
+        $candidateId = trim((string)($storedRowIdProbe['id'] ?? ''));
+        if ($candidateId !== '') $registrationRowIds[] = $candidateId;
+    }
+
     $compatEvidenceByRowId = $needsCompatibilityEvidence
-        ? hprRegistrationEvidenceByRowId()
+        ? hprRegistrationEvidenceByRowId($registrationRowIds)
         : [];
 
     $rows = [];

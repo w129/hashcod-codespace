@@ -198,6 +198,15 @@ assert(api.includes('function hprRegistrationCryptoKey(): string'), 'stable regi
 assert(api.includes("'version'=>'HASHCOD-REGISTRATION-DATA-KEY-1'"), 'persistent registration key format missing');
 assert(api.includes("'x-upsert: false'"), 'persistent registration key must be first-write-wins');
 assert(api.includes("'registration_key_ready'=>$registrationKeyReady"), 'readiness endpoint must expose persistent registration key state');
+assert(api.includes('function hprRegistrationRoundTrip(array $plain, array $encrypted): bool'), 'registration identity round-trip verifier missing');
+assert(api.includes('function hprRegistrationCryptoProbe(): bool'), 'registration crypto self-test missing');
+assert(api.includes("'registration_crypto_roundtrip_ready'=>$registrationCryptoRoundtripReady"), 'registration crypto round-trip readiness missing');
+assert(api.includes('$registrationCryptoRoundtripReady = $registrationKeyReady'), 'readiness must run the crypto self-test after loading the persistent key');
+assert(api.includes('if (!hprRegistrationRoundTrip($validated, $row))'), 'POST must fail closed when identity cannot decrypt after encryption');
+assert(api.includes("'code'=>'registration_crypto_roundtrip_failed'"), 'POST crypto round-trip diagnostic code missing');
+assert(api.includes("'full_name_enc'=>hprRegistrationEncrypt($validated['full_name'])"), 'full name must use persistent registration encryption');
+assert(api.includes("'full_name'=>$fullName"), 'admin projection must return the decrypted full name');
+assert(js.includes('NO RECUPERABLE · CLAVE ANTIGUA'), 'legacy identity state must be explicit instead of a blank dash');
 assert(api.includes('$ready = $storageConfigured && $tableReady && $registrationBucketReady && $registrationKeyReady;'), 'registration readiness must fail closed without persistent key');
 assert(api.includes("secretGet('L8_DATA_ENCRYPTION_KEY', '')"), 'dedicated data key must seed persistent registration key when configured');
 assert(api.includes('function hprRegistrationLegacyKeys(): array'), 'legacy registration key compatibility list missing');
@@ -384,17 +393,17 @@ assert(css.includes('.hashcod-notification-list'), 'NotificationList visual styl
 assert(css.includes('.hashcod-notification-card'), 'NotificationList card styling missing');
 
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260918-25'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-33'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260918-25'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-33'), 'local registration JS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-26'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-34'), 'hosted registration JS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-26'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-34'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');
 assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
 assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
 assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
-assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-33'"), 'hold runtime must be versioned');
+assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-34'"), 'hold runtime must be versioned');
 assert(hold.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
 assert(!hold.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
 assert(!hold.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');
@@ -410,9 +419,9 @@ assert(hosted.includes('#hashcodPlatformRegistration{display:none!important;visi
 assert(local.includes('#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'),
   'local form must be forcibly hidden before screen 3');
 assert(hosted.includes('platform-entry-motion.js?v=20260918-1'), 'hosted entry motion must load directly');
-assert(hosted.includes('platform-entry-hold.js?v=20260918-33'), 'hosted second screen must load directly');
+assert(hosted.includes('platform-entry-hold.js?v=20260918-34'), 'hosted second screen must load directly');
 assert(local.includes('platform-entry-motion.js?v=20260918-1'), 'local entry motion must load directly');
-assert(local.includes('platform-entry-hold.js?v=20260918-33'), 'local second screen must load directly');
+assert(local.includes('platform-entry-hold.js?v=20260918-34'), 'local second screen must load directly');
 assert(!hosted.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in hosted entry');
 assert(!local.includes('hashcodPlatformImprovementSign'), 'temporary improvement sign still wired in local entry');
 assert(router.includes("if ($uri === '/api/platform-registration')"), 'registration API route missing');

@@ -9,7 +9,7 @@ This build vendors the Animate UI Flip Button registry implementation from:
 Only import paths were adapted to this local build tree. The flip motion logic,
 spring settings, context structure, and component API are the upstream Animate UI
 implementation. The Hashcod entry file mounts that component into the existing
-registration form and uses PlusIcon from lucide-react.
+registration form and uses ArrowRightIcon from lucide-react.
 
 ## NotificationList source
 

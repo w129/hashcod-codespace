@@ -753,7 +753,7 @@
         });
         if (!existing) {
             const script = document.createElement('script');
-            script.src = new URL('components/admin-device.js?v=20260917-registration1', baseUrl()).toString();
+            script.src = new URL('components/admin-device.js?v=20260918-codekey2', baseUrl()).toString();
             script.defer = true;
             script.dataset.hashcodRegistrationAdmin = 'true';
             document.head.appendChild(script);

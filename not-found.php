@@ -60,6 +60,6 @@ header('X-Robots-Tag: noindex, nofollow');
     </div>
     <div class="nf-foot"><span>HASHCOD CODESPACE</span><span>HTTP 404 · NOT FOUND</span></div>
   </main>
-  <script defer src="<?= htmlspecialchars($components, ENT_QUOTES, 'UTF-8') ?>hashcod-ux-system.js?v=20260917-1" data-hashcod-ux-system="true"></script>
+  <script defer src="<?= htmlspecialchars($components, ENT_QUOTES, 'UTF-8') ?>hashcod-ux-system.js?v=20260919-perf1" data-hashcod-ux-system="true"></script>
 </body>
 </html>

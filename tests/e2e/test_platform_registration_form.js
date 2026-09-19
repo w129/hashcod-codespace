@@ -20,6 +20,7 @@ const schema = fs.readFileSync(path.join(repoDir, 'supabase/schema.sql'), 'utf8'
 const hosted = fs.readFileSync(path.join(repoDir, 'l8-html.php'), 'utf8');
 const local = fs.readFileSync(path.join(repoDir, 'laragon-local-entry.php'), 'utf8');
 const router = fs.readFileSync(path.join(repoDir, 'router.php'), 'utf8');
+const security = fs.readFileSync(path.join(repoDir, 'security.php'), 'utf8');
 const flipEntry = fs.readFileSync(path.join(repoDir, 'registration-flip-build/entry.tsx'), 'utf8');
 const flipPrimitive = fs.readFileSync(path.join(repoDir, 'registration-flip-build/src/primitives/buttons/flip.tsx'), 'utf8');
 const flipComponent = fs.readFileSync(path.join(repoDir, 'registration-flip-build/src/components/buttons/flip.tsx'), 'utf8');
@@ -279,7 +280,17 @@ assert(js.includes("new CustomEvent('hashcod:platform-entered'"), 'platform-ente
 assert(js.includes("'X-Requested-With': 'XMLHttpRequest'"), 'CSRF/same-origin marker missing');
 assert(js.includes('window.HashcodAdmin.require({ force: false'), 'records table must reuse a valid CodeKey session or open the picker directly from the user click');
 assert(js.includes('throwOnError: true'), 'CodeKey table access must surface verification failures');
+assert(js.includes('function adminStatusUrl()'), 'registration table must have an admin-session status endpoint');
+assert(js.includes('async function confirmAdminSession()'), 'registration table must confirm the CodeKey session after verification');
+assert(js.includes('async function fetchAdminRegistrationRows()'), 'registration table read helper missing');
+assert(js.includes('Selecciona y verifica la CodeKey para continuar…'), 'table overlay must open before CodeKey verification');
+assert(js.includes('CodeKey verificada. Confirmando sesión administrativa…'), 'post-CodeKey handoff state must be visible');
+assert(js.includes('Sesión confirmada. Cargando registros…'), 'confirmed admin session state must be visible');
 assert(js.includes("?view=admin"), 'admin records projection missing');
+assert(security.includes('$isPlatformRegistrationAdmin ='), 'security bootstrap must identify the protected registration-table read');
+assert(security.includes("'platform_registration_admin_table'"), 'protected registration-table read must use its own bounded rate bucket');
+assert(security.includes("!$isPlatformRegistrationAdmin"), 'threat Turnstile challenge must not interpose after CodeKey verification');
+assert(security.includes('if ($isPlatformRegistrationAdmin)'), 'protected registration-table route isolation missing');
 assert(js.includes("tableButton.dataset.adminEngineReady = 'loading'"), 'CodeKey verifier must preload before table click');
 assert(js.includes("ensureAdminEngine().then(function (ready)"), 'CodeKey verifier preload promise missing');
 assert(!js.includes("La tabla requiere la CodeKey administrativa."), 'obsolete CodeKey table error copy must be removed');
@@ -432,9 +443,9 @@ assert(css.includes('.hashcod-notification-card'), 'NotificationList card stylin
 
 // Hosted/local wiring and retired sign removal.
 assert(hosted.includes('platform-registration-form.css?v=20260918-28'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260919-38'), 'hosted registration JS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260919-39'), 'hosted registration JS missing');
 assert(local.includes('platform-registration-form.css?v=20260918-28'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260919-38'), 'local registration JS missing');
+assert(local.includes('platform-registration-form.js?v=20260919-39'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');

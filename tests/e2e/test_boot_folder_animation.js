@@ -45,7 +45,8 @@ assert(docker.includes('test -s /var/www/html/components/rare-folder-entry.bundl
 assert(html.includes('hashcod-rare-folder-preboot'), 'obsolete intro must be suppressed before folder bootstrap');
 assert(html.includes("file_get_contents($rareFolderBundlePath)"), 'production PHP must inline the built Rare UI bundle');
 assert(html.includes('hashcod-rare-folder-inline'), 'production HTML must emit an inline Rare UI bundle for guaranteed execution');
-assert(html.includes('rare-folder-entry.bundle.js?v=20260913-3'), 'production HTML must also load a cache-busted local Rare UI fallback');
+assert(html.includes("$rareFolderExternalTag = $rareFolderBundle === ''"), 'Rare UI external fallback must only load when the inline bundle is unavailable');
+assert(html.includes('rare-folder-entry.bundle.js?v=20260919-perf1'), 'production Rare UI fallback cache version missing');
 assert(html.includes('hashcod-rare-folder-placement'), 'production HTML must include the visibility/placement override');
 assert(html.includes('left:38vw!important'), 'legacy desktop placement remains as a no-JS fallback');
 assert(html.includes('top:50vh!important'), 'legacy folder fallback remains vertically centered');

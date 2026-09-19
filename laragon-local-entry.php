@@ -41,7 +41,7 @@ $baseJs = json_encode($baseRaw, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
 $html = str_replace("var base = '/';", 'var base = ' . $baseJs . ';', $html);
 $html = str_replace(
     'components/admin-hello-button.js?v=20260912-1',
-    'components/admin-hello-button.js?v=20260918-registration28',
+    'components/admin-hello-button.js?v=20260918-registration29',
     $html
 );
 
@@ -120,8 +120,8 @@ $inlineEfrJs = $efrJs !== ''
 
 $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260918-35" data-platform-entry-hold="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/platform-registration-form.js?v=20260918-35" data-hashcod-platform-registration="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260918-36" data-platform-entry-hold="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-registration-form.js?v=20260918-36" data-hashcod-platform-registration="true"></script>'
 
     . $registrationFlipTag
     . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
@@ -138,7 +138,7 @@ $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retire
     . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer-fix.js?v=20260917-restore2" data-hashcod-entry-capability-footer-fix="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/admin-codekey-picker-rescue.js?v=20260918-3" data-hashcod-codekey-picker-rescue="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/admin-codekey-picker-rescue.js?v=20260918-4" data-hashcod-codekey-picker-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/efr-code-editor.js?v=20260915-3" data-hashcod-efr-code-editor="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260917-10" data-hashcod-boot-brand-credit-relocate="true"></script>'

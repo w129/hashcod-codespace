@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "esbuild entry.tsx --bundle --minify --format=iife --target=es2020 --outfile=../components/registration-flip.bundle.js --define:process.env.NODE_ENV='\"production\"'"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "1.47.0",
+    "motion": "^12.40.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

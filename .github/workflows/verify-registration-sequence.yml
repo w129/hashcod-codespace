@@ -125,8 +125,8 @@ jobs:
           for attempt in $(seq 1 100); do
             html="$(curl --compressed --fail --silent --show-error --max-time 20 "$LIVE_URL" || true)"
             if printf '%s' "$html" | grep -q 'platform-entry-hold.js?v=20260918-37' \
-              && printf '%s' "$html" | grep -q 'platform-registration-form.js?v=20260919-39' \
-              && printf '%s' "$html" | grep -q 'platform-registration-form.css?v=20260918-28' \
+              && printf '%s' "$html" | grep -q 'platform-registration-form.js?v=20260919-40' \
+              && printf '%s' "$html" | grep -q 'platform-registration-form.css?v=20260919-29' \
               && printf '%s' "$html" | grep -q 'data-hashcod-registration-flip="official"'; then
               echo "Render is serving the merged registration sequence."
               deployed=1

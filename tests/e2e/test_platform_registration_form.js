@@ -258,7 +258,7 @@ assert(flipEntry.includes('<FlipButton'), 'official FlipButton React island miss
 assert(flipEntry.includes('<FlipButtonFront'), 'official FlipButtonFront usage missing');
 assert(flipEntry.includes('<FlipButtonBack'), 'official FlipButtonBack usage missing');
 assert(flipEntry.includes('data-animate-ui-flip="official"'), 'official flip marker missing');
-assert(flipPackage.includes('"lucide-react": "1.47.0"'), 'lucide-react dependency must be pinned');
+assert(flipPackage.includes('"lucide-react": "^0.482.0"'), 'lucide-react dependency must match the Animate UI upstream range');
 assert(hosted.includes('registration-flip.bundle.js'), 'hosted official flip bundle wiring missing');
 assert(local.includes('registration-flip.bundle.js'), 'local official flip bundle wiring missing');
 assert(js.includes('hashcodRegistrationNotificationListHost'), 'Animate UI NotificationList host missing');

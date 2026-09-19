@@ -1062,11 +1062,20 @@
         if (button) button.disabled = true;
         status('Verificando acceso administrativo…');
         try {
-            const ready = await ensureAdminEngine();
-            if (!ready) throw new Error('No se pudo cargar la verificación administrativa.');
-            const verified = await window.HashcodAdmin.require({ force: true });
+            // HashcodAdmin is preloaded during form mount. Calling require()
+            // directly from this click preserves browser user-activation, so
+            // the CodeKey file picker is allowed to open.
+            if (!window.HashcodAdmin || typeof window.HashcodAdmin.require !== 'function') {
+                const ready = await ensureAdminEngine();
+                if (!ready) throw new Error('No se pudo cargar la verificación administrativa.');
+                status('Verificador CodeKey listo. Pulsa nuevamente el botón de la tabla.');
+                return;
+            }
+
+            const verified = await window.HashcodAdmin.require({ force: false });
             if (!verified) {
-                status('La tabla requiere la CodeKey administrativa.', 'error');
+                // Cancelling the file chooser is not an application error.
+                status('');
                 return;
             }
             const response = await fetch(apiUrl() + '?view=admin', {
@@ -1105,6 +1114,20 @@
         const codeReceipt = document.getElementById('hashcodRegistrationCodeReceipt');
         if (!form || !cedula || !tableButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !overlay || !copyRegistrationCodeButton || !continueAfterCodeButton || !codeReceipt) return;
         bound = true;
+
+        // Preload the CodeKey verifier before the user clicks the database
+        // button. This avoids losing the transient user gesture while a script
+        // is still being downloaded.
+        tableButton.disabled = true;
+        tableButton.dataset.adminEngineReady = 'loading';
+        ensureAdminEngine().then(function (ready) {
+            tableButton.dataset.adminEngineReady = ready ? 'true' : 'false';
+            tableButton.disabled = false;
+        }).catch(function () {
+            tableButton.dataset.adminEngineReady = 'false';
+            tableButton.disabled = false;
+        });
+
         form.addEventListener('input', scheduleValidate);
         form.addEventListener('change', scheduleValidate);
         form.addEventListener('submit', submitForm);

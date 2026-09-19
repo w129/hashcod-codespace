@@ -23,6 +23,7 @@ const flipEntry = fs.readFileSync(path.join(repoDir, 'registration-flip-build/en
 const flipPrimitive = fs.readFileSync(path.join(repoDir, 'registration-flip-build/src/primitives/buttons/flip.tsx'), 'utf8');
 const flipComponent = fs.readFileSync(path.join(repoDir, 'registration-flip-build/src/components/buttons/flip.tsx'), 'utf8');
 const flipPackage = fs.readFileSync(path.join(repoDir, 'registration-flip-build/package.json'), 'utf8');
+const notificationListSource = fs.readFileSync(path.join(repoDir, 'registration-flip-build/src/components/community/notification-list.tsx'), 'utf8');
 
 // Final-screen only.
 assert(css.includes('#hashcodPlatformRegistration'), 'registration root style missing');
@@ -260,19 +261,32 @@ assert(flipEntry.includes('data-animate-ui-flip="official"'), 'official flip mar
 assert(flipPackage.includes('"lucide-react": "1.47.0"'), 'lucide-react dependency must be pinned');
 assert(hosted.includes('registration-flip.bundle.js'), 'hosted official flip bundle wiring missing');
 assert(local.includes('registration-flip.bundle.js'), 'local official flip bundle wiring missing');
+assert(js.includes('hashcodRegistrationNotificationListHost'), 'Animate UI NotificationList host missing');
+assert(flipEntry.includes("import { NotificationList } from './src/components/community/notification-list'"), 'NotificationList React island import missing');
+assert(flipEntry.includes('notificationRoot.render(<NotificationList />)'), 'NotificationList React mount missing');
+assert(notificationListSource.includes('whileHover="expanded"'), 'official NotificationList hover expansion missing');
+assert(notificationListSource.includes("stiffness: 300"), 'official NotificationList spring stiffness missing');
+assert(notificationListSource.includes("damping: 26"), 'official NotificationList spring damping missing');
+assert(notificationListSource.includes("title: 'Validation system'"), 'Validation system card missing');
+assert(notificationListSource.includes("title: \"I wonder what's in the certificate.\""), 'certificate contents card missing');
+assert(notificationListSource.includes("title: 'Notification process'"), 'Notification process card missing');
+assert(notificationListSource.includes("title: 'Payment Model'"), 'Payment Model card missing');
+assert(notificationListSource.includes('AnimatePresence'), 'click/tap detail animation missing');
+assert(css.includes('.hashcod-notification-list'), 'NotificationList visual styling missing');
+assert(css.includes('.hashcod-notification-card'), 'NotificationList card styling missing');
 
 // Hosted/local wiring and retired sign removal.
-assert(hosted.includes('platform-registration-form.css?v=20260918-19'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-25'), 'hosted registration JS missing');
-assert(local.includes('platform-registration-form.css?v=20260918-19'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-25'), 'local registration JS missing');
+assert(hosted.includes('platform-registration-form.css?v=20260918-20'), 'hosted registration CSS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260918-26'), 'hosted registration JS missing');
+assert(local.includes('platform-registration-form.css?v=20260918-20'), 'local registration CSS missing');
+assert(local.includes('platform-registration-form.js?v=20260918-26'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');
 assert(local.includes('hashcod-registration-gate-preboot'), 'local early-click fail-closed gate missing');
 assert(hosted.includes('stopImmediatePropagation'), 'hosted early-click gate must block legacy entry handlers');
 assert(local.includes('stopImmediatePropagation'), 'local early-click gate must block legacy entry handlers');
-assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-25'"), 'hold runtime must be versioned');
+assert(hold.includes("const HOLD_RUNTIME_VERSION = '20260918-26'"), 'hold runtime must be versioned');
 assert(hold.includes('__hashcodPlatformEntryHoldLoadedVersion'), 'new hold runtime must supersede stale loaded flags');
 assert(!hold.includes('if (window.__hashcodPlatformEntryHoldLoaded) return;'), 'stale hold runtime must not block the current registration gate');
 assert(!hold.includes('attempts >= 80'), 'entry-gate installer must not give up before the legacy entry function exists');

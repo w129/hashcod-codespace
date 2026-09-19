@@ -1061,6 +1061,8 @@
 
     async function openTable() {
         const button = document.getElementById('hashcodRegistrationTableButton');
+        const overlay = document.getElementById('hashcodRegistrationTableOverlay');
+        const body = document.getElementById('hashcodRegistrationTableBody');
         if (button) button.disabled = true;
         status('Verificando acceso administrativo…');
         try {
@@ -1080,21 +1082,51 @@
                 status('');
                 return;
             }
-            const response = await fetch(apiUrl() + '?view=admin', {
-                method: 'GET',
-                credentials: 'same-origin',
-                cache: 'no-store',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
+
+            // CodeKey is valid: open the table immediately instead of keeping
+            // the UI stuck on "Verificando…" while the backend loads rows.
+            if (overlay) {
+                overlay.classList.add('is-open');
+                overlay.setAttribute('aria-hidden', 'false');
+            }
+            if (body) {
+                body.innerHTML = '<tr><td colspan="12" class="hashcod-registration-table-loading">Cargando registros…</td></tr>';
+            }
+            status('CodeKey verificada. Cargando registros…', 'success');
+
+            const controller = typeof AbortController === 'function' ? new AbortController() : null;
+            const timeout = window.setTimeout(function () {
+                if (controller) controller.abort();
+            }, 15000);
+
+            let response;
+            try {
+                response = await fetch(apiUrl() + '?view=admin', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    cache: 'no-store',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    signal: controller ? controller.signal : undefined
+                });
+            } finally {
+                window.clearTimeout(timeout);
+            }
             const data = await response.json().catch(function () { return {}; });
             if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo cargar la tabla.');
             renderRows(data.rows || []);
-            const overlay = document.getElementById('hashcodRegistrationTableOverlay');
-            overlay.classList.add('is-open');
-            overlay.setAttribute('aria-hidden', 'false');
+            if (overlay) {
+                overlay.classList.add('is-open');
+                overlay.setAttribute('aria-hidden', 'false');
+            }
             status('');
         } catch (error) {
-            status(error && error.message ? error.message : 'No se pudo abrir la tabla.', 'error');
+            const message = error && error.name === 'AbortError'
+                ? 'La tabla tardó demasiado en responder. Inténtalo de nuevo.'
+                : (error && error.message ? error.message : 'No se pudo abrir la tabla.');
+            if (body) {
+                body.innerHTML = '<tr><td colspan="12" class="hashcod-registration-table-error">' + escapeHtml(message) + '</td></tr>';
+            }
+            status(message, 'error');
         } finally {
             if (button) button.disabled = false;
         }

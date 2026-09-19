@@ -151,7 +151,12 @@ assert(js.includes("method: 'POST'"), 'registration POST missing');
 assert(api.includes("str_starts_with($contentType, 'multipart/form-data')"), 'backend multipart parser missing');
 assert(api.includes("$_FILES['code_file']"), 'backend code-file intake missing');
 assert(api.includes('HASHCOD_PLATFORM_CODE_MAX_BYTES = 31457280'), 'server code file limit missing');
-assert(api.includes('supabaseStorageUpload('), 'platform code must be uploaded to private Supabase Storage');
+assert(api.includes("const HASHCOD_PLATFORM_REGISTRATION_BUCKET = 'hashcod-registration-code'"), 'registration uploads must use a dedicated private bucket');
+assert(api.includes('function hprEnsureRegistrationBucket()'), 'dedicated registration bucket bootstrap missing');
+assert(api.includes("'file_size_limit'=>HASHCOD_PLATFORM_CODE_MAX_BYTES"), 'registration bucket must enforce the same 30 MB limit as the form');
+assert(api.includes("'allowed_mime_types'=>null"), 'registration bucket must not inherit the old image-only MIME restriction');
+assert(api.includes('function hprUploadCodeStorage(array $codeUpload)'), 'dedicated registration upload helper missing');
+assert(api.includes('$uploadedCode = hprUploadCodeStorage($codeUpload);'), 'platform code must use the dedicated registration bucket');
 assert(api.includes("'code_storage_path'=>$codeUpload['storage_path']"), 'registration row must persist the Storage object path');
 assert(api.includes("'code_sha256'=>$codeUpload['sha256']"), 'registration row must persist a code integrity hash');
 assert(api.includes("'code_uploaded'=>true"), 'successful response must confirm code upload');
@@ -208,6 +213,8 @@ assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table const
 assert(api.includes("(string)($_GET['status'] ?? '') === '1'"), 'safe storage readiness probe missing');
 assert(api.includes("'storage_configured'=>$storageConfigured"), 'readiness probe storage flag missing');
 assert(api.includes("'table_ready'=>$tableReady"), 'readiness probe table flag missing');
+assert(api.includes("'registration_bucket_ready'=>$registrationBucketReady"), 'registration bucket readiness flag missing');
+assert(api.includes("'registration_bucket'=>HASHCOD_PLATFORM_REGISTRATION_BUCKET"), 'registration bucket readiness name missing');
 assert(api.includes("select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1"),
   'readiness probe must verify upload, contract, and registration-code columns');
 assert(!api.includes("'error'=>$probe"), 'readiness probe must not expose raw database errors');

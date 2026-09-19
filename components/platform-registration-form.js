@@ -444,7 +444,11 @@
         }
         bind();
         validate();
-        ensureRegistrationTurnstile();
+        // Turnstile is a rate-limit recovery challenge, not a prerequisite for
+        // every registration. Mounting it eagerly made any Cloudflare/widget
+        // configuration error disable the submit button indefinitely. The
+        // backend remains authoritative and requests Turnstile only after a
+        // 429 challenge response.
         return true;
     }
 
@@ -795,6 +799,10 @@
             theme: 'auto',
             size: 'normal',
             appearance: 'always',
+            retry: 'auto',
+            'retry-interval': 5000,
+            'refresh-expired': 'auto',
+            'refresh-timeout': 'auto',
             callback: function (token) {
                 verifyTurnstileToken(token);
             },
@@ -810,11 +818,22 @@
                 setTurnstileUi('error', 'La verificación agotó el tiempo. Inténtalo nuevamente.');
                 validate();
             },
-            'error-callback': function () {
+            'error-callback': function (errorCode) {
                 turnstileVerified = false;
                 turnstileVerifiedUntil = 0;
-                setTurnstileUi('error', 'Cloudflare no pudo completar la verificación. Inténtalo nuevamente.');
+                const code = String(errorCode == null ? '' : errorCode);
+                const configurationError = /^(110|400)/.test(code);
+                setTurnstileUi(
+                    'error',
+                    configurationError
+                        ? ('La configuración de Cloudflare no coincide con este sitio'
+                            + (code ? ' (código ' + code + ')' : '') + '.')
+                        : ('Cloudflare no pudo completar la verificación y reintentará automáticamente'
+                            + (code ? ' (código ' + code + ')' : '') + '.')
+                );
                 validate();
+                // Keep Turnstile's built-in automatic retry behavior enabled.
+                return false;
             }
         });
         return true;

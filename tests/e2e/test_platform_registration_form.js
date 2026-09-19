@@ -249,6 +249,11 @@ assert(js.includes("api/cloudflare/turnstile/verify"), 'registration Turnstile v
 assert(js.includes("https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"), 'official Turnstile client script missing');
 assert(js.includes("window.turnstile.render(widget"), 'explicit Turnstile rendering missing');
 assert(js.includes("verifyTurnstileToken(token)"), 'Turnstile callback verification missing');
+assert(!js.includes("        ensureRegistrationTurnstile();\n        return true;"), 'Turnstile must not block every registration at mount time');
+assert(js.includes("retry: 'auto'"), 'Turnstile automatic retry must remain enabled for challenge recovery');
+assert(js.includes("'retry-interval': 5000"), 'Turnstile retry interval missing');
+assert(js.includes("'error-callback': function (errorCode)"), 'Turnstile error code callback missing');
+assert(js.includes("configurationError = /^(110|400)/.test(code)"), 'Turnstile configuration errors must be diagnosed without deadlocking initial submit');
 assert(js.includes("response.status === 429"), 'registration must intercept rate-limit challenges');
 assert(js.includes("data.code === 'turnstile_challenge_required'"), 'Turnstile challenge response handling missing');
 assert(js.includes('let pendingTurnstileSubmission = false'), 'pending Turnstile submission state missing');
@@ -427,9 +432,9 @@ assert(css.includes('.hashcod-notification-card'), 'NotificationList card stylin
 
 // Hosted/local wiring and retired sign removal.
 assert(hosted.includes('platform-registration-form.css?v=20260918-28'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260918-37'), 'hosted registration JS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260919-38'), 'hosted registration JS missing');
 assert(local.includes('platform-registration-form.css?v=20260918-28'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260918-37'), 'local registration JS missing');
+assert(local.includes('platform-registration-form.js?v=20260919-38'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');

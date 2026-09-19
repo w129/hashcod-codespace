@@ -207,7 +207,11 @@ assert(api.includes("'code'=>'registration_crypto_roundtrip_failed'"), 'POST cry
 assert(api.includes("'full_name_enc'=>hprRegistrationEncrypt($validated['full_name'])"), 'full name must use persistent registration encryption');
 assert(api.includes("'full_name'=>$fullName"), 'admin projection must return the decrypted full name');
 assert(js.includes('NO RECUPERABLE · CLAVE ANTIGUA'), 'legacy identity state must be explicit instead of a blank dash');
-assert(api.includes('$ready = $storageConfigured && $tableReady && $registrationBucketReady && $registrationKeyReady;'), 'registration readiness must fail closed without persistent key');
+assert(api.includes('$ready = $storageConfigured'), 'registration readiness expression missing');
+assert(api.includes('&& $tableReady'), 'registration readiness must require the table');
+assert(api.includes('&& $registrationBucketReady'), 'registration readiness must require the private bucket');
+assert(api.includes('&& $registrationKeyReady'), 'registration readiness must fail closed without the persistent key');
+assert(api.includes('&& $registrationCryptoRoundtripReady'), 'registration readiness must require crypto round-trip verification');
 assert(api.includes("secretGet('L8_DATA_ENCRYPTION_KEY', '')"), 'dedicated data key must seed persistent registration key when configured');
 assert(api.includes('function hprRegistrationLegacyKeys(): array'), 'legacy registration key compatibility list missing');
 assert(api.includes("preg_match('/^[a-f0-9]{64}$/i', $dataKeyRaw)"), 'historical data-key derivation missing');

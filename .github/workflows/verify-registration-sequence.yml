@@ -25,6 +25,7 @@ on:
       - components/admin-hello-button.js
       - l8-html.php
       - laragon-local-entry.php
+      - tests/e2e/test_platform_registration_form.js
       - tests/e2e/test_platform_registration_sequence_playwright.js
       - .github/workflows/verify-registration-sequence.yml
   pull_request:
@@ -47,6 +48,7 @@ on:
       - components/admin-hello-button.js
       - l8-html.php
       - laragon-local-entry.php
+      - tests/e2e/test_platform_registration_form.js
       - tests/e2e/test_platform_registration_sequence_playwright.js
       - .github/workflows/verify-registration-sequence.yml
   workflow_dispatch:

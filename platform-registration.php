@@ -127,6 +127,20 @@ function hprDeleteStorageObject(string $objectPath): void {
     );
 }
 
+function hprGenerateRegistrationCode(): array {
+    // 128 bits of server-side CSPRNG entropy. The readable grouped hex format
+    // is shown once to the registrant; the database stores an encrypted copy
+    // plus a SHA-256 digest for lookup/integrity.
+    $raw = strtoupper(bin2hex(random_bytes(16)));
+    $groups = str_split($raw, 8);
+    $plain = 'HC1-' . implode('-', $groups);
+    return [
+        'plain'=>$plain,
+        'sha256'=>hash('sha256', $plain),
+        'hint'=>substr($plain, -8),
+    ];
+}
+
 function hprAcceptanceEvidenceSha256(
     array $validated,
     array $codeUpload,
@@ -182,7 +196,7 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
     $tableReady = false;
 
     if ($storageConfigured) {
-        $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256&limit=1');
+        $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1');
         $tableReady = !empty($probe['ok']);
     }
 
@@ -227,6 +241,11 @@ if ($method === 'POST') {
         $contractSha256,
         $acceptedAt
     );
+    $registrationCode = hprGenerateRegistrationCode();
+    $registrationCodeEnc = secretsEncrypt($registrationCode['plain']);
+    if (!is_string($registrationCodeEnc) || !str_starts_with($registrationCodeEnc, 'l8e1:')) {
+        hprJson(503, ['ok'=>false, 'error'=>'No se pudo proteger el código criptográfico del registro.']);
+    }
 
     $row = [
         'full_name_enc'=>secretsEncrypt($validated['full_name']),
@@ -243,6 +262,9 @@ if ($method === 'POST') {
         'contract_accepted_at'=>$acceptedAt,
         'acceptance_method'=>'checkbox+submit',
         'acceptance_evidence_sha256'=>$acceptanceEvidenceSha256,
+        'registration_code_enc'=>$registrationCodeEnc,
+        'registration_code_sha256'=>$registrationCode['sha256'],
+        'registration_code_hint'=>$registrationCode['hint'],
         'email_enc'=>secretsEncrypt($validated['email']),
         'phone_enc'=>secretsEncrypt($validated['phone']),
     ];
@@ -285,6 +307,13 @@ if ($method === 'POST') {
         ) {
             hprJson(503, ['ok'=>false, 'error'=>'La migración de evidencia contractual todavía no está aplicada.']);
         }
+        if (
+            str_contains($error, 'registration_code_enc')
+            || str_contains($error, 'registration_code_sha256')
+            || str_contains($error, 'registration_code_hint')
+        ) {
+            hprJson(503, ['ok'=>false, 'error'=>'La migración del código criptográfico de registro todavía no está aplicada.']);
+        }
         hprJson(502, ['ok'=>false, 'error'=>'No se pudo guardar el registro en este momento.']);
     }
 
@@ -299,6 +328,10 @@ if ($method === 'POST') {
         'contract_sha256'=>$contractSha256,
         'accepted_at'=>$acceptedAt,
         'acceptance_evidence_sha256'=>$acceptanceEvidenceSha256,
+        // Returned only in this successful POST response. Subsequent admin/list
+        // endpoints do not expose the plaintext registration code.
+        'registration_code'=>$registrationCode['plain'],
+        'registration_code_hint'=>$registrationCode['hint'],
     ]);
 }
 
@@ -310,7 +343,7 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     }
     $res = supabaseDbSelect(
         HASHCOD_PLATFORM_REGISTRATION_TABLE,
-        'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,contract_version,contract_sha256,contract_accepted_at,acceptance_method,acceptance_evidence_sha256,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
+        'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,contract_version,contract_sha256,contract_accepted_at,acceptance_method,acceptance_evidence_sha256,registration_code_sha256,registration_code_hint,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
     );
     if (empty($res['ok'])) hprJson(502, ['ok'=>false, 'error'=>'No se pudo cargar la tabla de registros.']);
 
@@ -334,6 +367,9 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             'contract_accepted_at'=>(string)($stored['contract_accepted_at'] ?? ''),
             'acceptance_method'=>(string)($stored['acceptance_method'] ?? ''),
             'acceptance_evidence_sha256'=>(string)($stored['acceptance_evidence_sha256'] ?? ''),
+            'registration_code_stored'=>((string)($stored['registration_code_sha256'] ?? '')) !== '',
+            'registration_code_hint'=>(string)($stored['registration_code_hint'] ?? ''),
+            'registration_code_sha256'=>(string)($stored['registration_code_sha256'] ?? ''),
             'email'=>secretsDecrypt((string)($stored['email_enc'] ?? '')),
             'phone'=>secretsDecrypt((string)($stored['phone_enc'] ?? '')),
             'created_at'=>(string)($stored['created_at'] ?? ''),

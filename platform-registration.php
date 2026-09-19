@@ -294,16 +294,22 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
     $cfg = supabaseConfig();
     $storageConfigured = !empty($cfg['configured']) && !empty($cfg['secret_key']);
     $tableReady = false;
+    $registrationBucketReady = false;
 
     if ($storageConfigured) {
         $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1');
         $tableReady = !empty($probe['ok']);
+        $bucketProbe = hprEnsureRegistrationBucket();
+        $registrationBucketReady = !empty($bucketProbe['ok']);
     }
 
-    hprJson($tableReady ? 200 : 503, [
-        'ok'=>$tableReady,
+    $ready = $storageConfigured && $tableReady && $registrationBucketReady;
+    hprJson($ready ? 200 : 503, [
+        'ok'=>$ready,
         'storage_configured'=>$storageConfigured,
         'table_ready'=>$tableReady,
+        'registration_bucket_ready'=>$registrationBucketReady,
+        'registration_bucket'=>HASHCOD_PLATFORM_REGISTRATION_BUCKET,
     ]);
 }
 

@@ -914,7 +914,13 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     $needsCompatibilityEvidence = false;
     foreach ($storedRows as $storedRowProbe) {
         if (!is_array($storedRowProbe)) continue;
-        if ((string)($storedRowProbe['registration_code_enc'] ?? '') === '') {
+        $codeMissing = (string)($storedRowProbe['registration_code_enc'] ?? '') === '';
+        $identityEncrypted =
+            (string)($storedRowProbe['full_name_enc'] ?? '') !== ''
+            || (string)($storedRowProbe['cedula_enc'] ?? '') !== ''
+            || (string)($storedRowProbe['email_enc'] ?? '') !== ''
+            || (string)($storedRowProbe['phone_enc'] ?? '') !== '';
+        if ($codeMissing || $identityEncrypted) {
             $needsCompatibilityEvidence = true;
             break;
         }
@@ -1008,6 +1014,19 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
         $email = hprRegistrationDecrypt((string)($stored['email_enc'] ?? ''));
         $phone = hprRegistrationDecrypt((string)($stored['phone_enc'] ?? ''));
 
+        if (
+            !is_array($compatEvidence)
+            && $rowIdKey !== ''
+            && ($fullName === '' || $cedula === '' || $email === '' || $phone === '')
+        ) {
+            $directIdentityEvidence = hprDownloadRegistrationEvidence(
+                'platform-registrations/evidence-by-row/' . $rowIdKey . '.registration-evidence.l8e1'
+            );
+            if (!empty($directIdentityEvidence['ok']) && is_array($directIdentityEvidence['data'] ?? null)) {
+                $compatEvidence = $directIdentityEvidence['data'];
+            }
+        }
+
         if (is_array($compatEvidence)) {
             if ($fullName === '') {
                 $fullName = hprRegistrationDecrypt((string)($compatEvidence['full_name_enc'] ?? ''));
@@ -1023,9 +1042,12 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             }
         }
 
+        $identityRecoverable = $fullName !== '' || $cedula !== '' || $email !== '' || $phone !== '';
+
         $rows[] = [
             'id'=>$stored['id'] ?? null,
             'full_name'=>$fullName,
+            'identity_recoverable'=>$identityRecoverable,
             'age'=>(int)($stored['age'] ?? 0),
             'cedula'=>$cedula,
             'platform_name'=>(string)($stored['platform_name'] ?? ''),

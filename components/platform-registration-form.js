@@ -1380,7 +1380,12 @@
         }
 
         window.dispatchEvent(new CustomEvent('hashcod:platform-entered', {
-            detail: { source: 'platform-registration', registrationSaved: false, localOnly: true }
+            detail: {
+                source: 'platform-registration',
+                whatsappDispatched: true,
+                entryConfirmed: true,
+                localOnly: true
+            }
         }));
         return true;
     }

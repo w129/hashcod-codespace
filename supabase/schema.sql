@@ -363,30 +363,18 @@ create table if not exists public.hashcod_platform_registrations (
   code_filename text not null default '' check (char_length(code_filename) <= 255),
   code_mime_type text not null default 'application/octet-stream',
   code_size_bytes bigint not null default 0 check (code_size_bytes between 0 and 31457280),
-  code_sha256 text not null default '' check (code_sha256 = '' or code_sha256 ~ '^[a-f0-9]{64}
-alter table public.hashcod_platform_registrations enable row level security;
-
-revoke all on table public.hashcod_platform_registrations from public, anon, authenticated;
-grant select, insert on table public.hashcod_platform_registrations to service_role;
-
-drop policy if exists hashcod_platform_registrations_deny_direct
-  on public.hashcod_platform_registrations;
-create policy hashcod_platform_registrations_deny_direct
-  on public.hashcod_platform_registrations
-  for all
-  to public
-  using (false)
-  with check (false);
-
-revoke all on sequence public.hashcod_platform_registrations_id_seq from public, anon, authenticated;
-grant usage, select on sequence public.hashcod_platform_registrations_id_seq to service_role;
-
-create index if not exists hashcod_platform_registrations_created_at_idx
-  on public.hashcod_platform_registrations (created_at desc);
-),
+  code_sha256 text not null default '' check (code_sha256 = '' or code_sha256 ~ '^[a-f0-9]{64}$'),
   code_storage_path text not null default '',
   contract_version text not null default '',
-  contract_sha256 text not null default '' check (contract_sha256 = '' or contract_sha256 ~ '^[a-f0-9]{64}  phone_enc text not null check (phone_enc like 'l8e1:%'),
+  contract_sha256 text not null default '' check (contract_sha256 = '' or contract_sha256 ~ '^[a-f0-9]{64}$'),
+  contract_accepted_at timestamptz,
+  acceptance_method text not null default '',
+  acceptance_evidence_sha256 text not null default '' check (acceptance_evidence_sha256 = '' or acceptance_evidence_sha256 ~ '^[a-f0-9]{64}$'),
+  registration_code_enc text not null default '' check (registration_code_enc = '' or registration_code_enc like 'l8e1:%'),
+  registration_code_sha256 text not null default '' check (registration_code_sha256 = '' or registration_code_sha256 ~ '^[a-f0-9]{64}$'),
+  registration_code_hint text not null default '' check (char_length(registration_code_hint) <= 8),
+  email_enc text not null check (email_enc like 'l8e1:%'),
+  phone_enc text not null check (phone_enc like 'l8e1:%'),
   created_at timestamptz not null default now()
 );
 
@@ -400,40 +388,33 @@ alter table public.hashcod_platform_registrations
   add column if not exists contract_sha256 text not null default '',
   add column if not exists contract_accepted_at timestamptz,
   add column if not exists acceptance_method text not null default '',
-  add column if not exists acceptance_evidence_sha256 text not null default '';
-
-alter table public.hashcod_platform_registrations enable row level security;
-
-revoke all on table public.hashcod_platform_registrations from public, anon, authenticated;
-grant select, insert on table public.hashcod_platform_registrations to service_role;
-
-drop policy if exists hashcod_platform_registrations_deny_direct
-  on public.hashcod_platform_registrations;
-create policy hashcod_platform_registrations_deny_direct
-  on public.hashcod_platform_registrations
-  for all
-  to public
-  using (false)
-  with check (false);
-
-revoke all on sequence public.hashcod_platform_registrations_id_seq from public, anon, authenticated;
-grant usage, select on sequence public.hashcod_platform_registrations_id_seq to service_role;
-
-create index if not exists hashcod_platform_registrations_created_at_idx
-  on public.hashcod_platform_registrations (created_at desc);
-),
-  contract_accepted_at timestamptz,
-  acceptance_method text not null default '',
-  acceptance_evidence_sha256 text not null default '' check (acceptance_evidence_sha256 = '' or acceptance_evidence_sha256 ~ '^[a-f0-9]{64}  phone_enc text not null check (phone_enc like 'l8e1:%'),
-  created_at timestamptz not null default now()
-);
+  add column if not exists acceptance_evidence_sha256 text not null default '',
+  add column if not exists registration_code_enc text not null default '',
+  add column if not exists registration_code_sha256 text not null default '',
+  add column if not exists registration_code_hint text not null default '';
 
 alter table public.hashcod_platform_registrations
-  add column if not exists code_filename text not null default '',
-  add column if not exists code_mime_type text not null default 'application/octet-stream',
-  add column if not exists code_size_bytes bigint not null default 0,
-  add column if not exists code_sha256 text not null default '',
-  add column if not exists code_storage_path text not null default '';
+  drop constraint if exists hashcod_platform_registrations_code_size_bytes_check,
+  add constraint hashcod_platform_registrations_code_size_bytes_check
+    check (code_size_bytes between 0 and 31457280),
+  drop constraint if exists hashcod_platform_registrations_code_sha256_check,
+  add constraint hashcod_platform_registrations_code_sha256_check
+    check (code_sha256 = '' or code_sha256 ~ '^[a-f0-9]{64}$'),
+  drop constraint if exists hashcod_platform_registrations_contract_sha256_check,
+  add constraint hashcod_platform_registrations_contract_sha256_check
+    check (contract_sha256 = '' or contract_sha256 ~ '^[a-f0-9]{64}$'),
+  drop constraint if exists hashcod_platform_registrations_acceptance_evidence_sha256_check,
+  add constraint hashcod_platform_registrations_acceptance_evidence_sha256_check
+    check (acceptance_evidence_sha256 = '' or acceptance_evidence_sha256 ~ '^[a-f0-9]{64}$'),
+  drop constraint if exists hashcod_platform_registrations_registration_code_enc_check,
+  add constraint hashcod_platform_registrations_registration_code_enc_check
+    check (registration_code_enc = '' or registration_code_enc like 'l8e1:%'),
+  drop constraint if exists hashcod_platform_registrations_registration_code_sha256_check,
+  add constraint hashcod_platform_registrations_registration_code_sha256_check
+    check (registration_code_sha256 = '' or registration_code_sha256 ~ '^[a-f0-9]{64}$'),
+  drop constraint if exists hashcod_platform_registrations_registration_code_hint_check,
+  add constraint hashcod_platform_registrations_registration_code_hint_check
+    check (char_length(registration_code_hint) <= 8);
 
 alter table public.hashcod_platform_registrations enable row level security;
 
@@ -454,35 +435,15 @@ grant usage, select on sequence public.hashcod_platform_registrations_id_seq to 
 
 create index if not exists hashcod_platform_registrations_created_at_idx
   on public.hashcod_platform_registrations (created_at desc);
-),
-  email_enc text not null check (email_enc like 'l8e1:%'),
-  phone_enc text not null check (phone_enc like 'l8e1:%'),
-  created_at timestamptz not null default now()
-);
 
-alter table public.hashcod_platform_registrations
-  add column if not exists code_filename text not null default '',
-  add column if not exists code_mime_type text not null default 'application/octet-stream',
-  add column if not exists code_size_bytes bigint not null default 0,
-  add column if not exists code_sha256 text not null default '',
-  add column if not exists code_storage_path text not null default '';
+create unique index if not exists hashcod_platform_registrations_registration_code_sha256_uidx
+  on public.hashcod_platform_registrations (registration_code_sha256)
+  where registration_code_sha256 <> '';
 
-alter table public.hashcod_platform_registrations enable row level security;
+comment on column public.hashcod_platform_registrations.registration_code_enc is
+  'Encrypted one-time registration code returned in plaintext only in the successful submission response.';
+comment on column public.hashcod_platform_registrations.registration_code_sha256 is
+  'SHA-256 digest of the registrant code; unique for non-empty values.';
+comment on column public.hashcod_platform_registrations.registration_code_hint is
+  'Last eight characters of the registration code for administrative correlation without exposing the full plaintext.';
 
-revoke all on table public.hashcod_platform_registrations from public, anon, authenticated;
-grant select, insert on table public.hashcod_platform_registrations to service_role;
-
-drop policy if exists hashcod_platform_registrations_deny_direct
-  on public.hashcod_platform_registrations;
-create policy hashcod_platform_registrations_deny_direct
-  on public.hashcod_platform_registrations
-  for all
-  to public
-  using (false)
-  with check (false);
-
-revoke all on sequence public.hashcod_platform_registrations_id_seq from public, anon, authenticated;
-grant usage, select on sequence public.hashcod_platform_registrations_id_seq to service_role;
-
-create index if not exists hashcod_platform_registrations_created_at_idx
-  on public.hashcod_platform_registrations (created_at desc);

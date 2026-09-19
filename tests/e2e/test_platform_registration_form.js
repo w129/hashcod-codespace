@@ -175,7 +175,7 @@ assert(api.includes('hprAcceptanceEvidenceSha256('), 'acceptance evidence hashin
 assert(api.includes('function hprGenerateRegistrationCode()'), 'unique registration code generator missing');
 assert(api.includes('random_bytes(16)'), 'registration code must use server-side CSPRNG entropy');
 assert(api.includes("'HC1-' . implode('-', $groups)"), 'registration code readable format missing');
-assert(api.includes("secretsEncrypt($registrationCode['plain'])"), 'registration code must be encrypted before storage');
+assert(api.includes("hprRegistrationEncrypt($registrationCode['plain'])"), 'registration code must use stable encryption before storage');
 assert(api.includes("'registration_code_enc'=>$registrationCodeEnc"), 'encrypted registration code must be stored in the same registration row');
 assert(api.includes("'registration_code_sha256'=>$registrationCode['sha256']"), 'registration code digest must be stored');
 assert(api.includes("'registration_code_hint'=>$registrationCode['hint']"), 'registration code hint must be stored');
@@ -248,10 +248,10 @@ assert(api.includes("securityRateAllowSliding('platform_registration_submit'"), 
 assert(api.includes("strcasecmp((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''), 'XMLHttpRequest')"), 'server AJAX/CSRF marker check missing');
 assert(api.includes("empty($cfg['secret_key'])"), 'backend must require Supabase secret key');
 assert(api.includes("require_once __DIR__ . '/secrets.php'"), 'backend encryption helper missing');
-assert(api.includes("secretsEncrypt($validated['cedula'])"), 'cedula must be encrypted before database storage');
-assert(api.includes("secretsEncrypt($validated['email'])"), 'email must be encrypted before database storage');
-assert(api.includes("secretsEncrypt($validated['phone'])"), 'phone must be encrypted before database storage');
-assert(api.includes("secretsDecrypt((string)($stored['cedula_enc']"), 'admin projection must decrypt cedula only after authorization');
+assert(api.includes("hprRegistrationEncrypt($validated['cedula'])"), 'cedula must use stable encryption before database storage');
+assert(api.includes("hprRegistrationEncrypt($validated['email'])"), 'email must use stable encryption before database storage');
+assert(api.includes("hprRegistrationEncrypt($validated['phone'])"), 'phone must use stable encryption before database storage');
+assert(api.includes("hprRegistrationDecrypt((string)($stored['cedula_enc']"), 'admin projection must decrypt cedula only after authorization');
 assert(api.includes('adminRequire();'), 'stored records must be admin-only server-side');
 assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table constant missing');
 assert(api.includes("(string)($_GET['status'] ?? '') === '1'"), 'safe storage readiness probe missing');

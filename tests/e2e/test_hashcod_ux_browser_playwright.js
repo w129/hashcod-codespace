@@ -103,7 +103,7 @@ async function run() {
       const age = document.getElementById('hashcodRegAge');
       const cedula = document.getElementById('hashcodRegCedula');
       const submit = document.getElementById('hashcodRegistrationSubmit');
-      const tableButton = document.getElementById('hashcodRegistrationTableButton');
+      const whatsappButton = document.getElementById('hashcodRegistrationWhatsappButton');
       return {
         width: rect.width,
         height: rect.height,
@@ -114,7 +114,7 @@ async function run() {
         ageMax: age ? age.max : null,
         cedulaPlaceholder: cedula ? cedula.placeholder : null,
         submitDisabled: submit ? submit.disabled : null,
-        tableButtonVisible: tableButton ? getComputedStyle(tableButton).display !== 'none' : false,
+        whatsappButtonVisible: whatsappButton ? getComputedStyle(whatsappButton).display !== 'none' : false,
         viewportWidth: innerWidth,
         viewportHeight: innerHeight,
         screen: node.dataset.hashcodScreen || ''
@@ -134,7 +134,7 @@ async function run() {
     assert.equal(finalRegistration.ageMax, '120', 'registration age field must keep a sane maximum');
     assert.equal(finalRegistration.cedulaPlaceholder, '000-0000000-0', 'cedula format must show hyphens');
     assert.equal(finalRegistration.submitDisabled, true, 'empty registration form submit must begin disabled');
-    assert.equal(finalRegistration.tableButtonVisible, true, 'database table icon button must be visible beside submit');
+    assert.equal(finalRegistration.whatsappButtonVisible, true, 'WhatsApp request icon button must be visible beside submit');
 
     // Runtime validation: under-18 users must remain blocked even when every
     // other required field is valid. At 18+, the same completed form may submit.

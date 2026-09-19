@@ -177,6 +177,11 @@ assert(api.includes("'registration_code_hint'=>$registrationCode['hint']"), 'reg
 assert(api.includes("'registration_code'=>$registrationCode['plain']"), 'plaintext registration code must be returned only by the successful POST');
 assert(api.includes("$registrationCode = secretsDecrypt($registrationCodeEnc);"), 'admin view must decrypt the exact registration code');
 assert(api.includes("'registration_code'=>$registrationCode"), 'admin projection must return the exact registration code after CodeKey authorization');
+assert(api.includes('function hprListRegistrationEvidencePaths(string $prefix, int $depth = 0): array'), 'recursive evidence walker missing');
+assert(api.includes('hprListRegistrationEvidencePaths($fullPath, $depth + 1)'), 'recursive evidence walker must descend into nested folders');
+assert(api.includes("'platform-registrations/evidence-by-row/' . (string)$savedCompat['id']"), 'row-index evidence write missing');
+assert(api.includes('function hprLower(string $value): string'), 'portable lowercase helper missing');
+
 assert(api.includes('function hprRegistrationEvidenceByRowId()'), 'compatibility registrations must recover their exact code from private evidence sidecars');
 assert(js.includes('row.registration_code ?'), 'protected table must render the exact registration code');
 assert(js.includes('hashcod-registration-code-value'), 'exact registration code table styling hook missing');

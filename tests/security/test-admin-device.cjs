@@ -12,6 +12,8 @@ const jupyter = 'JUPYTER1:d185f92f42837d6a3dbea6dc3bf2a26a348e2df7aa8cdadeb9acf3
 const combined = 'HASHCOD1:d02c7f85eccb0e8eb63f26bda3bc82fb86a6f6e80b98c2b35ff982e07c215b5b';
 
 assert(client.includes(filename), 'client must require the registered .ipynb filename');
+assert(client.includes('function codeKeyFilenameAllowed(name)'), 'client must safely accept browser duplicate filename suffixes');
+assert(client.includes("replace(/\\s*\\(\\d+\\)(?=\\.ipynb$)/i, '')"), 'client duplicate suffix normalization missing');
 assert(client.includes("fileInput.accept = '.ipynb,application/json'"), 'client must only prompt for notebook/json files');
 assert(client.includes('input.click();'), 'CodeKey chooser must be opened by the browser file input');
 assert(client.includes("request('verify', {filename: file.name, notebook})"), 'notebook must be verified by the server');
@@ -51,6 +53,7 @@ assert(rescue.includes("const ADMIN_DEVICE_SRC = componentBase + 'admin-device.j
 
 assert(server.includes("const ADMIN_DEVICE_NETWORK = '38.196.115.0/24'"), 'IP network restriction must remain');
 assert(server.includes(`const ADMIN_CODEKEY_FILENAME = '${filename}'`), 'registered filename must be server-side');
+assert(server.includes('function adminCodeKeyFilenameAllowed(string $filename): bool'), 'server duplicate CodeKey filename verifier missing');
 assert(server.includes(`const ADMIN_CODEKEY_FINGERPRINT = '${codekey}'`), 'CODEKEY1 verifier missing');
 assert(server.includes(`const ADMIN_JUPYTER_FINGERPRINT = '${jupyter}'`), 'JUPYTER1 verifier missing');
 assert(server.includes(`const ADMIN_COMBINED_FINGERPRINT = '${combined}'`), 'HASHCOD1 verifier missing');

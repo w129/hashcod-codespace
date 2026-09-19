@@ -1032,7 +1032,7 @@
         return true;
     }
 
-    let bound = false;    let bound = false;
+    let bound = false;
     function bind() {
         if (bound) return;
         const form = document.getElementById('hashcodRegistrationForm');

@@ -16,6 +16,10 @@ services:
         sync: false
       - key: SUPABASE_STORAGE_BUCKET
         value: l8-storage
+      - key: CF_TURNSTILE_SITE_KEY
+        sync: false
+      - key: CF_TURNSTILE_SECRET_KEY
+        sync: false
       - key: GITHUB_TOKEN
         sync: false
       - key: ORIGINKIT_API_KEY

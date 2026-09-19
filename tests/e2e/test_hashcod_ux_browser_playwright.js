@@ -192,10 +192,30 @@ async function run() {
     });
 
     await page.waitForTimeout(100);
-    assert.equal(await page.isEnabled('#hashcodRegistrationSubmit'), true,
-      '18+ completed registration must enable submit in the real browser');
+    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'aria-disabled'), 'true',
+      '18+ completed registration must still block Codespace entry before WhatsApp');
     assert.equal(await page.isEnabled('#hashcodRegistrationWhatsappButton'), true,
       '18+ completed registration must enable the WhatsApp action in the real browser');
+
+    await page.evaluate(() => {
+      window.__hashcodUxWhatsappUrl = '';
+      window.open = function (url) {
+        window.__hashcodUxWhatsappUrl = String(url || '');
+        return {};
+      };
+    });
+    await page.click('#hashcodRegistrationWhatsappButton');
+    await page.waitForFunction(() => {
+      const button = document.getElementById('hashcodRegistrationSubmit');
+      return Boolean(
+        window.HashcodPlatformRegistration?.hasDispatchedWhatsapp?.() === true
+        && button
+        && button.getAttribute('aria-disabled') === 'false'
+        && button.getAttribute('type') === 'submit'
+      );
+    }, { timeout: 3000 });
+    assert((await page.evaluate(() => window.__hashcodUxWhatsappUrl)).startsWith('https://wa.me/18294721257?text='),
+      'WhatsApp handoff must use the official wa.me destination');
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');

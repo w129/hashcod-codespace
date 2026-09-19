@@ -153,7 +153,8 @@ async function run() {
     assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
       'under-18 user must not enter');
 
-    // Valid adult registration first unlocks contractual consent, then submit.
+    // Valid adult registration unlocks WhatsApp first. Codespace entry must
+    // remain blocked until the user explicitly clicks the WhatsApp handoff.
     await page.evaluate(() => {
       const age = document.getElementById('hashcodRegAge');
       age.value = '18';
@@ -176,30 +177,40 @@ async function run() {
     });
 
     await page.waitForFunction(() => {
+      const whatsapp = document.getElementById('hashcodRegistrationWhatsappButton');
+      return Boolean(whatsapp && whatsapp.disabled === false && whatsapp.getAttribute('aria-disabled') === 'false');
+    }, { timeout: 3000 });
+
+    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'aria-disabled'), 'true',
+      'completed form must still block Codespace entry before WhatsApp');
+    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'type'), 'button',
+      'entry control must remain non-submit before WhatsApp');
+
+    await page.evaluate(() => {
+      window.__hashcodCapturedWhatsappUrl = '';
+      window.open = function (url) {
+        window.__hashcodCapturedWhatsappUrl = String(url || '');
+        return {};
+      };
+    });
+
+    await page.click('#hashcodRegistrationWhatsappButton');
+
+    await page.waitForFunction(() => {
       const button = document.getElementById('hashcodRegistrationSubmit');
       return Boolean(
-        button
+        window.HashcodPlatformRegistration?.hasDispatchedWhatsapp?.() === true
+        && button
         && button.getAttribute('aria-disabled') === 'false'
         && button.getAttribute('type') === 'submit'
       );
     }, { timeout: 3000 });
 
-    await page.waitForFunction(() => {
-      const button = document.getElementById('hashcodRegistrationWhatsappButton');
-      return Boolean(button && button.disabled === false && button.getAttribute('aria-disabled') === 'false');
-    }, { timeout: 3000 });
-
-    await page.evaluate(() => {
-      document.getElementById('hashcodRegistrationForm').requestSubmit();
-    });
-
-    // Code generation is local-only; no database/API submission is required.
-    await page.waitForSelector('#hashcodRegistrationCodeReceipt.is-open', { state: 'visible', timeout: 5000 });
-    const privateCode = (await page.textContent('#hashcodRegistrationPrivateCode')).trim();
+    const privateCode = await page.evaluate(() => window.HashcodPlatformRegistration.getRegistrationCode());
     assert.match(
       privateCode,
       /^HC1-[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}$/,
-      'private registration code must use the local HC1 format'
+      'WhatsApp handoff must generate the local HC1 code'
     );
 
     const whatsappPayload = await page.evaluate(() => window.HashcodPlatformRegistration.buildWhatsAppMessage());
@@ -209,12 +220,20 @@ async function run() {
     assert(whatsappPayload.includes('+1 809 555 0100'), 'WhatsApp payload must include the phone');
     assert(whatsappPayload.includes('hashcod-test.zip'), 'WhatsApp payload must include the code filename');
     assert(whatsappPayload.includes(privateCode), 'WhatsApp payload must include the exact generated HC1 code');
-    assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
-      'platform must remain blocked while the registration code receipt is open');
-    assert.equal(await page.evaluate(() => window.__registrationEntryEvents), 0,
-      'platform-entered must not fire before code acknowledgement');
 
-    await page.click('#hashcodRegistrationContinueAfterCode');
+    const capturedWhatsappUrl = await page.evaluate(() => window.__hashcodCapturedWhatsappUrl);
+    assert(capturedWhatsappUrl.startsWith('https://wa.me/18294721257?text='),
+      'WhatsApp button must open the official wa.me handoff');
+    assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
+      'WhatsApp click alone must not enter Codespace');
+    assert.equal(await page.evaluate(() => window.__registrationEntryEvents), 0,
+      'platform-entered must not fire before the entry button is clicked');
+
+    const entryLabel = (await page.textContent('#hashcodRegistrationSubmit')).replace(/\s+/g, ' ').trim();
+    assert(entryLabel.includes('ENTRAR A HASHCOD CODESPACE'),
+      'main registration button must be labeled ENTRAR A HASHCOD CODESPACE');
+
+    await page.click('#hashcodRegistrationSubmit');
 
     await page.waitForFunction(() => (
       document.documentElement.dataset.hashcodPlatformEntered === 'true'
@@ -223,7 +242,7 @@ async function run() {
       && window.__registrationEntryEvents === 1
     ), { timeout: 5000 });
 
-    console.log('PASS: screen 3 blocks entry, rejects under-18, generates the HC1 code locally, enables WhatsApp only when complete, and includes all request data in the WhatsApp payload.');
+    console.log('PASS: screen 3 keeps Codespace entry locked until the completed form is handed to WhatsApp, then the explicit ENTRAR A HASHCOD CODESPACE click enters the platform.');
   } finally {
     await browser.close();
   }

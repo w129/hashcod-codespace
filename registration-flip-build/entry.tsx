@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { PlusIcon } from 'lucide-react';
+import { ArrowRightIcon } from 'lucide-react';
 
 import {
   FlipButton,
@@ -71,7 +71,7 @@ function HashcodRegistrationFlipButton() {
       type={actionable ? 'submit' : 'button'}
       aria-disabled={actionable ? 'false' : 'true'}
       aria-busy={state.submitting ? 'true' : 'false'}
-      aria-label="Enviar registro"
+      aria-label="Entrar a Hashcod Codespace"
       className="hashcod-animate-ui-flip-button"
       onClick={(event) => {
         if (actionable) return;
@@ -84,18 +84,18 @@ function HashcodRegistrationFlipButton() {
         size="lg"
         className="hashcod-animate-ui-flip-face hashcod-animate-ui-flip-front"
       >
-        {state.submitting ? 'ENVIANDO…' : 'ENVIAR REGISTRO'}
+        {state.submitting ? 'ENTRANDO…' : 'ENTRAR A HASHCOD CODESPACE'}
       </FlipButtonFront>
       <FlipButtonBack
         variant="outline"
         size="icon"
         className="hashcod-animate-ui-flip-face hashcod-animate-ui-flip-back"
-        aria-label="Enviar registro"
+        aria-label="Entrar a Hashcod Codespace"
       >
         {state.submitting ? (
           <span className="hashcod-animate-ui-sending-dot" aria-hidden="true" />
         ) : (
-          <PlusIcon aria-hidden="true" />
+          <ArrowRightIcon aria-hidden="true" />
         )}
       </FlipButtonBack>
     </FlipButton>

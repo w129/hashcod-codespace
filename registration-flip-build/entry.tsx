@@ -7,13 +7,17 @@ import {
   FlipButtonBack,
   FlipButtonFront,
 } from './src/components/buttons/flip';
+import { NotificationList } from './src/components/community/notification-list';
 
 const HOST_ID = 'hashcodRegistrationSubmitReactHost';
+const NOTIFICATION_HOST_ID = 'hashcodRegistrationNotificationListHost';
 const STATE_EVENT = 'hashcod:registration-submit-state';
 const MOUNT_EVENT = 'hashcod:registration-form-mounted';
 
 let activeRoot: Root | null = null;
 let activeHost: HTMLElement | null = null;
+let notificationRoot: Root | null = null;
+let notificationHost: HTMLElement | null = null;
 
 type SubmitState = {
   enabled: boolean;
@@ -100,18 +104,38 @@ function HashcodRegistrationFlipButton() {
 
 function mount(): boolean {
   const host = document.getElementById(HOST_ID);
-  if (!host) return false;
-  if (host === activeHost && activeRoot) return true;
+  const listHost = document.getElementById(NOTIFICATION_HOST_ID);
+  let mounted = false;
 
-  if (activeRoot) {
-    try { activeRoot.unmount(); } catch (_) {}
-    activeRoot = null;
+  if (host && !(host === activeHost && activeRoot)) {
+    if (activeRoot) {
+      try { activeRoot.unmount(); } catch (_) {}
+      activeRoot = null;
+    }
+
+    activeHost = host;
+    activeRoot = createRoot(host);
+    activeRoot.render(<HashcodRegistrationFlipButton />);
+    mounted = true;
+  } else if (host && activeRoot) {
+    mounted = true;
   }
 
-  activeHost = host;
-  activeRoot = createRoot(host);
-  activeRoot.render(<HashcodRegistrationFlipButton />);
-  return true;
+  if (listHost && !(listHost === notificationHost && notificationRoot)) {
+    if (notificationRoot) {
+      try { notificationRoot.unmount(); } catch (_) {}
+      notificationRoot = null;
+    }
+
+    notificationHost = listHost;
+    notificationRoot = createRoot(listHost);
+    notificationRoot.render(<NotificationList />);
+    mounted = true;
+  } else if (listHost && notificationRoot) {
+    mounted = true;
+  }
+
+  return mounted;
 }
 
 window.addEventListener(MOUNT_EVENT, mount);
@@ -120,8 +144,13 @@ window.addEventListener('hashcod:platform-entered', () => {
   if (activeRoot) {
     try { activeRoot.unmount(); } catch (_) {}
   }
+  if (notificationRoot) {
+    try { notificationRoot.unmount(); } catch (_) {}
+  }
   activeRoot = null;
   activeHost = null;
+  notificationRoot = null;
+  notificationHost = null;
 }, { once: true });
 
 if (document.readyState === 'loading') {

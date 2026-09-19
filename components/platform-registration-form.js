@@ -23,8 +23,9 @@
         '[data-hashcod-auth-utility-dock]',
         '[data-hashcod-third-screen-legacy]'
     ];
-    let registrationSaved = false;
-    let registrationCodeAcknowledged = false;
+    let whatsappDispatched = false;
+    let whatsappDispatchFingerprint = '';
+    let entryConfirmed = false;
     let registrationGatePromise = null;
     let registrationGateResolve = null;
     let fieldCache = null;
@@ -291,8 +292,8 @@
                         data-enabled="false"
                         data-submitting="false"
                     >
-                        <button id="hashcodRegistrationSubmit" type="button" aria-label="Enviar registro" disabled>
-                            ENVIAR REGISTRO
+                        <button id="hashcodRegistrationSubmit" type="button" aria-label="Entrar a Hashcod Codespace" disabled>
+                            ENTRAR A HASHCOD CODESPACE
                         </button>
                     </div>
                     <button id="hashcodRegistrationWhatsappButton" type="button" aria-label="Enviar solicitud por WhatsApp" title="Enviar solicitud por WhatsApp" disabled>${WHATSAPP_ICON}</button>
@@ -518,7 +519,14 @@
             !v.code_file
         );
         const ok = Object.values(v).every(Boolean);
-        syncSubmitState(ok, false);
+        const currentFingerprint = ok ? registrationFingerprint() : '';
+        const whatsappMatchesForm = Boolean(
+            ok
+            && whatsappDispatched
+            && whatsappDispatchFingerprint
+            && whatsappDispatchFingerprint === currentFingerprint
+        );
+        syncSubmitState(whatsappMatchesForm, false);
         syncWhatsappState(ok);
         return ok;
     }
@@ -938,25 +946,45 @@
 
     async function submitForm(event) {
         event.preventDefault();
+
         if (!validate()) {
             status('Completa todos los campos y acepta el documento contractual antes de continuar.', 'error');
             return;
         }
-        syncSubmitState(false, true);
-        try {
-            const code = ensureRegistrationCode();
-            registrationSaved = true;
-            registrationCodeAcknowledged = false;
-            status('Código de solicitud generado. No se guardaron datos en la plataforma.', 'success');
-            showRegistrationCodeReceipt(code);
-            window.dispatchEvent(new CustomEvent('hashcod:platform-registration-saved', {
-                detail: { screen: 3, saved: false, registrationCodeIssued: true, localOnly: true }
-            }));
-        } catch (error) {
-            status(error && error.message ? error.message : 'No se pudo generar el código de solicitud.', 'error');
-        } finally {
-            validate();
+
+        const fingerprint = registrationFingerprint();
+        if (
+            !whatsappDispatched
+            || !whatsappDispatchFingerprint
+            || whatsappDispatchFingerprint !== fingerprint
+        ) {
+            syncSubmitState(false, false);
+            status('Primero pulsa el botón de WhatsApp para preparar el mensaje con estos datos.', 'error');
+            return;
         }
+
+        entryConfirmed = true;
+        syncSubmitState(false, true);
+        status('Acceso confirmado. Entrando a Hashcod Codespace…', 'success');
+
+        if (registrationGateResolve) {
+            registrationGateResolve({
+                ok: true,
+                whatsappDispatched: true,
+                entryConfirmed: true,
+                localOnly: true
+            });
+            registrationGateResolve = null;
+        }
+
+        window.dispatchEvent(new CustomEvent('hashcod:platform-registration-approved', {
+            detail: {
+                screen: 3,
+                whatsappDispatched: true,
+                entryConfirmed: true,
+                localOnly: true
+            }
+        }));
     }
 
     function sendRegistrationWhatsapp(event) {
@@ -965,9 +993,29 @@
             status('Completa todos los campos antes de enviar la solicitud por WhatsApp.', 'error');
             return false;
         }
+
         const code = ensureRegistrationCode();
+        const fingerprint = registrationFingerprint();
         dispatchWhatsApp(code);
-        status('Solicitud preparada en WhatsApp con todos los datos y el código ' + code + '.', 'success');
+
+        whatsappDispatched = true;
+        whatsappDispatchFingerprint = fingerprint;
+        entryConfirmed = false;
+
+        syncSubmitState(true, false);
+        status(
+            'Mensaje preparado en WhatsApp con tus datos y el código ' + code
+            + '. Ya puedes entrar a Hashcod Codespace.',
+            'success'
+        );
+
+        window.dispatchEvent(new CustomEvent('hashcod:registration-whatsapp-dispatched', {
+            detail: {
+                screen: 3,
+                registrationCode: code,
+                localOnly: true
+            }
+        }));
         return true;
     }
 
@@ -1016,8 +1064,8 @@
     }
 
     function continueAfterRegistrationCode() {
-        if (!registrationSaved) return false;
-        registrationCodeAcknowledged = true;
+        if (!whatsappDispatched) return false;
+        entryConfirmed = true;
         const overlay = document.getElementById('hashcodRegistrationCodeReceipt');
         const codeNode = document.getElementById('hashcodRegistrationPrivateCode');
         if (overlay) {
@@ -1027,7 +1075,7 @@
         // Clear the plaintext from the DOM before entering the platform.
         if (codeNode) codeNode.textContent = '';
         if (registrationGateResolve) {
-            registrationGateResolve({ ok: true, saved: true, codeAcknowledged: true });
+            registrationGateResolve({ ok: true, whatsappDispatched: true, entryConfirmed: true, localOnly: true });
             registrationGateResolve = null;
         }
         return true;
@@ -1049,12 +1097,20 @@
         if (!form || !cedula || !whatsappButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !copyRegistrationCodeButton || !continueAfterCodeButton || !codeReceipt) return;
         bound = true;
 
-        form.addEventListener('input', function () {
+        function invalidateWhatsappDispatch() {
             currentRegistrationFingerprint = '';
+            whatsappDispatched = false;
+            whatsappDispatchFingerprint = '';
+            entryConfirmed = false;
+            syncSubmitState(false, false);
+        }
+
+        form.addEventListener('input', function () {
+            invalidateWhatsappDispatch();
             scheduleValidate();
         });
         form.addEventListener('change', function () {
-            currentRegistrationFingerprint = '';
+            invalidateWhatsappDispatch();
             scheduleValidate();
         });
         form.addEventListener('submit', submitForm);
@@ -1268,7 +1324,14 @@
     }
 
     function waitForSuccessfulSubmission() {
-        if (registrationSaved && registrationCodeAcknowledged) return Promise.resolve({ ok: true, saved: true, codeAcknowledged: true });
+        if (whatsappDispatched && entryConfirmed) {
+            return Promise.resolve({
+                ok: true,
+                whatsappDispatched: true,
+                entryConfirmed: true,
+                localOnly: true
+            });
+        }
         if (!registrationGatePromise) {
             registrationGatePromise = new Promise(function (resolve) {
                 registrationGateResolve = resolve;
@@ -1344,7 +1407,8 @@
     window.HashcodPlatformRegistration = Object.freeze({
         waitForSuccessfulSubmission: waitForSuccessfulSubmission,
         completePlatformEntry: completePlatformEntry,
-        isSaved: function () { return registrationSaved && registrationCodeAcknowledged; },
+        isSaved: function () { return whatsappDispatched && entryConfirmed; },
+        hasDispatchedWhatsapp: function () { return whatsappDispatched; },
         getRegistrationCode: function () { return currentRegistrationCode; },
         buildWhatsAppMessage: function () {
             return currentRegistrationCode ? buildRegistrationWhatsAppMessage(currentRegistrationCode) : '';

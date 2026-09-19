@@ -605,18 +605,50 @@
   }
 
   function monitorDom() {
+    const pendingRoots = new Set();
+    let scheduled = false;
+
+    function processRoot(node) {
+      if (!node || node.nodeType !== 1 || !node.isConnected) return;
+      annotateLogos(node);
+      bindForms(node);
+      bindShareTriggers(node);
+      annotateSkeletons(node);
+      annotateReveal(node);
+      if (node.matches && node.matches('form')) bindAutosave(node);
+    }
+
+    function flushPending(deadline) {
+      scheduled = false;
+      let processed = 0;
+      for (const node of Array.from(pendingRoots)) {
+        pendingRoots.delete(node);
+        processRoot(node);
+        processed += 1;
+        if (processed >= 24) break;
+        if (deadline && typeof deadline.timeRemaining === 'function' && deadline.timeRemaining() < 2) break;
+      }
+      if (pendingRoots.size) scheduleFlush();
+    }
+
+    function scheduleFlush() {
+      if (scheduled) return;
+      scheduled = true;
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(flushPending, { timeout: 120 });
+      } else {
+        window.setTimeout(function () { flushPending(null); }, 0);
+      }
+    }
+
     state.mutationObserver = new MutationObserver(function (records) {
       records.forEach(function (record) {
         record.addedNodes.forEach(function (node) {
           if (!node || node.nodeType !== 1) return;
-          annotateLogos(node);
-          bindForms(node);
-          bindShareTriggers(node);
-          annotateSkeletons(node);
-          annotateReveal(node);
-          if (node.matches && node.matches('form')) bindAutosave(node);
+          pendingRoots.add(node);
         });
       });
+      if (pendingRoots.size) scheduleFlush();
     });
     state.mutationObserver.observe(document.documentElement, { childList: true, subtree: true });
   }

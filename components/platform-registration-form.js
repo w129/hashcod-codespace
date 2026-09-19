@@ -52,6 +52,7 @@
         catch (_) { return new URL('./', window.location.href); }
     }
     function apiUrl() { return new URL(API_PATH, baseUrl()).toString(); }
+    function adminStatusUrl() { return new URL('api/admin-device/status', baseUrl()).toString(); }
     function turnstileConfigUrl() { return new URL('api/cloudflare/turnstile/config', baseUrl()).toString(); }
     function turnstileVerifyUrl() { return new URL('api/cloudflare/turnstile/verify', baseUrl()).toString(); }
     function escapeHtml(value) {
@@ -1078,12 +1079,64 @@
         `;
     }
 
+    async function confirmAdminSession() {
+        const response = await fetch(adminStatusUrl(), {
+            method: 'GET',
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await response.json().catch(function () { return {}; });
+        if (!response.ok || !data.ok) {
+            throw new Error(data.error || 'No se pudo confirmar la sesión administrativa.');
+        }
+        return data.authenticated === true;
+    }
+
+    async function fetchAdminRegistrationRows() {
+        const controller = typeof AbortController === 'function' ? new AbortController() : null;
+        const timeout = window.setTimeout(function () {
+            if (controller) controller.abort();
+        }, 15000);
+
+        try {
+            const response = await fetch(apiUrl() + '?view=admin', {
+                method: 'GET',
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: controller ? controller.signal : undefined
+            });
+            const data = await response.json().catch(function () { return {}; });
+            if (!response.ok || !data.ok) {
+                if (response.status === 403) {
+                    throw new Error('La CodeKey se verificó, pero la sesión administrativa no quedó activa. Inténtalo nuevamente.');
+                }
+                throw new Error(data.error || 'No se pudo cargar la tabla.');
+            }
+            return data.rows || [];
+        } finally {
+            window.clearTimeout(timeout);
+        }
+    }
+
     async function openTable() {
         const button = document.getElementById('hashcodRegistrationTableButton');
         const overlay = document.getElementById('hashcodRegistrationTableOverlay');
         const scroll = overlay ? overlay.querySelector('.hashcod-registration-table-scroll') : null;
         if (button) button.disabled = true;
+
+        // Open the panel synchronously with the user's click so CodeKey progress
+        // and any backend error are always visible instead of appearing to do nothing.
+        if (overlay) {
+            overlay.classList.add('is-open');
+            overlay.setAttribute('aria-hidden', 'false');
+        }
+        if (scroll) {
+            scroll.innerHTML = '<div class="hashcod-registration-table-loading">Selecciona y verifica la CodeKey para continuar…</div>';
+        }
         status('Verificando acceso administrativo…');
+
         try {
             // HashcodAdmin is preloaded during form mount. Calling require()
             // directly from this click preserves browser user-activation, so
@@ -1091,52 +1144,40 @@
             if (!window.HashcodAdmin || typeof window.HashcodAdmin.require !== 'function') {
                 const ready = await ensureAdminEngine();
                 if (!ready) throw new Error('No se pudo cargar la verificación administrativa.');
+                if (scroll) {
+                    scroll.innerHTML = '<div class="hashcod-registration-table-error">Verificador CodeKey listo. Cierra esta ventana y pulsa nuevamente el botón de la tabla.</div>';
+                }
                 status('Verificador CodeKey listo. Pulsa nuevamente el botón de la tabla.');
                 return;
             }
 
             const verified = await window.HashcodAdmin.require({ force: false, throwOnError: true });
             if (!verified) {
-                // Cancelling the file chooser is not an application error.
+                if (overlay) {
+                    overlay.classList.remove('is-open');
+                    overlay.setAttribute('aria-hidden', 'true');
+                }
                 status('');
                 return;
             }
 
-            // CodeKey is valid: open the table immediately instead of keeping
-            // the UI stuck on "Verificando…" while the backend loads rows.
-            if (overlay) {
-                overlay.classList.add('is-open');
-                overlay.setAttribute('aria-hidden', 'false');
-            }
             if (scroll) {
-                scroll.innerHTML = '<div class="hashcod-registration-table-loading">Cargando registros…</div>';
+                scroll.innerHTML = '<div class="hashcod-registration-table-loading">CodeKey verificada. Confirmando sesión administrativa…</div>';
             }
-            status('CodeKey verificada. Cargando registros…', 'success');
+            status('CodeKey verificada. Confirmando sesión…', 'success');
 
-            const controller = typeof AbortController === 'function' ? new AbortController() : null;
-            const timeout = window.setTimeout(function () {
-                if (controller) controller.abort();
-            }, 15000);
+            const authenticated = await confirmAdminSession();
+            if (!authenticated) {
+                throw new Error('La CodeKey fue aceptada, pero la sesión administrativa no quedó activa.');
+            }
 
-            let response;
-            try {
-                response = await fetch(apiUrl() + '?view=admin', {
-                    method: 'GET',
-                    credentials: 'same-origin',
-                    cache: 'no-store',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    signal: controller ? controller.signal : undefined
-                });
-            } finally {
-                window.clearTimeout(timeout);
+            if (scroll) {
+                scroll.innerHTML = '<div class="hashcod-registration-table-loading">Sesión confirmada. Cargando registros…</div>';
             }
-            const data = await response.json().catch(function () { return {}; });
-            if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo cargar la tabla.');
-            renderRows(data.rows || []);
-            if (overlay) {
-                overlay.classList.add('is-open');
-                overlay.setAttribute('aria-hidden', 'false');
-            }
+            status('Sesión administrativa confirmada. Cargando registros…', 'success');
+
+            const rows = await fetchAdminRegistrationRows();
+            renderRows(rows);
             status('');
         } catch (error) {
             const message = error && error.name === 'AbortError'

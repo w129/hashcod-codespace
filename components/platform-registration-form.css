@@ -1063,6 +1063,14 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     text-align: left; vertical-align: top; white-space: nowrap;
 }
 
+.hashcod-registration-unrecoverable {
+    display: inline-block;
+    max-width: 190px;
+    color: #8a1b1b;
+    white-space: normal;
+    font: 600 9px/1.35 "IBM Plex Mono", Consolas, monospace;
+}
+
 .hashcod-registration-code-value {
     display: inline-block;
     white-space: nowrap;

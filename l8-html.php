@@ -202,7 +202,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // Rewrite it at response time so browsers receive the registration-aware loader.
         $html = str_replace(
             'components/admin-hello-button.js?v=20260912-1',
-            'components/admin-hello-button.js?v=20260918-registration27',
+            'components/admin-hello-button.js?v=20260918-registration28',
             $html
         );
 
@@ -244,7 +244,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260918-26" data-hashcod-platform-registration-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260918-27" data-hashcod-platform-registration-style="true">';
 
         // Retire the current authentication window before first paint. The
         // backend/session code remains available for the replacement entry system.
@@ -364,8 +364,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . $registrationFlipTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-34" data-platform-entry-hold="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260918-34" data-hashcod-platform-registration="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-35" data-platform-entry-hold="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260918-35" data-hashcod-platform-registration="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag
@@ -379,7 +379,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260917-restore2" data-hashcod-entry-capability-footer-fix="true"></script>'
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
-            . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260918-2" data-hashcod-codekey-picker-rescue="true"></script>'
+            . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260918-3" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
             . '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260915-3" data-hashcod-efr-code-editor="true"></script>'
             . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260917-10" data-hashcod-boot-brand-credit-relocate="true"></script>'

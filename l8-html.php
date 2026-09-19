@@ -244,7 +244,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260918-28" data-hashcod-platform-registration-style="true">';
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260919-29" data-hashcod-platform-registration-style="true">';
 
         // Retire the current authentication window before first paint. The
         // backend/session code remains available for the replacement entry system.
@@ -365,7 +365,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-37" data-platform-entry-hold="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260919-39" data-hashcod-platform-registration="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260919-40" data-hashcod-platform-registration="true"></script>'
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

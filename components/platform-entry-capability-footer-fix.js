@@ -200,8 +200,11 @@
         return true;
     }
 
+    let layoutFrame = 0;
     function scheduleApply() {
-        window.requestAnimationFrame(function () {
+        if (layoutFrame) return;
+        layoutFrame = window.requestAnimationFrame(function () {
+            layoutFrame = 0;
             applyLayout();
         });
     }
@@ -221,7 +224,33 @@
         document.fonts.ready.then(scheduleApply).catch(function () {});
     }
 
-    const observer = new MutationObserver(scheduleApply);
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    const observer = new MutationObserver(function (records) {
+        const relevant = records.some(function (record) {
+            return Array.from(record.addedNodes || []).some(function (node) {
+                if (!node || node.nodeType !== 1) return false;
+                if (
+                    node.id === FOOTER_ID ||
+                    node.id === 'hashcodEntryHold' ||
+                    node.id === 'hashcodRareFolderHost' ||
+                    node.id === 'hashcodBootFolderAnimation' ||
+                    node.id === 'hashcodUxActions' ||
+                    (node.matches && node.matches('.boot-brand'))
+                ) return true;
+                return Boolean(node.querySelector && node.querySelector(
+                    '#' + FOOTER_ID + ', #hashcodEntryHold, #hashcodRareFolderHost, #hashcodBootFolderAnimation, #hashcodUxActions, .boot-brand'
+                ));
+            });
+        });
+        if (relevant) scheduleApply();
+    });
+    observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
     window.addEventListener('resize', scheduleApply, { passive: true });
+
+    function stopLayoutWatch() {
+        observer.disconnect();
+        if (layoutFrame) window.cancelAnimationFrame(layoutFrame);
+        layoutFrame = 0;
+    }
+    window.addEventListener('hashcod:final-entry-screen', stopLayoutWatch, { once: true });
+    window.addEventListener('hashcod:platform-entered', stopLayoutWatch, { once: true });
 })();

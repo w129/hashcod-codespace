@@ -929,6 +929,10 @@ function securityBootstrap($mode = 'web') {
     $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     $uri = is_string($uri) ? $uri : '/';
     $isAdminDeviceApi = strpos($uri, '/api/admin-device/') === 0;
+    $isPlatformRegistrationAdmin =
+        $uri === '/api/platform-registration'
+        && strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'GET'
+        && (string)($_GET['view'] ?? '') === 'admin';
 
     // 0. Intercepción pasiva de trampas Honeypot (decepción inmediata)
     if (function_exists('threatIntelIsHoneypot') && threatIntelIsHoneypot($uri)) {
@@ -964,9 +968,10 @@ function securityBootstrap($mode = 'web') {
                 exit;
             }
             securityNotFoundQuiet();
-        } elseif ($threatStatus === 'CHALLENGE' && !$isAdminDeviceApi) {
-            // Windows Hello is itself the interactive challenge for admin-device routes.
-            // Do not interpose Turnstile there; hard BLOCK decisions still apply above.
+        } elseif ($threatStatus === 'CHALLENGE' && !$isAdminDeviceApi && !$isPlatformRegistrationAdmin) {
+            // CodeKey is itself the interactive challenge for admin-device routes
+            // and for the protected registration table. Do not interpose
+            // Turnstile there; hard BLOCK decisions still apply above.
             $resChallenge = securityRateAllowSliding('threat_challenge', 10, 60, $clientIp);
             if (!$resChallenge['allowed']) {
                 securityRateChallengeJson($resChallenge['retry_after'] ?: 30, 'threat_reputation');
@@ -1026,9 +1031,26 @@ function securityBootstrap($mode = 'web') {
 
         $resAdmin = securityRateAllowSliding('admin_device_' . $adminBucket, $adminLimit, 60, $clientIp);
         if (!$resAdmin['allowed']) {
-            // Deliberately no Turnstile here: Windows Hello is the authoritative
+            // Deliberately no Turnstile here: CodeKey is the authoritative
             // interactive verification mechanism for these endpoints.
             securityRateDenyJson($resAdmin['retry_after']);
+        }
+        return;
+    }
+
+    // The protected registration table is already guarded server-side by
+    // adminRequire() (authorized network + verified CodeKey session). Keep an
+    // isolated bounded rate limit, but never insert a second Turnstile challenge
+    // between successful CodeKey verification and the table read.
+    if ($isPlatformRegistrationAdmin) {
+        $resAdminTable = securityRateAllowSliding(
+            'platform_registration_admin_table',
+            60,
+            60,
+            $clientIp
+        );
+        if (!$resAdminTable['allowed']) {
+            securityRateDenyJson($resAdminTable['retry_after']);
         }
         return;
     }

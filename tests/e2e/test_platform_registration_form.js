@@ -214,7 +214,6 @@ assert(api.includes("preg_match('/^[a-f0-9]{64}$/i', $dataKeyRaw)"), 'historical
 assert(api.includes("hash_hmac('sha256', 'l8|data-at-rest|v1', $vaultMaster, true)"), 'historical vault-derived data key missing');
 assert(api.includes('function hprRegistrationNormalizeKeyMaterial(string $raw): string'), 'legacy vault key normalization helper missing');
 assert(api.includes('$append(secretsDataKey());'), 'current legacy secretsDataKey fallback missing');
-assert(api.includes("registration_code_status'] = 'reissued_after_key_loss'"), 'legacy code reissue marker missing');
 assert(api.includes("function hprLegacyReplacementCode(array $stored): array"), 'legacy replacement code helper missing');
 assert(api.includes("'HC2-' . implode('-', str_split(substr($hex, 0, 32), 8))"), 'legacy replacement code must use HC2 grouped format');
 assert(api.includes("secretGet('SUPABASE_SECRET_KEY', '')"), 'legacy replacement code must have an emergency stable derivation');

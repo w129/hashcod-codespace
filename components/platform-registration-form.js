@@ -16,7 +16,6 @@
         '#hashcodAuthUtilityDock',
         '#groqAuthChatPanel',
         '#groqAuthChatLauncher',
-        '#hashcodEftCodeKeyGate',
         '#hashcodEfrHotzone',
         '#cryptoCardValidationLauncherBtn',
         '#d5LauncherBtn',
@@ -31,7 +30,10 @@
     let fieldCache = null;
     const hintCache = Object.create(null);
     let validationFrame = 0;
-    const DATABASE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 50 50" aria-hidden="true"><path d="M 28.992188 8 C 23.873188 8 19.388844 10.76825 17.214844 15.15625 C 16.078844 14.40325 14.747469 14 13.355469 14 C 9.7104688 14 6.6083281 17.027891 6.3613281 20.712891 C 2.6863281 22.110891 -1.1842379e-15 26.103078 0 30.330078 C 0 35.661078 4.3379219 40 9.6699219 40 L 30 40 L 30 38 L 9.6699219 38 C 5.4399219 38 2 34.559078 2 30.330078 C 2 26.755078 4.4719531 23.271437 7.6269531 22.398438 L 8.3886719 22.189453 L 8.3476562 21.183594 C 8.3476562 18.372594 10.641422 15.998047 13.357422 15.998047 C 14.694422 15.998047 15.952391 16.520703 16.900391 17.470703 L 18.005859 18.574219 L 18.546875 17.109375 C 20.145875 12.789375 24.246141 9.9980469 28.994141 9.9980469 C 35.062141 9.9990469 40 15.00275 40 21.21875 C 40 21.68575 39.999219 22.466906 39.949219 22.878906 L 39.8125 24 L 40.941406 24 L 41.027344 23.996094 C 43.228344 24.005094 45.223719 25.114969 46.511719 26.792969 C 47.740719 27.195969 48.753594 27.731281 49.558594 28.363281 C 48.478594 25.028281 45.510141 22.466688 41.994141 22.054688 C 42.000141 21.740687 42 21.425391 42 21.150391 C 42 13.899391 36.164187 8 28.992188 8 z M 41 28 C 38.446754 28 36.307206 28.456516 34.716797 29.283203 C 33.126388 30.10989 32 31.421546 32 33 L 32 37 L 32 41 L 32 45 C 32 46.578454 33.126388 47.89011 34.716797 48.716797 C 36.307206 49.543484 38.446754 50 41 50 C 43.553246 50 45.692794 49.543484 47.283203 48.716797 C 48.873612 47.89011 50 46.578454 50 45 L 50 41 L 50 37 L 50 33 C 50 31.421546 48.873612 30.10989 47.283203 29.283203 C 45.692794 28.456516 43.553246 28 41 28 z M 41 30 C 43.307754 30 45.166987 30.437781 46.361328 31.058594 C 47.555669 31.679407 48 32.368454 48 33 C 48 33.631546 47.555669 34.320593 46.361328 34.941406 C 45.166987 35.562219 43.307754 36 41 36 C 38.692246 36 36.833013 35.562219 35.638672 34.941406 C 34.444331 34.320593 34 33.631546 34 33 C 34 32.368454 34.444331 31.679407 35.638672 31.058594 C 36.833013 30.437781 38.692246 30 41 30 z M 34 36.283203 C 34.226833 36.438365 34.463816 36.585299 34.716797 36.716797 C 36.307206 37.543484 38.446754 38 41 38 C 43.553246 38 45.692794 37.543484 47.283203 36.716797 C 47.536184 36.585299 47.773167 36.438365 48 36.283203 L 48 37 C 48 37.631546 47.555669 38.320593 46.361328 38.941406 C 45.166987 39.562219 43.307754 40 41 40 C 38.692246 40 36.833013 39.562219 35.638672 38.941406 C 34.444331 38.320593 34 37.631546 34 37 L 34 36.283203 z M 34 40.283203 C 34.226833 40.438365 34.463816 40.585299 34.716797 40.716797 C 36.307206 41.543484 38.446754 42 41 42 C 43.553246 42 45.692794 41.543484 47.283203 40.716797 C 47.536184 40.585299 47.773167 40.438365 48 40.283203 L 48 41 C 48 41.631546 47.555669 42.320593 46.361328 42.941406 C 45.166987 43.562219 43.307754 44 41 44 C 38.692246 44 36.833013 43.562219 35.638672 42.941406 C 34.444331 42.320593 34 41.631546 34 41 L 34 40.283203 z M 34 44.283203 C 34.226833 44.438365 34.463816 44.585299 34.716797 44.716797 C 36.307206 45.543484 38.446754 46 41 46 C 43.553246 46 45.692794 45.543484 47.283203 44.716797 C 47.536184 44.585299 47.773167 44.438365 48 44.283203 L 48 45 C 48 45.631546 47.555669 46.320593 46.361328 46.941406 C 45.166987 47.562219 43.307754 48 41 48 C 38.692246 48 36.833013 47.562219 35.638672 46.941406 C 34.444331 46.320593 34 45.631546 34 45 L 34 44.283203 z"></path></svg>';
+    const WHATSAPP_ICON = '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 32 32" aria-hidden="true"><path d="M 5 3 L 5 9 L 7 9 L 7 5 L 9 5 L 9 3 L 5 3 z M 9 5 L 9 7 L 13 7 L 13 5 L 9 5 z M 13 7 L 13 9 L 17 9 L 17 7 L 13 7 z M 17 9 L 17 11 L 21 11 L 21 9 L 17 9 z M 21 11 L 21 13 L 25 13 L 25 11 L 21 11 z M 25 13 L 25 15 L 29 15 L 29 13 L 25 13 z M 29 15 L 29 17 L 31 17 L 31 15 L 29 15 z M 29 17 L 25 17 L 25 19 L 29 19 L 29 17 z M 25 19 L 21 19 L 21 21 L 25 21 L 25 19 z M 21 21 L 17 21 L 17 23 L 21 23 L 21 21 z M 17 23 L 13 23 L 13 25 L 17 25 L 17 23 z M 13 25 L 9 25 L 9 27 L 13 27 L 13 25 z M 9 27 L 7 27 L 7 23 L 5 23 L 5 29 L 9 29 L 9 27 z M 7 23 L 9 23 L 9 19 L 7 19 L 7 23 z M 9 19 L 11 19 L 11 17 L 19 17 L 19 15 L 11 15 L 11 13 L 9 13 L 9 15 L 9 17 L 9 19 z M 9 13 L 9 9 L 7 9 L 7 13 L 9 13 z"></path></svg>';
+    const WHATSAPP_NUMBER = '18294721257';
+    let currentRegistrationCode = '';
+    let currentRegistrationFingerprint = '';
 
     const CODE_UPLOAD_ICON = '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 32 32" aria-hidden="true"><path d="M 10 4 L 10 6 L 20 6 L 20 4 L 10 4 z M 20 6 L 20 12 L 22 12 L 22 6 L 20 6 z M 22 12 L 22 14 L 25 14 L 25 20 L 27 20 L 27 18 L 30 18 L 30 16 L 27 16 L 27 12 L 22 12 z M 30 18 L 30 24 L 32 24 L 32 18 L 30 18 z M 30 24 L 20 24 L 20 26 L 30 26 L 30 24 z M 10 6 L 8 6 L 8 9 L 6 9 L 6 11 L 14 11 L 14 9 L 10 9 L 10 6 z M 6 11 L 4 11 L 4 14 L 2 14 L 2 16 L 6 16 L 6 11 z M 2 16 L 0 16 L 0 24 L 2 24 L 2 16 z M 2 24 L 2 26 L 10 26 L 10 24 L 2 24 z M 14 15 L 14 17 L 12 17 L 12 19 L 10 19 L 10 21 L 14 21 L 14 30 L 16 30 L 16 21 L 20 21 L 20 19 L 18 19 L 18 17 L 16 17 L 16 15 L 14 15 z"></path></svg>';
     const MAX_CODE_FILE_BYTES = 30 * 1024 * 1024;
@@ -296,7 +298,7 @@
                             ENVIAR REGISTRO
                         </button>
                     </div>
-                    <button id="hashcodRegistrationTableButton" type="button" aria-label="Abrir tabla de registros" title="Tabla de registros">${DATABASE_ICON}</button>
+                    <button id="hashcodRegistrationWhatsappButton" type="button" aria-label="Enviar solicitud por WhatsApp" title="Enviar solicitud por WhatsApp" disabled>${WHATSAPP_ICON}</button>
                     <div class="hashcod-registration-validity-note" aria-label="Validez del proyecto generado por inteligencia artificial">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
                             <path d="M 9 5 L 9 7 L 23 7 L 23 5 L 9 5 z M 23 7 L 23 10 L 25 10 L 25 7 L 23 7 z M 25 10 L 25 14 L 27 14 L 27 10 L 25 10 z M 27 14 L 27 17 L 5 17 L 5 14 L 3 14 L 3 27 L 29 27 L 29 14 L 27 14 z M 5 14 L 7 14 L 7 10 L 5 10 L 5 14 z M 7 10 L 9 10 L 9 7 L 7 7 L 7 10 z M 12 9 L 12 11 L 20 11 L 20 9 L 12 9 z M 20 11 L 20 13 L 22 13 L 22 11 L 20 11 z M 20 13 L 17 13 L 17 12 L 15 12 L 15 13 L 12 13 L 12 15 L 20 15 L 20 13 z M 12 13 L 12 11 L 10 11 L 10 13 L 12 13 z M 5 19 L 27 19 L 27 25 L 5 25 L 5 19 z M 23 21 L 23 23 L 25 23 L 25 21 L 23 21 z"></path>
@@ -367,16 +369,6 @@
                     ></div>
                 </div>
                 <p id="hashcodRegistrationStatus" class="hashcod-registration-status" role="status" aria-live="polite"></p>
-                <div id="hashcodRegistrationTurnstile" class="hashcod-registration-turnstile" hidden aria-live="polite">
-                    <div class="hashcod-registration-turnstile-head">
-                        <span>Cloudflare Security</span>
-                        <span id="hashcodRegistrationTurnstileState">VERIFICANDO</span>
-                    </div>
-                    <div id="hashcodRegistrationTurnstileWidget" class="hashcod-registration-turnstile-widget"></div>
-                    <p id="hashcodRegistrationTurnstileHint" class="hashcod-registration-turnstile-hint">
-                        Completa la verificación para continuar de forma segura.
-                    </p>
-                </div>
             </form>
         `;
     }
@@ -402,23 +394,7 @@
         `;
     }
 
-    function tableOverlayMarkup() {
-        return `
-            <div id="hashcodRegistrationTableOverlay" aria-hidden="true">
-                <section class="hashcod-registration-table-shell" role="dialog" aria-modal="true" aria-labelledby="hashcodRegistrationTableTitle">
-                    <header class="hashcod-registration-table-head">
-                        <h2 id="hashcodRegistrationTableTitle">Registros de plataformas</h2>
-                        <button type="button" class="hashcod-registration-table-close" aria-label="Cerrar tabla">×</button>
-                    </header>
-                    <div class="hashcod-registration-table-scroll">
-                        <div class="hashcod-registration-empty">Verifica el acceso administrativo para cargar la tabla.</div>
-                    </div>
-                </section>
-            </div>
-        `;
-    }
-
-    function mount() {
+    function mount() {    function mount() {
         if (!document.body) return false;
         if (document.documentElement.dataset.hashcodFinalEntryScreen !== 'true') return false;
 
@@ -437,19 +413,11 @@
                 detail: { screen: 3 }
             }));
         }
-        if (!document.getElementById('hashcodRegistrationTableOverlay')) {
-            document.body.insertAdjacentHTML('beforeend', tableOverlayMarkup());
-        }
         if (!document.getElementById('hashcodRegistrationCodeReceipt')) {
             document.body.insertAdjacentHTML('beforeend', registrationCodeReceiptMarkup());
         }
         bind();
         validate();
-        // Turnstile is a rate-limit recovery challenge, not a prerequisite for
-        // every registration. Mounting it eagerly made any Cloudflare/widget
-        // configuration error disable the submit button indefinitely. The
-        // backend remains authoritative and requests Turnstile only after a
-        // 429 challenge response.
         return true;
     }
 
@@ -552,17 +520,9 @@
             selectedCodeFile ? ('Código listo: ' + selectedCodeFile.name) : 'Sube la explicación del code de tu plataforma. Maximo 30 MB',
             !v.code_file
         );
-        if (turnstileRequired && turnstileVerified && turnstileVerifiedUntil > 0 && Date.now() >= turnstileVerifiedUntil) {
-            turnstileVerified = false;
-            turnstileVerifiedUntil = 0;
-            setTurnstileUi('error', 'La verificación de Cloudflare expiró. Complétala nuevamente.');
-            if (window.turnstile && turnstileWidgetId !== null) {
-                try { window.turnstile.reset(turnstileWidgetId); } catch (_) {}
-            }
-        }
-        const humanVerified = !turnstileRequired || turnstileVerified;
-        const ok = Object.values(v).every(Boolean) && humanVerified;
+        const ok = Object.values(v).every(Boolean);
         syncSubmitState(ok, false);
+        syncWhatsappState(ok);
         return ok;
     }
 
@@ -595,6 +555,13 @@
                 submitting: Boolean(submitting)
             }
         }));
+    }
+
+    function syncWhatsappState(enabled) {
+        const button = document.getElementById('hashcodRegistrationWhatsappButton');
+        if (!button) return;
+        button.disabled = !Boolean(enabled);
+        button.setAttribute('aria-disabled', enabled ? 'false' : 'true');
     }
 
     function scheduleValidate() {
@@ -889,14 +856,87 @@
         validate();
     }
 
-    function buildSubmissionBody() {
+    function registrationFingerprint() {
         const values = payload();
-        const body = new FormData();
-        Object.keys(values).forEach(function (key) {
-            body.append(key, values[key] === true ? 'true' : String(values[key]));
+        return JSON.stringify({
+            full_name: values.full_name,
+            age: values.age,
+            cedula: values.cedula,
+            platform_name: values.platform_name,
+            email: values.email,
+            phone: values.phone,
+            consent: values.consent === true,
+            code_file: selectedCodeFile ? {
+                name: selectedCodeFile.name,
+                size: selectedCodeFile.size,
+                type: selectedCodeFile.type || ''
+            } : null
         });
-        if (selectedCodeFile) body.append('code_file', selectedCodeFile, selectedCodeFile.name);
-        return body;
+    }
+
+    function generateRegistrationCode() {
+        const bytes = new Uint8Array(16);
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+            window.crypto.getRandomValues(bytes);
+        } else {
+            for (let i = 0; i < bytes.length; i += 1) {
+                bytes[i] = Math.floor(Math.random() * 256);
+            }
+        }
+        const hex = Array.from(bytes, function (value) {
+            return value.toString(16).padStart(2, '0').toUpperCase();
+        }).join('');
+        return 'HC1-' + hex.match(/.{1,8}/g).join('-');
+    }
+
+    function ensureRegistrationCode() {
+        const fingerprint = registrationFingerprint();
+        if (!currentRegistrationCode || currentRegistrationFingerprint !== fingerprint) {
+            currentRegistrationCode = generateRegistrationCode();
+            currentRegistrationFingerprint = fingerprint;
+        }
+        return currentRegistrationCode;
+    }
+
+    function formatFileSize(bytes) {
+        const value = Number(bytes || 0);
+        if (!Number.isFinite(value) || value <= 0) return '0 B';
+        if (value < 1024) return value + ' B';
+        if (value < 1024 * 1024) return (value / 1024).toFixed(1) + ' KB';
+        return (value / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function buildRegistrationWhatsAppMessage(code) {
+        const values = payload();
+        const file = selectedCodeFile;
+        return [
+            '*HASHCOD CODESPACE® — SOLICITUD DE REGISTRO DE PLATAFORMA*',
+            '',
+            '*Nombre con apellidos:* ' + values.full_name,
+            '*Edad:* ' + values.age,
+            '*Cédula:* ' + values.cedula,
+            '*Nombre de la plataforma:* ' + values.platform_name,
+            '*Correo electrónico:* ' + values.email,
+            '*Número de teléfono:* ' + values.phone,
+            '*Archivo de código:* ' + (file ? file.name : 'No seleccionado'),
+            '*Tamaño del archivo:* ' + (file ? formatFileSize(file.size) : '0 B'),
+            '*Código de solicitud:* ' + code,
+            '*Documento contractual y de privacidad:* ACEPTADO',
+            '',
+            'Solicitud generada desde Hashcod Codespace.'
+        ].join('\n');
+    }
+
+    function getRegistrationWhatsAppUrl(code) {
+        return 'https://wa.me/' + WHATSAPP_NUMBER + '?text='
+            + encodeURIComponent(buildRegistrationWhatsAppMessage(code));
+    }
+
+    function dispatchWhatsApp(code) {
+        const url = getRegistrationWhatsAppUrl(code);
+        const opened = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!opened) window.location.href = url;
+        return url;
     }
 
     async function submitForm(event) {
@@ -906,48 +946,32 @@
             return;
         }
         syncSubmitState(false, true);
-        status('Guardando registro…');
         try {
-            const response = await fetch(apiUrl(), {
-                method: 'POST',
-                credentials: 'same-origin',
-                cache: 'no-store',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: buildSubmissionBody()
-            });
-            const data = await response.json().catch(function () { return {}; });
-            if (
-                response.status === 429
-                && (data.challenge_required || data.code === 'turnstile_challenge_required')
-            ) {
-                pendingTurnstileSubmission = true;
-                status('');
-                await requireTurnstileChallenge(data);
-                return;
-            }
-            if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo guardar el registro.');
-            if (!data.registration_code || typeof data.registration_code !== 'string') {
-                throw new Error('El registro fue guardado, pero no se recibió el código criptográfico de confirmación.');
-            }
+            const code = ensureRegistrationCode();
             registrationSaved = true;
             registrationCodeAcknowledged = false;
-            document.getElementById('hashcodRegistrationForm').reset();
-            resetCodeUpload();
-            document.querySelectorAll('#hashcodRegistrationForm input[aria-invalid]').forEach(function (input) {
-                input.setAttribute('aria-invalid', 'false');
-            });
-            status('Registro y aceptación contractual guardados correctamente.', 'success');
-            showRegistrationCodeReceipt(data.registration_code);
+            status('Código de solicitud generado. No se guardaron datos en la plataforma.', 'success');
+            showRegistrationCodeReceipt(code);
             window.dispatchEvent(new CustomEvent('hashcod:platform-registration-saved', {
-                detail: { screen: 3, saved: true, registrationCodeIssued: true }
+                detail: { screen: 3, saved: false, registrationCodeIssued: true, localOnly: true }
             }));
         } catch (error) {
-            status(error && error.message ? error.message : 'No se pudo guardar el registro.', 'error');
+            status(error && error.message ? error.message : 'No se pudo generar el código de solicitud.', 'error');
         } finally {
             validate();
         }
+    }
+
+    function sendRegistrationWhatsapp(event) {
+        if (event) event.preventDefault();
+        if (!validate()) {
+            status('Completa todos los campos antes de enviar la solicitud por WhatsApp.', 'error');
+            return false;
+        }
+        const code = ensureRegistrationCode();
+        dispatchWhatsApp(code);
+        status('Solicitud preparada en WhatsApp con todos los datos y el código ' + code + '.', 'success');
+        return true;
     }
 
     function showRegistrationCodeReceipt(code) {
@@ -1012,218 +1036,30 @@
         return true;
     }
 
-    function ensureAdminEngine() {
-        if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') return Promise.resolve(true);
-        const existing = Array.from(document.scripts).find(function (node) {
-            return /\/components\/admin-device\.js(?:\?|$)/.test(node.src || '');
-        });
-        if (!existing) {
-            const script = document.createElement('script');
-            script.src = new URL('components/admin-device.js?v=20260918-codekey4', baseUrl()).toString();
-            script.defer = true;
-            script.dataset.hashcodRegistrationAdmin = 'true';
-            document.head.appendChild(script);
-        }
-        return new Promise(function (resolve) {
-            let attempts = 0;
-            const timer = window.setInterval(function () {
-                attempts += 1;
-                if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') {
-                    window.clearInterval(timer);
-                    resolve(true);
-                } else if (attempts >= 60) {
-                    window.clearInterval(timer);
-                    resolve(false);
-                }
-            }, 100);
-        });
-    }
-
-    function formatDate(value) {
-        const date = new Date(value);
-        return Number.isNaN(date.getTime()) ? String(value || '') : date.toLocaleString();
-    }
-
-    function renderRows(rows) {
-        const scroll = document.querySelector('#hashcodRegistrationTableOverlay .hashcod-registration-table-scroll');
-        if (!scroll) return;
-        if (!Array.isArray(rows) || !rows.length) {
-            scroll.innerHTML = '<div class="hashcod-registration-empty">Todavía no hay registros.</div>';
-            return;
-        }
-        scroll.innerHTML = `
-            <table class="hashcod-registration-table">
-                <thead><tr>
-                    <th>ID</th><th>Nombre con apellidos</th><th>Edad</th><th>Cédula</th>
-                    <th>Plataforma</th><th>Archivo</th><th>Código de registro</th><th>Contrato</th><th>Evidencia</th><th>Correo electrónico</th><th>Teléfono</th><th>Fecha</th>
-                </tr></thead>
-                <tbody>${rows.map(function (row) {
-                    return '<tr>' +
-                        '<td>' + escapeHtml(row.id) + '</td>' +
-                        '<td>' + (row.full_name
-                            ? escapeHtml(row.full_name)
-                            : '<span class="hashcod-registration-identity-unrecoverable" title="Este registro fue cifrado con una clave histórica que ya no está disponible">NO RECUPERABLE · CLAVE ANTIGUA</span>') + '</td>' +
-                        '<td>' + escapeHtml(row.age) + '</td>' +
-                        '<td>' + escapeHtml(row.cedula) + '</td>' +
-                        '<td>' + escapeHtml(row.platform_name) + '</td>' +
-                        '<td>' + escapeHtml(row.code_filename || '') + (row.code_size_bytes ? ' (' + escapeHtml(Math.round(Number(row.code_size_bytes) / 1024)) + ' KB)' : '') + '</td>' +
-                        '<td>' + (row.registration_code ? '<code class="hashcod-registration-code-value">' + escapeHtml(row.registration_code) + '</code>' + (row.registration_code_reissued ? '<small class="hashcod-registration-code-reissued">REEMPLAZO</small>' : '') : '<span class="hashcod-registration-code-missing">SIN CÓDIGO</span>') + '</td>' +
-                        '<td>' + escapeHtml(row.contract_version || '') + '<br><small>' + escapeHtml(row.contract_accepted_at || '') + '</small></td>' +
-                        '<td><small>' + escapeHtml((row.acceptance_evidence_sha256 || '').slice(0, 16)) + '…</small></td>' +
-                        '<td>' + escapeHtml(row.email) + '</td>' +
-                        '<td>' + escapeHtml(row.phone) + '</td>' +
-                        '<td>' + escapeHtml(formatDate(row.created_at)) + '</td>' +
-                    '</tr>';
-                }).join('')}</tbody>
-            </table>
-        `;
-    }
-
-    async function confirmAdminSession() {
-        const response = await fetch(adminStatusUrl(), {
-            method: 'GET',
-            credentials: 'same-origin',
-            cache: 'no-store',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        const data = await response.json().catch(function () { return {}; });
-        if (!response.ok || !data.ok) {
-            throw new Error(data.error || 'No se pudo confirmar la sesión administrativa.');
-        }
-        return data.authenticated === true;
-    }
-
-    async function fetchAdminRegistrationRows() {
-        const controller = typeof AbortController === 'function' ? new AbortController() : null;
-        const timeout = window.setTimeout(function () {
-            if (controller) controller.abort();
-        }, 15000);
-
-        try {
-            const response = await fetch(apiUrl() + '?view=admin', {
-                method: 'GET',
-                credentials: 'same-origin',
-                cache: 'no-store',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                signal: controller ? controller.signal : undefined
-            });
-            const data = await response.json().catch(function () { return {}; });
-            if (!response.ok || !data.ok) {
-                if (response.status === 403) {
-                    throw new Error('La CodeKey se verificó, pero la sesión administrativa no quedó activa. Inténtalo nuevamente.');
-                }
-                throw new Error(data.error || 'No se pudo cargar la tabla.');
-            }
-            return data.rows || [];
-        } finally {
-            window.clearTimeout(timeout);
-        }
-    }
-
-    async function openTable() {
-        const button = document.getElementById('hashcodRegistrationTableButton');
-        const overlay = document.getElementById('hashcodRegistrationTableOverlay');
-        const scroll = overlay ? overlay.querySelector('.hashcod-registration-table-scroll') : null;
-        if (button) button.disabled = true;
-
-        // Open the panel synchronously with the user's click so CodeKey progress
-        // and any backend error are always visible instead of appearing to do nothing.
-        if (overlay) {
-            overlay.classList.add('is-open');
-            overlay.setAttribute('aria-hidden', 'false');
-        }
-        if (scroll) {
-            scroll.innerHTML = '<div class="hashcod-registration-table-loading">Selecciona y verifica la CodeKey para continuar…</div>';
-        }
-        status('Verificando acceso administrativo…');
-
-        try {
-            // HashcodAdmin is preloaded during form mount. Calling require()
-            // directly from this click preserves browser user-activation, so
-            // the CodeKey file picker is allowed to open.
-            if (!window.HashcodAdmin || typeof window.HashcodAdmin.require !== 'function') {
-                const ready = await ensureAdminEngine();
-                if (!ready) throw new Error('No se pudo cargar la verificación administrativa.');
-                if (scroll) {
-                    scroll.innerHTML = '<div class="hashcod-registration-table-error">Verificador CodeKey listo. Cierra esta ventana y pulsa nuevamente el botón de la tabla.</div>';
-                }
-                status('Verificador CodeKey listo. Pulsa nuevamente el botón de la tabla.');
-                return;
-            }
-
-            const verified = await window.HashcodAdmin.require({ force: false, throwOnError: true });
-            if (!verified) {
-                if (overlay) {
-                    overlay.classList.remove('is-open');
-                    overlay.setAttribute('aria-hidden', 'true');
-                }
-                status('');
-                return;
-            }
-
-            if (scroll) {
-                scroll.innerHTML = '<div class="hashcod-registration-table-loading">CodeKey verificada. Confirmando sesión administrativa…</div>';
-            }
-            status('CodeKey verificada. Confirmando sesión…', 'success');
-
-            const authenticated = await confirmAdminSession();
-            if (!authenticated) {
-                throw new Error('La CodeKey fue aceptada, pero la sesión administrativa no quedó activa.');
-            }
-
-            if (scroll) {
-                scroll.innerHTML = '<div class="hashcod-registration-table-loading">Sesión confirmada. Cargando registros…</div>';
-            }
-            status('Sesión administrativa confirmada. Cargando registros…', 'success');
-
-            const rows = await fetchAdminRegistrationRows();
-            renderRows(rows);
-            status('');
-        } catch (error) {
-            const message = error && error.name === 'AbortError'
-                ? 'La tabla tardó demasiado en responder. Inténtalo de nuevo.'
-                : (error && error.message ? error.message : 'No se pudo abrir la tabla.');
-            if (scroll) {
-                scroll.innerHTML = '<div class="hashcod-registration-table-error">' + escapeHtml(message) + '</div>';
-            }
-            status(message, 'error');
-        } finally {
-            if (button) button.disabled = false;
-        }
-    }
-
-    let bound = false;
+    let bound = false;    let bound = false;
     function bind() {
         if (bound) return;
         const form = document.getElementById('hashcodRegistrationForm');
         const cedula = document.getElementById('hashcodRegCedula');
-        const tableButton = document.getElementById('hashcodRegistrationTableButton');
+        const whatsappButton = document.getElementById('hashcodRegistrationWhatsappButton');
         const codeButton = document.getElementById('hashcodRegCodeButton');
         const codeInput = document.getElementById('hashcodRegCodeFile');
         const privacyTrigger = document.getElementById('hashcodPrivacyPreviewTrigger');
         const privacyCard = document.getElementById('hashcodPrivacyPreviewCard');
-        const overlay = document.getElementById('hashcodRegistrationTableOverlay');
         const copyRegistrationCodeButton = document.getElementById('hashcodRegistrationCopyCode');
         const continueAfterCodeButton = document.getElementById('hashcodRegistrationContinueAfterCode');
         const codeReceipt = document.getElementById('hashcodRegistrationCodeReceipt');
-        if (!form || !cedula || !tableButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !overlay || !copyRegistrationCodeButton || !continueAfterCodeButton || !codeReceipt) return;
+        if (!form || !cedula || !whatsappButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !copyRegistrationCodeButton || !continueAfterCodeButton || !codeReceipt) return;
         bound = true;
 
-        // Preload the CodeKey verifier before the user clicks the database
-        // button. This avoids losing the transient user gesture while a script
-        // is still being downloaded.
-        tableButton.disabled = true;
-        tableButton.dataset.adminEngineReady = 'loading';
-        ensureAdminEngine().then(function (ready) {
-            tableButton.dataset.adminEngineReady = ready ? 'true' : 'false';
-            tableButton.disabled = false;
-        }).catch(function () {
-            tableButton.dataset.adminEngineReady = 'false';
-            tableButton.disabled = false;
+        form.addEventListener('input', function () {
+            currentRegistrationFingerprint = '';
+            scheduleValidate();
         });
-
-        form.addEventListener('input', scheduleValidate);
-        form.addEventListener('change', scheduleValidate);
+        form.addEventListener('change', function () {
+            currentRegistrationFingerprint = '';
+            scheduleValidate();
+        });
         form.addEventListener('submit', submitForm);
         cedula.addEventListener('input', function () {
             const next = formatCedula(cedula.value);
@@ -1429,25 +1265,9 @@
             event.stopPropagation();
         });
 
-        tableButton.addEventListener('click', openTable);
+        whatsappButton.addEventListener('click', sendRegistrationWhatsapp);
         copyRegistrationCodeButton.addEventListener('click', copyRegistrationCode);
         continueAfterCodeButton.addEventListener('click', continueAfterRegistrationCode);
-        overlay.querySelector('.hashcod-registration-table-close').addEventListener('click', function () {
-            overlay.classList.remove('is-open');
-            overlay.setAttribute('aria-hidden', 'true');
-        });
-        overlay.addEventListener('click', function (event) {
-            if (event.target === overlay) {
-                overlay.classList.remove('is-open');
-                overlay.setAttribute('aria-hidden', 'true');
-            }
-        });
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && overlay.classList.contains('is-open')) {
-                overlay.classList.remove('is-open');
-                overlay.setAttribute('aria-hidden', 'true');
-            }
-        });
     }
 
     function waitForSuccessfulSubmission() {
@@ -1462,11 +1282,6 @@
 
     async function completePlatformEntry() {
         const root = document.getElementById(ROOT_ID);
-        const tableOverlay = document.getElementById('hashcodRegistrationTableOverlay');
-        if (tableOverlay) {
-            tableOverlay.classList.remove('is-open');
-            tableOverlay.setAttribute('aria-hidden', 'true');
-        }
         const codeReceipt = document.getElementById('hashcodRegistrationCodeReceipt');
         const privateCode = document.getElementById('hashcodRegistrationPrivateCode');
         if (codeReceipt) {
@@ -1505,7 +1320,7 @@
         }
 
         window.dispatchEvent(new CustomEvent('hashcod:platform-entered', {
-            detail: { source: 'platform-registration', registrationSaved: true }
+            detail: { source: 'platform-registration', registrationSaved: false, localOnly: true }
         }));
         return true;
     }
@@ -1533,6 +1348,11 @@
         waitForSuccessfulSubmission: waitForSuccessfulSubmission,
         completePlatformEntry: completePlatformEntry,
         isSaved: function () { return registrationSaved && registrationCodeAcknowledged; },
+        getRegistrationCode: function () { return currentRegistrationCode; },
+        buildWhatsAppMessage: function () {
+            return currentRegistrationCode ? buildRegistrationWhatsAppMessage(currentRegistrationCode) : '';
+        },
+        sendWhatsApp: sendRegistrationWhatsapp,
         mount: mount
     });
 })();

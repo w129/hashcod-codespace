@@ -17,6 +17,19 @@ async function run() {
 
   // The sequence test is about the UI gate, not the external database. Return a
   // successful registration response so Chromium can prove the transition order.
+  await page.route('**/api/cloudflare/turnstile/config', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        enabled: false,
+        site_key: '',
+        desktop_bypass: true
+      })
+    });
+  });
+
   await page.route('**/api/platform-registration', async route => {
     if (route.request().method() === 'POST') {
       await route.fulfill({
@@ -54,7 +67,7 @@ async function run() {
       return window.__hashcodPlatformEntryHoldReady === true
         && document.documentElement.dataset.hashcodEntryGateReady === 'true'
         && button
-        && button.dataset.hashcodEntryGateVersion === '20260918-27';
+        && button.dataset.hashcodEntryGateVersion === '20260918-28';
     }, { timeout: 10000 });
     assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 0,
       'registration must not exist in the DOM on screen 1');

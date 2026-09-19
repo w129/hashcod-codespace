@@ -340,7 +340,7 @@ assert(privacy.includes('Declaración de aceptación'), 'contract acceptance dec
 // Official Animate UI FlipButton integration.
 assert(js.includes('hashcodRegistrationSubmitReactHost'), 'React host for official FlipButton missing');
 assert(js.includes("hashcod:registration-submit-state"), 'registration state event for React flip missing');
-assert(js.includes("data.animateUiFlip === 'official'"), 'official React flip state bridge missing');
+assert(js.includes("submit.dataset.animateUiFlip === 'official'"), 'official React flip state bridge missing');
 assert(!js.includes('hashcod-flip-stage'), 'handcrafted flip stage must be removed');
 assert(!css.includes('.hashcod-flip-stage'), 'handcrafted flip CSS must be removed');
 assert(flipPrimitive.includes('whileHover="hover"'), 'official Animate UI FlipButton primitive missing whileHover state');

@@ -210,6 +210,10 @@ assert(js.includes('NO RECUPERABLE · CLAVE ANTIGUA'), 'legacy identity state mu
 assert(api.includes('$ready = $storageConfigured && $tableReady && $registrationBucketReady && $registrationKeyReady;'), 'registration readiness must fail closed without persistent key');
 assert(api.includes("secretGet('L8_DATA_ENCRYPTION_KEY', '')"), 'dedicated data key must seed persistent registration key when configured');
 assert(api.includes('function hprRegistrationLegacyKeys(): array'), 'legacy registration key compatibility list missing');
+assert(api.includes("preg_match('/^[a-f0-9]{64}$/i', $dataKeyRaw)"), 'historical data-key derivation missing');
+assert(api.includes("hash_hmac('sha256', 'l8|data-at-rest|v1', $vaultMaster, true)"), 'historical vault-derived data key missing');
+assert(api.includes('function hprRegistrationNormalizeKeyMaterial(string $raw): string'), 'legacy vault key normalization helper missing');
+assert(api.includes('$append(secretsDataKey());'), 'current legacy secretsDataKey fallback missing');
 assert(api.includes("registration_code_status'] = 'reissued_after_key_loss'"), 'legacy code reissue marker missing');
 assert(api.includes("'registration_code_reissued'=>$registrationCodeReissued"), 'admin projection must expose reissue state');
 assert(js.includes('row.registration_code_reissued'), 'protected table must label reissued registration codes');

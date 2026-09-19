@@ -648,9 +648,13 @@
           pendingRoots.add(node);
         });
       });
-      if (pendingRoots.size) scheduleFlush();
+      if (pendingRoots.size && document.visibilityState !== 'hidden') scheduleFlush();
     });
     state.mutationObserver.observe(document.documentElement, { childList: true, subtree: true });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && pendingRoots.size) scheduleFlush();
+    });
   }
 
   function isBrowserExtensionError(reason) {

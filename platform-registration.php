@@ -729,7 +729,29 @@ function hprLegacyReplacementCode(array $stored): array {
     $platform = (string)($stored['platform_name'] ?? '');
     $created = (string)($stored['created_at'] ?? '');
     $material = 'legacy-registration|' . $rowId . '|' . $platform . '|' . $created;
-    $hex = strtoupper(hash_hmac('sha256', $material, hprRegistrationCryptoKey()));
+
+    try {
+        $replacementKey = hprRegistrationCryptoKey();
+    } catch (Throwable $ignored) {
+        // The protected table can only be read when the Supabase server secret
+        // is configured. Use it as a stable emergency derivation source so a
+        // legacy row can never render an empty registration-code cell.
+        $fallbackSeed = trim((string)secretGet('SUPABASE_SECRET_KEY', ''));
+        if ($fallbackSeed === '') {
+            $fallbackSeed = trim((string)secretGet('L8_AUTH_PEPPER', ''));
+        }
+        if ($fallbackSeed === '') {
+            throw new RuntimeException('No stable source is available for legacy registration codes.');
+        }
+        $replacementKey = hash_hmac(
+            'sha256',
+            'hashcod|legacy-registration-code|fallback-v1',
+            $fallbackSeed,
+            true
+        );
+    }
+
+    $hex = strtoupper(hash_hmac('sha256', $material, $replacementKey));
     $plain = 'HC2-' . implode('-', str_split(substr($hex, 0, 32), 8));
     return [
         'plain'=>$plain,

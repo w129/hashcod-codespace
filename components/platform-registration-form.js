@@ -390,7 +390,7 @@
         `;
     }
 
-    function mount() {    function mount() {
+    function mount() {
         if (!document.body) return false;
         if (document.documentElement.dataset.hashcodFinalEntryScreen !== 'true') return false;
 

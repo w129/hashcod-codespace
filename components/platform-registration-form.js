@@ -4,7 +4,6 @@
     window.__hashcodPlatformRegistrationLoaded = true;
 
     const ROOT_ID = 'hashcodPlatformRegistration';
-    const API_PATH = 'api/platform-registration';
     const FINAL_SCREEN_LEGACY_SELECTORS = [
         '#authOverlay',
         '#authWrapper',
@@ -53,7 +52,6 @@
         try { return new URL(base ? base.getAttribute('href') : './', window.location.href); }
         catch (_) { return new URL('./', window.location.href); }
     }
-    function apiUrl() { return new URL(API_PATH, baseUrl()).toString(); }
     function adminStatusUrl() { return new URL('api/admin-device/status', baseUrl()).toString(); }
     function turnstileConfigUrl() { return new URL('api/cloudflare/turnstile/config', baseUrl()).toString(); }
     function turnstileVerifyUrl() { return new URL('api/cloudflare/turnstile/verify', baseUrl()).toString(); }
@@ -80,16 +78,14 @@
         if (!document.body || document.documentElement.dataset.hashcodFinalEntryScreen !== 'true') return false;
 
         const registrationRoot = document.getElementById(ROOT_ID);
-        const tableOverlay = document.getElementById('hashcodRegistrationTableOverlay');
         const selector = FINAL_SCREEN_LEGACY_SELECTORS.join(',');
 
         // One selector pass is considerably cheaper than rescanning the complete
         // document once per legacy selector. This cleanup is intentionally
         // one-shot; legacy-auth-retirement owns any later compatibility mounts.
         document.querySelectorAll(selector).forEach(function (node) {
-            if (!node || node === registrationRoot || node === tableOverlay) return;
+            if (!node || node === registrationRoot) return;
             if (registrationRoot && registrationRoot.contains(node)) return;
-            if (tableOverlay && tableOverlay.contains(node)) return;
             try { node.remove(); } catch (_) {
                 node.hidden = true;
                 node.setAttribute('aria-hidden', 'true');

@@ -170,7 +170,7 @@
                 document.querySelector('script[data-hashcod-platform-registration]')
             ) return;
             const registrationScript = document.createElement('script');
-            registrationScript.src = componentBase + 'platform-registration-form.js?v=20260918-37';
+            registrationScript.src = componentBase + 'platform-registration-form.js?v=20260919-38';
             registrationScript.defer = true;
             registrationScript.dataset.hashcodPlatformRegistration = 'true';
             document.head.appendChild(registrationScript);

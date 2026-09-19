@@ -43,6 +43,8 @@
     let turnstileWidgetId = null;
     let turnstileSiteKey = '';
     let turnstileScriptPromise = null;
+    let pendingTurnstileSubmission = false;
+    let turnstileAutoRetrying = false;
 
     function baseUrl() {
         const base = document.querySelector('base[href]');
@@ -547,6 +549,11 @@
         );
         if (turnstileRequired && turnstileVerified && turnstileVerifiedUntil > 0 && Date.now() >= turnstileVerifiedUntil) {
             turnstileVerified = false;
+            turnstileVerifiedUntil = 0;
+            setTurnstileUi('error', 'La verificación de Cloudflare expiró. Complétala nuevamente.');
+            if (window.turnstile && turnstileWidgetId !== null) {
+                try { window.turnstile.reset(turnstileWidgetId); } catch (_) {}
+            }
         }
         const humanVerified = !turnstileRequired || turnstileVerified;
         const ok = Object.values(v).every(Boolean) && humanVerified;
@@ -726,8 +733,28 @@
             // The backend clearance cookie lasts 900 seconds. Keep a small
             // safety margin so the browser never submits with an almost-expired clearance.
             turnstileVerifiedUntil = Date.now() + (14 * 60 * 1000);
-            setTurnstileUi('verified', 'Verificación completada. El registro ya puede enviarse.');
-            validate();
+
+            // Verification is complete: remove duplicate challenge copy and hide
+            // the Cloudflare block. The form state remains verified until the
+            // clearance safety window expires.
+            setTurnstileUi('verified', '');
+            const shell = document.getElementById('hashcodRegistrationTurnstile');
+            if (shell) shell.hidden = true;
+            status('');
+
+            const complete = validate();
+            if (pendingTurnstileSubmission && complete && !turnstileAutoRetrying) {
+                pendingTurnstileSubmission = false;
+                turnstileAutoRetrying = true;
+                window.setTimeout(function () {
+                    const form = document.getElementById('hashcodRegistrationForm');
+                    try {
+                        if (form) form.requestSubmit();
+                    } finally {
+                        turnstileAutoRetrying = false;
+                    }
+                }, 0);
+            }
             return true;
         } catch (error) {
             turnstileVerified = false;
@@ -750,8 +777,9 @@
         turnstileSiteKey = String(siteKey);
         shell.hidden = false;
         setTurnstileUi(turnstileVerified ? 'verified' : 'loading', turnstileVerified
-            ? 'Verificación completada. El registro ya puede enviarse.'
+            ? ''
             : 'Completa la verificación para continuar de forma segura.');
+        if (turnstileVerified) shell.hidden = true;
         validate();
 
         await ensureTurnstileScript();
@@ -829,7 +857,7 @@
         turnstileVerified = false;
         turnstileVerifiedUntil = 0;
         const siteKey = String((data && data.site_key) || turnstileSiteKey || '');
-        setTurnstileUi('error', 'Cloudflare requiere una nueva verificación antes de reenviar el registro.');
+        setTurnstileUi('loading', 'Completa la verificación de Cloudflare.');
         if (siteKey) {
             try { await renderRegistrationTurnstile(siteKey); } catch (_) {}
         } else {
@@ -874,8 +902,9 @@
                 response.status === 429
                 && (data.challenge_required || data.code === 'turnstile_challenge_required')
             ) {
+                pendingTurnstileSubmission = true;
+                status('');
                 await requireTurnstileChallenge(data);
-                status('Completa la verificación de Cloudflare que aparece debajo y vuelve a enviar el registro.', 'error');
                 return;
             }
             if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo guardar el registro.');

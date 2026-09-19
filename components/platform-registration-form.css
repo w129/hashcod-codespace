@@ -1109,6 +1109,18 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
 }
 .hashcod-registration-empty { padding: 28px; text-align: center; color: #777; font-size: 12px; }
 
+.hashcod-registration-table-loading,
+.hashcod-registration-table-error {
+    display: grid;
+    min-height: 180px;
+    place-items: center;
+    padding: 28px 18px;
+    text-align: center;
+    font: 700 11px/1.45 "IBM Plex Mono", Consolas, monospace;
+}
+.hashcod-registration-table-loading { color: #555; }
+.hashcod-registration-table-error { color: #9c1717; }
+
 html[data-hashcod-theme="dark"] #hashcodPlatformRegistration,
 html.dark #hashcodPlatformRegistration,
 html[data-hashcod-theme="dark"] .hashcod-registration-table-shell,

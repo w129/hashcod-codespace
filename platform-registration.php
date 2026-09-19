@@ -227,6 +227,46 @@ function hprDeleteStorageObject(string $objectPath): void {
     );
 }
 
+function hprUploadFallbackRegistrationEvidence(string $codeStoragePath, array $metadata): array {
+    $json = json_encode($metadata, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if (!is_string($json) || $json === '') {
+        return ['ok'=>false, 'status'=>0, 'error'=>'No se pudo serializar la evidencia de compatibilidad.'];
+    }
+
+    $encrypted = secretsEncrypt($json);
+    if (!is_string($encrypted) || !str_starts_with($encrypted, 'l8e1:')) {
+        return ['ok'=>false, 'status'=>0, 'error'=>'No se pudo cifrar la evidencia de compatibilidad.'];
+    }
+
+    $path = ltrim(str_replace('\\', '/', $codeStoragePath), '/') . '.registration-evidence.l8e1';
+    $res = supabaseRequest(
+        'storage/v1/object/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET) . '/' . $path,
+        [
+            'method'=>'POST',
+            'use_secret'=>true,
+            'content_type'=>'text/plain; charset=utf-8',
+            'headers'=>['x-upsert: true'],
+            'body'=>$encrypted,
+            'timeout'=>30,
+        ]
+    );
+
+    return [
+        'ok'=>!empty($res['ok']),
+        'status'=>(int)($res['status'] ?? 0),
+        'error'=>$res['error'] ?? null,
+        'path'=>$path,
+    ];
+}
+
+function hprMissingAnyColumn(string $error, array $columns): bool {
+    $error = strtolower($error);
+    foreach ($columns as $column) {
+        if (str_contains($error, strtolower((string)$column))) return true;
+    }
+    return false;
+}
+
 function hprGenerateRegistrationCode(): array {
     // 128 bits of server-side CSPRNG entropy. The readable grouped hex format
     // is shown once to the registrant; the database stores an encrypted copy
@@ -296,9 +336,25 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
     $tableReady = false;
     $registrationBucketReady = false;
 
+    $schemaMode = 'unavailable';
     if ($storageConfigured) {
         $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1');
-        $tableReady = !empty($probe['ok']);
+        if (!empty($probe['ok'])) {
+            $tableReady = true;
+            $schemaMode = 'full';
+        } else {
+            // Production may temporarily run with the earlier registration
+            // schema while DDL credentials are unavailable. The code-upload
+            // columns are sufficient for a safe compatibility mode because the
+            // missing evidence is stored in a private sidecar bound to
+            // code_storage_path.
+            $legacyProbe = supabaseDbSelect(
+                HASHCOD_PLATFORM_REGISTRATION_TABLE,
+                'select=id,code_storage_path,code_filename,code_sha256&limit=1'
+            );
+            $tableReady = !empty($legacyProbe['ok']);
+            if ($tableReady) $schemaMode = 'compatibility';
+        }
         $bucketProbe = hprEnsureRegistrationBucket();
         $registrationBucketReady = !empty($bucketProbe['ok']);
     }
@@ -308,6 +364,7 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
         'ok'=>$ready,
         'storage_configured'=>$storageConfigured,
         'table_ready'=>$tableReady,
+        'schema_mode'=>$schemaMode,
         'registration_bucket_ready'=>$registrationBucketReady,
         'registration_bucket'=>HASHCOD_PLATFORM_REGISTRATION_BUCKET,
     ]);
@@ -419,31 +476,98 @@ if ($method === 'POST') {
         'body'=>[$row], 'timeout'=>8,
     ]);
 
+    $compatibilityMode = false;
+    $fallbackEvidencePath = '';
     if (empty($res['ok'])) {
-        hprDeleteStorageObject($codeUpload['storage_path']);
         $status = (int)($res['status'] ?? 0);
         $error = strtolower((string)($res['error'] ?? ''));
+
         if ($status === 404 || str_contains($error, 'relation')) {
+            hprDeleteStorageObject($codeUpload['storage_path']);
             hprJson(503, ['ok'=>false, 'error'=>'La tabla de registros todavía no está inicializada.']);
         }
-        if (str_contains($error, 'code_storage_path') || str_contains($error, 'code_filename')) {
-            hprJson(503, ['ok'=>false, 'error'=>'La migración para guardar el código de la plataforma todavía no está aplicada.']);
+        if (hprMissingAnyColumn($error, ['code_storage_path','code_filename','code_sha256'])) {
+            hprDeleteStorageObject($codeUpload['storage_path']);
+            hprJson(503, ['ok'=>false, 'error'=>'La tabla de registros todavía no tiene soporte para archivos de plataforma.']);
         }
-        if (
-            str_contains($error, 'contract_version')
-            || str_contains($error, 'contract_sha256')
-            || str_contains($error, 'acceptance_evidence_sha256')
-        ) {
-            hprJson(503, ['ok'=>false, 'error'=>'La migración de evidencia contractual todavía no está aplicada.']);
+
+        $missingContractColumns = hprMissingAnyColumn($error, [
+            'contract_version','contract_sha256','contract_accepted_at',
+            'acceptance_method','acceptance_evidence_sha256'
+        ]);
+        $missingRegistrationCodeColumns = hprMissingAnyColumn($error, [
+            'registration_code_enc','registration_code_sha256','registration_code_hint'
+        ]);
+
+        if ($missingContractColumns || $missingRegistrationCodeColumns) {
+            $fallbackEvidence = [
+                'format'=>'HASHCOD-REGISTRATION-EVIDENCE-1',
+                'code_storage_path'=>$codeUpload['storage_path'],
+                'code_filename'=>$codeUpload['filename'],
+                'code_sha256'=>$codeUpload['sha256'],
+                'contract_version'=>$contractVersion,
+                'contract_sha256'=>$contractSha256,
+                'contract_accepted_at'=>$acceptedAt,
+                'acceptance_method'=>'checkbox+submit',
+                'acceptance_evidence_sha256'=>$acceptanceEvidenceSha256,
+                'registration_code_enc'=>$registrationCodeEnc,
+                'registration_code_sha256'=>$registrationCode['sha256'],
+                'registration_code_hint'=>$registrationCode['hint'],
+                'created_at'=>gmdate('c'),
+            ];
+            $fallbackUpload = hprUploadFallbackRegistrationEvidence(
+                $codeUpload['storage_path'],
+                $fallbackEvidence
+            );
+            if (empty($fallbackUpload['ok'])) {
+                hprDeleteStorageObject($codeUpload['storage_path']);
+                hprJson(502, ['ok'=>false, 'error'=>'No se pudo conservar la evidencia privada del registro.']);
+            }
+            $fallbackEvidencePath = (string)($fallbackUpload['path'] ?? '');
+
+            $compatRow = $row;
+            foreach ([
+                'contract_version','contract_sha256','contract_accepted_at',
+                'acceptance_method','acceptance_evidence_sha256'
+            ] as $column) {
+                unset($compatRow[$column]);
+            }
+
+            $retry = supabaseDbRequest(HASHCOD_PLATFORM_REGISTRATION_TABLE, [
+                'method'=>'POST', 'use_secret'=>true,
+                'headers'=>['Prefer: return=representation'],
+                'body'=>[$compatRow], 'timeout'=>8,
+            ]);
+
+            if (empty($retry['ok'])) {
+                $retryError = strtolower((string)($retry['error'] ?? ''));
+                if (hprMissingAnyColumn($retryError, [
+                    'registration_code_enc','registration_code_sha256','registration_code_hint'
+                ])) {
+                    foreach ([
+                        'registration_code_enc','registration_code_sha256','registration_code_hint'
+                    ] as $column) {
+                        unset($compatRow[$column]);
+                    }
+                    $retry = supabaseDbRequest(HASHCOD_PLATFORM_REGISTRATION_TABLE, [
+                        'method'=>'POST', 'use_secret'=>true,
+                        'headers'=>['Prefer: return=representation'],
+                        'body'=>[$compatRow], 'timeout'=>8,
+                    ]);
+                }
+            }
+
+            if (!empty($retry['ok'])) {
+                $res = $retry;
+                $compatibilityMode = true;
+            }
         }
-        if (
-            str_contains($error, 'registration_code_enc')
-            || str_contains($error, 'registration_code_sha256')
-            || str_contains($error, 'registration_code_hint')
-        ) {
-            hprJson(503, ['ok'=>false, 'error'=>'La migración del código criptográfico de registro todavía no está aplicada.']);
+
+        if (empty($res['ok'])) {
+            hprDeleteStorageObject($codeUpload['storage_path']);
+            if ($fallbackEvidencePath !== '') hprDeleteStorageObject($fallbackEvidencePath);
+            hprJson(502, ['ok'=>false, 'error'=>'No se pudo guardar el registro en este momento.']);
         }
-        hprJson(502, ['ok'=>false, 'error'=>'No se pudo guardar el registro en este momento.']);
     }
 
     $saved = is_array($res['body'] ?? null) && !empty($res['body'][0]) ? $res['body'][0] : [];
@@ -461,6 +585,7 @@ if ($method === 'POST') {
         // endpoints do not expose the plaintext registration code.
         'registration_code'=>$registrationCode['plain'],
         'registration_code_hint'=>$registrationCode['hint'],
+        'schema_mode'=>$compatibilityMode ? 'compatibility' : 'full',
     ]);
 }
 

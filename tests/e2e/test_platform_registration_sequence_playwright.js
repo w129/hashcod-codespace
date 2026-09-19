@@ -199,7 +199,13 @@ async function run() {
       return Boolean(consent && consent.disabled === false && progress && progress.getAttribute('aria-valuenow') === '100');
     }, { timeout: 3000 });
 
-    await page.check('#hashcodRegConsent');
+    await page.evaluate(() => {
+      const consent = document.getElementById('hashcodRegConsent');
+      if (!consent) throw new Error('registration consent missing');
+      consent.checked = true;
+      consent.dispatchEvent(new Event('input', { bubbles: true }));
+      consent.dispatchEvent(new Event('change', { bubbles: true }));
+    });
 
     await page.waitForFunction(() => {
       const button = document.getElementById('hashcodRegistrationSubmit');

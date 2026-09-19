@@ -158,7 +158,7 @@
 
         if (!document.querySelector('script[data-platform-entry-slogan]')) {
             const sloganScript = document.createElement('script');
-            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260911-2';
+            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260919-perf1';
             sloganScript.defer = true;
             sloganScript.dataset.platformEntrySlogan = 'true';
             document.head.appendChild(sloganScript);

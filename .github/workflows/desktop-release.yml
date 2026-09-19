@@ -37,6 +37,12 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
+      - name: Build official Animate UI registration FlipButton
+        working-directory: registration-flip-build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
       - name: Stage startup folder animation for desktop shell
         shell: pwsh
         run: |

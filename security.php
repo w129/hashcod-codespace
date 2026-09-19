@@ -1033,6 +1033,25 @@ function securityBootstrap($mode = 'web') {
         return;
     }
 
+    // Turnstile config/verify must never depend on the same global API
+    // challenge that they are responsible for clearing. Keep their own bounded
+    // rate limit, but deliberately do not emit a nested Turnstile challenge.
+    if (
+        $uri === '/api/cloudflare/turnstile/config'
+        || $uri === '/api/cloudflare/config'
+        || $uri === '/api/cloudflare/turnstile/verify'
+    ) {
+        $cfBucket = $uri === '/api/cloudflare/turnstile/verify'
+            ? 'turnstile_verify'
+            : 'turnstile_config';
+        $cfLimit = $uri === '/api/cloudflare/turnstile/verify' ? 30 : 180;
+        $resCf = securityRateAllowSliding($cfBucket, $cfLimit, 60, $clientIp);
+        if (!$resCf['allowed']) {
+            securityRateDenyJson($resCf['retry_after']);
+        }
+        return;
+    }
+
     // Rate limit adaptativo para API con desafío Turnstile
     if ($mode === 'api' || strpos($uri, '/api/') === 0) {
         $resGlobal = securityRateAllowSliding('api_global', 120, 60);

@@ -269,7 +269,8 @@ assert(js.includes('function completePlatformEntry()'), 'registration must own t
 assert(js.includes("dataset.hashcodPlatformEntered = 'true'"), 'platform entry state marker missing');
 assert(js.includes("new CustomEvent('hashcod:platform-entered'"), 'platform-entered event must fire only after registration completion');
 assert(js.includes("'X-Requested-With': 'XMLHttpRequest'"), 'CSRF/same-origin marker missing');
-assert(js.includes('await window.HashcodAdmin.require({ force: false })'), 'records table must reuse a valid CodeKey session or open the picker directly from the user click');
+assert(js.includes('window.HashcodAdmin.require({ force: false'), 'records table must reuse a valid CodeKey session or open the picker directly from the user click');
+assert(js.includes('throwOnError: true'), 'CodeKey table access must surface verification failures');
 assert(js.includes("?view=admin"), 'admin records projection missing');
 assert(js.includes("tableButton.dataset.adminEngineReady = 'loading'"), 'CodeKey verifier must preload before table click');
 assert(js.includes("ensureAdminEngine().then(function (ready)"), 'CodeKey verifier preload promise missing');

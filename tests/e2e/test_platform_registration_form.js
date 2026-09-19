@@ -32,9 +32,17 @@ assert(js.includes('type="number" min="18" max="120"'), 'client age field must r
 assert(js.includes('/^\\d{3}-\\d{7}-\\d$/'), 'cedula validation missing');
 assert(js.includes('000-0000000-0'), 'cedula format hint missing');
 assert(js.includes('Number.isInteger(age) && age >= 18'), '18+ validation missing');
-assert(js.includes('Object.values(v).every(Boolean)'), 'WhatsApp/send gating must require every form condition');
+assert(js.includes('Object.values(v).every(Boolean)'), 'WhatsApp gating must require every form condition');
 assert(js.includes('syncWhatsappState(ok)'), 'WhatsApp button must follow complete-form validity');
+assert(js.includes('whatsappDispatchFingerprint === currentFingerprint'), 'entry must remain locked unless WhatsApp matches the current form');
+assert(js.includes('syncSubmitState(whatsappMatchesForm, false)'), 'entry button must depend on the WhatsApp handoff');
+assert(js.includes("Primero pulsa el botón de WhatsApp"), 'entry button must explain the WhatsApp prerequisite');
+assert(js.includes('whatsappDispatched = true'), 'WhatsApp click must mark the handoff as completed');
+assert(js.includes('whatsappDispatchFingerprint = fingerprint'), 'WhatsApp handoff must be bound to the exact form payload');
+assert(js.includes('invalidateWhatsappDispatch()'), 'form edits must invalidate a previous WhatsApp handoff');
 assert(js.includes('id="hashcodRegistrationWhatsappButton"'), 'WhatsApp action button missing');
+assert(js.includes('aria-label="Entrar a Hashcod Codespace" disabled'), 'entry button label/gate missing');
+assert(js.includes('ENTRAR A HASHCOD CODESPACE'), 'entry button visible label missing');
 assert(js.includes('title="Enviar solicitud por WhatsApp" disabled'), 'WhatsApp button must start disabled');
 assert(js.includes('viewBox="0 0 36 32"'), 'responsive WhatsApp SVG viewBox missing');
 assert(js.includes('M 5 3 L 5 9 L 7 9 L 7 5'), 'requested replacement SVG path missing');
@@ -71,7 +79,9 @@ assert(js.includes("window.open(url, '_blank', 'noopener,noreferrer')"), 'WhatsA
 assert(js.includes('function sendRegistrationWhatsapp(event)'), 'WhatsApp action handler missing');
 assert(js.includes("whatsappButton.addEventListener('click', sendRegistrationWhatsapp)"), 'WhatsApp button binding missing');
 
-assert(js.includes("status('Código de solicitud generado. No se guardaron datos en la plataforma.'"), 'submit must explicitly be local-only');
+assert(js.includes("status('Acceso confirmado. Entrando a Hashcod Codespace…'"), 'entry confirmation status missing');
+assert(js.includes("hashcod:registration-whatsapp-dispatched"), 'WhatsApp handoff event missing');
+assert(js.includes("hashcod:platform-registration-approved"), 'entry approval event missing');
 assert(!js.includes('hashcodRegistrationTableButton'), 'old database table button must be removed');
 assert(!js.includes('hashcodRegistrationTableOverlay'), 'old database table overlay must be removed');
 assert(!js.includes('window.HashcodAdmin'), 'registration flow must not use admin/CodeKey engine');
@@ -97,4 +107,4 @@ assert(local.includes('platform-registration-form.js?v=20260919-41'), 'local reg
 assert(hosted.includes('platform-registration-form.css?v=20260919-30'), 'hosted registration CSS cache version missing');
 assert(local.includes('platform-registration-form.css?v=20260919-30'), 'local registration CSS cache version missing');
 
-console.log('PASS: registration is local-only, CodeKey/table persistence is retired, and the completed form dispatches all request data plus the HC1 code to WhatsApp.');
+console.log('PASS: registration is local-only; WhatsApp receives the data/code first, then and only then can the user enter Hashcod Codespace.');

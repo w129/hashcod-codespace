@@ -66,7 +66,7 @@
 
     async function ensureAdminEngine() {
         if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') return true;
-        ensureScript('admin-device.js?v=20260918-codekey3', 'admin-device.js', 'hashcodAdminDeviceEngine');
+        ensureScript('admin-device.js?v=20260918-codekey4', 'admin-device.js', 'hashcodAdminDeviceEngine');
         return waitForCondition(function () {
             return Boolean(window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function');
         }, 60, 100);

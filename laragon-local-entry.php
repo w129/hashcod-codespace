@@ -100,6 +100,15 @@ $rareInline = $rareBundle !== ''
     ? '<script id="hashcod-laragon-rare-folder-inline" data-hashcod-rare-folder-inline="true">' . $rareBundle . '</script>'
     : '';
 
+$registrationFlipPath = __DIR__ . '/components/registration-flip.bundle.js';
+$registrationFlipBundle = is_file($registrationFlipPath) ? (string)file_get_contents($registrationFlipPath) : '';
+if ($registrationFlipBundle !== '') {
+    $registrationFlipBundle = str_ireplace('</script', '<\\/script', $registrationFlipBundle);
+}
+$registrationFlipTag = $registrationFlipBundle !== ''
+    ? '<script id="hashcod-laragon-registration-flip-inline" data-hashcod-registration-flip="official">' . $registrationFlipBundle . '</script>'
+    : '<script defer src="' . $baseAttr . 'components/registration-flip.bundle.js?v=20260918-1" data-hashcod-registration-flip="official"></script>';
+
 $efrJsPath = __DIR__ . '/components/efr-code-editor.js';
 $efrJs = is_file($efrJsPath) ? (string)file_get_contents($efrJsPath) : '';
 if ($efrJs !== '') {
@@ -114,6 +123,7 @@ $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retire
     . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260918-24" data-platform-entry-hold="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-registration-form.js?v=20260918-24" data-hashcod-platform-registration="true"></script>'
 
+    . $registrationFlipTag
     . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline
     . '<script defer src="' . $baseAttr . 'components/platform-entry-slogan.js?v=20260911-2" data-platform-entry-slogan="true" data-hashcod-vector-tray="true"></script>'

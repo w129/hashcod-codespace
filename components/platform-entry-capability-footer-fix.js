@@ -43,7 +43,7 @@
         document.head.appendChild(compat);
 
         const script = document.createElement('script');
-        script.src = componentBase + 'hashcod-ux-system.js?v=20260917-2';
+        script.src = componentBase + 'hashcod-ux-system.js?v=20260919-perf1';
         script.defer = true;
         script.dataset.hashcodUxSystem = 'true';
         document.head.appendChild(script);

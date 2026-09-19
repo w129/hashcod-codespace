@@ -61,6 +61,9 @@ assert(admin.includes('let codeKeyObserver = null'), 'admin observer must be lif
 assert(admin.includes('codeKeyObserver.observe(root'), 'admin observer must be scoped to its local root');
 assert(admin.includes("'hashcod:final-entry-screen'"), 'admin boot observer must stop after entry handoff');
 
+assert(hosted.includes("$rareFolderExternalTag = $rareFolderBundle === ''"), 'production must not parse Rare UI twice when the inline bundle exists');
+assert(local.includes("$rareExternal = $rareBundle === ''"), 'local runtime must not parse Rare UI twice when the inline bundle exists');
+
 for (const token of [
   'topbar-windows-hello.js?v=20260919-perf1',
   'platform-entry-capability-footer.js?v=20260919-perf1',

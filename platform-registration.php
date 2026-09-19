@@ -54,23 +54,74 @@ function hprLower(string $value): string {
         : strtolower($value);
 }
 
+function hprRegistrationNormalizeKeyMaterial(string $raw): string {
+    $raw = trim($raw);
+    if ($raw === '') return '';
+
+    if (preg_match('/^[a-f0-9]{64}$/i', $raw)) {
+        $decoded = hex2bin($raw);
+        return is_string($decoded) ? $decoded : '';
+    }
+
+    $base64 = base64_decode($raw, true);
+    if (is_string($base64) && strlen($base64) === 32) {
+        return $base64;
+    }
+
+    return hash('sha256', $raw, true);
+}
+
 function hprRegistrationLegacyKeys(): array {
     $keys = [];
     $seen = [];
-    foreach ([
-        secretGet('L8_DATA_ENCRYPTION_KEY', ''),
-        secretGet('L8_VAULT_MASTER_KEY', ''),
-        secretGet('L8_AUTH_PEPPER', ''),
-        secretGet('SUPABASE_SECRET_KEY', ''),
-    ] as $candidate) {
-        $candidate = trim((string)$candidate);
-        if ($candidate === '') continue;
-        $derived = hash_hmac('sha256', 'hashcod|platform-registration|stable-v2', $candidate, true);
-        $fingerprint = hash('sha256', $derived);
-        if (isset($seen[$fingerprint])) continue;
+
+    $append = static function (string $candidate) use (&$keys, &$seen): void {
+        if (strlen($candidate) !== 32) return;
+        $fingerprint = hash('sha256', $candidate);
+        if (isset($seen[$fingerprint])) return;
         $seen[$fingerprint] = true;
-        $keys[] = $derived;
+        $keys[] = $candidate;
+    };
+
+    $dataKeyRaw = trim((string)secretGet('L8_DATA_ENCRYPTION_KEY', ''));
+    $vaultMasterRaw = trim((string)secretGet('L8_VAULT_MASTER_KEY', ''));
+    $authPepperRaw = trim((string)secretGet('L8_AUTH_PEPPER', ''));
+    $supabaseSecretRaw = trim((string)secretGet('SUPABASE_SECRET_KEY', ''));
+
+    // Historical secretsDataKey() format #1:
+    // L8_DATA_ENCRYPTION_KEY itself (hex) or SHA-256(raw).
+    if ($dataKeyRaw !== '') {
+        $append(
+            preg_match('/^[a-f0-9]{64}$/i', $dataKeyRaw)
+                ? (string)hex2bin($dataKeyRaw)
+                : hash('sha256', $dataKeyRaw, true)
+        );
     }
+
+    // Historical secretsDataKey() format #2:
+    // HMAC label derived from L8_VAULT_MASTER_KEY. This is critical when
+    // L8_DATA_ENCRYPTION_KEY was added later and old rows were encrypted with
+    // the vault-derived key.
+    if ($vaultMasterRaw !== '') {
+        $vaultMaster = hprRegistrationNormalizeKeyMaterial($vaultMasterRaw);
+        if ($vaultMaster !== '') {
+            $append(hash_hmac('sha256', 'l8|data-at-rest|v1', $vaultMaster, true));
+        }
+    }
+
+    // Transitional stable-v2 keys used during the registration migration.
+    foreach ([$dataKeyRaw, $vaultMasterRaw, $authPepperRaw, $supabaseSecretRaw] as $candidateRaw) {
+        if ($candidateRaw === '') continue;
+        $append(hash_hmac('sha256', 'hashcod|platform-registration|stable-v2', $candidateRaw, true));
+    }
+
+    // Current secretsDataKey() is still useful for installations whose
+    // environment has not changed since the legacy rows were created.
+    try {
+        $append(secretsDataKey());
+    } catch (Throwable $ignored) {
+    }
+
     return $keys;
 }
 

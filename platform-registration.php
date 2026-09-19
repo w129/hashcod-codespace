@@ -1198,6 +1198,20 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     foreach ($storedRows as $stored) {
         if (!is_array($stored)) continue;
 
+        $fullName = hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? ''));
+        $cedula = hprRegistrationDecrypt((string)($stored['cedula_enc'] ?? ''));
+        $email = hprRegistrationDecrypt((string)($stored['email_enc'] ?? ''));
+        $phone = hprRegistrationDecrypt((string)($stored['phone_enc'] ?? ''));
+
+        $identityRecoverable =
+            $fullName !== ''
+            && $cedula !== ''
+            && $email !== ''
+            && $phone !== '';
+        $identityStatus = $identityRecoverable
+            ? 'ok'
+            : 'legacy_key_unavailable';
+
         $registrationCode = '';
         $registrationCodeReissued = false;
         $registrationCodeEnc = (string)($stored['registration_code_enc'] ?? '');

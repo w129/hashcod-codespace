@@ -22,7 +22,9 @@ assert(source.includes('!remoteSlots.has(row.slot)'), 'bootstrap must only uploa
 assert(source.includes("jsonRequest('images.list')"), 'gallery must pull cloud metadata');
 assert(source.includes('action=images.upload'), 'gallery must push PNG files to cloud storage');
 assert(source.includes('action=images.get'), 'gallery must download missing cloud PNG files');
-assert(source.includes('SYNC_INTERVAL_MS = 5000'), 'shared cross-device sync must refresh every five seconds');
+assert(source.includes('SYNC_INTERVAL_MS = 15000'), 'background cloud sync must use the lower-overhead 15-second cadence');
+assert(source.includes('MIN_AUTOMATIC_GAP_MS = 4000'), 'automatic sync bursts must be deduplicated');
+assert(source.includes("document.visibilityState === 'hidden'"), 'automatic sync must pause in hidden tabs');
 assert(source.includes('state.shared = status.shared === true'), 'client must track global shared mode');
 assert(source.includes("window.addEventListener('focus'"), 'phone/laptop focus must trigger reconciliation');
 assert(source.includes("window.HashcodCloudSync = Object.freeze"), 'manual cloud sync API missing');
@@ -55,7 +57,7 @@ assert(!backend.includes("'code' => $_POST"), 'plain gallery codes must never be
 assert(backend.includes("'shared' => true"), 'sync status must identify the shared global mode');
 
 assert(loader.includes("vector-classroom-board.js?v=20260913-2"), 'platform must load the fresh link-board parent module');
-assert(loader.includes("cloud-device-sync.js?v=20260913-3"), 'platform loader must bust cache for the current cloud-device sync version');
+assert(loader.includes("cloud-device-sync.js?v=20260919-perf1"), 'platform loader must bust cache for the current cloud-device sync version');
 assert(loader.includes('data-hashcod-cloud-sync'), 'cloud sync loader guard missing');
 
 console.log('Cloud device sync contract OK');

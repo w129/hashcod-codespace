@@ -29,6 +29,8 @@ on:
     paths:
       - components/platform-registration-form.js
       - components/platform-registration-form.css
+      - registration-flip-build/**
+      - Dockerfile
       - platform-registration.php
       - platform-registration-contract.php
       - privacy.php
@@ -118,7 +120,7 @@ jobs:
             if printf '%s' "$html" | grep -q 'platform-entry-hold.js?v=20260918-25' \
               && printf '%s' "$html" | grep -q 'platform-registration-form.js?v=20260918-25' \
               && printf '%s' "$html" | grep -q 'platform-registration-form.css?v=20260918-19' \
-              && printf '%s' "$html" | grep -q 'registration-flip.bundle.js?v=20260918-1'; then
+              && printf '%s' "$html" | grep -q 'data-hashcod-registration-flip="official"'; then
               echo "Render is serving the merged registration sequence."
               deployed=1
               break

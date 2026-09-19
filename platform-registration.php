@@ -211,6 +211,26 @@ function hprRegistrationRoundTrip(array $plain, array $encrypted): bool {
     return true;
 }
 
+function hprRegistrationCryptoProbe(): bool {
+    try {
+        $plain = [
+            'full_name'=>'HASHCOD CRYPTO PROBE',
+            'cedula'=>'000-0000000-0',
+            'email'=>'crypto-probe@hashcod.invalid',
+            'phone'=>'+1 000 000 0000',
+        ];
+        $encrypted = [
+            'full_name_enc'=>hprRegistrationEncrypt($plain['full_name']),
+            'cedula_enc'=>hprRegistrationEncrypt($plain['cedula']),
+            'email_enc'=>hprRegistrationEncrypt($plain['email']),
+            'phone_enc'=>hprRegistrationEncrypt($plain['phone']),
+        ];
+        return hprRegistrationRoundTrip($plain, $encrypted);
+    } catch (Throwable $ignored) {
+        return false;
+    }
+}
+
 function hprRegistrationDecrypt(string $blob): string {
     if ($blob === '') return '';
 
@@ -710,6 +730,7 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
 
     $schemaMode = 'unavailable';
     $registrationKeyReady = false;
+    $registrationCryptoRoundtripReady = false;
     if ($storageConfigured) {
         $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1');
         if (!empty($probe['ok'])) {
@@ -743,13 +764,20 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
         if ($registrationBucketReady) {
             try {
                 $registrationKeyReady = strlen(hprRegistrationCryptoKey()) === 32;
+                $registrationCryptoRoundtripReady = $registrationKeyReady
+                    && hprRegistrationCryptoProbe();
             } catch (Throwable $ignored) {
                 $registrationKeyReady = false;
+                $registrationCryptoRoundtripReady = false;
             }
         }
     }
 
-    $ready = $storageConfigured && $tableReady && $registrationBucketReady && $registrationKeyReady;
+    $ready = $storageConfigured
+        && $tableReady
+        && $registrationBucketReady
+        && $registrationKeyReady
+        && $registrationCryptoRoundtripReady;
     hprJson($ready ? 200 : 503, [
         'ok'=>$ready,
         'storage_configured'=>$storageConfigured,
@@ -758,6 +786,7 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
         'registration_bucket_ready'=>$registrationBucketReady,
         'registration_bucket'=>HASHCOD_PLATFORM_REGISTRATION_BUCKET,
         'registration_key_ready'=>$registrationKeyReady,
+        'registration_crypto_roundtrip_ready'=>$registrationCryptoRoundtripReady,
     ]);
 }
 

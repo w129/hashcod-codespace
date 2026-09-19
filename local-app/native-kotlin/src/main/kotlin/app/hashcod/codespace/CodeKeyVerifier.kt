@@ -35,9 +35,15 @@ object CodeKeyVerifier {
         explicitNulls = true
     }
 
+    private fun filenameAllowed(filename: String): Boolean {
+        if (filename == expectedFilename) return true
+        val stem = expectedFilename.removeSuffix(".ipynb")
+        return Regex("^" + Regex.escape(stem) + "\\s*\\(\\d+\\)\\.ipynb$", RegexOption.IGNORE_CASE).matches(filename)
+    }
+
     fun verify(file: File): Result {
         if (!file.isFile) return Result(false, "La CodeKey no existe.")
-        if (file.name != expectedFilename) return Result(false, "El nombre de la CodeKey no coincide con el registrado.")
+        if (!filenameAllowed(file.name)) return Result(false, "El nombre de la CodeKey no coincide con el registrado.")
         if (file.length() <= 0L || file.length() > maxBytes) return Result(false, "El archivo CodeKey tiene un tamaño no permitido.")
 
         val root = try {

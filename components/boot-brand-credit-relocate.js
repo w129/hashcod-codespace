@@ -69,7 +69,7 @@
         if (!document.querySelector('script[data-hashcod-auth-tabs-rescue]')) {
             const rescueScript = document.createElement('script');
             rescueScript.defer = true;
-            rescueScript.src = new URL('components/auth-tabs-rescue.js?v=' + version, baseUrl).toString();
+            rescueScript.src = new URL('components/auth-tabs-rescue.js?v=20260919-perf1', baseUrl).toString();
             rescueScript.setAttribute('data-hashcod-auth-tabs-rescue', 'true');
             document.head.appendChild(rescueScript);
         }
@@ -255,8 +255,14 @@
         return true;
     }
 
+    let relocateFrame = 0;
+
     function scheduleRelocate() {
-        window.requestAnimationFrame(relocate);
+        if (relocateFrame) return;
+        relocateFrame = window.requestAnimationFrame(function () {
+            relocateFrame = 0;
+            relocate();
+        });
     }
 
     loadPercentFeatureAssets();
@@ -267,7 +273,27 @@
         scheduleRelocate();
     }
 
-    const observer = new MutationObserver(scheduleRelocate);
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    const observer = new MutationObserver(function (records) {
+        const relevant = records.some(function (record) {
+            return Array.from(record.addedNodes || []).some(function (node) {
+                if (!node || node.nodeType !== 1) return false;
+                if (
+                    (node.matches && node.matches('.boot-brand, .boot-brand-logos, .hashcod-local-download-row')) ||
+                    (node.querySelector && node.querySelector('.boot-brand, .boot-brand-logos, .hashcod-local-download-row'))
+                ) return true;
+                return false;
+            });
+        });
+        if (relevant) scheduleRelocate();
+    });
+    observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
     window.addEventListener('resize', scheduleRelocate, { passive: true });
+
+    function stopRelocationWatch() {
+        observer.disconnect();
+        if (relocateFrame) window.cancelAnimationFrame(relocateFrame);
+        relocateFrame = 0;
+    }
+    window.addEventListener('hashcod:final-entry-screen', stopRelocationWatch, { once: true });
+    window.addEventListener('hashcod:platform-entered', stopRelocationWatch, { once: true });
 })();

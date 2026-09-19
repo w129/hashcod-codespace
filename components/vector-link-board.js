@@ -34,7 +34,7 @@
         });
         if (!existing) {
             const script = document.createElement('script');
-            script.src = componentBase() + 'admin-device.js?v=20260918-codekey4';
+            script.src = componentBase() + 'admin-device.js?v=20260919-perf1';
             script.defer = true;
             script.dataset.vectorLinkBoardAdmin = 'true';
             document.head.appendChild(script);

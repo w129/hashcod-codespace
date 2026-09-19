@@ -44,7 +44,7 @@
 
         if (!document.querySelector('script[data-auth-vector-layout-fix]')) {
             const script = document.createElement('script');
-            script.src = componentBase + 'auth-vector-layout-fix.js?v=20260910-5';
+            script.src = componentBase + 'auth-vector-layout-fix.js?v=20260919-perf1';
             script.defer = true;
             script.dataset.authVectorLayoutFix = 'true';
             document.head.appendChild(script);
@@ -158,7 +158,7 @@
 
         if (!document.querySelector('script[data-platform-entry-slogan]')) {
             const sloganScript = document.createElement('script');
-            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260911-2';
+            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260919-perf1';
             sloganScript.defer = true;
             sloganScript.dataset.platformEntrySlogan = 'true';
             document.head.appendChild(sloganScript);
@@ -266,7 +266,7 @@
             : '/components/';
         if (document.querySelector('script[data-hashcod-cloud-sync]')) return;
         const script = document.createElement('script');
-        script.src = componentBase + 'cloud-device-sync.js?v=20260913-3';
+        script.src = componentBase + 'cloud-device-sync.js?v=20260919-perf1';
         script.defer = true;
         script.dataset.hashcodCloudSync = 'true';
         document.head.appendChild(script);

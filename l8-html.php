@@ -215,6 +215,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $inlineCssTag = $secureCss !== ''
             ? '<style id="hashcod-toolbox-secure-inline">' . $secureCss . '</style>'
             : '';
+        $secureCssExternalTag = $secureCss === ''
+            ? '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260919-perf1" data-hashcod-toolbox-secure-style="true">'
+            : '';
 
         // EFR editor is also inlined so a stale immutable static asset can never
         // keep an older non-opening modal implementation alive after deploy.
@@ -222,6 +225,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $efrCss = is_file($efrCssPath) ? (string) @file_get_contents($efrCssPath) : '';
         $inlineEfrCssTag = $efrCss !== ''
             ? '<style id="hashcod-efr-code-editor-inline">' . $efrCss . '</style>'
+            : '';
+        $efrCssExternalTag = $efrCss === ''
+            ? '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260919-perf1" data-hashcod-efr-code-editor-style="true">'
             : '';
 
         // Inline the registration CSS as a fail-closed layer. If the versioned
@@ -231,11 +237,14 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $inlineRegistrationCssTag = $registrationCss !== ''
             ? '<style id="hashcod-platform-registration-inline">' . $registrationCss . '</style>'
             : '';
+        $registrationCssExternalTag = $registrationCss === ''
+            ? '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260919-perf1" data-hashcod-platform-registration-style="true">'
+            : '';
 
         $cssTag = $inlineCssTag
             . $inlineEfrCssTag
             . $inlineRegistrationCssTag
-            . '<link rel="stylesheet" href="' . $base . 'components/toolbox-secure-links.css?v=20260913-3" data-hashcod-toolbox-secure-style="true">'
+            . $secureCssExternalTag
             . '<link rel="stylesheet" href="' . $base . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-motion.css?v=20260918-1" data-hashcod-platform-entry-motion-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-hold.css?v=20260918-2" data-hashcod-platform-entry-hold-style="true">'
@@ -243,8 +252,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260919-30" data-hashcod-platform-registration-style="true">';
+            . $efrCssExternalTag
+            . $registrationCssExternalTag;
 
         // Retire the current authentication window before first paint. The
         // backend/session code remains available for the replacement entry system.
@@ -302,6 +311,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $inlineRescueTag = $rescueJs !== ''
             ? '<script id="hashcod-toolbox-ui-rescue-inline">' . $rescueJs . '</script>'
             : '';
+        $rescueExternalTag = $rescueJs === ''
+            ? '<script defer src="' . $base . 'components/toolbox-secure-ui-rescue.js?v=20260919-perf1" data-hashcod-toolbox-ui-rescue="true"></script>'
+            : '';
 
         // Inline the EFR editor too. Its global idempotency guard means the
         // external fallback can safely load afterward without mounting twice.
@@ -313,6 +325,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $inlineEfrJsTag = $efrJs !== ''
             ? '<script id="hashcod-efr-code-editor-inline">' . $efrJs . '</script>'
             : '';
+        $efrExternalJsTag = $efrJs === ''
+            ? '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260919-perf2" data-hashcod-efr-code-editor="true"></script>'
+            : '';
 
         // Inline Screen 3 as the primary registration runtime. The external
         // script remains as a cache-busted fallback and is idempotent.
@@ -323,6 +338,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         }
         $inlineRegistrationJsTag = $registrationJs !== ''
             ? '<script id="hashcod-platform-registration-inline-js">' . $registrationJs . '</script>'
+            : '';
+        $registrationExternalJsTag = $registrationJs === ''
+            ? '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260919-perf1" data-hashcod-platform-registration="true"></script>'
             : '';
 
         // Official Animate UI FlipButton React/Motion island for the
@@ -352,7 +370,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $rareFolderInlineTag = $rareFolderBundle !== ''
             ? '<script id="hashcod-rare-folder-inline" data-hashcod-rare-folder-inline="true">' . $rareFolderBundle . '</script>'
             : '';
-        $rareFolderExternalTag = '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260913-3" data-hashcod-rare-folder="true"></script>';
+        $rareFolderExternalTag = $rareFolderBundle === ''
+            ? '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260919-perf1" data-hashcod-rare-folder="true"></script>'
+            : '';
 
         // Remove the stale blackhole status from the DOM as well as hiding it.
         // This prevents older boot scripts from leaving misleading loading text
@@ -365,7 +385,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-37" data-platform-entry-hold="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260919-42" data-hashcod-platform-registration="true"></script>'
+            . $registrationExternalJsTag
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag
@@ -373,17 +393,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-signature-copy.js?v=20260913-2" data-hashcod-toolbox-signature-copy="true"></script>'
-            . '<script defer src="' . $base . 'components/toolbox-secure-ui-rescue.js?v=20260913-1" data-hashcod-toolbox-ui-rescue="true"></script>'
-            . '<script defer src="' . $base . 'components/topbar-windows-hello.js?v=20260913-1" data-hashcod-topbar-windows-hello="true"></script>'
+            . $rescueExternalTag
+            . '<script defer src="' . $base . 'components/topbar-windows-hello.js?v=20260919-perf1" data-hashcod-topbar-windows-hello="true"></script>'
             . '<script defer src="' . $base . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260917-restore2" data-hashcod-entry-capability-footer-fix="true"></script>'
-            . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
-            . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260918-4" data-hashcod-codekey-picker-rescue="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260919-perf1" data-hashcod-entry-capability-footer="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260919-perf1" data-hashcod-entry-capability-footer-fix="true"></script>'
+            . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
+            . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
-            . '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260915-3" data-hashcod-efr-code-editor="true"></script>'
-            . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260917-10" data-hashcod-boot-brand-credit-relocate="true"></script>'
-            . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260917-3" data-hashcod-local-download-layout-fix="true"></script>';
+            . $efrExternalJsTag
+            . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
+            . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260919-perf1" data-hashcod-local-download-layout-fix="true"></script>';
         $bodyPos = strripos($html, '</body>');
         if ($bodyPos !== false) {
             $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);

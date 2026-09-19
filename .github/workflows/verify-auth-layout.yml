@@ -230,6 +230,9 @@ jobs:
       - name: Verify shared Hashcod UX contract
         run: node tests/e2e/test_hashcod_ux_system.js
 
+      - name: Verify runtime performance contract
+        run: node tests/e2e/test_runtime_performance_contract.js
+
       - name: Verify legacy auth window retirement
         run: node tests/e2e/test_legacy_auth_retirement.js
 

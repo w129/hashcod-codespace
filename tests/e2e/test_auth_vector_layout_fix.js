@@ -21,7 +21,7 @@ assert(js.includes("openWhenAvailable('openCryptoCardValidationWindow'"), 'valid
 assert(js.includes("openWhenAvailable('openDilithiumOneTimeKeyTool'"), 'Dilithium launcher must open its tool after relocation');
 assert(js.includes("crypto-card-validation.js?v=20260910-4"), 'crypto-card functional engine must remain loadable');
 assert(js.includes("dilithium-one-time-key.js?v=20260910-4"), 'Dilithium functional engine must remain loadable');
-assert(js.includes("admin-device.js?v=20260918-codekey4"), 'Windows Hello admin engine must remain loadable');
+assert(js.includes("admin-device.js?v=20260919-perf1"), 'Windows Hello admin engine must remain loadable');
 assert(js.includes("button.disabled = false"), 'direct validated-card launcher must remain enabled before Windows Hello');
 assert(js.includes("normalizeFieldDecorations"), 'duplicate label-icon normalization missing');
 assert(js.includes("['PQC AUTH', 'BETA']"), 'header badge normalization missing');
@@ -65,7 +65,7 @@ assert(!dockCss.includes('top: -21px !important;'), 'title must never be pulled 
 
 assert(dilithium.includes('window.openDilithiumOneTimeKeyTool = openTool;'), 'Dilithium opener must be exposed for relocated launcher');
 assert(loader.includes('auth-vector-layout-fix.css?v=20260910-5'), 'base layout fix stylesheet v5 is not loaded');
-assert(loader.includes('auth-vector-layout-fix.js?v=20260910-5'), 'base layout fix script v5 is not loaded');
+assert(loader.includes('auth-vector-layout-fix.js?v=20260919-perf1'), 'base layout fix script v5 is not loaded');
 assert(loader.includes('crypto-card-validation.js?v=20260910-4'), 'auth loader must preload the crypto-card functional engine');
 
 console.log('auth vector layout fix contract: OK');

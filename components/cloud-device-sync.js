@@ -9,8 +9,10 @@
     const LINK_STORE = 'links';
     const IMAGE_DB = 'hashcod_image_vault_v1';
     const IMAGE_STORE = 'images';
-    const SYNC_INTERVAL_MS = 5000;
+    const SYNC_INTERVAL_MS = 15000;
+    const MIN_AUTOMATIC_GAP_MS = 4000;
     let savePending = false;
+    let lastAutomaticRequestAt = 0;
 
     const state = {
         syncing: false,
@@ -291,11 +293,19 @@
     }
 
     async function syncAll(reason) {
+        const syncReason = reason || 'scheduled';
+        const automatic = !['manual', 'local-save', 'admin-verified', 'online'].includes(syncReason);
         if (state.syncing || navigator.onLine === false) return false;
+        if (automatic && document.visibilityState === 'hidden') return false;
+
+        const now = Date.now();
+        if (automatic && now - lastAutomaticRequestAt < MIN_AUTOMATIC_GAP_MS) return false;
+        if (automatic) lastAutomaticRequestAt = now;
+
         state.syncing = true;
         state.online = true;
         state.lastError = '';
-        emit({ phase: 'start', reason: reason || 'scheduled' });
+        emit({ phase: 'start', reason: syncReason });
         try {
             const status = await jsonRequest('status');
             state.shared = status.shared === true;
@@ -322,7 +332,7 @@
             }
 
             state.lastSyncAt = Date.now();
-            emit({ phase: 'complete', reason: reason || 'scheduled' });
+            emit({ phase: 'complete', reason: syncReason });
             return true;
         } catch (error) {
             // The desktop edition must remain fully usable offline or before a
@@ -332,7 +342,7 @@
                 return await enterDesktopLocalMode(reason, (error && error.message) || 'Cloud temporalmente no disponible.');
             }
             state.lastError = (error && error.message) ? error.message : 'No se pudo sincronizar.';
-            emit({ phase: 'error', error: state.lastError, reason: reason || 'scheduled' });
+            emit({ phase: 'error', error: state.lastError, reason: syncReason });
             return false;
         } finally {
             state.syncing = false;

@@ -38,6 +38,8 @@
     let pendingForced = false;
     let expiry = null;
     let fileInput = null;
+    let codeKeyObserver = null;
+    let codeKeyFrame = 0;
 
     function setToolsState(authenticated) {
         const enabled = authenticated === true;
@@ -171,7 +173,8 @@
 
     function installCodeKeyButton() {
         const original = document.getElementById('adminHelloButton');
-        if (!original || original.dataset.codekeyBound === 'true') return;
+        if (!original) return false;
+        if (original.dataset.codekeyBound === 'true') return true;
         const button = original.cloneNode(false);
         button.id = 'adminHelloButton';
         button.dataset.codekeyBound = 'true';
@@ -199,6 +202,25 @@
                 button.removeAttribute('aria-busy');
             }
         });
+        return true;
+    }
+
+    function watchCodeKeyButton() {
+        if (codeKeyObserver || typeof MutationObserver !== 'function') return;
+        const bound = document.getElementById('adminHelloButton');
+        const root = bound && bound.parentElement
+            ? bound.parentElement
+            : (document.getElementById('authWrapper') || document.body || document.documentElement);
+
+        codeKeyObserver = new MutationObserver(function () {
+            if (document.getElementById('adminHelloButton')?.dataset.codekeyBound === 'true') return;
+            if (codeKeyFrame) return;
+            codeKeyFrame = requestAnimationFrame(function () {
+                codeKeyFrame = 0;
+                installCodeKeyButton();
+            });
+        });
+        codeKeyObserver.observe(root, { childList: true, subtree: root.id === 'authWrapper' });
     }
 
     window.HashcodAdmin = Object.freeze({
@@ -229,10 +251,14 @@
     });
 
     installCodeKeyButton();
-    if (typeof MutationObserver === 'function') {
-        new MutationObserver(installCodeKeyButton).observe(document.documentElement, {childList: true, subtree: true});
-    }
+    watchCodeKeyButton();
     window.addEventListener('hashcod:admin-auth', event => renderButtonState(Boolean(event.detail && event.detail.authenticated)));
+    window.addEventListener('hashcod:final-entry-screen', function () {
+        if (codeKeyObserver) codeKeyObserver.disconnect();
+        codeKeyObserver = null;
+        if (codeKeyFrame) cancelAnimationFrame(codeKeyFrame);
+        codeKeyFrame = 0;
+    }, { once: true });
 
     request('status').then(status => {
         document.documentElement.dataset.adminIp = status.ipAllowed ? 'allowed' : 'denied';

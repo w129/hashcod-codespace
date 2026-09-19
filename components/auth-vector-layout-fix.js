@@ -21,6 +21,8 @@
 
     let queued = false;
     let scrollBound = false;
+    let layoutObserver = null;
+    let observedRoot = null;
 
     const TOOL_ASSETS = {
         openCryptoCardUploadPanel: {
@@ -66,7 +68,7 @@
 
     async function ensureAdminEngine() {
         if (window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function') return true;
-        ensureScript('admin-device.js?v=20260918-codekey4', 'admin-device.js', 'hashcodAdminDeviceEngine');
+        ensureScript('admin-device.js?v=20260919-perf1', 'admin-device.js', 'hashcodAdminDeviceEngine');
         return waitForCondition(function () {
             return Boolean(window.HashcodAdmin && typeof window.HashcodAdmin.require === 'function');
         }, 60, 100);
@@ -334,6 +336,39 @@
         window.addEventListener('scroll', queueApply, { passive: true, capture: true });
     }
 
+    function observeAuthRoot() {
+        const root = document.getElementById('authWrapper') || document.body || document.documentElement;
+        if (layoutObserver && observedRoot === root) return;
+
+        if (layoutObserver) layoutObserver.disconnect();
+        observedRoot = root;
+        layoutObserver = new MutationObserver(function () {
+            queueApply();
+
+            const authRoot = document.getElementById('authWrapper');
+            if (authRoot && observedRoot !== authRoot) {
+                observeAuthRoot();
+            }
+        });
+        layoutObserver.observe(root, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'style', 'hidden', 'disabled']
+        });
+    }
+
+    function stopLayoutTracking() {
+        if (layoutObserver) layoutObserver.disconnect();
+        layoutObserver = null;
+        observedRoot = null;
+        if (scrollBound) {
+            window.removeEventListener('scroll', queueApply, true);
+            scrollBound = false;
+        }
+        queued = false;
+    }
+
     if (!apply()) {
         const wait = new MutationObserver(function () {
             if (apply()) wait.disconnect();
@@ -343,7 +378,8 @@
     }
 
     bindScrollTracking();
-    const observer = new MutationObserver(queueApply);
-    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden', 'disabled'] });
+    observeAuthRoot();
     window.addEventListener('resize', queueApply, { passive: true });
+    window.addEventListener('hashcod:final-entry-screen', stopLayoutTracking, { once: true });
+    window.addEventListener('hashcod:platform-entered', stopLayoutTracking, { once: true });
 })();

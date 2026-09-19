@@ -49,7 +49,7 @@ $efrCssPath = __DIR__ . '/components/efr-code-editor.css';
 $efrCss = is_file($efrCssPath) ? (string)file_get_contents($efrCssPath) : '';
 $inlineEfrCss = $efrCss !== ''
     ? '<style id="hashcod-laragon-efr-code-editor-inline">' . $efrCss . '</style>'
-    : '';
+    : '<link rel="stylesheet" href="' . $baseAttr . 'components/efr-code-editor.css?v=20260919-perf1" data-hashcod-efr-code-editor-style="true">';
 
 $headExtras = '<base href="' . $baseAttr . '">'
     . '<style id="hashcod-legacy-auth-prehide">#authOverlay,#authWrapper,#hashcodVectorTray,#hashcodAuthUtilityDock,#groqAuthChatPanel,#groqAuthChatLauncher,#hashcodEftCodeKeyGate,#hashcodEfrHotzone,#cryptoCardValidationLauncherBtn,#d5LauncherBtn,[data-hashcod-auth-utility-dock]{display:none!important;visibility:hidden!important;pointer-events:none!important;}</style>'
@@ -67,7 +67,6 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
     . $inlineEfrCss
-    . '<link rel="stylesheet" href="' . $baseAttr . 'components/efr-code-editor.css?v=20260915-3" data-hashcod-efr-code-editor-style="true">'
     . '<style id="hashcod-laragon-rare-folder-placement">'
     . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.20)!important;transform-origin:center center!important;}'
     . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
@@ -99,6 +98,9 @@ if ($rareBundle !== '') {
 $rareInline = $rareBundle !== ''
     ? '<script id="hashcod-laragon-rare-folder-inline" data-hashcod-rare-folder-inline="true">' . $rareBundle . '</script>'
     : '';
+$rareExternal = $rareBundle === ''
+    ? '<script defer src="' . $baseAttr . 'components/rare-folder-entry.bundle.js?v=20260919-perf1" data-hashcod-rare-folder="true"></script>'
+    : '';
 
 $registrationFlipPath = __DIR__ . '/components/registration-flip.bundle.js';
 $registrationFlipBundle = is_file($registrationFlipPath) ? (string)file_get_contents($registrationFlipPath) : '';
@@ -117,6 +119,9 @@ if ($efrJs !== '') {
 $inlineEfrJs = $efrJs !== ''
     ? '<script id="hashcod-laragon-efr-code-editor-inline">' . $efrJs . '</script>'
     : '';
+$efrExternalJs = $efrJs === ''
+    ? '<script defer src="' . $baseAttr . 'components/efr-code-editor.js?v=20260919-perf2" data-hashcod-efr-code-editor="true"></script>'
+    : '';
 
 $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
@@ -126,22 +131,23 @@ $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retire
     . $registrationFlipTag
     . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline
-    . '<script defer src="' . $baseAttr . 'components/platform-entry-slogan.js?v=20260911-2" data-platform-entry-slogan="true" data-hashcod-vector-tray="true"></script>'
+    . $rareExternal
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-slogan.js?v=20260919-perf1" data-platform-entry-slogan="true" data-hashcod-vector-tray="true"></script>'
     . $inlineEfrJs
-    . '<script defer src="' . $baseAttr . 'components/rare-folder-entry.bundle.js?v=20260914-local2" data-hashcod-rare-folder="true"></script>'
+    . $efrExternalJs
     . '<script defer src="' . $baseAttr . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/toolbox-secure-ui-rescue.js?v=20260914-retired1" data-hashcod-toolbox-ui-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/toolbox-secure-links.js?v=20260914-retired1" data-hashcod-toolbox-secure="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/toolbox-signature-copy.js?v=20260914-retired1" data-hashcod-toolbox-signature-copy="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/topbar-windows-hello.js?v=20260913-1" data-hashcod-topbar-windows-hello="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/topbar-windows-hello.js?v=20260919-perf1" data-hashcod-topbar-windows-hello="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer.js?v=20260913-3" data-hashcod-entry-capability-footer="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer-fix.js?v=20260917-restore2" data-hashcod-entry-capability-footer-fix="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/auth-tabs-rescue.js?v=20260913-3" data-hashcod-auth-tabs-rescue="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/admin-codekey-picker-rescue.js?v=20260918-4" data-hashcod-codekey-picker-rescue="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer.js?v=20260919-perf1" data-hashcod-entry-capability-footer="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-capability-footer-fix.js?v=20260919-perf1" data-hashcod-entry-capability-footer-fix="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/efr-code-editor.js?v=20260915-3" data-hashcod-efr-code-editor="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260917-10" data-hashcod-boot-brand-credit-relocate="true"></script>'
+
+    . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/laragon-credit-align.js?v=20260914-local1" data-hashcod-laragon-credit-align="true"></script>';
 
 $bodyPos = strripos($html, '</body>');

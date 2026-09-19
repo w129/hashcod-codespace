@@ -72,7 +72,7 @@
 
   let importInput = null;
   let trayObserver = null;
-  let repairTimer = null;
+  let repairFrame = 0;
   let draftTimer = null;
   let lastFocused = null;
   let registeredTrayApi = null;
@@ -1018,7 +1018,7 @@
     api.registerTool({
       slot: TRAY_SLOT,
       id: TOOL_ID,
-      label: 'EFT CoffeeScript Notebook',
+      label: 'EFT CoffeeScript Algorithm Notebook',
       iconSvg: EDITOR_ICON,
       onClick: openEditor
     });
@@ -1027,17 +1027,40 @@
   }
 
   function repairAndSync() {
+    if (document.visibilityState === 'hidden') return;
     registerTray();
     repairTrayButton();
     syncHotzone();
   }
 
-  function watchTray() {
-    if (trayObserver) return;
-    trayObserver = new MutationObserver((records) => {
-      if (records.some((record) => record.type === 'childList')) requestAnimationFrame(repairAndSync);
+  function scheduleRepair() {
+    if (repairFrame) return;
+    repairFrame = requestAnimationFrame(() => {
+      repairFrame = 0;
+      repairAndSync();
     });
-    trayObserver.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  function mutationTouchesTray(record) {
+    if (!record || record.type !== 'childList') return false;
+    const target = record.target && record.target.nodeType === 1 ? record.target : null;
+    if (target && target.closest && target.closest(TRAY_SELECTOR)) return true;
+
+    const nodes = Array.from(record.addedNodes || []).concat(Array.from(record.removedNodes || []));
+    return nodes.some((node) => {
+      if (!node || node.nodeType !== 1) return false;
+      if (node.id === 'hashcodVectorTray' || node.id === 'authOverlay') return true;
+      if (node.matches && node.matches('#hashcodVectorTray, #authOverlay, [data-vector-tray-slot]')) return true;
+      return Boolean(node.querySelector && node.querySelector('#hashcodVectorTray, #authOverlay, [data-vector-tray-slot]'));
+    });
+  }
+
+  function watchTray() {
+    if (trayObserver || typeof MutationObserver !== 'function') return;
+    trayObserver = new MutationObserver((records) => {
+      if (records.some(mutationTouchesTray)) scheduleRepair();
+    });
+    trayObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
   }
 
   function bindKeys() {
@@ -1079,13 +1102,13 @@
     bindKeys();
     watchTray();
     window.addEventListener('pointerdown', handlePhysicalTrayPress, true);
-    window.addEventListener('mousedown', handlePhysicalTrayPress, true);
-    document.addEventListener('click', handlePhysicalTrayPress, true);
-    window.addEventListener('resize', syncHotzone, { passive: true });
-    window.addEventListener('scroll', syncHotzone, true);
-    window.addEventListener('hashcod:platform-entered', repairAndSync);
+    window.addEventListener('resize', scheduleRepair, { passive: true });
+    window.addEventListener('scroll', scheduleRepair, { passive: true, capture: true });
+    window.addEventListener('hashcod:platform-entered', scheduleRepair);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') scheduleRepair();
+    });
     repairAndSync();
-    repairTimer = window.setInterval(repairAndSync, 400);
     document.documentElement.dataset.hashcodEfrReady = 'true';
     window.dispatchEvent(new CustomEvent('hashcod:efr-ready'));
   }

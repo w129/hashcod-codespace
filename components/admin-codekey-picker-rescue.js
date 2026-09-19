@@ -9,7 +9,7 @@
     const componentBase = selfSrc && selfSrc.lastIndexOf('/') >= 0
         ? selfSrc.slice(0, selfSrc.lastIndexOf('/') + 1)
         : '/components/';
-    const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js?v=20260918-codekey4';
+    const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js?v=20260919-perf1';
     const EXPECTED_FILENAME = 'OnIPFeJKssih4mbNLCYXnct6a1L_q84po-KVfKPZInHYbhNJ8OR2n3M2zFJ2zZeK9bqkcmilS1li-3DrTsaUIg.ipynb';
     function codeKeyFilenameAllowed(name) {
         const value = String(name || '');
@@ -22,12 +22,12 @@
     const EFT_GATE_ID = 'hashcodEftCodeKeyGate';
     const EFT_MODAL_ID = 'hashcodEfrEditorModal';
     const EFT_GATE_STYLE_ID = 'hashcodEftCodeKeyGateStyle';
-    const EFT_SYNC_INTERVAL_MS = 160;
 
     let activeInput = null;
     let patchedApi = null;
     let adminEnginePromise = null;
-    let gateTimer = 0;
+    let gateFrame = 0;
+    let gateObserver = null;
     let unlockPending = null;
     let guardedEftApi = null;
     let originalEftOpen = null;
@@ -381,6 +381,32 @@
         closeEftIfLocked();
     }
 
+    function scheduleEftGateSync() {
+        if (gateFrame) return;
+        gateFrame = window.requestAnimationFrame(function () {
+            gateFrame = 0;
+            if (document.visibilityState === 'hidden') return;
+            syncEftGate();
+        });
+    }
+
+    function gateMutationRelevant(record) {
+        if (!record || record.type !== 'childList') return false;
+        const nodes = Array.from(record.addedNodes || []).concat(Array.from(record.removedNodes || []));
+        return nodes.some(function (node) {
+            if (!node || node.nodeType !== 1) return false;
+            if (
+                node.id === 'hashcodVectorTray'
+                || node.id === EFT_GATE_ID
+                || node.id === EFT_MODAL_ID
+                || (node.matches && node.matches('[data-vector-tray-slot="4"]'))
+            ) return true;
+            return Boolean(node.querySelector && node.querySelector(
+                '#hashcodVectorTray, #hashcodEftCodeKeyGate, #hashcodEfrEditorModal, [data-vector-tray-slot="4"]'
+            ));
+        });
+    }
+
     function gateDiagnostics() {
         const button = document.querySelector(EFT_TRAY_SELECTOR);
         const gate = document.getElementById(EFT_GATE_ID);
@@ -399,28 +425,42 @@
     function bootEftGate() {
         ensureGateStyle();
         ensureEftGate();
-        ensureAdminEngine().catch(function () {});
-        syncEftGate();
-        if (!gateTimer) gateTimer = window.setInterval(syncEftGate, EFT_SYNC_INTERVAL_MS);
-        window.addEventListener('resize', syncEftGate, {passive: true});
-        window.addEventListener('scroll', syncEftGate, true);
-        window.addEventListener('hashcod:platform-entered', syncEftGate);
-        window.addEventListener('hashcod:efr-ready', syncEftGate);
-    }
 
-    if (!install()) {
-        let attempts = 0;
-        const timer = window.setInterval(function () {
-            attempts += 1;
-            if (install() || attempts >= 400) window.clearInterval(timer);
-        }, 50);
+        if (!install()) {
+            ensureAdminEngine()
+                .then(function () {
+                    install();
+                    scheduleEftGateSync();
+                })
+                .catch(function () {});
+        }
+
+        syncEftGate();
+
+        if (!gateObserver && typeof MutationObserver === 'function') {
+            gateObserver = new MutationObserver(function (records) {
+                if (records.some(gateMutationRelevant)) scheduleEftGateSync();
+            });
+            gateObserver.observe(document.body || document.documentElement, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        window.addEventListener('resize', scheduleEftGateSync, {passive: true});
+        window.addEventListener('scroll', scheduleEftGateSync, {passive: true, capture: true});
+        window.addEventListener('hashcod:platform-entered', scheduleEftGateSync);
+        window.addEventListener('hashcod:efr-ready', scheduleEftGateSync);
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') scheduleEftGateSync();
+        });
     }
 
     window.addEventListener('hashcod:admin-auth', function (event) {
         install();
         const authenticated = Boolean(event.detail && event.detail.authenticated);
         if (!authenticated) closeEftIfLocked();
-        window.requestAnimationFrame(syncEftGate);
+        scheduleEftGateSync();
     });
 
     window.HashcodEftCodeKeyGate = Object.freeze({

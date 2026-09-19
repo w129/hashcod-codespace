@@ -352,7 +352,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $rareFolderInlineTag = $rareFolderBundle !== ''
             ? '<script id="hashcod-rare-folder-inline" data-hashcod-rare-folder-inline="true">' . $rareFolderBundle . '</script>'
             : '';
-        $rareFolderExternalTag = '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260913-3" data-hashcod-rare-folder="true"></script>';
+        $rareFolderExternalTag = $rareFolderBundle === ''
+            ? '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260919-perf1" data-hashcod-rare-folder="true"></script>'
+            : '';
 
         // Remove the stale blackhole status from the DOM as well as hiding it.
         // This prevents older boot scripts from leaving misleading loading text

@@ -9,6 +9,7 @@ require_once __DIR__ . '/platform-registration-contract.php';
 
 const HASHCOD_PLATFORM_REGISTRATION_TABLE = 'hashcod_platform_registrations';
 const HASHCOD_PLATFORM_REGISTRATION_BUCKET = 'hashcod-registration-code';
+const HASHCOD_PLATFORM_REGISTRATION_KEY_OBJECT = 'platform-registrations/_system/registration-data-key-v1.json';
 const HASHCOD_PLATFORM_CODE_MAX_BYTES = 31457280;
 const HASHCOD_PLATFORM_CODE_EXTENSIONS = [
     'zip','tar','gz','txt','md','json','js','jsx','ts','tsx','html','htm','css',
@@ -53,25 +54,147 @@ function hprLower(string $value): string {
         : strtolower($value);
 }
 
-function hprRegistrationCryptoKey(): string {
-    static $key = null;
-    if (is_string($key) && strlen($key) === 32) return $key;
-
-    $candidates = [
+function hprRegistrationLegacyKeys(): array {
+    $keys = [];
+    $seen = [];
+    foreach ([
         secretGet('L8_DATA_ENCRYPTION_KEY', ''),
         secretGet('L8_VAULT_MASTER_KEY', ''),
         secretGet('L8_AUTH_PEPPER', ''),
         secretGet('SUPABASE_SECRET_KEY', ''),
-    ];
-
-    foreach ($candidates as $candidate) {
+    ] as $candidate) {
         $candidate = trim((string)$candidate);
         if ($candidate === '') continue;
-        $key = hash_hmac('sha256', 'hashcod|platform-registration|stable-v2', $candidate, true);
+        $derived = hash_hmac('sha256', 'hashcod|platform-registration|stable-v2', $candidate, true);
+        $fingerprint = hash('sha256', $derived);
+        if (isset($seen[$fingerprint])) continue;
+        $seen[$fingerprint] = true;
+        $keys[] = $derived;
+    }
+    return $keys;
+}
+
+function hprRegistrationReadPersistedKey(): ?string {
+    $res = supabaseRequest(
+        'storage/v1/object/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET)
+        . '/' . HASHCOD_PLATFORM_REGISTRATION_KEY_OBJECT,
+        [
+            'method'=>'GET',
+            'use_secret'=>true,
+            'content_type'=>'',
+            'raw_response'=>true,
+            'bypass_circuit'=>true,
+            'timeout'=>12,
+        ]
+    );
+    if (empty($res['ok']) || !is_string($res['raw'] ?? null) || $res['raw'] === '') {
+        return null;
+    }
+
+    $payload = json_decode((string)$res['raw'], true);
+    if (!is_array($payload) || (string)($payload['version'] ?? '') !== 'HASHCOD-REGISTRATION-DATA-KEY-1') {
+        return null;
+    }
+
+    $decoded = base64_decode((string)($payload['key_b64'] ?? ''), true);
+    if (!is_string($decoded) || strlen($decoded) !== 32) return null;
+
+    $expected = strtolower((string)($payload['sha256'] ?? ''));
+    if ($expected === '' || !hash_equals($expected, hash('sha256', $decoded))) {
+        return null;
+    }
+
+    return $decoded;
+}
+
+function hprRegistrationPersistKey(string $key): bool {
+    if (strlen($key) !== 32) return false;
+
+    $payload = json_encode([
+        'version'=>'HASHCOD-REGISTRATION-DATA-KEY-1',
+        'key_b64'=>base64_encode($key),
+        'sha256'=>hash('sha256', $key),
+        'created_at'=>gmdate('c'),
+    ], JSON_UNESCAPED_SLASHES);
+    if (!is_string($payload) || $payload === '') return false;
+
+    $res = supabaseRequest(
+        'storage/v1/object/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET)
+        . '/' . HASHCOD_PLATFORM_REGISTRATION_KEY_OBJECT,
+        [
+            'method'=>'POST',
+            'use_secret'=>true,
+            'content_type'=>'application/json',
+            'headers'=>['x-upsert: false'],
+            'body'=>$payload,
+            'bypass_circuit'=>true,
+            'timeout'=>15,
+        ]
+    );
+
+    if (!empty($res['ok'])) return true;
+
+    // Another request may have won the first-write race.
+    if ((int)($res['status'] ?? 0) === 409) {
+        return hprRegistrationReadPersistedKey() !== null;
+    }
+
+    // If the private bucket has not been created yet, prepare it and retry once.
+    if ((int)($res['status'] ?? 0) === 404) {
+        $ensure = hprEnsureRegistrationBucket();
+        if (empty($ensure['ok'])) return false;
+
+        $retry = supabaseRequest(
+            'storage/v1/object/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET)
+            . '/' . HASHCOD_PLATFORM_REGISTRATION_KEY_OBJECT,
+            [
+                'method'=>'POST',
+                'use_secret'=>true,
+                'content_type'=>'application/json',
+                'headers'=>['x-upsert: false'],
+                'body'=>$payload,
+                'bypass_circuit'=>true,
+                'timeout'=>15,
+            ]
+        );
+        return !empty($retry['ok'])
+            || ((int)($retry['status'] ?? 0) === 409 && hprRegistrationReadPersistedKey() !== null);
+    }
+
+    return false;
+}
+
+function hprRegistrationCryptoKey(): string {
+    static $key = null;
+    if (is_string($key) && strlen($key) === 32) return $key;
+
+    // The canonical registration key lives in private Supabase Storage.
+    // Render's filesystem is ephemeral, so no registration key is generated
+    // into data_storage/.vault_master anymore.
+    $persisted = hprRegistrationReadPersistedKey();
+    if (is_string($persisted) && strlen($persisted) === 32) {
+        $key = $persisted;
         return $key;
     }
 
-    throw new RuntimeException('No stable registration encryption key is configured.');
+    // Bootstrap once. If a dedicated stable data key already exists, derive
+    // from it so deployments made during the transition remain readable.
+    $seed = trim((string)secretGet('L8_DATA_ENCRYPTION_KEY', ''));
+    $candidate = $seed !== ''
+        ? hash_hmac('sha256', 'hashcod|platform-registration|persistent-v1', $seed, true)
+        : random_bytes(32);
+
+    if (!hprRegistrationPersistKey($candidate)) {
+        throw new RuntimeException('No se pudo persistir la clave estable de registros.');
+    }
+
+    $persisted = hprRegistrationReadPersistedKey();
+    if (!is_string($persisted) || strlen($persisted) !== 32) {
+        throw new RuntimeException('La clave estable de registros no pudo verificarse.');
+    }
+
+    $key = $persisted;
+    return $key;
 }
 
 function hprRegistrationEncrypt(string $plaintext): string {
@@ -81,14 +204,24 @@ function hprRegistrationEncrypt(string $plaintext): string {
 function hprRegistrationDecrypt(string $blob): string {
     if ($blob === '') return '';
 
-    // New records use the stable registration key.
+    // Canonical persistent key used by all new registrations.
     try {
         $plain = secretsDecrypt($blob, hprRegistrationCryptoKey());
         if ($plain !== '') return $plain;
     } catch (Throwable $ignored) {
     }
 
-    // Backward compatibility for records encrypted before the stable key.
+    // Transition compatibility: try every stable environment-derived key that
+    // may have been used before the persistent Storage key existed.
+    foreach (hprRegistrationLegacyKeys() as $legacyKey) {
+        try {
+            $plain = secretsDecrypt($blob, $legacyKey);
+            if ($plain !== '') return $plain;
+        } catch (Throwable $ignored) {
+        }
+    }
+
+    // Old pre-registration-key records used secretsDataKey()/vault master.
     try {
         return secretsDecrypt($blob);
     } catch (Throwable $ignored) {

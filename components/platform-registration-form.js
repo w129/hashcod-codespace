@@ -1076,7 +1076,7 @@
                 return;
             }
 
-            const verified = await window.HashcodAdmin.require({ force: false });
+            const verified = await window.HashcodAdmin.require({ force: false, throwOnError: true });
             if (!verified) {
                 // Cancelling the file chooser is not an application error.
                 status('');

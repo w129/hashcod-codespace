@@ -12,6 +12,7 @@ const api = fs.readFileSync(path.join(repoDir, 'platform-registration.php'), 'ut
 const migration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260917_create_hashcod_platform_registrations.sql'), 'utf8');
 const codeMigration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260918_add_platform_registration_code_upload.sql'), 'utf8');
 const contractMigration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260918_add_registration_contract_evidence.sql'), 'utf8');
+const uniqueCodeMigration = fs.readFileSync(path.join(repoDir, 'supabase/migrations/20260918_add_registration_unique_code.sql'), 'utf8');
 const contractPhp = fs.readFileSync(path.join(repoDir, 'platform-registration-contract.php'), 'utf8');
 const privacy = fs.readFileSync(path.join(repoDir, 'privacy.php'), 'utf8');
 const evidenceManifest = fs.readFileSync(path.join(repoDir, 'legal-evidence/registration-evidence-manifest.json'), 'utf8');
@@ -161,10 +162,27 @@ assert(api.includes("'contract_accepted_at'=>$acceptedAt"), 'contract acceptance
 assert(api.includes("'acceptance_method'=>'checkbox+submit'"), 'acceptance method must identify checkbox plus submit');
 assert(api.includes("'acceptance_evidence_sha256'=>$acceptanceEvidenceSha256"), 'acceptance evidence digest must be stored');
 assert(api.includes('hprAcceptanceEvidenceSha256('), 'acceptance evidence hashing helper missing');
+assert(api.includes('function hprGenerateRegistrationCode()'), 'unique registration code generator missing');
+assert(api.includes('random_bytes(16)'), 'registration code must use server-side CSPRNG entropy');
+assert(api.includes("'HC1-' . implode('-', $groups)"), 'registration code readable format missing');
+assert(api.includes("secretsEncrypt($registrationCode['plain'])"), 'registration code must be encrypted before storage');
+assert(api.includes("'registration_code_enc'=>$registrationCodeEnc"), 'encrypted registration code must be stored in the same registration row');
+assert(api.includes("'registration_code_sha256'=>$registrationCode['sha256']"), 'registration code digest must be stored');
+assert(api.includes("'registration_code_hint'=>$registrationCode['hint']"), 'registration code hint must be stored');
+assert(api.includes("'registration_code'=>$registrationCode['plain']"), 'plaintext registration code must be returned only by the successful POST');
+assert(api.includes("'registration_code_stored'=>"), 'admin projection must expose only stored-state metadata');
 assert(js.includes('He leído y acepto contractualmente el'), 'checkbox copy must clearly express contractual acceptance');
 assert(js.includes('Documento Contractual y de Privacidad'), 'contract document link copy missing');
 assert(js.includes('function waitForSuccessfulSubmission()'), 'registration must expose a successful-submit gate');
-assert(js.includes('registrationGateResolve({ ok: true, saved: true })'), 'successful database save must release the entry gate');
+assert(js.includes('hashcodRegistrationCodeReceipt'), 'private registration code receipt missing');
+assert(js.includes('hashcodRegistrationPrivateCode'), 'private registration code display missing');
+assert(js.includes('COPIAR CÓDIGO'), 'registration code copy action missing');
+assert(js.includes('CONTINUAR A HASHCOD'), 'registration code acknowledgement action missing');
+assert(js.includes('let registrationCodeAcknowledged = false'), 'registration code acknowledgement state missing');
+assert(js.includes('registrationSaved && registrationCodeAcknowledged'), 'entry must stay blocked until code acknowledgement');
+assert(js.includes("if (privateCode) privateCode.textContent = ''"), 'plaintext registration code must be cleared from the DOM on entry');
+assert(css.includes('#hashcodRegistrationCodeReceipt'), 'registration code receipt styling missing');
+assert(js.includes('registrationGateResolve({ ok: true, saved: true, codeAcknowledged: true })'), 'entry gate must release only after the registrant acknowledges the private code');
 assert(js.includes('function completePlatformEntry()'), 'registration must own the final transition into the platform');
 assert(js.includes("dataset.hashcodPlatformEntered = 'true'"), 'platform entry state marker missing');
 assert(js.includes("new CustomEvent('hashcod:platform-entered'"), 'platform-entered event must fire only after registration completion');
@@ -190,8 +208,8 @@ assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table const
 assert(api.includes("(string)($_GET['status'] ?? '') === '1'"), 'safe storage readiness probe missing');
 assert(api.includes("'storage_configured'=>$storageConfigured"), 'readiness probe storage flag missing');
 assert(api.includes("'table_ready'=>$tableReady"), 'readiness probe table flag missing');
-assert(api.includes("select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256&limit=1"),
-  'readiness probe must verify code and contract evidence columns');
+assert(api.includes("select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1"),
+  'readiness probe must verify upload, contract, and registration-code columns');
 assert(!api.includes("'error'=>$probe"), 'readiness probe must not expose raw database errors');
 
 // Database confidentiality.
@@ -226,6 +244,14 @@ for (const sql of [contractMigration, schema]) {
   assert(sql.includes('acceptance_method'), 'acceptance method column missing');
   assert(sql.includes('acceptance_evidence_sha256'), 'acceptance evidence SHA-256 column missing');
 }
+
+for (const sql of [uniqueCodeMigration, schema]) {
+  assert(sql.includes('registration_code_enc'), 'registration code encrypted column missing');
+  assert(sql.includes('registration_code_sha256'), 'registration code SHA-256 column missing');
+  assert(sql.includes('registration_code_hint'), 'registration code hint column missing');
+  assert(sql.includes('hashcod_platform_registrations_registration_code_sha256_uidx'), 'registration code uniqueness index missing');
+}
+assert(!schema.includes("code_sha256 ~ '^[a-f0-9]{64}\nalter table"), 'registration schema must not contain the prior corrupted code SHA constraint');
 
 assert(contractPhp.includes("'version' => '2026.09.18-2'"), 'canonical contract version missing');
 assert(contractPhp.includes('hashcodRegistrationContractSha256'), 'canonical contract SHA-256 helper missing');

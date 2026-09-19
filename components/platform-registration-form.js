@@ -1,5 +1,6 @@
 (function () {
     'use strict';
+    // WhatsApp-only registration flow: no persisted request table and no CodeKey gate.
     if (window.__hashcodPlatformRegistrationLoaded) return;
     window.__hashcodPlatformRegistrationLoaded = true;
 

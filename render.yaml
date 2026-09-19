@@ -30,6 +30,8 @@ services:
         sync: false
       - key: L8_VAULT_MASTER_KEY
         sync: false
+      - key: L8_DATA_ENCRYPTION_KEY
+        sync: false
       - key: OPENCLAW_WEBHOOK_SECRET
         sync: false
       - key: WS_SECRET

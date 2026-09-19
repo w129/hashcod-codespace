@@ -1045,7 +1045,7 @@
                         '<td>' + escapeHtml(row.cedula) + '</td>' +
                         '<td>' + escapeHtml(row.platform_name) + '</td>' +
                         '<td>' + escapeHtml(row.code_filename || '') + (row.code_size_bytes ? ' (' + escapeHtml(Math.round(Number(row.code_size_bytes) / 1024)) + ' KB)' : '') + '</td>' +
-                        '<td>' + (row.registration_code ? '<code class="hashcod-registration-code-value">' + escapeHtml(row.registration_code) + '</code>' : '') + '</td>' +
+                        '<td>' + (row.registration_code ? '<code class="hashcod-registration-code-value">' + escapeHtml(row.registration_code) + '</code>' + (row.registration_code_reissued ? '<small class="hashcod-registration-code-reissued">REEMPLAZO</small>' : '') : '<span class="hashcod-registration-code-missing">SIN CÓDIGO</span>') + '</td>' +
                         '<td>' + escapeHtml(row.contract_version || '') + '<br><small>' + escapeHtml(row.contract_accepted_at || '') + '</small></td>' +
                         '<td><small>' + escapeHtml((row.acceptance_evidence_sha256 || '').slice(0, 16)) + '…</small></td>' +
                         '<td>' + escapeHtml(row.email) + '</td>' +

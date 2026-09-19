@@ -209,8 +209,11 @@ assert(js.includes('function completePlatformEntry()'), 'registration must own t
 assert(js.includes("dataset.hashcodPlatformEntered = 'true'"), 'platform entry state marker missing');
 assert(js.includes("new CustomEvent('hashcod:platform-entered'"), 'platform-entered event must fire only after registration completion');
 assert(js.includes("'X-Requested-With': 'XMLHttpRequest'"), 'CSRF/same-origin marker missing');
-assert(js.includes('await window.HashcodAdmin.require({ force: true })'), 'records table must force admin CodeKey verification when opened');
+assert(js.includes('await window.HashcodAdmin.require({ force: false })'), 'records table must reuse a valid CodeKey session or open the picker directly from the user click');
 assert(js.includes("?view=admin"), 'admin records projection missing');
+assert(js.includes("tableButton.dataset.adminEngineReady = 'loading'"), 'CodeKey verifier must preload before table click');
+assert(js.includes("ensureAdminEngine().then(function (ready)"), 'CodeKey verifier preload promise missing');
+assert(!js.includes("La tabla requiere la CodeKey administrativa."), 'obsolete CodeKey table error copy must be removed');
 assert(js.includes('escapeHtml(row.cedula)'), 'stored PII must be escaped before table rendering');
 
 assert(api.includes("FILTER_VALIDATE_INT"), 'server age validation missing');
@@ -237,6 +240,15 @@ assert(api.includes(".registration-evidence.l8e1"), 'registration compatibility 
 assert(api.includes("$schemaMode = 'compatibility'"), 'registration readiness compatibility mode missing');
 assert(api.includes("$compatibilityMode = true"), 'registration insert compatibility retry missing');
 assert(api.includes("$adminSchemaMode = 'compatibility'"), 'registration admin compatibility mode missing');
+assert(api.includes("$schemaMode = 'base-compatibility'"), 'base registration schema compatibility mode missing');
+assert(api.includes("$adminSchemaMode = 'base-compatibility'"), 'base admin schema compatibility mode missing');
+assert(api.includes("'full_name_enc'=>$row['full_name_enc']"), 'base compatibility row must preserve encrypted name');
+assert(api.includes("'age'=>$row['age']"), 'base compatibility row must preserve age');
+assert(api.includes("'cedula_enc'=>$row['cedula_enc']"), 'base compatibility row must preserve encrypted cedula');
+assert(api.includes("'platform_name'=>$row['platform_name']"), 'base compatibility row must preserve platform');
+assert(api.includes("'email_enc'=>$row['email_enc']"), 'base compatibility row must preserve encrypted email');
+assert(api.includes("'phone_enc'=>$row['phone_enc']"), 'base compatibility row must preserve encrypted phone');
+assert(api.includes("$fallbackEvidence['registration_row_id'] = $savedCompat['id']"), 'sidecar must be correlated to the saved base row id');
 assert(!api.includes('La migración de evidencia contractual todavía no está aplicada.'), 'old blocking contractual migration error must be removed');
 assert(api.includes("select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1"),
   'readiness probe must verify upload, contract, and registration-code columns');

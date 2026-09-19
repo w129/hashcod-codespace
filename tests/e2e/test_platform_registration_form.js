@@ -182,6 +182,9 @@ assert(api.includes("'registration_code_hint'=>$registrationCode['hint']"), 'reg
 assert(api.includes("'registration_code'=>$registrationCode['plain']"), 'plaintext registration code must be returned only by the successful POST');
 assert(api.includes("$registrationCode = hprRegistrationDecrypt($registrationCodeEnc);"), 'admin view must use stable/backward-compatible decryption for the registration code');
 assert(api.includes("'registration_code'=>$registrationCode"), 'admin projection must return the exact registration code after CodeKey authorization');
+assert(api.includes("$identityRecoverable ="), 'admin loop must classify whether encrypted identity is recoverable');
+assert(api.includes("'identity_recoverable'=>$identityRecoverable"), 'admin response must expose identity recoverability');
+
 assert(api.includes('function hprListRegistrationEvidencePaths(string $prefix, int $depth = 0): array'), 'recursive evidence walker missing');
 assert(api.includes('hprListRegistrationEvidencePaths($fullPath, $depth + 1)'), 'recursive evidence walker must descend into nested folders');
 assert(api.includes("'platform-registrations/evidence-by-row/' . (string)$savedCompat['id']"), 'row-index evidence write missing');
@@ -288,7 +291,10 @@ assert(api.includes("require_once __DIR__ . '/secrets.php'"), 'backend encryptio
 assert(api.includes("hprRegistrationEncrypt($validated['cedula'])"), 'cedula must use stable encryption before database storage');
 assert(api.includes("hprRegistrationEncrypt($validated['email'])"), 'email must use stable encryption before database storage');
 assert(api.includes("hprRegistrationEncrypt($validated['phone'])"), 'phone must use stable encryption before database storage');
-assert(api.includes("hprRegistrationDecrypt((string)($stored['cedula_enc']"), 'admin projection must decrypt cedula only after authorization');
+assert(api.includes("$cedula = hprRegistrationDecrypt((string)($stored['cedula_enc'] ?? ''))"), 'admin projection must decrypt cedula only after authorization');
+assert(api.includes("$fullName = hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? ''))"), 'admin projection must decrypt full name only after authorization');
+assert(api.includes("$email = hprRegistrationDecrypt((string)($stored['email_enc'] ?? ''))"), 'admin projection must decrypt email only after authorization');
+assert(api.includes("$phone = hprRegistrationDecrypt((string)($stored['phone_enc'] ?? ''))"), 'admin projection must decrypt phone only after authorization');
 assert(api.includes('adminRequire();'), 'stored records must be admin-only server-side');
 assert(api.includes('HASHCOD_PLATFORM_REGISTRATION_TABLE'), 'backend table constant missing');
 assert(api.includes("(string)($_GET['status'] ?? '') === '1'"), 'safe storage readiness probe missing');

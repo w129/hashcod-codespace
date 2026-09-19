@@ -599,6 +599,21 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
         HASHCOD_PLATFORM_REGISTRATION_TABLE,
         'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,contract_version,contract_sha256,contract_accepted_at,acceptance_method,acceptance_evidence_sha256,registration_code_sha256,registration_code_hint,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
     );
+    $adminSchemaMode = 'full';
+    if (empty($res['ok'])) {
+        $selectError = strtolower((string)($res['error'] ?? ''));
+        if (hprMissingAnyColumn($selectError, [
+            'contract_version','contract_sha256','contract_accepted_at',
+            'acceptance_method','acceptance_evidence_sha256',
+            'registration_code_sha256','registration_code_hint'
+        ])) {
+            $res = supabaseDbSelect(
+                HASHCOD_PLATFORM_REGISTRATION_TABLE,
+                'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
+            );
+            $adminSchemaMode = 'compatibility';
+        }
+    }
     if (empty($res['ok'])) hprJson(502, ['ok'=>false, 'error'=>'No se pudo cargar la tabla de registros.']);
 
     $storedRows = is_array($res['body'] ?? null) ? $res['body'] : [];
@@ -629,7 +644,12 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             'created_at'=>(string)($stored['created_at'] ?? ''),
         ];
     }
-    hprJson(200, ['ok'=>true, 'rows'=>$rows, 'count'=>count($rows)]);
+    hprJson(200, [
+        'ok'=>true,
+        'rows'=>$rows,
+        'count'=>count($rows),
+        'schema_mode'=>$adminSchemaMode,
+    ]);
 }
 
 header('Allow: GET, POST');

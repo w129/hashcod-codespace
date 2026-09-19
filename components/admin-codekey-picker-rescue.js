@@ -9,7 +9,7 @@
     const componentBase = selfSrc && selfSrc.lastIndexOf('/') >= 0
         ? selfSrc.slice(0, selfSrc.lastIndexOf('/') + 1)
         : '/components/';
-    const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js?v=20260918-codekey4';
+    const ADMIN_DEVICE_SRC = componentBase + 'admin-device.js?v=20260919-perf1';
     const EXPECTED_FILENAME = 'OnIPFeJKssih4mbNLCYXnct6a1L_q84po-KVfKPZInHYbhNJ8OR2n3M2zFJ2zZeK9bqkcmilS1li-3DrTsaUIg.ipynb';
     function codeKeyFilenameAllowed(name) {
         const value = String(name || '');

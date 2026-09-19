@@ -232,6 +232,12 @@ assert(api.includes("'storage_configured'=>$storageConfigured"), 'readiness prob
 assert(api.includes("'table_ready'=>$tableReady"), 'readiness probe table flag missing');
 assert(api.includes("'registration_bucket_ready'=>$registrationBucketReady"), 'registration bucket readiness flag missing');
 assert(api.includes("'registration_bucket'=>HASHCOD_PLATFORM_REGISTRATION_BUCKET"), 'registration bucket readiness name missing');
+assert(api.includes("HASHCOD-REGISTRATION-EVIDENCE-1"), 'registration compatibility sidecar missing');
+assert(api.includes(".registration-evidence.l8e1"), 'registration compatibility evidence path missing');
+assert(api.includes("$schemaMode = 'compatibility'"), 'registration readiness compatibility mode missing');
+assert(api.includes("$compatibilityMode = true"), 'registration insert compatibility retry missing');
+assert(api.includes("$adminSchemaMode = 'compatibility'"), 'registration admin compatibility mode missing');
+assert(!api.includes('La migración de evidencia contractual todavía no está aplicada.'), 'old blocking contractual migration error must be removed');
 assert(api.includes("select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1"),
   'readiness probe must verify upload, contract, and registration-code columns');
 assert(!api.includes("'error'=>$probe"), 'readiness probe must not expose raw database errors');

@@ -384,8 +384,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260918-4" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
             . '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260919-perf1" data-hashcod-efr-code-editor="true"></script>'
-            . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260917-10" data-hashcod-boot-brand-credit-relocate="true"></script>'
-            . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260917-3" data-hashcod-local-download-layout-fix="true"></script>';
+            . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
+            . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260919-perf1" data-hashcod-local-download-layout-fix="true"></script>';
         $bodyPos = strripos($html, '</body>');
         if ($bodyPos !== false) {
             $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);

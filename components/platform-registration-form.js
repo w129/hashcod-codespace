@@ -274,17 +274,14 @@
                     </label>
                 </div>
                 <div class="hashcod-registration-actions">
-                    <div class="hashcod-registration-submit-flip">
-                        <button id="hashcodRegistrationSubmit" type="submit" aria-label="Enviar registro" disabled>
-                            <span class="hashcod-flip-stage" aria-hidden="true">
-                                <span class="hashcod-flip-face hashcod-flip-front">ENVIAR REGISTRO</span>
-                                <span class="hashcod-flip-face hashcod-flip-back">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 5v14M5 12h14"></path>
-                                    </svg>
-                                    <span>ENVIAR REGISTRO</span>
-                                </span>
-                            </span>
+                    <div
+                        id="hashcodRegistrationSubmitReactHost"
+                        class="hashcod-registration-submit-react-host"
+                        data-enabled="false"
+                        data-submitting="false"
+                    >
+                        <button id="hashcodRegistrationSubmit" type="button" aria-label="Enviar registro" disabled>
+                            ENVIAR REGISTRO
                         </button>
                     </div>
                     <button id="hashcodRegistrationTableButton" type="button" aria-label="Abrir tabla de registros" title="Tabla de registros">${DATABASE_ICON}</button>
@@ -388,6 +385,9 @@
             root.setAttribute('aria-label', 'Tercera pantalla: registro de plataforma');
             root.innerHTML = formMarkup();
             document.body.appendChild(root);
+            window.dispatchEvent(new CustomEvent('hashcod:registration-form-mounted', {
+                detail: { screen: 3 }
+            }));
         }
         if (!document.getElementById('hashcodRegistrationTableOverlay')) {
             document.body.insertAdjacentHTML('beforeend', tableOverlayMarkup());
@@ -497,9 +497,39 @@
             !v.code_file
         );
         const ok = Object.values(v).every(Boolean);
-        const submit = document.getElementById('hashcodRegistrationSubmit');
-        if (submit) submit.disabled = !ok;
+        syncSubmitState(ok, false);
         return ok;
+    }
+
+    function syncSubmitState(enabled, submitting) {
+        const host = document.getElementById('hashcodRegistrationSubmitReactHost');
+        const submit = document.getElementById('hashcodRegistrationSubmit');
+        const nextEnabled = Boolean(enabled) && !Boolean(submitting);
+
+        if (host) {
+            host.dataset.enabled = nextEnabled ? 'true' : 'false';
+            host.dataset.submitting = submitting ? 'true' : 'false';
+        }
+
+        if (submit) {
+            const official = submit.dataset.animateUiFlip === 'official';
+            if (official) {
+                submit.disabled = false;
+                submit.type = nextEnabled ? 'submit' : 'button';
+                submit.setAttribute('aria-disabled', nextEnabled ? 'false' : 'true');
+            } else {
+                submit.disabled = !nextEnabled;
+                submit.type = nextEnabled ? 'submit' : 'button';
+                submit.setAttribute('aria-disabled', nextEnabled ? 'false' : 'true');
+            }
+        }
+
+        window.dispatchEvent(new CustomEvent('hashcod:registration-submit-state', {
+            detail: {
+                enabled: nextEnabled,
+                submitting: Boolean(submitting)
+            }
+        }));
     }
 
     function scheduleValidate() {
@@ -588,9 +618,7 @@
             status('Completa todos los campos y acepta el documento contractual antes de continuar.', 'error');
             return;
         }
-        const button = document.getElementById('hashcodRegistrationSubmit');
-        button.disabled = true;
-        button.textContent = 'ENVIANDO…';
+        syncSubmitState(false, true);
         status('Guardando registro…');
         try {
             const response = await fetch(apiUrl(), {
@@ -621,7 +649,6 @@
         } catch (error) {
             status(error && error.message ? error.message : 'No se pudo guardar el registro.', 'error');
         } finally {
-            button.textContent = 'ENVIAR REGISTRO';
             validate();
         }
     }

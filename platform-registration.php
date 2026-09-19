@@ -605,39 +605,26 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     if (empty($cfg['configured']) || empty($cfg['secret_key'])) {
         hprJson(503, ['ok'=>false, 'error'=>'El almacenamiento seguro todavía no está disponible.']);
     }
+    // Read the row generically so the administrative table keeps working
+    // across every deployed schema version. Only the allow-listed projection
+    // below is returned to the browser; select=* never escapes this endpoint.
     $res = supabaseDbSelect(
         HASHCOD_PLATFORM_REGISTRATION_TABLE,
-        'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,contract_version,contract_sha256,contract_accepted_at,acceptance_method,acceptance_evidence_sha256,registration_code_sha256,registration_code_hint,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
+        'select=*&order=created_at.desc&limit=500'
     );
-    $adminSchemaMode = 'full';
+    $adminSchemaMode = 'dynamic';
     if (empty($res['ok'])) {
-        $selectError = strtolower((string)($res['error'] ?? ''));
-        if (hprMissingAnyColumn($selectError, [
-            'contract_version','contract_sha256','contract_accepted_at',
-            'acceptance_method','acceptance_evidence_sha256',
-            'registration_code_sha256','registration_code_hint'
-        ])) {
-            $res = supabaseDbSelect(
-                HASHCOD_PLATFORM_REGISTRATION_TABLE,
-                'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
-            );
-            $adminSchemaMode = 'compatibility';
-
-            if (empty($res['ok'])) {
-                $legacySelectError = strtolower((string)($res['error'] ?? ''));
-                if (hprMissingAnyColumn($legacySelectError, [
-                    'code_filename','code_mime_type','code_size_bytes','code_sha256','code_storage_path'
-                ])) {
-                    $res = supabaseDbSelect(
-                        HASHCOD_PLATFORM_REGISTRATION_TABLE,
-                        'select=id,full_name_enc,age,cedula_enc,platform_name,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
-                    );
-                    $adminSchemaMode = 'base-compatibility';
-                }
-            }
-        }
+        error_log(
+            '[hashcod-platform-registration] admin select failed'
+            . ' status=' . (int)($res['status'] ?? 0)
+            . ' error=' . substr((string)($res['error'] ?? ''), 0, 500)
+        );
+        hprJson(502, [
+            'ok'=>false,
+            'error'=>'No se pudo cargar la tabla de registros.',
+            'code'=>'registration_table_read_failed',
+        ]);
     }
-    if (empty($res['ok'])) hprJson(502, ['ok'=>false, 'error'=>'No se pudo cargar la tabla de registros.']);
 
     $storedRows = is_array($res['body'] ?? null) ? $res['body'] : [];
     $rows = [];

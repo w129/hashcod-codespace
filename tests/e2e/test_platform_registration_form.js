@@ -239,9 +239,10 @@ assert(api.includes("HASHCOD-REGISTRATION-EVIDENCE-1"), 'registration compatibil
 assert(api.includes(".registration-evidence.l8e1"), 'registration compatibility evidence path missing');
 assert(api.includes("$schemaMode = 'compatibility'"), 'registration readiness compatibility mode missing');
 assert(api.includes("$compatibilityMode = true"), 'registration insert compatibility retry missing');
-assert(api.includes("$adminSchemaMode = 'compatibility'"), 'registration admin compatibility mode missing');
+assert(api.includes("$adminSchemaMode = 'dynamic'"), 'registration admin table must use schema-independent mode');
+assert(api.includes("'select=*&order=created_at.desc&limit=500'"), 'registration admin table must query rows without hardcoded optional columns');
+assert(api.includes("'code'=>'registration_table_read_failed'"), 'registration admin table must expose a stable diagnostic code');
 assert(api.includes("$schemaMode = 'base-compatibility'"), 'base registration schema compatibility mode missing');
-assert(api.includes("$adminSchemaMode = 'base-compatibility'"), 'base admin schema compatibility mode missing');
 assert(api.includes("'full_name_enc'=>$row['full_name_enc']"), 'base compatibility row must preserve encrypted name');
 assert(api.includes("'age'=>$row['age']"), 'base compatibility row must preserve age');
 assert(api.includes("'cedula_enc'=>$row['cedula_enc']"), 'base compatibility row must preserve encrypted cedula');

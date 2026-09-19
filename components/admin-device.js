@@ -48,14 +48,31 @@
     }
 
     async function request(route, body) {
-        const response = await fetch(base + route, {
-            method: body === undefined ? 'GET' : 'POST',
-            credentials: 'same-origin',
-            cache: 'no-store',
-            headers: body === undefined ? {} : {'Content-Type': 'application/json'},
-            body: body === undefined ? undefined : JSON.stringify(body)
-        });
-        const data = await response.json();
+        const controller = typeof AbortController === 'function' ? new AbortController() : null;
+        const timeout = window.setTimeout(function () {
+            if (controller) controller.abort();
+        }, 12000);
+
+        let response;
+        try {
+            response = await fetch(base + route, {
+                method: body === undefined ? 'GET' : 'POST',
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: body === undefined ? {} : {'Content-Type': 'application/json'},
+                body: body === undefined ? undefined : JSON.stringify(body),
+                signal: controller ? controller.signal : undefined
+            });
+        } catch (error) {
+            if (error && error.name === 'AbortError') {
+                throw new Error('La verificación administrativa tardó demasiado en responder.');
+            }
+            throw error;
+        } finally {
+            window.clearTimeout(timeout);
+        }
+
+        const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo verificar el acceso administrativo.');
         return data;
     }
@@ -112,6 +129,7 @@
         const notebook = await file.text();
         const result = await request('verify', {filename: file.name, notebook});
         setToolsState(true);
+        setStatus('CodeKey verificada. Acceso administrativo habilitado.');
         clearTimeout(expiry);
         if (result.expiresIn > 0) expiry = setTimeout(closeTools, result.expiresIn * 1000);
         return true;

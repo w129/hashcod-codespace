@@ -65,7 +65,7 @@ assert(!dockCss.includes('top: -21px !important;'), 'title must never be pulled 
 
 assert(dilithium.includes('window.openDilithiumOneTimeKeyTool = openTool;'), 'Dilithium opener must be exposed for relocated launcher');
 assert(loader.includes('auth-vector-layout-fix.css?v=20260910-5'), 'base layout fix stylesheet v5 is not loaded');
-assert(loader.includes('auth-vector-layout-fix.js?v=20260910-5'), 'base layout fix script v5 is not loaded');
+assert(loader.includes('auth-vector-layout-fix.js?v=20260919-perf1'), 'base layout fix script v5 is not loaded');
 assert(loader.includes('crypto-card-validation.js?v=20260910-4'), 'auth loader must preload the crypto-card functional engine');
 
 console.log('auth vector layout fix contract: OK');

@@ -1018,7 +1018,7 @@
     api.registerTool({
       slot: TRAY_SLOT,
       id: TOOL_ID,
-      label: 'EFT CoffeeScript Notebook',
+      label: 'EFT CoffeeScript Algorithm Notebook',
       iconSvg: EDITOR_ICON,
       onClick: openEditor
     });
@@ -1043,6 +1043,9 @@
 
   function mutationTouchesTray(record) {
     if (!record || record.type !== 'childList') return false;
+    const target = record.target && record.target.nodeType === 1 ? record.target : null;
+    if (target && target.closest && target.closest(TRAY_SELECTOR)) return true;
+
     const nodes = Array.from(record.addedNodes || []).concat(Array.from(record.removedNodes || []));
     return nodes.some((node) => {
       if (!node || node.nodeType !== 1) return false;

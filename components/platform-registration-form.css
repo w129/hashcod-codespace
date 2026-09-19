@@ -1210,7 +1210,6 @@ html.dark #hashcodRegistrationTurnstileState {
     .hashcod-registration-code-actions { grid-template-columns: 1fr; }
     .hashcod-registration-head { align-items: center; }
     .hashcod-registration-badge { display: none; }
-    #hashcodRegistrationTableOverlay { padding: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

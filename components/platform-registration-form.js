@@ -1042,7 +1042,7 @@
                         '<td>' + escapeHtml(row.id) + '</td>' +
                         '<td>' + (row.full_name
                             ? escapeHtml(row.full_name)
-                            : '<span class="hashcod-registration-unrecoverable" title="La clave de cifrado anterior ya no está disponible">No recuperable — clave anterior perdida</span>') + '</td>' +
+                            : '<span title="Registro anterior sin clave disponible">—</span>') + '</td>' +
                         '<td>' + escapeHtml(row.age) + '</td>' +
                         '<td>' + escapeHtml(row.cedula) + '</td>' +
                         '<td>' + escapeHtml(row.platform_name) + '</td>' +

@@ -352,8 +352,17 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
                 HASHCOD_PLATFORM_REGISTRATION_TABLE,
                 'select=id,code_storage_path,code_filename,code_sha256&limit=1'
             );
-            $tableReady = !empty($legacyProbe['ok']);
-            if ($tableReady) $schemaMode = 'compatibility';
+            if (!empty($legacyProbe['ok'])) {
+                $tableReady = true;
+                $schemaMode = 'compatibility';
+            } else {
+                $baseProbe = supabaseDbSelect(
+                    HASHCOD_PLATFORM_REGISTRATION_TABLE,
+                    'select=id,full_name_enc,age,cedula_enc,platform_name,email_enc,phone_enc&limit=1'
+                );
+                $tableReady = !empty($baseProbe['ok']);
+                if ($tableReady) $schemaMode = 'base-compatibility';
+            }
         }
         $bucketProbe = hprEnsureRegistrationBucket();
         $registrationBucketReady = !empty($bucketProbe['ok']);
@@ -491,19 +500,20 @@ if ($method === 'POST') {
             hprJson(503, ['ok'=>false, 'error'=>'La tabla de registros todavía no tiene soporte para archivos de plataforma.']);
         }
 
-        $missingContractColumns = hprMissingAnyColumn($error, [
+        $optionalColumns = [
+            'code_filename','code_mime_type','code_size_bytes','code_sha256','code_storage_path',
             'contract_version','contract_sha256','contract_accepted_at',
-            'acceptance_method','acceptance_evidence_sha256'
-        ]);
-        $missingRegistrationCodeColumns = hprMissingAnyColumn($error, [
+            'acceptance_method','acceptance_evidence_sha256',
             'registration_code_enc','registration_code_sha256','registration_code_hint'
-        ]);
+        ];
 
-        if ($missingContractColumns || $missingRegistrationCodeColumns) {
+        if (hprMissingAnyColumn($error, $optionalColumns)) {
             $fallbackEvidence = [
                 'format'=>'HASHCOD-REGISTRATION-EVIDENCE-1',
                 'code_storage_path'=>$codeUpload['storage_path'],
                 'code_filename'=>$codeUpload['filename'],
+                'code_mime_type'=>$codeUpload['mime_type'],
+                'code_size_bytes'=>$codeUpload['size_bytes'],
                 'code_sha256'=>$codeUpload['sha256'],
                 'contract_version'=>$contractVersion,
                 'contract_sha256'=>$contractSha256,
@@ -513,6 +523,7 @@ if ($method === 'POST') {
                 'registration_code_enc'=>$registrationCodeEnc,
                 'registration_code_sha256'=>$registrationCode['sha256'],
                 'registration_code_hint'=>$registrationCode['hint'],
+                'platform_name'=>$validated['platform_name'],
                 'created_at'=>gmdate('c'),
             ];
             $fallbackUpload = hprUploadFallbackRegistrationEvidence(
@@ -525,41 +536,40 @@ if ($method === 'POST') {
             }
             $fallbackEvidencePath = (string)($fallbackUpload['path'] ?? '');
 
-            $compatRow = $row;
-            foreach ([
-                'contract_version','contract_sha256','contract_accepted_at',
-                'acceptance_method','acceptance_evidence_sha256'
-            ] as $column) {
-                unset($compatRow[$column]);
-            }
+            // Guaranteed-compatible row for the original 20260917 schema.
+            // All optional/upload/contract/code metadata remains encrypted in
+            // the private sidecar above and is linked to the uploaded object.
+            $baseRow = [
+                'full_name_enc'=>$row['full_name_enc'],
+                'age'=>$row['age'],
+                'cedula_enc'=>$row['cedula_enc'],
+                'platform_name'=>$row['platform_name'],
+                'email_enc'=>$row['email_enc'],
+                'phone_enc'=>$row['phone_enc'],
+            ];
 
             $retry = supabaseDbRequest(HASHCOD_PLATFORM_REGISTRATION_TABLE, [
                 'method'=>'POST', 'use_secret'=>true,
                 'headers'=>['Prefer: return=representation'],
-                'body'=>[$compatRow], 'timeout'=>8,
+                'body'=>[$baseRow], 'timeout'=>8,
             ]);
-
-            if (empty($retry['ok'])) {
-                $retryError = strtolower((string)($retry['error'] ?? ''));
-                if (hprMissingAnyColumn($retryError, [
-                    'registration_code_enc','registration_code_sha256','registration_code_hint'
-                ])) {
-                    foreach ([
-                        'registration_code_enc','registration_code_sha256','registration_code_hint'
-                    ] as $column) {
-                        unset($compatRow[$column]);
-                    }
-                    $retry = supabaseDbRequest(HASHCOD_PLATFORM_REGISTRATION_TABLE, [
-                        'method'=>'POST', 'use_secret'=>true,
-                        'headers'=>['Prefer: return=representation'],
-                        'body'=>[$compatRow], 'timeout'=>8,
-                    ]);
-                }
-            }
 
             if (!empty($retry['ok'])) {
                 $res = $retry;
                 $compatibilityMode = true;
+                $savedCompat = is_array($retry['body'] ?? null) && !empty($retry['body'][0])
+                    ? $retry['body'][0]
+                    : [];
+                if (!empty($savedCompat['id'])) {
+                    // Upsert the encrypted sidecar once more with the actual
+                    // row ID so the storage evidence and DB row are explicitly
+                    // correlated even while DDL is pending.
+                    $fallbackEvidence['registration_row_id'] = $savedCompat['id'];
+                    hprUploadFallbackRegistrationEvidence(
+                        $codeUpload['storage_path'],
+                        $fallbackEvidence
+                    );
+                }
             }
         }
 
@@ -612,6 +622,19 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
                 'select=id,full_name_enc,age,cedula_enc,platform_name,code_filename,code_mime_type,code_size_bytes,code_sha256,code_storage_path,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
             );
             $adminSchemaMode = 'compatibility';
+
+            if (empty($res['ok'])) {
+                $legacySelectError = strtolower((string)($res['error'] ?? ''));
+                if (hprMissingAnyColumn($legacySelectError, [
+                    'code_filename','code_mime_type','code_size_bytes','code_sha256','code_storage_path'
+                ])) {
+                    $res = supabaseDbSelect(
+                        HASHCOD_PLATFORM_REGISTRATION_TABLE,
+                        'select=id,full_name_enc,age,cedula_enc,platform_name,email_enc,phone_enc,created_at&order=created_at.desc&limit=500'
+                    );
+                    $adminSchemaMode = 'base-compatibility';
+                }
+            }
         }
     }
     if (empty($res['ok'])) hprJson(502, ['ok'=>false, 'error'=>'No se pudo cargar la tabla de registros.']);

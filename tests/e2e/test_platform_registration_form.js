@@ -332,10 +332,12 @@ assert(api.includes("$adminSchemaMode = 'base-compatibility'"),
   'registration admin table must mark base-schema recovery mode');
 assert(api.includes("$compatEvidenceByRowId = $evidenceRowIds !== []"),
   'registration admin table must restore compatibility sidecar metadata when needed');
-assert(api.includes("hprRegistrationEvidenceByRowId($evidenceRowIds, $storedRows)"),
-  'registration admin table must load encrypted row evidence for affected records');
+assert(api.includes("hprRegistrationEvidenceByRowId($evidenceRowIds, $storedRows, false)"),
+  'registration admin table must use direct row evidence without a recursive legacy Storage scan');
 assert(api.includes("if ($requestedIds !== [] && count($map) === count($requestedIds))"),
   'registration evidence lookup must avoid recursive Storage scans when direct row evidence exists');
+assert(api.includes("if (!$allowLegacyScan) return $map;"),
+  'interactive admin reads must be able to skip slow legacy Storage scans');
 assert(api.includes("'bypass_circuit'=>true"), 'protected admin read must bypass an already-open Supabase circuit');
 assert(api.includes("supabaseDbRequest("), 'protected admin table must use a direct recovery read');
 assert(api.includes("'code'=>'registration_table_read_failed'"), 'registration admin table must expose a stable diagnostic code');

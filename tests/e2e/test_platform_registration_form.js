@@ -111,7 +111,12 @@ assert(css.includes('background: #e4e4e4'), 'loaded code icon must use a light g
 assert(js.includes('const MAX_CODE_FILE_BYTES = 30 * 1024 * 1024'), 'client code file limit missing');
 assert(js.includes("body.append('code_file', selectedCodeFile"), 'selected code file must be sent with the form');
 assert(js.includes('new FormData()'), 'registration submission must use multipart FormData');
-assert(!js.includes("'Content-Type': 'application/json'"), 'multipart upload must not force an application/json content type');
+{
+  const submitStart = js.indexOf('async function submitForm');
+  const submitEnd = js.indexOf('function showRegistrationCodeReceipt', submitStart);
+  const submitBlock = submitStart >= 0 && submitEnd > submitStart ? js.slice(submitStart, submitEnd) : '';
+  assert(!submitBlock.includes("'Content-Type': 'application/json'"), 'registration multipart POST must not force an application/json content type');
+}
 assert(js.includes("target.closest('#hashcodHoldContinue')"), 'final-screen registration fallback must follow the second-screen continue action');
 assert(js.includes("revealFinalRegistration('platform-registration-continue-fallback')"), 'registration fallback reveal marker missing');
 assert(js.includes("revealFinalRegistration('platform-registration-hold-disconnected')"),

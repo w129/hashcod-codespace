@@ -106,12 +106,21 @@
         return true;
     }
 
+    let layoutFrame = 0;
+    let settleTimer = 0;
+
     function schedule() {
-        requestAnimationFrame(apply);
-        setTimeout(apply, 80);
-        setTimeout(apply, 300);
-        setTimeout(apply, 900);
-        setTimeout(apply, 1800);
+        if (!layoutFrame) {
+            layoutFrame = requestAnimationFrame(function () {
+                layoutFrame = 0;
+                apply();
+            });
+        }
+        if (settleTimer) window.clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(function () {
+            settleTimer = 0;
+            apply();
+        }, 220);
     }
 
     if (document.readyState === 'loading') {
@@ -120,7 +129,29 @@
         schedule();
     }
 
-    const observer = new MutationObserver(function () { apply(); });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    const observer = new MutationObserver(function (records) {
+        const relevant = records.some(function (record) {
+            return Array.from(record.addedNodes || []).some(function (node) {
+                if (!node || node.nodeType !== 1) return false;
+                if (
+                    (node.matches && node.matches('.boot-brand, .boot-brand-logos, .hashcod-local-download-row')) ||
+                    (node.querySelector && node.querySelector('.boot-brand, .boot-brand-logos, .hashcod-local-download-row'))
+                ) return true;
+                return false;
+            });
+        });
+        if (relevant) schedule();
+    });
+    observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
     window.addEventListener('resize', schedule, { passive: true });
+
+    function stopLayoutWatch() {
+        observer.disconnect();
+        if (layoutFrame) window.cancelAnimationFrame(layoutFrame);
+        if (settleTimer) window.clearTimeout(settleTimer);
+        layoutFrame = 0;
+        settleTimer = 0;
+    }
+    window.addEventListener('hashcod:final-entry-screen', stopLayoutWatch, { once: true });
+    window.addEventListener('hashcod:platform-entered', stopLayoutWatch, { once: true });
 })();

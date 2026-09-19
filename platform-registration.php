@@ -699,6 +699,7 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
     $registrationBucketReady = false;
 
     $schemaMode = 'unavailable';
+    $registrationKeyReady = false;
     if ($storageConfigured) {
         $probe = supabaseDbSelect(HASHCOD_PLATFORM_REGISTRATION_TABLE, 'select=id,code_storage_path,contract_version,contract_sha256,acceptance_evidence_sha256,registration_code_enc,registration_code_sha256&limit=1');
         if (!empty($probe['ok'])) {
@@ -728,9 +729,17 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
         }
         $bucketProbe = hprEnsureRegistrationBucket();
         $registrationBucketReady = !empty($bucketProbe['ok']);
+
+        if ($registrationBucketReady) {
+            try {
+                $registrationKeyReady = strlen(hprRegistrationCryptoKey()) === 32;
+            } catch (Throwable $ignored) {
+                $registrationKeyReady = false;
+            }
+        }
     }
 
-    $ready = $storageConfigured && $tableReady && $registrationBucketReady;
+    $ready = $storageConfigured && $tableReady && $registrationBucketReady && $registrationKeyReady;
     hprJson($ready ? 200 : 503, [
         'ok'=>$ready,
         'storage_configured'=>$storageConfigured,
@@ -738,6 +747,7 @@ if ($method === 'GET' && (string)($_GET['status'] ?? '') === '1') {
         'schema_mode'=>$schemaMode,
         'registration_bucket_ready'=>$registrationBucketReady,
         'registration_bucket'=>HASHCOD_PLATFORM_REGISTRATION_BUCKET,
+        'registration_key_ready'=>$registrationKeyReady,
     ]);
 }
 

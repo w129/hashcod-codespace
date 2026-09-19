@@ -25,6 +25,7 @@
         '[data-hashcod-third-screen-legacy]'
     ];
     let registrationSaved = false;
+    let registrationCodeAcknowledged = false;
     let registrationGatePromise = null;
     let registrationGateResolve = null;
     let fieldCache = null;
@@ -665,6 +666,7 @@
                 throw new Error('El registro fue guardado, pero no se recibió el código criptográfico de confirmación.');
             }
             registrationSaved = true;
+            registrationCodeAcknowledged = false;
             document.getElementById('hashcodRegistrationForm').reset();
             resetCodeUpload();
             document.querySelectorAll('#hashcodRegistrationForm input[aria-invalid]').forEach(function (input) {
@@ -728,6 +730,7 @@
 
     function continueAfterRegistrationCode() {
         if (!registrationSaved) return false;
+        registrationCodeAcknowledged = true;
         const overlay = document.getElementById('hashcodRegistrationCodeReceipt');
         const codeNode = document.getElementById('hashcodRegistrationPrivateCode');
         if (overlay) {
@@ -1084,7 +1087,7 @@
     }
 
     function waitForSuccessfulSubmission() {
-        if (registrationSaved) return Promise.resolve({ ok: true, saved: true });
+        if (registrationSaved && registrationCodeAcknowledged) return Promise.resolve({ ok: true, saved: true, codeAcknowledged: true });
         if (!registrationGatePromise) {
             registrationGatePromise = new Promise(function (resolve) {
                 registrationGateResolve = resolve;
@@ -1165,7 +1168,7 @@
     window.HashcodPlatformRegistration = Object.freeze({
         waitForSuccessfulSubmission: waitForSuccessfulSubmission,
         completePlatformEntry: completePlatformEntry,
-        isSaved: function () { return registrationSaved; },
+        isSaved: function () { return registrationSaved && registrationCodeAcknowledged; },
         mount: mount
     });
 })();

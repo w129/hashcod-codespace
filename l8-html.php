@@ -381,7 +381,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260919-perf1" data-hashcod-entry-capability-footer="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260919-perf1" data-hashcod-entry-capability-footer-fix="true"></script>'
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
-            . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260918-4" data-hashcod-codekey-picker-rescue="true"></script>'
+            . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
             . '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260919-perf1" data-hashcod-efr-code-editor="true"></script>'
             . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'

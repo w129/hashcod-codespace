@@ -32,8 +32,19 @@ enum CodeKeyVerifier {
     private static let expectedCombined = "HASHCOD1:d02c7f85eccb0e8eb63f26bda3bc82fb86a6f6e80b98c2b35ff982e07c215b5b"
     private static let maxBytes = 131_072
 
+    static func filenameAllowed(_ filename: String) -> Bool {
+        if filename == expectedFilename { return true }
+        let stem = expectedFilename.replacingOccurrences(of: ".ipynb", with: "")
+        let escaped = NSRegularExpression.escapedPattern(for: stem)
+        guard let regex = try? NSRegularExpression(pattern: "^" + escaped + "\\s*\\(\\d+\\)\\.ipynb$", options: [.caseInsensitive]) else {
+            return false
+        }
+        let range = NSRange(filename.startIndex..<filename.endIndex, in: filename)
+        return regex.firstMatch(in: filename, range: range) != nil
+    }
+
     static func verify(url: URL) -> CodeKeyVerificationResult {
-        guard url.lastPathComponent == expectedFilename else {
+        guard filenameAllowed(url.lastPathComponent) else {
             return .init(valid: false, message: "El nombre de la CodeKey no coincide con el registrado.")
         }
 

@@ -114,8 +114,16 @@ function adminCanonicalJson(array $value): string {
     return $json;
 }
 
+function adminCodeKeyFilenameAllowed(string $filename): bool {
+    if (hash_equals(ADMIN_CODEKEY_FILENAME, $filename)) return true;
+    $dot = strrpos(ADMIN_CODEKEY_FILENAME, '.ipynb');
+    if ($dot === false) return false;
+    $stem = substr(ADMIN_CODEKEY_FILENAME, 0, $dot);
+    return preg_match('/^' . preg_quote($stem, '/') . '\\s*\\(\\d+\\)\\.ipynb$/', $filename) === 1;
+}
+
 function adminVerifyCodeKeyNotebook(string $filename, string $rawNotebook): bool {
-    if (!hash_equals(ADMIN_CODEKEY_FILENAME, $filename)) return false;
+    if (!adminCodeKeyFilenameAllowed($filename)) return false;
     if ($rawNotebook === '' || strlen($rawNotebook) > 131072) return false;
 
     try {

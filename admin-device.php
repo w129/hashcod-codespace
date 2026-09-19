@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/desktop-runtime.php';
+require_once __DIR__ . '/secrets.php';
 
 const ADMIN_DEVICE_RP = 'hashcod-codespace-1.onrender.com';
 const ADMIN_DEVICE_ORIGIN = 'https://' . ADMIN_DEVICE_RP;
@@ -72,9 +73,105 @@ function adminCredentialDigest(): string {
     return hash('sha256', ADMIN_COMBINED_FINGERPRINT);
 }
 
+function adminBase64UrlEncode(string $raw): string {
+    return rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
+}
+
+function adminBase64UrlDecode(string $encoded): string {
+    $encoded = strtr($encoded, '-_', '+/');
+    $pad = strlen($encoded) % 4;
+    if ($pad !== 0) $encoded .= str_repeat('=', 4 - $pad);
+    $decoded = base64_decode($encoded, true);
+    return is_string($decoded) ? $decoded : '';
+}
+
+function adminTicketSigningKey(): string {
+    foreach (['L8_AUTH_PEPPER', 'L8_VAULT_MASTER_KEY', 'SUPABASE_SECRET_KEY'] as $name) {
+        $raw = trim((string)secretGet($name, ''));
+        if ($raw !== '') {
+            return hash_hmac('sha256', 'hashcod|admin-codekey-ticket|v1', $raw, true);
+        }
+    }
+    return '';
+}
+
+function adminIssueTicket(string $ip, int $ttl = 600): string {
+    $key = adminTicketSigningKey();
+    if ($key === '' || $ip === '') return '';
+
+    $payload = [
+        'v'=>1,
+        'ip'=>$ip,
+        'net'=>ADMIN_DEVICE_NETWORK,
+        'cred'=>adminCredentialDigest(),
+        'exp'=>time() + max(60, min(900, $ttl)),
+        'nonce'=>bin2hex(random_bytes(12)),
+    ];
+    $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
+    if (!is_string($json) || $json === '') return '';
+
+    $encoded = adminBase64UrlEncode($json);
+    $sig = hash_hmac('sha256', $encoded, $key);
+    return $encoded . '.' . $sig;
+}
+
+function adminTicketValid(string $ticket, string $ip): bool {
+    if ($ticket === '' || $ip === '' || strpos($ticket, '.') === false) return false;
+    $key = adminTicketSigningKey();
+    if ($key === '') return false;
+
+    [$encoded, $sig] = explode('.', $ticket, 2);
+    if ($encoded === '' || !preg_match('/^[a-f0-9]{64}$/', $sig)) return false;
+    $expected = hash_hmac('sha256', $encoded, $key);
+    if (!hash_equals($expected, $sig)) return false;
+
+    $json = adminBase64UrlDecode($encoded);
+    if ($json === '') return false;
+    $payload = json_decode($json, true);
+    if (!is_array($payload)) return false;
+
+    return (int)($payload['v'] ?? 0) === 1
+        && (int)($payload['exp'] ?? 0) > time()
+        && hash_equals($ip, (string)($payload['ip'] ?? ''))
+        && hash_equals(ADMIN_DEVICE_NETWORK, (string)($payload['net'] ?? ''))
+        && hash_equals(adminCredentialDigest(), (string)($payload['cred'] ?? ''));
+}
+
+function adminSetTicketCookie(string $ticket, int $ttl = 600): void {
+    if (headers_sent()) return;
+    $name = hashcodDesktopEnabled() ? 'hashcod_desktop_admin_ticket' : '__Host-hashcod_admin_ticket';
+    if ($ticket === '') {
+        setcookie($name, '', [
+            'expires'=>time() - 3600,
+            'path'=>'/',
+            'secure'=>!hashcodDesktopEnabled(),
+            'httponly'=>true,
+            'samesite'=>'Strict',
+        ]);
+        return;
+    }
+    setcookie($name, $ticket, [
+        'expires'=>time() + max(60, min(900, $ttl)),
+        'path'=>'/',
+        'secure'=>!hashcodDesktopEnabled(),
+        'httponly'=>true,
+        'samesite'=>'Strict',
+    ]);
+}
+
+function adminTicketFromRequest(): string {
+    $name = hashcodDesktopEnabled() ? 'hashcod_desktop_admin_ticket' : '__Host-hashcod_admin_ticket';
+    return trim((string)($_COOKIE[$name] ?? ''));
+}
+
 function adminAuthorized(): bool {
     if (hashcodDesktopBridgeValid()) return true;
-    if (!adminIpAllowed(adminClientIp($_SERVER)) || !adminSameOrigin($_SERVER)) return false;
+    $ip = adminClientIp($_SERVER);
+    if (!adminIpAllowed($ip) || !adminSameOrigin($_SERVER)) return false;
+
+    $ticket = adminTicketFromRequest();
+    if ($ticket !== '' && adminTicketValid($ticket, $ip)) return true;
+
     adminSession();
     return ($_SESSION['admin_until'] ?? 0) > time()
         && ($_SESSION['admin_network'] ?? '') === ADMIN_DEVICE_NETWORK
@@ -237,10 +334,31 @@ function adminDeviceApi(string $path): void {
         $_SESSION['admin_until'] = time() + 600;
         $_SESSION['admin_network'] = ADMIN_DEVICE_NETWORK;
         $_SESSION['admin_credential'] = adminCredentialDigest();
-        adminJson(200, ['ok'=>true, 'authenticated'=>true, 'expiresIn'=>600, 'authMode'=>'codekey-jupyter']);
+
+        // Also issue a signed HttpOnly authorization ticket. This is deliberately
+        // stateless so CodeKey authorization survives Render worker/process
+        // changes between /verify, /status and the protected table request.
+        $ticket = adminIssueTicket(adminClientIp($_SERVER), 600);
+        if ($ticket !== '') adminSetTicketCookie($ticket, 600);
+
+        // Flush the filesystem session before the browser immediately performs
+        // the status/table follow-up request.
+        if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
+
+        adminJson(200, [
+            'ok'=>true,
+            'authenticated'=>true,
+            'expiresIn'=>600,
+            'authMode'=>$ticket !== '' ? 'codekey-jupyter-ticket' : 'codekey-jupyter-session'
+        ]);
     }
 
     if ($path === '/api/admin-device/authorize') { adminRequire(); adminJson(200, ['ok'=>true]); }
-    if ($path === '/api/admin-device/logout') { $_SESSION = []; session_destroy(); adminJson(200, ['ok'=>true]); }
+    if ($path === '/api/admin-device/logout') {
+        adminSetTicketCookie('', 0);
+        $_SESSION = [];
+        session_destroy();
+        adminJson(200, ['ok'=>true]);
+    }
     adminJson(404, ['ok'=>false, 'error'=>'Ruta no encontrada']);
 }

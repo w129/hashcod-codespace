@@ -66,6 +66,13 @@ assert(server.includes("hash('sha256', $normalized)"), 'server must recompute CO
 assert(server.includes("hash('sha256', adminCanonicalJson($canonical))"), 'server must recompute JUPYTER1');
 assert(server.includes("ADMIN_CODEKEY_SCHEME . '|' . $codekey . '|' . $jupyter"), 'server must recompute combined fingerprint');
 assert(server.includes("'admin_until'] = time() + 600"), 'verified CodeKey session must expire after ten minutes');
+assert(server.includes("function adminIssueTicket(string $ip, int $ttl = 600): string"), 'stateless CodeKey ticket issuer missing');
+assert(server.includes("function adminTicketValid(string $ticket, string $ip): bool"), 'stateless CodeKey ticket verifier missing');
+assert(server.includes("__Host-hashcod_admin_ticket"), 'hosted CodeKey authorization must use an HttpOnly __Host ticket');
+assert(server.includes("hashcod|admin-codekey-ticket|v1"), 'admin ticket must use a domain-separated signing key');
+assert(server.includes("session_write_close()"), 'verified CodeKey session must flush before the immediate table read');
+assert(server.includes("adminSetTicketCookie($ticket, 600)"), 'verified CodeKey must issue the stateless authorization ticket');
+assert(server.includes("adminSetTicketCookie('', 0)"), 'logout must revoke the CodeKey authorization ticket');
 assert(server.includes("'authMode'=>$desktop ? 'desktop-loopback-bridge' : 'codekey-jupyter'"), 'hosted auth mode must report CodeKey Jupyter');
 
 console.log('PASS: CodeKey verifies CODEKEY1 + JUPYTER1 + HASHCOD1 and exclusively gates the EFT editor until the active admin session is unlocked.');

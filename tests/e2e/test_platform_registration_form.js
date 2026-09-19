@@ -233,7 +233,8 @@ assert(api.includes("'registration_code_reissued'=>$registrationCodeReissued"), 
 assert(js.includes('row.registration_code_reissued'), 'protected table must label reissued registration codes');
 assert(js.includes('REEMPLAZO'), 'reissued code label missing');
 
-assert(api.includes('function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = [])'), 'compatibility registrations must recover codes from private evidence sidecars');
+assert(api.includes('function hprRegistrationEvidenceByRowId('), 'compatibility registrations must recover codes from private evidence sidecars');
+assert(api.includes('bool $allowLegacyScan = true'), 'registration evidence helper must expose the fast interactive mode');
 assert(js.includes('row.registration_code ?'), 'protected table must render the exact registration code');
 assert(js.includes('hashcod-registration-code-value'), 'exact registration code table styling hook missing');
 assert(!js.includes('••••••••-'), 'protected table must no longer mask the registration code');
@@ -332,10 +333,12 @@ assert(api.includes("$adminSchemaMode = 'base-compatibility'"),
   'registration admin table must mark base-schema recovery mode');
 assert(api.includes("$compatEvidenceByRowId = $evidenceRowIds !== []"),
   'registration admin table must restore compatibility sidecar metadata when needed');
-assert(api.includes("hprRegistrationEvidenceByRowId($evidenceRowIds, $storedRows)"),
-  'registration admin table must load encrypted row evidence for affected records');
+assert(api.includes("hprRegistrationEvidenceByRowId($evidenceRowIds, $storedRows, false)"),
+  'registration admin table must use direct row evidence without a recursive legacy Storage scan');
 assert(api.includes("if ($requestedIds !== [] && count($map) === count($requestedIds))"),
   'registration evidence lookup must avoid recursive Storage scans when direct row evidence exists');
+assert(api.includes("if (!$allowLegacyScan) return $map;"),
+  'interactive admin reads must be able to skip slow legacy Storage scans');
 assert(api.includes("'bypass_circuit'=>true"), 'protected admin read must bypass an already-open Supabase circuit');
 assert(api.includes("supabaseDbRequest("), 'protected admin table must use a direct recovery read');
 assert(api.includes("'code'=>'registration_table_read_failed'"), 'registration admin table must expose a stable diagnostic code');

@@ -180,6 +180,12 @@ jobs:
       - name: Syntax check platform registration API
         run: php -l platform-registration.php
 
+      - name: Syntax check CodeKey admin backend
+        run: php -l admin-device.php
+
+      - name: Verify CodeKey admin contract
+        run: node tests/security/test-admin-device.cjs
+
       - name: Syntax check cloud sync backend
         run: php -l hashcod-sync.php
 

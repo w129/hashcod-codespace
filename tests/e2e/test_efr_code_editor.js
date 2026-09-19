@@ -87,7 +87,10 @@ assert(js.includes('button.disabled = false'), 'fifth tray cube must be actively
 assert(js.includes('button.onclick = function'), 'direct button click fallback missing');
 assert(js.includes("const HOTZONE_ID = 'hashcodEfrHotzone'"), 'fixed click hotzone missing');
 assert(js.includes('z-index:2147483646'), 'hotzone must sit above regular auth/tray stacking contexts');
-assert(js.includes('repairTimer = window.setInterval(repairAndSync, 400)'), 'bounded periodic tray repair missing');
+assert(!js.includes('setInterval(repairAndSync, 400)'), 'EFT editor must not poll the main thread every 400ms');
+assert(js.includes('function scheduleRepair()'), 'EFT repair work must be animation-frame batched');
+assert(js.includes("document.visibilityState === 'hidden'"), 'EFT repair work must pause while the tab is hidden');
+assert(js.includes('mutationTouchesTray'), 'EFT observer must ignore unrelated DOM mutations');
 assert(js.includes('childList: true'), 'tray replacement observer missing');
 assert(js.includes("document.documentElement.dataset.hashcodEfrReady = 'true'"), 'runtime readiness marker missing');
 assert(js.includes("modal.style.setProperty('display', 'grid', 'important')"), 'editor open path must force visible display');
@@ -98,8 +101,8 @@ assert(css.includes('dialog#hashcodEfrEditorModal'), 'native dialog styling miss
 assert(css.includes('dialog#hashcodEfrEditorModal::backdrop'), 'native dialog backdrop styling missing');
 assert(css.includes('#hashcodEfrEditorTextarea'), 'editor textarea styling missing');
 assert(hosted.includes('hashcod-efr-code-editor-inline'), 'hosted page must inline the current EFT implementation to bypass stale CDN cache');
-assert(hosted.includes('components/efr-code-editor.js?v=20260915-3'), 'hosted JS fallback loader missing');
+assert(hosted.includes('components/efr-code-editor.js?v=20260919-perf1'), 'hosted JS fallback loader missing');
 assert(local.includes('hashcod-laragon-efr-code-editor-inline'), 'local entry must inline the current EFT implementation');
-assert(local.includes('components/efr-code-editor.js?v=20260915-3'), 'local JS fallback loader missing');
+assert(local.includes('components/efr-code-editor.js?v=20260919-perf1'), 'local JS fallback loader missing');
 
 console.log('PASS: EFT keeps CoffeeScript/IPYNB 4.5 and adds a TheAlgorithms/Jupyter-inspired definition/math → implementation → demo algorithm profile without executing code.');

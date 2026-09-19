@@ -48,9 +48,22 @@
         mount();
     }
 
-    const observer = new MutationObserver(function () {
-        mount();
+    const observer = new MutationObserver(function (records) {
+        const relevant = records.some(function (record) {
+            return Array.from(record.addedNodes || []).some(function (node) {
+                if (!node || node.nodeType !== 1) return false;
+                if (node.id === 'hashcodEntryHold') return true;
+                return Boolean(node.querySelector && node.querySelector('#hashcodEntryHold'));
+            });
+        });
+        if (!relevant) return;
+        if (mount()) observer.disconnect();
     });
 
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    if (!document.getElementById(FOOTER_ID)) {
+        observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
+        window.setTimeout(function () { observer.disconnect(); }, 15000);
+    }
+    window.addEventListener('hashcod:final-entry-screen', function () { observer.disconnect(); }, { once: true });
+    window.addEventListener('hashcod:platform-entered', function () { observer.disconnect(); }, { once: true });
 })();

@@ -306,8 +306,20 @@ assert(api.includes("HASHCOD-REGISTRATION-EVIDENCE-1"), 'registration compatibil
 assert(api.includes(".registration-evidence.l8e1"), 'registration compatibility evidence path missing');
 assert(api.includes("$schemaMode = 'compatibility'"), 'registration readiness compatibility mode missing');
 assert(api.includes("$compatibilityMode = true"), 'registration insert compatibility retry missing');
+assert(!api.includes("hprMissingAnyColumn($error, ['code_storage_path','code_filename','code_sha256'])"),
+  'missing upload columns must reach the encrypted compatibility retry instead of aborting');
 assert(api.includes("$adminSchemaMode = 'dynamic'"), 'registration admin table must use schema-independent mode');
 assert(api.includes("'?select=*&order=created_at.desc&limit=500'"), 'registration admin table must query rows without hardcoded optional columns');
+assert(api.includes("?select=id,full_name_enc,age,cedula_enc,platform_name,email_enc,phone_enc,created_at"),
+  'registration admin table must fall back to the guaranteed base schema');
+assert(api.includes("$adminSchemaMode = 'base-compatibility'"),
+  'registration admin table must mark base-schema recovery mode');
+assert(api.includes("$compatEvidenceByRowId = $evidenceRowIds !== []"),
+  'registration admin table must restore compatibility sidecar metadata when needed');
+assert(api.includes("hprRegistrationEvidenceByRowId($evidenceRowIds, $storedRows)"),
+  'registration admin table must load encrypted row evidence for affected records');
+assert(api.includes("if ($requestedIds !== [] && count($map) === count($requestedIds))"),
+  'registration evidence lookup must avoid recursive Storage scans when direct row evidence exists');
 assert(api.includes("'bypass_circuit'=>true"), 'protected admin read must bypass an already-open Supabase circuit');
 assert(api.includes("supabaseDbRequest("), 'protected admin table must use a direct recovery read');
 assert(api.includes("'code'=>'registration_table_read_failed'"), 'registration admin table must expose a stable diagnostic code');

@@ -15,40 +15,6 @@ async function run() {
   page.on('pageerror', error => console.error('[pageerror]', error.message));
   page.on('requestfailed', request => console.error('[requestfailed]', request.url(), request.failure()?.errorText || ''));
 
-  // The sequence test is about the UI gate, not the external database. Return a
-  // successful registration response so Chromium can prove the transition order.
-  await page.route('**/api/cloudflare/turnstile/config', async route => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        ok: true,
-        enabled: false,
-        site_key: '',
-        desktop_bypass: true
-      })
-    });
-  });
-
-  await page.route('**/api/platform-registration', async route => {
-    if (route.request().method() === 'POST') {
-      await route.fulfill({
-        status: 201,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          ok: true,
-          id: '00000000-0000-4000-8000-000000000001',
-          code_uploaded: true,
-          code_filename: 'hashcod-test.zip',
-          registration_code: 'HC1-01234567-89ABCDEF-01234567-89ABCDEF',
-          registration_code_hint: '89ABCDEF'
-        })
-      });
-      return;
-    }
-    await route.continue();
-  });
-
   try {
     const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 20000 });
     assert(response && response.status() === 200, 'platform must load');
@@ -127,7 +93,7 @@ async function run() {
           'hashcodRegPhone'
         ].filter(id => document.getElementById(id)).length,
         submit: Boolean(document.getElementById('hashcodRegistrationSubmit')),
-        tableButton: Boolean(document.getElementById('hashcodRegistrationTableButton')),
+        whatsappButton: Boolean(document.getElementById('hashcodRegistrationWhatsappButton')),
         codeButton: Boolean(document.getElementById('hashcodRegCodeButton')),
         entryEvents: window.__registrationEntryEvents
       };
@@ -145,7 +111,7 @@ async function run() {
     assert.equal(state.screen, '3', 'registration root must be explicitly identified as screen 3');
     assert.equal(state.fields, 7, 'registration fields plus the code upload input must be present');
     assert.equal(state.submit, true, 'submit button missing');
-    assert.equal(state.tableButton, true, 'records icon button missing');
+    assert.equal(state.whatsappButton, true, 'WhatsApp request icon button missing');
     assert.equal(state.codeButton, true, 'platform code upload icon button missing');
 
     // Under 18 must remain blocked.
@@ -182,6 +148,8 @@ async function run() {
       'under-18 registration must keep submit non-actionable');
     assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'type'), 'button',
       'under-18 registration must not expose a submit-type button');
+    assert.equal(await page.isDisabled('#hashcodRegistrationWhatsappButton'), true,
+      'under-18 registration must keep WhatsApp disabled');
     assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
       'under-18 user must not enter');
 
@@ -216,18 +184,31 @@ async function run() {
       );
     }, { timeout: 3000 });
 
+    await page.waitForFunction(() => {
+      const button = document.getElementById('hashcodRegistrationWhatsappButton');
+      return Boolean(button && button.disabled === false && button.getAttribute('aria-disabled') === 'false');
+    }, { timeout: 3000 });
+
     await page.evaluate(() => {
       document.getElementById('hashcodRegistrationForm').requestSubmit();
     });
 
-    // Saving the row is not enough to enter: the one-time private code must be
-    // shown and acknowledged first.
+    // Code generation is local-only; no database/API submission is required.
     await page.waitForSelector('#hashcodRegistrationCodeReceipt.is-open', { state: 'visible', timeout: 5000 });
-    assert.equal(
-      (await page.textContent('#hashcodRegistrationPrivateCode')).trim(),
-      'HC1-01234567-89ABCDEF-01234567-89ABCDEF',
-      'private registration code must match the successful POST response'
+    const privateCode = (await page.textContent('#hashcodRegistrationPrivateCode')).trim();
+    assert.match(
+      privateCode,
+      /^HC1-[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}$/,
+      'private registration code must use the local HC1 format'
     );
+
+    const whatsappPayload = await page.evaluate(() => window.HashcodPlatformRegistration.buildWhatsAppMessage());
+    assert(whatsappPayload.includes('Usuario De Prueba'), 'WhatsApp payload must include the full name');
+    assert(whatsappPayload.includes('Hashcod Test'), 'WhatsApp payload must include the platform name');
+    assert(whatsappPayload.includes('test@example.com'), 'WhatsApp payload must include the email');
+    assert(whatsappPayload.includes('+1 809 555 0100'), 'WhatsApp payload must include the phone');
+    assert(whatsappPayload.includes('hashcod-test.zip'), 'WhatsApp payload must include the code filename');
+    assert(whatsappPayload.includes(privateCode), 'WhatsApp payload must include the exact generated HC1 code');
     assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
       'platform must remain blocked while the registration code receipt is open');
     assert.equal(await page.evaluate(() => window.__registrationEntryEvents), 0,
@@ -242,7 +223,7 @@ async function run() {
       && window.__registrationEntryEvents === 1
     ), { timeout: 5000 });
 
-    console.log('PASS: screen 3 blocks entry, rejects under-18, issues a private unique code, waits for acknowledgement, then enters platform.');
+    console.log('PASS: screen 3 blocks entry, rejects under-18, generates the HC1 code locally, enables WhatsApp only when complete, and includes all request data in the WhatsApp payload.');
   } finally {
     await browser.close();
   }

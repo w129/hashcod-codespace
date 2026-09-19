@@ -608,9 +608,17 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     // Read the row generically so the administrative table keeps working
     // across every deployed schema version. Only the allow-listed projection
     // below is returned to the browser; select=* never escapes this endpoint.
-    $res = supabaseDbSelect(
-        HASHCOD_PLATFORM_REGISTRATION_TABLE,
-        'select=*&order=created_at.desc&limit=500'
+    // CodeKey + adminRequire() already authorized this request. Perform a
+    // direct recovery read so a previously-open global Supabase circuit does
+    // not make the protected table appear unavailable forever.
+    $res = supabaseDbRequest(
+        HASHCOD_PLATFORM_REGISTRATION_TABLE . '?select=*&order=created_at.desc&limit=500',
+        [
+            'method'=>'GET',
+            'use_secret'=>true,
+            'bypass_circuit'=>true,
+            'timeout'=>12,
+        ]
     );
     $adminSchemaMode = 'dynamic';
     if (empty($res['ok'])) {

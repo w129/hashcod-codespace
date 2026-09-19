@@ -734,6 +734,146 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     font-variant-numeric: tabular-nums;
 }
 
+.hashcod-registration-notification-host {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 14px;
+}
+
+.hashcod-notification-list {
+    width: min(100%, 760px);
+    margin: 0 auto;
+    padding: 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 22px;
+    background: #ececec;
+    box-shadow: 0 10px 28px rgba(0,0,0,.08);
+}
+
+.hashcod-notification-stack {
+    display: block;
+}
+
+.hashcod-notification-card {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 4px;
+    box-sizing: border-box;
+    padding: 11px 14px;
+    border: 1px solid #d7d7d7;
+    border-radius: 13px;
+    background: #f8f8f8;
+    color: #111;
+    box-shadow: 0 2px 6px rgba(0,0,0,.06);
+    cursor: pointer;
+    text-align: left;
+    font-family: "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-notification-card:hover {
+    box-shadow: 0 9px 22px rgba(0,0,0,.12);
+}
+
+.hashcod-notification-card:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 2px;
+}
+
+.hashcod-notification-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.hashcod-notification-title {
+    font-size: 11px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+.hashcod-notification-count {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 3px;
+    color: #777;
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.hashcod-notification-count svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
+.hashcod-notification-subtitle {
+    color: #777;
+    font-size: 9px;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+.hashcod-notification-detail {
+    display: block;
+    overflow: hidden;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px dashed #c7c7c7;
+    color: #4f4f4f;
+    font-size: 10px;
+    line-height: 1.55;
+    font-weight: 500;
+}
+
+.hashcod-notification-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 11px;
+    min-height: 24px;
+}
+
+.hashcod-notification-badge {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: #969696;
+    color: #fff;
+    font: 700 9px/1 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-notification-footer-switch {
+    display: grid;
+    min-width: 0;
+}
+
+.hashcod-notification-footer-label {
+    grid-row: 1;
+    grid-column: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #5e5e5e;
+    font: 700 10px/1.3 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-notification-footer-label svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
 .hashcod-registration-status { min-height: 20px; margin: 12px 0 0; font-size: 10.5px; color: #666; }
 .hashcod-registration-status.is-error { color: #9c1717; }
 .hashcod-registration-status.is-success { color: #176b39; }
@@ -833,6 +973,30 @@ html[data-hashcod-theme="dark"] .hashcod-registration-faq-panel-inner,
 html.dark .hashcod-registration-faq-panel-inner {
     color: #bbb;
 }
+
+html[data-hashcod-theme="dark"] .hashcod-notification-list,
+html.dark .hashcod-notification-list {
+    background: #1b1b1b;
+    border-color: #505050;
+}
+html[data-hashcod-theme="dark"] .hashcod-notification-card,
+html.dark .hashcod-notification-card {
+    background: #242424;
+    color: #fff;
+    border-color: #4d4d4d;
+}
+html[data-hashcod-theme="dark"] .hashcod-notification-subtitle,
+html.dark .hashcod-notification-subtitle,
+html[data-hashcod-theme="dark"] .hashcod-notification-detail,
+html.dark .hashcod-notification-detail,
+html[data-hashcod-theme="dark"] .hashcod-notification-footer-label,
+html.dark .hashcod-notification-footer-label {
+    color: #c3c3c3;
+}
+html[data-hashcod-theme="dark"] .hashcod-notification-detail,
+html.dark .hashcod-notification-detail {
+    border-top-color: #555;
+}
 @media (max-width: 900px) {
     #hashcodPlatformRegistration {
         padding: 28px 24px 40px;
@@ -846,6 +1010,9 @@ html.dark .hashcod-registration-faq-panel-inner {
     .hashcod-registration-platform-upload { grid-template-columns: minmax(0, 1fr) 48px; }
     .hashcod-registration-field.is-wide, .hashcod-registration-consent { grid-column: 1; }
     .hashcod-registration-price-list > div { grid-template-columns: 1fr; gap: 2px; }
+    .hashcod-notification-list { border-radius: 16px; padding: 9px; }
+    .hashcod-notification-card { padding: 10px 11px; }
+    .hashcod-notification-card-top { align-items: flex-start; }
     .hashcod-registration-head { align-items: center; }
     .hashcod-registration-badge { display: none; }
     #hashcodRegistrationTableOverlay { padding: 10px; }

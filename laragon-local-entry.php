@@ -41,7 +41,7 @@ $baseJs = json_encode($baseRaw, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
 $html = str_replace("var base = '/';", 'var base = ' . $baseJs . ';', $html);
 $html = str_replace(
     'components/admin-hello-button.js?v=20260912-1',
-    'components/admin-hello-button.js?v=20260918-registration23',
+    'components/admin-hello-button.js?v=20260918-registration24',
     $html
 );
 
@@ -56,7 +56,7 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<script id="hashcod-legacy-auth-retired-flag">window.__hashcodLegacyAuthRetired=true;document.documentElement.dataset.hashcodLegacyAuthRetired="true";</script>'
     . '<script id="hashcod-registration-gate-preboot">(function(){window.__hashcodPlatformEntryHoldReady=false;document.documentElement.dataset.hashcodEntryGateReady="false";var queued=false;document.addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest("#bootCliEnter"):null;if(!b)return;if(window.__hashcodPlatformEntryHoldReady===true)return;e.preventDefault();e.stopPropagation();if(typeof e.stopImmediatePropagation==="function")e.stopImmediatePropagation();if(queued)return;queued=true;var old=b.textContent;b.setAttribute("aria-busy","true");b.textContent="PREPARANDO ACCESO";window.addEventListener("hashcod:entry-gate-ready",function(){queued=false;b.removeAttribute("aria-busy");if(b.textContent==="PREPARANDO ACCESO")b.textContent=old;window.setTimeout(function(){b.click();},0);},{once:true});},true);})();</script>'
     . '<style id="hashcod-platform-registration-prehide">#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}</style>'
-    . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-registration-form.css?v=20260918-22" data-hashcod-platform-registration-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-registration-form.css?v=20260918-23" data-hashcod-platform-registration-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbox-secure-links.css?v=20260914-retired1" data-hashcod-toolbox-secure-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/admin-hello-button.css?v=20260914-sequence15" data-hashcod-boot-icons-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-entry-motion.css?v=20260918-1" data-hashcod-platform-entry-motion-style="true">'
@@ -120,8 +120,8 @@ $inlineEfrJs = $efrJs !== ''
 
 $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260918-28" data-platform-entry-hold="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/platform-registration-form.js?v=20260918-28" data-hashcod-platform-registration="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260918-29" data-platform-entry-hold="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-registration-form.js?v=20260918-29" data-hashcod-platform-registration="true"></script>'
 
     . $registrationFlipTag
     . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'

@@ -204,6 +204,7 @@
     window.HashcodAdmin = Object.freeze({
         require: async function (options = {}) {
             const force = options.force === true;
+            const throwOnError = options.throwOnError === true;
             if (pending && force && !pendingForced) {
                 await pending;
                 return window.HashcodAdmin.require(options);
@@ -212,7 +213,9 @@
                 pendingForced = force;
                 pending = authenticate(force).catch(error => {
                     closeTools();
-                    setStatus(error.message || 'No se pudo verificar la CodeKey.');
+                    const message = error && error.message ? error.message : 'No se pudo verificar la CodeKey.';
+                    setStatus(message);
+                    if (throwOnError) throw error;
                     return false;
                 }).finally(() => {
                     pending = null;

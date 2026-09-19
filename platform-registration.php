@@ -753,6 +753,10 @@ if ($method === 'POST') {
                 'registration_code_sha256'=>$registrationCode['sha256'],
                 'registration_code_hint'=>$registrationCode['hint'],
                 'platform_name'=>$validated['platform_name'],
+                'full_name_enc'=>hprRegistrationEncrypt($validated['full_name']),
+                'cedula_enc'=>hprRegistrationEncrypt($validated['cedula']),
+                'email_enc'=>hprRegistrationEncrypt($validated['email']),
+                'phone_enc'=>hprRegistrationEncrypt($validated['phone']),
                 'created_at'=>gmdate('c'),
             ];
             $fallbackUpload = hprUploadFallbackRegistrationEvidence(
@@ -818,6 +822,37 @@ if ($method === 'POST') {
     }
 
     $saved = is_array($res['body'] ?? null) && !empty($res['body'][0]) ? $res['body'][0] : [];
+
+    if (!empty($saved['id'])) {
+        $rowEvidence = [
+            'format'=>'HASHCOD-REGISTRATION-EVIDENCE-3',
+            'registration_row_id'=>$saved['id'],
+            'platform_name'=>$validated['platform_name'],
+            'full_name_enc'=>hprRegistrationEncrypt($validated['full_name']),
+            'cedula_enc'=>hprRegistrationEncrypt($validated['cedula']),
+            'email_enc'=>hprRegistrationEncrypt($validated['email']),
+            'phone_enc'=>hprRegistrationEncrypt($validated['phone']),
+            'code_storage_path'=>$codeUpload['storage_path'],
+            'code_filename'=>$codeUpload['filename'],
+            'code_mime_type'=>$codeUpload['mime_type'],
+            'code_size_bytes'=>$codeUpload['size_bytes'],
+            'code_sha256'=>$codeUpload['sha256'],
+            'contract_version'=>$contractVersion,
+            'contract_sha256'=>$contractSha256,
+            'contract_accepted_at'=>$acceptedAt,
+            'acceptance_method'=>'checkbox+submit',
+            'acceptance_evidence_sha256'=>$acceptanceEvidenceSha256,
+            'registration_code_enc'=>$registrationCodeEnc,
+            'registration_code_sha256'=>$registrationCode['sha256'],
+            'registration_code_hint'=>$registrationCode['hint'],
+            'created_at'=>gmdate('c'),
+        ];
+        hprUploadFallbackRegistrationEvidence(
+            'platform-registrations/evidence-by-row/' . (string)$saved['id'],
+            $rowEvidence
+        );
+    }
+
     hprJson(201, [
         'ok'=>true,
         'id'=>$saved['id'] ?? null,
@@ -968,11 +1003,31 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             $registrationCodeReissued = true;
         }
 
+        $fullName = hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? ''));
+        $cedula = hprRegistrationDecrypt((string)($stored['cedula_enc'] ?? ''));
+        $email = hprRegistrationDecrypt((string)($stored['email_enc'] ?? ''));
+        $phone = hprRegistrationDecrypt((string)($stored['phone_enc'] ?? ''));
+
+        if (is_array($compatEvidence)) {
+            if ($fullName === '') {
+                $fullName = hprRegistrationDecrypt((string)($compatEvidence['full_name_enc'] ?? ''));
+            }
+            if ($cedula === '') {
+                $cedula = hprRegistrationDecrypt((string)($compatEvidence['cedula_enc'] ?? ''));
+            }
+            if ($email === '') {
+                $email = hprRegistrationDecrypt((string)($compatEvidence['email_enc'] ?? ''));
+            }
+            if ($phone === '') {
+                $phone = hprRegistrationDecrypt((string)($compatEvidence['phone_enc'] ?? ''));
+            }
+        }
+
         $rows[] = [
             'id'=>$stored['id'] ?? null,
-            'full_name'=>hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? '')),
+            'full_name'=>$fullName,
             'age'=>(int)($stored['age'] ?? 0),
-            'cedula'=>hprRegistrationDecrypt((string)($stored['cedula_enc'] ?? '')),
+            'cedula'=>$cedula,
             'platform_name'=>(string)($stored['platform_name'] ?? ''),
             'code_filename'=>(string)($stored['code_filename'] ?? ''),
             'code_mime_type'=>(string)($stored['code_mime_type'] ?? ''),
@@ -995,8 +1050,8 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
                 $stored['registration_code_sha256']
                 ?? ($compatEvidence['registration_code_sha256'] ?? '')
             ),
-            'email'=>hprRegistrationDecrypt((string)($stored['email_enc'] ?? '')),
-            'phone'=>hprRegistrationDecrypt((string)($stored['phone_enc'] ?? '')),
+            'email'=>$email,
+            'phone'=>$phone,
             'created_at'=>(string)($stored['created_at'] ?? ''),
         ];
     }

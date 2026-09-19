@@ -26,7 +26,9 @@ async function run() {
           ok: true,
           id: '00000000-0000-4000-8000-000000000001',
           code_uploaded: true,
-          code_filename: 'hashcod-test.zip'
+          code_filename: 'hashcod-test.zip',
+          registration_code: 'HC1-01234567-89ABCDEF-01234567-89ABCDEF',
+          registration_code_hint: '89ABCDEF'
         })
       });
       return;
@@ -163,26 +165,56 @@ async function run() {
       return Boolean(button && button.classList.contains('is-loaded') && button.getAttribute('aria-pressed') === 'true');
     }, { timeout: 3000 });
 
-    assert.equal(await page.locator('#hashcodRegistrationSubmit').isDisabled(), true,
-      'under-18 registration must keep submit disabled');
+    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'aria-disabled'), 'true',
+      'under-18 registration must keep submit non-actionable');
+    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'type'), 'button',
+      'under-18 registration must not expose a submit-type button');
     assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
       'under-18 user must not enter');
 
-    // Valid adult registration releases the gate only after the POST succeeds.
+    // Valid adult registration first unlocks contractual consent, then submit.
     await page.evaluate(() => {
       const age = document.getElementById('hashcodRegAge');
       age.value = '18';
       age.dispatchEvent(new Event('input', { bubbles: true }));
       age.dispatchEvent(new Event('change', { bubbles: true }));
     });
+
+    await page.waitForFunction(() => {
+      const consent = document.getElementById('hashcodRegConsent');
+      const progress = document.getElementById('hashcodRegistrationProgress');
+      return Boolean(consent && consent.disabled === false && progress && progress.getAttribute('aria-valuenow') === '100');
+    }, { timeout: 3000 });
+
+    await page.check('#hashcodRegConsent');
+
     await page.waitForFunction(() => {
       const button = document.getElementById('hashcodRegistrationSubmit');
-      return Boolean(button && button.disabled === false);
+      return Boolean(
+        button
+        && button.getAttribute('aria-disabled') === 'false'
+        && button.getAttribute('type') === 'submit'
+      );
     }, { timeout: 3000 });
 
     await page.evaluate(() => {
       document.getElementById('hashcodRegistrationForm').requestSubmit();
     });
+
+    // Saving the row is not enough to enter: the one-time private code must be
+    // shown and acknowledged first.
+    await page.waitForSelector('#hashcodRegistrationCodeReceipt.is-open', { state: 'visible', timeout: 5000 });
+    assert.equal(
+      (await page.textContent('#hashcodRegistrationPrivateCode')).trim(),
+      'HC1-01234567-89ABCDEF-01234567-89ABCDEF',
+      'private registration code must match the successful POST response'
+    );
+    assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
+      'platform must remain blocked while the registration code receipt is open');
+    assert.equal(await page.evaluate(() => window.__registrationEntryEvents), 0,
+      'platform-entered must not fire before code acknowledgement');
+
+    await page.click('#hashcodRegistrationContinueAfterCode');
 
     await page.waitForFunction(() => (
       document.documentElement.dataset.hashcodPlatformEntered === 'true'
@@ -191,7 +223,7 @@ async function run() {
       && window.__registrationEntryEvents === 1
     ), { timeout: 5000 });
 
-    console.log('PASS: screen 3 blocks entry, rejects under-18, saves adult registration, then enters platform.');
+    console.log('PASS: screen 3 blocks entry, rejects under-18, issues a private unique code, waits for acknowledgement, then enters platform.');
   } finally {
     await browser.close();
   }

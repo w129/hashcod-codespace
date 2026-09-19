@@ -359,6 +359,27 @@
         `;
     }
 
+    function registrationCodeReceiptMarkup() {
+        return `
+            <div id="hashcodRegistrationCodeReceipt" aria-hidden="true">
+                <section class="hashcod-registration-code-card" role="dialog" aria-modal="true" aria-labelledby="hashcodRegistrationCodeTitle">
+                    <div class="hashcod-registration-code-kicker">HASHCOD · REGISTRATION CODE</div>
+                    <h2 id="hashcodRegistrationCodeTitle">Guarda tu código criptográfico</h2>
+                    <p>
+                        Este código identifica este registro. Se muestra en claro solamente en esta confirmación.
+                        Guárdalo para verificar futuras comunicaciones relacionadas con tu solicitud.
+                    </p>
+                    <code id="hashcodRegistrationPrivateCode" aria-label="Código criptográfico del registro"></code>
+                    <div class="hashcod-registration-code-actions">
+                        <button id="hashcodRegistrationCopyCode" type="button">COPIAR CÓDIGO</button>
+                        <button id="hashcodRegistrationContinueAfterCode" type="button">CONTINUAR A HASHCOD</button>
+                    </div>
+                    <span id="hashcodRegistrationCodeCopyStatus" class="hashcod-registration-code-copy-status" role="status" aria-live="polite"></span>
+                </section>
+            </div>
+        `;
+    }
+
     function tableOverlayMarkup() {
         return `
             <div id="hashcodRegistrationTableOverlay" aria-hidden="true">
@@ -396,6 +417,9 @@
         }
         if (!document.getElementById('hashcodRegistrationTableOverlay')) {
             document.body.insertAdjacentHTML('beforeend', tableOverlayMarkup());
+        }
+        if (!document.getElementById('hashcodRegistrationCodeReceipt')) {
+            document.body.insertAdjacentHTML('beforeend', registrationCodeReceiptMarkup());
         }
         bind();
         validate();
@@ -637,25 +661,86 @@
             });
             const data = await response.json().catch(function () { return {}; });
             if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo guardar el registro.');
+            if (!data.registration_code || typeof data.registration_code !== 'string') {
+                throw new Error('El registro fue guardado, pero no se recibió el código criptográfico de confirmación.');
+            }
             registrationSaved = true;
             document.getElementById('hashcodRegistrationForm').reset();
             resetCodeUpload();
             document.querySelectorAll('#hashcodRegistrationForm input[aria-invalid]').forEach(function (input) {
                 input.setAttribute('aria-invalid', 'false');
             });
-            status('Registro y aceptación contractual guardados correctamente. Entrando a Hashcod Codespace…', 'success');
+            status('Registro y aceptación contractual guardados correctamente.', 'success');
+            showRegistrationCodeReceipt(data.registration_code);
             window.dispatchEvent(new CustomEvent('hashcod:platform-registration-saved', {
-                detail: { screen: 3, saved: true }
+                detail: { screen: 3, saved: true, registrationCodeIssued: true }
             }));
-            if (registrationGateResolve) {
-                registrationGateResolve({ ok: true, saved: true });
-                registrationGateResolve = null;
-            }
         } catch (error) {
             status(error && error.message ? error.message : 'No se pudo guardar el registro.', 'error');
         } finally {
             validate();
         }
+    }
+
+    function showRegistrationCodeReceipt(code) {
+        const overlay = document.getElementById('hashcodRegistrationCodeReceipt');
+        const codeNode = document.getElementById('hashcodRegistrationPrivateCode');
+        const copyStatus = document.getElementById('hashcodRegistrationCodeCopyStatus');
+        if (!overlay || !codeNode) return false;
+
+        codeNode.textContent = String(code);
+        if (copyStatus) copyStatus.textContent = '';
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+
+        const continueButton = document.getElementById('hashcodRegistrationContinueAfterCode');
+        if (continueButton) window.setTimeout(function () { continueButton.focus(); }, 0);
+        return true;
+    }
+
+    async function copyRegistrationCode() {
+        const codeNode = document.getElementById('hashcodRegistrationPrivateCode');
+        const copyStatus = document.getElementById('hashcodRegistrationCodeCopyStatus');
+        const value = codeNode ? String(codeNode.textContent || '').trim() : '';
+        if (!value) return false;
+
+        try {
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                await navigator.clipboard.writeText(value);
+            } else {
+                const area = document.createElement('textarea');
+                area.value = value;
+                area.setAttribute('readonly', '');
+                area.style.position = 'fixed';
+                area.style.opacity = '0';
+                document.body.appendChild(area);
+                area.select();
+                document.execCommand('copy');
+                area.remove();
+            }
+            if (copyStatus) copyStatus.textContent = 'Código copiado.';
+            return true;
+        } catch (_) {
+            if (copyStatus) copyStatus.textContent = 'Selecciona el código y cópialo manualmente.';
+            return false;
+        }
+    }
+
+    function continueAfterRegistrationCode() {
+        if (!registrationSaved) return false;
+        const overlay = document.getElementById('hashcodRegistrationCodeReceipt');
+        const codeNode = document.getElementById('hashcodRegistrationPrivateCode');
+        if (overlay) {
+            overlay.classList.remove('is-open');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+        // Clear the plaintext from the DOM before entering the platform.
+        if (codeNode) codeNode.textContent = '';
+        if (registrationGateResolve) {
+            registrationGateResolve({ ok: true, saved: true, codeAcknowledged: true });
+            registrationGateResolve = null;
+        }
+        return true;
     }
 
     function ensureAdminEngine() {
@@ -765,7 +850,10 @@
         const privacyTrigger = document.getElementById('hashcodPrivacyPreviewTrigger');
         const privacyCard = document.getElementById('hashcodPrivacyPreviewCard');
         const overlay = document.getElementById('hashcodRegistrationTableOverlay');
-        if (!form || !cedula || !tableButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !overlay) return;
+        const copyRegistrationCodeButton = document.getElementById('hashcodRegistrationCopyCode');
+        const continueAfterCodeButton = document.getElementById('hashcodRegistrationContinueAfterCode');
+        const codeReceipt = document.getElementById('hashcodRegistrationCodeReceipt');
+        if (!form || !cedula || !tableButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !overlay || !copyRegistrationCodeButton || !continueAfterCodeButton || !codeReceipt) return;
         bound = true;
         form.addEventListener('input', scheduleValidate);
         form.addEventListener('change', scheduleValidate);
@@ -975,6 +1063,8 @@
         });
 
         tableButton.addEventListener('click', openTable);
+        copyRegistrationCodeButton.addEventListener('click', copyRegistrationCode);
+        continueAfterCodeButton.addEventListener('click', continueAfterRegistrationCode);
         overlay.querySelector('.hashcod-registration-table-close').addEventListener('click', function () {
             overlay.classList.remove('is-open');
             overlay.setAttribute('aria-hidden', 'true');
@@ -1010,6 +1100,13 @@
             tableOverlay.classList.remove('is-open');
             tableOverlay.setAttribute('aria-hidden', 'true');
         }
+        const codeReceipt = document.getElementById('hashcodRegistrationCodeReceipt');
+        const privateCode = document.getElementById('hashcodRegistrationPrivateCode');
+        if (codeReceipt) {
+            codeReceipt.classList.remove('is-open');
+            codeReceipt.setAttribute('aria-hidden', 'true');
+        }
+        if (privateCode) privateCode.textContent = '';
 
         // Fade the registration layer instead of dropping a full-viewport node
         // in a single frame. The platform is already painted underneath.

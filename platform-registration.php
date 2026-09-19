@@ -53,6 +53,49 @@ function hprLower(string $value): string {
         : strtolower($value);
 }
 
+function hprRegistrationCryptoKey(): string {
+    static $key = null;
+    if (is_string($key) && strlen($key) === 32) return $key;
+
+    $candidates = [
+        secretGet('L8_DATA_ENCRYPTION_KEY', ''),
+        secretGet('L8_VAULT_MASTER_KEY', ''),
+        secretGet('L8_AUTH_PEPPER', ''),
+        secretGet('SUPABASE_SECRET_KEY', ''),
+    ];
+
+    foreach ($candidates as $candidate) {
+        $candidate = trim((string)$candidate);
+        if ($candidate === '') continue;
+        $key = hash_hmac('sha256', 'hashcod|platform-registration|stable-v2', $candidate, true);
+        return $key;
+    }
+
+    throw new RuntimeException('No stable registration encryption key is configured.');
+}
+
+function hprRegistrationEncrypt(string $plaintext): string {
+    return secretsEncrypt($plaintext, hprRegistrationCryptoKey());
+}
+
+function hprRegistrationDecrypt(string $blob): string {
+    if ($blob === '') return '';
+
+    // New records use the stable registration key.
+    try {
+        $plain = secretsDecrypt($blob, hprRegistrationCryptoKey());
+        if ($plain !== '') return $plain;
+    } catch (Throwable $ignored) {
+    }
+
+    // Backward compatibility for records encrypted before the stable key.
+    try {
+        return secretsDecrypt($blob);
+    } catch (Throwable $ignored) {
+        return '';
+    }
+}
+
 function hprReadBody(): array {
     $contentType = strtolower((string)($_SERVER['CONTENT_TYPE'] ?? ''));
     if (str_starts_with($contentType, 'multipart/form-data')) {
@@ -240,7 +283,7 @@ function hprUploadFallbackRegistrationEvidence(string $codeStoragePath, array $m
         return ['ok'=>false, 'status'=>0, 'error'=>'No se pudo serializar la evidencia de compatibilidad.'];
     }
 
-    $encrypted = secretsEncrypt($json);
+    $encrypted = hprRegistrationEncrypt($json);
     if (!is_string($encrypted) || !str_starts_with($encrypted, 'l8e1:')) {
         return ['ok'=>false, 'status'=>0, 'error'=>'No se pudo cifrar la evidencia de compatibilidad.'];
     }
@@ -293,7 +336,7 @@ function hprDownloadRegistrationEvidence(string $path): array {
         return ['ok'=>false, 'data'=>null];
     }
 
-    $json = secretsDecrypt((string)$res['raw']);
+    $json = hprRegistrationDecrypt((string)$res['raw']);
     if (!is_string($json) || $json === '') return ['ok'=>false, 'data'=>null];
     $data = json_decode($json, true);
     if (!is_array($data)) return ['ok'=>false, 'data'=>null];
@@ -609,15 +652,15 @@ if ($method === 'POST') {
         $acceptedAt
     );
     $registrationCode = hprGenerateRegistrationCode();
-    $registrationCodeEnc = secretsEncrypt($registrationCode['plain']);
+    $registrationCodeEnc = hprRegistrationEncrypt($registrationCode['plain']);
     if (!is_string($registrationCodeEnc) || !str_starts_with($registrationCodeEnc, 'l8e1:')) {
         hprJson(503, ['ok'=>false, 'error'=>'No se pudo proteger el código criptográfico del registro.']);
     }
 
     $row = [
-        'full_name_enc'=>secretsEncrypt($validated['full_name']),
+        'full_name_enc'=>hprRegistrationEncrypt($validated['full_name']),
         'age'=>$validated['age'],
-        'cedula_enc'=>secretsEncrypt($validated['cedula']),
+        'cedula_enc'=>hprRegistrationEncrypt($validated['cedula']),
         'platform_name'=>$validated['platform_name'],
         'code_filename'=>$codeUpload['filename'],
         'code_mime_type'=>$codeUpload['mime_type'],
@@ -632,8 +675,8 @@ if ($method === 'POST') {
         'registration_code_enc'=>$registrationCodeEnc,
         'registration_code_sha256'=>$registrationCode['sha256'],
         'registration_code_hint'=>$registrationCode['hint'],
-        'email_enc'=>secretsEncrypt($validated['email']),
-        'phone_enc'=>secretsEncrypt($validated['phone']),
+        'email_enc'=>hprRegistrationEncrypt($validated['email']),
+        'phone_enc'=>hprRegistrationEncrypt($validated['phone']),
     ];
     foreach (['full_name_enc','cedula_enc','email_enc','phone_enc'] as $encryptedField) {
         if (!is_string($row[$encryptedField]) || !str_starts_with($row[$encryptedField], 'l8e1:')) {
@@ -859,7 +902,7 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
         $registrationCode = '';
         $registrationCodeEnc = (string)($stored['registration_code_enc'] ?? '');
         if ($registrationCodeEnc !== '') {
-            $registrationCode = secretsDecrypt($registrationCodeEnc);
+            $registrationCode = hprRegistrationDecrypt($registrationCodeEnc);
         }
 
         $compatEvidence = null;
@@ -880,15 +923,15 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
         if ($registrationCode === '' && is_array($compatEvidence)) {
             $compatCodeEnc = (string)($compatEvidence['registration_code_enc'] ?? '');
             if ($compatCodeEnc !== '') {
-                $registrationCode = secretsDecrypt($compatCodeEnc);
+                $registrationCode = hprRegistrationDecrypt($compatCodeEnc);
             }
         }
 
         $rows[] = [
             'id'=>$stored['id'] ?? null,
-            'full_name'=>secretsDecrypt((string)($stored['full_name_enc'] ?? '')),
+            'full_name'=>hprRegistrationDecrypt((string)($stored['full_name_enc'] ?? '')),
             'age'=>(int)($stored['age'] ?? 0),
-            'cedula'=>secretsDecrypt((string)($stored['cedula_enc'] ?? '')),
+            'cedula'=>hprRegistrationDecrypt((string)($stored['cedula_enc'] ?? '')),
             'platform_name'=>(string)($stored['platform_name'] ?? ''),
             'code_filename'=>(string)($stored['code_filename'] ?? ''),
             'code_mime_type'=>(string)($stored['code_mime_type'] ?? ''),
@@ -910,8 +953,8 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
                 $stored['registration_code_sha256']
                 ?? ($compatEvidence['registration_code_sha256'] ?? '')
             ),
-            'email'=>secretsDecrypt((string)($stored['email_enc'] ?? '')),
-            'phone'=>secretsDecrypt((string)($stored['phone_enc'] ?? '')),
+            'email'=>hprRegistrationDecrypt((string)($stored['email_enc'] ?? '')),
+            'phone'=>hprRegistrationDecrypt((string)($stored['phone_enc'] ?? '')),
             'created_at'=>(string)($stored['created_at'] ?? ''),
         ];
     }

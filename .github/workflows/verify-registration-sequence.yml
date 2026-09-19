@@ -10,6 +10,7 @@ on:
       - registration-flip-build/**
       - Dockerfile
       - platform-registration.php
+      - supabase.php
       - security.php
       - cloudflare-turnstile.php
       - platform-registration-contract.php

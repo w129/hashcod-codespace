@@ -12,6 +12,7 @@ const schema = fs.readFileSync(path.join(repoDir, 'supabase/schema.sql'), 'utf8'
 const hosted = fs.readFileSync(path.join(repoDir, 'l8-html.php'), 'utf8');
 const local = fs.readFileSync(path.join(repoDir, 'laragon-local-entry.php'), 'utf8');
 const cleanup = fs.readFileSync(path.join(repoDir, 'cleanup-platform-registration.php'), 'utf8');
+const flipEntry = fs.readFileSync(path.join(repoDir, 'registration-flip-build/entry.tsx'), 'utf8');
 
 for (const id of [
   'hashcodRegFullName',
@@ -43,6 +44,9 @@ assert(js.includes('invalidateWhatsappDispatch()'), 'form edits must invalidate 
 assert(js.includes('id="hashcodRegistrationWhatsappButton"'), 'WhatsApp action button missing');
 assert(js.includes('aria-label="Entrar a Hashcod Codespace" disabled'), 'entry button label/gate missing');
 assert(js.includes('ENTRAR A HASHCOD CODESPACE'), 'entry button visible label missing');
+assert(flipEntry.includes("'ENTRAR A HASHCOD CODESPACE'"), 'React FlipButton entry label missing');
+assert(flipEntry.includes("'ENTRANDO…'"), 'React FlipButton entering state missing');
+assert(flipEntry.includes('aria-label="Entrar a Hashcod Codespace"'), 'React FlipButton aria label missing');
 assert(js.includes('title="Enviar solicitud por WhatsApp" disabled'), 'WhatsApp button must start disabled');
 assert(js.includes('viewBox="0 0 36 32"'), 'responsive WhatsApp SVG viewBox missing');
 assert(js.includes('M 5 3 L 5 9 L 7 9 L 7 5'), 'requested replacement SVG path missing');
@@ -102,8 +106,8 @@ assert(cleanup.includes("/empty'"), 'Storage bucket must be emptied through the 
 assert(cleanup.includes('supabaseDbHardDelete'), 'legacy registration rows must be purged');
 assert(!cleanup.includes('delete from storage.objects'), 'Storage metadata must never be deleted directly with SQL');
 
-assert(hosted.includes('platform-registration-form.js?v=20260919-41'), 'hosted registration JS cache version missing');
-assert(local.includes('platform-registration-form.js?v=20260919-41'), 'local registration JS cache version missing');
+assert(hosted.includes('platform-registration-form.js?v=20260919-42'), 'hosted registration JS cache version missing');
+assert(local.includes('platform-registration-form.js?v=20260919-42'), 'local registration JS cache version missing');
 assert(hosted.includes('platform-registration-form.css?v=20260919-30'), 'hosted registration CSS cache version missing');
 assert(local.includes('platform-registration-form.css?v=20260919-30'), 'local registration CSS cache version missing');
 

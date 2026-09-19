@@ -293,7 +293,7 @@
     }
 
     async function syncAll(reason) {
-        const syncReason = syncReason;
+        const syncReason = reason || 'scheduled';
         const automatic = !['manual', 'local-save', 'admin-verified', 'online'].includes(syncReason);
         if (state.syncing || navigator.onLine === false) return false;
         if (automatic && document.visibilityState === 'hidden') return false;

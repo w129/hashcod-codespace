@@ -7,6 +7,7 @@
     const BUTTON_ID = 'topBarWindowsHelloBtn';
     const STYLE_ID = 'topBarWindowsHelloStyle';
     const HELLO_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path fill="currentColor" d="M 10 3 L 10 5 L 18 5 L 18 3 L 10 3 z M 18 5 L 18 23 L 20 23 L 20 5 L 18 5 z M 18 23 L 14 23 L 14 25 L 18 25 L 18 23 z M 14 23 L 14 10 L 12 10 L 12 23 L 14 23 z M 10 5 L 8 5 L 8 27 L 10 27 L 10 5 z M 10 27 L 10 29 L 22 29 L 22 27 L 10 27 z M 22 27 L 24 27 L 24 23 L 25 23 L 25 15 L 26 15 L 26 11 L 24 11 L 24 15 L 23 15 L 23 23 L 22 23 L 22 27 z"></path></svg>';
+    let topbarObserver = null;
 
     function injectStyle() {
         if (document.getElementById(STYLE_ID)) return;
@@ -133,6 +134,15 @@
         }
 
         render(button, document.documentElement.dataset.adminAuthenticated === 'true');
+
+        if (!topbarObserver && typeof MutationObserver === 'function') {
+            topbarObserver = new MutationObserver(function () {
+                if (!document.getElementById(BUTTON_ID)) {
+                    requestAnimationFrame(mount);
+                }
+            });
+            topbarObserver.observe(topBarRight, { childList: true });
+        }
         return true;
     }
 
@@ -157,7 +167,7 @@
         boot();
     }
 
-    new MutationObserver(function () {
+    window.addEventListener('hashcod:platform-entered', function () {
         if (!document.getElementById(BUTTON_ID)) mount();
-    }).observe(document.documentElement, { childList: true, subtree: true });
+    });
 })();

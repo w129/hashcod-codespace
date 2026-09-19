@@ -267,6 +267,72 @@ function hprMissingAnyColumn(string $error, array $columns): bool {
     return false;
 }
 
+function hprDownloadRegistrationEvidence(string $path): array {
+    $path = ltrim(str_replace('\\', '/', $path), '/');
+    if ($path === '') return ['ok'=>false, 'data'=>null];
+
+    $res = supabaseRequest(
+        'storage/v1/object/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET) . '/' . $path,
+        [
+            'method'=>'GET',
+            'use_secret'=>true,
+            'content_type'=>'',
+            'raw_response'=>true,
+            'bypass_circuit'=>true,
+            'timeout'=>20,
+        ]
+    );
+    if (empty($res['ok']) || !is_string($res['raw'] ?? null) || $res['raw'] === '') {
+        return ['ok'=>false, 'data'=>null];
+    }
+
+    $json = secretsDecrypt((string)$res['raw']);
+    if (!is_string($json) || $json === '') return ['ok'=>false, 'data'=>null];
+    $data = json_decode($json, true);
+    if (!is_array($data)) return ['ok'=>false, 'data'=>null];
+
+    return ['ok'=>true, 'data'=>$data];
+}
+
+function hprRegistrationEvidenceByRowId(): array {
+    $map = [];
+    $list = supabaseRequest(
+        'storage/v1/object/list/' . rawurlencode(HASHCOD_PLATFORM_REGISTRATION_BUCKET),
+        [
+            'method'=>'POST',
+            'use_secret'=>true,
+            'bypass_circuit'=>true,
+            'body'=>[
+                'prefix'=>'platform-registrations/code',
+                'limit'=>1000,
+                'offset'=>0,
+                'sortBy'=>['column'=>'created_at','order'=>'desc'],
+                'search'=>'.registration-evidence.l8e1',
+            ],
+            'timeout'=>20,
+        ]
+    );
+
+    $objects = is_array($list['body'] ?? null) ? $list['body'] : [];
+    foreach ($objects as $object) {
+        if (!is_array($object)) continue;
+        $name = (string)($object['name'] ?? '');
+        if ($name === '' || !str_ends_with($name, '.registration-evidence.l8e1')) continue;
+
+        // Supabase list may return names relative to the requested prefix.
+        $path = str_starts_with($name, 'platform-registrations/code')
+            ? $name
+            : 'platform-registrations/code/' . ltrim($name, '/');
+
+        $evidence = hprDownloadRegistrationEvidence($path);
+        $data = is_array($evidence['data'] ?? null) ? $evidence['data'] : null;
+        if (!$data) continue;
+        $rowId = (string)($data['registration_row_id'] ?? '');
+        if ($rowId !== '') $map[$rowId] = $data;
+    }
+    return $map;
+}
+
 function hprGenerateRegistrationCode(): array {
     // 128 bits of server-side CSPRNG entropy. The readable grouped hex format
     // is shown once to the registrant; the database stores an encrypted copy
@@ -635,9 +701,54 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
     }
 
     $storedRows = is_array($res['body'] ?? null) ? $res['body'] : [];
+
+    // Only the CodeKey-protected administrative view resolves plaintext
+    // registration codes. Prefer the encrypted DB column; compatibility-mode
+    // rows can be recovered from their encrypted private sidecars.
+    $needsCompatibilityEvidence = false;
+    foreach ($storedRows as $storedRowProbe) {
+        if (!is_array($storedRowProbe)) continue;
+        if ((string)($storedRowProbe['registration_code_enc'] ?? '') === '') {
+            $needsCompatibilityEvidence = true;
+            break;
+        }
+    }
+    $compatEvidenceByRowId = $needsCompatibilityEvidence
+        ? hprRegistrationEvidenceByRowId()
+        : [];
+
     $rows = [];
     foreach ($storedRows as $stored) {
         if (!is_array($stored)) continue;
+
+        $registrationCode = '';
+        $registrationCodeEnc = (string)($stored['registration_code_enc'] ?? '');
+        if ($registrationCodeEnc !== '') {
+            $registrationCode = secretsDecrypt($registrationCodeEnc);
+        }
+
+        $compatEvidence = null;
+        $rowIdKey = (string)($stored['id'] ?? '');
+        if ($registrationCode === '' && $rowIdKey !== '' && isset($compatEvidenceByRowId[$rowIdKey])) {
+            $compatEvidence = $compatEvidenceByRowId[$rowIdKey];
+        } elseif (
+            $registrationCode === ''
+            && (string)($stored['code_storage_path'] ?? '') !== ''
+        ) {
+            $compatPath = (string)$stored['code_storage_path'] . '.registration-evidence.l8e1';
+            $compatDownload = hprDownloadRegistrationEvidence($compatPath);
+            if (!empty($compatDownload['ok']) && is_array($compatDownload['data'] ?? null)) {
+                $compatEvidence = $compatDownload['data'];
+            }
+        }
+
+        if ($registrationCode === '' && is_array($compatEvidence)) {
+            $compatCodeEnc = (string)($compatEvidence['registration_code_enc'] ?? '');
+            if ($compatCodeEnc !== '') {
+                $registrationCode = secretsDecrypt($compatCodeEnc);
+            }
+        }
+
         $rows[] = [
             'id'=>$stored['id'] ?? null,
             'full_name'=>secretsDecrypt((string)($stored['full_name_enc'] ?? '')),
@@ -654,9 +765,16 @@ if ($method === 'GET' && (string)($_GET['view'] ?? '') === 'admin') {
             'contract_accepted_at'=>(string)($stored['contract_accepted_at'] ?? ''),
             'acceptance_method'=>(string)($stored['acceptance_method'] ?? ''),
             'acceptance_evidence_sha256'=>(string)($stored['acceptance_evidence_sha256'] ?? ''),
-            'registration_code_stored'=>((string)($stored['registration_code_sha256'] ?? '')) !== '',
-            'registration_code_hint'=>(string)($stored['registration_code_hint'] ?? ''),
-            'registration_code_sha256'=>(string)($stored['registration_code_sha256'] ?? ''),
+            'registration_code'=>$registrationCode,
+            'registration_code_stored'=>$registrationCode !== '' || ((string)($stored['registration_code_sha256'] ?? '')) !== '',
+            'registration_code_hint'=>(string)(
+                $stored['registration_code_hint']
+                ?? ($compatEvidence['registration_code_hint'] ?? '')
+            ),
+            'registration_code_sha256'=>(string)(
+                $stored['registration_code_sha256']
+                ?? ($compatEvidence['registration_code_sha256'] ?? '')
+            ),
             'email'=>secretsDecrypt((string)($stored['email_enc'] ?? '')),
             'phone'=>secretsDecrypt((string)($stored['phone_enc'] ?? '')),
             'created_at'=>(string)($stored['created_at'] ?? ''),

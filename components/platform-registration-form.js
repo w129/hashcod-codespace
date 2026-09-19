@@ -348,6 +348,11 @@
                             </div>
                         </div>
                     </div>
+                    <div
+                        id="hashcodRegistrationNotificationListHost"
+                        class="hashcod-registration-notification-host"
+                        aria-label="Información del proceso de validación y certificación"
+                    ></div>
                 </div>
                 <p id="hashcodRegistrationStatus" class="hashcod-registration-status" role="status" aria-live="polite"></p>
             </form>

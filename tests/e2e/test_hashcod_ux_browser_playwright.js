@@ -178,6 +178,19 @@ async function run() {
       age.dispatchEvent(new Event('input', { bubbles: true }));
       age.dispatchEvent(new Event('change', { bubbles: true }));
     });
+
+    await page.waitForFunction(() => {
+      const consent = document.getElementById('hashcodRegConsent');
+      return Boolean(consent && consent.disabled === false);
+    }, { timeout: 3000 });
+
+    await page.evaluate(() => {
+      const consent = document.getElementById('hashcodRegConsent');
+      consent.checked = true;
+      consent.dispatchEvent(new Event('input', { bubbles: true }));
+      consent.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
     await page.waitForTimeout(100);
     assert.equal(await page.isEnabled('#hashcodRegistrationSubmit'), true,
       '18+ completed registration must enable submit in the real browser');

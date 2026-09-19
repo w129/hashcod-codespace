@@ -18,6 +18,9 @@ const footer = read('components/platform-entry-capability-footer.js');
 const footerFix = read('components/platform-entry-capability-footer-fix.js');
 const admin = read('components/admin-device.js');
 const codekeyRescue = read('components/admin-codekey-picker-rescue.js');
+const creditRelocate = read('components/boot-brand-credit-relocate.js');
+const downloadLayout = read('components/boot-local-download-layout-fix.js');
+const authVectorLayout = read('components/auth-vector-layout-fix.js');
 const hosted = read('l8-html.php');
 const local = read('laragon-local-entry.php');
 
@@ -68,6 +71,20 @@ assert(codekeyRescue.includes('function scheduleEftGateSync()'), 'EFT CodeKey ga
 assert(codekeyRescue.includes('gateMutationRelevant'), 'EFT CodeKey observer must filter unrelated DOM changes');
 assert(codekeyRescue.includes("document.visibilityState === 'hidden'"), 'EFT CodeKey gate must pause hidden-tab layout work');
 
+assert(creditRelocate.includes('let relocateFrame = 0'), 'boot credit relocation must be frame-batched');
+assert(creditRelocate.includes('function stopRelocationWatch()'), 'boot credit observer must have teardown');
+assert(creditRelocate.includes("'hashcod:final-entry-screen'"), 'boot credit observer must stop after boot');
+
+assert(downloadLayout.includes('let layoutFrame = 0'), 'download layout work must be frame-batched');
+assert(downloadLayout.includes('let settleTimer = 0'), 'download layout settle work must be deduplicated');
+assert(downloadLayout.includes('function stopLayoutWatch()'), 'download layout observer must have teardown');
+assert(!downloadLayout.includes('setTimeout(apply, 1800)'), 'download layout must not schedule repeated long settle passes');
+
+assert(authVectorLayout.includes('function observeAuthRoot()'), 'auth layout observer must migrate to the auth root');
+assert(authVectorLayout.includes("document.getElementById('authWrapper') || document.body"), 'auth layout observer must prefer local scope');
+assert(authVectorLayout.includes('function stopLayoutTracking()'), 'auth layout observer must have teardown');
+assert(!authVectorLayout.includes("observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true"), 'auth layout must not permanently observe all document attributes');
+
 assert(hosted.includes("$rareFolderExternalTag = $rareFolderBundle === ''"), 'production must not parse Rare UI twice when the inline bundle exists');
 assert(local.includes("$rareExternal = $rareBundle === ''"), 'local runtime must not parse Rare UI twice when the inline bundle exists');
 
@@ -76,7 +93,10 @@ for (const token of [
   'platform-entry-capability-footer.js?v=20260919-perf1',
   'platform-entry-capability-footer-fix.js?v=20260919-perf1',
   'auth-tabs-rescue.js?v=20260919-perf1',
-  'efr-code-editor.js?v=20260919-perf1'
+  'efr-code-editor.js?v=20260919-perf1',
+  'admin-codekey-picker-rescue.js?v=20260919-perf1',
+  'boot-brand-credit-relocate.js?v=20260919-perf1',
+  'boot-local-download-layout-fix.js?v=20260919-perf1'
 ]) {
   assert(hosted.includes(token), 'hosted cache-bust missing: ' + token);
 }
@@ -86,7 +106,9 @@ for (const token of [
   'platform-entry-capability-footer.js?v=20260919-perf1',
   'platform-entry-capability-footer-fix.js?v=20260919-perf1',
   'auth-tabs-rescue.js?v=20260919-perf1',
-  'efr-code-editor.js?v=20260919-perf1'
+  'efr-code-editor.js?v=20260919-perf1',
+  'admin-codekey-picker-rescue.js?v=20260919-perf1',
+  'boot-brand-credit-relocate.js?v=20260919-perf1'
 ]) {
   assert(local.includes(token), 'local cache-bust missing: ' + token);
 }

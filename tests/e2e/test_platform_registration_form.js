@@ -233,7 +233,8 @@ assert(api.includes("'registration_code_reissued'=>$registrationCodeReissued"), 
 assert(js.includes('row.registration_code_reissued'), 'protected table must label reissued registration codes');
 assert(js.includes('REEMPLAZO'), 'reissued code label missing');
 
-assert(api.includes('function hprRegistrationEvidenceByRowId(array $rowIds = [], array $storedRows = [])'), 'compatibility registrations must recover codes from private evidence sidecars');
+assert(api.includes('function hprRegistrationEvidenceByRowId('), 'compatibility registrations must recover codes from private evidence sidecars');
+assert(api.includes('bool $allowLegacyScan = true'), 'registration evidence helper must expose the fast interactive mode');
 assert(js.includes('row.registration_code ?'), 'protected table must render the exact registration code');
 assert(js.includes('hashcod-registration-code-value'), 'exact registration code table styling hook missing');
 assert(!js.includes('••••••••-'), 'protected table must no longer mask the registration code');

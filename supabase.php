@@ -259,7 +259,11 @@ function supabaseConfig($forceRefresh = false) {
 
 function supabaseRequest($path, $options = []) {
     // 1. Verificación del Circuit Breaker (Fast-fail en < 0.1ms sin abrir sockets)
-    if (supabaseCircuitIsOpen()) {
+    // A protected administrative caller may explicitly perform one recovery
+    // probe to Supabase. Successful probes automatically close/reset the
+    // breaker through supabaseCircuitRecordSuccess() below.
+    $bypassCircuit = !empty($options['bypass_circuit']);
+    if (!$bypassCircuit && supabaseCircuitIsOpen()) {
         return [
             'ok' => false,
             'status' => 503,

@@ -789,7 +789,7 @@
             <table class="hashcod-registration-table">
                 <thead><tr>
                     <th>ID</th><th>Nombre con apellidos</th><th>Edad</th><th>Cédula</th>
-                    <th>Plataforma</th><th>Código</th><th>Contrato</th><th>Evidencia</th><th>Correo electrónico</th><th>Teléfono</th><th>Fecha</th>
+                    <th>Plataforma</th><th>Archivo</th><th>Código de registro</th><th>Contrato</th><th>Evidencia</th><th>Correo electrónico</th><th>Teléfono</th><th>Fecha</th>
                 </tr></thead>
                 <tbody>${rows.map(function (row) {
                     return '<tr>' +
@@ -799,6 +799,7 @@
                         '<td>' + escapeHtml(row.cedula) + '</td>' +
                         '<td>' + escapeHtml(row.platform_name) + '</td>' +
                         '<td>' + escapeHtml(row.code_filename || '') + (row.code_size_bytes ? ' (' + escapeHtml(Math.round(Number(row.code_size_bytes) / 1024)) + ' KB)' : '') + '</td>' +
+                        '<td>' + (row.registration_code_stored ? '<span title="El código completo permanece cifrado">••••••••-' + escapeHtml(row.registration_code_hint || '') + '</span><br><small>' + escapeHtml((row.registration_code_sha256 || '').slice(0, 16)) + '…</small>' : '') + '</td>' +
                         '<td>' + escapeHtml(row.contract_version || '') + '<br><small>' + escapeHtml(row.contract_accepted_at || '') + '</small></td>' +
                         '<td><small>' + escapeHtml((row.acceptance_evidence_sha256 || '').slice(0, 16)) + '…</small></td>' +
                         '<td>' + escapeHtml(row.email) + '</td>' +

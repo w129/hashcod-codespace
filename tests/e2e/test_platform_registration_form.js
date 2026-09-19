@@ -443,9 +443,9 @@ assert(css.includes('.hashcod-notification-card'), 'NotificationList card stylin
 
 // Hosted/local wiring and retired sign removal.
 assert(hosted.includes('platform-registration-form.css?v=20260918-28'), 'hosted registration CSS missing');
-assert(hosted.includes('platform-registration-form.js?v=20260919-38'), 'hosted registration JS missing');
+assert(hosted.includes('platform-registration-form.js?v=20260919-39'), 'hosted registration JS missing');
 assert(local.includes('platform-registration-form.css?v=20260918-28'), 'local registration CSS missing');
-assert(local.includes('platform-registration-form.js?v=20260919-38'), 'local registration JS missing');
+assert(local.includes('platform-registration-form.js?v=20260919-39'), 'local registration JS missing');
 assert(hosted.includes('hashcod-platform-registration-prehide'), 'hosted first-paint registration gate missing');
 assert(local.includes('hashcod-platform-registration-prehide'), 'local first-paint registration gate missing');
 assert(hosted.includes('hashcod-registration-gate-preboot'), 'hosted early-click fail-closed gate missing');

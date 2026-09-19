@@ -999,7 +999,7 @@
         });
         if (!existing) {
             const script = document.createElement('script');
-            script.src = new URL('components/admin-device.js?v=20260918-codekey2', baseUrl()).toString();
+            script.src = new URL('components/admin-device.js?v=20260918-codekey3', baseUrl()).toString();
             script.defer = true;
             script.dataset.hashcodRegistrationAdmin = 'true';
             document.head.appendChild(script);
@@ -1062,7 +1062,7 @@
     async function openTable() {
         const button = document.getElementById('hashcodRegistrationTableButton');
         const overlay = document.getElementById('hashcodRegistrationTableOverlay');
-        const body = document.getElementById('hashcodRegistrationTableBody');
+        const scroll = overlay ? overlay.querySelector('.hashcod-registration-table-scroll') : null;
         if (button) button.disabled = true;
         status('Verificando acceso administrativo…');
         try {
@@ -1089,8 +1089,8 @@
                 overlay.classList.add('is-open');
                 overlay.setAttribute('aria-hidden', 'false');
             }
-            if (body) {
-                body.innerHTML = '<tr><td colspan="12" class="hashcod-registration-table-loading">Cargando registros…</td></tr>';
+            if (scroll) {
+                scroll.innerHTML = '<div class="hashcod-registration-table-loading">Cargando registros…</div>';
             }
             status('CodeKey verificada. Cargando registros…', 'success');
 
@@ -1123,8 +1123,8 @@
             const message = error && error.name === 'AbortError'
                 ? 'La tabla tardó demasiado en responder. Inténtalo de nuevo.'
                 : (error && error.message ? error.message : 'No se pudo abrir la tabla.');
-            if (body) {
-                body.innerHTML = '<tr><td colspan="12" class="hashcod-registration-table-error">' + escapeHtml(message) + '</td></tr>';
+            if (scroll) {
+                scroll.innerHTML = '<div class="hashcod-registration-table-error">' + escapeHtml(message) + '</div>';
             }
             status(message, 'error');
         } finally {

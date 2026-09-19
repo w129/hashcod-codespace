@@ -13,6 +13,9 @@ const combined = 'HASHCOD1:d02c7f85eccb0e8eb63f26bda3bc82fb86a6f6e80b98c2b35ff98
 
 assert(client.includes(filename), 'client must require the registered .ipynb filename');
 assert(client.includes('function codeKeyFilenameAllowed(name)'), 'client must safely accept browser duplicate filename suffixes');
+assert(client.includes('new AbortController()'), 'administrative request timeout missing');
+assert(client.includes("throwOnError = options.throwOnError === true"), 'admin require must support error propagation for protected tools');
+assert(client.includes("CodeKey verificada. Acceso administrativo habilitado."), 'successful CodeKey verification status missing');
 assert(client.includes("replace(/\\s*\\(\\d+\\)(?=\\.ipynb$)/i, '')"), 'client duplicate suffix normalization missing');
 assert(client.includes("fileInput.accept = '.ipynb,application/json'"), 'client must only prompt for notebook/json files');
 assert(client.includes('input.click();'), 'CodeKey chooser must be opened by the browser file input');
@@ -34,7 +37,7 @@ assert(rescue.includes("input.addEventListener('change', onChange)"), 'picker re
 assert(rescue.includes("if (typeof input.showPicker === 'function') input.showPicker();"), 'picker rescue should prefer the browser-native showPicker API');
 assert(rescue.includes('finish(currentFile(input));'), 'cancel/focus must re-check FileList instead of immediately treating the selection as empty');
 assert(!rescue.includes("input.addEventListener('cancel', () => finish(null)"), 'cancel must never immediately discard a valid selected file');
-assert(html.includes('admin-codekey-picker-rescue.js?v=20260918-2'), 'hosted HTML must cache-bust and load the CodeKey picker rescue');
+assert(html.includes('admin-codekey-picker-rescue.js?v=20260918-4'), 'hosted HTML must cache-bust and load the CodeKey picker rescue');
 
 assert(rescue.includes("const EFT_TRAY_SELECTOR = '#hashcodVectorTray [data-vector-tray-slot=\"4\"]'"), 'EFT CodeKey gate must target the fifth tray cube');
 assert(rescue.includes("const EFT_GATE_ID = 'hashcodEftCodeKeyGate'"), 'EFT CodeKey gate overlay missing');

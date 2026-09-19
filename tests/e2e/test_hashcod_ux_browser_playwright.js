@@ -156,9 +156,21 @@ async function run() {
       consent.checked = true;
       consent.dispatchEvent(new Event('change', { bubbles: true }));
     });
+    await page.setInputFiles('#hashcodRegCodeFile', {
+      name: 'hashcod-ux-test.zip',
+      mimeType: 'application/zip',
+      buffer: Buffer.from('PK\\u0003\\u0004hashcod-ux-test-code')
+    });
+    await page.waitForFunction(() => {
+      const codeButton = document.getElementById('hashcodRegCodeButton');
+      return Boolean(codeButton && codeButton.classList.contains('is-loaded'));
+    }, { timeout: 3000 });
+
     await page.waitForTimeout(100);
     assert.equal(await page.isDisabled('#hashcodRegistrationSubmit'), true,
       '17-year-old registration must remain blocked in the real browser');
+    assert.equal(await page.isDisabled('#hashcodRegistrationWhatsappButton'), true,
+      '17-year-old registration must keep the WhatsApp action disabled');
 
     await page.evaluate(() => {
       const age = document.getElementById('hashcodRegAge');
@@ -169,6 +181,8 @@ async function run() {
     await page.waitForTimeout(100);
     assert.equal(await page.isEnabled('#hashcodRegistrationSubmit'), true,
       '18+ completed registration must enable submit in the real browser');
+    assert.equal(await page.isEnabled('#hashcodRegistrationWhatsappButton'), true,
+      '18+ completed registration must enable the WhatsApp action in the real browser');
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');

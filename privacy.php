@@ -327,7 +327,7 @@ function privacy_h(string $value): string {
         <section class="acceptance-block">
             <h2>Declaración de aceptación</h2>
             <p>
-                Al marcar el checkbox del formulario y seleccionar “ENVIAR REGISTRO”, el Usuario declara que ha tenido acceso a esta
+                Al marcar el checkbox del formulario, preparar el mensaje por WhatsApp y seleccionar “ENTRAR A HASHCOD CODESPACE”, el Usuario declara que ha tenido acceso a esta
                 versión del documento, que acepta sus condiciones y que autoriza el registro de la evidencia técnica descrita para
                 acreditar dicha aceptación.
             </p>

@@ -240,7 +240,7 @@ assert(api.includes(".registration-evidence.l8e1"), 'registration compatibility 
 assert(api.includes("$schemaMode = 'compatibility'"), 'registration readiness compatibility mode missing');
 assert(api.includes("$compatibilityMode = true"), 'registration insert compatibility retry missing');
 assert(api.includes("$adminSchemaMode = 'dynamic'"), 'registration admin table must use schema-independent mode');
-assert(api.includes("'select=*&order=created_at.desc&limit=500'"), 'registration admin table must query rows without hardcoded optional columns');
+assert(api.includes("'?select=*&order=created_at.desc&limit=500'"), 'registration admin table must query rows without hardcoded optional columns');
 assert(api.includes("'bypass_circuit'=>true"), 'protected admin read must bypass an already-open Supabase circuit');
 assert(api.includes("supabaseDbRequest("), 'protected admin table must use a direct recovery read');
 assert(api.includes("'code'=>'registration_table_read_failed'"), 'registration admin table must expose a stable diagnostic code');

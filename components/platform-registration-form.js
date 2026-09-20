@@ -1120,6 +1120,23 @@
             registrationGateResolve = null;
         }
 
+        // The normal entry hold owns the handoff. If that outer async flow is
+        // delayed or replaced, finish the temporary entry deterministically.
+        window.setTimeout(function ensureTemporaryEntryCompleted() {
+            if (
+                document.documentElement.dataset.hashcodPlatformEntered === 'true'
+                || !temporaryAccessGrant
+                || temporaryAccessGrant.temporaryAccess !== true
+                || Number(temporaryAccessGrant.expiresAt || 0) <= Date.now()
+            ) return;
+
+            completePlatformEntry({
+                source: 'temporary-access-fallback',
+                temporaryAccess: true,
+                expiresAt: Number(temporaryAccessGrant.expiresAt || 0)
+            }).catch(function () {});
+        }, 900);
+
         window.dispatchEvent(new CustomEvent('hashcod:temporary-access-approved', {
             detail: {
                 source: 'temporary-access',
@@ -1556,6 +1573,17 @@
     }
 
     async function completePlatformEntry(options) {
+        if (document.documentElement.dataset.hashcodPlatformEntered === 'true') return true;
+
+        if (document.documentElement.dataset.hashcodPlatformEntryCompleting === 'true') {
+            return new Promise(function (resolve) {
+                window.addEventListener('hashcod:platform-entered', function () {
+                    resolve(true);
+                }, { once: true });
+            });
+        }
+
+        document.documentElement.dataset.hashcodPlatformEntryCompleting = 'true';
         const entryOptions = options && typeof options === 'object' ? options : {};
         const temporaryAccess = entryOptions.temporaryAccess === true;
         const root = document.getElementById(ROOT_ID);
@@ -1602,6 +1630,8 @@
             document.body.removeAttribute('data-auth-locked');
             document.body.removeAttribute('aria-busy');
         }
+
+        delete document.documentElement.dataset.hashcodPlatformEntryCompleting;
 
         window.dispatchEvent(new CustomEvent('hashcod:platform-entered', {
             detail: temporaryAccess ? {

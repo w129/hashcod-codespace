@@ -124,7 +124,7 @@ async function run() {
       document.documentElement.dataset.hashcodPlatformEntered === 'true'
       && document.documentElement.dataset.hashcodTemporaryAccess === 'true'
       && !document.getElementById('hashcodPlatformRegistration')
-    ), { timeout: 5000 });
+    ), undefined, { timeout: 5000 });
 
     const state = await page.evaluate(() => {
       const api = window.HashcodPlatformRegistration;

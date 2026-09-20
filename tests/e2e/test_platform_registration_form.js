@@ -53,6 +53,9 @@ assert(js.includes('const TEMPORARY_ACCESS_MAX_MS = 24 * 60 * 60 * 1000'), 'temp
 assert(js.includes('function startTemporaryAccess(event)'), 'temporary access entry function missing');
 assert(js.includes('temporaryAccessGrant = {'), 'temporary access must create an entry-gate grant');
 assert(js.includes('registrationGateResolve(temporaryAccessGrant)'), 'temporary access must resolve the authoritative entry gate');
+assert(js.includes('function ensureTemporaryEntryCompleted()'), 'temporary access must have a deterministic handoff fallback');
+assert(js.includes("dataset.hashcodPlatformEntryCompleting === 'true'"), 'platform entry completion must be idempotent');
+assert(js.includes("dataset.hashcodPlatformEntered === 'true') return true"), 'duplicate platform entry must short-circuit safely');
 assert(js.includes('temporaryAccessGrant.temporaryAccess === true'), 'entry gate must recognize a temporary grant');
 assert(js.includes('temporaryAccess: true'), 'temporary entry must identify itself as temporary');
 assert(js.includes('armTemporaryAccessExpiry(expiresAt)'), 'temporary access must arm an expiry timer');
@@ -128,11 +131,11 @@ assert(cleanup.includes("/empty'"), 'Storage bucket must be emptied through the 
 assert(cleanup.includes('supabaseDbHardDelete'), 'legacy registration rows must be purged');
 assert(!cleanup.includes('delete from storage.objects'), 'Storage metadata must never be deleted directly with SQL');
 
-assert(hosted.includes('platform-registration-form.js?v=20260919-temp2'), 'hosted registration JS fallback cache version missing');
+assert(hosted.includes('platform-registration-form.js?v=20260919-temp3'), 'hosted registration JS fallback cache version missing');
 assert(hosted.includes("$registrationExternalJsTag = $registrationJs === ''"), 'hosted registration JS must not load twice when inline content exists');
-assert(local.includes('platform-registration-form.js?v=20260919-temp2'), 'local registration JS cache version missing');
-assert(hosted.includes('platform-registration-form.css?v=20260919-temp2'), 'hosted registration CSS fallback cache version missing');
+assert(local.includes('platform-registration-form.js?v=20260919-temp3'), 'local registration JS cache version missing');
+assert(hosted.includes('platform-registration-form.css?v=20260919-temp3'), 'hosted registration CSS fallback cache version missing');
 assert(hosted.includes("$registrationCssExternalTag = $registrationCss === ''"), 'hosted registration CSS must not load twice when inline content exists');
-assert(local.includes('platform-registration-form.css?v=20260919-temp2'), 'local registration CSS cache version missing');
+assert(local.includes('platform-registration-form.css?v=20260919-temp3'), 'local registration CSS cache version missing');
 
 console.log('PASS: registration and WhatsApp flow remain intact, and the independent timed temporary-access control is wired and responsive.');

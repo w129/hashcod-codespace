@@ -260,6 +260,13 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $legacyAuthPrehideTag = '<style id="hashcod-legacy-auth-prehide">#authOverlay,#authWrapper,#hashcodVectorTray,#hashcodAuthUtilityDock,#groqAuthChatPanel,#groqAuthChatLauncher,#hashcodEftCodeKeyGate,#hashcodEfrHotzone,#cryptoCardValidationLauncherBtn,#d5LauncherBtn,[data-hashcod-auth-utility-dock]{display:none!important;visibility:hidden!important;pointer-events:none!important;}</style>'
             . '<script id="hashcod-legacy-auth-retired-flag">window.__hashcodLegacyAuthRetired=true;document.documentElement.dataset.hashcodLegacyAuthRetired="true";</script>';
 
+        // Retire the visible top-bar Windows Hello button and Security/PQC badge.
+        // Keep the underlying admin/security runtimes active, but fail closed at
+        // first paint so stale cached JS cannot flash these controls back into UI.
+        $retiredTopbarControlsStyleTag = '<style id="hashcod-retired-topbar-controls">'
+            . '#secStatusBarBadge,#topBarWindowsHelloBtn{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;width:0!important;min-width:0!important;max-width:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important;}'
+            . '</style>';
+
         // Critical first-paint gate for the third-screen form. Keep this inline
         // so stale/cached external CSS can never expose the form on screens 1–2.
         $registrationPrehideTag = '<style id="hashcod-platform-registration-prehide">'
@@ -300,9 +307,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $retiredTopbarControlsStyleTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $legacyAuthPrehideTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
+            $html = $cssTag . $legacyAuthPrehideTag . $retiredTopbarControlsStyleTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -390,12 +397,22 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260919-perf1" data-hashcod-rare-folder="true"></script>'
             : '';
 
+        // Remove retired top-bar controls even if an older immutable/static JS
+        // asset was served from browser/CDN cache after the page started.
+        $retiredTopbarControlsCleanupTag = '<script id="hashcod-retired-topbar-controls-cleanup">(function(){'
+            . 'function clean(){["secStatusBarBadge","topBarWindowsHelloBtn"].forEach(function(id){var n=document.getElementById(id);if(n&&n.parentNode)n.parentNode.removeChild(n);});}'
+            . 'function boot(){clean();var root=document.querySelector(".top-bar-right")||document.body;if(!root||typeof MutationObserver!=="function")return;var o=new MutationObserver(clean);o.observe(root,{childList:true,subtree:true});window.setTimeout(function(){clean();o.disconnect();},15000);}'
+            . 'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",boot,{once:true});}else{boot();}'
+            . 'window.addEventListener("hashcod:platform-entered",clean);'
+            . '})();</script>';
+
         // Remove the stale blackhole status from the DOM as well as hiding it.
         // This prevents older boot scripts from leaving misleading loading text
         // visible to assistive technology while the Rare UI folder is authoritative.
         $legacyBlackholeCleanupTag = '<script id="hashcod-legacy-blackhole-cleanup">(function(){function cleanup(){var hint=document.getElementById("bootCliHint");if(!hint)return;hint.textContent="";hint.hidden=true;hint.setAttribute("aria-hidden","true");}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",cleanup,{once:true});}else{cleanup();}})();</script>';
 
-        $tag = $legacyBlackholeCleanupTag
+        $tag = $retiredTopbarControlsCleanupTag
+            . $legacyBlackholeCleanupTag
             . $inlineRegistrationJsTag
             . $registrationFlipTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'

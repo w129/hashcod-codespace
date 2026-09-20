@@ -234,10 +234,18 @@
 
             // The platform stays behind the opaque third screen until the POST
             // succeeds. Validation or storage errors never advance this promise.
-            await registration.waitForSuccessfulSubmission();
+            const registrationResult = await registration.waitForSuccessfulSubmission();
             await sleep(160);
 
-            await registration.completePlatformEntry();
+            await registration.completePlatformEntry(
+                registrationResult && registrationResult.temporaryAccess === true
+                    ? {
+                        source: 'temporary-access',
+                        temporaryAccess: true,
+                        expiresAt: Number(registrationResult.expiresAt || 0)
+                    }
+                    : undefined
+            );
             return true;
         } catch (error) {
             console.error('[Hashcod entry hold] Registration handoff failed:', error);

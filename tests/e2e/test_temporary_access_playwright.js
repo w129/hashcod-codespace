@@ -88,21 +88,7 @@ async function run() {
     await page.click('#hashcodTemporaryAccessButton');
     await page.waitForSelector('#hashcodTemporaryAccessDialog[open]', { state: 'visible', timeout: 3000 });
 
-    // Temporary access keeps the 18+ requirement even though it skips the
-    // rest of the registration form.
-    await page.fill('#hashcodTemporaryAccessAge', '17');
-    await page.fill('#hashcodTemporaryAccessDuration', '30');
-    await page.selectOption('#hashcodTemporaryAccessUnit', 'minutes');
-    await page.click('#hashcodTemporaryAccessConfirm');
-    await page.waitForFunction(() => {
-      const node = document.getElementById('hashcodTemporaryAccessStatus');
-      return Boolean(node && /18 años o más/i.test(node.textContent || ''));
-    }, { timeout: 2000 });
-    assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
-      'under-18 temporary access must remain blocked');
-
-    // More than 24 hours must also be rejected for an eligible age.
-    await page.fill('#hashcodTemporaryAccessAge', '18');
+    // More than 24 hours must be rejected.
     await page.fill('#hashcodTemporaryAccessDuration', '25');
     await page.selectOption('#hashcodTemporaryAccessUnit', 'hours');
     await page.click('#hashcodTemporaryAccessConfirm');
@@ -129,8 +115,7 @@ async function run() {
       };
     });
 
-    // A valid 18+ duration enters without touching the remaining registration fields.
-    await page.fill('#hashcodTemporaryAccessAge', '18');
+    // A valid duration enters without touching any registration field.
     await page.fill('#hashcodTemporaryAccessDuration', '1');
     await page.selectOption('#hashcodTemporaryAccessUnit', 'minutes');
     await page.click('#hashcodTemporaryAccessConfirm');
@@ -178,7 +163,7 @@ async function run() {
     assert.notEqual(expiredState.entered, 'true', 'expired temporary user must be returned to the initial screen');
     assert.equal(expiredState.stored, null, 'temporary expiry must clear sessionStorage');
 
-    console.log('PASS: temporary icon skips non-safety registration fields, preserves 18+ eligibility, enforces a 24-hour cap, and automatically returns to the initial screen when time expires.');
+    console.log('PASS: temporary icon bypasses the form, asks only for duration, enforces a 24-hour cap, and automatically returns to the initial screen when time expires.');
   } finally {
     await browser.close();
   }

@@ -74,14 +74,11 @@ if [ "${HASHCOD_SKIP_PHP_ROUTER:-0}" != "1" ] && [ -f /var/www/html/router.php ]
 
   php_ready=0
   attempt=1
-  while [ "$attempt" -le 50 ]; do
-    if ! kill -0 "$php_pid" >/dev/null 2>&1; then
-      echo "[l8] PHP router exited before becoming ready"
-      cat /tmp/l8-php.log || true
-      exit 1
-    fi
-
-    if curl --fail --silent --show-error --max-time 1 http://127.0.0.1:8001/robots.txt >/dev/null 2>&1; then
+  while [ "$attempt" -le 100 ]; do
+    # Readiness must be based on the socket/HTTP response, not on the wrapper PID.
+    # On Render the gosu/background PID can disappear during exec even while the
+    # PHP server is successfully starting, which caused false "exited" failures.
+    if curl --silent --show-error --max-time 1 -o /dev/null http://127.0.0.1:8001/ >/dev/null 2>&1; then
       php_ready=1
       break
     fi

@@ -238,7 +238,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<style id="hashcod-platform-registration-inline">' . $registrationCss . '</style>'
             : '';
         $registrationCssExternalTag = $registrationCss === ''
-            ? '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260919-temp3" data-hashcod-platform-registration-style="true">'
+            ? '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260920-temp4" data-hashcod-platform-registration-style="true">'
             : '';
 
         $cssTag = $inlineCssTag
@@ -340,7 +340,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-platform-registration-inline-js">' . $registrationJs . '</script>'
             : '';
         $registrationExternalJsTag = $registrationJs === ''
-            ? '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260919-temp3" data-hashcod-platform-registration="true"></script>'
+            ? '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260920-temp4" data-hashcod-platform-registration="true"></script>'
             : '';
 
         // Official Animate UI FlipButton React/Motion island for the

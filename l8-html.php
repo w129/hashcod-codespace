@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . "/toolbox-growth.php";
 /**
  * HTML serving helpers for l8 codespace (native PHP pages, not a Vite/React SPA).
  */
@@ -412,7 +413,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         }
     }
 
-    echo l8_apply_csp_nonce($html);
+    echo l8_apply_csp_nonce(hashcod_toolbox_bootstrap($html));
     exit;
 }
 

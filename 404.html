@@ -12528,6 +12528,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <script src="components/asset-path.js?v=20260908"></script>
     <link rel="stylesheet" href="components/platform-media.css?v=20260908-4">
+    <link rel="stylesheet" href="components/toolbox-growth.css?v=20260920-ordinal1">
 </head>
 <body class="boot-locked">
     <script>
@@ -16122,6 +16123,7 @@
         </div>
     </div>
 
+    <!-- toolbox-growth-end -->
     <script src="toolkit/pdf-inspector/toolkit-pdf-md.js?v=2"></script>
 
     <script>
@@ -26986,67 +26988,10 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
 
 
 
+    <script defer src="components/toolbox-growth.js?v=20260920-ordinal1"></script>
     <!-- Multi-Toolbox Carousel & Page Switcher Controller -->
     <script>
-    (function() {
-        let currentToolboxPage = 1;
-        const totalToolboxPages = 4;
-
-        window.switchToolboxPage = function(pageNum) {
-            pageNum = Math.max(1, Math.min(totalToolboxPages, parseInt(pageNum) || 1));
-            currentToolboxPage = pageNum;
-
-            for (let i = 1; i <= totalToolboxPages; i++) {
-                const panelId = i === 1 ? 'toolboxPanel' : ('toolboxPanel' + i);
-                const panel = document.getElementById(panelId);
-                const chip = document.getElementById('tbChip' + i);
-
-                if (panel) {
-                    if (i === currentToolboxPage) {
-                        panel.style.display = 'flex';
-                        panel.classList.add('active');
-                    } else {
-                        panel.style.display = 'none';
-                        panel.classList.remove('active');
-                    }
-                }
-
-                if (chip) {
-                    if (i === currentToolboxPage) {
-                        chip.style.background = '#000000';
-                        chip.style.color = '#ffffff';
-                        chip.classList.add('active');
-                    } else {
-                        chip.style.background = '#ffffff';
-                        chip.style.color = '#000000';
-                        chip.classList.remove('active');
-                    }
-                }
-            }
-        };
-
-        window.nextToolboxPage = function() {
-            let next = currentToolboxPage + 1;
-            if (next > totalToolboxPages) next = 1;
-            window.switchToolboxPage(next);
-        };
-
-        window.prevToolboxPage = function() {
-            let prev = currentToolboxPage - 1;
-            if (prev < 1) prev = totalToolboxPages;
-            window.switchToolboxPage(prev);
-        };
-
-        // Keyboard arrow navigation for toolboxes
-        window.addEventListener('keydown', function(e) {
-            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
-            if (e.key === 'ArrowRight' && e.altKey) {
-                window.nextToolboxPage();
-            } else if (e.key === 'ArrowLeft' && e.altKey) {
-                window.prevToolboxPage();
-            }
-        });
-    })();
+    // Toolbox navigation is managed by components/toolbox-growth.js.
     
 
         /* ===== DILITHIUM-5 SIGNATURE GENERATOR & SCALAR MULTIPLIER ENGINE ===== */

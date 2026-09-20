@@ -1243,9 +1243,10 @@ html.dark #hashcodRegCodeButton.is-loaded {
     border-color: #9a9a9a;
 }
 
-html[data-hashcod-theme="dark"] #hashcodRegistrationWhatsappButton:not(:disabled):hover,
+html[data-hashcod-theme="dark"] #hashcodTemporaryAccessButton:hover,
 html.dark #hashcodTemporaryAccessButton:hover,
-#hashcodRegistrationWhatsappButton:not(:disabled):hover {
+html[data-hashcod-theme="dark"] #hashcodRegistrationWhatsappButton:not(:disabled):hover,
+html.dark #hashcodRegistrationWhatsappButton:not(:disabled):hover {
     background: #fff;
     color: #111;
     border-color: #fff;

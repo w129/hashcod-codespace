@@ -3,7 +3,7 @@ services:
     name: hashcod-codespace-1
     runtime: image
     image:
-      url: ghcr.io/w129/hashcod-codespace:sha-e8e204e601fb1b15779d093c1ebdd6c7dedcdf34
+      url: ghcr.io/w129/hashcod-codespace:sha-332b436d27ad5960b693e6a37edb896fb8220233
     plan: free
     region: oregon
     healthCheckPath: /healthz

@@ -508,8 +508,7 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     align-items: start;
     margin-top: 20px;
 }
-#hashcodTemporaryAccessButton, #hashcodRegistrationSubmit, #hashcodTemporaryAccessButton,
-#hashcodRegistrationWhatsappButton {
+#hashcodTemporaryAccessButton, #hashcodRegistrationSubmit, #hashcodRegistrationWhatsappButton {
     min-height: 50px; border: 1px solid #111; border-radius: 9px; cursor: pointer;
     transition: transform .14s ease, background .14s ease, color .14s ease, opacity .14s ease;
 }

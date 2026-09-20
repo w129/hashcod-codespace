@@ -720,13 +720,29 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     font: 500 12px/1.55 "IBM Plex Mono", Consolas, monospace;
 }
 
+.hashcod-temporary-access-age {
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.hashcod-temporary-access-age label {
+    color: #555;
+    font: 700 10px/1 "IBM Plex Mono", Consolas, monospace;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
 .hashcod-temporary-access-duration {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 128px;
     gap: 8px;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
+.hashcod-temporary-access-age input,
 .hashcod-temporary-access-duration input,
 .hashcod-temporary-access-duration select {
     min-width: 0;
@@ -741,6 +757,7 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     outline: none;
 }
 
+.hashcod-temporary-access-age input:focus,
 .hashcod-temporary-access-duration input:focus,
 .hashcod-temporary-access-duration select:focus {
     border-color: #111;
@@ -1426,6 +1443,7 @@ html.dark #hashcodRegistrationTurnstileState {
         width: min(390px, calc(100vw - 20px));
     }
     .hashcod-temporary-access-card { padding: 18px 14px; }
+    .hashcod-temporary-access-age { grid-template-columns: 58px minmax(0, 1fr); gap: 8px; }
     .hashcod-temporary-access-duration { grid-template-columns: minmax(0, 1fr) 112px; }
     .hashcod-registration-field.is-wide, .hashcod-registration-consent { grid-column: 1; }
     .hashcod-registration-price-list > div { grid-template-columns: 1fr; gap: 2px; }

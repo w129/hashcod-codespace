@@ -49,7 +49,9 @@ assert(brand.includes('let applyFrame = 0'), 'boot-brand layout work must be fra
 assert(brand.includes('function stop()'), 'boot-brand observer must have teardown');
 assert(brand.includes("'hashcod:final-entry-screen'"), 'boot-brand observer must stop after boot');
 
-assert(topbar.includes("topbarObserver.observe(topBarRight, { childList: true })"), 'Windows Hello observer must be scoped to top bar');
+assert(topbar.includes("Visible Windows Hello control retired from the top bar"), 'Windows Hello top-bar control must remain retired');
+assert(topbar.includes("if (button) button.remove();"), 'retired Windows Hello runtime must remove stale cached buttons');
+assert(!topbar.includes("topbarObserver.observe(topBarRight, { childList: true })"), 'retired Windows Hello control must not install a top-bar observer');
 assert(!topbar.includes("observe(document.documentElement, { childList: true, subtree: true })"), 'Windows Hello must not observe the entire document');
 
 assert(slogan.includes('function stopObserver()'), 'entry tray observer must have teardown');

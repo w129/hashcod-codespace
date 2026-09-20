@@ -128,11 +128,11 @@ assert(cleanup.includes("/empty'"), 'Storage bucket must be emptied through the 
 assert(cleanup.includes('supabaseDbHardDelete'), 'legacy registration rows must be purged');
 assert(!cleanup.includes('delete from storage.objects'), 'Storage metadata must never be deleted directly with SQL');
 
-assert(hosted.includes('platform-registration-form.js?v=20260919-temp1'), 'hosted registration JS fallback cache version missing');
+assert(hosted.includes('platform-registration-form.js?v=20260919-temp2'), 'hosted registration JS fallback cache version missing');
 assert(hosted.includes("$registrationExternalJsTag = $registrationJs === ''"), 'hosted registration JS must not load twice when inline content exists');
-assert(local.includes('platform-registration-form.js?v=20260919-temp1'), 'local registration JS cache version missing');
-assert(hosted.includes('platform-registration-form.css?v=20260919-temp1'), 'hosted registration CSS fallback cache version missing');
+assert(local.includes('platform-registration-form.js?v=20260919-temp2'), 'local registration JS cache version missing');
+assert(hosted.includes('platform-registration-form.css?v=20260919-temp2'), 'hosted registration CSS fallback cache version missing');
 assert(hosted.includes("$registrationCssExternalTag = $registrationCss === ''"), 'hosted registration CSS must not load twice when inline content exists');
-assert(local.includes('platform-registration-form.css?v=20260919-temp1'), 'local registration CSS cache version missing');
+assert(local.includes('platform-registration-form.css?v=20260919-temp2'), 'local registration CSS cache version missing');
 
 console.log('PASS: registration and WhatsApp flow remain intact, and the independent timed temporary-access control is wired and responsive.');

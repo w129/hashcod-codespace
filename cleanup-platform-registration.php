@@ -5,6 +5,8 @@ require_once __DIR__ . '/supabase.php';
 
 const HASHCOD_LEGACY_REGISTRATION_TABLE = 'hashcod_platform_registrations';
 const HASHCOD_LEGACY_REGISTRATION_BUCKET = 'hashcod-registration-code';
+const HASHCOD_CLEANUP_EMPTY_TIMEOUT = 12;
+const HASHCOD_CLEANUP_DELETE_TIMEOUT = 8;
 
 function hcrcLog(string $message): void {
     fwrite(STDOUT, '[registration-cleanup] ' . $message . PHP_EOL);
@@ -18,6 +20,7 @@ if (empty($cfg['configured']) || empty($cfg['secret_key'])) {
 
 // Delete all physical objects through the official Storage API. Never delete
 // storage.objects rows directly because that would orphan the underlying files.
+// This is startup maintenance, so keep every remote request tightly bounded.
 $empty = supabaseRequest(
     'storage/v1/bucket/' . rawurlencode(HASHCOD_LEGACY_REGISTRATION_BUCKET) . '/empty',
     [
@@ -25,7 +28,7 @@ $empty = supabaseRequest(
         'use_secret' => true,
         'bypass_circuit' => true,
         'body' => new stdClass(),
-        'timeout' => 120,
+        'timeout' => HASHCOD_CLEANUP_EMPTY_TIMEOUT,
     ]
 );
 
@@ -39,6 +42,7 @@ if (!empty($empty['ok'])) {
 
 // Delete all legacy request rows through PostgREST. If the table was already
 // dropped by the database migration, a 404/42P01 response is treated as done.
+// supabaseDbHardDelete uses the short default HTTP timeout from supabase.php.
 $rows = supabaseDbHardDelete(HASHCOD_LEGACY_REGISTRATION_TABLE, 'id=not.is.null');
 if (!empty($rows['ok'])) {
     hcrcLog('Legacy registration rows deleted.');
@@ -56,7 +60,7 @@ $dropBucket = supabaseRequest(
         'method' => 'DELETE',
         'use_secret' => true,
         'bypass_circuit' => true,
-        'timeout' => 30,
+        'timeout' => HASHCOD_CLEANUP_DELETE_TIMEOUT,
     ]
 );
 

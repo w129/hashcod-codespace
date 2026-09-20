@@ -52,29 +52,21 @@ fi
 
 # Inicializar directorios de persistencia con propiedad adecuada
 mkdir -p /var/www/html/data_storage /var/www/html/uploads /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh
-touch /tmp/l8-php.log
-chmod 666 /tmp/l8-php.log || true
+touch /tmp/l8-php.log /tmp/l8-registration-cleanup.log
+chmod 666 /tmp/l8-php.log /tmp/l8-registration-cleanup.log || true
 
 if [ "$(id -u)" = "0" ]; then
   chown -R l8user:l8group /var/www/html/data_storage /var/www/html/uploads /home/l8user
   chmod 700 /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh || true
 fi
 
-# Purga idempotente del antiguo flujo de solicitudes persistidas.
-# Usa únicamente las credenciales de producción del backend y no imprime secretos.
-if [ -f /var/www/html/cleanup-platform-registration.php ]; then
-  if [ "$(id -u)" = "0" ]; then
-    gosu l8user php /var/www/html/cleanup-platform-registration.php || true
-  else
-    php /var/www/html/cleanup-platform-registration.php || true
-  fi
-fi
-
-# Render inyecta PORT; Caddy escucha ahí y PHP queda interno
+# Render inyecta PORT; Caddy escucha ahí y PHP queda interno.
+# No ejecutar trabajo de red antes del servidor público: Render necesita que
+# el health check pueda responder cuanto antes.
 export PORT="${PORT:-8000}"
 echo "[l8] public PORT=${PORT}"
 
-# Si el CMD es caddy (producción Docker), levantar PHP interno primero
+# Si el CMD es caddy (producción Docker), levantar PHP interno primero.
 first="${1-}"
 if [ "$first" = "caddy" ] || [ "$first" = "/usr/local/bin/caddy" ]; then
   echo "[l8] starting PHP router on 127.0.0.1:8001 (as l8user)"
@@ -84,6 +76,30 @@ if [ "$first" = "caddy" ] || [ "$first" = "/usr/local/bin/caddy" ]; then
     php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
   fi
   echo "[l8] php pid=$!"
+
+  # Purga idempotente del antiguo flujo de solicitudes persistidas.
+  # Es mantenimiento best-effort: se retrasa ligeramente, corre en segundo
+  # plano y tiene un límite total para no bloquear ni degradar el arranque.
+  if [ -f /var/www/html/cleanup-platform-registration.php ]; then
+    echo "[l8] scheduling non-blocking registration cleanup"
+    (
+      sleep 2
+      if command -v timeout >/dev/null 2>&1; then
+        if [ "$(id -u)" = "0" ]; then
+          timeout 25s gosu l8user php /var/www/html/cleanup-platform-registration.php
+        else
+          timeout 25s php /var/www/html/cleanup-platform-registration.php
+        fi
+      else
+        if [ "$(id -u)" = "0" ]; then
+          gosu l8user php /var/www/html/cleanup-platform-registration.php
+        else
+          php /var/www/html/cleanup-platform-registration.php
+        fi
+      fi
+    ) >/tmp/l8-registration-cleanup.log 2>&1 &
+    echo "[l8] registration cleanup pid=$!"
+  fi
 fi
 
 if [ "$(id -u)" = "0" ]; then

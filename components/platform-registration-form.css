@@ -720,6 +720,33 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     font: 500 12px/1.55 "IBM Plex Mono", Consolas, monospace;
 }
 
+.hashcod-temporary-access-age {
+    display: grid;
+    gap: 6px;
+    margin-top: 2px;
+    color: #555;
+    font: 700 10px/1.2 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-temporary-access-age input {
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+    box-sizing: border-box;
+    border: 1px solid #aaa;
+    border-radius: 9px;
+    background: #fff;
+    color: #111;
+    padding: 0 12px;
+    font: 700 12px/1 "IBM Plex Mono", Consolas, monospace;
+    outline: none;
+}
+
+.hashcod-temporary-access-age input:focus {
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0,0,0,.08);
+}
+
 .hashcod-temporary-access-duration {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 128px;
@@ -1254,6 +1281,8 @@ html.dark #hashcodRegistrationWhatsappButton:not(:disabled):hover {
 
 html[data-hashcod-theme="dark"] #hashcodTemporaryAccessDialog,
 html.dark #hashcodTemporaryAccessDialog,
+html[data-hashcod-theme="dark"] .hashcod-temporary-access-age input,
+html.dark .hashcod-temporary-access-age input,
 html[data-hashcod-theme="dark"] .hashcod-temporary-access-duration input,
 html.dark .hashcod-temporary-access-duration input,
 html[data-hashcod-theme="dark"] .hashcod-temporary-access-duration select,
@@ -1261,6 +1290,11 @@ html.dark .hashcod-temporary-access-duration select {
     background: #171717;
     color: #fff;
     border-color: #777;
+}
+
+html[data-hashcod-theme="dark"] .hashcod-temporary-access-age,
+html.dark .hashcod-temporary-access-age {
+    color: #d0d0d0;
 }
 
 html[data-hashcod-theme="dark"] #hashcodTemporaryAccessCancel,

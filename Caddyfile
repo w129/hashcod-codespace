@@ -15,12 +15,17 @@
 # Sin "http://:" Caddy trata el número como hostname y sirve HTTPS →
 # "Client sent an HTTP request to an HTTPS server."
 http://:{$PORT:8000} {
-	# Health check de Render: no depende de PHP, Supabase ni archivos.
-	# Debe responder inmediatamente con 200 para validar el nuevo contenedor.
+	# Render sees the public port immediately through Caddy, but health only turns
+	# green when the PHP backend responds. This prevents both port-scan timeouts
+	# and false-positive deployments where Caddy is alive but PHP is not.
 	handle /healthz {
-		header Content-Type "text/plain; charset=utf-8"
-		header Cache-Control "no-store, max-age=0, must-revalidate"
-		respond "ok" 200
+		rewrite * /robots.txt
+		reverse_proxy 127.0.0.1:8001 {
+			transport http {
+				dial_timeout 1s
+				response_header_timeout 3s
+			}
+		}
 	}
 
 	# Canonical HTTP para la portada: Google lo recibe incluso antes de renderizar JS.

@@ -72,27 +72,10 @@ if [ "${HASHCOD_SKIP_PHP_ROUTER:-0}" != "1" ] && [ -f /var/www/html/router.php ]
   php_pid=$!
   echo "[l8] php pid=$php_pid"
 
-  php_ready=0
-  attempt=1
-  while [ "$attempt" -le 100 ]; do
-    # Readiness must be based on the socket/HTTP response, not on the wrapper PID.
-    # On Render the gosu/background PID can disappear during exec even while the
-    # PHP server is successfully starting, which caused false "exited" failures.
-    if curl --silent --show-error --max-time 1 -o /dev/null http://127.0.0.1:8001/ >/dev/null 2>&1; then
-      php_ready=1
-      break
-    fi
-
-    attempt=$((attempt + 1))
-    sleep 0.1
-  done
-
-  if [ "$php_ready" -ne 1 ]; then
-    echo "[l8] PHP router did not become ready on 127.0.0.1:8001"
-    cat /tmp/l8-php.log || true
-    exit 1
-  fi
-  echo "[l8] PHP router ready"
+  # Do not block startup waiting for PHP. Caddy must bind Render's public PORT
+  # immediately; /healthz below is proxied to PHP and becomes healthy only when
+  # the backend is actually ready.
+  echo "[l8] PHP router launched; readiness delegated to Caddy /healthz"
 
   if [ -f /var/www/html/cleanup-platform-registration.php ]; then
     echo "[l8] scheduling non-blocking registration cleanup"

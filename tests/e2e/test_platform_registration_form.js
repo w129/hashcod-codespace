@@ -24,7 +24,11 @@ for (const id of [
   'hashcodRegEmail',
   'hashcodRegPhone',
   'hashcodRegistrationSubmit',
-  'hashcodRegistrationWhatsappButton'
+  'hashcodTemporaryAccessButton',
+  'hashcodRegistrationWhatsappButton',
+  'hashcodTemporaryAccessDialog',
+  'hashcodTemporaryAccessDuration',
+  'hashcodTemporaryAccessUnit'
 ]) {
   assert(js.includes(id), 'missing registration UI id: ' + id);
 }
@@ -42,6 +46,16 @@ assert(js.includes('whatsappDispatched = true'), 'WhatsApp click must mark the h
 assert(js.includes('whatsappDispatchFingerprint = fingerprint'), 'WhatsApp handoff must be bound to the exact form payload');
 assert(js.includes('invalidateWhatsappDispatch()'), 'form edits must invalidate a previous WhatsApp handoff');
 assert(js.includes('id="hashcodRegistrationWhatsappButton"'), 'WhatsApp action button missing');
+assert(js.includes('id="hashcodTemporaryAccessButton"'), 'temporary access icon button missing');
+assert(js.includes('M 4 6 L 4 13 L 6 13 L 6 8'), 'requested temporary access SVG path missing');
+assert(js.includes("const TEMPORARY_ACCESS_STORAGE_KEY = 'hashcod_temporary_access_expires_v1'"), 'temporary access storage key missing');
+assert(js.includes('const TEMPORARY_ACCESS_MAX_MS = 24 * 60 * 60 * 1000'), 'temporary access must cap sessions at 24 hours');
+assert(js.includes('function startTemporaryAccess(event)'), 'temporary access entry function missing');
+assert(js.includes('temporaryAccess: true'), 'temporary entry must identify itself as temporary');
+assert(js.includes('armTemporaryAccessExpiry(expiresAt)'), 'temporary access must arm an expiry timer');
+assert(js.includes('window.setTimeout(expireTemporaryAccess, remaining)'), 'temporary access expiry timer missing');
+assert(js.includes('window.location.replace(target)'), 'temporary access expiry must return to the base/start URL');
+assert(js.includes("document.visibilityState === 'visible'"), 'temporary access expiry must be rechecked after background throttling');
 assert(js.includes('aria-label="Entrar a Hashcod Codespace" disabled'), 'entry button label/gate missing');
 assert(js.includes('ENTRAR A HASHCOD CODESPACE'), 'entry button visible label missing');
 assert(flipEntry.includes("'ENTRAR A HASHCOD CODESPACE'"), 'React FlipButton entry label missing');
@@ -93,6 +107,11 @@ assert(!js.includes('CodeKey'), 'registration flow must not contain CodeKey copy
 assert(!js.includes('api/platform-registration'), 'registration form must not call the retired persistence API');
 
 assert(css.includes('#hashcodRegistrationWhatsappButton'), 'WhatsApp action styling missing');
+assert(css.includes('#hashcodTemporaryAccessButton'), 'temporary access action styling missing');
+assert(css.includes('grid-template-columns: 50px minmax(0, 1fr) 50px'), 'desktop action row must place temporary access left of the main button');
+assert(css.includes('grid-template-columns: 46px minmax(0, 1fr) 46px'), 'mobile action row must preserve the three-button layout');
+assert(css.includes('#hashcodTemporaryAccessDialog'), 'temporary duration dialog styling missing');
+assert(css.includes('.hashcod-temporary-access-duration'), 'temporary duration controls styling missing');
 assert(css.includes('#hashcodRegistrationWhatsappButton:disabled'), 'disabled WhatsApp state styling missing');
 assert(!css.includes('#hashcodRegistrationTableOverlay'), 'old table overlay CSS must be removed');
 assert(!css.includes('.hashcod-registration-table-shell'), 'old table CSS must be removed');
@@ -106,11 +125,11 @@ assert(cleanup.includes("/empty'"), 'Storage bucket must be emptied through the 
 assert(cleanup.includes('supabaseDbHardDelete'), 'legacy registration rows must be purged');
 assert(!cleanup.includes('delete from storage.objects'), 'Storage metadata must never be deleted directly with SQL');
 
-assert(hosted.includes('platform-registration-form.js?v=20260919-perf1'), 'hosted registration JS fallback cache version missing');
+assert(hosted.includes('platform-registration-form.js?v=20260919-temp1'), 'hosted registration JS fallback cache version missing');
 assert(hosted.includes("$registrationExternalJsTag = $registrationJs === ''"), 'hosted registration JS must not load twice when inline content exists');
-assert(local.includes('platform-registration-form.js?v=20260919-42'), 'local registration JS cache version missing');
-assert(hosted.includes('platform-registration-form.css?v=20260919-perf1'), 'hosted registration CSS fallback cache version missing');
+assert(local.includes('platform-registration-form.js?v=20260919-temp1'), 'local registration JS cache version missing');
+assert(hosted.includes('platform-registration-form.css?v=20260919-temp1'), 'hosted registration CSS fallback cache version missing');
 assert(hosted.includes("$registrationCssExternalTag = $registrationCss === ''"), 'hosted registration CSS must not load twice when inline content exists');
-assert(local.includes('platform-registration-form.css?v=20260919-30'), 'local registration CSS cache version missing');
+assert(local.includes('platform-registration-form.css?v=20260919-temp1'), 'local registration CSS cache version missing');
 
-console.log('PASS: registration is local-only; WhatsApp receives the data/code first, then and only then can the user enter Hashcod Codespace.');
+console.log('PASS: registration and WhatsApp flow remain intact, and the independent timed temporary-access control is wired and responsive.');

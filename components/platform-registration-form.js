@@ -31,6 +31,11 @@
     let fieldCache = null;
     const hintCache = Object.create(null);
     let validationFrame = 0;
+    let temporaryAccessTimer = 0;
+    let temporaryAccessExpiresAt = 0;
+    const TEMPORARY_ACCESS_STORAGE_KEY = 'hashcod_temporary_access_expires_v1';
+    const TEMPORARY_ACCESS_MAX_MS = 24 * 60 * 60 * 1000;
+    const TEMPORARY_ACCESS_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true"><path d="M 4 6 L 4 13 L 6 13 L 6 8 L 19 8 L 19 9 L 21 9 L 21 8 L 26 8 L 26 13 L 28 13 L 28 6 L 4 6 z M 26 13 L 24 13 L 24 19 L 26 19 L 26 13 z M 26 19 L 26 24 L 21 24 L 21 23 L 19 23 L 19 24 L 6 24 L 6 19 L 4 19 L 4 26 L 28 26 L 28 19 L 26 19 z M 6 19 L 8 19 L 8 13 L 6 13 L 6 19 z M 19 11 L 19 13 L 21 13 L 21 11 L 19 11 z M 19 15 L 19 17 L 21 17 L 21 15 L 19 15 z M 19 19 L 19 21 L 21 21 L 21 19 L 19 19 z"></path></svg>';
     const WHATSAPP_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true"><path d="M 5 3 L 5 9 L 7 9 L 7 5 L 9 5 L 9 3 L 5 3 z M 9 5 L 9 7 L 13 7 L 13 5 L 9 5 z M 13 7 L 13 9 L 17 9 L 17 7 L 13 7 z M 17 9 L 17 11 L 21 11 L 21 9 L 17 9 z M 21 11 L 21 13 L 25 13 L 25 11 L 21 11 z M 25 13 L 25 15 L 29 15 L 29 13 L 25 13 z M 29 15 L 29 17 L 31 17 L 31 15 L 29 15 z M 29 17 L 25 17 L 25 19 L 29 19 L 29 17 z M 25 19 L 21 19 L 21 21 L 25 21 L 25 19 z M 21 21 L 17 21 L 17 23 L 21 23 L 21 21 z M 17 23 L 13 23 L 13 25 L 17 25 L 17 23 z M 13 25 L 9 25 L 9 27 L 13 27 L 13 25 z M 9 27 L 7 27 L 7 23 L 5 23 L 5 29 L 9 29 L 9 27 z M 7 23 L 9 23 L 9 19 L 7 19 L 7 23 z M 9 19 L 11 19 L 11 17 L 19 17 L 19 15 L 11 15 L 11 13 L 9 13 L 9 15 L 9 17 L 9 19 z M 9 13 L 9 9 L 7 9 L 7 13 L 9 13 z"></path></svg>';
     const WHATSAPP_NUMBER = '18294721257';
     let currentRegistrationCode = '';
@@ -286,6 +291,12 @@
                     </label>
                 </div>
                 <div class="hashcod-registration-actions">
+                    <button
+                        id="hashcodTemporaryAccessButton"
+                        type="button"
+                        aria-label="Entrar temporalmente sin llenar el formulario"
+                        title="Acceso temporal"
+                    >${TEMPORARY_ACCESS_ICON}</button>
                     <div
                         id="hashcodRegistrationSubmitReactHost"
                         class="hashcod-registration-submit-react-host"
@@ -371,6 +382,42 @@
         `;
     }
 
+    function temporaryAccessDialogMarkup() {
+        return `
+            <dialog id="hashcodTemporaryAccessDialog" aria-labelledby="hashcodTemporaryAccessTitle">
+                <div class="hashcod-temporary-access-card">
+                    <div class="hashcod-temporary-access-kicker">HASHCOD · ACCESO TEMPORAL</div>
+                    <h2 id="hashcodTemporaryAccessTitle">¿Cuánto tiempo quieres permanecer?</h2>
+                    <p>
+                        Este acceso omite el formulario de registro. Cuando el tiempo termine,
+                        Codespace cerrará esta sesión temporal y volverá al inicio.
+                    </p>
+                    <div class="hashcod-temporary-access-duration">
+                        <input
+                            id="hashcodTemporaryAccessDuration"
+                            type="number"
+                            inputmode="numeric"
+                            min="1"
+                            step="1"
+                            value="30"
+                            aria-label="Duración del acceso temporal"
+                        >
+                        <select id="hashcodTemporaryAccessUnit" aria-label="Unidad de tiempo">
+                            <option value="minutes">minutos</option>
+                            <option value="hours">horas</option>
+                        </select>
+                    </div>
+                    <span class="hashcod-temporary-access-limit">Máximo: 24 horas.</span>
+                    <span id="hashcodTemporaryAccessStatus" class="hashcod-temporary-access-status" role="status" aria-live="polite"></span>
+                    <div class="hashcod-temporary-access-actions">
+                        <button id="hashcodTemporaryAccessCancel" type="button">CANCELAR</button>
+                        <button id="hashcodTemporaryAccessConfirm" type="button">ENTRAR TEMPORALMENTE</button>
+                    </div>
+                </div>
+            </dialog>
+        `;
+    }
+
     function registrationCodeReceiptMarkup() {
         return `
             <div id="hashcodRegistrationCodeReceipt" aria-hidden="true">
@@ -413,6 +460,9 @@
         }
         if (!document.getElementById('hashcodRegistrationCodeReceipt')) {
             document.body.insertAdjacentHTML('beforeend', registrationCodeReceiptMarkup());
+        }
+        if (!document.getElementById('hashcodTemporaryAccessDialog')) {
+            document.body.insertAdjacentHTML('beforeend', temporaryAccessDialogMarkup());
         }
         bind();
         validate();
@@ -944,6 +994,137 @@
         return url;
     }
 
+    function setTemporaryAccessStatus(message, isError) {
+        const node = document.getElementById('hashcodTemporaryAccessStatus');
+        if (!node) return;
+        node.textContent = message || '';
+        node.classList.toggle('is-error', Boolean(isError));
+    }
+
+    function closeTemporaryAccessDialog() {
+        const dialog = document.getElementById('hashcodTemporaryAccessDialog');
+        if (!dialog) return;
+        if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+        else dialog.removeAttribute('open');
+        dialog.classList.remove('is-open');
+    }
+
+    function openTemporaryAccessDialog(event) {
+        if (event) event.preventDefault();
+        const dialog = document.getElementById('hashcodTemporaryAccessDialog');
+        const duration = document.getElementById('hashcodTemporaryAccessDuration');
+        const unit = document.getElementById('hashcodTemporaryAccessUnit');
+        if (!dialog || !duration || !unit) return false;
+
+        duration.value = '30';
+        unit.value = 'minutes';
+        setTemporaryAccessStatus('', false);
+        if (typeof dialog.showModal === 'function') dialog.showModal();
+        else {
+            dialog.setAttribute('open', '');
+            dialog.classList.add('is-open');
+        }
+        window.setTimeout(function () {
+            try { duration.focus({ preventScroll: true }); } catch (_) { duration.focus(); }
+        }, 0);
+        return true;
+    }
+
+    function temporaryDurationMs() {
+        const duration = document.getElementById('hashcodTemporaryAccessDuration');
+        const unit = document.getElementById('hashcodTemporaryAccessUnit');
+        const value = Number(duration && duration.value);
+        if (!Number.isFinite(value) || value <= 0 || Math.floor(value) !== value) return 0;
+
+        const multiplier = unit && unit.value === 'hours' ? 60 * 60 * 1000 : 60 * 1000;
+        const milliseconds = value * multiplier;
+        if (milliseconds > TEMPORARY_ACCESS_MAX_MS) return -1;
+        return milliseconds;
+    }
+
+    function clearTemporaryAccessState() {
+        if (temporaryAccessTimer) {
+            window.clearTimeout(temporaryAccessTimer);
+            temporaryAccessTimer = 0;
+        }
+        temporaryAccessExpiresAt = 0;
+        try { sessionStorage.removeItem(TEMPORARY_ACCESS_STORAGE_KEY); } catch (_) {}
+        delete document.documentElement.dataset.hashcodTemporaryAccess;
+        delete document.documentElement.dataset.hashcodTemporaryAccessExpires;
+    }
+
+    function expireTemporaryAccess() {
+        clearTemporaryAccessState();
+        window.dispatchEvent(new CustomEvent('hashcod:temporary-access-expired', {
+            detail: { source: 'temporary-access' }
+        }));
+
+        const target = baseUrl().toString();
+        try {
+            window.location.replace(target);
+        } catch (_) {
+            window.location.href = target;
+        }
+    }
+
+    function armTemporaryAccessExpiry(expiresAt) {
+        const expiry = Number(expiresAt);
+        if (!Number.isFinite(expiry) || expiry <= 0) return false;
+
+        if (temporaryAccessTimer) window.clearTimeout(temporaryAccessTimer);
+        temporaryAccessExpiresAt = expiry;
+
+        const remaining = expiry - Date.now();
+        if (remaining <= 0) {
+            expireTemporaryAccess();
+            return false;
+        }
+
+        temporaryAccessTimer = window.setTimeout(expireTemporaryAccess, remaining);
+        return true;
+    }
+
+    async function startTemporaryAccess(event) {
+        if (event) event.preventDefault();
+
+        const milliseconds = temporaryDurationMs();
+        if (milliseconds === -1) {
+            setTemporaryAccessStatus('El acceso temporal no puede superar 24 horas.', true);
+            return false;
+        }
+        if (!milliseconds) {
+            setTemporaryAccessStatus('Indica una duración válida mayor que cero.', true);
+            return false;
+        }
+
+        const expiresAt = Date.now() + milliseconds;
+        try { sessionStorage.setItem(TEMPORARY_ACCESS_STORAGE_KEY, String(expiresAt)); } catch (_) {}
+
+        document.documentElement.dataset.hashcodTemporaryAccess = 'true';
+        document.documentElement.dataset.hashcodTemporaryAccessExpires = String(expiresAt);
+        armTemporaryAccessExpiry(expiresAt);
+        closeTemporaryAccessDialog();
+
+        await completePlatformEntry({
+            source: 'temporary-access',
+            temporaryAccess: true,
+            expiresAt: expiresAt
+        });
+        return true;
+    }
+
+    function checkTemporaryAccessExpiry() {
+        if (document.documentElement.dataset.hashcodTemporaryAccess !== 'true') return;
+        if (!temporaryAccessExpiresAt) {
+            try { temporaryAccessExpiresAt = Number(sessionStorage.getItem(TEMPORARY_ACCESS_STORAGE_KEY) || 0); } catch (_) {}
+        }
+        if (!temporaryAccessExpiresAt || Date.now() >= temporaryAccessExpiresAt) {
+            expireTemporaryAccess();
+            return;
+        }
+        armTemporaryAccessExpiry(temporaryAccessExpiresAt);
+    }
+
     async function submitForm(event) {
         event.preventDefault();
 
@@ -1086,6 +1267,10 @@
         if (bound) return;
         const form = document.getElementById('hashcodRegistrationForm');
         const cedula = document.getElementById('hashcodRegCedula');
+        const temporaryAccessButton = document.getElementById('hashcodTemporaryAccessButton');
+        const temporaryAccessDialog = document.getElementById('hashcodTemporaryAccessDialog');
+        const temporaryAccessCancel = document.getElementById('hashcodTemporaryAccessCancel');
+        const temporaryAccessConfirm = document.getElementById('hashcodTemporaryAccessConfirm');
         const whatsappButton = document.getElementById('hashcodRegistrationWhatsappButton');
         const codeButton = document.getElementById('hashcodRegCodeButton');
         const codeInput = document.getElementById('hashcodRegCodeFile');
@@ -1094,7 +1279,7 @@
         const copyRegistrationCodeButton = document.getElementById('hashcodRegistrationCopyCode');
         const continueAfterCodeButton = document.getElementById('hashcodRegistrationContinueAfterCode');
         const codeReceipt = document.getElementById('hashcodRegistrationCodeReceipt');
-        if (!form || !cedula || !whatsappButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !copyRegistrationCodeButton || !continueAfterCodeButton || !codeReceipt) return;
+        if (!form || !cedula || !temporaryAccessButton || !temporaryAccessDialog || !temporaryAccessCancel || !temporaryAccessConfirm || !whatsappButton || !codeButton || !codeInput || !privacyTrigger || !privacyCard || !copyRegistrationCodeButton || !continueAfterCodeButton || !codeReceipt) return;
         bound = true;
 
         function invalidateWhatsappDispatch() {
@@ -1318,6 +1503,12 @@
             event.stopPropagation();
         });
 
+        temporaryAccessButton.addEventListener('click', openTemporaryAccessDialog);
+        temporaryAccessCancel.addEventListener('click', closeTemporaryAccessDialog);
+        temporaryAccessConfirm.addEventListener('click', startTemporaryAccess);
+        temporaryAccessDialog.addEventListener('click', function (event) {
+            if (event.target === temporaryAccessDialog) closeTemporaryAccessDialog();
+        });
         whatsappButton.addEventListener('click', sendRegistrationWhatsapp);
         copyRegistrationCodeButton.addEventListener('click', copyRegistrationCode);
         continueAfterCodeButton.addEventListener('click', continueAfterRegistrationCode);
@@ -1340,15 +1531,24 @@
         return registrationGatePromise;
     }
 
-    async function completePlatformEntry() {
+    async function completePlatformEntry(options) {
+        const entryOptions = options && typeof options === 'object' ? options : {};
+        const temporaryAccess = entryOptions.temporaryAccess === true;
         const root = document.getElementById(ROOT_ID);
         const codeReceipt = document.getElementById('hashcodRegistrationCodeReceipt');
+        const temporaryDialog = document.getElementById('hashcodTemporaryAccessDialog');
         const privateCode = document.getElementById('hashcodRegistrationPrivateCode');
         if (codeReceipt) {
             codeReceipt.classList.remove('is-open');
             codeReceipt.setAttribute('aria-hidden', 'true');
         }
         if (privateCode) privateCode.textContent = '';
+        if (temporaryDialog) {
+            if (typeof temporaryDialog.close === 'function' && temporaryDialog.open) {
+                try { temporaryDialog.close(); } catch (_) {}
+            }
+            temporaryDialog.remove();
+        }
 
         // Fade the registration layer instead of dropping a full-viewport node
         // in a single frame. The platform is already painted underneath.
@@ -1380,8 +1580,13 @@
         }
 
         window.dispatchEvent(new CustomEvent('hashcod:platform-entered', {
-            detail: {
-                source: 'platform-registration',
+            detail: temporaryAccess ? {
+                source: entryOptions.source || 'temporary-access',
+                temporaryAccess: true,
+                temporaryAccessExpiresAt: Number(entryOptions.expiresAt || temporaryAccessExpiresAt || 0),
+                localOnly: true
+            } : {
+                source: entryOptions.source || 'platform-registration',
                 whatsappDispatched: true,
                 entryConfirmed: true,
                 localOnly: true
@@ -1409,6 +1614,11 @@
         }
     });
 
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') checkTemporaryAccessExpiry();
+    });
+    window.addEventListener('pageshow', checkTemporaryAccessExpiry);
+
     window.HashcodPlatformRegistration = Object.freeze({
         waitForSuccessfulSubmission: waitForSuccessfulSubmission,
         completePlatformEntry: completePlatformEntry,
@@ -1419,6 +1629,14 @@
             return currentRegistrationCode ? buildRegistrationWhatsAppMessage(currentRegistrationCode) : '';
         },
         sendWhatsApp: sendRegistrationWhatsapp,
+        openTemporaryAccess: openTemporaryAccessDialog,
+        temporaryAccessState: function () {
+            return {
+                active: document.documentElement.dataset.hashcodTemporaryAccess === 'true',
+                expiresAt: temporaryAccessExpiresAt,
+                remainingMs: temporaryAccessExpiresAt ? Math.max(0, temporaryAccessExpiresAt - Date.now()) : 0
+            };
+        },
         mount: mount
     });
 })();

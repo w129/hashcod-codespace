@@ -503,12 +503,12 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
 }
 .hashcod-registration-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 50px;
+    grid-template-columns: 50px minmax(0, 1fr) 50px;
     gap: 10px;
     align-items: start;
     margin-top: 20px;
 }
-#hashcodRegistrationSubmit, #hashcodRegistrationWhatsappButton {
+#hashcodTemporaryAccessButton, #hashcodRegistrationSubmit, #hashcodRegistrationWhatsappButton {
     min-height: 50px; border: 1px solid #111; border-radius: 9px; cursor: pointer;
     transition: transform .14s ease, background .14s ease, color .14s ease, opacity .14s ease;
 }
@@ -607,6 +607,7 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     outline-offset: 3px;
 }
 
+#hashcodTemporaryAccessButton,
 #hashcodRegistrationWhatsappButton {
     width: 50px;
     min-width: 50px;
@@ -634,6 +635,7 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
         box-shadow .14s ease,
         opacity .14s ease;
 }
+#hashcodTemporaryAccessButton svg,
 #hashcodRegistrationWhatsappButton svg {
     display: block;
     width: 22px;
@@ -651,24 +653,144 @@ html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration {
     box-shadow: none;
     transform: none;
 }
+#hashcodTemporaryAccessButton:hover,
 #hashcodRegistrationWhatsappButton:not(:disabled):hover {
     background: #111;
     color: #fff;
     box-shadow: 0 5px 14px rgba(0,0,0,.12);
     transform: translateY(-1px);
 }
+#hashcodTemporaryAccessButton:active,
 #hashcodRegistrationWhatsappButton:not(:disabled):active {
     box-shadow: 0 1px 4px rgba(0,0,0,.10);
     transform: translateY(0) scale(.96);
 }
+#hashcodTemporaryAccessButton:focus-visible,
 #hashcodRegistrationWhatsappButton:focus-visible {
     outline: 2px solid #111;
     outline-offset: 3px;
 }
 
 
+#hashcodTemporaryAccessDialog {
+    width: min(430px, calc(100vw - 28px));
+    max-width: 430px;
+    padding: 0;
+    border: 1px solid #111;
+    border-radius: 14px;
+    background: #fff;
+    color: #111;
+    box-shadow: 0 24px 70px rgba(0,0,0,.22);
+    overflow: hidden;
+}
+
+#hashcodTemporaryAccessDialog::backdrop {
+    background: rgba(0,0,0,.42);
+    backdrop-filter: blur(3px);
+}
+
+#hashcodTemporaryAccessDialog.is-open {
+    position: fixed;
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2147483654;
+}
+
+.hashcod-temporary-access-card {
+    padding: 22px;
+    display: grid;
+    gap: 12px;
+}
+
+.hashcod-temporary-access-kicker {
+    color: #777;
+    font: 700 10px/1 "IBM Plex Mono", Consolas, monospace;
+    letter-spacing: .08em;
+}
+
+.hashcod-temporary-access-card h2 {
+    margin: 0;
+    font: 700 18px/1.2 "IBM Plex Mono", Consolas, monospace;
+    letter-spacing: -.02em;
+}
+
+.hashcod-temporary-access-card p {
+    margin: 0;
+    color: #666;
+    font: 500 12px/1.55 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-temporary-access-duration {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 128px;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.hashcod-temporary-access-duration input,
+.hashcod-temporary-access-duration select {
+    min-width: 0;
+    height: 46px;
+    box-sizing: border-box;
+    border: 1px solid #aaa;
+    border-radius: 9px;
+    background: #fff;
+    color: #111;
+    padding: 0 12px;
+    font: 700 12px/1 "IBM Plex Mono", Consolas, monospace;
+    outline: none;
+}
+
+.hashcod-temporary-access-duration input:focus,
+.hashcod-temporary-access-duration select:focus {
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0,0,0,.08);
+}
+
+.hashcod-temporary-access-limit,
+.hashcod-temporary-access-status {
+    min-height: 14px;
+    color: #777;
+    font: 600 10px/1.35 "IBM Plex Mono", Consolas, monospace;
+}
+
+.hashcod-temporary-access-status.is-error {
+    color: #a31212;
+}
+
+.hashcod-temporary-access-actions {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.hashcod-temporary-access-actions button {
+    min-height: 44px;
+    border: 1px solid #111;
+    border-radius: 9px;
+    cursor: pointer;
+    font: 700 10px/1 "IBM Plex Mono", Consolas, monospace;
+    letter-spacing: .04em;
+}
+
+#hashcodTemporaryAccessCancel {
+    background: #fff;
+    color: #111;
+}
+
+#hashcodTemporaryAccessConfirm {
+    background: #111;
+    color: #fff;
+}
+
+#hashcodTemporaryAccessCancel:hover,
+#hashcodTemporaryAccessConfirm:hover {
+    transform: translateY(-1px);
+}
+
 .hashcod-registration-validity-note {
-    grid-column: 1 / 2;
+    grid-column: 2 / 3;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1104,6 +1226,8 @@ html.dark #hashcodPlatformRegistration {
 }
 html[data-hashcod-theme="dark"] .hashcod-registration-field input,
 html.dark .hashcod-registration-field input,
+html[data-hashcod-theme="dark"] #hashcodTemporaryAccessButton,
+html.dark #hashcodTemporaryAccessButton,
 html[data-hashcod-theme="dark"] #hashcodRegistrationWhatsappButton,
 html.dark #hashcodRegistrationWhatsappButton,
 html[data-hashcod-theme="dark"] #hashcodRegCodeButton,
@@ -1120,7 +1244,33 @@ html.dark #hashcodRegCodeButton.is-loaded {
 }
 
 html[data-hashcod-theme="dark"] #hashcodRegistrationWhatsappButton:not(:disabled):hover,
-html.dark #hashcodRegistrationWhatsappButton:not(:disabled):hover {
+html.dark #hashcodTemporaryAccessButton:hover,
+#hashcodRegistrationWhatsappButton:not(:disabled):hover {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
+}
+
+html[data-hashcod-theme="dark"] #hashcodTemporaryAccessDialog,
+html.dark #hashcodTemporaryAccessDialog,
+html[data-hashcod-theme="dark"] .hashcod-temporary-access-duration input,
+html.dark .hashcod-temporary-access-duration input,
+html[data-hashcod-theme="dark"] .hashcod-temporary-access-duration select,
+html.dark .hashcod-temporary-access-duration select {
+    background: #171717;
+    color: #fff;
+    border-color: #777;
+}
+
+html[data-hashcod-theme="dark"] #hashcodTemporaryAccessCancel,
+html.dark #hashcodTemporaryAccessCancel {
+    background: #171717;
+    color: #fff;
+    border-color: #777;
+}
+
+html[data-hashcod-theme="dark"] #hashcodTemporaryAccessConfirm,
+html.dark #hashcodTemporaryAccessConfirm {
     background: #fff;
     color: #111;
     border-color: #fff;
@@ -1255,7 +1405,8 @@ html.dark #hashcodRegistrationTurnstileState {
     }
     .hashcod-registration-grid { grid-template-columns: 1fr; }
     .hashcod-registration-platform-upload { grid-template-columns: minmax(0, 1fr) 48px; }
-    .hashcod-registration-actions { grid-template-columns: minmax(0, 1fr) 46px; gap: 8px; }
+    .hashcod-registration-actions { grid-template-columns: 46px minmax(0, 1fr) 46px; gap: 8px; }
+    #hashcodTemporaryAccessButton,
     #hashcodRegistrationWhatsappButton {
         width: 46px;
         min-width: 46px;
@@ -1263,12 +1414,18 @@ html.dark #hashcodRegistrationTurnstileState {
         min-height: 46px;
         border-radius: 9px;
     }
+    #hashcodTemporaryAccessButton svg,
     #hashcodRegistrationWhatsappButton svg {
         width: 20px;
         height: 20px;
         max-width: 20px;
         max-height: 20px;
     }
+    #hashcodTemporaryAccessDialog {
+        width: min(390px, calc(100vw - 20px));
+    }
+    .hashcod-temporary-access-card { padding: 18px 14px; }
+    .hashcod-temporary-access-duration { grid-template-columns: minmax(0, 1fr) 112px; }
     .hashcod-registration-field.is-wide, .hashcod-registration-consent { grid-column: 1; }
     .hashcod-registration-price-list > div { grid-template-columns: 1fr; gap: 2px; }
     .hashcod-notification-list { border-radius: 16px; padding: 9px; }

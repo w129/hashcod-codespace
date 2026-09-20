@@ -106,43 +106,14 @@
     }
 
     function mount() {
-        injectStyle();
-        const topBarRight = document.querySelector('.top-bar-right');
-        if (!topBarRight) return false;
+        // Visible Windows Hello control retired from the top bar. Authentication
+        // remains available through HashcodAdmin/admin-device flows elsewhere.
+        const button = document.getElementById(BUTTON_ID);
+        if (button) button.remove();
 
-        let button = document.getElementById(BUTTON_ID);
-        if (!button) {
-            button = document.createElement('button');
-            button.type = 'button';
-            button.id = BUTTON_ID;
-            button.innerHTML = HELLO_ICON;
-            button.addEventListener('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                verify(button);
-            });
+        const style = document.getElementById(STYLE_ID);
+        if (style) style.remove();
 
-            const securityBadge = document.getElementById('secStatusBarBadge');
-            const logoutBtn = document.getElementById('topBarLogoutBtn');
-            if (securityBadge && securityBadge.parentNode === topBarRight) {
-                topBarRight.insertBefore(button, securityBadge);
-            } else if (logoutBtn && logoutBtn.parentNode === topBarRight) {
-                topBarRight.insertBefore(button, logoutBtn);
-            } else {
-                topBarRight.appendChild(button);
-            }
-        }
-
-        render(button, document.documentElement.dataset.adminAuthenticated === 'true');
-
-        if (!topbarObserver && typeof MutationObserver === 'function') {
-            topbarObserver = new MutationObserver(function () {
-                if (!document.getElementById(BUTTON_ID)) {
-                    requestAnimationFrame(mount);
-                }
-            });
-            topbarObserver.observe(topBarRight, { childList: true });
-        }
         return true;
     }
 

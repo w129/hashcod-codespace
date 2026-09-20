@@ -455,48 +455,12 @@
          * Create Top Bar status widget
          */
         createTopBarWidget() {
-            // Strictly check if badge already exists in DOM
-            let badge = document.getElementById('secStatusBarBadge');
-
-            // Remove any accidental duplicate badges if multiple exist
-            const allBadges = document.querySelectorAll('#secStatusBarBadge');
-            if (allBadges.length > 1) {
-                for (let i = 1; i < allBadges.length; i++) {
-                    allBadges[i].remove();
-                }
-            }
-
-            if (badge) {
-                this.topBarBadgeEl = badge;
-                badge.onclick = () => this.open();
-                return;
-            }
-
-            const topBarRight = document.querySelector('.top-bar-right');
-            if (!topBarRight) return;
-
-            badge = document.createElement('button');
-            badge.type = 'button';
-            badge.id = 'secStatusBarBadge';
-            badge.className = 'sec-status-badge score-healthy';
-            badge.title = 'Abrir Monitor de Seguridad & Watchdog en Vivo';
-            badge.innerHTML = `
-                <span class="sec-badge-dot"></span>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span id="secBadgeScoreText">Security: 100/100</span>
-                <span class="sec-pill-tag" id="secBadgeQuantumTag" style="font-size:9px; padding:1px 5px;">PQC 100%</span>
-                <span class="sec-pill-tag" id="secBadgeTransportTag" style="font-size:9px; padding:1px 5px; color:#10b981; border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.1);">⚡ gRPC-Web</span>
-            `;
-            badge.onclick = () => this.open();
-
-            const logoutBtn = document.getElementById('topBarLogoutBtn');
-            if (logoutBtn && logoutBtn.parentNode) {
-                logoutBtn.parentNode.insertBefore(badge, logoutBtn);
-            } else {
-                topBarRight.appendChild(badge);
-            }
-
-            this.topBarBadgeEl = badge;
+            // Top-bar security badge retired from the visible interface.
+            // The security monitor, watchdog, telemetry, audits and drawer remain
+            // fully operational internally; only the persistent top-bar control
+            // is removed.
+            document.querySelectorAll('#secStatusBarBadge').forEach((badge) => badge.remove());
+            this.topBarBadgeEl = null;
         }
 
         /**

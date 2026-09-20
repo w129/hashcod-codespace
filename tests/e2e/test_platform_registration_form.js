@@ -51,6 +51,9 @@ assert(js.includes('M 4 6 L 4 13 L 6 13 L 6 8'), 'requested temporary access SVG
 assert(js.includes("const TEMPORARY_ACCESS_STORAGE_KEY = 'hashcod_temporary_access_expires_v1'"), 'temporary access storage key missing');
 assert(js.includes('const TEMPORARY_ACCESS_MAX_MS = 24 * 60 * 60 * 1000'), 'temporary access must cap sessions at 24 hours');
 assert(js.includes('function startTemporaryAccess(event)'), 'temporary access entry function missing');
+assert(js.includes('temporaryAccessGrant = {'), 'temporary access must create an entry-gate grant');
+assert(js.includes('registrationGateResolve(temporaryAccessGrant)'), 'temporary access must resolve the authoritative entry gate');
+assert(js.includes('temporaryAccessGrant.temporaryAccess === true'), 'entry gate must recognize a temporary grant');
 assert(js.includes('temporaryAccess: true'), 'temporary entry must identify itself as temporary');
 assert(js.includes('armTemporaryAccessExpiry(expiresAt)'), 'temporary access must arm an expiry timer');
 assert(js.includes('window.setTimeout(expireTemporaryAccess, remaining)'), 'temporary access expiry timer missing');

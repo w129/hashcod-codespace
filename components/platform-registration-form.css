@@ -1405,9 +1405,9 @@ html.dark #hashcodRegistrationTurnstileState {
     }
     .hashcod-registration-grid { grid-template-columns: 1fr; }
     .hashcod-registration-platform-upload { grid-template-columns: minmax(0, 1fr) 48px; }
-    .hashcod-registration-actions { grid-template-columns: minmax(0, 1fr) 46px; gap: 8px; }
+    .hashcod-registration-actions { grid-template-columns: 46px minmax(0, 1fr) 46px; gap: 8px; }
     #hashcodTemporaryAccessButton,
-#hashcodRegistrationWhatsappButton {
+    #hashcodRegistrationWhatsappButton {
         width: 46px;
         min-width: 46px;
         height: 46px;
@@ -1415,7 +1415,7 @@ html.dark #hashcodRegistrationTurnstileState {
         border-radius: 9px;
     }
     #hashcodTemporaryAccessButton svg,
-#hashcodRegistrationWhatsappButton svg {
+    #hashcodRegistrationWhatsappButton svg {
         width: 20px;
         height: 20px;
         max-width: 20px;

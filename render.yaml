@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: l8-codespace
+    name: hashcod-codespace-1
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .

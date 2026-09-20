@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 concurrency:
@@ -108,6 +108,44 @@ jobs:
           docker push "$image:latest"
           docker push "$image:sha-$GITHUB_SHA"
 
+      - name: Advance Render Blueprint image pin
+        env:
+          VERIFIED_IMAGE: ghcr.io/w129/hashcod-codespace:sha-${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          path = Path("render.yaml")
+          text = path.read_text(encoding="utf-8")
+          image = os.environ["VERIFIED_IMAGE"]
+
+          updated, count = re.subn(
+              r"ghcr\.io/w129/hashcod-codespace:sha-[0-9a-f]+",
+              image,
+              text,
+              count=1,
+          )
+
+          if count != 1:
+              raise SystemExit("Could not find the pinned Hashcod production image in render.yaml")
+
+          path.write_text(updated, encoding="utf-8")
+          PY
+
+          if git diff --quiet -- render.yaml; then
+            echo "Render Blueprint already points to the verified image."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add render.yaml
+            git commit -m "Pin Render Blueprint to verified production image [skip ci]"
+            git push origin HEAD:main
+          fi
+
       - name: Publish summary
         run: |
           {
@@ -116,4 +154,5 @@ jobs:
             echo "- Smoke test: passed"
             echo "- Image: `ghcr.io/w129/hashcod-codespace:latest`"
             echo "- Commit tag: `ghcr.io/w129/hashcod-codespace:sha-$GITHUB_SHA`"
+            echo "- Render Blueprint pin: updated to this verified image"
           } >> "$GITHUB_STEP_SUMMARY"

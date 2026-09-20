@@ -1,14 +1,13 @@
 services:
   - type: web
     name: hashcod-codespace-1
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    dockerCommand: caddy run --config /var/www/html/Caddyfile --adapter caddyfile
+    runtime: image
+    image:
+      url: ghcr.io/w129/hashcod-codespace:sha-75e950cbd84ecb2c6b50001cec59af45ef864adb
     plan: free
     region: oregon
     healthCheckPath: /healthz
-    autoDeployTrigger: commit
+    autoDeployTrigger: off
     envVars:
       - key: SUPABASE_URL
         sync: false

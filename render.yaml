@@ -1,12 +1,14 @@
 services:
   - type: web
     name: l8-codespace
-    env: docker
+    runtime: docker
     dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: caddy run --config /var/www/html/Caddyfile --adapter caddyfile
     plan: free
     region: oregon
-    healthCheckPath: /robots.txt
-    autoDeploy: true
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -38,5 +40,3 @@ services:
         sync: false
       - key: WS_ALLOWED_ORIGINS
         value: https://hashcod-codespace-1.onrender.com
-
-

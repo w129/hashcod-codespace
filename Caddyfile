@@ -15,6 +15,14 @@
 # Sin "http://:" Caddy trata el número como hostname y sirve HTTPS →
 # "Client sent an HTTP request to an HTTPS server."
 http://:{$PORT:8000} {
+	# Health check de Render: no depende de PHP, Supabase ni archivos.
+	# Debe responder inmediatamente con 200 para validar el nuevo contenedor.
+	handle /healthz {
+		header Content-Type "text/plain; charset=utf-8"
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		respond "ok" 200
+	}
+
 	# Canonical HTTP para la portada: Google lo recibe incluso antes de renderizar JS.
 	@home path / /index.php /index.html
 	header @home Link "<https://hashcod-codespace-1.onrender.com/>; rel=canonical"

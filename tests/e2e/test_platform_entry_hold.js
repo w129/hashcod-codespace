@@ -17,7 +17,9 @@ assert(js.includes('CONTINUAR AL REGISTRO'), 'manual continuation label missing'
 assert(js.includes('current.__hashcodMotionOriginal || current'), 'manual gate must preserve the original platform entry function');
 assert(js.includes('waitForRegistrationGate()'), 'second screen must hand off to the third-screen registration gate');
 assert(js.includes('await registration.waitForSuccessfulSubmission();'), 'platform entry must wait for a successful registration POST');
-assert(js.includes('registration.completePlatformEntry();'), 'successful registration must complete platform entry');
+assert(js.includes('const registrationResult = await registration.waitForSuccessfulSubmission();'), 'platform entry must preserve the gate result');
+assert(js.includes('registrationResult && registrationResult.temporaryAccess === true'), 'temporary access result must be detected by the hold');
+assert(js.includes('await registration.completePlatformEntry('), 'successful registration or temporary access must complete platform entry');
 assert(js.includes('ensureRegistrationAssets(false)'), 'hold must guarantee the registration bundle is requested');
 assert(js.includes('waitForRegistrationVisible(registration)'), 'screen 2 must wait until screen 3 is visibly mounted');
 assert(js.includes('registrationHandoffReady'), 'handoff must track whether it is safe to uncover the platform');

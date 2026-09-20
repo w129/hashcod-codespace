@@ -1,0 +1,50 @@
+name: Diagnose Render Docker build
+
+on:
+  push:
+    branches:
+      - render-diagnostic
+  workflow_dispatch:
+
+jobs:
+  docker-render-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Render Docker image
+        run: |
+          docker build --progress=plain -t hashcod-render-smoke .
+
+      - name: Start container
+        run: |
+          docker run -d --name hashcod-render-smoke             -e PORT=8000             -p 8000:8000             hashcod-render-smoke
+          echo "container_id=$(docker inspect -f '{{.Id}}' hashcod-render-smoke)"
+
+      - name: Verify health endpoint
+        run: |
+          set -eux
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error http://127.0.0.1:8000/robots.txt >/tmp/robots.txt; then
+              cat /tmp/robots.txt
+              exit 0
+            fi
+            if ! docker inspect -f '{{.State.Running}}' hashcod-render-smoke | grep -qx true; then
+              echo "Container stopped before becoming healthy."
+              docker logs hashcod-render-smoke || true
+              docker inspect hashcod-render-smoke || true
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "Health endpoint never became ready."
+          docker logs hashcod-render-smoke || true
+          docker inspect hashcod-render-smoke || true
+          exit 1
+
+      - name: Show container logs
+        if: always()
+        run: |
+          docker logs hashcod-render-smoke || true

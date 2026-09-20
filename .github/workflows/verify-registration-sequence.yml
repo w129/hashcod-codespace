@@ -125,6 +125,7 @@ jobs:
             if printf '%s' "$html" | grep -q 'platform-entry-hold.js?v=20260918-37' \
               && printf '%s' "$html" | grep -q 'hashcodTemporaryAccessButton' \
               && printf '%s' "$html" | grep -q 'hashcodTemporaryAccessDialog' \
+              && printf '%s' "$html" | grep -q 'ensureTemporaryEntryCompleted' \
               && printf '%s' "$html" | grep -q 'data-hashcod-registration-flip="official"'; then
               echo "Render is serving the merged registration sequence."
               deployed=1

@@ -315,6 +315,22 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script defer src="' . $base . 'components/toolbox-secure-ui-rescue.js?v=20260919-perf1" data-hashcod-toolbox-ui-rescue="true"></script>'
             : '';
 
+        // Toolbox 1 is intentionally empty. Keep the 4x4 circles and visual
+        // geometry, but remove every tool icon, label and legacy click action.
+        // Inline the cleanup so stale cached toolbox runtimes cannot restore
+        // retired tools after this response is rendered.
+        $toolboxOneEmptyJsPath = __DIR__ . '/components/toolbox-one-empty.js';
+        $toolboxOneEmptyJs = is_file($toolboxOneEmptyJsPath) ? (string) @file_get_contents($toolboxOneEmptyJsPath) : '';
+        if ($toolboxOneEmptyJs !== '') {
+            $toolboxOneEmptyJs = str_ireplace('</script', '<\\/script', $toolboxOneEmptyJs);
+        }
+        $inlineToolboxOneEmptyTag = $toolboxOneEmptyJs !== ''
+            ? '<script id="hashcod-toolbox-one-empty-inline">' . $toolboxOneEmptyJs . '</script>'
+            : '';
+        $toolboxOneEmptyExternalTag = $toolboxOneEmptyJs === ''
+            ? '<script defer src="' . $base . 'components/toolbox-one-empty.js?v=20260920-empty1" data-hashcod-toolbox-one-empty="true"></script>'
+            : '';
+
         // Inline the EFR editor too. Its global idempotency guard means the
         // external fallback can safely load afterward without mounting twice.
         $efrJsPath = __DIR__ . '/components/efr-code-editor.js';
@@ -389,6 +405,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag
+            . $inlineToolboxOneEmptyTag
+            . $toolboxOneEmptyExternalTag
             . $inlineEfrJsTag
             . '<script defer src="' . $base . 'components/vector-link-board-reconcile.js?v=20260913-6" data-hashcod-link-reconcile="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'

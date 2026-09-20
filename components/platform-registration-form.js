@@ -390,9 +390,22 @@
                     <div class="hashcod-temporary-access-kicker">HASHCOD · ACCESO TEMPORAL</div>
                     <h2 id="hashcodTemporaryAccessTitle">¿Cuánto tiempo quieres permanecer?</h2>
                     <p>
-                        Este acceso omite el formulario de registro. Cuando el tiempo termine,
-                        Codespace cerrará esta sesión temporal y volverá al inicio.
+                        Este acceso omite los demás datos del formulario, pero mantiene el requisito 18+.
+                        Cuando el tiempo termine, Codespace cerrará esta sesión temporal y volverá al inicio.
                     </p>
+                    <label class="hashcod-temporary-access-age" for="hashcodTemporaryAccessAge">
+                        <span>Edad</span>
+                        <input
+                            id="hashcodTemporaryAccessAge"
+                            type="number"
+                            inputmode="numeric"
+                            min="18"
+                            max="120"
+                            step="1"
+                            placeholder="18"
+                            aria-label="Edad para el acceso temporal"
+                        >
+                    </label>
                     <div class="hashcod-temporary-access-duration">
                         <input
                             id="hashcodTemporaryAccessDuration"
@@ -1013,10 +1026,12 @@
     function openTemporaryAccessDialog(event) {
         if (event) event.preventDefault();
         const dialog = document.getElementById('hashcodTemporaryAccessDialog');
+        const age = document.getElementById('hashcodTemporaryAccessAge');
         const duration = document.getElementById('hashcodTemporaryAccessDuration');
         const unit = document.getElementById('hashcodTemporaryAccessUnit');
-        if (!dialog || !duration || !unit) return false;
+        if (!dialog || !age || !duration || !unit) return false;
 
+        age.value = '';
         duration.value = '30';
         unit.value = 'minutes';
         setTemporaryAccessStatus('', false);
@@ -1026,7 +1041,7 @@
             dialog.classList.add('is-open');
         }
         window.setTimeout(function () {
-            try { duration.focus({ preventScroll: true }); } catch (_) { duration.focus(); }
+            try { age.focus({ preventScroll: true }); } catch (_) { age.focus(); }
         }, 0);
         return true;
     }
@@ -1088,6 +1103,13 @@
 
     async function startTemporaryAccess(event) {
         if (event) event.preventDefault();
+
+        const ageInput = document.getElementById('hashcodTemporaryAccessAge');
+        const age = Number(ageInput && ageInput.value);
+        if (!Number.isInteger(age) || age < 18 || age > 120) {
+            setTemporaryAccessStatus('El acceso temporal requiere tener 18 años o más.', true);
+            return false;
+        }
 
         const milliseconds = temporaryDurationMs();
         if (milliseconds === -1) {

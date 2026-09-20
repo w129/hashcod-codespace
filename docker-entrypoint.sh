@@ -3,12 +3,10 @@ set -eu
 
 echo "[l8] starting container…"
 
-# Diagnóstico seguro: solo indica si existen las vars (no imprime valores)
 for key in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SECRET_KEY SUPABASE_STORAGE_BUCKET GITHUB_TOKEN ORIGINKIT_API_KEY; do
-  # shellcheck disable=SC2372
   eval "val=\${$key-}"
   if [ -n "$val" ]; then
-    echo "[l8] env $key = SET (len=${#val})"
+    echo "[l8] env $key = SET (len=\${#val})"
   else
     echo "[l8] env $key = MISSING"
   fi
@@ -44,13 +42,11 @@ else
   echo "[l8] agent-browser = MISSING"
 fi
 
-# Secret files de Render (si se usaron en vez de Environment Variables)
 if [ -d /etc/secrets ]; then
   echo "[l8] /etc/secrets present:"
   ls -1 /etc/secrets 2>/dev/null | sed 's/^/[l8]   secretfile /' || true
 fi
 
-# Inicializar directorios de persistencia con propiedad adecuada
 mkdir -p /var/www/html/data_storage /var/www/html/uploads /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh
 touch /tmp/l8-php.log /tmp/l8-registration-cleanup.log
 chmod 666 /tmp/l8-php.log /tmp/l8-registration-cleanup.log || true
@@ -60,26 +56,46 @@ if [ "$(id -u)" = "0" ]; then
   chmod 700 /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh || true
 fi
 
-# Render inyecta PORT; Caddy escucha ahí y PHP queda interno.
-# No ejecutar trabajo de red antes del servidor público: Render necesita que
-# el health check pueda responder cuanto antes.
-export PORT="${PORT:-8000}"
-echo "[l8] public PORT=${PORT}"
+export PORT="\${PORT:-8000}"
+echo "[l8] public PORT=\${PORT}"
 
-# Si el CMD es caddy (producción Docker), levantar PHP interno primero.
-first="${1-}"
-if [ "$first" = "caddy" ] || [ "$first" = "/usr/local/bin/caddy" ]; then
+# The PHP backend is mandatory. Always start it before the main process,
+# regardless of how Render overrides the CMD for a prebuilt image.
+if [ "\${HASHCOD_SKIP_PHP_ROUTER:-0}" != "1" ] && [ -f /var/www/html/router.php ]; then
   echo "[l8] starting PHP router on 127.0.0.1:8001 (as l8user)"
   if [ "$(id -u)" = "0" ]; then
     gosu l8user php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
   else
     php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
   fi
-  echo "[l8] php pid=$!"
+  php_pid=$!
+  echo "[l8] php pid=$php_pid"
 
-  # Purga idempotente del antiguo flujo de solicitudes persistidas.
-  # Es mantenimiento best-effort: se retrasa ligeramente, corre en segundo
-  # plano y tiene un límite total para no bloquear ni degradar el arranque.
+  php_ready=0
+  attempt=1
+  while [ "$attempt" -le 50 ]; do
+    if ! kill -0 "$php_pid" >/dev/null 2>&1; then
+      echo "[l8] PHP router exited before becoming ready"
+      cat /tmp/l8-php.log || true
+      exit 1
+    fi
+
+    if curl --fail --silent --show-error --max-time 1 http://127.0.0.1:8001/robots.txt >/dev/null 2>&1; then
+      php_ready=1
+      break
+    fi
+
+    attempt=$((attempt + 1))
+    sleep 0.1
+  done
+
+  if [ "$php_ready" -ne 1 ]; then
+    echo "[l8] PHP router did not become ready on 127.0.0.1:8001"
+    cat /tmp/l8-php.log || true
+    exit 1
+  fi
+  echo "[l8] PHP router ready"
+
   if [ -f /var/www/html/cleanup-platform-registration.php ]; then
     echo "[l8] scheduling non-blocking registration cleanup"
     (

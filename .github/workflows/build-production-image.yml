@@ -11,7 +11,7 @@ permissions:
   packages: write
 
 concurrency:
-  group: production-container-${{ github.ref }}
+  group: production-container-\${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -19,7 +19,7 @@ env:
   IMAGE_NAME: w129/hashcod-codespace
 
 jobs:
-  build-and-push:
+  build-test-and-push:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -32,40 +32,88 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: \${{ env.REGISTRY }}
+          username: \${{ github.actor }}
+          password: \${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract image metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=sha,format=long
-
-      - name: Build and push linux/amd64 image
-        id: build
+      - name: Build candidate image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          load: true
+          push: false
+          tags: hashcod-production-candidate:\${{ github.sha }}
           labels: |
-            ${{ steps.meta.outputs.labels }}
             org.opencontainers.image.source=https://github.com/w129/hashcod-codespace
+            org.opencontainers.image.revision=\${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Smoke-test complete web stack
+        run: |
+          set -euo pipefail
+          docker run -d --name hashcod-production-smoke \
+            -e PORT=8000 \
+            -p 18000:8000 \
+            hashcod-production-candidate:$GITHUB_SHA
+
+          trap 'docker logs hashcod-production-smoke || true; docker rm -f hashcod-production-smoke >/dev/null 2>&1 || true' EXIT
+
+          ready=0
+          for attempt in $(seq 1 90); do
+            if curl --fail --silent --show-error --max-time 2 http://127.0.0.1:18000/healthz >/dev/null; then
+              ready=1
+              break
+            fi
+            if ! docker inspect -f '{{.State.Running}}' hashcod-production-smoke | grep -qx true; then
+              echo "Container stopped before healthz became ready."
+              exit 1
+            fi
+            sleep 1
+          done
+
+          if [ "$ready" -ne 1 ]; then
+            echo "healthz never became ready."
+            exit 1
+          fi
+
+          root_status="$(curl --silent --show-error --max-time 15 -o /tmp/hashcod-root.html -w '%{http_code}' http://127.0.0.1:18000/)"
+          echo "root_http_status=$root_status"
+
+          case "$root_status" in
+            2??|3??) ;;
+            *)
+              echo "Root route did not return a successful/redirect response."
+              head -c 2000 /tmp/hashcod-root.html || true
+              exit 1
+              ;;
+          esac
+
+          if grep -qiE '502 Bad Gateway|HTTP ERROR 502' /tmp/hashcod-root.html; then
+            echo "Root route contains a 502 response."
+            exit 1
+          fi
+
+          echo "Full stack smoke test passed."
+
+      - name: Tag and push verified image
+        run: |
+          set -euo pipefail
+          image="$REGISTRY/$IMAGE_NAME"
+          candidate="hashcod-production-candidate:$GITHUB_SHA"
+          docker tag "$candidate" "$image:latest"
+          docker tag "$candidate" "$image:sha-$GITHUB_SHA"
+          docker push "$image:latest"
+          docker push "$image:sha-$GITHUB_SHA"
 
       - name: Publish summary
         run: |
           {
             echo "## Hashcod production container"
             echo ""
+            echo "- Smoke test: passed"
             echo "- Image: `ghcr.io/w129/hashcod-codespace:latest`"
-            echo "- Commit tag: `ghcr.io/w129/hashcod-codespace:sha-${GITHUB_SHA}`"
-            echo "- Digest: `${{ steps.build.outputs.digest }}`"
+            echo "- Commit tag: `ghcr.io/w129/hashcod-codespace:sha-$GITHUB_SHA`"
           } >> "$GITHUB_STEP_SUMMARY"

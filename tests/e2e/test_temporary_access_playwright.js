@@ -99,6 +99,22 @@ async function run() {
     assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
       'invalid duration must not enter Codespace');
 
+    // Accelerate only the temporary-access expiry timer so the test can prove
+    // the automatic ejection without waiting a real minute.
+    await page.evaluate(() => {
+      const nativeSetTimeout = window.setTimeout.bind(window);
+      window.setTimeout = function (callback, delay, ...args) {
+        if (
+          typeof callback === 'function'
+          && callback.name === 'expireTemporaryAccess'
+          && Number(delay) > 5000
+        ) {
+          return nativeSetTimeout(callback, 2500, ...args);
+        }
+        return nativeSetTimeout(callback, delay, ...args);
+      };
+    });
+
     // A valid duration enters without touching the registration fields.
     await page.fill('#hashcodTemporaryAccessDuration', '1');
     await page.selectOption('#hashcodTemporaryAccessUnit', 'minutes');
@@ -134,7 +150,20 @@ async function run() {
     assert.equal(state.detail.temporaryAccess, true);
     assert.equal(state.detail.temporaryAccessExpiresAt, state.temp.expiresAt);
 
-    console.log('PASS: temporary icon enters Codespace with an empty form, enforces a 24-hour cap, and arms a timed session.');
+    const navigation = page.waitForEvent('framenavigated', { timeout: 7000 });
+    await navigation;
+    await page.waitForSelector('#bootCliEnter', { state: 'visible', timeout: 10000 });
+
+    const expiredState = await page.evaluate(() => ({
+      temporaryFlag: document.documentElement.dataset.hashcodTemporaryAccess || '',
+      entered: document.documentElement.dataset.hashcodPlatformEntered || '',
+      stored: sessionStorage.getItem('hashcod_temporary_access_expires_v1')
+    }));
+    assert.equal(expiredState.temporaryFlag, '', 'temporary marker must be cleared after expiry');
+    assert.notEqual(expiredState.entered, 'true', 'expired temporary user must be returned to the initial screen');
+    assert.equal(expiredState.stored, null, 'temporary expiry must clear sessionStorage');
+
+    console.log('PASS: temporary icon bypasses the form, enforces a 24-hour cap, enters through the normal gate, and automatically returns to the initial screen when time expires.');
   } finally {
     await browser.close();
   }

@@ -33,6 +33,7 @@
     let validationFrame = 0;
     let temporaryAccessTimer = 0;
     let temporaryAccessExpiresAt = 0;
+    let temporaryAccessGrant = null;
     const TEMPORARY_ACCESS_STORAGE_KEY = 'hashcod_temporary_access_expires_v1';
     const TEMPORARY_ACCESS_MAX_MS = 24 * 60 * 60 * 1000;
     const TEMPORARY_ACCESS_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true"><path d="M 4 6 L 4 13 L 6 13 L 6 8 L 19 8 L 19 9 L 21 9 L 21 8 L 26 8 L 26 13 L 28 13 L 28 6 L 4 6 z M 26 13 L 24 13 L 24 19 L 26 19 L 26 13 z M 26 19 L 26 24 L 21 24 L 21 23 L 19 23 L 19 24 L 6 24 L 6 19 L 4 19 L 4 26 L 28 26 L 28 19 L 26 19 z M 6 19 L 8 19 L 8 13 L 6 13 L 6 19 z M 19 11 L 19 13 L 21 13 L 21 11 L 19 11 z M 19 15 L 19 17 L 21 17 L 21 15 L 19 15 z M 19 19 L 19 21 L 21 21 L 21 19 L 19 19 z"></path></svg>';
@@ -1048,6 +1049,7 @@
             temporaryAccessTimer = 0;
         }
         temporaryAccessExpiresAt = 0;
+        temporaryAccessGrant = null;
         try { sessionStorage.removeItem(TEMPORARY_ACCESS_STORAGE_KEY); } catch (_) {}
         delete document.documentElement.dataset.hashcodTemporaryAccess;
         delete document.documentElement.dataset.hashcodTemporaryAccessExpires;
@@ -1105,11 +1107,26 @@
         armTemporaryAccessExpiry(expiresAt);
         closeTemporaryAccessDialog();
 
-        await completePlatformEntry({
+        temporaryAccessGrant = {
+            ok: true,
             source: 'temporary-access',
             temporaryAccess: true,
-            expiresAt: expiresAt
-        });
+            expiresAt: expiresAt,
+            localOnly: true
+        };
+
+        if (registrationGateResolve) {
+            registrationGateResolve(temporaryAccessGrant);
+            registrationGateResolve = null;
+        }
+
+        window.dispatchEvent(new CustomEvent('hashcod:temporary-access-approved', {
+            detail: {
+                source: 'temporary-access',
+                temporaryAccess: true,
+                expiresAt: expiresAt
+            }
+        }));
         return true;
     }
 
@@ -1515,6 +1532,13 @@
     }
 
     function waitForSuccessfulSubmission() {
+        if (
+            temporaryAccessGrant
+            && temporaryAccessGrant.temporaryAccess === true
+            && Number(temporaryAccessGrant.expiresAt || 0) > Date.now()
+        ) {
+            return Promise.resolve(temporaryAccessGrant);
+        }
         if (whatsappDispatched && entryConfirmed) {
             return Promise.resolve({
                 ok: true,

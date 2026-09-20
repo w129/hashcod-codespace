@@ -1,0 +1,67 @@
+name: Diagnose Render service
+
+on:
+  push:
+    branches:
+      - render-diagnostic-api
+  workflow_dispatch:
+
+jobs:
+  render-service-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check Render credentials
+        id: creds
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          if [ -n "$RENDER_API_KEY" ]; then
+            echo "api_key_present=true" >> "$GITHUB_OUTPUT"
+            echo "RENDER_API_KEY is configured."
+          else
+            echo "api_key_present=false" >> "$GITHUB_OUTPUT"
+            echo "RENDER_API_KEY is not configured."
+          fi
+          if [ -n "$RENDER_SERVICE_ID" ]; then
+            echo "service_id_present=true" >> "$GITHUB_OUTPUT"
+            echo "RENDER_SERVICE_ID is configured."
+          else
+            echo "service_id_present=false" >> "$GITHUB_OUTPUT"
+            echo "RENDER_SERVICE_ID is not configured."
+          fi
+
+      - name: Query Render service and recent deploys
+        if: steps.creds.outputs.api_key_present == 'true'
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          set -euo pipefail
+          auth=(-H "Authorization: Bearer $RENDER_API_KEY" -H "Accept: application/json")
+
+          service_id="$RENDER_SERVICE_ID"
+          if [ -z "$service_id" ]; then
+            echo "No service ID secret. Discovering by service URL/name..."
+            services="$(curl -fsS "${auth[@]}" "https://api.render.com/v1/services?limit=100")"
+            service_id="$(printf '%s' "$services" | jq -r '
+              [.[].service
+                | select(
+                    (.name // "" | test("hashcod-codespace"; "i"))
+                    or (.serviceDetails.url // "" | contains("hashcod-codespace-1.onrender.com"))
+                  )
+              ][0].id // empty
+            ')"
+          fi
+
+          if [ -z "$service_id" ]; then
+            echo "::error::Render API key works, but the Hashcod service could not be identified."
+            exit 1
+          fi
+
+          echo "Render service identified."
+          curl -fsS "${auth[@]}" "https://api.render.com/v1/services/$service_id"             | jq '{id, name, type, runtime, repo, branch, autoDeploy, serviceDetails: {url: .serviceDetails.url, env: .serviceDetails.env, healthCheckPath: .serviceDetails.healthCheckPath}}'
+
+          echo "Recent deploys:"
+          curl -fsS "${auth[@]}" "https://api.render.com/v1/services/$service_id/deploys?limit=10"             | jq '[.[] | .deploy | {id, status, trigger, createdAt, updatedAt, commit}]'

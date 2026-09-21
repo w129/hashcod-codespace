@@ -11,9 +11,9 @@
 	}
 }
 
-# Render termina TLS en el edge y llega HTTP a $PORT.
-# Sin "http://:" Caddy trata el número como hostname y sirve HTTPS →
-# "Client sent an HTTP request to an HTTPS server."
+# Railway (y otros PaaS compatibles) terminan TLS en el edge y llegan por HTTP
+# al puerto público inyectado en $PORT. Mantener http:// evita que Caddy intente
+# negociar TLS de nuevo dentro del contenedor.
 http://:{$PORT:8000} {
 	# Render sees the public port immediately through Caddy, but health only turns
 	# green when the PHP backend responds. This prevents both port-scan timeouts
@@ -30,7 +30,7 @@ http://:{$PORT:8000} {
 
 	# Canonical HTTP para la portada: Google lo recibe incluso antes de renderizar JS.
 	@home path / /index.php /index.html
-	header @home Link "<https://hashcod-codespace-1.onrender.com/>; rel=canonical"
+	header @home Link "<https://hashcodcodespace.dev/>; rel=canonical"
 
 	# SEO público: servir robots y sitemap directamente desde Caddy.
 	# Esto evita que Googlebot atraviese el bootstrap de seguridad/Turnstile y
@@ -170,6 +170,15 @@ http://:{$PORT:8000} {
 		}
 		request_header @untrustedAdminIngress -CF-Connecting-IP
 		reverse_proxy 127.0.0.1:8001 {
+			# Railway injects the real visitor address as X-Real-IP at its edge.
+			# Copy it into an internal-only header for PHP after removing any
+			# client-supplied value with the same internal name.
+			header_up -X-L8-Railway-Real-Ip
+			header_up X-L8-Railway-Real-Ip {http.request.header.X-Real-IP}
+			header_up -X-L8-Railway-Request-Id
+			header_up X-L8-Railway-Request-Id {http.request.header.X-Railway-Request-Id}
+
+			# Legacy Render compatibility while old deployments are retired.
 			header_up X-L8-Render-Cf-Ip {http.request.header.CF-Connecting-IP}
 			header_up -X-L8-Render-Xff
 			transport http {

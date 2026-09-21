@@ -1,6 +1,6 @@
 'use strict';
 (() => {
-    const rpId = 'hashcod-codespace-1.onrender.com';
+    const rpId = 'hashcodcodespace.dev';
     const button = document.getElementById('enroll');
     const status = document.getElementById('status');
     const encode = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');

@@ -1,10 +1,9 @@
 <?php
 require_once __DIR__ . '/supabase.php';
 
-const HASHCOD_PUBLIC_CHAT_TABLE = 'l8_durable_object_events';
-const HASHCOD_PUBLIC_CHAT_NAMESPACE = 'public_chat';
-const HASHCOD_PUBLIC_CHAT_OBJECT = 'global';
-const HASHCOD_PUBLIC_CHAT_ACTION = 'message';
+const HASHCOD_PUBLIC_CHAT_TABLE = 'l8_activity_log';
+const HASHCOD_PUBLIC_CHAT_ACTION = 'PUBLIC_CHAT_MESSAGE';
+const HASHCOD_PUBLIC_CHAT_TARGET = 'global';
 
 function hashcodPublicChatJson(array $payload, int $status = 200): void {
     http_response_code($status);
@@ -79,9 +78,9 @@ if ($method === 'GET') {
     $after = trim((string)($_GET['after'] ?? ''));
 
     $query = 'select=id,payload,created_at'
-        . '&namespace=eq.' . rawurlencode(HASHCOD_PUBLIC_CHAT_NAMESPACE)
-        . '&object_id=eq.' . rawurlencode(HASHCOD_PUBLIC_CHAT_OBJECT)
-        . '&action=eq.' . rawurlencode(HASHCOD_PUBLIC_CHAT_ACTION);
+        . '&action=eq.' . rawurlencode(HASHCOD_PUBLIC_CHAT_ACTION)
+        . '&target=eq.' . rawurlencode(HASHCOD_PUBLIC_CHAT_TARGET)
+        . '&status=eq.published';
 
     $reverse = false;
     if ($before !== '' && hashcodPublicChatValidIso($before)) {
@@ -145,10 +144,12 @@ if ($method === 'POST') {
     $row = [
         'id' => $id,
         'account_key' => 'public_chat',
-        'namespace' => HASHCOD_PUBLIC_CHAT_NAMESPACE,
-        'object_id' => HASHCOD_PUBLIC_CHAT_OBJECT,
         'action' => HASHCOD_PUBLIC_CHAT_ACTION,
+        'target' => HASHCOD_PUBLIC_CHAT_TARGET,
         'payload' => $payload,
+        'ip_hash' => hash('sha256', $clientIp . (function_exists('authPepper') ? authPepper() : '')),
+        'user_agent' => substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200),
+        'status' => 'published',
         'created_at' => $createdAt
     ];
 

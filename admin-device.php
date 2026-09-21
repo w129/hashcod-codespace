@@ -4,7 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/desktop-runtime.php';
 require_once __DIR__ . '/secrets.php';
 
-const ADMIN_DEVICE_RP = 'hashcod-codespace-1.onrender.com';
+const ADMIN_DEVICE_RP = 'hashcodcodespace.dev';
 const ADMIN_DEVICE_ORIGIN = 'https://' . ADMIN_DEVICE_RP;
 const ADMIN_DEVICE_NETWORK = '38.196.115.0/24';
 
@@ -19,7 +19,17 @@ const ADMIN_COMBINED_FINGERPRINT = 'HASHCOD1:d02c7f85eccb0e8eb63f26bda3bc82fb86a
 
 function adminClientIp(array $server): string {
     if (hashcodDesktopBridgeValid()) return '127.0.0.1';
-    if (getenv('RENDER') !== 'true' || ($server['REMOTE_ADDR'] ?? '') !== '127.0.0.1') return '';
+    if (($server['REMOTE_ADDR'] ?? '') !== '127.0.0.1') return '';
+
+    // Railway path: Caddy creates this private hop header from Railway's
+    // edge-provided X-Real-IP. Never trust raw browser X-Real-IP/XFF here.
+    if (trim((string)getenv('RAILWAY_ENVIRONMENT_ID')) !== '') {
+        $ip = trim((string)($server['HTTP_X_L8_RAILWAY_REAL_IP'] ?? ''));
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
+    }
+
+    // Legacy Render path retained only for rollback compatibility.
+    if (getenv('RENDER') !== 'true') return '';
     $ip = trim((string)($server['HTTP_X_L8_RENDER_CF_IP'] ?? ''));
     return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
 }

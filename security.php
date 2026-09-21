@@ -224,16 +224,27 @@ function securityClientIp() {
     $trustConfigured = !in_array($trust, ['0', 'false', 'no', 'off'], true);
 
     $candidates = [];
+    $runningOnRailway = trim((string)getenv('RAILWAY_ENVIRONMENT_ID')) !== '';
+
     if ($trustConfigured && securityIsTrustedProxy($remoteAddr)) {
-        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-            $candidates[] = $_SERVER['HTTP_CF_CONNECTING_IP'];
-        }
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $parts = explode(',', (string)$_SERVER['HTTP_X_FORWARDED_FOR']);
-            if (!empty($parts[0])) $candidates[] = trim($parts[0]);
-        }
-        if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
-            $candidates[] = $_SERVER['HTTP_X_REAL_IP'];
+        if ($runningOnRailway && $remoteAddr === '127.0.0.1') {
+            // Caddy copies Railway's edge-provided X-Real-IP into this private
+            // hop header. Prefer it over X-Forwarded-For so Railway's own proxy
+            // address is never mistaken for the visitor and reputation-blocked.
+            if (!empty($_SERVER['HTTP_X_L8_RAILWAY_REAL_IP'])) {
+                $candidates[] = $_SERVER['HTTP_X_L8_RAILWAY_REAL_IP'];
+            }
+        } else {
+            if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+                $candidates[] = $_SERVER['HTTP_CF_CONNECTING_IP'];
+            }
+            if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $parts = explode(',', (string)$_SERVER['HTTP_X_FORWARDED_FOR']);
+                if (!empty($parts[0])) $candidates[] = trim($parts[0]);
+            }
+            if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+                $candidates[] = $_SERVER['HTTP_X_REAL_IP'];
+            }
         }
     }
     if ($remoteAddr !== '') {

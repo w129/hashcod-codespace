@@ -2672,64 +2672,29 @@ ${jsonPayload}
 
 
 
-        /* ===== BOOT: blackhole visual only (CLI hidden) ===== */
-        (function bootBlackholeVisual() {
+        /* ===== BOOT: Rare UI folder only (legacy blackhole retired) ===== */
+        (function bootFolderOnly() {
             const overlay = document.getElementById('bootCliOverlay');
             const hintEl = document.getElementById('bootCliHint');
             const enterBtn = document.getElementById('bootCliEnter');
+            const legacyCanvas = document.getElementById('bootBlackholeCanvas');
+            if (legacyCanvas) {
+                legacyCanvas.hidden = true;
+                legacyCanvas.setAttribute('aria-hidden', 'true');
+                legacyCanvas.style.display = 'none';
+            }
             if (!overlay || !enterBtn) return;
 
-            let blackholeInstance = null;
-
-            function presentBlackholeVisual() {
-                const canvas = document.getElementById('bootBlackholeCanvas');
-                if (!canvas) return;
-                if (!window.OriginkitBlackHole) {
-                    let attempts = 0;
-                    const checkTimer = setInterval(() => {
-                        attempts++;
-                        if (window.OriginkitBlackHole) {
-                            clearInterval(checkTimer);
-                            presentBlackholeVisual();
-                        } else if (attempts > 50) {
-                            clearInterval(checkTimer);
-                        }
-                    }, 50);
-                    return;
-                }
-                try {
-                    if (blackholeInstance && blackholeInstance.stop) blackholeInstance.stop();
-                    const wide = window.innerWidth > 720;
-                    blackholeInstance = window.OriginkitBlackHole.create(canvas, {
-                        showCenter: true,
-                        centre: { radius: 8, x: wide ? 38 : 50, y: wide ? 54 : 46 },
-                        background: '#ffffff',
-                        outerRadius: wide ? 78 : 82,
-                        particleCount: 2400,
-                        particleSize: 1.9,
-                        trail: 82,
-                        tilt: 70,
-                        tiltSideway: 12,
-                        orbitSpeed: 1.15,
-                        pullSpeed: 0.06,
-                        armCount: 9,
-                        colors: ['#111111', '#1a1a1a', '#2e2e2e', '#3d3d3d', '#555555', '#6a6a6a', '#888888', '#222222']
-                    });
-                    setTimeout(() => blackholeInstance && blackholeInstance.resize && blackholeInstance.resize(), 30);
-                } catch (e) {
-                    console.warn('Blackhole visual init error:', e);
-                }
-            }
-
             function markReady() {
-                if (enterBtn) enterBtn.classList.add('ready');
-                if (hintEl) hintEl.textContent = 'Ready — click Enter platform to proceed';
+                enterBtn.classList.add('ready');
+                if (hintEl) {
+                    hintEl.textContent = '';
+                    hintEl.hidden = true;
+                    hintEl.setAttribute('aria-hidden', 'true');
+                }
             }
 
             async function enterPlatform() {
-                if (blackholeInstance && blackholeInstance.stop) {
-                    try { blackholeInstance.stop(); } catch (e) {}
-                }
                 if (overlay) overlay.classList.add('hidden');
                 try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}
 
@@ -2769,7 +2734,5 @@ ${jsonPayload}
                 }
             });
 
-            // Instant readiness
-            presentBlackholeVisual();
             markReady();
         })();

@@ -40,6 +40,11 @@ jobs:
 
       - name: Run critical security regression checks
         run: node tests/security/test-critical-surface-hardening.js
+      - name: Verify external main platform runtime
+        run: |
+          node --check components/main-platform-runtime.js
+          node tests/security/test-main-platform-runtime-external.js
+
 
       - name: Verify CSP nonce HTML parser
         run: php tests/security/test-csp-nonce-injection.php

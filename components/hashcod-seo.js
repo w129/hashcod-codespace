@@ -4,7 +4,7 @@
   if (window.__hashcodSeoSignalsLoaded) return;
   window.__hashcodSeoSignalsLoaded = true;
 
-  const CANONICAL_URL = 'https://hashcod-codespace-1.onrender.com/';
+  const CANONICAL_URL = 'https://hashcodcodespace.dev/';
   const SITE_NAME = 'Hashcod Codespace';
   const TITLE = 'Hashcod Codespace | Plataforma de desarrollo e IA';
   const DESCRIPTION = 'Hashcod Codespace es una plataforma para desarrolladores con herramientas de IA, edición, automatización, seguridad y certificación de proyectos digitales.';

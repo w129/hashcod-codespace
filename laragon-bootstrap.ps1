@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $Repo = 'w129/hashcod-codespace'
 $RawBase = "https://raw.githubusercontent.com/$Repo/$Branch"
-$ProductionBundleUrl = 'https://hashcod-codespace-1.onrender.com/components/rare-folder-entry.bundle.js'
+$ProductionBundleUrl = 'https://hashcodcodespace.dev/components/rare-folder-entry.bundle.js'
 
 function Write-Step([string]$Message) {
     Write-Host "`n==> $Message" -ForegroundColor Cyan

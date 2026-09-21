@@ -2,9 +2,17 @@
 require dirname(__DIR__, 2) . '/admin-device.php';
 $count = 0;
 function check($value, $name) { global $count; if (!$value) throw new RuntimeException('FAIL: ' . $name); $count++; }
+putenv('RAILWAY_ENVIRONMENT_ID=railway-test');
+$railwayEdge = ['REMOTE_ADDR'=>'127.0.0.1', 'HTTP_X_L8_RAILWAY_REAL_IP'=>'38.196.115.73'];
+check(adminClientIp($railwayEdge) === '38.196.115.73', 'Railway client IP');
+check(adminClientIp(['REMOTE_ADDR'=>'127.0.0.1', 'HTTP_X_REAL_IP'=>'38.196.115.73']) === '', 'raw Railway X-Real-IP ignored');
+check(adminClientIp(array_replace($railwayEdge, ['REMOTE_ADDR'=>'192.0.2.1'])) === '', 'direct Railway internal header ignored');
+check(adminClientIp(array_replace($railwayEdge, ['HTTP_X_L8_RAILWAY_REAL_IP'=>'192.0.2.1, 38.196.115.73'])) === '', 'Railway header must contain one address');
+putenv('RAILWAY_ENVIRONMENT_ID');
+
 putenv('RENDER=true');
 $edge = ['REMOTE_ADDR'=>'127.0.0.1', 'HTTP_X_L8_RENDER_CF_IP'=>'38.196.115.73'];
-check(adminClientIp($edge) === '38.196.115.73', 'Render client IP');
+check(adminClientIp($edge) === '38.196.115.73', 'Render fallback client IP');
 check(adminClientIp(['REMOTE_ADDR'=>'127.0.0.1', 'HTTP_X_FORWARDED_FOR'=>'38.196.115.73']) === '', 'ordinary XFF ignored');
 check(adminClientIp(array_replace($edge, ['REMOTE_ADDR'=>'192.0.2.1'])) === '', 'direct headers ignored');
 check(adminClientIp(array_replace($edge, ['HTTP_X_FORWARDED_FOR'=>'192.0.2.1, 38.196.115.184'])) === '38.196.115.73', 'forged XFF ignored');

@@ -12,4 +12,4 @@ Allow: /
 Allow: /sitemap.xml
 Allow: /robots.txt
 
-Sitemap: https://hashcod-codespace-1.onrender.com/sitemap.xml
+Sitemap: https://hashcodcodespace.dev/sitemap.xml

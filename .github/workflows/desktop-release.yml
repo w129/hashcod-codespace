@@ -186,7 +186,7 @@ jobs:
           $env:HASHCOD_DESKTOP = '1'
           $env:HASHCOD_DESKTOP_ORIGIN = $origin
           $env:HASHCOD_DESKTOP_ADMIN_TOKEN = $token
-          $env:HASHCOD_CLOUD_ORIGIN = 'https://hashcod-codespace-1.onrender.com'
+          $env:HASHCOD_CLOUD_ORIGIN = 'https://hashcodcodespace.dev'
           $env:L8_TRUST_PROXY = '0'
 
           $stdout = Join-Path $env:RUNNER_TEMP 'hashcod-desktop-php-out.log'

@@ -241,7 +241,19 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260920-temp4" data-hashcod-platform-registration-style="true">'
             : '';
 
+        // Public chat is inlined so the button/panel cannot be lost to stale
+        // immutable assets. It mounts itself into .top-bar-right.
+        $publicChatCssPath = __DIR__ . '/components/public-chat.css';
+        $publicChatCss = is_file($publicChatCssPath) ? (string) @file_get_contents($publicChatCssPath) : '';
+        $inlinePublicChatCssTag = $publicChatCss !== ''
+            ? '<style id="hashcod-public-chat-inline-style">' . $publicChatCss . '</style>'
+            : '';
+        $publicChatCssExternalTag = $publicChatCss === ''
+            ? '<link rel="stylesheet" href="' . $base . 'components/public-chat.css?v=20260920-public1" data-hashcod-public-chat-style="true">'
+            : '';
+
         $cssTag = $inlineCssTag
+            . $inlinePublicChatCssTag
             . $inlineEfrCssTag
             . $inlineRegistrationCssTag
             . $secureCssExternalTag
@@ -253,7 +265,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . $efrCssExternalTag
-            . $registrationCssExternalTag;
+            . $registrationCssExternalTag
+            . $publicChatCssExternalTag;
 
         // Retire the current authentication window before first paint. The
         // backend/session code remains available for the replacement entry system.
@@ -397,6 +410,19 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script defer src="' . $base . 'components/rare-folder-entry.bundle.js?v=20260919-perf1" data-hashcod-rare-folder="true"></script>'
             : '';
 
+        // Public chat runtime: exact requested SVG button + shared persistent panel.
+        $publicChatJsPath = __DIR__ . '/components/public-chat.js';
+        $publicChatJs = is_file($publicChatJsPath) ? (string) @file_get_contents($publicChatJsPath) : '';
+        if ($publicChatJs !== '') {
+            $publicChatJs = str_ireplace('</script', '<\\/script', $publicChatJs);
+        }
+        $inlinePublicChatJsTag = $publicChatJs !== ''
+            ? '<script id="hashcod-public-chat-inline">' . $publicChatJs . '</script>'
+            : '';
+        $publicChatJsExternalTag = $publicChatJs === ''
+            ? '<script defer src="' . $base . 'components/public-chat.js?v=20260920-public1" data-hashcod-public-chat="true"></script>'
+            : '';
+
         // Remove retired top-bar controls even if an older immutable/static JS
         // asset was served from browser/CDN cache after the page started.
         $retiredTopbarControlsCleanupTag = '<script id="hashcod-retired-topbar-controls-cleanup">(function(){'
@@ -413,6 +439,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $tag = $retiredTopbarControlsCleanupTag
             . $legacyBlackholeCleanupTag
+            . $inlinePublicChatJsTag
+            . $publicChatJsExternalTag
             . $inlineRegistrationJsTag
             . $registrationFlipTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'

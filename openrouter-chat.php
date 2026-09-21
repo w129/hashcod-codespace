@@ -96,7 +96,7 @@ function openrouterChatPublicUrl(): string {
     $proto = trim((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? 'https'));
     if (strpos($proto, ',') !== false) $proto = trim(explode(',', $proto, 2)[0]);
     if ($proto !== 'http' && $proto !== 'https') $proto = 'https';
-    $host = trim((string)($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? 'hashcod-codespace-1.onrender.com'));
+    $host = trim((string)($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? 'hashcodcodespace.dev'));
     if (strpos($host, ',') !== false) $host = trim(explode(',', $host, 2)[0]);
     return $proto . '://' . $host;
 }

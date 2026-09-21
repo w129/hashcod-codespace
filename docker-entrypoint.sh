@@ -4,7 +4,7 @@ set -eu
 echo "[l8] starting container…"
 
 # Diagnóstico seguro: solo indica si existen las vars (no imprime valores)
-for key in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SECRET_KEY SUPABASE_STORAGE_BUCKET GITHUB_TOKEN ORIGINKIT_API_KEY; do
+for key in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SECRET_KEY SUPABASE_STORAGE_BUCKET GITHUB_TOKEN ORIGINKIT_API_KEY RAILWAY_ENVIRONMENT_ID RAILWAY_PUBLIC_DOMAIN RAILWAY_PRIVATE_DOMAIN; do
   eval "val=\${$key-}"
   if [ -n "$val" ]; then
     echo "[l8] env $key = SET (len=${#val})"
@@ -57,11 +57,17 @@ if [ "$(id -u)" = "0" ]; then
   chmod 700 /var/www/html/data_storage/security /var/www/html/data_storage/auth /home/l8user/.ssh || true
 fi
 
-export PORT="${PORT:-8000}"
+# Railway normally injects PORT. If a custom port was selected but PORT is not
+# present, default Caddy to 8080 so the service matches Railway public routing.
+if [ -z "${PORT:-}" ] && [ -n "${RAILWAY_ENVIRONMENT_ID:-}" ]; then
+  export PORT=8080
+else
+  export PORT="${PORT:-8000}"
+fi
 echo "[l8] public PORT=${PORT}"
 
 # El backend PHP es obligatorio. Arráncalo siempre antes del proceso principal,
-# independientemente de cómo Render reemplace el CMD de una imagen preconstruida.
+# independientemente de cómo el PaaS reemplace el CMD de una imagen preconstruida.
 if [ "${HASHCOD_SKIP_PHP_ROUTER:-0}" != "1" ] && [ -f /var/www/html/router.php ]; then
   echo "[l8] starting PHP router on 127.0.0.1:8001 (as l8user)"
   if [ "$(id -u)" = "0" ]; then
@@ -72,7 +78,7 @@ if [ "${HASHCOD_SKIP_PHP_ROUTER:-0}" != "1" ] && [ -f /var/www/html/router.php ]
   php_pid=$!
   echo "[l8] php pid=$php_pid"
 
-  # Do not block startup waiting for PHP. Caddy must bind Render's public PORT
+  # Do not block startup waiting for PHP. Caddy must bind the public PORT
   # immediately; /healthz below is proxied to PHP and becomes healthy only when
   # the backend is actually ready.
   echo "[l8] PHP router launched; readiness delegated to Caddy /healthz"

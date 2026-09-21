@@ -1,3 +1,4 @@
+# rollout-sync: e79c7371bd5507a1a00438eec0d7f4aa05c63e80
 services:
   - type: web
     name: hashcod-codespace-1

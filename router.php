@@ -133,6 +133,13 @@ if ($uri === '/toolbox-secure.php' || $uri === '/api/toolbox-secure') {
     exit;
 }
 
+// Public chat stays on its own server-side controller so Supabase credentials
+// never reach the browser and the public history remains append-only.
+if ($uri === '/api/public-chat') {
+    require __DIR__ . '/public-chat.php';
+    exit;
+}
+
 // API
 if (strpos($uri, '/api/') === 0 || $uri === '/cmd' || $uri === '/json') {
     require __DIR__ . '/api.php';

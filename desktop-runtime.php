@@ -43,7 +43,7 @@ function hashcodDesktopOrigin(): string {
 
 function hashcodDesktopCloudOrigin(): string {
     $configured = rtrim(trim((string)(getenv('HASHCOD_CLOUD_ORIGIN') ?: '')), '/');
-    return $configured !== '' ? $configured : 'https://hashcod-codespace-1.onrender.com';
+    return $configured !== '' ? $configured : 'https://hashcodcodespace.dev';
 }
 
 function hashcodDesktopRuntimeInfo(): array {

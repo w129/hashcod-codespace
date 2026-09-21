@@ -1,32 +1,94 @@
-.hashcod-public-chat-button{
-  width:32px;
-  height:32px;
-  min-width:32px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:0;
-  margin:0;
-  border:1px solid #cfd3d8;
-  border-radius:7px;
-  background:#f7f7f6;
-  color:#111;
-  cursor:pointer;
-  position:relative;
-  box-shadow:none;
-  line-height:1;
-  transition:background .16s ease,border-color .16s ease,transform .16s ease;
+/* Public chat launcher — isolated from legacy/global toolbar button rules. */
+#hashcodPublicChatButton.hashcod-public-chat-button{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  box-sizing:border-box!important;
+  flex:0 0 32px!important;
+  align-self:center!important;
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  min-height:32px!important;
+  max-width:32px!important;
+  max-height:32px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  margin:0 7px 0 0!important;
+  overflow:visible!important;
+  border:1px solid rgba(17,17,17,.18)!important;
+  border-radius:8px!important;
+  background:linear-gradient(180deg,#ffffff 0%,#f2f2f0 100%)!important;
+  color:#111!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.04)!important;
+  line-height:1!important;
+  font-size:0!important;
+  cursor:pointer!important;
+  vertical-align:middle!important;
+  transform:none!important;
+  transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease!important;
 }
-.hashcod-public-chat-button:hover{background:#fff;border-color:#8b9097;transform:translateY(-1px)}
-.hashcod-public-chat-button:focus-visible{outline:2px solid #111;outline-offset:2px}
-.hashcod-public-chat-button[aria-expanded="true"]{background:#111;color:#fff;border-color:#111}
-.hashcod-public-chat-button svg{width:19px;height:19px;display:block;fill:currentColor}
-.hashcod-public-chat-unread{
-  position:absolute;right:-5px;top:-6px;min-width:16px;height:16px;padding:0 3px;
-  display:flex;align-items:center;justify-content:center;border-radius:999px;
-  background:#111;color:#fff;border:2px solid #f2f2f1;
-  font:700 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+#hashcodPublicChatButton.hashcod-public-chat-button:hover{
+  background:#fff!important;
+  border-color:rgba(17,17,17,.42)!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.08)!important;
+  transform:translateY(-1px)!important;
 }
+#hashcodPublicChatButton.hashcod-public-chat-button:active{
+  transform:translateY(0) scale(.96)!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)!important;
+}
+#hashcodPublicChatButton.hashcod-public-chat-button:focus-visible{
+  outline:2px solid #111!important;
+  outline-offset:2px!important;
+}
+#hashcodPublicChatButton.hashcod-public-chat-button[aria-expanded="true"]{
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.16)!important;
+}
+#hashcodPublicChatButton.hashcod-public-chat-button > svg{
+  box-sizing:border-box!important;
+  display:block!important;
+  flex:0 0 17px!important;
+  width:17px!important;
+  height:17px!important;
+  min-width:17px!important;
+  min-height:17px!important;
+  max-width:17px!important;
+  max-height:17px!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  fill:currentColor!important;
+  stroke:none!important;
+  transform:none!important;
+}
+#hashcodPublicChatButton.hashcod-public-chat-button > svg path{
+  fill:currentColor!important;
+  stroke:none!important;
+}
+#hashcodPublicChatButton .hashcod-public-chat-unread{
+  position:absolute!important;
+  right:-6px!important;
+  top:-6px!important;
+  min-width:16px!important;
+  width:auto!important;
+  height:16px!important;
+  padding:0 3px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:999px!important;
+  background:#111!important;
+  color:#fff!important;
+  border:2px solid #f2f2f1!important;
+  font:700 8px/1 ui-monospace,SFMono-Regular,Consolas,monospace!important;
+  z-index:2!important;
+}
+#hashcodPublicChatButton .hashcod-public-chat-unread[hidden]{display:none!important}
 .hashcod-public-chat-panel{
   position:fixed;
   top:58px;
@@ -131,7 +193,7 @@
 }
 .hashcod-public-chat-status.is-error{color:#9b1c1c}
 @media(max-width:640px){
-  .hashcod-public-chat-button{width:30px;height:30px;min-width:30px}
-  .hashcod-public-chat-button svg{width:18px;height:18px}
+  #hashcodPublicChatButton.hashcod-public-chat-button{flex-basis:30px!important;width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;max-width:30px!important;max-height:30px!important;margin-right:5px!important}
+  #hashcodPublicChatButton.hashcod-public-chat-button > svg{flex-basis:16px!important;width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;max-width:16px!important;max-height:16px!important}
   .hashcod-public-chat-panel{top:50px;right:6px;left:6px;width:auto;height:calc(100dvh - 56px);border-radius:10px;transform-origin:top center}
 }

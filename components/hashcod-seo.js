@@ -8,6 +8,8 @@
   const SITE_NAME = 'Hashcod Codespace';
   const TITLE = 'Hashcod Codespace | Plataforma de desarrollo e IA';
   const DESCRIPTION = 'Hashcod Codespace es una plataforma para desarrolladores con herramientas de IA, edición, automatización, seguridad y certificación de proyectos digitales.';
+  const COMPONENT_BASE = '/components/';
+  const REGISTRATION_VERSION = '20260922-entry-hotfix1';
 
   function ensureMeta(selector, attributes) {
     let node = document.head.querySelector(selector);
@@ -41,6 +43,63 @@
       document.head.appendChild(node);
     }
     node.textContent = JSON.stringify(payload);
+  }
+
+  function ensureRegistrationRuntime() {
+    if (!document.querySelector('link[data-hashcod-platform-registration-style],link[href*="platform-registration-form.css"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = COMPONENT_BASE + 'platform-registration-form.css?v=' + REGISTRATION_VERSION;
+      link.dataset.hashcodPlatformRegistrationStyle = 'true';
+      document.head.appendChild(link);
+    }
+
+    if (!window.HashcodPlatformRegistration && !document.querySelector('script[data-hashcod-platform-registration-hotfix]')) {
+      const script = document.createElement('script');
+      script.src = COMPONENT_BASE + 'platform-registration-form.js?v=' + REGISTRATION_VERSION;
+      script.async = true;
+      script.dataset.hashcodPlatformRegistrationHotfix = 'true';
+      document.head.appendChild(script);
+    }
+  }
+
+  function mountRegistrationFallback() {
+    ensureRegistrationRuntime();
+    document.documentElement.dataset.hashcodFinalEntryScreen = 'true';
+    document.documentElement.dataset.hashcodEntryHotfix = 'registration-handoff';
+    document.documentElement.removeAttribute('data-hashcod-platform-entered');
+
+    window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', {
+      detail: { screen: 3, source: 'entry-button-hotfix' }
+    }));
+
+    let tries = 0;
+    const timer = window.setInterval(function () {
+      tries += 1;
+      const registration = window.HashcodPlatformRegistration;
+      if (registration && typeof registration.mount === 'function') {
+        try { registration.mount(); } catch (_) {}
+        const hold = document.getElementById('hashcodEntryHold');
+        if (hold) {
+          hold.classList.add('is-revealing');
+          window.setTimeout(function () {
+            if (hold && hold.parentNode) hold.parentNode.removeChild(hold);
+          }, 180);
+        }
+        window.clearInterval(timer);
+        return;
+      }
+      if (tries > 80) {
+        window.clearInterval(timer);
+        const button = document.getElementById('hashcodHoldContinue');
+        if (button) {
+          button.disabled = false;
+          button.innerHTML = '<span>REINTENTAR REGISTRO</span><span aria-hidden="true">↵</span>';
+        }
+      }
+    }, 50);
+
+    return true;
   }
 
   function installEntryButtonRestoreStyles() {
@@ -90,6 +149,7 @@
 
     button.hidden = false;
     button.removeAttribute('hidden');
+    button.setAttribute('data-hashcod-entry-hotfix-ready', 'true');
     if (!button.textContent || /verifying/i.test(button.textContent)) {
       window.setTimeout(function () {
         if (!button || !button.isConnected) return;
@@ -101,7 +161,32 @@
     return true;
   }
 
+  function installEntryButtonClickFallback() {
+    if (window.__hashcodEntryButtonClickFallbackInstalled) return;
+    window.__hashcodEntryButtonClickFallbackInstalled = true;
+
+    document.addEventListener('click', function (event) {
+      const target = event.target;
+      const button = target && typeof target.closest === 'function'
+        ? target.closest('#hashcodHoldContinue')
+        : null;
+      if (!button) return;
+      if (document.documentElement.dataset.hashcodFinalEntryScreen === 'true') return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+
+      button.disabled = true;
+      button.innerHTML = '<span>ENTRANDO</span><span aria-hidden="true">↵</span>';
+      const hold = document.getElementById('hashcodEntryHold');
+      if (hold) hold.classList.add('is-leaving');
+      mountRegistrationFallback();
+    }, true);
+  }
+
   function bootEntryButtonHotfix() {
+    installEntryButtonClickFallback();
     restoreEntryContinueButton();
     [80, 260, 700, 1200, 1800, 2600, 4200].forEach(function (delay) {
       window.setTimeout(restoreEntryContinueButton, delay);

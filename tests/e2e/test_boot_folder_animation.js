@@ -54,5 +54,13 @@ assert(html.includes('z-index:2147482500!important'), 'folder must render above 
 assert(html.includes('[data-slot="folder"]{pointer-events:auto!important'), 'the folder itself must remain interactive');
 assert(!html.includes('boot-folder-animation.js?v=20260913-6'), 'old native folder fallback must no longer be loaded');
 assert(!html.includes('boot-folder-animation.css?v=20260913-6'), 'old native folder CSS must no longer be loaded');
+const productionIndex = fs.readFileSync(path.join(root, 'index.php'), 'utf8');
+const staticIndex = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const static404 = fs.readFileSync(path.join(root, '404.html'), 'utf8');
+for (const [label, page] of [['index.php', productionIndex], ['index.html', staticIndex], ['404.html', static404]]) {
+    assert(!page.includes('components/originkit/ui/blackhole-runtime.js'), label + ' must not load the retired blackhole runtime');
+    assert(!page.includes('id="bootBlackholeCanvas"'), label + ' must not include the retired blackhole canvas');
+}
+
 
 console.log('Rare UI React/Motion folder contract: OK');

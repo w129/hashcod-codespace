@@ -12666,7 +12666,7 @@ if (!headers_sent()) {
     })();
     </script>
 
-    <div id="bootCliOverlay" class="boot-cli-overlay" role="dialog" aria-modal="true" aria-label="l8 codespace blackhole">
+    <div id="bootCliOverlay" class="boot-cli-overlay" role="dialog" aria-modal="true" aria-label="Hashcod Codespace startup">
             <button type="button" class="boot-mobile-toggle" id="bootMobileModeBtn" title="Versión móvil" aria-label="Activar versión móvil" aria-pressed="false" onclick="toggleMobileMode()">
                 <img src="mobile-mode-icon.png" alt="Versión móvil" class="mobile-toggle-img" style="width:30px; height:30px; object-fit:contain; display:block; border-radius:6px;">
             </button>
@@ -12674,8 +12674,7 @@ if (!headers_sent()) {
             <div class="boot-cli-stage">
                 <div class="boot-cli-body" id="bootCliBody" hidden></div>
                 <div class="boot-cli-visual" id="bootCliVisual">
-                    <canvas id="bootBlackholeCanvas"></canvas>
-                    <div class="boot-brand" aria-label="Hashcod codespace">
+<div class="boot-brand" aria-label="Hashcod codespace">
                         <svg class="boot-brand-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 440" fill="none" aria-hidden="true">
                             <path d="M 109 312 L 61 312 C 44.43 312 31 298.57 31 282 L 31 62 C 31 45.43 44.43 32 61 32 L 410 32 C 426.57 32 440 45.43 440 62 L 440 282 C 440 298.57 426.57 312 410 312 L 363 312" stroke="#000000" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M 227.5 243.5 C 231.2 237.1 240.8 237.1 244.5 243.5 L 358.5 415.2 C 362.5 421.9 357.7 425 350.0 425 L 122.0 425 C 114.3 425 109.5 421.9 113.5 415.2 Z" fill="#000000"/>
@@ -12692,7 +12691,7 @@ if (!headers_sent()) {
             </div>
             <div class="boot-cli-footer">
                 <div class="boot-cli-hint-wrap">
-                    <span id="bootCliHint">Loading blackhole…</span>
+                    <span id="bootCliHint" hidden aria-hidden="true"></span>
                     <div class="boot-brand-logos">
                         <span class="boot-github-logo" title="GitHub" aria-label="GitHub">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 96" aria-hidden="true">

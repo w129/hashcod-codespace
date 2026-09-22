@@ -1,11 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" fill="none">
-  <!-- Screen Frame with rounded corners and bottom opening -->
-  <path d="M 124 347 L 76 347 C 59.43 347 46 333.57 46 317 L 46 97 C 46 80.43 59.43 67 76 67 L 425 67 C 441.57 67 455 80.43 455 97 L 455 317 C 455 333.57 441.57 347 425 347 L 378 347" 
-        stroke="#000000" 
-        stroke-width="32" 
-        stroke-linecap="round" 
-        stroke-linejoin="round"/>
-  <!-- Upward Central Triangle -->
-  <path d="M 242.5 278.5 C 246.2 272.1 255.8 272.1 259.5 278.5 L 373.5 450.2 C 377.5 456.9 372.7 460 365.0 460 L 137.0 460 C 129.3 460 124.5 456.9 128.5 450.2 Z" 
-        fill="#000000"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="112" fill="#ffffff"/>
+  <path d="M128 344H80C60.118 344 44 327.882 44 308V104C44 84.118 60.118 68 80 68H432C451.882 68 468 84.118 468 104V308C468 327.882 451.882 344 432 344H384" stroke="#000000" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M247.5 278.5C251.2 272.1 260.8 272.1 264.5 278.5L380.5 448.2C384.5 454.9 379.7 460 372 460H140C132.3 460 127.5 454.9 131.5 448.2L247.5 278.5Z" fill="#000000"/>
 </svg>

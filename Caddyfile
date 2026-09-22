@@ -147,6 +147,22 @@ http://:{$PORT:8000} {
 		file_server
 	}
 
+	# Loader principal de entrada y hotfix de registro: nunca congelar.
+	handle /components/admin-hello-button.js {
+		root * /var/www/html
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		file_server
+	}
+	handle /components/entry-registration-force.js {
+		root * /var/www/html
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		file_server
+	}
+
 	# Monitor de seguridad saneado.
 	handle /components/codespace-security-monitor.js {
 		root * /var/www/html

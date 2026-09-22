@@ -46,6 +46,36 @@ http://:{$PORT:8000} {
 	@home path / /index.php /index.html
 	header @home Link "<https://hashcodcodespace.dev/>; rel=canonical"
 
+	# Páginas públicas limpias para SEO y navegación.
+	handle /services /services/ {
+		root * /var/www/html/services
+		rewrite * /index.html
+		header Content-Type "text/html; charset=utf-8"
+		header Cache-Control "public, max-age=300, stale-while-revalidate=86400"
+		file_server
+	}
+	handle /pricing /pricing/ {
+		root * /var/www/html/pricing
+		rewrite * /index.html
+		header Content-Type "text/html; charset=utf-8"
+		header Cache-Control "public, max-age=300, stale-while-revalidate=86400"
+		file_server
+	}
+	handle /clients /clients/ {
+		root * /var/www/html/clients
+		rewrite * /index.html
+		header Content-Type "text/html; charset=utf-8"
+		header Cache-Control "public, max-age=300, stale-while-revalidate=86400"
+		file_server
+	}
+	handle /status /status/ {
+		root * /var/www/html/status
+		rewrite * /index.html
+		header Content-Type "text/html; charset=utf-8"
+		header Cache-Control "public, max-age=300, stale-while-revalidate=86400"
+		file_server
+	}
+
 	# SEO público directo.
 	handle /robots.txt {
 		root * /var/www/html

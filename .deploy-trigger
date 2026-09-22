@@ -1,0 +1,3 @@
+force production image rebuild for entry registration fix
+2026-09-22T17:33:00-04:00
+commits required in production: entry-registration-force.js + Caddy no-store loaders

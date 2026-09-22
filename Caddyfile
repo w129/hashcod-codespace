@@ -24,6 +24,25 @@ http://:{$PORT:8000} {
 		}
 	}
 
+	# Favicon oficial de Hashcod para Chrome y navegadores que piden /favicon.ico.
+	handle /favicon.ico {
+		root * /var/www/html
+		rewrite * /favicon.svg
+		header Content-Type "image/svg+xml; charset=utf-8"
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
+	}
+	handle /favicon.svg {
+		root * /var/www/html
+		header Content-Type "image/svg+xml; charset=utf-8"
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
+	}
+
 	# Bloqueo de herramientas internas peligrosas en producción pública.
 	@dangerousInternal {
 		path /api/bash /api/bash/* /api/catalyst /api/catalyst/* /api/storage /api/storage/* /api/django /api/django/*

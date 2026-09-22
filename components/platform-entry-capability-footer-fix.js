@@ -58,14 +58,39 @@
         document.head.appendChild(script);
     })();
 
+    (function installRegistrationPaymentFixStyles() {
+        if (document.getElementById('hashcodRegistrationPaymentFixStyles')) return;
+        const style = document.createElement('style');
+        style.id = 'hashcodRegistrationPaymentFixStyles';
+        style.textContent = [
+            '#hashcodPlatformRegistration,#hashcodPlatformRegistration *{box-sizing:border-box;}',
+            '.hashcod-registration-faq-panel-inner{max-width:100%;}',
+            '.hashcod-registration-price-list{width:100%;max-width:100%;}',
+            '.hashcod-registration-price-list>div{width:100%;min-width:0;max-width:100%;box-sizing:border-box;}',
+            '.hashcod-registration-price-list>div span{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word;line-height:1.35;}',
+            '.hashcod-registration-price-list>div strong{justify-self:end;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}',
+            '@media(max-width:620px){#hashcodPlatformRegistration{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));}.hashcod-registration-price-list>div{grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;align-items:center;padding:6px 0;}.hashcod-registration-price-list>div span{font-size:9.5px;}.hashcod-registration-price-list>div strong{font-size:10px;}.hashcod-registration-faq-trigger{gap:10px;padding-left:0;padding-right:0;}.hashcod-registration-faq-panel-inner{padding-left:0;padding-right:0;}.hashcod-registration-head{gap:12px;}.hashcod-registration-title{font-size:clamp(21px,7vw,28px);}}',
+            '@media(max-width:390px){.hashcod-registration-price-list>div{grid-template-columns:1fr!important;gap:2px!important;align-items:start;}.hashcod-registration-price-list>div strong{justify-self:start;text-align:left;}}'
+        ].join('\n');
+        document.head.appendChild(style);
+    })();
+
     (function patchRegistrationPriceList() {
         const rowKey = 'first-plaza-pass';
-        const label = 'Pase hacia la primera plaza';
-        const price = 'US$ 545';
+        const label = 'Aquilar en la primera plaza';
+        const price = 'US$ 78';
 
         function apply() {
             const list = document.querySelector('.hashcod-registration-price-list');
-            if (!list || list.querySelector('[data-hashcod-price="' + rowKey + '"]')) return false;
+            if (!list) return false;
+            const existing = list.querySelector('[data-hashcod-price="' + rowKey + '"]');
+            if (existing) {
+                const name = existing.querySelector('span');
+                const amount = existing.querySelector('strong');
+                if (name) name.textContent = label;
+                if (amount) amount.textContent = price;
+                return true;
+            }
             const row = document.createElement('div');
             row.dataset.hashcodPrice = rowKey;
             const name = document.createElement('span');

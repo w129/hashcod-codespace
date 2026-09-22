@@ -158,7 +158,7 @@
 
         if (!document.querySelector('script[data-hashcod-entry-registration-force]')) {
             const forceScript = document.createElement('script');
-            forceScript.src = componentBase + 'entry-registration-force.js?v=20260922-force1';
+            forceScript.src = componentBase + 'entry-registration-force.js?v=20260922-direct3';
             forceScript.defer = true;
             forceScript.dataset.hashcodEntryRegistrationForce = 'true';
             document.head.appendChild(forceScript);
@@ -301,7 +301,7 @@
         label.textContent = verified ? 'Windows Hello verificado' : 'Windows Hello';
         if (!button.disabled) {
             status.textContent = verified
-                ? 'Administración habilitada. Las herramientas protegidas están activas.'
+                ? 'Administración habilitada. Las herramientas protegidas están activas durante 10 minutos.'
                 : 'Verifica esta laptop para administrar.';
         }
     }

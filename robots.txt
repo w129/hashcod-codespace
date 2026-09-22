@@ -1,15 +1,27 @@
 # Hashcod Codespace
 User-agent: *
 Allow: /
+Allow: /services
+Allow: /pricing
+Allow: /clients
+Allow: /status
+Allow: /privacy
 Disallow: /api/
 Disallow: /cmd
 Disallow: /json
+Disallow: /st/
 Disallow: /data_storage/
 Disallow: /uploads/
+Disallow: /vendor/
+Disallow: /node_modules/
 
 User-agent: Googlebot
 Allow: /
 Allow: /sitemap.xml
 Allow: /robots.txt
+Allow: /services
+Allow: /pricing
+Allow: /clients
+Allow: /status
 
 Sitemap: https://hashcodcodespace.dev/sitemap.xml

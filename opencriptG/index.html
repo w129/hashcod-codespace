@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OpenCriptG | Hashcod Codespace</title>
+  <meta name="description" content="Herramienta OpenCriptG para generar, visualizar y registrar códigos criptográficos únicos dentro de Hashcod Codespace.">
+  <link rel="canonical" href="https://hashcodcodespace.dev/opencriptG">
+  <meta property="og:title" content="OpenCriptG | Hashcod Codespace">
+  <meta property="og:description" content="Generador y ledger de códigos criptográficos únicos OpenCriptG.">
+  <meta property="og:url" content="https://hashcodcodespace.dev/opencriptG">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260922e">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260922e">
+  <link rel="stylesheet" href="/components/hashcod-public-pages.css?v=20260922e">
+  <style>
+    :root{--ocg-ink:#0a0a0a;--ocg-soft:#f2f2ee;--ocg-line:#deded8;--ocg-green:#19a463;--ocg-muted:#545454}
+    .ocg-hero{padding:54px 0 28px;display:grid;grid-template-columns:1fr .78fr;gap:24px;align-items:stretch}
+    .ocg-title{font-size:clamp(46px,8vw,92px);line-height:.88;letter-spacing:-.075em;margin:18px 0 18px}
+    .ocg-panel,.ocg-tool,.ocg-card{background:#fff;border:1px solid var(--ocg-line);border-radius:28px;box-shadow:0 18px 45px rgba(0,0,0,.06)}
+    .ocg-panel{padding:24px}.ocg-panel h2,.ocg-tool h2{margin:0 0 12px;font-size:24px;letter-spacing:-.04em}.ocg-panel p{color:#444;line-height:1.55}
+    .ocg-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.ocg-stat{border:1px solid #e7e7e2;border-radius:18px;padding:12px;background:#fafafa}.ocg-stat b{display:block;font-size:24px;letter-spacing:-.05em}.ocg-stat span{font-size:12px;color:#666}
+    .ocg-tool{padding:22px;margin:22px 0 40px}.ocg-controls{display:grid;grid-template-columns:1fr 1fr 110px;gap:12px;margin-top:16px}.ocg-field{display:flex;flex-direction:column;gap:7px}.ocg-field label{font-size:12px;font-weight:800;color:#333;text-transform:uppercase;letter-spacing:.06em}.ocg-field select,.ocg-field input,.ocg-search{width:100%;border:1px solid #d9d9d3;border-radius:14px;background:#fff;color:#111;padding:12px 13px;font:inherit}.ocg-search{margin-top:10px}
+    .ocg-options{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.ocg-check{display:inline-flex;gap:8px;align-items:center;border:1px solid #e1e1dc;border-radius:999px;background:#fafafa;padding:8px 11px;font-size:13px}.ocg-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.ocg-btn{border:1px solid #111;background:#111;color:#fff;border-radius:14px;padding:12px 15px;font-weight:850;cursor:pointer}.ocg-btn.secondary{background:#fff;color:#111}.ocg-btn:disabled{opacity:.55;cursor:not-allowed}
+    .ocg-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.ocg-meta div{border:1px solid #ecece6;background:#fafafa;border-radius:16px;padding:10px}.ocg-meta b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#555}.ocg-meta span{font-size:13px;color:#111;word-break:break-word}
+    .ocg-output-wrap{position:relative}.ocg-output{width:100%;min-height:210px;border:1px solid #d9d9d3;border-radius:20px;background:#0b0b0b;color:#e9ffe9;padding:16px;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;resize:vertical;white-space:pre;overflow:auto}.ocg-status{margin-top:12px;font-size:13px;color:#555}.ocg-status.ok{color:#0a7d46}.ocg-status.err{color:#b00020}.ocg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:28px 0}.ocg-card{padding:18px}.ocg-card h3{margin:0 0 8px;font-size:20px;letter-spacing:-.04em}.ocg-card p{margin:0;color:#444;line-height:1.5}.ocg-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #d8d8d2;background:#fff;border-radius:999px;padding:7px 12px;font-size:13px;color:#333}.ocg-pill:before{content:"";width:8px;height:8px;border-radius:999px;background:var(--ocg-green)}
+    @media(max-width:900px){.ocg-hero{grid-template-columns:1fr;padding-top:34px}.ocg-controls{grid-template-columns:1fr}.ocg-meta,.ocg-stats,.ocg-grid{grid-template-columns:1fr}.ocg-title{font-size:54px}}
+  </style>
+</head>
+<body>
+<div class="hc-page"><div class="hc-shell">
+  <nav class="hc-nav" aria-label="Principal">
+    <a class="hc-brand" href="/">
+      <span class="hc-logo-mark" aria-hidden="true"><svg class="hc-logo-svg" viewBox="0 0 500 500" fill="none" focusable="false"><path d="M124 347H76C59.43 347 46 333.57 46 317V97C46 80.43 59.43 67 76 67H425C441.57 67 455 80.43 455 97V317C455 333.57 441.57 347 425 347H378" stroke="#000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/><path d="M242.5 278.5C246.2 272.1 255.8 272.1 259.5 278.5L373.5 450.2C377.5 456.9 372.7 460 365 460H137C129.3 460 124.5 456.9 128.5 450.2Z" fill="#000"/></svg></span>
+      <span class="hc-brand-copy"><span class="hc-brand-title">Hashcod<sup>®</sup></span><span class="hc-brand-subtitle">codespace</span></span>
+    </a>
+    <div class="hc-links"><a href="/services">Servicios</a><a href="/pricing">Precios</a><a href="/clients">Clientes</a><a href="/status">Estado</a><a href="/opencriptG">OpenCriptG</a></div>
+  </nav>
+
+  <main>
+    <section class="ocg-hero">
+      <div>
+        <span class="ocg-pill">Herramienta criptográfica de Hashcod</span>
+        <h1 class="ocg-title">OpenCriptG</h1>
+        <p class="hc-lead">Genera códigos criptográficos, claves, tokens, patrones, plantillas avanzadas y registros únicos usando el inventario OCG que ya existe en el repositorio.</p>
+        <div class="hc-actions"><a class="hc-btn primary" href="#tool">Abrir herramienta</a><a class="hc-btn" href="/status">Ver estado</a></div>
+      </div>
+      <aside class="ocg-panel">
+        <h2>Estado del ledger</h2>
+        <p>La generación ocurre en el navegador con Web Crypto. El registro opcional usa la API de OpenCriptG para evitar duplicados globales en el ledger.</p>
+        <div class="ocg-stats">
+          <div class="ocg-stat"><b id="statTypes">—</b><span>tipos OCG</span></div>
+          <div class="ocg-stat"><b id="statLedger">—</b><span>registrados</span></div>
+          <div class="ocg-stat"><b id="statCats">—</b><span>categorías</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="ocg-tool" id="tool">
+      <h2>Generador OpenCriptG</h2>
+      <p class="hc-muted">Selecciona una familia, elige un tipo de código, genera el valor y regístralo si quieres reservarlo como único.</p>
+      <input class="ocg-search" id="search" type="search" placeholder="Buscar: AES, Ascon, Z85, passphrase, token, mobile pattern...">
+      <div class="ocg-controls">
+        <div class="ocg-field"><label for="category">Categoría</label><select id="category"></select></div>
+        <div class="ocg-field"><label for="type">Tipo</label><select id="type"></select></div>
+        <div class="ocg-field"><label for="length">Longitud</label><input id="length" type="number" min="4" max="4096" value="32"></div>
+      </div>
+      <div class="ocg-options" aria-label="Opciones de contraseña">
+        <label class="ocg-check"><input id="optUpper" type="checkbox" checked> Mayúsculas</label>
+        <label class="ocg-check"><input id="optLower" type="checkbox" checked> Minúsculas</label>
+        <label class="ocg-check"><input id="optNum" type="checkbox" checked> Números</label>
+        <label class="ocg-check"><input id="optSym" type="checkbox"> Símbolos</label>
+      </div>
+      <div class="ocg-meta" id="meta">
+        <div><b>Motor</b><span id="mEngine">—</span></div>
+        <div><b>Entropía</b><span id="mEntropy">—</span></div>
+        <div><b>Espacio</b><span id="mSpace">—</span></div>
+        <div><b>Estándar</b><span id="mStd">—</span></div>
+      </div>
+      <div class="ocg-output-wrap"><textarea class="ocg-output" id="output" spellcheck="false" placeholder="Aquí aparecerá el código generado..."></textarea></div>
+      <div class="ocg-actions">
+        <button class="ocg-btn" id="generateBtn">Generar código</button>
+        <button class="ocg-btn secondary" id="copyBtn">Copiar</button>
+        <button class="ocg-btn secondary" id="claimBtn">Registrar unicidad</button>
+        <button class="ocg-btn secondary" id="clearBtn">Limpiar</button>
+      </div>
+      <div class="ocg-status" id="msg">Cargando inventario OCG…</div>
+    </section>
+
+    <section class="ocg-grid">
+      <article class="ocg-card"><h3>Inventario grande</h3><p>Usa el catálogo OpenCriptG existente con familias de claves, hashes, contraseñas, post-cuántica, tokens y plantillas avanzadas.</p></article>
+      <article class="ocg-card"><h3>Ledger de unicidad</h3><p>El botón de registro envía el código a `/api/opencrypt/claim` para marcarlo como usado y rechazar duplicados.</p></article>
+      <article class="ocg-card"><h3>Uso controlado</h3><p>La herramienta no expone rutas internas peligrosas. Solo consume los scripts públicos OCG y la API específica de OpenCriptG.</p></article>
+    </section>
+  </main>
+  <footer class="hc-footer">© 2026 Hashcod Codespace · OpenCriptG · Hecho por Emil Enmanuel Pieter Mora</footer>
+</div></div>
+<script src="/opencryptg/data/catalog.js?v=20260922a"></script>
+<script src="/opencryptg/data/generators.js?v=20260922a"></script>
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const state = { cats: [], all: [], current: null, generated: '' };
+  function setMsg(text, cls){ const el=$('msg'); el.textContent=text; el.className='ocg-status ' + (cls||''); }
+  function flatten(){
+    state.cats = Array.isArray(window.OCG_CATALOG) ? window.OCG_CATALOG : [];
+    state.all = [];
+    state.cats.forEach((cat, ci) => (cat.types || []).forEach(type => state.all.push({...type, category:cat.label, categoryId:cat.id, ci})));
+    $('statCats').textContent = String(state.cats.length || 0);
+    $('statTypes').textContent = String(state.all.length || 0);
+  }
+  function loadCategories(){
+    $('category').innerHTML = '<option value="all">Todas las categorías</option>' + state.cats.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+  }
+  function filteredTypes(){
+    const q = $('search').value.trim().toLowerCase();
+    const cat = $('category').value;
+    return state.all.filter(t => {
+      if (cat !== 'all' && t.categoryId !== cat) return false;
+      if (!q) return true;
+      return [t.id,t.label,t.badge,t.engine,t.entropy,t.space,t.std,t.about,t.category].join(' ').toLowerCase().includes(q);
+    });
+  }
+  function loadTypes(){
+    const list = filteredTypes();
+    $('type').innerHTML = list.map(t => `<option value="${t.id}">${t.label} · ${t.category}</option>`).join('') || '<option value="">Sin resultados</option>';
+    state.current = list[0] || null;
+    updateMeta();
+  }
+  function updateMeta(){
+    const id = $('type').value;
+    const item = state.all.find(t => t.id === id) || state.current;
+    state.current = item || null;
+    $('mEngine').textContent = item?.engine || '—';
+    $('mEntropy').textContent = item?.entropy || '—';
+    $('mSpace').textContent = item?.space || '—';
+    $('mStd').textContent = item?.std || '—';
+    $('length').disabled = item ? !item.hasLen && !/^pwd_|^password$|^random_/.test(item.id) : true;
+  }
+  async function generate(){
+    updateMeta();
+    const item = state.current;
+    if (!item || !window.OCG_GEN) return setMsg('Inventario o motor OCG no disponible.', 'err');
+    const len = Math.max(4, Math.min(4096, parseInt($('length').value,10) || 32));
+    const opts = { upper:$('optUpper').checked, lower:$('optLower').checked, num:$('optNum').checked, sym:$('optSym').checked };
+    $('generateBtn').disabled = true;
+    setMsg('Generando código seguro en el navegador…');
+    try{
+      const code = await window.OCG_GEN.generate(item.id, len, opts);
+      state.generated = String(code || '');
+      $('output').value = state.generated;
+      setMsg(`Generado: ${item.label}`, 'ok');
+    }catch(err){ setMsg('Error al generar: ' + (err && err.message ? err.message : err), 'err'); }
+    finally{ $('generateBtn').disabled = false; }
+  }
+  async function copy(){
+    const value = $('output').value;
+    if (!value) return setMsg('No hay código para copiar.', 'err');
+    try{ await navigator.clipboard.writeText(value); setMsg('Código copiado al portapapeles.', 'ok'); }
+    catch(_){ $('output').select(); document.execCommand('copy'); setMsg('Código copiado.', 'ok'); }
+  }
+  async function claim(){
+    const code = $('output').value;
+    const item = state.current;
+    if (!code || !item) return setMsg('Primero genera un código.', 'err');
+    $('claimBtn').disabled = true;
+    setMsg('Registrando unicidad en OpenCriptG…');
+    try{
+      const res = await fetch('/api/opencrypt/claim', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({codes:[{type_id:item.id,label:item.label,code}]})});
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'No se pudo registrar');
+      $('statLedger').textContent = String(data.ledger_count ?? '—');
+      if ((data.rejected||[]).length) setMsg('Código duplicado o rechazado por el ledger.', 'err');
+      else setMsg('Código registrado como único en el ledger.', 'ok');
+    }catch(err){ setMsg('Error de registro: ' + (err && err.message ? err.message : err), 'err'); }
+    finally{ $('claimBtn').disabled = false; }
+  }
+  async function status(){
+    try{
+      const res = await fetch('/api/opencrypt/status', {cache:'no-store'});
+      const data = await res.json();
+      if (data && data.ok){
+        $('statLedger').textContent = String(data.ledger_count ?? 0);
+        if (!state.all.length && data.inventory_types) $('statTypes').textContent = String(data.inventory_types);
+      }
+    }catch(_){ $('statLedger').textContent = '—'; }
+  }
+  function init(){
+    flatten(); loadCategories(); loadTypes(); status();
+    $('category').addEventListener('change', loadTypes);
+    $('search').addEventListener('input', loadTypes);
+    $('type').addEventListener('change', updateMeta);
+    $('generateBtn').addEventListener('click', generate);
+    $('copyBtn').addEventListener('click', copy);
+    $('claimBtn').addEventListener('click', claim);
+    $('clearBtn').addEventListener('click', () => { $('output').value=''; state.generated=''; setMsg('Salida limpiada.'); });
+    if (state.all.length) { setMsg('Inventario OCG listo.', 'ok'); generate(); } else setMsg('No se pudo cargar el inventario OCG.', 'err');
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</body>
+</html>

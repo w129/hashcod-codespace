@@ -151,14 +151,22 @@
             const link = document.createElement('link');
             link.id = 'platformRegistrationStylesheet';
             link.rel = 'stylesheet';
-            link.href = componentBase + 'platform-registration-form.css?v=20260920-temp4';
+            link.href = componentBase + 'platform-registration-form.css?v=20260922-force1';
             link.dataset.hashcodPlatformRegistrationStyle = 'true';
             document.head.appendChild(link);
         }
 
+        if (!document.querySelector('script[data-hashcod-entry-registration-force]')) {
+            const forceScript = document.createElement('script');
+            forceScript.src = componentBase + 'entry-registration-force.js?v=20260922-force1';
+            forceScript.defer = true;
+            forceScript.dataset.hashcodEntryRegistrationForce = 'true';
+            document.head.appendChild(forceScript);
+        }
+
         if (!document.querySelector('script[data-platform-entry-slogan]')) {
             const sloganScript = document.createElement('script');
-            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260919-perf1';
+            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260922-force1';
             sloganScript.defer = true;
             sloganScript.dataset.platformEntrySlogan = 'true';
             document.head.appendChild(sloganScript);
@@ -170,7 +178,7 @@
                 document.querySelector('script[data-hashcod-platform-registration]')
             ) return;
             const registrationScript = document.createElement('script');
-            registrationScript.src = componentBase + 'platform-registration-form.js?v=20260920-temp4';
+            registrationScript.src = componentBase + 'platform-registration-form.js?v=20260922-force1';
             registrationScript.defer = true;
             registrationScript.dataset.hashcodPlatformRegistration = 'true';
             document.head.appendChild(registrationScript);
@@ -181,7 +189,7 @@
             loadRegistrationScript();
             if (document.querySelector('script[data-platform-entry-hold]')) return;
             const holdScript = document.createElement('script');
-            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260918-37';
+            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260922-force1';
             holdScript.defer = true;
             holdScript.dataset.platformEntryHold = 'true';
             document.head.appendChild(holdScript);

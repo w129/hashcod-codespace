@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Recursos | Hashcod Codespace</title>
+  <meta name="description" content="Biblioteca pública de recursos de Hashcod Codespace con buscador, filtros, vista previa y enlaces de descarga.">
+  <link rel="canonical" href="https://hashcodcodespace.dev/resources">
+  <meta property="og:title" content="Recursos | Hashcod Codespace">
+  <meta property="og:description" content="Biblioteca pública de recursos de Hashcod Codespace.">
+  <meta property="og:url" content="https://hashcodcodespace.dev/resources">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260922e">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260922e">
+  <link rel="stylesheet" href="/components/hashcod-public-pages.css?v=20260922f">
+  <style>
+    :root{--r-line:rgba(0,0,0,.12);--r-soft:rgba(255,255,255,.86);--r-muted:#555;--r-green:#20ad68}
+    .res-hero{padding:54px 0 28px;display:grid;grid-template-columns:1fr .78fr;gap:26px;align-items:stretch}
+    .res-title{font-size:clamp(46px,8vw,92px);line-height:.88;letter-spacing:-.075em;margin:18px 0 18px}
+    .res-panel,.res-tool,.res-card{background:var(--r-soft);border:1px solid var(--r-line);backdrop-filter:blur(10px);border-radius:28px;box-shadow:0 18px 45px rgba(0,0,0,.06)}
+    .res-panel{padding:24px}.res-panel h2,.res-tool h2{margin:0 0 12px;font-size:24px;letter-spacing:-.04em}.res-panel p{color:#444;line-height:1.55}
+    .res-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.res-stat{border:1px solid rgba(0,0,0,.09);border-radius:18px;padding:12px;background:rgba(255,255,255,.78)}.res-stat b{display:block;font-size:24px;letter-spacing:-.05em}.res-stat span{font-size:12px;color:#666}
+    .res-tool{padding:22px;margin:22px 0 40px}.res-controls{display:grid;grid-template-columns:1.3fr .75fr .75fr .55fr;gap:12px;margin-top:16px}.res-field{display:flex;flex-direction:column;gap:7px}.res-field label{font-size:12px;font-weight:850;color:#333;text-transform:uppercase;letter-spacing:.06em}.res-field input,.res-field select{width:100%;border:1px solid #d9d9d3;border-radius:14px;background:#fff;color:#111;padding:12px 13px;font:inherit}.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.res-card{padding:18px;min-width:0}.res-card h3{margin:0 0 8px;font-size:19px;letter-spacing:-.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.res-card p{margin:0;color:#444;line-height:1.5}.res-meta{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.res-chip{display:inline-flex;border:1px solid rgba(0,0,0,.1);border-radius:999px;background:rgba(247,247,243,.9);padding:5px 8px;font-size:12px;color:#333;font-weight:750}.res-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.res-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;padding:10px 12px;font-weight:850;border:1px solid #111;color:#111;background:#fff}.res-btn.primary{background:#111;color:#fff}.res-path{font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#666;word-break:break-all;margin-top:8px}.res-empty{border:1px dashed rgba(0,0,0,.18);border-radius:24px;background:rgba(255,255,255,.7);padding:26px;margin-top:18px}.res-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #d8d8d2;background:#fff;border-radius:999px;padding:7px 12px;font-size:13px;color:#333}.res-pill:before{content:"";width:8px;height:8px;border-radius:999px;background:var(--r-green)}.res-muted{color:#666}.res-code{font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0b0b0b;color:#eaffea;border-radius:18px;padding:14px;overflow:auto;margin-top:14px}
+    @media(max-width:960px){.res-hero{grid-template-columns:1fr;padding-top:34px}.res-controls,.res-stats,.res-grid{grid-template-columns:1fr}.res-title{font-size:54px}}
+  </style>
+</head>
+<body>
+<div class="hc-page"><div class="hc-shell">
+  <nav class="hc-nav" aria-label="Principal">
+    <a class="hc-brand" href="/">
+      <span class="hc-logo-mark" aria-hidden="true"><svg class="hc-logo-svg" viewBox="0 0 500 500" fill="none" focusable="false"><path d="M124 347H76C59.43 347 46 333.57 46 317V97C46 80.43 59.43 67 76 67H425C441.57 67 455 80.43 455 97V317C455 333.57 441.57 347 425 347H378" stroke="#000" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/><path d="M242.5 278.5C246.2 272.1 255.8 272.1 259.5 278.5L373.5 450.2C377.5 456.9 372.7 460 365 460H137C129.3 460 124.5 456.9 128.5 450.2Z" fill="#000"/></svg></span>
+      <span class="hc-brand-copy"><span class="hc-brand-title">Hashcod<sup>®</sup></span><span class="hc-brand-subtitle">codespace</span></span>
+    </a>
+    <div class="hc-links"><a href="/services">Servicios</a><a href="/pricing">Precios</a><a href="/clients">Clientes</a><a href="/status">Estado</a><a href="/opencriptG">OpenCriptG</a><a href="/resources">Recursos</a></div>
+  </nav>
+
+  <main>
+    <section class="res-hero">
+      <div>
+        <span class="res-pill">Biblioteca de recursos Hashcod</span>
+        <h1 class="res-title">Resources</h1>
+        <p class="hc-lead">Catálogo público para organizar imágenes, documentos, iconos, códigos, paquetes, plantillas y archivos técnicos sin cargar el repositorio ni romper Railway.</p>
+        <div class="hc-actions"><a class="hc-btn primary" href="#library">Ver biblioteca</a><a class="hc-btn" href="/status">Estado</a></div>
+      </div>
+      <aside class="res-panel">
+        <h2>Índice inteligente</h2>
+        <p>Esta página lee un manifest generado desde tu laptop. Para miles de recursos, el archivo real debe vivir en Supabase Storage, Cloudflare R2 o un hosting de archivos, y aquí solo se muestra el índice.</p>
+        <div class="res-stats">
+          <div class="res-stat"><b id="statCount">—</b><span>recursos</span></div>
+          <div class="res-stat"><b id="statTypes">—</b><span>tipos</span></div>
+          <div class="res-stat"><b id="statSize">—</b><span>tamaño</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="res-tool" id="library">
+      <h2>Biblioteca</h2>
+      <p class="res-muted">Busca por nombre, extensión, categoría, carpeta original o hash. Puedes usar <code>?manifest=https://...</code> para probar otro índice externo.</p>
+      <div class="res-controls">
+        <div class="res-field"><label for="q">Buscar</label><input id="q" type="search" placeholder="Buscar: logo, pdf, svg, python, hashcod..."></div>
+        <div class="res-field"><label for="category">Categoría</label><select id="category"><option value="all">Todas</option></select></div>
+        <div class="res-field"><label for="type">Tipo</label><select id="type"><option value="all">Todos</option></select></div>
+        <div class="res-field"><label for="limit">Límite</label><select id="limit"><option>30</option><option>60</option><option>120</option><option>240</option></select></div>
+      </div>
+      <div id="empty" class="res-empty" hidden>
+        <h3>No hay recursos publicados todavía.</h3>
+        <p>Ejecuta el script local <strong>scripts/upload_resources.py</strong> para generar el manifest desde una carpeta de tu disco. Empieza con una carpeta pequeña antes de indexar miles de archivos.</p>
+        <div class="res-code">python scripts/upload_resources.py "D:\\Empresa" --output resources/manifest.json --public-prefix /resources/files</div>
+      </div>
+      <div id="grid" class="res-grid"></div>
+      <p id="msg" class="res-muted">Cargando manifest…</p>
+    </section>
+  </main>
+
+  <footer class="hc-footer">© 2026 Hashcod Codespace · Resources · Hecho por Emil Enmanuel Pieter Mora</footer>
+</div></div>
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  const manifestUrl = params.get('manifest') || '/resources/manifest.json?v=20260922r1';
+  const state = { items: [], filtered: [] };
+  const fmtSize = (n) => {
+    n = Number(n || 0); if (!n) return '0 B';
+    const u = ['B','KB','MB','GB','TB']; let i = 0; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+    return (i ? n.toFixed(n >= 10 ? 1 : 2) : Math.round(n)) + ' ' + u[i];
+  };
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const kind = (item) => (item.type || item.kind || item.extension || 'file').toLowerCase();
+  function unique(arr){ return [...new Set(arr.filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b))); }
+  function normalize(data){
+    const list = Array.isArray(data) ? data : (Array.isArray(data.resources) ? data.resources : []);
+    return list.map((item, i) => {
+      const url = item.url || item.public_url || item.download_url || item.path || '';
+      const ext = (item.extension || (item.name || '').split('.').pop() || '').toLowerCase();
+      return {
+        id: item.id || item.sha256 || String(i + 1),
+        name: item.name || item.filename || ('resource-' + (i + 1)),
+        category: item.category || item.folder || 'General',
+        type: item.type || ext || 'file',
+        extension: ext,
+        size_bytes: item.size_bytes || item.size || 0,
+        url,
+        download_url: item.download_url || url,
+        preview_url: item.preview_url || url,
+        original_path: item.original_path || item.local_path || '',
+        sha256: item.sha256 || '',
+        description: item.description || ''
+      };
+    });
+  }
+  function hydrateFilters(){
+    const cats = unique(state.items.map(x => x.category));
+    const types = unique(state.items.map(x => kind(x)));
+    $('category').innerHTML = '<option value="all">Todas</option>' + cats.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+    $('type').innerHTML = '<option value="all">Todos</option>' + types.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+    $('statCount').textContent = String(state.items.length);
+    $('statTypes').textContent = String(types.length);
+    $('statSize').textContent = fmtSize(state.items.reduce((a,b)=>a+Number(b.size_bytes||0),0));
+  }
+  function apply(){
+    const q = $('q').value.trim().toLowerCase();
+    const cat = $('category').value;
+    const type = $('type').value;
+    const limit = Number($('limit').value || 30);
+    state.filtered = state.items.filter(item => {
+      if (cat !== 'all' && item.category !== cat) return false;
+      if (type !== 'all' && kind(item) !== type) return false;
+      if (!q) return true;
+      return [item.name,item.category,item.type,item.extension,item.original_path,item.sha256,item.description].join(' ').toLowerCase().includes(q);
+    });
+    render(state.filtered.slice(0, limit));
+    $('msg').textContent = `${Math.min(state.filtered.length, limit)} visibles de ${state.filtered.length} coincidencias · ${state.items.length} total`;
+  }
+  function render(items){
+    $('empty').hidden = state.items.length > 0;
+    $('grid').innerHTML = items.map(item => {
+      const url = item.download_url || item.url;
+      const canOpen = /^https?:\/\//.test(url) || url.startsWith('/');
+      return `<article class="res-card">
+        <h3 title="${esc(item.name)}">${esc(item.name)}</h3>
+        <p>${esc(item.description || item.original_path || 'Recurso indexado de Hashcod Codespace.')}</p>
+        <div class="res-meta"><span class="res-chip">${esc(item.category)}</span><span class="res-chip">${esc(kind(item))}</span><span class="res-chip">${esc(fmtSize(item.size_bytes))}</span></div>
+        ${item.sha256 ? `<div class="res-path">sha256: ${esc(item.sha256.slice(0, 24))}…</div>` : ''}
+        ${item.original_path ? `<div class="res-path">${esc(item.original_path)}</div>` : ''}
+        <div class="res-actions">${canOpen ? `<a class="res-btn primary" href="${esc(url)}" target="_blank" rel="noopener">Abrir</a><a class="res-btn" href="${esc(url)}" download>Descargar</a>` : '<span class="res-chip">Sin URL pública</span>'}</div>
+      </article>`;
+    }).join('');
+  }
+  async function boot(){
+    try{
+      const res = await fetch(manifestUrl, {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      state.items = normalize(data);
+      hydrateFilters();
+      apply();
+    }catch(err){
+      $('msg').textContent = 'No se pudo cargar el manifest: ' + (err.message || err);
+      $('empty').hidden = false;
+    }
+  }
+  ['q','category','type','limit'].forEach(id => $(id).addEventListener('input', apply));
+  boot();
+})();
+</script>
+</body>
+</html>

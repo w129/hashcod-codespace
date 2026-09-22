@@ -58,6 +58,48 @@
         document.head.appendChild(script);
     })();
 
+    (function patchRegistrationPriceList() {
+        const rowKey = 'first-plaza-pass';
+        const label = 'Pase hacia la primera plaza';
+        const price = 'US$ 545';
+
+        function apply() {
+            const list = document.querySelector('.hashcod-registration-price-list');
+            if (!list || list.querySelector('[data-hashcod-price="' + rowKey + '"]')) return false;
+            const row = document.createElement('div');
+            row.dataset.hashcodPrice = rowKey;
+            const name = document.createElement('span');
+            name.textContent = label;
+            const amount = document.createElement('strong');
+            amount.textContent = price;
+            row.appendChild(name);
+            row.appendChild(amount);
+            list.appendChild(row);
+            return true;
+        }
+
+        function boot() {
+            apply();
+            if (typeof MutationObserver !== 'function') return;
+            const root = document.body || document.documentElement;
+            if (!root) return;
+            const observer = new MutationObserver(function () { apply(); });
+            observer.observe(root, { childList: true, subtree: true });
+            window.setTimeout(function () {
+                apply();
+                observer.disconnect();
+            }, 30000);
+            window.addEventListener('hashcod:registration-form-mounted', apply);
+            window.addEventListener('hashcod:final-entry-screen', apply);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', boot, { once: true });
+        } else {
+            boot();
+        }
+    })();
+
     const FOOTER_ID = 'hashcodEntryCapabilityFooter';
     const DESKTOP_LANDING_MIN_WIDTH = 1181;
 

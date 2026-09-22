@@ -5,6 +5,7 @@ Allow: /services
 Allow: /pricing
 Allow: /clients
 Allow: /status
+Allow: /opencriptG
 Allow: /privacy
 Disallow: /api/
 Disallow: /cmd
@@ -23,5 +24,6 @@ Allow: /services
 Allow: /pricing
 Allow: /clients
 Allow: /status
+Allow: /opencriptG
 
 Sitemap: https://hashcodcodespace.dev/sitemap.xml

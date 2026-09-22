@@ -29,8 +29,6 @@ RUN apt-get update && apt-get install -y \
     && curl -fsSL https://bun.sh/install | bash \
     && ln -sf /root/.bun/bin/bun /usr/local/bin/bun \
     && ln -sf /root/.bun/bin/bunx /usr/local/bin/bunx \
-    && curl -fsSL https://claude.ai/install.sh | bash \
-    && (ln -sf /root/.local/bin/claude /usr/local/bin/claude || true) \
     && curl -fsSL "https://caddyserver.com/api/download?os=linux&arch=amd64" -o /usr/local/bin/caddy \
     && chmod +x /usr/local/bin/caddy \
     && python3 -m venv /opt/l8-py \
@@ -50,8 +48,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && rm -rf /var/lib/apt/lists/* /root/.npm
 
 # Configurar SSH con validación estricta y host key de GitHub fijada.
-# La clave Ed25519 se toma de la documentación oficial de GitHub y evita confiar
-# en una consulta de red no autenticada durante el build.
 RUN mkdir -p /root/.ssh /home/l8user/.ssh && \
     chmod 700 /root/.ssh /home/l8user/.ssh && \
     printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > /root/.ssh/known_hosts && \
@@ -99,8 +95,6 @@ RUN /opt/l8-py/bin/pip install --no-cache-dir -r /tmp/requirements-streamlit.txt
 COPY . /var/www/html
 
 # Build the actual Rare UI React + Motion folder as a local browser bundle.
-# This keeps the PHP platform native while using the same React/Motion behavior
-# as `npx shadcn@latest add swamimalode07/rare-ui/folder-component`.
 RUN cd /var/www/html/rare-folder-build \
     && npm install --no-fund --no-audit \
     && npm run build \
@@ -119,13 +113,12 @@ RUN chown -R l8user:l8group /var/www/html \
     && mkdir -p /var/www/html/data_storage /var/www/html/uploads \
     && chown -R l8user:l8group /var/www/html/data_storage /var/www/html/uploads
 
-# Entrypoint: confirma qué vars de entorno llegan al contenedor (sin secretos) y arranca servicios con l8user
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 VOLUME ["/var/www/html/data_storage", "/var/www/html/uploads"]
 
-EXPOSE 8000
+EXPOSE 8080
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["caddy", "run", "--config", "/var/www/html/Caddyfile", "--adapter", "caddyfile"]

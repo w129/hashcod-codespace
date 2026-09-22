@@ -11,13 +11,9 @@
 	}
 }
 
-# Railway (y otros PaaS compatibles) terminan TLS en el edge y llegan por HTTP
-# al puerto público inyectado en $PORT. Mantener http:// evita que Caddy intente
-# negociar TLS de nuevo dentro del contenedor.
+# Railway termina TLS en el edge. Caddy solo escucha HTTP interno en $PORT.
 http://:{$PORT:8000} {
-	# Render sees the public port immediately through Caddy, but health only turns
-	# green when the PHP backend responds. This prevents both port-scan timeouts
-	# and false-positive deployments where Caddy is alive but PHP is not.
+	# Health check: Caddy responde cuando PHP está vivo.
 	handle /healthz {
 		rewrite * /robots.txt
 		reverse_proxy 127.0.0.1:8001 {
@@ -28,13 +24,29 @@ http://:{$PORT:8000} {
 		}
 	}
 
-	# Canonical HTTP para la portada: Google lo recibe incluso antes de renderizar JS.
+	# Bloqueo de herramientas internas peligrosas en producción pública.
+	@dangerousInternal {
+		path /api/bash /api/bash/* /api/catalyst /api/catalyst/* /api/storage /api/storage/* /api/django /api/django/*
+	}
+	handle @dangerousInternal {
+		header Cache-Control "no-store"
+		header X-Content-Type-Options "nosniff"
+		respond "Not Found" 404
+	}
+
+	# Streamlit queda cerrado públicamente. Si se necesita después, debe ir detrás de admin/auth.
+	@streamlit path /st /st/*
+	handle @streamlit {
+		header Cache-Control "no-store"
+		header X-Content-Type-Options "nosniff"
+		respond "Not Found" 404
+	}
+
+	# Canonical HTTP para portada.
 	@home path / /index.php /index.html
 	header @home Link "<https://hashcodcodespace.dev/>; rel=canonical"
 
-	# SEO público: servir robots y sitemap directamente desde Caddy.
-	# Esto evita que Googlebot atraviese el bootstrap de seguridad/Turnstile y
-	# garantiza respuestas 200 simples con el MIME correcto para Search Console.
+	# SEO público directo.
 	handle /robots.txt {
 		root * /var/www/html
 		header Content-Type "text/plain; charset=utf-8"
@@ -52,83 +64,7 @@ http://:{$PORT:8000} {
 		file_server
 	}
 
-	# Streamlit slots (websockets vía reverse_proxy).
-	# Si el proceso no está arrancado → connection refused (normal en idle / post-redeploy).
-	@st1 path /st/1 /st/1/*
-	handle @st1 {
-		reverse_proxy 127.0.0.1:8501 {
-			transport http {
-				dial_timeout 800ms
-				response_header_timeout 120s
-			}
-		}
-	}
-	@st2 path /st/2 /st/2/*
-	handle @st2 {
-		reverse_proxy 127.0.0.1:8502 {
-			transport http {
-				dial_timeout 800ms
-				response_header_timeout 120s
-			}
-		}
-	}
-	@st3 path /st/3 /st/3/*
-	handle @st3 {
-		reverse_proxy 127.0.0.1:8503 {
-			transport http {
-				dial_timeout 800ms
-				response_header_timeout 120s
-			}
-		}
-	}
-	@st4 path /st/4 /st/4/*
-	handle @st4 {
-		reverse_proxy 127.0.0.1:8504 {
-			transport http {
-				dial_timeout 800ms
-				response_header_timeout 120s
-			}
-		}
-	}
-	@st5 path /st/5 /st/5/*
-	handle @st5 {
-		reverse_proxy 127.0.0.1:8505 {
-			transport http {
-				dial_timeout 800ms
-				response_header_timeout 120s
-			}
-		}
-	}
-	@st6 path /st/6 /st/6/*
-	handle @st6 {
-		reverse_proxy 127.0.0.1:8506 {
-			transport http {
-				dial_timeout 800ms
-				response_header_timeout 120s
-			}
-		}
-	}
-	@st7 path /st/7 /st/7/*
-	handle @st7 {
-		reverse_proxy 127.0.0.1:8507 {
-			transport http {
-				dial_timeout 800ms
-				response_header_timeout 120s
-			}
-		}
-	}
-	@st8 path /st/8 /st/8/*
-	handle @st8 {
-		reverse_proxy 127.0.0.1:8508 {
-			transport http {
-				dial_timeout 800ms
-				response_header_timeout 120s
-			}
-		}
-	}
-
-	# Este loader contiene las señales SEO y debe poder actualizarse sin quedar
-	# congelado por el query-string histórico del landing.
+	# Loader que debe actualizarse sin quedar congelado.
 	handle /components/platform-entry-capability-footer-fix.js {
 		root * /var/www/html
 		encode zstd gzip
@@ -137,12 +73,24 @@ http://:{$PORT:8000} {
 		file_server
 	}
 
-	# Static assets direct edge offloading & compression
+	# Monitor de seguridad saneado.
+	handle /components/codespace-security-monitor.js {
+		root * /var/www/html
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		file_server
+	}
+
+	# Static assets directos con compresión y allowlist.
 	@static {
 		path *.css *.js *.mjs *.svg *.png *.jpg *.jpeg *.gif *.webp *.ico *.woff *.woff2 *.wasm *.ttf *.map *.webmanifest
 		not path /data_storage/*
 		not path /uploads/*
 		not path /.git/*
+		not path /supabase/*
+		not path /vendor/*
+		not path /node_modules/*
 	}
 	handle @static {
 		root * /var/www/html
@@ -156,29 +104,23 @@ http://:{$PORT:8000} {
 		header not @versioned Cache-Control "public, max-age=86400, stale-while-revalidate=604800"
 
 		file_server {
-			hide .git data_storage uploads
+			hide .git data_storage uploads supabase vendor node_modules
 		}
 	}
 
-	# Plataforma PHP dinámica (compresión zstd + gzip)
+	# Plataforma PHP dinámica.
 	handle {
 		encode zstd gzip
-		# Trust only Render's private ingress or Cloudflare's published edge ranges.
-		# Strip the visitor header on any direct connection from another network.
+
 		@untrustedAdminIngress {
 			not remote_ip private_ranges 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
 		}
 		request_header @untrustedAdminIngress -CF-Connecting-IP
 		reverse_proxy 127.0.0.1:8001 {
-			# Railway injects the real visitor address as X-Real-IP at its edge.
-			# Copy it into an internal-only header for PHP after removing any
-			# client-supplied value with the same internal name.
 			header_up -X-L8-Railway-Real-Ip
 			header_up X-L8-Railway-Real-Ip {http.request.header.X-Real-IP}
 			header_up -X-L8-Railway-Request-Id
 			header_up X-L8-Railway-Request-Id {http.request.header.X-Railway-Request-Id}
-
-			# Legacy Render compatibility while old deployments are retired.
 			header_up X-L8-Render-Cf-Ip {http.request.header.CF-Connecting-IP}
 			header_up -X-L8-Render-Xff
 			transport http {
@@ -187,21 +129,6 @@ http://:{$PORT:8000} {
 				read_buffer 4096
 				write_buffer 4096
 			}
-		}
-	}
-
-	# 502 de Streamlit idle → página clara (CEL sin librería strings: Caddy de Render no la trae)
-	handle_errors {
-		@st_offline {
-			expression `{err.status_code} == 502`
-			path_regexp st ^/st/
-		}
-		handle @st_offline {
-			root * /var/www/html
-			rewrite * /public-st-offline.html
-			file_server
-			header Content-Type "text/html; charset=utf-8"
-			header Cache-Control "no-store"
 		}
 	}
 }

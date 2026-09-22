@@ -69,11 +69,16 @@ echo "[l8] public PORT=${PORT}"
 # El backend PHP es obligatorio. Arráncalo siempre antes del proceso principal,
 # independientemente de cómo el PaaS reemplace el CMD de una imagen preconstruida.
 if [ "${HASHCOD_SKIP_PHP_ROUTER:-0}" != "1" ] && [ -f /var/www/html/router.php ]; then
-  echo "[l8] starting PHP router on 127.0.0.1:8001 (as l8user)"
+  php_router=/var/www/html/router.php
+  if [ -n "${RAILWAY_ENVIRONMENT_ID:-}" ] && [ -f /var/www/html/railway-router.php ]; then
+    php_router=/var/www/html/railway-router.php
+  fi
+
+  echo "[l8] starting PHP router on 127.0.0.1:8001 via ${php_router} (as l8user)"
   if [ "$(id -u)" = "0" ]; then
-    gosu l8user php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
+    gosu l8user php -S 127.0.0.1:8001 "$php_router" >/tmp/l8-php.log 2>&1 &
   else
-    php -S 127.0.0.1:8001 /var/www/html/router.php >/tmp/l8-php.log 2>&1 &
+    php -S 127.0.0.1:8001 "$php_router" >/tmp/l8-php.log 2>&1 &
   fi
   php_pid=$!
   echo "[l8] php pid=$php_pid"

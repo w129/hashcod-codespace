@@ -43,6 +43,70 @@
     node.textContent = JSON.stringify(payload);
   }
 
+  function fixRegistrationPlazaPrice() {
+    const list = document.querySelector('.hashcod-registration-price-list');
+    if (!list) return false;
+
+    const targetLabel = 'Aquilar en la primera plaza';
+    const targetPrice = 'US$ 78';
+    const oldLabels = [
+      'Pase hacia la primera plaza',
+      'Pase hacia  la primera plaza',
+      'Pase hacia la primera plaza :',
+      'Pase hacia la primera plaza:'
+    ];
+
+    let fixed = false;
+    const rows = Array.from(list.children || []).filter(function (node) {
+      return node && node.nodeType === 1;
+    });
+
+    rows.forEach(function (row) {
+      const span = row.querySelector && row.querySelector('span');
+      const strong = row.querySelector && row.querySelector('strong');
+      const text = span ? String(span.textContent || '').trim() : '';
+      const amount = strong ? String(strong.textContent || '').trim() : '';
+      const isOld = oldLabels.indexOf(text) >= 0 || amount === 'US$ 545' || row.getAttribute('data-hashcod-price') === 'first-plaza-pass';
+      if (!isOld) return;
+      row.setAttribute('data-hashcod-price', 'first-plaza-pass');
+      if (span) span.textContent = targetLabel;
+      if (strong) strong.textContent = targetPrice;
+      fixed = true;
+    });
+
+    if (!fixed) {
+      const row = document.createElement('div');
+      row.setAttribute('data-hashcod-price', 'first-plaza-pass');
+      const span = document.createElement('span');
+      const strong = document.createElement('strong');
+      span.textContent = targetLabel;
+      strong.textContent = targetPrice;
+      row.appendChild(span);
+      row.appendChild(strong);
+      list.appendChild(row);
+      fixed = true;
+    }
+
+    return fixed;
+  }
+
+  function bootRegistrationPlazaHotfix() {
+    fixRegistrationPlazaPrice();
+    if (typeof MutationObserver !== 'function') return;
+    const root = document.body || document.documentElement;
+    if (!root) return;
+    const observer = new MutationObserver(function () {
+      fixRegistrationPlazaPrice();
+    });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    window.setTimeout(function () {
+      fixRegistrationPlazaPrice();
+      observer.disconnect();
+    }, 45000);
+    window.addEventListener('hashcod:registration-form-mounted', fixRegistrationPlazaPrice);
+    window.addEventListener('hashcod:final-entry-screen', fixRegistrationPlazaPrice);
+  }
+
   document.title = TITLE;
   document.documentElement.lang = document.documentElement.lang || 'es';
 
@@ -84,4 +148,10 @@
       url: CANONICAL_URL
     }
   });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootRegistrationPlazaHotfix, { once: true });
+  } else {
+    bootRegistrationPlazaHotfix();
+  }
 })();

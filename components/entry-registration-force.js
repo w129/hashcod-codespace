@@ -1,39 +1,44 @@
 (function () {
   'use strict';
 
-  if (window.__hashcodEntryRegistrationForceLoaded === '20260922-direct2') return;
-  window.__hashcodEntryRegistrationForceLoaded = '20260922-direct2';
+  const VERSION = '20260922-direct3-isolated';
+  if (window.__hashcodEntryRegistrationForceLoaded === VERSION) return;
+  window.__hashcodEntryRegistrationForceLoaded = VERSION;
 
-  function css() {
-    if (document.getElementById('hashcodEntryRegistrationForceStyles')) return;
-    const style = document.createElement('style');
+  function installStyles() {
+    let style = document.getElementById('hashcodEntryRegistrationForceStyles');
+    if (style) style.remove();
+    style = document.createElement('style');
     style.id = 'hashcodEntryRegistrationForceStyles';
     style.textContent = [
-      '#hashcodEntryForceButton,#hashcodHoldContinue{position:fixed!important;left:50%!important;bottom:max(74px,calc(env(safe-area-inset-bottom,0px) + 42px))!important;transform:translateX(-50%)!important;z-index:2147483640!important;display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center!important;justify-content:center!important;gap:10px!important;min-width:240px!important;min-height:50px!important;padding:0 20px!important;border:1px solid #111!important;border-radius:10px!important;background:#111!important;color:#fff!important;font:800 11px/1 "IBM Plex Mono",Consolas,monospace!important;letter-spacing:.06em!important;text-transform:uppercase!important;box-shadow:0 14px 34px rgba(0,0,0,.18)!important;cursor:pointer!important;pointer-events:auto!important;}',
-      '#hashcodEntryForceButton:disabled,#hashcodHoldContinue:disabled{opacity:.72!important;cursor:wait!important;}',
-      'html[data-hashcod-final-entry-screen="true"] #hashcodEntryForceButton,html[data-hashcod-final-entry-screen="true"] #hashcodHoldContinue{display:none!important;}',
-      '#hashcodPlatformRegistration.hashcod-force-registration{position:fixed!important;inset:0!important;z-index:2147483639!important;display:grid!important;place-items:center!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#f6f6f3!important;background-image:linear-gradient(rgba(20,20,20,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(20,20,20,.045) 1px,transparent 1px)!important;background-size:38px 38px!important;color:#111!important;font-family:"IBM Plex Mono",Consolas,monospace!important;}',
-      '.hashcod-force-registration-card{width:min(720px,calc(100vw - 36px));max-height:calc(100vh - 36px);overflow:auto;background:#fff;border:1px solid #bdbdb8;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.18);padding:24px;}',
-      '.hashcod-force-registration-card h2{margin:0 0 8px;font:900 24px/1.1 "IBM Plex Mono",Consolas,monospace;letter-spacing:-.04em;}',
-      '.hashcod-force-registration-card p{margin:0 0 16px;color:#555;line-height:1.55;font-size:13px;}',
-      '.hashcod-force-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}',
-      '.hashcod-force-field{display:grid;gap:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#333;}',
-      '.hashcod-force-field input{height:42px;border:1px solid #bdbdb8;border-radius:8px;padding:0 12px;font:600 14px/1 "IBM Plex Mono",Consolas,monospace;color:#111;background:#fbfbf9;}',
-      '.hashcod-force-prices{border:1px solid #d8d8d3;border-radius:10px;background:#fafaf8;padding:12px;margin:14px 0;display:grid;gap:8px;font-size:12px;}',
-      '.hashcod-force-prices div{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #e8e8e2;padding-bottom:8px;}',
-      '.hashcod-force-prices div:last-child{border-bottom:0;padding-bottom:0;}',
-      '.hashcod-force-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}',
-      '.hashcod-force-actions button{height:44px;border-radius:8px;border:1px solid #111;padding:0 16px;font:900 11px/1 "IBM Plex Mono",Consolas,monospace;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}',
-      '.hashcod-force-submit{background:#111;color:#fff;}',
-      '.hashcod-force-back{background:#fff;color:#111;}',
-      '.hashcod-force-status{min-height:20px;margin-top:10px;font-size:12px;color:#555;}',
-      '@media(max-width:720px){.hashcod-force-grid{grid-template-columns:1fr}.hashcod-force-registration-card{padding:18px}.hashcod-force-prices div{display:grid;gap:4px}}'
+      '#hashcodHoldContinue{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}',
+      '#hashcodEntryForceButton{position:fixed!important;left:50%!important;bottom:max(74px,calc(env(safe-area-inset-bottom,0px) + 42px))!important;transform:translateX(-50%)!important;z-index:2147483646!important;display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center!important;justify-content:center!important;gap:10px!important;min-width:248px!important;min-height:52px!important;padding:0 22px!important;border:1px solid #111!important;border-radius:10px!important;background:#111!important;color:#fff!important;font:900 11px/1 "IBM Plex Mono",Consolas,monospace!important;letter-spacing:.06em!important;text-transform:uppercase!important;box-shadow:0 14px 34px rgba(0,0,0,.18)!important;cursor:pointer!important;pointer-events:auto!important;}',
+      '#hashcodEntryForceButton[aria-busy="true"]{opacity:.74!important;cursor:wait!important;}',
+      'html[data-hashcod-direct-registration="true"] #hashcodEntryForceButton{display:none!important;visibility:hidden!important;pointer-events:none!important;}',
+      '#hashcodDirectRegistration{position:fixed!important;inset:0!important;z-index:2147483645!important;display:grid!important;place-items:center!important;background:#f6f6f3!important;background-image:linear-gradient(rgba(20,20,20,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(20,20,20,.045) 1px,transparent 1px)!important;background-size:38px 38px!important;color:#111!important;font-family:"IBM Plex Mono",Consolas,monospace!important;pointer-events:auto!important;}',
+      '#hashcodDirectRegistration *{box-sizing:border-box;}',
+      '.hashcod-direct-card{width:min(760px,calc(100vw - 36px));max-height:calc(100vh - 36px);overflow:auto;background:#fff;border:1px solid #bdbdb8;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.18);padding:24px;}',
+      '.hashcod-direct-card h2{margin:0 0 8px;font:900 24px/1.1 "IBM Plex Mono",Consolas,monospace;letter-spacing:-.04em;}',
+      '.hashcod-direct-card p{margin:0 0 16px;color:#555;line-height:1.55;font-size:13px;}',
+      '.hashcod-direct-prices{border:1px solid #d8d8d3;border-radius:10px;background:#fafaf8;padding:12px;margin:14px 0;display:grid;gap:8px;font-size:12px;}',
+      '.hashcod-direct-prices div{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #e8e8e2;padding-bottom:8px;}',
+      '.hashcod-direct-prices div:last-child{border-bottom:0;padding-bottom:0;}',
+      '.hashcod-direct-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}',
+      '.hashcod-direct-field{display:grid;gap:6px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#333;}',
+      '.hashcod-direct-field input{height:42px;border:1px solid #bdbdb8;border-radius:8px;padding:0 12px;font:600 14px/1 "IBM Plex Mono",Consolas,monospace;color:#111;background:#fbfbf9;}',
+      '.hashcod-direct-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}',
+      '.hashcod-direct-actions button{height:44px;border-radius:8px;border:1px solid #111;padding:0 16px;font:900 11px/1 "IBM Plex Mono",Consolas,monospace;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}',
+      '.hashcod-direct-submit{background:#111;color:#fff;}',
+      '.hashcod-direct-cancel{background:#fff;color:#111;}',
+      '.hashcod-direct-status{min-height:20px;margin-top:10px;font-size:12px;color:#555;}',
+      '@media(max-width:720px){.hashcod-direct-grid{grid-template-columns:1fr}.hashcod-direct-card{padding:18px}.hashcod-direct-prices div{display:grid;gap:4px}}'
     ].join('\n');
     document.head.appendChild(style);
   }
 
-  function sloganVisible() {
-    if (document.documentElement.dataset.hashcodFinalEntryScreen === 'true') return false;
+  function entryScreenVisible() {
+    if (document.documentElement.dataset.hashcodDirectRegistration === 'true') return false;
+    if (document.documentElement.dataset.hashcodPlatformEntered === 'true') return false;
     return Boolean(
       document.getElementById('hashcodEntryHold') ||
       document.querySelector('.hashcod-hold-slogan') ||
@@ -41,77 +46,73 @@
     );
   }
 
-  function removeHold() {
+  function removeEntryHold() {
     const hold = document.getElementById('hashcodEntryHold');
     if (hold && hold.parentNode) hold.parentNode.removeChild(hold);
-    const force = document.getElementById('hashcodEntryForceButton');
-    if (force && force.parentNode) force.parentNode.removeChild(force);
-    const continueButton = document.getElementById('hashcodHoldContinue');
-    if (continueButton && continueButton.parentNode && continueButton.closest('#hashcodPlatformRegistration') === null) {
-      continueButton.parentNode.removeChild(continueButton);
-    }
+    const button = document.getElementById('hashcodEntryForceButton');
+    if (button && button.parentNode) button.parentNode.removeChild(button);
   }
 
-  function openFallbackRegistration() {
-    css();
-    document.documentElement.dataset.hashcodFinalEntryScreen = 'true';
-    document.documentElement.removeAttribute('data-hashcod-platform-entered');
-    removeHold();
+  function createInput(name, label, attrs) {
+    attrs = attrs || '';
+    return '<label class="hashcod-direct-field">' + label + '<input name="' + name + '" ' + attrs + '></label>';
+  }
 
-    let overlay = document.getElementById('hashcodPlatformRegistration');
+  function openDirectRegistration() {
+    installStyles();
+    document.documentElement.dataset.hashcodDirectRegistration = 'true';
+    document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
+    document.documentElement.removeAttribute('data-hashcod-platform-entered');
+
+    let overlay = document.getElementById('hashcodDirectRegistration');
     if (!overlay) {
       overlay = document.createElement('section');
-      overlay.id = 'hashcodPlatformRegistration';
+      overlay.id = 'hashcodDirectRegistration';
       document.body.appendChild(overlay);
     }
 
-    overlay.dataset.hashcodScreen = '3';
-    overlay.className = 'hashcod-force-registration';
     overlay.innerHTML = [
-      '<div class="hashcod-force-registration-card" role="dialog" aria-modal="true" aria-label="Registro Hashcod Codespace">',
+      '<div class="hashcod-direct-card" role="dialog" aria-modal="true" aria-label="Registro Hashcod Codespace">',
         '<h2>Registro Hashcod Codespace</h2>',
-        '<p>Completa estos datos para continuar. Esta pantalla de respaldo evita que el acceso se quede congelado si el módulo grande tarda en cargar.</p>',
-        '<div class="hashcod-force-prices" aria-label="Precios">',
+        '<p>Formulario directo aislado. No usa el formulario oficial ni sus eventos, para evitar que el acceso se quede congelado.</p>',
+        '<div class="hashcod-direct-prices" aria-label="Precios">',
           '<div><span>Por someter a solicitud</span><strong>RD$567</strong></div>',
           '<div><span>Por revisar tu code o lo que sea que hagas con IA</span><strong>RD$2,000</strong></div>',
           '<div><span>Por alojar tu plataforma en nuestro codespace post-cuántico</span><strong>RD$6,900</strong></div>',
           '<div><span>Por la Certificación</span><strong>RD$10,000</strong></div>',
           '<div><span>Aquilar en la primera plaza</span><strong>US$ 78</strong></div>',
         '</div>',
-        '<form id="hashcodForceRegistrationForm" novalidate>',
-          '<div class="hashcod-force-grid">',
-            '<label class="hashcod-force-field">Nombre con apellidos<input name="full_name" autocomplete="name" required></label>',
-            '<label class="hashcod-force-field">Edad<input name="age" inputmode="numeric" placeholder="+18" required></label>',
-            '<label class="hashcod-force-field">Cédula con guiones<input name="cedula" placeholder="000-0000000-0" required></label>',
-            '<label class="hashcod-force-field">Nombre de su plataforma<input name="platform_name" required></label>',
-            '<label class="hashcod-force-field">Correo electrónico<input name="email" type="email" autocomplete="email" required></label>',
-            '<label class="hashcod-force-field">Número de teléfono<input name="phone" autocomplete="tel" required></label>',
-          '</div>',
-          '<div class="hashcod-force-actions">',
-            '<button class="hashcod-force-submit" type="submit">Entrar a Hashcod Codespace</button>',
-            '<button class="hashcod-force-back" type="button" id="hashcodForceRetryOfficial">Reintentar formulario oficial</button>',
-          '</div>',
-          '<div class="hashcod-force-status" id="hashcodForceRegistrationStatus" role="status" aria-live="polite"></div>',
-        '</form>',
+        '<div class="hashcod-direct-grid">',
+          createInput('full_name', 'Nombre con apellidos', 'autocomplete="name"'),
+          createInput('age', 'Edad', 'inputmode="numeric" placeholder="+18"'),
+          createInput('cedula', 'Cédula con guiones', 'placeholder="000-0000000-0"'),
+          createInput('platform_name', 'Nombre de su plataforma', ''),
+          createInput('email', 'Correo electrónico', 'type="email" autocomplete="email"'),
+          createInput('phone', 'Número de teléfono', 'autocomplete="tel"'),
+        '</div>',
+        '<div class="hashcod-direct-actions">',
+          '<button type="button" class="hashcod-direct-submit" id="hashcodDirectEnter">Entrar a Hashcod Codespace</button>',
+          '<button type="button" class="hashcod-direct-cancel" id="hashcodDirectBack">Volver</button>',
+        '</div>',
+        '<div class="hashcod-direct-status" id="hashcodDirectStatus" role="status" aria-live="polite"></div>',
       '</div>'
     ].join('');
 
-    try {
-      window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', { detail: { screen: 3, source: 'entry-registration-force-direct' } }));
-    } catch (_) {}
+    removeEntryHold();
+    document.body.classList.remove('boot-locked');
+    document.body.classList.add('auth-locked');
 
-    const form = document.getElementById('hashcodForceRegistrationForm');
-    const status = document.getElementById('hashcodForceRegistrationStatus');
-    const official = document.getElementById('hashcodForceRetryOfficial');
+    const enter = document.getElementById('hashcodDirectEnter');
+    const back = document.getElementById('hashcodDirectBack');
+    const status = document.getElementById('hashcodDirectStatus');
 
-    if (form) {
-      form.addEventListener('submit', function (event) {
-        event.preventDefault();
-        const data = new FormData(form);
-        const ageRaw = String(data.get('age') || '').replace(/[^0-9]/g, '');
-        const age = Number(ageRaw);
-        const required = ['full_name', 'age', 'cedula', 'platform_name', 'email', 'phone'];
-        const missing = required.some(function (key) { return !String(data.get(key) || '').trim(); });
+    if (enter) {
+      enter.addEventListener('click', function () {
+        const fields = Array.from(overlay.querySelectorAll('input'));
+        const values = {};
+        fields.forEach(function (input) { values[input.name] = String(input.value || '').trim(); });
+        const age = Number(String(values.age || '').replace(/[^0-9]/g, ''));
+        const missing = ['full_name', 'age', 'cedula', 'platform_name', 'email', 'phone'].some(function (key) { return !values[key]; });
         if (missing) {
           if (status) status.textContent = 'Completa todos los campos para continuar.';
           return;
@@ -120,63 +121,54 @@
           if (status) status.textContent = 'Debes indicar +18 para continuar.';
           return;
         }
-        if (status) status.textContent = 'Registro local confirmado. Abriendo Codespace…';
+        if (status) status.textContent = 'Registro confirmado. Abriendo Codespace…';
         window.setTimeout(function () {
           document.documentElement.dataset.hashcodPlatformEntered = 'true';
+          document.documentElement.removeAttribute('data-hashcodDirectRegistration');
           document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
-          try { window.dispatchEvent(new CustomEvent('hashcod:platform-entered', { detail: { source: 'entry-registration-force-direct' } })); } catch (_) {}
-          if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
           document.body.classList.remove('auth-locked', 'boot-locked');
-        }, 220);
+          try { window.dispatchEvent(new CustomEvent('hashcod:platform-entered', { detail: { source: 'entry-registration-force-isolated' } })); } catch (_) {}
+          if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 120);
       });
     }
 
-    if (official) {
-      official.addEventListener('click', function () {
-        if (status) status.textContent = 'Buscando formulario oficial…';
-        const registration = window.HashcodPlatformRegistration;
-        if (registration && typeof registration.mount === 'function') {
-          overlay.className = '';
-          overlay.innerHTML = '';
-          try { registration.mount(); } catch (_) {}
-          if (status) status.textContent = '';
-        } else if (status) {
-          status.textContent = 'El formulario oficial no está disponible todavía. Usa este registro de respaldo.';
-        }
+    if (back) {
+      back.addEventListener('click', function () {
+        document.documentElement.removeAttribute('data-hashcodDirectRegistration');
+        if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        ensureButton();
       });
     }
   }
 
   function ensureButton() {
-    css();
-    if (!sloganVisible()) return false;
-    let button = document.getElementById('hashcodHoldContinue') || document.getElementById('hashcodEntryForceButton');
-    if (!button) {
-      button = document.createElement('button');
-      button.id = 'hashcodEntryForceButton';
-      button.type = 'button';
-      (document.body || document.documentElement).appendChild(button);
-    }
-    button.disabled = false;
-    button.hidden = false;
-    button.removeAttribute('hidden');
+    installStyles();
+    if (!entryScreenVisible()) return false;
+    if (document.getElementById('hashcodEntryForceButton')) return true;
+    const button = document.createElement('button');
+    button.id = 'hashcodEntryForceButton';
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Continuar al registro de plataforma de Hashcod');
     button.innerHTML = '<span>CONTINUAR AL REGISTRO</span><span aria-hidden="true">↵</span>';
+    (document.body || document.documentElement).appendChild(button);
     return true;
   }
 
   function clickHandler(event) {
     const target = event.target;
-    const button = target && typeof target.closest === 'function' ? target.closest('#hashcodEntryForceButton,#hashcodHoldContinue') : null;
-    if (!button || !sloganVisible()) return;
+    const button = target && typeof target.closest === 'function' ? target.closest('#hashcodEntryForceButton') : null;
+    if (!button || !entryScreenVisible()) return;
     event.preventDefault();
     event.stopPropagation();
     if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
     button.innerHTML = '<span>ABRIENDO REGISTRO</span><span aria-hidden="true">↵</span>';
-    window.setTimeout(openFallbackRegistration, 40);
+    openDirectRegistration();
   }
 
   function boot() {
+    installStyles();
     ensureButton();
     document.addEventListener('click', clickHandler, true);
     [80, 250, 600, 1000, 1800, 3000, 5000, 8000].forEach(function (delay) { window.setTimeout(ensureButton, delay); });

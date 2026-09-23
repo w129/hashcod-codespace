@@ -6,27 +6,37 @@
     position: relative !important;
 }
 
-#authWrapper #hashcodAuthUtilityDock.hashcod-auth-utility-dock {
+#authWrapper #hashcodAuthUtilityDock.hashcod-auth-utility-dock,
+#hashcodAuthUtilityDock.hashcod-auth-utility-dock {
     position: absolute !important;
-    top: 20px !important;
-    right: 20px !important;
+    top: 18px !important;
+    right: 18px !important;
     left: auto !important;
     bottom: auto !important;
     z-index: 70 !important;
-    display: flex !important;
+    display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 10px !important;
+    gap: 8px !important;
     width: auto !important;
-    height: auto !important;
+    height: 54px !important;
+    min-height: 54px !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 5px !important;
     pointer-events: auto !important;
     isolation: isolate;
+    border: 1px solid rgba(17, 17, 17, .10) !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, .86) !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .08) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    overflow: hidden !important;
 }
 
-#authWrapper #hashcodAuthUtilityDock.hashcod-auth-utility-dock[hidden] {
+#authWrapper #hashcodAuthUtilityDock.hashcod-auth-utility-dock[hidden],
+#hashcodAuthUtilityDock.hashcod-auth-utility-dock[hidden] {
     display: none !important;
 }
 
@@ -34,76 +44,116 @@
 #authWrapper #hashcodAuthUtilityDock .crypto-card-direct-launcher-btn,
 #authWrapper #hashcodAuthUtilityDock #cryptoCardValidationLauncherBtn,
 #authWrapper #hashcodAuthUtilityDock #d5LauncherBtn,
-#authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button {
-    position: static !important;
+#authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button,
+#hashcodAuthUtilityDock .crypto-card-launcher-btn,
+#hashcodAuthUtilityDock .crypto-card-direct-launcher-btn,
+#hashcodAuthUtilityDock #cryptoCardValidationLauncherBtn,
+#hashcodAuthUtilityDock #d5LauncherBtn,
+#hashcodAuthUtilityDock .hashcod-auth-utility-button {
+    position: relative !important;
     inset: auto !important;
-    display: grid !important;
-    place-items: center !important;
-    flex: 0 0 46px !important;
-    width: 46px !important;
-    min-width: 46px !important;
-    max-width: 46px !important;
-    height: 46px !important;
-    min-height: 46px !important;
-    max-height: 46px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
     margin: 0 !important;
-    padding: 10px !important;
-    border: 1px solid #111111 !important;
-    border-radius: 11px !important;
-    background: #ffffff !important;
+    padding: 0 !important;
+    border: 1px solid rgba(17, 17, 17, .16) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, .72) !important;
     color: #111111 !important;
-    box-shadow: 0 5px 14px rgba(0, 0, 0, .075) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82), 0 5px 14px rgba(0, 0, 0, .055) !important;
     transform: none !important;
     font-size: 0 !important;
     line-height: 1 !important;
     overflow: hidden !important;
     cursor: pointer !important;
     pointer-events: auto !important;
-    transition: transform 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease !important;
+    transition: transform 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease, border-color 160ms ease !important;
 }
 
 /* Direct entry with an already validated cryptographic card remains available
    before Windows Hello. The uploaded card is validated by its own flow. */
-#authWrapper #hashcodAuthUtilityDock .crypto-card-direct-launcher-btn {
-    display: grid !important;
+#authWrapper #hashcodAuthUtilityDock .crypto-card-direct-launcher-btn,
+#hashcodAuthUtilityDock .crypto-card-direct-launcher-btn {
+    display: inline-flex !important;
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
 }
 
-#authWrapper #hashcodAuthUtilityDock #d5LauncherBtn {
+#authWrapper #hashcodAuthUtilityDock #d5LauncherBtn,
+#hashcodAuthUtilityDock #d5LauncherBtn {
     background: #111111 !important;
     color: #ffffff !important;
 }
 
 #authWrapper #hashcodAuthUtilityDock svg,
-#authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button svg {
+#authWrapper #hashcodAuthUtilityDock img,
+#authWrapper #hashcodAuthUtilityDock canvas,
+#authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button svg,
+#authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button img,
+#authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button canvas,
+#hashcodAuthUtilityDock svg,
+#hashcodAuthUtilityDock img,
+#hashcodAuthUtilityDock canvas,
+#hashcodAuthUtilityDock .hashcod-auth-utility-button svg,
+#hashcodAuthUtilityDock .hashcod-auth-utility-button img,
+#hashcodAuthUtilityDock .hashcod-auth-utility-button canvas {
     display: block !important;
-    width: 21px !important;
-    height: 21px !important;
-    min-width: 21px !important;
-    min-height: 21px !important;
-    max-width: 21px !important;
-    max-height: 21px !important;
-    margin: 0 auto !important;
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    margin: 0 !important;
+    object-fit: contain !important;
+    object-position: center !important;
     fill: currentColor !important;
     color: currentColor !important;
-    stroke: currentColor;
+    stroke: currentColor !important;
+    transform: none !important;
+}
+
+#authWrapper #hashcodAuthUtilityDock .crypto-card-direct-launcher-btn > *,
+#authWrapper #hashcodAuthUtilityDock .crypto-card-launcher-btn > *,
+#authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button > *,
+#hashcodAuthUtilityDock .crypto-card-direct-launcher-btn > *,
+#hashcodAuthUtilityDock .crypto-card-launcher-btn > *,
+#hashcodAuthUtilityDock .hashcod-auth-utility-button > * {
+    max-width: 24px !important;
+    max-height: 24px !important;
+    overflow: hidden !important;
+    flex: 0 0 auto !important;
 }
 
 #authWrapper #hashcodAuthUtilityDock button:hover,
 #authWrapper #hashcodAuthUtilityDock button:focus-visible,
 #authWrapper #hashcodAuthUtilityDock a:hover,
-#authWrapper #hashcodAuthUtilityDock a:focus-visible {
+#authWrapper #hashcodAuthUtilityDock a:focus-visible,
+#hashcodAuthUtilityDock button:hover,
+#hashcodAuthUtilityDock button:focus-visible,
+#hashcodAuthUtilityDock a:hover,
+#hashcodAuthUtilityDock a:focus-visible {
     background: #111111 !important;
     color: #ffffff !important;
+    border-color: #111111 !important;
     outline: none !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, .12) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 9px 20px rgba(0, 0, 0, .13) !important;
 }
 
 #authWrapper #hashcodAuthUtilityDock #d5LauncherBtn:hover,
-#authWrapper #hashcodAuthUtilityDock #d5LauncherBtn:focus-visible {
+#authWrapper #hashcodAuthUtilityDock #d5LauncherBtn:focus-visible,
+#hashcodAuthUtilityDock #d5LauncherBtn:hover,
+#hashcodAuthUtilityDock #d5LauncherBtn:focus-visible {
     background: #ffffff !important;
     color: #111111 !important;
 }
@@ -111,7 +161,9 @@
 /* Admin-only tools still depend on the existing Windows Hello state. Moving
    them inside the card does not weaken authorization. */
 html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock #cryptoCardValidationLauncherBtn,
-html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock #d5LauncherBtn {
+html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock #d5LauncherBtn,
+html:not([data-admin-authenticated="true"]) #hashcodAuthUtilityDock #cryptoCardValidationLauncherBtn,
+html:not([data-admin-authenticated="true"]) #hashcodAuthUtilityDock #d5LauncherBtn {
     display: none !important;
     pointer-events: none !important;
 }
@@ -162,43 +214,59 @@ html:not([data-admin-authenticated="true"]) #authWrapper #hashcodAuthUtilityDock
 }
 
 @media (max-width: 760px) {
-    #authWrapper #hashcodAuthUtilityDock.hashcod-auth-utility-dock {
+    #authWrapper #hashcodAuthUtilityDock.hashcod-auth-utility-dock,
+    #hashcodAuthUtilityDock.hashcod-auth-utility-dock {
         top: 12px !important;
         right: 12px !important;
-        gap: 8px !important;
+        gap: 6px !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        padding: 4px !important;
+        border-radius: 14px !important;
     }
 
     #authWrapper #hashcodAuthUtilityDock .crypto-card-launcher-btn,
     #authWrapper #hashcodAuthUtilityDock .crypto-card-direct-launcher-btn,
     #authWrapper #hashcodAuthUtilityDock #cryptoCardValidationLauncherBtn,
     #authWrapper #hashcodAuthUtilityDock #d5LauncherBtn,
-    #authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button {
-        flex-basis: 40px !important;
-        width: 40px !important;
-        min-width: 40px !important;
-        max-width: 40px !important;
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
-        padding: 8px !important;
-        border-radius: 10px !important;
+    #authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button,
+    #hashcodAuthUtilityDock .crypto-card-launcher-btn,
+    #hashcodAuthUtilityDock .crypto-card-direct-launcher-btn,
+    #hashcodAuthUtilityDock #cryptoCardValidationLauncherBtn,
+    #hashcodAuthUtilityDock #d5LauncherBtn,
+    #hashcodAuthUtilityDock .hashcod-auth-utility-button {
+        flex-basis: 38px !important;
+        width: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        border-radius: 11px !important;
     }
 
     #authWrapper #hashcodAuthUtilityDock svg,
-    #authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button svg {
-        width: 19px !important;
-        height: 19px !important;
-        min-width: 19px !important;
-        min-height: 19px !important;
-        max-width: 19px !important;
-        max-height: 19px !important;
+    #authWrapper #hashcodAuthUtilityDock img,
+    #authWrapper #hashcodAuthUtilityDock canvas,
+    #hashcodAuthUtilityDock svg,
+    #hashcodAuthUtilityDock img,
+    #hashcodAuthUtilityDock canvas {
+        width: 21px !important;
+        height: 21px !important;
+        min-width: 21px !important;
+        min-height: 21px !important;
+        max-width: 21px !important;
+        max-height: 21px !important;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     #authWrapper #hashcodAuthUtilityDock .hashcod-auth-utility-button,
     #authWrapper #hashcodAuthUtilityDock button,
-    #authWrapper #hashcodAuthUtilityDock a {
+    #authWrapper #hashcodAuthUtilityDock a,
+    #hashcodAuthUtilityDock .hashcod-auth-utility-button,
+    #hashcodAuthUtilityDock button,
+    #hashcodAuthUtilityDock a {
         transition: none !important;
     }
 }

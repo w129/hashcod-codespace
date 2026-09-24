@@ -26,13 +26,23 @@
     document.head.appendChild(style);
   }
 
+  function loadRegistrationGlassTheme() {
+    if (document.getElementById('hashcodRegistrationGlassThemeStylesheet')) return;
+    var link = document.createElement('link');
+    link.id = 'hashcodRegistrationGlassThemeStylesheet';
+    link.rel = 'stylesheet';
+    link.href = '/components/hashcod-registration-glass-theme.css?v=20260924-glass1';
+    document.head.appendChild(link);
+  }
+
   function bootVisualCleanup() {
     removeLegacyBadge();
     installDockIconIntegrationStyle();
+    loadRegistrationGlassTheme();
   }
 
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-22-no-badge-dock-icon-fix',
+    version: 'safe-shim-2026-09-24-registration-glass-theme',
     status: 'hardened',
     runFullAudit: function () {
       console.info('[Hashcod Security] Safe monitor active. No client-side command execution is enabled.');

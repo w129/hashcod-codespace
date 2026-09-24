@@ -1,0 +1,283 @@
+/* Hashcod Codespace registration form · public-derivation glass principle
+   Visual-only layer. It does not change validation, submit behavior, uploads or security rules. */
+
+:root {
+  --hc-reg-bg: #f7f7f5;
+  --hc-reg-ink: #111111;
+  --hc-reg-muted: #454545;
+  --hc-reg-soft: rgba(255, 255, 255, .86);
+  --hc-reg-soft-strong: rgba(255, 255, 255, .94);
+  --hc-reg-line: rgba(0, 0, 0, .11);
+  --hc-reg-green: #24b26b;
+  --hc-reg-shadow: 0 18px 45px rgba(0, 0, 0, .08);
+  --hc-reg-shadow-strong: 0 28px 80px rgba(0, 0, 0, .16);
+}
+
+html[data-hashcod-direct-registration="true"] body {
+  overflow: hidden;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration {
+  background: var(--hc-reg-bg) !important;
+  background-image:
+    radial-gradient(circle at 18% 18%, rgba(36, 178, 107, .11), transparent 30%),
+    radial-gradient(circle at 86% 16%, rgba(36, 178, 107, .07), transparent 28%),
+    linear-gradient(rgba(0, 0, 0, .026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, .026) 1px, transparent 1px) !important;
+  background-size: auto, auto, 52px 52px, 52px 52px !important;
+  color: var(--hc-reg-ink) !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  padding: 34px 18px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-card {
+  width: min(1120px, calc(100vw - 32px)) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .92), rgba(245, 245, 241, .86)) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid var(--hc-reg-line) !important;
+  border-radius: 28px !important;
+  box-shadow: var(--hc-reg-shadow-strong) !important;
+  padding: clamp(22px, 3vw, 34px) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-head {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: start !important;
+  gap: 18px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .10) !important;
+  margin-bottom: 22px !important;
+  padding-bottom: 20px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: max-content !important;
+  margin: 0 0 14px !important;
+  border: 1px solid rgba(0, 0, 0, .13) !important;
+  background: rgba(255, 255, 255, .86) !important;
+  backdrop-filter: blur(8px) !important;
+  border-radius: 999px !important;
+  padding: 7px 12px !important;
+  color: #333 !important;
+  font: 800 12px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .08em !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-kicker::before {
+  content: "" !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  background: var(--hc-reg-green) !important;
+  flex: 0 0 auto !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-title {
+  margin: 0 !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: clamp(42px, 6vw, 76px) !important;
+  line-height: .90 !important;
+  letter-spacing: -.075em !important;
+  font-weight: 900 !important;
+  color: #111 !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-sub {
+  max-width: 760px !important;
+  margin: 14px 0 0 !important;
+  color: #333 !important;
+  font: 500 clamp(16px, 1.6vw, 20px)/1.55 Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-badge {
+  background: #111 !important;
+  color: #fff !important;
+  border: 1px solid #111 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .12) !important;
+  font: 900 11px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .08em !important;
+  padding: 9px 12px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-grid {
+  gap: 16px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-progress,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-consent,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-faq {
+  border: 1px solid rgba(0, 0, 0, .10) !important;
+  background: var(--hc-reg-soft) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .035) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field {
+  padding: 14px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field label {
+  color: #333 !important;
+  font: 900 11px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .08em !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field input {
+  height: 50px !important;
+  border: 1px solid rgba(0, 0, 0, .14) !important;
+  background: rgba(255, 255, 255, .90) !important;
+  border-radius: 14px !important;
+  color: #111 !important;
+  font: 700 15px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field input:focus {
+  border-color: #111 !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 4px rgba(36, 178, 107, .14) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field input.is-bad {
+  border-color: #b3261e !important;
+  background: #fff8f7 !important;
+  box-shadow: 0 0 0 4px rgba(179, 38, 30, .10) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-hint {
+  color: #60605a !important;
+  font: 500 12px/1.45 Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-hint.is-error {
+  color: #b3261e !important;
+  font-weight: 800 !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-upload-btn {
+  height: 50px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, .92) !important;
+  border: 1px solid #111 !important;
+  color: #111 !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .06) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-upload-btn.is-ok {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-progress,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-consent {
+  padding: 16px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-progress-top {
+  color: #222 !important;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-progress-track {
+  background: rgba(0, 0, 0, .08) !important;
+  height: 10px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-progress-bar {
+  background: linear-gradient(90deg, #111, var(--hc-reg-green)) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-actions {
+  margin-top: 20px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-actions button {
+  height: 48px !important;
+  border-radius: 14px !important;
+  font: 900 11px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .06em !important;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-actions button:hover:not(:disabled) {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .12) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-main-btn {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-side-btn,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-wa-btn {
+  background: rgba(255, 255, 255, .88) !important;
+  color: #111 !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-note {
+  border: 1px solid rgba(0, 0, 0, .10) !important;
+  background: rgba(255, 255, 255, .80) !important;
+  backdrop-filter: blur(8px) !important;
+  border-radius: 14px !important;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-faq {
+  overflow: hidden !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-faq-trigger {
+  font: 900 14px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  padding: 16px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-faq-panel {
+  color: #444 !important;
+  font: 500 13px/1.55 Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-price-list div {
+  border-bottom-color: rgba(0, 0, 0, .10) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-price-list strong {
+  font-weight: 900 !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-modal-card {
+  border-radius: 24px !important;
+  background: var(--hc-reg-soft-strong) !important;
+  backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(0, 0, 0, .12) !important;
+  box-shadow: var(--hc-reg-shadow-strong) !important;
+}
+
+@media (max-width: 720px) {
+  html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration {
+    padding: 18px 12px !important;
+  }
+
+  html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-card {
+    width: min(100%, calc(100vw - 20px)) !important;
+    border-radius: 22px !important;
+    padding: 18px !important;
+  }
+
+  html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-head {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-title {
+    font-size: 44px !important;
+  }
+}

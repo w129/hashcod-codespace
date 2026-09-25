@@ -2,7 +2,8 @@
  * HASHCOD CODESPACE · SAFE SECURITY MONITOR SHIM
  *
  * Mantiene disponible el monitor seguro para auditorías internas, pero ya no
- * pinta el badge visual "Security: hardened" dentro de la plataforma.
+ * pinta el badge visual "Security: hardened" dentro de la plataforma ni carga
+ * componentes retirados del antiguo formulario de registro.
  */
 (function (window, document) {
   'use strict';
@@ -10,6 +11,22 @@
   function removeLegacyBadge() {
     var badge = document.getElementById('hashcodSafeSecurityBadge');
     if (badge && badge.parentNode) badge.parentNode.removeChild(badge);
+  }
+
+  function removeRetiredRegistrationUi() {
+    [
+      'hashcodDirectRegistration',
+      'hashcodHeroUIColorPicker',
+      'hashcodTemporaryAccessDialog',
+      'hcCodeModal'
+    ].forEach(function (id) {
+      var node = document.getElementById(id);
+      if (node && node.parentNode) node.parentNode.removeChild(node);
+    });
+
+    document.querySelectorAll('.hc-reg-card,.hc-heroui-colorpicker').forEach(function (node) {
+      if (node && node.parentNode) node.parentNode.removeChild(node);
+    });
   }
 
   function installDockIconIntegrationStyle() {
@@ -26,71 +43,14 @@
     document.head.appendChild(style);
   }
 
-  function loadStylesheetOnce(id, href) {
-    if (document.getElementById(id)) return;
-    var link = document.createElement('link');
-    link.id = id;
-    link.rel = 'stylesheet';
-    link.href = href;
-    document.head.appendChild(link);
-  }
-
-  function loadScriptOnce(id, src) {
-    if (document.getElementById(id)) return;
-    var script = document.createElement('script');
-    script.id = id;
-    script.src = src;
-    script.defer = true;
-    document.head.appendChild(script);
-  }
-
-  function loadRegistrationGlassTheme() {
-    loadStylesheetOnce(
-      'hashcodRegistrationGlassThemeStylesheet',
-      '/components/hashcod-registration-glass-theme.css?v=20260924-glass1'
-    );
-  }
-
-  function loadRegistrationPixelBackground() {
-    loadStylesheetOnce(
-      'hashcodRegistrationPixelBackgroundStylesheet',
-      '/components/hashcod-registration-pixel-bg.css?v=20260925-gray1'
-    );
-  }
-
-  function loadRegistrationHeroUIDateField() {
-    loadStylesheetOnce(
-      'hashcodRegistrationHeroUIDateFieldStylesheet',
-      '/components/hashcod-registration-heroui-datefield.css?v=20260925-heroui2'
-    );
-    loadScriptOnce(
-      'hashcodRegistrationHeroUIDateFieldBridge',
-      '/components/hashcod-registration-heroui-datefield.js?v=20260925-heroui2'
-    );
-  }
-
-  function loadRegistrationHeroUIColorPicker() {
-    loadStylesheetOnce(
-      'hashcodRegistrationHeroUIColorPickerBottomStylesheet',
-      '/components/hashcod-registration-heroui-colorpicker.css?v=20260925-colorpicker4-bottom'
-    );
-    loadScriptOnce(
-      'hashcodRegistrationHeroUIColorPickerBottomBridge',
-      '/components/hashcod-registration-heroui-colorpicker.js?v=20260925-colorpicker4-bottom'
-    );
-  }
-
   function bootVisualCleanup() {
     removeLegacyBadge();
+    removeRetiredRegistrationUi();
     installDockIconIntegrationStyle();
-    loadRegistrationGlassTheme();
-    loadRegistrationPixelBackground();
-    loadRegistrationHeroUIDateField();
-    loadRegistrationHeroUIColorPicker();
   }
 
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-25-registration-heroui-colorpicker4-bottom',
+    version: 'safe-shim-2026-09-25-no-registration-addons',
     status: 'hardened',
     runFullAudit: function () {
       console.info('[Hashcod Security] Safe monitor active. No client-side command execution is enabled.');

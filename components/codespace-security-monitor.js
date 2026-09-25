@@ -35,6 +35,15 @@
     document.head.appendChild(link);
   }
 
+  function loadScriptOnce(id, src) {
+    if (document.getElementById(id)) return;
+    var script = document.createElement('script');
+    script.id = id;
+    script.src = src;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+
   function loadRegistrationGlassTheme() {
     loadStylesheetOnce(
       'hashcodRegistrationGlassThemeStylesheet',
@@ -49,15 +58,27 @@
     );
   }
 
+  function loadRegistrationHeroUIDateField() {
+    loadStylesheetOnce(
+      'hashcodRegistrationHeroUIDateFieldStylesheet',
+      '/components/hashcod-registration-heroui-datefield.css?v=20260925-heroui1'
+    );
+    loadScriptOnce(
+      'hashcodRegistrationHeroUIDateFieldBridge',
+      '/components/hashcod-registration-heroui-datefield.js?v=20260925-heroui1'
+    );
+  }
+
   function bootVisualCleanup() {
     removeLegacyBadge();
     installDockIconIntegrationStyle();
     loadRegistrationGlassTheme();
     loadRegistrationPixelBackground();
+    loadRegistrationHeroUIDateField();
   }
 
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-25-registration-pixel-bg-gray',
+    version: 'safe-shim-2026-09-25-registration-heroui-datefield',
     status: 'hardened',
     runFullAudit: function () {
       console.info('[Hashcod Security] Safe monitor active. No client-side command execution is enabled.');

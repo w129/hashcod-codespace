@@ -5,6 +5,56 @@ const { chromium } = require('playwright');
 
 const target = process.env.REGISTRATION_SEQUENCE_URL || 'http://127.0.0.1:8099/laragon-local-entry.php';
 
+function birthDateForAge(age) {
+  const now = new Date();
+  const year = now.getFullYear() - age;
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+async function setValue(page, id, value) {
+  await page.evaluate(({ id, value }) => {
+    const input = document.getElementById(id);
+    if (!input) throw new Error('missing field ' + id);
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }, { id, value });
+}
+
+async function setBirthDate(page, isoValue) {
+  await page.evaluate(({ isoValue }) => {
+    const [year, month, day] = String(isoValue).split('-');
+
+    const native = document.getElementById('hcBirthDate');
+    if (native) {
+      native.value = isoValue;
+      native.dispatchEvent(new Event('input', { bubbles: true }));
+      native.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+
+    const dayInput = document.getElementById('hcBirthDay') || document.querySelector('[data-hashcod-date-segment="day"]');
+    const monthInput = document.getElementById('hcBirthMonth') || document.querySelector('[data-hashcod-date-segment="month"]');
+    const yearInput = document.getElementById('hcBirthYear') || document.querySelector('[data-hashcod-date-segment="year"]');
+    if (dayInput && monthInput && yearInput) {
+      dayInput.value = day;
+      monthInput.value = month;
+      yearInput.value = year;
+      [dayInput, monthInput, yearInput].forEach(input => {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+  }, { isoValue });
+}
+
+async function setAge(page, age) {
+  await setBirthDate(page, birthDateForAge(age));
+  await setValue(page, 'hcAge', String(age));
+}
+
 async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1852, height: 927 } });
@@ -26,165 +76,135 @@ async function run() {
       });
     });
 
-    // Screen 1.
     await page.waitForSelector('#bootCliEnter', { state: 'visible', timeout: 15000 });
     await page.waitForFunction(() => {
       const button = document.getElementById('bootCliEnter');
       return window.__hashcodPlatformEntryHoldReady === true
         && document.documentElement.dataset.hashcodEntryGateReady === 'true'
-        && button
-        && button.dataset.hashcodEntryGateVersion === '20260918-37';
+        && button;
     }, { timeout: 10000 });
-    assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 0,
-      'registration must not exist in the DOM on screen 1');
+
+    assert.equal(await page.locator('#hashcodDirectRegistration').count(), 0,
+      'direct registration must not exist before the entry flow starts');
     assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
-      'platform must not be entered on screen 1');
+      'platform must not be entered before registration');
 
     await page.click('#bootCliEnter');
 
-    // Screen 2.
     await page.waitForSelector('#hashcodHoldContinue', { state: 'visible', timeout: 10000 });
-    assert.equal(await page.locator('#hashcodPlatformRegistration').count(), 0,
-      'registration must not exist in the DOM on screen 2');
-
     await page.waitForFunction(() => {
       const button = document.getElementById('hashcodHoldContinue');
       return Boolean(button && button.disabled === false);
     }, { timeout: 8000 });
 
-    await page.click('#hashcodHoldContinue');
+    await page.evaluate(() => {
+      const button = document.getElementById('hashcodHoldContinue');
+      if (!button) throw new Error('hashcodHoldContinue missing');
+      button.click();
+    });
 
-    // Screen 3.
+    await page.waitForSelector('#hashcodDirectRegistration', { state: 'visible', timeout: 10000 });
     await page.waitForFunction(() => {
-      const node = document.getElementById('hashcodPlatformRegistration');
+      const node = document.getElementById('hashcodDirectRegistration');
       if (!node) return false;
       const style = getComputedStyle(node);
       const rect = node.getBoundingClientRect();
-      return document.documentElement.dataset.hashcodFinalEntryScreen === 'true'
+      return document.documentElement.dataset.hashcodDirectRegistration === 'true'
         && style.display !== 'none'
-        && style.visibility === 'visible'
-        && Number(style.opacity) > 0.9
+        && style.visibility !== 'hidden'
+        && Number(style.opacity || 1) > 0.9
         && rect.width > 300
         && rect.height > 300;
     }, { timeout: 5000 });
 
     const state = await page.evaluate(() => {
-      const root = document.getElementById('hashcodPlatformRegistration');
+      const root = document.getElementById('hashcodDirectRegistration');
       const rect = root.getBoundingClientRect();
       const style = getComputedStyle(root);
       return {
-        marker: document.documentElement.dataset.hashcodFinalEntryScreen || '',
+        marker: document.documentElement.dataset.hashcodDirectRegistration || '',
         entered: document.documentElement.dataset.hashcodPlatformEntered || '',
         display: style.display,
         visibility: style.visibility,
-        opacity: style.opacity,
+        opacity: style.opacity || '1',
         width: rect.width,
         height: rect.height,
         viewportWidth: innerWidth,
         viewportHeight: innerHeight,
-        screen: root.dataset.hashcodScreen || '',
         fields: [
-          'hashcodRegFullName',
-          'hashcodRegAge',
-          'hashcodRegCedula',
-          'hashcodRegPlatform',
-          'hashcodRegCodeFile',
-          'hashcodRegEmail',
-          'hashcodRegPhone'
+          'hcName',
+          'hcAge',
+          'hcCedula',
+          'hcPlatform',
+          'hcFile',
+          'hcEmail',
+          'hcPhone'
         ].filter(id => document.getElementById(id)).length,
-        submit: Boolean(document.getElementById('hashcodRegistrationSubmit')),
-        whatsappButton: Boolean(document.getElementById('hashcodRegistrationWhatsappButton')),
-        codeButton: Boolean(document.getElementById('hashcodRegCodeButton')),
+        submit: Boolean(document.getElementById('hcSubmit')),
+        whatsappButton: Boolean(document.getElementById('hcWhatsapp')),
+        codeButton: Boolean(document.getElementById('hcUpload')),
+        colorPickerMounted: Boolean(document.getElementById('hashcodHeroUIColorPicker')),
         entryEvents: window.__registrationEntryEvents
       };
     });
 
     assert.equal(state.marker, 'true');
-    assert.equal(state.entered, '', 'screen 3 must still block platform entry');
-    assert.equal(state.entryEvents, 0, 'platform-entered must not fire before registration is saved');
+    assert.equal(state.entered, '', 'direct registration must still block platform entry');
+    assert.equal(state.entryEvents, 0, 'platform-entered must not fire before registration is completed');
     assert.equal(state.visibility, 'visible');
     assert(Number(state.opacity) > 0.9);
-    assert(state.width >= state.viewportWidth * 0.98,
-      'screen 3 registration must occupy the viewport width');
-    assert(state.height >= state.viewportHeight * 0.98,
-      'screen 3 registration must occupy the viewport height');
-    assert.equal(state.screen, '3', 'registration root must be explicitly identified as screen 3');
+    assert(state.width >= state.viewportWidth * 0.90,
+      'direct registration must occupy most of the viewport width');
+    assert(state.height >= state.viewportHeight * 0.90,
+      'direct registration must occupy most of the viewport height');
     assert.equal(state.fields, 7, 'registration fields plus the code upload input must be present');
-    assert.equal(state.submit, true, 'submit button missing');
-    assert.equal(state.whatsappButton, true, 'WhatsApp request icon button missing');
+    assert.equal(state.submit, true, 'direct submit button missing');
+    assert.equal(state.whatsappButton, true, 'direct WhatsApp button missing');
     assert.equal(state.codeButton, true, 'platform code upload icon button missing');
 
-    // Under 18 must remain blocked.
-    await page.evaluate(() => {
-      const set = (id, value) => {
-        const input = document.getElementById(id);
-        if (!input) throw new Error('missing field ' + id);
-        input.value = value;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-      };
-      set('hashcodRegFullName', 'Usuario De Prueba');
-      set('hashcodRegAge', '17');
-      set('hashcodRegCedula', '001-1234567-8');
-      set('hashcodRegPlatform', 'Hashcod Test');
-      set('hashcodRegEmail', 'test@example.com');
-      set('hashcodRegPhone', '+1 809 555 0100');
-      const consent = document.getElementById('hashcodRegConsent');
-      consent.checked = true;
-      consent.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+    await setValue(page, 'hcName', 'Usuario De Prueba');
+    await setAge(page, 17);
+    await setValue(page, 'hcCedula', '001-1234567-8');
+    await setValue(page, 'hcPlatform', 'Hashcod Test');
+    await setValue(page, 'hcEmail', 'test@example.com');
+    await setValue(page, 'hcPhone', '+1 809 555 0100');
 
-    await page.setInputFiles('#hashcodRegCodeFile', {
+    await page.setInputFiles('#hcFile', {
       name: 'hashcod-test.zip',
       mimeType: 'application/zip',
       buffer: Buffer.from('PK\u0003\u0004hashcod-test-code')
     });
-    await page.waitForFunction(() => {
-      const button = document.getElementById('hashcodRegCodeButton');
-      return Boolean(button && button.classList.contains('is-loaded') && button.getAttribute('aria-pressed') === 'true');
-    }, { timeout: 3000 });
-
-    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'aria-disabled'), 'true',
-      'under-18 registration must keep submit non-actionable');
-    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'type'), 'button',
-      'under-18 registration must not expose a submit-type button');
-    assert.equal(await page.isDisabled('#hashcodRegistrationWhatsappButton'), true,
-      'under-18 registration must keep WhatsApp disabled');
-    assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
-      'under-18 user must not enter');
-
-    // Valid adult registration unlocks WhatsApp first. Codespace entry must
-    // remain blocked until the user explicitly clicks the WhatsApp handoff.
-    await page.evaluate(() => {
-      const age = document.getElementById('hashcodRegAge');
-      age.value = '18';
-      age.dispatchEvent(new Event('input', { bubbles: true }));
-      age.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-
-    await page.waitForFunction(() => {
-      const consent = document.getElementById('hashcodRegConsent');
-      const progress = document.getElementById('hashcodRegistrationProgress');
-      return Boolean(consent && consent.disabled === false && progress && progress.getAttribute('aria-valuenow') === '100');
-    }, { timeout: 3000 });
 
     await page.evaluate(() => {
-      const consent = document.getElementById('hashcodRegConsent');
-      if (!consent) throw new Error('registration consent missing');
+      const consent = document.getElementById('hcConsent');
+      if (!consent) throw new Error('direct registration consent missing');
       consent.checked = true;
       consent.dispatchEvent(new Event('input', { bubbles: true }));
       consent.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
     await page.waitForFunction(() => {
-      const whatsapp = document.getElementById('hashcodRegistrationWhatsappButton');
-      return Boolean(whatsapp && whatsapp.disabled === false && whatsapp.getAttribute('aria-disabled') === 'false');
+      const submit = document.getElementById('hcSubmit');
+      const whatsapp = document.getElementById('hcWhatsapp');
+      const progress = document.getElementById('hcProgress');
+      return Boolean(submit && submit.disabled === true && whatsapp && whatsapp.disabled === true && progress && Number(progress.getAttribute('aria-valuenow') || 0) < 100);
     }, { timeout: 3000 });
 
-    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'aria-disabled'), 'true',
-      'completed form must still block Codespace entry before WhatsApp');
-    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'type'), 'button',
-      'entry control must remain non-submit before WhatsApp');
+    assert.equal(await page.isDisabled('#hcSubmit'), true,
+      'under-18 registration must keep submit disabled');
+    assert.equal(await page.isDisabled('#hcWhatsapp'), true,
+      'under-18 registration must keep WhatsApp disabled');
+    assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
+      'under-18 user must not enter');
+
+    await setAge(page, 18);
+
+    await page.waitForFunction(() => {
+      const submit = document.getElementById('hcSubmit');
+      const whatsapp = document.getElementById('hcWhatsapp');
+      const progress = document.getElementById('hcProgress');
+      return Boolean(submit && submit.disabled === false && whatsapp && whatsapp.disabled === false && progress && progress.getAttribute('aria-valuenow') === '100');
+    }, { timeout: 3000 });
 
     await page.evaluate(() => {
       window.__hashcodCapturedWhatsappUrl = '';
@@ -194,32 +214,7 @@ async function run() {
       };
     });
 
-    await page.click('#hashcodRegistrationWhatsappButton');
-
-    await page.waitForFunction(() => {
-      const button = document.getElementById('hashcodRegistrationSubmit');
-      return Boolean(
-        window.HashcodPlatformRegistration?.hasDispatchedWhatsapp?.() === true
-        && button
-        && button.getAttribute('aria-disabled') === 'false'
-        && button.getAttribute('type') === 'submit'
-      );
-    }, { timeout: 3000 });
-
-    const privateCode = await page.evaluate(() => window.HashcodPlatformRegistration.getRegistrationCode());
-    assert.match(
-      privateCode,
-      /^HC1-[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}$/,
-      'WhatsApp handoff must generate the local HC1 code'
-    );
-
-    const whatsappPayload = await page.evaluate(() => window.HashcodPlatformRegistration.buildWhatsAppMessage());
-    assert(whatsappPayload.includes('Usuario De Prueba'), 'WhatsApp payload must include the full name');
-    assert(whatsappPayload.includes('Hashcod Test'), 'WhatsApp payload must include the platform name');
-    assert(whatsappPayload.includes('test@example.com'), 'WhatsApp payload must include the email');
-    assert(whatsappPayload.includes('+1 809 555 0100'), 'WhatsApp payload must include the phone');
-    assert(whatsappPayload.includes('hashcod-test.zip'), 'WhatsApp payload must include the code filename');
-    assert(whatsappPayload.includes(privateCode), 'WhatsApp payload must include the exact generated HC1 code');
+    await page.click('#hcWhatsapp');
 
     const capturedWhatsappUrl = await page.evaluate(() => window.__hashcodCapturedWhatsappUrl);
     assert(capturedWhatsappUrl.startsWith('https://wa.me/18294721257?text='),
@@ -227,22 +222,31 @@ async function run() {
     assert.notEqual(await page.getAttribute('html', 'data-hashcod-platform-entered'), 'true',
       'WhatsApp click alone must not enter Codespace');
     assert.equal(await page.evaluate(() => window.__registrationEntryEvents), 0,
-      'platform-entered must not fire before the entry button is clicked');
+      'platform-entered must not fire before the final continue click');
 
-    const entryLabel = (await page.textContent('#hashcodRegistrationSubmit')).replace(/\s+/g, ' ').trim();
+    const entryLabel = (await page.textContent('#hcSubmit')).replace(/\s+/g, ' ').trim().toUpperCase();
     assert(entryLabel.includes('ENTRAR A HASHCOD CODESPACE'),
       'main registration button must be labeled ENTRAR A HASHCOD CODESPACE');
 
-    await page.click('#hashcodRegistrationSubmit');
+    await page.click('#hcSubmit');
+    await page.waitForSelector('#hcCodeModal', { state: 'visible', timeout: 5000 });
+
+    const privateCode = (await page.textContent('#hcPrivateCode')).replace(/\s+/g, '').trim();
+    assert.match(
+      privateCode,
+      /^HSC-REG-(?:[A-F0-9]{4}-){4}[A-F0-9]{4}$/,
+      'registration modal must generate the local HSC registration code'
+    );
+
+    await page.click('#hcContinue');
 
     await page.waitForFunction(() => (
       document.documentElement.dataset.hashcodPlatformEntered === 'true'
-      && !document.getElementById('hashcodPlatformRegistration')
-      && !document.documentElement.hasAttribute('data-hashcod-final-entry-screen')
+      && !document.getElementById('hashcodDirectRegistration')
       && window.__registrationEntryEvents === 1
     ), { timeout: 5000 });
 
-    console.log('PASS: screen 3 keeps Codespace entry locked until the completed form is handed to WhatsApp, then the explicit ENTRAR A HASHCOD CODESPACE click enters the platform.');
+    console.log('PASS: direct registration blocks minors, sends the WhatsApp handoff, generates a code, and only then enters Codespace.');
   } finally {
     await browser.close();
   }

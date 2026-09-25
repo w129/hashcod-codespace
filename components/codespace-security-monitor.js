@@ -45,7 +45,7 @@
   function loadRegistrationPixelBackground() {
     loadStylesheetOnce(
       'hashcodRegistrationPixelBackgroundStylesheet',
-      '/components/hashcod-registration-pixel-bg.css?v=20260925-pixel1'
+      '/components/hashcod-registration-pixel-bg.css?v=20260925-gray1'
     );
   }
 
@@ -57,7 +57,7 @@
   }
 
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-25-registration-pixel-bg',
+    version: 'safe-shim-2026-09-25-registration-pixel-bg-gray',
     status: 'hardened',
     runFullAudit: function () {
       console.info('[Hashcod Security] Safe monitor active. No client-side command execution is enabled.');

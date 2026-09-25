@@ -7,21 +7,31 @@ const target = process.env.TEMPORARY_ACCESS_URL
   || process.env.REGISTRATION_SEQUENCE_URL
   || 'http://127.0.0.1:8099/';
 
+async function completeEntryThroughAnimation(page) {
+  await page.waitForFunction(() => document.documentElement.dataset.hashcodEntryGateReady === 'true', { timeout: 20000 });
+
+  const initialButton = page.locator('#bootCliEnter, #hashcodEntryForceButton').first();
+  await initialButton.waitFor({ state: 'visible', timeout: 20000 });
+  await initialButton.click({ timeout: 20000 });
+
+  const alreadyEntered = await page.evaluate(() => document.documentElement.dataset.hashcodPlatformEntered === 'true');
+  if (!alreadyEntered) {
+    const continueButton = page.locator('#hashcodHoldContinue').first();
+    await continueButton.waitFor({ state: 'visible', timeout: 20000 });
+    await continueButton.click({ timeout: 20000 });
+  }
+
+  await page.waitForFunction(() => document.documentElement.dataset.hashcodPlatformEntered === 'true', { timeout: 30000 });
+}
+
 async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   try {
-    const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 20000 });
     assert(response && response.status() === 200, 'local UI must return HTTP 200');
-    await page.waitForFunction(() => document.documentElement.dataset.hashcodEntryGateReady === 'true', { timeout: 15000 });
 
-    await page.evaluate(() => {
-      const button = document.querySelector('#bootCliEnter,#hashcodEntryForceButton,#hashcodHoldContinue');
-      if (!button) throw new Error('entry button not found');
-      button.click();
-    });
-
-    await page.waitForFunction(() => document.documentElement.dataset.hashcodPlatformEntered === 'true', { timeout: 10000 });
+    await completeEntryThroughAnimation(page);
 
     const state = await page.evaluate(() => ({
       entered: document.documentElement.dataset.hashcodPlatformEntered || '',
@@ -30,12 +40,12 @@ async function run() {
       registration: Boolean(document.getElementById('hashcodPlatformRegistration') || document.getElementById('hashcodDirectRegistration'))
     }));
 
-    assert.equal(state.entered, 'true', 'entry must go directly to the platform');
+    assert.equal(state.entered, 'true', 'entry must go to the platform after the preserved entry animation');
     assert.equal(state.temporary, '', 'temporary access flag is no longer needed after retiring the form');
     assert.equal(state.dialog, false, 'temporary access dialog must not exist after retiring the form');
     assert.equal(state.registration, false, 'registration surfaces must not exist');
 
-    console.log('PASS: temporary access flow is retired with the platform registration form; entry opens Codespace directly.');
+    console.log('PASS: temporary access flow is retired; preserved entry animation opens Codespace directly.');
   } finally {
     await browser.close();
   }

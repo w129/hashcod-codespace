@@ -1,12 +1,13 @@
-/* Hashcod registration · HeroUI-inspired ColorPicker bridge
-   Visual-only layer matching HeroUI ColorPicker anatomy: ColorArea, ColorSlider,
-   ColorSwatch, ColorField and ColorSwatchPicker. */
+/* Hashcod registration · HeroUI ColorPicker bridge
+   Bottom placement using HeroUI ColorPicker anatomy: Trigger, Popover,
+   ColorArea, ColorSlider, ColorField, ColorSwatch and ColorSwatchPicker. */
 
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration {
   --hashcod-registration-bg: #f0f1ef;
   --hashcod-registration-bg-rgb: 240, 241, 239;
   --hashcod-registration-bg-overlay: rgba(240, 241, 239, .72);
   --hashcod-registration-bg-overlay-soft: rgba(255, 255, 255, .48);
+  --hashcod-colorpicker-selected: #f0f1ef;
   background-color: var(--hashcod-registration-bg) !important;
   background-image:
     linear-gradient(var(--hashcod-registration-bg-overlay), var(--hashcod-registration-bg-overlay)),
@@ -23,94 +24,98 @@ html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg
   margin-right: auto !important;
 }
 
-/* Always visible on the right side of the form on desktop. */
-html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker {
-  position: fixed !important;
-  top: 110px !important;
-  right: 20px !important;
-  z-index: 2147483646 !important;
-  width: min(322px, calc(100vw - 40px)) !important;
-  max-height: calc(100vh - 136px) !important;
-  overflow: auto !important;
-  display: grid !important;
-  gap: 14px !important;
-  padding: 16px !important;
-  border: 1px solid rgba(17, 17, 17, .12) !important;
-  border-radius: 24px !important;
-  background: rgba(255, 255, 255, .86) !important;
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker,
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker.hc-heroui-colorpicker {
+  position: relative !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 2 !important;
+  width: min(100%, 360px) !important;
+  max-width: 360px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  display: block !important;
+  margin: 36px 0 0 auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
   color: #111 !important;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, .16) !important;
-  backdrop-filter: blur(18px) saturate(1.04) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.04) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  border-radius: inherit !important;
-  pointer-events: none !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.72) !important;
+  display: none !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="base"] {
-  position: relative !important;
-  display: grid !important;
-  gap: 14px !important;
-}
-
-html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-head {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
   gap: 12px !important;
+  width: 100% !important;
 }
 
-html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-eyebrow {
-  display: block !important;
-  margin-bottom: 4px !important;
-  color: #626260 !important;
-  font: 900 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
-  letter-spacing: .14em !important;
-  text-transform: uppercase !important;
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="trigger"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  min-height: 48px !important;
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border: 1px solid rgba(17, 17, 17, .12) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, .92) !important;
+  color: #111 !important;
+  cursor: default !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .06) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="label"] {
-  display: block !important;
   color: #111 !important;
-  font: 900 18px/1.05 Inter, ui-sans-serif, system-ui, sans-serif !important;
-  letter-spacing: -.035em !important;
-}
-
-html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-desc,
-html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="description"] {
-  color: #5f5f5b !important;
-  font: 500 12px/1.45 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font: 600 14px/1.25 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: -.01em !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-swatch"],
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-current-swatch {
-  width: 42px !important;
-  height: 42px !important;
-  flex: 0 0 42px !important;
-  border-radius: 15px !important;
+  width: 32px !important;
+  height: 32px !important;
+  flex: 0 0 32px !important;
+  border-radius: 10px !important;
   border: 1px solid rgba(17, 17, 17, .18) !important;
-  background: var(--hashcod-registration-bg) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.72), 0 10px 24px rgba(0,0,0,.10) !important;
+  background: var(--hashcod-colorpicker-selected, var(--hashcod-registration-bg)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="popover"] {
+  display: grid !important;
+  gap: 12px !important;
+  width: 100% !important;
+  padding: 14px !important;
+  border: 1px solid rgba(17, 17, 17, .12) !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, .96) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .10) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-area"] {
   position: relative !important;
-  height: 136px !important;
-  border-radius: 20px !important;
+  height: 192px !important;
+  width: 100% !important;
+  border-radius: 16px !important;
   border: 1px solid rgba(17, 17, 17, .12) !important;
   overflow: hidden !important;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.14)),
-    radial-gradient(circle at 16% 14%, rgba(255,255,255,.94), rgba(255,255,255,0) 36%),
-    linear-gradient(135deg, #fff, var(--hashcod-registration-bg), #111) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.68), 0 12px 26px rgba(0,0,0,.055) !important;
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, var(--hashcod-colorpicker-selected, #0485f7)) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-area-input {
@@ -124,86 +129,108 @@ html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colo
   cursor: pointer !important;
 }
 
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="thumb"],
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-area-crosshair {
   position: absolute !important;
   left: 72% !important;
   top: 42% !important;
-  width: 18px !important;
-  height: 18px !important;
-  border: 2px solid #fff !important;
+  width: 20px !important;
+  height: 20px !important;
+  border: 3px solid #fff !important;
   border-radius: 999px !important;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.44), 0 6px 12px rgba(0,0,0,.22) !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.46), 0 4px 12px rgba(0,0,0,.28) !important;
   transform: translate(-50%, -50%) !important;
   pointer-events: none !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-slider"] {
-  display: grid !important;
-  gap: 8px !important;
+  position: relative !important;
+  display: block !important;
+  height: 28px !important;
 }
 
-html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-mini-label {
-  color: #333 !important;
-  font: 900 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
-  letter-spacing: .12em !important;
-  text-transform: uppercase !important;
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="track"] {
+  position: relative !important;
+  display: block !important;
+  height: 12px !important;
+  margin-top: 8px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(to right, #fff, var(--hashcod-colorpicker-selected, #0485f7), #111) !important;
+  border: 1px solid rgba(17,17,17,.12) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-slider-input {
+  position: absolute !important;
+  inset: -8px 0 auto 0 !important;
   width: 100% !important;
-  accent-color: #111 !important;
+  height: 28px !important;
+  opacity: .001 !important;
   cursor: pointer !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-slider-thumb {
+  position: absolute !important;
+  top: 50% !important;
+  left: 72% !important;
+  width: 18px !important;
+  height: 18px !important;
+  border: 3px solid #fff !important;
+  border-radius: 999px !important;
+  background: var(--hashcod-colorpicker-selected, #0485f7) !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.36), 0 4px 10px rgba(0,0,0,.20) !important;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: none !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-field"] {
   display: grid !important;
-  grid-template-columns: 42px 1fr !important;
+  grid-template-columns: 32px 1fr !important;
   align-items: center !important;
   gap: 10px !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-field-preview {
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 14px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 10px !important;
   border: 1px solid rgba(17,17,17,.16) !important;
-  background: var(--hashcod-registration-bg) !important;
+  background: var(--hashcod-colorpicker-selected, var(--hashcod-registration-bg)) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-field-input {
-  height: 42px !important;
+  height: 40px !important;
   width: 100% !important;
   border: 1px solid rgba(17,17,17,.14) !important;
-  border-radius: 14px !important;
-  background: rgba(255,255,255,.86) !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,.94) !important;
   color: #111 !important;
   padding: 0 12px !important;
   outline: 0 !important;
-  font: 800 13px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
-  letter-spacing: .02em !important;
+  font: 500 14px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .01em !important;
   text-transform: uppercase !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-field-input:focus {
   border-color: #111 !important;
-  box-shadow: 0 0 0 4px rgba(36,178,107,.13) !important;
-  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(17,17,17,.10) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-swatch-picker"] {
-  display: grid !important;
-  grid-template-columns: repeat(6, 1fr) !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
   gap: 8px !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-swatch-btn {
-  width: 100% !important;
-  aspect-ratio: 1 / 1 !important;
-  min-height: 34px !important;
-  border-radius: 12px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9px !important;
   border: 1px solid rgba(17,17,17,.14) !important;
   cursor: pointer !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.44), 0 8px 14px rgba(0,0,0,.055) !important;
+  padding: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.44) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-swatch-btn[aria-pressed="true"] {
@@ -211,36 +238,15 @@ html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colo
   outline-offset: 2px !important;
 }
 
-html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-reset {
-  height: 40px !important;
-  border: 1px solid #111 !important;
-  border-radius: 14px !important;
-  background: #111 !important;
-  color: #fff !important;
-  cursor: pointer !important;
-  font: 900 11px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
-  letter-spacing: .08em !important;
-  text-transform: uppercase !important;
-}
-
-@media (max-width: 980px) {
-  html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker {
-    top: auto !important;
-    right: 12px !important;
-    bottom: 12px !important;
-    width: min(340px, calc(100vw - 24px)) !important;
-    max-height: 48vh !important;
-  }
-}
-
 @media (max-width: 720px) {
-  html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker {
-    width: min(100%, calc(100vw - 20px)) !important;
-    padding: 14px !important;
-    border-radius: 20px !important;
+  html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker,
+  html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker.hc-heroui-colorpicker {
+    width: 100% !important;
+    max-width: none !important;
+    margin-top: 28px !important;
   }
 
   html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-area"] {
-    height: 112px !important;
+    height: 164px !important;
   }
 }

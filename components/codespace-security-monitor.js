@@ -26,23 +26,38 @@
     document.head.appendChild(style);
   }
 
-  function loadRegistrationGlassTheme() {
-    if (document.getElementById('hashcodRegistrationGlassThemeStylesheet')) return;
+  function loadStylesheetOnce(id, href) {
+    if (document.getElementById(id)) return;
     var link = document.createElement('link');
-    link.id = 'hashcodRegistrationGlassThemeStylesheet';
+    link.id = id;
     link.rel = 'stylesheet';
-    link.href = '/components/hashcod-registration-glass-theme.css?v=20260924-glass1';
+    link.href = href;
     document.head.appendChild(link);
+  }
+
+  function loadRegistrationGlassTheme() {
+    loadStylesheetOnce(
+      'hashcodRegistrationGlassThemeStylesheet',
+      '/components/hashcod-registration-glass-theme.css?v=20260924-glass1'
+    );
+  }
+
+  function loadRegistrationPixelBackground() {
+    loadStylesheetOnce(
+      'hashcodRegistrationPixelBackgroundStylesheet',
+      '/components/hashcod-registration-pixel-bg.css?v=20260925-pixel1'
+    );
   }
 
   function bootVisualCleanup() {
     removeLegacyBadge();
     installDockIconIntegrationStyle();
     loadRegistrationGlassTheme();
+    loadRegistrationPixelBackground();
   }
 
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-24-registration-glass-theme',
+    version: 'safe-shim-2026-09-25-registration-pixel-bg',
     status: 'hardened',
     runFullAudit: function () {
       console.info('[Hashcod Security] Safe monitor active. No client-side command execution is enabled.');

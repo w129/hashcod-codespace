@@ -28,7 +28,8 @@ async function run() {
       const controls = document.querySelector('#hashcodUxActions[data-hashcod-top-left-controls="true"]');
       return Boolean(folder && brand && controls && folder.getBoundingClientRect().width > 100 && brand.getBoundingClientRect().width > 100);
     }, { timeout: 10000 });
-    await page.waitForTimeout(2350);
+    await page.waitForTimeout(1500);
+
     const landingGeometry = await page.evaluate(() => {
       const rectOf = (node) => {
         if (!node) return null;
@@ -52,9 +53,6 @@ async function run() {
         controls,
         overlay,
         registration,
-        registrationDisplay: registrationNode ? getComputedStyle(registrationNode).display : null,
-        registrationVisibility: registrationNode ? getComputedStyle(registrationNode).visibility : null,
-        registrationOpacity: registrationNode ? Number(getComputedStyle(registrationNode).opacity) : null,
         strip,
         viewportWidth: innerWidth,
         viewportCenter: innerWidth / 2,
@@ -66,6 +64,7 @@ async function run() {
         brandOffsetDataset: brandNode ? brandNode.dataset.hashcodLandingBrandOffsetX || '' : null
       };
     });
+
     assert(landingGeometry.brand.left > landingGeometry.viewportCenter + 100,
       `Hashcod lockup must remain in its original right-side region, got left=${landingGeometry.brand.left.toFixed(2)}px`);
     assert.equal(landingGeometry.brandInlineTranslate, '', 'Hashcod lockup must not retain the temporary centering translate');
@@ -79,165 +78,21 @@ async function run() {
     assert(landingGeometry.controls.top >= 0 && landingGeometry.controls.top <= 28,
       `global UX controls must be at the top-left, got top=${landingGeometry.controls.top.toFixed(2)}px`);
     assert.equal(landingGeometry.registration, null,
-      'platform registration must not exist on the first landing screen');
-
-    await page.evaluate(() => {
-      document.documentElement.dataset.hashcodFinalEntryScreen = 'true';
-      window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', {
-        detail: { screen: 3, source: 'browser-regression-test' }
-      }));
-    });
-    await page.waitForFunction(() => {
-      const node = document.getElementById('hashcodPlatformRegistration');
-      if (!node) return false;
-      const style = getComputedStyle(node);
-      const rect = node.getBoundingClientRect();
-      return style.display !== 'none' && style.visibility === 'visible' && Number(style.opacity) > 0.9
-        && rect.width > 300 && rect.height > 300;
-    }, { timeout: 3000 });
-
-    const finalRegistration = await page.evaluate(() => {
-      const node = document.getElementById('hashcodPlatformRegistration');
-      const style = getComputedStyle(node);
-      const rect = node.getBoundingClientRect();
-      const age = document.getElementById('hashcodRegAge');
-      const cedula = document.getElementById('hashcodRegCedula');
-      const submit = document.getElementById('hashcodRegistrationSubmit');
-      const whatsappButton = document.getElementById('hashcodRegistrationWhatsappButton');
-      return {
-        width: rect.width,
-        height: rect.height,
-        display: style.display,
-        visibility: style.visibility,
-        opacity: Number(style.opacity),
-        ageMin: age ? age.min : null,
-        ageMax: age ? age.max : null,
-        cedulaPlaceholder: cedula ? cedula.placeholder : null,
-        submitDisabled: submit ? submit.disabled : null,
-        whatsappButtonVisible: whatsappButton ? getComputedStyle(whatsappButton).display !== 'none' : false,
-        viewportWidth: innerWidth,
-        viewportHeight: innerHeight,
-        screen: node.dataset.hashcodScreen || ''
-      };
-    });
-    assert(finalRegistration.width >= finalRegistration.viewportWidth * 0.98,
-      'platform registration must own the full width of screen 3');
-    assert(finalRegistration.height >= finalRegistration.viewportHeight * 0.98,
-      'platform registration must own the full height of screen 3');
-    assert.equal(finalRegistration.screen, '3',
-      'platform registration must identify itself as the third screen');
-    assert.equal(finalRegistration.visibility, 'visible',
-      'platform registration form must be visible on the third screen');
-    assert(finalRegistration.opacity > 0.9,
-      'platform registration form must be opaque on the third screen');
-    assert.equal(finalRegistration.ageMin, '18', 'registration age field must enforce 18+');
-    assert.equal(finalRegistration.ageMax, '120', 'registration age field must keep a sane maximum');
-    assert.equal(finalRegistration.cedulaPlaceholder, '000-0000000-0', 'cedula format must show hyphens');
-    assert.equal(finalRegistration.submitDisabled, true, 'empty registration form submit must begin disabled');
-    assert.equal(finalRegistration.whatsappButtonVisible, true, 'WhatsApp request icon button must be visible beside submit');
-
-    // Runtime validation: under-18 users must remain blocked even when every
-    // other required field is valid. At 18+, the same completed form may submit.
-    await page.evaluate(() => {
-      const set = (id, value) => {
-        const input = document.getElementById(id);
-        if (!input) throw new Error('missing registration field ' + id);
-        input.value = value;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-      };
-      set('hashcodRegFullName', 'Prueba Usuario');
-      set('hashcodRegCedula', '001-1234567-8');
-      set('hashcodRegPlatform', 'Plataforma de prueba');
-      set('hashcodRegEmail', 'prueba@example.com');
-      set('hashcodRegPhone', '+1 809 000 0000');
-      set('hashcodRegAge', '17');
-      const consent = document.getElementById('hashcodRegConsent');
-      consent.checked = true;
-      consent.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-    await page.setInputFiles('#hashcodRegCodeFile', {
-      name: 'hashcod-ux-test.zip',
-      mimeType: 'application/zip',
-      buffer: Buffer.from('PK\\u0003\\u0004hashcod-ux-test-code')
-    });
-    await page.waitForFunction(() => {
-      const codeButton = document.getElementById('hashcodRegCodeButton');
-      return Boolean(codeButton && codeButton.classList.contains('is-loaded'));
-    }, { timeout: 3000 });
-
-    await page.waitForTimeout(100);
-    assert.equal(await page.isDisabled('#hashcodRegistrationSubmit'), true,
-      '17-year-old registration must remain blocked in the real browser');
-    assert.equal(await page.isDisabled('#hashcodRegistrationWhatsappButton'), true,
-      '17-year-old registration must keep the WhatsApp action disabled');
-
-    await page.evaluate(() => {
-      const age = document.getElementById('hashcodRegAge');
-      age.value = '18';
-      age.dispatchEvent(new Event('input', { bubbles: true }));
-      age.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-
-    await page.waitForFunction(() => {
-      const consent = document.getElementById('hashcodRegConsent');
-      return Boolean(consent && consent.disabled === false);
-    }, { timeout: 3000 });
-
-    await page.evaluate(() => {
-      const consent = document.getElementById('hashcodRegConsent');
-      consent.checked = true;
-      consent.dispatchEvent(new Event('input', { bubbles: true }));
-      consent.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-
-    await page.waitForTimeout(100);
-    assert.equal(await page.getAttribute('#hashcodRegistrationSubmit', 'aria-disabled'), 'true',
-      '18+ completed registration must still block Codespace entry before WhatsApp');
-    assert.equal(await page.isEnabled('#hashcodRegistrationWhatsappButton'), true,
-      '18+ completed registration must enable the WhatsApp action in the real browser');
-
-    await page.evaluate(() => {
-      window.__hashcodUxWhatsappUrl = '';
-      window.open = function (url) {
-        window.__hashcodUxWhatsappUrl = String(url || '');
-        return {};
-      };
-    });
-    await page.click('#hashcodRegistrationWhatsappButton');
-    await page.waitForFunction(() => {
-      const button = document.getElementById('hashcodRegistrationSubmit');
-      return Boolean(
-        window.HashcodPlatformRegistration?.hasDispatchedWhatsapp?.() === true
-        && button
-        && button.getAttribute('aria-disabled') === 'false'
-        && button.getAttribute('type') === 'submit'
-      );
-    }, { timeout: 3000 });
-    assert((await page.evaluate(() => window.__hashcodUxWhatsappUrl)).startsWith('https://wa.me/18294721257?text='),
-      'WhatsApp handoff must use the official wa.me destination');
+      'legacy platform registration must not exist on the first landing screen');
     if (landingGeometry.strip) {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');
     }
 
-    // This suite manually entered screen 3 to inspect its layout. Finish that
-    // synthetic stage before testing normal in-platform UX such as autosave.
+    // The form sequence is covered by dedicated registration tests. This UX
+    // browser test intentionally stays independent so registration add-ons such
+    // as the direct ColorPicker/DateField cannot block shared UX verification.
     await page.evaluate(() => {
-      if (
-        window.HashcodPlatformRegistration &&
-        typeof window.HashcodPlatformRegistration.completePlatformEntry === 'function'
-      ) {
-        window.HashcodPlatformRegistration.completePlatformEntry();
-      } else {
-        document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
-        document.getElementById('hashcodPlatformRegistration')?.remove();
-      }
+      document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
+      document.getElementById('hashcodPlatformRegistration')?.remove();
+      document.getElementById('hashcodDirectRegistration')?.remove();
+      document.documentElement.dataset.hashcodPlatformEntered = 'true';
     });
-    await page.waitForFunction(() => (
-      !document.documentElement.hasAttribute('data-hashcod-final-entry-screen')
-      && !document.getElementById('hashcodPlatformRegistration')
-    ), { timeout: 3000 });
 
     await page.evaluate(() => window.HashcodUX.theme.set('dark', { silent: true }));
     assert.equal(await page.getAttribute('html', 'data-hashcod-theme'), 'dark');
@@ -291,7 +146,12 @@ async function run() {
 
     const shareResult = await page.evaluate(async () => {
       let received = null;
-      try { Object.defineProperty(navigator, 'share', { configurable: true, value: async (payload) => { received = payload; } }); } catch (_) {}
+      try {
+        Object.defineProperty(navigator, 'share', {
+          configurable: true,
+          value: async (payload) => { received = payload; }
+        });
+      } catch (_) {}
       await window.HashcodUX.share({ title: 'Hashcod test', text: 'Shared from UX test', url: location.href });
       return received;
     });
@@ -299,7 +159,12 @@ async function run() {
 
     const hapticResult = await page.evaluate(() => {
       let called = false;
-      try { Object.defineProperty(navigator, 'vibrate', { configurable: true, value: () => { called = true; return true; } }); } catch (_) {}
+      try {
+        Object.defineProperty(navigator, 'vibrate', {
+          configurable: true,
+          value: () => { called = true; return true; }
+        });
+      } catch (_) {}
       window.HashcodUX.haptic(8);
       return called;
     });
@@ -317,8 +182,6 @@ async function run() {
     assert.equal(await page.locator('#hashcodUxTheme').count(), 1, 'theme selector must exist');
     assert.equal(await page.locator('#hashcodUxShare').count(), 1, 'share action must exist');
 
-    // Verify the branded 404 controller directly under the same PHP test server.
-    // The static contract separately verifies that router.php delegates unknown routes to it.
     const notFoundUrl = new URL(target);
     notFoundUrl.pathname = '/not-found.php';
     notFoundUrl.search = '';

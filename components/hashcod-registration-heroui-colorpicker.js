@@ -1,11 +1,11 @@
 /* Hashcod registration · HeroUI ColorPicker bridge
-   The repo is not React-bundled, so this bridge creates a HeroUI-inspired
-   ColorPicker with ColorArea, ColorSlider, ColorSwatch, ColorField and
-   ColorSwatchPicker behavior for the existing registration form. */
+   The repo is not React-bundled, so this bridge mirrors the official HeroUI
+   ColorPicker anatomy inside the existing registration form without changing
+   the form submission logic. */
 (function (window, document) {
   'use strict';
 
-  var VERSION = '20260925-heroui-colorpicker1';
+  var VERSION = '20260925-heroui-colorpicker4-bottom';
   var STORAGE_KEY = 'hashcod.registration.backgroundColor';
   var INTENSITY_KEY = 'hashcod.registration.backgroundIntensity';
   var DEFAULT_COLOR = '#f0f1ef';
@@ -101,57 +101,59 @@
     root.style.setProperty('--hashcod-registration-bg-overlay', overlayFromHex(mixed, overlayAlpha));
     root.style.setProperty('--hashcod-registration-bg-overlay-soft', 'rgba(255, 255, 255, ' + softAlpha + ')');
     root.style.setProperty('--hashcod-registration-bg-text', readableColor(mixed));
+    root.style.setProperty('--hashcod-colorpicker-selected', mixed);
 
     if (reg) {
       reg.style.setProperty('--hashcod-registration-bg', mixed);
       reg.style.setProperty('--hashcod-registration-bg-rgb', rgb.r + ', ' + rgb.g + ', ' + rgb.b);
       reg.style.setProperty('--hashcod-registration-bg-overlay', overlayFromHex(mixed, overlayAlpha));
       reg.style.setProperty('--hashcod-registration-bg-overlay-soft', 'rgba(255, 255, 255, ' + softAlpha + ')');
+      reg.style.setProperty('--hashcod-colorpicker-selected', mixed);
     }
 
     save(color, intensity);
     updatePickerState(color, intensity, mixed);
   }
 
-  function colorIcon() {
+  function pickerHtml(color, intensity) {
     return [
-      '<span aria-hidden="true" class="hc-colorpicker-current-swatch" data-slot="color-swatch"></span>'
+      '<section id="hashcodHeroUIColorPicker" class="hc-heroui-colorpicker" aria-label="ColorPicker">',
+        '<div data-slot="base">',
+          '<button type="button" data-slot="trigger" aria-expanded="true" aria-controls="hashcodHeroUIColorPopover">',
+            '<span aria-hidden="true" data-slot="color-swatch" class="hc-colorpicker-current-swatch"></span>',
+            '<span data-slot="label">Pick a color</span>',
+          '</button>',
+          '<div id="hashcodHeroUIColorPopover" data-slot="popover">',
+            '<div data-slot="color-area" aria-label="ColorArea">',
+              '<input id="hcHeroUIColorNative" class="hc-color-area-input" type="color" value="' + color + '" aria-label="ColorArea value">',
+              '<span data-slot="thumb" class="hc-color-area-crosshair" aria-hidden="true"></span>',
+            '</div>',
+            '<div data-slot="color-slider" aria-label="ColorSlider">',
+              '<span data-slot="track">',
+                '<input id="hcHeroUIColorIntensity" class="hc-color-slider-input" type="range" min="12" max="100" value="' + intensity + '" aria-label="ColorSlider intensity">',
+                '<span data-slot="thumb" class="hc-color-slider-thumb" aria-hidden="true"></span>',
+              '</span>',
+            '</div>',
+            '<div data-slot="color-field" aria-label="ColorField">',
+              '<span class="hc-color-field-preview" aria-hidden="true"></span>',
+              '<input id="hcHeroUIColorField" class="hc-color-field-input" value="' + color + '" spellcheck="false" aria-label="ColorField hex value">',
+            '</div>',
+            '<div data-slot="color-swatch-picker" aria-label="ColorSwatchPicker">',
+              PRESETS.map(function (preset) {
+                return '<button type="button" data-slot="color-swatch" class="hc-color-swatch-btn" data-color="' + preset + '" aria-label="ColorSwatch ' + preset + '" aria-pressed="false" style="background:' + preset + '"></button>';
+              }).join(''),
+            '</div>',
+          '</div>',
+        '</div>',
+      '</section>'
     ].join('');
   }
 
-  function pickerHtml(color, intensity) {
-    return [
-      '<aside id="hashcodHeroUIColorPicker" class="hc-heroui-colorpicker" aria-label="Selector de color de fondo">',
-        '<div data-slot="base">',
-          '<header class="hc-colorpicker-head">',
-            '<div>',
-              '<span class="hc-colorpicker-eyebrow">HeroUI / ColorPicker</span>',
-              '<span data-slot="label">Fondo del formulario</span>',
-            '</div>',
-            colorIcon(),
-          '</header>',
-          '<p data-slot="description">Selecciona un color y el fondo cambia en vivo.</p>',
-          '<div data-slot="color-area" class="hc-color-area" aria-label="ColorArea">',
-            '<input id="hcHeroUIColorNative" class="hc-color-area-input" type="color" value="' + color + '" aria-label="Seleccionar color">',
-            '<span class="hc-color-area-crosshair" aria-hidden="true"></span>',
-          '</div>',
-          '<div data-slot="color-slider" aria-label="ColorSlider">',
-            '<span class="hc-colorpicker-mini-label">Intensidad</span>',
-            '<input id="hcHeroUIColorIntensity" class="hc-color-slider-input" type="range" min="12" max="100" value="' + intensity + '">',
-          '</div>',
-          '<div data-slot="color-field" aria-label="ColorField">',
-            '<span class="hc-color-field-preview" aria-hidden="true"></span>',
-            '<input id="hcHeroUIColorField" class="hc-color-field-input" value="' + color + '" spellcheck="false" aria-label="Código hexadecimal">',
-          '</div>',
-          '<div data-slot="color-swatch-picker" aria-label="ColorSwatchPicker">',
-            PRESETS.map(function (preset) {
-              return '<button type="button" class="hc-color-swatch-btn" data-color="' + preset + '" aria-label="Color ' + preset + '" aria-pressed="false" style="background:' + preset + '"></button>';
-            }).join(''),
-          '</div>',
-          '<button id="hcHeroUIColorReset" type="button" class="hc-colorpicker-reset">Restablecer gris</button>',
-        '</div>',
-      '</aside>'
-    ].join('');
+  function updateSliderThumb(intensity) {
+    var picker = byId('hashcodHeroUIColorPicker');
+    if (!picker) return;
+    var thumb = picker.querySelector('.hc-color-slider-thumb');
+    if (thumb) thumb.style.left = String(Math.max(12, Math.min(100, Number(intensity) || DEFAULT_INTENSITY))) + '%';
   }
 
   function updatePickerState(color, intensity, mixed) {
@@ -162,14 +164,17 @@
     var area = byId('hcHeroUIColorNative');
     var field = byId('hcHeroUIColorField');
     var slider = byId('hcHeroUIColorIntensity');
-    var swatch = picker.querySelector('[data-slot="color-swatch"]');
+    var swatch = picker.querySelector('.hc-colorpicker-current-swatch');
     var preview = picker.querySelector('.hc-color-field-preview');
+    var selected = mixed || mixWithWhite(normalized, intensity);
 
     if (area && area.value !== normalized) area.value = normalized;
     if (field && field.value.toLowerCase() !== normalized) field.value = normalized;
     if (slider && Number(slider.value) !== Number(intensity)) slider.value = String(intensity);
-    if (swatch) swatch.style.background = mixed || mixWithWhite(normalized, intensity);
-    if (preview) preview.style.background = mixed || mixWithWhite(normalized, intensity);
+    if (swatch) swatch.style.background = selected;
+    if (preview) preview.style.background = selected;
+    picker.style.setProperty('--hashcod-colorpicker-selected', selected);
+    updateSliderThumb(intensity);
 
     picker.querySelectorAll('.hc-color-swatch-btn').forEach(function (button) {
       button.setAttribute('aria-pressed', normalizeHex(button.dataset.color) === normalized ? 'true' : 'false');
@@ -181,8 +186,7 @@
     var area = byId('hcHeroUIColorNative');
     var field = byId('hcHeroUIColorField');
     var slider = byId('hcHeroUIColorIntensity');
-    var reset = byId('hcHeroUIColorReset');
-    if (!picker || !area || !field || !slider || !reset) return;
+    if (!picker || !area || !field || !slider) return;
 
     function currentIntensity() {
       var value = Number(slider.value);
@@ -213,22 +217,23 @@
         setColor(button.dataset.color, 'swatch');
       });
     });
-
-    reset.addEventListener('click', function () {
-      slider.value = String(DEFAULT_INTENSITY);
-      applyColor(DEFAULT_COLOR, DEFAULT_INTENSITY);
-    });
   }
 
   function mountPicker() {
     var host = byId('hashcodDirectRegistration');
     var card = host && host.querySelector('.hc-reg-card');
     if (!host || !card) return false;
-    if (byId('hashcodHeroUIColorPicker')) return true;
+
+    var existing = byId('hashcodHeroUIColorPicker');
+    if (existing && existing.parentNode !== card) {
+      existing.parentNode.removeChild(existing);
+      existing = null;
+    }
+    if (existing) return true;
 
     var color = getSavedColor();
     var intensity = getSavedIntensity();
-    host.insertAdjacentHTML('afterbegin', pickerHtml(color, intensity));
+    card.insertAdjacentHTML('beforeend', pickerHtml(color, intensity));
     host.classList.add('hc-has-heroui-colorpicker');
     bindPicker();
     applyColor(color, intensity);

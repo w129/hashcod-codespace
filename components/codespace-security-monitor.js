@@ -61,11 +61,11 @@
   function loadRegistrationHeroUIDateField() {
     loadStylesheetOnce(
       'hashcodRegistrationHeroUIDateFieldStylesheet',
-      '/components/hashcod-registration-heroui-datefield.css?v=20260925-heroui1'
+      '/components/hashcod-registration-heroui-datefield.css?v=20260925-heroui2'
     );
     loadScriptOnce(
       'hashcodRegistrationHeroUIDateFieldBridge',
-      '/components/hashcod-registration-heroui-datefield.js?v=20260925-heroui1'
+      '/components/hashcod-registration-heroui-datefield.js?v=20260925-heroui2'
     );
   }
 
@@ -78,7 +78,7 @@
   }
 
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-25-registration-heroui-datefield',
+    version: 'safe-shim-2026-09-25-registration-heroui-datefield2',
     status: 'hardened',
     runFullAudit: function () {
       console.info('[Hashcod Security] Safe monitor active. No client-side command execution is enabled.');

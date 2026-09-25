@@ -1,0 +1,181 @@
+/* Hashcod registration · HeroUI-inspired DateField bridge
+   Visual-only layer matching HeroUI DateField anatomy: root, label, input group,
+   description and error state. The repo is not React-bundled, so this styles the
+   existing form without changing submit/security behavior. */
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field.hc-heroui-datefield-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  padding: 16px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field.hc-heroui-datefield-card > label {
+  display: none !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field.hc-heroui-datefield-card #hcAge {
+  display: none !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield {
+  --heroui-date-bg: rgba(255, 255, 255, .88);
+  --heroui-date-bg-hover: rgba(255, 255, 255, .96);
+  --heroui-date-border: rgba(17, 17, 17, .13);
+  --heroui-date-border-focus: #111111;
+  --heroui-date-green: #24b26b;
+  --heroui-date-danger: #b3261e;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield [data-slot="label"] {
+  width: max-content !important;
+  color: #333 !important;
+  font: 900 11px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield [data-slot="input-wrapper"] {
+  min-height: 56px !important;
+  display: grid !important;
+  grid-template-columns: 26px 1fr auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  border: 1px solid var(--heroui-date-border) !important;
+  background: var(--heroui-date-bg) !important;
+  border-radius: 18px !important;
+  padding: 0 14px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78), 0 8px 18px rgba(0,0,0,.04) !important;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease, transform 160ms ease !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield [data-slot="input-wrapper"]:hover {
+  background: var(--heroui-date-bg-hover) !important;
+  border-color: rgba(17, 17, 17, .22) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[data-focus-within="true"] [data-slot="input-wrapper"],
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield:focus-within [data-slot="input-wrapper"] {
+  border-color: var(--heroui-date-border-focus) !important;
+  box-shadow: 0 0 0 4px rgba(36,178,107,.13), inset 0 1px 0 rgba(255,255,255,.84) !important;
+  background: #fff !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[data-invalid="true"] [data-slot="input-wrapper"],
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[aria-invalid="true"] [data-slot="input-wrapper"] {
+  border-color: var(--heroui-date-danger) !important;
+  box-shadow: 0 0 0 4px rgba(179,38,30,.10), inset 0 1px 0 rgba(255,255,255,.80) !important;
+  background: #fff8f7 !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield-icon {
+  width: 24px !important;
+  height: 24px !important;
+  color: #111 !important;
+  opacity: .86 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+  display: block !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.9 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield-native {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 100% !important;
+  height: 54px !important;
+  min-width: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  color: #111 !important;
+  font: 800 15px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: -.01em !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield-native::-webkit-calendar-picker-indicator {
+  opacity: .68 !important;
+  cursor: pointer !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-age-pill {
+  min-width: 58px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(17,17,17,.12) !important;
+  background: rgba(255,255,255,.78) !important;
+  color: #111 !important;
+  border-radius: 999px !important;
+  padding: 7px 10px !important;
+  font: 900 11px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[data-valid-age="true"] .hc-heroui-age-pill {
+  border-color: rgba(36,178,107,.35) !important;
+  background: rgba(36,178,107,.10) !important;
+  color: #0f6c3c !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[data-invalid="true"] .hc-heroui-age-pill,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[aria-invalid="true"] .hc-heroui-age-pill {
+  border-color: rgba(179,38,30,.26) !important;
+  background: rgba(179,38,30,.08) !important;
+  color: var(--heroui-date-danger) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield [data-slot="description"],
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield [data-slot="error-message"] {
+  color: #60605a !important;
+  font: 500 12px/1.45 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  padding: 0 2px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield [data-slot="error-message"] {
+  display: none !important;
+  color: var(--heroui-date-danger) !important;
+  font-weight: 800 !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[data-invalid="true"] [data-slot="description"],
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[aria-invalid="true"] [data-slot="description"] {
+  display: none !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[data-invalid="true"] [data-slot="error-message"],
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield[aria-invalid="true"] [data-slot="error-message"] {
+  display: block !important;
+}
+
+@media (max-width: 720px) {
+  html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-datefield [data-slot="input-wrapper"] {
+    grid-template-columns: 24px 1fr !important;
+    min-height: 54px !important;
+  }
+
+  html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-heroui-age-pill {
+    grid-column: 1 / -1 !important;
+    width: max-content !important;
+    margin: 0 0 10px 34px !important;
+  }
+}

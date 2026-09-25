@@ -1,41 +1,39 @@
-/* Hashcod registration · HeroUI DateField bridge
+/* Hashcod registration · HeroUI segmented DateField bridge
    The platform does not currently bundle React/@heroui/react, so this bridge
    applies HeroUI DateField anatomy/classes to the existing form while preserving
    the original +18 validation field (#hcAge). */
 (function (window, document) {
   'use strict';
 
-  var VERSION = '20260925-heroui-datefield1';
+  var VERSION = '20260925-heroui-datefield2-segmented';
   if (window.__hashcodHeroUIDateFieldBridge === VERSION) return;
   window.__hashcodHeroUIDateFieldBridge = VERSION;
 
-  function byId(id) {
-    return document.getElementById(id);
-  }
-
-  function pad(number) {
-    return String(number).padStart(2, '0');
-  }
+  function byId(id) { return document.getElementById(id); }
+  function pad(number) { return String(number).padStart(2, '0'); }
+  function digits(value) { return String(value || '').replace(/\D+/g, ''); }
 
   function maxAdultBirthDate() {
     var now = new Date();
-    var adult = new Date(now.getFullYear() - 18, now.getMonth(), now.getDate());
-    return adult.getFullYear() + '-' + pad(adult.getMonth() + 1) + '-' + pad(adult.getDate());
+    return new Date(now.getFullYear() - 18, now.getMonth(), now.getDate());
   }
 
-  function calculateAge(value) {
-    if (!value) return null;
-    var parts = String(value).split('-').map(Number);
-    if (parts.length !== 3 || parts.some(function (part) { return !Number.isFinite(part); })) return null;
+  function calculateAgeFromParts(day, month, year) {
+    var d = Number(day);
+    var m = Number(month);
+    var y = Number(year);
+    if (!Number.isFinite(d) || !Number.isFinite(m) || !Number.isFinite(y)) return null;
+    if (String(year).length !== 4 || m < 1 || m > 12 || d < 1 || d > 31) return null;
 
-    var birth = new Date(parts[0], parts[1] - 1, parts[2]);
+    var birth = new Date(y, m - 1, d);
     if (Number.isNaN(birth.getTime())) return null;
+    if (birth.getFullYear() !== y || birth.getMonth() !== m - 1 || birth.getDate() !== d) return null;
 
     var now = new Date();
     var age = now.getFullYear() - birth.getFullYear();
     var monthDiff = now.getMonth() - birth.getMonth();
     if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())) age -= 1;
-    return age;
+    return { age: age, birth: birth, iso: y + '-' + pad(m) + '-' + pad(d) };
   }
 
   function calendarIcon() {
@@ -54,39 +52,62 @@
     try { input.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {}
   }
 
-  function syncOriginalAge(dateInput, ageInput, root, errorSlot, descriptionSlot, pill, hint) {
-    var age = calculateAge(dateInput.value);
-    var hasDate = age !== null;
-    var adult = hasDate && age >= 18;
-    var future = hasDate && age < 0;
+  function setRootState(root, state) {
+    root.dataset.invalid = state.invalid ? 'true' : 'false';
+    root.dataset.validAge = state.validAge ? 'true' : 'false';
+    root.setAttribute('aria-invalid', state.invalid ? 'true' : 'false');
+  }
 
-    if (!hasDate) {
+  function syncOriginalAge(parts, ageInput, root, errorSlot, descriptionSlot, pill, hint, hiddenDate) {
+    var day = byId('hcBirthDay');
+    var month = byId('hcBirthMonth');
+    var year = byId('hcBirthYear');
+    if (!day || !month || !year) return;
+
+    var hasAny = day.value || month.value || year.value;
+    var result = calculateAgeFromParts(day.value, month.value, year.value);
+
+    if (!hasAny) {
       ageInput.value = '';
-      root.dataset.validAge = 'false';
-      root.dataset.invalid = 'false';
-      root.setAttribute('aria-invalid', 'false');
+      if (hiddenDate) hiddenDate.value = '';
       pill.textContent = '+18';
-      descriptionSlot.textContent = 'Selecciona tu fecha de nacimiento. El sistema calcula si tienes 18 años o más.';
+      descriptionSlot.textContent = 'Introduce tu fecha en formato DD / MM / AAAA. El sistema calcula si tienes 18 años o más.';
       errorSlot.textContent = 'Debes seleccionar una fecha válida.';
+      setRootState(root, { invalid: false, validAge: false });
       if (hint) {
-        hint.textContent = 'Selecciona tu fecha de nacimiento. Debes tener 18 años o más.';
+        hint.textContent = 'Introduce tu fecha de nacimiento. Debes tener 18 años o más.';
         hint.classList.remove('is-error');
       }
       emitNativeEvents(ageInput);
       return;
     }
 
-    ageInput.value = String(Math.max(0, age));
-    pill.textContent = age + ' años';
-    root.dataset.validAge = adult ? 'true' : 'false';
-    root.dataset.invalid = adult ? 'false' : 'true';
-    root.setAttribute('aria-invalid', adult ? 'false' : 'true');
+    if (!result) {
+      ageInput.value = '';
+      if (hiddenDate) hiddenDate.value = '';
+      pill.textContent = '+18';
+      errorSlot.textContent = 'Fecha incompleta o inválida. Usa DD / MM / AAAA.';
+      setRootState(root, { invalid: true, validAge: false });
+      if (hint) {
+        hint.textContent = 'Fecha incompleta o inválida. Usa DD / MM / AAAA.';
+        hint.classList.add('is-error');
+      }
+      emitNativeEvents(ageInput);
+      return;
+    }
 
-    if (adult) {
-      descriptionSlot.textContent = 'Edad calculada: ' + age + ' años. Requisito +18 confirmado.';
+    var adult = result.age >= 18;
+    var future = result.birth > new Date();
+    ageInput.value = String(Math.max(0, result.age));
+    if (hiddenDate) hiddenDate.value = result.iso;
+    pill.textContent = adult ? result.age + ' años' : result.age + ' años';
+    setRootState(root, { invalid: !adult || future, validAge: adult && !future });
+
+    if (adult && !future) {
+      descriptionSlot.textContent = 'Edad calculada: ' + result.age + ' años. Requisito +18 confirmado.';
       errorSlot.textContent = '';
       if (hint) {
-        hint.textContent = 'Edad calculada: ' + age + ' años. Requisito +18 confirmado.';
+        hint.textContent = 'Edad calculada: ' + result.age + ' años. Requisito +18 confirmado.';
         hint.classList.remove('is-error');
       }
     } else {
@@ -99,6 +120,20 @@
     }
 
     emitNativeEvents(ageInput);
+  }
+
+  function bindSegmentBehavior(input, nextInput) {
+    input.addEventListener('input', function () {
+      input.value = digits(input.value).slice(0, Number(input.getAttribute('maxlength') || 2));
+      if (nextInput && input.value.length >= Number(input.getAttribute('maxlength') || 2)) nextInput.focus();
+    });
+
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Backspace' && input.selectionStart === 0 && input.selectionEnd === 0) {
+        var previous = input.dataset.previousId ? byId(input.dataset.previousId) : null;
+        if (previous) previous.focus();
+      }
+    });
   }
 
   function decorateAgeField() {
@@ -123,8 +158,10 @@
     ageInput.tabIndex = -1;
     ageInput.setAttribute('aria-hidden', 'true');
 
-    var existing = byId('hcBirthDate');
+    var existing = byId('hcHeroUIDateField');
     if (existing) existing.remove();
+    var oldBirthDate = byId('hcBirthDate');
+    if (oldBirthDate) oldBirthDate.remove();
 
     var root = document.createElement('div');
     root.id = 'hcHeroUIDateField';
@@ -138,39 +175,57 @@
       '<span data-slot="label">Fecha de nacimiento</span>',
       '<div data-slot="input-wrapper" class="hc-heroui-datefield-group">',
         calendarIcon(),
-        '<input id="hcBirthDate" class="hc-heroui-datefield-native" type="date" autocomplete="bday" required aria-label="Fecha de nacimiento" max="' + maxAdultBirthDate() + '">',
+        '<div class="hc-heroui-segment-row" role="group" aria-label="Fecha de nacimiento">',
+          '<input id="hcBirthDay" class="hc-heroui-date-segment day" inputmode="numeric" autocomplete="bday-day" maxlength="2" placeholder="DD" aria-label="Día">',
+          '<span class="hc-heroui-date-separator">/</span>',
+          '<input id="hcBirthMonth" class="hc-heroui-date-segment month" inputmode="numeric" autocomplete="bday-month" maxlength="2" placeholder="MM" aria-label="Mes" data-previous-id="hcBirthDay">',
+          '<span class="hc-heroui-date-separator">/</span>',
+          '<input id="hcBirthYear" class="hc-heroui-date-segment year" inputmode="numeric" autocomplete="bday-year" maxlength="4" placeholder="AAAA" aria-label="Año" data-previous-id="hcBirthMonth">',
+        '</div>',
         '<span id="hcAgePill" class="hc-heroui-age-pill">+18</span>',
       '</div>',
-      '<span data-slot="description">Selecciona tu fecha de nacimiento. El sistema calcula si tienes 18 años o más.</span>',
+      '<input id="hcBirthDate" type="hidden" autocomplete="bday">',
+      '<span data-slot="description">Introduce tu fecha en formato DD / MM / AAAA. El sistema calcula si tienes 18 años o más.</span>',
       '<span data-slot="error-message">Debes tener 18 años o más para continuar.</span>'
     ].join('');
 
     field.insertBefore(root, hint || ageInput.nextSibling);
 
-    var dateInput = byId('hcBirthDate');
+    var day = byId('hcBirthDay');
+    var month = byId('hcBirthMonth');
+    var year = byId('hcBirthYear');
+    var hiddenDate = byId('hcBirthDate');
     var errorSlot = root.querySelector('[data-slot="error-message"]');
     var descriptionSlot = root.querySelector('[data-slot="description"]');
     var pill = byId('hcAgePill');
 
-    if (!dateInput || !errorSlot || !descriptionSlot || !pill) return true;
+    if (!day || !month || !year || !errorSlot || !descriptionSlot || !pill) return true;
 
-    ['focus', 'blur'].forEach(function (type) {
-      dateInput.addEventListener(type, function () {
-        root.dataset.focusWithin = type === 'focus' ? 'true' : 'false';
+    bindSegmentBehavior(day, month);
+    bindSegmentBehavior(month, year);
+    bindSegmentBehavior(year, null);
+
+    [day, month, year].forEach(function (input) {
+      input.addEventListener('focus', function () { root.dataset.focusWithin = 'true'; });
+      input.addEventListener('blur', function () {
+        window.setTimeout(function () {
+          var active = document.activeElement;
+          root.dataset.focusWithin = root.contains(active) ? 'true' : 'false';
+        }, 0);
       });
-    });
-
-    ['input', 'change'].forEach(function (type) {
-      dateInput.addEventListener(type, function () {
-        syncOriginalAge(dateInput, ageInput, root, errorSlot, descriptionSlot, pill, hint);
+      input.addEventListener('input', function () {
+        syncOriginalAge([day, month, year], ageInput, root, errorSlot, descriptionSlot, pill, hint, hiddenDate);
+      });
+      input.addEventListener('change', function () {
+        syncOriginalAge([day, month, year], ageInput, root, errorSlot, descriptionSlot, pill, hint, hiddenDate);
       });
     });
 
     form.addEventListener('submit', function () {
-      syncOriginalAge(dateInput, ageInput, root, errorSlot, descriptionSlot, pill, hint);
+      syncOriginalAge([day, month, year], ageInput, root, errorSlot, descriptionSlot, pill, hint, hiddenDate);
     }, true);
 
-    syncOriginalAge(dateInput, ageInput, root, errorSlot, descriptionSlot, pill, hint);
+    syncOriginalAge([day, month, year], ageInput, root, errorSlot, descriptionSlot, pill, hint, hiddenDate);
     return true;
   }
 
@@ -183,9 +238,7 @@
       if (decorateAgeField() || tries > 60) window.clearInterval(timer);
     }, 250);
 
-    var observer = new MutationObserver(function () {
-      decorateAgeField();
-    });
+    var observer = new MutationObserver(function () { decorateAgeField(); });
     observer.observe(document.documentElement, { childList: true, subtree: true });
     window.setTimeout(function () { observer.disconnect(); }, 20000);
   }

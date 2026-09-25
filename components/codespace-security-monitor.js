@@ -72,11 +72,11 @@
   function loadRegistrationHeroUIColorPicker() {
     loadStylesheetOnce(
       'hashcodRegistrationHeroUIColorPickerStylesheet',
-      '/components/hashcod-registration-heroui-colorpicker.css?v=20260925-colorpicker1'
+      '/components/hashcod-registration-heroui-colorpicker.css?v=20260925-colorpicker2'
     );
     loadScriptOnce(
       'hashcodRegistrationHeroUIColorPickerBridge',
-      '/components/hashcod-registration-heroui-colorpicker.js?v=20260925-colorpicker1'
+      '/components/hashcod-registration-heroui-colorpicker.js?v=20260925-colorpicker2'
     );
   }
 
@@ -90,7 +90,7 @@
   }
 
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-25-registration-heroui-colorpicker',
+    version: 'safe-shim-2026-09-25-registration-heroui-colorpicker2',
     status: 'hardened',
     runFullAudit: function () {
       console.info('[Hashcod Security] Safe monitor active. No client-side command execution is enabled.');

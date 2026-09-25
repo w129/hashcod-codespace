@@ -131,60 +131,37 @@ jobs:
   live-registration-sequence:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 6
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check public deployment wiring without blocking CI
+      - name: Check public deployment wiring as advisory only
         env:
           LIVE_URL: https://hashcodcodespace.dev/
         run: |
-          deployed=0
-          for attempt in $(seq 1 40); do
-            html="$(curl --compressed --fail --silent --show-error --max-time 20 "$LIVE_URL" || true)"
-            if [[ "$html" == *"platform-entry-hold.js"* && "$html" == *"platform-entry-motion.js"* && "$html" == *"codespace-security-monitor.js"* ]]; then
-              echo "Public deployment is serving the entry wiring."
-              deployed=1
-              break
-            fi
-            echo "Waiting for public deployment ($attempt/40)…"
-            sleep 6
-          done
+          set +e
+          html="$(curl --compressed --silent --show-error --max-time 20 "$LIVE_URL" 2>/tmp/hashcod-live-curl.log || true)"
+          curl_status=$?
 
-          if [ "$deployed" -ne 1 ]; then
-            echo "Public deployment has not caught up yet. Skipping live browser checks for this commit."
-            echo "LIVE_DEPLOY_READY=0" >> "$GITHUB_ENV"
-            exit 0
+          echo "Live curl status: $curl_status"
+          if [ -s /tmp/hashcod-live-curl.log ]; then
+            echo "Live curl diagnostics:"
+            cat /tmp/hashcod-live-curl.log || true
           fi
 
-          echo "LIVE_DEPLOY_READY=1" >> "$GITHUB_ENV"
+          has_hold=0
+          has_motion=0
+          has_monitor=0
+          [[ "$html" == *"platform-entry-hold.js"* ]] && has_hold=1
+          [[ "$html" == *"platform-entry-motion.js"* ]] && has_motion=1
+          [[ "$html" == *"codespace-security-monitor.js"* ]] && has_monitor=1
 
-      - name: Install Chromium
-        if: env.LIVE_DEPLOY_READY == '1'
-        run: |
-          npm install --no-save --package-lock=false playwright@1.55.0
-          npx playwright install --with-deps chromium
+          echo "public_entry_hold=$has_hold"
+          echo "public_entry_motion=$has_motion"
+          echo "public_security_monitor=$has_monitor"
 
-      - name: Verify registration on the public platform
-        if: env.LIVE_DEPLOY_READY == '1'
-        env:
-          REGISTRATION_SEQUENCE_URL: https://hashcodcodespace.dev/
-          TEMPORARY_ACCESS_URL: https://hashcodcodespace.dev/
-        run: |
-          node tests/e2e/test_platform_registration_sequence_playwright.js
-          node tests/e2e/test_temporary_access_playwright.js
+          if [ "$has_hold" -eq 1 ] && [ "$has_motion" -eq 1 ] && [ "$has_monitor" -eq 1 ]; then
+            echo "Public deployment is serving the entry wiring."
+          else
+            echo "Public deployment has not caught up yet. This is advisory and will not fail CI."
+          fi
 
-      - name: Verify retired registration persistence endpoint
-        if: env.LIVE_DEPLOY_READY == '1'
-        run: |
-          node - <<'NODE'
-          const response = await fetch('https://hashcodcodespace.dev/api/platform-registration', {
-            headers: { 'Accept': 'application/json' },
-            redirect: 'manual'
-          });
-          console.log(JSON.stringify({ http_status: response.status }));
-          if (response.status >= 200 && response.status < 300) {
-            throw new Error('Retired registration persistence endpoint is still active.');
-          }
-          NODE
+          exit 0

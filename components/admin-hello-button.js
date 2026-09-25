@@ -120,6 +120,53 @@
             ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
             : '/components/';
 
+        function loadStyleOnce(id, href) {
+            if (document.getElementById(id)) return;
+            const link = document.createElement('link');
+            link.id = id;
+            link.rel = 'stylesheet';
+            link.href = href;
+            document.head.appendChild(link);
+        }
+
+        function loadScriptOnce(selector, datasetName, src) {
+            if (document.querySelector(selector)) return;
+            const script = document.createElement('script');
+            script.src = src;
+            script.defer = true;
+            if (datasetName) script.dataset[datasetName] = 'true';
+            document.head.appendChild(script);
+        }
+
+        function loadRegistrationVisualAddons() {
+            loadStyleOnce(
+                'hashcodRegistrationGlassThemeStylesheet',
+                componentBase + 'hashcod-registration-glass-theme.css?v=20260924-glass1'
+            );
+            loadStyleOnce(
+                'hashcodRegistrationPixelBackgroundStylesheet',
+                componentBase + 'hashcod-registration-pixel-bg.css?v=20260925-gray1'
+            );
+            loadStyleOnce(
+                'hashcodRegistrationHeroUIDateFieldStylesheet',
+                componentBase + 'hashcod-registration-heroui-datefield.css?v=20260925-heroui2'
+            );
+            loadScriptOnce(
+                'script[data-hashcod-registration-heroui-datefield-bridge]',
+                'hashcodRegistrationHerouiDatefieldBridge',
+                componentBase + 'hashcod-registration-heroui-datefield.js?v=20260925-heroui2'
+            );
+            loadStyleOnce(
+                'hashcodRegistrationHeroUIColorPickerStylesheet',
+                componentBase + 'hashcod-registration-heroui-colorpicker.css?v=20260925-colorpicker3'
+            );
+            loadScriptOnce(
+                'script[data-hashcod-registration-heroui-colorpicker-bridge]',
+                'hashcodRegistrationHerouiColorpickerBridge',
+                componentBase + 'hashcod-registration-heroui-colorpicker.js?v=20260925-colorpicker3'
+            );
+        }
+
         if (!document.getElementById('platformEntryMotionStylesheet')) {
             const link = document.createElement('link');
             link.id = 'platformEntryMotionStylesheet';
@@ -156,11 +203,14 @@
             document.head.appendChild(link);
         }
 
+        loadRegistrationVisualAddons();
+
         if (!document.querySelector('script[data-hashcod-entry-registration-force]')) {
             const forceScript = document.createElement('script');
-            forceScript.src = componentBase + 'entry-registration-force.js?v=20260922-direct3';
+            forceScript.src = componentBase + 'entry-registration-force.js?v=20260925-direct10-colorpicker';
             forceScript.defer = true;
             forceScript.dataset.hashcodEntryRegistrationForce = 'true';
+            forceScript.addEventListener('load', loadRegistrationVisualAddons, { once: true });
             document.head.appendChild(forceScript);
         }
 
@@ -187,6 +237,7 @@
         function loadHoldScript() {
             // Screen 2 is not allowed to exist without its required Screen 3.
             loadRegistrationScript();
+            loadRegistrationVisualAddons();
             if (document.querySelector('script[data-platform-entry-hold]')) return;
             const holdScript = document.createElement('script');
             holdScript.src = componentBase + 'platform-entry-hold.js?v=20260922-force1';
@@ -210,6 +261,8 @@
         }
 
         window.setTimeout(loadHoldScript, 600);
+        window.addEventListener('hashcod:entry-gate-ready', loadRegistrationVisualAddons);
+        window.addEventListener('hashcod:final-entry-screen', loadRegistrationVisualAddons);
     })();
 
     // Load the PNG vault attached to the first cube in the 3D vector tray.

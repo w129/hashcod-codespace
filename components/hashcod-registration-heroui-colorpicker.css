@@ -1,0 +1,233 @@
+/* Hashcod registration · HeroUI-inspired ColorPicker bridge
+   Visual-only layer matching HeroUI ColorPicker anatomy: ColorArea, ColorSlider,
+   ColorSwatch, ColorField and ColorSwatchPicker. */
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration {
+  --hashcod-registration-bg: #f0f1ef;
+  --hashcod-registration-bg-rgb: 240, 241, 239;
+  --hashcod-registration-bg-overlay: rgba(240, 241, 239, .72);
+  --hashcod-registration-bg-overlay-soft: rgba(255, 255, 255, .48);
+  background-color: var(--hashcod-registration-bg) !important;
+  background-image:
+    linear-gradient(var(--hashcod-registration-bg-overlay), var(--hashcod-registration-bg-overlay)),
+    linear-gradient(var(--hashcod-registration-bg-overlay-soft), var(--hashcod-registration-bg-overlay-soft)),
+    url("/assets/hashcod-registration-pixel-bg.svg?v=20260925-gray1") !important;
+  background-size: cover, cover, cover !important;
+  background-position: center center, center center, center center !important;
+  background-repeat: no-repeat, no-repeat, no-repeat !important;
+  background-attachment: fixed, fixed, fixed !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-card {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker {
+  position: fixed !important;
+  top: 112px !important;
+  right: max(18px, calc((100vw - 1120px) / 2 - 12px)) !important;
+  z-index: 2147483646 !important;
+  width: min(306px, calc(100vw - 32px)) !important;
+  display: grid !important;
+  gap: 14px !important;
+  padding: 16px !important;
+  border: 1px solid rgba(17, 17, 17, .12) !important;
+  border-radius: 24px !important;
+  background: rgba(255, 255, 255, .82) !important;
+  color: #111 !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .13) !important;
+  backdrop-filter: blur(18px) saturate(1.04) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.04) !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="base"] {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-eyebrow {
+  display: block !important;
+  margin-bottom: 4px !important;
+  color: #626260 !important;
+  font: 900 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .14em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="label"] {
+  display: block !important;
+  color: #111 !important;
+  font: 900 18px/1.05 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: -.035em !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-desc,
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="description"] {
+  color: #5f5f5b !important;
+  font: 500 12px/1.45 Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-swatch"],
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-current-swatch {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  border-radius: 15px !important;
+  border: 1px solid rgba(17, 17, 17, .18) !important;
+  background: var(--hashcod-registration-bg) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72), 0 10px 24px rgba(0,0,0,.10) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-area"] {
+  position: relative !important;
+  height: 136px !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(17, 17, 17, .12) !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.14)),
+    radial-gradient(circle at 16% 14%, rgba(255,255,255,.94), rgba(255,255,255,0) 36%),
+    linear-gradient(135deg, #fff, var(--hashcod-registration-bg), #111) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.68), 0 12px 26px rgba(0,0,0,.055) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-area-input {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  padding: 0 !important;
+  opacity: .001 !important;
+  cursor: pointer !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-area-crosshair {
+  position: absolute !important;
+  left: 72% !important;
+  top: 42% !important;
+  width: 18px !important;
+  height: 18px !important;
+  border: 2px solid #fff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.44), 0 6px 12px rgba(0,0,0,.22) !important;
+  transform: translate(-50%, -50%) !important;
+  pointer-events: none !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-slider"] {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-mini-label {
+  color: #333 !important;
+  font: 900 10px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-slider-input {
+  width: 100% !important;
+  accent-color: #111 !important;
+  cursor: pointer !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-field"] {
+  display: grid !important;
+  grid-template-columns: 42px 1fr !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-field-preview {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(17,17,17,.16) !important;
+  background: var(--hashcod-registration-bg) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-field-input {
+  height: 42px !important;
+  width: 100% !important;
+  border: 1px solid rgba(17,17,17,.14) !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.86) !important;
+  color: #111 !important;
+  padding: 0 12px !important;
+  outline: 0 !important;
+  font: 800 13px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .02em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-field-input:focus {
+  border-color: #111 !important;
+  box-shadow: 0 0 0 4px rgba(36,178,107,.13) !important;
+  background: #fff !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-swatch-picker"] {
+  display: grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 8px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-swatch-btn {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  min-height: 34px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(17,17,17,.14) !important;
+  cursor: pointer !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.44), 0 8px 14px rgba(0,0,0,.055) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-color-swatch-btn[aria-pressed="true"] {
+  outline: 2px solid #111 !important;
+  outline-offset: 2px !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker .hc-colorpicker-reset {
+  height: 40px !important;
+  border: 1px solid #111 !important;
+  border-radius: 14px !important;
+  background: #111 !important;
+  color: #fff !important;
+  cursor: pointer !important;
+  font: 900 11px/1 Inter, ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+@media (max-width: 1380px) {
+  html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker {
+    position: sticky !important;
+    top: 14px !important;
+    right: auto !important;
+    width: min(1120px, calc(100vw - 32px)) !important;
+    margin: 0 auto 16px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker {
+    width: min(100%, calc(100vw - 20px)) !important;
+    padding: 14px !important;
+    border-radius: 20px !important;
+  }
+
+  html[data-hashcod-direct-registration="true"] #hashcodHeroUIColorPicker [data-slot="color-area"] {
+    height: 112px !important;
+  }
+}

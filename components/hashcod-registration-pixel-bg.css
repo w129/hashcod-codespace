@@ -1,0 +1,49 @@
+/* Hashcod Codespace registration form · pixelated tech background
+   Visual-only override. Keeps the form logic, validation and security untouched. */
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration {
+  background-color: #eef4ef !important;
+  background-image:
+    linear-gradient(rgba(238, 244, 239, .08), rgba(238, 244, 239, .08)),
+    url("/assets/hashcod-registration-pixel-bg.svg?v=20260925-pixel1") !important;
+  background-size: cover, cover !important;
+  background-position: center center, center center !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-attachment: fixed, fixed !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .88), rgba(247, 249, 246, .80)) !important;
+  backdrop-filter: blur(18px) saturate(1.04) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.04) !important;
+  border-color: rgba(103, 122, 114, .24) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-progress,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-consent,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-faq,
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-note {
+  background: rgba(255, 255, 255, .78) !important;
+  border-color: rgba(103, 122, 114, .22) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-kicker {
+  background: rgba(255, 255, 255, .82) !important;
+  border-color: rgba(103, 122, 114, .26) !important;
+}
+
+html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field input {
+  background: rgba(255, 255, 255, .88) !important;
+  border-color: rgba(103, 122, 114, .28) !important;
+}
+
+@media (max-width: 720px) {
+  html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration {
+    background-size: auto 100%, auto 100% !important;
+    background-position: center top, center top !important;
+    background-attachment: scroll, scroll !important;
+  }
+}

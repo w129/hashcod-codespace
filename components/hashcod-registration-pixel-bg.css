@@ -2,10 +2,10 @@
    Visual-only override. Keeps the form logic, validation and security untouched. */
 
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration {
-  background-color: #eef4ef !important;
+  background-color: #f0f1ef !important;
   background-image:
-    linear-gradient(rgba(238, 244, 239, .08), rgba(238, 244, 239, .08)),
-    url("/assets/hashcod-registration-pixel-bg.svg?v=20260925-pixel1") !important;
+    linear-gradient(rgba(240, 241, 239, .76), rgba(240, 241, 239, .76)),
+    url("/assets/hashcod-registration-pixel-bg.svg?v=20260925-gray1") !important;
   background-size: cover, cover !important;
   background-position: center center, center center !important;
   background-repeat: no-repeat, no-repeat !important;
@@ -13,10 +13,10 @@ html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration {
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, .88), rgba(247, 249, 246, .80)) !important;
-  backdrop-filter: blur(18px) saturate(1.04) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.04) !important;
-  border-color: rgba(103, 122, 114, .24) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .90), rgba(248, 248, 247, .84)) !important;
+  backdrop-filter: blur(18px) saturate(.98) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(.98) !important;
+  border-color: rgba(85, 88, 86, .20) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field,
@@ -24,20 +24,20 @@ html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-consent,
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-faq,
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-note {
-  background: rgba(255, 255, 255, .78) !important;
-  border-color: rgba(103, 122, 114, .22) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  background: rgba(255, 255, 255, .80) !important;
+  border-color: rgba(82, 84, 83, .18) !important;
+  backdrop-filter: blur(12px) saturate(.98) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(.98) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-kicker {
-  background: rgba(255, 255, 255, .82) !important;
-  border-color: rgba(103, 122, 114, .26) !important;
+  background: rgba(255, 255, 255, .84) !important;
+  border-color: rgba(82, 84, 83, .20) !important;
 }
 
 html[data-hashcod-direct-registration="true"] #hashcodDirectRegistration .hc-reg-field input {
-  background: rgba(255, 255, 255, .88) !important;
-  border-color: rgba(103, 122, 114, .28) !important;
+  background: rgba(255, 255, 255, .90) !important;
+  border-color: rgba(82, 84, 83, .24) !important;
 }
 
 @media (max-width: 720px) {

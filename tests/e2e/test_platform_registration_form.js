@@ -16,7 +16,7 @@ assert(!registrationJs.includes('hashcodRegistrationSubmitReactHost'), 'retired 
 assert(!registrationJs.includes('HASHCOD CODESPACE® — SOLICITUD DE REGISTRO DE PLATAFORMA'), 'retired registration must not keep WhatsApp request copy');
 
 assert(directJs.includes("var VERSION = '20260925-direct11-no-form'"), 'direct entry script must use the no-form version');
-assert(directJs.includes('data-hashcod-registration-retired'), 'direct entry must expose the retired-registration background marker');
+assert(directJs.includes('hashcodRegistrationRetired'), 'direct entry must expose the retired-registration background marker');
 assert(!directJs.includes('Registro de plataforma'), 'direct entry must not render the registration title');
 assert(!directJs.includes('hcName'), 'direct entry must not render registration fields');
 

@@ -1,36 +1,31 @@
 /**
  * HASHCOD CODESPACE · SAFE SECURITY MONITOR SHIM
  *
- * Mantiene disponible el monitor seguro para auditorías internas, pero ya no
- * pinta el badge visual "Security: hardened" dentro de la plataforma ni carga
- * componentes retirados del antiguo formulario de registro.
+ * Mantiene disponible el monitor seguro para auditorías internas sin pintar
+ * badges visuales dentro de la plataforma. No intercepta la entrada ni elimina
+ * el formulario restaurado de registro.
  */
 (function (window, document) {
   'use strict';
 
   var internalIconObserver = null;
-  var retiredEntryBypassInstalled = false;
 
   function removeLegacyBadge() {
     var badge = document.getElementById('hashcodSafeSecurityBadge');
     if (badge && badge.parentNode) badge.parentNode.removeChild(badge);
   }
 
-  function removeRetiredRegistrationUi() {
+  function removeRetiredRegistrationAddons() {
     [
       'hashcodDirectRegistration',
-      'hashcodPlatformRegistration',
       'hashcodHeroUIColorPicker',
-      'hashcodTemporaryAccessDialog',
       'hcCodeModal'
     ].forEach(function (id) {
       var node = document.getElementById(id);
       if (node && node.parentNode) node.parentNode.removeChild(node);
     });
 
-    document.querySelectorAll(
-      '.hashcod-registration-shell,.hashcod-registration-card,.hashcod-registration-form,.hc-reg-card,.hc-heroui-colorpicker'
-    ).forEach(function (node) {
+    document.querySelectorAll('.hc-reg-card,.hc-heroui-colorpicker').forEach(function (node) {
       if (node && node.parentNode) node.parentNode.removeChild(node);
     });
   }
@@ -57,7 +52,7 @@
     if (internalIconObserver || !document.documentElement) return;
     internalIconObserver = new MutationObserver(function () {
       hideInternalEntryIcon();
-      removeRetiredRegistrationUi();
+      removeRetiredRegistrationAddons();
     });
     internalIconObserver.observe(document.documentElement, {
       childList: true,
@@ -65,78 +60,6 @@
       attributes: true,
       attributeFilter: ['class', 'style', 'hidden']
     });
-  }
-
-  function callOriginalEntry() {
-    var current = window.l8EnterPlatform;
-    var original = current && (
-      current.__hashcodHoldOriginal ||
-      current.__hashcodMotionOriginal ||
-      current.__hashcodOriginal ||
-      null
-    );
-
-    if (typeof original === 'function') {
-      try {
-        original.call(window);
-        return true;
-      } catch (error) {
-        console.warn('[Hashcod entry] Original entry handoff failed:', error);
-      }
-    }
-
-    return false;
-  }
-
-  function markPlatformEntered(source) {
-    document.documentElement.dataset.hashcodPlatformEntered = 'true';
-    document.documentElement.dataset.hashcodRegistrationRetired = 'true';
-    document.documentElement.removeAttribute('data-hashcod-final-entry-screen');
-    document.documentElement.removeAttribute('data-hashcod-direct-registration');
-    document.body.classList.remove('hashcod-direct-registration-open', 'auth-locked', 'boot-locked');
-
-    var hold = document.getElementById('hashcodEntryHold');
-    if (hold && hold.parentNode) hold.parentNode.removeChild(hold);
-
-    removeRetiredRegistrationUi();
-
-    try {
-      window.dispatchEvent(new CustomEvent('hashcod:platform-entered', {
-        detail: {
-          source: source || 'codespace-security-monitor',
-          registration: 'retired',
-          bypassedRetiredHold: true
-        }
-      }));
-    } catch (_) {}
-  }
-
-  function installRetiredEntryBypass() {
-    if (retiredEntryBypassInstalled) return;
-    retiredEntryBypassInstalled = true;
-
-    document.addEventListener('click', function (event) {
-      var target = event.target;
-      var button = target && target.closest
-        ? target.closest('#bootCliEnter,#hashcodEntryForceButton,#hashcodHoldContinue')
-        : null;
-      if (!button) return;
-
-      // El formulario fue retirado. Evita que el runtime viejo de la tercera
-      // pantalla vuelva a interceptar el click y deje la entrada congelada.
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === 'function') {
-        event.stopImmediatePropagation();
-      }
-
-      markPlatformEntered('retired-entry-click-bypass');
-      if (!callOriginalEntry()) {
-        window.setTimeout(function () {
-          markPlatformEntered('retired-entry-click-bypass-fallback');
-        }, 0);
-      }
-    }, true);
   }
 
   function installDockIconIntegrationStyle() {
@@ -156,26 +79,17 @@
 
   function bootVisualCleanup() {
     removeLegacyBadge();
-    removeRetiredRegistrationUi();
+    removeRetiredRegistrationAddons();
     hideInternalEntryIcon();
-    installRetiredEntryBypass();
     installDockIconIntegrationStyle();
     observeInternalEntryIconRemoval();
   }
 
-  window.HashcodRetiredEntryBypass = {
-    version: '20260925-retired-entry-bypass-1',
-    enter: function () {
-      markPlatformEntered('manual-retired-entry-bypass');
-      return callOriginalEntry();
-    }
-  };
-
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-25-retired-entry-bypass',
+    version: 'safe-shim-2026-09-25-registration-restored',
     status: 'hardened',
     runFullAudit: function () {
-      console.info('[Hashcod Security] Safe monitor active. No client-side command execution is enabled.');
+      console.info('[Hashcod Security] Safe monitor active. Registration flow is controlled by platform-registration-form.js.');
       bootVisualCleanup();
       return { ok: true, status: 'safe-monitor-active' };
     }

@@ -247,6 +247,11 @@
     }
 
     function installEnterPlatformWrapper() {
+        const root = document.documentElement;
+        const directEntry = window.__hashcodLegacyAuthRetired === true ||
+            (root && root.dataset && root.dataset.hashcodLegacyAuthRetired === 'true');
+        if (directEntry) return true;
+
         const current = window.l8EnterPlatform;
         if (typeof current !== 'function') return false;
         if (current.__hashcodMotionWrapped === true) return true;

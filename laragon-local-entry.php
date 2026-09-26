@@ -126,6 +126,7 @@ $efrExternalJs = $efrJs === ''
 $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260918-37" data-platform-entry-hold="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/platform-entry-freeze-fix.js?v=20260926-nofreeze2" data-hashcod-platform-entry-freeze-fix="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-registration-form.js?v=20260920-temp4" data-hashcod-platform-registration="true"></script>'
 
     . $registrationFlipTag

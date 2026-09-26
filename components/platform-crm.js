@@ -1,7 +1,7 @@
 (function (window, document) {
   'use strict';
 
-  var VERSION = '20260926-platform-crm2';
+  var VERSION = '20260926-platform-crm3';
   if (window.__hashcodPlatformCrmVersion === VERSION) return;
   window.__hashcodPlatformCrmVersion = VERSION;
 
@@ -419,14 +419,31 @@
   }
 
   function open() {
-    var modal = buildModal();
+    var modal;
+    try {
+      modal = buildModal();
+    } catch (error) {
+      console.error('[Hashcod Platform CRM] modal build failed:', error);
+      return false;
+    }
 
-    // Make the window visible first. Data discovery/sync must never be able to
-    // block the click or make the CRM look unresponsive.
+    // Make the window visible before any CRM data work. Inline critical styles
+    // win over stale/global CSS that could otherwise keep the modal hidden.
     state.modalOpen = true;
     modal.hidden = false;
     modal.removeAttribute('hidden');
     modal.classList.add('is-open');
+    [
+      ['display', 'flex'],
+      ['position', 'fixed'],
+      ['inset', '0'],
+      ['opacity', '1'],
+      ['visibility', 'visible'],
+      ['pointer-events', 'auto'],
+      ['z-index', '2147483647']
+    ].forEach(function (pair) {
+      modal.style.setProperty(pair[0], pair[1], 'important');
+    });
     document.documentElement.classList.add('hashcod-crm-open');
 
     try {
@@ -451,6 +468,8 @@
         detail: { source: 'topbar', version: VERSION }
       }));
     } catch (_) {}
+
+    return true;
   }
 
   function close() {
@@ -459,6 +478,10 @@
     modal.classList.remove('is-open');
     modal.hidden = true;
     modal.setAttribute('hidden', '');
+    modal.style.setProperty('display', 'none', 'important');
+    modal.style.setProperty('opacity', '0', 'important');
+    modal.style.setProperty('visibility', 'hidden', 'important');
+    modal.style.setProperty('pointer-events', 'none', 'important');
     state.modalOpen = false;
     document.documentElement.classList.remove('hashcod-crm-open');
   }
@@ -482,6 +505,7 @@
     button.setAttribute('aria-label', 'Abrir CRM de plataformas');
     button.setAttribute('aria-haspopup', 'dialog');
     button.setAttribute('aria-controls', MODAL_ID);
+    button.setAttribute('onclick', 'return window.openHashcodPlatformCRM ? (window.openHashcodPlatformCRM(), false) : false;');
     button.dataset.hashcodPlatformCrm = VERSION;
 
     // Critical geometry is duplicated inline so an old/missing CSS asset cannot
@@ -580,6 +604,40 @@
       attempts += 1;
       if (mountButton() || attempts > 160) window.clearInterval(timer);
     }, 125);
+  }
+
+  function eventTargetsCrmButton(event) {
+    if (!event) return false;
+    if (typeof event.composedPath === 'function') {
+      var path = event.composedPath();
+      for (var i = 0; i < path.length; i++) {
+        var node = path[i];
+        if (node && node.id === BUTTON_ID) return true;
+      }
+    }
+    var target = event.target;
+    return !!(target && target.closest && target.closest('#' + BUTTON_ID));
+  }
+
+  // Open on pointerdown at WINDOW capture phase. This executes before legacy
+  // topbar click guards can swallow the later click event.
+  window.addEventListener('pointerdown', function (event) {
+    if (!eventTargetsCrmButton(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    open();
+  }, true);
+
+  // Mouse fallback for environments without PointerEvent.
+  if (!('PointerEvent' in window)) {
+    window.addEventListener('mousedown', function (event) {
+      if (!eventTargetsCrmButton(event)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      open();
+    }, true);
   }
 
   // Capture-phase delegation keeps the CRM operational even if a legacy topbar

@@ -1645,14 +1645,28 @@
             async function checkSession() {
                 const token = getToken();
                 if (!token) return false;
+
+                const controller = (typeof AbortController === 'function') ? new AbortController() : null;
+                const timeoutMs = 4000;
+                const timeoutId = window.setTimeout(function () {
+                    if (controller) controller.abort();
+                }, timeoutMs);
+
                 try {
                     const res = await fetch('/api/auth/session', {
-                        headers: { 'Authorization': 'Bearer ' + token }
+                        headers: { 'Authorization': 'Bearer ' + token },
+                        signal: controller ? controller.signal : undefined
                     });
+                    if (!res.ok) return false;
                     const data = await res.json();
                     return !!(data && data.ok && data.authenticated);
                 } catch (e) {
+                    if (e && e.name !== 'AbortError') {
+                        console.warn('Check auth session:', e);
+                    }
                     return false;
+                } finally {
+                    window.clearTimeout(timeoutId);
                 }
             }
 
@@ -2694,43 +2708,87 @@ ${jsonPayload}
                 }
             }
 
+            let entryInFlight = false;
+
             async function enterPlatform() {
-                if (overlay) overlay.classList.add('hidden');
-                try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}
+                if (entryInFlight) return false;
+                entryInFlight = true;
 
-                document.body.classList.remove('boot-locked');
-
-                let ok = false;
                 try {
-                    ok = (typeof window.l8CheckAuthSession === 'function')
-                        ? await window.l8CheckAuthSession()
-                        : false;
-                } catch (e) {
-                    console.warn('Check auth session:', e);
-                }
+                    if (overlay) overlay.classList.add('hidden');
+                    try { sessionStorage.setItem('l8_boot_cli_done', '1'); } catch (e) {}
+                    document.body.classList.remove('boot-locked');
 
-                if (ok) {
-                    if (typeof window.l8UnlockPlatform === 'function') window.l8UnlockPlatform();
-                    else {
-                        document.body.classList.remove('auth-locked');
-                        if (typeof restorePlatformState === 'function') restorePlatformState();
+                    const legacyAuthRetired =
+                        window.__hashcodLegacyAuthRetired === true ||
+                        document.documentElement.dataset.hashcodLegacyAuthRetired === 'true';
+
+                    if (legacyAuthRetired) {
+                        if (typeof window.l8UnlockPlatform === 'function') {
+                            window.l8UnlockPlatform();
+                        } else {
+                            document.body.classList.remove('auth-locked');
+                        }
+
+                        document.documentElement.dataset.hashcodPlatformEntered = 'true';
+                        document.documentElement.dataset.hashcodEntryGateReady = 'true';
+                        document.documentElement.classList.add('hashcod-platform-entered');
+                        document.body.classList.add('hashcod-platform-entered');
+
+                        try {
+                            window.dispatchEvent(new CustomEvent('hashcod:platform-entered', {
+                                detail: { source: 'main-platform-runtime', direct: true, legacyAuthRetired: true }
+                            }));
+                            window.dispatchEvent(new CustomEvent('hashcod:platform-entry-complete', {
+                                detail: { source: 'main-platform-runtime', direct: true, legacyAuthRetired: true }
+                            }));
+                        } catch (e) {}
+                        return true;
                     }
-                    return;
-                }
 
-                if (typeof window.l8ShowAuthGate === 'function') {
-                    window.l8ShowAuthGate();
-                } else {
-                    document.body.classList.add('auth-locked');
+                    let ok = false;
+                    try {
+                        ok = (typeof window.l8CheckAuthSession === 'function')
+                            ? await window.l8CheckAuthSession()
+                            : false;
+                    } catch (e) {
+                        console.warn('Check auth session:', e);
+                    }
+
+                    if (ok) {
+                        if (typeof window.l8UnlockPlatform === 'function') window.l8UnlockPlatform();
+                        else {
+                            document.body.classList.remove('auth-locked');
+                            if (typeof restorePlatformState === 'function') restorePlatformState();
+                        }
+                        return true;
+                    }
+
+                    if (typeof window.l8ShowAuthGate === 'function') {
+                        window.l8ShowAuthGate();
+                    } else {
+                        document.body.classList.add('auth-locked');
+                    }
+                    return false;
+                } finally {
+                    entryInFlight = false;
                 }
             }
 
-            enterBtn.addEventListener('click', enterPlatform);
+            // Expose the authoritative entry function so the motion layer can wrap
+            // it without creating a second competing click handler.
+            window.l8EnterPlatform = enterPlatform;
+
+            enterBtn.addEventListener('click', function (event) {
+                if (event) event.preventDefault();
+                return window.l8EnterPlatform();
+            });
+
             window.addEventListener('keydown', (e) => {
                 if (overlay && overlay.classList.contains('hidden')) return;
                 if (e.key === 'Enter' || e.key === 'Escape') {
                     e.preventDefault();
-                    enterPlatform();
+                    window.l8EnterPlatform();
                 }
             });
 

@@ -256,6 +256,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-crm.css?v=20260926-platformcrm1" data-hashcod-platform-crm-style="true">'
             . $efrCssExternalTag
             . $registrationCssExternalTag
             ;
@@ -396,8 +397,25 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // visible to assistive technology while the Rare UI folder is authoritative.
         $legacyBlackholeCleanupTag = '<script id="hashcod-legacy-blackhole-cleanup">(function(){function cleanup(){var hint=document.getElementById("bootCliHint");if(hint){hint.textContent="";hint.hidden=true;hint.setAttribute("aria-hidden","true");}var canvas=document.getElementById("bootBlackholeCanvas");if(canvas){canvas.hidden=true;canvas.setAttribute("aria-hidden","true");canvas.style.display="none";try{canvas.width=1;canvas.height=1;}catch(e){}}}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",cleanup,{once:true});}else{cleanup();}window.addEventListener("hashcod:platform-entered",cleanup);})();</script>';
 
+        $deskcommCrmRaw = function_exists('secretGet')
+            ? (string) secretGet('DESKCOMM_CRM_URL', '')
+            : (function_exists('envValue') ? (string) envValue('DESKCOMM_CRM_URL', '') : '');
+        $deskcommCrmUrl = '';
+        if ($deskcommCrmRaw !== '') {
+            $deskcommParts = @parse_url(trim($deskcommCrmRaw));
+            $deskcommScheme = strtolower((string)($deskcommParts['scheme'] ?? ''));
+            $deskcommHost = (string)($deskcommParts['host'] ?? '');
+            if (in_array($deskcommScheme, ['http', 'https'], true) && $deskcommHost !== '') {
+                $deskcommCrmUrl = trim($deskcommCrmRaw);
+            }
+        }
+        $deskcommCrmConfigTag = '<script id="hashcod-deskcomm-crm-config">window.HASHCOD_DESKCOMM_CRM_URL='
+            . json_encode($deskcommCrmUrl, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            . ';</script>';
+
         $tag = $retiredTopbarControlsCleanupTag
             . $legacyBlackholeCleanupTag
+            . $deskcommCrmConfigTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260926-nofreeze3" data-platform-entry-motion="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260926-second-screen1" data-platform-entry-hold="true"></script>'
@@ -419,6 +437,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-crm.js?v=20260926-platformcrm1" data-hashcod-platform-crm="true"></script>'
             . $efrExternalJsTag
             . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
             . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260919-perf1" data-hashcod-local-download-layout-fix="true"></script>'

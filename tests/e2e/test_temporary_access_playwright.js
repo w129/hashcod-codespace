@@ -10,8 +10,6 @@ const target = process.env.TEMPORARY_ACCESS_URL
 async function openRegistration(page) {
   await page.waitForFunction(() => document.documentElement.dataset.hashcodEntryGateReady === 'true', { timeout: 20000 });
   await page.locator('#bootCliEnter, #hashcodEntryForceButton').first().click({ timeout: 20000 });
-  await page.locator('#hashcodHoldContinue').first().waitFor({ state: 'visible', timeout: 20000 });
-  await page.locator('#hashcodHoldContinue').first().click({ timeout: 20000 });
   await page.locator('#hashcodPlatformRegistration #hashcodRegistrationForm').waitFor({ state: 'visible', timeout: 30000 });
 }
 
@@ -30,7 +28,8 @@ async function run() {
       form: Boolean(document.getElementById('hashcodRegistrationForm')),
       root: Boolean(document.getElementById('hashcodPlatformRegistration')),
       status: document.getElementById('hashcodRegistrationStatus')?.textContent || '',
-      temporaryDialog: Boolean(document.getElementById('hashcodTemporaryAccessDialog'))
+      temporaryDialog: Boolean(document.getElementById('hashcodTemporaryAccessDialog')),
+      frozenContinue: Boolean(document.getElementById('hashcodHoldContinue'))
     }));
 
     assert.equal(state.entered, '', 'temporary button must not bypass the restored form');
@@ -38,6 +37,7 @@ async function run() {
     assert.equal(state.root, true, 'registration root must remain mounted');
     assert.match(state.status, /Completa el registro/i, 'temporary button must explain that registration is required');
     assert.equal(state.temporaryDialog, false, 'temporary access dialog must not render over the restored form');
+    assert.equal(state.frozenContinue, false, 'removed continue screen must not freeze entry');
 
     console.log('PASS: temporary access does not bypass or freeze the restored registration form.');
   } finally {

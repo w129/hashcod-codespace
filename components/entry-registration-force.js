@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260926-restored-direct-gate1';
+  var VERSION = '20260926-restored-direct-gate2';
   if (window.__hashcodEntryRegistrationForceLoaded === VERSION) return;
   window.__hashcodEntryRegistrationForceLoaded = VERSION;
 
@@ -23,6 +23,12 @@
     link.href = href;
     if (dataName) link.dataset[dataName] = 'true';
     document.head.appendChild(link);
+  }
+
+  function removeOldRegistrationScripts() {
+    document.querySelectorAll('script[data-hashcod-platform-registration],script[src*="platform-registration-form.js"]').forEach(function (script) {
+      if (script && script.parentNode) script.parentNode.removeChild(script);
+    });
   }
 
   function loadScriptOnce(selector, src, dataName) {
@@ -54,12 +60,19 @@
     document.body.classList.remove('hashcod-direct-registration-open', 'boot-locked', 'auth-locked');
   }
 
-  function ensureRegistrationAssets() {
+  function ensureRegistrationAssets(forceReload) {
     loadStyleOnce(
       'platformRegistrationStylesheet',
       componentBase + 'platform-registration-form.css?v=' + registrationVersion,
       'hashcodPlatformRegistrationStyle'
     );
+
+    var currentApi = window.HashcodPlatformRegistration;
+    var staleApi = currentApi && currentApi.registrationRestored !== true;
+    if (staleApi || forceReload) {
+      try { delete window.HashcodPlatformRegistration; } catch (_) { window.HashcodPlatformRegistration = null; }
+      removeOldRegistrationScripts();
+    }
 
     if (!window.HashcodPlatformRegistration) {
       loadScriptOnce(
@@ -71,7 +84,7 @@
   }
 
   async function waitForRegistrationApi() {
-    ensureRegistrationAssets();
+    ensureRegistrationAssets(false);
     for (var attempt = 0; attempt < 120; attempt += 1) {
       var api = window.HashcodPlatformRegistration;
       if (
@@ -83,7 +96,7 @@
       ) {
         return api;
       }
-      if (attempt === 20 || attempt === 60) ensureRegistrationAssets();
+      if (attempt === 20 || attempt === 60) ensureRegistrationAssets(true);
       await sleep(50);
     }
     throw new Error('Hashcod restored registration API did not load.');
@@ -172,7 +185,7 @@
 
   function boot() {
     removeStaleRegistrationUi();
-    ensureRegistrationAssets();
+    ensureRegistrationAssets(false);
 
     if (!installButtonGate()) {
       var observer = new MutationObserver(function () {

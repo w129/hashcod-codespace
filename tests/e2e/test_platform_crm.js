@@ -38,11 +38,11 @@ assert(css.includes(".hcrm-deskcomm"), 'Deskcomm tab styling missing');
 assert(hosted.includes("hashcod-platform-crm-inline"), 'production must inline the current CRM CSS/JS to defeat stale cache');
 assert(hosted.includes("$inlinePlatformCrmCssTag"), 'production inline CRM CSS tag missing');
 assert(hosted.includes("$inlinePlatformCrmJsTag"), 'production inline CRM JS tag missing');
-assert(hosted.includes("components/platform-crm.css?v=20260926-platformcrm2"), 'production CRM CSS fallback missing');
-assert(hosted.includes("components/platform-crm.js?v=20260926-platformcrm2"), 'production CRM JS fallback missing');
+assert(hosted.includes("components/platform-crm.css?v=20260926-platformcrm3"), 'production CRM CSS fallback missing');
+assert(hosted.includes("components/platform-crm.js?v=20260926-platformcrm3"), 'production CRM JS fallback missing');
 assert(hosted.includes("DESKCOMM_CRM_URL"), 'production Deskcomm env bridge missing');
-assert(local.includes("components/platform-crm.css?v=20260926-platformcrm2"), 'local CRM CSS loader missing');
-assert(local.includes("components/platform-crm.js?v=20260926-platformcrm2"), 'local CRM JS loader missing');
+assert(local.includes("components/platform-crm.css?v=20260926-platformcrm3"), 'local CRM CSS loader missing');
+assert(local.includes("components/platform-crm.js?v=20260926-platformcrm3"), 'local CRM JS loader missing');
 
 assert(security.includes("function securityDeskcommFrameSource()"), 'Deskcomm CSP origin helper missing');
 assert(security.includes("securityDeskcommFrameSource() !== ''"), 'Deskcomm CSP allowlist not wired');

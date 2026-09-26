@@ -1,0 +1,8 @@
+OPENCRIPTG · BLOQUEO 1 TOQUE + TODAS LAS HERRAMIENTAS
+
+Esta versión conserva las herramientas de la versión completa IDE/CMD con comandos 619 y aplica el cambio solicitado al cubo de entrada:
+
+- Antes: cada cubo lateral válido requería 4 toques.
+- Ahora: cada cubo lateral válido requiere 1 toque.
+- Se mantiene el panel final de acceso.
+- Se conservan las herramientas integradas: base de datos, QR Vault, Text Lab, Disco Lab, P-Andora, Desk, OSDG-rest, Markdown, sequence - A, certificados, IDE/CMD y comandos 619.

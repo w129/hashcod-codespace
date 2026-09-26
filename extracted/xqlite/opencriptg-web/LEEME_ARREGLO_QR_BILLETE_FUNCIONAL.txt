@@ -1,0 +1,12 @@
+OpencriptG – Arreglo QR y descarga de billete
+
+Mejoras aplicadas:
+- El QR del billete ahora se renderiza visible en la plataforma.
+- El billete PNG ahora descarga con el QR dibujado correctamente.
+- El QR intenta abrir una vista HTML con tabla OpencriptG al escanearse.
+- Si un billete es demasiado largo para el límite del QR, el QR sigue siendo funcional llevando los datos completos en texto OCG-BILL-DATA.
+- Se aumentó el tamaño visual del QR en el billete y en el panel de datos.
+- La vista interna "Ver datos QR" sigue mostrando todos los datos completos en tabla.
+
+Nota técnica:
+Los QR tienen capacidad máxima. Para los billetes más largos, algunos lectores mostrarán los datos completos como texto; para billetes que caben en el límite, el QR abre directamente la tabla HTML.

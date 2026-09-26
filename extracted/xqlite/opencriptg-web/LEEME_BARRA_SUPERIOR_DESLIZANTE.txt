@@ -1,0 +1,11 @@
+OpencriptG – Mejora de orden y barra superior deslizante
+
+Cambios aplicados:
+- La barra superior ahora es horizontalmente deslizante.
+- Puedes moverla con la rueda del mouse/trackpad para ver todas las herramientas.
+- Se mantuvo el diseño OpencriptG en negro, blanco y mono.
+- Se ordenó mejor el header para que:
+  - marca/logo quede fijo a la izquierda,
+  - menús queden en el centro con scroll horizontal,
+  - estado y reloj queden fijos a la derecha.
+- Se mejoró la adaptación en pantallas más pequeñas.

@@ -1,0 +1,11 @@
+OpencriptG – OCG Code Units Wallet
+
+Mejora aplicada:
+- La herramienta OCG Code Units ahora se presenta como una wallet interna digital.
+- Muestra balance interno activo.
+- Presenta tarjetas 100 / 500 / 1000 con descripción de uso.
+- Aclara que solo funciona dentro del ecosistema OpencriptG/diktatcart.
+- Aclara que no es moneda de curso legal, inversión, depósito ni criptomoneda pública.
+- Cada unidad conserva code largo, Ivory DID, serial, QR, hash/check, nonce, salt, route, estado e historial.
+- Se agregó uso interno: la unidad puede marcarse como usada dentro de OpencriptG.
+- Se mantiene la base de datos, verificación, transferencia, bloqueo, QR y certificado/PDF.

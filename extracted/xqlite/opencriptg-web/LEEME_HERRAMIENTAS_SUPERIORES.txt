@@ -1,0 +1,20 @@
+OpencriptG – Herramientas superiores funcionales
+
+Mejoras aplicadas:
+- BASE DE DATOS: abre directamente la base de datos.
+- QR VAULT: abre directamente QR Vault.
+- TEXT LAB: abre directamente el editor de texto.
+- DISCO LAB / DRIVE LAB: abre directamente el laboratorio de disco.
+- P - ANDORA: abre directamente el libro de celdas.
+- DESK: abre directamente el espacio Desk.
+- OSDG -REST: abre directamente el cifrador / desbloqueador.
+- MARKDOWN: abre directamente Markdown Desk.
+- SEQUENCE - A: abre directamente la herramienta de notas.
+- CERTIFICADOS: abre directamente certificados.
+- IVORY DID: abre directamente Ivory DID Idea Vault.
+
+Uso:
+- Clic normal: abre la herramienta principal.
+- Clic derecho sobre la herramienta: abre el menú de opciones adicionales de esa herramienta.
+
+Los menús clásicos ARCHIVO, GENERAR, EXPORTAR, VER, AYUDA e IDIOMAS siguen funcionando como menú desplegable.

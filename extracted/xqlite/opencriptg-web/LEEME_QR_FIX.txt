@@ -1,0 +1,11 @@
+OpencriptG – Arreglo del botón QR por code
+
+Mejora aplicada:
+- Se corrigió el botón QR de cada code generado.
+- Ahora funciona con todos los codes, incluyendo los más largos.
+- El sistema usa niveles de corrección QR adaptativos (L, M, Q, H) según la longitud del code.
+- También se corrigió la visualización QR dentro de la plataforma para los payloads extensos.
+
+Resultado:
+- El botón QR descarga el PNG correctamente.
+- Funciona en todos los codes generados dentro de la plataforma.

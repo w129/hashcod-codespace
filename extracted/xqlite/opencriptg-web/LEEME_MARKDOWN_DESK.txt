@@ -1,0 +1,35 @@
+OPENCRIPTG · MARKDOWN DESK
+
+Nueva herramienta agregada:
+- MARKDOWN DESK
+
+Funciones:
+- Editor Markdown dividido en dos paneles.
+- Panel izquierdo: escritura Markdown.
+- Panel derecho: visualización HTML en vivo.
+- Soporte para:
+  * títulos H1-H6
+  * párrafos
+  * negrita, cursiva y tachado
+  * code inline
+  * bloques de código
+  * listas
+  * listas numeradas
+  * checklists
+  * tablas
+  * citas
+  * enlaces
+  * separadores
+- Exportación a .md
+- Exportación a .html
+- Copiar HTML renderizado
+- Temas Paper, Terminal y Compact
+- Wrap ON/OFF
+- Guardado local automático
+- Integración en menú superior y DESK
+
+Uso:
+1. Ejecuta npm start.
+2. Abre la plataforma.
+3. Toca MARKDOWN en la barra superior o entra desde DESK.
+4. Escribe en la izquierda y mira el HTML renderizado a la derecha.

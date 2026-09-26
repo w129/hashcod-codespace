@@ -1,0 +1,35 @@
+OPENCRIPTG · CERTIFICADOS DE CODE
+
+Nueva herramienta agregada:
+- CERTIFICADOS / CERTIFICATES
+
+Objetivo:
+Crear certificados privados de autenticidad, emisión y licencia de uso para codes generados y guardados en la base de datos de OpencriptG.
+
+Datos incluidos en el certificado:
+- Logo de OpencriptG
+- Emisor: diktatcart / OpencriptG
+- RNC: 402-0936929-3
+- ID único de certificado
+- Titular / comprador
+- Email opcional
+- Tipo de licencia
+- Alcance de uso
+- ID del code
+- Tipo de code
+- Hash SHA-256 del code
+- Hash SHA-256 del certificado
+- Fecha de emisión
+- Estado activo
+- Aviso legal privado
+
+Funcionamiento:
+1. Genera o copia codes en OpencriptG para guardarlos en la base de datos.
+2. Abre CERTIFICADOS desde el menú superior o desde DESK.
+3. Selecciona el code que será certificado.
+4. Completa datos del titular y tipo de licencia.
+5. Presiona Crear certificado.
+6. Descarga como HTML o abre la vista PDF para guardar como PDF desde el navegador.
+
+Nota legal:
+Esta herramienta crea certificados privados de empresa. No son certificados gubernamentales, bancarios, notariales ni financieros. Para venta pública formal, revisa los términos con un profesional legal local.

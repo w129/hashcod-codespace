@@ -1,0 +1,25 @@
+OPENCRIPTG · OSDG -rest Encryptor
+
+Nueva función:
+- OSDG -rest ahora es un cifrador/desbloqueador de archivos.
+
+Flujo:
+1. Copia o genera un code tipo Ascon Key en OpencriptG.
+2. Abre OSDG -rest desde el menú o desde DESK.
+3. La key visible se toma automáticamente desde la base de datos de codes copiados.
+4. Selecciona cualquier archivo.
+5. Pulsa “Cifrar y descargar .osdglock”.
+6. La herramienta genera una nonce oculta.
+7. Copia la nonce para enviarla al usuario final por un canal seguro.
+8. El receptor usa el archivo .osdglock + key visible + nonce correcta para desbloquear y descargar el archivo original.
+
+Cumplimiento de licencias:
+- Antes de usar la herramienta, se muestra una ventana de aceptación Apache-2.0 / BSD-3-Clause.
+- No se usa el nombre del proyecto original del repositorio en la interfaz.
+- Se mantiene el recordatorio de no usar nombres de autores, contribuidores o proyectos externos para promoción.
+
+Nota técnica:
+- El contenedor se cifra usando WebCrypto AES-256-GCM.
+- La key se deriva de: key visible + nonce oculta + salt.
+- El archivo cifrado NO contiene la nonce.
+- Sin la nonce correcta, el archivo no se desbloquea.

@@ -1,0 +1,11 @@
+OpencriptG – Captura PNG por code
+
+Nueva mejora agregada:
+- En la parte derecha de cada code generado ahora existe un nuevo icono vectorial de captura.
+- El icono está adaptado al diseño visual de la plataforma.
+- Al hacer clic, genera y descarga en PNG una captura estilizada de esa fila del code generado.
+
+Incluye:
+- Icono de captura vectorial.
+- Descarga PNG por cada code individual.
+- Conserva los botones anteriores: copiar, QR, descargar y eliminar.

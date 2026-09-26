@@ -1,0 +1,16 @@
+OPENCRIPTG · sequence - A · Kuznyechik Key
+
+Cambio agregado:
+- Cada nota de sequence - A ahora tiene una Kuznyechik Key única antes del título de la nota.
+- La key se genera como valor hexadecimal de 256 bits.
+- La key se ve en la tarjeta de la nota y también se incluye en el PDF/HTML exportado.
+- Se agregó botón para copiar la key.
+- Las notas anteriores reciben una key automáticamente al abrirse.
+
+La fórmula del índice se mantiene:
+Índice = (cantidad de codes / similitudes) × (base - 0.428)
+
+Colores del índice:
+- negativo: rojo
+- positivo: verde
+- cero: negro

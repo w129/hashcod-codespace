@@ -1,0 +1,14 @@
+OpencriptG – QR de moneda con la misma tecnología del QR por code
+
+Mejora aplicada:
+- Se agregó el botón "Descargar QR PNG" dentro de OCG Code Coins.
+- El QR de la moneda ahora usa el mismo flujo funcional usado para descargar el QR de cada code generado:
+  1. renderiza el QR en un contenedor oculto,
+  2. convierte canvas/img a canvas real,
+  3. compone una imagen PNG con marco y datos del billete,
+  4. descarga el archivo PNG automáticamente.
+- El QR se genera con el payload QR-LITE de la moneda para mayor compatibilidad con teléfonos.
+- También se agregó el botón dentro del panel "Ver datos QR".
+
+Archivo actualizado:
+- app/app.jsx

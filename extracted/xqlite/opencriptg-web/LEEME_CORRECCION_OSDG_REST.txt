@@ -1,0 +1,15 @@
+OPENCRIPTG · OSDG -rest FIX V3
+
+Corrección aplicada:
+- Se eliminó el Makefile incrustado como template literal para evitar errores por backticks.
+- DEFAULT_OSDG_MAKEFILE ahora usa string seguro JSON/JS.
+- La herramienta mantiene su nombre: OSDG -rest.
+- Sigue mostrando la aceptación de licencias antes de abrir.
+- No usa el nombre del proyecto original del repositorio en la interfaz.
+
+Ejecución:
+npm install
+npm start
+
+URL:
+http://127.0.0.1:2340

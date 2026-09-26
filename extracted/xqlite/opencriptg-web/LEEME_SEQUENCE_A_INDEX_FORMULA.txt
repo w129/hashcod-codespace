@@ -1,0 +1,26 @@
+OPENCRIPTG · SEQUENCE - A INDEX
+
+Se agregó la fórmula del índice de sequence - A basada en la libreta:
+
+Índice = (cantidad de codes / similitudes) × (base - 0.428)
+
+Ejemplo de la libreta:
+- 5 codes
+- 2 similitudes
+- base = 0.28
+
+Índice = (5 / 2) × (0.28 - 0.428)
+Índice = 2.5 × -0.148
+Índice = -0.37
+
+Visual:
+- Si el índice es negativo, aparece en rojo.
+- Si el índice es positivo, aparece en verde.
+- Si es cero, aparece en negro.
+
+La nota permite:
+- agregar múltiples codes de la base de datos
+- modificar similitudes
+- modificar base b(x)
+- ver el cálculo en tiempo real
+- exportar la nota a PDF/HTML con el índice y el diseño.

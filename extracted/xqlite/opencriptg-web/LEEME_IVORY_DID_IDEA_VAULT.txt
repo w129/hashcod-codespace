@@ -1,0 +1,20 @@
+OpencriptG – Ivory DID Idea Vault
+
+Nueva herramienta integrada:
+- Menú superior: IVORY DID
+- Ventana: IVORY DID IDEA VAULT
+- Formulario digital para colaboradores que quieren vender o presentar ideas.
+- Puede llenarse digitalmente y luego imprimirse/guardarse como PDF.
+- El QR se genera usando un code seleccionado desde la base de datos de OpencriptG.
+- Al seleccionar un code guardado, el documento muestra un QR funcional de ese code.
+- Incluye campos: colaborador, contacto, Ivory DID Verification, título, problema, descripción, funcionamiento, monetización, originalidad, estado, firma y revisión.
+- Incluye cláusula de originalidad y no obligación automática de pago o implementación.
+- Guarda registros localmente en el navegador.
+
+Uso:
+1. Genera un code.
+2. Copia el code para guardarlo en la base de datos.
+3. Abre IVORY DID.
+4. Selecciona un code de la base de datos.
+5. Llena la solicitud de idea.
+6. Usa Guardar registro, Descargar documento o Imprimir / PDF.

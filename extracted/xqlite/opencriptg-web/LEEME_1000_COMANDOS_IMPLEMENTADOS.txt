@@ -1,0 +1,25 @@
+OPENCRIPTG · 1000 COMANDOS IMPLEMENTADOS
+
+Esta versión agrega un sistema CMD más amplio para ejecutar familias de comandos:
+
+- ocg code gen <tipo> --qty <n> --len <n> --save
+- ocg code001 gen --qty <n> hasta ocg code619 gen --qty <n>
+- ocg code range 001 100
+- ocg code all619 gen
+- ocg db list/search/copy/export/stats/clear
+- ocg qr create/bundle/export/verify
+- ocg cert create/export/verify/legal
+- ocg osdg encrypt/decrypt/unlock
+- ocg sequence create/add-code/calc-index/export
+- ocg color palette/gradient/contrast/export
+- ocg markdown, desk, pandora, text, drive
+- ocg report, audit, backup, workflow, legal, system
+
+Comandos especiales:
+- help
+- commands1000
+- export commands1000
+- names619
+- codes619
+
+El comando commands1000 descarga el catálogo completo desde la plataforma.

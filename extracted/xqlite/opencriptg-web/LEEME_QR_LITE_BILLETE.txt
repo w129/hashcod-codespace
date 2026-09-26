@@ -1,0 +1,21 @@
+OpencriptG – QR-LITE para billetes OCG Code Coins
+
+Mejora aplicada:
+- Se cambió el QR del billete a un nuevo estilo QR-LITE.
+- El QR ahora usa un payload más corto y compatible con cámaras de teléfonos.
+- Al escanearlo, el teléfono muestra texto legible con los datos principales:
+  * VALUE
+  * BILL_ID
+  * SERIAL
+  * OWNER_DID
+  * STATUS
+  * ISSUED
+  * FINGERPRINT
+  * CHECK
+  * UNIT_HASH parcial
+  * CHAIN_HASH parcial
+- Los datos completos siguen disponibles dentro de OpencriptG en el panel Ver datos QR.
+- El billete PNG ahora muestra el QR-LITE más grande y con etiqueta PHONE SCAN.
+
+Motivo:
+Los QR con datos demasiado largos pueden fallar en cámaras de teléfonos. QR-LITE reduce el payload para aumentar compatibilidad y velocidad de lectura.

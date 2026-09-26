@@ -238,16 +238,11 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<link rel="stylesheet" href="' . $base . 'components/efr-code-editor.css?v=20260919-perf1" data-hashcod-efr-code-editor-style="true">'
             : '';
 
-        // Inline the registration CSS as a fail-closed layer. If the versioned
-        // stylesheet is unavailable or stale, Screen 3 must still cover Codespace.
-        $registrationCssPath = __DIR__ . '/components/platform-registration-form.css';
-        $registrationCss = is_file($registrationCssPath) ? (string) @file_get_contents($registrationCssPath) : '';
-        $inlineRegistrationCssTag = $registrationCss !== ''
-            ? '<style id="hashcod-platform-registration-inline">' . $registrationCss . '</style>'
-            : '';
-        $registrationCssExternalTag = $registrationCss === ''
-            ? '<link rel="stylesheet" href="' . $base . 'components/platform-registration-form.css?v=20260920-temp4" data-hashcod-platform-registration-style="true">'
-            : '';
+        // Registration UI is retired from the startup path. Keep no form CSS in
+        // the main document: even hidden full-screen registration styles add
+        // unnecessary parsing/layout work and can conflict with stale markup.
+        $inlineRegistrationCssTag = '';
+        $registrationCssExternalTag = '';
 
         $cssTag = $inlineCssTag
             . $inlineEfrCssTag
@@ -276,11 +271,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '#secStatusBarBadge,#topBarWindowsHelloBtn{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;width:0!important;min-width:0!important;max-width:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important;}'
             . '</style>';
 
-        // Critical first-paint gate for the third-screen form. Keep this inline
-        // so stale/cached external CSS can never expose the form on screens 1–2.
+        // Stale cached markup from the retired registration flow must stay inert.
         $registrationPrehideTag = '<style id="hashcod-platform-registration-prehide">'
-            . '#hashcodPlatformRegistration{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
-            . 'html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}'
+            . '#hashcodPlatformRegistration,#hashcodDirectRegistration,.hashcod-registration-shell,.hashcod-registration-overlay,.hc-reg-card{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
             . '</style>';
 
         $registrationGatePrebootTag = '<script id="hashcod-registration-gate-preboot">(function(){var root=document.documentElement;window.__hashcodPlatformEntryHoldReady=true;root.dataset.hashcodEntryGateReady="true";root.dataset.hashcodRegistrationRetired="true";var entered=false;function emit(name){try{window.dispatchEvent(new CustomEvent(name,{detail:{source:"inline-preboot-direct",direct:true,legacyAuthRetired:true}}));}catch(_){}}function finish(event){if(entered)return true;entered=true;if(event){event.preventDefault();event.stopPropagation();if(typeof event.stopImmediatePropagation==="function")event.stopImmediatePropagation();}try{if(document.getAnimations)document.getAnimations().forEach(function(a){try{a.cancel();}catch(_){}});}catch(_){}root.classList.remove("boot-locked","auth-locked","hashcod-duo-transitioning","hashcod-duo-arrival-pending");root.classList.add("hashcod-platform-entered");root.dataset.hashcodPlatformEntered="true";root.dataset.hashcodEntryGateReady="true";root.dataset.hashcodFinalEntryScreen="false";if(root.dataset)delete root.dataset.hashcodDuoBusy;var body=document.body;if(body){body.classList.remove("boot-locked","auth-locked");body.classList.add("hashcod-platform-entered");body.removeAttribute("data-auth-locked");body.removeAttribute("aria-busy");}["hashcodEntryTransition","hashcodDuoShade","hashcodDuoHinge"].forEach(function(id){var n=document.getElementById(id);if(n&&n.parentNode){try{n.parentNode.removeChild(n);}catch(_){}}});var overlay=document.getElementById("bootCliOverlay");if(overlay){overlay.classList.add("hidden");overlay.hidden=true;overlay.setAttribute("aria-hidden","true");overlay.style.setProperty("display","none","important");overlay.style.setProperty("visibility","hidden","important");overlay.style.setProperty("pointer-events","none","important");}var b=document.getElementById("bootCliEnter");if(b){b.removeAttribute("aria-busy");b.dataset.hashcodEntryCompleted="true";}try{sessionStorage.setItem("l8_boot_cli_done","1");}catch(_){}var notify=function(){emit("hashcod:platform-entered");emit("hashcod:platform-entry-complete");};if(typeof requestAnimationFrame==="function"){requestAnimationFrame(function(){setTimeout(notify,0);});}else{setTimeout(notify,0);}return true;}document.addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest("#bootCliEnter"):null;if(!b)return;finish(e);},true);document.addEventListener("keydown",function(e){if(e.key!=="Enter"&&e.key!=="Escape")return;var overlay=document.getElementById("bootCliOverlay");if(!overlay||overlay.hidden||overlay.classList.contains("hidden"))return;finish(e);},true);window.HashcodInlineDirectEntry={enter:finish,version:"20260926-nofreeze4"};})();</script>';
@@ -363,33 +356,11 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260919-perf2" data-hashcod-efr-code-editor="true"></script>'
             : '';
 
-        // Inline Screen 3 as the primary registration runtime. The external
-        // script remains as a cache-busted fallback and is idempotent.
-        $registrationJsPath = __DIR__ . '/components/platform-registration-form.js';
-        $registrationJs = is_file($registrationJsPath) ? (string) @file_get_contents($registrationJsPath) : '';
-        if ($registrationJs !== '') {
-            $registrationJs = str_ireplace('</script', '<\\/script', $registrationJs);
-        }
-        $inlineRegistrationJsTag = $registrationJs !== ''
-            ? '<script id="hashcod-platform-registration-inline-js">' . $registrationJs . '</script>'
-            : '';
-        $registrationExternalJsTag = $registrationJs === ''
-            ? '<script defer src="' . $base . 'components/platform-registration-form.js?v=20260920-temp4" data-hashcod-platform-registration="true"></script>'
-            : '';
-
-        // Official Animate UI FlipButton React/Motion island for the
-        // registration submit control. Prefer the locally built bundle so the
-        // component is self-contained and does not rely on a CDN.
-        $registrationFlipBundlePath = __DIR__ . '/components/registration-flip.bundle.js';
-        $registrationFlipBundle = is_file($registrationFlipBundlePath)
-            ? (string) @file_get_contents($registrationFlipBundlePath)
-            : '';
-        if ($registrationFlipBundle !== '') {
-            $registrationFlipBundle = str_ireplace('</script', '<\\/script', $registrationFlipBundle);
-        }
-        $registrationFlipTag = $registrationFlipBundle !== ''
-            ? '<script id="hashcod-registration-flip-inline" data-hashcod-registration-flip="official">' . $registrationFlipBundle . '</script>'
-            : '<script defer src="' . $base . 'components/registration-flip.bundle.js?v=20260918-2" data-hashcod-registration-flip="official"></script>';
+        // Registration runtime and its React/Motion submit island are retired.
+        // Do not inline or request them during platform startup.
+        $inlineRegistrationJsTag = '';
+        $registrationExternalJsTag = '';
+        $registrationFlipTag = '';
 
         // The Docker build generates this local bundle from the exact Rare UI
         // React/Motion implementation. Inline the built artifact so the folder
@@ -424,13 +395,10 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $tag = $retiredTopbarControlsCleanupTag
             . $legacyBlackholeCleanupTag
-            . $inlineRegistrationJsTag
-            . $registrationFlipTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260926-nofreeze3" data-platform-entry-motion="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-37" data-platform-entry-hold="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-freeze-fix.js?v=20260926-nofreeze4" data-hashcod-platform-entry-freeze-fix="true"></script>'
-            . $registrationExternalJsTag
             . $rareFolderInlineTag
             . $rareFolderExternalTag
             . $inlineRescueTag

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '20260926-restored-direct-gate2';
+  var VERSION = '20260926-nofreeze-gate1';
   if (window.__hashcodEntryRegistrationForceLoaded === VERSION) return;
   window.__hashcodEntryRegistrationForceLoaded = VERSION;
 
@@ -9,11 +9,11 @@
   var componentBase = scriptSrc && scriptSrc.lastIndexOf('/') >= 0
     ? scriptSrc.slice(0, scriptSrc.lastIndexOf('/') + 1)
     : '/components/';
-  var registrationVersion = VERSION;
   var openingPromise = null;
 
   function byId(id) { return document.getElementById(id); }
   function sleep(ms) { return new Promise(function (resolve) { window.setTimeout(resolve, ms); }); }
+  function removeNode(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
 
   function loadStyleOnce(id, href, dataName) {
     if (byId(id) || document.querySelector('link[href*="' + href.split('?')[0] + '"]')) return;
@@ -26,66 +26,52 @@
   }
 
   function removeOldRegistrationScripts() {
-    document.querySelectorAll('script[data-hashcod-platform-registration],script[src*="platform-registration-form.js"]').forEach(function (script) {
-      if (script && script.parentNode) script.parentNode.removeChild(script);
-    });
+    document.querySelectorAll('script[data-hashcod-platform-registration],script[src*="platform-registration-form.js"]').forEach(removeNode);
   }
 
-  function loadScriptOnce(selector, src, dataName) {
-    if (document.querySelector(selector)) return;
-    var script = document.createElement('script');
-    script.src = src;
-    script.defer = true;
-    if (dataName) script.dataset[dataName] = 'true';
-    document.head.appendChild(script);
-  }
+  function loadRegistrationScript(forceReload) {
+    return new Promise(function (resolve, reject) {
+      var currentApi = window.HashcodPlatformRegistration;
+      var validApi = currentApi &&
+        currentApi.registrationRestored === true &&
+        typeof currentApi.mount === 'function' &&
+        typeof currentApi.waitForSuccessfulSubmission === 'function' &&
+        typeof currentApi.completePlatformEntry === 'function';
 
-  function removeStaleRegistrationUi() {
-    [
-      'hashcodDirectRegistration',
-      'hashcodHeroUIColorPicker',
-      'hashcodTemporaryAccessDialog',
-      'hcCodeModal',
-      'hashcodEntryHold'
-    ].forEach(function (id) {
-      var node = byId(id);
-      if (node && node.parentNode) node.parentNode.removeChild(node);
-    });
+      if (validApi && !forceReload) {
+        resolve(currentApi);
+        return;
+      }
 
-    document.querySelectorAll('.hc-reg-card,.hc-heroui-colorpicker,.hashcod-entry-hold-card').forEach(function (node) {
-      if (node && node.parentNode) node.parentNode.removeChild(node);
-    });
+      if (forceReload || (currentApi && currentApi.registrationRestored !== true)) {
+        try { delete window.HashcodPlatformRegistration; } catch (_) { window.HashcodPlatformRegistration = null; }
+        removeOldRegistrationScripts();
+      }
 
-    document.documentElement.removeAttribute('data-hashcod-direct-registration');
-    document.body.classList.remove('hashcod-direct-registration-open', 'boot-locked', 'auth-locked');
-  }
-
-  function ensureRegistrationAssets(forceReload) {
-    loadStyleOnce(
-      'platformRegistrationStylesheet',
-      componentBase + 'platform-registration-form.css?v=' + registrationVersion,
-      'hashcodPlatformRegistrationStyle'
-    );
-
-    var currentApi = window.HashcodPlatformRegistration;
-    var staleApi = currentApi && currentApi.registrationRestored !== true;
-    if (staleApi || forceReload) {
-      try { delete window.HashcodPlatformRegistration; } catch (_) { window.HashcodPlatformRegistration = null; }
-      removeOldRegistrationScripts();
-    }
-
-    if (!window.HashcodPlatformRegistration) {
-      loadScriptOnce(
-        'script[data-hashcod-platform-registration],script[src*="platform-registration-form.js"]',
-        componentBase + 'platform-registration-form.js?v=' + registrationVersion,
-        'hashcodPlatformRegistration'
+      loadStyleOnce(
+        'platformRegistrationStylesheet',
+        componentBase + 'platform-registration-form.css?v=' + VERSION,
+        'hashcodPlatformRegistrationStyle'
       );
-    }
+
+      var existing = document.querySelector('script[data-hashcod-platform-registration],script[src*="platform-registration-form.js"]');
+      if (existing && !forceReload) {
+        resolve(window.HashcodPlatformRegistration || null);
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = componentBase + 'platform-registration-form.js?v=' + VERSION;
+      script.async = false;
+      script.dataset.hashcodPlatformRegistration = 'true';
+      script.onload = function () { resolve(window.HashcodPlatformRegistration || null); };
+      script.onerror = function () { reject(new Error('No se pudo cargar platform-registration-form.js')); };
+      document.head.appendChild(script);
+    });
   }
 
   async function waitForRegistrationApi() {
-    ensureRegistrationAssets(false);
-    for (var attempt = 0; attempt < 120; attempt += 1) {
+    for (var attempt = 0; attempt < 100; attempt += 1) {
       var api = window.HashcodPlatformRegistration;
       if (
         api &&
@@ -96,17 +82,46 @@
       ) {
         return api;
       }
-      if (attempt === 20 || attempt === 60) ensureRegistrationAssets(true);
+
+      if (attempt === 0) await loadRegistrationScript(false);
+      if (attempt === 20 || attempt === 55) await loadRegistrationScript(true);
       await sleep(50);
     }
     throw new Error('Hashcod restored registration API did not load.');
   }
 
-  function setButtonLoading(button, loading) {
+  function clearStaleUi() {
+    [
+      'hashcodDirectRegistration',
+      'hashcodHeroUIColorPicker',
+      'hashcodTemporaryAccessDialog',
+      'hcCodeModal',
+      'hashcodEntryHold'
+    ].forEach(function (id) { removeNode(byId(id)); });
+
+    document.querySelectorAll('.hc-reg-card,.hc-heroui-colorpicker,.hashcod-entry-hold-card').forEach(removeNode);
+    document.documentElement.removeAttribute('data-hashcod-direct-registration');
+    document.body.classList.remove('hashcod-direct-registration-open', 'boot-locked', 'auth-locked');
+  }
+
+  function setButtonBusy(button, busy) {
     if (!button) return;
     if (!button.dataset.hashcodOriginalText) button.dataset.hashcodOriginalText = button.textContent || 'Enter platform ↵';
-    button.disabled = !!loading;
-    button.textContent = loading ? 'ABRIENDO REGISTRO' : button.dataset.hashcodOriginalText;
+    button.setAttribute('aria-busy', busy ? 'true' : 'false');
+    button.textContent = busy ? 'ABRIENDO REGISTRO...' : button.dataset.hashcodOriginalText;
+    button.disabled = false;
+  }
+
+  function showSoftError(message) {
+    console.error('[Hashcod restored registration gate]', message);
+    try {
+      var status = byId('hashcodEntryGateStatus') || document.createElement('div');
+      status.id = 'hashcodEntryGateStatus';
+      status.textContent = 'No se pudo abrir el registro. Recarga la página e inténtalo otra vez.';
+      status.style.cssText = 'position:fixed;right:24px;bottom:92px;z-index:2147483647;background:#111;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:12px 14px;font:700 13px system-ui;box-shadow:0 18px 50px rgba(0,0,0,.25)';
+      document.body.appendChild(status);
+      window.setTimeout(function () { removeNode(status); }, 5000);
+    } catch (_) {}
   }
 
   async function openRestoredRegistration(button) {
@@ -114,18 +129,20 @@
 
     openingPromise = (async function () {
       try {
-        setButtonLoading(button, true);
-        removeStaleRegistrationUi();
+        setButtonBusy(button, true);
+        clearStaleUi();
         document.documentElement.removeAttribute('data-hashcod-platform-entered');
         document.documentElement.dataset.hashcodFinalEntryScreen = 'true';
 
         var api = await waitForRegistrationApi();
         var root = api.mount();
+
         if (!root || !byId('hashcodRegistrationForm')) {
           throw new Error('Hashcod restored registration form was not mounted.');
         }
 
-        setButtonLoading(button, false);
+        setButtonBusy(button, false);
+
         var result = await api.waitForSuccessfulSubmission();
         await sleep(120);
         await api.completePlatformEntry(
@@ -135,9 +152,8 @@
         );
         return true;
       } catch (error) {
-        console.error('[Hashcod direct registration gate] failed:', error);
-        setButtonLoading(button, false);
-        window.alert('No se pudo abrir el registro. Recarga la página e inténtalo otra vez.');
+        setButtonBusy(button, false);
+        showSoftError(error && error.message ? error.message : error);
         return false;
       } finally {
         openingPromise = null;
@@ -155,7 +171,7 @@
         detail: {
           source: 'entry-registration-force',
           version: VERSION,
-          mode: 'direct-restored',
+          mode: 'single-restored-gate',
           registration: 'restored',
           preservesEntryAnimations: true
         }
@@ -170,6 +186,7 @@
     buttons.forEach(function (button) {
       if (button.dataset.hashcodRestoredDirectGate === VERSION) return;
       button.dataset.hashcodRestoredDirectGate = VERSION;
+      button.disabled = false;
       button.addEventListener('click', function (event) {
         if (document.documentElement.dataset.hashcodPlatformEntered === 'true') return;
         event.preventDefault();
@@ -184,9 +201,8 @@
   }
 
   function boot() {
-    removeStaleRegistrationUi();
-    ensureRegistrationAssets(false);
-
+    clearStaleUi();
+    loadRegistrationScript(false).catch(function () {});
     if (!installButtonGate()) {
       var observer = new MutationObserver(function () {
         if (installButtonGate()) observer.disconnect();
@@ -195,7 +211,7 @@
       var timer = window.setInterval(function () {
         if (installButtonGate()) {
           window.clearInterval(timer);
-          observer.disconnect();
+          try { observer.disconnect(); } catch (_) {}
         }
       }, 150);
       window.setTimeout(function () {
@@ -213,11 +229,11 @@
 
   window.HashcodDirectRegistration = {
     version: VERSION,
-    mode: 'direct-restored',
+    mode: 'single-restored-gate',
     registrationRestored: true,
     registrationRetired: false,
     preservesEntryAnimations: true,
-    cleanup: removeStaleRegistrationUi,
+    cleanup: clearStaleUi,
     open: function () {
       return openRestoredRegistration(byId('bootCliEnter') || byId('hashcodEntryForceButton'));
     }

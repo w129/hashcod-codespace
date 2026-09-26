@@ -28,7 +28,10 @@ assert(!monitorJs.includes('markPlatformEntered'), 'security monitor must not fo
 assert(!monitorJs.includes("'hashcodPlatformRegistration'"), 'security monitor must not remove the restored form root');
 assert(monitorJs.includes('registration-restored'), 'security monitor must identify the restored registration state');
 
-assert(directJs.includes("mode: 'passive'"), 'direct entry bridge must remain passive');
-assert(directJs.includes('Do not intercept #bootCliEnter'), 'direct bridge must not intercept entry clicks');
+assert(directJs.includes("mode: 'active-restored-gate'"), 'direct entry bridge must own the restored entry gate');
+assert(directJs.includes('installButtonGate'), 'direct bridge must install the entry click gate');
+assert(directJs.includes('waitForRegistrationApi'), 'direct bridge must wait for the restored registration API');
+assert(directJs.includes('registrationRestored: true'), 'direct bridge must expose restored registration state');
+assert(!directJs.includes("registrationRetired: true"), 'direct bridge must not expose retired registration state');
 
-console.log('PASS: platform registration form is restored and entry bypass is disabled.');
+console.log('PASS: platform registration form is restored and the active entry gate owns the button.');

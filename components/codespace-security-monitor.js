@@ -50,16 +50,29 @@
 
   function observeInternalEntryIconRemoval() {
     if (internalIconObserver || !document.documentElement) return;
+
+    const root = document.documentElement;
+    const legacyAuthRetired = window.__hashcodLegacyAuthRetired === true ||
+      (root.dataset && root.dataset.hashcodLegacyAuthRetired === 'true');
+    if (legacyAuthRetired) return;
+
+    const dock = document.getElementById('hashcodAuthUtilityDock');
+    if (!dock) return;
+
     internalIconObserver = new MutationObserver(function () {
       hideInternalEntryIcon();
       removeRetiredRegistrationAddons();
     });
-    internalIconObserver.observe(document.documentElement, {
+    internalIconObserver.observe(dock, {
       childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'style', 'hidden']
+      subtree: true
     });
+
+    window.setTimeout(function () {
+      if (!internalIconObserver) return;
+      internalIconObserver.disconnect();
+      internalIconObserver = null;
+    }, 5000);
   }
 
   function installDockIconIntegrationStyle() {
@@ -86,7 +99,7 @@
   }
 
   window.HashcodSecurityMonitor = {
-    version: 'safe-shim-2026-09-25-registration-restored',
+    version: 'safe-shim-2026-09-26-nofreeze3',
     status: 'hardened',
     runFullAudit: function () {
       console.info('[Hashcod Security] Safe monitor active. Registration flow is controlled by platform-registration-form.js.');

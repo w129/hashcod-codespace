@@ -1,7 +1,7 @@
 (function (window, document) {
   'use strict';
 
-  var VERSION = '20260926-platform-crm1';
+  var VERSION = '20260926-platform-crm2';
   if (window.__hashcodPlatformCrmVersion === VERSION) return;
   window.__hashcodPlatformCrmVersion = VERSION;
 
@@ -35,7 +35,12 @@
   }
 
   function loadState() {
-    var saved = safeJsonParse(localStorage.getItem(STORAGE_KEY), null);
+    var saved = null;
+    try {
+      saved = safeJsonParse(localStorage.getItem(STORAGE_KEY), null);
+    } catch (_) {
+      saved = null;
+    }
     if (saved && saved.records && typeof saved.records === 'object') {
       state.records = saved.records;
     }
@@ -415,15 +420,37 @@
 
   function open() {
     var modal = buildModal();
-    loadState();
-    scanToolbox();
-    renderAll();
-    setTab('crm');
+
+    // Make the window visible first. Data discovery/sync must never be able to
+    // block the click or make the CRM look unresponsive.
     state.modalOpen = true;
     modal.hidden = false;
+    modal.removeAttribute('hidden');
     modal.classList.add('is-open');
     document.documentElement.classList.add('hashcod-crm-open');
-    pullCloudSlots().then(renderAll);
+
+    try {
+      loadState();
+      scanToolbox();
+      renderAll();
+      setTab('crm');
+    } catch (error) {
+      console.error('[Hashcod Platform CRM] render failed:', error);
+      var detail = document.getElementById('hashcodPlatformCrmDetail');
+      if (detail) {
+        detail.innerHTML = '<div class="hcrm-detail-empty"><strong>CRM abierto</strong><span>La interfaz está activa, pero una fuente de datos no pudo cargarse. Puedes cerrar y volver a sincronizar.</span></div>';
+      }
+    }
+
+    try {
+      pullCloudSlots().then(renderAll).catch(function () {});
+    } catch (_) {}
+
+    try {
+      window.dispatchEvent(new CustomEvent('hashcod:platform-crm-opened', {
+        detail: { source: 'topbar', version: VERSION }
+      }));
+    } catch (_) {}
   }
 
   function close() {
@@ -431,40 +458,142 @@
     if (!modal) return;
     modal.classList.remove('is-open');
     modal.hidden = true;
+    modal.setAttribute('hidden', '');
     state.modalOpen = false;
     document.documentElement.classList.remove('hashcod-crm-open');
   }
 
-  function mountButton() {
-    if (document.getElementById(BUTTON_ID)) return true;
-    var bar = document.querySelector('.top-bar-right');
-    if (!bar) return false;
+  function findTopbarHost() {
+    return document.querySelector('.top-bar-right') ||
+      document.querySelector('.top-bar .top-bar-actions') ||
+      document.querySelector('.top-bar [class*="right"]') ||
+      document.querySelector('.top-bar');
+  }
 
-    var button = document.createElement('button');
+  function hydrateButton(button, bar) {
+    if (!button || !bar) return false;
+
+    bar.classList.add('hashcod-platform-crm-host');
+
     button.type = 'button';
     button.id = BUTTON_ID;
     button.className = 'hashcod-platform-crm-button';
     button.title = 'Abrir CRM de plataformas';
     button.setAttribute('aria-label', 'Abrir CRM de plataformas');
+    button.setAttribute('aria-haspopup', 'dialog');
+    button.setAttribute('aria-controls', MODAL_ID);
+    button.dataset.hashcodPlatformCrm = VERSION;
+
+    // Critical geometry is duplicated inline so an old/missing CSS asset cannot
+    // collapse the button into the thin line reported in production.
+    [
+      ['display', 'inline-flex'],
+      ['align-items', 'center'],
+      ['justify-content', 'center'],
+      ['flex', '0 0 32px'],
+      ['width', '32px'],
+      ['min-width', '32px'],
+      ['max-width', '32px'],
+      ['height', '32px'],
+      ['min-height', '32px'],
+      ['max-height', '32px'],
+      ['padding', '0'],
+      ['margin', '0 7px 0 0'],
+      ['overflow', 'visible'],
+      ['pointer-events', 'auto'],
+      ['box-sizing', 'border-box']
+    ].forEach(function (pair) {
+      button.style.setProperty(pair[0], pair[1], 'important');
+    });
+
     button.innerHTML = ICON;
 
-    var logout = bar.querySelector('#topBarLogoutBtn');
-    if (logout) bar.insertBefore(button, logout);
-    else bar.prepend(button);
+    if (!button.__hashcodPlatformCrmBound) {
+      button.__hashcodPlatformCrmBound = true;
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+        open();
+      }, true);
+    }
 
-    button.addEventListener('click', open);
     return true;
+  }
+
+  function mountButton() {
+    var bar = findTopbarHost();
+    if (!bar) return false;
+
+    var button = document.getElementById(BUTTON_ID);
+    if (!button) {
+      button = document.createElement('button');
+      var logout = bar.querySelector('#topBarLogoutBtn');
+      if (logout) bar.insertBefore(button, logout);
+      else bar.prepend(button);
+    } else if (button.parentNode !== bar) {
+      var logoutExisting = bar.querySelector('#topBarLogoutBtn');
+      if (logoutExisting) bar.insertBefore(button, logoutExisting);
+      else bar.prepend(button);
+    }
+
+    hydrateButton(button, bar);
+    return true;
+  }
+
+  var mountObserver = null;
+  var mountScheduled = false;
+
+  function scheduleMount() {
+    if (mountScheduled) return;
+    mountScheduled = true;
+    var run = function () {
+      mountScheduled = false;
+      mountButton();
+    };
+    if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(run);
+    else window.setTimeout(run, 0);
+  }
+
+  function observeTopbar() {
+    if (mountObserver || typeof MutationObserver !== 'function' || !document.body) return;
+    mountObserver = new MutationObserver(function () {
+      if (!document.getElementById(BUTTON_ID) || !findTopbarHost()) scheduleMount();
+    });
+    mountObserver.observe(document.body, { childList: true, subtree: true });
+    window.setTimeout(function () {
+      if (!mountObserver) return;
+      mountButton();
+      mountObserver.disconnect();
+      mountObserver = null;
+    }, 60000);
   }
 
   function boot() {
     loadState();
-    if (mountButton()) return;
+    if (document.body) buildModal();
+    mountButton();
+    observeTopbar();
+
     var attempts = 0;
     var timer = window.setInterval(function () {
       attempts += 1;
-      if (mountButton() || attempts > 80) window.clearInterval(timer);
+      if (mountButton() || attempts > 160) window.clearInterval(timer);
     }, 125);
   }
+
+  // Capture-phase delegation keeps the CRM operational even if a legacy topbar
+  // script replaces direct button handlers after this module mounted.
+  document.addEventListener('click', function (event) {
+    var target = event.target && event.target.closest
+      ? event.target.closest('#' + BUTTON_ID)
+      : null;
+    if (!target) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    open();
+  }, true);
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && state.modalOpen) close();
@@ -475,12 +604,18 @@
   } else {
     boot();
   }
-  window.addEventListener('hashcod:platform-entered', mountButton);
 
+  window.addEventListener('hashcod:platform-entered', function () {
+    mountButton();
+    observeTopbar();
+  });
+
+  window.openHashcodPlatformCRM = open;
   window.HashcodPlatformCRM = Object.freeze({
     version: VERSION,
     open: open,
     close: close,
+    mount: mountButton,
     sync: pullCloudSlots,
     scan: scanToolbox,
     records: function () { return recordsList().map(function (r) { return Object.assign({}, r); }); },

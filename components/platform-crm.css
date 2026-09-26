@@ -1,3 +1,106 @@
+/* Critical CRM isolation: Hashcod has legacy global SVG/layout rules. */
+#hashcodPlatformCrmModal.hashcod-platform-crm-modal{
+  box-sizing:border-box!important;
+  display:none!important;
+}
+#hashcodPlatformCrmModal.hashcod-platform-crm-modal.is-open{
+  display:flex!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:28px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  z-index:2147483647!important;
+  background:rgba(5,10,14,.48)!important;
+}
+#hashcodPlatformCrmModal > .hcrm-window{
+  box-sizing:border-box!important;
+  width:min(1500px,calc(100vw - 56px))!important;
+  height:min(900px,calc(100dvh - 56px))!important;
+  max-width:calc(100vw - 20px)!important;
+  max-height:calc(100dvh - 20px)!important;
+  min-width:0!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  position:relative!important;
+  overflow:hidden!important;
+  background:#f5f6f7!important;
+  color:#101820!important;
+  border:1px solid #bfc7cc!important;
+  border-radius:18px!important;
+  box-shadow:0 36px 100px rgba(0,0,0,.32)!important;
+}
+#hashcodPlatformCrmModal .hcrm-top{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-height:68px!important;
+  max-height:92px!important;
+  display:grid!important;
+  grid-template-columns:minmax(280px,1fr) auto minmax(280px,1fr)!important;
+  align-items:center!important;
+  gap:14px!important;
+  padding:0 18px!important;
+  background:#fff!important;
+  border-bottom:1px solid #dfe4e7!important;
+  overflow:hidden!important;
+}
+#hashcodPlatformCrmModal .hcrm-brand{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#hashcodPlatformCrmModal .hcrm-brand > svg.hcrm-icon,
+#hashcodPlatformCrmModal .hcrm-brand > svg{
+  box-sizing:border-box!important;
+  display:block!important;
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  min-height:30px!important;
+  max-width:30px!important;
+  max-height:30px!important;
+  flex:0 0 30px!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  transform:none!important;
+  position:static!important;
+  inset:auto!important;
+}
+#hashcodPlatformCrmModal .hcrm-brand > svg path:first-child{fill:#22A0E0!important}
+#hashcodPlatformCrmModal .hcrm-brand > svg path:last-child{fill:#1E8BC3!important}
+#hashcodPlatformCrmModal #hashcodPlatformCrmInternal{
+  display:flex!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#hashcodPlatformCrmModal .hcrm-metrics,
+#hashcodPlatformCrmModal .hcrm-search-row,
+#hashcodPlatformCrmModal .hcrm-workspace{
+  position:relative!important;
+  z-index:1!important;
+}
+@media(max-width:1000px){
+  #hashcodPlatformCrmModal.hashcod-platform-crm-modal.is-open{padding:10px!important}
+  #hashcodPlatformCrmModal > .hcrm-window{width:calc(100vw - 20px)!important;height:calc(100dvh - 20px)!important}
+  #hashcodPlatformCrmModal .hcrm-top{grid-template-columns:1fr auto!important;min-height:92px!important}
+}
+
 /* Hashcod Platform CRM — DeskcommCRM-inspired integration surface */
 .top-bar-right.hashcod-platform-crm-host,
 .top-bar.hashcod-platform-crm-host{

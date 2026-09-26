@@ -45,60 +45,44 @@
     node.textContent = JSON.stringify(payload);
   }
 
-  function ensureRegistrationRuntime() {
-    if (!document.querySelector('link[data-hashcod-platform-registration-style],link[href*="platform-registration-form.css"]')) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = COMPONENT_BASE + 'platform-registration-form.css?v=' + REGISTRATION_VERSION;
-      link.dataset.hashcodPlatformRegistrationStyle = 'true';
-      document.head.appendChild(link);
-    }
+  function cleanupRetiredRegistration() {
+    document.documentElement.dataset.hashcodRegistrationRetired = 'true';
+    document.documentElement.dataset.hashcodFinalEntryScreen = 'false';
 
-    if (!window.HashcodPlatformRegistration && !document.querySelector('script[data-hashcod-platform-registration-hotfix]')) {
-      const script = document.createElement('script');
-      script.src = COMPONENT_BASE + 'platform-registration-form.js?v=' + REGISTRATION_VERSION;
-      script.async = true;
-      script.dataset.hashcodPlatformRegistrationHotfix = 'true';
-      document.head.appendChild(script);
-    }
+    document.querySelectorAll(
+      '#hashcodPlatformRegistration,#hashcodDirectRegistration,' +
+      '.hashcod-registration-shell,.hashcod-registration-overlay,.hc-reg-card'
+    ).forEach(function (node) {
+      try { node.remove(); } catch (_) {}
+    });
+
+    document.querySelectorAll(
+      'link[data-hashcod-platform-registration-style],' +
+      'script[data-hashcod-platform-registration],' +
+      'script[data-hashcod-platform-registration-hotfix],' +
+      'script[data-hashcod-entry-registration-force],' +
+      'script[data-hashcod-registration-flip]'
+    ).forEach(function (node) {
+      try { node.remove(); } catch (_) {}
+    });
+  }
+
+  function ensureRegistrationRuntime() {
+    cleanupRetiredRegistration();
+    return false;
   }
 
   function mountRegistrationFallback() {
-    ensureRegistrationRuntime();
-    document.documentElement.dataset.hashcodFinalEntryScreen = 'true';
-    document.documentElement.dataset.hashcodEntryHotfix = 'registration-handoff';
-    document.documentElement.removeAttribute('data-hashcod-platform-entered');
+    cleanupRetiredRegistration();
+    document.documentElement.dataset.hashcodPlatformEntered = 'true';
+    document.documentElement.classList.add('hashcod-platform-entered');
+    if (document.body) document.body.classList.add('hashcod-platform-entered');
 
-    window.dispatchEvent(new CustomEvent('hashcod:final-entry-screen', {
-      detail: { screen: 3, source: 'entry-button-hotfix' }
-    }));
-
-    let tries = 0;
-    const timer = window.setInterval(function () {
-      tries += 1;
-      const registration = window.HashcodPlatformRegistration;
-      if (registration && typeof registration.mount === 'function') {
-        try { registration.mount(); } catch (_) {}
-        const hold = document.getElementById('hashcodEntryHold');
-        if (hold) {
-          hold.classList.add('is-revealing');
-          window.setTimeout(function () {
-            if (hold && hold.parentNode) hold.parentNode.removeChild(hold);
-          }, 180);
-        }
-        window.clearInterval(timer);
-        return;
-      }
-      if (tries > 80) {
-        window.clearInterval(timer);
-        const button = document.getElementById('hashcodHoldContinue');
-        if (button) {
-          button.disabled = false;
-          button.innerHTML = '<span>REINTENTAR REGISTRO</span><span aria-hidden="true">↵</span>';
-        }
-      }
-    }, 50);
-
+    try {
+      window.dispatchEvent(new CustomEvent('hashcod:platform-entry-complete', {
+        detail: { source: 'seo-registration-retired', direct: true, retired: true }
+      }));
+    } catch (_) {}
     return true;
   }
 

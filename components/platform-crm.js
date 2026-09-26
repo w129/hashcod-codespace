@@ -461,6 +461,7 @@
   function findTopbar(){return document.querySelector('.top-bar-right')||document.querySelector('.top-bar [class*="right"]')||document.querySelector('.top-bar')}
   function mountButton(){
     var bar=findTopbar();if(!bar)return false;
+    bar.classList.add('hashcod-platform-crm-host');
     var button=document.getElementById(BUTTON_ID);
     if(!button){button=document.createElement('button');var logout=bar.querySelector('#topBarLogoutBtn');logout?bar.insertBefore(button,logout):bar.prepend(button)}
     button.type='button';button.id=BUTTON_ID;button.className='hashcod-platform-crm-button';button.title='Abrir CRM de plataformas';button.setAttribute('aria-label','Abrir CRM de plataformas');button.innerHTML=ICON;

@@ -244,6 +244,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $inlineRegistrationCssTag = '';
         $registrationCssExternalTag = '';
 
+        // Platform CRM is inlined because the topbar is rebuilt dynamically and
+        // stale immutable CSS previously collapsed its button into a thin line.
+        $platformCrmCssPath = __DIR__ . '/components/platform-crm.css';
+        $platformCrmCss = is_file($platformCrmCssPath) ? (string) @file_get_contents($platformCrmCssPath) : '';
+        $inlinePlatformCrmCssTag = $platformCrmCss !== ''
+            ? '<style id="hashcod-platform-crm-inline">' . $platformCrmCss . '</style>'
+            : '';
+        $platformCrmCssExternalTag = $platformCrmCss === ''
+            ? '<link rel="stylesheet" href="' . $base . 'components/platform-crm.css?v=20260926-platformcrm2" data-hashcod-platform-crm-style="true">'
+            : '';
+
         $cssTag = $inlineCssTag
             . $inlineEfrCssTag
             . $inlineRegistrationCssTag
@@ -256,7 +267,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/platform-entry-capability-footer.css?v=20260913-3" data-hashcod-entry-capability-footer-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/platform-crm.css?v=20260926-platformcrm1" data-hashcod-platform-crm-style="true">'
+            . $inlinePlatformCrmCssTag
+            . $platformCrmCssExternalTag
             . $efrCssExternalTag
             . $registrationCssExternalTag
             ;
@@ -413,9 +425,26 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . json_encode($deskcommCrmUrl, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
             . ';</script>';
 
+        // Inline the CRM runtime too. This is the authoritative copy for the
+        // topbar control; the external file is only a fallback if the source is
+        // unexpectedly absent from the deployment image.
+        $platformCrmJsPath = __DIR__ . '/components/platform-crm.js';
+        $platformCrmJs = is_file($platformCrmJsPath) ? (string) @file_get_contents($platformCrmJsPath) : '';
+        if ($platformCrmJs !== '') {
+            $platformCrmJs = str_ireplace('</script', '<\/script', $platformCrmJs);
+        }
+        $inlinePlatformCrmJsTag = $platformCrmJs !== ''
+            ? '<script id="hashcod-platform-crm-inline" data-hashcod-platform-crm-inline="true">' . $platformCrmJs . '</script>'
+            : '';
+        $platformCrmJsExternalTag = $platformCrmJs === ''
+            ? '<script defer src="' . $base . 'components/platform-crm.js?v=20260926-platformcrm2" data-hashcod-platform-crm="true"></script>'
+            : '';
+
         $tag = $retiredTopbarControlsCleanupTag
             . $legacyBlackholeCleanupTag
             . $deskcommCrmConfigTag
+            . $inlinePlatformCrmJsTag
+            . $platformCrmJsExternalTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260926-nofreeze3" data-platform-entry-motion="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260926-second-screen1" data-platform-entry-hold="true"></script>'
@@ -437,7 +466,6 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-crm.js?v=20260926-platformcrm1" data-hashcod-platform-crm="true"></script>'
             . $efrExternalJsTag
             . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
             . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260919-perf1" data-hashcod-local-download-layout-fix="true"></script>'

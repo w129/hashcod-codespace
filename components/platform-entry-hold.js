@@ -1,66 +1,30 @@
-(function () {
+/* Hashcod platform entry hold · retired passive bridge.
+   The intermediate hold/registration screen is removed. This file is kept only
+   so existing loader paths do not fail. It must not wrap l8EnterPlatform, set
+   intervals, stop clicks, or open registration. */
+(function (window, document) {
   'use strict';
 
-  const HOLD_RUNTIME_VERSION = '20260926-passive-restored-gate1';
-  if (window.__hashcodPlatformEntryHoldLoadedVersion === HOLD_RUNTIME_VERSION) return;
+  var VERSION = '20260926-hold-retired-passive-nofreeze1';
+  if (window.__hashcodPlatformEntryHoldLoadedVersion === VERSION) return;
 
   window.__hashcodPlatformEntryHoldLoaded = true;
-  window.__hashcodPlatformEntryHoldLoadedVersion = HOLD_RUNTIME_VERSION;
+  window.__hashcodPlatformEntryHoldLoadedVersion = VERSION;
+  window.__hashcodPlatformEntryHoldReady = true;
 
-  function markGateReady() {
-    window.__hashcodPlatformEntryHoldReady = true;
-    document.documentElement.dataset.hashcodEntryGateReady = 'true';
-    try {
-      window.dispatchEvent(new CustomEvent('hashcod:entry-gate-ready', {
-        detail: {
-          source: 'platform-entry-hold',
-          version: HOLD_RUNTIME_VERSION,
-          mode: 'passive',
-          registration: 'delegated-to-entry-registration-force'
-        }
-      }));
-    } catch (_) {}
-  }
+  document.documentElement.dataset.hashcodEntryGateReady = 'true';
+  document.documentElement.dataset.hashcodRegistrationRetired = 'true';
+  document.documentElement.dataset.hashcodFinalEntryScreen = 'false';
 
-  function installLegacyDelegate() {
-    const current = window.l8EnterPlatform;
-    if (typeof current !== 'function') return false;
-    if (current.__hashcodPassiveHoldWrapped === true) return true;
-
-    const original = current.__hashcodHoldOriginal || current.__hashcodMotionOriginal || current;
-    const wrapped = function () {
-      if (
-        window.HashcodDirectRegistration &&
-        window.HashcodDirectRegistration.registrationRestored === true &&
-        typeof window.HashcodDirectRegistration.open === 'function' &&
-        document.documentElement.dataset.hashcodPlatformEntered !== 'true'
-      ) {
-        return window.HashcodDirectRegistration.open();
+  try {
+    window.dispatchEvent(new CustomEvent('hashcod:entry-gate-ready', {
+      detail: {
+        source: 'platform-entry-hold',
+        version: VERSION,
+        mode: 'retired-passive',
+        interceptsClick: false,
+        wrapsEntry: false
       }
-      return original.apply(this, arguments);
-    };
-
-    Object.defineProperty(wrapped, '__hashcodPassiveHoldWrapped', { value: true });
-    Object.defineProperty(wrapped, '__hashcodHoldOriginal', { value: original });
-    window.l8EnterPlatform = wrapped;
-    return true;
-  }
-
-  function install() {
-    markGateReady();
-    installLegacyDelegate();
-    return true;
-  }
-
-  install();
-
-  const timer = window.setInterval(function () {
-    if (installLegacyDelegate()) {
-      window.clearInterval(timer);
-    }
-  }, 250);
-
-  window.setTimeout(function () {
-    window.clearInterval(timer);
-  }, 12000);
-})();
+    }));
+  } catch (_) {}
+})(window, document);

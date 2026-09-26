@@ -27,6 +27,7 @@ on:
       - tests/e2e/test_platform_registration_form.js
       - tests/e2e/test_platform_registration_sequence_playwright.js
       - tests/e2e/test_temporary_access_playwright.js
+      - tests/e2e/test_ecc_get_post_analysis.js
       - .github/workflows/verify-registration-sequence.yml
   pull_request:
     branches:
@@ -50,6 +51,7 @@ on:
       - tests/e2e/test_platform_registration_form.js
       - tests/e2e/test_platform_registration_sequence_playwright.js
       - tests/e2e/test_temporary_access_playwright.js
+      - tests/e2e/test_ecc_get_post_analysis.js
       - .github/workflows/verify-registration-sequence.yml
   workflow_dispatch:
 
@@ -73,6 +75,7 @@ jobs:
           node --check components/platform-registration-form.js
           node --check components/entry-registration-force.js
           node --check components/platform-entry-hold.js
+          node --check tests/e2e/test_ecc_get_post_analysis.js
           php -l l8-html.php
           php -l laragon-local-entry.php
           php -l privacy.php
@@ -117,6 +120,11 @@ jobs:
             cat /tmp/hashcod-registration-sequence.log || true
             exit 1
           fi
+
+          ECC_BASE_URL=http://127.0.0.1:8099 node tests/e2e/test_ecc_get_post_analysis.js || {
+            cat /tmp/hashcod-registration-sequence.log || true
+            exit 1
+          }
 
           REGISTRATION_SEQUENCE_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_platform_registration_sequence_playwright.js || {
             cat /tmp/hashcod-registration-sequence.log || true

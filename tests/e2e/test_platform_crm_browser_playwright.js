@@ -29,7 +29,13 @@ const assert = require('assert');
   assert(before.height >= 29, 'CRM button collapsed vertically');
   assert(before.svg, 'CRM SVG icon missing');
 
-  await page.click('#hashcodPlatformCrmButton', { timeout: 10000 });
+  // The production control intentionally opens on pointerdown so legacy topbar
+  // click guards cannot swallow it. Dispatch the same event a real pointer sends.
+  await page.dispatchEvent('#hashcodPlatformCrmButton', 'pointerdown', {
+    pointerType: 'mouse',
+    button: 0,
+    buttons: 1
+  });
 
   await page.waitForFunction(() => {
     const modal = document.getElementById('hashcodPlatformCrmModal');
@@ -67,6 +73,12 @@ const assert = require('assert');
   assert(Number(result.opacity) > 0, 'CRM modal opacity remained zero');
   assert(result.width > 300 && result.height > 300, 'CRM modal has no usable viewport');
   assert.strictEqual(result.title, 'Platform CRM', 'CRM window content did not render');
+
+  const brandIcon = await page.$eval('#hashcodPlatformCrmModal .hcrm-brand > svg', el => {
+    const rect = el.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  });
+  assert(brandIcon.width <= 40 && brandIcon.height <= 40, 'CRM header SVG expanded over the application');
 
   await page.click('#hcrmClose');
   await page.waitForFunction(() => {

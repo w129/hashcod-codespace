@@ -1,0 +1,111 @@
+name: Iris visual QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - index.php
+      - index.html
+      - 404.html
+      - l8-html.php
+      - laragon-local-entry.php
+      - components/**
+      - rare-folder-build/**
+      - registration-flip-build/**
+      - scripts/iris_visual_qa.sh
+      - .github/workflows/iris-visual-qa.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - index.php
+      - index.html
+      - 404.html
+      - l8-html.php
+      - laragon-local-entry.php
+      - components/**
+      - rare-folder-build/**
+      - registration-flip-build/**
+      - scripts/iris_visual_qa.sh
+      - .github/workflows/iris-visual-qa.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hashcod-iris-visual-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual-qa:
+    name: Iris desktop + mobile + full-page visual QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Chrome
+        run: |
+          command -v google-chrome
+          google-chrome --version
+
+      - name: Install pinned Iris 0.4.1
+        env:
+          IRIS_URL: https://github.com/brijr/iris/releases/download/v0.4.1/iris-x86_64-unknown-linux-musl.tar.gz
+          IRIS_SHA256: aa6073ba255c0bcf09364a5503cbd4794791b832e5934a52b169a455d66101c7
+        run: |
+          curl --fail --show-error --location "$IRIS_URL" --output /tmp/iris.tar.gz
+          echo "$IRIS_SHA256  /tmp/iris.tar.gz" | sha256sum --check -
+          tar -xzf /tmp/iris.tar.gz -C /tmp
+          test -x /tmp/iris
+          sudo install -m 0755 /tmp/iris /usr/local/bin/iris
+          iris --version
+
+      - name: Start local Hashcod UI
+        run: |
+          php -S 127.0.0.1:8099 >/tmp/hashcod-iris-php.log 2>&1 &
+          echo $! > /tmp/hashcod-iris-php.pid
+          ready=0
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "Hashcod UI did not become ready"
+            cat /tmp/hashcod-iris-php.log || true
+            exit 1
+          fi
+
+      - name: Capture visual QA evidence with Iris
+        env:
+          IRIS_URL: http://127.0.0.1:8099/laragon-local-entry.php
+          IRIS_OUT_DIR: artifacts/iris-visual-qa
+          IRIS_CHROME: /usr/bin/google-chrome
+        run: bash scripts/iris_visual_qa.sh
+
+      - name: Stop local Hashcod UI
+        if: always()
+        run: |
+          if [ -f /tmp/hashcod-iris-php.pid ]; then
+            kill "$(cat /tmp/hashcod-iris-php.pid)" >/dev/null 2>&1 || true
+          fi
+
+      - name: Upload Iris visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iris-visual-qa-${{ github.sha }}
+          path: |
+            artifacts/iris-visual-qa/*.png
+            artifacts/iris-visual-qa/*.json
+            artifacts/iris-visual-qa/*.log
+            /tmp/hashcod-iris-php.log
+          if-no-files-found: warn
+          retention-days: 14

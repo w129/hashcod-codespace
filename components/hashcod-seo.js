@@ -311,7 +311,16 @@
     }
   });
 
+  function registrationUiIsRetired() {
+    const root = document.documentElement;
+    return (root && root.dataset && root.dataset.hashcodRegistrationRetired === 'true') ||
+      !!(window.HashcodPlatformRegistration && window.HashcodPlatformRegistration.registrationRetired === true);
+  }
+
   function bootHotfixes() {
+    // These observers belong to the retired registration flow. Leaving them
+    // attached to the whole document causes unnecessary work as Codespace mounts.
+    if (registrationUiIsRetired()) return;
     bootRegistrationPlazaHotfix();
     bootEntryButtonHotfix();
   }

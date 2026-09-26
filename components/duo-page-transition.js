@@ -265,6 +265,14 @@
     }, true);
 
     function installEnterPlatformWrapper() {
+        // Platform entry is intentionally animation-free. Animating the entire
+        // document body (transform + blur) on this very large page can saturate
+        // the compositor and look like a browser freeze.
+        const root = document.documentElement;
+        const legacyEntryRetired = window.__hashcodLegacyAuthRetired === true ||
+            (root && root.dataset && root.dataset.hashcodLegacyAuthRetired === 'true');
+        if (legacyEntryRetired) return true;
+
         const current = window.l8EnterPlatform;
         if (typeof current !== 'function') return false;
         if (current.__hashcodDuoWrapped) return true;

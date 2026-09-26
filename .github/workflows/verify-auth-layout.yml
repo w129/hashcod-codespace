@@ -20,6 +20,8 @@ on:
       - components/auth-utility-outside.css
       - components/platform-entry-slogan.js
       - components/platform-entry-capability-footer-fix.js
+      - components/platform-crm.js
+      - components/platform-crm.css
       - components/hashcod-ux-system.js
       - components/hashcod-ux-system.css
       - components/hashcod-ux-dark-compat.css
@@ -64,6 +66,7 @@ on:
       - tests/e2e/test_mobile_platform_polish.js
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_secure_toolbox_links.js
+      - tests/e2e/test_platform_crm.js
       - tests/e2e/test_platform_registration_form.js
       - .github/workflows/verify-auth-layout.yml
   pull_request:
@@ -85,6 +88,8 @@ on:
       - components/auth-vector-layout-fix.js
       - components/auth-register-resilience.js
       - components/platform-entry-capability-footer-fix.js
+      - components/platform-crm.js
+      - components/platform-crm.css
       - components/hashcod-ux-system.js
       - components/hashcod-ux-system.css
       - components/hashcod-ux-dark-compat.css
@@ -100,6 +105,7 @@ on:
       - tests/e2e/test_hashcod_ux_system.js
       - tests/e2e/test_hashcod_ux_browser_playwright.js
       - tests/e2e/test_secure_toolbox_links.js
+      - tests/e2e/test_platform_crm.js
       - tests/e2e/test_platform_registration_form.js
       - tests/e2e/test_auth_register_resilience.js
       - .github/workflows/verify-auth-layout.yml
@@ -172,6 +178,9 @@ jobs:
 
       - name: Syntax check platform registration form
         run: node --check components/platform-registration-form.js
+
+      - name: Syntax check Platform CRM
+        run: node --check components/platform-crm.js
 
       - name: Syntax check retired registration cleanup
         run: php -l cleanup-platform-registration.php
@@ -312,6 +321,9 @@ jobs:
 
       - name: Verify retired Toolbox circle-link contract
         run: node tests/e2e/test_secure_toolbox_links.js
+
+      - name: Verify Platform CRM and Deskcomm bridge
+        run: node tests/e2e/test_platform_crm.js
 
       - name: Verify cryptographic card gate regression
         run: node tests/e2e/test_crypto_card_validation_gate.js

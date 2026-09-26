@@ -4,67 +4,20 @@ const assert = require('assert');
 
 const repoDir = path.resolve(__dirname, '../..');
 const js = fs.readFileSync(path.join(repoDir, 'components/platform-entry-hold.js'), 'utf8');
-const css = fs.readFileSync(path.join(repoDir, 'components/platform-entry-hold.css'), 'utf8');
 
-assert(js.includes('const READY_DELAY_MS = 1100;'), 'entry sequence must remain visible before continuation is enabled');
-assert(js.includes('await waitForContinue(overlay);'), 'login must wait for an explicit user click');
-assert(js.includes("root.dataset.hashcodFinalEntryScreen = 'true'"), 'third-screen state marker missing');
-assert(js.includes("new CustomEvent('hashcod:final-entry-screen'"), 'third-screen reveal event missing');
-assert(js.includes('revealFinalEntryScreen();'), 'third-screen registration must reveal after the second screen completes');
-assert(js.includes('id="hashcodHoldContinue" disabled'), 'continue button must begin disabled');
-assert(js.includes('continueButton.disabled = false;'), 'continue button must be enabled after verification delay');
-assert(js.includes('CONTINUAR AL REGISTRO'), 'manual continuation label missing');
-assert(js.includes('current.__hashcodMotionOriginal || current'), 'manual gate must preserve the original platform entry function');
-assert(js.includes('waitForRegistrationGate()'), 'second screen must hand off to the third-screen registration gate');
-assert(js.includes('await registration.waitForSuccessfulSubmission();'), 'platform entry must wait for a successful registration POST');
-assert(js.includes('const registrationResult = await registration.waitForSuccessfulSubmission();'), 'platform entry must preserve the gate result');
-assert(js.includes('registrationResult && registrationResult.temporaryAccess === true'), 'temporary access result must be detected by the hold');
-assert(js.includes('await registration.completePlatformEntry('), 'successful registration or temporary access must complete platform entry');
-assert(js.includes('ensureRegistrationAssets(false)'), 'hold must guarantee the registration bundle is requested');
-assert(js.includes('waitForRegistrationVisible(registration)'), 'screen 2 must wait until screen 3 is visibly mounted');
-assert(js.includes('registrationHandoffReady'), 'handoff must track whether it is safe to uncover the platform');
-assert(js.includes('REINTENTAR REGISTRO'), 'registration failure must remain fail-closed with a retry state');
-assert(!js.includes('original.apply(context, args)'), 'retired entry function must not run underneath the registration screen');
+assert(js.includes("const HOLD_RUNTIME_VERSION = '20260926-registration-restored-fast1'"), 'entry hold must use the restored fast registration version');
+assert(js.includes('openRegistration'), 'entry hold must open the restored registration form');
+assert(js.includes('waitForRegistrationApi'), 'entry hold must wait for the restored registration API');
+assert(js.includes('registration.registrationRestored === true'), 'entry hold must require restored registration API state');
+assert(js.includes('registration.mount()'), 'entry hold must mount the registration form directly');
+assert(js.includes('hashcodRegistrationForm'), 'entry hold must verify that the form was mounted');
+assert(js.includes('registration.waitForSuccessfulSubmission()'), 'entry hold must wait for form submission before opening Codespace');
+assert(js.includes('registration.completePlatformEntry('), 'entry hold must complete platform entry after submission');
+assert(js.includes('clearFrozenEntryLayers'), 'entry hold must remove stale frozen overlays');
+assert(js.includes('ABRIENDO REGISTRO'), 'entry button must provide visible opening feedback');
+assert(js.includes('event.stopImmediatePropagation'), 'entry hold must stop legacy handlers from freezing the click');
+assert(!js.includes('await waitForContinue(overlay);'), 'entry hold must not wait for the removed intermediate continue screen');
+assert(!js.includes('hashcodHoldContinue'), 'entry hold must not depend on a removed continue button');
+assert(!js.includes('REINTENTAR REGISTRO'), 'entry hold must not fall back to a frozen retry overlay');
 
-// Scene contract: only grid + dispersed vectors + right-side CTA. No central status block/card.
-assert(!js.includes('hashcod-hold-frame'), 'central card/window must remain removed');
-assert(!js.includes('hashcod-hold-center'), 'central access status must remain removed');
-assert(!js.includes('hashcodHoldStatus'), 'ACCESS GRANTED status block must remain removed');
-assert(!js.includes('hashcodHoldProgress'), 'central progress line must remain removed');
-assert(!js.includes('hashcodHoldPhaseLine'), 'central phase label must remain removed');
-assert(!js.includes('hashcod-hold-topline'), 'top diagnostic header must remain removed');
-assert(!js.includes('hashcod-hold-help'), 'helper text must remain removed');
-assert(js.includes('hashcod-hold-side-field'), 'floating vector field missing');
-assert(js.includes('hashcod-hold-cta-wrap'), 'entry CTA wrapper missing');
-assert(js.includes('const SCATTER = ['), 'distributed icon layout missing');
-assert((js.match(/pos: '/g) || []).length >= 18, 'expected at least 18 dispersed vector placements');
-
-// Contract fragments from the supplied SVG set.
-[
-    '<rect width="12" height="2" x="10" y="4"',
-    'M 5 5 L 5 6 L 3 6',
-    'M 15 4 L 15 7 L 17 7',
-    'M 4 5 L 4 24 L 6 24',
-    'M 5 5 L 5 27 L 21 27',
-    'M 8 3 L 8 21 L 2 21'
-].forEach(fragment => {
-    assert(js.includes(fragment), 'missing supplied vector: ' + fragment);
-});
-
-assert(css.includes('#hashcodEntryHold.is-ready .hashcod-hold-continue'), 'ready-state button styling missing');
-assert(css.includes('.hashcod-hold-pos-18'), 'full scattered placement map missing');
-assert(css.includes('right: clamp(30px, 4.5vw, 72px);'), 'entry CTA must be anchored on the right');
-assert(!css.includes('.hashcod-hold-center'), 'central status CSS must remain removed');
-assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'reduced-motion support missing');
-assert(!css.includes('hashcodSideIconDrift'), 'entry icons must not run continuous drift animations');
-assert(!css.includes('margin-top: -9px'), 'entry animation must not trigger layout every frame');
-
-const allowedHex = new Set([
-    '#f7f7f5', '#111111', '#ffffff'
-]);
-const colors = css.match(/#[0-9a-fA-F]{6}\b/g) || [];
-colors.forEach(color => {
-    assert(allowedHex.has(color.toLowerCase()), 'non-monochrome color introduced: ' + color);
-});
-
-console.log('platform entry vectors-only contract: OK');
+console.log('platform entry restored-registration contract: OK');

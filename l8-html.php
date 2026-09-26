@@ -206,6 +206,14 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             $html
         );
 
+        // index.php also contains an old immutable main-runtime query. Rewrite it
+        // per response so entry fixes cannot be defeated by browser/CDN cache.
+        $html = str_replace(
+            'components/main-platform-runtime.js?v=20260921-folderonly1',
+            'components/main-platform-runtime.js?v=20260926-nofreeze4',
+            $html
+        );
+
         // Keep the normal stylesheet request, but also inline the same CSS as a
         // production-safe fallback. This prevents the secure Toolbox controls
         // from ever rendering as unstyled document flow if a stale CDN/static
@@ -275,7 +283,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . 'html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}'
             . '</style>';
 
-        $registrationGatePrebootTag = '<script id="hashcod-registration-gate-preboot">(function(){window.__hashcodPlatformEntryHoldReady=true;document.documentElement.dataset.hashcodEntryGateReady="true";document.documentElement.dataset.hashcodRegistrationRetired="true";})();</script>';
+        $registrationGatePrebootTag = '<script id="hashcod-registration-gate-preboot">(function(){var root=document.documentElement;window.__hashcodPlatformEntryHoldReady=true;root.dataset.hashcodEntryGateReady="true";root.dataset.hashcodRegistrationRetired="true";var entered=false;function emit(name){try{window.dispatchEvent(new CustomEvent(name,{detail:{source:"inline-preboot-direct",direct:true,legacyAuthRetired:true}}));}catch(_){}}function finish(event){if(entered)return true;entered=true;if(event){event.preventDefault();event.stopPropagation();if(typeof event.stopImmediatePropagation==="function")event.stopImmediatePropagation();}try{if(document.getAnimations)document.getAnimations().forEach(function(a){try{a.cancel();}catch(_){}});}catch(_){}root.classList.remove("boot-locked","auth-locked","hashcod-duo-transitioning","hashcod-duo-arrival-pending");root.classList.add("hashcod-platform-entered");root.dataset.hashcodPlatformEntered="true";root.dataset.hashcodEntryGateReady="true";root.dataset.hashcodFinalEntryScreen="false";if(root.dataset)delete root.dataset.hashcodDuoBusy;var body=document.body;if(body){body.classList.remove("boot-locked","auth-locked");body.classList.add("hashcod-platform-entered");body.removeAttribute("data-auth-locked");body.removeAttribute("aria-busy");}["hashcodEntryTransition","hashcodDuoShade","hashcodDuoHinge"].forEach(function(id){var n=document.getElementById(id);if(n&&n.parentNode){try{n.parentNode.removeChild(n);}catch(_){}}});var overlay=document.getElementById("bootCliOverlay");if(overlay){overlay.classList.add("hidden");overlay.hidden=true;overlay.setAttribute("aria-hidden","true");overlay.style.setProperty("display","none","important");overlay.style.setProperty("visibility","hidden","important");overlay.style.setProperty("pointer-events","none","important");}var b=document.getElementById("bootCliEnter");if(b){b.removeAttribute("aria-busy");b.dataset.hashcodEntryCompleted="true";}try{sessionStorage.setItem("l8_boot_cli_done","1");}catch(_){}var notify=function(){emit("hashcod:platform-entered");emit("hashcod:platform-entry-complete");};if(typeof requestAnimationFrame==="function"){requestAnimationFrame(function(){setTimeout(notify,0);});}else{setTimeout(notify,0);}return true;}document.addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest("#bootCliEnter"):null;if(!b)return;finish(e);},true);document.addEventListener("keydown",function(e){if(e.key!=="Enter"&&e.key!=="Escape")return;var overlay=document.getElementById("bootCliOverlay");if(!overlay||overlay.hidden||overlay.classList.contains("hidden"))return;finish(e);},true);window.HashcodInlineDirectEntry={enter:finish,version:"20260926-nofreeze4"};})();</script>';
 
         // The retired authentication slot is now occupied by the adult
         // platform-registration form. Its component stays hidden until the
@@ -421,7 +429,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260926-nofreeze3" data-platform-entry-motion="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-37" data-platform-entry-hold="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-freeze-fix.js?v=20260926-nofreeze3" data-hashcod-platform-entry-freeze-fix="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-freeze-fix.js?v=20260926-nofreeze4" data-hashcod-platform-entry-freeze-fix="true"></script>'
             . $registrationExternalJsTag
             . $rareFolderInlineTag
             . $rareFolderExternalTag

@@ -11,6 +11,21 @@ async function openRegistration(page) {
   await page.locator('#hashcodPlatformRegistration #hashcodRegistrationForm').waitFor({ state: 'visible', timeout: 30000 });
 }
 
+async function setConsent(page) {
+  await page.evaluate(() => {
+    const checkbox = document.getElementById('hashcodRegistrationConsent');
+    if (!checkbox) throw new Error('hashcodRegistrationConsent not found');
+    checkbox.checked = true;
+    checkbox.dispatchEvent(new Event('input', { bubbles: true }));
+    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
+  await page.waitForFunction(
+    () => document.getElementById('hashcodRegistrationConsent')?.checked === true,
+    { timeout: 5000 }
+  );
+}
+
 async function completeRegistration(page) {
   const idNumber = ['000', '0000000', '0'].join('-');
   const mail = ['registro', 'example.com'].join('@');
@@ -27,7 +42,7 @@ async function completeRegistration(page) {
   });
   await page.fill('#hashcodRegEmail', mail);
   await page.fill('#hashcodRegPhone', phone);
-  await page.check('#hashcodRegistrationConsent');
+  await setConsent(page);
   await page.click('#hashcodRegistrationSubmit');
   await page.locator('#hashcodRegistrationCodeReceipt.is-open').waitFor({ state: 'visible', timeout: 20000 });
   const code = await page.textContent('#hashcodRegistrationPrivateCode');

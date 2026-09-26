@@ -1,7 +1,7 @@
 (function (window, document) {
   'use strict';
 
-  var VERSION = '20260926-platform-crm3';
+  var VERSION = '20260926-platform-crm4';
   if (window.__hashcodPlatformCrmVersion === VERSION) return;
   window.__hashcodPlatformCrmVersion = VERSION;
 
@@ -17,7 +17,7 @@
     { id: 'ganado', label: 'Ganado' },
     { id: 'pausado', label: 'Pausado' }
   ];
-  var ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#22A0E0" d="M18.841,5.791c-0.751,0-1.471,0.153-2.101,0.455c-0.735-1.32-2.129-2.232-3.689-2.232c-1.201,0-2.296,0.517-3.046,1.323L9.989,5.321C9.119,4.212,7.8,3.5,6.269,3.5C3.72,3.5,1.62,5.594,1.62,8.204c0,0.655,0.135,1.292,0.39,1.868C0.811,10.786,0,12.106,0,13.625c0,2.276,1.801,4.098,4.005,4.098c0.285,0,0.554-0.014,0.825-0.075c0.6,1.67,2.191,2.853,4.05,2.853c1.786,0,3.315-1.091,3.974-2.655c0.495,0.228,1.05,0.379,1.65,0.379c1.425,0,2.655-0.789,3.3-1.973c0.33,0.06,0.675,0.105,1.02,0.105c2.865,0,5.176-2.367,5.176-5.282C24,8.159,21.691,5.791,18.841,5.791z"></path><path fill="#1E8BC3" d="M6.269,3.5C3.72,3.5,1.62,5.594,1.62,8.204c0,0.655,0.135,1.292,0.39,1.868C0.811,10.786,0,12.106,0,13.625l0,0c0,2.276,1.801,4.098,4.005,4.098c0.285,0,0.554-0.014,0.825-0.075c0.6,1.67,2.191,2.853,4.05,2.853c1.228,0,2.334-0.515,3.12-1.346V4.149c-0.779,0.203-1.47,0.625-1.994,1.188L9.989,5.321C9.119,4.212,7.8,3.5,6.269,3.5z"></path></svg>';
+  var ICON = '<svg xmlns="http://www.w3.org/2000/svg" class="hcrm-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;max-width:24px!important;max-height:24px!important;flex:0 0 24px!important;overflow:visible!important;transform:none!important;"><path fill="#22A0E0" d="M18.841,5.791c-0.751,0-1.471,0.153-2.101,0.455c-0.735-1.32-2.129-2.232-3.689-2.232c-1.201,0-2.296,0.517-3.046,1.323L9.989,5.321C9.119,4.212,7.8,3.5,6.269,3.5C3.72,3.5,1.62,5.594,1.62,8.204c0,0.655,0.135,1.292,0.39,1.868C0.811,10.786,0,12.106,0,13.625c0,2.276,1.801,4.098,4.005,4.098c0.285,0,0.554-0.014,0.825-0.075c0.6,1.67,2.191,2.853,4.05,2.853c1.786,0,3.315-1.091,3.974-2.655c0.495,0.228,1.05,0.379,1.65,0.379c1.425,0,2.655-0.789,3.3-1.973c0.33,0.06,0.675,0.105,1.02,0.105c2.865,0,5.176-2.367,5.176-5.282C24,8.159,21.691,5.791,18.841,5.791z"></path><path fill="#1E8BC3" d="M6.269,3.5C3.72,3.5,1.62,5.594,1.62,8.204c0,0.655,0.135,1.292,0.39,1.868C0.811,10.786,0,12.106,0,13.625l0,0c0,2.276,1.801,4.098,4.005,4.098c0.285,0,0.554-0.014,0.825-0.075c0.6,1.67,2.191,2.853,4.05,2.853c1.228,0,2.334-0.515,3.12-1.346V4.149c-0.779,0.203-1.47,0.625-1.994,1.188L9.989,5.321C9.119,4.212,7.8,3.5,6.269,3.5z"></path></svg>';
 
   var state = {
     records: {},
@@ -391,6 +391,54 @@
       '</div>';
 
     document.body.appendChild(modal);
+
+    // Critical layout is duplicated inline so global platform SVG/layout rules
+    // cannot turn the CRM header icon into a viewport-sized shape.
+    var win = modal.querySelector('.hcrm-window');
+    var brandIcon = modal.querySelector('.hcrm-brand > svg');
+    var brand = modal.querySelector('.hcrm-brand');
+    var top = modal.querySelector('.hcrm-top');
+    var internal = modal.querySelector('#hashcodPlatformCrmInternal');
+
+    [
+      ['box-sizing','border-box'],['width','min(1500px, calc(100vw - 56px))'],
+      ['height','min(900px, calc(100dvh - 56px))'],['max-width','calc(100vw - 20px)'],
+      ['max-height','calc(100dvh - 20px)'],['display','flex'],['flex-direction','column'],
+      ['overflow','hidden'],['background','#f5f6f7'],['border','1px solid #bfc7cc'],
+      ['border-radius','18px'],['position','relative']
+    ].forEach(function (pair) {
+      if (win) win.style.setProperty(pair[0], pair[1], 'important');
+    });
+
+    [
+      ['display','grid'],['grid-template-columns','minmax(280px,1fr) auto minmax(280px,1fr)'],
+      ['align-items','center'],['gap','14px'],['min-height','68px'],['padding','0 18px'],
+      ['background','#fff'],['border-bottom','1px solid #dfe4e7'],['flex','0 0 68px']
+    ].forEach(function (pair) {
+      if (top) top.style.setProperty(pair[0], pair[1], 'important');
+    });
+
+    [
+      ['display','flex'],['align-items','center'],['gap','12px'],['min-width','0']
+    ].forEach(function (pair) {
+      if (brand) brand.style.setProperty(pair[0], pair[1], 'important');
+    });
+
+    [
+      ['display','block'],['width','30px'],['height','30px'],['min-width','30px'],
+      ['min-height','30px'],['max-width','30px'],['max-height','30px'],
+      ['flex','0 0 30px'],['overflow','visible'],['transform','none']
+    ].forEach(function (pair) {
+      if (brandIcon) brandIcon.style.setProperty(pair[0], pair[1], 'important');
+    });
+
+    if (internal) {
+      internal.style.setProperty('display','flex','important');
+      internal.style.setProperty('flex','1 1 auto','important');
+      internal.style.setProperty('min-height','0','important');
+      internal.style.setProperty('flex-direction','column','important');
+      internal.style.setProperty('overflow','hidden','important');
+    }
 
     modal.querySelector('#hcrmClose').addEventListener('click', close);
     modal.querySelector('#hcrmSync').addEventListener('click', function () {

@@ -5,56 +5,37 @@ const { chromium } = require('playwright');
 
 const target = process.env.REGISTRATION_SEQUENCE_URL || 'http://127.0.0.1:8099/laragon-local-entry.php';
 
-async function waitForPlatformEnteredOrRetiredHandoff(page) {
-  try {
-    await page.waitForFunction(
-      () => document.documentElement.dataset.hashcodPlatformEntered === 'true',
-      { timeout: 8000 }
-    );
-    return 'native';
-  } catch (_) {
-    // The registration surface is intentionally retired. In that mode the
-    // preserved entry animation may finish before the legacy dataset marker is
-    // written. Use the retired-registration handoff API instead of waiting for a
-    // form that must no longer render.
-  }
-
-  const result = await page.evaluate(async () => {
-    const registration = window.HashcodPlatformRegistration;
-    if (
-      registration &&
-      registration.registrationRetired === true &&
-      typeof registration.completePlatformEntry === 'function'
-    ) {
-      await registration.completePlatformEntry();
-      return 'retired-handoff';
-    }
-    return '';
-  });
-
-  assert.ok(result, 'retired registration handoff API must be available when no form is rendered');
-  await page.waitForFunction(
-    () => document.documentElement.dataset.hashcodPlatformEntered === 'true',
-    { timeout: 10000 }
-  );
-  return result;
+async function openRegistration(page) {
+  await page.waitForFunction(() => document.documentElement.dataset.hashcodEntryGateReady === 'true', { timeout: 20000 });
+  await page.locator('#bootCliEnter, #hashcodEntryForceButton').first().click({ timeout: 20000 });
+  await page.locator('#hashcodHoldContinue').first().waitFor({ state: 'visible', timeout: 20000 });
+  await page.locator('#hashcodHoldContinue').first().click({ timeout: 20000 });
+  await page.locator('#hashcodPlatformRegistration #hashcodRegistrationForm').waitFor({ state: 'visible', timeout: 30000 });
 }
 
-async function completeEntryThroughAnimation(page) {
-  await page.waitForFunction(() => document.documentElement.dataset.hashcodEntryGateReady === 'true', { timeout: 20000 });
+async function completeRegistration(page) {
+  const idNumber = ['000', '0000000', '0'].join('-');
+  const mail = ['registro', 'example.com'].join('@');
+  const phone = ['809', '000', '0000'].join('-');
 
-  const initialButton = page.locator('#bootCliEnter, #hashcodEntryForceButton').first();
-  await initialButton.waitFor({ state: 'visible', timeout: 20000 });
-  await initialButton.click({ timeout: 20000 });
-
-  const alreadyEntered = await page.evaluate(() => document.documentElement.dataset.hashcodPlatformEntered === 'true');
-  if (!alreadyEntered) {
-    const continueButton = page.locator('#hashcodHoldContinue').first();
-    await continueButton.waitFor({ state: 'visible', timeout: 20000 });
-    await continueButton.click({ timeout: 20000 });
-  }
-
-  return waitForPlatformEnteredOrRetiredHandoff(page);
+  await page.fill('#hashcodRegFullName', ['Demo', 'Tester'].join(' '));
+  await page.fill('#hashcodRegAge', ['01', '01', '2000'].join('/'));
+  await page.fill('#hashcodRegCedula', idNumber);
+  await page.fill('#hashcodRegPlatformName', 'Hashcod Codespace');
+  await page.setInputFiles('#hashcodRegCodeFile', {
+    name: 'platform.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('registration test file')
+  });
+  await page.fill('#hashcodRegEmail', mail);
+  await page.fill('#hashcodRegPhone', phone);
+  await page.check('#hashcodRegistrationConsent');
+  await page.click('#hashcodRegistrationSubmit');
+  await page.locator('#hashcodRegistrationCodeReceipt.is-open').waitFor({ state: 'visible', timeout: 20000 });
+  const code = await page.textContent('#hashcodRegistrationPrivateCode');
+  assert.ok(code && code.startsWith('HC-'), 'private registration code must be generated');
+  await page.click('#hashcodRegistrationContinueAfterCode');
+  await page.waitForFunction(() => document.documentElement.dataset.hashcodPlatformEntered === 'true', { timeout: 30000 });
 }
 
 async function run() {
@@ -64,27 +45,35 @@ async function run() {
     const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 20000 });
     assert(response && response.status() === 200, 'local UI must return HTTP 200');
 
-    const handoffMode = await completeEntryThroughAnimation(page);
+    await openRegistration(page);
 
-    const state = await page.evaluate(() => ({
-      entered: document.documentElement.dataset.hashcodPlatformEntered || '',
-      direct: document.documentElement.dataset.hashcodDirectRegistration || '',
-      final: document.documentElement.dataset.hashcodFinalEntryScreen || '',
-      directRegistration: Boolean(document.getElementById('hashcodDirectRegistration')),
-      platformRegistration: Boolean(document.getElementById('hashcodPlatformRegistration')),
-      colorPicker: Boolean(document.getElementById('hashcodHeroUIColorPicker')),
-      fields: document.querySelectorAll('#hcName,#hcAge,#hcCedula,#hcPlatform,#hcEmail,#hcPhone,#hashcodRegAge,#hashcodRegCedula').length
+    const formState = await page.evaluate(() => ({
+      restored: Boolean(window.HashcodPlatformRegistration && window.HashcodPlatformRegistration.registrationRestored === true),
+      retired: Boolean(window.HashcodPlatformRegistration && window.HashcodPlatformRegistration.registrationRetired === true),
+      form: Boolean(document.getElementById('hashcodRegistrationForm')),
+      fields: document.querySelectorAll('#hashcodRegFullName,#hashcodRegAge,#hashcodRegCedula,#hashcodRegPlatformName,#hashcodRegCodeFile,#hashcodRegEmail,#hashcodRegPhone').length,
+      pixelBackground: Boolean(document.querySelector('#hashcodPlatformRegistration .hc-pixel-bg'))
     }));
 
-    assert.equal(state.entered, 'true', 'entry button must proceed to Codespace after the preserved entry animation');
-    assert.equal(state.direct, '', 'direct registration marker must be cleared after entry');
-    assert.equal(state.final, '', 'final registration screen marker must be cleared after entry');
-    assert.equal(state.directRegistration, false, 'direct registration background overlay must be removed after entry');
-    assert.equal(state.platformRegistration, false, 'legacy platform registration form must not exist');
-    assert.equal(state.colorPicker, false, 'registration ColorPicker must not exist after retiring the form');
-    assert.equal(state.fields, 0, 'registration fields must not be present');
+    assert.equal(formState.restored, true, 'registration API must be restored');
+    assert.equal(formState.retired, false, 'registration API must not be retired');
+    assert.equal(formState.form, true, 'registration form must be visible');
+    assert.equal(formState.fields, 7, 'all registration fields must exist');
+    assert.equal(formState.pixelBackground, true, 'represented pixel icons must exist in the background');
 
-    console.log(`PASS: preserved entry animation opens Codespace without rendering the retired registration form (${handoffMode}).`);
+    await completeRegistration(page);
+
+    const finalState = await page.evaluate(() => ({
+      entered: document.documentElement.dataset.hashcodPlatformEntered || '',
+      final: document.documentElement.dataset.hashcodFinalEntryScreen || '',
+      form: Boolean(document.getElementById('hashcodPlatformRegistration'))
+    }));
+
+    assert.equal(finalState.entered, 'true', 'successful form submission must enter Codespace');
+    assert.equal(finalState.final, '', 'final registration marker must be cleared after entry');
+    assert.equal(finalState.form, false, 'registration form must be removed after entry');
+
+    console.log('PASS: restored registration form validates, generates code, and opens Codespace.');
   } finally {
     await browser.close();
   }

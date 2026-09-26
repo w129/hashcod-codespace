@@ -111,158 +111,50 @@
         }
     })();
 
-    // Load the monochrome Hashcod boot sequence and manual entry handoff.
-    // The hold layer waits for a deliberate second click before the login is shown.
-    (function loadPlatformEntryMotionAssets() {
-        const current = document.currentScript;
-        const currentSrc = current && current.src ? current.src : '';
-        const componentBase = currentSrc && currentSrc.lastIndexOf('/') >= 0
-            ? currentSrc.slice(0, currentSrc.lastIndexOf('/') + 1)
-            : '/components/';
+    // Registration UI is retired. Keep this bootstrap intentionally small:
+    // the hosted shell already owns the direct entry path and the passive hold.
+    (function retireRegistrationBootstrap() {
+        document.documentElement.dataset.hashcodRegistrationRetired = 'true';
+        document.documentElement.dataset.hashcodEntryGateReady = 'true';
 
-        function loadStyleOnce(id, href) {
-            if (document.getElementById(id)) return;
-            const link = document.createElement('link');
-            link.id = id;
-            link.rel = 'stylesheet';
-            link.href = href;
-            document.head.appendChild(link);
-        }
-
-        function loadScriptOnce(selector, datasetName, src) {
-            if (document.querySelector(selector)) return;
-            const script = document.createElement('script');
-            script.src = src;
-            script.defer = true;
-            if (datasetName) script.dataset[datasetName] = 'true';
-            document.head.appendChild(script);
-        }
-
-        function loadRegistrationVisualAddons() {
-            loadStyleOnce(
+        function removeRetiredRegistrationAssets() {
+            [
+                'platformRegistrationStylesheet',
                 'hashcodRegistrationGlassThemeStylesheet',
-                componentBase + 'hashcod-registration-glass-theme.css?v=20260924-glass1'
-            );
-            loadStyleOnce(
                 'hashcodRegistrationPixelBackgroundStylesheet',
-                componentBase + 'hashcod-registration-pixel-bg.css?v=20260925-gray1'
-            );
-            loadStyleOnce(
                 'hashcodRegistrationHeroUIDateFieldStylesheet',
-                componentBase + 'hashcod-registration-heroui-datefield.css?v=20260925-heroui2'
-            );
-            loadScriptOnce(
-                'script[data-hashcod-registration-heroui-datefield-bridge]',
-                'hashcodRegistrationHerouiDatefieldBridge',
-                componentBase + 'hashcod-registration-heroui-datefield.js?v=20260925-heroui2'
-            );
-            loadStyleOnce(
-                'hashcodRegistrationHeroUIColorPickerStylesheet',
-                componentBase + 'hashcod-registration-heroui-colorpicker.css?v=20260925-colorpicker3'
-            );
-            loadScriptOnce(
-                'script[data-hashcod-registration-heroui-colorpicker-bridge]',
-                'hashcodRegistrationHerouiColorpickerBridge',
-                componentBase + 'hashcod-registration-heroui-colorpicker.js?v=20260925-colorpicker3'
-            );
+                'hashcodRegistrationHeroUIColorPickerStylesheet'
+            ].forEach(function (id) {
+                const node = document.getElementById(id);
+                if (node && node.parentNode) node.parentNode.removeChild(node);
+            });
+
+            document.querySelectorAll(
+                'link[data-hashcod-platform-registration-style],' +
+                'script[data-hashcod-platform-registration],' +
+                'script[data-hashcod-platform-registration-hotfix],' +
+                'script[data-hashcod-entry-registration-force],' +
+                'script[data-hashcod-registration-flip],' +
+                'script[data-hashcod-registration-heroui-datefield-bridge],' +
+                'script[data-hashcod-registration-heroui-colorpicker-bridge]'
+            ).forEach(function (node) {
+                if (node && node.parentNode) node.parentNode.removeChild(node);
+            });
+
+            document.querySelectorAll(
+                '#hashcodPlatformRegistration,#hashcodDirectRegistration,' +
+                '.hashcod-registration-shell,.hashcod-registration-overlay,.hc-reg-card'
+            ).forEach(function (node) {
+                if (node && node.parentNode) node.parentNode.removeChild(node);
+            });
         }
 
-        if (!document.getElementById('platformEntryMotionStylesheet')) {
-            const link = document.createElement('link');
-            link.id = 'platformEntryMotionStylesheet';
-            link.rel = 'stylesheet';
-            link.href = componentBase + 'platform-entry-motion.css?v=20260910-2';
-            document.head.appendChild(link);
-        }
-
-        if (!document.getElementById('platformEntryHoldStylesheet')) {
-            const link = document.createElement('link');
-            link.id = 'platformEntryHoldStylesheet';
-            link.rel = 'stylesheet';
-            link.href = componentBase + 'platform-entry-hold.css?v=20260918-2';
-            document.head.appendChild(link);
-        }
-
-        if (!document.getElementById('platformEntrySloganStylesheet')) {
-            const link = document.createElement('link');
-            link.id = 'platformEntrySloganStylesheet';
-            link.rel = 'stylesheet';
-            link.href = componentBase + 'platform-entry-slogan.css?v=20260910-1';
-            document.head.appendChild(link);
-        }
-
-        if (
-            !document.getElementById('platformRegistrationStylesheet') &&
-            !document.querySelector('link[data-hashcod-platform-registration-style]')
-        ) {
-            const link = document.createElement('link');
-            link.id = 'platformRegistrationStylesheet';
-            link.rel = 'stylesheet';
-            link.href = componentBase + 'platform-registration-form.css?v=20260922-force1';
-            link.dataset.hashcodPlatformRegistrationStyle = 'true';
-            document.head.appendChild(link);
-        }
-
-        loadRegistrationVisualAddons();
-
-        if (!document.querySelector('script[data-hashcod-entry-registration-force]')) {
-            const forceScript = document.createElement('script');
-            forceScript.src = componentBase + 'entry-registration-force.js?v=20260925-direct10-colorpicker';
-            forceScript.defer = true;
-            forceScript.dataset.hashcodEntryRegistrationForce = 'true';
-            forceScript.addEventListener('load', loadRegistrationVisualAddons, { once: true });
-            document.head.appendChild(forceScript);
-        }
-
-        if (!document.querySelector('script[data-platform-entry-slogan]')) {
-            const sloganScript = document.createElement('script');
-            sloganScript.src = componentBase + 'platform-entry-slogan.js?v=20260922-force1';
-            sloganScript.defer = true;
-            sloganScript.dataset.platformEntrySlogan = 'true';
-            document.head.appendChild(sloganScript);
-        }
-
-        function loadRegistrationScript() {
-            if (
-                window.HashcodPlatformRegistration ||
-                document.querySelector('script[data-hashcod-platform-registration]')
-            ) return;
-            const registrationScript = document.createElement('script');
-            registrationScript.src = componentBase + 'platform-registration-form.js?v=20260922-force1';
-            registrationScript.defer = true;
-            registrationScript.dataset.hashcodPlatformRegistration = 'true';
-            document.head.appendChild(registrationScript);
-        }
-
-        function loadHoldScript() {
-            // Screen 2 is not allowed to exist without its required Screen 3.
-            loadRegistrationScript();
-            loadRegistrationVisualAddons();
-            if (document.querySelector('script[data-platform-entry-hold]')) return;
-            const holdScript = document.createElement('script');
-            holdScript.src = componentBase + 'platform-entry-hold.js?v=20260922-force1';
-            holdScript.defer = true;
-            holdScript.dataset.platformEntryHold = 'true';
-            document.head.appendChild(holdScript);
-        }
-
-        const existingMotion = document.querySelector('script[data-platform-entry-motion]');
-        if (!existingMotion) {
-            const script = document.createElement('script');
-            script.src = componentBase + 'platform-entry-motion.js?v=20260910-2';
-            script.defer = true;
-            script.dataset.platformEntryMotion = 'true';
-            script.addEventListener('load', loadHoldScript, { once: true });
-            document.head.appendChild(script);
-        } else if (window.__hashcodPlatformEntryMotionLoaded) {
-            loadHoldScript();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', removeRetiredRegistrationAssets, { once: true });
         } else {
-            existingMotion.addEventListener('load', loadHoldScript, { once: true });
+            removeRetiredRegistrationAssets();
         }
-
-        window.setTimeout(loadHoldScript, 600);
-        window.addEventListener('hashcod:entry-gate-ready', loadRegistrationVisualAddons);
-        window.addEventListener('hashcod:final-entry-screen', loadRegistrationVisualAddons);
+        window.addEventListener('hashcod:platform-entered', removeRetiredRegistrationAssets, { once: true });
     })();
 
     // Load the PNG vault attached to the first cube in the 3D vector tray.

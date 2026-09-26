@@ -258,7 +258,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . $efrCssExternalTag
             . $registrationCssExternalTag
-            . '<link rel="stylesheet" href="' . $base . 'components/public-chat.css?v=20260921-ui3" data-hashcod-public-chat-style="true">';
+            ;
 
         // Retire the current authentication window before first paint. The
         // backend/session code remains available for the replacement entry system.
@@ -269,7 +269,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // Keep the underlying admin/security runtimes active, but fail closed at
         // first paint so stale cached JS cannot flash these controls back into UI.
         $retiredTopbarControlsStyleTag = '<style id="hashcod-retired-topbar-controls">'
-            . '#secStatusBarBadge,#topBarWindowsHelloBtn{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;width:0!important;min-width:0!important;max-width:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important;}'
+            . '#secStatusBarBadge,#topBarWindowsHelloBtn,#hashcodPublicChatButton,#hashcodPublicChatPanel{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;width:0!important;min-width:0!important;max-width:0!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important;}'
             . '</style>';
 
         // Stale cached markup from the retired registration flow must stay inert.
@@ -385,7 +385,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // Remove retired top-bar controls even if an older immutable/static JS
         // asset was served from browser/CDN cache after the page started.
         $retiredTopbarControlsCleanupTag = '<script id="hashcod-retired-topbar-controls-cleanup">(function(){'
-            . 'function clean(){["secStatusBarBadge","topBarWindowsHelloBtn"].forEach(function(id){var n=document.getElementById(id);if(n&&n.parentNode)n.parentNode.removeChild(n);});}'
+            . 'function clean(){["secStatusBarBadge","topBarWindowsHelloBtn","hashcodPublicChatButton","hashcodPublicChatPanel"].forEach(function(id){var n=document.getElementById(id);if(n&&n.parentNode)n.parentNode.removeChild(n);});document.querySelectorAll("script[data-hashcod-public-chat],link[data-hashcod-public-chat-style]").forEach(function(n){if(n&&n.parentNode)n.parentNode.removeChild(n);});}'
             . 'function boot(){clean();var root=document.querySelector(".top-bar-right")||document.body;if(!root||typeof MutationObserver!=="function")return;var o=new MutationObserver(clean);o.observe(root,{childList:true,subtree:true});window.setTimeout(function(){clean();o.disconnect();},15000);}'
             . 'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",boot,{once:true});}else{boot();}'
             . 'window.addEventListener("hashcod:platform-entered",clean);'
@@ -422,7 +422,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . $efrExternalJsTag
             . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
             . '<script defer src="' . $base . 'components/boot-local-download-layout-fix.js?v=20260919-perf1" data-hashcod-local-download-layout-fix="true"></script>'
-            . '<script defer src="' . $base . 'components/public-chat.js?v=20260921-ui3" data-hashcod-public-chat="true"></script>';
+            ;
         $bodyPos = strripos($html, '</body>');
         if ($bodyPos !== false) {
             $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);

@@ -1,0 +1,53 @@
+name: Toolbox ordinal growth
+on:
+  pull_request:
+    paths:
+      - 'toolbox-growth.php'
+      - 'components/toolbox-growth.*'
+      - 'tests/e2e/test_toolbox_ordinal*'
+      - 'index.php'
+      - '404.html'
+      - 'l8-html.php'
+      - 'laragon-local-entry.php'
+      - '.github/workflows/toolbox-growth.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'toolbox-growth.php'
+      - 'components/toolbox-growth.*'
+      - 'tests/e2e/test_toolbox_ordinal*'
+      - 'index.php'
+      - '404.html'
+      - 'l8-html.php'
+      - 'laragon-local-entry.php'
+      - '.github/workflows/toolbox-growth.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Backend and syntax
+        run: |
+          php -l toolbox-growth.php
+          php -l l8-html.php
+          php -l laragon-local-entry.php
+          php -l index.php
+          php tests/e2e/test_toolbox_ordinal_growth.php
+          node --check components/toolbox-growth.js
+          node tests/e2e/test_secure_toolbox_links.js
+          node tests/e2e/test_desktop_runtime_contract.js
+      - name: Install isolated test dependencies
+        run: |
+          npm install --prefix "$RUNNER_TEMP/toolbox-tests" playwright@1.62.1 jsdom@30.1.0
+          node "$RUNNER_TEMP/toolbox-tests/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: DOM and Chromium behavior
+        run: |
+          export NODE_PATH="$RUNNER_TEMP/toolbox-tests/node_modules"
+          node tests/e2e/test_toolbox_ordinal_dom.js
+          node tests/e2e/test_toolbox_ordinal_growth.js

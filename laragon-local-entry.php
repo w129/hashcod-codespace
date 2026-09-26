@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . "/toolbox-growth.php";
 /**
  * Hashcod Codespace — entrada local para Laragon.
  *
@@ -159,4 +160,4 @@ if ($bodyPos !== false) {
 
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
-echo $html;
+echo hashcod_toolbox_bootstrap($html);

@@ -1,0 +1,4 @@
+.toolbox-pagination-bar { max-width: calc(100% - 24px); box-sizing: border-box; }
+.toolbox-pagination-bar .tb-page-chips { min-width: 0; overflow-x: auto; }
+.toolbox-pagination-bar .tb-page-chip { flex-shrink: 0; white-space: nowrap; }
+.toolbox-pagination-bar .tb-nav-arrow { flex-shrink: 0; }

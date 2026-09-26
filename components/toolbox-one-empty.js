@@ -101,32 +101,38 @@
     }
   }
 
+  function disconnectObserver() {
+    if (!observer) return;
+    observer.disconnect();
+    observer = null;
+  }
+
   function installObserver() {
     if (observer) return;
 
+    const panel = document.querySelector(PANEL_SELECTOR);
+    if (!panel) return;
+
+    let scheduled = false;
     observer = new MutationObserver(function () {
-      if (cleaning) return;
-      window.requestAnimationFrame(emptyToolboxOne);
+      if (cleaning || scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(function () {
+        scheduled = false;
+        emptyToolboxOne();
+      });
     });
 
-    observer.observe(document.documentElement, {
+    // Watch only Toolbox 1 instead of every class/style mutation in the entire
+    // application. Child replacement is all that matters for keeping it empty.
+    observer.observe(panel, {
       childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: [
-        'class',
-        'style',
-        'onclick',
-        'onkeydown',
-        'title',
-        'role',
-        'tabindex',
-        'aria-label',
-        'data-tool-id',
-        'data-tool',
-        'data-action'
-      ]
+      subtree: true
     });
+
+    // Late legacy scripts finish mounting quickly; a permanent observer is not
+    // needed and creates unnecessary work on a large interactive document.
+    window.setTimeout(disconnectObserver, 5000);
   }
 
   function blockLegacyToolboxActions(event) {
@@ -180,7 +186,10 @@
     installObserver();
   }
 
-  window.addEventListener('hashcod:platform-entered', emptyToolboxOne);
+  window.addEventListener('hashcod:platform-entered', function () {
+    emptyToolboxOne();
+    disconnectObserver();
+  });
   window.addEventListener('pageshow', emptyToolboxOne);
 
   [0, 50, 250, 750, 1500, 3000].forEach(function (delay) {

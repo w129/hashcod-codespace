@@ -116,7 +116,8 @@ RUN chown -R l8user:l8group /var/www/html \
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-VOLUME ["/var/www/html/data_storage", "/var/www/html/uploads"]
+# Railway rejects Dockerfile VOLUME declarations during validation.
+# Keep the directories created above; attach Railway Volumes from the UI if persistence is needed.
 
 EXPOSE 8080
 

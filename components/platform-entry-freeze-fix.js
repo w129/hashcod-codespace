@@ -4,7 +4,7 @@
 (function (window, document) {
   'use strict';
 
-  var VERSION = '20260926-direct-entry-nofreeze2';
+  var VERSION = '20260926-direct-entry-nofreeze3';
   if (window.__hashcodPlatformEntryFreezeFixVersion === VERSION) return;
   window.__hashcodPlatformEntryFreezeFixVersion = VERSION;
 
@@ -31,6 +31,26 @@
     var overlay = document.getElementById('bootCliOverlay');
     var button = document.getElementById('bootCliEnter');
     var transition = document.getElementById('hashcodEntryTransition');
+    var duoShade = document.getElementById('hashcodDuoShade');
+    var duoHinge = document.getElementById('hashcodDuoHinge');
+
+    // Cancel any stale entry/body animation left by an older cached runtime.
+    try {
+      if (document.getAnimations) {
+        document.getAnimations().forEach(function (animation) {
+          try { animation.cancel(); } catch (_) {}
+        });
+      }
+    } catch (_) {}
+    if (root) {
+      root.classList.remove('hashcod-duo-transitioning', 'hashcod-duo-arrival-pending');
+      if (root.dataset) delete root.dataset.hashcodDuoBusy;
+    }
+    [duoShade, duoHinge].forEach(function (node) {
+      if (node && node.parentNode) {
+        try { node.parentNode.removeChild(node); } catch (_) {}
+      }
+    });
 
     if (button) {
       button.disabled = true;
@@ -77,18 +97,27 @@
       }
     }, 0);
 
-    dispatch('hashcod:platform-entered', {
-      source: source || 'platform-entry-freeze-fix',
-      direct: true,
-      legacyAuthRetired: true,
-      version: VERSION
-    });
-    dispatch('hashcod:platform-entry-complete', {
-      source: source || 'platform-entry-freeze-fix',
-      direct: true,
-      legacyAuthRetired: true,
-      version: VERSION
-    });
+    // Let the platform paint once before running compatibility cleanup listeners.
+    // This makes the click visually immediate even on slower machines.
+    var notify = function () {
+      dispatch('hashcod:platform-entered', {
+        source: source || 'platform-entry-freeze-fix',
+        direct: true,
+        legacyAuthRetired: true,
+        version: VERSION
+      });
+      dispatch('hashcod:platform-entry-complete', {
+        source: source || 'platform-entry-freeze-fix',
+        direct: true,
+        legacyAuthRetired: true,
+        version: VERSION
+      });
+    };
+    if (typeof window.requestAnimationFrame === 'function') {
+      window.requestAnimationFrame(function () { window.setTimeout(notify, 0); });
+    } else {
+      window.setTimeout(notify, 0);
+    }
 
     return true;
   }

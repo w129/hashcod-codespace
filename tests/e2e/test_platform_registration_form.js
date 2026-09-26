@@ -23,8 +23,9 @@ assert(registrationJs.includes('hashcodRegCodeFile'), 'restored form must includ
 assert(registrationJs.includes('hashcodRegistrationSubmit'), 'restored form must include submit button');
 assert(registrationJs.includes('hc-pixel-bg'), 'restored form must include represented pixel icon background');
 
-assert(!monitorJs.includes('installRetiredEntryBypass'), 'security monitor must not bypass the restored form');
-assert(!monitorJs.includes('hashcodPlatformRegistration\','), 'security monitor must not remove the restored form root');
+assert(!monitorJs.includes('installRetiredEntryBypass'), 'security monitor must not install the retired-entry bypass');
+assert(!monitorJs.includes('markPlatformEntered'), 'security monitor must not force entry before form submission');
+assert(!monitorJs.includes("'hashcodPlatformRegistration'"), 'security monitor must not remove the restored form root');
 assert(monitorJs.includes('registration-restored'), 'security monitor must identify the restored registration state');
 
 assert(directJs.includes("mode: 'passive'"), 'direct entry bridge must remain passive');

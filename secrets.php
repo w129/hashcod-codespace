@@ -256,6 +256,7 @@ function secretsKnownNames() {
         'L8_DATA_ENCRYPTION_KEY',
         'L8_ADMIN_DIAG_SECRET',
         'L8_CORS_ORIGINS',
+        'DESKCOMM_CRM_URL',
         'L8_TRUST_PROXY',
         'L8_REQUIRE_AUTH_MUTATIONS',
         'OPENCLAW_WEBHOOK_SECRET',

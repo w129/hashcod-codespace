@@ -8,8 +8,6 @@ const target = process.env.REGISTRATION_SEQUENCE_URL || 'http://127.0.0.1:8099/l
 async function openRegistration(page) {
   await page.waitForFunction(() => document.documentElement.dataset.hashcodEntryGateReady === 'true', { timeout: 20000 });
   await page.locator('#bootCliEnter, #hashcodEntryForceButton').first().click({ timeout: 20000 });
-  await page.locator('#hashcodHoldContinue').first().waitFor({ state: 'visible', timeout: 20000 });
-  await page.locator('#hashcodHoldContinue').first().click({ timeout: 20000 });
   await page.locator('#hashcodPlatformRegistration #hashcodRegistrationForm').waitFor({ state: 'visible', timeout: 30000 });
 }
 
@@ -52,7 +50,8 @@ async function run() {
       retired: Boolean(window.HashcodPlatformRegistration && window.HashcodPlatformRegistration.registrationRetired === true),
       form: Boolean(document.getElementById('hashcodRegistrationForm')),
       fields: document.querySelectorAll('#hashcodRegFullName,#hashcodRegAge,#hashcodRegCedula,#hashcodRegPlatformName,#hashcodRegCodeFile,#hashcodRegEmail,#hashcodRegPhone').length,
-      pixelBackground: Boolean(document.querySelector('#hashcodPlatformRegistration .hc-pixel-bg'))
+      pixelBackground: Boolean(document.querySelector('#hashcodPlatformRegistration .hc-pixel-bg')),
+      frozenContinue: Boolean(document.getElementById('hashcodHoldContinue'))
     }));
 
     assert.equal(formState.restored, true, 'registration API must be restored');
@@ -60,6 +59,7 @@ async function run() {
     assert.equal(formState.form, true, 'registration form must be visible');
     assert.equal(formState.fields, 7, 'all registration fields must exist');
     assert.equal(formState.pixelBackground, true, 'represented pixel icons must exist in the background');
+    assert.equal(formState.frozenContinue, false, 'removed continue screen must not freeze entry');
 
     await completeRegistration(page);
 
@@ -73,7 +73,7 @@ async function run() {
     assert.equal(finalState.final, '', 'final registration marker must be cleared after entry');
     assert.equal(finalState.form, false, 'registration form must be removed after entry');
 
-    console.log('PASS: restored registration form validates, generates code, and opens Codespace.');
+    console.log('PASS: restored registration opens directly, validates, generates code, and opens Codespace.');
   } finally {
     await browser.close();
   }

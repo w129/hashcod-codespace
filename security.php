@@ -36,6 +36,27 @@ function securityCspNonce(): string {
     return $nonce;
 }
 
+function securityDeskcommFrameSource(): string {
+    $raw = function_exists('secretGet')
+        ? (string) secretGet('DESKCOMM_CRM_URL', '')
+        : (function_exists('envValue') ? (string) envValue('DESKCOMM_CRM_URL', '') : '');
+    $raw = trim($raw);
+    if ($raw === '') return '';
+
+    $parts = @parse_url($raw);
+    $scheme = strtolower((string)($parts['scheme'] ?? ''));
+    $host = strtolower((string)($parts['host'] ?? ''));
+    $port = isset($parts['port']) ? (int)$parts['port'] : null;
+    if (!in_array($scheme, ['http', 'https'], true) || $host === '') return '';
+    if (!preg_match('/^[a-z0-9.-]+$/i', $host)) return '';
+
+    $origin = $scheme . '://' . $host;
+    if ($port !== null && $port > 0 && $port <= 65535) {
+        $origin .= ':' . $port;
+    }
+    return $origin;
+}
+
 function securityApplyHeaders() {
     static $done = false;
     if ($done) return;
@@ -72,7 +93,7 @@ function securityApplyHeaders() {
             "script-src 'self' 'nonce-" . securityCspNonce() . "' https://challenges.cloudflare.com; " .
             "script-src-attr 'unsafe-inline'; " .
             "connect-src 'self' https: wss: https://challenges.cloudflare.com; " .
-            "frame-src 'self' https://challenges.cloudflare.com; " .
+            "frame-src 'self' https://challenges.cloudflare.com" . (securityDeskcommFrameSource() !== '' ? ' ' . securityDeskcommFrameSource() : '') . "; " .
             "worker-src 'self' blob:; " .
             "media-src 'self' blob:;"
         );

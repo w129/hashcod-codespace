@@ -275,7 +275,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . 'html[data-hashcod-final-entry-screen="true"] #hashcodPlatformRegistration{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}'
             . '</style>';
 
-        $registrationGatePrebootTag = '<script id="hashcod-registration-gate-preboot">(function(){window.__hashcodPlatformEntryHoldReady=false;document.documentElement.dataset.hashcodEntryGateReady="false";var queued=false;document.addEventListener("click",function(e){var b=e.target&&e.target.closest?e.target.closest("#bootCliEnter"):null;if(!b)return;if(window.__hashcodPlatformEntryHoldReady===true)return;e.preventDefault();e.stopPropagation();if(typeof e.stopImmediatePropagation==="function")e.stopImmediatePropagation();if(queued)return;queued=true;var old=b.textContent;b.setAttribute("aria-busy","true");b.textContent="PREPARANDO ACCESO";window.addEventListener("hashcod:entry-gate-ready",function(){queued=false;b.removeAttribute("aria-busy");if(b.textContent==="PREPARANDO ACCESO")b.textContent=old;window.setTimeout(function(){b.click();},0);},{once:true});},true);})();</script>';
+        $registrationGatePrebootTag = '<script id="hashcod-registration-gate-preboot">(function(){window.__hashcodPlatformEntryHoldReady=true;document.documentElement.dataset.hashcodEntryGateReady="true";document.documentElement.dataset.hashcodRegistrationRetired="true";})();</script>';
 
         // The retired authentication slot is now occupied by the adult
         // platform-registration form. Its component stays hidden until the
@@ -419,9 +419,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . $inlineRegistrationJsTag
             . $registrationFlipTag
             . '<script defer src="' . $base . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260918-1" data-platform-entry-motion="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-motion.js?v=20260926-nofreeze3" data-platform-entry-motion="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-hold.js?v=20260918-37" data-platform-entry-hold="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-entry-freeze-fix.js?v=20260926-nofreeze2" data-hashcod-platform-entry-freeze-fix="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-entry-freeze-fix.js?v=20260926-nofreeze3" data-hashcod-platform-entry-freeze-fix="true"></script>'
             . $registrationExternalJsTag
             . $rareFolderInlineTag
             . $rareFolderExternalTag
@@ -434,7 +434,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/toolbox-signature-copy.js?v=20260913-2" data-hashcod-toolbox-signature-copy="true"></script>'
             . $rescueExternalTag
             . '<script defer src="' . $base . 'components/topbar-windows-hello.js?v=20260919-perf1" data-hashcod-topbar-windows-hello="true"></script>'
-            . '<script defer src="' . $base . 'components/duo-page-transition.js?v=20260913-2" data-hashcod-duo-transition="true"></script>'
+            . '<script defer src="' . $base . 'components/duo-page-transition.js?v=20260926-nofreeze3" data-hashcod-duo-transition="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260919-perf1" data-hashcod-entry-capability-footer="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260919-perf1" data-hashcod-entry-capability-footer-fix="true"></script>'
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'

@@ -5,57 +5,14 @@ const { chromium } = require('playwright');
 
 const target = process.env.TEMPORARY_ACCESS_URL
   || process.env.REGISTRATION_SEQUENCE_URL
-  || 'http://127.0.0.1:8099/';
+  || 'http://127.0.0.1:8099/laragon-local-entry.php';
 
-async function waitForPlatformEnteredOrRetiredHandoff(page) {
-  try {
-    await page.waitForFunction(
-      () => document.documentElement.dataset.hashcodPlatformEntered === 'true',
-      { timeout: 8000 }
-    );
-    return 'native';
-  } catch (_) {
-    // Temporary access was part of the retired registration form. When the form
-    // is absent, the test should use the official retired-registration handoff
-    // instead of waiting for a dialog that is intentionally gone.
-  }
-
-  const result = await page.evaluate(async () => {
-    const registration = window.HashcodPlatformRegistration;
-    if (
-      registration &&
-      registration.registrationRetired === true &&
-      typeof registration.completePlatformEntry === 'function'
-    ) {
-      await registration.completePlatformEntry();
-      return 'retired-handoff';
-    }
-    return '';
-  });
-
-  assert.ok(result, 'retired registration handoff API must be available when temporary access is retired');
-  await page.waitForFunction(
-    () => document.documentElement.dataset.hashcodPlatformEntered === 'true',
-    { timeout: 10000 }
-  );
-  return result;
-}
-
-async function completeEntryThroughAnimation(page) {
+async function openRegistration(page) {
   await page.waitForFunction(() => document.documentElement.dataset.hashcodEntryGateReady === 'true', { timeout: 20000 });
-
-  const initialButton = page.locator('#bootCliEnter, #hashcodEntryForceButton').first();
-  await initialButton.waitFor({ state: 'visible', timeout: 20000 });
-  await initialButton.click({ timeout: 20000 });
-
-  const alreadyEntered = await page.evaluate(() => document.documentElement.dataset.hashcodPlatformEntered === 'true');
-  if (!alreadyEntered) {
-    const continueButton = page.locator('#hashcodHoldContinue').first();
-    await continueButton.waitFor({ state: 'visible', timeout: 20000 });
-    await continueButton.click({ timeout: 20000 });
-  }
-
-  return waitForPlatformEnteredOrRetiredHandoff(page);
+  await page.locator('#bootCliEnter, #hashcodEntryForceButton').first().click({ timeout: 20000 });
+  await page.locator('#hashcodHoldContinue').first().waitFor({ state: 'visible', timeout: 20000 });
+  await page.locator('#hashcodHoldContinue').first().click({ timeout: 20000 });
+  await page.locator('#hashcodPlatformRegistration #hashcodRegistrationForm').waitFor({ state: 'visible', timeout: 30000 });
 }
 
 async function run() {
@@ -65,21 +22,24 @@ async function run() {
     const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 20000 });
     assert(response && response.status() === 200, 'local UI must return HTTP 200');
 
-    const handoffMode = await completeEntryThroughAnimation(page);
+    await openRegistration(page);
+    await page.click('#hashcodTemporaryAccessButton');
 
     const state = await page.evaluate(() => ({
       entered: document.documentElement.dataset.hashcodPlatformEntered || '',
-      temporary: document.documentElement.dataset.hashcodTemporaryAccess || '',
-      dialog: Boolean(document.getElementById('hashcodTemporaryAccessDialog')),
-      registration: Boolean(document.getElementById('hashcodPlatformRegistration') || document.getElementById('hashcodDirectRegistration'))
+      form: Boolean(document.getElementById('hashcodRegistrationForm')),
+      root: Boolean(document.getElementById('hashcodPlatformRegistration')),
+      status: document.getElementById('hashcodRegistrationStatus')?.textContent || '',
+      temporaryDialog: Boolean(document.getElementById('hashcodTemporaryAccessDialog'))
     }));
 
-    assert.equal(state.entered, 'true', 'entry must go to the platform after the preserved entry animation');
-    assert.equal(state.temporary, '', 'temporary access flag is no longer needed after retiring the form');
-    assert.equal(state.dialog, false, 'temporary access dialog must not exist after retiring the form');
-    assert.equal(state.registration, false, 'registration surfaces must not exist');
+    assert.equal(state.entered, '', 'temporary button must not bypass the restored form');
+    assert.equal(state.form, true, 'registration form must remain visible');
+    assert.equal(state.root, true, 'registration root must remain mounted');
+    assert.match(state.status, /Completa el registro/i, 'temporary button must explain that registration is required');
+    assert.equal(state.temporaryDialog, false, 'temporary access dialog must not render over the restored form');
 
-    console.log(`PASS: temporary access flow is retired; preserved entry animation opens Codespace directly (${handoffMode}).`);
+    console.log('PASS: temporary access does not bypass or freeze the restored registration form.');
   } finally {
     await browser.close();
   }

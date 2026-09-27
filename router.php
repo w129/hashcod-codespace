@@ -115,6 +115,13 @@ if (isset($routedPages[$uri])) {
     l8_require_html_page($page, true);
 }
 
+// ML-DSA-87 access challenge/signature endpoint. It must remain reachable
+// before the platform HTML gate so an unauthenticated browser can prove access.
+if ($uri === '/api/mldsa-access') {
+    require __DIR__ . '/mldsa-access-api.php';
+    exit;
+}
+
 // Chat IA de la pantalla de acceso. Se enruta antes del backend general para
 // mantener la integración Groq aislada y la credencial únicamente en servidor.
 if ($uri === '/api/groq-chat') {

@@ -96,7 +96,12 @@ function mldsaChallengeName(): string { return 'l8_mldsa87_challenge_v2'; }
 function mldsaAccessName(): string { return 'l8_mldsa87_access_v2'; }
 
 function mldsaChallengeTtl(int $phase): int {
-    return $phase===1?90:60;
+    $name=$phase===2?'L8_ACCESS_MLDSA87_PHASE2_TTL':'L8_ACCESS_MLDSA87_PHASE1_TTL';
+    $fallback=$phase===2?60:90;
+    $value=(int)secretGet($name,(string)$fallback);
+    $min=$phase===2?30:45;
+    $max=$phase===2?120:180;
+    return max($min,min($max,$value));
 }
 function mldsaIssueChallenge(int $phase=1,string $binding='',string $parentJti=''): array {
     $phase=$phase===2?2:1;
@@ -268,7 +273,7 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-hardened1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-hardened2',ENT_QUOTES,'UTF-8');
     $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-hardened1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><section class="access-card">'

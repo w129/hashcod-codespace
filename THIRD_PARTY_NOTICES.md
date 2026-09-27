@@ -18,9 +18,9 @@ The ML-DSA-87 access card adapts the interaction and visual structure of Spectru
 
 - Project: Spectrum UI
 - Source: https://github.com/arihantcodes/spectrum-ui
-- Component: `AccountAccessCard`
+- Components: `AccountAccessCard`, `AnimatedCard`, and `AnimatedCardDemo`
 - License: Apache License 2.0
-- Modification: email/password fields were replaced by ML-DSA-87 challenge/signature controls and the original React/Motion implementation was translated into native HTML/CSS/JavaScript for Hashcod.
+- Modifications: the account card fields were replaced by ML-DSA-87 challenge/signature controls; the AnimatedCard stack was translated from React/Framer Motion into native HTML/CSS/JavaScript, with Tailwind CSS replaced by the user-provided Spotlight Code SVG/title/description while retaining the original Next.js, Shadcn UI, and Aceternity UI assets.
 
 ## pqcrypto
 

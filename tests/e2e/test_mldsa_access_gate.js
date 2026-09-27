@@ -79,5 +79,22 @@ assert(css.includes('--x:340px;--y:-94px;--rot:17deg'),'card 4 expansion coordin
 assert(js.includes('function setDeckExpanded'),'tool deck toggle logic missing');
 assert(js.includes("deck.addEventListener('click'"),'tool deck click interaction missing');
 assert(js.includes("deck.addEventListener('keydown'"),'tool deck keyboard interaction missing');
+assert(gate.includes('id="d5FaqCard"'),'FAQTabsCard container missing');
+assert(gate.includes('data-faq-tab="0"'),'FAQTabsCard tabs missing');
+assert(gate.includes('id="d5FaqAccordion"'),'FAQTabsCard accordion missing');
+assert(gate.includes('id="d5FaqFooter"'),'FAQTabsCard footer missing');
+assert(css.includes('max-width:378px'),'FAQTabsCard must retain Spectrum UI 378px max width');
+assert(css.includes('border-radius:26px'),'FAQTabsCard 26px radius missing');
+assert(css.includes('height:36px'),'FAQTabsCard tab rail height missing');
+assert(css.includes('height:27px'),'FAQTabsCard active tab height missing');
+assert(css.includes('border-radius:18px'),'FAQTabsCard accordion 18px radius missing');
+assert(css.includes('margin-top:25px'),'FAQTabsCard footer spacing missing');
+assert(js.includes("label:'General'"),'FAQ General tab provisional data missing');
+assert(js.includes("label:'Billing'"),'FAQ Billing tab provisional data missing');
+assert(js.includes("label:'Goals'"),'FAQ Goals tab provisional data missing');
+assert(js.includes('function renderFaqAccordion'),'FAQ accordion renderer missing');
+assert(js.includes('function setFaqTab'),'FAQ tab interaction missing');
+assert(js.includes("faqOpenIndex=0"),'FAQ first item must open by default');
+assert(js.includes("hashcod:faq-contact-support"),'FAQ footer action hook missing');
 
 console.log('✓ Hardened two-phase ML-DSA-87 access contract verified');

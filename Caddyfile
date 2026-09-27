@@ -138,6 +138,24 @@ http://:{$PORT:8000} {
 		file_server
 	}
 
+	# ML-DSA access gate assets are security-critical and must never stay stale.
+	handle /components/mldsa-access-gate.js {
+		root * /var/www/html
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
+	}
+	handle /components/mldsa-access-gate.css {
+		root * /var/www/html
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
+	}
+
 	# Loader que debe actualizarse sin quedar congelado.
 	handle /components/platform-entry-capability-footer-fix.js {
 		root * /var/www/html

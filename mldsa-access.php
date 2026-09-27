@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-cards2',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-cards2',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-cards3',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-cards3',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -288,7 +288,7 @@ function mldsaGateHtml(string $base='/'): string {
       .'</section>'
       .'<section id="d5ToolDeck" class="tool-deck" role="button" tabindex="0" aria-expanded="false" aria-label="Expandir o apilar tarjetas de herramientas">'
       .'<article class="tool-card card-0" data-card-index="0"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/spotlight-code.svg" alt="Spotlight Code logo"><div class="tool-copy"><h2>Spotlight Code</h2><p>Code focused on your custom enhancements, providing you with the necessary credentials to make fixes or changes.</p></div></div></article>'
-      .'<article class="tool-card card-1" data-card-index="1"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/nextjs.svg" alt="Next.js logo"><div class="tool-copy"><h2>Next.js</h2><p>A React framework for production with server-side rendering and static site generation.</p></div></div></article>'
+      .'<article class="tool-card card-1" data-card-index="1"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/pit-barriers.svg" alt="Pit Barriers logo"><div class="tool-copy"><h2>Pit Barriers</h2><p>Barriers with intentional holes designed to lure your code into false traps.</p></div></div></article>'
       .'<article class="tool-card card-2" data-card-index="2"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/shadcn.svg" alt="Shadcn UI logo"><div class="tool-copy"><h2>Shadcn UI</h2><p>Beautiful, accessible components built using Radix UI and Tailwind CSS.</p></div></div></article>'
       .'<article class="tool-card card-3" data-card-index="3"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/aceternity.svg" alt="Aceternity UI logo"><div class="tool-copy"><h2>Aceternity UI</h2><p>Beautiful, accessible components built using Shadcn UI and Tailwind CSS.</p></div></div></article>'
       .'</section></div></main><script src="'.$js.'" defer></script></body></html>';

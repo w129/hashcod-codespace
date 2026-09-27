@@ -252,7 +252,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<style id="hashcod-platform-crm-inline">' . $platformCrmCss . '</style>'
             : '';
         $platformCrmCssExternalTag = $platformCrmCss === ''
-            ? '<link rel="stylesheet" href="' . $base . 'components/platform-crm.css?v=20260926-platformcrm5" data-hashcod-platform-crm-style="true">'
+            ? '<link rel="stylesheet" href="' . $base . 'components/platform-crm.css?v=20260927-platformcrm6" data-hashcod-platform-crm-style="true">'
             : '';
 
         $cssTag = $inlineCssTag
@@ -437,7 +437,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-platform-crm-inline" data-hashcod-platform-crm-inline="true">' . $platformCrmJs . '</script>'
             : '';
         $platformCrmJsExternalTag = $platformCrmJs === ''
-            ? '<script defer src="' . $base . 'components/platform-crm.js?v=20260926-platformcrm5" data-hashcod-platform-crm="true"></script>'
+            ? '<script defer src="' . $base . 'components/platform-crm.js?v=20260927-platformcrm6" data-hashcod-platform-crm="true"></script>'
             : '';
 
         $tag = $retiredTopbarControlsCleanupTag

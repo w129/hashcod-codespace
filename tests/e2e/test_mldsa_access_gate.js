@@ -6,8 +6,13 @@ const js=fs.readFileSync('components/mldsa-access-gate.js','utf8');
 const l8=fs.readFileSync('l8-html.php','utf8');
 const router=fs.readFileSync('router.php','utf8');
 const req=fs.readFileSync('requirements-streamlit.txt','utf8');
-const pub=fs.readFileSync('config/mldsa87-access-public.b64','utf8').trim();
-assert.strictEqual(Buffer.from(pub,'base64').length,2592,'ML-DSA-87 public key must be 2592 bytes');
+const pubRaw=fs.readFileSync('config/mldsa87-access-public.b64','utf8');
+const pub=pubRaw.replace(/\s+/g,'');
+function crc32(str){let table=crc32.t;if(!table){table=crc32.t=Array.from({length:256},(_,n)=>{let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);return c>>>0;});}let crc=0xffffffff;for(let i=0;i<str.length;i++)crc=table[(crc^str.charCodeAt(i))&255]^(crc>>>8);return (crc^0xffffffff)>>>0;}
+assert.strictEqual(pub.length,3456,'ML-DSA-87 public key Base64 length must be exact');
+assert(/^[A-Za-z0-9+/]+$/.test(pub),'ML-DSA-87 public key contains invalid Base64 characters');
+assert.strictEqual(crc32(pub).toString(16).padStart(8,'0'),'25eb08f5','production ML-DSA-87 public key checksum mismatch');
+assert.strictEqual(Buffer.from(pub,'base64').length,2592,'ML-DSA-87 public key must decode to 2592 bytes');
 assert(gate.includes("strlen($sig)!==4627"),'signature length guard missing');
 assert(gate.includes('mldsaIssueChallenge'),'one-time challenge missing');
 assert(gate.includes("httponly'=>true"),'HttpOnly cookie missing');

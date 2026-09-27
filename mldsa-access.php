@@ -273,10 +273,10 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-cards5',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-cards5',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-faq1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-faq1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
-      .'<main class="access-stage"><div class="access-layout"><section class="access-card">'
+      .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
       .'<h1>Acceso criptográfico reforzado</h1><p class="description" id="d5Description">Paso 1 de 2 · Prueba inicial de posesión ML-DSA-87.</p>'
       .'<div class="field-block"><div class="label-row"><label for="d5Challenge">Reto ML-DSA-87</label><button id="d5NewChallenge" class="text-action" type="button">NUEVO RETO</button></div><div class="pill-field"><span id="d5Challenge">Generando reto…</span><span class="caret"></span></div></div>'
@@ -286,6 +286,15 @@ function mldsaGateHtml(string $base='/'): string {
       .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
       .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
       .'</section>'
+      .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'
+      .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'
+      .'<button class="faq-tab active" type="button" role="tab" aria-selected="true" data-faq-tab="0"><span class="faq-tab-pill"></span><span class="faq-tab-label">General</span></button>'
+      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="1"><span class="faq-tab-label">Billing</span></button>'
+      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="2"><span class="faq-tab-label">Goals</span></button>'
+      .'</div>'
+      .'<div id="d5FaqAccordion" class="faq-accordion"></div>'
+      .'<button id="d5FaqFooter" class="faq-footer" type="button">Contact Support</button>'
+      .'</section></div>'
       .'<section id="d5ToolDeck" class="tool-deck" role="button" tabindex="0" aria-expanded="false" aria-label="Expandir o apilar tarjetas de herramientas">'
       .'<article class="tool-card card-0" data-card-index="0"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/spotlight-code.svg" alt="Spotlight Code logo"><div class="tool-copy"><h2>Spotlight Code</h2><p>Code focused on your custom enhancements, providing you with the necessary credentials to make fixes or changes.</p></div></div></article>'
       .'<article class="tool-card card-1" data-card-index="1"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/pit-barriers.svg" alt="Pit Barriers logo"><div class="tool-copy"><h2>Pit Barriers</h2><p>Barriers with intentional holes designed to lure your code into false traps.</p></div></div></article>'

@@ -12,6 +12,7 @@ var fp=document.getElementById('d5Fingerprint');
 var description=document.getElementById('d5Description');
 var stepOne=document.getElementById('d5StepOne');
 var stepTwo=document.getElementById('d5StepTwo');
+var deck=document.getElementById('d5ToolDeck');
 var pill=ch&&ch.parentElement;
 var exp=0;
 var timer=null;
@@ -105,6 +106,23 @@ renew.addEventListener('click',function(){
 sig.addEventListener('focus',function(){
   if(pill)pill.classList.remove('active');
 });
+
+function setDeckExpanded(expanded){
+  if(!deck)return;
+  deck.classList.toggle('expanded',!!expanded);
+  deck.setAttribute('aria-expanded',expanded?'true':'false');
+}
+if(deck){
+  deck.addEventListener('click',function(){
+    setDeckExpanded(!deck.classList.contains('expanded'));
+  });
+  deck.addEventListener('keydown',function(event){
+    if(event.key==='Enter'||event.key===' '){
+      event.preventDefault();
+      setDeckExpanded(!deck.classList.contains('expanded'));
+    }
+  });
+}
 
 btn.addEventListener('click',async function(){
   var value=sig.value.trim();

@@ -23,13 +23,51 @@ const assert = require('assert');
   assert(buttonBox.width >= 29 && buttonBox.height >= 29, 'CRM topbar button collapsed');
   assert(buttonBox.svg, 'CRM topbar SVG missing');
 
-  await page.dispatchEvent('#hashcodPlatformCrmButton', 'pointerdown', {
-    pointerType: 'mouse', button: 0, buttons: 1
+  // CRM must remain completely hidden after platform entry.
+  const beforeOpen = await page.evaluate(() => {
+    const host = document.getElementById('hashcodPlatformCrmModal');
+    if (!host) return { exists: false };
+    const style = getComputedStyle(host);
+    return {
+      exists: true,
+      hidden: host.hidden,
+      ariaHidden: host.getAttribute('aria-hidden'),
+      display: style.display,
+      visibility: style.visibility,
+      pointerEvents: style.pointerEvents,
+      crmOpen: host.dataset.crmOpen || ''
+    };
   });
+  assert(beforeOpen.exists, 'CRM host should be prepared at startup');
+  assert.strictEqual(beforeOpen.hidden, true, 'CRM opened automatically at startup');
+  assert.strictEqual(beforeOpen.ariaHidden, 'true', 'CRM startup aria-hidden state is wrong');
+  assert.strictEqual(beforeOpen.display, 'none', 'CRM startup display must be none');
+  assert.strictEqual(beforeOpen.crmOpen, 'false', 'CRM startup data state must be closed');
+
+  // Synthetic clicks must not open it.
+  await page.evaluate(() => {
+    document.getElementById('hashcodPlatformCrmButton')?.click();
+  });
+  await page.waitForTimeout(150);
+  const afterSynthetic = await page.$eval('#hashcodPlatformCrmModal', el => ({
+    hidden: el.hidden,
+    crmOpen: el.dataset.crmOpen || ''
+  }));
+  assert.strictEqual(afterSynthetic.hidden, true, 'synthetic click unexpectedly opened CRM');
+  assert.strictEqual(afterSynthetic.crmOpen, 'false', 'synthetic click changed CRM open state');
+
+  // A real browser click is trusted and is the only action that may open it.
+  await page.click('#hashcodPlatformCrmButton', { timeout: 10000 });
 
   await page.waitForFunction(() => {
     const host = document.getElementById('hashcodPlatformCrmModal');
-    return !!(host && !host.hidden && host.shadowRoot && host.shadowRoot.querySelector('.window'));
+    return !!(
+      host &&
+      !host.hidden &&
+      host.dataset.crmOpen === 'true' &&
+      host.shadowRoot &&
+      host.shadowRoot.querySelector('.window')
+    );
   }, { timeout: 10000 });
 
   const visual = await page.evaluate(() => {
@@ -99,7 +137,18 @@ const assert = require('assert');
   });
   await page.waitForFunction(() => document.getElementById('hashcodPlatformCrmModal')?.hidden === true);
 
-  console.log('✓ CRM button opens isolated UI; manual add/edit pipeline works; false 64-slot registration is gone');
+  const closedState = await page.$eval('#hashcodPlatformCrmModal', el => ({
+    hidden: el.hidden,
+    ariaHidden: el.getAttribute('aria-hidden'),
+    display: getComputedStyle(el).display,
+    crmOpen: el.dataset.crmOpen || ''
+  }));
+  assert.strictEqual(closedState.hidden, true, 'CRM did not return to hidden state');
+  assert.strictEqual(closedState.ariaHidden, 'true', 'CRM close aria-hidden state is wrong');
+  assert.strictEqual(closedState.display, 'none', 'CRM remains visually mounted after close');
+  assert.strictEqual(closedState.crmOpen, 'false', 'CRM close data state is wrong');
+
+  console.log('✓ CRM stays hidden at startup, ignores synthetic clicks, opens only on real icon click, and remains functional');
   await browser.close();
 })().catch(err => {
   console.error(err);

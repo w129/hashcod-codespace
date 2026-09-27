@@ -36,6 +36,14 @@ if ($bootstrapController !== null) {
     exit;
 }
 
+// ML-DSA-87 challenge/signature endpoint must run before the generic web
+// bootstrap. The unauthenticated gate needs this route to prove possession of
+// the private key; rate limiting and signature validation remain in the API.
+if ($bootstrapSyncPath === '/api/mldsa-access') {
+    require __DIR__ . '/mldsa-access-api.php';
+    exit;
+}
+
 securityBootstrap('web');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -113,13 +121,6 @@ if (isset($routedPages[$uri])) {
         exit;
     }
     l8_require_html_page($page, true);
-}
-
-// ML-DSA-87 access challenge/signature endpoint. It must remain reachable
-// before the platform HTML gate so an unauthenticated browser can prove access.
-if ($uri === '/api/mldsa-access') {
-    require __DIR__ . '/mldsa-access-api.php';
-    exit;
 }
 
 // Chat IA de la pantalla de acceso. Se enruta antes del backend general para

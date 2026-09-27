@@ -1,0 +1,97 @@
+name: ML-DSA-87 access gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - mldsa-access.php
+      - mldsa-access-api.php
+      - components/mldsa-access-gate.css
+      - components/mldsa-access-gate.js
+      - config/mldsa87-access-public.b64
+      - scripts/mldsa87_access.py
+      - l8-html.php
+      - router.php
+      - requirements-streamlit.txt
+      - tests/e2e/test_mldsa_access_gate.js
+      - .github/workflows/mldsa-access-gate.yml
+
+permissions:
+  contents: read
+
+jobs:
+  access-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ML-DSA verifier
+        run: python3 -m pip install --disable-pip-version-check pqcrypto==1.0.0
+
+      - name: Syntax and static contract
+        run: |
+          php -l mldsa-access.php
+          php -l mldsa-access-api.php
+          php -l l8-html.php
+          php -l router.php
+          node --check components/mldsa-access-gate.js
+          node tests/e2e/test_mldsa_access_gate.js
+
+      - name: Generate ephemeral ML-DSA-87 test key
+        run: |
+          python3 - <<'PY'
+          import base64, os
+          from pathlib import Path
+          from pqcrypto.sign.ml_dsa_87 import keygen
+          pk,sk=keygen()
+          Path('/tmp/mldsa-test-sk.b64').write_text(base64.b64encode(sk).decode())
+          env=os.environ['GITHUB_ENV']
+          with open(env,'a',encoding='utf-8') as f:
+              f.write('L8_ACCESS_MLDSA87_PUBLIC_KEY_B64='+base64.b64encode(pk).decode()+'\n')
+              f.write('L8_ACCESS_GATE_COOKIE_SECRET=ci-only-cookie-secret-0123456789abcdef\n')
+          PY
+
+      - name: Start Hashcod locally
+        run: |
+          php -S 127.0.0.1:8097 router.php >/tmp/mldsa-gate-php.log 2>&1 &
+          echo $! >/tmp/mldsa-gate-php.pid
+          ready=0
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8097/ >/tmp/mldsa-first.html; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" -eq 1
+          grep -q "Acceso criptográfico" /tmp/mldsa-first.html
+
+      - name: Sign challenge and unlock platform
+        run: |
+          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies http://127.0.0.1:8097/api/mldsa-access >/tmp/challenge.json
+          CHALLENGE=$(python3 -c "import json;print(json.load(open('/tmp/challenge.json'))['challenge'])")
+          SIG=$(python3 scripts/mldsa87_access.py sign --secret /tmp/mldsa-test-sk.b64 --challenge "$CHALLENGE")
+          python3 - "$SIG" <<'PY' >/tmp/signature.json
+          import json,sys
+          print(json.dumps({'signature':sys.argv[1]}))
+          PY
+          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies -H 'Content-Type: application/json' --data-binary @/tmp/signature.json http://127.0.0.1:8097/api/mldsa-access >/tmp/unlock.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/unlock.json'))
+          assert d.get('ok') is True and d.get('authorized') is True, d
+          PY
+          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies http://127.0.0.1:8097/ >/tmp/mldsa-after.html
+          ! grep -q "Acceso criptográfico" /tmp/mldsa-after.html
+          grep -qi "Hashcod" /tmp/mldsa-after.html
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f /tmp/mldsa-gate-php.pid ]; then kill "$(cat /tmp/mldsa-gate-php.pid)" || true; fi
+
+      - name: Upload log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mldsa-access-gate-log
+          path: /tmp/mldsa-gate-php.log

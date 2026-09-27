@@ -10,7 +10,7 @@ const local = fs.readFileSync(path.join(root, 'laragon-local-entry.php'), 'utf8'
 const security = fs.readFileSync(path.join(root, 'security.php'), 'utf8');
 const docs = fs.readFileSync(path.join(root, 'docs/DESKCOMM_CRM_INTEGRATION.md'), 'utf8');
 
-assert(js.includes("20260926-platform-crm5"), 'CRM v5 runtime missing');
+assert(js.includes("20260927-platform-crm6"), 'CRM v5 runtime missing');
 assert(js.includes("hashcodPlatformCrmButton"), 'CRM topbar button missing');
 assert(js.includes("fill=\"#22A0E0\""), 'primary CRM icon blue missing');
 assert(js.includes("fill=\"#1E8BC3\""), 'secondary CRM icon blue missing');
@@ -46,10 +46,10 @@ assert(css.includes("#hashcodPlatformCrmModal[hidden]"), 'CRM host hide contract
 assert(hosted.includes("hashcod-platform-crm-inline"), 'production must inline CRM runtime/styles');
 assert(hosted.includes("$inlinePlatformCrmCssTag"), 'production inline CRM CSS missing');
 assert(hosted.includes("$inlinePlatformCrmJsTag"), 'production inline CRM JS missing');
-assert(hosted.includes("components/platform-crm.css?v=20260926-platformcrm5"), 'production CRM CSS fallback version stale');
-assert(hosted.includes("components/platform-crm.js?v=20260926-platformcrm5"), 'production CRM JS fallback version stale');
-assert(local.includes("components/platform-crm.css?v=20260926-platformcrm5"), 'local CRM CSS version stale');
-assert(local.includes("components/platform-crm.js?v=20260926-platformcrm5"), 'local CRM JS version stale');
+assert(hosted.includes("components/platform-crm.css?v=20260927-platformcrm6"), 'production CRM CSS fallback version stale');
+assert(hosted.includes("components/platform-crm.js?v=20260927-platformcrm6"), 'production CRM JS fallback version stale');
+assert(local.includes("components/platform-crm.css?v=20260927-platformcrm6"), 'local CRM CSS version stale');
+assert(local.includes("components/platform-crm.js?v=20260927-platformcrm6"), 'local CRM JS version stale');
 
 assert(security.includes("function securityDeskcommFrameSource()"), 'Deskcomm CSP helper missing');
 assert(security.includes("securityDeskcommFrameSource() !== ''"), 'Deskcomm CSP allowlist not wired');

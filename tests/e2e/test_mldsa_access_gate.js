@@ -15,6 +15,9 @@ assert.strictEqual(crc32(pub).toString(16).padStart(8,'0'),'25eb08f5','productio
 assert.strictEqual(Buffer.from(pub,'base64').length,2592,'ML-DSA-87 public key must decode to 2592 bytes');
 assert(gate.includes("strlen($sig)!==4627"),'signature length guard missing');
 assert(gate.includes('mldsaIssueChallenge'),'one-time challenge missing');
+assert(gate.includes("function mldsaAccessRequired(): bool"),'required gate function missing');
+assert(!gate.includes("if (!mldsaAccessConfigured()) return false;"),'ML-DSA gate must fail closed instead of bypassing on bad config');
+assert(api.includes("mldsa_not_configured"),'invalid ML-DSA key must surface a configuration error');
 assert(gate.includes("httponly'=>true"),'HttpOnly cookie missing');
 assert(gate.includes("samesite'=>'Strict"),'SameSite Strict missing');
 assert(api.includes('mldsaCurrentChallenge'),'server challenge binding missing');

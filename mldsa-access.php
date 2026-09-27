@@ -3,12 +3,13 @@ if (!function_exists('secretGet')) require_once __DIR__ . '/secrets.php';
 
 function mldsaAccessPublicKeyB64(): string {
     $env=trim((string)secretGet('L8_ACCESS_MLDSA87_PUBLIC_KEY_B64',''));
-    if ($env!=='') return $env;
-    $p=__DIR__.'/config/mldsa87-access-public.b64';
-    return is_readable($p)?trim((string)file_get_contents($p)):'';
+    $raw=$env!==''?$env:(is_readable(__DIR__.'/config/mldsa87-access-public.b64')?(string)file_get_contents(__DIR__.'/config/mldsa87-access-public.b64'):'');
+    return (string)preg_replace('/\s+/', '', trim($raw));
 }
 function mldsaAccessPublicKeyBytes(): string {
-    $raw=base64_decode(mldsaAccessPublicKeyB64(),true);
+    $b64=mldsaAccessPublicKeyB64();
+    if ($b64==='' || strlen($b64)!==3456 || preg_match('/[^A-Za-z0-9+\/]/',$b64)) return '';
+    $raw=base64_decode($b64,true);
     return is_string($raw)&&strlen($raw)===2592?$raw:'';
 }
 function mldsaAccessConfigured(): bool { return mldsaAccessPublicKeyBytes()!==''; }

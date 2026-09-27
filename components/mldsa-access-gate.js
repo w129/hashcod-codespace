@@ -135,16 +135,16 @@ var FAQ_TABS=[
     label:'General',
     faqs:[
       {
-        question:'How secure is my financial data with Ledger?',
-        answer:'We use bank-level AES-256 encryption, SOC 2 Type II certified infrastructure, and never store your credentials. All connections use read-only access tokens. We are a SEC registered investment advisor.'
+        question:'¿Qué obtengo al entrar a Hashcod Codespace?',
+        answer:'Al entrar a Hashcod Codespace obtienes acceso a un entorno digital diseñado para trabajar, organizar y desarrollar tu proyecto desde un mismo espacio. Podrás utilizar las herramientas disponibles de la plataforma, gestionar información relacionada con tu creación, guardar tu progreso y acceder a las funciones habilitadas para tu cuenta. La plataforma está pensada para acompañar el proceso desde la preparación de tu proyecto hasta los servicios de análisis, validación y certificación disponibles dentro del ecosistema Hashcod.'
       },
       {
-        question:'How do I connect my bank or investment accounts?',
-        answer:'Open Settings → Connections and pick your institution. We support 12,000+ banks and brokerages through secure, read-only integrations.'
+        question:'¿Qué puedo hacer dentro de Hashcod Codespace?',
+        answer:'Dentro de Hashcod Codespace puedes utilizar diferentes herramientas para crear, organizar, desarrollar y gestionar tu proyecto digital desde un solo entorno. La plataforma integra espacios de trabajo, herramientas técnicas, gestión de archivos, almacenamiento de información y funciones destinadas al análisis y validación de proyectos. Dependiendo de las funciones habilitadas en tu cuenta, también podrás registrar información de tu plataforma, conservar tu progreso y acceder a los diferentes recursos que forman parte del ecosistema Hashcod Codespace.'
       },
       {
-        question:'Can I export my data for tax purposes?',
-        answer:'Yes — export transactions, gains, and reports as CSV or PDF at any time from the Reports tab.'
+        question:'¿Cómo funciona el proceso de validación de mi proyecto?',
+        answer:'Cuando envías la información de tu proyecto a través de Hashcod Codespace, se genera un registro asociado a tu solicitud. Posteriormente, el proyecto puede pasar por un proceso de revisión y análisis según el servicio seleccionado. Durante esta evaluación se pueden comprobar aspectos técnicos, estructurales y funcionales del proyecto. Una vez completada la revisión y cumplidos los requisitos correspondientes, se podrá continuar con el proceso de validación o certificación disponible dentro del ecosistema Hashcod.'
       }
     ]
   },

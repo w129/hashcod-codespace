@@ -93,6 +93,22 @@
 
 @media(min-width:1180px){
   .tool-deck{display:flex}
+  /* Keep the animated card deck exactly where it was before FAQ was added.
+     The FAQ is visually anchored below the ML-DSA card but removed from the
+     desktop grid flow so it cannot move/recenter the deck. */
+  .access-left-stack{
+    position:relative;
+    display:block;
+    width:100%;
+    max-width:380px;
+  }
+  .faq-tabs-card{
+    position:absolute;
+    top:calc(100% + 32px);
+    left:1px;
+    right:1px;
+    z-index:2;
+  }
 }
 @media(max-width:1179px){
   .access-layout{display:block;width:min(380px,100%)}

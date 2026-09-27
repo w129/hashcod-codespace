@@ -91,7 +91,13 @@ assert(css.includes('border-radius:18px'),'FAQTabsCard accordion 18px radius mis
 assert(css.includes('margin-top:25px'),'FAQTabsCard footer spacing missing');
 assert(css.includes('position:absolute'),'desktop FAQ must be out of grid flow so animated cards keep their original position');
 assert(css.includes('top:calc(100% + 32px)'),'desktop FAQ must stay anchored below the ML-DSA card');
-assert(js.includes("label:'General'"),'FAQ General tab provisional data missing');
+assert(js.includes("label:'General'"),'FAQ General tab missing');
+assert(js.includes('¿Qué obtengo al entrar a Hashcod Codespace?'),'General FAQ question 1 missing');
+assert(js.includes('¿Qué puedo hacer dentro de Hashcod Codespace?'),'General FAQ question 2 missing');
+assert(js.includes('¿Cómo funciona el proceso de validación de mi proyecto?'),'General FAQ question 3 missing');
+assert(js.includes('Al entrar a Hashcod Codespace obtienes acceso a un entorno digital diseñado para trabajar, organizar y desarrollar tu proyecto desde un mismo espacio.'),'General FAQ answer 1 missing');
+assert(js.includes('Dentro de Hashcod Codespace puedes utilizar diferentes herramientas para crear, organizar, desarrollar y gestionar tu proyecto digital desde un solo entorno.'),'General FAQ answer 2 missing');
+assert(js.includes('Cuando envías la información de tu proyecto a través de Hashcod Codespace, se genera un registro asociado a tu solicitud.'),'General FAQ answer 3 missing');
 assert(js.includes("label:'Billing'"),'FAQ Billing tab provisional data missing');
 assert(js.includes("label:'Goals'"),'FAQ Goals tab provisional data missing');
 assert(js.includes('function renderFaqAccordion'),'FAQ accordion renderer missing');

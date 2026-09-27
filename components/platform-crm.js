@@ -1,7 +1,7 @@
 (function (window, document) {
   'use strict';
 
-  var VERSION = '20260926-platform-crm5';
+  var VERSION = '20260927-platform-crm6';
   if (window.__hashcodPlatformCrmVersion === VERSION) return;
   window.__hashcodPlatformCrmVersion = VERSION;
 
@@ -219,6 +219,12 @@
     el = document.createElement('div');
     el.id = HOST_ID;
     el.hidden = true;
+    el.setAttribute('hidden', '');
+    el.setAttribute('aria-hidden', 'true');
+    el.dataset.crmOpen = 'false';
+    el.style.setProperty('display','none','important');
+    el.style.setProperty('visibility','hidden','important');
+    el.style.setProperty('pointer-events','none','important');
     el.style.setProperty('position','fixed','important');
     el.style.setProperty('inset','0','important');
     el.style.setProperty('z-index','2147483647','important');
@@ -448,14 +454,42 @@
   function open() {
     load();
     scanToolbox();
-    var el=host(); el.hidden=false; el.style.setProperty('display','block','important');
-    state.open=true; setTab('pipeline'); render();
-    pullCloudSlots().then(render);
+    var el=host();
+    el.hidden=false;
+    el.removeAttribute('hidden');
+    el.setAttribute('aria-hidden','false');
+    el.dataset.crmOpen='true';
+    el.style.setProperty('display','block','important');
+    el.style.setProperty('visibility','visible','important');
+    el.style.setProperty('pointer-events','auto','important');
+    state.open=true;
+    setTab('pipeline');
+    render();
+    pullCloudSlots().then(render).catch(function(){});
     return true;
   }
   function close() {
-    var el=document.getElementById(HOST_ID);if(el){el.hidden=true;el.style.setProperty('display','none','important')}
+    var el=document.getElementById(HOST_ID);
+    if(el){
+      el.hidden=true;
+      el.setAttribute('hidden','');
+      el.setAttribute('aria-hidden','true');
+      el.dataset.crmOpen='false';
+      el.style.setProperty('display','none','important');
+      el.style.setProperty('visibility','hidden','important');
+      el.style.setProperty('pointer-events','none','important');
+    }
     state.open=false;
+  }
+
+  function resetClosedState() {
+    var el=host();
+    close();
+    var newForm=el.shadowRoot && el.shadowRoot.querySelector('[data-role="new-form"]');
+    if(newForm) newForm.classList.remove('open');
+    state.selected='';
+    state.query='';
+    state.tab='pipeline';
   }
 
   function findTopbar(){return document.querySelector('.top-bar-right')||document.querySelector('.top-bar [class*="right"]')||document.querySelector('.top-bar')}
@@ -474,18 +508,39 @@
     return !!(event.target&&event.target.closest&&event.target.closest('#'+BUTTON_ID));
   }
 
-  window.addEventListener('pointerdown',function(event){
+  window.addEventListener('click',function(event){
     if(!targetIsButton(event))return;
-    event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();open();
+    // Ignore scripted/synthetic clicks. Only a real user gesture may open CRM.
+    if(event.isTrusted !== true)return;
+    event.preventDefault();
+    event.stopPropagation();
+    if(event.stopImmediatePropagation)event.stopImmediatePropagation();
+    window.setTimeout(function(){
+      open();
+    },0);
   },true);
-  document.addEventListener('keydown',function(event){if(event.key==='Escape'&&state.open)close()});
+
+  document.addEventListener('keydown',function(event){
+    if(event.key==='Escape'&&state.open)close();
+  });
 
   function boot(){
-    load();host();mountButton();
-    var tries=0,timer=setInterval(function(){tries++;if(mountButton()||tries>120)clearInterval(timer)},125);
+    load();
+    host();
+    resetClosedState();
+    mountButton();
+    var tries=0,timer=setInterval(function(){
+      tries++;
+      if(mountButton()||tries>120)clearInterval(timer);
+    },125);
   }
+
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-  window.addEventListener('hashcod:platform-entered',mountButton);
+
+  window.addEventListener('hashcod:platform-entered',function(){
+    resetClosedState();
+    mountButton();
+  });
 
   window.openHashcodPlatformCRM=open;
   window.HashcodPlatformCRM=Object.freeze({version:VERSION,open:open,close:close,sync:function(){scanToolbox();return pullCloudSlots()},records:function(){return allRecords().map(function(r){return Object.assign({},r)})}});

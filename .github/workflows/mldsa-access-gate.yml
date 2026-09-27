@@ -51,10 +51,14 @@ jobs:
           with open(env,'a',encoding='utf-8') as f:
               f.write('L8_ACCESS_MLDSA87_PUBLIC_KEY_B64='+base64.b64encode(pk).decode()+'\n')
               f.write('L8_ACCESS_GATE_COOKIE_SECRET=ci-only-cookie-secret-0123456789abcdef\n')
+              f.write('L8_ACCESS_MLDSA87_PHASE1_TTL=90\n')
+              f.write('L8_ACCESS_MLDSA87_PHASE2_TTL=60\n')
+              f.write('L8_ACCESS_MLDSA87_TTL=1800\n')
           PY
 
       - name: Start Hashcod locally
         run: |
+          rm -rf data_storage/security/mldsa-replay
           php -S 127.0.0.1:8097 router.php >/tmp/mldsa-gate-php.log 2>&1 &
           echo $! >/tmp/mldsa-gate-php.pid
           ready=0
@@ -63,25 +67,61 @@ jobs:
             sleep 1
           done
           test "$ready" -eq 1
-          grep -q "Acceso criptográfico" /tmp/mldsa-first.html
+          grep -q "Acceso criptográfico reforzado" /tmp/mldsa-first.html
 
-      - name: Sign challenge and unlock platform
+      - name: Complete two-phase signature protocol and reject replay
         run: |
-          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies http://127.0.0.1:8097/api/mldsa-access >/tmp/challenge.json
-          CHALLENGE=$(python3 -c "import json;print(json.load(open('/tmp/challenge.json'))['challenge'])")
-          SIG=$(python3 scripts/mldsa87_access.py sign --secret /tmp/mldsa-test-sk.b64 --challenge "$CHALLENGE")
-          python3 - "$SIG" <<'PY' >/tmp/signature.json
-          import json,sys
-          print(json.dumps({'signature':sys.argv[1]}))
+          ORIGIN='http://127.0.0.1:8097'
+
+          # Phase 1 challenge
+          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies             http://127.0.0.1:8097/api/mldsa-access >/tmp/phase1.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/phase1.json'))
+          assert d['phase']==1 and d['total_phases']==2 and d['authorized'] is False, d
           PY
-          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies -H 'Content-Type: application/json' --data-binary @/tmp/signature.json http://127.0.0.1:8097/api/mldsa-access >/tmp/unlock.json
+          cp /tmp/mldsa.cookies /tmp/mldsa.phase1.cookies
+          CH1=$(python3 -c "import json;print(json.load(open('/tmp/phase1.json'))['challenge'])")
+          SIG1=$(python3 scripts/mldsa87_access.py sign --secret /tmp/mldsa-test-sk.b64 --challenge "$CH1")
+          python3 - "$SIG1" <<'PY' >/tmp/phase1-signature.json
+          import json,sys
+          print(json.dumps({'signature':sys.argv[1],'phase':1}))
+          PY
+
+          # Phase 1 valid -> Phase 2 challenge
+          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies             -H "Origin: $ORIGIN" -H 'Content-Type: application/json'             --data-binary @/tmp/phase1-signature.json             http://127.0.0.1:8097/api/mldsa-access >/tmp/phase2.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/phase2.json'))
+          assert d['ok'] is True and d['next_phase']==2 and d['authorized'] is False, d
+          PY
+
+          # Reuse exact phase-1 cookie + signature: must fail as replay.
+          HTTP=$(curl -sS -o /tmp/replay.json -w '%{http_code}'             -b /tmp/mldsa.phase1.cookies             -H "Origin: $ORIGIN" -H 'Content-Type: application/json'             --data-binary @/tmp/phase1-signature.json             http://127.0.0.1:8097/api/mldsa-access)
+          test "$HTTP" = "409"
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/replay.json'))
+          assert d.get('code')=='replay_detected', d
+          PY
+
+          # Phase 2 confirmation
+          CH2=$(python3 -c "import json;print(json.load(open('/tmp/phase2.json'))['challenge'])")
+          SIG2=$(python3 scripts/mldsa87_access.py sign --secret /tmp/mldsa-test-sk.b64 --challenge "$CH2")
+          python3 - "$SIG2" <<'PY' >/tmp/phase2-signature.json
+          import json,sys
+          print(json.dumps({'signature':sys.argv[1],'phase':2}))
+          PY
+          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies             -H "Origin: $ORIGIN" -H 'Content-Type: application/json'             --data-binary @/tmp/phase2-signature.json             http://127.0.0.1:8097/api/mldsa-access >/tmp/unlock.json
           python3 - <<'PY'
           import json
           d=json.load(open('/tmp/unlock.json'))
-          assert d.get('ok') is True and d.get('authorized') is True, d
+          assert d.get('ok') is True and d.get('authorized') is True and d.get('completed_phases')==2, d
           PY
-          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies http://127.0.0.1:8097/ >/tmp/mldsa-after.html
-          ! grep -q "Acceso criptográfico" /tmp/mldsa-after.html
+
+          # Access is now granted.
+          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies             http://127.0.0.1:8097/ >/tmp/mldsa-after.html
+          ! grep -q "Acceso criptográfico reforzado" /tmp/mldsa-after.html
           grep -qi "Hashcod" /tmp/mldsa-after.html
 
       - name: Stop server
@@ -94,4 +134,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mldsa-access-gate-log
-          path: /tmp/mldsa-gate-php.log
+          path: |
+            /tmp/mldsa-gate-php.log
+            /tmp/phase1.json
+            /tmp/phase2.json
+            /tmp/replay.json
+            /tmp/unlock.json

@@ -95,8 +95,8 @@ function mldsaShouldGateHtml(string $file): bool {
 }
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/'; if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-spectrum1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-spectrum1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-spectrum2',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-spectrum2',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><section class="access-card">'
       .'<h1>Acceso criptográfico</h1><p class="description">Firma el reto para autenticarte en Hashcod Codespace.</p>'

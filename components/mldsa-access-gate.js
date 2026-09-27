@@ -124,6 +124,132 @@ if(deck){
   });
 }
 
+var faqCard=document.getElementById('d5FaqCard');
+var faqAccordion=document.getElementById('d5FaqAccordion');
+var faqFooter=document.getElementById('d5FaqFooter');
+var faqTabs=faqCard?Array.from(faqCard.querySelectorAll('[data-faq-tab]')):[];
+var faqActiveTab=0;
+var faqOpenIndex=0;
+var FAQ_TABS=[
+  {
+    label:'General',
+    faqs:[
+      {
+        question:'How secure is my financial data with Ledger?',
+        answer:'We use bank-level AES-256 encryption, SOC 2 Type II certified infrastructure, and never store your credentials. All connections use read-only access tokens. We are a SEC registered investment advisor.'
+      },
+      {
+        question:'How do I connect my bank or investment accounts?',
+        answer:'Open Settings → Connections and pick your institution. We support 12,000+ banks and brokerages through secure, read-only integrations.'
+      },
+      {
+        question:'Can I export my data for tax purposes?',
+        answer:'Yes — export transactions, gains, and reports as CSV or PDF at any time from the Reports tab.'
+      }
+    ]
+  },
+  {
+    label:'Billing',
+    faqs:[
+      {
+        question:'What payment methods do you accept?',
+        answer:'All major credit and debit cards, plus ACH transfers on annual plans.'
+      },
+      {
+        question:'Can I cancel my subscription anytime?',
+        answer:'Yes, cancel from Settings → Billing. You keep access until the end of the current billing period.'
+      },
+      {
+        question:'Do you offer refunds?',
+        answer:'We offer a full refund within 14 days of purchase, no questions asked.'
+      }
+    ]
+  },
+  {
+    label:'Goals',
+    faqs:[
+      {
+        question:'How do savings goals work?',
+        answer:'Set a target amount and date — we track progress automatically across your linked accounts.'
+      },
+      {
+        question:'Can I share a goal with a partner?',
+        answer:"Yes, invite a partner to any goal and you'll both see live progress and contributions."
+      },
+      {
+        question:'What happens when I reach a goal?',
+        answer:'We notify you and suggest next steps, like rolling the balance into a new goal or investing it.'
+      }
+    ]
+  }
+];
+
+function faqChevronSvg(){
+  return '<svg class="faq-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+}
+function renderFaqAccordion(){
+  if(!faqAccordion)return;
+  var current=FAQ_TABS[faqActiveTab]||FAQ_TABS[0];
+  faqAccordion.innerHTML=current.faqs.map(function(faq,index){
+    var open=index===faqOpenIndex;
+    return '<div class="faq-item'+(open?' open':'')+'" data-faq-index="'+index+'">'
+      +'<button class="faq-question" type="button" aria-expanded="'+(open?'true':'false')+'">'
+      +'<span class="faq-question-text">'+faq.question+'</span>'+faqChevronSvg()+'</button>'
+      +'<div class="faq-answer-wrap"><div class="faq-answer-inner"><p class="faq-answer">'+faq.answer+'</p></div></div>'
+      +'</div>';
+  }).join('');
+}
+function setFaqTab(index){
+  var next=Math.max(0,Math.min(FAQ_TABS.length-1,Number(index)||0));
+  faqActiveTab=next;
+  faqOpenIndex=0;
+  faqTabs.forEach(function(tab,i){
+    var active=i===next;
+    tab.classList.toggle('active',active);
+    tab.setAttribute('aria-selected',active?'true':'false');
+    var pill=tab.querySelector('.faq-tab-pill');
+    if(active&&!pill){
+      pill=document.createElement('span');
+      pill.className='faq-tab-pill';
+      tab.insertBefore(pill,tab.firstChild);
+    }else if(!active&&pill){
+      pill.remove();
+    }
+  });
+  if(!faqAccordion)return;
+  faqAccordion.classList.add('switching');
+  window.setTimeout(function(){
+    renderFaqAccordion();
+    requestAnimationFrame(function(){
+      faqAccordion.classList.remove('switching');
+    });
+  },90);
+}
+if(faqCard){
+  faqTabs.forEach(function(tab,index){
+    tab.addEventListener('click',function(){setFaqTab(index);});
+  });
+  faqAccordion.addEventListener('click',function(event){
+    var item=event.target.closest('.faq-item');
+    var button=event.target.closest('.faq-question');
+    if(!item||!button)return;
+    var index=Number(item.getAttribute('data-faq-index'));
+    faqOpenIndex=faqOpenIndex===index?-1:index;
+    Array.from(faqAccordion.querySelectorAll('.faq-item')).forEach(function(row,rowIndex){
+      var open=rowIndex===faqOpenIndex;
+      row.classList.toggle('open',open);
+      var q=row.querySelector('.faq-question');
+      if(q)q.setAttribute('aria-expanded',open?'true':'false');
+    });
+  });
+  if(faqFooter){
+    faqFooter.addEventListener('click',function(){
+      window.dispatchEvent(new CustomEvent('hashcod:faq-contact-support'));
+    });
+  }
+  renderFaqAccordion();
+}
+
 btn.addEventListener('click',async function(){
   var value=sig.value.trim();
   if(!value){

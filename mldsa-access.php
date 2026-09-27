@@ -273,10 +273,10 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-hardened2',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-hardened1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-cards1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-cards1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
-      .'<main class="access-stage"><section class="access-card">'
+      .'<main class="access-stage"><div class="access-layout"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
       .'<h1>Acceso criptográfico reforzado</h1><p class="description" id="d5Description">Paso 1 de 2 · Prueba inicial de posesión ML-DSA-87.</p>'
       .'<div class="field-block"><div class="label-row"><label for="d5Challenge">Reto ML-DSA-87</label><button id="d5NewChallenge" class="text-action" type="button">NUEVO RETO</button></div><div class="pill-field"><span id="d5Challenge">Generando reto…</span><span class="caret"></span></div></div>'
@@ -285,5 +285,12 @@ function mldsaGateHtml(string $base='/'): string {
       .'<button class="info-card" type="button"><span class="info-icon">!</span><span class="info-copy"><strong>Doble prueba + anti-replay</strong><small>Cada reto se consume una sola vez y caduca rápidamente</small></span><span class="chev">›</span></button>'
       .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
       .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
-      .'</section></main><script src="'.$js.'" defer></script></body></html>';
+      .'</section>'
+      .'<section id="d5ToolDeck" class="tool-deck" role="button" tabindex="0" aria-expanded="false" aria-label="Expandir tarjetas de herramientas">'
+      .'<div class="tool-card card-0" data-card-index="0"><div class="tool-icon spotlight-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><path d="M90,23.333L60,10L50,26L40,10L10,23.333L36.571,47.49L10,90h6.667L50,59.697L83.333,90H90L63.431,47.49L90,23.333z M22.047,25.277l15.368-6.833l8.654,13.848l-5.908,9.453L22.047,25.277z M32.474,66.621l30.111-48.177l15.367,6.833L32.474,66.621z M67.526,66.621L54.954,55.192l3.464-3.145L67.526,66.621z"></path></svg></div><div class="tool-copy"><h2>Spotlight Code</h2><p>Code focused on your custom enhancements, providing you with the necessary credentials to make fixes or changes.</p></div><span class="tool-index">01</span></div>'
+      .'<div class="tool-card card-1" data-card-index="1"><div class="tool-icon next-icon"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="43"></circle><path d="M31 69V31h9l24 30V31h7v38h-8L38 38v31z" fill="#fff"></path><path d="M67 31l18 26" stroke="#fff" stroke-width="4"></path></svg></div><div class="tool-copy"><h2>Next.js</h2><p>A React framework for production with server-side rendering and static site generation.</p></div><span class="tool-index">02</span></div>'
+      .'<div class="tool-card card-2" data-card-index="2"><div class="tool-icon shadcn-icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M20 68 62 26M34 80l46-46" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"></path></svg></div><div class="tool-copy"><h2>Shadcn UI</h2><p>Beautiful, accessible components built using Radix UI and Tailwind CSS.</p></div><span class="tool-index">03</span></div>'
+      .'<div class="tool-card card-3" data-card-index="3"><div class="tool-icon aceternity-icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 10 88 84H70L61 66H39l-9 18H12L50 10zm0 24L44 50h12L50 34z"></path></svg></div><div class="tool-copy"><h2>Aceternity UI</h2><p>Beautiful, accessible components built using Shadcn UI and Tailwind CSS.</p></div><span class="tool-index">04</span></div>'
+      .'<p class="tool-hint">CLICK TO EXPAND · CLICK AGAIN TO STACK</p>'
+      .'</section></div></main><script src="'.$js.'" defer></script></body></html>';
 }

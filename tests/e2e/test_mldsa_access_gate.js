@@ -89,6 +89,8 @@ assert(css.includes('height:36px'),'FAQTabsCard tab rail height missing');
 assert(css.includes('height:27px'),'FAQTabsCard active tab height missing');
 assert(css.includes('border-radius:18px'),'FAQTabsCard accordion 18px radius missing');
 assert(css.includes('margin-top:25px'),'FAQTabsCard footer spacing missing');
+assert(css.includes('position:absolute'),'desktop FAQ must be out of grid flow so animated cards keep their original position');
+assert(css.includes('top:calc(100% + 32px)'),'desktop FAQ must stay anchored below the ML-DSA card');
 assert(js.includes("label:'General'"),'FAQ General tab provisional data missing');
 assert(js.includes("label:'Billing'"),'FAQ Billing tab provisional data missing');
 assert(js.includes("label:'Goals'"),'FAQ Goals tab provisional data missing');

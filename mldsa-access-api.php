@@ -2,6 +2,7 @@
 require_once __DIR__.'/mldsa-access.php';
 header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store');
 if(!mldsaAccessRequired()){echo json_encode(['ok'=>true,'required'=>false,'authorized'=>true]);exit;}
+if(!mldsaAccessConfigured()){http_response_code(503);echo json_encode(['ok'=>false,'required'=>true,'code'=>'mldsa_not_configured','error'=>'ML-DSA-87 public key is unavailable or invalid.']);exit;}
 if(function_exists('securityRateAllowSliding')){
   $r=securityRateAllowSliding('mldsa_access',($_SERVER['REQUEST_METHOD']??'GET')==='POST'?8:30,60);
   if(empty($r['allowed'])) securityRateDenyJson((int)($r['retry_after']??60));

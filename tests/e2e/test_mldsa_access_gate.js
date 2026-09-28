@@ -193,6 +193,12 @@ assert(js.includes('navigator.clipboard.writeText(value)'),'ScratchCard clipboar
 assert(js.includes('window.setTimeout(resetScratchCopyState,2000)'),'ScratchCard copied state timeout missing');
 assert(js.includes('function resetScratchCard()'),'ScratchCard reset function missing');
 assert(gate.includes('id="d5BeamCardDemo"'),'BeamCard demo container missing');
+assert(css.includes('grid-template-columns:360px 360px 320px'),'Unified auxiliary grid columns missing');
+assert(css.includes('row-gap:16px'),'Unified auxiliary grid vertical gap missing');
+assert(css.includes('grid-column:1 / span 2'),'BeamCard must span NavList and NumberTicker columns');
+assert(css.includes('grid-row:2'),'BeamCard must sit directly below the top auxiliary row');
+assert(css.includes('grid-row:3'),'TiltCard must sit directly below BeamCard');
+assert(css.includes('justify-self:center'),'BeamCard must be centered across its two-column span');
 assert(gate.includes('Traveling · colorful'),'BeamCard traveling eyebrow missing');
 assert(gate.includes('Realtime collaboration'),'BeamCard traveling title missing');
 assert(gate.includes('Cursors, comments and presence sync in under 40ms, everywhere.'),'BeamCard traveling description missing');

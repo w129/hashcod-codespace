@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-text-editor1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-text-editor1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-texttools1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-texttools1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -302,10 +302,19 @@ function mldsaGateHtml(string $base='/'): string {
       .'<div class="liquid-editor-heading"><span class="liquid-editor-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h10"></path></svg></span><div><p>TEXT EDITOR</p><h3>Workspace draft</h3></div></div>'
       .'<span id="d5TextEditorStatus" class="liquid-editor-status" data-state="loading"><i></i><span>Loading</span></span>'
       .'</header>'
-      .'<div class="liquid-editor-field">'
-      .'<textarea id="d5TextEditorInput" class="autosize-textarea" rows="1" maxlength="65536" spellcheck="true" placeholder="This textarea with min height 52 and unlimited max height." aria-label="Text editor"></textarea>'
+      .'<div class="liquid-editor-toolbar" role="toolbar" aria-label="Text tools">'
+      .'<button id="d5TextEditorImport" class="liquid-editor-tool" type="button" title="Abrir TXT, MD, CSV o VPD"><span>Open</span></button>'
+      .'<input id="d5TextEditorFile" class="liquid-editor-file" type="file" accept=".txt,.md,.csv,.vpd,text/plain,text/csv,text/markdown">'
+      .'<button id="d5TextEditorNormalize" class="liquid-editor-tool" type="button" title="Normalizar Unicode NFKC">NFKC</button>'
+      .'<button id="d5TextEditorClean" class="liquid-editor-tool" type="button" title="Limpiar caracteres de control">Clean</button>'
+      .'<button id="d5TextEditorExport" class="liquid-editor-tool" type="button" title="Descargar texto UTF-8">TXT</button>'
+      .'<button id="d5TextEditorClear" class="liquid-editor-tool danger" type="button" title="Vaciar borrador">Clear</button>'
+      .'<span id="d5TextEditorEncoding" class="liquid-editor-encoding">UTF-8</span>'
       .'</div>'
-      .'<footer class="liquid-editor-footer"><span id="d5TextEditorCount">0 characters</span><span class="liquid-editor-shortcut">Ctrl+S</span></footer>'
+      .'<div class="liquid-editor-field">'
+      .'<textarea id="d5TextEditorInput" class="autosize-textarea" rows="1" maxlength="65536" wrap="soft" spellcheck="true" placeholder="Write, paste or import text. Unicode and legacy Japanese text are supported." aria-label="Text editor"></textarea>'
+      .'</div>'
+      .'<footer class="liquid-editor-footer"><span id="d5TextEditorCount">0 lines · 0 words · 0 characters</span><span class="liquid-editor-shortcut">Ctrl+S · Tab</span></footer>'
       .'</section>'
       .'</div>'
       .'<section id="d5NavListDemo" class="nav-list-demo" aria-label="Navigation cards">'

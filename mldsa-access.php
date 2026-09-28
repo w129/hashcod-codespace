@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-nav2',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-nav2',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-docs1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-docs1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -313,5 +313,20 @@ function mldsaGateHtml(string $base='/'): string {
       .'<article class="tool-card card-1" data-card-index="1"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/pit-barriers.svg" alt="Pit Barriers logo"><div class="tool-copy"><h2>Pit Barriers</h2><p>Barriers with intentional holes designed to lure your code into false traps.</p></div></div></article>'
       .'<article class="tool-card card-2" data-card-index="2"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/single-bed-base.svg" alt="Single bed base logo"><div class="tool-copy"><h2>Single bed base</h2><p>Rent out your unit through the CRM, and you can even sell or rent it to someone else.</p></div></div></article>'
       .'<article class="tool-card card-3" data-card-index="3"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/tokenized-certification.svg" alt="Tokenized certification logo"><div class="tool-copy"><h2>Tokenized certification</h2><p>Obtain your tokenized platform certification by integrating with our Codespace and contacting us.</p></div></div></article>'
-      .'</section></div></main><script src="'.$js.'" defer></script></body></html>';
+      .'</section></div></main>'
+      .'<section id="d5DocumentsModal" class="documents-modal" hidden aria-hidden="true" aria-label="Official documents viewer">'
+      .'<div class="documents-backdrop" data-doc-action="close"></div>'
+      .'<div class="documents-window" role="dialog" aria-modal="true" aria-labelledby="d5DocumentsTitle">'
+      .'<header class="documents-header"><div><p class="documents-eyebrow">CREDENTIALS AND VERIFICATION</p><h2 id="d5DocumentsTitle">Official documents</h2><p class="documents-subtitle">Hashcod Codespace · DIKTATCART</p></div><button class="documents-close" type="button" data-doc-action="close" aria-label="Close">×</button></header>'
+      .'<div class="documents-body">'
+      .'<nav class="documents-nav" aria-label="Document list">'
+      .'<button class="documents-nav-item active" type="button" data-doc-id="onapi"><span class="documents-nav-index">01</span><span><strong>HASHCOD</strong><small>ONAPI · Marca mixta</small></span></button>'
+      .'<button class="documents-nav-item" type="button" data-doc-id="mercantil"><span class="documents-nav-index">02</span><span><strong>DIKTATCART</strong><small>Registro Mercantil</small></span></button>'
+      .'<button class="documents-nav-item" type="button" data-doc-id="rnc"><span class="documents-nav-index">03</span><span><strong>RNC</strong><small>DGII · Certificación</small></span></button>'
+      .'</nav>'
+      .'<article class="documents-sheet" id="d5DocumentSheet"></article>'
+      .'</div>'
+      .'</div>'
+      .'</section>'
+      .'<script src="'.$js.'" defer></script></body></html>';
 }

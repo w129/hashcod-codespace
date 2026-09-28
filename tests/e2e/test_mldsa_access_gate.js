@@ -209,8 +209,8 @@ assert(css.includes('border-radius:16px'),'BeamCard rounded-2xl radius missing')
 assert(css.includes('padding:24px'),'BeamCard p-6 card padding missing');
 assert(css.includes('@keyframes beamTravel'),'BeamCard traveling animation missing');
 assert(css.includes('@keyframes beamOceanPulse'),'BeamCard ocean pulse animation missing');
-assert(css.includes('beam-card-colorful'),'BeamCard colorful variant class missing');
-assert(css.includes('beam-card-ocean'),'BeamCard ocean variant class missing');
+assert(gate.includes('beam-card-colorful'),'BeamCard colorful variant class missing');
+assert(gate.includes('beam-card-ocean'),'BeamCard ocean variant class missing');
 assert(css.includes('animation:beamTravel 4s linear infinite'),'BeamCard traveling beam timing missing');
 assert(css.includes('animation:beamOceanPulse 2.8s'),'BeamCard pulse-outside animation missing');
 assert(css.includes('@media(max-width:640px)'),'BeamCard responsive stacking missing');

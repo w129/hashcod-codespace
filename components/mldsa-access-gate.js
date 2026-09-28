@@ -260,7 +260,23 @@ var tickerDecrease=document.getElementById('d5TickerDecrease');
 var tickerRandomize=document.getElementById('d5TickerRandomize');
 var tickerIncrease=document.getElementById('d5TickerIncrease');
 var NUMBER_TICKER_STEP=1250;
-var numberTickerValue=48250;
+var NUMBER_TICKER_STORAGE_KEY='hashcod:number-ticker:value:v1';
+function loadStoredNumberTickerValue(){
+  try{
+    var stored=window.localStorage.getItem(NUMBER_TICKER_STORAGE_KEY);
+    if(stored===null||stored==='')return 48250;
+    var parsed=Number(stored);
+    return Number.isFinite(parsed)&&parsed>=0?Math.round(parsed):48250;
+  }catch(_){
+    return 48250;
+  }
+}
+function persistNumberTickerValue(value){
+  try{
+    window.localStorage.setItem(NUMBER_TICKER_STORAGE_KEY,String(Math.max(0,Math.round(value))));
+  }catch(_){}
+}
+var numberTickerValue=loadStoredNumberTickerValue();
 var numberTickerEntered=false;
 var numberTickerArmed=false;
 var numberTickerEntranceTimer=0;
@@ -375,6 +391,7 @@ function armNumberTicker(){
 }
 function setNumberTickerValue(nextValue){
   numberTickerValue=Math.max(0,Math.round(nextValue));
+  persistNumberTickerValue(numberTickerValue);
   renderNumberTicker(numberTickerValue,!numberTickerEntered);
 }
 if(numberTickerRoot){

@@ -60,6 +60,53 @@ function hccOwnerKey(string $clientId): string {
     return 'visitor_' . substr(hash_hmac('sha256', $clientId, $pepper), 0, 32);
 }
 
+function hccStateFallbackId(): string {
+    return 'shared_hashcod_chat_' . HCC_ROOM;
+}
+
+function hccStateFallbackLoad(): array {
+    $id = hccStateFallbackId();
+    $query = 'select=state&id=eq.' . rawurlencode($id) . '&limit=1';
+    $res = supabaseDbSelect('l8_app_states', $query);
+    if (empty($res['ok'])) return ['ok' => false, 'messages' => []];
+    $rows = hccRows($res['body'] ?? []);
+    if (!$rows) return ['ok' => true, 'messages' => []];
+    $state = $rows[0]['state'] ?? [];
+    if (is_string($state)) $state = json_decode($state, true);
+    $messages = is_array($state) && is_array($state['messages'] ?? null) ? $state['messages'] : [];
+    return ['ok' => true, 'messages' => $messages];
+}
+
+function hccStateFallbackSave(array $message): bool {
+    $loaded = hccStateFallbackLoad();
+    $messages = !empty($loaded['ok']) ? ($loaded['messages'] ?? []) : [];
+    $byId = [];
+    foreach ($messages as $row) {
+        if (!is_array($row) || empty($row['id'])) continue;
+        $byId[(string)$row['id']] = $row;
+    }
+    $byId[(string)$message['id']] = $message;
+    $messages = array_values($byId);
+    usort($messages, static function($a, $b) {
+        return strcmp((string)($a['created_at'] ?? ''), (string)($b['created_at'] ?? ''));
+    });
+    if (count($messages) > HCC_LIMIT_MAX) $messages = array_slice($messages, -HCC_LIMIT_MAX);
+
+    $row = [[
+        'id' => hccStateFallbackId(),
+        'account_key' => 'shared_hashcod_chat',
+        'app_id' => HCC_ROOM,
+        'state' => [
+            'room_id' => HCC_ROOM,
+            'messages' => $messages,
+            'updated_at' => gmdate('c'),
+        ],
+        'updated_at' => gmdate('c'),
+    ]];
+    $saved = supabaseDbUpsert('l8_app_states', $row, 'id');
+    return !empty($saved['ok']);
+}
+
 function hccLocalPath(): string {
     $dir = __DIR__ . '/data_storage/chat_messages';
     if (!is_dir($dir)) @mkdir($dir, 0700, true);
@@ -114,6 +161,15 @@ function hccListMessages(string $owner, int $limit): array {
         . '&order=created_at.asc&limit=' . $limit;
     $remote = supabaseDbSelect(HCC_TABLE, $query);
     $rows = !empty($remote['ok']) ? hccRows($remote['body'] ?? []) : [];
+
+    // Until/if the dedicated message table migration is unavailable, use the
+    // existing durable l8_app_states table as a cloud-backed room snapshot.
+    $stateFallback = hccStateFallbackLoad();
+    if (!empty($stateFallback['ok'])) {
+        foreach (($stateFallback['messages'] ?? []) as $stateRow) {
+            if (is_array($stateRow)) $rows[] = $stateRow;
+        }
+    }
 
     // Merge best-effort local fallback rows so a temporary Supabase outage never
     // makes an accepted comment disappear from this runtime.
@@ -178,11 +234,18 @@ function hccCreateMessage(array $body, string $owner): array {
 
     $remote = supabaseDbUpsert(HCC_TABLE, [$row], 'id');
     if (!empty($remote['ok'])) {
+        // Keep the shared state snapshot warm as a secondary durable copy.
+        @hccStateFallbackSave($row);
         return ['ok' => true, 'message' => hccNormalizeForClient($row, $owner), 'deferred' => false];
     }
 
-    // Durable retry path already used elsewhere in Hashcod: retain locally and
-    // enqueue the exact row for Supabase synchronization.
+    // Cloud fallback that works with the schema already deployed in Hashcod.
+    if (hccStateFallbackSave($row)) {
+        return ['ok' => true, 'message' => hccNormalizeForClient($row, $owner), 'deferred' => false, 'fallback_store' => 'l8_app_states'];
+    }
+
+    // Last-resort retry path already used elsewhere in Hashcod: retain locally
+    // and enqueue the exact row for Supabase synchronization.
     $row['_deferred'] = true;
     $localSaved = hccLocalAppend($row);
     if (function_exists('supabaseQueueSyncMutation')) {

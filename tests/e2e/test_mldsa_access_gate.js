@@ -126,6 +126,8 @@ assert(js.includes('function entryProductRequestEdit()'),'ProductCard protected 
 assert(js.includes("entryProductEditButton.addEventListener('click'"),'ProductCard edit icon must request verification');
 assert(js.includes("entryProductSetMode('verify')"),'ProductCard edit request must reopen verification');
 assert(js.includes("entryProductSetMode('edit')"),'valid ProductCard code must enable edit mode');
+assert(js.includes('if(entryLevel===2&&next!==2&&entryProductHasSavedImage)'),'ProductCard editor must relock when leaving level 2');
+assert(js.includes('if(next===2&&entryLevel!==2&&entryProductHasSavedImage)'),'saved ProductCard must reopen in view-only mode');
 assert(js.includes('entryProductHasSavedImage=true'),'ProductCard uploaded image saved-state marker missing');
 assert(js.includes('function entryProductStartImageDrag(event)'),'ProductCard image drag start handler missing');
 assert(js.includes('function entryProductMoveImageDrag(event)'),'ProductCard image drag move handler missing');

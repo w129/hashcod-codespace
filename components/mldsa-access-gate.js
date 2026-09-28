@@ -620,6 +620,10 @@ var scratchFoil=document.getElementById('d5ScratchFoil');
 var scratchCanvas=document.getElementById('d5ScratchCanvas');
 var scratchParticlesCanvas=document.getElementById('d5ScratchParticles');
 var scratchCopy=document.getElementById('d5ScratchCopy');
+var scratchCouponCodeEl=document.getElementById('d5ScratchCouponCode');
+var SCRATCH_COUPON_ENDPOINT='/api/hashcod-coupon';
+var scratchCouponCode='';
+var scratchCouponValid=false;
 var scratchCopyIcon=document.getElementById('d5ScratchCopyIcon');
 var scratchCopySr=document.getElementById('d5ScratchCopySr');
 var scratchReset=document.getElementById('d5ScratchReset');
@@ -771,7 +775,9 @@ function revealScratchCard(){
     },scratchPrefersReducedMotion()?0:400);
   }
   if(scratchAnnouncement){
-    scratchAnnouncement.textContent='Coupon revealed: SPECTRUM20 for 20% off';
+    scratchAnnouncement.textContent=scratchCouponValid
+      ?('Coupon revealed: '+scratchCouponCode+' for 20% off')
+      :'Coupon revealed. Validation code unavailable.';
   }
   if(scratchReset)scratchReset.hidden=false;
 }
@@ -810,8 +816,49 @@ function setScratchCopiedState(){
   window.clearTimeout(scratchCopyTimer);
   scratchCopyTimer=window.setTimeout(resetScratchCopyState,2000);
 }
+async function loadScratchCoupon(){
+  if(!scratchCouponCodeEl)return;
+  scratchCouponCodeEl.textContent='HC20-LOADING';
+  if(scratchCopy)scratchCopy.disabled=true;
+  try{
+    var response=await fetch(SCRATCH_COUPON_ENDPOINT+'?action=issue',{
+      credentials:'same-origin',
+      cache:'no-store',
+      headers:{Accept:'application/json'}
+    });
+    var data=await response.json();
+    var coupon=data&&data.coupon?data.coupon:null;
+    var code=coupon&&typeof coupon.code==='string'?coupon.code.trim():'';
+    if(!response.ok||!data.ok||!coupon||coupon.valid!==true||!/^HC20-/.test(code)){
+      throw new Error('coupon_issue_failed');
+    }
+
+    var verifyResponse=await fetch(SCRATCH_COUPON_ENDPOINT,{
+      method:'POST',
+      credentials:'same-origin',
+      cache:'no-store',
+      headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({action:'validate',code:code})
+    });
+    var verifyData=await verifyResponse.json();
+    if(!verifyResponse.ok||!verifyData.ok||!verifyData.coupon||verifyData.coupon.valid!==true){
+      throw new Error('coupon_validation_failed');
+    }
+
+    scratchCouponCode=code;
+    scratchCouponValid=true;
+    scratchCouponCodeEl.textContent=code;
+    if(scratchCopy)scratchCopy.disabled=false;
+  }catch(_){
+    scratchCouponCode='';
+    scratchCouponValid=false;
+    scratchCouponCodeEl.textContent='CODE UNAVAILABLE';
+    if(scratchCopy)scratchCopy.disabled=true;
+  }
+}
+
 function copyScratchCoupon(){
-  var value='SPECTRUM20';
+  var value=scratchCouponValid?scratchCouponCode:'';
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(value).then(setScratchCopiedState).catch(function(){
       fallbackCopyScratchCoupon(value);
@@ -853,6 +900,8 @@ function resetScratchCard(){
   scratchLastHeight=0;
   requestAnimationFrame(paintScratchOverlay);
 }
+
+loadScratchCoupon();
 
 if(scratchCard&&scratchCanvas&&scratchParticlesCanvas){
   requestAnimationFrame(paintScratchOverlay);

@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-layout-repair1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-layout-repair1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-text-editor1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-text-editor1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -286,6 +286,7 @@ function mldsaGateHtml(string $base='/'): string {
       .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
       .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
       .'</section>'
+      .'<div id="d5FaqStack" class="faq-stack">'
       .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'
       .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'
       .'<button class="faq-tab active" type="button" role="tab" aria-selected="true" data-faq-tab="0"><span class="faq-tab-pill"></span><span class="faq-tab-label">General</span></button>'
@@ -295,6 +296,18 @@ function mldsaGateHtml(string $base='/'): string {
       .'<div id="d5FaqAccordion" class="faq-accordion"></div>'
       .'<button id="d5FaqFooter" class="faq-footer" type="button">Comenzar mi Solicitud</button>'
       .'</section>'
+      .'<section id="d5TextEditorCard" class="liquid-text-editor" aria-label="Text editor">'
+      .'<div class="liquid-editor-shine" aria-hidden="true"></div>'
+      .'<header class="liquid-editor-header">'
+      .'<div class="liquid-editor-heading"><span class="liquid-editor-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h10"></path></svg></span><div><p>TEXT EDITOR</p><h3>Workspace draft</h3></div></div>'
+      .'<span id="d5TextEditorStatus" class="liquid-editor-status" data-state="loading"><i></i><span>Loading</span></span>'
+      .'</header>'
+      .'<div class="liquid-editor-field">'
+      .'<textarea id="d5TextEditorInput" class="autosize-textarea" rows="1" maxlength="65536" spellcheck="true" placeholder="This textarea with min height 52 and unlimited max height." aria-label="Text editor"></textarea>'
+      .'</div>'
+      .'<footer class="liquid-editor-footer"><span id="d5TextEditorCount">0 characters</span><span class="liquid-editor-shortcut">Ctrl+S</span></footer>'
+      .'</section>'
+      .'</div>'
       .'<section id="d5NavListDemo" class="nav-list-demo" aria-label="Navigation cards">'
       .'<section id="d5SavedChatDemo" class="saved-chat-demo" aria-label="Saved messages">'
       .'<div class="saved-chat-card">'

@@ -793,3 +793,150 @@
   .documents-nav-item,.document-field,.documents-close{transition:none!important}
 }
 
+/* Spectrum UI NumberTicker demo — native adaptation */
+.number-ticker-demo{
+  width:360px;
+  flex:0 0 360px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:24px;
+  padding:40px 0;
+}
+.number-ticker-card{
+  width:100%;
+  max-width:360px;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:16px;
+  background:#fff;
+  padding:24px;
+}
+.number-ticker-kicker{
+  margin:0;
+  color:#737373;
+  font:500 11px/1.4 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.number-ticker-value{
+  margin-top:12px;
+  color:#171717;
+  font-size:40px;
+  font-weight:600;
+  line-height:1;
+  letter-spacing:-.03em;
+}
+.number-ticker{
+  display:inline-flex;
+  align-items:center;
+  font-variant-numeric:tabular-nums;
+}
+.number-ticker-visual{
+  display:inline-flex;
+  align-items:center;
+}
+.number-ticker-prefix,
+.number-ticker-separator{
+  display:inline-block;
+}
+.number-ticker-digit{
+  position:relative;
+  display:inline-block;
+  width:1ch;
+  height:1.1em;
+  overflow:hidden;
+}
+.number-ticker-column{
+  position:absolute;
+  inset-inline:0;
+  top:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  will-change:transform,filter;
+  transform:translateY(0);
+  transition-property:transform;
+  transition-duration:.9s;
+  transition-timing-function:cubic-bezier(.16,1,.3,1);
+}
+.number-ticker-column.blur-roll{
+  animation:numberTickerBlur .32s cubic-bezier(.16,1,.3,1) both;
+}
+.number-ticker-glyph{
+  display:flex;
+  height:1.1em;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.number-ticker-caption{
+  margin:12px 0 0;
+  color:#737373;
+  font-size:14px;
+  line-height:20px;
+}
+.number-ticker-controls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.number-ticker-button{
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(0,0,0,.10);
+  border-radius:999px;
+  background:transparent;
+  color:#404040;
+  cursor:pointer;
+  transform:scale(1);
+  transition:background .18s ease,transform .12s ease;
+}
+.number-ticker-button:hover{background:rgba(0,0,0,.04)}
+.number-ticker-button:active{transform:scale(.95)}
+.number-ticker-button:focus-visible{
+  outline:2px solid #171717;
+  outline-offset:2px;
+}
+.number-ticker-button svg{
+  width:16px;
+  height:16px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+@keyframes numberTickerBlur{
+  from{filter:blur(10px)}
+  to{filter:blur(0)}
+}
+
+/* Mount the ticker to the right of both NavListCards without moving the FAQ. */
+@media(min-width:1180px){
+  .nav-list-demo{
+    width:732px;
+    max-width:none;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .nav-list-grid{
+    width:360px;
+    flex:0 0 360px;
+  }
+}
+@media(max-width:1179px){
+  .number-ticker-demo{
+    width:100%;
+    max-width:360px;
+    margin-top:12px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .number-ticker-column{transition-duration:0s!important}
+  .number-ticker-column.blur-roll{animation:none!important}
+}
+

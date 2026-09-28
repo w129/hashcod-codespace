@@ -133,6 +133,10 @@ if ($uri === '/api/groq-chat') {
     require __DIR__ . '/groq-chat.php';
     exit;
 }
+if ($uri === '/api/hashcod-comments') {
+    require __DIR__ . '/hashcod-comments.php';
+    exit;
+}
 
 // Isolated background controllers. Both supported routes are normalized before
 // bootstrap above, so these branches are also explicit for alternate frontends.

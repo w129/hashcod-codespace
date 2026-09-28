@@ -43,6 +43,10 @@ if ($bootstrapSyncPath === '/api/mldsa-access') {
     require __DIR__ . '/mldsa-access-api.php';
     exit;
 }
+if ($bootstrapSyncPath === '/api/hashcod-coupon') {
+    require __DIR__ . '/coupon-system.php';
+    exit;
+}
 
 securityBootstrap('web');
 

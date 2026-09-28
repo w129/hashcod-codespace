@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-beamdata1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-beamdata1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-savedchat1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-savedchat1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -296,6 +296,22 @@ function mldsaGateHtml(string $base='/'): string {
       .'<button id="d5FaqFooter" class="faq-footer" type="button">Comenzar mi Solicitud</button>'
       .'</section>'
       .'<section id="d5NavListDemo" class="nav-list-demo" aria-label="Navigation cards">'
+      .'<section id="d5SavedChatDemo" class="saved-chat-demo" aria-label="Saved messages">'
+      .'<div class="saved-chat-card">'
+      .'<header class="saved-chat-header"><div><h3>Saved Messages</h3><p>Comments remain available when you return.</p></div>'
+      .'<button id="d5SavedChatRefresh" class="saved-chat-refresh" type="button" aria-label="Refresh conversation"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5"></path><path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"></path></svg></span></button>'
+      .'</header>'
+      .'<div id="d5SavedChatBody" class="saved-chat-body">'
+      .'<div id="d5SavedChatEmpty" class="saved-chat-empty"><span class="saved-chat-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-7a4 4 0 0 1-1-2.65V7a4 4 0 0 1 4-4h11a4 4 0 0 1 4 4z"></path><path d="M8 10h.01M12 10h.01M16 10h.01"></path></svg></span><p>Start a comment</p><small>Write a message and it will stay saved in this room.</small></div>'
+      .'<div id="d5SavedChatMessages" class="saved-chat-messages" hidden></div>'
+      .'</div>'
+      .'<div class="saved-chat-composer-wrap"><div class="saved-chat-composer">'
+      .'<textarea id="d5SavedChatInput" rows="2" maxlength="1200" placeholder="Write a comment…" aria-label="Write a comment"></textarea>'
+      .'<div class="saved-chat-composer-actions">'
+      .'<button id="d5SavedChatNew" class="saved-chat-round-button" type="button" aria-label="New comment"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>'
+      .'<button id="d5SavedChatSend" class="saved-chat-send" type="button" aria-label="Send message"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></button>'
+      .'</div></div><p id="d5SavedChatStatus" class="saved-chat-status" role="status" aria-live="polite"></p></div>'
+      .'</div></section>'
       .'<div class="nav-list-left-column">'
       .'<div class="nav-list-grid">'
       .'<article class="nav-list-card"><p class="nav-list-title">Credentials and verification</p><ul class="nav-list-items">'

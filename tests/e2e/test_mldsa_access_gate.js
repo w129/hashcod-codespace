@@ -58,6 +58,10 @@ assert(l8.includes("return 'hashcod_codespace_entry';"),'entry intro session coo
 assert(l8.includes('mldsaGateHtml(l8_public_base_path(), true)'),'first-screen entry window missing');
 assert(gate.includes('Acceso a Hashcod Codespace'),'non-blocking entry card title missing');
 assert(gate.includes('ENTRAR A HASHCOD CODESPACE'),'entry card button missing');
+assert(gate.includes('entry-platform-logo')&&gate.includes('hashcod_icon_exact.svg'),'entry card must use original Hashcod platform icon');
+assert(!gate.includes('entry-welcome-icon" aria-hidden="true">H</span>'),'legacy H square must be removed');
+assert(css.includes('.entry-platform-logo{'),'entry platform logo styling missing');
+assert(!css.includes('.entry-welcome-icon{'),'legacy H square styling must be removed');
 assert(gate.includes('Sin reto, firma Base64 ni clave privada.'),'entry card must state direct access');
 assert(js.includes("data-hashcod-entry-intro"),'entry intro JS mode missing');
 assert(js.includes("url.searchParams.set('hashcod_enter','1')"),'entry button transition missing');

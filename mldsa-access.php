@@ -282,7 +282,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<div class="security-progress entry-progress"><span class="step active">1</span><i></i><span class="step">→</span></div>'
         .'<h1>Acceso a Hashcod Codespace</h1>'
         .'<p class="description">Esta ventana aparece primero antes de entrar a la plataforma.</p>'
-        .'<div class="entry-welcome-panel"><span class="entry-welcome-icon" aria-hidden="true">H</span><div><strong>Hashcod Codespace</strong><small>Tu espacio de trabajo está listo.</small></div></div>'
+        .'<div class="entry-welcome-panel"><img class="entry-platform-logo" src="'.$base.'hashcod_icon_exact.svg" alt="Hashcod Codespace platform icon"><div><strong>Hashcod Codespace</strong><small>Tu espacio de trabajo está listo.</small></div></div>'
         .'<button id="d5Verify" class="primary-action" type="button"><span class="lock-icon entry-arrow" aria-hidden="true">→</span><span id="d5VerifyText">ENTRAR A HASHCOD CODESPACE</span></button>'
         .'<button class="info-card entry-info-card" type="button"><span class="info-icon entry-ok">✓</span><span class="info-copy"><strong>Acceso directo</strong><small>Sin reto, firma Base64 ni clave privada.</small></span><span class="chev">›</span></button>'
         .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'

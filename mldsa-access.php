@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-tilt4',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-tilt4',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-tilt5',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-tilt5',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -313,8 +313,8 @@ function mldsaGateHtml(string $base='/'): string {
       .'<div id="d5TiltPerspective" class="tilt-card-perspective">'
       .'<article id="d5TiltCard" class="tilt-card-surface">'
       .'<div class="tilt-card-preserve">'
-      .'<div class="tilt-card-item tilt-title" data-tilt-depth="50">Aurora Headphones</div>'
-      .'<div class="tilt-card-item tilt-description" data-tilt-depth="30">Studio sound with adaptive noise cancellation.</div>'
+      .'<div class="tilt-card-item tilt-title" data-tilt-depth="50">Current price to purchase a slot</div>'
+      .'<div class="tilt-card-item tilt-description" data-tilt-depth="30">Este es el precio que debes pagar para adquirir un cupo en la plataforma</div>'
       .'<div class="tilt-card-item tilt-media" data-tilt-depth="80"><div class="tilt-media-frame"><img src="'.$base.'hashcod_icon_exact.svg" alt="Hashcod Codespace platform icon"></div></div>'
       .'<div class="tilt-card-footer">'
       .'<div class="tilt-card-item tilt-price" data-tilt-depth="40">$249</div>'

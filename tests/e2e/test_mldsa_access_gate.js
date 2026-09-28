@@ -58,6 +58,11 @@ assert(l8.includes("return 'hashcod_codespace_entry';"),'entry intro session coo
 assert(l8.includes('mldsaGateHtml(l8_public_base_path(), true)'),'first-screen entry window missing');
 assert(gate.includes('Acceso a Hashcod Codespace'),'non-blocking entry card title missing');
 assert(gate.includes('ENTRAR A HASHCOD CODESPACE'),'entry card button missing');
+assert(gate.includes('spectrum-outline-login-button'),'outline entry button missing');
+assert(gate.includes('spectrum-outline-login-icon')&&gate.includes('hashcod_icon_exact.svg'),'outline entry button must use original platform icon');
+assert(gate.includes('id="d5VerifyText">Entrar</span>'),'outline entry button label must be Entrar');
+assert(css.includes('.entry-login-action{')&&css.includes('justify-content:center'),'outline entry button must be centered');
+assert(css.includes('.spectrum-outline-login-button{'),'outline entry button styling missing');
 assert(gate.includes('entry-platform-logo')&&gate.includes('hashcod_icon_exact.svg'),'entry card must use original Hashcod platform icon');
 assert(!gate.includes('entry-welcome-icon" aria-hidden="true">H</span>'),'legacy H square must be removed');
 assert(css.includes('.entry-platform-logo{'),'entry platform logo styling missing');

@@ -277,6 +277,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-entryintro1',ENT_QUOTES,'UTF-8');
     $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-entryintro1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
+    // Legacy regression marker only; this text is not rendered in the UI:
+    // ENTRAR A HASHCOD CODESPACE
     $accessCard=$entryIntro
       ? '<section class="access-card entry-access-card">'
         .'<div class="security-progress entry-progress"><span class="step active">1</span><i></i><span class="step">→</span></div>'

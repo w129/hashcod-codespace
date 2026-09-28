@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-cents32-1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-cents32-1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-beam1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-beam1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -309,6 +309,29 @@ function mldsaGateHtml(string $base='/'): string {
       .'<li><button type="button" class="nav-list-row" data-nav-list-item="Contact Us"><span class="nav-list-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-7a4 4 0 0 1-1-2.65V7a4 4 0 0 1 4-4h11a4 4 0 0 1 4 4z"></path><path d="M8 9h.01"></path><path d="M12 9h.01"></path><path d="M16 9h.01"></path></svg></span><span class="nav-list-label">Contact Us</span></button></li>'
       .'</ul></article>'
       .'</div>'
+      .'<section id="d5BeamCardDemo" class="beam-card-demo" aria-label="Beam card demo">'
+      .'<div class="beam-card-grid">'
+      .'<div class="beam-card-wrap beam-card-traveling beam-card-colorful">'
+      .'<article class="beam-card-surface">'
+      .'<p class="beam-card-eyebrow">Traveling · colorful</p>'
+      .'<h3 class="beam-card-title">Realtime collaboration</h3>'
+      .'<p class="beam-card-description">Cursors, comments and presence sync in under 40ms, everywhere.</p>'
+      .'<div class="beam-card-body beam-avatar-stack">'
+      .'<span class="beam-avatar">AC</span><span class="beam-avatar">MR</span><span class="beam-avatar">PN</span><span class="beam-avatar">+4</span>'
+      .'</div>'
+      .'</article>'
+      .'</div>'
+      .'<div class="beam-card-wrap beam-card-pulse-outside beam-card-ocean">'
+      .'<article class="beam-card-surface">'
+      .'<p class="beam-card-eyebrow">Breathing · ocean</p>'
+      .'<h3 class="beam-card-title">Edge inference</h3>'
+      .'<p class="beam-card-description">Models run in the region closest to the user, with a warm cache.</p>'
+      .'<div class="beam-card-body"><p class="beam-latency">18 <span>ms p95</span></p></div>'
+      .'</article>'
+      .'</div>'
+      .'</div>'
+      .'<p class="beam-card-hint">Traveling and breathing beams that hug the radius of each card.</p>'
+      .'</section>'
       .'<section id="d5TiltCardDemo" class="tilt-card-demo" aria-label="Tilt card demo">'
       .'<div id="d5TiltPerspective" class="tilt-card-perspective">'
       .'<article id="d5TiltCard" class="tilt-card-surface">'

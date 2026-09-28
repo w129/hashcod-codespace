@@ -166,6 +166,8 @@ assert(js.includes('Math.round(Number(nextValue)*100)/100'),'NumberTicker must p
 assert(js.includes('IntersectionObserver'),'NumberTicker start-on-view behavior missing');
 assert(gate.includes('id="d5ScratchCardDemo"'),'ScratchCard demo container missing');
 assert(gate.includes('Coupon unlocked'),'ScratchCard unlocked label missing');
+assert(gate.includes('hashcod_icon_exact.svg'),'ScratchCard must use original Hashcod platform icon');
+assert(gate.includes('scratch-platform-icon'),'ScratchCard platform icon class missing');
 assert(gate.includes('20% off'),'ScratchCard prize missing');
 assert(gate.includes('SPECTRUM20'),'ScratchCard coupon code missing');
 assert(gate.includes('Drag across the card to scratch off the foil'),'ScratchCard hint missing');

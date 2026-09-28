@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-scratch3',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-scratch3',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-tilt1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-tilt1',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -296,6 +296,7 @@ function mldsaGateHtml(string $base='/'): string {
       .'<button id="d5FaqFooter" class="faq-footer" type="button">Comenzar mi Solicitud</button>'
       .'</section>'
       .'<section id="d5NavListDemo" class="nav-list-demo" aria-label="Navigation cards">'
+      .'<div class="nav-list-left-column">'
       .'<div class="nav-list-grid">'
       .'<article class="nav-list-card"><p class="nav-list-title">Credentials and verification</p><ul class="nav-list-items">'
       .'<li><button type="button" class="nav-list-row" data-nav-list-item="Documents"><span class="nav-list-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line><line x1="10" x2="8" y1="9" y2="9"></line></svg></span><span class="nav-list-label">Documents</span></button></li>'
@@ -307,6 +308,24 @@ function mldsaGateHtml(string $base='/'): string {
       .'<li><button type="button" class="nav-list-row" data-nav-list-item="Docs"><span class="nav-list-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4.5A2.5 2.5 0 0 1 4.5 2H10a2 2 0 0 1 2 2v16a2 2 0 0 0-2-2H4.5A2.5 2.5 0 0 0 2 20.5z"></path><path d="M22 4.5A2.5 2.5 0 0 0 19.5 2H14a2 2 0 0 0-2 2v16a2 2 0 0 1 2-2h5.5a2.5 2.5 0 0 1 2.5 2.5z"></path></svg></span><span class="nav-list-label">Docs</span></button></li>'
       .'<li><button type="button" class="nav-list-row" data-nav-list-item="Contact Us"><span class="nav-list-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3v-7a4 4 0 0 1-1-2.65V7a4 4 0 0 1 4-4h11a4 4 0 0 1 4 4z"></path><path d="M8 9h.01"></path><path d="M12 9h.01"></path><path d="M16 9h.01"></path></svg></span><span class="nav-list-label">Contact Us</span></button></li>'
       .'</ul></article>'
+      .'</div>'
+      .'<section id="d5TiltCardDemo" class="tilt-card-demo" aria-label="Tilt card demo">'
+      .'<div id="d5TiltPerspective" class="tilt-card-perspective">'
+      .'<article id="d5TiltCard" class="tilt-card-surface">'
+      .'<div class="tilt-card-preserve">'
+      .'<div class="tilt-card-item tilt-title" data-tilt-depth="50">Aurora Headphones</div>'
+      .'<div class="tilt-card-item tilt-description" data-tilt-depth="30">Studio sound with adaptive noise cancellation.</div>'
+      .'<div class="tilt-card-item tilt-media" data-tilt-depth="80"><div class="tilt-media-frame"><img src="'.$base.'hashcod_icon_exact.svg" alt="Hashcod Codespace platform icon"></div></div>'
+      .'<div class="tilt-card-footer">'
+      .'<div class="tilt-card-item tilt-price" data-tilt-depth="40">$249</div>'
+      .'<div class="tilt-card-item" data-tilt-depth="60"><button class="tilt-buy-button" type="button">Buy now →</button></div>'
+      .'</div>'
+      .'</div>'
+      .'<div id="d5TiltGlare" class="tilt-card-glare" aria-hidden="true"></div>'
+      .'</article>'
+      .'</div>'
+      .'<p class="tilt-card-hint">Move the pointer across the card — layers lift at different depths</p>'
+      .'</section>'
       .'</div>'
       .'<section id="d5NumberTickerDemo" class="number-ticker-demo" aria-label="Number ticker demo">'
       .'<div class="number-ticker-card">'

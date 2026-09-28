@@ -169,16 +169,16 @@ var FAQ_TABS=[
     label:'Goals',
     faqs:[
       {
-        question:'How do savings goals work?',
-        answer:'Set a target amount and date — we track progress automatically across your linked accounts.'
+        question:'¿Para qué sirven los Goals dentro de Hashcod Codespace?',
+        answer:'Los Goals representan los objetivos que deseas alcanzar con tu proyecto dentro de Hashcod Codespace. Al definir tus objetivos, nos ayudas a comprender qué quieres construir, mejorar o solucionar en tu plataforma. Estos objetivos sirven como referencia para determinar qué herramientas, módulos y funciones pueden ser necesarias durante el desarrollo. Por ejemplo, un Goal puede ser automatizar un proceso, crear un nuevo sistema, mejorar una función existente, integrar una tecnología, organizar información o desarrollar una herramienta específica para tu proyecto. Los Goals permiten que el desarrollo tenga una dirección clara y que las soluciones incorporadas a tu Toolbook estén relacionadas directamente con las necesidades reales de tu proyecto.'
       },
       {
-        question:'Can I share a goal with a partner?',
-        answer:"Yes, invite a partner to any goal and you'll both see live progress and contributions."
+        question:'¿Cómo creo un Goal para mi proyecto?',
+        answer:'Para crear un Goal, debes definir de forma clara qué deseas conseguir con tu proyecto. No es necesario explicar todos los detalles técnicos desde el principio; lo más importante es indicar cuál es el resultado que quieres alcanzar. Por ejemplo, puedes establecer como Goal crear una nueva función, automatizar un proceso, mejorar una parte de tu plataforma, conectar un servicio externo, organizar determinada información o desarrollar una herramienta específica. Mientras más claro sea el objetivo, más fácil será analizar qué recursos, módulos o herramientas pueden ser necesarios para desarrollarlo. Una vez definido el Goal, este puede servir como referencia para organizar las solicitudes de desarrollo y orientar las funciones que posteriormente podrán incorporarse a tu Toolbook.'
       },
       {
-        question:'What happens when I reach a goal?',
-        answer:'We notify you and suggest next steps, like rolling the balance into a new goal or investing it.'
+        question:'¿Puedo tener varios Goals al mismo tiempo?',
+        answer:'Sí. Dentro de Hashcod Codespace puedes trabajar con varios Goals al mismo tiempo siempre que cada uno represente un objetivo claro dentro de tu proyecto. Por ejemplo, puedes tener un Goal enfocado en desarrollar una nueva herramienta, otro destinado a mejorar la interfaz de tu plataforma y otro relacionado con automatizar un proceso o integrar un servicio externo. Mantener los Goals separados ayuda a organizar mejor el desarrollo, identificar qué funciones pertenecen a cada objetivo y dar seguimiento al progreso de cada parte del proyecto. A medida que avances, cada Goal puede requerir distintas herramientas, módulos o soluciones, las cuales podrán incorporarse a tu Toolbook según el desarrollo realizado para tu cuenta.'
       }
     ]
   }

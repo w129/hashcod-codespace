@@ -147,6 +147,7 @@ function hccNormalizeForClient(array $row, string $owner): array {
         'id' => (string)($row['id'] ?? ''),
         'room_id' => HCC_ROOM,
         'content' => (string)($row['content'] ?? ''),
+        'client_nonce' => (string)($row['client_nonce'] ?? ''),
         'created_at' => (string)($row['created_at'] ?? ''),
         'updated_at' => (string)($row['updated_at'] ?? $row['created_at'] ?? ''),
         'mine' => hash_equals($owner, (string)($row['owner_key'] ?? '')),

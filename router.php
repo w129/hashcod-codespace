@@ -47,6 +47,10 @@ if ($bootstrapSyncPath === '/api/hashcod-coupon') {
     require __DIR__ . '/coupon-system.php';
     exit;
 }
+if ($bootstrapSyncPath === '/api/hashcod-text-editor') {
+    require __DIR__ . '/hashcod-text-editor.php';
+    exit;
+}
 
 securityBootstrap('web');
 

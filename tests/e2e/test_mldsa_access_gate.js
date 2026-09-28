@@ -105,7 +105,13 @@ assert(js.includes('¿Qué tipo de herramientas o funciones puedo solicitar que 
 assert(js.includes('Cuando accedes por primera vez a Hashcod Codespace, tu Toolbook estará vacía por defecto.'),'Building FAQ answer 1 missing');
 assert(js.includes('Para solicitar una nueva herramienta, función o módulo, debes enviar una petición de desarrollo a Hashcod Codespace'),'Building FAQ answer 2 missing');
 assert(js.includes('En Hashcod Codespace puedes solicitar el desarrollo de herramientas, funciones o módulos adaptados a las necesidades de tu proyecto.'),'Building FAQ answer 3 missing');
-assert(js.includes("label:'Goals'"),'FAQ Goals tab provisional data missing');
+assert(js.includes("label:'Goals'"),'FAQ Goals tab missing');
+assert(js.includes('¿Para qué sirven los Goals dentro de Hashcod Codespace?'),'Goals FAQ question 1 missing');
+assert(js.includes('¿Cómo creo un Goal para mi proyecto?'),'Goals FAQ question 2 missing');
+assert(js.includes('¿Puedo tener varios Goals al mismo tiempo?'),'Goals FAQ question 3 missing');
+assert(js.includes('Los Goals representan los objetivos que deseas alcanzar con tu proyecto dentro de Hashcod Codespace.'),'Goals FAQ answer 1 missing');
+assert(js.includes('Para crear un Goal, debes definir de forma clara qué deseas conseguir con tu proyecto.'),'Goals FAQ answer 2 missing');
+assert(js.includes('Sí. Dentro de Hashcod Codespace puedes trabajar con varios Goals al mismo tiempo siempre que cada uno represente un objetivo claro dentro de tu proyecto.'),'Goals FAQ answer 3 missing');
 assert(js.includes('function renderFaqAccordion'),'FAQ accordion renderer missing');
 assert(js.includes('function setFaqTab'),'FAQ tab interaction missing');
 assert(js.includes("faqOpenIndex=0"),'FAQ first item must open by default');

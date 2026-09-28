@@ -208,7 +208,7 @@ assert(gate.includes('id="d5TiltWhatsApp"'),'TiltCard WhatsApp purchase button m
 assert(gate.includes('Comprar cupo por WhatsApp'),'TiltCard WhatsApp accessibility label missing');
 assert(gate.includes('tilt-whatsapp-icon'),'TiltCard WhatsApp SVG icon missing');
 assert(gate.includes('fill="#40c351"'),'TiltCard WhatsApp green brand path missing');
-assert(css.includes('.tilt-whatsapp-button{'),'TiltCard WhatsApp styling missing');
+assert(css.includes('.tilt-whatsapp-icon{')&&css.includes('.tilt-whatsapp-button:hover'),'TiltCard WhatsApp styling missing');
 assert(js.includes("var tiltWhatsApp=document.getElementById('d5TiltWhatsApp')"),'TiltCard WhatsApp binding missing');
 assert(js.includes('https://wa.me/18294721257?text='),'TiltCard WhatsApp target missing');
 assert(js.includes("var currentPrice='$'+numberTickerFormat(numberTickerValue)"),'TiltCard WhatsApp must use current slot price');

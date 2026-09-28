@@ -446,6 +446,20 @@ if(tickerIncrease){
   });
 }
 
+var tiltWhatsApp=document.getElementById('d5TiltWhatsApp');
+if(tiltWhatsApp){
+  tiltWhatsApp.addEventListener('click',function(event){
+    event.stopPropagation();
+    var currentPrice='$'+numberTickerFormat(numberTickerValue);
+    var message='Hola, deseo adquirir un cupo en Hashcod Codespace. El precio actual que aparece en la plataforma es '+currentPrice+'.';
+    var whatsappUrl='https://wa.me/18294721257?text='+encodeURIComponent(message);
+    window.dispatchEvent(new CustomEvent('hashcod:slot-purchase-whatsapp',{
+      detail:{channel:'whatsapp',phone:'+18294721257',price:numberTickerValue}
+    }));
+    window.open(whatsappUrl,'_blank','noopener,noreferrer');
+  });
+}
+
 var tiltCard=document.getElementById('d5TiltCard');
 var tiltGlare=document.getElementById('d5TiltGlare');
 var tiltItems=tiltCard?Array.from(tiltCard.querySelectorAll('[data-tilt-depth]')):[];

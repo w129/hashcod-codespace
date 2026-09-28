@@ -54,7 +54,11 @@ assert(js.includes("phase:phase"),'frontend must bind submitted signature to cur
 assert(css.includes(".security-progress{"),'two-phase progress UI missing');
 
 assert(!l8.includes('mldsaShouldGateHtml'),'HTML renderer must not restore the mandatory ML-DSA gate');
-assert(l8.includes("return 'hashcod_codespace_entry';"),'entry intro session cookie missing');
+assert(l8.includes("return 'hashcod_codespace_entry';"),'entry intro one-time cookie missing');
+assert(l8.includes('function l8_entry_intro_consume(): bool'),'one-time entry pass consumer missing');
+assert(l8.includes("setcookie($name, '', l8_entry_intro_cookie_options(time() - 3600))"),'entry pass must be deleted after one platform render');
+assert(l8.includes('$entryPass = l8_entry_intro_consume();'),'index must consume entry pass before rendering platform');
+assert(l8.includes('if (!$entryPass)'),'fresh reload must return to first entry screen');
 assert(l8.includes('mldsaGateHtml(l8_public_base_path(), true)'),'first-screen entry window missing');
 assert(gate.includes('Acceso a Hashcod Codespace'),'non-blocking entry card title missing');
 assert(gate.includes('ENTRAR A HASHCOD CODESPACE'),'entry card button missing');

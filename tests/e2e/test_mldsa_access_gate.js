@@ -204,6 +204,8 @@ assert(css.includes('max-width:384px'),'TiltCard max-w-sm contract missing');
 assert(css.includes('padding:40px 0'),'TiltCard py-10 spacing missing');
 assert(css.includes('padding:24px'),'TiltCard p-6 surface padding missing');
 assert(css.includes('perspective:1000px'),'TiltCard perspective must be 1000px');
+assert(css.includes('top:calc(100% + 12px)'),'TiltCard must sit exactly 12px below NavListCards on desktop');
+assert(css.includes('position:absolute'),'TiltCard desktop anchoring missing');
 assert(css.includes('height:208px'),'TiltCard media h-52 height missing');
 assert(css.includes('border-radius:12px'),'TiltCard media rounded-xl radius missing');
 assert(css.includes('transform-style:preserve-3d'),'TiltCard preserve-3d behavior missing');

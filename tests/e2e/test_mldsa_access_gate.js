@@ -150,7 +150,7 @@ assert(css.includes('height:1.1em'),'NumberTicker digit height contract missing'
 assert(css.includes('transition-duration:.9s'),'NumberTicker 0.9s roll duration missing');
 assert(css.includes('@keyframes numberTickerBlur'),'NumberTicker blur animation missing');
 assert(js.includes('var NUMBER_TICKER_STEP=1250'),'NumberTicker STEP must be 1250');
-assert(js.includes('var numberTickerValue=48250'),'NumberTicker initial value must be 48250');
+assert(js.includes("return 48250;")&&js.includes('var numberTickerValue=loadStoredNumberTickerValue()'),'NumberTicker must default to 48250 when no stored value exists');
 assert(js.includes('Math.max(0,numberTickerValue-NUMBER_TICKER_STEP)'),'NumberTicker decrease logic missing');
 assert(js.includes('Math.round(10000+Math.random()*990000)'),'NumberTicker randomize range missing');
 assert(js.includes('numberTickerValue+NUMBER_TICKER_STEP'),'NumberTicker increase logic missing');

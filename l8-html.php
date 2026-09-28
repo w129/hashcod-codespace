@@ -186,17 +186,31 @@ function l8_entry_intro_seen(): bool {
     return (string)($_COOKIE[l8_entry_intro_cookie_name()] ?? '') === '1';
 }
 
-function l8_entry_intro_commit(): void {
+function l8_entry_intro_cookie_options(int $expires = 0): array {
     $path = l8_public_base_path();
     $secure = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
         || strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
-    setcookie(l8_entry_intro_cookie_name(), '1', [
-        'expires' => 0,
+    return [
+        'expires' => $expires,
         'path' => $path,
         'secure' => $secure,
         'httponly' => true,
         'samesite' => 'Lax',
-    ]);
+    ];
+}
+
+function l8_entry_intro_commit(): void {
+    setcookie(l8_entry_intro_cookie_name(), '1', l8_entry_intro_cookie_options(0));
+}
+
+function l8_entry_intro_consume(): bool {
+    if (!l8_entry_intro_seen()) {
+        return false;
+    }
+    $name = l8_entry_intro_cookie_name();
+    setcookie($name, '', l8_entry_intro_cookie_options(time() - 3600));
+    unset($_COOKIE[$name]);
+    return true;
 }
 
 function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
@@ -206,9 +220,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         l8_html_not_found_page();
     }
 
-    // Show the former access-card screen first as a non-blocking welcome window.
-    // A session cookie remembers the user's entry so navigation/reloads inside the
-    // same browser session go directly to the platform.
+    // Show the welcome screen on every fresh index load/reload. Clicking Entrar
+    // grants exactly one redirected platform render; that pass is consumed
+    // immediately, so the next browser reload returns to the first screen.
     if ($file === 'index.php') {
         $enter = (string)($_GET['hashcod_enter'] ?? '');
         if ($enter === '1') {
@@ -221,7 +235,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             header('Location: ' . $redirectPath, true, 303);
             exit;
         }
-        if (!l8_entry_intro_seen()) {
+
+        $entryPass = l8_entry_intro_consume();
+        if (!$entryPass) {
             require_once __DIR__ . '/mldsa-access.php';
             l8_init_compression();
             l8_html_headers(true, 0);

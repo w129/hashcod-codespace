@@ -284,6 +284,30 @@ create table if not exists public.l8_durable_object_events (
 create index if not exists l8_do_events_acct_obj_idx on public.l8_durable_object_events (account_key, object_id, created_at desc);
 
 -- =====================================================================
+-- 16. Saved Messages Chat (AppSync room/message pattern adapted to Supabase)
+create table if not exists public.l8_chat_messages (
+  id text primary key,
+  room_id text not null default 'hashcod-gate-comments',
+  owner_key text not null,
+  content text not null,
+  client_nonce text not null,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  constraint l8_chat_messages_content_len check (char_length(content) between 1 and 1200),
+  constraint l8_chat_messages_room_len check (char_length(room_id) between 1 and 80),
+  constraint l8_chat_messages_owner_len check (char_length(owner_key) between 1 and 160)
+);
+
+create unique index if not exists l8_chat_messages_room_owner_nonce_uq
+  on public.l8_chat_messages(room_id, owner_key, client_nonce);
+create index if not exists l8_chat_messages_room_created_idx
+  on public.l8_chat_messages(room_id, created_at asc);
+
+alter table public.l8_chat_messages enable row level security;
+revoke all on table public.l8_chat_messages from anon, authenticated;
+grant select, insert, update, delete on table public.l8_chat_messages to service_role;
+
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- Strict Deny-All for public/anon/authenticated tokens.
 -- The PHP Backend uses the Service Role (SUPABASE_SECRET_KEY) which safely bypasses RLS.
@@ -307,6 +331,7 @@ alter table public.l8_hashcod_keys enable row level security;
 alter table public.l8_app_states enable row level security;
 alter table public.l8_durable_objects enable row level security;
 alter table public.l8_durable_object_events enable row level security;
+alter table public.l8_chat_messages enable row level security;
 alter table public.l8_app_states enable row level security;
 
 -- Deny policies for anon and authenticated clients
@@ -319,7 +344,7 @@ declare
     'l8_documents_history', 'l8_gateway_transfers', 'l8_opencrypt_ledger',
     'l8_auth_accounts', 'l8_auth_identities', 'l8_token_accounts',
     'l8_token_ledger', 'l8_hashcod_keys', 'l8_app_states',
-    'l8_durable_objects', 'l8_durable_object_events'
+    'l8_durable_objects', 'l8_durable_object_events', 'l8_chat_messages'
   ];
 begin
   foreach tbl in array tbls loop

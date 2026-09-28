@@ -188,7 +188,7 @@ assert(textEditor.includes("data_storage/text_editor"),'text editor local fallba
 assert(textEditor.includes("flock($fp, LOCK_EX)"),'text editor atomic local write lock missing');
 assert(textEditor.includes("hashcod_text_editor"),'text editor rate limiting missing');
 assert(textEditor.includes("HTTP_X_REQUESTED_WITH"),'text editor XHR mutation guard missing');
-assert(textEditor.includes("tagspaces-editorText-adapted"),'TagSpaces editorText adaptation marker missing');
+assert(textEditor.includes("tagspaces-editorText+nuthouse01-text-tools"),'Enhanced TagSpaces/Nuthouse01 editor marker missing');
 assert(gate.includes('id="d5NavListDemo"'),'NavListCard demo container missing');
 assert(gate.includes('Credentials and verification'),'Credentials and verification NavListCard title missing');
 assert(gate.includes('Support'),'Support NavListCard title missing');

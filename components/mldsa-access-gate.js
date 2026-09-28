@@ -41,6 +41,8 @@ var entryProductUploadButton=document.getElementById('d5EntryProductUploadButton
 var entryProductFile=document.getElementById('d5EntryProductFile');
 var entryProductTitleInput=document.getElementById('d5EntryProductTitleInput');
 var entryProductSubtitleInput=document.getElementById('d5EntryProductSubtitleInput');
+var entryProductImagePosition={x:50,y:50};
+var entryProductImageDrag=null;
 var entryLevel2Next=document.getElementById('d5EntryLevel2Next');
 var entryLevel3Next=document.getElementById('d5EntryLevel3Next');
 var entryFinish=document.getElementById('d5EntryFinish');
@@ -190,13 +192,29 @@ async function entryProductVerifyCode(){
     if(entryProductVerify)entryProductVerify.disabled=false;
   }
 }
+function entryProductClampPosition(value){
+  var n=Number(value);
+  if(!Number.isFinite(n))return 50;
+  return Math.max(0,Math.min(100,n));
+}
+function entryProductApplyImagePosition(x,y,shouldPersist){
+  entryProductImagePosition.x=entryProductClampPosition(x);
+  entryProductImagePosition.y=entryProductClampPosition(y);
+  if(entryProductImage){
+    entryProductImage.style.objectPosition=entryProductImagePosition.x.toFixed(2)+'% '+entryProductImagePosition.y.toFixed(2)+'%';
+    entryProductImage.dataset.positionX=String(entryProductImagePosition.x);
+    entryProductImage.dataset.positionY=String(entryProductImagePosition.y);
+  }
+  if(shouldPersist)entryProductPersist();
+}
 function entryProductPersist(){
   if(!entryProductCard)return;
   var payload={
     title:entryProductCard.dataset.title||'',
     subtitle:entryProductCard.dataset.subtitle||'',
     price:entryProductCard.dataset.price||'',
-    badge:entryProductCard.dataset.badge||''
+    badge:entryProductCard.dataset.badge||'',
+    imagePosition:{x:entryProductImagePosition.x,y:entryProductImagePosition.y}
   };
   if(entryProductImage&&!entryProductImage.hidden&&entryProductImage.src&&entryProductImage.src.indexOf('data:image/')===0){
     if(entryProductImage.src.length<1800000)payload.image=entryProductImage.src;
@@ -213,6 +231,11 @@ function entryProductRestore(){
     if(typeof parsed.price==='string')restored.price=parsed.price;
     if(typeof parsed.badge==='string')restored.badge=parsed.badge;
     entryProductSetData(restored);
+    if(parsed.imagePosition&&typeof parsed.imagePosition==='object'){
+      entryProductApplyImagePosition(parsed.imagePosition.x,parsed.imagePosition.y,false);
+    }else{
+      entryProductApplyImagePosition(50,50,false);
+    }
     if(typeof parsed.image==='string'&&parsed.image.indexOf('data:image/')===0&&entryProductImage){
       entryProductImage.src=parsed.image;
       entryProductImage.hidden=false;
@@ -234,12 +257,52 @@ function entryProductApplyImage(file){
     if(!entryProductImage)return;
     entryProductImage.src=String(reader.result||'');
     entryProductImage.hidden=false;
-    entryProductSetCodeStatus('Imagen actualizada.','ok');
+    entryProductApplyImagePosition(50,50,false);
+    entryProductSetCodeStatus('Imagen actualizada. Arrástrala para ajustar el encuadre.','ok');
     entryProductPersist();
     try{window.dispatchEvent(new CustomEvent('hashcod:entry-product-image',{detail:{name:file.name||'',type:file.type||'',size:file.size||0}}));}catch(_){}
   };
   reader.onerror=function(){entryProductSetCodeStatus('No se pudo leer la imagen.','error');};
   reader.readAsDataURL(file);
+}
+
+function entryProductStartImageDrag(event){
+  if(!entryProductUnlocked||!entryProductImage||entryProductImage.hidden)return;
+  if(event.button!==undefined&&event.button!==0)return;
+  var rect=entryProductImage.parentElement?entryProductImage.parentElement.getBoundingClientRect():null;
+  if(!rect||rect.width<=0||rect.height<=0)return;
+  entryProductImageDrag={
+    pointerId:event.pointerId,
+    startClientX:event.clientX,
+    startClientY:event.clientY,
+    startX:entryProductImagePosition.x,
+    startY:entryProductImagePosition.y,
+    width:rect.width,
+    height:rect.height
+  };
+  entryProductImage.classList.add('is-dragging');
+  try{entryProductImage.setPointerCapture(event.pointerId);}catch(_){}
+  event.preventDefault();
+}
+function entryProductMoveImageDrag(event){
+  if(!entryProductImageDrag||!entryProductImage||event.pointerId!==entryProductImageDrag.pointerId)return;
+  var dx=event.clientX-entryProductImageDrag.startClientX;
+  var dy=event.clientY-entryProductImageDrag.startClientY;
+  var nextX=entryProductImageDrag.startX-(dx/entryProductImageDrag.width)*100;
+  var nextY=entryProductImageDrag.startY-(dy/entryProductImageDrag.height)*100;
+  entryProductApplyImagePosition(nextX,nextY,false);
+  event.preventDefault();
+}
+function entryProductEndImageDrag(event){
+  if(!entryProductImageDrag||event.pointerId!==entryProductImageDrag.pointerId)return;
+  try{entryProductImage.releasePointerCapture(event.pointerId);}catch(_){}
+  entryProductImageDrag=null;
+  if(entryProductImage)entryProductImage.classList.remove('is-dragging');
+  entryProductPersist();
+}
+function entryProductResetImagePosition(){
+  entryProductApplyImagePosition(50,50,true);
+  entryProductSetCodeStatus('Posición de imagen restablecida al centro.','ok');
 }
 
 function entrySetLevel(nextLevel){
@@ -324,6 +387,18 @@ if(entryIntro){
   if(entryProductResend)entryProductResend.addEventListener('click',function(){
     entryProductResetCode('Código reiniciado. Ingresa nuevamente los 6 dígitos.');
   });
+  if(entryProductImage){
+    entryProductApplyImagePosition(entryProductImagePosition.x,entryProductImagePosition.y,false);
+    entryProductImage.addEventListener('pointerdown',entryProductStartImageDrag);
+    entryProductImage.addEventListener('pointermove',entryProductMoveImageDrag);
+    entryProductImage.addEventListener('pointerup',entryProductEndImageDrag);
+    entryProductImage.addEventListener('pointercancel',entryProductEndImageDrag);
+    entryProductImage.addEventListener('dblclick',function(event){
+      if(!entryProductUnlocked)return;
+      event.preventDefault();
+      entryProductResetImagePosition();
+    });
+  }
   if(entryProductUploadButton&&entryProductFile){
     entryProductUploadButton.addEventListener('click',function(){entryProductFile.click();});
     entryProductFile.addEventListener('change',function(){
@@ -363,6 +438,9 @@ if(entryIntro){
         entryProductAdd.textContent=added?'Added ✓':'Add to cart';
       },
       isUnlocked:function(){return entryProductUnlocked;},
+      setImagePosition:function(x,y){entryProductApplyImagePosition(x,y,true);},
+      resetImagePosition:entryProductResetImagePosition,
+      getImagePosition:function(){return {x:entryProductImagePosition.x,y:entryProductImagePosition.y};},
       unlockWithCode:function(code){
         entryProductCodeInputs.forEach(function(input,index){input.value=String(code||'').replace(/\D/g,'')[index]||'';});
         return entryProductVerifyCode();

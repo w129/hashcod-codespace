@@ -1142,3 +1142,153 @@
   .scratch-foil{transition:none!important}
 }
 
+/* Spectrum UI TiltCard demo — native adaptation */
+.nav-list-left-column{
+  width:360px;
+  flex:0 0 360px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.tilt-card-demo{
+  width:100%;
+  max-width:384px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  padding:40px 0;
+}
+.tilt-card-perspective{
+  position:relative;
+  width:100%;
+  max-width:384px;
+  perspective:1000px;
+}
+.tilt-card-surface{
+  position:relative;
+  width:100%;
+  border:1px solid #e5e5e5;
+  border-radius:16px;
+  background:#fff;
+  padding:24px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 2px 4px rgba(0,0,0,.04);
+  transform-style:preserve-3d;
+  will-change:transform;
+  transform:rotateX(0deg) rotateY(0deg) scale(1);
+}
+.tilt-card-preserve,
+.tilt-card-footer{
+  transform-style:preserve-3d;
+}
+.tilt-card-item{
+  transform:translateZ(0);
+  transform-style:preserve-3d;
+  transition:transform .3s cubic-bezier(.22,1,.36,1);
+  will-change:transform;
+}
+.tilt-title{
+  color:#171717;
+  font-size:20px;
+  font-weight:600;
+  line-height:28px;
+  letter-spacing:-.025em;
+}
+.tilt-description{
+  margin-top:4px;
+  color:#737373;
+  font-size:14px;
+  line-height:20px;
+}
+.tilt-media{
+  margin-top:16px;
+}
+.tilt-media-frame{
+  height:208px;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-radius:12px;
+  background:#f7f7f7;
+}
+.tilt-media-frame img{
+  display:block;
+  width:128px;
+  height:128px;
+  object-fit:contain;
+}
+.tilt-card-footer{
+  margin-top:20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.tilt-price{
+  color:#171717;
+  font-size:18px;
+  font-weight:700;
+  line-height:28px;
+}
+.tilt-buy-button{
+  border:0;
+  border-radius:999px;
+  background:#171717;
+  padding:8px 16px;
+  color:#fff;
+  font-size:12px;
+  font-weight:500;
+  line-height:16px;
+  cursor:pointer;
+  transition:background .18s ease,transform .12s ease;
+}
+.tilt-buy-button:hover{background:#404040}
+.tilt-buy-button:active{transform:scale(.97)}
+.tilt-buy-button:focus-visible{
+  outline:1px solid #171717;
+  outline-offset:2px;
+}
+.tilt-card-glare{
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  opacity:0;
+  transform:translateZ(1px);
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.35),transparent 65%);
+  transition:opacity .3s ease-out;
+}
+.tilt-card-hint{
+  margin:0;
+  color:#737373;
+  font-size:14px;
+  line-height:20px;
+  text-align:center;
+}
+.tilt-card-surface.is-hovered .tilt-card-glare{opacity:1}
+
+@media(min-width:1180px){
+  .nav-list-demo{
+    width:1064px;
+  }
+  .nav-list-grid{
+    width:360px;
+    flex:0 0 360px;
+  }
+}
+@media(max-width:1179px){
+  .nav-list-left-column{
+    width:100%;
+    max-width:384px;
+  }
+  .tilt-card-demo{
+    width:100%;
+    max-width:384px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .tilt-card-item{transition:none!important}
+  .tilt-card-glare{display:none!important}
+}
+

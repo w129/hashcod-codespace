@@ -62,7 +62,15 @@ assert(gate.includes('entry-platform-logo')&&gate.includes('hashcod_icon_exact.s
 assert(!gate.includes('entry-welcome-icon" aria-hidden="true">H</span>'),'legacy H square must be removed');
 assert(css.includes('.entry-platform-logo{'),'entry platform logo styling missing');
 assert(!css.includes('.entry-welcome-icon{'),'legacy H square styling must be removed');
-assert(gate.includes('Sin reto, firma Base64 ni clave privada.'),'entry card must state direct access');
+assert(gate.includes('id="d5EntryStatCard"'),'entry StatCard container missing');
+assert(gate.includes('data-points="12,18,14,24,21,32,28,38"'),'entry StatCard seed points missing');
+assert(gate.includes('Monthly revenue')&&gate.includes('$45,231')&&gate.includes('+12.5%'),'entry StatCard provisional content missing');
+assert(gate.includes('id="d5EntryStatArea"')&&gate.includes('id="d5EntryStatLine"')&&gate.includes('id="d5EntryStatDot"'),'entry StatCard SVG layers missing');
+assert(css.includes('.entry-stat-card{')&&css.includes('.entry-stat-chart{'),'entry StatCard styling missing');
+assert(js.includes('function entryStatPath(points)'),'entry StatCard chart calculation missing');
+assert(js.includes('function entryStatSetData(next)'),'entry StatCard dynamic update function missing');
+assert(js.includes('window.HashcodEntryStatCard'),'entry StatCard public controller missing');
+assert(js.includes('hashcod:entry-stat-update'),'entry StatCard update event missing');
 assert(js.includes("data-hashcod-entry-intro"),'entry intro JS mode missing');
 assert(js.includes("url.searchParams.set('hashcod_enter','1')"),'entry button transition missing');
 assert(css.includes('.entry-access-card{'),'entry card styling missing');

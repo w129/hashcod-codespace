@@ -31,3 +31,13 @@ Hashcod uses pqcrypto as the server-side verifier for NIST FIPS 204 ML-DSA-87 si
 - Version: 1.0.0
 - License: Apache License 2.0
 
+## TagSpaces editorText
+
+Hashcod Codespace adapts the edit/save lifecycle of the archived TagSpaces `editorText` extension for the liquid-glass text editor shown beneath the access FAQ.
+
+- Project: TagSpaces editorText
+- Source: https://github.com/tagspaces/editorText
+- Original role: text-document editing extension using CodeMirror
+- License: MIT
+- Modifications: Hashcod uses its own Spectrum-style liquid-glass AutosizeTextarea interface and its own PHP + Supabase/local persistence backend. The integration preserves the editorText concepts of content loading, change tracking, save behavior, and Ctrl+S semantics rather than embedding the legacy TagSpaces UI.
+

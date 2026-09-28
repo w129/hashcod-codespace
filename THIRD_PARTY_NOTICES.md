@@ -41,3 +41,12 @@ Hashcod Codespace adapts the edit/save lifecycle of the archived TagSpaces `edit
 - License: MIT
 - Modifications: Hashcod uses its own Spectrum-style liquid-glass AutosizeTextarea interface and its own PHP + Supabase/local persistence backend. The integration preserves the editorText concepts of content loading, change tracking, save behavior, and Ctrl+S semantics rather than embedding the legacy TagSpaces UI.
 
+## PMX-VMD-Scripting-Tools
+
+Hashcod Codespace's liquid text-editor tools are informed by the robust text/file handling patterns in Nuthouse01's PMX/VMD Scripting Tools, including persistent editor state, Unicode/encoding awareness, validated text input, word-wrapped text handling, and safe text transformations.
+
+- Project: PMX-VMD-Scripting-Tools
+- Source: https://github.com/Nuthouse01/PMX-VMD-Scripting-Tools
+- Copyright: © 2020 Nuthouse01
+- License: MIT
+- Hashcod adaptation: browser-side UTF-8 / Shift-JIS import, NFKC normalization, control-character cleanup, TXT export, richer counters, and server-side text sanitation. PMX/VMD model-editing logic is not embedded into the Hashcod text editor.

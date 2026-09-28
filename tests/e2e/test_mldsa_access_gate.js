@@ -171,6 +171,8 @@ assert(css.includes('padding:32px 0'),'ScratchCard demo py-8 spacing missing');
 assert(css.includes('padding:40px 24px'),'ScratchCard content px-6 py-10 spacing missing');
 assert(css.includes('border-radius:16px'),'ScratchCard rounded-2xl radius missing');
 assert(css.includes('.scratch-foil.revealed'),'ScratchCard foil fade state missing');
+assert(css.includes('.sr-only{'),'Spectrum sr-only utility missing');
+assert(css.includes('clip:rect(0,0,0,0)'),'ScratchCard accessibility-only text must be visually hidden');
 assert(css.includes('width:1064px'),'ScratchCard must mount to the right of NumberTicker on desktop');
 assert(js.includes('var SCRATCH_REVEAL_THRESHOLD=.5'),'ScratchCard reveal threshold must be 50%');
 assert(js.includes('var SCRATCH_BRUSH_SIZE=28'),'ScratchCard brush size must be 28px');

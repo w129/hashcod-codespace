@@ -255,6 +255,252 @@ if(faqCard){
   renderFaqAccordion();
 }
 
+var savedChatRoot=document.getElementById('d5SavedChatDemo');
+var savedChatMessagesEl=document.getElementById('d5SavedChatMessages');
+var savedChatEmpty=document.getElementById('d5SavedChatEmpty');
+var savedChatInput=document.getElementById('d5SavedChatInput');
+var savedChatSend=document.getElementById('d5SavedChatSend');
+var savedChatNew=document.getElementById('d5SavedChatNew');
+var savedChatRefresh=document.getElementById('d5SavedChatRefresh');
+var savedChatStatus=document.getElementById('d5SavedChatStatus');
+var SAVED_CHAT_CLIENT_KEY='hashcod:saved-chat:client:v1';
+var SAVED_CHAT_PENDING_KEY='hashcod:saved-chat:pending:v1';
+var savedChatRemoteMessages=[];
+var savedChatLoading=false;
+var savedChatPollTimer=0;
+
+function savedChatBasePath(){
+  var match=String(location.pathname||'').match(/^\/(l8|l8-codespace)(?=\/|$)/i);
+  return match?'/'+match[1]:'';
+}
+var SAVED_CHAT_API=savedChatBasePath()+'/api/hashcod-comments';
+
+function savedChatUuid(){
+  if(window.crypto&&typeof window.crypto.randomUUID==='function'){
+    return window.crypto.randomUUID().replace(/-/g,'_');
+  }
+  var bytes=new Uint8Array(16);
+  if(window.crypto&&typeof window.crypto.getRandomValues==='function'){
+    window.crypto.getRandomValues(bytes);
+    return Array.from(bytes,function(v){return v.toString(16).padStart(2,'0');}).join('');
+  }
+  return 'c_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,14);
+}
+function savedChatClientId(){
+  var id='';
+  try{id=window.localStorage.getItem(SAVED_CHAT_CLIENT_KEY)||'';}catch(_){}
+  if(!/^[a-zA-Z0-9_-]{8,96}$/.test(id)){
+    id='hc_'+savedChatUuid().replace(/[^a-zA-Z0-9_-]/g,'').slice(0,80);
+    try{window.localStorage.setItem(SAVED_CHAT_CLIENT_KEY,id);}catch(_){}
+  }
+  return id;
+}
+function savedChatPending(){
+  try{
+    var parsed=JSON.parse(window.localStorage.getItem(SAVED_CHAT_PENDING_KEY)||'[]');
+    return Array.isArray(parsed)?parsed:[];
+  }catch(_){return [];}
+}
+function savedChatSavePending(rows){
+  try{window.localStorage.setItem(SAVED_CHAT_PENDING_KEY,JSON.stringify(rows.slice(-30)));}catch(_){}
+}
+function savedChatAuthToken(){
+  var token='';
+  try{token=window.sessionStorage.getItem('l8_auth_token')||window.localStorage.getItem('l8_auth_token')||'';}catch(_){}
+  return token;
+}
+function savedChatHeaders(json){
+  var headers={'X-Requested-With':'XMLHttpRequest','X-Hashcod-Chat-Client':savedChatClientId()};
+  if(json)headers['Content-Type']='application/json';
+  var token=savedChatAuthToken();
+  if(token)headers.Authorization='Bearer '+token;
+  return headers;
+}
+function savedChatSetStatus(textValue,type){
+  if(!savedChatStatus)return;
+  savedChatStatus.textContent=textValue||'';
+  if(type)savedChatStatus.setAttribute('data-type',type);
+  else savedChatStatus.removeAttribute('data-type');
+}
+function savedChatTime(value){
+  var date=new Date(value||Date.now());
+  if(Number.isNaN(date.getTime()))return '';
+  try{return date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+  catch(_){return '';}
+}
+function savedChatCombinedMessages(){
+  var rows=savedChatRemoteMessages.slice();
+  savedChatPending().forEach(function(row){rows.push(row);});
+  var seen={};
+  rows=rows.filter(function(row){
+    var key=String(row.id||row.client_nonce||'');
+    if(!key||seen[key])return false;
+    seen[key]=true;
+    return true;
+  });
+  rows.sort(function(a,b){
+    return String(a.created_at||'').localeCompare(String(b.created_at||''));
+  });
+  return rows.slice(-120);
+}
+function renderSavedChat(){
+  if(!savedChatMessagesEl||!savedChatEmpty)return;
+  var rows=savedChatCombinedMessages();
+  savedChatMessagesEl.innerHTML='';
+  if(!rows.length){
+    savedChatEmpty.hidden=false;
+    savedChatMessagesEl.hidden=true;
+    return;
+  }
+  savedChatEmpty.hidden=true;
+  savedChatMessagesEl.hidden=false;
+  rows.forEach(function(row){
+    var bubble=document.createElement('div');
+    bubble.className='saved-chat-message'+(row.mine?' mine':'')+(row.pending?' pending':'');
+    var content=document.createElement('span');
+    content.textContent=String(row.content||'');
+    bubble.appendChild(content);
+    var time=document.createElement('span');
+    time.className='saved-chat-message-time';
+    time.textContent=(row.pending?'Pending · ':'')+savedChatTime(row.created_at);
+    bubble.appendChild(time);
+    savedChatMessagesEl.appendChild(bubble);
+  });
+  requestAnimationFrame(function(){
+    savedChatMessagesEl.scrollTop=savedChatMessagesEl.scrollHeight;
+  });
+}
+async function loadSavedChat(silent){
+  if(!savedChatRoot||savedChatLoading)return;
+  savedChatLoading=true;
+  if(!silent)savedChatSetStatus('Loading…');
+  try{
+    var url=SAVED_CHAT_API+'?limit=100&client_id='+encodeURIComponent(savedChatClientId());
+    var response=await fetch(url,{
+      method:'GET',
+      headers:savedChatHeaders(false),
+      credentials:'same-origin',
+      cache:'no-store'
+    });
+    var data=await response.json().catch(function(){return {};});
+    if(!response.ok||!data.ok)throw new Error(data.error||'Could not load comments');
+    savedChatRemoteMessages=Array.isArray(data.messages)?data.messages:[];
+    renderSavedChat();
+    if(!silent){
+      savedChatSetStatus(data.degraded?'Loaded from durable fallback':'Saved in Codespace',data.degraded?'':'ok');
+    }
+  }catch(error){
+    renderSavedChat();
+    if(!silent)savedChatSetStatus('Offline — pending comments stay queued','error');
+  }finally{
+    savedChatLoading=false;
+  }
+}
+async function postSavedChatPending(row){
+  var response=await fetch(SAVED_CHAT_API,{
+    method:'POST',
+    headers:savedChatHeaders(true),
+    credentials:'same-origin',
+    cache:'no-store',
+    body:JSON.stringify({
+      client_id:savedChatClientId(),
+      client_nonce:row.client_nonce,
+      content:row.content
+    })
+  });
+  var data=await response.json().catch(function(){return {};});
+  if(!response.ok||!data.ok)throw new Error(data.error||'Could not save comment');
+  return data;
+}
+async function retrySavedChatPending(){
+  var queue=savedChatPending();
+  if(!queue.length)return true;
+  var remaining=[];
+  for(var i=0;i<queue.length;i++){
+    try{
+      await postSavedChatPending(queue[i]);
+    }catch(_){
+      remaining.push(queue[i]);
+    }
+  }
+  savedChatSavePending(remaining);
+  renderSavedChat();
+  return remaining.length===0;
+}
+async function sendSavedChatMessage(){
+  if(!savedChatInput||!savedChatSend)return;
+  var content=String(savedChatInput.value||'').trim();
+  if(!content)return;
+  if(content.length>1200){
+    savedChatSetStatus('Maximum 1200 characters','error');
+    return;
+  }
+  var nonce='n_'+savedChatUuid().replace(/[^a-zA-Z0-9_-]/g,'').slice(0,80);
+  var optimistic={
+    id:'pending_'+nonce,
+    client_nonce:nonce,
+    content:content,
+    created_at:new Date().toISOString(),
+    mine:true,
+    pending:true
+  };
+  var queue=savedChatPending();
+  queue.push(optimistic);
+  savedChatSavePending(queue);
+  savedChatInput.value='';
+  savedChatSend.disabled=true;
+  renderSavedChat();
+  savedChatSetStatus('Saving…');
+  try{
+    var result=await postSavedChatPending(optimistic);
+    savedChatSavePending(savedChatPending().filter(function(row){return row.client_nonce!==nonce;}));
+    savedChatSetStatus(result.deferred?'Saved · sync queued':'Saved','ok');
+    await loadSavedChat(true);
+  }catch(error){
+    savedChatSetStatus('Pending — will retry automatically','error');
+    renderSavedChat();
+  }finally{
+    savedChatSend.disabled=false;
+    savedChatInput.focus();
+  }
+}
+async function refreshSavedChat(){
+  if(savedChatRefresh)savedChatRefresh.classList.add('spinning');
+  savedChatSetStatus('Refreshing…');
+  await retrySavedChatPending();
+  await loadSavedChat(false);
+  window.setTimeout(function(){
+    if(savedChatRefresh)savedChatRefresh.classList.remove('spinning');
+  },700);
+}
+if(savedChatRoot){
+  renderSavedChat();
+  loadSavedChat(false);
+  retrySavedChatPending().then(function(){loadSavedChat(true);});
+  savedChatPollTimer=window.setInterval(function(){
+    if(document.visibilityState==='visible')loadSavedChat(true);
+  },6000);
+  window.addEventListener('online',function(){
+    retrySavedChatPending().then(function(){loadSavedChat(true);});
+  });
+}
+if(savedChatSend)savedChatSend.addEventListener('click',sendSavedChatMessage);
+if(savedChatRefresh)savedChatRefresh.addEventListener('click',refreshSavedChat);
+if(savedChatNew)savedChatNew.addEventListener('click',function(){
+  if(!savedChatInput)return;
+  savedChatInput.value='';
+  savedChatInput.focus();
+  savedChatSetStatus('');
+});
+if(savedChatInput){
+  savedChatInput.addEventListener('keydown',function(event){
+    if(event.key==='Enter'&&!event.shiftKey){
+      event.preventDefault();
+      sendSavedChatMessage();
+    }
+  });
+}
+
 var numberTickerRoot=document.getElementById('d5NumberTicker');
 var tickerDecrease=document.getElementById('d5TickerDecrease');
 var tickerRandomize=document.getElementById('d5TickerRandomize');

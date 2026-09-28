@@ -1233,38 +1233,32 @@
   line-height:28px;
 }
 .tilt-buy-button{
-  border:0;
-  border-radius:999px;
-  background:#171717;
-  padding:8px 16px;
-  color:#fff;
-  font-size:12px;
-  font-weight:500;
-  line-height:16px;
-  cursor:pointer;
-  transition:background .18s ease,transform .12s ease;
-}
-.tilt-whatsapp-button{
   width:40px;
   height:40px;
   display:flex;
   align-items:center;
   justify-content:center;
+  border:1px solid #e5e5e5;
+  border-radius:999px;
+  background:#fff;
   padding:0;
+  cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+  transition:background .18s ease,transform .16s cubic-bezier(.34,1.56,.64,1),box-shadow .18s ease;
 }
 .tilt-whatsapp-icon{
-  width:24px;
-  height:24px;
+  width:28px;
+  height:28px;
   display:block;
 }
 .tilt-whatsapp-button:hover{
-  background:#262626;
-  transform:translateY(-1px);
+  background:#fafafa;
+  transform:scale(1.05);
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
 }
-.tilt-buy-button:hover{background:#404040}
-.tilt-buy-button:active{transform:scale(.97)}
+.tilt-buy-button:active{transform:scale(.94)}
 .tilt-buy-button:focus-visible{
-  outline:1px solid #171717;
+  outline:2px solid #171717;
   outline-offset:2px;
 }
 .tilt-card-glare{

@@ -2386,8 +2386,9 @@
   justify-content:center;
 }
 .spectrum-outline-login-button{
-  display:inline-flex;
-  min-width:132px;
+  display:flex;
+  width:100%;
+  min-width:0;
   height:40px;
   align-items:center;
   justify-content:center;

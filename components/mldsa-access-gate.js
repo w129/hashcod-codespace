@@ -149,7 +149,7 @@ var FAQ_TABS=[
     ]
   },
   {
-    label:'Bilding',
+    label:'Building',
     faqs:[
       {
         question:'¿Por qué mi Toolbook está vacía cuando entro por primera vez?',

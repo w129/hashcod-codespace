@@ -1,0 +1,224 @@
+/* Hashcod Codespace · delayed full-platform skeleton */
+#hashcodPlatformSkeleton[hidden]{display:none!important}
+#hashcodPlatformSkeleton{
+  position:fixed;
+  inset:0;
+  z-index:2147483200;
+  display:block;
+  overflow:hidden;
+  background:#f5f6f7;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .22s ease,visibility .22s ease;
+  color:#171717;
+}
+#hashcodPlatformSkeleton[data-state="visible"]{
+  opacity:1;
+  visibility:visible;
+}
+#hashcodPlatformSkeleton[data-state="leaving"]{
+  opacity:0;
+  visibility:hidden;
+}
+.hashcod-platform-skeleton-shell{
+  width:min(1440px,100%);
+  min-height:100dvh;
+  margin:0 auto;
+  padding:24px clamp(18px,3vw,44px) 36px;
+}
+.hashcod-platform-skeleton-topbar{
+  height:58px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  border:1px solid rgba(17,17,17,.07);
+  border-radius:18px;
+  background:rgba(255,255,255,.82);
+  padding:10px 14px;
+}
+.hashcod-platform-skeleton-logo{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border-radius:11px;
+}
+.hashcod-platform-skeleton-brand{
+  width:min(220px,34vw);
+  height:15px;
+  border-radius:999px;
+}
+.hashcod-platform-skeleton-top-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.hashcod-platform-skeleton-chip{
+  width:72px;
+  height:30px;
+  border-radius:999px;
+}
+.hashcod-platform-skeleton-chip.short{width:38px}
+.hashcod-platform-skeleton-main{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);
+  gap:20px;
+  margin-top:20px;
+}
+.hashcod-platform-skeleton-workspace,
+.hashcod-platform-skeleton-panel,
+.hashcod-platform-skeleton-mini{
+  border:1px solid rgba(17,17,17,.065);
+  background:rgba(255,255,255,.88);
+  box-shadow:0 1px 3px rgba(0,0,0,.035);
+}
+.hashcod-platform-skeleton-workspace{
+  min-height:430px;
+  border-radius:24px;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+}
+.hashcod-platform-skeleton-workspace-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.hashcod-platform-skeleton-title{
+  width:min(260px,48%);
+  height:20px;
+  border-radius:999px;
+}
+.hashcod-platform-skeleton-small-line{
+  width:96px;
+  height:12px;
+  border-radius:999px;
+}
+.hashcod-platform-skeleton-canvas{
+  flex:1 1 auto;
+  margin-top:22px;
+  border-radius:20px;
+  display:grid;
+  place-items:center;
+}
+.hashcod-platform-skeleton-folder{
+  width:min(310px,55%);
+  aspect-ratio:1.42;
+  border-radius:22px;
+  position:relative;
+}
+.hashcod-platform-skeleton-folder::before{
+  content:"";
+  position:absolute;
+  width:38%;
+  height:18%;
+  left:8%;
+  top:-9%;
+  border-radius:10px 10px 4px 4px;
+  background:inherit;
+}
+.hashcod-platform-skeleton-sidebar{
+  display:grid;
+  gap:14px;
+}
+.hashcod-platform-skeleton-panel{
+  min-height:132px;
+  border-radius:20px;
+  padding:18px;
+}
+.hashcod-platform-skeleton-panel-line{
+  height:13px;
+  border-radius:999px;
+  margin-bottom:12px;
+}
+.hashcod-platform-skeleton-panel-line:nth-child(1){width:46%}
+.hashcod-platform-skeleton-panel-line:nth-child(2){width:78%}
+.hashcod-platform-skeleton-panel-line:nth-child(3){width:62%}
+.hashcod-platform-skeleton-tools{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+.hashcod-platform-skeleton-tool{
+  aspect-ratio:1;
+  border-radius:13px;
+}
+.hashcod-platform-skeleton-bottom{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin-top:18px;
+}
+.hashcod-platform-skeleton-mini{
+  min-height:108px;
+  border-radius:18px;
+  padding:16px;
+}
+.hashcod-platform-skeleton-mini .hashcod-platform-skeleton-panel-line:last-child{margin-bottom:0}
+.hashcod-platform-skeleton-pulse{
+  position:relative;
+  overflow:hidden;
+  background:#e4e7ea;
+}
+.hashcod-platform-skeleton-pulse::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  transform:translateX(-105%);
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.74) 48%,transparent 100%);
+  animation:hashcodPlatformSkeletonShimmer 1.15s ease-in-out infinite;
+}
+@keyframes hashcodPlatformSkeletonShimmer{
+  to{transform:translateX(105%)}
+}
+.hashcod-platform-skeleton-status{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+html[data-hashcod-theme="dark"] #hashcodPlatformSkeleton{
+  background:#0f1113;
+  color:#f4f4f5;
+}
+html[data-hashcod-theme="dark"] .hashcod-platform-skeleton-topbar,
+html[data-hashcod-theme="dark"] .hashcod-platform-skeleton-workspace,
+html[data-hashcod-theme="dark"] .hashcod-platform-skeleton-panel,
+html[data-hashcod-theme="dark"] .hashcod-platform-skeleton-mini{
+  background:rgba(24,26,29,.94);
+  border-color:rgba(255,255,255,.07);
+}
+html[data-hashcod-theme="dark"] .hashcod-platform-skeleton-pulse{background:#272a2e}
+html[data-hashcod-theme="dark"] .hashcod-platform-skeleton-pulse::after{
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.075),transparent);
+}
+@media(max-width:860px){
+  .hashcod-platform-skeleton-shell{padding:14px}
+  .hashcod-platform-skeleton-main{grid-template-columns:1fr}
+  .hashcod-platform-skeleton-workspace{min-height:360px}
+  .hashcod-platform-skeleton-sidebar{grid-template-columns:1fr 1fr}
+  .hashcod-platform-skeleton-bottom{grid-template-columns:1fr 1fr}
+  .hashcod-platform-skeleton-chip{display:none}
+  .hashcod-platform-skeleton-chip.short{display:block}
+}
+@media(max-width:520px){
+  .hashcod-platform-skeleton-topbar{height:54px}
+  .hashcod-platform-skeleton-brand{width:42vw}
+  .hashcod-platform-skeleton-workspace{min-height:320px;padding:18px}
+  .hashcod-platform-skeleton-sidebar{grid-template-columns:1fr}
+  .hashcod-platform-skeleton-bottom{grid-template-columns:1fr 1fr;gap:10px}
+  .hashcod-platform-skeleton-mini{min-height:86px}
+  .hashcod-platform-skeleton-folder{width:68%}
+}
+@media(prefers-reduced-motion:reduce){
+  #hashcodPlatformSkeleton{transition:none}
+  .hashcod-platform-skeleton-pulse::after{animation:none!important;display:none}
+}

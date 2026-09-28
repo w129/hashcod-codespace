@@ -301,7 +301,16 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<link rel="stylesheet" href="' . $base . 'components/platform-crm.css?v=20260927-platformcrm6" data-hashcod-platform-crm-style="true">'
             : '';
 
-        $cssTag = $inlineCssTag
+        // Full-page loading skeleton is inlined so it remains available even when
+        // network conditions delay the normal component/style requests.
+        $platformSkeletonCssPath = __DIR__ . '/components/platform-loading-skeleton.css';
+        $platformSkeletonCss = is_file($platformSkeletonCssPath) ? (string) @file_get_contents($platformSkeletonCssPath) : '';
+        $platformSkeletonStyleTag = $platformSkeletonCss !== ''
+            ? '<style id="hashcod-platform-loading-skeleton-inline">' . $platformSkeletonCss . '</style>'
+            : '<link rel="stylesheet" href="' . $base . 'components/platform-loading-skeleton.css?v=20260928-skeleton1" data-hashcod-platform-loading-skeleton-style="true">';
+
+        $cssTag = $platformSkeletonStyleTag
+            . $inlineCssTag
             . $inlineEfrCssTag
             . $inlineRegistrationCssTag
             . $secureCssExternalTag
@@ -376,6 +385,39 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $retiredTopbarControlsStyleTag . $registrationPrehideTag . $registrationRetirementGuardTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
             $html = $cssTag . $legacyAuthPrehideTag . $retiredTopbarControlsStyleTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
+        }
+
+        $platformSkeletonMarkup = '<div id="hashcodPlatformSkeleton" hidden aria-hidden="true">'
+            . '<div class="hashcod-platform-skeleton-shell">'
+            . '<div class="hashcod-platform-skeleton-topbar">'
+            . '<span class="hashcod-platform-skeleton-logo hashcod-platform-skeleton-pulse"></span>'
+            . '<span class="hashcod-platform-skeleton-brand hashcod-platform-skeleton-pulse"></span>'
+            . '<div class="hashcod-platform-skeleton-top-actions">'
+            . '<span class="hashcod-platform-skeleton-chip hashcod-platform-skeleton-pulse"></span>'
+            . '<span class="hashcod-platform-skeleton-chip hashcod-platform-skeleton-pulse"></span>'
+            . '<span class="hashcod-platform-skeleton-chip short hashcod-platform-skeleton-pulse"></span>'
+            . '</div></div>'
+            . '<div class="hashcod-platform-skeleton-main">'
+            . '<section class="hashcod-platform-skeleton-workspace">'
+            . '<div class="hashcod-platform-skeleton-workspace-head"><span class="hashcod-platform-skeleton-title hashcod-platform-skeleton-pulse"></span><span class="hashcod-platform-skeleton-small-line hashcod-platform-skeleton-pulse"></span></div>'
+            . '<div class="hashcod-platform-skeleton-canvas hashcod-platform-skeleton-pulse"><span class="hashcod-platform-skeleton-folder hashcod-platform-skeleton-pulse"></span></div>'
+            . '</section>'
+            . '<aside class="hashcod-platform-skeleton-sidebar">'
+            . '<div class="hashcod-platform-skeleton-panel"><div class="hashcod-platform-skeleton-panel-line hashcod-platform-skeleton-pulse"></div><div class="hashcod-platform-skeleton-panel-line hashcod-platform-skeleton-pulse"></div><div class="hashcod-platform-skeleton-panel-line hashcod-platform-skeleton-pulse"></div></div>'
+            . '<div class="hashcod-platform-skeleton-panel"><div class="hashcod-platform-skeleton-panel-line hashcod-platform-skeleton-pulse"></div><div class="hashcod-platform-skeleton-tools">'
+            . str_repeat('<span class="hashcod-platform-skeleton-tool hashcod-platform-skeleton-pulse"></span>', 8)
+            . '</div></div></aside></div>'
+            . '<div class="hashcod-platform-skeleton-bottom">'
+            . str_repeat('<div class="hashcod-platform-skeleton-mini"><div class="hashcod-platform-skeleton-panel-line hashcod-platform-skeleton-pulse"></div><div class="hashcod-platform-skeleton-panel-line hashcod-platform-skeleton-pulse"></div></div>', 4)
+            . '</div></div>'
+            . '<span class="hashcod-platform-skeleton-status" role="status" aria-live="polite">Cargando Hashcod Codespace…</span>'
+            . '</div>';
+
+        if (preg_match('/<body\\b[^>]*>/i', $html, $bodyOpen, PREG_OFFSET_CAPTURE)) {
+            $bodyOpenText = (string) $bodyOpen[0][0];
+            $bodyOpenOffset = (int) $bodyOpen[0][1];
+            $bodyInsertAt = $bodyOpenOffset + strlen($bodyOpenText);
+            $html = substr($html, 0, $bodyInsertAt) . $platformSkeletonMarkup . substr($html, $bodyInsertAt);
         }
 
         // Rescue layer is injected inline as well as loaded as a versioned asset.
@@ -486,7 +528,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script defer src="' . $base . 'components/platform-crm.js?v=20260927-platformcrm6" data-hashcod-platform-crm="true"></script>'
             : '';
 
-        $tag = $retiredTopbarControlsCleanupTag
+        $platformSkeletonJsPath = __DIR__ . '/components/platform-loading-skeleton.js';
+        $platformSkeletonJs = is_file($platformSkeletonJsPath) ? (string) @file_get_contents($platformSkeletonJsPath) : '';
+        if ($platformSkeletonJs !== '') {
+            $platformSkeletonJs = str_ireplace('</script', '<\\/script', $platformSkeletonJs);
+        }
+        $platformSkeletonRuntimeTag = $platformSkeletonJs !== ''
+            ? '<script id="hashcod-platform-loading-skeleton-runtime">' . $platformSkeletonJs . '</script>'
+            : '<script defer src="' . $base . 'components/platform-loading-skeleton.js?v=20260928-skeleton1" data-hashcod-platform-loading-skeleton="true"></script>';
+
+        $tag = $platformSkeletonRuntimeTag
+            . $retiredTopbarControlsCleanupTag
             . $legacyBlackholeCleanupTag
             . $deskcommCrmConfigTag
             . $inlinePlatformCrmJsTag

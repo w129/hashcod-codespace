@@ -140,7 +140,7 @@ assert(js.includes("hashcod:faq-start-request"),'FAQ start-request event hook mi
 assert(gate.includes('id="d5FaqStack"'),'FAQ/editor stack missing');
 assert(gate.includes('id="d5TextEditorCard"'),'liquid text editor card missing');
 assert(gate.includes('id="d5TextEditorInput"'),'autosize text editor input missing');
-assert(gate.includes('This textarea with min height 52 and unlimited max height.'),'AutosizeTextarea placeholder missing');
+assert(gate.includes('Write, paste or import text. Unicode and legacy Japanese text are supported.'),'Enhanced text editor placeholder missing');
 assert(gate.includes('id="d5TextEditorStatus"'),'text editor save status missing');
 assert(gate.includes('id="d5TextEditorCount"'),'text editor character counter missing');
 assert(css.includes('.liquid-text-editor{'),'liquid glass editor styling missing');

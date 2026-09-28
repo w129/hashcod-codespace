@@ -1244,6 +1244,23 @@
   cursor:pointer;
   transition:background .18s ease,transform .12s ease;
 }
+.tilt-whatsapp-button{
+  width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+.tilt-whatsapp-icon{
+  width:24px;
+  height:24px;
+  display:block;
+}
+.tilt-whatsapp-button:hover{
+  background:#262626;
+  transform:translateY(-1px);
+}
 .tilt-buy-button:hover{background:#404040}
 .tilt-buy-button:active{transform:scale(.97)}
 .tilt-buy-button:focus-visible{

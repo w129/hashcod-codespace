@@ -2379,19 +2379,23 @@
   font-size:13px;
   line-height:19px;
 }
-.spectrum-reset-button{
+.entry-login-action{
   margin-top:auto;
+  display:flex;
+  width:100%;
+  justify-content:center;
+}
+.spectrum-outline-login-button{
   display:inline-flex;
-  width:auto;
-  min-width:82px;
-  height:36px;
+  min-width:132px;
+  height:40px;
   align-items:center;
   justify-content:center;
-  align-self:flex-start;
-  border:1px solid #e5e5e5;
+  gap:12px;
+  border:1px solid #d4d4d4;
   border-radius:10px;
   background:#fff;
-  padding:0 14px;
+  padding:0 16px;
   color:#171717;
   font-size:14px;
   font-weight:500;
@@ -2400,18 +2404,28 @@
   box-shadow:0 1px 2px rgba(0,0,0,.04);
   transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
 }
-.spectrum-reset-button:hover{
-  background:#f5f5f5;
-  border-color:#d4d4d4;
+.spectrum-outline-login-button:hover{
+  background:#fafafa;
+  border-color:#a3a3a3;
 }
-.spectrum-reset-button:active{transform:scale(.97)}
-.spectrum-reset-button:focus-visible{
+.spectrum-outline-login-button:active{transform:scale(.97)}
+.spectrum-outline-login-button:focus-visible{
   outline:2px solid #171717;
   outline-offset:2px;
 }
-.spectrum-reset-button:disabled{
+.spectrum-outline-login-button:disabled{
   opacity:.55;
   cursor:wait;
+}
+.spectrum-outline-login-icon{
+  width:16px;
+  height:16px;
+  flex:0 0 16px;
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  background:transparent;
+  border:0;
 }
 
 .entry-stat-card{

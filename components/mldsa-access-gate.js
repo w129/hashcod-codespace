@@ -207,12 +207,12 @@ function entryProductRestore(){
   try{
     var parsed=JSON.parse(localStorage.getItem(ENTRY_PRODUCT_STORAGE_KEY)||'{}');
     if(!parsed||typeof parsed!=='object')return;
-    entryProductSetData({
-      title:typeof parsed.title==='string'?parsed.title:undefined,
-      subtitle:typeof parsed.subtitle==='string'?parsed.subtitle:undefined,
-      price:typeof parsed.price==='string'?parsed.price:undefined,
-      badge:typeof parsed.badge==='string'?parsed.badge:undefined
-    });
+    var restored={};
+    if(typeof parsed.title==='string')restored.title=parsed.title;
+    if(typeof parsed.subtitle==='string')restored.subtitle=parsed.subtitle;
+    if(typeof parsed.price==='string')restored.price=parsed.price;
+    if(typeof parsed.badge==='string')restored.badge=parsed.badge;
+    entryProductSetData(restored);
     if(typeof parsed.image==='string'&&parsed.image.indexOf('data:image/')===0&&entryProductImage){
       entryProductImage.src=parsed.image;
       entryProductImage.hidden=false;

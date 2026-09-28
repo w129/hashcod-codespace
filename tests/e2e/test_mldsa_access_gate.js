@@ -115,6 +115,9 @@ assert(js.includes('Sí. Dentro de Hashcod Codespace puedes trabajar con varios 
 assert(js.includes('function renderFaqAccordion'),'FAQ accordion renderer missing');
 assert(js.includes('function setFaqTab'),'FAQ tab interaction missing');
 assert(js.includes("faqOpenIndex=0"),'FAQ first item must open by default');
-assert(js.includes("hashcod:faq-contact-support"),'FAQ footer action hook missing');
+assert(gate.includes('Comenzar mi Solicitud'),'FAQ CTA label missing');
+assert(js.includes('https://wa.me/18294721257?text='),'FAQ CTA WhatsApp target missing');
+assert(js.includes('Hola, deseo comenzar mi solicitud en Hashcod Codespace.'),'FAQ CTA WhatsApp message missing');
+assert(js.includes("hashcod:faq-start-request"),'FAQ start-request event hook missing');
 
 console.log('✓ Hardened two-phase ML-DSA-87 access contract verified');

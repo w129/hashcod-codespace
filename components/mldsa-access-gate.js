@@ -18,6 +18,82 @@ var exp=0;
 var timer=null;
 var phase=1;
 var entryIntro=!!(document.body&&document.body.getAttribute('data-hashcod-entry-intro')==='1');
+var entryStatCard=document.getElementById('d5EntryStatCard');
+var entryStatTitle=document.getElementById('d5EntryStatTitle');
+var entryStatValue=document.getElementById('d5EntryStatValue');
+var entryStatChange=document.getElementById('d5EntryStatChange');
+var entryStatComparison=document.getElementById('d5EntryStatComparison');
+var entryStatArea=document.getElementById('d5EntryStatArea');
+var entryStatLine=document.getElementById('d5EntryStatLine');
+var entryStatDot=document.getElementById('d5EntryStatDot');
+
+function entryStatNormalizePoints(points){
+  var source=Array.isArray(points)?points:String(points||'').split(',');
+  return source.map(function(value){return Number(value);}).filter(function(value){return Number.isFinite(value);});
+}
+function entryStatPath(points){
+  var values=entryStatNormalizePoints(points);
+  if(!values.length)return {line:'',area:'',cx:100,cy:28};
+  if(values.length===1)values=[values[0],values[0]];
+  var max=Math.max.apply(Math,values);
+  if(!Number.isFinite(max)||max<=0)max=1;
+  var coords=values.map(function(point,index){
+    var x=(index/(values.length-1))*100;
+    var y=28-(point/max)*24;
+    y=Math.max(0,Math.min(28,y));
+    return {x:x,y:y};
+  });
+  var line=coords.map(function(point){return point.x.toFixed(3)+','+point.y.toFixed(3);}).join(' ');
+  var last=coords[coords.length-1];
+  return {
+    line:line,
+    area:'0,28 '+line+' 100,28',
+    cx:last.x,
+    cy:last.y
+  };
+}
+function entryStatSetData(next){
+  if(!entryStatCard)return;
+  var data=next&&typeof next==='object'?next:{};
+  if(Object.prototype.hasOwnProperty.call(data,'title'))entryStatCard.dataset.title=String(data.title);
+  if(Object.prototype.hasOwnProperty.call(data,'value'))entryStatCard.dataset.value=String(data.value);
+  if(Object.prototype.hasOwnProperty.call(data,'change'))entryStatCard.dataset.change=String(data.change);
+  if(Object.prototype.hasOwnProperty.call(data,'comparison'))entryStatCard.dataset.comparison=String(data.comparison);
+  if(Object.prototype.hasOwnProperty.call(data,'points')){
+    var normalized=entryStatNormalizePoints(data.points);
+    if(normalized.length)entryStatCard.dataset.points=normalized.join(',');
+  }
+  if(entryStatTitle)entryStatTitle.textContent=entryStatCard.dataset.title||'Monthly revenue';
+  if(entryStatValue)entryStatValue.textContent=entryStatCard.dataset.value||'$45,231';
+  if(entryStatChange)entryStatChange.textContent=entryStatCard.dataset.change||'+12.5%';
+  if(entryStatComparison)entryStatComparison.textContent=entryStatCard.dataset.comparison||'from last month';
+  var path=entryStatPath(entryStatCard.dataset.points||'12,18,14,24,21,32,28,38');
+  if(entryStatArea)entryStatArea.setAttribute('points',path.area);
+  if(entryStatLine)entryStatLine.setAttribute('points',path.line);
+  if(entryStatDot){
+    entryStatDot.setAttribute('cx',String(path.cx));
+    entryStatDot.setAttribute('cy',String(path.cy));
+  }
+  entryStatCard.setAttribute('aria-label',(entryStatCard.dataset.title||'Statistic')+': '+(entryStatCard.dataset.value||''));
+}
+if(entryStatCard){
+  entryStatSetData({});
+  window.HashcodEntryStatCard={
+    setData:entryStatSetData,
+    getData:function(){
+      return {
+        title:entryStatCard.dataset.title||'',
+        value:entryStatCard.dataset.value||'',
+        change:entryStatCard.dataset.change||'',
+        comparison:entryStatCard.dataset.comparison||'',
+        points:entryStatNormalizePoints(entryStatCard.dataset.points||'')
+      };
+    }
+  };
+  window.addEventListener('hashcod:entry-stat-update',function(event){
+    entryStatSetData(event&&event.detail?event.detail:{});
+  });
+}
 
 function st(message,type){
   if(!status)return;

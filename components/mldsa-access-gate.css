@@ -1005,6 +1005,12 @@
   stroke-linecap:round;
   stroke-linejoin:round;
 }
+.scratch-platform-icon{
+  display:block;
+  width:24px;
+  height:24px;
+  object-fit:contain;
+}
 .scratch-card-label{
   color:#a3a3a3;
   font-size:12px;

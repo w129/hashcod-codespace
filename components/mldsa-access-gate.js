@@ -149,19 +149,19 @@ var FAQ_TABS=[
     ]
   },
   {
-    label:'Billing',
+    label:'Bilding',
     faqs:[
       {
-        question:'What payment methods do you accept?',
-        answer:'All major credit and debit cards, plus ACH transfers on annual plans.'
+        question:'¿Por qué mi Toolbook está vacía cuando entro por primera vez?',
+        answer:'Cuando accedes por primera vez a Hashcod Codespace, tu Toolbook estará vacía por defecto. Esto es completamente normal, ya que las herramientas y módulos de tu proyecto no se generan automáticamente. Para comenzar a llenarla, primero debes realizar una petición de desarrollo a Hashcod Codespace, explicando qué necesitas para tu plataforma, sistema o proyecto. Nuestro proceso parte de esa solicitud. A partir de ella se analizan tus necesidades, se determina qué herramientas, funciones o módulos deben desarrollarse y se organiza el trabajo correspondiente. A medida que Hashcod Codespace desarrolla e incorpora las soluciones solicitadas para tu proyecto, estas podrán aparecer dentro de tu Toolbook según las funciones habilitadas para tu cuenta. Esto permite que cada Toolbook sea diferente y se adapte al proyecto de cada usuario, en lugar de mostrar herramientas genéricas que posiblemente no necesite.'
       },
       {
-        question:'Can I cancel my subscription anytime?',
-        answer:'Yes, cancel from Settings → Billing. You keep access until the end of the current billing period.'
+        question:'¿Cómo solicito que Hashcod Codespace desarrolle una herramienta o función para mi proyecto?',
+        answer:'Para solicitar una nueva herramienta, función o módulo, debes enviar una petición de desarrollo a Hashcod Codespace explicando qué deseas incorporar a tu proyecto y cuál es el objetivo de esa función. La petición será revisada para determinar los requerimientos técnicos, el alcance del desarrollo y los recursos necesarios para llevarla a cabo. Si se necesita información adicional, Hashcod Codespace podrá solicitar detalles sobre el funcionamiento esperado, diseño, integraciones, tecnologías o características específicas del proyecto. Una vez definida la solicitud, se podrá establecer el proceso de desarrollo correspondiente. Cuando la herramienta o función esté preparada y habilitada para tu cuenta, podrá integrarse dentro de tu entorno y aparecer en tu Toolbook. Cada petición se trabaja de acuerdo con las necesidades particulares del proyecto, por lo que las herramientas disponibles pueden variar entre diferentes usuarios de Hashcod Codespace.'
       },
       {
-        question:'Do you offer refunds?',
-        answer:'We offer a full refund within 14 days of purchase, no questions asked.'
+        question:'¿Qué tipo de herramientas o funciones puedo solicitar que se desarrollen?',
+        answer:'En Hashcod Codespace puedes solicitar el desarrollo de herramientas, funciones o módulos adaptados a las necesidades de tu proyecto. Esto puede incluir interfaces, sistemas de gestión, automatizaciones, formularios, almacenamiento de información, paneles de control, herramientas técnicas, integraciones entre servicios y otras funciones relacionadas con el funcionamiento de tu plataforma. Cada solicitud se evalúa de forma individual para determinar si puede desarrollarse dentro del ecosistema de Hashcod Codespace, qué recursos requiere y cómo debe integrarse con el resto de tu proyecto. No todas las Toolbooks serán iguales. Las herramientas que aparezcan en tu espacio dependerán de las funciones que hayas solicitado y de los desarrollos que hayan sido habilitados específicamente para tu cuenta.'
       }
     ]
   },

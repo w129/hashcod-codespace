@@ -1144,6 +1144,7 @@
 
 /* Spectrum UI TiltCard demo — native adaptation */
 .nav-list-left-column{
+  position:relative;
   width:360px;
   flex:0 0 360px;
   display:flex;
@@ -1277,7 +1278,11 @@
     flex:0 0 360px;
   }
   .tilt-card-demo{
-    margin-top:-28px;
+    position:absolute;
+    top:calc(100% + 12px);
+    left:0;
+    margin:0;
+    padding-top:0;
   }
 }
 @media(max-width:1179px){

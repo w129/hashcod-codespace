@@ -84,6 +84,23 @@ assert(js.includes('window.HashcodEntryStatCard'),'entry StatCard public control
 assert(js.includes('hashcod:entry-stat-update'),'entry StatCard update event missing');
 assert(js.includes("data-hashcod-entry-intro"),'entry intro JS mode missing');
 assert(js.includes("url.searchParams.set('hashcod_enter','1')"),'entry button transition missing');
+assert(gate.includes('data-entry-step="1"')&&gate.includes('data-entry-step="2"')&&gate.includes('data-entry-step="3"')&&gate.includes('data-entry-step="4"'),'four-level entry progress missing');
+assert(gate.includes('data-entry-panel="1"')&&gate.includes('data-entry-panel="2"')&&gate.includes('data-entry-panel="3"')&&gate.includes('data-entry-panel="4"'),'four entry panels missing');
+assert(gate.includes('id="d5EntryProductCard"'),'level-2 ProductCard missing');
+assert(gate.includes('Series 8 watch')&&gate.includes('Brushed titanium')&&gate.includes('$249'),'ProductCard provisional content missing');
+assert(gate.includes('id="d5EntryProductAdd"')&&gate.includes('Add to cart'),'ProductCard action missing');
+assert(gate.includes('entry-product-badge')&&gate.includes('New'),'ProductCard New badge missing');
+assert(css.includes('.entry-product-card{')&&css.includes('aspect-ratio:4 / 3'),'ProductCard visual contract missing');
+assert(css.includes('.entry-progress-four{')&&css.includes('grid-template-columns:28px minmax(18px,1fr) 28px'),'four-step progress styling missing');
+assert(js.includes('function entrySetLevel(nextLevel)'),'entry wizard level controller missing');
+assert(js.includes('entrySetLevel(2);'),'level-1 Entrar must advance to level 2 without leaving page');
+assert(js.includes('entrySetLevel(3)')&&js.includes('entrySetLevel(4)'),'entry wizard next-level transitions missing');
+assert(js.includes('function entryOpenPlatform()'),'final platform transition missing');
+assert(js.includes('window.HashcodEntryWizard'),'entry wizard public controller missing');
+assert(js.includes('window.HashcodEntryProductCard'),'ProductCard public controller missing');
+assert(js.includes('hashcod:entry-product-update'),'ProductCard future-content update hook missing');
+assert(js.includes('hashcod:entry-product-cart'),'ProductCard cart event hook missing');
+
 assert(css.includes('.entry-access-card{'),'entry card styling missing');
 assert(router.includes("'/api/mldsa-access'"),'access route missing');
 assert(router.includes("'/api/hashcod-comments'"),'saved comments API route missing');

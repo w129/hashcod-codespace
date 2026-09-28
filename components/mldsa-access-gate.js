@@ -131,6 +131,7 @@ function entryProductBasePath(){
 }
 var ENTRY_PRODUCT_VERIFY_API=entryProductBasePath()+'/api/entry-product-editor';
 var ENTRY_PRODUCT_STORAGE_KEY='hashcod:entry-product-editor:v2';
+var ENTRY_PRODUCT_LEGACY_STORAGE_KEY='hashcod:entry-product-editor:v1';
 var ENTRY_PRODUCT_DB_NAME='hashcod-entry-product-media-v1';
 var ENTRY_PRODUCT_DB_STORE='assets';
 var ENTRY_PRODUCT_DB_IMAGE_KEY='product-image';
@@ -227,7 +228,7 @@ function entryProductCodeValue(){
 function entryProductResetCode(message){
   entryProductCodeInputs.forEach(function(input){input.value='';});
   entryProductSetCodeStatus(message||'','');
-  if(entryProductCodeInputs[0])entryProductCodeInputs[0].focus();
+  if(entryProductCodeInputs[0]&&entryProductTwoFactor&&!entryProductTwoFactor.hidden)entryProductCodeInputs[0].focus();
 }
 function entryProductUnlock(){
   entryProductSetMode('edit');
@@ -292,35 +293,73 @@ function entryProductPersist(){
     subtitle:entryProductCard.dataset.subtitle||'',
     price:entryProductCard.dataset.price||'',
     badge:entryProductCard.dataset.badge||'',
-    imagePosition:{x:entryProductImagePosition.x,y:entryProductImagePosition.y}
+    imagePosition:{x:entryProductImagePosition.x,y:entryProductImagePosition.y},
+    hasImage:entryProductHasSavedImage
   };
-  if(entryProductImage&&!entryProductImage.hidden&&entryProductImage.src&&entryProductImage.src.indexOf('data:image/')===0){
-    if(entryProductImage.src.length<1800000)payload.image=entryProductImage.src;
+  if(entryProductFallbackImageData&&entryProductFallbackImageData.indexOf('data:image/')===0){
+    payload.image=entryProductFallbackImageData;
   }
-  try{localStorage.setItem(ENTRY_PRODUCT_STORAGE_KEY,JSON.stringify(payload));}catch(_){}
-}
-function entryProductRestore(){
   try{
-    var parsed=JSON.parse(localStorage.getItem(ENTRY_PRODUCT_STORAGE_KEY)||'{}');
-    if(!parsed||typeof parsed!=='object')return;
-    var restored={};
-    if(typeof parsed.title==='string')restored.title=parsed.title;
-    if(typeof parsed.subtitle==='string')restored.subtitle=parsed.subtitle;
-    if(typeof parsed.price==='string')restored.price=parsed.price;
-    if(typeof parsed.badge==='string')restored.badge=parsed.badge;
-    entryProductSetData(restored);
-    if(parsed.imagePosition&&typeof parsed.imagePosition==='object'){
-      entryProductApplyImagePosition(parsed.imagePosition.x,parsed.imagePosition.y,false);
-    }else{
-      entryProductApplyImagePosition(50,50,false);
-    }
-    if(typeof parsed.image==='string'&&parsed.image.indexOf('data:image/')===0&&entryProductImage){
-      entryProductImage.src=parsed.image;
-      entryProductImage.hidden=false;
-    }
+    localStorage.setItem(ENTRY_PRODUCT_STORAGE_KEY,JSON.stringify(payload));
+    localStorage.removeItem(ENTRY_PRODUCT_LEGACY_STORAGE_KEY);
   }catch(_){}
 }
-function entryProductApplyImage(file){
+async function entryProductRestore(){
+  var parsed={};
+  var fromLegacy=false;
+  try{
+    var stored=localStorage.getItem(ENTRY_PRODUCT_STORAGE_KEY);
+    if(!stored){
+      stored=localStorage.getItem(ENTRY_PRODUCT_LEGACY_STORAGE_KEY);
+      fromLegacy=!!stored;
+    }
+    parsed=JSON.parse(stored||'{}');
+    if(!parsed||typeof parsed!=='object')parsed={};
+  }catch(_){parsed={};}
+  var restored={};
+  if(typeof parsed.title==='string')restored.title=parsed.title;
+  if(typeof parsed.subtitle==='string')restored.subtitle=parsed.subtitle;
+  if(typeof parsed.price==='string')restored.price=parsed.price;
+  if(typeof parsed.badge==='string')restored.badge=parsed.badge;
+  entryProductSetData(restored);
+  if(parsed.imagePosition&&typeof parsed.imagePosition==='object'){
+    entryProductApplyImagePosition(parsed.imagePosition.x,parsed.imagePosition.y,false);
+  }else{
+    entryProductApplyImagePosition(50,50,false);
+  }
+
+  var restoredImage=false;
+  try{
+    var record=await entryProductDbGetImage();
+    if(record&&record.blob instanceof Blob){
+      restoredImage=entryProductSetImageFromBlob(record.blob);
+    }
+  }catch(_){}
+
+  if(!restoredImage&&typeof parsed.image==='string'&&parsed.image.indexOf('data:image/')===0&&entryProductImage){
+    entryProductFallbackImageData=parsed.image;
+    entryProductImage.src=parsed.image;
+    entryProductImage.hidden=false;
+    restoredImage=true;
+    try{
+      var migratedBlob=await fetch(parsed.image).then(function(response){return response.blob();});
+      if(migratedBlob&&/^image\//i.test(String(migratedBlob.type||''))){
+        await entryProductDbPutImage(migratedBlob);
+        entryProductFallbackImageData='';
+      }
+    }catch(_){}
+  }
+
+  entryProductHasSavedImage=restoredImage;
+  if(restoredImage){
+    entryProductSetMode('view');
+  }else{
+    entryProductSetMode('verify');
+  }
+  if(fromLegacy||parsed.hasImage!==entryProductHasSavedImage)entryProductPersist();
+  return restoredImage;
+}
+async function entryProductApplyImage(file){
   if(!file)return;
   if(!/^image\//i.test(String(file.type||''))){
     entryProductSetCodeStatus('Selecciona un archivo de imagen válido.','error');
@@ -330,18 +369,31 @@ function entryProductApplyImage(file){
     entryProductSetCodeStatus('La imagen debe pesar 8 MB o menos.','error');
     return;
   }
-  var reader=new FileReader();
-  reader.onload=function(){
-    if(!entryProductImage)return;
-    entryProductImage.src=String(reader.result||'');
-    entryProductImage.hidden=false;
-    entryProductApplyImagePosition(50,50,false);
-    entryProductSetCodeStatus('Imagen actualizada. Arrástrala para ajustar el encuadre.','ok');
-    entryProductPersist();
-    try{window.dispatchEvent(new CustomEvent('hashcod:entry-product-image',{detail:{name:file.name||'',type:file.type||'',size:file.size||0}}));}catch(_){}
-  };
-  reader.onerror=function(){entryProductSetCodeStatus('No se pudo leer la imagen.','error');};
-  reader.readAsDataURL(file);
+  if(!entryProductImage)return;
+  entryProductSetImageFromBlob(file);
+  entryProductHasSavedImage=true;
+  entryProductFallbackImageData='';
+  entryProductApplyImagePosition(50,50,false);
+  entryProductSetCodeStatus('Imagen guardada. Arrástrala para ajustar el encuadre.','ok');
+  var storedInDb=false;
+  try{
+    await entryProductDbPutImage(file);
+    storedInDb=true;
+  }catch(_){}
+  if(!storedInDb){
+    var reader=new FileReader();
+    reader.onload=function(){
+      var data=String(reader.result||'');
+      if(data.indexOf('data:image/')===0&&data.length<6000000){
+        entryProductFallbackImageData=data;
+        entryProductPersist();
+      }
+    };
+    reader.onerror=function(){};
+    reader.readAsDataURL(file);
+  }
+  entryProductPersist();
+  try{window.dispatchEvent(new CustomEvent('hashcod:entry-product-image',{detail:{name:file.name||'',type:file.type||'',size:file.size||0}}));}catch(_){}
 }
 
 function entryProductStartImageDrag(event){

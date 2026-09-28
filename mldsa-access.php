@@ -21,8 +21,9 @@ function mldsaAccessPublicKeyBytes(): string {
 }
 function mldsaAccessConfigured(): bool { return mldsaAccessPublicKeyBytes()!==''; }
 function mldsaAccessRequired(): bool {
-    $v=strtolower(trim((string)secretGet('L8_ACCESS_MLDSA87_REQUIRED','1')));
-    return !in_array($v,['0','false','no','off'],true);
+    // ML-DSA-87 remains available as a cryptographic module/API, but it is no
+    // longer an authentication requirement for entering Hashcod Codespace.
+    return false;
 }
 
 function mldsaB64u(string $v): string { return rtrim(strtr(base64_encode($v),'+/','-_'),'='); }

@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-tilt7',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-tilt7',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-tilt8',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-tilt8',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -318,7 +318,7 @@ function mldsaGateHtml(string $base='/'): string {
       .'<div class="tilt-card-item tilt-media" data-tilt-depth="80"><div class="tilt-media-frame"><img src="'.$base.'hashcod_icon_exact.svg" alt="Hashcod Codespace platform icon"></div></div>'
       .'<div class="tilt-card-footer">'
       .'<div id="d5TiltPrice" class="tilt-card-item tilt-price" data-tilt-depth="40">$48,250</div>'
-      .'<div class="tilt-card-item" data-tilt-depth="60"><button class="tilt-buy-button" type="button">Buy now →</button></div>'
+      .'<div class="tilt-card-item" data-tilt-depth="60"><button id="d5TiltWhatsApp" class="tilt-buy-button tilt-whatsapp-button" type="button" aria-label="Comprar cupo por WhatsApp"><svg class="tilt-whatsapp-icon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#fff" d="M4.868,43.303l2.694-9.835C5.9,30.59,5.026,27.324,5.027,23.979C5.032,13.514,13.548,5,24.014,5c5.079.002,9.845,1.979,13.43,5.566C41.028,14.154,43.002,18.922,43,23.994c-.004,10.465-8.522,18.98-18.986,18.98h-.008c-3.177-.001-6.3-.798-9.073-2.311L4.868,43.303z"></path><path fill="#40c351" d="M35.176,12.832c-2.98-2.982-6.941-4.625-11.157-4.626-8.704,0-15.783,7.076-15.787,15.774-.001,2.981.833,5.883,2.413,8.396l.376.597-1.595,5.821 5.973-1.566.577.342c2.422,1.438,5.2,2.198,8.032,2.199h.006c8.698,0,15.777-7.077,15.78-15.776.001-4.215-1.638-8.179-4.618-11.161z"></path><path fill="#fff" fill-rule="evenodd" d="M19.268,16.045c-.355-.79-.729-.806-1.068-.82-.277-.012-.593-.011-.909-.011s-.83.119-1.265.594c-.435.475-1.661,1.622-1.661,3.956s1.7,4.59,1.937,4.906c.237.316,3.282,5.259,8.104,7.161,4.007,1.58,4.823,1.266,5.693,1.187.87-.079,2.807-1.147,3.202-2.255.395-1.108.395-2.057.277-2.255-.119-.198-.435-.316-.909-.554s-2.807-1.385-3.242-1.543c-.435-.158-.751-.237-1.068.238-.316.474-1.225,1.543-1.502,1.859-.277.317-.554.357-1.028.119-.474-.238-2.002-.738-3.815-2.354-1.41-1.257-2.362-2.81-2.639-3.285-.277-.474-.03-.731.208-.968.213-.213.474-.554.712-.831.237-.277.316-.475.474-.791.158-.317.079-.594-.04-.831-.118-.239-1.04-2.585-1.462-3.523z" clip-rule="evenodd"></path></svg></button></div>'
       .'</div>'
       .'</div>'
       .'<div id="d5TiltGlare" class="tilt-card-glare" aria-hidden="true"></div>'

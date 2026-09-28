@@ -482,12 +482,7 @@ function entryProductSetData(next){
 }
 if(entryIntro){
   entrySetLevel(1);
-  if(entryProductSecurity)entryProductSecurity.dataset.unlocked='false';
-  if(entryProductProtected){
-    entryProductProtected.setAttribute('inert','');
-    entryProductProtected.setAttribute('aria-hidden','true');
-  }
-  if(entryLevel2Next)entryLevel2Next.disabled=true;
+  entryProductSetMode('verify');
   entryProductRestore();
 
   entryProductCodeInputs.forEach(function(input,index){
@@ -516,6 +511,11 @@ if(entryIntro){
   if(entryProductVerify)entryProductVerify.addEventListener('click',entryProductVerifyCode);
   if(entryProductResend)entryProductResend.addEventListener('click',function(){
     entryProductResetCode('Código reiniciado. Ingresa nuevamente los 6 dígitos.');
+  });
+  if(entryProductEditButton)entryProductEditButton.addEventListener('click',function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    entryProductRequestEdit();
   });
   if(entryProductImage){
     entryProductApplyImagePosition(entryProductImagePosition.x,entryProductImagePosition.y,false);
@@ -568,6 +568,9 @@ if(entryIntro){
         entryProductAdd.textContent=added?'Added ✓':'Add to cart';
       },
       isUnlocked:function(){return entryProductUnlocked;},
+      hasSavedImage:function(){return entryProductHasSavedImage;},
+      getMode:function(){return entryProductSecurity?entryProductSecurity.dataset.mode||'verify':'verify';},
+      requestEdit:entryProductRequestEdit,
       setImagePosition:function(x,y){entryProductApplyImagePosition(x,y,true);},
       resetImagePosition:entryProductResetImagePosition,
       getImagePosition:function(){return {x:entryProductImagePosition.x,y:entryProductImagePosition.y};},

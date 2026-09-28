@@ -2354,16 +2354,17 @@
   padding:24px;
   text-align:left;
 }
-.entry-welcome-icon{
-  width:52px;
-  height:52px;
-  flex:0 0 52px;
-  display:grid;
-  place-items:center;
-  border-radius:16px;
-  background:#0a0a0a;
-  color:#fff;
-  font:700 19px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+.entry-platform-logo{
+  width:56px;
+  height:56px;
+  flex:0 0 56px;
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
 }
 .entry-welcome-panel strong{
   display:block;

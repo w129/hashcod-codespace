@@ -941,15 +941,16 @@ var tickerRandomize=document.getElementById('d5TickerRandomize');
 var tickerIncrease=document.getElementById('d5TickerIncrease');
 var tiltPrice=document.getElementById('d5TiltPrice');
 var NUMBER_TICKER_STEP=.32;
-var NUMBER_TICKER_STORAGE_KEY='hashcod:number-ticker:value:v1';
+var NUMBER_TICKER_STORAGE_KEY='hashcod:number-ticker:value:v2';
+var NUMBER_TICKER_DEFAULT=60;
 function loadStoredNumberTickerValue(){
   try{
     var stored=window.localStorage.getItem(NUMBER_TICKER_STORAGE_KEY);
-    if(stored===null||stored==='')return 48250;
+    if(stored===null||stored==='')return NUMBER_TICKER_DEFAULT;
     var parsed=Number(stored);
-    return Number.isFinite(parsed)&&parsed>=0?Math.round(parsed*100)/100:48250;
+    return Number.isFinite(parsed)&&parsed>=0?Math.round(parsed*100)/100:NUMBER_TICKER_DEFAULT;
   }catch(_){
-    return 48250;
+    return NUMBER_TICKER_DEFAULT;
   }
 }
 function persistNumberTickerValue(value){

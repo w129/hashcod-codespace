@@ -134,7 +134,7 @@ assert(css.includes('scale(.98)'),'NavListCard tap scale missing');
 assert(css.includes('left:calc(100% + 12px)'),'NavListCard must sit to the right of FAQ');
 assert(js.includes('hashcod:nav-list-action'),'NavListCard interaction hook missing');
 assert(gate.includes('id="d5NumberTickerDemo"'),'NumberTicker demo container missing');
-assert(gate.includes('Monthly revenue'),'NumberTicker demo title missing');
+assert(gate.includes('How much does a spot in the square cost?'),'NumberTicker demo title missing');
 assert(gate.includes('Each digit rolls to its new value.'),'NumberTicker demo caption missing');
 assert(gate.includes('id="d5TickerDecrease"'),'NumberTicker decrease control missing');
 assert(gate.includes('id="d5TickerRandomize"'),'NumberTicker randomize control missing');

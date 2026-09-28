@@ -1,4 +1,4 @@
-name: ML-DSA-87 access gate
+name: ML-DSA-87 non-blocking access check
 
 on:
   workflow_dispatch:
@@ -10,10 +10,8 @@ on:
       - components/mldsa-access-gate.css
       - components/mldsa-access-gate.js
       - config/mldsa87-access-public.b64
-      - scripts/mldsa87_access.py
       - l8-html.php
       - router.php
-      - requirements-streamlit.txt
       - tests/e2e/test_mldsa_access_gate.js
       - .github/workflows/mldsa-access-gate.yml
 
@@ -21,14 +19,11 @@ permissions:
   contents: read
 
 jobs:
-  access-gate:
+  direct-entry:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install ML-DSA verifier
-        run: python3 -m pip install --disable-pip-version-check pqcrypto==1.0.0
 
       - name: Syntax and static contract
         run: |
@@ -39,104 +34,44 @@ jobs:
           node --check components/mldsa-access-gate.js
           node tests/e2e/test_mldsa_access_gate.js
 
-      - name: Generate ephemeral ML-DSA-87 test key
-        run: |
-          python3 - <<'PY'
-          import base64, os
-          from pathlib import Path
-          from pqcrypto.sign.ml_dsa_87 import keygen
-          pk,sk=keygen()
-          Path('/tmp/mldsa-test-sk.b64').write_text(base64.b64encode(sk).decode())
-          env=os.environ['GITHUB_ENV']
-          with open(env,'a',encoding='utf-8') as f:
-              f.write('L8_ACCESS_MLDSA87_PUBLIC_KEY_B64='+base64.b64encode(pk).decode()+'\n')
-              f.write('L8_ACCESS_GATE_COOKIE_SECRET=ci-only-cookie-secret-0123456789abcdef\n')
-              f.write('L8_ACCESS_MLDSA87_PHASE1_TTL=90\n')
-              f.write('L8_ACCESS_MLDSA87_PHASE2_TTL=60\n')
-              f.write('L8_ACCESS_MLDSA87_TTL=1800\n')
-          PY
-
       - name: Start Hashcod locally
         run: |
-          rm -rf data_storage/security/mldsa-replay
-          php -S 127.0.0.1:8097 router.php >/tmp/mldsa-gate-php.log 2>&1 &
-          echo $! >/tmp/mldsa-gate-php.pid
+          php -S 127.0.0.1:8097 router.php >/tmp/mldsa-direct-entry.log 2>&1 &
+          echo $! >/tmp/mldsa-direct-entry.pid
           ready=0
           for i in $(seq 1 40); do
-            if curl -fsS http://127.0.0.1:8097/ >/tmp/mldsa-first.html; then ready=1; break; fi
+            if curl -fsS http://127.0.0.1:8097/ >/tmp/hashcod-home.html; then ready=1; break; fi
             sleep 1
           done
           test "$ready" -eq 1
-          grep -q "Acceso criptográfico reforzado" /tmp/mldsa-first.html
 
-      - name: Complete two-phase signature protocol and reject replay
+      - name: Verify direct platform entry
         run: |
-          ORIGIN='http://127.0.0.1:8097'
+          ! grep -q "Acceso criptográfico reforzado" /tmp/hashcod-home.html
+          grep -qi "Hashcod" /tmp/hashcod-home.html
 
-          # Phase 1 challenge
-          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies             http://127.0.0.1:8097/api/mldsa-access >/tmp/phase1.json
+      - name: Verify ML-DSA API is non-blocking
+        run: |
+          curl -fsS http://127.0.0.1:8097/api/mldsa-access >/tmp/mldsa-status.json
           python3 - <<'PY'
           import json
-          d=json.load(open('/tmp/phase1.json'))
-          assert d['phase']==1 and d['total_phases']==2 and d['authorized'] is False, d
+          d=json.load(open('/tmp/mldsa-status.json'))
+          assert d.get('ok') is True, d
+          assert d.get('required') is False, d
+          assert d.get('authorized') is True, d
           PY
-          cp /tmp/mldsa.cookies /tmp/mldsa.phase1.cookies
-          CH1=$(python3 -c "import json;print(json.load(open('/tmp/phase1.json'))['challenge'])")
-          SIG1=$(python3 scripts/mldsa87_access.py sign --secret /tmp/mldsa-test-sk.b64 --challenge "$CH1")
-          python3 - "$SIG1" <<'PY' >/tmp/phase1-signature.json
-          import json,sys
-          print(json.dumps({'signature':sys.argv[1],'phase':1}))
-          PY
-
-          # Phase 1 valid -> Phase 2 challenge
-          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies             -H "Origin: $ORIGIN" -H 'Content-Type: application/json'             --data-binary @/tmp/phase1-signature.json             http://127.0.0.1:8097/api/mldsa-access >/tmp/phase2.json
-          python3 - <<'PY'
-          import json
-          d=json.load(open('/tmp/phase2.json'))
-          assert d['ok'] is True and d['next_phase']==2 and d['authorized'] is False, d
-          PY
-
-          # Reuse exact phase-1 cookie + signature: must fail as replay.
-          HTTP=$(curl -sS -o /tmp/replay.json -w '%{http_code}'             -b /tmp/mldsa.phase1.cookies             -H "Origin: $ORIGIN" -H 'Content-Type: application/json'             --data-binary @/tmp/phase1-signature.json             http://127.0.0.1:8097/api/mldsa-access)
-          test "$HTTP" = "409"
-          python3 - <<'PY'
-          import json
-          d=json.load(open('/tmp/replay.json'))
-          assert d.get('code')=='replay_detected', d
-          PY
-
-          # Phase 2 confirmation
-          CH2=$(python3 -c "import json;print(json.load(open('/tmp/phase2.json'))['challenge'])")
-          SIG2=$(python3 scripts/mldsa87_access.py sign --secret /tmp/mldsa-test-sk.b64 --challenge "$CH2")
-          python3 - "$SIG2" <<'PY' >/tmp/phase2-signature.json
-          import json,sys
-          print(json.dumps({'signature':sys.argv[1],'phase':2}))
-          PY
-          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies             -H "Origin: $ORIGIN" -H 'Content-Type: application/json'             --data-binary @/tmp/phase2-signature.json             http://127.0.0.1:8097/api/mldsa-access >/tmp/unlock.json
-          python3 - <<'PY'
-          import json
-          d=json.load(open('/tmp/unlock.json'))
-          assert d.get('ok') is True and d.get('authorized') is True and d.get('completed_phases')==2, d
-          PY
-
-          # Access is now granted.
-          curl -fsS -c /tmp/mldsa.cookies -b /tmp/mldsa.cookies             http://127.0.0.1:8097/ >/tmp/mldsa-after.html
-          ! grep -q "Acceso criptográfico reforzado" /tmp/mldsa-after.html
-          grep -qi "Hashcod" /tmp/mldsa-after.html
 
       - name: Stop server
         if: always()
         run: |
-          if [ -f /tmp/mldsa-gate-php.pid ]; then kill "$(cat /tmp/mldsa-gate-php.pid)" || true; fi
+          if [ -f /tmp/mldsa-direct-entry.pid ]; then kill "$(cat /tmp/mldsa-direct-entry.pid)" || true; fi
 
       - name: Upload log on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: mldsa-access-gate-log
+          name: mldsa-direct-entry-log
           path: |
-            /tmp/mldsa-gate-php.log
-            /tmp/phase1.json
-            /tmp/phase2.json
-            /tmp/replay.json
-            /tmp/unlock.json
+            /tmp/mldsa-direct-entry.log
+            /tmp/mldsa-status.json
+            /tmp/hashcod-home.html

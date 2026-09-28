@@ -178,6 +178,27 @@ function l8_apply_csp_nonce(string $html): string {
  * Require a PHP/HTML page file with HTML headers.
  * $file is a basename under the project root (e.g. "index.php", "gateway.php").
  */
+function l8_entry_intro_cookie_name(): string {
+    return 'hashcod_codespace_entry';
+}
+
+function l8_entry_intro_seen(): bool {
+    return (string)($_COOKIE[l8_entry_intro_cookie_name()] ?? '') === '1';
+}
+
+function l8_entry_intro_commit(): void {
+    $path = l8_public_base_path();
+    $secure = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
+        || strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+    setcookie(l8_entry_intro_cookie_name(), '1', [
+        'expires' => 0,
+        'path' => $path,
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
 function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
     $file = basename((string) $file);
     $path = __DIR__ . '/' . $file;
@@ -185,8 +206,29 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         l8_html_not_found_page();
     }
 
-    // Hashcod Codespace now renders the requested platform page directly.
-    // ML-DSA-87 is not part of the mandatory entry flow.
+    // Show the former access-card screen first as a non-blocking welcome window.
+    // A session cookie remembers the user's entry so navigation/reloads inside the
+    // same browser session go directly to the platform.
+    if ($file === 'index.php') {
+        $enter = (string)($_GET['hashcod_enter'] ?? '');
+        if ($enter === '1') {
+            l8_entry_intro_commit();
+            $redirectPath = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
+            if (!is_string($redirectPath) || $redirectPath === '') {
+                $redirectPath = l8_public_base_path();
+            }
+            header('Cache-Control: no-store, no-cache, must-revalidate');
+            header('Location: ' . $redirectPath, true, 303);
+            exit;
+        }
+        if (!l8_entry_intro_seen()) {
+            require_once __DIR__ . '/mldsa-access.php';
+            l8_init_compression();
+            l8_html_headers(true, 0);
+            echo mldsaGateHtml(l8_public_base_path(), true);
+            exit;
+        }
+    }
 
     l8_init_compression();
     l8_html_headers($ok, $cacheTtl);

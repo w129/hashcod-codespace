@@ -188,8 +188,8 @@ assert(js.includes('navigator.clipboard.writeText(value)'),'ScratchCard clipboar
 assert(js.includes('window.setTimeout(resetScratchCopyState,2000)'),'ScratchCard copied state timeout missing');
 assert(js.includes('function resetScratchCard()'),'ScratchCard reset function missing');
 assert(gate.includes('id="d5TiltCardDemo"'),'TiltCard demo container missing');
-assert(gate.includes('Aurora Headphones'),'TiltCard provisional title missing');
-assert(gate.includes('Studio sound with adaptive noise cancellation.'),'TiltCard provisional description missing');
+assert(gate.includes('Current price to purchase a slot'),'TiltCard slot price title missing');
+assert(gate.includes('Este es el precio que debes pagar para adquirir un cupo en la plataforma'),'TiltCard slot price description missing');
 assert(gate.includes('hashcod_icon_exact.svg'),'TiltCard must use repository platform icon');
 assert(gate.includes('alt="Hashcod Codespace platform icon"'),'TiltCard platform icon alt missing');
 assert(gate.includes('data-tilt-depth="50"'),'TiltCard title depth 50 missing');

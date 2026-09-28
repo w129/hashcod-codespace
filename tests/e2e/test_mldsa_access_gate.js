@@ -53,7 +53,15 @@ assert(js.includes("next_phase"),'frontend phase transition missing');
 assert(js.includes("phase:phase"),'frontend must bind submitted signature to current phase');
 assert(css.includes(".security-progress{"),'two-phase progress UI missing');
 
-assert(!l8.includes('mldsaShouldGateHtml'),'HTML renderer must not intercept entry with ML-DSA gate');
+assert(!l8.includes('mldsaShouldGateHtml'),'HTML renderer must not restore the mandatory ML-DSA gate');
+assert(l8.includes("return 'hashcod_codespace_entry';"),'entry intro session cookie missing');
+assert(l8.includes('mldsaGateHtml(l8_public_base_path(), true)'),'first-screen entry window missing');
+assert(gate.includes('Acceso a Hashcod Codespace'),'non-blocking entry card title missing');
+assert(gate.includes('ENTRAR A HASHCOD CODESPACE'),'entry card button missing');
+assert(gate.includes('Sin reto, firma Base64 ni clave privada.'),'entry card must state direct access');
+assert(js.includes("data-hashcod-entry-intro"),'entry intro JS mode missing');
+assert(js.includes("url.searchParams.set('hashcod_enter','1')"),'entry button transition missing');
+assert(css.includes('.entry-access-card{'),'entry card styling missing');
 assert(router.includes("'/api/mldsa-access'"),'access route missing');
 assert(router.includes("'/api/hashcod-comments'"),'saved comments API route missing');
 const savedCommentsRouteIndex=router.indexOf("if ($bootstrapSyncPath === '/api/hashcod-comments')");

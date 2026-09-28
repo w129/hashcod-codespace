@@ -265,7 +265,8 @@ var savedChatRefresh=document.getElementById('d5SavedChatRefresh');
 var savedChatStatus=document.getElementById('d5SavedChatStatus');
 var SAVED_CHAT_CLIENT_KEY='hashcod:saved-chat:client:v1';
 var SAVED_CHAT_PENDING_KEY='hashcod:saved-chat:pending:v1';
-var savedChatRemoteMessages=[];
+var SAVED_CHAT_CACHE_KEY='hashcod:saved-chat:cache:v2';
+var savedChatRemoteMessages=savedChatCachedMessages();
 var savedChatLoading=false;
 var savedChatPollTimer=0;
 
@@ -304,6 +305,15 @@ function savedChatPending(){
 function savedChatSavePending(rows){
   try{window.localStorage.setItem(SAVED_CHAT_PENDING_KEY,JSON.stringify(rows.slice(-30)));}catch(_){}
 }
+function savedChatCachedMessages(){
+  try{
+    var parsed=JSON.parse(window.localStorage.getItem(SAVED_CHAT_CACHE_KEY)||'[]');
+    return Array.isArray(parsed)?parsed.slice(-120):[];
+  }catch(_){return [];}
+}
+function savedChatSaveCache(rows){
+  try{window.localStorage.setItem(SAVED_CHAT_CACHE_KEY,JSON.stringify((Array.isArray(rows)?rows:[]).slice(-120)));}catch(_){}
+}
 function savedChatAuthToken(){
   var token='';
   try{token=window.sessionStorage.getItem('l8_auth_token')||window.localStorage.getItem('l8_auth_token')||'';}catch(_){}
@@ -333,7 +343,7 @@ function savedChatCombinedMessages(){
   savedChatPending().forEach(function(row){rows.push(row);});
   var seen={};
   rows=rows.filter(function(row){
-    var key=String(row.id||row.client_nonce||'');
+    var key=String(row.client_nonce||row.id||'');
     if(!key||seen[key])return false;
     seen[key]=true;
     return true;
@@ -384,14 +394,21 @@ async function loadSavedChat(silent){
     });
     var data=await response.json().catch(function(){return {};});
     if(!response.ok||!data.ok)throw new Error(data.error||'Could not load comments');
-    savedChatRemoteMessages=Array.isArray(data.messages)?data.messages:[];
+    var incoming=Array.isArray(data.messages)?data.messages:[];
+    // A degraded empty response must not erase the last durable browser copy.
+    if(incoming.length||!data.degraded||!savedChatRemoteMessages.length){
+      savedChatRemoteMessages=incoming;
+      savedChatSaveCache(savedChatRemoteMessages);
+    }
     renderSavedChat();
     if(!silent){
       savedChatSetStatus(data.degraded?'Loaded from durable fallback':'Saved in Codespace',data.degraded?'':'ok');
     }
   }catch(error){
+    // Keep showing cached/queued messages without presenting a false offline
+    // warning when a security layer or transient request interrupts polling.
     renderSavedChat();
-    if(!silent)savedChatSetStatus('Offline — pending comments stay queued','error');
+    if(!silent)savedChatSetStatus('');
   }finally{
     savedChatLoading=false;
   }
@@ -418,7 +435,12 @@ async function retrySavedChatPending(){
   var remaining=[];
   for(var i=0;i<queue.length;i++){
     try{
-      await postSavedChatPending(queue[i]);
+      var synced=await postSavedChatPending(queue[i]);
+      if(synced&&synced.message){
+        savedChatRemoteMessages=savedChatRemoteMessages.filter(function(row){return row.id!==synced.message.id;});
+        savedChatRemoteMessages.push(synced.message);
+        savedChatSaveCache(savedChatRemoteMessages);
+      }
     }catch(_){
       remaining.push(queue[i]);
     }
@@ -453,11 +475,17 @@ async function sendSavedChatMessage(){
   savedChatSetStatus('Saving…');
   try{
     var result=await postSavedChatPending(optimistic);
+    if(result&&result.message){
+      savedChatRemoteMessages=savedChatRemoteMessages.filter(function(row){return row.id!==result.message.id;});
+      savedChatRemoteMessages.push(result.message);
+      savedChatSaveCache(savedChatRemoteMessages);
+    }
     savedChatSavePending(savedChatPending().filter(function(row){return row.client_nonce!==nonce;}));
+    renderSavedChat();
     savedChatSetStatus(result.deferred?'Saved · sync queued':'Saved','ok');
     await loadSavedChat(true);
   }catch(error){
-    savedChatSetStatus('Pending — will retry automatically','error');
+    savedChatSetStatus('Saved locally · syncing');
     renderSavedChat();
   }finally{
     savedChatSend.disabled=false;

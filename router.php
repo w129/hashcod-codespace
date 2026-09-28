@@ -51,6 +51,13 @@ if ($bootstrapSyncPath === '/api/hashcod-text-editor') {
     require __DIR__ . '/hashcod-text-editor.php';
     exit;
 }
+// Saved comments is a background JSON controller. Route it before the generic
+// web bootstrap so polling/saving cannot be replaced by an interactive security
+// challenge. The controller keeps its own client validation and rate limiting.
+if ($bootstrapSyncPath === '/api/hashcod-comments') {
+    require __DIR__ . '/hashcod-comments.php';
+    exit;
+}
 
 securityBootstrap('web');
 
@@ -135,10 +142,6 @@ if (isset($routedPages[$uri])) {
 // mantener la integración Groq aislada y la credencial únicamente en servidor.
 if ($uri === '/api/groq-chat') {
     require __DIR__ . '/groq-chat.php';
-    exit;
-}
-if ($uri === '/api/hashcod-comments') {
-    require __DIR__ . '/hashcod-comments.php';
     exit;
 }
 

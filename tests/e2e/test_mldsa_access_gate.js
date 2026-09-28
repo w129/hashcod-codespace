@@ -133,5 +133,22 @@ assert(css.includes('transform:translateX(2px) scale(1)'),'NavListCard hover x+2
 assert(css.includes('scale(.98)'),'NavListCard tap scale missing');
 assert(css.includes('left:calc(100% + 12px)'),'NavListCard must sit to the right of FAQ');
 assert(js.includes('hashcod:nav-list-action'),'NavListCard interaction hook missing');
+assert(gate.includes('id="d5DocumentsModal"'),'official documents modal missing');
+assert(gate.includes('data-doc-id="onapi"'),'ONAPI document selector missing');
+assert(gate.includes('data-doc-id="mercantil"'),'Mercantile Registry selector missing');
+assert(gate.includes('data-doc-id="rnc"'),'RNC document selector missing');
+assert(js.includes("if(label==='Documents')"),'Documents item must open viewer');
+assert(js.includes('function openDocumentsModal'),'documents modal open function missing');
+assert(js.includes('function closeDocumentsModal'),'documents modal close function missing');
+assert(js.includes('function renderOfficialDocument'),'document renderer missing');
+assert(js.includes("registration','336973'") || js.includes("['Núm. de registro','336973']"),'ONAPI registration 336973 missing');
+assert(js.includes("['Registro Mercantil','3323LV-PF']"),'Mercantile Registry number missing');
+assert(js.includes("['RNC','402-0936929-3']"),'RNC number missing');
+assert(js.includes('696254deb3f1783f788d475c8b13b615ceb32440ce2b921ca946a030292464db'),'ONAPI evidence hash missing');
+assert(js.includes('ec1077ab5fd6d81685f0976ab3451ef7f4fa5be230e8ffe94761365708ab3e31'),'Mercantile evidence hash missing');
+assert(js.includes('72cd3363c15d503adcee3bf97158a0ff437b7228a532e9222256cbca515c3fbd'),'RNC evidence hash missing');
+assert(css.includes('.documents-modal{'),'documents modal styling missing');
+assert(css.includes('grid-template-columns:240px minmax(0,1fr)'),'desktop documents viewer layout missing');
+assert(css.includes('.official-document{'),'official document sheet styling missing');
 
 console.log('✓ Hardened two-phase ML-DSA-87 access contract verified');

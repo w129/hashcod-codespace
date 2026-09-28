@@ -79,12 +79,20 @@ if (!is_string($code) || strlen($code) !== 6) {
     entryProductJson(400, ['ok' => false, 'error' => 'invalid_code_format']);
 }
 
-$expected = trim((string)secretGet('HASHCOD_ENTRY_PRODUCT_EDIT_CODE', '281930'));
-if (!preg_match('/^\d{6}$/', $expected)) {
-    entryProductJson(503, ['ok' => false, 'error' => 'editor_code_not_configured']);
+$configured = trim((string)secretGet('HASHCOD_ENTRY_PRODUCT_EDIT_CODE', ''));
+$valid = false;
+if ($configured !== '' && preg_match('/^\d{6}$/', $configured)) {
+    $valid = hash_equals($configured, $code);
+} else {
+    // Default code is stored only as a SHA-256 digest so it is not exposed in
+    // the browser bundle or HTML. Deployments can override it with the secret above.
+    $valid = hash_equals(
+        '61b473ef969634fcdd630c8f24c192b5f5faf200b145ec348623b7a977cba959',
+        hash('sha256', $code)
+    );
 }
 
-if (!hash_equals($expected, $code)) {
+if (!$valid) {
     $state['attempts']++;
     entryProductRateWrite($state);
     entryProductJson(401, ['ok' => false, 'error' => 'invalid_code', 'attempts_remaining' => max(0, 6 - $state['attempts'])]);

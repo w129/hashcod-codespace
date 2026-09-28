@@ -244,7 +244,12 @@ if(faqCard){
   });
   if(faqFooter){
     faqFooter.addEventListener('click',function(){
-      window.dispatchEvent(new CustomEvent('hashcod:faq-contact-support'));
+      var message='Hola, deseo comenzar mi solicitud en Hashcod Codespace.';
+      var whatsappUrl='https://wa.me/18294721257?text='+encodeURIComponent(message);
+      window.dispatchEvent(new CustomEvent('hashcod:faq-start-request',{
+        detail:{channel:'whatsapp',phone:'+18294721257'}
+      }));
+      window.open(whatsappUrl,'_blank','noopener,noreferrer');
     });
   }
   renderFaqAccordion();

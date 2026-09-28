@@ -943,3 +943,189 @@
   .number-ticker-column.blur-roll{animation:none!important}
 }
 
+/* Spectrum UI ScratchCard demo — native adaptation */
+.scratch-card-demo{
+  width:320px;
+  flex:0 0 320px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  padding:32px 0;
+}
+.scratch-card-shell{
+  position:relative;
+  width:100%;
+  max-width:320px;
+  overflow:hidden;
+  border:1px solid #e5e5e5;
+  border-radius:16px;
+  background:#fff;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.scratch-card-content{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  padding:40px 24px;
+  text-align:center;
+}
+.scratch-ticket-icon{
+  width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #e5e5e5;
+  border-radius:999px;
+  background:#f5f5f5;
+  color:#525252;
+}
+.scratch-ticket-icon svg{
+  width:20px;
+  height:20px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.scratch-card-label{
+  color:#a3a3a3;
+  font-size:12px;
+  font-weight:500;
+  line-height:16px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.scratch-card-prize{
+  color:#171717;
+  font-size:30px;
+  font-weight:600;
+  line-height:36px;
+  letter-spacing:-.025em;
+}
+.scratch-copy-button{
+  margin-top:4px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px dashed #d4d4d4;
+  border-radius:12px;
+  background:transparent;
+  padding:8px 16px;
+  color:#404040;
+  font:400 14px/20px ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  cursor:pointer;
+  transition:background .18s ease,transform .12s ease;
+}
+.scratch-copy-button:hover{background:#f5f5f5}
+.scratch-copy-button:active{transform:scale(.98)}
+.scratch-copy-button:focus-visible{
+  outline:1px solid #171717;
+  outline-offset:2px;
+}
+.scratch-copy-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.scratch-copy-icon svg{
+  width:14px;
+  height:14px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.scratch-foil{
+  position:absolute;
+  inset:0;
+  z-index:10;
+  opacity:1;
+  transition:opacity .4s ease-out;
+}
+.scratch-foil.revealed{
+  opacity:0;
+  pointer-events:none;
+}
+.scratch-canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  cursor:crosshair;
+  touch-action:none;
+}
+.scratch-canvas:focus-visible{
+  outline:1px solid #171717;
+  outline-offset:-2px;
+}
+.scratch-particles{
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+.scratch-card-hint{
+  margin:0;
+  color:#737373;
+  font-size:14px;
+  line-height:20px;
+  text-align:center;
+}
+.scratch-reset-button{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid #e5e5e5;
+  border-radius:12px;
+  background:transparent;
+  padding:8px 16px;
+  color:#404040;
+  font-size:14px;
+  font-weight:500;
+  line-height:20px;
+  cursor:pointer;
+  transition:background .18s ease,transform .12s ease;
+}
+.scratch-reset-button[hidden]{display:none!important}
+.scratch-reset-button:hover{background:#fafafa}
+.scratch-reset-button:active{transform:scale(.98)}
+.scratch-reset-button:focus-visible{
+  outline:1px solid #171717;
+  outline-offset:2px;
+}
+.scratch-reset-button svg{
+  width:14px;
+  height:14px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* Three-column auxiliary row: NavListCards → NumberTicker → ScratchCard */
+@media(min-width:1180px){
+  .nav-list-demo{
+    width:1064px;
+  }
+  .scratch-card-demo{
+    padding-top:0;
+  }
+}
+@media(max-width:1179px){
+  .scratch-card-demo{
+    width:100%;
+    max-width:320px;
+    margin-top:12px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .scratch-foil{transition:none!important}
+}
+

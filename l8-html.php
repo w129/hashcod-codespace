@@ -185,15 +185,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         l8_html_not_found_page();
     }
 
-    // Real ML-DSA-87 / Dilithium-5 category-5 access gate. The private key
-    // never reaches this server; only a one-time challenge signature is verified.
-    require_once __DIR__ . '/mldsa-access.php';
-    if (mldsaShouldGateHtml($file)) {
-        l8_init_compression();
-        l8_html_headers(true, 0);
-        echo mldsaGateHtml(l8_public_base_path());
-        exit;
-    }
+    // Hashcod Codespace now renders the requested platform page directly.
+    // ML-DSA-87 is not part of the mandatory entry flow.
 
     l8_init_compression();
     l8_html_headers($ok, $cacheTtl);

@@ -36,8 +36,8 @@ assert(gate.includes("L8_ACCESS_MLDSA87_PHASE2_TTL"),'phase-2 TTL configuration 
 assert(gate.includes("min(7200"),'access session maximum TTL cap missing');
 assert(gate.includes("httponly'=>true"),'HttpOnly cookie missing');
 assert(gate.includes("samesite'=>'Strict"),'SameSite Strict missing');
-assert(gate.includes("function mldsaAccessRequired(): bool"),'required gate function missing');
-assert(!gate.includes("if (!mldsaAccessConfigured()) return false;"),'gate must fail closed');
+assert(gate.includes("function mldsaAccessRequired(): bool"),'ML-DSA requirement function missing');
+assert(/function mldsaAccessRequired\(\): bool\s*\{[\s\S]*?return false;[\s\S]*?\}/.test(gate),'ML-DSA entry requirement must remain disabled');
 
 assert(api.includes("protocol'=>'ML-DSA-87-2PHASE"),'two-phase protocol marker missing');
 assert(api.includes("replay_detected"),'replay rejection missing');
@@ -53,7 +53,7 @@ assert(js.includes("next_phase"),'frontend phase transition missing');
 assert(js.includes("phase:phase"),'frontend must bind submitted signature to current phase');
 assert(css.includes(".security-progress{"),'two-phase progress UI missing');
 
-assert(l8.includes('mldsaShouldGateHtml'),'HTML gate missing');
+assert(!l8.includes('mldsaShouldGateHtml'),'HTML renderer must not intercept entry with ML-DSA gate');
 assert(router.includes("'/api/mldsa-access'"),'access route missing');
 assert(router.includes("'/api/hashcod-comments'"),'saved comments API route missing');
 const savedCommentsRouteIndex=router.indexOf("if ($bootstrapSyncPath === '/api/hashcod-comments')");

@@ -207,10 +207,12 @@ assert(js.includes('syncSlotPrice(value)'),'TiltCard must update whenever Number
 assert(gate.includes('id="d5TiltWhatsApp"'),'TiltCard WhatsApp purchase button missing');
 assert(gate.includes('Comprar cupo por WhatsApp'),'TiltCard WhatsApp accessibility label missing');
 assert(gate.includes('tilt-whatsapp-icon'),'TiltCard WhatsApp SVG icon missing');
+assert(gate.includes('fill="#40c351"'),'TiltCard WhatsApp green brand path missing');
 assert(css.includes('.tilt-whatsapp-button{'),'TiltCard WhatsApp styling missing');
 assert(js.includes("var tiltWhatsApp=document.getElementById('d5TiltWhatsApp')"),'TiltCard WhatsApp binding missing');
 assert(js.includes('https://wa.me/18294721257?text='),'TiltCard WhatsApp target missing');
-assert(js.includes("var currentPrice='
+assert(js.includes("var currentPrice='$'+numberTickerFormat(numberTickerValue)"),'TiltCard WhatsApp must use current slot price');
+assert(js.includes('hashcod:slot-purchase-whatsapp'),'TiltCard WhatsApp event hook missing');
 assert(gate.includes('Move the pointer across the card — layers lift at different depths'),'TiltCard demo hint missing');
 assert(css.includes('max-width:384px'),'TiltCard max-w-sm contract missing');
 assert(css.includes('padding:40px 0'),'TiltCard py-10 spacing missing');

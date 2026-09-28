@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-faq3',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-faq3',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-faq4',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-faq4',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -289,7 +289,7 @@ function mldsaGateHtml(string $base='/'): string {
       .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'
       .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'
       .'<button class="faq-tab active" type="button" role="tab" aria-selected="true" data-faq-tab="0"><span class="faq-tab-pill"></span><span class="faq-tab-label">General</span></button>'
-      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="1"><span class="faq-tab-label">Billing</span></button>'
+      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="1"><span class="faq-tab-label">Bilding</span></button>'
       .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="2"><span class="faq-tab-label">Goals</span></button>'
       .'</div>'
       .'<div id="d5FaqAccordion" class="faq-accordion"></div>'

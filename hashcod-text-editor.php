@@ -34,6 +34,13 @@ function hteReadJson(): array {
     return $data;
 }
 
+function hteNormalizeText(string $content): string {
+    $content = str_replace(["\r\n", "\r"], "\n", $content);
+    $content = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $content) ?? $content;
+    if (substr($content, 0, 3) === "\xEF\xBB\xBF") $content = substr($content, 3);
+    return $content;
+}
+
 function hteClientId(string $clientId): string {
     $clientId = trim($clientId);
     return preg_match('/^[a-zA-Z0-9_-]{16,96}$/', $clientId) ? $clientId : '';
@@ -105,8 +112,8 @@ function hteCloudSave(string $owner, string $content, string $updatedAt): bool {
         'state' => [
             'content' => $content,
             'updated_at' => $updatedAt,
-            'editor' => 'tagspaces-editorText-adapted',
-            'version' => 1,
+            'editor' => 'tagspaces-editorText+nuthouse01-text-tools',
+            'version' => 2,
         ],
         'updated_at' => $updatedAt,
     ]];
@@ -144,8 +151,8 @@ function hteLocalSave(string $owner, string $content, string $updatedAt): bool {
     $payload = json_encode([
         'content' => $content,
         'updated_at' => $updatedAt,
-        'editor' => 'tagspaces-editorText-adapted',
-        'version' => 1,
+        'editor' => 'tagspaces-editorText+nuthouse01-text-tools',
+        'version' => 2,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if (!is_string($payload)) return false;
 
@@ -225,8 +232,7 @@ if ($method === 'GET') {
     ]);
 }
 
-$content = (string)($body['content'] ?? '');
-$content = str_replace("\0", '', $content);
+$content = hteNormalizeText((string)($body['content'] ?? ''));
 if (strlen($content) > HTE_MAX_BYTES) {
     hteJson(['ok' => false, 'error' => 'El texto supera 64 KB.'], 413);
 }

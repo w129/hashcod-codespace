@@ -438,6 +438,12 @@ function entryProductResetImagePosition(){
 function entrySetLevel(nextLevel){
   if(!entryIntro)return;
   var next=Math.max(1,Math.min(4,Number(nextLevel)||1));
+  if(entryLevel===2&&next!==2&&entryProductHasSavedImage){
+    entryProductSetMode('view');
+  }
+  if(next===2&&entryLevel!==2&&entryProductHasSavedImage){
+    entryProductSetMode('view');
+  }
   entryLevel=next;
   if(entryAccessCard)entryAccessCard.setAttribute('data-entry-level',String(next));
   entryWizardPanels.forEach(function(panel){

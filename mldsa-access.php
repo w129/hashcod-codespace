@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-ticker4',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-ticker4',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-ticker5',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-ticker5',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -310,7 +310,7 @@ function mldsaGateHtml(string $base='/'): string {
       .'</div>'
       .'<section id="d5NumberTickerDemo" class="number-ticker-demo" aria-label="Number ticker demo">'
       .'<div class="number-ticker-card">'
-      .'<p class="number-ticker-kicker">Monthly revenue</p>'
+      .'<p class="number-ticker-kicker">How much does a spot in the square cost?</p>'
       .'<div class="number-ticker-value"><span id="d5NumberTicker" class="number-ticker" aria-live="polite" aria-label="$48,250"></span></div>'
       .'<p class="number-ticker-caption">Each digit rolls to its new value.</p>'
       .'</div>'

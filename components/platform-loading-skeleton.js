@@ -17,6 +17,7 @@ function show(){
   if(finished||shown)return;
   shown=true;
   root.hidden=false;
+  root.setAttribute('aria-hidden','false');
   setRootState('visible');
   document.documentElement.dataset.hashcodPlatformSkeleton='visible';
 }
@@ -31,6 +32,7 @@ function finish(){
   if(showTimer){clearTimeout(showTimer);showTimer=null;}
   if(maxTimer){clearTimeout(maxTimer);maxTimer=null;}
   delete document.documentElement.dataset.hashcodPlatformSkeleton;
+  root.setAttribute('aria-hidden','true');
   if(!shown){
     removeRoot();
     return;

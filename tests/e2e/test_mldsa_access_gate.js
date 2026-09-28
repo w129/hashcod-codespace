@@ -120,9 +120,9 @@ assert(js.includes('https://wa.me/18294721257?text='),'FAQ CTA WhatsApp target m
 assert(js.includes('Hola, deseo comenzar mi solicitud en Hashcod Codespace.'),'FAQ CTA WhatsApp message missing');
 assert(js.includes("hashcod:faq-start-request"),'FAQ start-request event hook missing');
 assert(gate.includes('id="d5NavListDemo"'),'NavListCard demo container missing');
-assert(gate.includes('Planning'),'Planning NavListCard title missing');
+assert(gate.includes('Credentials and verification'),'Credentials and verification NavListCard title missing');
 assert(gate.includes('Support'),'Support NavListCard title missing');
-assert(gate.includes('Documents')&&gate.includes('Budget')&&gate.includes('Reports'),'Planning NavListCard provisional items missing');
+assert(gate.includes('Documents')&&gate.includes('Budget')&&gate.includes('Reports'),'Credentials and verification NavListCard provisional items missing');
 assert(gate.includes('Help Center')&&gate.includes('Docs')&&gate.includes('Contact Us'),'Support NavListCard provisional items missing');
 assert(css.includes('max-width:360px'),'NavListCard demo max width must match Spectrum UI');
 assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),'NavListCard demo must use two columns');

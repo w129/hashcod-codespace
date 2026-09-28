@@ -115,6 +115,13 @@ assert(js.includes('function entryProductVerifyCode()'),'ProductCard server veri
 assert(js.includes("entryProductProtected.removeAttribute('inert')"),'ProductCard unlock must remove inert');
 assert(js.includes('entryLevel2Next.disabled=false'),'ProductCard verification must unlock Continue');
 assert(js.includes('reader.readAsDataURL(file)'),'ProductCard image upload preview missing');
+assert(js.includes('function entryProductStartImageDrag(event)'),'ProductCard image drag start handler missing');
+assert(js.includes('function entryProductMoveImageDrag(event)'),'ProductCard image drag move handler missing');
+assert(js.includes('function entryProductEndImageDrag(event)'),'ProductCard image drag end handler missing');
+assert(js.includes('imagePosition:{x:entryProductImagePosition.x,y:entryProductImagePosition.y}'),'ProductCard image position persistence missing');
+assert(js.includes('entryProductApplyImagePosition(parsed.imagePosition.x,parsed.imagePosition.y,false)'),'ProductCard image position restore missing');
+assert(js.includes('entryProductResetImagePosition'),'ProductCard image position reset missing');
+assert(css.includes('cursor:grab')&&css.includes('touch-action:none'),'ProductCard image drag/touch styling missing');
 assert(js.includes("entryProductSetData({title:entryProductTitleInput.value})"),'ProductCard live title editing missing');
 assert(js.includes("entryProductSetData({subtitle:entryProductSubtitleInput.value})"),'ProductCard live subtitle editing missing');
 assert(js.includes("ENTRY_PRODUCT_STORAGE_KEY='hashcod:entry-product-editor:v1'"),'ProductCard editor persistence key missing');

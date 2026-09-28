@@ -45,10 +45,20 @@ jobs:
           done
           test "$ready" -eq 1
 
-      - name: Verify direct platform entry
+      - name: Verify entry window appears first
         run: |
-          ! grep -q "Acceso criptográfico reforzado" /tmp/hashcod-home.html
-          grep -qi "Hashcod" /tmp/hashcod-home.html
+          grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-home.html
+          grep -q "ENTRAR A HASHCOD CODESPACE" /tmp/hashcod-home.html
+          ! grep -q "Reto ML-DSA-87" /tmp/hashcod-home.html
+
+      - name: Enter platform without cryptographic challenge
+        run: |
+          curl -fsSL -c /tmp/hashcod-entry.cookies -b /tmp/hashcod-entry.cookies             "http://127.0.0.1:8097/?hashcod_enter=1" >/tmp/hashcod-after.html
+          ! grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-after.html
+          ! grep -q "Acceso criptográfico reforzado" /tmp/hashcod-after.html
+          grep -qi "Hashcod" /tmp/hashcod-after.html
+          curl -fsS -c /tmp/hashcod-entry.cookies -b /tmp/hashcod-entry.cookies             http://127.0.0.1:8097/ >/tmp/hashcod-return.html
+          ! grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-return.html
 
       - name: Verify ML-DSA API is non-blocking
         run: |
@@ -75,3 +85,5 @@ jobs:
             /tmp/mldsa-direct-entry.log
             /tmp/mldsa-status.json
             /tmp/hashcod-home.html
+            /tmp/hashcod-after.html
+            /tmp/hashcod-return.html

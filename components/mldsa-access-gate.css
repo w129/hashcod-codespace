@@ -2333,3 +2333,53 @@
   .liquid-editor-field{transition:none!important}
 }
 
+
+
+/* Non-blocking Hashcod entry window — preserves the former access-card position. */
+.entry-access-card{
+  min-height:430px;
+  display:flex;
+  flex-direction:column;
+}
+.entry-progress{margin-bottom:22px}
+.entry-welcome-panel{
+  margin-top:28px;
+  min-height:148px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  border-radius:18px;
+  background:rgba(229,229,229,.45);
+  padding:24px;
+  text-align:left;
+}
+.entry-welcome-icon{
+  width:52px;
+  height:52px;
+  flex:0 0 52px;
+  display:grid;
+  place-items:center;
+  border-radius:16px;
+  background:#0a0a0a;
+  color:#fff;
+  font:700 19px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+.entry-welcome-panel strong{
+  display:block;
+  color:#171717;
+  font-size:14px;
+  line-height:20px;
+}
+.entry-welcome-panel small{
+  display:block;
+  margin-top:4px;
+  color:#737373;
+  font-size:13px;
+  line-height:19px;
+}
+.entry-access-card .primary-action{margin-top:auto}
+.entry-info-card{cursor:default}
+.entry-ok{background:#16a34a}
+.entry-arrow{font-size:18px}
+.entry-access-card .primary-action:hover .entry-arrow{transform:translateX(2px)}

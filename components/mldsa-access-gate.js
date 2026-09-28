@@ -17,6 +17,7 @@ var pill=ch&&ch.parentElement;
 var exp=0;
 var timer=null;
 var phase=1;
+var entryIntro=!!(document.body&&document.body.getAttribute('data-hashcod-entry-intro')==='1');
 
 function st(message,type){
   if(!status)return;
@@ -100,12 +101,16 @@ async function resetProtocol(message){
   await load();
 }
 
-renew.addEventListener('click',function(){
-  resetProtocol('Generando un protocolo nuevo desde el Paso 1…');
-});
-sig.addEventListener('focus',function(){
-  if(pill)pill.classList.remove('active');
-});
+if(!entryIntro&&renew){
+  renew.addEventListener('click',function(){
+    resetProtocol('Generando un protocolo nuevo desde el Paso 1…');
+  });
+}
+if(!entryIntro&&sig){
+  sig.addEventListener('focus',function(){
+    if(pill)pill.classList.remove('active');
+  });
+}
 
 function setDeckExpanded(expanded){
   if(!deck)return;
@@ -1681,64 +1686,74 @@ if(navListDemo){
   });
 }
 
-btn.addEventListener('click',async function(){
-  var value=sig.value.trim();
-  if(!value){
-    st('Pega primero la firma Base64 del reto actual.','error');
-    sig.focus();
-    return;
-  }
+if(entryIntro&&btn){
+  btn.addEventListener('click',function(){
+    btn.disabled=true;
+    st('Entrando a Hashcod Codespace…','info');
+    var url=new URL(window.location.href);
+    url.searchParams.set('hashcod_enter','1');
+    window.location.assign(url.pathname+'?'+url.searchParams.toString()+url.hash);
+  });
+}else if(btn&&sig&&renew&&ch){
+  btn.addEventListener('click',async function(){
+    var value=sig.value.trim();
+    if(!value){
+      st('Pega primero la firma Base64 del reto actual.','error');
+      sig.focus();
+      return;
+    }
 
-  btn.disabled=true;
-  st(phase===1?'Verificando primera firma…':'Verificando confirmación final…','info');
+    btn.disabled=true;
+    st(phase===1?'Verificando primera firma…':'Verificando confirmación final…','info');
 
-  try{
-    var response=await fetch(ep,{
-      method:'POST',
-      credentials:'same-origin',
-      headers:{
-        'Content-Type':'application/json',
-        Accept:'application/json'
-      },
-      body:JSON.stringify({
-        signature:value,
-        phase:phase
-      })
-    });
-    var data=await readJson(response);
+    try{
+      var response=await fetch(ep,{
+        method:'POST',
+        credentials:'same-origin',
+        headers:{
+          'Content-Type':'application/json',
+          Accept:'application/json'
+        },
+        body:JSON.stringify({
+          signature:value,
+          phase:phase
+        })
+      });
+      var data=await readJson(response);
 
-    if(!response.ok||!data.ok){
-      if(['challenge_expired','phase_mismatch','replay_detected'].includes(data.code)){
-        await resetProtocol(data.error||'El protocolo debe reiniciarse.');
+      if(!response.ok||!data.ok){
+        if(['challenge_expired','phase_mismatch','replay_detected'].includes(data.code)){
+          await resetProtocol(data.error||'El protocolo debe reiniciarse.');
+          return;
+        }
+        throw new Error(data.error||'Firma inválida');
+      }
+
+      if(Number(data.next_phase||0)===2&&data.challenge){
+        applyChallenge(data);
+        if(stepOne)stepOne.classList.add('complete');
+        st('Paso 1 válido. Firma ahora el segundo reto; la firma anterior ya no sirve.','ok');
         return;
       }
-      throw new Error(data.error||'Firma inválida');
-    }
 
-    if(Number(data.next_phase||0)===2&&data.challenge){
-      applyChallenge(data);
-      if(stepOne)stepOne.classList.add('complete');
-      st('Paso 1 válido. Firma ahora el segundo reto; la firma anterior ya no sirve.','ok');
-      return;
-    }
-
-    if(data.authorized){
-      if(stepOne)stepOne.classList.add('complete');
-      if(stepTwo){
-        stepTwo.classList.add('complete');
-        stepTwo.classList.remove('active');
+      if(data.authorized){
+        if(stepOne)stepOne.classList.add('complete');
+        if(stepTwo){
+          stepTwo.classList.add('complete');
+          stepTwo.classList.remove('active');
+        }
+        st('Doble firma válida. Acceso concedido.','ok');
+        setTimeout(function(){location.replace(data.redirect||'/');},220);
+        return;
       }
-      st('Doble firma válida. Acceso concedido.','ok');
-      setTimeout(function(){location.replace(data.redirect||'/');},220);
-      return;
+
+      throw new Error('Respuesta de validación incompleta.');
+    }catch(error){
+      st(error&&error.message?error.message:'Firma inválida','error');
+      btn.disabled=false;
     }
+  });
 
-    throw new Error('Respuesta de validación incompleta.');
-  }catch(error){
-    st(error&&error.message?error.message:'Firma inválida','error');
-    btn.disabled=false;
-  }
-});
-
-load();
+  load();
+}
 })();

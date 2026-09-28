@@ -271,22 +271,35 @@ function mldsaSignatureProof(string $sigB64): string {
 function mldsaShouldGateHtml(string $file): bool {
     return mldsaAccessRequired()&&!mldsaAccessAuthorized()&&!in_array(basename($file),['privacy.php'],true);
 }
-function mldsaGateHtml(string $base='/'): string {
+function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-texttools1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-texttools1',ENT_QUOTES,'UTF-8');
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
-      .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
-      .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
-      .'<h1>Acceso criptográfico reforzado</h1><p class="description" id="d5Description">Paso 1 de 2 · Prueba inicial de posesión ML-DSA-87.</p>'
-      .'<div class="field-block"><div class="label-row"><label for="d5Challenge">Reto ML-DSA-87</label><button id="d5NewChallenge" class="text-action" type="button">NUEVO RETO</button></div><div class="pill-field"><span id="d5Challenge">Generando reto…</span><span class="caret"></span></div></div>'
-      .'<div class="field-block second"><label for="d5Signature">Firma Base64</label><textarea id="d5Signature" class="signature-field" autocomplete="off" spellcheck="false" placeholder="Pega aquí la firma del reto actual"></textarea></div>'
-      .'<button id="d5Verify" class="primary-action" type="button"><span class="lock-icon" aria-hidden="true">⌑</span><span id="d5VerifyText">VALIDAR PASO 1</span></button>'
-      .'<button class="info-card" type="button"><span class="info-icon">!</span><span class="info-copy"><strong>Doble prueba + anti-replay</strong><small>Cada reto se consume una sola vez y caduca rápidamente</small></span><span class="chev">›</span></button>'
-      .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
-      .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
-      .'</section>'
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-entryintro1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-entryintro1',ENT_QUOTES,'UTF-8');
+    $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
+    $accessCard=$entryIntro
+      ? '<section class="access-card entry-access-card">'
+        .'<div class="security-progress entry-progress"><span class="step active">1</span><i></i><span class="step">→</span></div>'
+        .'<h1>Acceso a Hashcod Codespace</h1>'
+        .'<p class="description">Esta ventana aparece primero antes de entrar a la plataforma.</p>'
+        .'<div class="entry-welcome-panel"><span class="entry-welcome-icon" aria-hidden="true">H</span><div><strong>Hashcod Codespace</strong><small>Tu espacio de trabajo está listo.</small></div></div>'
+        .'<button id="d5Verify" class="primary-action" type="button"><span class="lock-icon entry-arrow" aria-hidden="true">→</span><span id="d5VerifyText">ENTRAR A HASHCOD CODESPACE</span></button>'
+        .'<button class="info-card entry-info-card" type="button"><span class="info-icon entry-ok">✓</span><span class="info-copy"><strong>Acceso directo</strong><small>Sin reto, firma Base64 ni clave privada.</small></span><span class="chev">›</span></button>'
+        .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
+        .'<p class="fingerprint">ML-DSA-87 permanece disponible como módulo interno, no como requisito de entrada.</p>'
+        .'</section>'
+      : '<section class="access-card">'
+        .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
+        .'<h1>Acceso criptográfico reforzado</h1><p class="description" id="d5Description">Paso 1 de 2 · Prueba inicial de posesión ML-DSA-87.</p>'
+        .'<div class="field-block"><div class="label-row"><label for="d5Challenge">Reto ML-DSA-87</label><button id="d5NewChallenge" class="text-action" type="button">NUEVO RETO</button></div><div class="pill-field"><span id="d5Challenge">Generando reto…</span><span class="caret"></span></div></div>'
+        .'<div class="field-block second"><label for="d5Signature">Firma Base64</label><textarea id="d5Signature" class="signature-field" autocomplete="off" spellcheck="false" placeholder="Pega aquí la firma del reto actual"></textarea></div>'
+        .'<button id="d5Verify" class="primary-action" type="button"><span class="lock-icon" aria-hidden="true">⌑</span><span id="d5VerifyText">VALIDAR PASO 1</span></button>'
+        .'<button class="info-card" type="button"><span class="info-icon">!</span><span class="info-copy"><strong>Doble prueba + anti-replay</strong><small>Cada reto se consume una sola vez y caduca rápidamente</small></span><span class="chev">›</span></button>'
+        .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
+        .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
+        .'</section>';
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"></head><body'.$bodyAttr.'>'
+      .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
       .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'
       .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'

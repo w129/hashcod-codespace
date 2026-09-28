@@ -22,12 +22,25 @@ var entryAccessCard=document.querySelector('.entry-access-card');
 var entryWizardPanels=Array.from(document.querySelectorAll('[data-entry-panel]'));
 var entryWizardSteps=Array.from(document.querySelectorAll('[data-entry-step]'));
 var entryLevel=1;
+var entryProductSecurity=document.getElementById('d5EntryProductSecurity');
+var entryProductTwoFactor=document.getElementById('d5EntryProductTwoFactor');
+var entryProductCodeInputs=Array.from(document.querySelectorAll('[data-entry-code-index]'));
+var entryProductVerify=document.getElementById('d5EntryProductVerify');
+var entryProductResend=document.getElementById('d5EntryProductResend');
+var entryProductCodeStatus=document.getElementById('d5EntryProductCodeStatus');
+var entryProductProtected=document.getElementById('d5EntryProductProtected');
 var entryProductCard=document.getElementById('d5EntryProductCard');
 var entryProductTitle=document.getElementById('d5EntryProductTitle');
 var entryProductSubtitle=document.getElementById('d5EntryProductSubtitle');
 var entryProductPrice=document.getElementById('d5EntryProductPrice');
 var entryProductBadge=document.getElementById('d5EntryProductBadge');
 var entryProductAdd=document.getElementById('d5EntryProductAdd');
+var entryProductImage=document.getElementById('d5EntryProductImage');
+var entryProductIconWrap=document.getElementById('d5EntryProductIconWrap');
+var entryProductUploadButton=document.getElementById('d5EntryProductUploadButton');
+var entryProductFile=document.getElementById('d5EntryProductFile');
+var entryProductTitleInput=document.getElementById('d5EntryProductTitleInput');
+var entryProductSubtitleInput=document.getElementById('d5EntryProductSubtitleInput');
 var entryLevel2Next=document.getElementById('d5EntryLevel2Next');
 var entryLevel3Next=document.getElementById('d5EntryLevel3Next');
 var entryFinish=document.getElementById('d5EntryFinish');
@@ -109,6 +122,126 @@ if(entryStatCard){
   });
 }
 
+function entryProductBasePath(){
+  var match=String(location.pathname||'').match(/^\/(l8|l8-codespace)(?=\/|$)/i);
+  return match?'/'+match[1]:'';
+}
+var ENTRY_PRODUCT_VERIFY_API=entryProductBasePath()+'/api/entry-product-editor';
+var ENTRY_PRODUCT_STORAGE_KEY='hashcod:entry-product-editor:v1';
+var entryProductUnlocked=false;
+
+function entryProductSetCodeStatus(message,state){
+  if(!entryProductCodeStatus)return;
+  entryProductCodeStatus.textContent=message||'';
+  entryProductCodeStatus.dataset.state=state||'';
+}
+function entryProductCodeValue(){
+  return entryProductCodeInputs.map(function(input){return String(input.value||'').replace(/\D/g,'').slice(-1);}).join('');
+}
+function entryProductResetCode(message){
+  entryProductCodeInputs.forEach(function(input){input.value='';});
+  entryProductSetCodeStatus(message||'','');
+  if(entryProductCodeInputs[0])entryProductCodeInputs[0].focus();
+}
+function entryProductUnlock(){
+  entryProductUnlocked=true;
+  if(entryProductSecurity)entryProductSecurity.dataset.unlocked='true';
+  if(entryProductProtected){
+    entryProductProtected.removeAttribute('inert');
+    entryProductProtected.setAttribute('aria-hidden','false');
+  }
+  if(entryLevel2Next)entryLevel2Next.disabled=false;
+  entryProductSetCodeStatus('Código válido. Editor desbloqueado.','ok');
+  if(entryProductTitleInput)entryProductTitleInput.focus();
+  try{window.dispatchEvent(new CustomEvent('hashcod:entry-product-unlocked'));}catch(_){}
+}
+async function entryProductVerifyCode(){
+  var code=entryProductCodeValue();
+  if(code.length!==6){
+    entryProductSetCodeStatus('Completa los 6 dígitos.','error');
+    return false;
+  }
+  if(entryProductVerify)entryProductVerify.disabled=true;
+  entryProductSetCodeStatus('Verificando…','');
+  try{
+    var response=await fetch(ENTRY_PRODUCT_VERIFY_API,{
+      method:'POST',
+      credentials:'same-origin',
+      headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({code:code})
+    });
+    var data={};
+    try{data=await response.json();}catch(_){}
+    if(!response.ok||!data.ok){
+      if(response.status===429){
+        throw new Error('Demasiados intentos. Intenta nuevamente más tarde.');
+      }
+      var remaining=Number(data.attempts_remaining);
+      throw new Error(Number.isFinite(remaining)?'Código incorrecto. Intentos restantes: '+remaining+'.':'Código incorrecto.');
+    }
+    entryProductUnlock();
+    return true;
+  }catch(error){
+    entryProductSetCodeStatus(error&&error.message?error.message:'No se pudo validar el código.','error');
+    entryProductCodeInputs.forEach(function(input){input.value='';});
+    if(entryProductCodeInputs[0])entryProductCodeInputs[0].focus();
+    return false;
+  }finally{
+    if(entryProductVerify)entryProductVerify.disabled=false;
+  }
+}
+function entryProductPersist(){
+  if(!entryProductCard)return;
+  var payload={
+    title:entryProductCard.dataset.title||'',
+    subtitle:entryProductCard.dataset.subtitle||'',
+    price:entryProductCard.dataset.price||'',
+    badge:entryProductCard.dataset.badge||''
+  };
+  if(entryProductImage&&!entryProductImage.hidden&&entryProductImage.src&&entryProductImage.src.indexOf('data:image/')===0){
+    if(entryProductImage.src.length<1800000)payload.image=entryProductImage.src;
+  }
+  try{localStorage.setItem(ENTRY_PRODUCT_STORAGE_KEY,JSON.stringify(payload));}catch(_){}
+}
+function entryProductRestore(){
+  try{
+    var parsed=JSON.parse(localStorage.getItem(ENTRY_PRODUCT_STORAGE_KEY)||'{}');
+    if(!parsed||typeof parsed!=='object')return;
+    var restored={};
+    if(typeof parsed.title==='string')restored.title=parsed.title;
+    if(typeof parsed.subtitle==='string')restored.subtitle=parsed.subtitle;
+    if(typeof parsed.price==='string')restored.price=parsed.price;
+    if(typeof parsed.badge==='string')restored.badge=parsed.badge;
+    entryProductSetData(restored);
+    if(typeof parsed.image==='string'&&parsed.image.indexOf('data:image/')===0&&entryProductImage){
+      entryProductImage.src=parsed.image;
+      entryProductImage.hidden=false;
+    }
+  }catch(_){}
+}
+function entryProductApplyImage(file){
+  if(!file)return;
+  if(!/^image\//i.test(String(file.type||''))){
+    entryProductSetCodeStatus('Selecciona un archivo de imagen válido.','error');
+    return;
+  }
+  if(Number(file.size||0)>8*1024*1024){
+    entryProductSetCodeStatus('La imagen debe pesar 8 MB o menos.','error');
+    return;
+  }
+  var reader=new FileReader();
+  reader.onload=function(){
+    if(!entryProductImage)return;
+    entryProductImage.src=String(reader.result||'');
+    entryProductImage.hidden=false;
+    entryProductSetCodeStatus('Imagen actualizada.','ok');
+    entryProductPersist();
+    try{window.dispatchEvent(new CustomEvent('hashcod:entry-product-image',{detail:{name:file.name||'',type:file.type||'',size:file.size||0}}));}catch(_){}
+  };
+  reader.onerror=function(){entryProductSetCodeStatus('No se pudo leer la imagen.','error');};
+  reader.readAsDataURL(file);
+}
+
 function entrySetLevel(nextLevel){
   if(!entryIntro)return;
   var next=Math.max(1,Math.min(4,Number(nextLevel)||1));
@@ -151,9 +284,66 @@ function entryProductSetData(next){
   if(entryProductSubtitle)entryProductSubtitle.textContent=entryProductCard.dataset.subtitle||'Brushed titanium';
   if(entryProductPrice)entryProductPrice.textContent=entryProductCard.dataset.price||'$249';
   if(entryProductBadge)entryProductBadge.textContent=entryProductCard.dataset.badge||'New';
+  if(entryProductTitleInput&&document.activeElement!==entryProductTitleInput)entryProductTitleInput.value=entryProductCard.dataset.title||'Series 8 watch';
+  if(entryProductSubtitleInput&&document.activeElement!==entryProductSubtitleInput)entryProductSubtitleInput.value=entryProductCard.dataset.subtitle||'Brushed titanium';
 }
 if(entryIntro){
   entrySetLevel(1);
+  if(entryProductSecurity)entryProductSecurity.dataset.unlocked='false';
+  if(entryProductProtected){
+    entryProductProtected.setAttribute('inert','');
+    entryProductProtected.setAttribute('aria-hidden','true');
+  }
+  if(entryLevel2Next)entryLevel2Next.disabled=true;
+  entryProductRestore();
+
+  entryProductCodeInputs.forEach(function(input,index){
+    input.addEventListener('input',function(){
+      var digit=String(input.value||'').replace(/\D/g,'').slice(-1);
+      input.value=digit;
+      entryProductSetCodeStatus('','');
+      if(digit&&index<entryProductCodeInputs.length-1)entryProductCodeInputs[index+1].focus();
+      if(entryProductCodeValue().length===6&&index===entryProductCodeInputs.length-1)entryProductVerifyCode();
+    });
+    input.addEventListener('keydown',function(event){
+      if(event.key==='Backspace'&&!input.value&&index>0)entryProductCodeInputs[index-1].focus();
+      if(event.key==='Enter'){event.preventDefault();entryProductVerifyCode();}
+    });
+    input.addEventListener('paste',function(event){
+      var text=(event.clipboardData&&event.clipboardData.getData('text'))||'';
+      var digits=text.replace(/\D/g,'').slice(0,6);
+      if(digits.length<2)return;
+      event.preventDefault();
+      entryProductCodeInputs.forEach(function(target,i){target.value=digits[i]||'';});
+      var focusIndex=Math.min(digits.length,6)-1;
+      if(entryProductCodeInputs[focusIndex])entryProductCodeInputs[focusIndex].focus();
+      if(digits.length===6)entryProductVerifyCode();
+    });
+  });
+  if(entryProductVerify)entryProductVerify.addEventListener('click',entryProductVerifyCode);
+  if(entryProductResend)entryProductResend.addEventListener('click',function(){
+    entryProductResetCode('Código reiniciado. Ingresa nuevamente los 6 dígitos.');
+  });
+  if(entryProductUploadButton&&entryProductFile){
+    entryProductUploadButton.addEventListener('click',function(){entryProductFile.click();});
+    entryProductFile.addEventListener('change',function(){
+      var file=entryProductFile.files&&entryProductFile.files[0];
+      if(file)entryProductApplyImage(file);
+      entryProductFile.value='';
+    });
+  }
+  if(entryProductTitleInput){
+    entryProductTitleInput.addEventListener('input',function(){
+      entryProductSetData({title:entryProductTitleInput.value});
+      entryProductPersist();
+    });
+  }
+  if(entryProductSubtitleInput){
+    entryProductSubtitleInput.addEventListener('input',function(){
+      entryProductSetData({subtitle:entryProductSubtitleInput.value});
+      entryProductPersist();
+    });
+  }
   if(entryProductCard){
     entryProductSetData({});
     window.HashcodEntryProductCard={
@@ -171,6 +361,11 @@ if(entryIntro){
         var added=active!==false;
         entryProductAdd.setAttribute('aria-pressed',added?'true':'false');
         entryProductAdd.textContent=added?'Added ✓':'Add to cart';
+      },
+      isUnlocked:function(){return entryProductUnlocked;},
+      unlockWithCode:function(code){
+        entryProductCodeInputs.forEach(function(input,index){input.value=String(code||'').replace(/\D/g,'')[index]||'';});
+        return entryProductVerifyCode();
       }
     };
     window.addEventListener('hashcod:entry-product-update',function(event){

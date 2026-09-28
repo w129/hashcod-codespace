@@ -29,6 +29,7 @@ jobs:
         run: |
           php -l mldsa-access.php
           php -l mldsa-access-api.php
+          php -l entry-product-editor.php
           php -l l8-html.php
           php -l router.php
           node --check components/mldsa-access-gate.js

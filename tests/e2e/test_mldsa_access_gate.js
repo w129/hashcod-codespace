@@ -8,6 +8,7 @@ const router=fs.readFileSync('router.php','utf8');
 const coupon=fs.readFileSync('coupon-system.php','utf8');
 const comments=fs.readFileSync('hashcod-comments.php','utf8');
 const textEditor=fs.readFileSync('hashcod-text-editor.php','utf8');
+const productEditor=fs.readFileSync('entry-product-editor.php','utf8');
 const chatMigration=fs.readFileSync('supabase/migrations/20260928_create_l8_chat_messages.sql','utf8');
 const req=fs.readFileSync('requirements-streamlit.txt','utf8');
 const spotlightAsset=fs.readFileSync('components/mldsa-card-assets/spotlight-code.svg','utf8');
@@ -100,6 +101,29 @@ assert(js.includes('window.HashcodEntryWizard'),'entry wizard public controller 
 assert(js.includes('window.HashcodEntryProductCard'),'ProductCard public controller missing');
 assert(js.includes('hashcod:entry-product-update'),'ProductCard future-content update hook missing');
 assert(js.includes('hashcod:entry-product-cart'),'ProductCard cart event hook missing');
+assert(gate.includes('id="d5EntryProductTwoFactor"'),'ProductCard TwoFactorCard missing');
+assert(gate.includes('data-entry-code-index="0"')&&gate.includes('data-entry-code-index="5"'),'six-digit ProductCard verification inputs missing');
+assert(gate.includes('id="d5EntryProductVerify"')&&gate.includes('>Verify</button>'),'ProductCard Verify action missing');
+assert(gate.includes('id="d5EntryProductProtected"')&&gate.includes(' inert aria-hidden="true"'),'ProductCard editor must start inert');
+assert(gate.includes('id="d5EntryProductFile"')&&gate.includes('accept="image/*"'),'ProductCard image upload input missing');
+assert(gate.includes('id="d5EntryProductTitleInput"')&&gate.includes('id="d5EntryProductSubtitleInput"'),'ProductCard editable title/subtitle inputs missing');
+assert(gate.includes('id="d5EntryLevel2Next"')&&gate.includes('disabled>Continuar'),'level 2 continue must remain disabled until verification');
+assert(css.includes('.entry-product-security[data-unlocked="false"] .entry-product-protected')&&css.includes('filter:blur(7px)'),'locked ProductCard must be blurred');
+assert(css.includes('.entry-twofactor-card{')&&css.includes('.entry-twofactor-digit{'),'TwoFactorCard styling missing');
+assert(js.includes("ENTRY_PRODUCT_VERIFY_API=entryProductBasePath()+'/api/entry-product-editor'"),'ProductCard verification API binding missing');
+assert(js.includes('function entryProductVerifyCode()'),'ProductCard server verification flow missing');
+assert(js.includes("entryProductProtected.removeAttribute('inert')"),'ProductCard unlock must remove inert');
+assert(js.includes('entryLevel2Next.disabled=false'),'ProductCard verification must unlock Continue');
+assert(js.includes('reader.readAsDataURL(file)'),'ProductCard image upload preview missing');
+assert(js.includes("entryProductSetData({title:entryProductTitleInput.value})"),'ProductCard live title editing missing');
+assert(js.includes("entryProductSetData({subtitle:entryProductSubtitleInput.value})"),'ProductCard live subtitle editing missing');
+assert(js.includes("ENTRY_PRODUCT_STORAGE_KEY='hashcod:entry-product-editor:v1'"),'ProductCard editor persistence key missing');
+assert(productEditor.includes("secretGet('HASHCOD_ENTRY_PRODUCT_EDIT_CODE', '')"),'ProductCard server code override missing');
+assert(productEditor.includes('61b473ef969634fcdd630c8f24c192b5f5faf200b145ec348623b7a977cba959'),'ProductCard default verification digest missing');
+assert(productEditor.includes('entryProductSameOrigin'),'ProductCard verification same-origin guard missing');
+assert(productEditor.includes("$state['attempts'] >= 6"),'ProductCard verification rate limit missing');
+assert(!js.includes('281930')&&!gate.includes('281930'),'ProductCard verification code must not be exposed to frontend');
+
 
 assert(css.includes('.entry-access-card{'),'entry card styling missing');
 assert(router.includes("'/api/mldsa-access'"),'access route missing');
@@ -108,6 +132,9 @@ const savedCommentsRouteIndex=router.indexOf("if ($bootstrapSyncPath === '/api/h
 const webBootstrapIndex=router.indexOf("securityBootstrap('web');");
 assert(savedCommentsRouteIndex>=0&&savedCommentsRouteIndex<webBootstrapIndex,'saved comments API must bypass generic web bootstrap');
 assert(router.includes("'/api/hashcod-text-editor'"),'text editor API route missing');
+assert(router.includes("'/api/entry-product-editor'"),'ProductCard editor verification route missing');
+const productEditorRouteIndex=router.indexOf("if ($bootstrapSyncPath === '/api/entry-product-editor')");
+assert(productEditorRouteIndex>=0&&productEditorRouteIndex<webBootstrapIndex,'ProductCard verification must be reachable before generic web bootstrap');
 assert(gate.includes('id="d5SavedChatDemo"'),'saved chat missing');
 assert(gate.includes('id="d5SavedChatInput"'),'saved chat composer missing');
 assert(gate.includes('id="d5SavedChatSend"'),'saved chat send control missing');

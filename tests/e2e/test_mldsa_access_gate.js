@@ -148,7 +148,16 @@ assert(js.includes('696254deb3f1783f788d475c8b13b615ceb32440ce2b921ca946a0302924
 assert(js.includes('ec1077ab5fd6d81685f0976ab3451ef7f4fa5be230e8ffe94761365708ab3e31'),'Mercantile evidence hash missing');
 assert(js.includes('72cd3363c15d503adcee3bf97158a0ff437b7228a532e9222256cbca515c3fbd'),'RNC evidence hash missing');
 assert(css.includes('.documents-modal{'),'documents modal styling missing');
-assert(css.includes('grid-template-columns:240px minmax(0,1fr)'),'desktop documents viewer layout missing');
+assert(css.includes('grid-template-columns:220px minmax(0,1fr)'),'desktop documents viewer layout missing');
 assert(css.includes('.official-document{'),'official document sheet styling missing');
+assert(gate.includes('documents-header-icon'),'Spectrum documents header icon missing');
+assert(css.includes('border-radius:22px'),'Spectrum modal radius missing');
+assert(css.includes('animation:documentsZoomIn'),'Spectrum desktop modal zoom animation missing');
+assert(css.includes('border-radius:999px'),'Spectrum pill navigation styling missing');
+assert(css.includes('.official-document-head{'),'Spectrum summary card missing');
+assert(css.includes('border-radius:18px'),'Spectrum document card radius missing');
+assert(css.includes('.document-description::before'),'Spectrum document scope info treatment missing');
+assert(css.includes('@keyframes documentsSlideUp'),'Spectrum mobile sheet animation missing');
+assert(css.includes('border-radius:24px 24px 0 0'),'Spectrum mobile bottom-sheet radius missing');
 
 console.log('✓ Hardened two-phase ML-DSA-87 access contract verified');

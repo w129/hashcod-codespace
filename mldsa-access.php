@@ -289,7 +289,7 @@ function mldsaGateHtml(string $base='/'): string {
       .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'
       .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'
       .'<button class="faq-tab active" type="button" role="tab" aria-selected="true" data-faq-tab="0"><span class="faq-tab-pill"></span><span class="faq-tab-label">General</span></button>'
-      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="1"><span class="faq-tab-label">Bilding</span></button>'
+      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="1"><span class="faq-tab-label">Building</span></button>'
       .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="2"><span class="faq-tab-label">Goals</span></button>'
       .'</div>'
       .'<div id="d5FaqAccordion" class="faq-accordion"></div>'

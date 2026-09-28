@@ -18,9 +18,9 @@ The ML-DSA-87 access card adapts the interaction and visual structure of Spectru
 
 - Project: Spectrum UI
 - Source: https://github.com/arihantcodes/spectrum-ui
-- Components: `AccountAccessCard`, `FAQTabsCard`, `NavListCard`, `NumberTicker`, `NumberTickerDemo`, `ScratchCard`, `ScratchCardDemo`, `TiltCard`, `TiltCardDemo`, `AnimatedCard`, and `AnimatedCardDemo`
+- Components: `AccountAccessCard`, `FAQTabsCard`, `NavListCard`, `NumberTicker`, `NumberTickerDemo`, `ScratchCard`, `ScratchCardDemo`, `TiltCard`, `TiltCardDemo`, `BeamCard`, `BeamCardDemo`, `AnimatedCard`, and `AnimatedCardDemo`
 - License: Apache License 2.0
-- Modifications: the account card fields were replaced by ML-DSA-87 challenge/signature controls; the FAQTabsCard, NavListCard, NumberTicker, ScratchCard, TiltCard, and AnimatedCard stack were translated from React/Motion into native HTML/CSS/JavaScript, with Tailwind CSS replaced by the user-provided Spotlight Code SVG/title/description, Next.js replaced by the user-provided Pit Barriers SVG/title/description, Shadcn UI replaced by the user-provided Single bed base SVG/title/description, and Aceternity UI replaced by the user-provided Tokenized certification SVG/title/description.
+- Modifications: the account card fields were replaced by ML-DSA-87 challenge/signature controls; the FAQTabsCard, NavListCard, NumberTicker, ScratchCard, TiltCard, BeamCard, and AnimatedCard stack were translated from React/Motion into native HTML/CSS/JavaScript, with Tailwind CSS replaced by the user-provided Spotlight Code SVG/title/description, Next.js replaced by the user-provided Pit Barriers SVG/title/description, Shadcn UI replaced by the user-provided Single bed base SVG/title/description, and Aceternity UI replaced by the user-provided Tokenized certification SVG/title/description.
 
 ## pqcrypto
 

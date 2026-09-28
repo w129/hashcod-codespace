@@ -255,6 +255,18 @@ if(faqCard){
   renderFaqAccordion();
 }
 
+var navListDemo=document.getElementById('d5NavListDemo');
+if(navListDemo){
+  navListDemo.addEventListener('click',function(event){
+    var row=event.target.closest('[data-nav-list-item]');
+    if(!row)return;
+    var label=row.getAttribute('data-nav-list-item')||'';
+    window.dispatchEvent(new CustomEvent('hashcod:nav-list-action',{
+      detail:{label:label}
+    }));
+  });
+}
+
 btn.addEventListener('click',async function(){
   var value=sig.value.trim();
   if(!value){

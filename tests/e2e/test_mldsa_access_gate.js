@@ -154,6 +154,10 @@ assert(js.includes('var numberTickerValue=48250'),'NumberTicker initial value mu
 assert(js.includes('Math.max(0,numberTickerValue-NUMBER_TICKER_STEP)'),'NumberTicker decrease logic missing');
 assert(js.includes('Math.round(10000+Math.random()*990000)'),'NumberTicker randomize range missing');
 assert(js.includes('numberTickerValue+NUMBER_TICKER_STEP'),'NumberTicker increase logic missing');
+assert(js.includes("NUMBER_TICKER_STORAGE_KEY='hashcod:number-ticker:value:v1'"),'NumberTicker persistence key missing');
+assert(js.includes('window.localStorage.getItem(NUMBER_TICKER_STORAGE_KEY)'),'NumberTicker stored value load missing');
+assert(js.includes('window.localStorage.setItem(NUMBER_TICKER_STORAGE_KEY'),'NumberTicker stored value write missing');
+assert(js.includes('persistNumberTickerValue(numberTickerValue)'),'NumberTicker must persist every value change');
 assert(js.includes('IntersectionObserver'),'NumberTicker start-on-view behavior missing');
 assert(js.includes("column.style.transform='translateY(-'+(target*1.1)+'em)'"),'NumberTicker per-digit rolling transform missing');
 assert(gate.includes('id="d5DocumentsModal"'),'official documents modal missing');

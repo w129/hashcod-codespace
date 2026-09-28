@@ -58,6 +58,12 @@ if ($bootstrapSyncPath === '/api/hashcod-comments') {
     require __DIR__ . '/hashcod-comments.php';
     exit;
 }
+// Entry ProductCard editor verification must be reachable from the public
+// pre-platform wizard. It performs its own same-origin checks and rate limiting.
+if ($bootstrapSyncPath === '/api/entry-product-editor') {
+    require __DIR__ . '/entry-product-editor.php';
+    exit;
+}
 
 securityBootstrap('web');
 

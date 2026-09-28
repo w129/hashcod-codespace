@@ -1361,6 +1361,9 @@
   z-index:1;
   width:100%;
   min-height:216px;
+  height:100%;
+  display:flex;
+  flex-direction:column;
   border:1px solid rgba(0,0,0,.10);
   border-radius:16px;
   background:#fff;
@@ -1387,7 +1390,16 @@
   font-size:14px;
   line-height:24px;
 }
-.beam-card-body{margin-top:20px}
+.beam-card-body{
+  margin-top:auto;
+  padding-top:20px;
+}
+.beam-card-data{
+  margin:0;
+  color:#171717;
+  font:600 15px/22px ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  font-variant-numeric:tabular-nums;
+}
 .beam-avatar-stack{
   display:flex;
   align-items:center;

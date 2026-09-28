@@ -2015,3 +2015,260 @@
   }
 }
 
+/* Hashcod liquid-glass autosize text editor — Spectrum UI adaptation */
+.faq-stack{
+  width:100%;
+  max-width:378px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.liquid-text-editor{
+  position:relative;
+  isolation:isolate;
+  width:100%;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.78);
+  border-radius:24px;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.76),rgba(255,255,255,.48)),
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.96),rgba(255,255,255,0) 42%);
+  padding:16px;
+  box-shadow:
+    0 14px 40px rgba(15,23,42,.08),
+    0 2px 8px rgba(15,23,42,.05),
+    inset 0 1px 0 rgba(255,255,255,.92),
+    inset 0 0 0 1px rgba(255,255,255,.24);
+  backdrop-filter:blur(24px) saturate(1.35);
+  -webkit-backdrop-filter:blur(24px) saturate(1.35);
+}
+.liquid-text-editor::before{
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(circle at 8% 10%,rgba(125,211,252,.18),transparent 26%),
+    radial-gradient(circle at 90% 18%,rgba(196,181,253,.14),transparent 30%),
+    radial-gradient(circle at 55% 110%,rgba(167,243,208,.12),transparent 35%);
+}
+.liquid-text-editor::after{
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  inset:1px;
+  z-index:-1;
+  border-radius:23px;
+  background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.02));
+}
+.liquid-editor-shine{
+  pointer-events:none;
+  position:absolute;
+  top:-52px;
+  left:18px;
+  width:180px;
+  height:90px;
+  border-radius:50%;
+  background:rgba(255,255,255,.62);
+  filter:blur(26px);
+  opacity:.75;
+}
+.liquid-editor-header{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.liquid-editor-heading{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.liquid-editor-icon{
+  width:32px;
+  height:32px;
+  flex:0 0 32px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:11px;
+  background:rgba(255,255,255,.58);
+  color:#404040;
+  box-shadow:
+    0 4px 12px rgba(15,23,42,.06),
+    inset 0 1px 0 rgba(255,255,255,.95);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.liquid-editor-icon svg{
+  width:15px;
+  height:15px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+}
+.liquid-editor-heading p{
+  margin:0 0 2px;
+  color:#8a8a8a;
+  font:600 9px/1.2 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  letter-spacing:.12em;
+}
+.liquid-editor-heading h3{
+  margin:0;
+  color:#171717;
+  font-size:13px;
+  font-weight:600;
+  line-height:18px;
+  letter-spacing:-.01em;
+}
+.liquid-editor-status{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid rgba(255,255,255,.78);
+  border-radius:999px;
+  background:rgba(255,255,255,.48);
+  padding:5px 8px;
+  color:#737373;
+  font-size:9px;
+  font-weight:600;
+  line-height:12px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.78);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.liquid-editor-status i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#a3a3a3;
+  box-shadow:0 0 0 3px rgba(163,163,163,.09);
+}
+.liquid-editor-status[data-state="saving"] i{
+  background:#f59e0b;
+  box-shadow:0 0 0 3px rgba(245,158,11,.10);
+  animation:liquidEditorPulse .9s ease-in-out infinite;
+}
+.liquid-editor-status[data-state="saved"]{
+  color:#047857;
+}
+.liquid-editor-status[data-state="saved"] i{
+  background:#10b981;
+  box-shadow:0 0 0 3px rgba(16,185,129,.09);
+}
+.liquid-editor-status[data-state="offline"]{
+  color:#b45309;
+}
+.liquid-editor-status[data-state="offline"] i{
+  background:#f59e0b;
+}
+.liquid-editor-field{
+  position:relative;
+  z-index:1;
+  margin-top:14px;
+  border:1px solid rgba(255,255,255,.86);
+  border-radius:18px;
+  background:rgba(255,255,255,.48);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.92),
+    0 8px 24px rgba(15,23,42,.045);
+  backdrop-filter:blur(16px) saturate(1.25);
+  -webkit-backdrop-filter:blur(16px) saturate(1.25);
+  transition:border-color .2s ease,background .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+.liquid-editor-field:focus-within{
+  border-color:rgba(255,255,255,.98);
+  background:rgba(255,255,255,.64);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 10px 28px rgba(15,23,42,.065),
+    0 0 0 1px rgba(23,23,23,.06);
+  transform:translateY(-1px);
+}
+.autosize-textarea{
+  display:block;
+  width:100%;
+  min-height:52px;
+  max-height:none;
+  overflow-y:hidden;
+  resize:none;
+  border:0;
+  outline:0;
+  background:transparent;
+  padding:14px 15px;
+  color:#262626;
+  font:400 13px/1.55 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  caret-color:#171717;
+}
+.autosize-textarea::placeholder{
+  color:#a3a3a3;
+  opacity:1;
+}
+.liquid-editor-footer{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:9px;
+  padding:0 2px;
+  color:#9a9a9a;
+  font-size:9px;
+  line-height:13px;
+}
+.liquid-editor-shortcut{
+  border:1px solid rgba(255,255,255,.75);
+  border-radius:7px;
+  background:rgba(255,255,255,.46);
+  padding:2px 6px;
+  color:#737373;
+  font:600 8px/12px ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+}
+@keyframes liquidEditorPulse{
+  0%,100%{opacity:.45;transform:scale(.88)}
+  50%{opacity:1;transform:scale(1)}
+}
+
+@media(min-width:1180px){
+  .faq-stack{
+    position:absolute;
+    top:calc(100% + 32px);
+    left:1px;
+    right:1px;
+    z-index:2;
+  }
+  .faq-stack .faq-tabs-card{
+    position:static;
+    top:auto;
+    right:auto;
+    left:auto;
+    width:100%;
+    max-width:none;
+  }
+}
+@media(max-width:1179px){
+  .faq-stack{
+    position:static;
+    width:100%;
+    max-width:378px;
+  }
+  .faq-stack .faq-tabs-card{
+    position:static;
+    top:auto;
+    right:auto;
+    left:auto;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .liquid-editor-status[data-state="saving"] i{animation:none!important}
+  .liquid-editor-field{transition:none!important}
+}
+

@@ -197,7 +197,13 @@ assert(gate.includes('data-tilt-depth="30"'),'TiltCard description depth 30 miss
 assert(gate.includes('data-tilt-depth="80"'),'TiltCard media depth 80 missing');
 assert(gate.includes('data-tilt-depth="40"'),'TiltCard price depth 40 missing');
 assert(gate.includes('data-tilt-depth="60"'),'TiltCard button depth 60 missing');
-assert(gate.includes('$249'),'TiltCard provisional price missing');
+assert(gate.includes('id="d5TiltPrice"'),'TiltCard synchronized price target missing');
+assert(gate.includes('$48,250'),'TiltCard fallback price must match NumberTicker fallback');
+assert(js.includes("var tiltPrice=document.getElementById('d5TiltPrice')"),'TiltCard price binding missing');
+assert(js.includes('function syncSlotPrice(value)'),'TiltCard price sync function missing');
+assert(js.includes("tiltPrice.textContent=formatted"),'TiltCard price text synchronization missing');
+assert(js.includes('syncSlotPrice(numberTickerValue)'),'TiltCard must load persisted NumberTicker price');
+assert(js.includes('syncSlotPrice(value)'),'TiltCard must update whenever NumberTicker renders');
 assert(gate.includes('Buy now →'),'TiltCard provisional button missing');
 assert(gate.includes('Move the pointer across the card — layers lift at different depths'),'TiltCard demo hint missing');
 assert(css.includes('max-width:384px'),'TiltCard max-w-sm contract missing');

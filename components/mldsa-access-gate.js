@@ -260,21 +260,22 @@ var tickerDecrease=document.getElementById('d5TickerDecrease');
 var tickerRandomize=document.getElementById('d5TickerRandomize');
 var tickerIncrease=document.getElementById('d5TickerIncrease');
 var tiltPrice=document.getElementById('d5TiltPrice');
-var NUMBER_TICKER_STEP=1250;
+var NUMBER_TICKER_STEP=.32;
 var NUMBER_TICKER_STORAGE_KEY='hashcod:number-ticker:value:v1';
 function loadStoredNumberTickerValue(){
   try{
     var stored=window.localStorage.getItem(NUMBER_TICKER_STORAGE_KEY);
     if(stored===null||stored==='')return 48250;
     var parsed=Number(stored);
-    return Number.isFinite(parsed)&&parsed>=0?Math.round(parsed):48250;
+    return Number.isFinite(parsed)&&parsed>=0?Math.round(parsed*100)/100:48250;
   }catch(_){
     return 48250;
   }
 }
 function persistNumberTickerValue(value){
   try{
-    window.localStorage.setItem(NUMBER_TICKER_STORAGE_KEY,String(Math.max(0,Math.round(value))));
+    var normalized=Math.max(0,Math.round(Number(value)*100)/100);
+    window.localStorage.setItem(NUMBER_TICKER_STORAGE_KEY,normalized.toFixed(2));
   }catch(_){}
 }
 var numberTickerValue=loadStoredNumberTickerValue();
@@ -283,8 +284,15 @@ var numberTickerArmed=false;
 var numberTickerEntranceTimer=0;
 
 function numberTickerFormat(value){
-  try{return Math.round(value).toLocaleString();}
-  catch(_){return String(Math.round(value));}
+  var normalized=Math.round(Number(value)*100)/100;
+  try{
+    return normalized.toLocaleString(undefined,{
+      minimumFractionDigits:2,
+      maximumFractionDigits:2
+    });
+  }catch(_){
+    return normalized.toFixed(2);
+  }
 }
 function syncSlotPrice(value){
   if(!tiltPrice)return;
@@ -397,7 +405,7 @@ function armNumberTicker(){
   },Math.round((.9+numberTickerGlyphs(numberTickerValue).length*.04)*1000));
 }
 function setNumberTickerValue(nextValue){
-  numberTickerValue=Math.max(0,Math.round(nextValue));
+  numberTickerValue=Math.max(0,Math.round(Number(nextValue)*100)/100);
   persistNumberTickerValue(numberTickerValue);
   syncSlotPrice(numberTickerValue);
   renderNumberTicker(numberTickerValue,!numberTickerEntered);

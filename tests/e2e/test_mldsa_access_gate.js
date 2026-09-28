@@ -149,7 +149,7 @@ assert(css.includes('width:36px')&&css.includes('height:36px'),'NumberTicker rou
 assert(css.includes('height:1.1em'),'NumberTicker digit height contract missing');
 assert(css.includes('transition-duration:.9s'),'NumberTicker 0.9s roll duration missing');
 assert(css.includes('@keyframes numberTickerBlur'),'NumberTicker blur animation missing');
-assert(js.includes('var NUMBER_TICKER_STEP=1250'),'NumberTicker STEP must be 1250');
+assert(js.includes('var NUMBER_TICKER_STEP=.32'),'NumberTicker STEP must be 32 cents');
 assert(js.includes("return 48250;")&&js.includes('var numberTickerValue=loadStoredNumberTickerValue()'),'NumberTicker must default to 48250 when no stored value exists');
 assert(js.includes('Math.max(0,numberTickerValue-NUMBER_TICKER_STEP)'),'NumberTicker decrease logic missing');
 assert(js.includes('Math.round(10000+Math.random()*990000)'),'NumberTicker randomize range missing');
@@ -158,6 +158,11 @@ assert(js.includes("NUMBER_TICKER_STORAGE_KEY='hashcod:number-ticker:value:v1'")
 assert(js.includes('window.localStorage.getItem(NUMBER_TICKER_STORAGE_KEY)'),'NumberTicker stored value load missing');
 assert(js.includes('window.localStorage.setItem(NUMBER_TICKER_STORAGE_KEY'),'NumberTicker stored value write missing');
 assert(js.includes('persistNumberTickerValue(numberTickerValue)'),'NumberTicker must persist every value change');
+assert(js.includes('Math.round(parsed*100)/100'),'NumberTicker must restore stored cents');
+assert(js.includes('normalized.toFixed(2)'),'NumberTicker must persist two decimal places');
+assert(js.includes('minimumFractionDigits:2'),'NumberTicker must display cents');
+assert(js.includes('maximumFractionDigits:2'),'NumberTicker must cap display at two decimals');
+assert(js.includes('Math.round(Number(nextValue)*100)/100'),'NumberTicker must preserve two decimal places when changing price');
 assert(js.includes('IntersectionObserver'),'NumberTicker start-on-view behavior missing');
 assert(gate.includes('id="d5ScratchCardDemo"'),'ScratchCard demo container missing');
 assert(gate.includes('Coupon unlocked'),'ScratchCard unlocked label missing');

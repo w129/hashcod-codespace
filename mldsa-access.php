@@ -273,8 +273,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/'): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-docs2',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-docs2',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260927-docs3',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260927-docs3',ENT_QUOTES,'UTF-8');
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod · ML-DSA-87</title><link rel="stylesheet" href="'.$css.'"></head><body>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack"><section class="access-card">'
       .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -317,7 +317,7 @@ function mldsaGateHtml(string $base='/'): string {
       .'<section id="d5DocumentsModal" class="documents-modal" hidden aria-hidden="true" aria-label="Official documents viewer">'
       .'<div class="documents-backdrop" data-doc-action="close"></div>'
       .'<div class="documents-window" role="dialog" aria-modal="true" aria-labelledby="d5DocumentsTitle">'
-      .'<header class="documents-header"><div><p class="documents-eyebrow">CREDENTIALS AND VERIFICATION</p><h2 id="d5DocumentsTitle">Official documents</h2><p class="documents-subtitle">Hashcod Codespace · DIKTATCART</p></div><button class="documents-close" type="button" data-doc-action="close" aria-label="Close">×</button></header>'
+      .'<header class="documents-header"><div class="documents-header-copy"><span class="documents-header-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M9 13h6M9 17h6"></path></svg></span><div><p class="documents-eyebrow">CREDENTIALS AND VERIFICATION</p><h2 id="d5DocumentsTitle">Official documents</h2><p class="documents-subtitle">Verified institutional records for Hashcod Codespace</p></div></div><button class="documents-close" type="button" data-doc-action="close" aria-label="Close">×</button></header>'
       .'<div class="documents-body">'
       .'<nav class="documents-nav" aria-label="Document list">'
       .'<button class="documents-nav-item active" type="button" data-doc-id="onapi"><span class="documents-nav-index">01</span><span><strong>HASHCOD</strong><small>ONAPI · Marca mixta</small></span></button>'

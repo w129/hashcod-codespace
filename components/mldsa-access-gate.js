@@ -436,6 +436,152 @@ if(tickerIncrease){
   });
 }
 
+var tiltCard=document.getElementById('d5TiltCard');
+var tiltGlare=document.getElementById('d5TiltGlare');
+var tiltItems=tiltCard?Array.from(tiltCard.querySelectorAll('[data-tilt-depth]')):[];
+var TILT_MAX=12;
+var TILT_SCALE=1.02;
+var TILT_PRESS_SCALE=.99;
+var TILT_REST=.5;
+var tiltHovered=false;
+var tiltPressed=false;
+var tiltCurrentX=TILT_REST;
+var tiltCurrentY=TILT_REST;
+var tiltTargetX=TILT_REST;
+var tiltTargetY=TILT_REST;
+var tiltCurrentScale=1;
+var tiltTargetScale=1;
+var tiltVx=0;
+var tiltVy=0;
+var tiltVs=0;
+var tiltRaf=0;
+var tiltUseResetSpring=false;
+
+function tiltReducedMotion(){
+  return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+function applyTiltItems(lifted){
+  tiltItems.forEach(function(item){
+    var depth=Number(item.getAttribute('data-tilt-depth')||0);
+    item.style.transform=lifted&&!tiltReducedMotion()?'translateZ('+depth+'px)':'translateZ(0px)';
+  });
+}
+function renderTiltFrame(){
+  if(!tiltCard)return;
+  if(tiltReducedMotion()){
+    tiltCard.style.transform='rotateX(0deg) rotateY(0deg) scale(1)';
+    if(tiltGlare)tiltGlare.style.opacity='0';
+    applyTiltItems(false);
+    cancelAnimationFrame(tiltRaf);
+    tiltRaf=0;
+    return;
+  }
+
+  var spring=tiltUseResetSpring
+    ?{stiffness:140,damping:18,mass:1}
+    :{stiffness:260,damping:22,mass:.6};
+  var dt=1/60;
+
+  function step(current,target,velocity){
+    var force=-spring.stiffness*(current-target)-spring.damping*velocity;
+    var acceleration=force/spring.mass;
+    velocity+=acceleration*dt;
+    current+=velocity*dt;
+    return [current,velocity];
+  }
+
+  var sx=step(tiltCurrentX,tiltTargetX,tiltVx);
+  var sy=step(tiltCurrentY,tiltTargetY,tiltVy);
+  var ss=step(tiltCurrentScale,tiltTargetScale,tiltVs);
+  tiltCurrentX=sx[0]; tiltVx=sx[1];
+  tiltCurrentY=sy[0]; tiltVy=sy[1];
+  tiltCurrentScale=ss[0]; tiltVs=ss[1];
+
+  var rotateX=TILT_MAX-(tiltCurrentY*TILT_MAX*2);
+  var rotateY=-TILT_MAX+(tiltCurrentX*TILT_MAX*2);
+  tiltCard.style.transform='rotateX('+rotateX+'deg) rotateY('+rotateY+'deg) scale('+tiltCurrentScale+')';
+
+  if(tiltGlare){
+    tiltGlare.style.background='radial-gradient(circle at '+(tiltCurrentX*100)+'% '+(tiltCurrentY*100)+'%, rgba(255,255,255,.35), transparent 65%)';
+  }
+
+  var settled=
+    Math.abs(tiltCurrentX-tiltTargetX)<.0005 &&
+    Math.abs(tiltCurrentY-tiltTargetY)<.0005 &&
+    Math.abs(tiltCurrentScale-tiltTargetScale)<.0005 &&
+    Math.abs(tiltVx)<.001 &&
+    Math.abs(tiltVy)<.001 &&
+    Math.abs(tiltVs)<.001;
+
+  if(settled){
+    tiltCurrentX=tiltTargetX;
+    tiltCurrentY=tiltTargetY;
+    tiltCurrentScale=tiltTargetScale;
+    tiltVx=tiltVy=tiltVs=0;
+    tiltCard.style.transform='rotateX('+(TILT_MAX-(tiltCurrentY*TILT_MAX*2))+'deg) rotateY('+(-TILT_MAX+(tiltCurrentX*TILT_MAX*2))+'deg) scale('+tiltCurrentScale+')';
+    tiltRaf=0;
+    return;
+  }
+  tiltRaf=requestAnimationFrame(renderTiltFrame);
+}
+function startTiltAnimation(){
+  if(tiltRaf||tiltReducedMotion())return;
+  tiltRaf=requestAnimationFrame(renderTiltFrame);
+}
+function resetTiltCard(){
+  tiltHovered=false;
+  tiltPressed=false;
+  tiltUseResetSpring=true;
+  tiltTargetX=TILT_REST;
+  tiltTargetY=TILT_REST;
+  tiltTargetScale=1;
+  if(tiltCard)tiltCard.classList.remove('is-hovered');
+  if(tiltGlare)tiltGlare.style.opacity='0';
+  applyTiltItems(false);
+  startTiltAnimation();
+}
+if(tiltCard){
+  tiltCard.addEventListener('pointerenter',function(event){
+    if(event.pointerType!=='mouse'||tiltReducedMotion())return;
+    tiltHovered=true;
+    tiltPressed=false;
+    tiltUseResetSpring=false;
+    tiltTargetScale=TILT_SCALE;
+    tiltCard.classList.add('is-hovered');
+    if(tiltGlare)tiltGlare.style.opacity='1';
+    applyTiltItems(true);
+    startTiltAnimation();
+  });
+  tiltCard.addEventListener('pointermove',function(event){
+    if(event.pointerType!=='mouse'||tiltReducedMotion())return;
+    var rect=tiltCard.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    tiltUseResetSpring=false;
+    tiltTargetX=Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width));
+    tiltTargetY=Math.max(0,Math.min(1,(event.clientY-rect.top)/rect.height));
+    startTiltAnimation();
+  });
+  tiltCard.addEventListener('pointerleave',resetTiltCard);
+  tiltCard.addEventListener('pointerdown',function(){
+    if(tiltReducedMotion())return;
+    tiltPressed=true;
+    tiltUseResetSpring=false;
+    tiltTargetScale=TILT_PRESS_SCALE;
+    startTiltAnimation();
+  });
+  tiltCard.addEventListener('pointerup',function(){
+    if(tiltReducedMotion())return;
+    tiltPressed=false;
+    tiltTargetScale=tiltHovered?TILT_SCALE:1;
+    startTiltAnimation();
+  });
+  tiltCard.addEventListener('pointercancel',function(){
+    tiltPressed=false;
+    tiltTargetScale=tiltHovered?TILT_SCALE:1;
+    startTiltAnimation();
+  });
+}
+
 var scratchCard=document.getElementById('d5ScratchCard');
 var scratchContent=document.getElementById('d5ScratchContent');
 var scratchFoil=document.getElementById('d5ScratchFoil');

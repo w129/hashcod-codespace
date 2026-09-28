@@ -308,7 +308,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'</section>'
 
         .'<section class="entry-wizard-panel" data-entry-panel="2" aria-label="Nivel 2" hidden>'
-        .'<div id="d5EntryProductSecurity" class="entry-product-security" data-unlocked="false">'
+        .'<div id="d5EntryProductSecurity" class="entry-product-security" data-unlocked="false" data-mode="verify">'
         .'<section id="d5EntryProductTwoFactor" class="entry-twofactor-card" aria-label="Two-factor authentication">'
         .'<header class="entry-twofactor-header"><h2>Two-factor authentication</h2><p>Enter the 6-digit code from your authenticator app.</p></header>'
         .'<div class="entry-twofactor-content"><div id="d5EntryProductCode" class="entry-twofactor-digits" role="group" aria-label="6-digit verification code">'
@@ -328,6 +328,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<img id="d5EntryProductImage" class="entry-product-image" alt="Product preview" hidden>'
         .'<div id="d5EntryProductIconWrap" class="entry-product-icon-wrap" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16.5 9.4 7.5 4.21"></path><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><path d="M3.27 6.96 12 12.01l8.73-5.05"></path><path d="M12 22.08V12"></path></svg></div>'
         .'<span id="d5EntryProductBadge" class="entry-product-badge">New</span>'
+        .'<button id="d5EntryProductEditButton" class="entry-product-edit-button" type="button" aria-label="Editar imagen" title="Editar imagen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M 8 2 C 6.3549904 2 5 3.3549904 5 5 C 5 5.351851 5.0739423 5.6851061 5.1875 6 L 4.7207031 6 C 3.7495387 6 3.0371094 6.8432464 3.0371094 7.75 L 3.0371094 12.25 C 3.0371094 13.156754 3.7495387 14 4.7207031 14 L 5 14 L 5 21 L 7 21 L 7 18 L 17 18 L 17 21 L 19 21 L 19 14 L 19.316406 14 C 20.287571 14 21 13.156754 21 12.25 L 21 7.75 C 21 6.8432464 20.290104 6 19.318359 6 L 18.8125 6 C 18.926058 5.6851061 19 5.351851 19 5 C 19 3.3549904 17.64501 2 16 2 C 14.35499 2 13 3.3549904 13 5 C 13 5.351851 13.073942 5.6851061 13.1875 6 L 10.8125 6 C 10.926058 5.6851061 11 5.351851 11 5 C 11 3.3549904 9.6450096 2 8 2 z M 8 4 C 8.5641294 4 9 4.4358706 9 5 C 9 5.5641294 8.5641294 6 8 6 C 7.4358706 6 7 5.5641294 7 5 C 7 4.4358706 7.4358706 4 8 4 z M 16 4 C 16.564129 4 17 4.4358706 17 5 C 17 5.5641294 16.564129 6 16 6 C 15.435871 6 15 5.5641294 15 5 C 15 4.4358706 15.435871 4 16 4 z M 5.0371094 8 L 8 8 L 8.5859375 8 L 5.0371094 11.548828 L 5.0371094 8 z M 11.414062 8 L 15.585938 8 L 11.585938 12 L 7.4140625 12 L 11.414062 8 z M 18.414062 8 L 19 8 L 19 12 L 14.414062 12 L 18.414062 8 z M 7 14 L 17 14 L 17 16 L 7 16 L 7 14 z"></path></svg></button>'
         .'<button id="d5EntryProductUploadButton" class="entry-product-upload-button" type="button">Subir imagen</button>'
         .'<input id="d5EntryProductFile" class="entry-product-file" type="file" accept="image/*">'
         .'</div>'

@@ -18,6 +18,20 @@ var exp=0;
 var timer=null;
 var phase=1;
 var entryIntro=!!(document.body&&document.body.getAttribute('data-hashcod-entry-intro')==='1');
+var entryAccessCard=document.querySelector('.entry-access-card');
+var entryWizardPanels=Array.from(document.querySelectorAll('[data-entry-panel]'));
+var entryWizardSteps=Array.from(document.querySelectorAll('[data-entry-step]'));
+var entryLevel=1;
+var entryProductCard=document.getElementById('d5EntryProductCard');
+var entryProductTitle=document.getElementById('d5EntryProductTitle');
+var entryProductSubtitle=document.getElementById('d5EntryProductSubtitle');
+var entryProductPrice=document.getElementById('d5EntryProductPrice');
+var entryProductBadge=document.getElementById('d5EntryProductBadge');
+var entryProductAdd=document.getElementById('d5EntryProductAdd');
+var entryLevel2Next=document.getElementById('d5EntryLevel2Next');
+var entryLevel3Next=document.getElementById('d5EntryLevel3Next');
+var entryFinish=document.getElementById('d5EntryFinish');
+var entryBackButtons=Array.from(document.querySelectorAll('[data-entry-back]'));
 var entryStatCard=document.getElementById('d5EntryStatCard');
 var entryStatTitle=document.getElementById('d5EntryStatTitle');
 var entryStatValue=document.getElementById('d5EntryStatValue');
@@ -93,6 +107,106 @@ if(entryStatCard){
   window.addEventListener('hashcod:entry-stat-update',function(event){
     entryStatSetData(event&&event.detail?event.detail:{});
   });
+}
+
+function entrySetLevel(nextLevel){
+  if(!entryIntro)return;
+  var next=Math.max(1,Math.min(4,Number(nextLevel)||1));
+  entryLevel=next;
+  if(entryAccessCard)entryAccessCard.setAttribute('data-entry-level',String(next));
+  entryWizardPanels.forEach(function(panel){
+    var level=Number(panel.getAttribute('data-entry-panel')||0);
+    var active=level===next;
+    panel.hidden=!active;
+    panel.classList.toggle('active',active);
+    panel.setAttribute('aria-hidden',active?'false':'true');
+  });
+  entryWizardSteps.forEach(function(step){
+    var level=Number(step.getAttribute('data-entry-step')||0);
+    step.classList.toggle('active',level===next);
+    step.classList.toggle('complete',level<next);
+    if(level===next)step.setAttribute('aria-current','step');
+    else step.removeAttribute('aria-current');
+  });
+  st('');
+  try{
+    window.dispatchEvent(new CustomEvent('hashcod:entry-level-change',{detail:{level:next}}));
+  }catch(_){}
+}
+function entryOpenPlatform(){
+  if(entryFinish)entryFinish.disabled=true;
+  st('Entrando a Hashcod Codespace…','info');
+  var url=new URL(window.location.href);
+  url.searchParams.set('hashcod_enter','1');
+  window.location.assign(url.pathname+'?'+url.searchParams.toString()+url.hash);
+}
+function entryProductSetData(next){
+  if(!entryProductCard)return;
+  var data=next&&typeof next==='object'?next:{};
+  if(Object.prototype.hasOwnProperty.call(data,'title'))entryProductCard.dataset.title=String(data.title);
+  if(Object.prototype.hasOwnProperty.call(data,'subtitle'))entryProductCard.dataset.subtitle=String(data.subtitle);
+  if(Object.prototype.hasOwnProperty.call(data,'price'))entryProductCard.dataset.price=String(data.price);
+  if(Object.prototype.hasOwnProperty.call(data,'badge'))entryProductCard.dataset.badge=String(data.badge);
+  if(entryProductTitle)entryProductTitle.textContent=entryProductCard.dataset.title||'Series 8 watch';
+  if(entryProductSubtitle)entryProductSubtitle.textContent=entryProductCard.dataset.subtitle||'Brushed titanium';
+  if(entryProductPrice)entryProductPrice.textContent=entryProductCard.dataset.price||'$249';
+  if(entryProductBadge)entryProductBadge.textContent=entryProductCard.dataset.badge||'New';
+}
+if(entryIntro){
+  entrySetLevel(1);
+  if(entryProductCard){
+    entryProductSetData({});
+    window.HashcodEntryProductCard={
+      setData:entryProductSetData,
+      getData:function(){
+        return {
+          title:entryProductCard.dataset.title||'',
+          subtitle:entryProductCard.dataset.subtitle||'',
+          price:entryProductCard.dataset.price||'',
+          badge:entryProductCard.dataset.badge||''
+        };
+      },
+      setAdded:function(active){
+        if(!entryProductAdd)return;
+        var added=active!==false;
+        entryProductAdd.setAttribute('aria-pressed',added?'true':'false');
+        entryProductAdd.textContent=added?'Added ✓':'Add to cart';
+      }
+    };
+    window.addEventListener('hashcod:entry-product-update',function(event){
+      entryProductSetData(event&&event.detail?event.detail:{});
+    });
+  }
+  if(entryProductAdd){
+    entryProductAdd.addEventListener('click',function(){
+      var added=entryProductAdd.getAttribute('aria-pressed')==='true';
+      added=!added;
+      entryProductAdd.setAttribute('aria-pressed',added?'true':'false');
+      entryProductAdd.textContent=added?'Added ✓':'Add to cart';
+      try{
+        window.dispatchEvent(new CustomEvent('hashcod:entry-product-cart',{detail:{
+          added:added,
+          title:entryProductCard?entryProductCard.dataset.title||'Series 8 watch':'Series 8 watch',
+          price:entryProductCard?entryProductCard.dataset.price||'$249':'$249'
+        }}));
+      }catch(_){}
+    });
+  }
+  if(entryLevel2Next)entryLevel2Next.addEventListener('click',function(){entrySetLevel(3);});
+  if(entryLevel3Next)entryLevel3Next.addEventListener('click',function(){entrySetLevel(4);});
+  if(entryFinish)entryFinish.addEventListener('click',entryOpenPlatform);
+  entryBackButtons.forEach(function(button){
+    button.addEventListener('click',function(){
+      entrySetLevel(Number(button.getAttribute('data-entry-back')||1));
+    });
+  });
+  window.HashcodEntryWizard={
+    goTo:entrySetLevel,
+    next:function(){entrySetLevel(Math.min(4,entryLevel+1));},
+    back:function(){entrySetLevel(Math.max(1,entryLevel-1));},
+    finish:entryOpenPlatform,
+    getLevel:function(){return entryLevel;}
+  };
 }
 
 function st(message,type){
@@ -1765,11 +1879,7 @@ if(navListDemo){
 
 if(entryIntro&&btn){
   btn.addEventListener('click',function(){
-    btn.disabled=true;
-    st('Entrando a Hashcod Codespace…','info');
-    var url=new URL(window.location.href);
-    url.searchParams.set('hashcod_enter','1');
-    window.location.assign(url.pathname+'?'+url.searchParams.toString()+url.hash);
+    entrySetLevel(2);
   });
 }else if(btn&&sig&&renew&&ch){
   btn.addEventListener('click',async function(){

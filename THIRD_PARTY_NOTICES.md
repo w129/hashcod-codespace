@@ -61,3 +61,15 @@ Hashcod Codespace's Markdown command layer in the initial text editor is inspire
 - Copyright: © 2020 bangle-io
 - License: MIT
 - Hashcod adaptation: the existing textarea/autosave architecture is retained while adding Markdown formatting, history, headings, blockquotes, code/code-blocks, lists, links, horizontal rules, and slash-command suggestions modeled on the capabilities represented by Banger Editor modules. The ProseMirror runtime itself is not vendored into Hashcod.
+
+
+## page-mascot
+
+Hashcod Codespace uses a native JavaScript adaptation of **page-mascot** for the interactive panda shown in the upper-right corner of the main platform.
+
+- Project: page-mascot
+- Source: https://github.com/nilbuild/page-mascot
+- Copyright: © Kamran Ahmed
+- License: MIT
+- Hashcod adaptation: preserves the original 3×3 direction/reaction sprite model, fine-pointer tracking, dead zone and hysteresis, click reactions, four-click dizzy state, and reduced-motion behavior. Hashcod's main UI is native PHP/JavaScript rather than React, so the interaction logic is adapted without adding a React runtime.
+- Panda atlases: verified against upstream Git blob SHAs 6f3f42dcf066c2b1c01e85913d2ea8828215f474 and aaecccbcc7aaeb646aeb2a10145d31701ada5e9e.

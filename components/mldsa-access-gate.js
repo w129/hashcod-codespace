@@ -1538,6 +1538,7 @@ function textEditorApplySlashCommand(command){
   textEditorPushUndo();
   textEditorInput.setRangeText('',context.start,context.end,'end');
   textEditorHideSlashMenu();
+  textEditorMarkEdited('Command');
   textEditorRunCommand(command,{skipHistory:true,fromSlash:true});
 }
 function textEditorRunCommand(command,options){
@@ -1775,6 +1776,10 @@ if(textEditorClear)textEditorClear.addEventListener('click',function(){
 });
 
 if(textEditorFormatbar){
+  textEditorFormatbar.addEventListener('mousedown',function(event){
+    var button=event.target&&event.target.closest?event.target.closest('[data-editor-command]'):null;
+    if(button&&textEditorFormatbar.contains(button))event.preventDefault();
+  });
   textEditorFormatbar.addEventListener('click',function(event){
     var button=event.target&&event.target.closest?event.target.closest('[data-editor-command]'):null;
     if(!button||!textEditorFormatbar.contains(button))return;

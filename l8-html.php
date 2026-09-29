@@ -577,6 +577,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/duo-page-transition.js?v=20260926-nofreeze3" data-hashcod-duo-transition="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260919-perf1" data-hashcod-entry-capability-footer="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260926-noregform1" data-hashcod-entry-capability-footer-fix="true"></script>'
+            . '<script defer src="' . $base . 'components/pqc-action-runtime.js?v=20260928-pqcactions1" data-hashcod-pqc-action-runtime="true"></script>'
             . '<script defer src="' . $base . 'components/device-usage-tracker.js?v=20260928-deviceusage1" data-hashcod-device-usage-tracker="true"></script>'
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'

@@ -39,6 +39,9 @@ assert(lib.includes("'previous_hash' => $previous"),'previous chain hash missing
 assert(lib.includes("'event_hash' => $eventHash"),'event chain hash missing from receipt');
 assert(lib.includes("'pqc_signed' => is_array($pqc)"),'permit must bind ML-DSA signing state');
 assert(lib.includes('function pqaValidatePermitToken'),'permit validation helper missing');
+assert(lib.includes('function pqaConsumePermitPayload'),'one-time permit consumption missing');
+assert(lib.includes("fopen($path, 'x')"),'permit replay store must use exclusive create');
+assert(lib.includes('pqaValidatePermitToken($permit, $requestPath, $method, true)'),'mutation guard must consume permits exactly once');
 assert(lib.includes('function pqaRequirePermitForMutation'),'strict mutation enforcement helper missing');
 
 // Durable checkpoints.
@@ -75,6 +78,7 @@ const permitGuard=router.indexOf('pqaRequirePermitForMutation($bootstrapSyncPath
 const webBootstrap=router.indexOf("securityBootstrap('web');");
 assert(pqcRoute>=0&&pqcRoute<permitGuard&&permitGuard<webBootstrap,'PQC controller/permit guard ordering invalid');
 assert(html.includes('components/pqc-action-runtime.js'),'PQC runtime missing from main platform');
+assert(html.includes('hashcod-pqc-action-preboot'),'PQC runtime must be installed before deferred platform scripts');
 assert(gate.includes('components/pqc-action-runtime.js'),'PQC runtime missing from entry wizard');
 
 // Secrets / rollout.

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/secrets.php';
+require_once __DIR__ . '/supabase.php';
 
 const PQA_VERSION = 1;
 const PQA_ALGORITHM = 'ML-DSA-87';
@@ -156,7 +157,7 @@ function pqaStateDefaults(): array {
         'recent_event_ids' => [],
         'rate_window' => time(),
         'rate_count' => 0,
-        'updated_at' => time(),
+        'updated_at' => 0,
     ];
 }
 
@@ -193,17 +194,68 @@ function pqaWriteStateFile($fp, array $state): void {
     fflush($fp);
 }
 
+function pqaCloudRows($body): array {
+    if (!is_array($body) || $body === []) return [];
+    if (array_keys($body) === range(0, count($body) - 1)) return $body;
+    return isset($body['id']) ? [$body] : [];
+}
+
+function pqaCloudStateId(string $sidHash): string {
+    return 'pqc_action_' . substr($sidHash, 0, 40);
+}
+
+function pqaCloudLoadState(string $sidHash): ?array {
+    if (!function_exists('supabaseDbSelect') || !function_exists('supabaseConfig')) return null;
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) return null;
+    $id = pqaCloudStateId($sidHash);
+    $res = supabaseDbSelect('l8_app_states', 'select=state,updated_at&id=eq.' . rawurlencode($id) . '&limit=1');
+    if (empty($res['ok'])) return null;
+    $rows = pqaCloudRows($res['body'] ?? []);
+    if (!$rows) return null;
+    $state = $rows[0]['state'] ?? [];
+    if (is_string($state)) $state = json_decode($state, true);
+    if (!is_array($state)) return null;
+    return pqaNormalizeState($state);
+}
+
+function pqaCloudCheckpoint(string $sidHash, array $state, array $receipt, ?array $pqc): void {
+    if (!function_exists('supabaseDbUpsert') || !function_exists('supabaseConfig')) return;
+    $cfg = supabaseConfig();
+    if (empty($cfg['configured'])) return;
+    $updated = gmdate('c');
+    $checkpoint = $state;
+    $checkpoint['last_receipt_hash'] = hash('sha256', (string)json_encode($receipt, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    $checkpoint['last_signature_b64'] = is_array($pqc) ? (string)($pqc['signature_b64'] ?? '') : '';
+    $checkpoint['key_fingerprint'] = is_array($pqc) ? (string)($pqc['key_fingerprint'] ?? '') : '';
+    $checkpoint['algorithm'] = PQA_ALGORITHM;
+    $checkpoint['standard'] = 'NIST FIPS 204';
+    @supabaseDbUpsert('l8_app_states', [[
+        'id' => pqaCloudStateId($sidHash),
+        'account_key' => 'pqc_session_' . substr($sidHash, 0, 40),
+        'app_id' => 'hashcod-pqc-action-bus-v1',
+        'state' => $checkpoint,
+        'updated_at' => $updated,
+    ]], 'id');
+}
+
 function pqaReadState(array $session): array {
-    $path = pqaStatePath(pqaSessionHash($session));
+    $sidHash = pqaSessionHash($session);
+    $path = pqaStatePath($sidHash);
+    $local = pqaStateDefaults();
     $fp = @fopen($path, 'c+');
-    if (!$fp) return pqaStateDefaults();
-    $state = pqaStateDefaults();
-    if (@flock($fp, LOCK_SH)) {
-        $state = pqaReadStateFile($fp);
-        @flock($fp, LOCK_UN);
+    if ($fp) {
+        if (@flock($fp, LOCK_SH)) {
+            $local = pqaReadStateFile($fp);
+            @flock($fp, LOCK_UN);
+        }
+        @fclose($fp);
     }
-    @fclose($fp);
-    return $state;
+    $cloud = pqaCloudLoadState($sidHash);
+    if (is_array($cloud) && (int)($cloud['last_seq'] ?? 0) > (int)($local['last_seq'] ?? 0)) {
+        return $cloud;
+    }
+    return $local;
 }
 
 function pqaPython(): string {
@@ -278,6 +330,20 @@ function pqaActionKeypair(): ?array {
         $pk = (string)($generated['public_key_b64'] ?? '');
         $sk = (string)($generated['secret_key_b64'] ?? '');
         if (!pqaValidPublicKeyB64($pk) || !pqaValidSecretKeyB64($sk)) {
+            @flock($lock, LOCK_UN);
+            @fclose($lock);
+            return null;
+        }
+        $probe = 'HC-PQC-ACTION-KEY-SELFTEST.' . pqaB64u(random_bytes(24));
+        $probeSig = pqaRunCrypto('sign-json', ['secret_key_b64' => $sk, 'message' => $probe]);
+        $probeOk = is_array($probeSig)
+            ? pqaRunCrypto('verify-json', [
+                'public_key_b64' => $pk,
+                'challenge' => $probe,
+                'signature_b64' => (string)($probeSig['signature_b64'] ?? ''),
+            ])
+            : null;
+        if (!is_array($probeOk)) {
             @flock($lock, LOCK_UN);
             @fclose($lock);
             return null;
@@ -480,6 +546,11 @@ function pqaProcessAction(array $session, array $input): array {
         $state['updated_at'] = $now;
         pqaWriteStateFile($fp, $state);
 
+        $criticalKinds = ['platform.start', 'platform.enter', 'tool.enable', 'api.mutation'];
+        if (($seq % 8) === 0 || in_array($kind, $criticalKinds, true)) {
+            pqaCloudCheckpoint($sidHash, $state, $receipt, $pqc);
+        }
+
         pqaAppendAudit([
             'receipt' => $receipt,
             'receipt_hash' => $receiptHash,
@@ -495,6 +566,7 @@ function pqaProcessAction(array $session, array $input): array {
         return [
             'ok' => true,
             'next_seq' => $seq + 1,
+            'receipt' => $receipt,
             'receipt_hash' => $receiptHash,
             'event_hash' => $eventHash,
             'permit_token' => $permit,

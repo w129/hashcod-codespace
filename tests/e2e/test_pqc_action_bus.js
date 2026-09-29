@@ -57,7 +57,7 @@ assert(controller.includes("'sequence_conflict' ? 409"),'PQC sequence resynchron
 // Browser-wide instrumentation.
 assert(runtime.includes("document.addEventListener('click',onTrustedActivation,true)"),'trusted button activation capture missing');
 assert(runtime.includes("event.isTrusted===false"),'synthetic activation rejection missing');
-assert(runtime.includes("closest('button,[role="button"]"),'global button selector missing');
+assert(runtime.includes('closest(\'button,[role="button"]'),'global button selector missing');
 assert(runtime.includes("signEvent('tool.enable'"),'tool enable signing missing');
 assert(runtime.includes("MutationObserver"),'tool enable mutation observer missing');
 assert(runtime.includes("signEvent('platform.start'"),'platform start signing missing');

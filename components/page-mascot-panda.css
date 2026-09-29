@@ -1,0 +1,68 @@
+#hashcodPageMascotDock.hashcod-page-mascot-dock{
+  --hashcod-mascot-size:128px;
+  position:fixed;
+  top:max(68px,calc(env(safe-area-inset-top,0px) + 20px));
+  right:max(22px,calc(env(safe-area-inset-right,0px) + 16px));
+  width:var(--hashcod-mascot-size);
+  height:var(--hashcod-mascot-size);
+  z-index:88;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translate3d(0,-8px,0);
+  transition:opacity .22s ease,transform .22s ease,visibility .22s linear;
+  contain:layout paint;
+}
+#hashcodPageMascotDock.is-ready.is-platform-visible{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translate3d(0,0,0);
+}
+#hashcodPageMascot{
+  position:relative;
+  display:block;
+  width:100%;
+  height:100%;
+  padding:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  appearance:none;
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#hashcodPageMascot:focus-visible{
+  outline:2px solid rgba(17,17,17,.72);
+  outline-offset:4px;
+  border-radius:24px;
+}
+.hashcod-page-mascot-squash{
+  position:relative;
+  display:block;
+  width:100%;
+  height:100%;
+  transform-origin:50% 78%;
+}
+.hashcod-page-mascot-layer{
+  position:absolute;
+  inset:0;
+  background-size:300% 300%;
+  background-repeat:no-repeat;
+  background-position:50% 50%;
+  transition:opacity 70ms linear;
+  pointer-events:none;
+}
+@media(max-width:720px){
+  #hashcodPageMascotDock.hashcod-page-mascot-dock{
+    --hashcod-mascot-size:96px;
+    top:max(56px,calc(env(safe-area-inset-top,0px) + 12px));
+    right:max(10px,calc(env(safe-area-inset-right,0px) + 8px));
+    z-index:72;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #hashcodPageMascotDock.hashcod-page-mascot-dock{transition:none}
+  .hashcod-page-mascot-layer{transition:none}
+}

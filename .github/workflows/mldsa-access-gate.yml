@@ -11,6 +11,8 @@ on:
       - pqc-actions-lib.php
       - scripts/mldsa87_access.py
       - components/pqc-action-runtime.js
+      - components/page-mascot-panda.js
+      - components/page-mascot-panda.css
       - components/mldsa-access-gate.css
       - components/mldsa-access-gate.js
       - config/mldsa87-access-public.b64
@@ -19,6 +21,7 @@ on:
       - tests/e2e/test_mldsa_access_gate.js
       - tests/e2e/test_pqc_action_bus.js
       - tests/e2e/test_pqc_transition_norm.php
+      - tests/e2e/test_page_mascot.js
       - .github/workflows/mldsa-access-gate.yml
 
 permissions:
@@ -45,9 +48,11 @@ jobs:
           node --check components/mldsa-access-gate.js
           node --check components/device-usage-tracker.js
           node --check components/pqc-action-runtime.js
+          node --check components/page-mascot-panda.js
           node tests/e2e/test_mldsa_access_gate.js
           node tests/e2e/test_device_usage_quota.js
           node tests/e2e/test_pqc_action_bus.js
+          node tests/e2e/test_page_mascot.js
           php tests/e2e/test_pqc_transition_norm.php
 
       - name: Start Hashcod locally
@@ -75,6 +80,23 @@ jobs:
           grep -qi "Hashcod" /tmp/hashcod-after.html
           curl -fsS -c /tmp/hashcod-entry.cookies -b /tmp/hashcod-entry.cookies             http://127.0.0.1:8097/ >/tmp/hashcod-return.html
           grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-return.html
+
+      - name: Verify panda mascot assets
+        run: |
+          curl -fsS http://127.0.0.1:8097/mascots/panda-directions.webp -o /tmp/panda-directions.webp
+          curl -fsS http://127.0.0.1:8097/mascots/panda-reactions.webp -o /tmp/panda-reactions.webp
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          expected = {
+              "/tmp/panda-directions.webp": "6f3f42dcf066c2b1c01e85913d2ea8828215f474",
+              "/tmp/panda-reactions.webp": "aaecccbcc7aaeb646aeb2a10145d31701ada5e9e",
+          }
+          for path, want in expected.items():
+              data = Path(path).read_bytes()
+              got = hashlib.sha1(f"blob {len(data)}\0".encode() + data).hexdigest()
+              assert got == want, (path, got, want)
+          PY
 
       - name: Verify ML-DSA API is non-blocking
         run: |

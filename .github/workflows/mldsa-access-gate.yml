@@ -13,7 +13,6 @@ on:
       - components/pqc-action-runtime.js
       - components/page-mascot-panda.js
       - components/page-mascot-panda.css
-      - mascot-assets.php
       - components/mldsa-access-gate.css
       - components/mldsa-access-gate.js
       - config/mldsa87-access-public.b64
@@ -43,7 +42,6 @@ jobs:
           php -l device-usage.php
           php -l pqc-actions-lib.php
           php -l pqc-actions.php
-          php -l mascot-assets.php
           php -l l8-html.php
           php -l router.php
           python3 -m py_compile scripts/mldsa87_access.py

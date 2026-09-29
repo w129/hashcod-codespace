@@ -45,6 +45,12 @@ var entryProductSubtitleInput=document.getElementById('d5EntryProductSubtitleInp
 var entryProductImagePosition={x:50,y:50};
 var entryProductImageDrag=null;
 var entryLevel2Next=document.getElementById('d5EntryLevel2Next');
+var entryUsageCard=document.getElementById('d5EntryUsageCard');
+var entryUsageReset=document.getElementById('d5EntryUsageReset');
+var entryHscuValue=document.getElementById('d5EntryHscuValue');
+var entryHscuProgress=document.getElementById('d5EntryHscuProgress');
+var entryTouchValue=document.getElementById('d5EntryTouchValue');
+var entryTouchProgress=document.getElementById('d5EntryTouchProgress');
 var entryLevel3Next=document.getElementById('d5EntryLevel3Next');
 var entryFinish=document.getElementById('d5EntryFinish');
 var entryBackButtons=Array.from(document.querySelectorAll('[data-entry-back]'));
@@ -130,6 +136,7 @@ function entryProductBasePath(){
   return match?'/'+match[1]:'';
 }
 var ENTRY_PRODUCT_VERIFY_API=entryProductBasePath()+'/api/entry-product-editor';
+var ENTRY_USAGE_API=entryProductBasePath()+'/api/device-usage';
 var ENTRY_PRODUCT_STORAGE_KEY='hashcod:entry-product-editor:v2';
 var ENTRY_PRODUCT_LEGACY_STORAGE_KEY='hashcod:entry-product-editor:v1';
 var ENTRY_PRODUCT_DB_NAME='hashcod-entry-product-media-v1';
@@ -435,6 +442,62 @@ function entryProductResetImagePosition(){
   entryProductSetCodeStatus('Posición de imagen restablecida al centro.','ok');
 }
 
+function entryUsageNumber(value,maximumFractionDigits){
+  var n=Number(value);
+  if(!Number.isFinite(n))n=0;
+  try{
+    return n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:maximumFractionDigits||0});
+  }catch(_){return String(n);}
+}
+function entryUsagePercent(value){
+  var n=Number(value);
+  if(!Number.isFinite(n))n=0;
+  return Math.max(0,Math.min(100,n));
+}
+function entryUsageResetLabel(iso){
+  if(!iso)return 'Device-specific usage';
+  var date=new Date(iso);
+  if(!Number.isFinite(date.getTime()))return 'Device-specific usage';
+  try{
+    return 'Resets on '+date.toLocaleDateString(undefined,{month:'short',day:'numeric'})+'.';
+  }catch(_){return 'Resets automatically each month.';}
+}
+function entryUsageRender(data){
+  if(!entryUsageCard||!data||!data.ok)return;
+  var h=data.hscus||{};
+  var t=data.touches||{};
+  var hUsed=Number(h.used)||0;
+  var hLimit=Number(h.limit)||100;
+  var tUsed=Number(t.used)||0;
+  var tLimit=Number(t.limit)||1000;
+  if(entryHscuValue)entryHscuValue.textContent=entryUsageNumber(hUsed,1)+' / '+entryUsageNumber(hLimit,1);
+  if(entryTouchValue)entryTouchValue.textContent=entryUsageNumber(tUsed,0)+' / '+entryUsageNumber(tLimit,0);
+  if(entryHscuProgress)entryHscuProgress.style.width=entryUsagePercent(h.percent)+'%';
+  if(entryTouchProgress)entryTouchProgress.style.width=entryUsagePercent(t.percent)+'%';
+  if(entryUsageReset)entryUsageReset.textContent=entryUsageResetLabel(data.resets_on);
+  entryUsageCard.dataset.loading='false';
+  entryUsageCard.dataset.month=String(data.month||'');
+}
+async function entryUsageLoad(){
+  if(!entryUsageCard)return null;
+  entryUsageCard.dataset.loading='true';
+  try{
+    var response=await fetch(ENTRY_USAGE_API,{
+      method:'GET',
+      credentials:'same-origin',
+      headers:{Accept:'application/json','X-Requested-With':'XMLHttpRequest'}
+    });
+    var data=await response.json().catch(function(){return null;});
+    if(!response.ok||!data||!data.ok)throw new Error('usage_unavailable');
+    entryUsageRender(data);
+    return data;
+  }catch(_){
+    entryUsageCard.dataset.loading='false';
+    if(entryUsageReset)entryUsageReset.textContent='Usage unavailable right now.';
+    return null;
+  }
+}
+
 function entrySetLevel(nextLevel){
   if(!entryIntro)return;
   var next=Math.max(1,Math.min(4,Number(nextLevel)||1));
@@ -445,6 +508,7 @@ function entrySetLevel(nextLevel){
     entryProductSetMode('view');
   }
   entryLevel=next;
+  if(next===3)entryUsageLoad();
   if(entryAccessCard)entryAccessCard.setAttribute('data-entry-level',String(next));
   entryWizardPanels.forEach(function(panel){
     var level=Number(panel.getAttribute('data-entry-panel')||0);
@@ -606,6 +670,15 @@ if(entryIntro){
   }
   if(entryLevel2Next)entryLevel2Next.addEventListener('click',function(){entrySetLevel(3);});
   if(entryLevel3Next)entryLevel3Next.addEventListener('click',function(){entrySetLevel(4);});
+  if(entryUsageCard){
+    window.HashcodEntryUsageCard={
+      refresh:entryUsageLoad,
+      render:entryUsageRender
+    };
+    window.addEventListener('hashcod:device-usage-updated',function(event){
+      if(event&&event.detail)entryUsageRender(event.detail);
+    });
+  }
   if(entryFinish)entryFinish.addEventListener('click',entryOpenPlatform);
   entryBackButtons.forEach(function(button){
     button.addEventListener('click',function(){

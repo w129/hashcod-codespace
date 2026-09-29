@@ -4,8 +4,17 @@ const js=fs.readFileSync('components/page-mascot-panda.js','utf8');
 const css=fs.readFileSync('components/page-mascot-panda.css','utf8');
 const router=fs.readFileSync('router.php','utf8');
 const html=fs.readFileSync('l8-html.php','utf8');
-const assets=fs.readFileSync('mascot-assets.php','utf8');
+const crypto=require('crypto');
+const directions=fs.readFileSync('mascots/panda-directions.webp');
+const reactions=fs.readFileSync('mascots/panda-reactions.webp');
 const notices=fs.readFileSync('THIRD_PARTY_NOTICES.md','utf8');
+
+function gitBlobSha(buffer){
+  return crypto.createHash('sha1')
+    .update(Buffer.from('blob '+buffer.length+'\0'))
+    .update(buffer)
+    .digest('hex');
+}
 
 new Function(js);
 
@@ -29,14 +38,10 @@ assert(css.includes('right:max('),'mascot right-corner placement missing');
 assert(css.includes('.is-ready.is-platform-visible'),'mascot must remain hidden until ready + platform entered');
 assert(css.includes('@media(max-width:720px)'),'mobile mascot sizing missing');
 
-assert(router.includes("'/mascots/panda-directions.webp'")&&router.includes("'/mascots/panda-reactions.webp'"),'same-origin mascot asset routes missing');
-assert(router.includes("require __DIR__ . '/mascot-assets.php'"),'mascot asset controller binding missing');
-
-assert(assets.includes("'git_sha' => '6f3f42dcf066c2b1c01e85913d2ea8828215f474'"),'directions blob identity missing');
-assert(assets.includes("'git_sha' => 'aaecccbcc7aaeb646aeb2a10145d31701ada5e9e'"),'reactions blob identity missing');
-assert(assets.includes("header('Content-Type: image/webp')"),'webp response type missing');
-assert(assets.includes("hash_equals($asset['git_sha'], $gitBlobSha($bytes))"),'download integrity validation missing');
-assert(assets.includes('max-age=31536000, immutable'),'immutable sprite caching missing');
+assert(gitBlobSha(directions)==='6f3f42dcf066c2b1c01e85913d2ea8828215f474','directions WebP must match the exact uploaded/upstream page-mascot sprite');
+assert(gitBlobSha(reactions)==='aaecccbcc7aaeb646aeb2a10145d31701ada5e9e','reactions WebP must match the exact uploaded/upstream page-mascot sprite');
+assert(router.includes("'webp' => 'image/webp'"),'router must serve committed WebP sprites with image/webp MIME');
+assert(router.includes("securityIsAllowedStatic($uri)"),'mascot sprites must use the normal static asset pipeline');
 
 assert(html.includes('components/page-mascot-panda.css?v=20260929-panda1'),'mascot stylesheet injection missing');
 assert(html.includes('components/page-mascot-panda.js?v=20260929-panda1'),'mascot runtime injection missing');

@@ -18,6 +18,7 @@ on:
       - router.php
       - tests/e2e/test_mldsa_access_gate.js
       - tests/e2e/test_pqc_action_bus.js
+      - tests/e2e/test_pqc_transition_norm.php
       - .github/workflows/mldsa-access-gate.yml
 
 permissions:
@@ -47,6 +48,7 @@ jobs:
           node tests/e2e/test_mldsa_access_gate.js
           node tests/e2e/test_device_usage_quota.js
           node tests/e2e/test_pqc_action_bus.js
+          php tests/e2e/test_pqc_transition_norm.php
 
       - name: Start Hashcod locally
         run: |

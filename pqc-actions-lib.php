@@ -442,6 +442,81 @@ function pqaAppendAudit(array $record): void {
     @chmod(pqaAuditPath(), 0600);
 }
 
+/**
+ * Derives a deterministic transition vector and its Euclidean norm:
+ * ||x||_2 = sqrt(x_1^2 + ... + x_n^2)
+ *
+ * The norm is NOT used as a replacement cryptographic primitive. It is
+ * domain-separated transition material that is bound into the HMAC chain and
+ * the ML-DSA-87 signed receipt, so every transit carries an additional,
+ * independently recomputable mathematical factor.
+ */
+function pqaEuclideanTransition(string $previousHash, string $canonicalEvent, int $seq, string $eventId): array {
+    $seedMaterial = implode("\n", [
+        'HC-PQC-EUCLIDEAN-TRANSITION-V1',
+        $previousHash,
+        (string)$seq,
+        $eventId,
+        $canonicalEvent,
+    ]);
+    $digest = hash('sha512', $seedMaterial, true);
+
+    // Eight 16-bit coordinates keep the fixed-point multiplication safely
+    // inside signed 64-bit integer range while still changing avalanche-style
+    // with every distinct transition.
+    $unpacked = unpack('n8', substr($digest, 0, 16));
+    if (!is_array($unpacked) || count($unpacked) !== 8) {
+        throw new RuntimeException('pqc_transition_vector_failed');
+    }
+
+    $vector = [];
+    $sumSquares = 0.0;
+    foreach ($unpacked as $coordinate) {
+        $x = (int)$coordinate + 1; // 1..65536, avoids a zero-only coordinate.
+        $vector[] = $x;
+        $sumSquares += (float)$x * (float)$x;
+    }
+
+    $norm = sqrt($sumSquares);
+    if (!is_finite($norm) || $norm <= 0.0) {
+        throw new RuntimeException('pqc_transition_norm_failed');
+    }
+
+    // Fixed-point representation is what participates in the cryptographic
+    // transcript, avoiding platform-dependent float serialization.
+    $normScaled = (int)round($norm * 1000000.0);
+
+    $scalarParts = unpack('n1', substr($digest, 16, 2));
+    if (!is_array($scalarParts) || !isset($scalarParts[1])) {
+        throw new RuntimeException('pqc_transition_scalar_failed');
+    }
+    $transitScalar = (int)$scalarParts[1] + 1; // 1..65536.
+    $transitionProduct = $normScaled * $transitScalar;
+
+    if ($normScaled <= 0 || $transitionProduct <= 0) {
+        throw new RuntimeException('pqc_transition_product_failed');
+    }
+
+    return [
+        'scheme' => 'EUCLIDEAN-NORM-V1',
+        'formula' => '||x||_2=sqrt(x1^2+...+xn^2)',
+        'dimension' => 8,
+        'derivation' => 'SHA-512(HC-PQC-EUCLIDEAN-TRANSITION-V1 || previous_hash || seq || event_id || canonical_event)',
+        'norm_scaled_1e6' => $normScaled,
+        'transit_scalar' => $transitScalar,
+        'transition_product' => (string)$transitionProduct,
+        'vector_commitment_sha256' => hash('sha256', implode(',', $vector)),
+    ];
+}
+
+function pqaCanonicalTransition(array $transition): string {
+    $canonical = json_encode($transition, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if (!is_string($canonical) || $canonical === '') {
+        throw new RuntimeException('pqc_transition_encode_failed');
+    }
+    return $canonical;
+}
+
 function pqaProcessAction(array $session, array $input): array {
     $sidHash = pqaSessionHash($session);
     $path = pqaStatePath($sidHash);
@@ -513,13 +588,24 @@ function pqaProcessAction(array $session, array $input): array {
 
         $canonicalEvent = (string)json_encode($event, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $previous = (string)$state['chain_head'];
-        $eventHash = hash_hmac('sha512', $previous . "\n" . $canonicalEvent, pqaSecret());
+
+        // Every transit gets a deterministic Euclidean-norm multiplier derived
+        // from this exact transition. The fixed-point product is mixed into the
+        // chain BEFORE ML-DSA-87 signs the receipt.
+        $transition = pqaEuclideanTransition($previous, $canonicalEvent, $seq, $eventId);
+        $canonicalTransition = pqaCanonicalTransition($transition);
+        $eventHash = hash_hmac(
+            'sha512',
+            "HC-PQC-ACTION-CHAIN-V2\n" . $previous . "\n" . $canonicalEvent . "\n" . $canonicalTransition,
+            pqaSecret()
+        );
 
         $receipt = [
             'v' => PQA_VERSION,
             'algorithm' => PQA_ALGORITHM,
             'standard' => 'NIST FIPS 204',
             'event' => $event,
+            'transition' => $transition,
             'previous_hash' => $previous,
             'event_hash' => $eventHash,
         ];
@@ -537,6 +623,7 @@ function pqaProcessAction(array $session, array $input): array {
             'sid_hash' => $sidHash,
             'event_id' => $eventId,
             'event_hash' => $eventHash,
+            'transition_product' => (string)$transition['transition_product'],
             'receipt_hash' => $receiptHash,
             'request_path' => $requestPath,
             'method' => $method,
@@ -570,6 +657,7 @@ function pqaProcessAction(array $session, array $input): array {
             'receipt' => $receipt,
             'receipt_hash' => $receiptHash,
             'event_hash' => $eventHash,
+            'transition' => $transition,
             'permit_token' => $permit,
             'pqc' => $pqc,
         ];

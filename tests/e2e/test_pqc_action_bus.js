@@ -34,7 +34,7 @@ assert(lib.includes("'samesite' => 'Strict'"),'PQC session cookie must be SameSi
 assert(lib.includes("bin2hex(random_bytes(24))"),'PQC session id must be cryptographically random');
 assert(lib.includes("if ($seq !== $expectedSeq)"),'strict action sequence enforcement missing');
 assert(lib.includes("in_array($eventId, $state['recent_event_ids'], true)"),'action replay detection missing');
-assert(lib.includes("hash_hmac('sha512', $previous"),'tamper-evident chained event hash missing');
+assert(lib.includes('HC-PQC-ACTION-CHAIN-V2')&&lib.includes('$canonicalEvent . "\\n" . $canonicalTransition'),'tamper-evident norm-mixed chained event hash missing');
 assert(lib.includes("'previous_hash' => $previous"),'previous chain hash missing from receipt');
 assert(lib.includes("'event_hash' => $eventHash"),'event chain hash missing from receipt');
 assert(lib.includes('function pqaEuclideanTransition'),'Euclidean transition derivation helper missing');

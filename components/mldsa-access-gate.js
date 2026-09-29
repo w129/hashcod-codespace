@@ -1220,6 +1220,13 @@ var textEditorClean=document.getElementById('d5TextEditorClean');
 var textEditorExport=document.getElementById('d5TextEditorExport');
 var textEditorClear=document.getElementById('d5TextEditorClear');
 var textEditorEncoding=document.getElementById('d5TextEditorEncoding');
+var textEditorFormatbar=document.getElementById('d5TextEditorFormatbar');
+var textEditorSlashMenu=document.getElementById('d5TextEditorSlashMenu');
+var textEditorSlashItems=textEditorSlashMenu?Array.from(textEditorSlashMenu.querySelectorAll('[data-editor-slash]')):[];
+var textEditorUndoStack=[];
+var textEditorRedoStack=[];
+var textEditorHistoryApplying=false;
+var textEditorSlashActiveIndex=0;
 var TEXT_EDITOR_CLIENT_KEY='hashcod:text-editor:client:v1';
 var TEXT_EDITOR_CACHE_KEY='hashcod:text-editor:draft:v1';
 var textEditorSaveTimer=0;
@@ -1303,6 +1310,265 @@ function textEditorNormalizeValue(value){
   var cleaned=textEditorCleanValue(value);
   try{return cleaned.normalize('NFKC');}catch(_){return cleaned;}
 }
+// Banger Editor-inspired command layer.
+// Source inspiration: bangle-io/banger-editor (MIT), especially the bold,
+// italic, underline, strike, heading, blockquote, code, code-block, list,
+// link, horizontal-rule, history and suggestions modules. Hashcod keeps its
+// existing textarea/autosave architecture and translates those concepts to
+// deterministic Markdown transformations.
+function textEditorSnapshot(){
+  if(!textEditorInput)return null;
+  return {
+    value:String(textEditorInput.value||''),
+    start:typeof textEditorInput.selectionStart==='number'?textEditorInput.selectionStart:0,
+    end:typeof textEditorInput.selectionEnd==='number'?textEditorInput.selectionEnd:0
+  };
+}
+function textEditorSnapshotsEqual(a,b){
+  return !!a&&!!b&&a.value===b.value&&a.start===b.start&&a.end===b.end;
+}
+function textEditorPushUndo(){
+  if(!textEditorInput||textEditorHistoryApplying)return;
+  var snapshot=textEditorSnapshot();
+  var last=textEditorUndoStack.length?textEditorUndoStack[textEditorUndoStack.length-1]:null;
+  if(!textEditorSnapshotsEqual(snapshot,last)){
+    textEditorUndoStack.push(snapshot);
+    if(textEditorUndoStack.length>120)textEditorUndoStack.shift();
+  }
+  textEditorRedoStack.length=0;
+}
+function textEditorRestoreSnapshot(snapshot,label){
+  if(!textEditorInput||!snapshot)return;
+  textEditorHistoryApplying=true;
+  textEditorInput.value=String(snapshot.value||'');
+  var max=textEditorInput.value.length;
+  var start=Math.max(0,Math.min(max,Number(snapshot.start)||0));
+  var end=Math.max(start,Math.min(max,Number(snapshot.end)||start));
+  textEditorInput.setSelectionRange(start,end);
+  textEditorHistoryApplying=false;
+  textEditorSetEncoding('UTF-8');
+  textEditorMarkEdited(label||'History');
+  textEditorInput.focus();
+}
+function textEditorUndo(){
+  if(!textEditorInput||!textEditorUndoStack.length)return;
+  var current=textEditorSnapshot();
+  var target=textEditorUndoStack.pop();
+  if(current)textEditorRedoStack.push(current);
+  textEditorRestoreSnapshot(target,'Undo');
+}
+function textEditorRedo(){
+  if(!textEditorInput||!textEditorRedoStack.length)return;
+  var current=textEditorSnapshot();
+  var target=textEditorRedoStack.pop();
+  if(current){
+    textEditorUndoStack.push(current);
+    if(textEditorUndoStack.length>120)textEditorUndoStack.shift();
+  }
+  textEditorRestoreSnapshot(target,'Redo');
+}
+function textEditorSelection(){
+  if(!textEditorInput)return {start:0,end:0,value:'',selected:''};
+  var value=String(textEditorInput.value||'');
+  var start=typeof textEditorInput.selectionStart==='number'?textEditorInput.selectionStart:0;
+  var end=typeof textEditorInput.selectionEnd==='number'?textEditorInput.selectionEnd:start;
+  return {start:start,end:end,value:value,selected:value.slice(start,end)};
+}
+function textEditorLineRange(){
+  var selection=textEditorSelection();
+  var lineStart=selection.value.lastIndexOf('\n',Math.max(0,selection.start-1))+1;
+  var lineEnd=selection.value.indexOf('\n',selection.end);
+  if(lineEnd<0)lineEnd=selection.value.length;
+  return {start:lineStart,end:lineEnd,value:selection.value,text:selection.value.slice(lineStart,lineEnd)};
+}
+function textEditorReplaceRange(start,end,replacement,selectStart,selectEnd,label){
+  if(!textEditorInput)return;
+  textEditorInput.setRangeText(String(replacement),start,end,'end');
+  var max=textEditorInput.value.length;
+  var from=Math.max(0,Math.min(max,typeof selectStart==='number'?selectStart:start+String(replacement).length));
+  var to=Math.max(from,Math.min(max,typeof selectEnd==='number'?selectEnd:from));
+  textEditorInput.setSelectionRange(from,to);
+  textEditorSetEncoding('UTF-8');
+  textEditorMarkEdited(label||'Formatted');
+  textEditorInput.focus();
+}
+function textEditorWrapSelection(before,after,placeholder,label){
+  var selection=textEditorSelection();
+  var inner=selection.selected||placeholder||'text';
+  var replacement=before+inner+after;
+  var innerStart=selection.start+before.length;
+  textEditorReplaceRange(selection.start,selection.end,replacement,innerStart,innerStart+inner.length,label);
+}
+function textEditorReplaceSelectedLines(transform,label){
+  if(!textEditorInput||typeof transform!=='function')return;
+  var range=textEditorLineRange();
+  var output=String(transform(range.text));
+  if(output===range.text){
+    textEditorSetStatus('saved','No changes');
+    return;
+  }
+  textEditorReplaceRange(range.start,range.end,output,range.start,range.start+output.length,label);
+}
+function textEditorSetHeading(level){
+  var prefix=new Array(level+1).join('#')+' ';
+  textEditorReplaceSelectedLines(function(block){
+    return block.split('\n').map(function(line){return prefix+line.replace(/^#{1,6}\s+/,'');}).join('\n');
+  },'Heading '+level);
+}
+function textEditorToggleQuote(){
+  textEditorReplaceSelectedLines(function(block){
+    var lines=block.split('\n');
+    var allQuoted=lines.every(function(line){return /^>\s?/.test(line);});
+    return lines.map(function(line){return allQuoted?line.replace(/^>\s?/,''):'> '+line;}).join('\n');
+  },'Blockquote');
+}
+function textEditorToggleBullet(){
+  textEditorReplaceSelectedLines(function(block){
+    var lines=block.split('\n');
+    var allBullets=lines.every(function(line){return /^\s*[-*+]\s+/.test(line);});
+    return lines.map(function(line){
+      if(allBullets)return line.replace(/^(\s*)[-*+]\s+/,'$1');
+      return '- '+line.replace(/^\s*(?:[-*+]|\d+\.)\s+/,'');
+    }).join('\n');
+  },'Bullet list');
+}
+function textEditorToggleOrdered(){
+  textEditorReplaceSelectedLines(function(block){
+    var lines=block.split('\n');
+    var allOrdered=lines.every(function(line){return /^\s*\d+\.\s+/.test(line);});
+    return lines.map(function(line,index){
+      if(allOrdered)return line.replace(/^(\s*)\d+\.\s+/,'$1');
+      return (index+1)+'. '+line.replace(/^\s*(?:[-*+]|\d+\.)\s+/,'');
+    }).join('\n');
+  },'Numbered list');
+}
+function textEditorParagraph(){
+  textEditorReplaceSelectedLines(function(block){
+    return block.split('\n').map(function(line){
+      return line.replace(/^#{1,6}\s+/,'').replace(/^>\s?/,'').replace(/^\s*[-*+]\s+/,'').replace(/^\s*\d+\.\s+/,'');
+    }).join('\n');
+  },'Paragraph');
+}
+function textEditorCodeBlock(){
+  var range=textEditorLineRange();
+  var block=range.text;
+  var fence=String.fromCharCode(96,96,96);
+  var trimmed=block.trim();
+  if(trimmed.indexOf(fence)===0&&trimmed.lastIndexOf(fence)===trimmed.length-fence.length){
+    var firstBreak=trimmed.indexOf('\n');
+    var inner=firstBreak>=0?trimmed.slice(firstBreak+1,trimmed.length-fence.length).replace(/\n$/,''):'';
+    textEditorReplaceRange(range.start,range.end,inner,range.start,range.start+inner.length,'Code block removed');
+    return;
+  }
+  var replacement=fence+'\n'+block+'\n'+fence;
+  textEditorReplaceRange(range.start,range.end,replacement,range.start+fence.length+1,range.start+fence.length+1+block.length,'Code block');
+}
+function textEditorInsertRule(){
+  var selection=textEditorSelection();
+  var before=selection.start>0&&selection.value.charAt(selection.start-1)!=='\n'?'\n':'';
+  var after=selection.end<selection.value.length&&selection.value.charAt(selection.end)!=='\n'?'\n':'';
+  var replacement=before+'---'+after;
+  var caret=selection.start+replacement.length;
+  textEditorReplaceRange(selection.start,selection.end,replacement,caret,caret,'Horizontal rule');
+}
+function textEditorInsertLink(url){
+  var selection=textEditorSelection();
+  var label=selection.selected||'link';
+  var safeUrl=String(url||'').trim();
+  if(!safeUrl)return;
+  var replacement='['+label+']('+safeUrl+')';
+  var labelStart=selection.start+1;
+  textEditorReplaceRange(selection.start,selection.end,replacement,labelStart,labelStart+label.length,'Link');
+}
+function textEditorSlashContext(){
+  if(!textEditorInput)return null;
+  var selection=textEditorSelection();
+  if(selection.start!==selection.end)return null;
+  var lineStart=selection.value.lastIndexOf('\n',Math.max(0,selection.start-1))+1;
+  var before=selection.value.slice(lineStart,selection.start);
+  var match=before.match(/^(\s*)\/([a-z0-9-]*)$/i);
+  if(!match)return null;
+  return {start:lineStart+match[1].length,end:selection.start,query:String(match[2]||'').toLowerCase()};
+}
+function textEditorVisibleSlashItems(){return textEditorSlashItems.filter(function(item){return !item.hidden;});}
+function textEditorSetSlashActive(index){
+  var visible=textEditorVisibleSlashItems();
+  if(!visible.length){textEditorSlashActiveIndex=0;return;}
+  textEditorSlashActiveIndex=(index%visible.length+visible.length)%visible.length;
+  visible.forEach(function(item,itemIndex){item.dataset.active=itemIndex===textEditorSlashActiveIndex?'true':'false';});
+  var active=visible[textEditorSlashActiveIndex];
+  if(active&&typeof active.scrollIntoView==='function')active.scrollIntoView({block:'nearest'});
+}
+function textEditorHideSlashMenu(){
+  if(!textEditorSlashMenu)return;
+  textEditorSlashMenu.hidden=true;
+  textEditorSlashItems.forEach(function(item){item.dataset.active='false';});
+  textEditorSlashActiveIndex=0;
+}
+function textEditorRefreshSlashMenu(){
+  if(!textEditorSlashMenu)return;
+  var context=textEditorSlashContext();
+  if(!context){textEditorHideSlashMenu();return;}
+  var query=context.query;
+  textEditorSlashItems.forEach(function(item){
+    var hay=(String(item.getAttribute('data-editor-keywords')||'')+' '+String(item.textContent||'')).toLowerCase();
+    item.hidden=!!query&&hay.indexOf(query)<0;
+  });
+  var visible=textEditorVisibleSlashItems();
+  if(!visible.length){textEditorHideSlashMenu();return;}
+  textEditorSlashMenu.hidden=false;
+  textEditorSetSlashActive(0);
+}
+function textEditorOpenSlashMenu(){
+  if(!textEditorInput)return;
+  var context=textEditorSlashContext();
+  if(!context){
+    textEditorPushUndo();
+    var selection=textEditorSelection();
+    textEditorInput.setRangeText('/',selection.start,selection.end,'end');
+    textEditorMarkEdited('Command menu');
+  }
+  textEditorRefreshSlashMenu();
+  textEditorInput.focus();
+}
+function textEditorApplySlashCommand(command){
+  if(!textEditorInput)return;
+  var context=textEditorSlashContext();
+  if(!context)return;
+  textEditorPushUndo();
+  textEditorInput.setRangeText('',context.start,context.end,'end');
+  textEditorHideSlashMenu();
+  textEditorRunCommand(command,{skipHistory:true,fromSlash:true});
+}
+function textEditorRunCommand(command,options){
+  if(!textEditorInput)return;
+  var opts=options||{};
+  var name=String(command||'').toLowerCase();
+  if(name==='undo'){textEditorUndo();return;}
+  if(name==='redo'){textEditorRedo();return;}
+  if(name==='slash'){textEditorOpenSlashMenu();return;}
+  var linkUrl='';
+  if(name==='link'){
+    linkUrl=window.prompt('Link URL','https://')||'';
+    if(!linkUrl)return;
+  }
+  if(!opts.skipHistory)textEditorPushUndo();
+  if(name==='bold')textEditorWrapSelection('**','**','bold text','Bold');
+  else if(name==='italic')textEditorWrapSelection('*','*','italic text','Italic');
+  else if(name==='underline')textEditorWrapSelection('<u>','</u>','underlined text','Underline');
+  else if(name==='strike')textEditorWrapSelection('~~','~~','strikethrough','Strikethrough');
+  else if(name==='code'){var tick=String.fromCharCode(96);textEditorWrapSelection(tick,tick,'code','Inline code');}
+  else if(name==='h1')textEditorSetHeading(1);
+  else if(name==='h2')textEditorSetHeading(2);
+  else if(name==='h3')textEditorSetHeading(3);
+  else if(name==='quote')textEditorToggleQuote();
+  else if(name==='bullet')textEditorToggleBullet();
+  else if(name==='ordered')textEditorToggleOrdered();
+  else if(name==='paragraph')textEditorParagraph();
+  else if(name==='codeblock')textEditorCodeBlock();
+  else if(name==='rule')textEditorInsertRule();
+  else if(name==='link')textEditorInsertLink(linkUrl);
+}
 function textEditorMarkEdited(label){
   if(!textEditorInput)return;
   textEditorDirty=true;
@@ -1327,6 +1593,7 @@ function textEditorTransformSelection(transform,label){
     textEditorSetStatus('saved','No changes');
     return;
   }
+  textEditorPushUndo();
   if(selected){
     textEditorInput.setRangeText(output,start,end,'select');
   }else{
@@ -1478,6 +1745,7 @@ if(textEditorImport&&textEditorFile){
     textEditorSetStatus('loading','Reading');
     try{
       var decoded=await textEditorDecodeFile(file);
+      textEditorPushUndo();
       textEditorApplyContent(decoded.text);
       textEditorSetEncoding(decoded.encoding);
       textEditorDirty=true;
@@ -1499,30 +1767,83 @@ if(textEditorExport)textEditorExport.addEventListener('click',textEditorExportTx
 if(textEditorClear)textEditorClear.addEventListener('click',function(){
   if(!textEditorInput||!String(textEditorInput.value||''))return;
   if(!window.confirm('Clear the current workspace draft?'))return;
+  textEditorPushUndo();
   textEditorInput.value='';
   textEditorSetEncoding('UTF-8');
   textEditorMarkEdited('Cleared');
   textEditorInput.focus();
 });
 
+if(textEditorFormatbar){
+  textEditorFormatbar.addEventListener('click',function(event){
+    var button=event.target&&event.target.closest?event.target.closest('[data-editor-command]'):null;
+    if(!button||!textEditorFormatbar.contains(button))return;
+    textEditorRunCommand(button.getAttribute('data-editor-command'));
+  });
+}
+if(textEditorSlashMenu){
+  textEditorSlashMenu.addEventListener('mousedown',function(event){event.preventDefault();});
+  textEditorSlashMenu.addEventListener('click',function(event){
+    var button=event.target&&event.target.closest?event.target.closest('[data-editor-slash]'):null;
+    if(!button||button.hidden)return;
+    textEditorApplySlashCommand(button.getAttribute('data-editor-slash'));
+  });
+}
 if(textEditorInput){
+  textEditorInput.addEventListener('beforeinput',function(event){
+    if(textEditorHistoryApplying)return;
+    var inputType=String(event.inputType||'');
+    if(inputType.indexOf('history')===0)return;
+    textEditorPushUndo();
+  });
   textEditorInput.addEventListener('input',function(){
     textEditorSetEncoding('UTF-8');
     textEditorMarkEdited('Editing');
+    textEditorRefreshSlashMenu();
+  });
+  textEditorInput.addEventListener('click',textEditorRefreshSlashMenu);
+  textEditorInput.addEventListener('keyup',function(event){
+    if(['ArrowDown','ArrowUp','Enter','Escape'].indexOf(event.key)<0)textEditorRefreshSlashMenu();
   });
   textEditorInput.addEventListener('keydown',function(event){
-    if((event.ctrlKey||event.metaKey)&&String(event.key).toLowerCase()==='s'){
-      event.preventDefault();
-      textEditorSave();
-      return;
+    var modifier=event.ctrlKey||event.metaKey;
+    var key=String(event.key||'').toLowerCase();
+    if(textEditorSlashMenu&&!textEditorSlashMenu.hidden){
+      var visible=textEditorVisibleSlashItems();
+      if(event.key==='ArrowDown'){event.preventDefault();textEditorSetSlashActive(textEditorSlashActiveIndex+1);return;}
+      if(event.key==='ArrowUp'){event.preventDefault();textEditorSetSlashActive(textEditorSlashActiveIndex-1);return;}
+      if(event.key==='Enter'&&visible.length){
+        event.preventDefault();
+        var active=visible[textEditorSlashActiveIndex]||visible[0];
+        textEditorApplySlashCommand(active.getAttribute('data-editor-slash'));
+        return;
+      }
+      if(event.key==='Escape'){event.preventDefault();textEditorHideSlashMenu();return;}
     }
-    if(event.key==='Tab'&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
+    if(modifier&&key==='s'){event.preventDefault();textEditorSave();return;}
+    if(modifier&&!event.shiftKey&&key==='z'){event.preventDefault();textEditorUndo();return;}
+    if(modifier&&(key==='y'||(event.shiftKey&&key==='z'))){event.preventDefault();textEditorRedo();return;}
+    if(modifier&&!event.shiftKey&&key==='b'){event.preventDefault();textEditorRunCommand('bold');return;}
+    if(modifier&&!event.shiftKey&&key==='i'){event.preventDefault();textEditorRunCommand('italic');return;}
+    if(modifier&&!event.shiftKey&&key==='u'){event.preventDefault();textEditorRunCommand('underline');return;}
+    if(modifier&&event.shiftKey&&key==='x'){event.preventDefault();textEditorRunCommand('strike');return;}
+    if(modifier&&!event.shiftKey&&key==='k'){event.preventDefault();textEditorRunCommand('link');return;}
+    if(modifier&&event.altKey&&['1','2','3'].indexOf(key)>=0){event.preventDefault();textEditorRunCommand('h'+key);return;}
+    if(modifier&&event.shiftKey&&key==='7'){event.preventDefault();textEditorRunCommand('ordered');return;}
+    if(modifier&&event.shiftKey&&key==='8'){event.preventDefault();textEditorRunCommand('bullet');return;}
+    if(event.key==='Tab'&&!modifier&&!event.altKey){
       event.preventDefault();
+      textEditorPushUndo();
       var start=textEditorInput.selectionStart;
       var end=textEditorInput.selectionEnd;
       textEditorInput.setRangeText('    ',start,end,'end');
       textEditorMarkEdited('Editing');
     }
+  });
+  document.addEventListener('pointerdown',function(event){
+    if(!textEditorSlashMenu||textEditorSlashMenu.hidden)return;
+    if(event.target===textEditorInput||textEditorSlashMenu.contains(event.target))return;
+    textEditorHideSlashMenu();
   });
   window.addEventListener('beforeunload',function(){
     textEditorLocalWrite(textEditorInput.value,new Date().toISOString());

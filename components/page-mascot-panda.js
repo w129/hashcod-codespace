@@ -98,12 +98,8 @@ function boop(){
 button.addEventListener('click',boop);
 
 function reveal(){
-  if(document.documentElement.dataset.hashcodPlatformEntered==='true'||document.documentElement.classList.contains('hashcod-platform-entered')){
-    root.classList.add('is-platform-visible');
-  }
+  root.classList.add('is-page-visible');
 }
-window.addEventListener('hashcod:platform-entered',function(){root.classList.add('is-platform-visible');});
-window.addEventListener('hashcod:platform-entry-complete',function(){root.classList.add('is-platform-visible');});
 
 var fine=window.matchMedia&&window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 if(fine){
@@ -120,16 +116,11 @@ function mount(){
   [directionsUrl,reactionsUrl].forEach(function(src){
     var img=new Image();img.onload=ready;img.onerror=ready;img.src=src;
   });
-  if(typeof MutationObserver==='function'){
-    var observer=new MutationObserver(reveal);
-    observer.observe(document.documentElement,{attributes:true,attributeFilter:['class','data-hashcod-platform-entered']});
-    window.addEventListener('beforeunload',function(){observer.disconnect();},{once:true});
-  }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 
 window.HashcodPageMascot=Object.freeze({
   boop:boop,
-  status:function(){return {direction:direction,reaction:reaction,visible:root.classList.contains('is-platform-visible')};}
+  status:function(){return {direction:direction,reaction:reaction,visible:root.classList.contains('is-page-visible')};}
 });
 })();

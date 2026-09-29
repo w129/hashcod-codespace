@@ -13,7 +13,7 @@
   transition:opacity .22s ease,transform .22s ease,visibility .22s linear;
   contain:layout paint;
 }
-#hashcodPageMascotDock.is-ready.is-platform-visible{
+#hashcodPageMascotDock.is-ready.is-page-visible{
   opacity:1;
   visibility:visible;
   pointer-events:auto;

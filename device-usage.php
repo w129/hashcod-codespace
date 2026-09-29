@@ -43,7 +43,29 @@ function hduSecret(): string {
     }
     $fallback = (string)secretGet('L8_AUTH_PEPPER', '');
     if ($fallback !== '') return hash('sha256', $fallback . '|hashcod-device-usage-v1', true);
-    return hash('sha256', __FILE__ . '|hashcod-device-usage-fallback', true);
+
+    // Last-resort server-local random key: never fall back to a predictable
+    // hardcoded signing secret.
+    $dir = __DIR__ . '/data_storage/device_usage';
+    if (!is_dir($dir)) @mkdir($dir, 0700, true);
+    @chmod($dir, 0700);
+    $path = $dir . '/.signing-key';
+    if (!is_file($path)) {
+        $candidate = random_bytes(32);
+        $fp = @fopen($path, 'x');
+        if ($fp) {
+            if (@flock($fp, LOCK_EX)) {
+                @fwrite($fp, $candidate);
+                @fflush($fp);
+                @flock($fp, LOCK_UN);
+            }
+            @fclose($fp);
+            @chmod($path, 0600);
+        }
+    }
+    $local = @file_get_contents($path);
+    if (is_string($local) && strlen($local) >= 32) return substr($local, 0, 32);
+    throw new RuntimeException('device_usage_signing_key_unavailable');
 }
 
 function hduIsHttps(): bool {

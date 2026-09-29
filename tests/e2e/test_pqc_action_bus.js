@@ -37,7 +37,8 @@ assert(lib.includes("in_array($eventId, $state['recent_event_ids'], true)"),'act
 assert(lib.includes("hash_hmac('sha512', $previous"),'tamper-evident chained event hash missing');
 assert(lib.includes("'previous_hash' => $previous"),'previous chain hash missing from receipt');
 assert(lib.includes("'event_hash' => $eventHash"),'event chain hash missing from receipt');
-assert(lib.includes("'pqc_signed' => is_array($pqc)"),'permit must bind ML-DSA signing state');
+assert(lib.includes("'pqc_signed' => true"),'permit must only be minted after a successful ML-DSA signature');
+assert(lib.includes("throw new RuntimeException('pqc_signing_unavailable')"),'unsigned action permits must fail closed');
 assert(lib.includes('function pqaValidatePermitToken'),'permit validation helper missing');
 assert(lib.includes('function pqaConsumePermitPayload'),'one-time permit consumption missing');
 assert(lib.includes("fopen($path, 'x')"),'permit replay store must use exclusive create');

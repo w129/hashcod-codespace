@@ -37,6 +37,14 @@ assert(lib.includes("in_array($eventId, $state['recent_event_ids'], true)"),'act
 assert(lib.includes("hash_hmac('sha512', $previous"),'tamper-evident chained event hash missing');
 assert(lib.includes("'previous_hash' => $previous"),'previous chain hash missing from receipt');
 assert(lib.includes("'event_hash' => $eventHash"),'event chain hash missing from receipt');
+assert(lib.includes('function pqaEuclideanTransition'),'Euclidean transition derivation helper missing');
+assert(lib.includes('||x||_2=sqrt(x1^2+...+xn^2)'),'Euclidean norm formula binding missing');
+assert(lib.includes("'scheme' => 'EUCLIDEAN-NORM-V1'"),'Euclidean transition scheme marker missing');
+assert(lib.includes("'norm_scaled_1e6' => $normScaled"),'fixed-point Euclidean norm missing');
+assert(lib.includes("'transition_product' => (string)$transitionProduct"),'Euclidean transition multiplication product missing');
+assert(lib.includes('HC-PQC-ACTION-CHAIN-V2'),'event chain must domain-separate the norm-mixed transcript');
+assert(lib.includes("'transition' => $transition"),'ML-DSA receipt must bind the Euclidean transition object');
+assert(lib.includes("'transition_product' => (string)$transition['transition_product']"),'mutation permit must bind the Euclidean transition product');
 assert(lib.includes("'pqc_signed' => true"),'permit must only be minted after a successful ML-DSA signature');
 assert(lib.includes("throw new RuntimeException('pqc_signing_unavailable')"),'unsigned action permits must fail closed');
 assert(lib.includes('function pqaValidatePermitToken'),'permit validation helper missing');

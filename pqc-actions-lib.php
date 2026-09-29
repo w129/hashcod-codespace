@@ -526,6 +526,9 @@ function pqaProcessAction(array $session, array $input): array {
         $canonicalReceipt = (string)json_encode($receipt, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $message = 'HC-PQC-ACTION-V1.' . pqaB64u($canonicalReceipt);
         $pqc = pqaSignMessage($message);
+        if (!is_array($pqc)) {
+            throw new RuntimeException('pqc_signing_unavailable');
+        }
 
         $receiptHash = hash('sha256', $canonicalReceipt);
         $permit = pqaSeal([
@@ -537,7 +540,7 @@ function pqaProcessAction(array $session, array $input): array {
             'receipt_hash' => $receiptHash,
             'request_path' => $requestPath,
             'method' => $method,
-            'pqc_signed' => is_array($pqc),
+            'pqc_signed' => true,
             'iat' => $now,
             'exp' => $now + PQA_PERMIT_TTL,
         ]);
@@ -558,13 +561,7 @@ function pqaProcessAction(array $session, array $input): array {
         pqaAppendAudit([
             'receipt' => $receipt,
             'receipt_hash' => $receiptHash,
-            'pqc' => $pqc ?? [
-                'algorithm' => PQA_ALGORITHM,
-                'standard' => 'NIST FIPS 204',
-                'signature_b64' => '',
-                'key_fingerprint' => '',
-                'degraded' => true,
-            ],
+            'pqc' => $pqc,
         ]);
 
         return [
@@ -574,13 +571,7 @@ function pqaProcessAction(array $session, array $input): array {
             'receipt_hash' => $receiptHash,
             'event_hash' => $eventHash,
             'permit_token' => $permit,
-            'pqc' => $pqc ?? [
-                'active' => false,
-                'algorithm' => PQA_ALGORITHM,
-                'standard' => 'NIST FIPS 204',
-                'signature_b64' => '',
-                'key_fingerprint' => '',
-            ],
+            'pqc' => $pqc,
         ];
     } finally {
         @flock($fp, LOCK_UN);

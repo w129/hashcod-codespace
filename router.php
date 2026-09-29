@@ -16,7 +16,6 @@ if (in_array($bootstrapSyncPath, ['/download-local-version', '/download-local-ve
     exit;
 }
 
-
 // Background controllers are deliberate public entrypoints. The generic security
 // layer denies direct *.php paths and its normal API bucket may trigger an
 // interactive Turnstile challenge for legitimate polling/verification requests.

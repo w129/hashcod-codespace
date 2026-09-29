@@ -16,12 +16,6 @@ if (in_array($bootstrapSyncPath, ['/download-local-version', '/download-local-ve
     exit;
 }
 
-// Same-origin page-mascot sprite endpoints. They proxy/cache the exact verified
-// upstream panda atlases so CSP never needs an external image origin.
-if (in_array($bootstrapSyncPath, ['/mascots/panda-directions.webp', '/mascots/panda-reactions.webp'], true)) {
-    require __DIR__ . '/mascot-assets.php';
-    exit;
-}
 
 // Background controllers are deliberate public entrypoints. The generic security
 // layer denies direct *.php paths and its normal API bucket may trigger an

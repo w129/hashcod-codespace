@@ -453,6 +453,10 @@ function pqaProcessAction(array $session, array $input): array {
 
     try {
         $state = pqaReadStateFile($fp);
+        $cloudState = pqaCloudLoadState($sidHash);
+        if (is_array($cloudState) && (int)($cloudState['last_seq'] ?? 0) > (int)($state['last_seq'] ?? 0)) {
+            $state = $cloudState;
+        }
         $now = time();
         if ($now - (int)$state['rate_window'] >= 60) {
             $state['rate_window'] = $now;

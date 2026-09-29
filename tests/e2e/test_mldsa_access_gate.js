@@ -116,7 +116,7 @@ assert(css.includes('.entry-twofactor-card{')&&css.includes('.entry-twofactor-di
 assert(js.includes("ENTRY_PRODUCT_VERIFY_API=entryProductBasePath()+'/api/entry-product-editor'"),'ProductCard verification API binding missing');
 assert(js.includes('function entryProductVerifyCode()'),'ProductCard server verification flow missing');
 assert(js.includes("entryProductProtected.removeAttribute('inert')"),'ProductCard unlock must remove inert');
-assert(js.includes('entryLevel2Next.disabled=false'),'ProductCard verification must unlock Continue');
+assert(js.includes("entryLevel2Next.disabled=next==='verify'"),'ProductCard Continue must be enabled outside verification mode');
 assert(js.includes('reader.readAsDataURL(file)'),'ProductCard image upload preview missing');
 assert(js.includes('function entryProductOpenDb()'),'ProductCard IndexedDB open helper missing');
 assert(js.includes('function entryProductDbPutImage(file)'),'ProductCard persistent image write missing');

@@ -594,7 +594,39 @@ function pqaEnforcementEnabled(): bool {
     return in_array($value, ['1', 'true', 'yes', 'on'], true);
 }
 
-function pqaValidatePermitToken(string $token, string $requestPath = '', string $method = ''): bool {
+function pqaPermitReplayDir(): string {
+    $dir = pqaDataDir() . '/permits';
+    if (!is_dir($dir)) @mkdir($dir, 0700, true);
+    @chmod($dir, 0700);
+    return $dir;
+}
+
+function pqaPermitReplayCleanup(): void {
+    if (random_int(1, 32) !== 1) return;
+    $now = time();
+    foreach (glob(pqaPermitReplayDir() . '/*.used') ?: [] as $path) {
+        $exp = (int)@file_get_contents($path);
+        if ($exp > 0 && $exp < $now - 60) @unlink($path);
+    }
+}
+
+function pqaConsumePermitPayload(array $payload): bool {
+    $eventHash = strtolower((string)($payload['event_hash'] ?? ''));
+    $eventId = (string)($payload['event_id'] ?? '');
+    $exp = (int)($payload['exp'] ?? 0);
+    if (!preg_match('/^[a-f0-9]{128}$/', $eventHash) || pqaNormalizeEventId($eventId) === '' || $exp < time()) return false;
+    pqaPermitReplayCleanup();
+    $key = hash('sha256', $eventHash . '|' . $eventId);
+    $path = pqaPermitReplayDir() . '/' . $key . '.used';
+    $fp = @fopen($path, 'x');
+    if (!is_resource($fp)) return false;
+    @fwrite($fp, (string)$exp);
+    @fclose($fp);
+    @chmod($path, 0600);
+    return true;
+}
+
+function pqaValidatePermitToken(string $token, string $requestPath = '', string $method = '', bool $consume = false): bool {
     $payload = pqaOpen($token);
     if (!is_array($payload)) return false;
     if (($payload['kind'] ?? '') !== 'pqc-action-permit') return false;
@@ -610,6 +642,7 @@ function pqaValidatePermitToken(string $token, string $requestPath = '', string 
     $boundMethod = strtoupper((string)($payload['method'] ?? ''));
     if ($requestPath !== '' && $boundPath !== '' && !hash_equals($boundPath, $requestPath)) return false;
     if ($method !== '' && $boundMethod !== '' && !hash_equals($boundMethod, strtoupper($method))) return false;
+    if ($consume && !pqaConsumePermitPayload($payload)) return false;
     return true;
 }
 
@@ -620,7 +653,7 @@ function pqaRequirePermitForMutation(string $requestPath): void {
     if ($requestPath === '/api/pqc-actions') return;
 
     $permit = trim((string)($_SERVER['HTTP_X_HASHCOD_PQC_PERMIT'] ?? ''));
-    if ($permit === '' || !pqaValidatePermitToken($permit, $requestPath, $method)) {
+    if ($permit === '' || !pqaValidatePermitToken($permit, $requestPath, $method, true)) {
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store');
         http_response_code(428);

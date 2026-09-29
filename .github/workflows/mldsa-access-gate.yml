@@ -7,12 +7,17 @@ on:
     paths:
       - mldsa-access.php
       - mldsa-access-api.php
+      - pqc-actions.php
+      - pqc-actions-lib.php
+      - scripts/mldsa87_access.py
+      - components/pqc-action-runtime.js
       - components/mldsa-access-gate.css
       - components/mldsa-access-gate.js
       - config/mldsa87-access-public.b64
       - l8-html.php
       - router.php
       - tests/e2e/test_mldsa_access_gate.js
+      - tests/e2e/test_pqc_action_bus.js
       - .github/workflows/mldsa-access-gate.yml
 
 permissions:
@@ -31,12 +36,17 @@ jobs:
           php -l mldsa-access-api.php
           php -l entry-product-editor.php
           php -l device-usage.php
+          php -l pqc-actions-lib.php
+          php -l pqc-actions.php
           php -l l8-html.php
           php -l router.php
+          python3 -m py_compile scripts/mldsa87_access.py
           node --check components/mldsa-access-gate.js
           node --check components/device-usage-tracker.js
+          node --check components/pqc-action-runtime.js
           node tests/e2e/test_mldsa_access_gate.js
           node tests/e2e/test_device_usage_quota.js
+          node tests/e2e/test_pqc_action_bus.js
 
       - name: Start Hashcod locally
         run: |
@@ -52,7 +62,7 @@ jobs:
       - name: Verify entry window appears first
         run: |
           grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-home.html
-          grep -q "ENTRAR A HASHCOD CODESPACE" /tmp/hashcod-home.html
+          grep -q ">Entrar</span>" /tmp/hashcod-home.html
           ! grep -q "Reto ML-DSA-87" /tmp/hashcod-home.html
 
       - name: Enter platform without cryptographic challenge
@@ -62,7 +72,7 @@ jobs:
           ! grep -q "Acceso criptográfico reforzado" /tmp/hashcod-after.html
           grep -qi "Hashcod" /tmp/hashcod-after.html
           curl -fsS -c /tmp/hashcod-entry.cookies -b /tmp/hashcod-entry.cookies             http://127.0.0.1:8097/ >/tmp/hashcod-return.html
-          ! grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-return.html
+          grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-return.html
 
       - name: Verify ML-DSA API is non-blocking
         run: |

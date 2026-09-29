@@ -276,6 +276,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             $html
         );
 
+        // Install the PQC action bus before deferred platform scripts execute so
+        // modules cannot capture an unprotected fetch reference during startup.
+        $pqcActionRuntimePath = __DIR__ . '/components/pqc-action-runtime.js';
+        $pqcActionRuntimeJs = is_file($pqcActionRuntimePath) ? (string) @file_get_contents($pqcActionRuntimePath) : '';
+        if ($pqcActionRuntimeJs !== '') {
+            $pqcActionRuntimeJs = str_ireplace('</script', '<\\/script', $pqcActionRuntimeJs);
+        }
+        $pqcActionPrebootTag = $pqcActionRuntimeJs !== ''
+            ? '<script id="hashcod-pqc-action-preboot">' . $pqcActionRuntimeJs . '</script>'
+            : '<script src="' . htmlspecialchars(l8_public_base_path(), ENT_QUOTES, 'UTF-8') . 'components/pqc-action-runtime.js?v=20260928-pqcactions1" data-hashcod-pqc-action-runtime="true"></script>';
+
         // Keep the normal stylesheet request, but also inline the same CSS as a
         // production-safe fallback. This prevents the secure Toolbox controls
         // from ever rendering as unstyled document flow if a stale CDN/static
@@ -398,9 +409,9 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
 
         $headPos = strripos($html, '</head>');
         if ($headPos !== false) {
-            $html = substr($html, 0, $headPos) . $cssTag . $legacyAuthPrehideTag . $retiredTopbarControlsStyleTag . $registrationPrehideTag . $registrationRetirementGuardTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
+            $html = substr($html, 0, $headPos) . $cssTag . $pqcActionPrebootTag . $legacyAuthPrehideTag . $retiredTopbarControlsStyleTag . $registrationPrehideTag . $registrationRetirementGuardTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . substr($html, $headPos);
         } else {
-            $html = $cssTag . $legacyAuthPrehideTag . $retiredTopbarControlsStyleTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
+            $html = $cssTag . $pqcActionPrebootTag . $legacyAuthPrehideTag . $retiredTopbarControlsStyleTag . $registrationPrehideTag . $registrationGatePrebootTag . $duoPrebootTag . $rareFolderPrebootTag . $rareFolderPlacementTag . $html;
         }
 
         $platformSkeletonMarkup = '<div id="hashcodPlatformSkeleton" hidden aria-hidden="true">'
@@ -590,6 +601,22 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             $html = substr($html, 0, $bodyPos) . $tag . substr($html, $bodyPos);
         } else {
             $html .= $tag;
+        }
+    }
+
+    if ($file !== 'index.php') {
+        $pqcBase = htmlspecialchars(l8_public_base_path(), ENT_QUOTES, 'UTF-8');
+        $pqcRuntimePath = __DIR__ . '/components/pqc-action-runtime.js';
+        $pqcRuntimeJs = is_file($pqcRuntimePath) ? (string) @file_get_contents($pqcRuntimePath) : '';
+        if ($pqcRuntimeJs !== '') $pqcRuntimeJs = str_ireplace('</script', '<\\/script', $pqcRuntimeJs);
+        $pqcRuntimeTag = $pqcRuntimeJs !== ''
+            ? '<script id="hashcod-pqc-action-preboot">' . $pqcRuntimeJs . '</script>'
+            : '<script src="' . $pqcBase . 'components/pqc-action-runtime.js?v=20260928-pqcactions1" data-hashcod-pqc-action-runtime="true"></script>';
+        $pqcHeadPos = strripos($html, '</head>');
+        if ($pqcHeadPos !== false) {
+            $html = substr($html, 0, $pqcHeadPos) . $pqcRuntimeTag . substr($html, $pqcHeadPos);
+        } else {
+            $html = $pqcRuntimeTag . $html;
         }
     }
 

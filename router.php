@@ -2,6 +2,7 @@
 // router.php — front controller PHP (HTML nativo, no Vite/React SPA)
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/l8-html.php';
+require_once __DIR__ . '/pqc-actions-lib.php';
 
 // Public local-installer download. Route this before the generic security
 // bootstrap because direct *.php paths are deliberately denied elsewhere.
@@ -39,6 +40,15 @@ if ($bootstrapController !== null) {
 // ML-DSA-87 challenge/signature endpoint must run before the generic web
 // bootstrap. The unauthenticated gate needs this route to prove possession of
 // the private key; rate limiting and signature validation remain in the API.
+if ($bootstrapSyncPath === '/api/pqc-actions') {
+    require __DIR__ . '/pqc-actions.php';
+    exit;
+}
+
+// Optional strict mode: when enabled, every state-changing same-origin request
+// must carry a short-lived permit minted by an ML-DSA-87-signed action receipt.
+pqaRequirePermitForMutation($bootstrapSyncPath);
+
 if ($bootstrapSyncPath === '/api/mldsa-access') {
     require __DIR__ . '/mldsa-access-api.php';
     exit;

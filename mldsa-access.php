@@ -276,6 +276,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     if($base==='//')$base='/';
     $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20260928-entryintro1',ENT_QUOTES,'UTF-8');
     $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-entryintro1',ENT_QUOTES,'UTF-8');
+    $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -549,5 +550,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</div>'
       .'</section>'
-      .'<script src="'.$js.'" defer></script></body></html>';
+      .'<script src="'.$pqcJs.'" defer></script><script src="'.$js.'" defer></script></body></html>';
 }

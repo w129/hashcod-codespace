@@ -110,6 +110,17 @@
     z-index:2;
   }
 }
+@media(max-width:560px){
+  .liquid-editor-formatbar{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .liquid-editor-formatbar::-webkit-scrollbar{display:none}
+  .liquid-editor-command.slash{margin-left:0}
+  .liquid-editor-slash-item{grid-template-columns:1fr}
+  .liquid-editor-slash-item span{display:none}
+}
 @media(max-width:1179px){
   .access-layout{display:block;width:min(380px,100%)}
 }
@@ -2205,6 +2216,114 @@
   outline-offset:2px;
 }
 .liquid-editor-tool.danger{color:#9f1239}
+.liquid-editor-formatbar{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:5px;
+  margin-top:8px;
+  padding:7px;
+  border:1px solid rgba(255,255,255,.76);
+  border-radius:13px;
+  background:rgba(255,255,255,.34);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 5px 16px rgba(15,23,42,.035);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.liquid-editor-command{
+  min-width:29px;
+  height:28px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:8px;
+  background:rgba(255,255,255,.56);
+  padding:0 7px;
+  color:#303030;
+  font:650 10px/1 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 2px 8px rgba(15,23,42,.035);
+  transition:transform .12s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.liquid-editor-command:hover{
+  background:rgba(255,255,255,.84);
+  border-color:#fff;
+  box-shadow:inset 0 1px 0 #fff,0 4px 12px rgba(15,23,42,.055);
+}
+.liquid-editor-command:active{transform:scale(.95)}
+.liquid-editor-command:focus-visible{
+  outline:2px solid rgba(23,23,23,.72);
+  outline-offset:2px;
+}
+.liquid-editor-command.wide{
+  min-width:34px;
+  font:650 9px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+.liquid-editor-command.slash{
+  margin-left:auto;
+  background:#171717;
+  color:#fff;
+  border-color:#171717;
+  font-size:13px;
+}
+.liquid-editor-divider{
+  width:1px;
+  height:18px;
+  margin:0 1px;
+  background:rgba(23,23,23,.12);
+}
+.liquid-editor-slash-menu{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:10px;
+  z-index:12;
+  max-height:260px;
+  overflow:auto;
+  display:grid;
+  gap:3px;
+  border:1px solid rgba(255,255,255,.94);
+  border-radius:14px;
+  background:rgba(250,250,250,.96);
+  padding:7px;
+  box-shadow:0 18px 42px rgba(15,23,42,.16),inset 0 1px 0 #fff;
+  backdrop-filter:blur(22px) saturate(1.25);
+  -webkit-backdrop-filter:blur(22px) saturate(1.25);
+}
+.liquid-editor-slash-menu[hidden]{display:none!important}
+.liquid-editor-slash-item{
+  width:100%;
+  min-height:42px;
+  display:grid;
+  grid-template-columns:minmax(90px,.72fr) 1fr;
+  align-items:center;
+  gap:10px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  padding:7px 9px;
+  text-align:left;
+  color:#262626;
+  cursor:pointer;
+}
+.liquid-editor-slash-item strong{
+  font-size:11px;
+  line-height:15px;
+  font-weight:650;
+}
+.liquid-editor-slash-item span{
+  color:#8a8a8a;
+  font:500 9px/13px ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+.liquid-editor-slash-item:hover,
+.liquid-editor-slash-item[data-active="true"]{
+  background:#efefef;
+}
+.liquid-editor-slash-item[hidden]{display:none!important}
+
 .liquid-editor-file{
   position:absolute;
   width:1px;

@@ -594,6 +594,17 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         }
     }
 
+    if ($file !== 'index.php') {
+        $pqcBase = htmlspecialchars(l8_public_base_path(), ENT_QUOTES, 'UTF-8');
+        $pqcRuntimeTag = '<script defer src="' . $pqcBase . 'components/pqc-action-runtime.js?v=20260928-pqcactions1" data-hashcod-pqc-action-runtime="true"></script>';
+        $pqcBodyPos = strripos($html, '</body>');
+        if ($pqcBodyPos !== false) {
+            $html = substr($html, 0, $pqcBodyPos) . $pqcRuntimeTag . substr($html, $pqcBodyPos);
+        } else {
+            $html .= $pqcRuntimeTag;
+        }
+    }
+
     echo l8_apply_csp_nonce($html);
     exit;
 }

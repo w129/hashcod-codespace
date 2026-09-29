@@ -30,10 +30,13 @@ jobs:
           php -l mldsa-access.php
           php -l mldsa-access-api.php
           php -l entry-product-editor.php
+          php -l device-usage.php
           php -l l8-html.php
           php -l router.php
           node --check components/mldsa-access-gate.js
+          node --check components/device-usage-tracker.js
           node tests/e2e/test_mldsa_access_gate.js
+          node tests/e2e/test_device_usage_quota.js
 
       - name: Start Hashcod locally
         run: |

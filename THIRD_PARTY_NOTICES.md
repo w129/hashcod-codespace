@@ -50,3 +50,14 @@ Hashcod Codespace's liquid text-editor tools are informed by the robust text/fil
 - Copyright: © 2020 Nuthouse01
 - License: MIT
 - Hashcod adaptation: browser-side UTF-8 / Shift-JIS import, NFKC normalization, control-character cleanup, TXT export, richer counters, and server-side text sanitation. PMX/VMD model-editing logic is not embedded into the Hashcod text editor.
+
+
+## Banger Editor
+
+Hashcod Codespace's Markdown command layer in the initial text editor is inspired by the editor capabilities exposed by **Banger Editor**.
+
+- Project: Banger Editor
+- Source: https://github.com/bangle-io/banger-editor
+- Copyright: © 2020 bangle-io
+- License: MIT
+- Hashcod adaptation: the existing textarea/autosave architecture is retained while adding Markdown formatting, history, headings, blockquotes, code/code-blocks, lists, links, horizontal rules, and slash-command suggestions modeled on the capabilities represented by Banger Editor modules. The ProseMirror runtime itself is not vendored into Hashcod.

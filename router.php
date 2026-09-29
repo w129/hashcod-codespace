@@ -64,6 +64,12 @@ if ($bootstrapSyncPath === '/api/entry-product-editor') {
     require __DIR__ . '/entry-product-editor.php';
     exit;
 }
+// Per-device usage metrics are needed by the public entry wizard and the
+// platform tracker. The controller validates same-origin/XHR writes itself.
+if ($bootstrapSyncPath === '/api/device-usage') {
+    require __DIR__ . '/device-usage.php';
+    exit;
+}
 
 securityBootstrap('web');
 

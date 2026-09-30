@@ -26,7 +26,7 @@ import Superscript from '@tiptap/extension-superscript'
 import Typography from '@tiptap/extension-typography'
 import { FontSize } from './fontSize'
 import { FONT_CATALOG, ensureFontLoaded, prefetchStarterFonts } from './fonts'
-import { VividVector, normalizeVividText } from './vividVector'
+import { VividVector, normalizeVividText } from './vividVector'\nimport { mountPromptStudio } from './promptStudio'
 
 const DOC_ID = 'main'
 const DEFAULT_HTML = `<h1>Documento nuevo</h1>
@@ -66,7 +66,7 @@ root.innerHTML = `
       <button type="button" class="btn" id="btnPrint" title="Imprimir / PDF">Imprimir</button>
       <button type="button" class="btn" id="btnExportHtml" title="Descargar HTML">HTML</button>
       <button type="button" class="btn" id="btnExportJson" title="Descargar JSON TipTap">JSON</button>
-      <button type="button" class="btn" id="btnFind" title="Buscar">Buscar</button>
+      <button type="button" class="btn" id="btnPromptStudio" title="Abrir Prompt Studio · Ctrl/Cmd+Shift+P">Prompt Studio</button>\n      <button type="button" class="btn" id="btnFind" title="Buscar">Buscar</button>
     </div>
   </header>
   <div class="findbar" id="findBar">

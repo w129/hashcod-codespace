@@ -1,0 +1,258 @@
+/* Prompt Studio for the liquid Workspace draft text editor */
+.liquid-editor-prompt-trigger{
+  color:#111827;
+  font-weight:700;
+}
+.liquid-editor-prompt-trigger[aria-expanded="true"]{
+  background:rgba(17,24,39,.92);
+  color:#fff;
+  border-color:rgba(17,24,39,.92);
+}
+.liquid-prompt-studio[hidden]{display:none!important}
+.liquid-prompt-studio{
+  position:relative;
+  z-index:3;
+  margin-top:10px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:16px;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.52)),
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.96),transparent 42%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 10px 28px rgba(15,23,42,.08);
+  backdrop-filter:blur(18px) saturate(1.25);
+  -webkit-backdrop-filter:blur(18px) saturate(1.25);
+}
+.liquid-prompt-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 12px 10px;
+  border-bottom:1px solid rgba(17,24,39,.08);
+}
+.liquid-prompt-header p{
+  margin:0 0 2px;
+  color:#8a8a8a;
+  font:700 8px/1.2 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  letter-spacing:.12em;
+}
+.liquid-prompt-header h4{
+  margin:0;
+  color:#171717;
+  font-size:12px;
+  line-height:16px;
+  font-weight:700;
+}
+.liquid-prompt-header>button{
+  width:28px;
+  height:28px;
+  border:1px solid rgba(255,255,255,.9);
+  border-radius:9px;
+  background:rgba(255,255,255,.62);
+  color:#404040;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+}
+.liquid-prompt-body{
+  max-height:560px;
+  overflow:auto;
+  padding:10px 12px 4px;
+}
+.liquid-prompt-section{
+  margin-bottom:12px;
+}
+.liquid-prompt-section>strong,
+.liquid-prompt-section-head strong{
+  color:#404040;
+  font-size:10px;
+  font-weight:700;
+}
+.liquid-prompt-section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:7px;
+}
+.liquid-prompt-section-head button,
+.liquid-prompt-library-row button,
+.liquid-prompt-actions button{
+  border:1px solid rgba(255,255,255,.9);
+  border-radius:8px;
+  background:rgba(255,255,255,.6);
+  color:#4b5563;
+  padding:6px 8px;
+  font:650 8px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+}
+.liquid-prompt-section-head button:hover,
+.liquid-prompt-library-row button:hover,
+.liquid-prompt-actions button:hover{
+  background:rgba(255,255,255,.86);
+}
+.liquid-prompt-template-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.liquid-prompt-template-grid button{
+  min-width:0;
+  text-align:left;
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:10px;
+  background:rgba(255,255,255,.52);
+  padding:8px;
+  color:#404040;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94);
+}
+.liquid-prompt-template-grid button.active{
+  border-color:rgba(17,24,39,.2);
+  background:rgba(17,24,39,.9);
+  color:#fff;
+}
+.liquid-prompt-template-grid span{
+  display:block;
+  font-size:9px;
+  font-weight:750;
+}
+.liquid-prompt-template-grid small{
+  display:block;
+  margin-top:2px;
+  color:#8a8a8a;
+  font-size:8px;
+}
+.liquid-prompt-template-grid button.active small{color:rgba(255,255,255,.7)}
+.liquid-prompt-block{
+  margin-bottom:7px;
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:11px;
+  background:rgba(255,255,255,.48);
+  padding:8px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+}
+.liquid-prompt-block:focus-within{
+  background:rgba(255,255,255,.7);
+  border-color:rgba(17,24,39,.15);
+}
+.liquid-prompt-block-head{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:6px;
+}
+.liquid-prompt-block-head>span{
+  width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  background:rgba(17,24,39,.06);
+  color:#737373;
+  font-size:8px;
+  font-weight:800;
+}
+.liquid-prompt-block select,
+.liquid-prompt-library-row select,
+.liquid-prompt-variable-grid input{
+  min-width:0;
+  border:1px solid rgba(17,24,39,.08);
+  border-radius:8px;
+  background:rgba(255,255,255,.7);
+  color:#404040;
+  padding:6px 7px;
+  font:600 8px/1.2 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  outline:none;
+}
+.liquid-prompt-block-head>div{
+  margin-left:auto;
+  display:flex;
+  gap:3px;
+}
+.liquid-prompt-block-head>div button{
+  width:24px;
+  height:24px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.9);
+  border-radius:7px;
+  background:rgba(255,255,255,.6);
+  color:#525252;
+  cursor:pointer;
+}
+.liquid-prompt-block textarea,
+#d5PromptPreview{
+  display:block;
+  width:100%;
+  border:1px solid rgba(17,24,39,.08);
+  border-radius:9px;
+  background:rgba(255,255,255,.72);
+  padding:8px 9px;
+  color:#303030;
+  resize:vertical;
+  outline:none;
+  font:500 9px/1.45 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+.liquid-prompt-block textarea:focus{
+  background:#fff;
+  border-color:rgba(17,24,39,.18);
+}
+.liquid-prompt-library-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;
+  gap:5px;
+  margin-top:7px;
+}
+.liquid-prompt-variable-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+  margin-top:7px;
+}
+.liquid-prompt-variable-grid label span{
+  display:block;
+  margin-bottom:3px;
+  color:#737373;
+  font:650 7px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+.liquid-prompt-variable-grid input{width:100%}
+.liquid-prompt-empty{
+  margin:7px 0 0;
+  color:#8a8a8a;
+  font-size:8px;
+}
+#d5PromptMetrics{
+  color:#8a8a8a;
+  font-size:8px;
+}
+#d5PromptPreview{
+  min-height:120px;
+  background:rgba(18,18,18,.94);
+  color:#f5f5f5;
+  border-color:rgba(18,18,18,.94);
+}
+.liquid-prompt-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:5px;
+  padding:9px 12px 11px;
+  border-top:1px solid rgba(17,24,39,.08);
+  background:rgba(255,255,255,.34);
+}
+.liquid-prompt-actions .primary{
+  background:#171717;
+  color:#fff;
+  border-color:#171717;
+}
+@media(max-width:520px){
+  .liquid-prompt-template-grid,
+  .liquid-prompt-variable-grid,
+  .liquid-prompt-library-row{grid-template-columns:1fr}
+  .liquid-prompt-actions button{flex:1 1 100px}
+}
+@media(prefers-reduced-motion:reduce){
+  .liquid-prompt-studio{scroll-behavior:auto}
+}

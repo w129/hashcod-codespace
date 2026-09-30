@@ -383,7 +383,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
         .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
         .'</section>';
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"></head><body'.$bodyAttr.'>'
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"></head><body'.$bodyAttr.'>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
       .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'

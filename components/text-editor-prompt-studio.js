@@ -115,7 +115,7 @@ trigger.id='d5TextEditorPromptStudio';
 trigger.className='liquid-editor-tool liquid-editor-prompt-trigger';
 trigger.type='button';
 trigger.title='Skill Studio · Ctrl/Cmd+Shift+P';
-trigger.innerHTML='<span>Skill</span>';
+trigger.innerHTML='<span>Skill Studio</span>';
 var encoding=document.getElementById('d5TextEditorEncoding');
 toolbar.insertBefore(trigger,encoding||null);
 

@@ -6,7 +6,8 @@ var editor=document.getElementById('d5TextEditorInput');
 var toolbar=card&&card.querySelector('.liquid-editor-toolbar');
 if(!card||!editor||!toolbar)return;
 
-var STORAGE_KEY='hashcod:text-editor:prompt-studio:v1';
+var STORAGE_KEY='hashcod:text-editor:skill-studio:v1';
+var LEGACY_STORAGE_KEY='hashcod:text-editor:prompt-studio:v1';
 var roles=['system','developer','user','assistant'];
 var templates={
   assistant:{
@@ -113,8 +114,8 @@ var trigger=document.createElement('button');
 trigger.id='d5TextEditorPromptStudio';
 trigger.className='liquid-editor-tool liquid-editor-prompt-trigger';
 trigger.type='button';
-trigger.title='Prompt Studio · Ctrl/Cmd+Shift+P';
-trigger.innerHTML='<span>Prompt</span>';
+trigger.title='Skill Studio · Ctrl/Cmd+Shift+P';
+trigger.innerHTML='<span>Skill</span>';
 var encoding=document.getElementById('d5TextEditorEncoding');
 toolbar.insertBefore(trigger,encoding||null);
 
@@ -122,15 +123,15 @@ var shell=document.createElement('section');
 shell.id='d5TextEditorPromptStudioPanel';
 shell.className='liquid-prompt-studio';
 shell.hidden=true;
-shell.setAttribute('aria-label','Prompt Studio');
+shell.setAttribute('aria-label','Skill Studio');
 shell.innerHTML=''
   +'<header class="liquid-prompt-header">'
-  +'<div><p>HASHCOD · PROMPT STUDIO</p><h4>Build prompts in Workspace draft</h4></div>'
-  +'<button id="d5PromptClose" type="button" aria-label="Close Prompt Studio">×</button>'
+  +'<div><p>HASHCOD · SKILL STUDIO</p><h4>Build skills in Workspace draft</h4></div>'
+  +'<button id="d5PromptClose" type="button" aria-label="Close Skill Studio">×</button>'
   +'</header>'
   +'<div class="liquid-prompt-body">'
   +'<section class="liquid-prompt-section"><div class="liquid-prompt-section-head"><strong>Templates</strong><button id="d5PromptUseSelection" type="button">Use selection</button></div><div id="d5PromptTemplates" class="liquid-prompt-template-grid"></div></section>'
-  +'<section class="liquid-prompt-section"><div class="liquid-prompt-section-head"><strong>Prompt blocks</strong><button id="d5PromptAddBlock" type="button">+ Block</button></div><div id="d5PromptBlocks"></div></section>'
+  +'<section class="liquid-prompt-section"><div class="liquid-prompt-section-head"><strong>Skill blocks</strong><button id="d5PromptAddBlock" type="button">+ Block</button></div><div id="d5PromptBlocks"></div></section>'
   +'<section class="liquid-prompt-section"><strong>Builder library</strong><div class="liquid-prompt-library-row"><select id="d5PromptArea"></select><select id="d5PromptTechnique"></select><button id="d5PromptAddLibrary" type="button">Add</button></div></section>'
   +'<section class="liquid-prompt-section"><strong>Variables</strong><div id="d5PromptVariables" class="liquid-prompt-variable-grid"></div></section>'
   +'<section class="liquid-prompt-section"><div class="liquid-prompt-section-head"><strong>Preview</strong><span id="d5PromptMetrics"></span></div><textarea id="d5PromptPreview" readonly></textarea></section>'
@@ -216,12 +217,18 @@ function moveBlock(id,delta){
 function saveDraft(){
   try{
     localStorage.setItem(STORAGE_KEY,JSON.stringify({version:1,template:state.template,blocks:state.blocks,variables:state.variables,savedAt:new Date().toISOString()}));
-    notify('Prompt draft saved','saved');
+    notify('Skill draft saved','saved');
   }catch(_){notify('Prompt draft not saved','offline');}
 }
 function restoreDraft(){
   try{
     var raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw){
+      raw=localStorage.getItem(LEGACY_STORAGE_KEY);
+      if(raw){
+        try{localStorage.setItem(STORAGE_KEY,raw);}catch(_){}
+      }
+    }
     if(!raw)return;
     var parsed=JSON.parse(raw);
     if(parsed&&Array.isArray(parsed.blocks)&&parsed.blocks.length){
@@ -283,7 +290,7 @@ document.getElementById('d5PromptUseSelection').addEventListener('click',functio
   var block=state.blocks.find(function(b){return b.role==='user';});
   if(!block){block={id:uid(),role:'user',content:''};state.blocks.push(block);}
   block.content=block.content.trim()?block.content+'\n\n'+value:value;
-  state.template='custom';renderAll();notify('Selection added to Prompt Studio','saved');
+  state.template='custom';renderAll();notify('Selection added to Skill Studio','saved');
 });
 document.getElementById('d5PromptSave').addEventListener('click',saveDraft);
 document.getElementById('d5PromptCopy').addEventListener('click',async function(){
@@ -292,7 +299,7 @@ document.getElementById('d5PromptCopy').addEventListener('click',async function(
   catch(_){previewEl.select();document.execCommand('copy');notify('Prompt copied','saved');}
 });
 document.getElementById('d5PromptInsert').addEventListener('click',function(){
-  if(!state.blocks.length){notify('Prompt Studio is empty','offline');return;}
+  if(!state.blocks.length){notify('Skill Studio is empty','offline');return;}
   insertAtSelection(buildPrompt(state));
   closeStudio();
 });

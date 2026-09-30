@@ -279,6 +279,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
+    $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
+    $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -381,7 +383,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
         .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
         .'</section>';
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"></head><body'.$bodyAttr.'>'
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"></head><body'.$bodyAttr.'>'
       .'<main class="access-stage"><div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
       .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'
@@ -584,5 +586,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</div>'
       .'</section>'
-      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script></body></html>';
+      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script></body></html>';
 }

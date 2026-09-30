@@ -279,6 +279,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
+    $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
+    $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -584,5 +586,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</div>'
       .'</section>'
-      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script></body></html>';
+      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script></body></html>';
 }

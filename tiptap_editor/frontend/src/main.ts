@@ -27,6 +27,7 @@ import Typography from '@tiptap/extension-typography'
 import { FontSize } from './fontSize'
 import { FONT_CATALOG, ensureFontLoaded, prefetchStarterFonts } from './fonts'
 import { VividVector, normalizeVividText } from './vividVector'
+import { mountPromptStudio } from './promptStudio'
 
 const DOC_ID = 'main'
 const DEFAULT_HTML = `<h1>Documento nuevo</h1>
@@ -66,6 +67,7 @@ root.innerHTML = `
       <button type="button" class="btn" id="btnPrint" title="Imprimir / PDF">Imprimir</button>
       <button type="button" class="btn" id="btnExportHtml" title="Descargar HTML">HTML</button>
       <button type="button" class="btn" id="btnExportJson" title="Descargar JSON TipTap">JSON</button>
+      <button type="button" class="btn" id="btnPromptStudio" title="Abrir Prompt Studio · Ctrl/Cmd+Shift+P">Prompt Studio</button>
       <button type="button" class="btn" id="btnFind" title="Buscar">Buscar</button>
     </div>
   </header>
@@ -147,6 +149,12 @@ const editor = new Editor({
 })
 
 updateCounts(editor)
+
+mountPromptStudio({
+  editor,
+  trigger: document.getElementById('btnPromptStudio') as HTMLButtonElement,
+  setStatus,
+})
 
 function syncRibbon(ed: Editor) {
   ribbon.querySelectorAll<HTMLElement>('[data-cmd]').forEach((el) => {

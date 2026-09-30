@@ -148,6 +148,12 @@ const editor = new Editor({
 
 updateCounts(editor)
 
+mountPromptStudio({
+  editor,
+  trigger: document.getElementById('btnPromptStudio') as HTMLButtonElement,
+  setStatus,
+})
+
 function syncRibbon(ed: Editor) {
   ribbon.querySelectorAll<HTMLElement>('[data-cmd]').forEach((el) => {
     const cmd = el.dataset.cmd || ''

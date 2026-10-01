@@ -66,3 +66,13 @@ for (const [label, page] of [['index.php', productionIndex], ['index.html', stat
 }
 
 console.log('Rare UI React/Motion folder contract: OK');
+
+assert(source.includes('import TechText from "./TechText";'), 'landing bundle must import React Bits TechText');
+assert(source.includes('text="Hashcod Codespace"'), 'TechText must render the Hashcod Codespace wordmark');
+assert(source.includes('fontWeight={600}'), 'TechText must preserve fontWeight=600');
+assert(source.includes('fontSize={150}'), 'TechText must preserve fontSize=150');
+assert(source.includes('reveal="letter"'), 'TechText must preserve reveal=letter');
+assert(source.includes('dashLength={4}'), 'TechText must preserve dashLength=4');
+assert(source.includes('dashGap={2}'), 'TechText must preserve dashGap=2');
+assert(source.includes('specks={15}'), 'TechText must preserve specks=15');
+

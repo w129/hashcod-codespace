@@ -7,6 +7,7 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { motion } from "motion/react";
+import TechText from "./TechText";
 
 const BASE_WIDTH = 321;
 const BASE_HEIGHT = 270;
@@ -29,6 +30,23 @@ const theme = {
 
 const leftRows = [60.9939, 75.1122, 89.2306, 103.349, 117.467, 131.586, 145.704, 159.823, 173.941];
 const rightRows = [60.9617, 75.0801, 89.1985, 103.317, 117.435, 131.554, 145.672, 159.79, 173.909];
+
+function TechTextPresentation() {
+  return (
+    <div style={{ width: '100%', height: '480px', position: 'relative' }}>
+      <TechText
+        text="Hashcod Codespace"
+        fontWeight={600}
+        fontSize={150}
+        reveal="letter"
+        dashLength={4}
+        dashGap={2}
+        specks={15}
+      />
+    </div>
+  );
+}
+
 
 function Card({ id }) {
   const filterId = `rare_hashcod_card_${id}`;
@@ -237,6 +255,24 @@ function mount() {
   const overlay = document.getElementById('bootCliOverlay');
   if (!overlay || document.getElementById('hashcodRareFolderHost')) return Boolean(overlay);
 
+  const techTextHost = document.createElement('div');
+  techTextHost.id = 'hashcodTechTextHost';
+  techTextHost.setAttribute('data-react-bits-tech-text', 'true');
+  Object.assign(techTextHost.style, {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    width: '100%',
+    height: '480px',
+    transform: 'translate(-50%, -50%)',
+    zIndex: '32',
+    overflow: 'hidden',
+    background: '#000000'
+  });
+  overlay.appendChild(techTextHost);
+  const techTextRoot = createRoot(techTextHost);
+  techTextRoot.render(<TechTextPresentation />);
+
   try { sessionStorage.setItem(INTRO_SESSION_KEY, '1'); } catch (_) {}
   const oldNative = document.getElementById('hashcodBootFolderAnimation');
   if (oldNative) oldNative.remove();
@@ -345,6 +381,8 @@ function mount() {
   window.addEventListener('hashcod:platform-entered', () => {
     if (alignedBrand) clearHorizontalOffset(alignedBrand, 'hashcodLandingBrandOffsetX');
     if (alignedStrip) clearHorizontalOffset(alignedStrip, 'hashcodLandingStripOffsetX');
+    techTextRoot.unmount();
+    techTextHost.remove();
     reactRoot.unmount();
     host.remove();
     window.removeEventListener('resize', schedulePlace);

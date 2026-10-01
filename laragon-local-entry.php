@@ -76,7 +76,7 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '.boot-cli-hint-wrap{min-width:0!important;}'
     // Local should show only the Rare UI folder. The retired Originkit blackhole
     // is canvas-based and can still be present inside 404.html, so suppress it.
-    . '#bootCliOverlay canvas{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
+    . '#bootBlackholeCanvas,#bootCliOverlay canvas[id*="blackhole" i],#bootCliOverlay canvas[class*="blackhole" i]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
     . '#bootCliOverlay [id*="blackhole" i],#bootCliOverlay [class*="blackhole" i],[data-originkit-blackhole]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
     . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;transform:translate(-50%,-50%) scale(1.12)!important;}}'
     . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;transform:translate(-50%,-50%) scale(1)!important;}}'

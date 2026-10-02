@@ -283,6 +283,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $rotatingTextCss=htmlspecialchars($base.'components/react-bits-rotating-text.css?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
+    $ghostCursorCss=htmlspecialchars($base.'components/react-bits-ghost-cursor.css?v=20261002-ghost1',ENT_QUOTES,'UTF-8');
+    $ghostCursorJs=htmlspecialchars($base.'components/react-bits-ghost-cursor.js?v=20261002-ghost1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -385,8 +387,9 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
         .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
         .'</section>';
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"></head><body'.$bodyAttr.'>'
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"><link rel="stylesheet" href="'.$ghostCursorCss.'"></head><body'.$bodyAttr.'>'
       .'<main class="access-stage">'
+      .($entryIntro?'<div id="d5GhostCursorBackground" class="entry-ghost-cursor" data-color="#000000" data-brightness="1" data-edge-intensity="0" data-trail-length="50" data-inertia="0.5" data-grain-intensity="0.05" data-bloom-strength="0.1" data-bloom-radius="1.0" data-bloom-threshold="0.025" data-fade-delay-ms="1000" data-fade-duration-ms="1500" aria-hidden="true"><canvas id="d5GhostCursorCanvas"></canvas></div>':'')
       .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Creates like rotating text"><span class="entry-rotating-text-prefix">Creates like</span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">code</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
       .'<div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
@@ -590,5 +593,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</div>'
       .'</section>'
-      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script></body></html>';
+      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script><script src="'.$ghostCursorJs.'" defer></script></body></html>';
 }

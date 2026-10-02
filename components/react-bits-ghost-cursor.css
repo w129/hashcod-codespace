@@ -1,0 +1,45 @@
+/* React Bits GhostCursor — native Hashcod entry-screen background adaptation.
+   The canvas is decorative, tracks pointer movement, and never intercepts input. */
+body[data-hashcod-entry-intro="1"]{
+  position:relative;
+}
+
+body[data-hashcod-entry-intro="1"] .access-stage{
+  position:relative;
+  isolation:isolate;
+}
+
+.entry-ghost-cursor{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-select:none;
+  contain:strict;
+}
+
+.entry-ghost-cursor>canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  background:transparent;
+  pointer-events:none;
+  mix-blend-mode:multiply;
+}
+
+body[data-hashcod-entry-intro="1"] .access-layout{
+  position:relative;
+  z-index:2;
+}
+
+body[data-hashcod-entry-intro="1"] .entry-rotating-text-hero{
+  z-index:3;
+}
+
+@media(prefers-reduced-motion:reduce){
+  .entry-ghost-cursor{
+    display:none;
+  }
+}

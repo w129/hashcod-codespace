@@ -18,15 +18,15 @@ async function run() {
     assert.equal(initial.inPlatform, true);
     assert.equal(initial.palette, true);
 
-    // Wide desktop: keep the folder in the left pane and the TechText presentation
-    // in a bounded right-side panel instead of stretching a black band full-width.
+    // Wide desktop: keep the Hashcod lockup in its original right-side position,
+    // restore the Rare UI folder to its historical 38vw / 50vh anchor, and keep
+    // the global control group pinned to the top-left.
     await page.setViewportSize({ width: 1852, height: 927 });
     await page.waitForFunction(() => {
       const folder = document.querySelector('#hashcodRareFolderHost[data-hashcod-folder-position-restored="true"]');
       const brand = document.querySelector('.boot-brand[data-hashcod-original-placement-restored="true"]');
       const controls = document.querySelector('#hashcodUxActions[data-hashcod-top-left-controls="true"]');
-      const tech = document.querySelector('#hashcodTechTextHost[data-hashcod-tech-text-layout="split"]');
-      return Boolean(folder && brand && controls && tech && folder.getBoundingClientRect().width > 100 && brand.getBoundingClientRect().width > 100 && tech.getBoundingClientRect().width > 500);
+      return Boolean(folder && brand && controls && folder.getBoundingClientRect().width > 100 && brand.getBoundingClientRect().width > 100);
     }, { timeout: 10000 });
     await page.waitForTimeout(1500);
 
@@ -41,14 +41,11 @@ async function run() {
       const controlsNode = document.getElementById('hashcodUxActions');
       const overlayNode = document.getElementById('bootCliOverlay');
       const registrationNode = document.getElementById('hashcodPlatformRegistration');
-      const techNode = document.getElementById('hashcodTechTextHost');
-      const techCanvas = techNode && techNode.querySelector('canvas.tech-text-canvas');
       const folder = rectOf(folderNode);
       const brand = rectOf(brandNode);
       const controls = rectOf(controlsNode);
       const overlay = rectOf(overlayNode);
       const registration = rectOf(registrationNode);
-      const tech = rectOf(techNode);
       const strip = rectOf(document.querySelector('.boot-cli-footer .boot-card-icon'));
       return {
         folder,
@@ -56,15 +53,12 @@ async function run() {
         controls,
         overlay,
         registration,
-        tech,
-        techLayout: techNode ? techNode.getAttribute('data-hashcod-tech-text-layout') : null,
-        techCanvasVisible: techCanvas ? getComputedStyle(techCanvas).display !== 'none' && getComputedStyle(techCanvas).visibility !== 'hidden' && Number(getComputedStyle(techCanvas).opacity) > 0 : false,
         strip,
         viewportWidth: innerWidth,
         viewportCenter: innerWidth / 2,
         folderCenterX: folder.left + folder.width / 2,
         folderCenterY: folder.top + folder.height / 2,
-        expectedFolderCenterX: overlay.left + overlay.width * 0.27,
+        expectedFolderCenterX: overlay.left + overlay.width * 0.38,
         expectedFolderCenterY: overlay.top + overlay.height * 0.50,
         brandInlineTranslate: brandNode ? brandNode.style.translate : null,
         brandOffsetDataset: brandNode ? brandNode.dataset.hashcodLandingBrandOffsetX || '' : null
@@ -76,18 +70,9 @@ async function run() {
     assert.equal(landingGeometry.brandInlineTranslate, '', 'Hashcod lockup must not retain the temporary centering translate');
     assert.equal(landingGeometry.brandOffsetDataset, '', 'Hashcod lockup must not retain the temporary centering dataset');
     assert(Math.abs(landingGeometry.folderCenterX - landingGeometry.expectedFolderCenterX) <= 18,
-      `folder must align with the responsive left pane, delta=${Math.abs(landingGeometry.folderCenterX - landingGeometry.expectedFolderCenterX).toFixed(2)}px`);
+      `folder must return to 38vw anchor, delta=${Math.abs(landingGeometry.folderCenterX - landingGeometry.expectedFolderCenterX).toFixed(2)}px`);
     assert(Math.abs(landingGeometry.folderCenterY - landingGeometry.expectedFolderCenterY) <= 18,
       `folder must return to 50vh anchor, delta=${Math.abs(landingGeometry.folderCenterY - landingGeometry.expectedFolderCenterY).toFixed(2)}px`);
-    assert(landingGeometry.tech, 'TechText presentation panel must exist');
-    assert.equal(landingGeometry.techLayout, 'split', 'wide screens must use split folder + TechText composition');
-    assert.equal(landingGeometry.techCanvasVisible, true, 'TechText canvas must be visibly rendered');
-    assert(landingGeometry.tech.left > landingGeometry.folder.right + 60,
-      `TechText panel must sit to the right of the folder with breathing room, gap=${(landingGeometry.tech.left - landingGeometry.folder.right).toFixed(2)}px`);
-    assert(landingGeometry.tech.width < landingGeometry.overlay.width * 0.55,
-      `TechText panel must not become a full-width black band, width=${landingGeometry.tech.width.toFixed(2)}px`);
-    assert(landingGeometry.tech.right <= landingGeometry.viewportWidth - 16,
-      `TechText panel must remain inside the viewport, right=${landingGeometry.tech.right.toFixed(2)}px`);
     assert(landingGeometry.controls.left >= 0 && landingGeometry.controls.left <= 28,
       `global UX controls must be at the top-left, got left=${landingGeometry.controls.left.toFixed(2)}px`);
     assert(landingGeometry.controls.top >= 0 && landingGeometry.controls.top <= 28,
@@ -98,37 +83,6 @@ async function run() {
       assert(landingGeometry.strip.right > 0 && landingGeometry.strip.left < landingGeometry.viewportWidth,
         'bottom integration strip anchor must remain visible after folder restoration');
     }
-
-    // Compact view: folder stacks above a centered TechText panel without horizontal overflow.
-    await page.setViewportSize({ width: 430, height: 760 });
-    await page.waitForFunction(() => document.querySelector('#hashcodTechTextHost[data-hashcod-tech-text-layout="stacked"]'), { timeout: 5000 });
-    await page.waitForTimeout(350);
-    const compactGeometry = await page.evaluate(() => {
-      const rectOf = (node) => {
-        if (!node) return null;
-        const r = node.getBoundingClientRect();
-        return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height };
-      };
-      const folder = rectOf(document.getElementById('hashcodRareFolderHost'));
-      const tech = rectOf(document.getElementById('hashcodTechTextHost'));
-      return {
-        folder,
-        tech,
-        viewportWidth: innerWidth,
-        folderCenterX: folder.left + folder.width / 2,
-        techCenterX: tech.left + tech.width / 2
-      };
-    });
-    assert(Math.abs(compactGeometry.folderCenterX - compactGeometry.viewportWidth / 2) <= 18,
-      'compact folder must stay horizontally centered');
-    assert(Math.abs(compactGeometry.techCenterX - compactGeometry.viewportWidth / 2) <= 18,
-      'compact TechText panel must stay horizontally centered');
-    assert(compactGeometry.tech.left >= 8 && compactGeometry.tech.right <= compactGeometry.viewportWidth - 8,
-      'compact TechText panel must fit inside the viewport');
-    assert(compactGeometry.tech.top > compactGeometry.folder.top,
-      'compact TechText panel must stack below the folder');
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.waitForTimeout(250);
 
     // The form sequence is covered by dedicated registration tests. This UX
     // browser test intentionally stays independent so registration add-ons such
@@ -237,7 +191,7 @@ async function run() {
     assert.match(await notFoundPage.textContent('body') || '', /HASHCOD \/ ROUTING \/ 404/);
     await notFoundPage.close();
 
-    console.log('PASS: shared Hashcod UX keeps a responsive split/stacked folder + TechText presentation, pins controls top-left, and keeps dark mode, palette, shortcuts, autosave, skeleton/loading/error states, share/haptics and branded 404.');
+    console.log('PASS: shared Hashcod UX restores the folder to 38vw/50vh, preserves the original right-side brand, pins controls top-left, and keeps dark mode, palette, shortcuts, autosave, skeleton/loading/error states, share/haptics and branded 404.');
   } finally {
     await browser.close();
   }

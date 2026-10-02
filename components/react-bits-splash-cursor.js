@@ -1058,7 +1058,7 @@ function boot(){
     updateFrame();
 
     // Cleanup function
-    return () => {
+    window.__hashcodSplashCleanup = () => {
       isActive = false;
 
       // Cancel animation frame

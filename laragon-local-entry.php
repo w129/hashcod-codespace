@@ -70,7 +70,7 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<script id="hashcod-deskcomm-crm-config">window.HASHCOD_DESKCOMM_CRM_URL="";</script>'
     . $inlineEfrCss
     . '<style id="hashcod-laragon-rare-folder-placement">'
-    . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.20)!important;transform-origin:center center!important;}'
+    . '#hashcodRareFolderHost{position:fixed!important;left:27vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.18)!important;transform-origin:center center!important;}'
     . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
     . '#bootCliHint{display:none!important;visibility:hidden!important;}'
     . '.boot-cli-hint-wrap{min-width:0!important;}'
@@ -78,9 +78,9 @@ $headExtras = '<base href="' . $baseAttr . '">'
     // is canvas-based and can still be present inside 404.html, so suppress it.
     . '#bootBlackholeCanvas,#bootCliOverlay canvas[id*="blackhole" i],#bootCliOverlay canvas[class*="blackhole" i]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
     . '#bootCliOverlay [id*="blackhole" i],#bootCliOverlay [class*="blackhole" i],[data-originkit-blackhole]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
-    . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;transform:translate(-50%,-50%) scale(1.12)!important;}}'
-    . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;transform:translate(-50%,-50%) scale(1)!important;}}'
-    . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;transform:translate(-50%,-50%) scale(.90)!important;}}'
+    . '@media(max-width:1180px){#hashcodRareFolderHost{left:28vw!important;top:50vh!important;transform:translate(-50%,-50%) scale(1.08)!important;}}'
+    . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:30vh!important;transform:translate(-50%,-50%) scale(1.06)!important;}}'
+    . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:27vh!important;transform:translate(-50%,-50%) scale(1.00)!important;}}'
     . '</style>'
     . '<script id="hashcod-laragon-preboot">try{sessionStorage.setItem("hashcod_platform_intro_seen_v1","1");}catch(e){}</script>';
 

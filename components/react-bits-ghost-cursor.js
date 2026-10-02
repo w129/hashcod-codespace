@@ -160,6 +160,10 @@ function boot(){
     raf=0;
     ensureTrail();
 
+    if(pointerActive&&now-lastMove>80){
+      pointerActive=false;
+    }
+
     var dx=target.x-current.x;
     var dy=target.y-current.y;
 

@@ -74,7 +74,8 @@ jobs:
           grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-home.html
           grep -q ">Entrar</span>" /tmp/hashcod-home.html
           grep -q 'id="d5RotatingTextHero"' /tmp/hashcod-home.html
-          grep -q 'data-texts="React|Bits|Is|Cool!"' /tmp/hashcod-home.html
+          grep -q 'data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps"' /tmp/hashcod-home.html
+          grep -q '>Creates like</span>' /tmp/hashcod-home.html
           ! grep -q "Reto ML-DSA-87" /tmp/hashcod-home.html
 
       - name: Enter platform without cryptographic challenge

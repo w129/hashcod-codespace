@@ -23,7 +23,7 @@ function boot(){
   var live=document.getElementById('d5RotatingTextLive');
   if(!root||!viewport||!live)return;
 
-  var texts=(root.getAttribute('data-texts')||'React|Bits|Is|Cool!').split('|').filter(Boolean);
+  var texts=(root.getAttribute('data-texts')||'code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps').split('|').filter(Boolean);
   if(!texts.length)return;
 
   var rotationInterval=Math.max(400,Number(root.getAttribute('data-rotation-interval'))||2000);

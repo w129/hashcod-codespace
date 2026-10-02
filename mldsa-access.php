@@ -281,8 +281,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
-    $rotatingTextCss=htmlspecialchars($base.'components/react-bits-rotating-text.css?v=20261002-rotating1',ENT_QUOTES,'UTF-8');
-    $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating1',ENT_QUOTES,'UTF-8');
+    $rotatingTextCss=htmlspecialchars($base.'components/react-bits-rotating-text.css?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
+    $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -387,7 +387,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'</section>';
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"></head><body'.$bodyAttr.'>'
       .'<main class="access-stage">'
-      .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="React|Bits|Is|Cool!" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Rotating text"><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">React</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
+      .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Creates like rotating text"><span class="entry-rotating-text-prefix">Creates like</span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">code</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
       .'<div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
       .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'

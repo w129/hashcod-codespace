@@ -1,4 +1,4 @@
-// Keep the Rare UI folder at the historical Hashcod desktop anchor.
+// Keep the Rare UI folder aligned with the responsive TechText presentation.
 // This file is injected into the generated folder bundle so the placement is
 // applied from the same inline artifact in both hosted and local builds.
 (function () {
@@ -18,7 +18,7 @@
     const rect = overlay.getBoundingClientRect();
     if (!rect.width || !rect.height) return false;
 
-    const left = (rect.left + rect.width * 0.38).toFixed(2) + 'px';
+    const left = (rect.left + rect.width * 0.27).toFixed(2) + 'px';
     const top = (rect.top + rect.height * 0.50).toFixed(2) + 'px';
 
     if (folder.style.getPropertyValue('position') !== 'fixed' || folder.style.getPropertyPriority('position') !== 'important') {

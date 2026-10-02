@@ -73,3 +73,14 @@ Hashcod Codespace uses a native JavaScript adaptation of **page-mascot** for the
 - License: MIT
 - Hashcod adaptation: preserves the original 3×3 direction/reaction sprite model, fine-pointer tracking, dead zone and hysteresis, click reactions, four-click dizzy state, and reduced-motion behavior. Hashcod's main UI is native PHP/JavaScript rather than React, so the interaction logic is adapted without adding a React runtime.
 - Panda atlases: verified against upstream Git blob SHAs 6f3f42dcf066c2b1c01e85913d2ea8828215f474 and aaecccbcc7aaeb646aeb2a10145d31701ada5e9e.
+
+## React Bits — RotatingText
+
+Hashcod Codespace uses a native JavaScript adaptation of **React Bits RotatingText** on the first entry screen.
+
+- Project: React Bits
+- Source: https://github.com/DavidHDev/react-bits
+- Component: `RotatingText`
+- License: MIT
+- Hashcod adaptation: preserves the requested four-text loop (`React`, `Bits`, `Is`, `Cool!`), 2000 ms rotation interval, character-level reveal, last-to-first 25 ms staggering, vertical 100% entry / -120% exit motion, reduced-motion handling, and imperative next/previous/jump/reset controls. The first entry page is native PHP/JavaScript, so this adaptation does not add a React/Motion runtime. The demo accent background is replaced with Hashcod black.
+

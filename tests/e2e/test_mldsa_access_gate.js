@@ -103,6 +103,8 @@ assert(ghostCss.includes('opacity:1'),'GhostCursor canvas must remain fully comp
 assert(ghostJs.includes('lineAlpha=clamp(Math.pow(st,1.6)*opacity*brightness*0.115'),'GhostCursor visible connecting trail stroke missing');
 assert(ghostJs.includes('strength*0.42*thresholdGain'),'GhostCursor high-contrast black core missing');
 assert(ghostJs.includes("window.addEventListener('pointermove',onPointerMove"),'GhostCursor must react to cursor movement');
+assert(ghostJs.includes('var hasPointerMoved=false'),'GhostCursor must stay hidden until actual pointer movement');
+assert(ghostJs.includes('var opacity=hasPointerMoved?1:0'),'GhostCursor must not draw an initial center blob');
 assert(ghostJs.includes("trailLength=Math.max(1,Math.floor(parseNumber(host.getAttribute('data-trail-length'),50)))"),'GhostCursor trailLength runtime binding missing');
 assert(ghostJs.includes('velocity.x*=inertia')&&ghostJs.includes('velocity.y*=inertia'),'GhostCursor inertia behavior missing');
 assert(ghostJs.includes('idle>fadeDelay')&&ghostJs.includes('(idle-fadeDelay)/fadeDuration'),'GhostCursor fade-out behavior missing');

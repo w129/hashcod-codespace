@@ -1,0 +1,133 @@
+/* React Bits RotatingText — native Hashcod entry-screen adaptation.
+   Scoped to the first entry page only. */
+body[data-hashcod-entry-intro="1"] .access-stage{
+  position:relative;
+}
+
+.entry-rotating-text-hero{
+  position:absolute;
+  left:50%;
+  top:clamp(34px,5.5vh,58px);
+  z-index:45;
+  display:flex;
+  width:max-content;
+  max-width:calc(100vw - 40px);
+  align-items:center;
+  justify-content:center;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+
+.entry-rotating-text-shell{
+  display:flex;
+  max-width:100%;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-radius:8px;
+  background:#0a0a0a;
+  color:#fff;
+  padding:2px 8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.10);
+  font-size:clamp(22px,2.2vw,34px);
+  font-weight:700;
+  line-height:1;
+  letter-spacing:-.035em;
+  white-space:pre-wrap;
+}
+
+.entry-rotating-text-viewport{
+  position:relative;
+  display:inline-block;
+  height:1.15em;
+  min-width:1px;
+  overflow:hidden;
+  vertical-align:middle;
+  transition:width .48s cubic-bezier(.2,1,.25,1);
+  will-change:width;
+}
+
+.entry-rotating-text-layer{
+  position:absolute;
+  left:0;
+  top:0;
+  display:inline-flex;
+  width:max-content;
+  height:100%;
+  align-items:center;
+  white-space:pre;
+}
+
+.entry-rotating-text-word{
+  display:inline-flex;
+  height:100%;
+  align-items:center;
+  overflow:hidden;
+  padding-bottom:.5px;
+}
+
+.entry-rotating-text-element{
+  display:inline-block;
+  transform:translateY(100%);
+  transition-property:transform;
+  transition-duration:.52s;
+  transition-timing-function:cubic-bezier(.18,1.18,.28,1);
+  transition-delay:var(--rotating-stagger,0ms);
+  will-change:transform;
+}
+
+.entry-rotating-text-layer.is-active .entry-rotating-text-element{
+  transform:translateY(0);
+}
+
+.entry-rotating-text-layer.is-exiting .entry-rotating-text-element{
+  transform:translateY(-120%);
+  transition-duration:.42s;
+  transition-timing-function:cubic-bezier(.4,0,.2,1);
+}
+
+.entry-rotating-text-space{
+  white-space:pre;
+}
+
+.entry-rotating-text-sr-only{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+
+@media(min-width:640px){
+  .entry-rotating-text-shell{padding:4px 8px}
+  .entry-rotating-text-word{padding-bottom:4px}
+}
+
+@media(min-width:768px){
+  .entry-rotating-text-shell{padding:8px 12px}
+  .entry-rotating-text-word{padding-bottom:4px}
+}
+
+@media(max-width:700px){
+  body[data-hashcod-entry-intro="1"] .access-stage{
+    padding-top:96px;
+  }
+  .entry-rotating-text-hero{
+    top:24px;
+    max-width:calc(100vw - 28px);
+  }
+  .entry-rotating-text-shell{
+    font-size:20px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .entry-rotating-text-viewport,
+  .entry-rotating-text-element{
+    transition:none!important;
+  }
+}

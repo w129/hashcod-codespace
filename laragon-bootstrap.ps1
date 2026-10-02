@@ -40,7 +40,6 @@ function Build-RareBundle([string]$TempRoot, [string]$BundleTarget) {
     Write-Step 'Descargando solo los archivos fuente necesarios para compilar Rare UI'
     Download-TextFile "$RawBase/rare-folder-build/package.json" (Join-Path $buildDir 'package.json')
     Download-TextFile "$RawBase/rare-folder-build/entry.jsx" (Join-Path $buildDir 'entry.jsx')
-    Download-TextFile "$RawBase/rare-folder-build/TechText.jsx" (Join-Path $buildDir 'TechText.jsx')
 
     Write-Step 'Compilando solamente rare-folder-entry.bundle.js'
     Push-Location $buildDir

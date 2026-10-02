@@ -7,7 +7,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { motion } from "motion/react";
-import TechText from "./TechText";
 
 const BASE_WIDTH = 321;
 const BASE_HEIGHT = 270;
@@ -30,23 +29,6 @@ const theme = {
 
 const leftRows = [60.9939, 75.1122, 89.2306, 103.349, 117.467, 131.586, 145.704, 159.823, 173.941];
 const rightRows = [60.9617, 75.0801, 89.1985, 103.317, 117.435, 131.554, 145.672, 159.79, 173.909];
-
-function TechTextPresentation() {
-  return (
-    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <TechText
-        text="Hashcod Codespace"
-        fontWeight={600}
-        fontSize={150}
-        reveal="letter"
-        dashLength={4}
-        dashGap={2}
-        specks={15}
-      />
-    </div>
-  );
-}
-
 
 function Card({ id }) {
   const filterId = `rare_hashcod_card_${id}`;
@@ -251,100 +233,9 @@ function computeScale(viewportWidth, viewportHeight) {
   return Math.min(0.9, Math.max(0.78, Math.min(viewportWidth / 1900, viewportHeight / 980)));
 }
 
-function layoutTechTextHost(host, overlayRect) {
-  if (!host || !overlayRect) return;
-
-  const viewportWidth = Math.max(1, overlayRect.width || window.innerWidth || 1);
-  const viewportHeight = Math.max(1, overlayRect.height || window.innerHeight || 1);
-  let width;
-  let height;
-  let centerX;
-  let centerY;
-  let radius;
-
-  if (viewportWidth <= 620) {
-    width = Math.max(280, viewportWidth - 24);
-    height = clamp(viewportHeight * 0.38, 220, 310);
-    centerX = viewportWidth * 0.50;
-    centerY = viewportHeight * 0.70;
-    radius = 22;
-  } else if (viewportWidth <= 900) {
-    width = Math.min(viewportWidth - 32, 760);
-    height = clamp(viewportHeight * 0.42, 260, 360);
-    centerX = viewportWidth * 0.50;
-    centerY = viewportHeight * 0.68;
-    radius = 26;
-  } else if (viewportWidth <= 1180) {
-    width = clamp(viewportWidth * 0.56, 520, 700);
-    height = clamp(viewportHeight * 0.58, 320, 430);
-    centerX = viewportWidth * 0.72;
-    centerY = viewportHeight * 0.51;
-    radius = 30;
-  } else {
-    width = clamp(viewportWidth * 0.46, 680, 900);
-    height = clamp(viewportHeight * 0.68, 380, 480);
-    centerX = viewportWidth * 0.69;
-    centerY = viewportHeight * 0.50;
-    radius = 34;
-  }
-
-  host.style.setProperty('position', 'fixed', 'important');
-  host.style.setProperty('left', `${(overlayRect.left + centerX).toFixed(2)}px`, 'important');
-  host.style.setProperty('top', `${(overlayRect.top + centerY).toFixed(2)}px`, 'important');
-  host.style.setProperty('width', `${Math.round(width)}px`, 'important');
-  host.style.setProperty('height', `${Math.round(height)}px`, 'important');
-  host.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-  host.style.setProperty('z-index', '2147482400', 'important');
-  host.style.setProperty('display', 'block', 'important');
-  host.style.setProperty('visibility', 'visible', 'important');
-  host.style.setProperty('opacity', '1', 'important');
-  host.style.setProperty('overflow', 'hidden', 'important');
-  host.style.setProperty('border-radius', `${radius}px`, 'important');
-  host.style.setProperty('background', '#000000', 'important');
-  host.style.setProperty('border', '1px solid rgba(255,255,255,0.12)', 'important');
-  host.style.setProperty('box-shadow', '0 28px 70px rgba(0,0,0,0.18)', 'important');
-  host.style.setProperty('box-sizing', 'border-box', 'important');
-  host.style.setProperty('isolation', 'isolate', 'important');
-  host.style.setProperty('pointer-events', 'auto', 'important');
-
-  const canvas = host.querySelector('canvas.tech-text-canvas');
-  if (canvas) {
-    canvas.style.setProperty('display', 'block', 'important');
-    canvas.style.setProperty('visibility', 'visible', 'important');
-    canvas.style.setProperty('opacity', '1', 'important');
-    canvas.style.setProperty('width', '100%', 'important');
-    canvas.style.setProperty('height', '100%', 'important');
-    canvas.style.setProperty('pointer-events', 'auto', 'important');
-  }
-
-  host.setAttribute('data-hashcod-tech-text-layout', viewportWidth <= 900 ? 'stacked' : 'split');
-}
-
 function mount() {
   const overlay = document.getElementById('bootCliOverlay');
   if (!overlay || document.getElementById('hashcodRareFolderHost')) return Boolean(overlay);
-
-  const techTextHost = document.createElement('div');
-  techTextHost.id = 'hashcodTechTextHost';
-  techTextHost.setAttribute('data-react-bits-tech-text', 'true');
-  Object.assign(techTextHost.style, {
-    position: 'fixed',
-    left: '50%',
-    top: '50%',
-    width: '1px',
-    height: '1px',
-    transform: 'translate(-50%, -50%)',
-    zIndex: '2147482400',
-    overflow: 'hidden',
-    borderRadius: '34px',
-    background: '#000000',
-    boxSizing: 'border-box',
-    isolation: 'isolate',
-    opacity: '0'
-  });
-  overlay.appendChild(techTextHost);
-  const techTextRoot = createRoot(techTextHost);
-  techTextRoot.render(<TechTextPresentation />);
 
   try { sessionStorage.setItem(INTRO_SESSION_KEY, '1'); } catch (_) {}
   const oldNative = document.getElementById('hashcodBootFolderAnimation');
@@ -376,7 +267,6 @@ function mount() {
   const place = () => {
     if (!host.isConnected) return;
     const overlayRect = overlay.getBoundingClientRect();
-    layoutTechTextHost(techTextHost, overlayRect);
     currentScale = computeScale(overlayRect.width || window.innerWidth, overlayRect.height || window.innerHeight);
     const folderW = BASE_WIDTH * currentScale;
     const folderH = BASE_HEIGHT * currentScale;
@@ -455,8 +345,6 @@ function mount() {
   window.addEventListener('hashcod:platform-entered', () => {
     if (alignedBrand) clearHorizontalOffset(alignedBrand, 'hashcodLandingBrandOffsetX');
     if (alignedStrip) clearHorizontalOffset(alignedStrip, 'hashcodLandingStripOffsetX');
-    techTextRoot.unmount();
-    techTextHost.remove();
     reactRoot.unmount();
     host.remove();
     window.removeEventListener('resize', schedulePlace);

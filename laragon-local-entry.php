@@ -70,17 +70,17 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<script id="hashcod-deskcomm-crm-config">window.HASHCOD_DESKCOMM_CRM_URL="";</script>'
     . $inlineEfrCss
     . '<style id="hashcod-laragon-rare-folder-placement">'
-    . '#hashcodRareFolderHost{position:fixed!important;left:27vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.18)!important;transform-origin:center center!important;}'
+    . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.20)!important;transform-origin:center center!important;}'
     . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
     . '#bootCliHint{display:none!important;visibility:hidden!important;}'
     . '.boot-cli-hint-wrap{min-width:0!important;}'
     // Local should show only the Rare UI folder. The retired Originkit blackhole
     // is canvas-based and can still be present inside 404.html, so suppress it.
-    . '#bootBlackholeCanvas,#bootCliOverlay canvas[id*="blackhole" i],#bootCliOverlay canvas[class*="blackhole" i]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
+    . '#bootCliOverlay canvas{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
     . '#bootCliOverlay [id*="blackhole" i],#bootCliOverlay [class*="blackhole" i],[data-originkit-blackhole]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
-    . '@media(max-width:1180px){#hashcodRareFolderHost{left:28vw!important;top:50vh!important;transform:translate(-50%,-50%) scale(1.08)!important;}}'
-    . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:30vh!important;transform:translate(-50%,-50%) scale(1.06)!important;}}'
-    . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:27vh!important;transform:translate(-50%,-50%) scale(1.00)!important;}}'
+    . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;transform:translate(-50%,-50%) scale(1.12)!important;}}'
+    . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;transform:translate(-50%,-50%) scale(1)!important;}}'
+    . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;transform:translate(-50%,-50%) scale(.90)!important;}}'
     . '</style>'
     . '<script id="hashcod-laragon-preboot">try{sessionStorage.setItem("hashcod_platform_intro_seen_v1","1");}catch(e){}</script>';
 
@@ -122,7 +122,7 @@ $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retire
     . '<script defer src="' . $baseAttr . 'components/platform-entry-motion.js?v=20260926-nofreeze3" data-platform-entry-motion="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260926-second-screen1" data-platform-entry-hold="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-freeze-fix.js?v=20260926-nofreeze4" data-hashcod-platform-entry-freeze-fix="true"></script>'
-    . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
+    . '<script id="hashcod-laragon-blackhole-cleanup">(function(){function clean(){var h=document.getElementById("bootCliHint");if(h){h.textContent="";h.hidden=true;h.setAttribute("aria-hidden","true");}var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;overlay.querySelectorAll("canvas,[id*=blackhole i],[class*=blackhole i],[data-originkit-blackhole]").forEach(function(node){if(node.id==="hashcodRareFolderHost"||node.closest&&node.closest("#hashcodRareFolderHost"))return;try{node.remove();}catch(e){node.style.display="none";}});}function watch(){clean();var overlay=document.getElementById("bootCliOverlay");if(!overlay)return;var observer=new MutationObserver(function(){clean();});observer.observe(overlay,{childList:true,subtree:true});window.addEventListener("hashcod:platform-entered",function(){observer.disconnect();},{once:true});}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",watch,{once:true});}else{watch();}})();</script>'
     . $rareInline
     . $rareExternal
     . '<script defer src="' . $baseAttr . 'components/platform-entry-slogan.js?v=20260919-perf1" data-platform-entry-slogan="true" data-hashcod-vector-tray="true"></script>'

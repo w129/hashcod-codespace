@@ -102,8 +102,17 @@
         if (!overlay) return false;
         if ((window.innerWidth || 0) < DESKTOP_LANDING_MIN_WIDTH) {
             if (folder) {
+                folder.style.removeProperty('position');
+                folder.style.removeProperty('left');
+                folder.style.removeProperty('top');
                 folder.removeAttribute('data-hashcod-folder-position-restored');
                 folder.removeAttribute('data-hashcod-brand-anchor-restored');
+            }
+            if (fallback) {
+                fallback.style.removeProperty('position');
+                fallback.style.removeProperty('left');
+                fallback.style.removeProperty('top');
+                fallback.removeAttribute('data-hashcod-folder-position-restored');
             }
             return false;
         }

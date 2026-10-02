@@ -86,11 +86,11 @@ Hashcod Codespace uses a native JavaScript adaptation of **React Bits RotatingTe
 
 ## React Bits — GhostCursor
 
-Hashcod Codespace uses a native canvas adaptation of **React Bits GhostCursor** as a decorative background on the first entry screen.
+Hashcod Codespace uses a native DOM-particle adaptation of **React Bits GhostCursor** as a decorative background on the first entry screen.
 
 - Project: React Bits
 - Source: https://github.com/DavidHDev/react-bits
 - Component: `GhostCursor`
 - License: MIT
-- Hashcod adaptation: preserves the requested cursor-driven trail model with trail length 50, inertia 0.5, brightness 1, edge intensity 0, grain intensity 0.05, bloom strength 0.1, bloom radius 1.0, bloom threshold 0.025, 1000 ms fade delay, and 1500 ms fade duration. The upstream demo text is not included. The original purple color is replaced with black, and the native PHP/JavaScript entry page uses a lightweight canvas implementation instead of loading React/Three.js solely for this background effect.
+- Hashcod adaptation: preserves the requested cursor-driven trail model with trail length 50, inertia 0.5, brightness 1, edge intensity 0, grain intensity 0.05, bloom strength 0.1, bloom radius 1.0, bloom threshold 0.025, 1000 ms fade delay, and 1500 ms fade duration. The upstream demo text is not included. The original purple color is replaced with black, the upstream demo text is omitted, and the native PHP/JavaScript entry page uses lightweight blurred DOM particles instead of loading React/Three.js solely for this background effect.
 

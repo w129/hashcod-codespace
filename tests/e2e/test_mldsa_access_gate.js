@@ -95,10 +95,13 @@ assert(gate.includes('data-trail-length="50"')&&gate.includes('data-inertia="0.5
 assert(gate.includes('data-grain-intensity="0.05"'),'GhostCursor grain setting missing');
 assert(gate.includes('data-bloom-strength="0.1"')&&gate.includes('data-bloom-radius="1.0"')&&gate.includes('data-bloom-threshold="0.025"'),'GhostCursor bloom settings missing');
 assert(gate.includes('data-fade-delay-ms="1000"')&&gate.includes('data-fade-duration-ms="1500"'),'GhostCursor fade settings missing');
-assert(gate.includes('react-bits-ghost-cursor.css?v=20261002-ghost1'),'GhostCursor stylesheet must be loaded');
-assert(gate.includes('react-bits-ghost-cursor.js?v=20261002-ghost1'),'GhostCursor runtime must be loaded');
+assert(gate.includes('react-bits-ghost-cursor.css?v=20261002-ghost2'),'GhostCursor stylesheet must be loaded');
+assert(gate.includes('react-bits-ghost-cursor.js?v=20261002-ghost2'),'GhostCursor runtime must be loaded');
 assert(ghostCss.includes('.entry-ghost-cursor{')&&ghostCss.includes('position:fixed')&&ghostCss.includes('pointer-events:none'),'GhostCursor must be a non-blocking background layer');
-assert(ghostCss.includes('mix-blend-mode:multiply'),'black GhostCursor must composite visibly on the light entry background');
+assert(ghostCss.includes('z-index:1'),'GhostCursor must render above the page background');
+assert(ghostCss.includes('opacity:1'),'GhostCursor canvas must remain fully composited');
+assert(ghostJs.includes('lineAlpha=clamp(Math.pow(st,1.6)*opacity*brightness*0.115'),'GhostCursor visible connecting trail stroke missing');
+assert(ghostJs.includes('strength*0.42*thresholdGain'),'GhostCursor high-contrast black core missing');
 assert(ghostJs.includes("window.addEventListener('pointermove',onPointerMove"),'GhostCursor must react to cursor movement');
 assert(ghostJs.includes("trailLength=Math.max(1,Math.floor(parseNumber(host.getAttribute('data-trail-length'),50)))"),'GhostCursor trailLength runtime binding missing');
 assert(ghostJs.includes('velocity.x*=inertia')&&ghostJs.includes('velocity.y*=inertia'),'GhostCursor inertia behavior missing');

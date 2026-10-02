@@ -56,6 +56,7 @@ function boot(){
   var velocity={x:0,y:0};
   var trail=[];
   var pointerActive=false;
+  var hasPointerMoved=false;
   var lastMove=performance.now();
   var raf=0;
   var running=false;
@@ -202,8 +203,8 @@ function boot(){
     pushTrail(current.x,current.y);
 
     var idle=now-lastMove;
-    var opacity=1;
-    if(!pointerActive&&idle>fadeDelay){
+    var opacity=hasPointerMoved?1:0;
+    if(hasPointerMoved&&!pointerActive&&idle>fadeDelay){
       opacity=1-clamp((idle-fadeDelay)/fadeDuration,0,1);
     }
 
@@ -227,6 +228,7 @@ function boot(){
     if(event.pointerType==='touch')return;
     target.x=clamp(event.clientX,0,width);
     target.y=clamp(event.clientY,0,height);
+    hasPointerMoved=true;
     pointerActive=true;
     lastMove=performance.now();
     ensureLoop();
@@ -239,7 +241,7 @@ function boot(){
   }
 
   function onPointerEnter(event){
-    if(event.pointerType==='touch')return;
+    if(event.pointerType==='touch'||!hasPointerMoved)return;
     target.x=clamp(event.clientX,0,width);
     target.y=clamp(event.clientY,0,height);
     pointerActive=true;

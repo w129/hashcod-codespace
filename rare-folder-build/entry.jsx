@@ -306,6 +306,17 @@ function layoutTechTextHost(host, overlayRect) {
   host.style.setProperty('box-sizing', 'border-box', 'important');
   host.style.setProperty('isolation', 'isolate', 'important');
   host.style.setProperty('pointer-events', 'auto', 'important');
+
+  const canvas = host.querySelector('canvas.tech-text-canvas');
+  if (canvas) {
+    canvas.style.setProperty('display', 'block', 'important');
+    canvas.style.setProperty('visibility', 'visible', 'important');
+    canvas.style.setProperty('opacity', '1', 'important');
+    canvas.style.setProperty('width', '100%', 'important');
+    canvas.style.setProperty('height', '100%', 'important');
+    canvas.style.setProperty('pointer-events', 'auto', 'important');
+  }
+
   host.setAttribute('data-hashcod-tech-text-layout', viewportWidth <= 900 ? 'stacked' : 'split');
 }
 

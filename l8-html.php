@@ -390,22 +390,22 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         $rareFolderPrebootTag = '<script id="hashcod-rare-folder-preboot">try{sessionStorage.setItem("hashcod_platform_intro_seen_v1","1");}catch(e){};</script>';
 
         // Production placement override for the real Rare UI React/Motion folder.
-        // Keep it in the requested left-side blank area, vertically aligned with
-        // the Hashcod mark, and above all existing boot surfaces. Scale it up on
-        // desktop for better visual balance while keeping responsive reductions.
+        // Keep it in the left side of the responsive split presentation, vertically
+        // aligned with the TechText panel, and above all existing boot surfaces.
+        // On narrow screens the folder stacks above the TechText panel.
         // The old "Loading blackhole…" label belongs to the retired Originkit
         // startup visual, so hide it immediately while retaining the intentional
         // GitHub/DIKTATCART credit marks beside it.
         $rareFolderPlacementTag = '<style id="hashcod-rare-folder-placement">'
-            . '#hashcodRareFolderHost{position:fixed!important;left:38vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.20)!important;transform-origin:center center!important;}'
+            . '#hashcodRareFolderHost{position:fixed!important;left:27vw!important;top:50vh!important;z-index:2147482500!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:none!important;transform:translate(-50%,-50%) scale(1.18)!important;transform-origin:center center!important;}'
             . '#hashcodRareFolderHost [data-slot="folder"]{pointer-events:auto!important;}'
             . '#bootCliHint{display:none!important;visibility:hidden!important;}'
             . '#bootBlackholeCanvas,#bootCliOverlay canvas[id*="blackhole" i],#bootCliOverlay canvas[class*="blackhole" i]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
             . '#bootCliOverlay [id*="blackhole" i],#bootCliOverlay [class*="blackhole" i],[data-originkit-blackhole]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}'
             . '.boot-cli-hint-wrap{min-width:0!important;}'
-            . '@media(max-width:1180px){#hashcodRareFolderHost{left:35vw!important;top:48vh!important;transform:translate(-50%,-50%) scale(1.12)!important;}}'
-            . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:39vh!important;transform:translate(-50%,-50%) scale(1.00)!important;}}'
-            . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:36vh!important;transform:translate(-50%,-50%) scale(0.90)!important;}}'
+            . '@media(max-width:1180px){#hashcodRareFolderHost{left:28vw!important;top:50vh!important;transform:translate(-50%,-50%) scale(1.08)!important;}}'
+            . '@media(max-width:900px){#hashcodRareFolderHost{left:50vw!important;top:30vh!important;transform:translate(-50%,-50%) scale(1.06)!important;}}'
+            . '@media(max-width:620px){#hashcodRareFolderHost{left:50vw!important;top:27vh!important;transform:translate(-50%,-50%) scale(1.00)!important;}}'
             . '</style>';
 
         $headPos = strripos($html, '</head>');

@@ -33,7 +33,7 @@ const rightRows = [60.9617, 75.0801, 89.1985, 103.317, 117.435, 131.554, 145.672
 
 function TechTextPresentation() {
   return (
-    <div style={{ width: '100%', height: '480px', position: 'relative' }}>
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <TechText
         text="Hashcod Codespace"
         fontWeight={600}
@@ -251,6 +251,64 @@ function computeScale(viewportWidth, viewportHeight) {
   return Math.min(0.9, Math.max(0.78, Math.min(viewportWidth / 1900, viewportHeight / 980)));
 }
 
+function layoutTechTextHost(host, overlayRect) {
+  if (!host || !overlayRect) return;
+
+  const viewportWidth = Math.max(1, overlayRect.width || window.innerWidth || 1);
+  const viewportHeight = Math.max(1, overlayRect.height || window.innerHeight || 1);
+  let width;
+  let height;
+  let centerX;
+  let centerY;
+  let radius;
+
+  if (viewportWidth <= 620) {
+    width = Math.max(280, viewportWidth - 24);
+    height = clamp(viewportHeight * 0.38, 220, 310);
+    centerX = viewportWidth * 0.50;
+    centerY = viewportHeight * 0.70;
+    radius = 22;
+  } else if (viewportWidth <= 900) {
+    width = Math.min(viewportWidth - 32, 760);
+    height = clamp(viewportHeight * 0.42, 260, 360);
+    centerX = viewportWidth * 0.50;
+    centerY = viewportHeight * 0.68;
+    radius = 26;
+  } else if (viewportWidth <= 1180) {
+    width = clamp(viewportWidth * 0.56, 520, 700);
+    height = clamp(viewportHeight * 0.58, 320, 430);
+    centerX = viewportWidth * 0.72;
+    centerY = viewportHeight * 0.51;
+    radius = 30;
+  } else {
+    width = clamp(viewportWidth * 0.46, 680, 900);
+    height = clamp(viewportHeight * 0.68, 380, 480);
+    centerX = viewportWidth * 0.69;
+    centerY = viewportHeight * 0.50;
+    radius = 34;
+  }
+
+  host.style.setProperty('position', 'fixed', 'important');
+  host.style.setProperty('left', `${(overlayRect.left + centerX).toFixed(2)}px`, 'important');
+  host.style.setProperty('top', `${(overlayRect.top + centerY).toFixed(2)}px`, 'important');
+  host.style.setProperty('width', `${Math.round(width)}px`, 'important');
+  host.style.setProperty('height', `${Math.round(height)}px`, 'important');
+  host.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+  host.style.setProperty('z-index', '2147482400', 'important');
+  host.style.setProperty('display', 'block', 'important');
+  host.style.setProperty('visibility', 'visible', 'important');
+  host.style.setProperty('opacity', '1', 'important');
+  host.style.setProperty('overflow', 'hidden', 'important');
+  host.style.setProperty('border-radius', `${radius}px`, 'important');
+  host.style.setProperty('background', '#000000', 'important');
+  host.style.setProperty('border', '1px solid rgba(255,255,255,0.12)', 'important');
+  host.style.setProperty('box-shadow', '0 28px 70px rgba(0,0,0,0.18)', 'important');
+  host.style.setProperty('box-sizing', 'border-box', 'important');
+  host.style.setProperty('isolation', 'isolate', 'important');
+  host.style.setProperty('pointer-events', 'auto', 'important');
+  host.setAttribute('data-hashcod-tech-text-layout', viewportWidth <= 900 ? 'stacked' : 'split');
+}
+
 function mount() {
   const overlay = document.getElementById('bootCliOverlay');
   if (!overlay || document.getElementById('hashcodRareFolderHost')) return Boolean(overlay);
@@ -259,15 +317,19 @@ function mount() {
   techTextHost.id = 'hashcodTechTextHost';
   techTextHost.setAttribute('data-react-bits-tech-text', 'true');
   Object.assign(techTextHost.style, {
-    position: 'absolute',
+    position: 'fixed',
     left: '50%',
     top: '50%',
-    width: '100%',
-    height: '480px',
+    width: '1px',
+    height: '1px',
     transform: 'translate(-50%, -50%)',
-    zIndex: '32',
+    zIndex: '2147482400',
     overflow: 'hidden',
-    background: '#000000'
+    borderRadius: '34px',
+    background: '#000000',
+    boxSizing: 'border-box',
+    isolation: 'isolate',
+    opacity: '0'
   });
   overlay.appendChild(techTextHost);
   const techTextRoot = createRoot(techTextHost);
@@ -303,6 +365,7 @@ function mount() {
   const place = () => {
     if (!host.isConnected) return;
     const overlayRect = overlay.getBoundingClientRect();
+    layoutTechTextHost(techTextHost, overlayRect);
     currentScale = computeScale(overlayRect.width || window.innerWidth, overlayRect.height || window.innerHeight);
     const folderW = BASE_WIDTH * currentScale;
     const folderH = BASE_HEIGHT * currentScale;

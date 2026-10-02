@@ -34,6 +34,7 @@ body[data-hashcod-entry-intro="1"] .access-stage{
 
 .entry-rotating-text-shell{
   display:flex;
+  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   max-width:100%;
   align-items:center;
   justify-content:center;

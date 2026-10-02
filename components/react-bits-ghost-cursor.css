@@ -12,7 +12,7 @@ body[data-hashcod-entry-intro="1"] .access-stage{
 .entry-ghost-cursor{
   position:fixed;
   inset:0;
-  z-index:0;
+  z-index:1;
   overflow:hidden;
   pointer-events:none;
   user-select:none;
@@ -26,16 +26,16 @@ body[data-hashcod-entry-intro="1"] .access-stage{
   height:100%;
   background:transparent;
   pointer-events:none;
-  mix-blend-mode:multiply;
+  opacity:1;
 }
 
 body[data-hashcod-entry-intro="1"] .access-layout{
   position:relative;
-  z-index:2;
+  z-index:3;
 }
 
 body[data-hashcod-entry-intro="1"] .entry-rotating-text-hero{
-  z-index:3;
+  z-index:4;
 }
 
 @media(prefers-reduced-motion:reduce){

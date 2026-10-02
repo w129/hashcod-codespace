@@ -283,8 +283,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $rotatingTextCss=htmlspecialchars($base.'components/react-bits-rotating-text.css?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
-    $ghostCursorCss=htmlspecialchars($base.'components/react-bits-ghost-cursor.css?v=20261002-ghost1',ENT_QUOTES,'UTF-8');
-    $ghostCursorJs=htmlspecialchars($base.'components/react-bits-ghost-cursor.js?v=20261002-ghost1',ENT_QUOTES,'UTF-8');
+    $ghostCursorCss=htmlspecialchars($base.'components/react-bits-ghost-cursor.css?v=20261002-ghost2',ENT_QUOTES,'UTF-8');
+    $ghostCursorJs=htmlspecialchars($base.'components/react-bits-ghost-cursor.js?v=20261002-ghost2',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE

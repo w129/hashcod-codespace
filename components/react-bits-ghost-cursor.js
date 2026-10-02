@@ -56,6 +56,7 @@ function boot(){
   var velocity={x:0,y:0};
   var trail=[];
   var pointerActive=false;
+  var hasPointerMoved=false;
   var lastMove=performance.now();
   var raf=0;
   var running=false;
@@ -102,9 +103,29 @@ function boot(){
     ctx.save();
     ctx.globalCompositeOperation='source-over';
 
-    var baseRadius=clamp(Math.min(width,height)*0.085,48,105);
-    var bloomBlur=(10+24*bloomRadius)*bloomStrength;
-    var thresholdGain=1+Math.max(0,0.1-bloomThreshold)*2.5;
+    var baseRadius=clamp(Math.min(width,height)*0.072,42,94);
+    var bloomBlur=(12+30*bloomRadius)*bloomStrength;
+    var thresholdGain=1+Math.max(0,0.1-bloomThreshold)*3.2;
+
+    if(trail.length>1){
+      ctx.save();
+      ctx.lineCap='round';
+      ctx.lineJoin='round';
+      for(var s=trail.length-1;s>0;s--){
+        var a=trail[s];
+        var b=trail[s-1];
+        var st=1-s/Math.max(1,trailLength-1);
+        var lineAlpha=clamp(Math.pow(st,1.6)*opacity*brightness*0.115,0,0.16);
+        if(lineAlpha<=0.002)continue;
+        ctx.strokeStyle='rgba('+baseColor.r+','+baseColor.g+','+baseColor.b+','+lineAlpha+')';
+        ctx.lineWidth=2+st*14;
+        ctx.beginPath();
+        ctx.moveTo(a.x,a.y);
+        ctx.lineTo(b.x,b.y);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
     for(var i=trail.length-1;i>=0;i--){
       var p=trail[i];
@@ -116,9 +137,9 @@ function boot(){
       var radius=baseRadius*(0.54+0.58*t)*(1+wobble);
 
       var gradient=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,radius);
-      var coreAlpha=clamp(strength*0.135*thresholdGain,0,0.30);
-      var midAlpha=clamp(strength*0.060*thresholdGain,0,0.18);
-      var edgeAlpha=clamp(strength*0.010,0,0.05);
+      var coreAlpha=clamp(strength*0.42*thresholdGain,0,0.58);
+      var midAlpha=clamp(strength*0.19*thresholdGain,0,0.34);
+      var edgeAlpha=clamp(strength*0.035,0,0.10);
 
       gradient.addColorStop(0,'rgba('+baseColor.r+','+baseColor.g+','+baseColor.b+','+coreAlpha+')');
       gradient.addColorStop(0.34,'rgba('+baseColor.r+','+baseColor.g+','+baseColor.b+','+midAlpha+')');
@@ -126,7 +147,7 @@ function boot(){
       gradient.addColorStop(1,'rgba('+baseColor.r+','+baseColor.g+','+baseColor.b+',0)');
 
       if(bloomBlur>0.01){
-        ctx.shadowColor='rgba('+baseColor.r+','+baseColor.g+','+baseColor.b+','+clamp(strength*bloomStrength,0,0.16)+')';
+        ctx.shadowColor='rgba('+baseColor.r+','+baseColor.g+','+baseColor.b+','+clamp(strength*(0.08+bloomStrength),0,0.24)+')';
         ctx.shadowBlur=bloomBlur;
       }else{
         ctx.shadowBlur=0;
@@ -141,13 +162,13 @@ function boot(){
     ctx.shadowBlur=0;
 
     if(grainIntensity>0){
-      var particles=Math.max(4,Math.floor(28*grainIntensity*opacity));
+      var particles=Math.max(8,Math.floor(90*grainIntensity*opacity));
       for(var g=0;g<particles;g++){
         var gp=trail[Math.min(trail.length-1,Math.floor(rand()*Math.min(trail.length,12)))]||current;
         var angle=rand()*Math.PI*2;
         var dist=(0.2+rand()*0.8)*baseRadius;
         var size=0.4+rand()*1.3;
-        var alpha=grainIntensity*opacity*(0.03+rand()*0.08);
+        var alpha=grainIntensity*opacity*(0.10+rand()*0.18);
         ctx.fillStyle='rgba('+baseColor.r+','+baseColor.g+','+baseColor.b+','+alpha+')';
         ctx.fillRect(gp.x+Math.cos(angle)*dist,gp.y+Math.sin(angle)*dist,size,size);
       }
@@ -182,8 +203,8 @@ function boot(){
     pushTrail(current.x,current.y);
 
     var idle=now-lastMove;
-    var opacity=1;
-    if(!pointerActive&&idle>fadeDelay){
+    var opacity=hasPointerMoved?1:0;
+    if(hasPointerMoved&&!pointerActive&&idle>fadeDelay){
       opacity=1-clamp((idle-fadeDelay)/fadeDuration,0,1);
     }
 
@@ -207,6 +228,7 @@ function boot(){
     if(event.pointerType==='touch')return;
     target.x=clamp(event.clientX,0,width);
     target.y=clamp(event.clientY,0,height);
+    hasPointerMoved=true;
     pointerActive=true;
     lastMove=performance.now();
     ensureLoop();
@@ -219,7 +241,7 @@ function boot(){
   }
 
   function onPointerEnter(event){
-    if(event.pointerType==='touch')return;
+    if(event.pointerType==='touch'||!hasPointerMoved)return;
     target.x=clamp(event.clientX,0,width);
     target.y=clamp(event.clientY,0,height);
     pointerActive=true;

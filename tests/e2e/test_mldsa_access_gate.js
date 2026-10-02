@@ -105,10 +105,10 @@ assert(ghostCss.includes('opacity:0'),'GhostCursor particles must start hidden b
 assert(ghostJs.includes("node.className='entry-ghost-particle'"),'GhostCursor must create visible DOM trail particles');
 assert(ghostJs.includes("renderer:'dom-particles'"),'GhostCursor must report DOM particle renderer');
 assert(ghostJs.includes("window.addEventListener('pointermove',move"),'GhostCursor DOM renderer must follow pointer movement');
-assert(ghostJs.includes("window.addEventListener('pointermove',onPointerMove"),'GhostCursor must react to cursor movement');
+assert(ghostJs.includes("window.addEventListener('pointermove',move"),'GhostCursor must react to cursor movement');
 assert(ghostJs.includes('var hasPointer=false'),'GhostCursor must stay hidden until actual pointer movement');
 assert(ghostJs.includes('if(!hasPointer){'),'GhostCursor must initialize only after real cursor movement');
-assert(ghostJs.includes("trailLength=Math.max(1,Math.floor(parseNumber(host.getAttribute('data-trail-length'),50)))"),'GhostCursor trailLength runtime binding missing');
+assert(ghostJs.includes("trailLength=Math.max(1,Math.min(50,Math.floor(numberAttr(host,'data-trail-length',50))))"),'GhostCursor trailLength runtime binding missing');
 assert(ghostJs.includes("numberAttr(host,'data-inertia',0.5)"),'GhostCursor inertia configuration binding missing');
 assert(ghostJs.includes('follow=(0.34-(tailRatio*0.20))*(1-inertia*0.32)'),'GhostCursor inertial trail following missing');
 assert(ghostJs.includes('idle>fadeDelay')&&ghostJs.includes('(idle-fadeDelay)/fadeDuration'),'GhostCursor fade-out behavior missing');

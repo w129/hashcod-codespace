@@ -84,13 +84,13 @@ Hashcod Codespace uses a native JavaScript adaptation of **React Bits RotatingTe
 - License: MIT
 - Hashcod adaptation: preserves the requested four-text loop (`code`, `dev`, `programing`, `llm`, `deeplearming`, plus data-structure terms such as `data structures`, `algorithms`, `schemas`, `vectors`, `graphs`, `trees`, and `hash maps`), 2000 ms rotation interval, character-level reveal, last-to-first 25 ms staggering, vertical 100% entry / -120% exit motion, reduced-motion handling, and imperative next/previous/jump/reset controls. The first entry page is native PHP/JavaScript, so this adaptation does not add a React/Motion runtime. The demo accent background is replaced with Hashcod black.
 
-## React Bits — GhostCursor
 
-Hashcod Codespace uses a native DOM-particle adaptation of **React Bits GhostCursor** as a decorative background on the first entry screen.
+## React Bits — SplashCursor
+
+Hashcod Codespace uses a native JavaScript adaptation of **React Bits SplashCursor** as the interactive fluid background on the first entry screen.
 
 - Project: React Bits
 - Source: https://github.com/DavidHDev/react-bits
-- Component: `GhostCursor`
+- Component: `SplashCursor`
 - License: MIT
-- Hashcod adaptation: preserves the requested cursor-driven trail model with trail length 50, inertia 0.5, brightness 1, edge intensity 0, grain intensity 0.05, bloom strength 0.1, bloom radius 1.0, bloom threshold 0.025, 1000 ms fade delay, and 1500 ms fade duration. The upstream demo text is not included. The original purple color is replaced with black, the upstream demo text is omitted, and the native PHP/JavaScript entry page uses lightweight blurred DOM particles instead of loading React/Three.js solely for this background effect.
-
+- Hashcod adaptation: preserves the upstream WebGL fluid simulation defaults, including simulation resolution 128, dye resolution 1440, density dissipation 3.5, velocity dissipation 2, pressure 0.1, 20 pressure iterations, curl 3, splat radius 0.2, splat force 6000, shading, and cursor/touch-driven splats. Rainbow mode is disabled. Because a literal black dye would have zero RGB density in the upstream alpha calculation, Hashcod keeps non-zero internal density while the display shader renders that density as black with alpha, producing a visible black liquid effect on the light entry background.

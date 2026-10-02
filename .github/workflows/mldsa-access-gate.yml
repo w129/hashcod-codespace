@@ -17,8 +17,8 @@ on:
       - components/mldsa-access-gate.js
       - components/react-bits-rotating-text.js
       - components/react-bits-rotating-text.css
-      - components/react-bits-ghost-cursor.js
-      - components/react-bits-ghost-cursor.css
+      - components/react-bits-splash-cursor.js
+      - components/react-bits-splash-cursor.css
       - config/mldsa87-access-public.b64
       - l8-html.php
       - router.php
@@ -51,7 +51,7 @@ jobs:
           python3 -m py_compile scripts/mldsa87_access.py
           node --check components/mldsa-access-gate.js
           node --check components/react-bits-rotating-text.js
-          node --check components/react-bits-ghost-cursor.js
+          node --check components/react-bits-splash-cursor.js
           node --check components/device-usage-tracker.js
           node --check components/pqc-action-runtime.js
           node --check components/page-mascot-panda.js
@@ -79,9 +79,10 @@ jobs:
           grep -q 'id="d5RotatingTextHero"' /tmp/hashcod-home.html
           grep -q 'data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps"' /tmp/hashcod-home.html
           grep -q '>Creates like</span>' /tmp/hashcod-home.html
-          grep -q 'id="d5GhostCursorBackground"' /tmp/hashcod-home.html
+          grep -q 'id="d5SplashCursorBackground"' /tmp/hashcod-home.html
+          grep -q 'id="d5SplashCursorCanvas"' /tmp/hashcod-home.html
           grep -q 'data-color="#000000"' /tmp/hashcod-home.html
-          grep -q 'data-trail-length="50"' /tmp/hashcod-home.html
+          grep -q 'data-rainbow-mode="false"' /tmp/hashcod-home.html
           ! grep -q "Reto ML-DSA-87" /tmp/hashcod-home.html
 
       - name: Enter platform without cryptographic challenge

@@ -9,10 +9,19 @@
   let observer = null;
 
   function apply() {
-    if ((window.innerWidth || 0) < DESKTOP_MIN_WIDTH) return false;
+    const folder = document.getElementById('hashcodRareFolderHost');
+    if ((window.innerWidth || 0) < DESKTOP_MIN_WIDTH) {
+      if (folder) {
+        folder.style.removeProperty('position');
+        folder.style.removeProperty('left');
+        folder.style.removeProperty('top');
+        folder.removeAttribute('data-hashcod-folder-position-restored');
+        folder.removeAttribute('data-hashcod-brand-anchor-restored');
+      }
+      return false;
+    }
 
     const overlay = document.getElementById('bootCliOverlay');
-    const folder = document.getElementById('hashcodRareFolderHost');
     if (!overlay || !folder) return false;
 
     const rect = overlay.getBoundingClientRect();

@@ -48,7 +48,7 @@ assert(html.includes('hashcod-rare-folder-inline'), 'production HTML must emit a
 assert(html.includes("$rareFolderExternalTag = $rareFolderBundle === ''"), 'Rare UI external fallback must only load when the inline bundle is unavailable');
 assert(html.includes('rare-folder-entry.bundle.js?v=20260919-perf1'), 'production Rare UI fallback cache version missing');
 assert(html.includes('hashcod-rare-folder-placement'), 'production HTML must include the visibility/placement override');
-assert(html.includes('left:38vw!important'), 'legacy desktop placement remains as a no-JS fallback');
+assert(html.includes('left:27vw!important'), 'responsive desktop placement must keep the folder in the left pane');
 assert(html.includes('top:50vh!important'), 'legacy folder fallback remains vertically centered');
 assert(html.includes('z-index:2147482500!important'), 'folder must render above the boot surface');
 assert(html.includes('[data-slot="folder"]{pointer-events:auto!important'), 'the folder itself must remain interactive');
@@ -75,4 +75,11 @@ assert(source.includes('reveal="letter"'), 'TechText must preserve reveal=letter
 assert(source.includes('dashLength={4}'), 'TechText must preserve dashLength=4');
 assert(source.includes('dashGap={2}'), 'TechText must preserve dashGap=2');
 assert(source.includes('specks={15}'), 'TechText must preserve specks=15');
+assert(source.includes("height: '100%'"), 'TechText wrapper must adapt to the responsive host height');
+assert(source.includes('function layoutTechTextHost'), 'TechText responsive layout helper is missing');
+assert(source.includes("data-hashcod-tech-text-layout"), 'TechText layout mode marker is missing');
+assert(source.includes("z-index', '2147482400'"), 'TechText panel must render above stale boot surfaces but below the folder');
+assert(source.includes("canvas.style.setProperty('display', 'block', 'important')"), 'TechText canvas must override stale boot canvas hiding');
+assert(source.includes('width = clamp(viewportWidth * 0.46, 680, 900)'), 'desktop TechText panel must be bounded instead of full-width');
+assert(source.includes('centerY = viewportHeight * 0.70'), 'phone TechText panel must stack below the folder');
 

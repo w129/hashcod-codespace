@@ -102,8 +102,17 @@
         if (!overlay) return false;
         if ((window.innerWidth || 0) < DESKTOP_LANDING_MIN_WIDTH) {
             if (folder) {
+                folder.style.removeProperty('position');
+                folder.style.removeProperty('left');
+                folder.style.removeProperty('top');
                 folder.removeAttribute('data-hashcod-folder-position-restored');
                 folder.removeAttribute('data-hashcod-brand-anchor-restored');
+            }
+            if (fallback) {
+                fallback.style.removeProperty('position');
+                fallback.style.removeProperty('left');
+                fallback.style.removeProperty('top');
+                fallback.removeAttribute('data-hashcod-folder-position-restored');
             }
             return false;
         }
@@ -111,7 +120,7 @@
         const overlayRect = overlay.getBoundingClientRect();
         if (!overlayRect.width || !overlayRect.height) return false;
 
-        const desiredCenterX = overlayRect.left + (overlayRect.width * 0.38);
+        const desiredCenterX = overlayRect.left + (overlayRect.width * 0.27);
         const desiredCenterY = overlayRect.top + (overlayRect.height * 0.50);
 
         if (folder) {

@@ -1,4 +1,4 @@
-// Keep the Rare UI folder at the historical Hashcod desktop anchor.
+// Keep the Rare UI folder aligned with the responsive TechText presentation.
 // This file is injected into the generated folder bundle so the placement is
 // applied from the same inline artifact in both hosted and local builds.
 (function () {
@@ -9,16 +9,25 @@
   let observer = null;
 
   function apply() {
-    if ((window.innerWidth || 0) < DESKTOP_MIN_WIDTH) return false;
+    const folder = document.getElementById('hashcodRareFolderHost');
+    if ((window.innerWidth || 0) < DESKTOP_MIN_WIDTH) {
+      if (folder) {
+        folder.style.removeProperty('position');
+        folder.style.removeProperty('left');
+        folder.style.removeProperty('top');
+        folder.removeAttribute('data-hashcod-folder-position-restored');
+        folder.removeAttribute('data-hashcod-brand-anchor-restored');
+      }
+      return false;
+    }
 
     const overlay = document.getElementById('bootCliOverlay');
-    const folder = document.getElementById('hashcodRareFolderHost');
     if (!overlay || !folder) return false;
 
     const rect = overlay.getBoundingClientRect();
     if (!rect.width || !rect.height) return false;
 
-    const left = (rect.left + rect.width * 0.38).toFixed(2) + 'px';
+    const left = (rect.left + rect.width * 0.27).toFixed(2) + 'px';
     const top = (rect.top + rect.height * 0.50).toFixed(2) + 'px';
 
     if (folder.style.getPropertyValue('position') !== 'fixed' || folder.style.getPropertyPriority('position') !== 'important') {

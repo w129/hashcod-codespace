@@ -15,6 +15,8 @@ on:
       - components/page-mascot-panda.css
       - components/mldsa-access-gate.css
       - components/mldsa-access-gate.js
+      - components/react-bits-rotating-text.js
+      - components/react-bits-rotating-text.css
       - config/mldsa87-access-public.b64
       - l8-html.php
       - router.php
@@ -46,6 +48,7 @@ jobs:
           php -l router.php
           python3 -m py_compile scripts/mldsa87_access.py
           node --check components/mldsa-access-gate.js
+          node --check components/react-bits-rotating-text.js
           node --check components/device-usage-tracker.js
           node --check components/pqc-action-runtime.js
           node --check components/page-mascot-panda.js
@@ -70,6 +73,8 @@ jobs:
         run: |
           grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-home.html
           grep -q ">Entrar</span>" /tmp/hashcod-home.html
+          grep -q 'id="d5RotatingTextHero"' /tmp/hashcod-home.html
+          grep -q 'data-texts="React|Bits|Is|Cool!"' /tmp/hashcod-home.html
           ! grep -q "Reto ML-DSA-87" /tmp/hashcod-home.html
 
       - name: Enter platform without cryptographic challenge

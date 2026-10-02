@@ -111,7 +111,7 @@
         const overlayRect = overlay.getBoundingClientRect();
         if (!overlayRect.width || !overlayRect.height) return false;
 
-        const desiredCenterX = overlayRect.left + (overlayRect.width * 0.38);
+        const desiredCenterX = overlayRect.left + (overlayRect.width * 0.27);
         const desiredCenterY = overlayRect.top + (overlayRect.height * 0.50);
 
         if (folder) {

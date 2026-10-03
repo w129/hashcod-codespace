@@ -350,7 +350,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/page-mascot-panda.css?v=20260929-panda2" data-hashcod-page-mascot-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/platform-branched-menu.css?v=20261003-branched1" data-hashcod-branched-menu-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/platform-branched-menu.css?v=20261003-branched2" data-hashcod-branched-menu-style="true">'
             . $inlinePlatformCrmCssTag
             . $platformCrmCssExternalTag
             . $efrCssExternalTag
@@ -592,7 +592,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260926-noregform1" data-hashcod-entry-capability-footer-fix="true"></script>'
             . '<script defer src="' . $base . 'components/device-usage-tracker.js?v=20260928-deviceusage1" data-hashcod-device-usage-tracker="true"></script>'
             . '<script defer src="' . $base . 'components/page-mascot-panda.js?v=20260929-panda2" data-hashcod-page-mascot="true"></script>'
-            . '<script defer src="' . $base . 'components/platform-branched-menu.js?v=20261003-branched1" data-hashcod-branched-menu="true"></script>'
+            . '<script defer src="' . $base . 'components/platform-branched-menu.js?v=20261003-branched2" data-hashcod-branched-menu="true"></script>'
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'

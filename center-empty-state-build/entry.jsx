@@ -1,23 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { createRoot } from "react-dom/client";
 import EmptyState from "./EmptyState";
 import "./entry.css";
-
-function WorkspaceFrameIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="100"
-      height="100"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 6 L 3 7 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 7 L 21 6 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 5 7 L 19 7 L 19 19 L 5 19 L 5 7 z" />
-    </svg>
-  );
-}
 
 function CcCardTitleIcon() {
   return (
@@ -31,30 +15,6 @@ function CcCardTitleIcon() {
       focusable="false"
     >
       <path d="M 27.607422 6.9980469 C 26.352666 7.0120547 25.059761 7.1042075 23.738281 7.2792969 C 18.452417 7.9796473 13.66972 9.8778977 10.091797 12.498047 C 6.5138736 15.118196 4 18.560747 4 22.443359 C 4 25.85995 6.1160513 28.694861 9.1464844 30.501953 C 9.0602377 30.848045 9 31.200556 9 31.558594 C 9 33.415574 10.09709 34.975782 11.380859 35.818359 C 12.664629 36.660937 14.125108 37 15.535156 37 C 15.551086 37 15.568034 36.994241 15.583984 36.994141 C 15.1831 39.346618 14.640625 41.265625 14.640625 41.265625 A 2.0002 2.0002 0 1 0 18.359375 42.734375 C 18.359375 42.734375 19.295328 39.756034 19.697266 36.126953 C 20.298327 35.898565 20.915525 35.718174 21.476562 35.384766 C 22.451394 34.805473 23.37214 33.990454 24.03125 32.984375 C 29.260547 32.640915 34.095712 30.998162 37.751953 28.386719 C 41.438969 25.753294 44 21.995709 44 17.675781 C 44 13.793169 41.28539 10.66032 37.574219 8.9257812 C 35.718633 8.0585122 33.580715 7.4720066 31.246094 7.1894531 C 30.078783 7.0481764 28.862177 6.9840391 27.607422 6.9980469 z M 27.646484 11.003906 C 30.911701 10.977549 33.777988 11.567951 35.880859 12.550781 C 38.684688 13.861243 40 15.595394 40 17.675781 C 40 20.418853 38.384468 23.019034 35.427734 25.130859 C 32.737896 27.052057 28.993177 28.439813 24.884766 28.888672 C 24.699104 28.076557 24.287687 27.365461 23.695312 26.699219 C 22.879189 25.781326 21.573503 25 20 25 C 17.463873 25 16.217585 26.353088 15.496094 27.371094 C 14.859603 27.182483 14.214947 27 13.53125 27 C 12.885786 27 12.284894 27.13869 11.744141 27.376953 C 9.1984811 26.080168 8 24.426333 8 22.443359 C 8 20.362972 9.5180014 17.87546 12.455078 15.724609 C 15.392155 13.573758 19.607583 11.86079 24.261719 11.244141 C 25.425239 11.08998 26.558079 11.012692 27.646484 11.003906 z M 20 29 C 20.296497 29 20.490655 29.114064 20.707031 29.357422 C 20.923407 29.60078 21 30.030702 21 29.853516 C 21 30.561866 20.547645 31.16549 19.660156 31.757812 C 19.452809 30.964871 19.104901 30.265386 18.650391 29.623047 C 18.881122 29.321539 19.255982 29 20 29 z M 13.53125 31 C 14.411069 31 14.929853 31.252778 15.3125 31.658203 C 15.545513 31.905086 15.606501 32.49711 15.730469 32.972656 C 15.669824 32.974585 15.593918 33 15.535156 33 C 14.841204 33 14.033903 32.775032 13.576172 32.474609 C 13.118441 32.174187 13 32.013613 13 31.558594 C 13 31.276563 13.085528 31 13.53125 31 z" />
-    </svg>
-  );
-}
-
-function WorkspaceCheckedIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="100"
-      height="100"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M 5 3 C 3.895 3 3 3.895 3 5 L 3 6 L 3 7 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 7 L 21 6 L 21 5 C 21 3.895 20.105 3 19 3 L 5 3 z M 5 7 L 19 7 L 19 19 L 5 19 L 5 7 z" />
-      <path
-        d="M 8.25 12.35 L 10.7 14.8 L 15.85 9.65"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
     </svg>
   );
 }
@@ -92,27 +52,18 @@ function CenterWorkspaceEmptyState() {
       title="VC"
       titleIcon={<CcCardTitleIcon />}
       description={
-        confirmed
-          ? "Opening your workspace."
-          : "Confirm to open the workspace from the center of Hashcod Codespace."
-      }
-      icon={
-        confirmed ? (
-          <WorkspaceCheckedIcon />
-        ) : (
-          <WorkspaceFrameIcon />
-        )
-      }
+        conffunction CenterWorkspaceEmptyState() {
+  return (
+    <EmptyState
+      label="VC"
+      icon={<CcCardTitleIcon />}
       action={
         <button
           id="d5CenterEmptyStateAction"
           className="hashcod-empty-state-action"
           type="button"
-          onClick={handleAction}
-          disabled={opening}
-          aria-busy={opening ? "true" : "false"}
         >
-          {opening ? "Opening…" : "Open Workspace"}
+          Open Workspace
         </button>
       }
     />
@@ -129,7 +80,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261003-vc-icon4",
+    version: "20261003-icon-button5",
   });
 
   return true;

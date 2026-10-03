@@ -153,7 +153,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     assert.equal(await page.locator('#d5ToolDeck').isVisible(),false,'source card deck must not be visible before touching Card');
     assert.equal(await page.locator('#d5ToolDeck').getAttribute('aria-hidden'),'true','source card deck must stay out of the accessibility tree');
-    assert.equal(await page.getByText('Spotlight Code',{exact:true}).count(),1,'Spotlight Code may exist only inside the hidden source before Card opens');
+    const visibleSpotlightBefore=await page.locator('h2').evaluateAll(nodes=>nodes.filter(node=>node.textContent.trim()==='Spotlight Code'&&node.getClientRects().length>0&&getComputedStyle(node).visibility!=='hidden').length);
+    assert.equal(visibleSpotlightBefore,0,'Spotlight Code must not be visible before Card is selected');
     const backgroundBefore=await page.locator('#d5ToolDeck').boundingBox();
     assert.equal(backgroundBefore,null,'hidden source deck must have no visible bounding box');
 
@@ -286,6 +287,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.deepEqual(cardModalState.cards,['Spotlight Code','Pit Barriers','Single bed base','Tokenized certification'],'Card modal must clone the complete tool deck');
     assert.equal(cardModalState.frontTitle,'Spotlight Code','Spotlight Code must remain the front card after Card is selected');
     assert.equal(await page.locator('#d5CardModalShell').isVisible(),true,'Card modal must be the only visible card presentation after selection');
+    const visibleSpotlightAfter=await page.locator('h2').evaluateAll(nodes=>nodes.filter(node=>node.textContent.trim()==='Spotlight Code'&&node.getClientRects().length>0&&getComputedStyle(node).visibility!=='hidden').length);
+    assert.equal(visibleSpotlightAfter,1,'Spotlight Code must become visible only inside the Card modal');
     assert.equal(cardModalState.expanded,false,'Card modal must open stacked');
 
     const originalDeckAfter=await page.locator('#d5ToolDeck').boundingBox();

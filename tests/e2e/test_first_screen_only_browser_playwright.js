@@ -376,7 +376,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5TextEditorCard').getAttribute('hidden'),'','Workspace editor must be natively hidden initially');
     assert.equal(await page.locator('#d5WorkspaceModalBackdrop').isVisible(),false,'Workspace backdrop must stay hidden initially');
 
-    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.getByRole('button',{name:'Workspace',exact:true}).click();
     assert.equal(new URL(page.url()).hash,'#workspace','Workspace selection must navigate to #workspace');
     await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5WorkspaceModalBackdrop',{state:'visible',timeout:5000});
@@ -438,14 +438,14 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5TextEditorCard').getAttribute('hidden'),'','Workspace close must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','Workspace close must clear the hash');
 
-    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.getByRole('button',{name:'Workspace',exact:true}).click();
     await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
     assert.equal(await page.locator('#d5TextEditorInput').inputValue(),'Workspace modal test','Workspace content must survive close/reopen in the same session');
     await page.locator('#d5WorkspaceModalBackdrop').click({position:{x:5,y:5}});
     await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
     assert.equal(new URL(page.url()).hash,'','clicking outside Workspace must close it');
 
-    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.getByRole('button',{name:'Workspace',exact:true}).click();
     await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
     await page.keyboard.press('Escape');
     await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});

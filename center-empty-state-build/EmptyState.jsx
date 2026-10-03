@@ -13,7 +13,17 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { motionTokens } from "./motion-tokens";
-import styles from "./empty-state.module.css";
+import "./empty-state.css";
+
+const styles = Object.freeze({
+  root: "center-empty-state-root",
+  icon: "center-empty-state-icon",
+  glyph: "center-empty-state-glyph",
+  frame: "center-empty-state-frame",
+  copy: "center-empty-state-copy",
+  line: "center-empty-state-line",
+  action: "center-empty-state-action-slot",
+});
 
 const exitFast = {
   duration: motionTokens.duration.fast,

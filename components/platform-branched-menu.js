@@ -169,7 +169,12 @@ function platformReady(){
 }
 
 function show(){
-  if(root)root.hidden=false;
+  if(!root)return;
+  root.hidden=false;
+  root.style.setProperty('display','block','important');
+  root.style.setProperty('visibility','visible','important');
+  root.style.setProperty('opacity','1','important');
+  root.setAttribute('data-hashcod-branched-menu-visible','true');
 }
 
 function showWhenPlatformReady(){
@@ -178,12 +183,30 @@ function showWhenPlatformReady(){
     return;
   }
 
+  var rootNode=document.documentElement;
+  var observer=null;
+  if(rootNode&&typeof MutationObserver==='function'){
+    observer=new MutationObserver(function(){
+      if(platformReady()){
+        if(observer)observer.disconnect();
+        show();
+      }
+    });
+    observer.observe(rootNode,{attributes:true,attributeFilter:['data-hashcod-platform-entered','class']});
+  }
+
   var attempts=0;
   var timer=window.setInterval(function(){
     attempts++;
-    if(platformReady()||attempts>80){
+    if(platformReady()){
       window.clearInterval(timer);
+      if(observer)observer.disconnect();
       show();
+      return;
+    }
+    if(attempts>24){
+      window.clearInterval(timer);
+      if(observer)observer.disconnect();
     }
   },125);
 }

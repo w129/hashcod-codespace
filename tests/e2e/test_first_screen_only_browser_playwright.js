@@ -589,36 +589,30 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     const centerPosition=await page.evaluate(()=>{
       const stage=document.getElementById('d5CenterEmptyStateStage');
       const rect=stage.getBoundingClientRect();
+      const svg=stage.querySelector('.center-empty-state-glyph svg');
       return {
         centerX:rect.left+(rect.width/2),
         viewportCenterX:window.innerWidth/2,
-        title:stage.querySelector('h3')?.textContent?.trim()||'',
-        titleIconViewBox:stage.querySelector('.center-empty-state-title-icon svg')?.getAttribute('viewBox')||'',
-        titleIconWidth:stage.querySelector('.center-empty-state-title-icon svg')?getComputedStyle(stage.querySelector('.center-empty-state-title-icon svg')).width:'',
+        headingCount:stage.querySelectorAll('h3').length,
+        paragraphCount:stage.querySelectorAll('p').length,
+        svgCount:stage.querySelectorAll('.center-empty-state-root svg').length,
+        iconViewBox:svg?.getAttribute('viewBox')||'',
+        iconWidth:svg?getComputedStyle(svg).width:'',
         button:document.getElementById('d5CenterEmptyStateAction')?.textContent?.trim()||''
       };
     });
     assert(Math.abs(centerPosition.centerX-centerPosition.viewportCenterX)<=3,'center EmptyState must stay centered in the viewport');
-    assert.equal(centerPosition.title,'VC','center EmptyState title must be VC');
-    assert.equal(centerPosition.titleIconViewBox,'0 0 48 48','VC title icon must preserve the supplied viewBox');
-    assert.equal(centerPosition.titleIconWidth,'30px','VC title icon must be adapted beside the title');
-    assert.equal(centerPosition.button,'Open Workspace','center EmptyState action label changed');
+    assert.equal(centerPosition.headingCount,0,'center layout must not render a title');
+    assert.equal(centerPosition.paragraphCount,0,'center layout must not render a subtitle');
+    assert.equal(centerPosition.svgCount,1,'center layout must render only the retained former title icon');
+    assert.equal(centerPosition.iconViewBox,'0 0 48 48','retained centered icon must preserve the supplied viewBox');
+    assert.equal(centerPosition.iconWidth,'30px','retained centered icon must keep the adapted 30px size');
+    assert.equal(centerPosition.button,'Open Workspace','center action label changed');
 
     await page.locator('#d5CenterEmptyStateAction').click();
-    await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateStage')?.querySelector('h3')?.textContent?.trim()==='VC',{timeout:3000});
-    const checkedIcon=await page.evaluate(()=>{
-      const stage=document.getElementById('d5CenterEmptyStateStage');
-      const svg=stage?.querySelector('svg');
-      return {
-        paths:svg?svg.querySelectorAll('path').length:0,
-        check:Boolean(svg?.querySelector('path[d="M 8.25 12.35 L 10.7 14.8 L 15.85 9.65"]'))
-      };
-    });
-    assert.equal(checkedIcon.paths,2,'confirmed icon must contain the frame and the checkmark');
-    assert.equal(checkedIcon.check,true,'checkmark must appear inside the supplied SVG after clicking');
-    await page.waitForTimeout(750);
-    assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'center EmptyState button must not set the Workspace modal state');
-    assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'center EmptyState button must not open Workspace until a destination is assigned');
+    await page.waitForTimeout(350);
+    assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'center button must not set the Workspace modal state');
+    assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'center button must not open Workspace until a destination is assigned');
 
     console.log('✓ FAQ, Card, Workspace, Text Card, Documents and centered EmptyState remain functional without a center-button destination');
   }finally{

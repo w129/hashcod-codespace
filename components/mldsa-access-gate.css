@@ -3276,19 +3276,26 @@ body[data-hashcod-entry-intro="1"] .faq-tabs-card{
 .faq-modal-backdrop{
   position:fixed;
   inset:0;
-  z-index:2147483600;
+  z-index:2147483646;
   display:block;
-  background:rgba(246,246,246,.42);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+  width:100vw;
+  height:100dvh;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
   opacity:0;
   transition:opacity .20s ease;
+  pointer-events:auto;
 }
 .faq-modal-backdrop[hidden]{
   display:none!important;
 }
 body.faq-modal-open{
   overflow:hidden;
+}
+body.faq-modal-open > *:not(#d5FaqModalBackdrop):not(#d5FaqCard){
+  pointer-events:none!important;
+  user-select:none!important;
 }
 body.faq-modal-open .faq-modal-backdrop{
   opacity:1;
@@ -3299,7 +3306,7 @@ body[data-hashcod-entry-intro="1"].faq-modal-open .faq-tabs-card{
   top:50%;
   right:auto;
   bottom:auto;
-  z-index:2147483601;
+  z-index:2147483647;
   display:flex;
   width:min(378px,calc(100vw - 32px));
   max-width:378px;

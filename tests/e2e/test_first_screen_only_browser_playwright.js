@@ -35,6 +35,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const faqIcon=faqItem?.querySelector('svg');
       const cardItem=Array.from(document.querySelectorAll('.branched-menu__item')).find(n=>n.textContent.trim()==='Card');
       const cardIcon=cardItem?.querySelector('svg');
+      const workspaceItem=Array.from(document.querySelectorAll('.branched-menu__item')).find(n=>n.textContent.trim()==='Workspace');
+      const workspaceIcon=workspaceItem?.querySelector('svg');
       const basePath=document.querySelector('.branched-menu__base');
       const stageStyle=getComputedStyle(stage);
       const menuStyle=getComputedStyle(menu);
@@ -94,6 +96,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           fill:cardIcon?getComputedStyle(cardIcon).fill:'',
           viewBox:cardIcon?.getAttribute('viewBox')||''
         },
+        workspaceMenu:{
+          exists:Boolean(workspaceItem),
+          width:workspaceIcon?getComputedStyle(workspaceIcon).width:'',
+          height:workspaceIcon?getComputedStyle(workspaceIcon).height:'',
+          fill:workspaceIcon?getComputedStyle(workspaceIcon).fill:'',
+          viewBox:workspaceIcon?.getAttribute('viewBox')||''
+        },
         svg:{
           fill:basePath?getComputedStyle(basePath).fill:'',
           stroke:basePath?getComputedStyle(basePath).stroke:'',
@@ -117,7 +126,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.menu.paddingLeft,'14px','source rail offset must remain exact');
     assert(state.menu.width<=240.5,'BranchedMenu width prop must remain 240px');
     assert.deepEqual(state.heads,[{label:'Getting started',expanded:'true'},{label:'Components',expanded:'false'}],'defaultOpen={[0]} must remain exact');
-    assert.deepEqual(state.labels,['FAQ','Card','Quick start','Configuration','Buttons','Overlays'],'menu labels must match the supplied usage exactly');
+    assert.deepEqual(state.labels,['FAQ','Card','Workspace','Quick start','Configuration','Buttons','Overlays'],'menu labels must include Workspace in the requested structure');
     assert.equal(state.active,'Quick start','defaultActive must remain quick');
     assert.equal(state.item.display,'flex','child row source layout changed');
     assert.equal(state.item.height,'36px','rowHeight=36 must remain exact');
@@ -140,6 +149,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.cardMenu.height,'16px','Card SVG height must be 16px');
     assert.equal(state.cardMenu.fill,'rgb(10, 10, 10)','Card SVG must inherit black menu ink');
     assert.equal(state.cardMenu.viewBox,'0 0 16 16','Card SVG must preserve the supplied viewBox');
+    assert.equal(state.workspaceMenu.exists,true,'Workspace must be present in the BranchedMenu');
+    assert.equal(state.workspaceMenu.width,'16px','Workspace SVG width must be 16px');
+    assert.equal(state.workspaceMenu.height,'16px','Workspace SVG height must be 16px');
+    assert.equal(state.workspaceMenu.fill,'rgb(10, 10, 10)','Workspace SVG must inherit black menu ink');
+    assert.equal(state.workspaceMenu.viewBox,'0 0 24 24','Workspace SVG must preserve the supplied viewBox');
     assert.equal(state.svg.fill,'none','branch SVG must never render as filled polygons');
     assert.equal(state.svg.stroke,'rgb(10, 10, 10)','branch lines must be black');
     assert.equal(state.svg.strokeWidth,'1.5px','lineWidth=1.5 must remain exact');
@@ -320,6 +334,78 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
     assert.equal(await page.locator('#d5CardModalShell').getAttribute('hidden'),'','Escape must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','Escape must close Card modal');
+
+    assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Workspace editor must stay hidden before Workspace is selected');
+    assert.equal(await page.locator('#d5TextEditorCard').getAttribute('hidden'),'','Workspace editor must be natively hidden initially');
+    assert.equal(await page.locator('#d5WorkspaceModalBackdrop').isVisible(),false,'Workspace backdrop must stay hidden initially');
+
+    await page.getByRole('button',{name:'Workspace'}).click();
+    assert.equal(new URL(page.url()).hash,'#workspace','Workspace selection must navigate to #workspace');
+    await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
+    await page.waitForSelector('#d5WorkspaceModalBackdrop',{state:'visible',timeout:5000});
+
+    const workspaceState=await page.evaluate(()=>{
+      const editor=document.getElementById('d5TextEditorCard');
+      const backdrop=document.getElementById('d5WorkspaceModalBackdrop');
+      const close=document.getElementById('d5WorkspaceClose');
+      const rect=editor.getBoundingClientRect();
+      const backdropStyle=getComputedStyle(backdrop);
+      return {
+        bodyOpen:document.body.classList.contains('workspace-modal-open'),
+        hidden:editor.hidden,
+        ariaHidden:editor.getAttribute('aria-hidden'),
+        role:editor.getAttribute('role'),
+        ariaModal:editor.getAttribute('aria-modal'),
+        centerX:rect.left+rect.width/2,
+        centerY:rect.top+rect.height/2,
+        viewportX:innerWidth/2,
+        viewportY:innerHeight/2,
+        width:rect.width,
+        backdropFilter:backdropStyle.backdropFilter||backdropStyle.webkitBackdropFilter||'',
+        backdropBackground:backdropStyle.backgroundColor,
+        backdropParent:backdrop.parentElement===document.body,
+        editorParent:editor.parentElement===document.body,
+        closeFocused:document.activeElement===close,
+        title:editor.querySelector('.liquid-editor-heading h3')?.textContent.trim()||'',
+        promptStudio:Boolean(document.getElementById('d5TextEditorPromptStudio'))
+      };
+    });
+    assert.equal(workspaceState.bodyOpen,true,'Workspace modal state class must be applied');
+    assert.equal(workspaceState.hidden,false,'Workspace must remove native hidden only after selection');
+    assert.equal(workspaceState.ariaHidden,'false','Workspace dialog must be exposed while open');
+    assert.equal(workspaceState.role,'dialog','Workspace must expose dialog semantics');
+    assert.equal(workspaceState.ariaModal,'true','Workspace must be modal');
+    assert(Math.abs(workspaceState.centerX-workspaceState.viewportX)<=2,'Workspace must be horizontally centered');
+    assert(Math.abs(workspaceState.centerY-workspaceState.viewportY)<=2,'Workspace must be vertically centered');
+    assert(workspaceState.width<=470.5,'Workspace width must stay adapted to the reference editor size');
+    assert(workspaceState.backdropFilter.includes('blur(24px)'),'Workspace backdrop must strongly blur the page');
+    assert.equal(workspaceState.backdropBackground,'rgba(255, 255, 255, 0.88)','Workspace backdrop must veil background content');
+    assert.equal(workspaceState.backdropParent,true,'Workspace backdrop must be portaled directly under body');
+    assert.equal(workspaceState.editorParent,true,'Workspace editor must be portaled directly under body');
+    assert.equal(workspaceState.closeFocused,true,'Workspace close control must receive focus');
+    assert.equal(workspaceState.title,'Workspace draft','Workspace must reuse the real editor from the reference image');
+    assert.equal(workspaceState.promptStudio,true,'Workspace must preserve Skill Studio integration');
+
+    await page.locator('#d5TextEditorInput').fill('Workspace modal test');
+    assert.equal(await page.locator('#d5TextEditorInput').inputValue(),'Workspace modal test','Workspace must keep the real editable text area functional');
+
+    await page.locator('#d5WorkspaceClose').click();
+    await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
+    assert.equal(await page.locator('#d5TextEditorCard').getAttribute('hidden'),'','Workspace close must restore native hidden');
+    assert.equal(new URL(page.url()).hash,'','Workspace close must clear the hash');
+
+    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
+    assert.equal(await page.locator('#d5TextEditorInput').inputValue(),'Workspace modal test','Workspace content must survive close/reopen in the same session');
+    await page.locator('#d5WorkspaceModalBackdrop').click({position:{x:5,y:5}});
+    await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','clicking outside Workspace must close it');
+
+    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','Escape must close Workspace');
 
     await page.getByRole('button',{name:'Components'}).click();
     await page.waitForFunction(()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Components')?.getAttribute('aria-expanded')==='true');

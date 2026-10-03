@@ -285,8 +285,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $splashCursorCss=htmlspecialchars($base.'components/react-bits-splash-cursor.css?v=20261002-splash1',ENT_QUOTES,'UTF-8');
     $splashCursorJs=htmlspecialchars($base.'components/react-bits-splash-cursor.js?v=20261002-splash1',ENT_QUOTES,'UTF-8');
-    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-card1',ENT_QUOTES,'UTF-8');
-    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-card1',ENT_QUOTES,'UTF-8');
+    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-workspace1',ENT_QUOTES,'UTF-8');
+    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-workspace1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -311,6 +311,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'<div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
       .'<div id="d5FaqModalBackdrop" class="faq-modal-backdrop" hidden aria-hidden="true"></div>'
+      .'<div id="d5WorkspaceModalBackdrop" class="workspace-modal-backdrop" hidden aria-hidden="true"></div>'
       .'<section id="d5FaqCard" class="faq-tabs-card" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="d5FaqModalTitle">'
       .'<div class="faq-modal-header"><h2 id="d5FaqModalTitle">FAQ</h2><button id="d5FaqClose" class="faq-modal-close" type="button" aria-label="Cerrar FAQ">×</button></div>'
       .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'
@@ -321,11 +322,11 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'<div id="d5FaqAccordion" class="faq-accordion"></div>'
       .'<button id="d5FaqFooter" class="faq-footer" type="button">Comenzar mi Solicitud</button>'
       .'</section>'
-      .'<section id="d5TextEditorCard" class="liquid-text-editor" aria-label="Text editor">'
+      .'<section id="d5TextEditorCard" class="liquid-text-editor" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Workspace" hidden>'
       .'<div class="liquid-editor-shine" aria-hidden="true"></div>'
       .'<header class="liquid-editor-header">'
       .'<div class="liquid-editor-heading"><span class="liquid-editor-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h10"></path></svg></span><div><p>TEXT EDITOR</p><h3>Workspace draft</h3></div></div>'
-      .'<span id="d5TextEditorStatus" class="liquid-editor-status" data-state="loading"><i></i><span>Loading</span></span>'
+      .'<div class="liquid-editor-header-actions"><span id="d5TextEditorStatus" class="liquid-editor-status" data-state="loading"><i></i><span>Loading</span></span><button id="d5WorkspaceClose" class="workspace-modal-close" type="button" aria-label="Cerrar Workspace">×</button></div>'
       .'</header>'
       .'<div class="liquid-editor-toolbar" role="toolbar" aria-label="File and text tools">'
       .'<button id="d5TextEditorImport" class="liquid-editor-tool" type="button" title="Abrir TXT, MD, CSV o VPD"><span>Open</span></button>'

@@ -31,12 +31,27 @@ const CardIcon = (
   </svg>
 );
 
+const WorkspaceIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M 3 3 C 2.447 3 2 3.448 2 4 L 2 15 C 2 15.28 2.1167344 15.531891 2.3027344 15.712891 L 2.3007812 15.712891 C 2.3007812 15.712891 5.9432969 19.73275 7.4042969 21.34375 C 7.7832969 21.76175 8.3227187 22 8.8867188 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 6.7324219 C 22 6.2594219 21.833344 5.8024063 21.527344 5.4414062 C 20.868344 4.6624063 19.753906 3.34375 19.753906 3.34375 C 19.753906 3.34375 19.752953 3.358375 19.751953 3.359375 C 19.568953 3.143375 19.305 3 19 3 L 3 3 z M 4 5 L 18 5 L 18 14 L 15 14 C 14.236 12.849 12.671 12.011 11 12 C 9.315 12 7.526 12.986 7 14 L 4 14 L 4 5 z M 11 12 A 3 3 0 0 0 11 6 A 3 3 0 0 0 11 12 z M 7.0234375 14 L 14.976562 14 C 15.609562 14.838 16 15.869 16 17 L 6 17 C 6 15.869 6.3904375 14.838 7.0234375 14 z" />
+  </svg>
+);
+
 const items = [
   {
     label: 'Getting started',
     children: [
       { value: 'faq', label: 'FAQ', icon: FaqIcon },
       { value: 'card', label: 'Card', icon: CardIcon },
+      { value: 'workspace', label: 'Workspace', icon: WorkspaceIcon },
       { value: 'quick', label: 'Quick start', icon: Rocket01Icon },
       { value: 'config', label: 'Configuration', icon: Settings02Icon }
     ]
@@ -93,7 +108,7 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261003-card1'
+    version: '20261003-workspace1'
   });
   return true;
 }

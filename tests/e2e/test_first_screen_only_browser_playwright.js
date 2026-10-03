@@ -48,6 +48,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           enter:document.getElementById('d5Verify')!==null,
           revenue:document.getElementById('d5EntryStatCard')!==null
         },
+        removedCards:{
+          tilt:document.getElementById('d5TiltCardDemo')!==null,
+          savedChat:document.getElementById('d5SavedChatDemo')!==null,
+          tiltText:(document.body.innerText||'').includes('Current price to purchase a slot'),
+          savedText:(document.body.innerText||'').includes('Saved Messages')
+        },
         stage:{
           width:stage.getBoundingClientRect().width,
           background:stageStyle.backgroundColor,
@@ -99,6 +105,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     assert.deepEqual(componentErrors,[],'BranchedMenu must mount without component runtime errors');
     assert.deepEqual(state.formerWindow,{accessCard:false,enter:false,revenue:false},'old white access window must be completely gone');
+    assert.deepEqual(state.removedCards,{tilt:false,savedChat:false,tiltText:false,savedText:false},'removed price and Saved Messages cards must not exist in the live page');
     assert(Math.abs(state.stage.width-300)<=2,'BranchedMenu host width must be 300px');
     assert.equal(state.stage.background,'rgba(0, 0, 0, 0)','BranchedMenu host must be transparent with no black panel');
     assert.equal(state.stage.color,'rgb(10, 10, 10)','BranchedMenu host ink must be black');

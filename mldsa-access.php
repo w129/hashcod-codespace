@@ -287,6 +287,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $splashCursorJs=htmlspecialchars($base.'components/react-bits-splash-cursor.js?v=20261002-splash1',ENT_QUOTES,'UTF-8');
     $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-textcard1',ENT_QUOTES,'UTF-8');
     $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-textcard1',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261003-center1',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261003-center1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -304,10 +306,11 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
         .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
         .'</section>';
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"><link rel="stylesheet" href="'.$splashCursorCss.'">'.($entryIntro?'<link rel="stylesheet" href="'.$branchedMenuCss.'">':'').'</head><body'.$bodyAttr.'>'
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"><link rel="stylesheet" href="'.$splashCursorCss.'">'.($entryIntro?'<link rel="stylesheet" href="'.$branchedMenuCss.'"><link rel="stylesheet" href="'.$centerEmptyStateCss.'">':'').'</head><body'.$bodyAttr.'>'
       .'<main class="access-stage">'
       .($entryIntro?'<div id="d5SplashCursorBackground" class="entry-splash-cursor" data-sim-resolution="128" data-dye-resolution="1440" data-capture-resolution="512" data-density-dissipation="3.5" data-velocity-dissipation="2" data-pressure="0.1" data-pressure-iterations="20" data-curl="3" data-splat-radius="0.2" data-splat-force="6000" data-shading="true" data-color-update-speed="10" data-transparent="true" data-rainbow-mode="false" data-color="#000000" aria-hidden="true"><canvas id="d5SplashCursorCanvas"></canvas></div>':'')
       .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Creates like rotating text"><span class="entry-rotating-text-prefix">Creates like</span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">code</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
+      .($entryIntro?'<section id="d5CenterEmptyStateStage" class="entry-empty-state-stage" aria-label="Workspace quick access"><div id="d5CenterEmptyStateMount" class="entry-empty-state-mount" data-hashcod-component="EmptyState"></div></section>':'')
       .'<div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
       .'<div id="d5FaqModalBackdrop" class="faq-modal-backdrop" hidden aria-hidden="true"></div>'
@@ -493,5 +496,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</div>'
       .'</section>'
-      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script><script src="'.$splashCursorJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script>':'').'</body></html>';
+      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script><script src="'.$splashCursorJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script>':'').'</body></html>';
 }

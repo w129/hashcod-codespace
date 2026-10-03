@@ -23,6 +23,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForSelector('#d5FirstBranchedMenuStage',{state:'visible',timeout:10000});
     await page.waitForFunction(()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
+    await page.waitForSelector('#d5CenterEmptyStateAction',{state:'visible',timeout:5000});
 
     const state=await page.evaluate(()=>{
       const stage=document.getElementById('d5FirstBranchedMenuStage');
@@ -374,7 +376,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5TextEditorCard').getAttribute('hidden'),'','Workspace editor must be natively hidden initially');
     assert.equal(await page.locator('#d5WorkspaceModalBackdrop').isVisible(),false,'Workspace backdrop must stay hidden initially');
 
-    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.getByRole('button',{name:'Workspace',exact:true}).click();
     assert.equal(new URL(page.url()).hash,'#workspace','Workspace selection must navigate to #workspace');
     await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5WorkspaceModalBackdrop',{state:'visible',timeout:5000});
@@ -436,14 +438,14 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5TextEditorCard').getAttribute('hidden'),'','Workspace close must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','Workspace close must clear the hash');
 
-    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.getByRole('button',{name:'Workspace',exact:true}).click();
     await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
     assert.equal(await page.locator('#d5TextEditorInput').inputValue(),'Workspace modal test','Workspace content must survive close/reopen in the same session');
     await page.locator('#d5WorkspaceModalBackdrop').click({position:{x:5,y:5}});
     await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
     assert.equal(new URL(page.url()).hash,'','clicking outside Workspace must close it');
 
-    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.getByRole('button',{name:'Workspace',exact:true}).click();
     await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
     await page.keyboard.press('Escape');
     await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
@@ -582,8 +584,39 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForFunction(()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
     assert.equal(await page.locator('.branched-menu').count(),1,'legacy query must still show exactly one BranchedMenu');
     assert.equal(await page.locator('.entry-access-card').count(),0,'legacy query must not restore old window');
+    await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
 
-    console.log('✓ FAQ, Card, Workspace, Text Card and Documents open only from the BranchedMenu and remain functional');
+    const centerPosition=await page.evaluate(()=>{
+      const stage=document.getElementById('d5CenterEmptyStateStage');
+      const rect=stage.getBoundingClientRect();
+      return {
+        centerX:rect.left+(rect.width/2),
+        viewportCenterX:window.innerWidth/2,
+        title:stage.querySelector('h3')?.textContent?.trim()||'',
+        button:document.getElementById('d5CenterEmptyStateAction')?.textContent?.trim()||''
+      };
+    });
+    assert(Math.abs(centerPosition.centerX-centerPosition.viewportCenterX)<=3,'center EmptyState must stay centered in the viewport');
+    assert.equal(centerPosition.title,'Workspace','center EmptyState initial title changed');
+    assert.equal(centerPosition.button,'Open Workspace','center EmptyState action label changed');
+
+    await page.locator('#d5CenterEmptyStateAction').click();
+    await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateStage')?.querySelector('h3')?.textContent?.trim()==='Workspace ready',{timeout:3000});
+    const checkedIcon=await page.evaluate(()=>{
+      const stage=document.getElementById('d5CenterEmptyStateStage');
+      const svg=stage?.querySelector('svg');
+      return {
+        paths:svg?svg.querySelectorAll('path').length:0,
+        check:Boolean(svg?.querySelector('path[d="M 8.25 12.35 L 10.7 14.8 L 15.85 9.65"]'))
+      };
+    });
+    assert.equal(checkedIcon.paths,2,'confirmed icon must contain the frame and the checkmark');
+    assert.equal(checkedIcon.check,true,'checkmark must appear inside the supplied SVG after clicking');
+    await page.waitForFunction(()=>document.body.classList.contains('workspace-modal-open'),{timeout:4000});
+    assert.equal(await page.locator('#d5TextEditorCard').isVisible(),true,'center EmptyState button must open the existing Workspace');
+    await page.locator('#d5WorkspaceClose').click();
+
+    console.log('✓ FAQ, Card, Workspace, Text Card, Documents and centered EmptyState remain functional');
   }finally{
     await browser.close();
   }

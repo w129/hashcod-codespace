@@ -67,7 +67,7 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-crm.css?v=20260927-platformcrm6" data-hashcod-platform-crm-style="true">'
-    . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbook-page-blank.css?v=20261003-clean1" data-hashcod-toolbook-blank-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbook-page-blank.css?v=20261003-react2" data-hashcod-toolbook-blank-style="true">'
     . '<script id="hashcod-deskcomm-crm-config">window.HASHCOD_DESKCOMM_CRM_URL="";</script>'
     . $inlineEfrCss
     . '<style id="hashcod-laragon-rare-folder-placement">'
@@ -119,7 +119,17 @@ $efrExternalJs = $efrJs === ''
     ? '<script defer src="' . $baseAttr . 'components/efr-code-editor.js?v=20260919-perf2" data-hashcod-efr-code-editor="true"></script>'
     : '';
 
-$bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
+$toolbookReactBundlePath = __DIR__ . '/components/toolbook-branched-menu.bundle.js';
+$toolbookReactBundle = is_file($toolbookReactBundlePath) ? (string)file_get_contents($toolbookReactBundlePath) : '';
+if ($toolbookReactBundle !== '') {
+    $toolbookReactBundle = str_ireplace('</script', '<\\/script', $toolbookReactBundle);
+}
+$toolbookReactBundleTag = $toolbookReactBundle !== ''
+    ? '<script id="hashcod-laragon-toolbook-react-branched-menu-inline" data-hashcod-react-branched-menu-inline="true">' . $toolbookReactBundle . '</script>'
+    : '<script defer src="https://hashcodcodespace.dev/components/toolbook-branched-menu.bundle.js?v=20261003-react2" data-hashcod-react-branched-menu="true"></script>';
+
+$bodyExtras = $toolbookReactBundleTag
+    . '<script defer src="' . $baseAttr . 'components/legacy-auth-retirement.js?v=20260918-2" data-hashcod-legacy-auth-retirement="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-motion.js?v=20260926-nofreeze3" data-platform-entry-motion="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-hold.js?v=20260926-second-screen1" data-platform-entry-hold="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-entry-freeze-fix.js?v=20260926-nofreeze4" data-hashcod-platform-entry-freeze-fix="true"></script>'
@@ -141,7 +151,7 @@ $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retire
     . '<script defer src="' . $baseAttr . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-crm.js?v=20260927-platformcrm6" data-hashcod-platform-crm="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/toolbook-page-blank.js?v=20261003-clean1" data-hashcod-toolbook-blank="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/toolbook-page-blank.js?v=20261003-react2" data-hashcod-toolbook-blank="true"></script>'
 
     . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/laragon-credit-align.js?v=20260914-local1" data-hashcod-laragon-credit-align="true"></script>';

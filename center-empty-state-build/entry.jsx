@@ -114,8 +114,8 @@ function CenterWorkspaceEmptyState() {
 
   return (
     <EmptyState
-      label="CC-Card"
-      title="CC-Card"
+      label="VC"
+      title="VC"
       titleIcon={<CcCardTitleIcon />}
       description={
         confirmed
@@ -155,7 +155,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261003-cc-card2",
+    version: "20261003-vc3",
   });
 
   return true;

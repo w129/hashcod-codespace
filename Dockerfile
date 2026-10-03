@@ -109,6 +109,14 @@ RUN cd /var/www/html/first-screen-branched-menu-build \
     && test -s /var/www/html/components/first-screen-branched-menu.bundle.css \
     && rm -rf /var/www/html/first-screen-branched-menu-build/node_modules /root/.npm
 
+# Build the centered EmptyState React/Motion island used on the first screen.
+RUN cd /var/www/html/center-empty-state-build \
+    && npm install --no-fund --no-audit \
+    && npm run build \
+    && test -s /var/www/html/components/center-empty-state.bundle.js \
+    && test -s /var/www/html/components/center-empty-state.bundle.css \
+    && rm -rf /var/www/html/center-empty-state-build/node_modules /root/.npm
+
 # Build the official Animate UI FlipButton React/Motion island used by
 # the registration submit control.
 RUN cd /var/www/html/registration-flip-build \

@@ -3468,3 +3468,12 @@ body.card-modal-open .card-modal-shell{
     animation:none!important;
   }
 }
+
+
+/* Card source deck: data-only on the first screen.
+   It is cloned into #d5CardModalDeck when Card is selected from BranchedMenu. */
+body[data-hashcod-entry-intro="1"] #d5ToolDeck{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}

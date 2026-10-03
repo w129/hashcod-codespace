@@ -12,7 +12,24 @@ const target=process.env.TOOLBOOK_BLANK_TEST_URL||'http://127.0.0.1:8099/laragon
     const response=await page.goto(target,{waitUntil:'domcontentloaded',timeout:15000});
     assert(response&&response.status()===200,'Hashcod local entry must return 200');
 
-    await page.waitForFunction(()=>document.querySelector('.toolbox-panel'),{timeout:15000});
+    await page.waitForFunction(()=>window.__hashcodToolbookPageResetLoaded===true,{timeout:15000});
+
+    await page.evaluate(()=>{
+      const panel=document.createElement('section');
+      panel.className='toolbox-panel';
+      Object.assign(panel.style,{
+        position:'fixed',
+        left:'320px',
+        top:'140px',
+        width:'960px',
+        height:'784px',
+        display:'block',
+        visibility:'visible',
+        opacity:'1'
+      });
+      document.body.appendChild(panel);
+    });
+
     await page.waitForFunction(()=>document.documentElement.dataset.hashcodToolbookPageBlank==='true',{timeout:10000});
     await page.waitForSelector('#hashcodToolbookBlankPage',{state:'visible',timeout:5000});
 

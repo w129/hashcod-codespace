@@ -76,6 +76,8 @@ assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black
 assert(css.includes('--bm-muted:#0a0a0a'),'idle BranchedMenu text must remain black');
 assert(css.includes('border-radius:0'),'former rounded window chrome must not survive');
 assert(css.includes('box-shadow:none'),'former window shadow must not survive');
+assert(css.includes('left:18px'),'desktop BranchedMenu must keep a comfortable left inset');
+assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the top edge');
 
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
@@ -208,7 +210,7 @@ assert(splashJs.includes("window.addEventListener('mousemove', handleMouseMove)"
 
 
 // FAQ must escape the page layout and cover the entire viewport.
-assert(gate.includes('components/mldsa-access-gate.css?v=20261003-textcard1'),'FAQ modal CSS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.css?v=20261003-menu-pos2'),'FAQ modal CSS cache-bust missing');
 assert(gate.includes('components/mldsa-access-gate.js?v=20261003-textcard1'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');

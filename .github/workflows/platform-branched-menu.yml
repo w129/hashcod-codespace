@@ -1,0 +1,66 @@
+name: Verify platform BranchedMenu
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - l8-html.php
+      - components/platform-branched-menu.js
+      - components/platform-branched-menu.css
+      - tests/e2e/test_platform_branched_menu.js
+      - tests/e2e/test_platform_branched_menu_browser_playwright.js
+      - .github/workflows/platform-branched-menu.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - l8-html.php
+      - components/platform-branched-menu.js
+      - components/platform-branched-menu.css
+      - tests/e2e/test_platform_branched_menu.js
+      - tests/e2e/test_platform_branched_menu_browser_playwright.js
+      - .github/workflows/platform-branched-menu.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax check
+        run: |
+          php -l l8-html.php
+          node --check components/platform-branched-menu.js
+          node --check tests/e2e/test_platform_branched_menu.js
+          node --check tests/e2e/test_platform_branched_menu_browser_playwright.js
+
+      - name: Static contract
+        run: node tests/e2e/test_platform_branched_menu.js
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Browser interaction
+        run: |
+          php -S 127.0.0.1:8099 >/tmp/hashcod-branched-menu-php.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" >/dev/null 2>&1 || true' EXIT
+          ready=0
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/hashcod-branched-menu-php.log || true
+            exit 1
+          fi
+          BRANCHED_MENU_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_platform_branched_menu_browser_playwright.js

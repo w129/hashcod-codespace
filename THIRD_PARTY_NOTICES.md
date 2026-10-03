@@ -94,3 +94,15 @@ Hashcod Codespace uses a native JavaScript adaptation of **React Bits SplashCurs
 - Component: `SplashCursor`
 - License: MIT
 - Hashcod adaptation: preserves the upstream WebGL fluid simulation defaults, including simulation resolution 128, dye resolution 1440, density dissipation 3.5, velocity dissipation 2, pressure 0.1, 20 pressure iterations, curl 3, splat radius 0.2, splat force 6000, shading, and cursor/touch-driven splats. Rainbow mode is disabled. Because a literal black dye would have zero RGB density in the upstream alpha calculation, Hashcod keeps non-zero internal density while the display shader renders that density as black with alpha, producing a visible black liquid effect on the light entry background.
+
+## Hugeicons — BranchedMenu icons
+
+Hashcod Codespace uses three free Hugeicons SVG path definitions in the platform BranchedMenu.
+
+- Project: Hugeicons
+- Source: https://github.com/hugeicons/hugeicons
+- Package: `@hugeicons/core-free-icons`
+- Icons: `Download04Icon`, `Rocket01Icon`, `Settings02Icon`
+- License: MIT
+- Hashcod adaptation: the icon path data is rendered inline by the native JavaScript BranchedMenu so the main PHP/JavaScript platform does not need a React runtime solely for these icons.
+

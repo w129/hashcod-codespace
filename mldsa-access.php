@@ -285,32 +285,14 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $splashCursorCss=htmlspecialchars($base.'components/react-bits-splash-cursor.css?v=20261002-splash1',ENT_QUOTES,'UTF-8');
     $splashCursorJs=htmlspecialchars($base.'components/react-bits-splash-cursor.js?v=20261002-splash1',ENT_QUOTES,'UTF-8');
+    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-reactbits1',ENT_QUOTES,'UTF-8');
+    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-reactbits1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
     $accessCard=$entryIntro
-      ? '<section class="access-card entry-access-card" data-entry-level="1" data-entry-single-screen="true">'
-        .'<div class="entry-wizard-panels">'
-        .'<section class="entry-wizard-panel active" data-entry-panel="1" aria-label="Pantalla principal">'
-        .'<h1>Acceso a Hashcod Codespace</h1>'
-        .'<p class="description">Esta ventana aparece primero antes de entrar a la plataforma.</p>'
-        .'<div class="entry-welcome-panel"><img class="entry-platform-logo" src="'.$base.'hashcod_icon_exact.svg" alt="Hashcod Codespace platform icon"><div><strong>Hashcod Codespace</strong><small>Tu espacio de trabajo está listo.</small></div></div>'
-        .'<div class="entry-login-action"><button id="d5Verify" class="spectrum-outline-login-button" type="button" aria-label="Pantalla principal"><img class="spectrum-outline-login-icon" src="'.$base.'hashcod_icon_exact.svg" alt="" aria-hidden="true"><span id="d5VerifyText">Entrar</span></button></div>'
-        .'<article id="d5EntryStatCard" class="entry-stat-card" data-points="12,18,14,24,21,32,28,38" data-title="Monthly revenue" data-value="$45,231" data-change="+12.5%" data-comparison="from last month" aria-label="Monthly revenue statistics">'
-        .'<header class="entry-stat-header"><h2 id="d5EntryStatTitle">Monthly revenue</h2><span class="entry-stat-trend" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"></path><path d="M14 7h7v7"></path></svg></span></header>'
-        .'<div class="entry-stat-content">'
-        .'<div id="d5EntryStatValue" class="entry-stat-value">$45,231</div>'
-        .'<p class="entry-stat-caption"><span id="d5EntryStatChange">+12.5%</span> <span id="d5EntryStatComparison">from last month</span></p>'
-        .'<svg id="d5EntryStatChart" class="entry-stat-chart" viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="Revenue trend">'
-        .'<defs><linearGradient id="hashcod-entry-stat-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="currentColor" stop-opacity=".25"></stop><stop offset="100%" stop-color="currentColor" stop-opacity="0"></stop></linearGradient></defs>'
-        .'<polygon id="d5EntryStatArea" points="" fill="url(#hashcod-entry-stat-area)"></polygon>'
-        .'<polyline id="d5EntryStatLine" points="" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>'
-        .'<circle id="d5EntryStatDot" cx="100" cy="4" r="2" fill="currentColor"></circle>'
-        .'</svg>'
-        .'</div></article>'
-        .'</section>'
-        .'</div>'
-        .'<p id="d5Status" class="status entry-status" role="status" aria-live="polite"></p>'
+      ? '<section id="d5FirstBranchedMenuStage" class="entry-branched-menu-stage" aria-label="Branched menu">'
+        .'<div id="d5FirstBranchedMenuMount" class="entry-branched-menu-mount" data-react-bits-component="BranchedMenu"></div>'
         .'</section>'
       : '<section class="access-card">'
         .'<div class="security-progress"><span id="d5StepOne" class="step active">1</span><i></i><span id="d5StepTwo" class="step">2</span></div>'
@@ -322,7 +304,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
         .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
         .'</section>';
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"><link rel="stylesheet" href="'.$splashCursorCss.'"></head><body'.$bodyAttr.'>'
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"><link rel="stylesheet" href="'.$splashCursorCss.'">'.($entryIntro?'<link rel="stylesheet" href="'.$branchedMenuCss.'">':'').'</head><body'.$bodyAttr.'>'
       .'<main class="access-stage">'
       .($entryIntro?'<div id="d5SplashCursorBackground" class="entry-splash-cursor" data-sim-resolution="128" data-dye-resolution="1440" data-capture-resolution="512" data-density-dissipation="3.5" data-velocity-dissipation="2" data-pressure="0.1" data-pressure-iterations="20" data-curl="3" data-splat-radius="0.2" data-splat-force="6000" data-shading="true" data-color-update-speed="10" data-transparent="true" data-rainbow-mode="false" data-color="#000000" aria-hidden="true"><canvas id="d5SplashCursorCanvas"></canvas></div>':'')
       .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Creates like rotating text"><span class="entry-rotating-text-prefix">Creates like</span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">code</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
@@ -528,5 +510,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</div>'
       .'</section>'
-      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script><script src="'.$splashCursorJs.'" defer></script></body></html>';
+      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script><script src="'.$splashCursorJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script>':'').'</body></html>';
 }

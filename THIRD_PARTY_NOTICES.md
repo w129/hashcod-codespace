@@ -95,13 +95,13 @@ Hashcod Codespace uses a native JavaScript adaptation of **React Bits SplashCurs
 - License: MIT
 - Hashcod adaptation: preserves the upstream WebGL fluid simulation defaults, including simulation resolution 128, dye resolution 1440, density dissipation 3.5, velocity dissipation 2, pressure 0.1, 20 pressure iterations, curl 3, splat radius 0.2, splat force 6000, shading, and cursor/touch-driven splats. Rainbow mode is disabled. Because a literal black dye would have zero RGB density in the upstream alpha calculation, Hashcod keeps non-zero internal density while the display shader renders that density as black with alpha, producing a visible black liquid effect on the light entry background.
 
-## BranchedMenu / Hugeicons source staging
+## Toolbook BranchedMenu / Hugeicons React island
 
-The repository retains the supplied BranchedMenu React source in `toolbook-branched-menu-build/` for a future isolated React integration.
+Hashcod Codespace mounts the supplied BranchedMenu as an isolated React island from `toolbook-branched-menu-build/`.
 
 - Runtime source: React JSX + CSS
 - Icon renderer: `@hugeicons/react`
 - Icon data: `@hugeicons/core-free-icons`
 - Hugeicons license: MIT
-- Current status: the Toolbook blank screen does not mount, build, or load this component. The source is intentionally dormant until it is explicitly integrated again with both its JavaScript and CSS bundles.
+- Integration: the native Toolbook screen creates a dedicated mount point; the React island is built with esbuild and receives an always-loaded copy of the supplied BranchedMenu CSS as a rendering fail-safe.
 

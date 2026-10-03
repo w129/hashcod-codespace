@@ -62,6 +62,17 @@ function createBlankPage(){
   blank.id='hashcodToolbookBlankPage';
   blank.setAttribute('aria-label','Toolbook workspace');
   blank.setAttribute('data-hashcod-toolbook-blank','true');
+
+  var panel=document.createElement('section');
+  panel.id='hashcodToolbookBranchedMenuPanel';
+  panel.setAttribute('aria-label','Branched menu');
+
+  var mount=document.createElement('div');
+  mount.id='hashcodToolbookBranchedMenuMount';
+  mount.setAttribute('data-hashcod-react-branched-menu-mount','true');
+
+  panel.appendChild(mount);
+  blank.appendChild(panel);
   return blank;
 }
 
@@ -74,8 +85,10 @@ function keepBlank(){
     document.body.appendChild(blank);
   }
 
-  if(blank.childNodes.length){
-    blank.replaceChildren();
+  if(!blank.querySelector('#hashcodToolbookBranchedMenuMount')){
+    var replacement=createBlankPage();
+    blank.replaceWith(replacement);
+    blank=replacement;
   }
 
   Array.from(document.body.children).forEach(function(node){
@@ -117,13 +130,14 @@ function activate(){
     bodyObserver=new MutationObserver(function(){
       keepBlank();
     });
-    bodyObserver.observe(document.body,{childList:true,subtree:true});
+    bodyObserver.observe(document.body,{childList:true});
   }
 
   window.HashcodToolbookBlankPage={
     active:true,
-    empty:true,
-    version:'20261003-clean1'
+    empty:false,
+    reactMount:true,
+    version:'20261003-react2'
   };
 
   try{

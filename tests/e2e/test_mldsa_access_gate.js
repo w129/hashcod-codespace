@@ -80,8 +80,8 @@ assert(css.includes('box-shadow:none'),'former window shadow must not survive');
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261003-center1'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261003-center1'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261003-cccard2'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261003-cccard2'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -89,6 +89,13 @@ assert(centerEmptyState.includes('function iconKey(icon)'),'EmptyState icon cros
 assert(centerEmptyStateEntry.includes('M 5 3 C 3.895 3 3 3.895 3 5 L 3 6 L 3 7 L 3 19'),'center icon must match the supplied SVG path');
 assert(centerEmptyStateEntry.includes('M 8.25 12.35 L 10.7 14.8 L 15.85 9.65'),'checkmark must be drawn inside the supplied icon');
 assert(centerEmptyStateEntry.includes('id="d5CenterEmptyStateAction"'),'center EmptyState action button missing');
+assert(centerEmptyStateEntry.includes('function CcCardTitleIcon()'),'CC-Card title icon component missing');
+assert(centerEmptyStateEntry.includes('viewBox="0 0 256 256"'),'CC-Card title icon viewBox changed');
+assert(centerEmptyStateEntry.includes('title="CC-Card"'),'center title must be CC-Card');
+assert(centerEmptyStateEntry.includes('titleIcon={<CcCardTitleIcon />}'),'CC-Card title icon must sit beside the title');
+assert(centerEmptyStateCss.includes('.center-empty-state-title-row'),'CC-Card title row styling missing');
+assert(centerEmptyStateCss.includes('.center-empty-state-title-icon svg'),'CC-Card title SVG sizing missing');
+
 assert(centerEmptyStateEntry.includes('setConfirmed(true)'),'center action must morph into confirmed state');
 assert(!centerEmptyStateEntry.includes('hashcod:first-screen-branched-menu-select'),'center action must not open any existing first-screen destination yet');
 assert(centerEmptyStateEntryCss.includes('left: 50%')&&centerEmptyStateEntryCss.includes('transform: translate(-50%, -50%)'),'center EmptyState must be horizontally centered');

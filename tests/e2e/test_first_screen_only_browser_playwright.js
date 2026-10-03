@@ -33,6 +33,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const icon=document.querySelector('.branched-menu__icon svg');
       const faqItem=Array.from(document.querySelectorAll('.branched-menu__item')).find(n=>n.textContent.trim()==='FAQ');
       const faqIcon=faqItem?.querySelector('svg');
+      const cardItem=Array.from(document.querySelectorAll('.branched-menu__item')).find(n=>n.textContent.trim()==='Card');
+      const cardIcon=cardItem?.querySelector('svg');
       const basePath=document.querySelector('.branched-menu__base');
       const stageStyle=getComputedStyle(stage);
       const menuStyle=getComputedStyle(menu);
@@ -85,6 +87,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           fill:faqIcon?getComputedStyle(faqIcon).fill:'',
           viewBox:faqIcon?.getAttribute('viewBox')||''
         },
+        cardMenu:{
+          exists:Boolean(cardItem),
+          width:cardIcon?getComputedStyle(cardIcon).width:'',
+          height:cardIcon?getComputedStyle(cardIcon).height:'',
+          fill:cardIcon?getComputedStyle(cardIcon).fill:'',
+          viewBox:cardIcon?.getAttribute('viewBox')||''
+        },
         svg:{
           fill:basePath?getComputedStyle(basePath).fill:'',
           stroke:basePath?getComputedStyle(basePath).stroke:'',
@@ -108,7 +117,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.menu.paddingLeft,'14px','source rail offset must remain exact');
     assert(state.menu.width<=240.5,'BranchedMenu width prop must remain 240px');
     assert.deepEqual(state.heads,[{label:'Getting started',expanded:'true'},{label:'Components',expanded:'false'}],'defaultOpen={[0]} must remain exact');
-    assert.deepEqual(state.labels,['FAQ','Quick start','Configuration','Buttons','Overlays'],'menu labels must match the supplied usage exactly');
+    assert.deepEqual(state.labels,['FAQ','Card','Quick start','Configuration','Buttons','Overlays'],'menu labels must match the supplied usage exactly');
     assert.equal(state.active,'Quick start','defaultActive must remain quick');
     assert.equal(state.item.display,'flex','child row source layout changed');
     assert.equal(state.item.height,'36px','rowHeight=36 must remain exact');
@@ -126,6 +135,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.faq.height,'16px','FAQ SVG height must be adapted to 16px');
     assert.equal(state.faq.fill,'rgb(10, 10, 10)','FAQ SVG must inherit black menu ink');
     assert.equal(state.faq.viewBox,'0 0 48 48','FAQ SVG must preserve the supplied viewBox');
+    assert.equal(state.cardMenu.exists,true,'Card must be present in the BranchedMenu');
+    assert.equal(state.cardMenu.width,'16px','Card SVG width must be 16px');
+    assert.equal(state.cardMenu.height,'16px','Card SVG height must be 16px');
+    assert.equal(state.cardMenu.fill,'rgb(10, 10, 10)','Card SVG must inherit black menu ink');
+    assert.equal(state.cardMenu.viewBox,'0 0 16 16','Card SVG must preserve the supplied viewBox');
     assert.equal(state.svg.fill,'none','branch SVG must never render as filled polygons');
     assert.equal(state.svg.stroke,'rgb(10, 10, 10)','branch lines must be black');
     assert.equal(state.svg.strokeWidth,'1.5px','lineWidth=1.5 must remain exact');
@@ -209,6 +223,86 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.keyboard.press('Escape');
     await page.waitForSelector('#d5FaqCard',{state:'hidden',timeout:5000});
     assert.equal(new URL(page.url()).hash,'','Escape must close the FAQ modal');
+
+    assert.equal(await page.locator('#d5CardModalShell').isVisible(),false,'Card modal must stay hidden initially');
+    assert.equal(await page.locator('#d5CardModalBackdrop').isVisible(),false,'Card backdrop must stay hidden initially');
+
+    const originalDeckBefore=await page.locator('#d5ToolDeck').boundingBox();
+
+    await page.getByRole('button',{name:'Card'}).click();
+    assert.equal(new URL(page.url()).hash,'#card','Card selection must navigate to #card');
+    await page.waitForSelector('#d5CardModalShell',{state:'visible',timeout:5000});
+    await page.waitForSelector('#d5CardModalBackdrop',{state:'visible',timeout:5000});
+
+    const cardModalState=await page.evaluate(()=>{
+      const shell=document.getElementById('d5CardModalShell');
+      const backdrop=document.getElementById('d5CardModalBackdrop');
+      const modalDeck=document.getElementById('d5CardModalDeck');
+      const close=document.getElementById('d5CardClose');
+      const shellRect=shell.getBoundingClientRect();
+      const backdropStyle=getComputedStyle(backdrop);
+      const front=modalDeck.querySelector('.card-0');
+      return {
+        bodyOpen:document.body.classList.contains('card-modal-open'),
+        ariaHidden:shell.getAttribute('aria-hidden'),
+        role:shell.getAttribute('role'),
+        ariaModal:shell.getAttribute('aria-modal'),
+        centerX:shellRect.left+shellRect.width/2,
+        centerY:shellRect.top+shellRect.height/2,
+        viewportX:innerWidth/2,
+        viewportY:innerHeight/2,
+        backdropFilter:backdropStyle.backdropFilter||backdropStyle.webkitBackdropFilter||'',
+        backdropBackground:backdropStyle.backgroundColor,
+        backdropZ:backdropStyle.zIndex,
+        shellZ:getComputedStyle(shell).zIndex,
+        backdropParent:backdrop.parentElement===document.body,
+        shellParent:shell.parentElement===document.body,
+        closeFocused:document.activeElement===close,
+        cards:Array.from(modalDeck.querySelectorAll('.tool-card')).map(card=>card.querySelector('h2')?.textContent.trim()||''),
+        frontTitle:front?.querySelector('h2')?.textContent.trim()||'',
+        expanded:modalDeck.classList.contains('expanded')
+      };
+    });
+
+    assert.equal(cardModalState.bodyOpen,true,'Card modal open state class must be applied');
+    assert.equal(cardModalState.ariaHidden,'false','Card dialog must be exposed while open');
+    assert.equal(cardModalState.role,'dialog','Card modal must use dialog semantics');
+    assert.equal(cardModalState.ariaModal,'true','Card modal must be modal');
+    assert(Math.abs(cardModalState.centerX-cardModalState.viewportX)<=2,'Card modal must be horizontally centered');
+    assert(Math.abs(cardModalState.centerY-cardModalState.viewportY)<=2,'Card modal must be vertically centered');
+    assert(cardModalState.backdropFilter.includes('blur(24px)'),'Card backdrop must strongly blur the page behind it');
+    assert.equal(cardModalState.backdropBackground,'rgba(255, 255, 255, 0.88)','Card backdrop must veil background content');
+    assert.equal(cardModalState.backdropZ,'2147483646','Card backdrop must be above page UI');
+    assert.equal(cardModalState.shellZ,'2147483647','Card modal must be above its backdrop');
+    assert.equal(cardModalState.backdropParent,true,'Card backdrop must be portaled directly under body');
+    assert.equal(cardModalState.shellParent,true,'Card modal must be portaled directly under body');
+    assert.equal(cardModalState.closeFocused,true,'Card close control must receive focus');
+    assert.deepEqual(cardModalState.cards,['Spotlight Code','Pit Barriers','Single bed base','Tokenized certification'],'Card modal must clone the complete tool deck');
+    assert.equal(cardModalState.frontTitle,'Spotlight Code','Spotlight Code must remain the front card');
+    assert.equal(cardModalState.expanded,false,'Card modal must open stacked');
+
+    const originalDeckAfter=await page.locator('#d5ToolDeck').boundingBox();
+    assert.deepEqual(originalDeckAfter,originalDeckBefore,'original background card deck must stay in its exact position behind the blur');
+
+    await page.locator('#d5CardModalDeck').click({position:{x:480,y:340}});
+    await page.waitForFunction(()=>document.getElementById('d5CardModalDeck')?.classList.contains('expanded'));
+    assert.equal(await page.locator('#d5CardModalDeck').getAttribute('aria-expanded'),'true','modal card deck must keep expand/collapse functionality');
+
+    await page.locator('#d5CardClose').click();
+    await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','Card close button must clear the hash');
+
+    await page.getByRole('button',{name:'Card'}).click();
+    await page.waitForSelector('#d5CardModalBackdrop',{state:'visible',timeout:5000});
+    await page.locator('#d5CardModalBackdrop').click({position:{x:5,y:5}});
+    await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','clicking outside Card must close it');
+
+    await page.getByRole('button',{name:'Card'}).click();
+    await page.waitForSelector('#d5CardModalShell',{state:'visible',timeout:5000});
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','Escape must close Card modal');
 
     await page.getByRole('button',{name:'Components'}).click();
     await page.waitForFunction(()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Components')?.getAttribute('aria-expanded')==='true');

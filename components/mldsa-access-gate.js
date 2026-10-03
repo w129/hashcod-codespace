@@ -674,6 +674,89 @@ if(deck){
   });
 }
 
+var cardModalBackdrop=document.getElementById('d5CardModalBackdrop');
+var cardModalShell=document.getElementById('d5CardModalShell');
+var cardModalDeck=document.getElementById('d5CardModalDeck');
+var cardClose=document.getElementById('d5CardClose');
+var cardLastFocus=null;
+
+function ensureCardModalPortal(){
+  if(!document.body)return;
+  if(cardModalBackdrop&&cardModalBackdrop.parentElement!==document.body){
+    document.body.appendChild(cardModalBackdrop);
+  }
+  if(cardModalShell&&cardModalShell.parentElement!==document.body){
+    document.body.appendChild(cardModalShell);
+  }
+}
+function hydrateCardModalDeck(){
+  if(!deck||!cardModalDeck||cardModalDeck.dataset.cloned==='true')return;
+  Array.from(deck.children).forEach(function(card){
+    cardModalDeck.appendChild(card.cloneNode(true));
+  });
+  cardModalDeck.dataset.cloned='true';
+}
+function setCardModalExpanded(expanded){
+  if(!cardModalDeck)return;
+  cardModalDeck.classList.toggle('expanded',!!expanded);
+  cardModalDeck.setAttribute('aria-expanded',expanded?'true':'false');
+}
+function openCardModal(){
+  if(!cardModalShell||!cardModalDeck)return;
+  if(document.body.classList.contains('faq-modal-open'))closeFaqModal();
+  ensureCardModalPortal();
+  hydrateCardModalDeck();
+  cardLastFocus=document.activeElement;
+  setCardModalExpanded(false);
+  document.body.classList.add('card-modal-open');
+  cardModalShell.setAttribute('aria-hidden','false');
+  if(cardModalBackdrop){
+    cardModalBackdrop.hidden=false;
+    cardModalBackdrop.setAttribute('aria-hidden','false');
+  }
+  window.requestAnimationFrame(function(){
+    if(cardClose)cardClose.focus();
+  });
+}
+function closeCardModal(){
+  if(!cardModalShell)return;
+  document.body.classList.remove('card-modal-open');
+  cardModalShell.setAttribute('aria-hidden','true');
+  setCardModalExpanded(false);
+  if(cardModalBackdrop){
+    cardModalBackdrop.hidden=true;
+    cardModalBackdrop.setAttribute('aria-hidden','true');
+  }
+  if(window.location.hash==='#card'){
+    try{
+      history.replaceState(history.state,'',location.pathname+location.search);
+    }catch(_){}
+  }
+  if(cardLastFocus&&typeof cardLastFocus.focus==='function'){
+    try{cardLastFocus.focus();}catch(_){}
+  }
+  cardLastFocus=null;
+}
+ensureCardModalPortal();
+hydrateCardModalDeck();
+
+if(cardModalDeck){
+  cardModalDeck.addEventListener('click',function(){
+    setCardModalExpanded(!cardModalDeck.classList.contains('expanded'));
+  });
+  cardModalDeck.addEventListener('keydown',function(event){
+    if(event.key==='Enter'||event.key===' '){
+      event.preventDefault();
+      setCardModalExpanded(!cardModalDeck.classList.contains('expanded'));
+    }
+  });
+}
+if(cardClose)cardClose.addEventListener('click',function(event){
+  event.stopPropagation();
+  closeCardModal();
+});
+if(cardModalBackdrop)cardModalBackdrop.addEventListener('click',closeCardModal);
+
 var faqCard=document.getElementById('d5FaqCard');
 var faqAccordion=document.getElementById('d5FaqAccordion');
 var faqFooter=document.getElementById('d5FaqFooter');
@@ -729,14 +812,27 @@ function closeFaqModal(){
 
 window.addEventListener('hashcod:first-screen-branched-menu-select',function(event){
   var detail=event&&event.detail?event.detail:{};
-  if(detail.value==='faq')openFaqModal();
+  if(detail.value==='faq'){
+    closeCardModal();
+    openFaqModal();
+  }
+  if(detail.value==='card'){
+    closeFaqModal();
+    openCardModal();
+  }
 });
 if(faqClose)faqClose.addEventListener('click',closeFaqModal);
 if(faqBackdrop)faqBackdrop.addEventListener('click',closeFaqModal);
 document.addEventListener('keydown',function(event){
-  if(event.key==='Escape'&&document.body.classList.contains('faq-modal-open')){
+  if(event.key!=='Escape')return;
+  if(document.body.classList.contains('faq-modal-open')){
     event.preventDefault();
     closeFaqModal();
+    return;
+  }
+  if(document.body.classList.contains('card-modal-open')){
+    event.preventDefault();
+    closeCardModal();
   }
 });
 var faqActiveTab=0;

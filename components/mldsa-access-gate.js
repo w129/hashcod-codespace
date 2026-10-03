@@ -529,13 +529,6 @@ function entrySetLevel(nextLevel){
     window.dispatchEvent(new CustomEvent('hashcod:entry-level-change',{detail:{level:next}}));
   }catch(_){}
 }
-function entryOpenPlatform(){
-  if(entryFinish)entryFinish.disabled=true;
-  st('Entrando a Hashcod Codespace…','info');
-  var url=new URL(window.location.href);
-  url.searchParams.set('hashcod_enter','1');
-  window.location.assign(url.pathname+'?'+url.searchParams.toString()+url.hash);
-}
 function entryProductSetData(next){
   if(!entryProductCard)return;
   var data=next&&typeof next==='object'?next:{};

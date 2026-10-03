@@ -80,8 +80,8 @@ assert(css.includes('box-shadow:none'),'former window shadow must not survive');
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261003-icon-button5'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261003-icon-button5'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261003-open-hatch6'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261003-open-hatch6'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -95,6 +95,7 @@ assert(!centerEmptyStateEntry.includes('title="VC"'),'visible VC title must be r
 assert(!centerEmptyStateEntry.includes('description={'),'subtitle must be removed');
 assert(!centerEmptyStateEntry.includes('titleIcon='),'title-side icon slot must no longer be used');
 assert(centerEmptyStateEntry.includes('id="d5CenterEmptyStateAction"'),'center action button missing');
+assert(centerEmptyStateEntry.includes('Open Hatch'),'center action label must be Open Hatch');
 assert(!centerEmptyStateEntry.includes('onClick={handleAction}'),'center button must remain without a destination or temporary action');
 assert(!centerEmptyStateEntry.includes('hashcod:first-screen-branched-menu-select'),'center action must not open any existing first-screen destination yet');
 assert(centerEmptyState.includes('(title || description)'),'EmptyState must omit copy markup when no title or description is provided');

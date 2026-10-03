@@ -220,30 +220,15 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         l8_html_not_found_page();
     }
 
-    // Show the welcome screen on every fresh index load/reload. Clicking Entrar
-    // grants exactly one redirected platform render; that pass is consumed
-    // immediately, so the next browser reload returns to the first screen.
+    // Single-screen mode: the root route permanently renders only the
+    // first Hashcod Codespace presentation/access screen. The former second
+    // entry screen and Toolbook/platform screen are intentionally unreachable.
     if ($file === 'index.php') {
-        $enter = (string)($_GET['hashcod_enter'] ?? '');
-        if ($enter === '1') {
-            l8_entry_intro_commit();
-            $redirectPath = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
-            if (!is_string($redirectPath) || $redirectPath === '') {
-                $redirectPath = l8_public_base_path();
-            }
-            header('Cache-Control: no-store, no-cache, must-revalidate');
-            header('Location: ' . $redirectPath, true, 303);
-            exit;
-        }
-
-        $entryPass = l8_entry_intro_consume();
-        if (!$entryPass) {
-            require_once __DIR__ . '/mldsa-access.php';
-            l8_init_compression();
-            l8_html_headers(true, 0);
-            echo mldsaGateHtml(l8_public_base_path(), true);
-            exit;
-        }
+        require_once __DIR__ . '/mldsa-access.php';
+        l8_init_compression();
+        l8_html_headers(true, 0);
+        echo mldsaGateHtml(l8_public_base_path(), true);
+        exit;
     }
 
     l8_init_compression();

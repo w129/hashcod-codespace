@@ -1,4 +1,4 @@
-name: Verify Toolbook React BranchedMenu
+name: Verify retired Toolbook screens
 
 on:
   pull_request:
@@ -6,21 +6,14 @@ on:
     paths:
       - l8-html.php
       - laragon-local-entry.php
-      - components/toolbook-page-blank.js
-      - components/toolbook-page-blank.css
-      - toolbook-branched-menu-build/**
-      - tests/e2e/test_toolbook_react_branched_menu.js
       - Dockerfile
-      - tests/e2e/test_toolbook_blank_page_browser_playwright.js
       - .github/workflows/toolbook-blank-page.yml
   push:
     branches: [main]
     paths:
       - l8-html.php
       - laragon-local-entry.php
-      - components/toolbook-page-blank.js
-      - components/toolbook-page-blank.css
-      - tests/e2e/test_toolbook_blank_page_browser_playwright.js
+      - Dockerfile
       - .github/workflows/toolbook-blank-page.yml
 
 permissions:
@@ -29,40 +22,31 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
-      - name: Syntax check
+
+      - name: Verify Toolbook is retired from active entry points
         run: |
           php -l l8-html.php
           php -l laragon-local-entry.php
-          node --check components/toolbook-page-blank.js
-          node --check tests/e2e/test_toolbook_blank_page_browser_playwright.js
-          node --check tests/e2e/test_toolbook_react_branched_menu.js
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const assert=require('node:assert/strict');
+          const l8=fs.readFileSync('l8-html.php','utf8');
+          const local=fs.readFileSync('laragon-local-entry.php','utf8');
+          const docker=fs.readFileSync('Dockerfile','utf8');
 
-      - name: Verify React BranchedMenu integration contract
-        run: node tests/e2e/test_toolbook_react_branched_menu.js
+          const firstRender=l8.indexOf("echo mldsaGateHtml(l8_public_base_path(), true);");
+          const oldPlatform=l8.indexOf("$toolbookReactBundlePath");
+          assert(firstRender>=0,'production first-screen renderer missing');
+          assert(oldPlatform<0 || firstRender<oldPlatform,'production must exit on screen 1 before old Toolbook code');
 
-      - name: Build React BranchedMenu island
-        working-directory: toolbook-branched-menu-build
-        run: |
-          npm install --no-fund --no-audit
-          npm run build
-          test -s ../components/toolbook-branched-menu.bundle.js
-          test -s ../components/toolbook-branched-menu.bundle.css
-          node --check ../components/toolbook-branched-menu.bundle.js
+          assert(local.includes("echo mldsaGateHtml(hashcodLaragonBasePath(), true);"),'Laragon must render screen 1 only');
+          assert(!local.includes('toolbook-page-blank.js'),'Laragon must not load retired Toolbook runtime');
+          assert(!local.includes('toolbook-branched-menu.bundle.js'),'Laragon must not load retired BranchedMenu runtime');
+          assert(!local.includes('platform-entry-hold.js'),'Laragon must not load retired second-entry runtime');
+          assert(!docker.includes('cd /var/www/html/toolbook-branched-menu-build'),'production must not build retired Toolbook island');
 
-      - name: Install Playwright
-        run: |
-          npm install --no-save --package-lock=false playwright@1.55.0
-          npx playwright install --with-deps chromium
-      - name: Verify React BranchedMenu in Chromium
-        run: |
-          php -S 127.0.0.1:8099 >/tmp/hashcod-blank.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" >/dev/null 2>&1 || true' EXIT
-          for attempt in $(seq 1 45); do
-            if curl --fail --silent http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then break; fi
-            sleep 1
-          done
-          TOOLBOOK_MENU_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_toolbook_blank_page_browser_playwright.js
+          console.log('✓ Later Toolbook/second-entry screens are retired from active entry points');
+          NODE

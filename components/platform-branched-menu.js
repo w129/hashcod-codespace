@@ -111,7 +111,7 @@ function render(){
 
   root.appendChild(list);
   document.body.appendChild(root);
-  showWhenPlatformReady();
+  showWhenToolboxReady();
 }
 
 function toggle(index){
@@ -160,12 +160,39 @@ function select(value,item){
   navigate(value,item);
 }
 
-function platformReady(){
-  var overlay=document.getElementById('bootCliOverlay');
-  if(!overlay)return true;
-  if(overlay.hidden)return true;
-  var style=window.getComputedStyle(overlay);
-  return style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0||document.documentElement.dataset.hashcodPlatformEntered==='true';
+function getToolboxPanel(){
+  var panel=document.querySelector('.toolbox-panel');
+  if(!panel)return null;
+  var style=window.getComputedStyle(panel);
+  var rect=panel.getBoundingClientRect();
+  if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0)return null;
+  if(rect.width<180||rect.height<180)return null;
+  if(rect.bottom<=0||rect.top>=window.innerHeight)return null;
+  return panel;
+}
+
+function positionBesideToolbox(){
+  if(!root)return false;
+  var panel=getToolboxPanel();
+  if(!panel)return false;
+
+  if(window.innerWidth>900){
+    var rect=panel.getBoundingClientRect();
+    var menuWidth=240;
+    var gap=20;
+    var left=Math.max(16,Math.round(rect.left-menuWidth-gap));
+    var top=Math.max(72,Math.round(rect.top+8));
+    root.style.setProperty('left',left+'px','important');
+    root.style.setProperty('top',top+'px','important');
+    root.style.setProperty('width',menuWidth+'px','important');
+    root.setAttribute('data-hashcod-toolbox-anchor','true');
+  }else{
+    root.style.removeProperty('left');
+    root.style.removeProperty('top');
+    root.style.removeProperty('width');
+    root.removeAttribute('data-hashcod-toolbox-anchor');
+  }
+  return true;
 }
 
 function show(){
@@ -175,36 +202,36 @@ function show(){
   root.style.setProperty('visibility','visible','important');
   root.style.setProperty('opacity','1','important');
   root.setAttribute('data-hashcod-branched-menu-visible','true');
+  positionBesideToolbox();
 }
 
-function showWhenPlatformReady(){
-  if(platformReady()){
+function showWhenToolboxReady(){
+  if(getToolboxPanel()){
     show();
     return;
   }
 
-  var rootNode=document.documentElement;
   var observer=null;
-  if(rootNode&&typeof MutationObserver==='function'){
+  if(document.body&&typeof MutationObserver==='function'){
     observer=new MutationObserver(function(){
-      if(platformReady()){
-        if(observer)observer.disconnect();
+      if(getToolboxPanel()){
+        observer.disconnect();
         show();
       }
     });
-    observer.observe(rootNode,{attributes:true,attributeFilter:['data-hashcod-platform-entered','class']});
+    observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','hidden']});
   }
 
   var attempts=0;
   var timer=window.setInterval(function(){
     attempts++;
-    if(platformReady()){
+    if(getToolboxPanel()){
       window.clearInterval(timer);
       if(observer)observer.disconnect();
       show();
       return;
     }
-    if(attempts>24){
+    if(attempts>160){
       window.clearInterval(timer);
       if(observer)observer.disconnect();
     }
@@ -216,7 +243,12 @@ function boot(){
   render();
 }
 
-window.addEventListener('hashcod:platform-entered',show);
+window.addEventListener('hashcod:platform-entered',function(){
+  if(getToolboxPanel())show();
+});
+window.addEventListener('resize',function(){
+  if(root&&!root.hidden)positionBesideToolbox();
+},{passive:true});
 
 window.HashcodBranchedMenu={
   items:ITEMS,

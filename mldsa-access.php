@@ -274,8 +274,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261003-branchedlight1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20260928-entryintro1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261003-faqmodal1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261003-faqmodal1',ENT_QUOTES,'UTF-8');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
@@ -310,7 +310,9 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Creates like rotating text"><span class="entry-rotating-text-prefix">Creates like</span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">code</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
       .'<div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
-      .'<section id="d5FaqCard" class="faq-tabs-card" aria-label="Frequently asked questions">'
+      .'<div id="d5FaqModalBackdrop" class="faq-modal-backdrop" hidden aria-hidden="true"></div>'
+      .'<section id="d5FaqCard" class="faq-tabs-card" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="d5FaqModalTitle">'
+      .'<div class="faq-modal-header"><h2 id="d5FaqModalTitle">FAQ</h2><button id="d5FaqClose" class="faq-modal-close" type="button" aria-label="Cerrar FAQ">×</button></div>'
       .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'
       .'<button class="faq-tab active" type="button" role="tab" aria-selected="true" data-faq-tab="0"><span class="faq-tab-pill"></span><span class="faq-tab-label">General</span></button>'
       .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="1"><span class="faq-tab-label">Building</span></button>'

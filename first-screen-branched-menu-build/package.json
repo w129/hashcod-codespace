@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "esbuild entry.jsx --bundle --minify --format=iife --target=es2020 --jsx=automatic --outfile=../components/first-screen-branched-menu.bundle.js --define:process.env.NODE_ENV='\\\"production\\\"'"
+  },
+  "dependencies": {
+    "@hugeicons/core-free-icons": "4.3.5",
+    "@hugeicons/react": "1.1.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

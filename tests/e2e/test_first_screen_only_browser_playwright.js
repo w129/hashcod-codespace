@@ -31,6 +31,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const active=document.querySelector('.branched-menu__item[aria-current="true"]');
       const firstItem=document.querySelector('.branched-menu__item');
       const icon=document.querySelector('.branched-menu__icon svg');
+      const faqItem=Array.from(document.querySelectorAll('.branched-menu__item')).find(n=>n.textContent.trim()==='FAQ');
+      const faqIcon=faqItem?.querySelector('svg');
       const basePath=document.querySelector('.branched-menu__base');
       const stageStyle=getComputedStyle(stage);
       const menuStyle=getComputedStyle(menu);
@@ -76,6 +78,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           height:icon?iconStyle.height:'',
           color:icon?iconStyle.color:''
         },
+        faq:{
+          exists:Boolean(faqItem),
+          width:faqIcon?getComputedStyle(faqIcon).width:'',
+          height:faqIcon?getComputedStyle(faqIcon).height:'',
+          fill:faqIcon?getComputedStyle(faqIcon).fill:'',
+          viewBox:faqIcon?.getAttribute('viewBox')||''
+        },
         svg:{
           fill:basePath?getComputedStyle(basePath).fill:'',
           stroke:basePath?getComputedStyle(basePath).stroke:'',
@@ -99,7 +108,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.menu.paddingLeft,'14px','source rail offset must remain exact');
     assert(state.menu.width<=240.5,'BranchedMenu width prop must remain 240px');
     assert.deepEqual(state.heads,[{label:'Getting started',expanded:'true'},{label:'Components',expanded:'false'}],'defaultOpen={[0]} must remain exact');
-    assert.deepEqual(state.labels,['Installation','Quick start','Configuration','Buttons','Overlays'],'menu labels must match the supplied usage exactly');
+    assert.deepEqual(state.labels,['FAQ','Quick start','Configuration','Buttons','Overlays'],'menu labels must match the supplied usage exactly');
     assert.equal(state.active,'Quick start','defaultActive must remain quick');
     assert.equal(state.item.display,'flex','child row source layout changed');
     assert.equal(state.item.height,'36px','rowHeight=36 must remain exact');
@@ -111,7 +120,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.activeColor,'rgb(10, 10, 10)','active label must be black');
     assert.equal(state.icon.width,'16px','Hugeicon width must be 16px');
     assert.equal(state.icon.height,'16px','Hugeicon height must be 16px');
-    assert.equal(state.icon.color,'rgb(10, 10, 10)','Hugeicons must be black');
+    assert.equal(state.icon.color,'rgb(10, 10, 10)','menu icons must be black');
+    assert.equal(state.faq.exists,true,'FAQ must be the first menu item');
+    assert.equal(state.faq.width,'16px','FAQ SVG width must be adapted to 16px');
+    assert.equal(state.faq.height,'16px','FAQ SVG height must be adapted to 16px');
+    assert.equal(state.faq.fill,'rgb(10, 10, 10)','FAQ SVG must inherit black menu ink');
+    assert.equal(state.faq.viewBox,'0 0 48 48','FAQ SVG must preserve the supplied viewBox');
     assert.equal(state.svg.fill,'none','branch SVG must never render as filled polygons');
     assert.equal(state.svg.stroke,'rgb(10, 10, 10)','branch lines must be black');
     assert.equal(state.svg.strokeWidth,'1.5px','lineWidth=1.5 must remain exact');
@@ -120,6 +134,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.secondEntry,false,'retired second screen must remain absent');
     assert.equal(state.toolbook,false,'retired Toolbook screen must remain absent');
 
+    await page.getByRole('button',{name:'FAQ'}).click();
+    assert.equal(new URL(page.url()).hash,'#faq','FAQ selection must navigate to #faq');
     await page.getByRole('button',{name:'Components'}).click();
     await page.waitForFunction(()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Components')?.getAttribute('aria-expanded')==='true');
     await page.getByRole('button',{name:'Overlays'}).click();

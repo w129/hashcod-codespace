@@ -336,6 +336,14 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<style id="hashcod-platform-loading-skeleton-inline">' . $platformSkeletonCss . '</style>'
             : '<link rel="stylesheet" href="' . $base . 'components/platform-loading-skeleton.css?v=20260928-skeleton1" data-hashcod-platform-loading-skeleton-style="true">';
 
+        // The Toolbook BranchedMenu is a real React/Hugeicons island.
+        // Inline its compiled CSS so stale/static asset routing cannot leave raw unstyled buttons.
+        $toolbookReactCssPath = __DIR__ . '/components/toolbook-branched-menu.bundle.css';
+        $toolbookReactCss = is_file($toolbookReactCssPath) ? (string) @file_get_contents($toolbookReactCssPath) : '';
+        $toolbookReactCssTag = $toolbookReactCss !== ''
+            ? '<style id="hashcod-toolbook-react-branched-menu-inline">' . $toolbookReactCss . '</style>'
+            : '<link rel="stylesheet" href="' . $base . 'components/toolbook-branched-menu.bundle.css?v=20261003-react1" data-hashcod-react-branched-menu-style="true">';
+
         $cssTag = $platformSkeletonStyleTag
             . $inlineCssTag
             . $inlineEfrCssTag
@@ -350,7 +358,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<link rel="stylesheet" href="' . $base . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
             . '<link rel="stylesheet" href="' . $base . 'components/page-mascot-panda.css?v=20260929-panda2" data-hashcod-page-mascot-style="true">'
-            . '<link rel="stylesheet" href="' . $base . 'components/toolbook-page-blank.css?v=20261003-blank3" data-hashcod-toolbook-blank-style="true">'
+            . '<link rel="stylesheet" href="' . $base . 'components/toolbook-page-blank.css?v=20261003-react1" data-hashcod-toolbook-blank-style="true">'
+            . $toolbookReactCssTag
             . $inlinePlatformCrmCssTag
             . $platformCrmCssExternalTag
             . $efrCssExternalTag
@@ -566,6 +575,15 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-platform-loading-skeleton-runtime">' . $platformSkeletonJs . '</script>'
             : '<script defer src="' . $base . 'components/platform-loading-skeleton.js?v=20260928-skeleton1" data-hashcod-platform-loading-skeleton="true"></script>';
 
+        $toolbookReactBundlePath = __DIR__ . '/components/toolbook-branched-menu.bundle.js';
+        $toolbookReactBundle = is_file($toolbookReactBundlePath) ? (string) @file_get_contents($toolbookReactBundlePath) : '';
+        if ($toolbookReactBundle !== '') {
+            $toolbookReactBundle = str_ireplace('</script', '<\\/script', $toolbookReactBundle);
+        }
+        $toolbookReactBundleTag = $toolbookReactBundle !== ''
+            ? '<script id="hashcod-toolbook-react-branched-menu-inline" data-hashcod-react-branched-menu-inline="true">' . $toolbookReactBundle . '</script>'
+            : '<script defer src="' . $base . 'components/toolbook-branched-menu.bundle.js?v=20261003-react1" data-hashcod-react-branched-menu="true"></script>';
+
         $tag = $platformSkeletonRuntimeTag
             . $retiredTopbarControlsCleanupTag
             . $legacyBlackholeCleanupTag
@@ -592,7 +610,8 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260926-noregform1" data-hashcod-entry-capability-footer-fix="true"></script>'
             . '<script defer src="' . $base . 'components/device-usage-tracker.js?v=20260928-deviceusage1" data-hashcod-device-usage-tracker="true"></script>'
             . '<script defer src="' . $base . 'components/page-mascot-panda.js?v=20260929-panda2" data-hashcod-page-mascot="true"></script>'
-            . '<script defer src="' . $base . 'components/toolbook-page-blank.js?v=20261003-blank3" data-hashcod-toolbook-blank="true"></script>'
+            . '<script defer src="' . $base . 'components/toolbook-page-blank.js?v=20261003-react1" data-hashcod-toolbook-blank="true"></script>'
+            . $toolbookReactBundleTag
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'

@@ -95,14 +95,15 @@ Hashcod Codespace uses a native JavaScript adaptation of **React Bits SplashCurs
 - License: MIT
 - Hashcod adaptation: preserves the upstream WebGL fluid simulation defaults, including simulation resolution 128, dye resolution 1440, density dissipation 3.5, velocity dissipation 2, pressure 0.1, 20 pressure iterations, curl 3, splat radius 0.2, splat force 6000, shading, and cursor/touch-driven splats. Rainbow mode is disabled. Because a literal black dye would have zero RGB density in the upstream alpha calculation, Hashcod keeps non-zero internal density while the display shader renders that density as black with alpha, producing a visible black liquid effect on the light entry background.
 
-## Hugeicons — Toolbook BranchedMenu icons
+## React Bits-style BranchedMenu / Hugeicons integration
 
-Hashcod Codespace uses three free Hugeicons SVG path definitions in the BranchedMenu shown on the reset Toolbook workspace.
+Hashcod Codespace mounts the supplied **BranchedMenu** as a real React island on the reset Toolbook workspace.
 
-- Project: Hugeicons
-- Source: https://github.com/hugeicons/hugeicons
-- Package: `@hugeicons/core-free-icons`
-- Icons: `CursorPointer01Icon`, `Download04Icon`, `Layers01Icon`, `Notification03Icon`, `PaintBoardIcon`, `Rocket01Icon`, `Settings02Icon`, `TextFontIcon`
-- License: MIT
-- Hashcod adaptation: the icon path data is rendered inline by the native JavaScript workspace so the PHP/JavaScript platform does not require a React runtime solely for these icons.
+- Runtime: React 19.2.4 / React DOM 19.2.4
+- Icon renderer: `@hugeicons/react` 1.1.9
+- Icon data: `@hugeicons/core-free-icons` 4.3.5
+- Usage icons: `Download04Icon`, `Rocket01Icon`, `Settings02Icon`
+- Additional default component icons retained in the component source: `CursorPointer01Icon`, `Layers01Icon`, `Notification03Icon`, `PaintBoardIcon`, `TextFontIcon`
+- Hugeicons license: MIT
+- Integration: the supplied BranchedMenu JSX and CSS are bundled with esbuild as an isolated browser island; the PHP/native platform only creates the mount point.
 

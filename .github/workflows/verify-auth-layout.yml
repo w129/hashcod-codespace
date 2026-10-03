@@ -13,6 +13,7 @@ on:
       - l8-html.php
       - laragon-local-entry.php
       - rare-folder-build/**
+      - toolbook-branched-menu-build/**
       - components/cloud-device-sync.js
       - components/admin-hello-button.js
       - components/auth-vector-layout-fix.js
@@ -150,6 +151,18 @@ jobs:
           test -s ../components/rare-folder-entry.bundle.js
           node --check ../components/rare-folder-entry.bundle.js
           grep -q "hashcodRareFolderHost" ../components/rare-folder-entry.bundle.js
+
+      - name: Build exact React BranchedMenu island
+        working-directory: toolbook-branched-menu-build
+        run: |
+          npm install --no-fund --no-audit
+          npm run build
+          test -s ../components/toolbook-branched-menu.bundle.js
+          test -s ../components/toolbook-branched-menu.bundle.css
+          node --check ../components/toolbook-branched-menu.bundle.js
+
+      - name: Verify exact React BranchedMenu source contract
+        run: node tests/e2e/test_toolbook_react_branched_menu.js
 
       - name: Syntax check legacy boot folder fallback
         run: node --check components/boot-folder-animation.js

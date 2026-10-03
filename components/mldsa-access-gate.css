@@ -3258,6 +3258,18 @@
 .entry-branched-menu-stage .branched-menu__icon{
   color:#0a0a0a;
 }
+
+/* First screen placement: keep the navigation comfortably inset from the
+   left edge while lifting it toward the upper-left of the viewport. */
+@media(min-width:1180px){
+  body[data-hashcod-entry-intro="1"] .entry-branched-menu-stage{
+    position:fixed;
+    left:18px;
+    top:8px;
+    z-index:6;
+    margin:0;
+  }
+}
 @media(max-width:1179px){
   .entry-branched-menu-stage{margin-inline:auto}
 }

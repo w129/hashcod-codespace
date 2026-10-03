@@ -73,7 +73,7 @@ function mount() {
     />
   );
   node.dataset.hashcodReactBranchedMenuMounted = 'true';
-  window.HashcodBranchedMenuReact = { mounted: true, version: '20261003-react1' };
+  window.HashcodBranchedMenuReact = { mounted: true, version: '20261003-react2' };
   return true;
 }
 

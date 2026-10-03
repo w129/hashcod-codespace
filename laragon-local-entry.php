@@ -67,7 +67,7 @@ $headExtras = '<base href="' . $baseAttr . '">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/boot-brand-credit-relocate.css?v=20260917-10" data-hashcod-boot-brand-credit-relocate-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/percent-feature-button.css?v=20260914-1" data-hashcod-percent-feature-style="true">'
     . '<link rel="stylesheet" href="' . $baseAttr . 'components/platform-crm.css?v=20260927-platformcrm6" data-hashcod-platform-crm-style="true">'
-    . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbook-page-blank.css?v=20261003-blank2" data-hashcod-toolbook-blank-style="true">'
+    . '<link rel="stylesheet" href="' . $baseAttr . 'components/toolbook-page-blank.css?v=20261003-blank3" data-hashcod-toolbook-blank-style="true">'
     . '<script id="hashcod-deskcomm-crm-config">window.HASHCOD_DESKCOMM_CRM_URL="";</script>'
     . $inlineEfrCss
     . '<style id="hashcod-laragon-rare-folder-placement">'
@@ -141,7 +141,7 @@ $bodyExtras = '<script defer src="' . $baseAttr . 'components/legacy-auth-retire
     . '<script defer src="' . $baseAttr . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/platform-crm.js?v=20260927-platformcrm6" data-hashcod-platform-crm="true"></script>'
-    . '<script defer src="' . $baseAttr . 'components/toolbook-page-blank.js?v=20261003-blank2" data-hashcod-toolbook-blank="true"></script>'
+    . '<script defer src="' . $baseAttr . 'components/toolbook-page-blank.js?v=20261003-blank3" data-hashcod-toolbook-blank="true"></script>'
 
     . '<script defer src="' . $baseAttr . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
     . '<script defer src="' . $baseAttr . 'components/laragon-credit-align.js?v=20260914-local1" data-hashcod-laragon-credit-align="true"></script>';

@@ -3490,9 +3490,9 @@ body[data-hashcod-entry-intro="1"] #d5TextEditorCard[hidden]{
   display:block;
   width:100vw;
   height:100dvh;
-  background:rgba(255,255,255,.88);
-  backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
   opacity:0;
   transition:opacity .20s ease;
   pointer-events:auto;
@@ -3502,6 +3502,10 @@ body[data-hashcod-entry-intro="1"] #d5TextEditorCard[hidden]{
 }
 body.workspace-modal-open{
   overflow:hidden;
+}
+body.workspace-modal-open > *:not(#d5WorkspaceModalBackdrop):not(#d5TextEditorCard){
+  pointer-events:none!important;
+  user-select:none!important;
 }
 body.workspace-modal-open .workspace-modal-backdrop{
   opacity:1;

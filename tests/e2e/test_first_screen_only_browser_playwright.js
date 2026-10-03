@@ -37,6 +37,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const cardIcon=cardItem?.querySelector('svg');
       const workspaceItem=Array.from(document.querySelectorAll('.branched-menu__item')).find(n=>n.textContent.trim()==='Workspace');
       const workspaceIcon=workspaceItem?.querySelector('svg');
+      const textCardItem=Array.from(document.querySelectorAll('.branched-menu__item')).find(n=>n.textContent.trim()==='Text Card');
+      const textCardIcon=textCardItem?.querySelector('svg');
       const documentsItem=Array.from(document.querySelectorAll('.branched-menu__item')).find(n=>n.textContent.trim()==='Documents');
       const documentsIcon=documentsItem?.querySelector('svg');
       const basePath=document.querySelector('.branched-menu__base');
@@ -105,6 +107,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           fill:workspaceIcon?getComputedStyle(workspaceIcon).fill:'',
           viewBox:workspaceIcon?.getAttribute('viewBox')||''
         },
+        textCardMenu:{
+          exists:Boolean(textCardItem),
+          width:textCardIcon?getComputedStyle(textCardIcon).width:'',
+          height:textCardIcon?getComputedStyle(textCardIcon).height:'',
+          fill:textCardIcon?getComputedStyle(textCardIcon).fill:'',
+          viewBox:textCardIcon?.getAttribute('viewBox')||''
+        },
         documentsMenu:{
           exists:Boolean(documentsItem),
           width:documentsIcon?getComputedStyle(documentsIcon).width:'',
@@ -135,7 +144,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.menu.paddingLeft,'14px','source rail offset must remain exact');
     assert(state.menu.width<=240.5,'BranchedMenu width prop must remain 240px');
     assert.deepEqual(state.heads,[{label:'Getting started',expanded:'true'},{label:'Components',expanded:'false'}],'defaultOpen={[0]} must remain exact');
-    assert.deepEqual(state.labels,['FAQ','Card','Workspace','Documents','Quick start','Configuration','Buttons','Overlays'],'menu labels must include Documents in the requested structure');
+    assert.deepEqual(state.labels,['FAQ','Card','Workspace','Text Card','Documents','Quick start','Configuration','Buttons','Overlays'],'menu labels must include Documents in the requested structure');
     assert.equal(state.active,'Quick start','defaultActive must remain quick');
     assert.equal(state.item.display,'flex','child row source layout changed');
     assert.equal(state.item.height,'36px','rowHeight=36 must remain exact');
@@ -163,6 +172,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.workspaceMenu.height,'16px','Workspace SVG height must be 16px');
     assert.equal(state.workspaceMenu.fill,'rgb(10, 10, 10)','Workspace SVG must inherit black menu ink');
     assert.equal(state.workspaceMenu.viewBox,'0 0 24 24','Workspace SVG must preserve the supplied viewBox');
+    assert.equal(state.textCardMenu.exists,true,'Text Card must be present in the BranchedMenu');
+    assert.equal(state.textCardMenu.width,'16px','Text Card SVG width must be 16px');
+    assert.equal(state.textCardMenu.height,'16px','Text Card SVG height must be 16px');
+    assert.equal(state.textCardMenu.fill,'rgb(10, 10, 10)','Text Card SVG must inherit black menu ink');
+    assert.equal(state.textCardMenu.viewBox,'0 0 64 64','Text Card SVG must preserve the supplied viewBox');
     assert.equal(state.documentsMenu.exists,true,'Documents must be present in the BranchedMenu');
     assert.equal(state.documentsMenu.width,'16px','Documents SVG width must be 16px');
     assert.equal(state.documentsMenu.height,'16px','Documents SVG height must be 16px');
@@ -428,6 +442,69 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
     assert.equal(new URL(page.url()).hash,'','Escape must close Workspace');
 
+    assert.equal(await page.locator('#d5BeamCardDemo').isVisible(),false,'Text Card cards must stay hidden before Text Card is selected');
+    assert.equal(await page.locator('#d5BeamCardDemo').getAttribute('hidden'),'','Text Card source must be natively hidden initially');
+    assert.equal(await page.locator('#d5TextCardBackdrop').isVisible(),false,'Text Card backdrop must stay hidden initially');
+
+    await page.getByRole('button',{name:'Text Card'}).click();
+    assert.equal(new URL(page.url()).hash,'#text-card','Text Card selection must navigate to #text-card');
+    await page.waitForSelector('#d5BeamCardDemo',{state:'visible',timeout:5000});
+    await page.waitForSelector('#d5TextCardBackdrop',{state:'visible',timeout:5000});
+
+    const textCardState=await page.evaluate(()=>{
+      const demo=document.getElementById('d5BeamCardDemo');
+      const backdrop=document.getElementById('d5TextCardBackdrop');
+      const close=document.getElementById('d5TextCardClose');
+      const rect=demo.getBoundingClientRect();
+      const style=getComputedStyle(backdrop);
+      return {
+        open:document.body.classList.contains('text-card-modal-open'),
+        hidden:demo.hidden,
+        ariaHidden:demo.getAttribute('aria-hidden'),
+        centerX:rect.left+rect.width/2,
+        centerY:rect.top+rect.height/2,
+        viewportX:innerWidth/2,
+        viewportY:innerHeight/2,
+        blur:style.backdropFilter||style.webkitBackdropFilter||'',
+        backdropBackground:style.backgroundColor,
+        closeFocused:document.activeElement===close,
+        cards:Array.from(demo.querySelectorAll('.beam-card-title')).map(n=>n.textContent.trim())
+      };
+    });
+    assert.equal(textCardState.open,true,'Text Card modal state class must be applied');
+    assert.equal(textCardState.hidden,false,'Text Card must remove native hidden after selection');
+    assert.equal(textCardState.ariaHidden,'false','Text Card must be exposed while open');
+    assert(Math.abs(textCardState.centerX-textCardState.viewportX)<=2,'Text Card must be horizontally centered');
+    assert(Math.abs(textCardState.centerY-textCardState.viewportY)<=2,'Text Card must be vertically centered');
+    assert(textCardState.blur.includes('blur(28px)'),'Text Card must strongly blur the page behind it');
+    assert.equal(textCardState.backdropBackground,'rgba(255, 255, 255, 0.94)','Text Card backdrop must strongly veil the page');
+    assert.equal(textCardState.closeFocused,true,'Text Card close control must receive focus');
+    assert.deepEqual(textCardState.cards,[
+      'Custom Toolbook',
+      'Goal-driven building',
+      'Development requests',
+      'Unique validation codes',
+      'Modular environment',
+      'Everything in one space'
+    ],'Text Card must show exactly the six existing text cards');
+
+    await page.locator('#d5TextCardClose').click();
+    await page.waitForSelector('#d5BeamCardDemo',{state:'hidden',timeout:5000});
+    assert.equal(await page.locator('#d5BeamCardDemo').getAttribute('hidden'),'','Text Card close must restore native hidden');
+    assert.equal(new URL(page.url()).hash,'','Text Card close must clear the hash');
+
+    await page.getByRole('button',{name:'Text Card'}).click();
+    await page.waitForSelector('#d5TextCardBackdrop',{state:'visible',timeout:5000});
+    await page.locator('#d5TextCardBackdrop').click({position:{x:5,y:5}});
+    await page.waitForSelector('#d5BeamCardDemo',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','clicking outside Text Card must close it');
+
+    await page.getByRole('button',{name:'Text Card'}).click();
+    await page.waitForSelector('#d5BeamCardDemo',{state:'visible',timeout:5000});
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('#d5BeamCardDemo',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','Escape must close Text Card');
+
     assert.equal(await page.locator('#d5DocumentsHubShell').isVisible(),false,'Documents hub must stay hidden until selected');
     assert.equal(await page.locator('#d5DocumentsHubBackdrop').isVisible(),false,'Documents blur backdrop must stay hidden initially');
     assert.equal(await page.locator('#d5NumberTickerDemo').isVisible(),false,'NumberTicker must not be visible before Documents is selected');
@@ -499,7 +576,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('.branched-menu').count(),1,'legacy query must still show exactly one BranchedMenu');
     assert.equal(await page.locator('.entry-access-card').count(),0,'legacy query must not restore old window');
 
-    console.log('✓ FAQ, Card, Workspace and Documents open only from the BranchedMenu and remain functional');
+    console.log('✓ FAQ, Card, Workspace, Text Card and Documents open only from the BranchedMenu and remain functional');
   }finally{
     await browser.close();
   }

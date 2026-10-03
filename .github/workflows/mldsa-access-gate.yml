@@ -2,6 +2,8 @@ name: First screen only + ML-DSA security check
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
@@ -106,6 +108,14 @@ jobs:
       - name: Verify first screen in Chromium
         run: |
           HASHCOD_FIRST_SCREEN_URL=http://127.0.0.1:8097/ node tests/e2e/test_first_screen_only_browser_playwright.js
+
+      - name: Verify Laragon entry is also first-screen only
+        run: |
+          curl -fsS http://127.0.0.1:8097/laragon-local-entry.php >/tmp/hashcod-laragon.html
+          grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-laragon.html
+          grep -q 'data-entry-single-screen="true"' /tmp/hashcod-laragon.html
+          ! grep -q 'platform-entry-hold.js' /tmp/hashcod-laragon.html
+          ! grep -q 'toolbook-page-blank.js' /tmp/hashcod-laragon.html
 
       - name: Verify panda mascot assets
         run: |

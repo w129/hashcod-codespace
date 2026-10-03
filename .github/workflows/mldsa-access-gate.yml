@@ -98,6 +98,10 @@ jobs:
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-home.html
           ! grep -q 'id="d5VerifyText">Entrar</span>' /tmp/hashcod-home.html
           ! grep -q 'id="d5EntryStatCard"' /tmp/hashcod-home.html
+          ! grep -q 'id="d5TiltCardDemo"' /tmp/hashcod-home.html
+          ! grep -q 'Current price to purchase a slot' /tmp/hashcod-home.html
+          ! grep -q 'id="d5SavedChatDemo"' /tmp/hashcod-home.html
+          ! grep -q 'Saved Messages</h3>' /tmp/hashcod-home.html
           ! grep -q 'Acceso a Hashcod Codespace</h1>' /tmp/hashcod-home.html
           grep -q 'id="d5RotatingTextHero"' /tmp/hashcod-home.html
           grep -q '>Creates like</span>' /tmp/hashcod-home.html

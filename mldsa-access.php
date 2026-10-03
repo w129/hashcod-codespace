@@ -285,8 +285,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $splashCursorCss=htmlspecialchars($base.'components/react-bits-splash-cursor.css?v=20261002-splash1',ENT_QUOTES,'UTF-8');
     $splashCursorJs=htmlspecialchars($base.'components/react-bits-splash-cursor.js?v=20261002-splash1',ENT_QUOTES,'UTF-8');
-    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-faq1',ENT_QUOTES,'UTF-8');
-    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-faq1',ENT_QUOTES,'UTF-8');
+    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-card1',ENT_QUOTES,'UTF-8');
+    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-card1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -497,7 +497,13 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'<article class="tool-card card-1" data-card-index="1"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/pit-barriers.svg" alt="Pit Barriers logo"><div class="tool-copy"><h2>Pit Barriers</h2><p>Barriers with intentional holes designed to lure your code into false traps.</p></div></div></article>'
       .'<article class="tool-card card-2" data-card-index="2"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/single-bed-base.svg" alt="Single bed base logo"><div class="tool-copy"><h2>Single bed base</h2><p>Rent out your unit through the CRM, and you can even sell or rent it to someone else.</p></div></div></article>'
       .'<article class="tool-card card-3" data-card-index="3"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/tokenized-certification.svg" alt="Tokenized certification logo"><div class="tool-copy"><h2>Tokenized certification</h2><p>Obtain your tokenized platform certification by integrating with our Codespace and contacting us.</p></div></div></article>'
-      .'</section></div></main>'
+      .'</section>'
+      .'<div id="d5CardModalBackdrop" class="card-modal-backdrop" hidden aria-hidden="true"></div>'
+      .'<section id="d5CardModalShell" class="card-modal-shell" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Cards">'
+      .'<button id="d5CardClose" class="card-modal-close" type="button" aria-label="Cerrar Card">×</button>'
+      .'<div id="d5CardModalDeck" class="tool-deck card-modal-deck" role="button" tabindex="0" aria-expanded="false" aria-label="Expandir o apilar tarjetas de herramientas"></div>'
+      .'</section>'
+      .'</div></main>'
       .'<section id="d5DocumentsModal" class="documents-modal" hidden aria-hidden="true" aria-label="Official documents viewer">'
       .'<div class="documents-backdrop" data-doc-action="close"></div>'
       .'<div class="documents-window" role="dialog" aria-modal="true" aria-labelledby="d5DocumentsTitle">'

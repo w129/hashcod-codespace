@@ -93,8 +93,8 @@ jobs:
           grep -q 'id="d5FirstBranchedMenuStage"' /tmp/hashcod-home.html
           grep -q 'id="d5FirstBranchedMenuMount"' /tmp/hashcod-home.html
           grep -q 'data-react-bits-component="BranchedMenu"' /tmp/hashcod-home.html
-          grep -q 'first-screen-branched-menu.bundle.css?v=20261003-documents1' /tmp/hashcod-home.html
-          grep -q 'first-screen-branched-menu.bundle.js?v=20261003-documents1' /tmp/hashcod-home.html
+          grep -q 'first-screen-branched-menu.bundle.css?v=20261003-textcard1' /tmp/hashcod-home.html
+          grep -q 'first-screen-branched-menu.bundle.js?v=20261003-textcard1' /tmp/hashcod-home.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-home.html
           ! grep -q 'id="d5VerifyText">Entrar</span>' /tmp/hashcod-home.html
           ! grep -q 'id="d5EntryStatCard"' /tmp/hashcod-home.html
@@ -104,6 +104,8 @@ jobs:
           grep -q 'id="d5SplashCursorBackground"' /tmp/hashcod-home.html
           grep -q 'id="d5TextEditorCard" class="liquid-text-editor" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Workspace" hidden' /tmp/hashcod-home.html
           grep -q 'id="d5WorkspaceModalBackdrop"' /tmp/hashcod-home.html
+          grep -q 'id="d5TextCardBackdrop" class="text-card-modal-backdrop" hidden' /tmp/hashcod-home.html
+          grep -q 'id="d5BeamCardDemo" class="beam-card-demo" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Text Card" hidden' /tmp/hashcod-home.html
           grep -q 'id="d5DocumentsHubBackdrop"' /tmp/hashcod-home.html
           grep -q 'id="d5DocumentsHubShell"' /tmp/hashcod-home.html
           grep -q 'id="d5DocumentsHubContent"' /tmp/hashcod-home.html
@@ -126,7 +128,7 @@ jobs:
         run: |
           php laragon-local-entry.php >/tmp/hashcod-laragon.html
           grep -q 'id="d5FirstBranchedMenuMount"' /tmp/hashcod-laragon.html
-          grep -q 'first-screen-branched-menu.bundle.js?v=20261003-documents1' /tmp/hashcod-laragon.html
+          grep -q 'first-screen-branched-menu.bundle.js?v=20261003-textcard1' /tmp/hashcod-laragon.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-laragon.html
           ! grep -q 'platform-entry-hold.js' /tmp/hashcod-laragon.html
           ! grep -q 'toolbook-page-blank.js' /tmp/hashcod-laragon.html

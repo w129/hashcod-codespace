@@ -114,6 +114,9 @@ assert(entry.includes("url.hash = value"),'onSelect navigate behavior missing');
 assert(entry.includes('const WorkspaceIcon = ('),'Workspace SVG icon component missing');
 assert(entry.includes('viewBox="0 0 24 24"'),'Workspace SVG viewBox changed');
 assert(entry.includes("{ value: 'workspace', label: 'Workspace', icon: WorkspaceIcon }"),'Workspace menu item missing');
+assert(entry.includes('const TextCardIcon = ('),'Text Card SVG icon component missing');
+assert(entry.includes('viewBox="0 0 64 64"'),'Text Card SVG viewBox changed');
+assert(entry.includes("{ value: 'text-card', label: 'Text Card', icon: TextCardIcon }"),'Text Card menu item missing');
 assert(gate.includes('id="d5WorkspaceModalBackdrop"'),'Workspace modal backdrop missing');
 assert(gate.includes('id="d5TextEditorCard" class="liquid-text-editor" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Workspace" hidden'),'Workspace editor must be natively hidden by default');
 assert(gate.includes('id="d5WorkspaceClose"'),'Workspace close control missing');
@@ -127,6 +130,18 @@ assert(js.includes('openWorkspaceModal();'),'Workspace action must open editor m
 assert(js.includes('textEditorCard.hidden=false'),'Workspace open must remove native hidden');
 assert(js.includes('textEditorCard.hidden=true'),'Workspace close must restore native hidden');
 assert(js.includes("workspaceBackdrop.addEventListener('click',closeWorkspaceModal)"),'Workspace backdrop close behavior missing');
+assert(gate.includes('id="d5TextCardBackdrop" class="text-card-modal-backdrop" hidden aria-hidden="true"'),'Text Card backdrop missing');
+assert(gate.includes('id="d5BeamCardDemo" class="beam-card-demo" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Text Card" hidden'),'Text Card six-card source must be natively hidden');
+assert(gate.includes('id="d5TextCardClose"'),'Text Card close control missing');
+assert(css.includes('body[data-hashcod-entry-intro="1"] #d5BeamCardDemo[hidden]'),'Text Card hidden guard missing');
+assert(css.includes('.text-card-modal-backdrop{'),'Text Card backdrop CSS missing');
+assert(css.includes('backdrop-filter:blur(28px)'),'Text Card must strongly blur the page');
+assert(css.includes('body[data-hashcod-entry-intro="1"].text-card-modal-open #d5BeamCardDemo'),'Text Card centered modal CSS missing');
+assert(js.includes("if(detail.value==='text-card')"),'Text Card menu action missing');
+assert(js.includes('openTextCardModal();'),'Text Card menu action must open the six-card modal');
+assert(js.includes('textCardDemo.hidden=false'),'Text Card open must remove native hidden');
+assert(js.includes('textCardDemo.hidden=true'),'Text Card close must restore native hidden');
+assert(js.includes("textCardBackdrop.addEventListener('click',closeTextCardModal)"),'Text Card backdrop close behavior missing');
 assert(entry.includes('const FaqIcon = ('),'custom FAQ SVG component missing');
 assert(entry.includes('const CardIcon = ('),'custom Card SVG component missing');
 assert(entry.includes('viewBox="0 0 16 16"'),'custom Card SVG viewBox changed');
@@ -190,4 +205,4 @@ assert(js.includes('function openDocumentsHub()'),'Documents open runtime missin
 assert(js.includes('function closeDocumentsHub()'),'Documents close runtime missing');
 assert(js.includes("document.getElementById('d5ScratchCardDemo')"),'Documents must reuse the real ScratchCard');
 
-console.log('✓ First screen uses the exact React Bits BranchedMenu with FAQ, Card, Workspace and Documents modals');
+console.log('✓ First screen uses FAQ, Card, Workspace, Text Card and Documents modal actions');

@@ -386,10 +386,20 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(workspaceState.title,'Workspace draft','Workspace must reuse the real editor from the reference image');
     assert.equal(workspaceState.promptStudio,true,'Workspace must preserve Skill Studio integration');
 
+    await page.locator('#d5TextEditorInput').fill('Workspace modal test');
+    assert.equal(await page.locator('#d5TextEditorInput').inputValue(),'Workspace modal test','Workspace must keep the real editable text area functional');
+
     await page.locator('#d5WorkspaceClose').click();
     await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
     assert.equal(await page.locator('#d5TextEditorCard').getAttribute('hidden'),'','Workspace close must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','Workspace close must clear the hash');
+
+    await page.getByRole('button',{name:'Workspace'}).click();
+    await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});
+    assert.equal(await page.locator('#d5TextEditorInput').inputValue(),'Workspace modal test','Workspace content must survive close/reopen in the same session');
+    await page.locator('#d5WorkspaceModalBackdrop').click({position:{x:5,y:5}});
+    await page.waitForSelector('#d5TextEditorCard',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','clicking outside Workspace must close it');
 
     await page.getByRole('button',{name:'Workspace'}).click();
     await page.waitForSelector('#d5TextEditorCard',{state:'visible',timeout:5000});

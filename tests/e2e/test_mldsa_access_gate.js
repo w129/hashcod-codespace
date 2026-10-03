@@ -58,8 +58,8 @@ assert(!gate.includes('id="d5EntryStatCard"'),'former Monthly revenue card must 
 assert(!gate.includes('Acceso a Hashcod Codespace</h1>'),'former window title must be removed from visible markup');
 assert(!gate.includes('Esta ventana aparece primero antes de entrar a la plataforma.'),'former window description must be removed');
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-reactbits2'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-reactbits2'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-faq1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-faq1'),'BranchedMenu JS bundle must load');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
@@ -86,7 +86,7 @@ assert(componentCss.includes('stroke-width: var(--bm-line-w)'),'SVG stroke width
 
 for(const token of [
   "label: 'Getting started'",
-  "{ value: 'install', label: 'Installation', icon: Download04Icon }",
+  "{ value: 'faq', label: 'FAQ', icon: FaqIcon }",
   "{ value: 'quick', label: 'Quick start', icon: Rocket01Icon }",
   "{ value: 'config', label: 'Configuration', icon: Settings02Icon }",
   "label: 'Components'",
@@ -111,6 +111,11 @@ for(const token of [
 }
 assert(entry.includes("document.getElementById('d5FirstBranchedMenuMount')"),'entry must mount into first-screen host');
 assert(entry.includes("url.hash = value"),'onSelect navigate behavior missing');
+assert(entry.includes('const FaqIcon = ('),'custom FAQ SVG component missing');
+assert(entry.includes('viewBox="0 0 48 48"'),'custom FAQ SVG viewBox changed');
+assert(entry.includes('width="16"')&&entry.includes('height="16"'),'custom FAQ SVG must be adapted to 16x16');
+assert(entry.includes('fill="currentColor"'),'custom FAQ SVG must inherit menu ink');
+assert(!entry.includes("label: 'Installation'"),'Installation label must be removed');
 assert.equal(pkg.dependencies['@hugeicons/react'],'1.1.9','@hugeicons/react dependency changed');
 assert.equal(pkg.dependencies['@hugeicons/core-free-icons'],'4.3.5','Hugeicons icon package changed');
 assert.equal(pkg.dependencies.react,'19.2.4','React dependency changed');

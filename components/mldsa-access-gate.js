@@ -682,8 +682,20 @@ var faqClose=document.getElementById('d5FaqClose');
 var faqLastFocus=null;
 var faqTabs=faqCard?Array.from(faqCard.querySelectorAll('[data-faq-tab]')):[];
 
+function ensureFaqModalPortal(){
+  if(!document.body)return;
+  if(faqBackdrop&&faqBackdrop.parentElement!==document.body){
+    document.body.appendChild(faqBackdrop);
+  }
+  if(faqCard&&faqCard.parentElement!==document.body){
+    document.body.appendChild(faqCard);
+  }
+}
+ensureFaqModalPortal();
+
 function openFaqModal(){
   if(!faqCard)return;
+  ensureFaqModalPortal();
   faqLastFocus=document.activeElement;
   document.body.classList.add('faq-modal-open');
   faqCard.setAttribute('aria-hidden','false');

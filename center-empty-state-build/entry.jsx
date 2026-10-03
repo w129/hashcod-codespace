@@ -43,22 +43,6 @@ function WorkspaceCheckedIcon() {
   );
 }
 
-function openWorkspace() {
-  try {
-    window.dispatchEvent(
-      new CustomEvent("hashcod:first-screen-branched-menu-select", {
-        detail: {
-          value: "workspace",
-          item: { value: "workspace", label: "Workspace" },
-        },
-      }),
-    );
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
 function CenterWorkspaceEmptyState() {
   const [confirmed, setConfirmed] = useState(false);
   const [opening, setOpening] = useState(false);
@@ -77,12 +61,6 @@ function CenterWorkspaceEmptyState() {
 
     setConfirmed(true);
     setOpening(true);
-
-    timers.current.push(
-      window.setTimeout(() => {
-        openWorkspace();
-      }, 560),
-    );
 
     timers.current.push(
       window.setTimeout(() => {
@@ -135,7 +113,6 @@ function mountCenterEmptyState() {
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
     version: "20261003-center-empty-state1",
-    openWorkspace,
   });
 
   return true;

@@ -58,10 +58,12 @@ assert(!gate.includes('id="d5EntryStatCard"'),'former Monthly revenue card must 
 assert(!gate.includes('Acceso a Hashcod Codespace</h1>'),'former window title must be removed from visible markup');
 assert(!gate.includes('Esta ventana aparece primero antes de entrar a la plataforma.'),'former window description must be removed');
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-reactbits1'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-reactbits1'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-reactbits2'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-reactbits2'),'BranchedMenu JS bundle must load');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
-assert(css.includes('background:#100e15'),'dark React Bits host background missing');
+assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
+assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
+assert(css.includes('--bm-muted:#0a0a0a'),'idle BranchedMenu text must remain black');
 assert(css.includes('border-radius:0'),'former rounded window chrome must not survive');
 assert(css.includes('box-shadow:none'),'former window shadow must not survive');
 
@@ -92,9 +94,9 @@ for(const token of [
   "{ value: 'overlays', label: 'Overlays' }",
   'defaultOpen={[0]}',
   'defaultActive="quick"',
-  'color="#f5f5f5"',
-  'accentColor="#f5f5f5"',
-  'lineColor="#3f3f46"',
+  'color="#0a0a0a"',
+  'accentColor="#0a0a0a"',
+  'lineColor="#0a0a0a"',
   'width={240}',
   'rowHeight={36}',
   'indent={40}',

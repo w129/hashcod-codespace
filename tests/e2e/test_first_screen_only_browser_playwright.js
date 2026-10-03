@@ -152,6 +152,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5FaqModalBackdrop').isVisible(),false,'FAQ backdrop must stay hidden initially');
 
     assert.equal(await page.locator('#d5ToolDeck').isVisible(),false,'source card deck must not be visible before touching Card');
+    assert.equal(await page.locator('#d5ToolDeck').getAttribute('hidden'),'','source card deck must be natively hidden before Card is selected');
     assert.equal(await page.locator('#d5ToolDeck').getAttribute('aria-hidden'),'true','source card deck must stay out of the accessibility tree');
     const visibleSpotlightBefore=await page.locator('h2').evaluateAll(nodes=>nodes.filter(node=>node.textContent.trim()==='Spotlight Code'&&node.getClientRects().length>0&&getComputedStyle(node).visibility!=='hidden').length);
     assert.equal(visibleSpotlightBefore,0,'Spotlight Code must not be visible before Card is selected');
@@ -230,6 +231,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(new URL(page.url()).hash,'','Escape must close the FAQ modal');
 
     assert.equal(await page.locator('#d5CardModalShell').isVisible(),false,'Card modal must stay hidden initially');
+    assert.equal(await page.locator('#d5CardModalShell').getAttribute('hidden'),'','Card modal shell must have native hidden before selection');
     assert.equal(await page.locator('#d5CardModalBackdrop').isVisible(),false,'Card backdrop must stay hidden initially');
 
     assert.equal(await page.locator('#d5ToolDeck').isVisible(),false,'Spotlight cards must still be hidden immediately before Card is selected');
@@ -252,6 +254,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       return {
         bodyOpen:document.body.classList.contains('card-modal-open'),
         ariaHidden:shell.getAttribute('aria-hidden'),
+        hidden:shell.hidden,
         role:shell.getAttribute('role'),
         ariaModal:shell.getAttribute('aria-modal'),
         centerX:shellRect.left+shellRect.width/2,
@@ -273,6 +276,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     assert.equal(cardModalState.bodyOpen,true,'Card modal open state class must be applied');
     assert.equal(cardModalState.ariaHidden,'false','Card dialog must be exposed while open');
+    assert.equal(cardModalState.hidden,false,'Card dialog must remove native hidden only after Card is selected');
     assert.equal(cardModalState.role,'dialog','Card modal must use dialog semantics');
     assert.equal(cardModalState.ariaModal,'true','Card modal must be modal');
     assert(Math.abs(cardModalState.centerX-cardModalState.viewportX)<=2,'Card modal must be horizontally centered');
@@ -300,18 +304,21 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     await page.locator('#d5CardClose').click();
     await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
+    assert.equal(await page.locator('#d5CardModalShell').getAttribute('hidden'),'','Card close button must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','Card close button must clear the hash');
 
     await page.getByRole('button',{name:'Card'}).click();
     await page.waitForSelector('#d5CardModalBackdrop',{state:'visible',timeout:5000});
     await page.locator('#d5CardModalBackdrop').click({position:{x:5,y:5}});
     await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
+    assert.equal(await page.locator('#d5CardModalShell').getAttribute('hidden'),'','outside click must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','clicking outside Card must close it');
 
     await page.getByRole('button',{name:'Card'}).click();
     await page.waitForSelector('#d5CardModalShell',{state:'visible',timeout:5000});
     await page.keyboard.press('Escape');
     await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
+    assert.equal(await page.locator('#d5CardModalShell').getAttribute('hidden'),'','Escape must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','Escape must close Card modal');
 
     await page.getByRole('button',{name:'Components'}).click();
@@ -328,7 +335,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('.branched-menu').count(),1,'legacy query must still show exactly one BranchedMenu');
     assert.equal(await page.locator('.entry-access-card').count(),0,'legacy query must not restore old window');
 
-    console.log('✓ Only FAQ is foregrounded; all existing UI stays fixed behind a full-screen blur');
+    console.log('✓ Card stays fully hidden until its menu item is selected, then opens as a modal');
   }finally{
     await browser.close();
   }

@@ -708,6 +708,7 @@ function openCardModal(){
   hydrateCardModalDeck();
   cardLastFocus=document.activeElement;
   setCardModalExpanded(false);
+  cardModalShell.hidden=false;
   document.body.classList.add('card-modal-open');
   cardModalShell.setAttribute('aria-hidden','false');
   if(cardModalBackdrop){
@@ -722,6 +723,7 @@ function closeCardModal(){
   if(!cardModalShell)return;
   document.body.classList.remove('card-modal-open');
   cardModalShell.setAttribute('aria-hidden','true');
+  cardModalShell.hidden=true;
   setCardModalExpanded(false);
   if(cardModalBackdrop){
     cardModalBackdrop.hidden=true;

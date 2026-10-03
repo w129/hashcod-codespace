@@ -274,8 +274,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261003-cardmodal2',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261003-cardmodal2',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261003-cardmodal3',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261003-cardmodal3',ENT_QUOTES,'UTF-8');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
@@ -492,14 +492,14 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'<button id="d5ScratchReset" class="scratch-reset-button" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg><span>Scratch again</span></button>'
       .'</section>'
       .'</section></div>'
-      .'<section id="d5ToolDeck" class="tool-deck" data-card-source="true" aria-hidden="true">'
+      .'<section id="d5ToolDeck" class="tool-deck" data-card-source="true" hidden aria-hidden="true">'
       .'<article class="tool-card card-0" data-card-index="0"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/spotlight-code.svg" alt="Spotlight Code logo"><div class="tool-copy"><h2>Spotlight Code</h2><p>Code focused on your custom enhancements, providing you with the necessary credentials to make fixes or changes.</p></div></div></article>'
       .'<article class="tool-card card-1" data-card-index="1"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/pit-barriers.svg" alt="Pit Barriers logo"><div class="tool-copy"><h2>Pit Barriers</h2><p>Barriers with intentional holes designed to lure your code into false traps.</p></div></div></article>'
       .'<article class="tool-card card-2" data-card-index="2"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/single-bed-base.svg" alt="Single bed base logo"><div class="tool-copy"><h2>Single bed base</h2><p>Rent out your unit through the CRM, and you can even sell or rent it to someone else.</p></div></div></article>'
       .'<article class="tool-card card-3" data-card-index="3"><div class="tool-card-inner"><img class="tool-logo" src="'.$base.'components/mldsa-card-assets/tokenized-certification.svg" alt="Tokenized certification logo"><div class="tool-copy"><h2>Tokenized certification</h2><p>Obtain your tokenized platform certification by integrating with our Codespace and contacting us.</p></div></div></article>'
       .'</section>'
       .'<div id="d5CardModalBackdrop" class="card-modal-backdrop" hidden aria-hidden="true"></div>'
-      .'<section id="d5CardModalShell" class="card-modal-shell" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Cards">'
+      .'<section id="d5CardModalShell" class="card-modal-shell" hidden role="dialog" aria-modal="true" aria-hidden="true" aria-label="Cards">'
       .'<button id="d5CardClose" class="card-modal-close" type="button" aria-label="Cerrar Card">×</button>'
       .'<div id="d5CardModalDeck" class="tool-deck card-modal-deck" role="button" tabindex="0" aria-expanded="false" aria-label="Expandir o apilar tarjetas de herramientas"></div>'
       .'</section>'

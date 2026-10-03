@@ -90,7 +90,7 @@ assert(centerEmptyStateEntry.includes('M 5 3 C 3.895 3 3 3.895 3 5 L 3 6 L 3 7 L
 assert(centerEmptyStateEntry.includes('M 8.25 12.35 L 10.7 14.8 L 15.85 9.65'),'checkmark must be drawn inside the supplied icon');
 assert(centerEmptyStateEntry.includes('id="d5CenterEmptyStateAction"'),'center EmptyState action button missing');
 assert(centerEmptyStateEntry.includes('setConfirmed(true)'),'center action must morph into confirmed state');
-assert(centerEmptyStateEntry.includes('value: "workspace"'),'center action must target the existing Workspace flow');
+assert(!centerEmptyStateEntry.includes('hashcod:first-screen-branched-menu-select'),'center action must not open any existing first-screen destination yet');
 assert(centerEmptyStateEntryCss.includes('left: 50%')&&centerEmptyStateEntryCss.includes('transform: translate(-50%, -50%)'),'center EmptyState must be horizontally centered');
 assert(centerEmptyStateCss.includes('.center-empty-state-glyph svg'),'center EmptyState SVG sizing missing');
 assert.equal(centerEmptyStatePkg.dependencies.motion,'^12.40.0','center EmptyState motion dependency changed');

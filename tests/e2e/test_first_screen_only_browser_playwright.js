@@ -151,7 +151,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5FaqCard').isVisible(),false,'FAQ card must stay hidden until the menu item is selected');
     assert.equal(await page.locator('#d5FaqModalBackdrop').isVisible(),false,'FAQ backdrop must stay hidden initially');
 
+    assert.equal(await page.locator('#d5ToolDeck').isVisible(),false,'source card deck must not be visible before touching Card');
+    assert.equal(await page.locator('#d5ToolDeck').getAttribute('aria-hidden'),'true','source card deck must stay out of the accessibility tree');
+    assert.equal(await page.getByText('Spotlight Code',{exact:true}).count(),1,'Spotlight Code may exist only inside the hidden source before Card opens');
     const backgroundBefore=await page.locator('#d5ToolDeck').boundingBox();
+    assert.equal(backgroundBefore,null,'hidden source deck must have no visible bounding box');
 
     await page.getByRole('button',{name:'FAQ'}).click();
     assert.equal(new URL(page.url()).hash,'#faq','FAQ selection must navigate to #faq');
@@ -206,7 +210,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(modalState.closeFocused,true,'FAQ close control must receive focus');
 
     const backgroundAfter=await page.locator('#d5ToolDeck').boundingBox();
-    assert.deepEqual(backgroundAfter,backgroundBefore,'background components must stay in their original positions behind the blur');
+    assert.equal(backgroundAfter,null,'source card deck must remain hidden behind FAQ');
 
     await page.locator('#d5FaqClose').click();
     await page.waitForSelector('#d5FaqCard',{state:'hidden',timeout:5000});
@@ -227,7 +231,9 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5CardModalShell').isVisible(),false,'Card modal must stay hidden initially');
     assert.equal(await page.locator('#d5CardModalBackdrop').isVisible(),false,'Card backdrop must stay hidden initially');
 
+    assert.equal(await page.locator('#d5ToolDeck').isVisible(),false,'Spotlight cards must still be hidden immediately before Card is selected');
     const originalDeckBefore=await page.locator('#d5ToolDeck').boundingBox();
+    assert.equal(originalDeckBefore,null,'source card deck must have no visible layout box');
 
     await page.getByRole('button',{name:'Card'}).click();
     assert.equal(new URL(page.url()).hash,'#card','Card selection must navigate to #card');
@@ -278,11 +284,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(cardModalState.shellParent,true,'Card modal must be portaled directly under body');
     assert.equal(cardModalState.closeFocused,true,'Card close control must receive focus');
     assert.deepEqual(cardModalState.cards,['Spotlight Code','Pit Barriers','Single bed base','Tokenized certification'],'Card modal must clone the complete tool deck');
-    assert.equal(cardModalState.frontTitle,'Spotlight Code','Spotlight Code must remain the front card');
+    assert.equal(cardModalState.frontTitle,'Spotlight Code','Spotlight Code must remain the front card after Card is selected');
+    assert.equal(await page.locator('#d5CardModalShell').isVisible(),true,'Card modal must be the only visible card presentation after selection');
     assert.equal(cardModalState.expanded,false,'Card modal must open stacked');
 
     const originalDeckAfter=await page.locator('#d5ToolDeck').boundingBox();
-    assert.deepEqual(originalDeckAfter,originalDeckBefore,'original background card deck must stay in its exact position behind the blur');
+    assert.equal(originalDeckAfter,null,'source card deck must remain hidden while the Card modal is open');
 
     await page.locator('#d5CardModalDeck').click({position:{x:480,y:340}});
     await page.waitForFunction(()=>document.getElementById('d5CardModalDeck')?.classList.contains('expanded'));

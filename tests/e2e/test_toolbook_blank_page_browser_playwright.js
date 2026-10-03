@@ -32,12 +32,14 @@ const target=process.env.TOOLBOOK_BLANK_TEST_URL||'http://127.0.0.1:8099/laragon
 
     await page.waitForFunction(()=>document.documentElement.dataset.hashcodToolbookPageBlank==='true',{timeout:10000});
     await page.waitForSelector('#hashcodToolbookBlankPage',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>document.querySelector('#hashcodToolbookBranchedMenuMount')?.dataset.hashcodReactBranchedMenuMounted==='true',{timeout:15000});
+    await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
 
     const state=await page.evaluate(()=>({
       childCount:document.body.children.length,
       blankId:document.body.firstElementChild&&document.body.firstElementChild.id,
       toolbox:document.querySelector('.toolbox-panel'),
-      branched:document.getElementById('hashcodBranchedMenu'),
+      mount:document.getElementById('hashcodToolbookBranchedMenuMount')?.dataset.hashcodReactBranchedMenuMounted||'',
       text:(document.body.innerText||'').trim(),
       bg:getComputedStyle(document.getElementById('hashcodToolbookBlankPage')).backgroundColor,
       overflow:getComputedStyle(document.body).overflow,
@@ -47,15 +49,18 @@ const target=process.env.TOOLBOOK_BLANK_TEST_URL||'http://127.0.0.1:8099/laragon
         width:document.getElementById('hashcodToolbookBranchedMenuPanel').getBoundingClientRect().width,
         bg:getComputedStyle(document.getElementById('hashcodToolbookBranchedMenuPanel')).backgroundColor
       } : null,
-      menu:document.getElementById('hashcodToolbookBranchedMenu') ? {
-        width:document.getElementById('hashcodToolbookBranchedMenu').getBoundingClientRect().width,
-        active:document.querySelector('.branched-menu__item[aria-current="true"]')?.dataset.value||'',
-        firstOpen:document.querySelector('.branched-menu__section[data-group-index="0"]')?.hasAttribute('data-open')||false,
-        secondOpen:document.querySelector('.branched-menu__section[data-group-index="1"]')?.hasAttribute('data-open')||false,
+      menu:document.querySelector('.branched-menu') ? {
+        width:document.querySelector('.branched-menu').getBoundingClientRect().width,
+        active:document.querySelector('.branched-menu__item[aria-current="true"]')?.textContent.trim()||'',
+        heads:Array.from(document.querySelectorAll('.branched-menu__head')).map(n=>({
+          label:n.textContent.trim(),
+          expanded:n.getAttribute('aria-expanded')
+        })),
         labels:Array.from(document.querySelectorAll('.branched-menu__label')).map(n=>n.textContent.trim()),
         basePaths:document.querySelectorAll('.branched-menu__base').length,
         reachPaths:document.querySelectorAll('.branched-menu__reach').length,
-        markerOn:document.querySelector('.branched-menu__marker')?.hasAttribute('data-on')||false
+        markerOn:document.querySelector('.branched-menu__marker')?.hasAttribute('data-on')||false,
+        iconCount:document.querySelectorAll('.branched-menu__icon svg').length
       } : null
     }));
 
@@ -69,37 +74,39 @@ const target=process.env.TOOLBOOK_BLANK_TEST_URL||'http://127.0.0.1:8099/laragon
     assert(Math.abs(state.panel.top-96)<=2,'reference panel top placement must be 96px');
     assert(Math.abs(state.panel.width-300)<=2,'reference panel width must be 300px');
     assert(state.panel.bg==='rgb(16, 14, 21)'||state.panel.bg==='rgba(16, 14, 21, 1)','reference panel must use the dark background');
-    assert(state.menu,'BranchedMenu must exist inside the blank workspace');
+    assert.equal(state.mount,'true','React BranchedMenu must mount into the Toolbook mount point');
+    assert(state.menu,'real React BranchedMenu must exist inside the blank workspace');
     assert(state.menu.width<=240.5,'BranchedMenu must respect width=240');
-    assert.equal(state.menu.active,'quick','Quick start must be active by default');
-    assert.equal(state.menu.firstOpen,true,'Getting started must be open');
-    assert.equal(state.menu.secondOpen,true,'Components must be open to match the reference');
-    assert.deepEqual(state.menu.labels,['Installation','Quick start','Configuration','Theming','Buttons','Typography','Overlays','Toasts'],'reference item order must match');
-    assert.equal(state.menu.basePaths,10,'SVG base tree paths must be rendered for both groups');
-    assert.equal(state.menu.reachPaths,8,'SVG active reach paths must be rendered for all items');
+    assert.equal(state.menu.active,'Quick start','Quick start must be active by default');
+    assert.deepEqual(state.menu.heads,[{label:'Getting started',expanded:'true'},{label:'Components',expanded:'false'}],'defaultOpen={[0]} must match the usage example');
+    assert.deepEqual(state.menu.labels,['Installation','Quick start','Configuration','Buttons','Overlays'],'usage-example item order must match exactly');
+    assert.equal(state.menu.basePaths,7,'React component must render one trunk + branch paths for both groups');
+    assert.equal(state.menu.reachPaths,5,'React component must render one animated reach per child');
     assert.equal(state.menu.markerOn,true,'active section marker must be visible');
+    assert.equal(state.menu.iconCount,3,'usage example must use the three requested Hugeicons');
 
     const eventPromise=page.evaluate(()=>new Promise(resolve=>{
       window.addEventListener('hashcod:branched-menu-select',event=>resolve(event.detail),{once:true});
     }));
 
-    await page.locator('.branched-menu__item[data-value="overlays"]').click();
+    await page.getByRole('button',{name:'Components'}).click();
+    await page.getByRole('button',{name:'Overlays'}).click();
 
     const detail=await eventPromise;
     assert.equal(detail.value,'overlays','selection event must expose overlays');
 
     const after=await page.evaluate(()=>({
-      active:window.HashcodBranchedMenu.getActive(),
-      open:window.HashcodBranchedMenu.getOpen(),
+      mounted:Boolean(window.HashcodBranchedMenuReact?.mounted),
       hash:location.hash,
-      current:document.querySelector('.branched-menu__item[aria-current="true"]')?.dataset.value||''
+      current:document.querySelector('.branched-menu__item[aria-current="true"]')?.textContent.trim()||'',
+      componentsExpanded:Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Components')?.getAttribute('aria-expanded')
     }));
-    assert.equal(after.active,'overlays','public API must update active item');
-    assert.equal(after.current,'overlays','ARIA active state must update');
-    assert(after.open.includes(0)&&after.open.includes(1),'both sections must remain open after selection');
-    assert.equal(after.hash,'#overlays','default navigate must update location hash');
+    assert.equal(after.mounted,true,'React island runtime marker must be present');
+    assert.equal(after.current,'Overlays','React active state must update');
+    assert.equal(after.componentsExpanded,'true','Components must unfold when its header is clicked');
+    assert.equal(after.hash,'#overlays','onSelect navigate behavior must update location hash');
 
-    console.log('✓ Blank Toolbook workspace matches the supplied BranchedMenu reference');
+    console.log('✓ Exact React BranchedMenu usage example is mounted and functional');
   } finally {
     await browser.close();
   }

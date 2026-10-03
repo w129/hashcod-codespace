@@ -3226,3 +3226,36 @@
   .entry-wizard-back,
   .entry-wizard-next{transition:none!important}
 }
+
+
+/* React Bits BranchedMenu host — replaces the former first-screen white access card.
+   No card chrome: the component itself keeps the supplied React Bits styling. */
+.entry-branched-menu-stage{
+  width:300px;
+  max-width:100%;
+  min-height:280px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  padding:18px 22px;
+  border:0;
+  border-radius:0;
+  background:#100e15;
+  color:#f5f5f5;
+  box-shadow:none;
+  overflow:visible;
+}
+.entry-branched-menu-mount{
+  width:240px;
+  max-width:100%;
+  min-height:1px;
+}
+@media(max-width:1179px){
+  .entry-branched-menu-stage{margin-inline:auto}
+}
+@media(max-width:360px){
+  .entry-branched-menu-stage{
+    width:100%;
+    padding-inline:18px;
+  }
+}

@@ -13,7 +13,6 @@ on:
       - laragon-local-entry.php
       - components/**
       - rare-folder-build/**
-      - toolbook-branched-menu-build/**
       - registration-flip-build/**
       - scripts/iris_visual_qa.sh
       - .github/workflows/iris-visual-qa.yml
@@ -28,7 +27,6 @@ on:
       - laragon-local-entry.php
       - components/**
       - rare-folder-build/**
-      - toolbook-branched-menu-build/**
       - registration-flip-build/**
       - scripts/iris_visual_qa.sh
       - .github/workflows/iris-visual-qa.yml
@@ -66,14 +64,6 @@ jobs:
           test -x /tmp/iris
           sudo install -m 0755 /tmp/iris /usr/local/bin/iris
           iris --version
-
-      - name: Build exact React BranchedMenu
-        working-directory: toolbook-branched-menu-build
-        run: |
-          npm install --no-fund --no-audit
-          npm run build
-          test -s ../components/toolbook-branched-menu.bundle.js
-          test -s ../components/toolbook-branched-menu.bundle.css
 
       - name: Start local Hashcod UI
         run: |

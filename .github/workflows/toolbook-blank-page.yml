@@ -1,4 +1,4 @@
-name: Verify clean Toolbook page
+name: Verify Toolbook React BranchedMenu
 
 on:
   pull_request:
@@ -8,6 +8,9 @@ on:
       - laragon-local-entry.php
       - components/toolbook-page-blank.js
       - components/toolbook-page-blank.css
+      - toolbook-branched-menu-build/**
+      - tests/e2e/test_toolbook_react_branched_menu.js
+      - Dockerfile
       - tests/e2e/test_toolbook_blank_page_browser_playwright.js
       - .github/workflows/toolbook-blank-page.yml
   push:
@@ -35,12 +38,25 @@ jobs:
           php -l laragon-local-entry.php
           node --check components/toolbook-page-blank.js
           node --check tests/e2e/test_toolbook_blank_page_browser_playwright.js
+          node --check tests/e2e/test_toolbook_react_branched_menu.js
+
+      - name: Verify React BranchedMenu integration contract
+        run: node tests/e2e/test_toolbook_react_branched_menu.js
+
+      - name: Build React BranchedMenu island
+        working-directory: toolbook-branched-menu-build
+        run: |
+          npm install --no-fund --no-audit
+          npm run build
+          test -s ../components/toolbook-branched-menu.bundle.js
+          test -s ../components/toolbook-branched-menu.bundle.css
+          node --check ../components/toolbook-branched-menu.bundle.js
 
       - name: Install Playwright
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Verify blank page
+      - name: Verify React BranchedMenu in Chromium
         run: |
           php -S 127.0.0.1:8099 >/tmp/hashcod-blank.log 2>&1 &
           server_pid=$!
@@ -49,4 +65,4 @@ jobs:
             if curl --fail --silent http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then break; fi
             sleep 1
           done
-          TOOLBOOK_BLANK_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_toolbook_blank_page_browser_playwright.js
+          TOOLBOOK_MENU_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_toolbook_blank_page_browser_playwright.js

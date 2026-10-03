@@ -107,7 +107,7 @@ jobs:
 
       - name: Verify Laragon entry is also first-screen only
         run: |
-          curl -fsS http://127.0.0.1:8097/laragon-local-entry.php >/tmp/hashcod-laragon.html
+          php laragon-local-entry.php >/tmp/hashcod-laragon.html
           grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-laragon.html
           grep -q 'data-entry-single-screen="true"' /tmp/hashcod-laragon.html
           ! grep -q 'platform-entry-hold.js' /tmp/hashcod-laragon.html

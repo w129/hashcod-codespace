@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - l8-html.php
+      - laragon-local-entry.php
       - components/platform-branched-menu.js
       - components/platform-branched-menu.css
       - tests/e2e/test_platform_branched_menu.js
@@ -15,6 +16,7 @@ on:
     branches: [main]
     paths:
       - l8-html.php
+      - laragon-local-entry.php
       - components/platform-branched-menu.js
       - components/platform-branched-menu.css
       - tests/e2e/test_platform_branched_menu.js

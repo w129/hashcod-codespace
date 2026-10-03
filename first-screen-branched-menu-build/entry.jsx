@@ -46,9 +46,9 @@ function mountBranchedMenu() {
       defaultOpen={[0]}
       defaultActive="quick"
       onSelect={(value, item) => navigate(value, item)}
-      color="#f5f5f5"
-      accentColor="#f5f5f5"
-      lineColor="#3f3f46"
+      color="#0a0a0a"
+      accentColor="#0a0a0a"
+      lineColor="#0a0a0a"
       width={240}
       rowHeight={36}
       indent={40}

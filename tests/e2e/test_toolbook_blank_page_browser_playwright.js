@@ -8,6 +8,11 @@ const target=process.env.TOOLBOOK_BLANK_TEST_URL||'http://127.0.0.1:8099/laragon
 (async()=>{
   const browser=await chromium.launch({headless:true});
   const page=await browser.newPage({viewport:{width:1784,height:896}});
+  const browserErrors=[];
+  page.on('pageerror',error=>browserErrors.push('pageerror: '+error.message));
+  page.on('console',msg=>{
+    if(msg.type()==='error')browserErrors.push('console.error: '+msg.text());
+  });
   try{
     const response=await page.goto(target,{waitUntil:'domcontentloaded',timeout:15000});
     assert(response&&response.status()===200,'Hashcod local entry must return 200');
@@ -33,7 +38,17 @@ const target=process.env.TOOLBOOK_BLANK_TEST_URL||'http://127.0.0.1:8099/laragon
     await page.waitForFunction(()=>document.documentElement.dataset.hashcodToolbookPageBlank==='true',{timeout:10000});
     await page.waitForSelector('#hashcodToolbookBlankPage',{state:'visible',timeout:5000});
     await page.waitForFunction(()=>document.querySelector('#hashcodToolbookBranchedMenuMount')?.dataset.hashcodReactBranchedMenuMounted==='true',{timeout:15000});
-    await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
+    try{
+      await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
+    }catch(error){
+      const debug=await page.evaluate(()=>({
+        mount:document.getElementById('hashcodToolbookBranchedMenuMount')?.outerHTML||'',
+        reactMarker:window.HashcodBranchedMenuReact||null,
+        body:document.body.innerHTML.slice(0,2400)
+      }));
+      console.error('React BranchedMenu debug:',JSON.stringify({browserErrors,debug},null,2));
+      throw error;
+    }
 
     const state=await page.evaluate(()=>({
       childCount:document.body.children.length,

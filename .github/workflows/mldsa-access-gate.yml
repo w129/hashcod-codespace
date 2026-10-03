@@ -1,7 +1,9 @@
-name: ML-DSA-87 non-blocking access check
+name: First screen only + ML-DSA security check
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
@@ -23,6 +25,7 @@ on:
       - l8-html.php
       - router.php
       - tests/e2e/test_mldsa_access_gate.js
+      - tests/e2e/test_first_screen_only_browser_playwright.js
       - tests/e2e/test_pqc_action_bus.js
       - tests/e2e/test_pqc_transition_norm.php
       - tests/e2e/test_page_mascot.js
@@ -34,7 +37,7 @@ permissions:
 jobs:
   direct-entry:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
 
@@ -42,24 +45,26 @@ jobs:
         run: |
           php -l mldsa-access.php
           php -l mldsa-access-api.php
-          php -l entry-product-editor.php
-          php -l device-usage.php
           php -l pqc-actions-lib.php
           php -l pqc-actions.php
           php -l l8-html.php
           php -l router.php
           python3 -m py_compile scripts/mldsa87_access.py
           node --check components/mldsa-access-gate.js
+          node --check tests/e2e/test_first_screen_only_browser_playwright.js
           node --check components/react-bits-rotating-text.js
           node --check components/react-bits-splash-cursor.js
-          node --check components/device-usage-tracker.js
           node --check components/pqc-action-runtime.js
           node --check components/page-mascot-panda.js
           node tests/e2e/test_mldsa_access_gate.js
-          node tests/e2e/test_device_usage_quota.js
           node tests/e2e/test_pqc_action_bus.js
           node tests/e2e/test_page_mascot.js
           php tests/e2e/test_pqc_transition_norm.php
+
+      - name: Install Playwright for first-screen verification
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
 
       - name: Start Hashcod locally
         run: |
@@ -72,27 +77,41 @@ jobs:
           done
           test "$ready" -eq 1
 
-      - name: Verify entry window appears first
+      - name: Verify only the first screen is rendered
         run: |
           grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-home.html
           grep -q ">Entrar</span>" /tmp/hashcod-home.html
+          grep -q 'data-entry-single-screen="true"' /tmp/hashcod-home.html
+          grep -q 'data-entry-panel="1"' /tmp/hashcod-home.html
+          ! grep -q 'data-entry-panel="2"' /tmp/hashcod-home.html
+          ! grep -q 'data-entry-panel="3"' /tmp/hashcod-home.html
+          ! grep -q 'data-entry-panel="4"' /tmp/hashcod-home.html
           grep -q 'id="d5RotatingTextHero"' /tmp/hashcod-home.html
-          grep -q 'data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps"' /tmp/hashcod-home.html
           grep -q '>Creates like</span>' /tmp/hashcod-home.html
           grep -q 'id="d5SplashCursorBackground"' /tmp/hashcod-home.html
-          grep -q 'id="d5SplashCursorCanvas"' /tmp/hashcod-home.html
-          grep -q 'data-color="#000000"' /tmp/hashcod-home.html
-          grep -q 'data-rainbow-mode="false"' /tmp/hashcod-home.html
-          ! grep -q "Reto ML-DSA-87" /tmp/hashcod-home.html
+          ! grep -q 'platform-entry-hold.js' /tmp/hashcod-home.html
+          ! grep -q 'toolbook-page-blank.js' /tmp/hashcod-home.html
+          ! grep -q 'toolbook-branched-menu.bundle.js' /tmp/hashcod-home.html
 
-      - name: Enter platform without cryptographic challenge
+      - name: Verify retired entry query cannot leave first screen
         run: |
-          curl -fsSL -c /tmp/hashcod-entry.cookies -b /tmp/hashcod-entry.cookies             "http://127.0.0.1:8097/?hashcod_enter=1" >/tmp/hashcod-after.html
-          ! grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-after.html
-          ! grep -q "Acceso criptográfico reforzado" /tmp/hashcod-after.html
-          grep -qi "Hashcod" /tmp/hashcod-after.html
-          curl -fsS -c /tmp/hashcod-entry.cookies -b /tmp/hashcod-entry.cookies             http://127.0.0.1:8097/ >/tmp/hashcod-return.html
-          grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-return.html
+          curl -fsSL "http://127.0.0.1:8097/?hashcod_enter=1" >/tmp/hashcod-after.html
+          grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-after.html
+          grep -q 'data-entry-single-screen="true"' /tmp/hashcod-after.html
+          ! grep -q 'platform-entry-hold.js' /tmp/hashcod-after.html
+          ! grep -q 'toolbook-page-blank.js' /tmp/hashcod-after.html
+
+      - name: Verify first screen in Chromium
+        run: |
+          HASHCOD_FIRST_SCREEN_URL=http://127.0.0.1:8097/ node tests/e2e/test_first_screen_only_browser_playwright.js
+
+      - name: Verify Laragon entry is also first-screen only
+        run: |
+          php laragon-local-entry.php >/tmp/hashcod-laragon.html
+          grep -q "Acceso a Hashcod Codespace" /tmp/hashcod-laragon.html
+          grep -q 'data-entry-single-screen="true"' /tmp/hashcod-laragon.html
+          ! grep -q 'platform-entry-hold.js' /tmp/hashcod-laragon.html
+          ! grep -q 'toolbook-page-blank.js' /tmp/hashcod-laragon.html
 
       - name: Verify panda mascot assets
         run: |

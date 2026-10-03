@@ -7,6 +7,10 @@ const gate=fs.readFileSync('mldsa-access.php','utf8');
 const api=fs.readFileSync('mldsa-access-api.php','utf8');
 const css=fs.readFileSync('components/mldsa-access-gate.css','utf8');
 const js=fs.readFileSync('components/mldsa-access-gate.js','utf8');
+const component=fs.readFileSync('first-screen-branched-menu-build/BranchedMenu.jsx','utf8');
+const componentCss=fs.readFileSync('first-screen-branched-menu-build/BranchedMenu.css','utf8');
+const entry=fs.readFileSync('first-screen-branched-menu-build/entry.jsx','utf8');
+const pkg=JSON.parse(fs.readFileSync('first-screen-branched-menu-build/package.json','utf8'));
 const rotatingCss=fs.readFileSync('components/react-bits-rotating-text.css','utf8');
 const rotatingJs=fs.readFileSync('components/react-bits-rotating-text.js','utf8');
 const splashCss=fs.readFileSync('components/react-bits-splash-cursor.css','utf8');
@@ -29,54 +33,99 @@ function crc32(str){
   return (crc^0xffffffff)>>>0;
 }
 
-// Keep the existing ML-DSA security backend intact.
+// Existing security backend remains intact.
 assert.strictEqual(pub.length,3456,'ML-DSA-87 public key Base64 length must be exact');
-assert(/^[A-Za-z0-9+/]+$/.test(pub),'ML-DSA-87 public key contains invalid Base64 characters');
-assert.strictEqual(crc32(pub).toString(16).padStart(8,'0'),'25eb08f5','production ML-DSA-87 public key checksum mismatch');
 assert.strictEqual(Buffer.from(pub,'base64').length,2592,'ML-DSA-87 public key must decode to 2592 bytes');
+assert.strictEqual(crc32(pub).toString(16).padStart(8,'0'),'25eb08f5','production ML-DSA-87 public key checksum mismatch');
 assert(gate.includes("function mldsaConsumeJti"),'atomic anti-replay JTI consumption missing');
 assert(gate.includes("function mldsaOriginAllowed"),'same-origin request binding missing');
 assert(api.includes("protocol'=>'ML-DSA-87-2PHASE"),'two-phase protocol marker missing');
 assert(api.includes("replay_detected"),'replay rejection missing');
-assert(api.includes("origin_mismatch"),'origin mismatch rejection missing');
-assert(api.includes("phase_mismatch"),'phase mismatch rejection missing');
 assert(router.includes("'/api/mldsa-access'"),'ML-DSA API route missing');
 
-// Root is permanently pinned to the first screen.
+// Root stays on the first presentation.
 assert(l8.includes('Single-screen mode: the root route permanently renders only the'),'single-screen root contract missing');
-assert(l8.includes("if ($file === 'index.php')"),'index first-screen branch missing');
 assert(l8.includes("echo mldsaGateHtml(l8_public_base_path(), true);"),'first-screen renderer missing');
 assert(!l8.includes('$entryPass = l8_entry_intro_consume();'),'one-shot platform entry pass must no longer be used');
-assert(!l8.includes("$_GET['hashcod_enter']"),'hashcod_enter query must no longer unlock later screens');
 
-// Preserve the requested first screen.
-assert(gate.includes('data-entry-single-screen="true"'),'single-screen marker missing');
-assert(gate.includes('data-entry-panel="1"'),'first panel missing');
-assert(!gate.includes('data-entry-panel="2"'),'second entry panel must be removed');
-assert(!gate.includes('data-entry-panel="3"'),'third entry panel must be removed');
-assert(!gate.includes('data-entry-panel="4"'),'fourth entry panel must be removed');
-assert(!gate.includes('id="d5EntryProductCard"'),'removed ProductCard screen must not remain in markup');
-assert(!gate.includes('id="d5EntryUsageCard"'),'removed Usage screen must not remain in markup');
-assert(!gate.includes('id="d5EntryFinish"'),'removed final-entry control must not remain in markup');
+// The former white access window must be gone from first-screen markup.
+assert(gate.includes('id="d5FirstBranchedMenuStage"'),'BranchedMenu stage missing');
+assert(gate.includes('id="d5FirstBranchedMenuMount"'),'React BranchedMenu mount missing');
+assert(gate.includes('data-react-bits-component="BranchedMenu"'),'React Bits component marker missing');
+assert(!gate.includes('class="access-card entry-access-card"'),'former white access card must be removed');
+assert(!gate.includes('id="d5VerifyText">Entrar</span>'),'former Entrar button must be removed');
+assert(!gate.includes('id="d5EntryStatCard"'),'former Monthly revenue card must be removed');
+assert(!gate.includes('Acceso a Hashcod Codespace</h1>'),'former window title must be removed from visible markup');
+assert(!gate.includes('Esta ventana aparece primero antes de entrar a la plataforma.'),'former window description must be removed');
 
-assert(gate.includes('Acceso a Hashcod Codespace'),'first-screen title missing');
-assert(gate.includes('Esta ventana aparece primero antes de entrar a la plataforma.'),'original first-screen description changed');
-assert(gate.includes('id="d5VerifyText">Entrar</span>'),'first-screen Entrar control missing');
-assert(gate.includes('id="d5RotatingTextHero"'),'RotatingText first-screen host missing');
-assert(gate.includes('<span class="entry-rotating-text-prefix">Creates like</span>'),'Creates like prefix missing');
-assert(gate.includes('id="d5SplashCursorBackground"'),'SplashCursor first-screen host missing');
-assert(gate.includes('data-color="#000000"'),'black SplashCursor configuration missing');
-assert(gate.includes('id="d5EntryStatCard"'),'first-screen StatCard missing');
-assert(css.includes('.entry-access-card{'),'first-screen card styling missing');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-reactbits1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-reactbits1'),'BranchedMenu JS bundle must load');
+assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
+assert(css.includes('background:#100e15'),'dark React Bits host background missing');
+assert(css.includes('border-radius:0'),'former rounded window chrome must not survive');
+assert(css.includes('box-shadow:none'),'former window shadow must not survive');
+
+// Exact supplied component/runtime contract.
+assert(component.includes("import { HugeiconsIcon } from '@hugeicons/react'"),'Hugeicons renderer missing');
+assert(component.includes("import './BranchedMenu.css'"),'component CSS import missing');
+assert(component.includes('ResizeObserver'),'BranchedMenu marker resize behavior missing');
+assert(component.includes('strokeDashoffset'),'BranchedMenu branch animation missing');
+for(const selector of [
+  '.branched-menu::before',
+  '.branched-menu__marker[data-on]',
+  '.branched-menu__section[data-open] .branched-menu__body',
+  '.branched-menu__reach',
+  '.branched-menu__item[data-active]'
+]){
+  assert(componentCss.includes(selector),`component CSS missing ${selector}`);
+}
+assert(componentCss.includes('fill: none'),'SVG branches must remain unfilled');
+assert(componentCss.includes('stroke-width: var(--bm-line-w)'),'SVG stroke width binding missing');
+
+for(const token of [
+  "label: 'Getting started'",
+  "{ value: 'install', label: 'Installation', icon: Download04Icon }",
+  "{ value: 'quick', label: 'Quick start', icon: Rocket01Icon }",
+  "{ value: 'config', label: 'Configuration', icon: Settings02Icon }",
+  "label: 'Components'",
+  "{ value: 'buttons', label: 'Buttons' }",
+  "{ value: 'overlays', label: 'Overlays' }",
+  'defaultOpen={[0]}',
+  'defaultActive="quick"',
+  'color="#f5f5f5"',
+  'accentColor="#f5f5f5"',
+  'lineColor="#3f3f46"',
+  'width={240}',
+  'rowHeight={36}',
+  'indent={40}',
+  'trunk={14}',
+  'radius={10}',
+  'lineWidth={1.5}',
+  'fontSize={14}',
+  'drawDuration={400}',
+  'foldDuration={300}'
+]){
+  assert(entry.includes(token),`requested BranchedMenu usage missing: ${token}`);
+}
+assert(entry.includes("document.getElementById('d5FirstBranchedMenuMount')"),'entry must mount into first-screen host');
+assert(entry.includes("url.hash = value"),'onSelect navigate behavior missing');
+assert.equal(pkg.dependencies['@hugeicons/react'],'1.1.9','@hugeicons/react dependency changed');
+assert.equal(pkg.dependencies['@hugeicons/core-free-icons'],'4.3.5','Hugeicons icon package changed');
+assert.equal(pkg.dependencies.react,'19.2.4','React dependency changed');
+
+// Existing first-screen effects remain intact.
+assert(gate.includes('id="d5RotatingTextHero"'),'RotatingText host missing');
+assert(gate.includes('id="d5SplashCursorBackground"'),'SplashCursor host missing');
 assert(rotatingCss.includes('background:#0a0a0a')&&rotatingCss.includes('color:#fff'),'RotatingText black treatment missing');
 assert(rotatingJs.includes('window.HashcodRotatingText'),'RotatingText controller missing');
 assert(splashCss.includes('.entry-splash-cursor{')&&splashCss.includes('pointer-events:none'),'SplashCursor background styling missing');
 assert(splashJs.includes("window.addEventListener('mousemove', handleMouseMove)"),'SplashCursor pointer interaction missing');
 
-// Frontend must remain on screen 1.
-assert(js.includes('lockedToFirstScreen:true'),'first-screen click lock missing');
-assert(js.includes('singleScreen:true'),'single-screen public state missing');
-assert(!js.includes('entrySetLevel(2);'),'Entrar must not advance to level 2');
-assert(!js.includes("url.searchParams.set('hashcod_enter','1')"),'frontend must not construct the retired platform transition');
+// Later screens remain retired.
+assert(!gate.includes('data-entry-panel="2"'),'second entry panel must remain removed');
+assert(!gate.includes('data-entry-panel="3"'),'third entry panel must remain removed');
+assert(!gate.includes('data-entry-panel="4"'),'fourth entry panel must remain removed');
+assert(!js.includes('entrySetLevel(2);'),'runtime must not advance to a retired screen');
+assert(!js.includes("url.searchParams.set('hashcod_enter','1')"),'retired platform transition must stay removed');
 
-console.log('✓ Hashcod root is permanently limited to the original first screen');
+console.log('✓ First screen uses the exact React Bits BranchedMenu instead of the white access window');

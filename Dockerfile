@@ -101,14 +101,6 @@ RUN cd /var/www/html/rare-folder-build \
     && test -s /var/www/html/components/rare-folder-entry.bundle.js \
     && rm -rf /var/www/html/rare-folder-build/node_modules /root/.npm
 
-# Build the exact React Bits BranchedMenu + Hugeicons island used by the Toolbook workspace.
-RUN cd /var/www/html/toolbook-branched-menu-build \
-    && npm install --no-fund --no-audit \
-    && npm run build \
-    && test -s /var/www/html/components/toolbook-branched-menu.bundle.js \
-    && test -s /var/www/html/components/toolbook-branched-menu.bundle.css \
-    && rm -rf /var/www/html/toolbook-branched-menu-build/node_modules /root/.npm
-
 # Build the official Animate UI FlipButton React/Motion island used by
 # the registration submit control.
 RUN cd /var/www/html/registration-flip-build \

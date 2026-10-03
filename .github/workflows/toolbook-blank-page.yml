@@ -1,4 +1,4 @@
-name: Verify blank Toolbook page
+name: Verify clean Toolbook page
 
 on:
   pull_request:
@@ -8,11 +8,6 @@ on:
       - laragon-local-entry.php
       - components/toolbook-page-blank.js
       - components/toolbook-page-blank.css
-      - toolbook-branched-menu-build/**
-      - components/toolbook-branched-menu.bundle.js
-      - components/toolbook-branched-menu.bundle.css
-      - tests/e2e/test_toolbook_react_branched_menu.js
-      - Dockerfile
       - tests/e2e/test_toolbook_blank_page_browser_playwright.js
       - .github/workflows/toolbook-blank-page.yml
   push:
@@ -22,11 +17,6 @@ on:
       - laragon-local-entry.php
       - components/toolbook-page-blank.js
       - components/toolbook-page-blank.css
-      - toolbook-branched-menu-build/**
-      - components/toolbook-branched-menu.bundle.js
-      - components/toolbook-branched-menu.bundle.css
-      - tests/e2e/test_toolbook_react_branched_menu.js
-      - Dockerfile
       - tests/e2e/test_toolbook_blank_page_browser_playwright.js
       - .github/workflows/toolbook-blank-page.yml
 
@@ -45,18 +35,6 @@ jobs:
           php -l laragon-local-entry.php
           node --check components/toolbook-page-blank.js
           node --check tests/e2e/test_toolbook_blank_page_browser_playwright.js
-          node --check tests/e2e/test_toolbook_react_branched_menu.js
-
-      - name: Verify exact React BranchedMenu source contract
-        run: node tests/e2e/test_toolbook_react_branched_menu.js
-
-      - name: Build exact React BranchedMenu
-        working-directory: toolbook-branched-menu-build
-        run: |
-          npm install --no-fund --no-audit
-          npm run build
-          test -s ../components/toolbook-branched-menu.bundle.js
-          test -s ../components/toolbook-branched-menu.bundle.css
 
       - name: Install Playwright
         run: |

@@ -57,32 +57,25 @@ function platformEntered(){
   );
 }
 
-function createWorkspace(){
+function createBlankPage(){
   var blank=document.createElement('main');
   blank.id='hashcodToolbookBlankPage';
   blank.setAttribute('aria-label','Toolbook workspace');
   blank.setAttribute('data-hashcod-toolbook-blank','true');
-
-  var panel=document.createElement('section');
-  panel.id='hashcodToolbookBranchedMenuPanel';
-  panel.setAttribute('aria-label','Branched menu panel');
-
-  var mount=document.createElement('div');
-  mount.id='hashcodToolbookBranchedMenuMount';
-  mount.setAttribute('data-hashcod-react-branched-menu-mount','true');
-
-  panel.appendChild(mount);
-  blank.appendChild(panel);
   return blank;
 }
 
-function keepWorkspace(){
+function keepBlank(){
   if(!activated||!document.body)return;
 
   var blank=document.getElementById('hashcodToolbookBlankPage');
   if(!blank){
-    blank=createWorkspace();
+    blank=createBlankPage();
     document.body.appendChild(blank);
+  }
+
+  if(blank.childNodes.length){
+    blank.replaceChildren();
   }
 
   Array.from(document.body.children).forEach(function(node){
@@ -106,7 +99,7 @@ function activate(){
     }
   }catch(_){}
 
-  var blank=createWorkspace();
+  var blank=createBlankPage();
   document.body.replaceChildren(blank);
   document.body.className='hashcod-toolbook-page-blank-body';
   document.body.removeAttribute('style');
@@ -122,14 +115,15 @@ function activate(){
 
   if(typeof MutationObserver==='function'){
     bodyObserver=new MutationObserver(function(){
-      keepWorkspace();
+      keepBlank();
     });
-    bodyObserver.observe(document.body,{childList:true});
+    bodyObserver.observe(document.body,{childList:true,subtree:true});
   }
 
   window.HashcodToolbookBlankPage={
     active:true,
-    version:'20261003-react1'
+    empty:true,
+    version:'20261003-clean1'
   };
 
   try{

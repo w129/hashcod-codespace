@@ -45,6 +45,20 @@ const WorkspaceIcon = (
   </svg>
 );
 
+const DocumentsIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M 5 1 C 3.9 1 3 1.9 3 3 L 3 17 L 5 17 L 5 3 L 17 3 L 17 1 L 5 1 z M 9 5 C 7.9 5 7 5.9 7 7 L 7 21 C 7 22.1 7.9 23 9 23 L 20 23 C 21.1 23 22 22.1 22 21 L 22 10 L 17 5 L 9 5 z M 9 7 L 16 7 L 16 11 L 20 11 L 20 21 L 9 21 L 9 7 z M 11 13 L 11 15 L 18 15 L 18 13 L 11 13 z M 11 17 L 11 19 L 18 19 L 18 17 L 11 17 z" />
+  </svg>
+);
+
 const items = [
   {
     label: 'Getting started',
@@ -52,6 +66,7 @@ const items = [
       { value: 'faq', label: 'FAQ', icon: FaqIcon },
       { value: 'card', label: 'Card', icon: CardIcon },
       { value: 'workspace', label: 'Workspace', icon: WorkspaceIcon },
+      { value: 'documents', label: 'Documents', icon: DocumentsIcon },
       { value: 'quick', label: 'Quick start', icon: Rocket01Icon },
       { value: 'config', label: 'Configuration', icon: Settings02Icon }
     ]
@@ -108,7 +123,7 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261003-workspace1'
+    version: '20261003-documents1'
   });
   return true;
 }

@@ -274,8 +274,8 @@ function mldsaShouldGateHtml(string $file): bool {
 function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261003-workspace2',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261003-workspace2',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261003-documents1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261003-documents1',ENT_QUOTES,'UTF-8');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
@@ -285,8 +285,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $splashCursorCss=htmlspecialchars($base.'components/react-bits-splash-cursor.css?v=20261002-splash1',ENT_QUOTES,'UTF-8');
     $splashCursorJs=htmlspecialchars($base.'components/react-bits-splash-cursor.js?v=20261002-splash1',ENT_QUOTES,'UTF-8');
-    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-workspace2',ENT_QUOTES,'UTF-8');
-    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-workspace2',ENT_QUOTES,'UTF-8');
+    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-documents1',ENT_QUOTES,'UTF-8');
+    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-documents1',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
@@ -312,6 +312,11 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'<div id="d5FaqStack" class="faq-stack">'
       .'<div id="d5FaqModalBackdrop" class="faq-modal-backdrop" hidden aria-hidden="true"></div>'
       .'<div id="d5WorkspaceModalBackdrop" class="workspace-modal-backdrop" hidden aria-hidden="true"></div>'
+      .'<div id="d5DocumentsHubBackdrop" class="documents-hub-backdrop" hidden aria-hidden="true"></div>'
+      .'<section id="d5DocumentsHubShell" class="documents-hub-shell" hidden role="dialog" aria-modal="true" aria-hidden="true" aria-label="Documents">'
+      .'<button id="d5DocumentsHubClose" class="documents-hub-close" type="button" aria-label="Cerrar Documents">×</button>'
+      .'<div id="d5DocumentsHubContent" class="documents-hub-content"></div>'
+      .'</section>'
       .'<section id="d5FaqCard" class="faq-tabs-card" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="d5FaqModalTitle">'
       .'<div class="faq-modal-header"><h2 id="d5FaqModalTitle">FAQ</h2><button id="d5FaqClose" class="faq-modal-close" type="button" aria-label="Cerrar FAQ">×</button></div>'
       .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'

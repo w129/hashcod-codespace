@@ -58,8 +58,8 @@ assert(!gate.includes('id="d5EntryStatCard"'),'former Monthly revenue card must 
 assert(!gate.includes('Acceso a Hashcod Codespace</h1>'),'former window title must be removed from visible markup');
 assert(!gate.includes('Esta ventana aparece primero antes de entrar a la plataforma.'),'former window description must be removed');
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-workspace2'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-workspace2'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-documents1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-documents1'),'BranchedMenu JS bundle must load');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
@@ -149,8 +149,8 @@ assert(splashJs.includes("window.addEventListener('mousemove', handleMouseMove)"
 
 
 // FAQ must escape the page layout and cover the entire viewport.
-assert(gate.includes('components/mldsa-access-gate.css?v=20261003-workspace2'),'FAQ modal CSS cache-bust missing');
-assert(gate.includes('components/mldsa-access-gate.js?v=20261003-workspace2'),'FAQ modal JS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.css?v=20261003-documents1'),'FAQ modal CSS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261003-documents1'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
 assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');
@@ -178,4 +178,16 @@ assert(!gate.includes('data-entry-panel="4"'),'fourth entry panel must remain re
 assert(!js.includes('entrySetLevel(2);'),'runtime must not advance to a retired screen');
 assert(!js.includes("url.searchParams.set('hashcod_enter','1')"),'retired platform transition must stay removed');
 
-console.log('✓ First screen uses the exact React Bits BranchedMenu instead of the white access window');
+
+assert(gate.includes('id="d5DocumentsHubBackdrop"'),'Documents hub backdrop missing');
+assert(gate.includes('id="d5DocumentsHubShell"'),'Documents hub shell missing');
+assert(gate.includes('id="d5DocumentsHubContent"'),'Documents hub content missing');
+assert(css.includes('.documents-hub-backdrop{'),'Documents hub CSS missing');
+assert(css.includes('backdrop-filter:blur(24px)'),'Documents hub blur missing');
+assert(css.includes('body[data-hashcod-entry-intro="1"] #d5NumberTickerDemo'),'NumberTicker must be hidden until Documents opens');
+assert(js.includes("if(detail.value==='documents')"),'Documents BranchedMenu selection handler missing');
+assert(js.includes('function openDocumentsHub()'),'Documents open runtime missing');
+assert(js.includes('function closeDocumentsHub()'),'Documents close runtime missing');
+assert(js.includes("document.getElementById('d5ScratchCardDemo')"),'Documents must reuse the real ScratchCard');
+
+console.log('✓ First screen uses the exact React Bits BranchedMenu with FAQ, Card, Workspace and Documents modals');

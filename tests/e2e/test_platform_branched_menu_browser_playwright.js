@@ -12,12 +12,12 @@ const target=process.env.BRANCHED_MENU_TEST_URL||'http://127.0.0.1:8099/laragon-
     const response=await page.goto(target,{waitUntil:'domcontentloaded',timeout:15000});
     assert(response&&response.status()===200,'Hashcod UI must return HTTP 200');
 
+    await page.waitForFunction(()=>document.querySelector('.toolbox-panel'),{timeout:15000});
     await page.waitForFunction(()=>window.HashcodBranchedMenu&&document.getElementById('hashcodBranchedMenu'),{timeout:15000});
-    await page.evaluate(()=>window.dispatchEvent(new Event('hashcod:platform-entered')));
     await page.waitForFunction(()=>{
       const menu=document.getElementById('hashcodBranchedMenu');
-      return menu&&!menu.hidden&&getComputedStyle(menu).display!=='none';
-    },{timeout:5000});
+      return menu&&!menu.hidden&&getComputedStyle(menu).display!=='none'&&menu.getAttribute('data-hashcod-toolbox-anchor')==='true';
+    },{timeout:10000});
 
     const initial=await page.evaluate(()=>{
       const menu=document.getElementById('hashcodBranchedMenu');
@@ -25,11 +25,14 @@ const target=process.env.BRANCHED_MENU_TEST_URL||'http://127.0.0.1:8099/laragon-
       const first=document.querySelector('.hashcod-branched-group[data-group-index="0"]');
       const second=document.querySelector('.hashcod-branched-group[data-group-index="1"]');
       const active=document.querySelector('.hashcod-branched-child[aria-current="page"]');
+      const toolbox=document.querySelector('.toolbox-panel').getBoundingClientRect();
       return {
         left:rect.left,
         right:rect.right,
         width:rect.width,
         top:rect.top,
+        toolboxLeft:toolbox.left,
+        toolboxTop:toolbox.top,
         firstOpen:first&&first.dataset.open,
         secondOpen:second&&second.dataset.open,
         active:active&&active.dataset.value,
@@ -37,10 +40,9 @@ const target=process.env.BRANCHED_MENU_TEST_URL||'http://127.0.0.1:8099/laragon-
       };
     });
 
-    assert(Math.abs(initial.left-48)<=2,'BranchedMenu desktop left placement must be 48px');
     assert(Math.abs(initial.width-240)<=2,'BranchedMenu width must be 240px');
-    assert(initial.right<=320,'BranchedMenu must remain inside the left-side blank area before Toolbook');
-    assert(initial.top>=108&&initial.top<=116,'BranchedMenu top placement must stay near 112px');
+    assert(initial.right<=initial.toolboxLeft-12,'BranchedMenu must remain to the left of the Toolbook');
+    assert(Math.abs(initial.top-(initial.toolboxTop+8))<=3,'BranchedMenu must align vertically with the Toolbook surface');
     assert.equal(initial.firstOpen,'true','Getting started must be open by default');
     assert.equal(initial.secondOpen,'false','Components must be folded by default');
     assert.equal(initial.active,'quick','Quick start must be active by default');

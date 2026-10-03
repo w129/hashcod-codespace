@@ -58,8 +58,8 @@ assert(!gate.includes('id="d5EntryStatCard"'),'former Monthly revenue card must 
 assert(!gate.includes('Acceso a Hashcod Codespace</h1>'),'former window title must be removed from visible markup');
 assert(!gate.includes('Esta ventana aparece primero antes de entrar a la plataforma.'),'former window description must be removed');
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-card1'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-card1'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-workspace1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-workspace1'),'BranchedMenu JS bundle must load');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
@@ -111,6 +111,20 @@ for(const token of [
 }
 assert(entry.includes("document.getElementById('d5FirstBranchedMenuMount')"),'entry must mount into first-screen host');
 assert(entry.includes("url.hash = value"),'onSelect navigate behavior missing');
+assert(entry.includes('const WorkspaceIcon = ('),'Workspace SVG icon component missing');
+assert(entry.includes('viewBox="0 0 24 24"'),'Workspace SVG viewBox changed');
+assert(entry.includes("{ value: 'workspace', label: 'Workspace', icon: WorkspaceIcon }"),'Workspace menu item missing');
+assert(gate.includes('id="d5WorkspaceModalBackdrop"'),'Workspace modal backdrop missing');
+assert(gate.includes('id="d5TextEditorCard" class="liquid-text-editor" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Workspace" hidden'),'Workspace editor must be natively hidden by default');
+assert(gate.includes('id="d5WorkspaceClose"'),'Workspace close control missing');
+assert(css.includes('.workspace-modal-backdrop{'),'Workspace modal backdrop CSS missing');
+assert(css.includes('backdrop-filter:blur(24px)'),'Workspace backdrop must blur the page');
+assert(css.includes('body[data-hashcod-entry-intro="1"].workspace-modal-open #d5TextEditorCard'),'Workspace centered modal CSS missing');
+assert(js.includes("if(detail.value==='workspace')"),'Workspace BranchedMenu action missing');
+assert(js.includes('openWorkspaceModal();'),'Workspace action must open editor modal');
+assert(js.includes('textEditorCard.hidden=false'),'Workspace open must remove native hidden');
+assert(js.includes('textEditorCard.hidden=true'),'Workspace close must restore native hidden');
+assert(js.includes("workspaceBackdrop.addEventListener('click',closeWorkspaceModal)"),'Workspace backdrop close behavior missing');
 assert(entry.includes('const FaqIcon = ('),'custom FAQ SVG component missing');
 assert(entry.includes('const CardIcon = ('),'custom Card SVG component missing');
 assert(entry.includes('viewBox="0 0 16 16"'),'custom Card SVG viewBox changed');

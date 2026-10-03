@@ -816,11 +816,18 @@ window.addEventListener('hashcod:first-screen-branched-menu-select',function(eve
   var detail=event&&event.detail?event.detail:{};
   if(detail.value==='faq'){
     closeCardModal();
+    closeWorkspaceModal();
     openFaqModal();
   }
   if(detail.value==='card'){
     closeFaqModal();
+    closeWorkspaceModal();
     openCardModal();
+  }
+  if(detail.value==='workspace'){
+    closeFaqModal();
+    closeCardModal();
+    openWorkspaceModal();
   }
 });
 if(faqClose)faqClose.addEventListener('click',closeFaqModal);
@@ -835,6 +842,11 @@ document.addEventListener('keydown',function(event){
   if(document.body.classList.contains('card-modal-open')){
     event.preventDefault();
     closeCardModal();
+    return;
+  }
+  if(document.body.classList.contains('workspace-modal-open')){
+    event.preventDefault();
+    closeWorkspaceModal();
   }
 });
 var faqActiveTab=0;
@@ -1239,6 +1251,57 @@ if(savedChatInput){
 }
 
 var textEditorCard=document.getElementById('d5TextEditorCard');
+var workspaceBackdrop=document.getElementById('d5WorkspaceModalBackdrop');
+var workspaceClose=document.getElementById('d5WorkspaceClose');
+var workspaceLastFocus=null;
+
+function ensureWorkspaceModalPortal(){
+  if(!document.body)return;
+  if(workspaceBackdrop&&workspaceBackdrop.parentElement!==document.body){
+    document.body.appendChild(workspaceBackdrop);
+  }
+  if(textEditorCard&&textEditorCard.parentElement!==document.body){
+    document.body.appendChild(textEditorCard);
+  }
+}
+function openWorkspaceModal(){
+  if(!textEditorCard)return;
+  ensureWorkspaceModalPortal();
+  workspaceLastFocus=document.activeElement;
+  textEditorCard.hidden=false;
+  document.body.classList.add('workspace-modal-open');
+  textEditorCard.setAttribute('aria-hidden','false');
+  if(workspaceBackdrop){
+    workspaceBackdrop.hidden=false;
+    workspaceBackdrop.setAttribute('aria-hidden','false');
+  }
+  window.requestAnimationFrame(function(){
+    if(workspaceClose)workspaceClose.focus();
+  });
+}
+function closeWorkspaceModal(){
+  if(!textEditorCard)return;
+  document.body.classList.remove('workspace-modal-open');
+  textEditorCard.setAttribute('aria-hidden','true');
+  textEditorCard.hidden=true;
+  if(workspaceBackdrop){
+    workspaceBackdrop.hidden=true;
+    workspaceBackdrop.setAttribute('aria-hidden','true');
+  }
+  if(window.location.hash==='#workspace'){
+    try{
+      history.replaceState(history.state,'',location.pathname+location.search);
+    }catch(_){}
+  }
+  if(workspaceLastFocus&&typeof workspaceLastFocus.focus==='function'){
+    try{workspaceLastFocus.focus();}catch(_){}
+  }
+  workspaceLastFocus=null;
+}
+ensureWorkspaceModalPortal();
+if(workspaceClose)workspaceClose.addEventListener('click',closeWorkspaceModal);
+if(workspaceBackdrop)workspaceBackdrop.addEventListener('click',closeWorkspaceModal);
+
 var textEditorInput=document.getElementById('d5TextEditorInput');
 var textEditorStatus=document.getElementById('d5TextEditorStatus');
 var textEditorCount=document.getElementById('d5TextEditorCount');

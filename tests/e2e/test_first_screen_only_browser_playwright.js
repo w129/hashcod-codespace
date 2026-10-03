@@ -66,6 +66,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         },
         stage:{
           width:stage.getBoundingClientRect().width,
+          left:stage.getBoundingClientRect().left,
+          top:stage.getBoundingClientRect().top,
           background:stageStyle.backgroundColor,
           color:stageStyle.color,
           borderRadius:stageStyle.borderRadius,
@@ -145,6 +147,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.deepEqual(state.formerWindow,{accessCard:false,enter:false,revenue:false},'old white access window must be completely gone');
     assert.deepEqual(state.removedCards,{tilt:false,savedChat:false,tiltText:false,savedText:false},'removed price and Saved Messages cards must not exist in the live page');
     assert(Math.abs(state.stage.width-300)<=2,'BranchedMenu host width must be 300px');
+    assert(Math.abs(state.stage.left-18)<=2,'BranchedMenu must be inset from the left edge');
+    assert(Math.abs(state.stage.top-8)<=2,'BranchedMenu must sit higher on the first screen');
     assert.equal(state.stage.background,'rgba(0, 0, 0, 0)','BranchedMenu host must be transparent with no black panel');
     assert.equal(state.stage.color,'rgb(10, 10, 10)','BranchedMenu host ink must be black');
     assert.equal(state.stage.borderRadius,'0px','replacement must not retain rounded window chrome');

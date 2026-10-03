@@ -60,6 +60,29 @@
   will-change: transform, opacity, filter;
 }
 
+.center-empty-state-title-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.center-empty-state-title-icon {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  flex: 0 0 30px;
+  align-items: center;
+  justify-content: center;
+  color: #0a0a0a;
+}
+
+.center-empty-state-title-icon svg {
+  display: block;
+  width: 30px;
+  height: 30px;
+}
+
 .center-empty-state-action-slot {
   min-height: 40px;
   display: flex;

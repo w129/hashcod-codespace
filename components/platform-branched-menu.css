@@ -15,15 +15,15 @@
   position:fixed;
   left:48px;
   top:112px;
-  z-index:2147481200;
+  z-index:2147482700;
   width:var(--bm-width);
   max-width:calc(100vw - 96px);
   box-sizing:border-box;
   padding:8px;
   border:1px solid rgba(15,15,15,.08);
   border-radius:14px;
-  background:rgba(255,255,255,.92);
-  box-shadow:0 16px 44px rgba(0,0,0,.08);
+  background:#fff;
+  box-shadow:0 18px 48px rgba(0,0,0,.14);
   backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
   color:#111;

@@ -600,8 +600,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     });
     assert(Math.abs(centerPosition.centerX-centerPosition.viewportCenterX)<=3,'center EmptyState must stay centered in the viewport');
     assert.equal(centerPosition.title,'VC','center EmptyState title must be VC');
-    assert.equal(centerPosition.titleIconViewBox,'0 0 256 256','CC-Card title icon must preserve the supplied viewBox');
-    assert.equal(centerPosition.titleIconWidth,'30px','CC-Card title icon must be adapted beside the title');
+    assert.equal(centerPosition.titleIconViewBox,'0 0 48 48','VC title icon must preserve the supplied viewBox');
+    assert.equal(centerPosition.titleIconWidth,'30px','VC title icon must be adapted beside the title');
     assert.equal(centerPosition.button,'Open Workspace','center EmptyState action label changed');
 
     await page.locator('#d5CenterEmptyStateAction').click();

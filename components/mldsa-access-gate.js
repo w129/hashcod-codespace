@@ -817,25 +817,36 @@ window.addEventListener('hashcod:first-screen-branched-menu-select',function(eve
   if(detail.value==='faq'){
     closeCardModal();
     closeWorkspaceModal();
+    closeTextCardModal();
     closeDocumentsHub();
     openFaqModal();
   }
   if(detail.value==='card'){
     closeFaqModal();
     closeWorkspaceModal();
+    closeTextCardModal();
     closeDocumentsHub();
     openCardModal();
   }
   if(detail.value==='workspace'){
     closeFaqModal();
     closeCardModal();
+    closeTextCardModal();
     closeDocumentsHub();
     openWorkspaceModal();
+  }
+  if(detail.value==='text-card'){
+    closeFaqModal();
+    closeCardModal();
+    closeWorkspaceModal();
+    closeDocumentsHub();
+    openTextCardModal();
   }
   if(detail.value==='documents'){
     closeFaqModal();
     closeCardModal();
     closeWorkspaceModal();
+    closeTextCardModal();
     openDocumentsHub();
   }
 });
@@ -856,6 +867,11 @@ document.addEventListener('keydown',function(event){
   if(document.body.classList.contains('workspace-modal-open')){
     event.preventDefault();
     closeWorkspaceModal();
+    return;
+  }
+  if(document.body.classList.contains('text-card-modal-open')){
+    event.preventDefault();
+    closeTextCardModal();
     return;
   }
   if(document.body.classList.contains('documents-hub-open')){
@@ -1316,6 +1332,58 @@ function closeWorkspaceModal(){
 ensureWorkspaceModalPortal();
 if(workspaceClose)workspaceClose.addEventListener('click',closeWorkspaceModal);
 if(workspaceBackdrop)workspaceBackdrop.addEventListener('click',closeWorkspaceModal);
+
+var textCardDemo=document.getElementById('d5BeamCardDemo');
+var textCardBackdrop=document.getElementById('d5TextCardBackdrop');
+var textCardClose=document.getElementById('d5TextCardClose');
+var textCardLastFocus=null;
+
+function ensureTextCardModalPortal(){
+  if(!document.body)return;
+  if(textCardBackdrop&&textCardBackdrop.parentElement!==document.body){
+    document.body.appendChild(textCardBackdrop);
+  }
+  if(textCardDemo&&textCardDemo.parentElement!==document.body){
+    document.body.appendChild(textCardDemo);
+  }
+}
+function openTextCardModal(){
+  if(!textCardDemo)return;
+  ensureTextCardModalPortal();
+  textCardLastFocus=document.activeElement;
+  textCardDemo.hidden=false;
+  document.body.classList.add('text-card-modal-open');
+  textCardDemo.setAttribute('aria-hidden','false');
+  if(textCardBackdrop){
+    textCardBackdrop.hidden=false;
+    textCardBackdrop.setAttribute('aria-hidden','false');
+  }
+  window.requestAnimationFrame(function(){
+    if(textCardClose)textCardClose.focus();
+  });
+}
+function closeTextCardModal(){
+  if(!textCardDemo)return;
+  document.body.classList.remove('text-card-modal-open');
+  textCardDemo.setAttribute('aria-hidden','true');
+  textCardDemo.hidden=true;
+  if(textCardBackdrop){
+    textCardBackdrop.hidden=true;
+    textCardBackdrop.setAttribute('aria-hidden','true');
+  }
+  if(window.location.hash==='#text-card'){
+    try{
+      history.replaceState(history.state,'',location.pathname+location.search);
+    }catch(_){}
+  }
+  if(textCardLastFocus&&typeof textCardLastFocus.focus==='function'){
+    try{textCardLastFocus.focus();}catch(_){}
+  }
+  textCardLastFocus=null;
+}
+ensureTextCardModalPortal();
+if(textCardClose)textCardClose.addEventListener('click',closeTextCardModal);
+if(textCardBackdrop)textCardBackdrop.addEventListener('click',closeTextCardModal);
 
 var textEditorInput=document.getElementById('d5TextEditorInput');
 var textEditorStatus=document.getElementById('d5TextEditorStatus');

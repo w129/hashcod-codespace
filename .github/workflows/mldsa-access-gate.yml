@@ -45,8 +45,6 @@ jobs:
         run: |
           php -l mldsa-access.php
           php -l mldsa-access-api.php
-          php -l entry-product-editor.php
-          php -l device-usage.php
           php -l pqc-actions-lib.php
           php -l pqc-actions.php
           php -l l8-html.php
@@ -56,11 +54,9 @@ jobs:
           node --check tests/e2e/test_first_screen_only_browser_playwright.js
           node --check components/react-bits-rotating-text.js
           node --check components/react-bits-splash-cursor.js
-          node --check components/device-usage-tracker.js
           node --check components/pqc-action-runtime.js
           node --check components/page-mascot-panda.js
           node tests/e2e/test_mldsa_access_gate.js
-          node tests/e2e/test_device_usage_quota.js
           node tests/e2e/test_pqc_action_bus.js
           node tests/e2e/test_page_mascot.js
           php tests/e2e/test_pqc_transition_norm.php

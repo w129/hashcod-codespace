@@ -151,6 +151,12 @@ assert(entry.includes('const FaqIcon = ('),'custom FAQ SVG component missing');
 assert(entry.includes('const CardIcon = ('),'custom Card SVG component missing');
 assert(entry.includes('viewBox="0 0 16 16"'),'custom Card SVG viewBox changed');
 assert(entry.includes("{ value: 'card', label: 'Card', icon: CardIcon }"),'Card menu item missing');
+assert(entry.includes("const WorkspaceIcon = ("),'Workspace custom SVG component missing');
+assert(entry.includes('viewBox="0 0 24 24"'),'Workspace SVG viewBox changed');
+assert(entry.includes('M 3 3 C 2.447 3 2 3.448 2 4 L 2 15'),'Workspace SVG path must match the supplied icon');
+assert(entry.includes("{ value: 'workspace', label: 'Workspace', icon: WorkspaceIcon }"),'Workspace menu item missing');
+assert(entry.indexOf("{ value: 'card', label: 'Card', icon: CardIcon }") < entry.indexOf("{ value: 'workspace', label: 'Workspace', icon: WorkspaceIcon }"),'Workspace must come immediately after Card');
+
 assert(entry.includes('viewBox="0 0 48 48"'),'custom FAQ SVG viewBox changed');
 assert(entry.includes('width="16"')&&entry.includes('height="16"'),'custom FAQ SVG must be adapted to 16x16');
 assert(entry.includes('fill="currentColor"'),'custom FAQ SVG must inherit menu ink');

@@ -22,8 +22,6 @@ const styles = Object.freeze({
   frame: "center-empty-state-frame",
   copy: "center-empty-state-copy",
   line: "center-empty-state-line",
-  titleRow: "center-empty-state-title-row",
-  titleIcon: "center-empty-state-title-icon",
   action: "center-empty-state-action-slot",
 });
 
@@ -156,7 +154,6 @@ export function EmptyState({
   description,
   action,
   icon,
-  titleIcon,
   className,
   label,
 }) {
@@ -200,36 +197,35 @@ export function EmptyState({
         </AnimatePresence>
       </div>
 
-      <HeightFrame
-        reduce={reduce}
-        morphKey={`${title}\n${description}`}
-      >
-        <h3>
-          <span className={styles.titleRow}>
-            {titleIcon && (
-              <span className={styles.titleIcon} aria-hidden="true">
-                {titleIcon}
-              </span>
-            )}
-            <AnimatePresence mode="popLayout" initial={false}>
-              <Swap key={title} className={styles.line} {...swap}>
-                {title}
-              </Swap>
-            </AnimatePresence>
-          </span>
-        </h3>
-        <p>
-          <AnimatePresence mode="popLayout" initial={false}>
-            <Swap
-              key={description}
-              className={styles.line}
-              {...swap}
-            >
-              {description}
-            </Swap>
-          </AnimatePresence>
-        </p>
-      </HeightFrame>
+      {(title || description) && (
+        <HeightFrame
+          reduce={reduce}
+          morphKey={`${title ?? ""}\n${description ?? ""}`}
+        >
+          {title && (
+            <h3>
+              <AnimatePresence mode="popLayout" initial={false}>
+                <Swap key={title} className={styles.line} {...swap}>
+                  {title}
+                </Swap>
+              </AnimatePresence>
+            </h3>
+          )}
+          {description && (
+            <p>
+              <AnimatePresence mode="popLayout" initial={false}>
+                <Swap
+                  key={description}
+                  className={styles.line}
+                  {...swap}
+                >
+                  {description}
+                </Swap>
+              </AnimatePresence>
+            </p>
+          )}
+        </HeightFrame>
+      )}
 
       {action && <div className={styles.action}>{action}</div>}
     </section>

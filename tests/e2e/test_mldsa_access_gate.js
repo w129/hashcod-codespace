@@ -57,6 +57,11 @@ assert(!gate.includes('id="d5VerifyText">Entrar</span>'),'former Entrar button m
 assert(!gate.includes('id="d5EntryStatCard"'),'former Monthly revenue card must be removed');
 assert(!gate.includes('Acceso a Hashcod Codespace</h1>'),'former window title must be removed from visible markup');
 assert(!gate.includes('Esta ventana aparece primero antes de entrar a la plataforma.'),'former window description must be removed');
+assert(!gate.includes('id="d5TiltCardDemo"'),'slot purchase TiltCard must be removed');
+assert(!gate.includes('Current price to purchase a slot'),'slot purchase card title must be removed');
+assert(!gate.includes('id="d5SavedChatDemo"'),'Saved Messages card must be removed');
+assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be removed');
+
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-faq1'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-faq1'),'BranchedMenu JS bundle must load');

@@ -607,7 +607,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(centerPosition.svgCount,1,'center layout must render only the retained former title icon');
     assert.equal(centerPosition.iconViewBox,'0 0 48 48','retained centered icon must preserve the supplied viewBox');
     assert.equal(centerPosition.iconWidth,'30px','retained centered icon must keep the adapted 30px size');
-    assert.equal(centerPosition.button,'Open Workspace','center action label changed');
+    assert.equal(centerPosition.button,'Open Hatch','center action label changed');
 
     await page.locator('#d5CenterEmptyStateAction').click();
     await page.waitForTimeout(350);

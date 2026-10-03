@@ -30,7 +30,7 @@ function CenterWorkspaceEmptyState() {
           className="hashcod-empty-state-action"
           type="button"
         >
-          Open Workspace
+          Open Hatch
         </button>
       }
     />
@@ -47,7 +47,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261003-icon-button5",
+    version: "20261003-open-hatch6",
   });
 
   return true;

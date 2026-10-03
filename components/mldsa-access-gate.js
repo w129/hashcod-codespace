@@ -551,147 +551,24 @@ function entryProductSetData(next){
   if(entryProductSubtitleInput&&document.activeElement!==entryProductSubtitleInput)entryProductSubtitleInput.value=entryProductCard.dataset.subtitle||'Brushed titanium';
 }
 if(entryIntro){
-  entrySetLevel(1);
-  entryProductSetMode('verify');
-  entryProductRestore();
-
-  entryProductCodeInputs.forEach(function(input,index){
-    input.addEventListener('input',function(){
-      var digit=String(input.value||'').replace(/\D/g,'').slice(-1);
-      input.value=digit;
-      entryProductSetCodeStatus('','');
-      if(digit&&index<entryProductCodeInputs.length-1)entryProductCodeInputs[index+1].focus();
-      if(entryProductCodeValue().length===6&&index===entryProductCodeInputs.length-1)entryProductVerifyCode();
-    });
-    input.addEventListener('keydown',function(event){
-      if(event.key==='Backspace'&&!input.value&&index>0)entryProductCodeInputs[index-1].focus();
-      if(event.key==='Enter'){event.preventDefault();entryProductVerifyCode();}
-    });
-    input.addEventListener('paste',function(event){
-      var text=(event.clipboardData&&event.clipboardData.getData('text'))||'';
-      var digits=text.replace(/\D/g,'').slice(0,6);
-      if(digits.length<2)return;
+  entryLevel=1;
+  if(entryAccessCard)entryAccessCard.setAttribute('data-entry-level','1');
+  if(btn){
+    btn.addEventListener('click',function(event){
       event.preventDefault();
-      entryProductCodeInputs.forEach(function(target,i){target.value=digits[i]||'';});
-      var focusIndex=Math.min(digits.length,6)-1;
-      if(entryProductCodeInputs[focusIndex])entryProductCodeInputs[focusIndex].focus();
-      if(digits.length===6)entryProductVerifyCode();
-    });
-  });
-  if(entryProductVerify)entryProductVerify.addEventListener('click',entryProductVerifyCode);
-  if(entryProductResend)entryProductResend.addEventListener('click',function(){
-    entryProductResetCode('Código reiniciado. Ingresa nuevamente los 6 dígitos.');
-  });
-  if(entryProductEditButton)entryProductEditButton.addEventListener('click',function(event){
-    event.preventDefault();
-    event.stopPropagation();
-    entryProductRequestEdit();
-  });
-  if(entryProductImage){
-    entryProductApplyImagePosition(entryProductImagePosition.x,entryProductImagePosition.y,false);
-    entryProductImage.addEventListener('pointerdown',entryProductStartImageDrag);
-    entryProductImage.addEventListener('pointermove',entryProductMoveImageDrag);
-    entryProductImage.addEventListener('pointerup',entryProductEndImageDrag);
-    entryProductImage.addEventListener('pointercancel',entryProductEndImageDrag);
-    entryProductImage.addEventListener('dblclick',function(event){
-      if(!entryProductUnlocked)return;
-      event.preventDefault();
-      entryProductResetImagePosition();
-    });
-  }
-  if(entryProductUploadButton&&entryProductFile){
-    entryProductUploadButton.addEventListener('click',function(){entryProductFile.click();});
-    entryProductFile.addEventListener('change',function(){
-      var file=entryProductFile.files&&entryProductFile.files[0];
-      if(file)entryProductApplyImage(file);
-      entryProductFile.value='';
-    });
-  }
-  if(entryProductTitleInput){
-    entryProductTitleInput.addEventListener('input',function(){
-      entryProductSetData({title:entryProductTitleInput.value});
-      entryProductPersist();
-    });
-  }
-  if(entryProductSubtitleInput){
-    entryProductSubtitleInput.addEventListener('input',function(){
-      entryProductSetData({subtitle:entryProductSubtitleInput.value});
-      entryProductPersist();
-    });
-  }
-  if(entryProductCard){
-    entryProductSetData({});
-    window.HashcodEntryProductCard={
-      setData:entryProductSetData,
-      getData:function(){
-        return {
-          title:entryProductCard.dataset.title||'',
-          subtitle:entryProductCard.dataset.subtitle||'',
-          price:entryProductCard.dataset.price||'',
-          badge:entryProductCard.dataset.badge||''
-        };
-      },
-      setAdded:function(active){
-        if(!entryProductAdd)return;
-        var added=active!==false;
-        entryProductAdd.setAttribute('aria-pressed',added?'true':'false');
-        entryProductAdd.textContent=added?'Added ✓':'Add to cart';
-      },
-      isUnlocked:function(){return entryProductUnlocked;},
-      hasSavedImage:function(){return entryProductHasSavedImage;},
-      getMode:function(){return entryProductSecurity?entryProductSecurity.dataset.mode||'verify':'verify';},
-      requestEdit:entryProductRequestEdit,
-      setImagePosition:function(x,y){entryProductApplyImagePosition(x,y,true);},
-      resetImagePosition:entryProductResetImagePosition,
-      getImagePosition:function(){return {x:entryProductImagePosition.x,y:entryProductImagePosition.y};},
-      unlockWithCode:function(code){
-        entryProductCodeInputs.forEach(function(input,index){input.value=String(code||'').replace(/\D/g,'')[index]||'';});
-        return entryProductVerifyCode();
-      }
-    };
-    window.addEventListener('hashcod:entry-product-update',function(event){
-      entryProductSetData(event&&event.detail?event.detail:{});
-    });
-  }
-  if(entryProductAdd){
-    entryProductAdd.addEventListener('click',function(){
-      var added=entryProductAdd.getAttribute('aria-pressed')==='true';
-      added=!added;
-      entryProductAdd.setAttribute('aria-pressed',added?'true':'false');
-      entryProductAdd.textContent=added?'Added ✓':'Add to cart';
+      event.stopPropagation();
+      st('');
       try{
-        window.dispatchEvent(new CustomEvent('hashcod:entry-product-cart',{detail:{
-          added:added,
-          title:entryProductCard?entryProductCard.dataset.title||'Series 8 watch':'Series 8 watch',
-          price:entryProductCard?entryProductCard.dataset.price||'$249':'$249'
-        }}));
+        window.dispatchEvent(new CustomEvent('hashcod:first-screen-action',{
+          detail:{screen:1,lockedToFirstScreen:true}
+        }));
       }catch(_){}
     });
   }
-  if(entryLevel2Next)entryLevel2Next.addEventListener('click',function(){entrySetLevel(3);});
-  if(entryLevel3Next)entryLevel3Next.addEventListener('click',function(){entrySetLevel(4);});
-  if(entryUsageCard){
-    window.HashcodEntryUsageCard={
-      refresh:entryUsageLoad,
-      render:entryUsageRender
-    };
-    window.addEventListener('hashcod:device-usage-updated',function(event){
-      if(event&&event.detail)entryUsageRender(event.detail);
-    });
-  }
-  if(entryFinish)entryFinish.addEventListener('click',entryOpenPlatform);
-  entryBackButtons.forEach(function(button){
-    button.addEventListener('click',function(){
-      entrySetLevel(Number(button.getAttribute('data-entry-back')||1));
-    });
+  window.HashcodEntryWizard=Object.freeze({
+    singleScreen:true,
+    getLevel:function(){return 1;}
   });
-  window.HashcodEntryWizard={
-    goTo:entrySetLevel,
-    next:function(){entrySetLevel(Math.min(4,entryLevel+1));},
-    back:function(){entrySetLevel(Math.max(1,entryLevel-1));},
-    finish:entryOpenPlatform,
-    getLevel:function(){return entryLevel;}
-  };
 }
 
 function st(message,type){
@@ -2688,11 +2565,7 @@ if(navListDemo){
   });
 }
 
-if(entryIntro&&btn){
-  btn.addEventListener('click',function(){
-    entrySetLevel(2);
-  });
-}else if(btn&&sig&&renew&&ch){
+if(!entryIntro&&btn&&sig&&renew&&ch){
   btn.addEventListener('click',async function(){
     var value=sig.value.trim();
     if(!value){

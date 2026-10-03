@@ -2,15 +2,15 @@
   width: min(360px, calc(100vw - 40px));
   display: grid;
   justify-items: center;
-  gap: 13px;
+  gap: 12px;
   color: #0a0a0a;
   text-align: center;
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.center-empty-state-icon {
-  width: 64px;
-  height: 64px;
+ .center-empty-state-icon {
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
 }
@@ -18,15 +18,15 @@
 .center-empty-state-glyph {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   color: #0a0a0a;
 }
 
 .center-empty-state-glyph svg {
   display: block;
-  width: 42px;
-  height: 42px;
+  width: 30px;
+  height: 30px;
   overflow: visible;
 }
 
@@ -60,28 +60,6 @@
   will-change: transform, opacity, filter;
 }
 
-.center-empty-state-title-row {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-}
-
-.center-empty-state-title-icon {
-  width: 30px;
-  height: 30px;
-  display: inline-flex;
-  flex: 0 0 30px;
-  align-items: center;
-  justify-content: center;
-  color: #0a0a0a;
-}
-
-.center-empty-state-title-icon svg {
-  display: block;
-  width: 30px;
-  height: 30px;
-}
 
 .center-empty-state-action-slot {
   min-height: 40px;

@@ -134,8 +134,58 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.secondEntry,false,'retired second screen must remain absent');
     assert.equal(state.toolbook,false,'retired Toolbook screen must remain absent');
 
+    assert.equal(await page.locator('#d5FaqCard').isVisible(),false,'FAQ card must stay hidden until the menu item is selected');
+    assert.equal(await page.locator('#d5FaqModalBackdrop').isVisible(),false,'FAQ backdrop must stay hidden initially');
+
     await page.getByRole('button',{name:'FAQ'}).click();
     assert.equal(new URL(page.url()).hash,'#faq','FAQ selection must navigate to #faq');
+    await page.waitForSelector('#d5FaqCard',{state:'visible',timeout:5000});
+    await page.waitForSelector('#d5FaqModalBackdrop',{state:'visible',timeout:5000});
+
+    const modalState=await page.evaluate(()=>{
+      const card=document.getElementById('d5FaqCard');
+      const backdrop=document.getElementById('d5FaqModalBackdrop');
+      const close=document.getElementById('d5FaqClose');
+      const rect=card.getBoundingClientRect();
+      const backdropStyle=getComputedStyle(backdrop);
+      return {
+        bodyOpen:document.body.classList.contains('faq-modal-open'),
+        ariaHidden:card.getAttribute('aria-hidden'),
+        role:card.getAttribute('role'),
+        ariaModal:card.getAttribute('aria-modal'),
+        centerX:rect.left+rect.width/2,
+        centerY:rect.top+rect.height/2,
+        viewportX:innerWidth/2,
+        viewportY:innerHeight/2,
+        backdropFilter:backdropStyle.backdropFilter||backdropStyle.webkitBackdropFilter||'',
+        closeFocused:document.activeElement===close
+      };
+    });
+    assert.equal(modalState.bodyOpen,true,'FAQ open state class must be applied');
+    assert.equal(modalState.ariaHidden,'false','FAQ dialog must be exposed while open');
+    assert.equal(modalState.role,'dialog','FAQ must use dialog semantics');
+    assert.equal(modalState.ariaModal,'true','FAQ must be modal');
+    assert(Math.abs(modalState.centerX-modalState.viewportX)<=2,'FAQ dialog must be horizontally centered');
+    assert(Math.abs(modalState.centerY-modalState.viewportY)<=2,'FAQ dialog must be vertically centered');
+    assert(modalState.backdropFilter.includes('blur(12px)'),'FAQ backdrop must blur the page behind it');
+    assert.equal(modalState.closeFocused,true,'FAQ close control must receive focus');
+
+    await page.locator('#d5FaqClose').click();
+    await page.waitForSelector('#d5FaqCard',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','close button must clear the FAQ hash');
+
+    await page.getByRole('button',{name:'FAQ'}).click();
+    await page.waitForSelector('#d5FaqModalBackdrop',{state:'visible',timeout:5000});
+    await page.locator('#d5FaqModalBackdrop').click({position:{x:5,y:5}});
+    await page.waitForSelector('#d5FaqCard',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','clicking outside the FAQ must close it');
+
+    await page.getByRole('button',{name:'FAQ'}).click();
+    await page.waitForSelector('#d5FaqCard',{state:'visible',timeout:5000});
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('#d5FaqCard',{state:'hidden',timeout:5000});
+    assert.equal(new URL(page.url()).hash,'','Escape must close the FAQ modal');
+
     await page.getByRole('button',{name:'Components'}).click();
     await page.waitForFunction(()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Components')?.getAttribute('aria-expanded')==='true');
     await page.getByRole('button',{name:'Overlays'}).click();
@@ -150,7 +200,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('.branched-menu').count(),1,'legacy query must still show exactly one BranchedMenu');
     assert.equal(await page.locator('.entry-access-card').count(),0,'legacy query must not restore old window');
 
-    console.log('✓ Exact React Bits BranchedMenu replaces the first-screen white window and is interactive');
+    console.log('✓ FAQ opens centered with blurred backdrop and all close interactions work');
   }finally{
     await browser.close();
   }

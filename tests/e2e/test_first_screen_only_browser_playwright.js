@@ -367,7 +367,9 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         editorParent:editor.parentElement===document.body,
         closeFocused:document.activeElement===close,
         title:editor.querySelector('.liquid-editor-heading h3')?.textContent.trim()||'',
-        promptStudio:Boolean(document.getElementById('d5TextEditorPromptStudio'))
+        promptStudio:Boolean(document.getElementById('d5TextEditorPromptStudio')),
+        controls:Array.from(editor.querySelectorAll('.liquid-editor-toolbar button')).map(n=>n.textContent.trim()).filter(Boolean),
+        firstScreenPointer:getComputedStyle(document.getElementById('d5FirstBranchedMenuStage')).pointerEvents
       };
     });
     assert.equal(workspaceState.bodyOpen,true,'Workspace modal state class must be applied');
@@ -378,13 +380,18 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(Math.abs(workspaceState.centerX-workspaceState.viewportX)<=2,'Workspace must be horizontally centered');
     assert(Math.abs(workspaceState.centerY-workspaceState.viewportY)<=2,'Workspace must be vertically centered');
     assert(workspaceState.width<=470.5,'Workspace width must stay adapted to the reference editor size');
-    assert(workspaceState.backdropFilter.includes('blur(24px)'),'Workspace backdrop must strongly blur the page');
-    assert.equal(workspaceState.backdropBackground,'rgba(255, 255, 255, 0.88)','Workspace backdrop must veil background content');
+    assert(workspaceState.backdropFilter.includes('blur(28px)'),'Workspace backdrop must strongly blur the page');
+    assert.equal(workspaceState.backdropBackground,'rgba(255, 255, 255, 0.94)','Workspace backdrop must strongly veil background content');
     assert.equal(workspaceState.backdropParent,true,'Workspace backdrop must be portaled directly under body');
     assert.equal(workspaceState.editorParent,true,'Workspace editor must be portaled directly under body');
     assert.equal(workspaceState.closeFocused,true,'Workspace close control must receive focus');
     assert.equal(workspaceState.title,'Workspace draft','Workspace must reuse the real editor from the reference image');
     assert.equal(workspaceState.promptStudio,true,'Workspace must preserve Skill Studio integration');
+    assert(workspaceState.controls.includes('Open'),'Workspace must preserve Open control');
+    assert(workspaceState.controls.includes('NFKC'),'Workspace must preserve NFKC control');
+    assert(workspaceState.controls.includes('Clean'),'Workspace must preserve Clean control');
+    assert(workspaceState.controls.includes('TXT'),'Workspace must preserve TXT control');
+    assert.equal(workspaceState.firstScreenPointer,'none','underlying first-screen content must not remain interactive while Workspace is open');
 
     await page.locator('#d5TextEditorInput').fill('Workspace modal test');
     assert.equal(await page.locator('#d5TextEditorInput').inputValue(),'Workspace modal test','Workspace must keep the real editable text area functional');

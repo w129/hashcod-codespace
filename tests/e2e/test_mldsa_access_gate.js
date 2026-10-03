@@ -58,8 +58,8 @@ assert(!gate.includes('id="d5EntryStatCard"'),'former Monthly revenue card must 
 assert(!gate.includes('Acceso a Hashcod Codespace</h1>'),'former window title must be removed from visible markup');
 assert(!gate.includes('Esta ventana aparece primero antes de entrar a la plataforma.'),'former window description must be removed');
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-workspace1'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-workspace1'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-workspace2'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-workspace2'),'BranchedMenu JS bundle must load');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
@@ -118,8 +118,10 @@ assert(gate.includes('id="d5WorkspaceModalBackdrop"'),'Workspace modal backdrop 
 assert(gate.includes('id="d5TextEditorCard" class="liquid-text-editor" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Workspace" hidden'),'Workspace editor must be natively hidden by default');
 assert(gate.includes('id="d5WorkspaceClose"'),'Workspace close control missing');
 assert(css.includes('.workspace-modal-backdrop{'),'Workspace modal backdrop CSS missing');
-assert(css.includes('backdrop-filter:blur(24px)'),'Workspace backdrop must blur the page');
+assert(css.includes('backdrop-filter:blur(28px)'),'Workspace backdrop must strongly blur the page');
 assert(css.includes('body[data-hashcod-entry-intro="1"].workspace-modal-open #d5TextEditorCard'),'Workspace centered modal CSS missing');
+assert(css.includes('body.workspace-modal-open > *:not(#d5WorkspaceModalBackdrop):not(#d5TextEditorCard)'),'Workspace must disable interaction with page content behind the veil');
+assert(css.includes('background:rgba(255,255,255,.94)'),'Workspace veil must strongly hide background content');
 assert(js.includes("if(detail.value==='workspace')"),'Workspace BranchedMenu action missing');
 assert(js.includes('openWorkspaceModal();'),'Workspace action must open editor modal');
 assert(js.includes('textEditorCard.hidden=false'),'Workspace open must remove native hidden');
@@ -147,8 +149,8 @@ assert(splashJs.includes("window.addEventListener('mousemove', handleMouseMove)"
 
 
 // FAQ must escape the page layout and cover the entire viewport.
-assert(gate.includes('components/mldsa-access-gate.css?v=20261003-cardmodal3'),'FAQ modal CSS cache-bust missing');
-assert(gate.includes('components/mldsa-access-gate.js?v=20261003-cardmodal3'),'FAQ modal JS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.css?v=20261003-workspace2'),'FAQ modal CSS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261003-workspace2'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
 assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');

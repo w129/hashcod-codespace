@@ -8,63 +8,114 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 (async()=>{
   const browser=await chromium.launch({headless:true});
   const page=await browser.newPage({viewport:{width:1440,height:900}});
+  const componentErrors=[];
+  page.on('pageerror',error=>componentErrors.push('pageerror: '+error.message));
+  page.on('console',msg=>{
+    if(msg.type()==='error'&&/branched|react|hugeicon|referenceerror|typeerror/i.test(msg.text())){
+      componentErrors.push('console.error: '+msg.text());
+    }
+  });
+
   try{
     let response=await page.goto(target,{waitUntil:'domcontentloaded',timeout:15000});
     assert(response&&response.status()===200,'root must return 200');
 
-    await page.waitForSelector('[data-entry-single-screen="true"]',{state:'visible',timeout:10000});
-    await page.waitForSelector('#d5Verify',{state:'visible',timeout:5000});
+    await page.waitForSelector('#d5FirstBranchedMenuStage',{state:'visible',timeout:10000});
+    await page.waitForFunction(()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
+    await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
 
-    let state=await page.evaluate(()=>({
-      title:document.querySelector('[data-entry-panel="1"] h1')?.textContent.trim()||'',
-      panels:Array.from(document.querySelectorAll('[data-entry-panel]')).map(n=>n.getAttribute('data-entry-panel')),
-      secondEntry:document.getElementById('hashcodEntryHold')!==null,
-      toolbook:document.getElementById('hashcodToolbookBlankPage')!==null,
-      toolbookScript:Array.from(document.scripts).some(s=>/toolbook-page-blank|toolbook-branched-menu/i.test(s.src||'')),
-      holdScript:Array.from(document.scripts).some(s=>/platform-entry-hold/i.test(s.src||'')),
-      url:location.href,
-      wizard:window.HashcodEntryWizard||null
-    }));
+    const state=await page.evaluate(()=>{
+      const stage=document.getElementById('d5FirstBranchedMenuStage');
+      const menu=document.querySelector('.branched-menu');
+      const heads=Array.from(document.querySelectorAll('.branched-menu__head'));
+      const active=document.querySelector('.branched-menu__item[aria-current="true"]');
+      const firstItem=document.querySelector('.branched-menu__item');
+      const icon=document.querySelector('.branched-menu__icon svg');
+      const basePath=document.querySelector('.branched-menu__base');
+      const stageStyle=getComputedStyle(stage);
+      const menuStyle=getComputedStyle(menu);
+      const itemStyle=getComputedStyle(firstItem);
+      return {
+        formerWindow:{
+          accessCard:document.querySelector('.entry-access-card')!==null,
+          enter:document.getElementById('d5Verify')!==null,
+          revenue:document.getElementById('d5EntryStatCard')!==null
+        },
+        stage:{
+          width:stage.getBoundingClientRect().width,
+          background:stageStyle.backgroundColor,
+          borderRadius:stageStyle.borderRadius,
+          boxShadow:stageStyle.boxShadow
+        },
+        menu:{
+          width:menu.getBoundingClientRect().width,
+          display:menuStyle.display,
+          paddingLeft:menuStyle.paddingLeft
+        },
+        heads:heads.map(h=>({label:h.textContent.trim(),expanded:h.getAttribute('aria-expanded')})),
+        labels:Array.from(document.querySelectorAll('.branched-menu__label')).map(n=>n.textContent.trim()),
+        active:active?.textContent.trim()||'',
+        item:{
+          display:itemStyle.display,
+          height:itemStyle.height,
+          borderTopWidth:itemStyle.borderTopWidth,
+          background:itemStyle.backgroundColor,
+          fontSize:itemStyle.fontSize
+        },
+        icon:{
+          width:icon?getComputedStyle(icon).width:'',
+          height:icon?getComputedStyle(icon).height:''
+        },
+        svg:{
+          fill:basePath?getComputedStyle(basePath).fill:'',
+          strokeWidth:basePath?getComputedStyle(basePath).strokeWidth:''
+        },
+        mounted:Boolean(window.HashcodFirstScreenBranchedMenu?.mounted),
+        secondEntry:document.getElementById('hashcodEntryHold')!==null,
+        toolbook:document.getElementById('hashcodToolbookBlankPage')!==null
+      };
+    });
 
-    assert.equal(state.title,'Acceso a Hashcod Codespace','first screen title must remain');
-    assert.deepEqual(state.panels,['1'],'only data-entry-panel=1 may exist');
-    assert.equal(state.secondEntry,false,'second entry screen must not exist');
-    assert.equal(state.toolbook,false,'Toolbook screen must not exist');
-    assert.equal(state.toolbookScript,false,'Toolbook runtime must not load on the root');
-    assert.equal(state.holdScript,false,'second-entry runtime must not load on the root');
-    assert.equal(state.wizard?.singleScreen,true,'entry runtime must report single-screen mode');
+    assert.deepEqual(componentErrors,[],'BranchedMenu must mount without component runtime errors');
+    assert.deepEqual(state.formerWindow,{accessCard:false,enter:false,revenue:false},'old white access window must be completely gone');
+    assert(Math.abs(state.stage.width-300)<=2,'BranchedMenu host width must be 300px');
+    assert.equal(state.stage.background,'rgb(16, 14, 21)','BranchedMenu host must use the dark reference background');
+    assert.equal(state.stage.borderRadius,'0px','replacement must not retain rounded window chrome');
+    assert.equal(state.stage.boxShadow,'none','replacement must not retain window shadow');
+    assert.equal(state.menu.display,'flex','BranchedMenu must use source flex layout');
+    assert.equal(state.menu.paddingLeft,'14px','source rail offset must remain exact');
+    assert(state.menu.width<=240.5,'BranchedMenu width prop must remain 240px');
+    assert.deepEqual(state.heads,[{label:'Getting started',expanded:'true'},{label:'Components',expanded:'false'}],'defaultOpen={[0]} must remain exact');
+    assert.deepEqual(state.labels,['Installation','Quick start','Configuration','Buttons','Overlays'],'menu labels must match the supplied usage exactly');
+    assert.equal(state.active,'Quick start','defaultActive must remain quick');
+    assert.equal(state.item.display,'flex','child row source layout changed');
+    assert.equal(state.item.height,'36px','rowHeight=36 must remain exact');
+    assert.equal(state.item.borderTopWidth,'0px','browser-default button border must not leak through');
+    assert.equal(state.item.background,'rgba(0, 0, 0, 0)','source child rows must remain transparent');
+    assert.equal(state.item.fontSize,'14px','fontSize=14 must remain exact');
+    assert.equal(state.icon.width,'16px','Hugeicon width must be 16px');
+    assert.equal(state.icon.height,'16px','Hugeicon height must be 16px');
+    assert.equal(state.svg.fill,'none','branch SVG must never render as black filled polygons');
+    assert.equal(state.svg.strokeWidth,'1.5px','lineWidth=1.5 must remain exact');
+    assert.equal(state.mounted,true,'React island mount marker missing');
+    assert.equal(state.secondEntry,false,'retired second screen must remain absent');
+    assert.equal(state.toolbook,false,'retired Toolbook screen must remain absent');
 
-    const before=page.url();
-    await page.locator('#d5Verify').click();
-    await page.waitForTimeout(350);
+    await page.getByRole('button',{name:'Components'}).click();
+    await page.waitForFunction(()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Components')?.getAttribute('aria-expanded')==='true');
+    await page.getByRole('button',{name:'Overlays'}).click();
+    assert.equal(new URL(page.url()).hash,'#overlays','onSelect navigate(value) must update the selected destination');
 
-    state=await page.evaluate(()=>({
-      panels:Array.from(document.querySelectorAll('[data-entry-panel]')).map(n=>n.getAttribute('data-entry-panel')),
-      secondEntry:document.getElementById('hashcodEntryHold')!==null,
-      toolbook:document.getElementById('hashcodToolbookBlankPage')!==null,
-      level:window.HashcodEntryWizard?.getLevel?.()
-    }));
-    assert.equal(page.url(),before,'clicking Entrar must not navigate away from the first screen');
-    assert.deepEqual(state.panels,['1'],'clicking Entrar must not create another entry panel');
-    assert.equal(state.secondEntry,false,'clicking Entrar must not create the retired second screen');
-    assert.equal(state.toolbook,false,'clicking Entrar must not create Toolbook');
-    assert.equal(state.level,1,'entry level must remain 1');
+    const selected=await page.locator('.branched-menu__item[aria-current="true"]').textContent();
+    assert.equal(selected.trim(),'Overlays','selected item must become active');
 
     response=await page.goto(target+'?hashcod_enter=1',{waitUntil:'domcontentloaded',timeout:15000});
-    assert(response&&response.status()===200,'legacy hashcod_enter URL must still return 200');
-    await page.waitForSelector('[data-entry-single-screen="true"]',{state:'visible',timeout:10000});
-    const legacy=await page.evaluate(()=>({
-      title:document.querySelector('[data-entry-panel="1"] h1')?.textContent.trim()||'',
-      panels:document.querySelectorAll('[data-entry-panel]').length,
-      secondEntry:document.getElementById('hashcodEntryHold')!==null,
-      toolbook:document.getElementById('hashcodToolbookBlankPage')!==null
-    }));
-    assert.equal(legacy.title,'Acceso a Hashcod Codespace','legacy query must remain on first screen');
-    assert.equal(legacy.panels,1,'legacy query must not unlock hidden screens');
-    assert.equal(legacy.secondEntry,false,'legacy query must not unlock second entry screen');
-    assert.equal(legacy.toolbook,false,'legacy query must not unlock Toolbook');
+    assert(response&&response.status()===200,'legacy query must still return first screen');
+    await page.waitForFunction(()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
+    assert.equal(await page.locator('.branched-menu').count(),1,'legacy query must still show exactly one BranchedMenu');
+    assert.equal(await page.locator('.entry-access-card').count(),0,'legacy query must not restore old window');
 
-    console.log('✓ Only the first Hashcod screen remains reachable');
+    console.log('✓ Exact React Bits BranchedMenu replaces the first-screen white window and is interactive');
   }finally{
     await browser.close();
   }

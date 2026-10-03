@@ -280,7 +280,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     const originalDeckBefore=await page.locator('#d5ToolDeck').boundingBox();
     assert.equal(originalDeckBefore,null,'source card deck must have no visible layout box');
 
-    await page.getByRole('button',{name:'Card'}).click();
+    await page.getByRole('button',{name:'Card',exact:true}).click();
     assert.equal(new URL(page.url()).hash,'#card','Card selection must navigate to #card');
     await page.waitForSelector('#d5CardModalShell',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5CardModalBackdrop',{state:'visible',timeout:5000});
@@ -349,14 +349,14 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5CardModalShell').getAttribute('hidden'),'','Card close button must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','Card close button must clear the hash');
 
-    await page.getByRole('button',{name:'Card'}).click();
+    await page.getByRole('button',{name:'Card',exact:true}).click();
     await page.waitForSelector('#d5CardModalBackdrop',{state:'visible',timeout:5000});
     await page.locator('#d5CardModalBackdrop').click({position:{x:5,y:5}});
     await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
     assert.equal(await page.locator('#d5CardModalShell').getAttribute('hidden'),'','outside click must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','clicking outside Card must close it');
 
-    await page.getByRole('button',{name:'Card'}).click();
+    await page.getByRole('button',{name:'Card',exact:true}).click();
     await page.waitForSelector('#d5CardModalShell',{state:'visible',timeout:5000});
     await page.keyboard.press('Escape');
     await page.waitForSelector('#d5CardModalShell',{state:'hidden',timeout:5000});
@@ -446,7 +446,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5BeamCardDemo').getAttribute('hidden'),'','Text Card source must be natively hidden initially');
     assert.equal(await page.locator('#d5TextCardBackdrop').isVisible(),false,'Text Card backdrop must stay hidden initially');
 
-    await page.getByRole('button',{name:'Text Card'}).click();
+    await page.getByRole('button',{name:'Text Card',exact:true}).click();
     assert.equal(new URL(page.url()).hash,'#text-card','Text Card selection must navigate to #text-card');
     await page.waitForSelector('#d5BeamCardDemo',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5TextCardBackdrop',{state:'visible',timeout:5000});
@@ -493,13 +493,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5BeamCardDemo').getAttribute('hidden'),'','Text Card close must restore native hidden');
     assert.equal(new URL(page.url()).hash,'','Text Card close must clear the hash');
 
-    await page.getByRole('button',{name:'Text Card'}).click();
+    await page.getByRole('button',{name:'Text Card',exact:true}).click();
     await page.waitForSelector('#d5TextCardBackdrop',{state:'visible',timeout:5000});
     await page.locator('#d5TextCardBackdrop').click({position:{x:5,y:5}});
     await page.waitForSelector('#d5BeamCardDemo',{state:'hidden',timeout:5000});
     assert.equal(new URL(page.url()).hash,'','clicking outside Text Card must close it');
 
-    await page.getByRole('button',{name:'Text Card'}).click();
+    await page.getByRole('button',{name:'Text Card',exact:true}).click();
     await page.waitForSelector('#d5BeamCardDemo',{state:'visible',timeout:5000});
     await page.keyboard.press('Escape');
     await page.waitForSelector('#d5BeamCardDemo',{state:'hidden',timeout:5000});

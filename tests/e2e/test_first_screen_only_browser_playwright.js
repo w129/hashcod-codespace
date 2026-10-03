@@ -599,13 +599,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       };
     });
     assert(Math.abs(centerPosition.centerX-centerPosition.viewportCenterX)<=3,'center EmptyState must stay centered in the viewport');
-    assert.equal(centerPosition.title,'CC-Card','center EmptyState title must be CC-Card');
+    assert.equal(centerPosition.title,'VC','center EmptyState title must be VC');
     assert.equal(centerPosition.titleIconViewBox,'0 0 256 256','CC-Card title icon must preserve the supplied viewBox');
     assert.equal(centerPosition.titleIconWidth,'30px','CC-Card title icon must be adapted beside the title');
     assert.equal(centerPosition.button,'Open Workspace','center EmptyState action label changed');
 
     await page.locator('#d5CenterEmptyStateAction').click();
-    await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateStage')?.querySelector('h3')?.textContent?.trim()==='CC-Card',{timeout:3000});
+    await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateStage')?.querySelector('h3')?.textContent?.trim()==='VC',{timeout:3000});
     const checkedIcon=await page.evaluate(()=>{
       const stage=document.getElementById('d5CenterEmptyStateStage');
       const svg=stage?.querySelector('svg');

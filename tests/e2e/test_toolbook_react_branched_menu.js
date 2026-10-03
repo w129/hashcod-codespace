@@ -16,6 +16,7 @@ assert(pkg.includes('"@hugeicons/react": "1.1.9"'),'@hugeicons/react dependency 
 assert(pkg.includes('"@hugeicons/core-free-icons": "4.3.5"'),'@hugeicons/core-free-icons dependency missing');
 assert(pkg.includes('"react": "19.2.4"')&&pkg.includes('"react-dom": "19.2.4"'),'React dependencies missing');
 assert(pkg.includes('toolbook-branched-menu.bundle.js'),'build output must be the Toolbook React island');
+assert(pkg.includes('--jsx=automatic'),'build must use the automatic JSX runtime required by the supplied source');
 
 for(const icon of ['CursorPointer01Icon','Download04Icon','Layers01Icon','Notification03Icon','PaintBoardIcon','Rocket01Icon','Settings02Icon','TextFontIcon']){
   assert(component.includes(icon),`component source missing ${icon}`);

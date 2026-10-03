@@ -11,16 +11,49 @@ var timer=0;
 
 function visibleToolbookSurface(){
   var panel=document.querySelector('.toolbox-panel');
-  if(!panel)return null;
+  if(panel){
+    var style=window.getComputedStyle(panel);
+    var rect=panel.getBoundingClientRect();
+    if(
+      style.display!=='none'&&
+      style.visibility!=='hidden'&&
+      Number(style.opacity)!==0&&
+      rect.width>=300&&
+      rect.height>=300&&
+      rect.right>0&&
+      rect.left<window.innerWidth&&
+      rect.bottom>0&&
+      rect.top<window.innerHeight
+    ) return panel;
+  }
 
-  var style=window.getComputedStyle(panel);
-  if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0)return null;
+  var slots=Array.from(document.querySelectorAll('.tb-slot')).filter(function(slot){
+    var style=window.getComputedStyle(slot);
+    var rect=slot.getBoundingClientRect();
+    return style.display!=='none'&&style.visibility!=='hidden'&&rect.width>40&&rect.height>40;
+  });
+  if(slots.length>=12)return slots[0];
 
-  var rect=panel.getBoundingClientRect();
-  if(rect.width<300||rect.height<300)return null;
-  if(rect.right<=0||rect.left>=window.innerWidth||rect.bottom<=0||rect.top>=window.innerHeight)return null;
+  var labels=Array.from(document.querySelectorAll('button,[role="button"]')).filter(function(node){
+    var style=window.getComputedStyle(node);
+    var rect=node.getBoundingClientRect();
+    return style.display!=='none'&&style.visibility!=='hidden'&&rect.width>0&&rect.height>0;
+  }).map(function(node){return (node.textContent||'').trim();});
+  if(['S1TB','S2TB','S3TB','S4TB'].every(function(label){return labels.indexOf(label)!==-1;})){
+    return document.body;
+  }
 
-  return panel;
+  return null;
+}
+
+function platformEntered(){
+  var root=document.documentElement;
+  if(!root)return false;
+  return (
+    root.dataset.hashcodPlatformEntered==='true' ||
+    root.classList.contains('hashcod-platform-entered') ||
+    (document.body&&document.body.classList.contains('hashcod-platform-entered'))
+  );
 }
 
 function keepBlank(){
@@ -92,14 +125,16 @@ function activate(){
 }
 
 function watch(){
-  if(visibleToolbookSurface()){
+  if(platformEntered()||visibleToolbookSurface()){
     activate();
     return;
   }
 
+  window.addEventListener('hashcod:platform-entered',activate,{once:true});
+
   if(document.body&&typeof MutationObserver==='function'){
     surfaceObserver=new MutationObserver(function(){
-      if(visibleToolbookSurface())activate();
+      if(platformEntered()||visibleToolbookSurface())activate();
     });
     surfaceObserver.observe(document.body,{
       childList:true,
@@ -112,7 +147,7 @@ function watch(){
   var attempts=0;
   timer=window.setInterval(function(){
     attempts++;
-    if(visibleToolbookSurface()){
+    if(platformEntered()||visibleToolbookSurface()){
       activate();
       return;
     }

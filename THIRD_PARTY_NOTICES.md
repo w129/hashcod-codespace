@@ -102,7 +102,7 @@ Hashcod Codespace uses three free Hugeicons SVG path definitions in the Branched
 - Project: Hugeicons
 - Source: https://github.com/hugeicons/hugeicons
 - Package: `@hugeicons/core-free-icons`
-- Icons: `Download04Icon`, `Rocket01Icon`, `Settings02Icon`
+- Icons: `CursorPointer01Icon`, `Download04Icon`, `Layers01Icon`, `Notification03Icon`, `PaintBoardIcon`, `Rocket01Icon`, `Settings02Icon`, `TextFontIcon`
 - License: MIT
 - Hashcod adaptation: the icon path data is rendered inline by the native JavaScript workspace so the PHP/JavaScript platform does not require a React runtime solely for these icons.
 

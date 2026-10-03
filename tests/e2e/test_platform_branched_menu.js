@@ -8,10 +8,10 @@ const css=fs.readFileSync('components/platform-branched-menu.css','utf8');
 const html=fs.readFileSync('l8-html.php','utf8');
 const local=fs.readFileSync('laragon-local-entry.php','utf8');
 
-assert(html.includes('components/platform-branched-menu.css?v=20261003-branched2'),'BranchedMenu stylesheet must load on main platform');
-assert(html.includes('components/platform-branched-menu.js?v=20261003-branched2'),'BranchedMenu runtime must load on main platform');
-assert(local.includes('components/platform-branched-menu.css?v=20261003-branched2'),'BranchedMenu stylesheet must load in Laragon/local');
-assert(local.includes('components/platform-branched-menu.js?v=20261003-branched2'),'BranchedMenu runtime must load in Laragon/local');
+assert(html.includes('components/platform-branched-menu.css?v=20261003-branched3'),'BranchedMenu stylesheet must load on main platform');
+assert(html.includes('components/platform-branched-menu.js?v=20261003-branched3'),'BranchedMenu runtime must load on main platform');
+assert(local.includes('components/platform-branched-menu.css?v=20261003-branched3'),'BranchedMenu stylesheet must load in Laragon/local');
+assert(local.includes('components/platform-branched-menu.js?v=20261003-branched3'),'BranchedMenu runtime must load in Laragon/local');
 
 assert(js.includes("label:'Getting started'"),'Getting started group missing');
 assert(js.includes("value:'install',label:'Installation',icon:'download04'"),'Installation item/icon missing');
@@ -55,7 +55,10 @@ assert(js.includes("window.dispatchEvent(new CustomEvent('hashcod:branched-menu-
 assert(js.includes("window.dispatchEvent(new CustomEvent('hashcod:branched-menu-toggle'"),'toggle event missing');
 assert(js.includes("history.replaceState"),'default navigate behavior missing');
 assert(js.includes("data-hashcod-branched-menu-visible"),'visible-state marker missing');
-assert(js.includes("MutationObserver"),'platform-entry visibility observer missing');
+assert(js.includes("document.querySelector('.toolbox-panel')"),'Toolbook surface detection missing');
+assert(js.includes("data-hashcod-toolbox-anchor"),'Toolbook anchor marker missing');
+assert(js.includes("function positionBesideToolbox()"),'Toolbook positioning helper missing');
+assert(js.includes("MutationObserver"),'Toolbook visibility observer missing');
 assert(js.includes('window.HashcodBranchedMenu={'),'public BranchedMenu API missing');
 
 assert(js.includes('M16.9504 12.1817'),'Download04Icon path missing');

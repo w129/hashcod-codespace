@@ -128,6 +128,21 @@ assert(rotatingJs.includes('window.HashcodRotatingText'),'RotatingText controlle
 assert(splashCss.includes('.entry-splash-cursor{')&&splashCss.includes('pointer-events:none'),'SplashCursor background styling missing');
 assert(splashJs.includes("window.addEventListener('mousemove', handleMouseMove)"),'SplashCursor pointer interaction missing');
 
+
+// FAQ must escape the page layout and cover the entire viewport.
+assert(gate.includes('components/mldsa-access-gate.css?v=20261003-faqmodal2'),'FAQ modal CSS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261003-faqmodal2'),'FAQ modal JS cache-bust missing');
+assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
+assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
+assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');
+assert(js.includes('document.body.appendChild(faqBackdrop)'),'FAQ backdrop must move directly under body');
+assert(js.includes('document.body.appendChild(faqCard)'),'FAQ card must move directly under body');
+assert(css.includes('z-index:2147483646'),'FAQ backdrop must sit above all normal page UI');
+assert(css.includes('z-index:2147483647'),'FAQ card must sit above the backdrop');
+assert(css.includes('background:rgba(255,255,255,.88)'),'FAQ backdrop must heavily veil the page behind it');
+assert(css.includes('backdrop-filter:blur(24px)'),'FAQ backdrop blur must be strong enough to hide background detail');
+assert(css.includes('width:100vw')&&css.includes('height:100dvh'),'FAQ backdrop must cover the entire viewport');
+
 // Later screens remain retired.
 assert(!gate.includes('data-entry-panel="2"'),'second entry panel must remain removed');
 assert(!gate.includes('data-entry-panel="3"'),'third entry panel must remain removed');

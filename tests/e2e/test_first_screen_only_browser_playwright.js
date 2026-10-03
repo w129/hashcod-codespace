@@ -137,6 +137,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5FaqCard').isVisible(),false,'FAQ card must stay hidden until the menu item is selected');
     assert.equal(await page.locator('#d5FaqModalBackdrop').isVisible(),false,'FAQ backdrop must stay hidden initially');
 
+    const backgroundBefore=await page.locator('#d5ToolDeck').boundingBox();
+
     await page.getByRole('button',{name:'FAQ'}).click();
     assert.equal(new URL(page.url()).hash,'#faq','FAQ selection must navigate to #faq');
     await page.waitForSelector('#d5FaqCard',{state:'visible',timeout:5000});
@@ -158,6 +160,16 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         viewportX:innerWidth/2,
         viewportY:innerHeight/2,
         backdropFilter:backdropStyle.backdropFilter||backdropStyle.webkitBackdropFilter||'',
+        backdropBackground:backdropStyle.backgroundColor,
+        backdropZ:backdropStyle.zIndex,
+        cardZ:getComputedStyle(card).zIndex,
+        backdropParent:backdrop.parentElement===document.body,
+        cardParent:card.parentElement===document.body,
+        backdropRect:(()=>{
+          const r=backdrop.getBoundingClientRect();
+          return {left:r.left,top:r.top,width:r.width,height:r.height};
+        })(),
+        topLeftElement:document.elementFromPoint(5,5)?.id||'',
         closeFocused:document.activeElement===close
       };
     });
@@ -167,8 +179,20 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(modalState.ariaModal,'true','FAQ must be modal');
     assert(Math.abs(modalState.centerX-modalState.viewportX)<=2,'FAQ dialog must be horizontally centered');
     assert(Math.abs(modalState.centerY-modalState.viewportY)<=2,'FAQ dialog must be vertically centered');
-    assert(modalState.backdropFilter.includes('blur(12px)'),'FAQ backdrop must blur the page behind it');
+    assert(modalState.backdropFilter.includes('blur(24px)'),'FAQ backdrop must strongly blur the page behind it');
+    assert.equal(modalState.backdropBackground,'rgba(255, 255, 255, 0.88)','FAQ backdrop must heavily veil background content');
+    assert.equal(modalState.backdropZ,'2147483646','FAQ backdrop must be above all page UI');
+    assert.equal(modalState.cardZ,'2147483647','FAQ card must be above the full-screen backdrop');
+    assert.equal(modalState.backdropParent,true,'FAQ backdrop must be portaled directly under body');
+    assert.equal(modalState.cardParent,true,'FAQ card must be portaled directly under body');
+    assert(Math.abs(modalState.backdropRect.left)<=1&&Math.abs(modalState.backdropRect.top)<=1,'FAQ backdrop must start at viewport origin');
+    assert(Math.abs(modalState.backdropRect.width-modalState.viewportX*2)<=2,'FAQ backdrop must span full viewport width');
+    assert(Math.abs(modalState.backdropRect.height-modalState.viewportY*2)<=2,'FAQ backdrop must span full viewport height');
+    assert.equal(modalState.topLeftElement,'d5FaqModalBackdrop','FAQ backdrop must physically cover background UI outside the dialog');
     assert.equal(modalState.closeFocused,true,'FAQ close control must receive focus');
+
+    const backgroundAfter=await page.locator('#d5ToolDeck').boundingBox();
+    assert.deepEqual(backgroundAfter,backgroundBefore,'background components must stay in their original positions behind the blur');
 
     await page.locator('#d5FaqClose').click();
     await page.waitForSelector('#d5FaqCard',{state:'hidden',timeout:5000});
@@ -200,7 +224,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('.branched-menu').count(),1,'legacy query must still show exactly one BranchedMenu');
     assert.equal(await page.locator('.entry-access-card').count(),0,'legacy query must not restore old window');
 
-    console.log('✓ FAQ opens centered with blurred backdrop and all close interactions work');
+    console.log('✓ Only FAQ is foregrounded; all existing UI stays fixed behind a full-screen blur');
   }finally{
     await browser.close();
   }

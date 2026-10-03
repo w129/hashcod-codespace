@@ -613,7 +613,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(checkedIcon.paths,2,'confirmed icon must contain the frame and the checkmark');
     assert.equal(checkedIcon.check,true,'checkmark must appear inside the supplied SVG after clicking');
     await page.waitForTimeout(750);
-    assert.equal(document.body?.classList?.contains?.('workspace-modal-open')||false,false);
+    assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'center EmptyState button must not set the Workspace modal state');
     assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'center EmptyState button must not open Workspace until a destination is assigned');
 
     console.log('✓ FAQ, Card, Workspace, Text Card, Documents and centered EmptyState remain functional without a center-button destination');

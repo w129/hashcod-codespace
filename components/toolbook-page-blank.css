@@ -12,48 +12,21 @@ html[data-hashcod-toolbook-page-blank="true"] body{
 
 html[data-hashcod-toolbook-page-blank="true"] body > *:not(#hashcodToolbookBlankPage){
   display:none!important;
-  visibility:hidden!important;
-  opacity:0!important;
-  pointer-events:none!important;
 }
 
 #hashcodToolbookBlankPage{
   position:fixed!important;
   inset:0!important;
   z-index:2147483600!important;
-  display:block!important;
   width:100vw!important;
   height:100vh!important;
-  min-width:100vw!important;
-  min-height:100vh!important;
   margin:0!important;
   padding:0!important;
   border:0!important;
   background:#fff!important;
   overflow:hidden!important;
-  pointer-events:auto!important;
 }
 
-#hashcodToolbookBranchedMenuPanel{
-  position:absolute;
-  left:32px;
-  top:96px;
-  width:300px;
-  box-sizing:border-box;
-  padding:18px 22px 22px;
-  background:#100e15;
-  color:#f5f5f5;
-  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-
-#hashcodToolbookBranchedMenuMount{
-  min-height:1px;
-}
-
-@media(max-width:700px){
-  #hashcodToolbookBranchedMenuPanel{
-    left:16px;
-    top:72px;
-    width:min(300px,calc(100vw - 32px));
-  }
+#hashcodToolbookBlankPage > *{
+  display:none!important;
 }

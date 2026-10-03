@@ -11,6 +11,11 @@ const component=fs.readFileSync('first-screen-branched-menu-build/BranchedMenu.j
 const componentCss=fs.readFileSync('first-screen-branched-menu-build/BranchedMenu.css','utf8');
 const entry=fs.readFileSync('first-screen-branched-menu-build/entry.jsx','utf8');
 const pkg=JSON.parse(fs.readFileSync('first-screen-branched-menu-build/package.json','utf8'));
+const centerEmptyState=fs.readFileSync('center-empty-state-build/EmptyState.jsx','utf8');
+const centerEmptyStateEntry=fs.readFileSync('center-empty-state-build/entry.jsx','utf8');
+const centerEmptyStateCss=fs.readFileSync('center-empty-state-build/empty-state.module.css','utf8');
+const centerEmptyStateEntryCss=fs.readFileSync('center-empty-state-build/entry.css','utf8');
+const centerEmptyStatePkg=JSON.parse(fs.readFileSync('center-empty-state-build/package.json','utf8'));
 const rotatingCss=fs.readFileSync('components/react-bits-rotating-text.css','utf8');
 const rotatingJs=fs.readFileSync('components/react-bits-rotating-text.js','utf8');
 const splashCss=fs.readFileSync('components/react-bits-splash-cursor.css','utf8');
@@ -71,6 +76,25 @@ assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black
 assert(css.includes('--bm-muted:#0a0a0a'),'idle BranchedMenu text must remain black');
 assert(css.includes('border-radius:0'),'former rounded window chrome must not survive');
 assert(css.includes('box-shadow:none'),'former window shadow must not survive');
+
+assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
+assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
+assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261003-center1'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261003-center1'),'center EmptyState JS bundle must load');
+assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
+assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
+assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
+assert(centerEmptyState.includes('function iconKey(icon)'),'EmptyState icon crossfade key missing');
+assert(centerEmptyStateEntry.includes('M 5 3 C 3.895 3 3 3.895 3 5 L 3 6 L 3 7 L 3 19'),'center icon must match the supplied SVG path');
+assert(centerEmptyStateEntry.includes('M 8.25 12.35 L 10.7 14.8 L 15.85 9.65'),'checkmark must be drawn inside the supplied icon');
+assert(centerEmptyStateEntry.includes('id="d5CenterEmptyStateAction"'),'center EmptyState action button missing');
+assert(centerEmptyStateEntry.includes('setConfirmed(true)'),'center action must morph into confirmed state');
+assert(centerEmptyStateEntry.includes('value: "workspace"'),'center action must target the existing Workspace flow');
+assert(centerEmptyStateEntryCss.includes('left: 50%')&&centerEmptyStateEntryCss.includes('transform: translate(-50%, -50%)'),'center EmptyState must be horizontally centered');
+assert(centerEmptyStateCss.includes('.glyph svg'),'center EmptyState SVG sizing missing');
+assert.equal(centerEmptyStatePkg.dependencies.motion,'^12.40.0','center EmptyState motion dependency changed');
+assert.equal(centerEmptyStatePkg.dependencies.react,'19.2.4','center EmptyState React dependency changed');
 
 // Exact supplied component/runtime contract.
 assert(component.includes("import { HugeiconsIcon } from '@hugeicons/react'"),'Hugeicons renderer missing');

@@ -13,7 +13,7 @@ const entry=fs.readFileSync('first-screen-branched-menu-build/entry.jsx','utf8')
 const pkg=JSON.parse(fs.readFileSync('first-screen-branched-menu-build/package.json','utf8'));
 const centerEmptyState=fs.readFileSync('center-empty-state-build/EmptyState.jsx','utf8');
 const centerEmptyStateEntry=fs.readFileSync('center-empty-state-build/entry.jsx','utf8');
-const centerEmptyStateCss=fs.readFileSync('center-empty-state-build/empty-state.module.css','utf8');
+const centerEmptyStateCss=fs.readFileSync('center-empty-state-build/empty-state.css','utf8');
 const centerEmptyStateEntryCss=fs.readFileSync('center-empty-state-build/entry.css','utf8');
 const centerEmptyStatePkg=JSON.parse(fs.readFileSync('center-empty-state-build/package.json','utf8'));
 const rotatingCss=fs.readFileSync('components/react-bits-rotating-text.css','utf8');
@@ -92,7 +92,7 @@ assert(centerEmptyStateEntry.includes('id="d5CenterEmptyStateAction"'),'center E
 assert(centerEmptyStateEntry.includes('setConfirmed(true)'),'center action must morph into confirmed state');
 assert(centerEmptyStateEntry.includes('value: "workspace"'),'center action must target the existing Workspace flow');
 assert(centerEmptyStateEntryCss.includes('left: 50%')&&centerEmptyStateEntryCss.includes('transform: translate(-50%, -50%)'),'center EmptyState must be horizontally centered');
-assert(centerEmptyStateCss.includes('.glyph svg'),'center EmptyState SVG sizing missing');
+assert(centerEmptyStateCss.includes('.center-empty-state-glyph svg'),'center EmptyState SVG sizing missing');
 assert.equal(centerEmptyStatePkg.dependencies.motion,'^12.40.0','center EmptyState motion dependency changed');
 assert.equal(centerEmptyStatePkg.dependencies.react,'19.2.4','center EmptyState React dependency changed');
 

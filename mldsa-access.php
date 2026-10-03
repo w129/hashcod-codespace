@@ -293,7 +293,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<div class="entry-wizard-panels">'
         .'<section class="entry-wizard-panel active" data-entry-panel="1" aria-label="Pantalla principal">'
         .'<h1>Acceso a Hashcod Codespace</h1>'
-        .'<p class="description">Esta es la pantalla principal de Hashcod Codespace.</p>'
+        .'<p class="description">Esta ventana aparece primero antes de entrar a la plataforma.</p>'
         .'<div class="entry-welcome-panel"><img class="entry-platform-logo" src="'.$base.'hashcod_icon_exact.svg" alt="Hashcod Codespace platform icon"><div><strong>Hashcod Codespace</strong><small>Tu espacio de trabajo está listo.</small></div></div>'
         .'<div class="entry-login-action"><button id="d5Verify" class="spectrum-outline-login-button" type="button" aria-label="Pantalla principal"><img class="spectrum-outline-login-icon" src="'.$base.'hashcod_icon_exact.svg" alt="" aria-hidden="true"><span id="d5VerifyText">Entrar</span></button></div>'
         .'<article id="d5EntryStatCard" class="entry-stat-card" data-points="12,18,14,24,21,32,28,38" data-title="Monthly revenue" data-value="$45,231" data-change="+12.5%" data-comparison="from last month" aria-label="Monthly revenue statistics">'

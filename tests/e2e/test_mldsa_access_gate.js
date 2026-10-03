@@ -133,8 +133,8 @@ assert(splashJs.includes("window.addEventListener('mousemove', handleMouseMove)"
 
 
 // FAQ must escape the page layout and cover the entire viewport.
-assert(gate.includes('components/mldsa-access-gate.css?v=20261003-faqmodal2'),'FAQ modal CSS cache-bust missing');
-assert(gate.includes('components/mldsa-access-gate.js?v=20261003-faqmodal2'),'FAQ modal JS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.css?v=20261003-cardmodal1'),'FAQ modal CSS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261003-cardmodal1'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
 assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');

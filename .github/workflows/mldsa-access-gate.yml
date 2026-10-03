@@ -18,6 +18,7 @@ on:
       - components/mldsa-access-gate.css
       - components/mldsa-access-gate.js
       - first-screen-branched-menu-build/**
+      - center-empty-state-build/**
       - Dockerfile
       - components/react-bits-rotating-text.js
       - components/react-bits-rotating-text.css
@@ -72,6 +73,15 @@ jobs:
           test -s ../components/first-screen-branched-menu.bundle.css
           node --check ../components/first-screen-branched-menu.bundle.js
 
+      - name: Build centered EmptyState
+        working-directory: center-empty-state-build
+        run: |
+          npm install --no-fund --no-audit
+          npm run build
+          test -s ../components/center-empty-state.bundle.js
+          test -s ../components/center-empty-state.bundle.css
+          node --check ../components/center-empty-state.bundle.js
+
       - name: Install Playwright for first-screen verification
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
@@ -95,6 +105,11 @@ jobs:
           grep -q 'data-react-bits-component="BranchedMenu"' /tmp/hashcod-home.html
           grep -q 'first-screen-branched-menu.bundle.css?v=20261003-textcard1' /tmp/hashcod-home.html
           grep -q 'first-screen-branched-menu.bundle.js?v=20261003-textcard1' /tmp/hashcod-home.html
+          grep -q 'id="d5CenterEmptyStateStage"' /tmp/hashcod-home.html
+          grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-home.html
+          grep -q 'data-hashcod-component="EmptyState"' /tmp/hashcod-home.html
+          grep -q 'center-empty-state.bundle.css?v=20261003-center1' /tmp/hashcod-home.html
+          grep -q 'center-empty-state.bundle.js?v=20261003-center1' /tmp/hashcod-home.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-home.html
           ! grep -q 'id="d5VerifyText">Entrar</span>' /tmp/hashcod-home.html
           ! grep -q 'id="d5EntryStatCard"' /tmp/hashcod-home.html
@@ -133,6 +148,8 @@ jobs:
           php laragon-local-entry.php >/tmp/hashcod-laragon.html
           grep -q 'id="d5FirstBranchedMenuMount"' /tmp/hashcod-laragon.html
           grep -q 'first-screen-branched-menu.bundle.js?v=20261003-textcard1' /tmp/hashcod-laragon.html
+          grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-laragon.html
+          grep -q 'center-empty-state.bundle.js?v=20261003-center1' /tmp/hashcod-laragon.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-laragon.html
           ! grep -q 'platform-entry-hold.js' /tmp/hashcod-laragon.html
           ! grep -q 'toolbook-page-blank.js' /tmp/hashcod-laragon.html

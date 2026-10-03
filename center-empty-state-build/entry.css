@@ -2,7 +2,7 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-stage {
   position: absolute;
   left: 50%;
   top: 53%;
-  z-index: 5;
+  z-index: 7;
   width: min(420px, calc(100vw - 36px));
   transform: translate(-50%, -50%);
   display: flex;

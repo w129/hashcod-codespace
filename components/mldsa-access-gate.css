@@ -3280,9 +3280,9 @@ body[data-hashcod-entry-intro="1"] .faq-tabs-card{
   display:block;
   width:100vw;
   height:100dvh;
-  background:rgba(255,255,255,.94);
-  backdrop-filter:blur(28px);
-  -webkit-backdrop-filter:blur(28px);
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
   opacity:0;
   transition:opacity .20s ease;
   pointer-events:auto;
@@ -3490,9 +3490,9 @@ body[data-hashcod-entry-intro="1"] #d5TextEditorCard[hidden]{
   display:block;
   width:100vw;
   height:100dvh;
-  background:rgba(255,255,255,.88);
-  backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
   opacity:0;
   transition:opacity .20s ease;
   pointer-events:auto;

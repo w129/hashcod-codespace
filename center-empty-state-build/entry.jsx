@@ -155,7 +155,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261003-center-empty-state1",
+    version: "20261003-cc-card2",
   });
 
   return true;

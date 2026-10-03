@@ -20,39 +20,6 @@ function CcCardTitleIcon() {
 }
 
 function CenterWorkspaceEmptyState() {
-  const [confirmed, setConfirmed] = useState(false);
-  const [opening, setOpening] = useState(false);
-  const timers = useRef([]);
-
-  useEffect(
-    () => () => {
-      timers.current.forEach((timer) => window.clearTimeout(timer));
-      timers.current = [];
-    },
-    [],
-  );
-
-  const handleAction = () => {
-    if (opening) return;
-
-    setConfirmed(true);
-    setOpening(true);
-
-    timers.current.push(
-      window.setTimeout(() => {
-        setConfirmed(false);
-        setOpening(false);
-      }, 1200),
-    );
-  };
-
-  return (
-    <EmptyState
-      label="VC"
-      title="VC"
-      titleIcon={<CcCardTitleIcon />}
-      description={
-        conffunction CenterWorkspaceEmptyState() {
   return (
     <EmptyState
       label="VC"

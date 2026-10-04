@@ -347,18 +347,29 @@ function PreviewPolicyFooter() {
               <i />
               <i />
               <i />
-              <b>hashcodcodespace.dev/privacy</b>
+              <b>/privacy</b>
             </span>
             <span className="preview-link-card__document">
-              <span className="preview-link-card__kicker">
-                HASHCOD CODESPACE · LEGAL
+              <span className="preview-link-card__document-head">
+                <span>Hashcod Codespace® / Documento contractual</span>
+                <span>República Dominicana</span>
               </span>
-              <strong>Use and Privacy Policy</strong>
-              <small>
+              <strong>
                 Documento de Aceptación Contractual, Privacidad y Evidencia de Registro
-              </small>
-              <span className="preview-link-card__meta">
-                Effective document · Open to read
+              </strong>
+              <small>Hashcod Codespace® · DIKTATCART</small>
+              <span className="preview-link-card__meta-grid">
+                <span>
+                  <b>VERSIÓN</b>
+                  <em>2026.09.18-2</em>
+                </span>
+                <span>
+                  <b>VIGENTE DESDE</b>
+                  <em>18 de septiembre de 2026</em>
+                </span>
+              </span>
+              <span className="preview-link-card__notice">
+                Condiciones contractuales y de privacidad aplicables al registro de una plataforma.
               </span>
             </span>
           </span>
@@ -380,7 +391,7 @@ function mountPreviewPolicyFooter() {
   window.HashcodPreviewPolicyLinkCard = Object.freeze({
     mounted: true,
     href: '/privacy',
-    version: '20261004-preview-policy4'
+    version: '20261004-preview-policy5'
   });
   return true;
 }
@@ -395,7 +406,7 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261004-preview-policy4'
+    version: '20261004-preview-policy5'
   });
   return true;
 }

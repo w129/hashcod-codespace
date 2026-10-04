@@ -202,7 +202,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           href:document.getElementById('d5PreviewPolicyTrigger')?.getAttribute('href')||'',
           target:document.getElementById('d5PreviewPolicyTrigger')?.getAttribute('target')||'',
           component:document.getElementById('d5PreviewPolicyMount')?.getAttribute('data-hashcod-component')||'',
-          mounted:Boolean(window.HashcodPreviewPolicyLinkCard?.mounted)
+          mounted:Boolean(window.HashcodPreviewPolicyLinkCard?.mounted),
+          position:getComputedStyle(document.getElementById('d5PreviewPolicyFooter')).position,
+          centerX:(()=>{const r=document.getElementById('d5PreviewPolicyFooter').getBoundingClientRect();return r.left+r.width/2;})(),
+          viewportCenterX:window.innerWidth/2,
+          bottomGap:window.innerHeight-document.getElementById('d5PreviewPolicyFooter').getBoundingClientRect().bottom
         },
         calendar:{
           exists:Boolean(document.getElementById('d5FirstScreenCalendar')),
@@ -247,6 +251,9 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.previewPolicy.target,'_blank','Use and Privacy Policy must open in a new tab');
     assert.equal(state.previewPolicy.component,'PreviewLinkCard','Preview Link Card component marker changed');
     assert.equal(state.previewPolicy.mounted,true,'Preview Link Card React island must mount');
+    assert.equal(state.previewPolicy.position,'fixed','Preview Link Card must remain fixed at the final viewport edge');
+    assert(Math.abs(state.previewPolicy.centerX-state.previewPolicy.viewportCenterX)<=2,'Preview Link Card must be horizontally centered');
+    assert(state.previewPolicy.bottomGap>=9&&state.previewPolicy.bottomGap<=30,'Preview Link Card must stay at the bottom edge');
     assert.equal(state.item.display,'flex','child row source layout changed');
     assert.equal(state.item.height,'36px','rowHeight=36 must remain exact');
     assert.equal(state.item.borderTopWidth,'0px','browser-default button border must not leak through');
@@ -295,11 +302,21 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     const previewPolicyState=await page.locator('#d5PreviewPolicyContent').evaluate(node=>({
       opacity:getComputedStyle(node).opacity,
       visibility:getComputedStyle(node).visibility,
-      title:node.querySelector('.preview-link-card__document strong')?.textContent?.trim()||''
+      title:node.querySelector('.preview-link-card__document > strong')?.textContent?.replace(/\s+/g,' ').trim()||'',
+      version:node.textContent.includes('2026.09.18-2'),
+      effective:node.textContent.includes('18 de septiembre de 2026')
     }));
     assert(Number.parseFloat(previewPolicyState.opacity)>=0.99,'Preview Link Card must become visible on hover');
     assert.equal(previewPolicyState.visibility,'visible','Preview Link Card must be visually exposed on hover');
-    assert.equal(previewPolicyState.title,'Use and Privacy Policy','Preview Link Card title changed');
+    assert.equal(previewPolicyState.title,'Documento de Aceptación Contractual, Privacidad y Evidencia de Registro','Preview Link Card must mirror the repository privacy document title');
+    assert.equal(previewPolicyState.version,true,'Preview Link Card must show the repository contract version');
+    assert.equal(previewPolicyState.effective,true,'Preview Link Card must show the repository contract effective date');
+
+    const privacyResponse=await page.request.get(new URL('/privacy',target).href);
+    assert.equal(privacyResponse.status(),200,'Use and Privacy Policy link target must return 200');
+    const privacyHtml=await privacyResponse.text();
+    assert(privacyHtml.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'),'privacy route must render the repository contract');
+    assert(privacyHtml.includes('Hashcod Codespace® / Documento contractual'),'privacy route must render the platform legal document header');
     await page.mouse.move(700,450);
     await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyContent')?.getAttribute('data-open')==='false');
 

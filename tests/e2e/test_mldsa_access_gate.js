@@ -69,8 +69,8 @@ assert(!gate.includes('id="d5SavedChatDemo"'),'Saved Messages card must be remov
 assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be removed');
 
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy4'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy4'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5'),'BranchedMenu JS bundle must load');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
@@ -280,6 +280,12 @@ assert(entry.includes('function PreviewPolicyFooter()'),'Preview Link Card foote
 assert(entry.includes('Before continuing, please read the'),'Preview Link Card lead text missing');
 assert(entry.includes('Use and Privacy Policy'),'Preview Link Card linked text missing');
 assert(entry.includes('href="/privacy"'),'Preview Link Card must point to the existing privacy route');
+assert(entry.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'),'Preview card must mirror the repository privacy document title');
+assert(entry.includes('2026.09.18-2'),'Preview card must mirror the repository contract version');
+assert(entry.includes('18 de septiembre de 2026'),'Preview card must mirror the repository contract effective date');
+assert(componentCss.includes('position: fixed'),'Preview Link Card footer must stay centered at the final viewport edge');
+assert(componentCss.includes('left: 50%'),'Preview Link Card footer center anchor missing');
+assert(componentCss.includes('transform: translateX(-50%)'),'Preview Link Card footer centering transform missing');
 assert(entry.includes('target="_blank"'),'Preview Link Card must open the legal document in a new tab');
 assert(entry.includes("window.HashcodPreviewPolicyLinkCard = Object.freeze"),'Preview Link Card runtime marker missing');
 assert(componentCss.includes('.preview-link-card__content[data-open="true"]'),'Preview Link Card hover/focus open styling missing');
@@ -369,7 +375,7 @@ assert(animateCursorJs.includes('window.HashcodAnimateCursor=Object.freeze'),'gl
 
 // FAQ must escape the page layout and cover the entire viewport.
 assert(gate.includes('components/mldsa-access-gate.css?v=20261004-calendar-black2'),'FAQ modal CSS cache-bust missing');
-assert(gate.includes('components/mldsa-access-gate.js?v=20261004-preview-policy4'),'FAQ modal JS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261004-preview-policy5'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
 assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');

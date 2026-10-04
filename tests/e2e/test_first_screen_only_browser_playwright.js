@@ -520,6 +520,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(new URL(page.url()).hash,'#text-card','Text Card selection must navigate to #text-card');
     await page.waitForSelector('#d5BeamCardDemo',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5TextCardBackdrop',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>document.activeElement===document.getElementById('d5TextCardClose'),{timeout:5000});
 
     const textCardState=await page.evaluate(()=>{
       const demo=document.getElementById('d5BeamCardDemo');

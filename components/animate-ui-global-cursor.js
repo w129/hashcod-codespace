@@ -118,7 +118,7 @@ function boot(){
     align:'end',
     alignOffset:ALIGN_OFFSET,
     label:'Designer',
-    version:'20261004-animate-cursor2'
+    version:'20261004-animate-cursor3'
   });
 
   window.addEventListener('pagehide',function(){

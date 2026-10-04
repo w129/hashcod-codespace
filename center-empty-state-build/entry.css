@@ -19,6 +19,23 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   pointer-events: auto;
 }
 
+.center-hatch-launchers {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 28px;
+}
+
+.center-hatch-launcher-state {
+  width: 180px;
+  min-width: 0;
+}
+
+.java-hatch-launcher-icon {
+  color: #0a0a0a;
+}
+
 .hashcod-empty-state-action {
   min-width: 148px;
   height: 38px;
@@ -142,11 +159,19 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   white-space: nowrap;
 }
 
-.hatch-code-react-icon {
+.hatch-code-react-icon,
+.hatch-code-java-icon {
   width: 17px;
   height: 17px;
   flex: 0 0 17px;
+}
+
+.hatch-code-react-icon {
   color: #149eca;
+}
+
+.hatch-code-java-icon {
+  color: #e76f00;
 }
 
 .hatch-code-copy {
@@ -289,6 +314,19 @@ body.hashcod-hatch-open {
 }
 
 @media (max-width: 520px) {
+  .center-hatch-launchers {
+    gap: 12px;
+  }
+
+  .center-hatch-launcher-state {
+    width: min(156px, calc((100vw - 52px) / 2));
+  }
+
+  .hashcod-empty-state-action {
+    min-width: 136px;
+    padding-inline: 14px;
+  }
+
   .hatch-modal-backdrop {
     padding: 48px 16px 24px;
   }

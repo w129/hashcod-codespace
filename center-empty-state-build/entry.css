@@ -265,6 +265,7 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 }
 
 .hatch-code-copy:focus-visible,
+.hatch-code-link-toggle:focus-visible,
 .hatch-code-preview-toggle:focus-visible,
 .hatch-code-close:focus-visible {
   outline: 2px solid rgba(15, 23, 42, 0.28);
@@ -279,6 +280,37 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.hatch-code-link-toggle {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #64748b;
+  padding: 0;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.hatch-code-link-toggle:hover,
+.hatch-code-link-toggle.is-active {
+  background: #eef2f7;
+  color: #0f172a;
+}
+
+.hatch-code-link-toggle:active {
+  transform: scale(0.97);
+}
+
+.hatch-code-link-toggle svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: currentColor;
 }
 
 .hatch-code-preview-toggle {

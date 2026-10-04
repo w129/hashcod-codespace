@@ -22,13 +22,9 @@ if(!codeAccessRequired()){
 if(!mldsaAccessConfigured()){
     codeAccessFail('code_access_not_configured','ML-DSA-87 public key is unavailable or invalid.',503);
 }
-if(function_exists('securityIpIsBanned')&&securityIpIsBanned()){
-    codeAccessFail('ip_temporarily_blocked','Too many failed access attempts. Try again later.',429);
-}
-
 $method=strtoupper((string)($_SERVER['REQUEST_METHOD']??'GET'));
 if(function_exists('securityRateAllowSliding')){
-    $rate=securityRateAllowSliding('hashcod_code_access_v1',$method==='POST'?5:18,60);
+    $rate=securityRateAllowSliding('hashcod_code_access_v1',$method==='POST'?8:30,60);
     if(empty($rate['allowed'])){
         codeAccessFail('rate_limited','Too many requests. Wait before trying again.',429,[
             'retry_after'=>(int)($rate['retry_after']??60)
@@ -73,7 +69,6 @@ if(!is_array($body))codeAccessFail('invalid_json','Invalid JSON request.',400);
 $source=(string)($body['source']??'');
 $manifest=codeAccessParseManifest($source);
 if(!is_array($manifest)){
-    if(function_exists('securityIpStrike'))securityIpStrike('code_access_manifest_fail',3,600,600);
     codeAccessFail('invalid_manifest','Only the signed HASHCOD-ACCESS/1 PHP manifest is accepted. PHP is never executed.',400);
 }
 
@@ -83,18 +78,15 @@ if(!is_array($state)){
 }
 $expectedChallenge=(string)$state['challenge'];
 if(!hash_equals($expectedChallenge,(string)$manifest['challenge'])){
-    if(function_exists('securityIpStrike'))securityIpStrike('code_access_challenge_fail',3,600,900);
-    codeAccessFail('challenge_mismatch','The manifest does not contain the active challenge.',409);
+    codeAccessFail('challenge_mismatch','The manifest does not contain the active challenge. Click Refresh, sign the new challenge, and paste the new manifest.',409);
 }
 
 $signature=(string)$manifest['signature'];
 if(!mldsaVerify($expectedChallenge,$signature)){
-    if(function_exists('securityIpStrike'))securityIpStrike('code_access_signature_fail',3,600,900);
-    codeAccessFail('invalid_signature','The ML-DSA-87 signature in the access manifest is invalid.',401);
+    codeAccessFail('invalid_signature','The ML-DSA-87 signature is invalid for the configured public key. Confirm that hashcod-public.key matches the public key configured in Hashcod Codespace.',401);
 }
 if(!mldsaConsumeJti((string)$state['jti'],(int)$state['exp'])){
-    if(function_exists('securityIpStrike'))securityIpStrike('code_access_replay_fail',2,600,1800);
-    codeAccessFail('replay_detected','This access manifest challenge has already been consumed.',409);
+    codeAccessFail('replay_detected','This access manifest challenge has already been consumed. Click Refresh and sign the new challenge.',409);
 }
 
 $proof=mldsaSignatureProof($signature);

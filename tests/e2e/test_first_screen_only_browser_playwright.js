@@ -625,6 +625,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const tsxInput=document.getElementById('d5HatchCodeInput');
       const javaInput=document.getElementById('d5JavaHatchCodeInput');
       const javascriptInput=document.getElementById('d5JavaScriptHatchCodeInput');
+      const htmlInput=document.getElementById('d5HtmlHatchCodeInput');
       const rect=editor.getBoundingClientRect();
       const backdropStyle=getComputedStyle(backdrop);
       const panes=Array.from(editor.querySelectorAll('.hatch-code-pane')).map((pane)=>({
@@ -650,13 +651,18 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         tsxValue:tsxInput?.value||'',
         javaValue:javaInput?.value||'',
         javascriptValue:javascriptInput?.value||'',
+        htmlValue:htmlInput?.value||'',
         tsxFocused:document.activeElement===tsxInput,
         javaIconViewBox:editor.querySelector('.hatch-code-java-icon')?.getAttribute('viewBox')||'',
         javascriptIconViewBox:editor.querySelector('.hatch-code-javascript-icon')?.getAttribute('viewBox')||'',
         javascriptIconYellow:editor.querySelector('.hatch-code-javascript-icon path[fill="#f7df1e"]')?.getAttribute('d')||'',
+        htmlIconViewBox:editor.querySelector('.hatch-code-html-icon')?.getAttribute('viewBox')||'',
+        htmlPolygonCount:editor.querySelectorAll('.hatch-code-html-icon polygon').length,
+        htmlOuterPolygon:editor.querySelector('.hatch-code-html-icon polygon[fill="#e7a42b"]')?.getAttribute('points')||'',
         copyReact:Boolean(document.getElementById('d5HatchCopy')),
         copyJava:Boolean(document.getElementById('d5JavaHatchCopy')),
         copyJavaScript:Boolean(document.getElementById('d5JavaScriptHatchCopy')),
+        copyHtml:Boolean(document.getElementById('d5HtmlHatchCopy')),
         close:Boolean(document.getElementById('d5HatchClose'))
       };
     });
@@ -669,39 +675,50 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(Math.abs(hatchState.width-864)<=2,'shared Hatch must contain both 420px-class editors');
     assert(Math.abs(hatchState.height-620)<=2,'shared Hatch must grow vertically for the JavaScript editor');
     assert(hatchState.blur.includes('blur(24px)'),'Hatch must blur the platform behind it');
-    assert.equal(hatchState.panes.length,3,'shared Hatch must contain React, JavaScript and Java panes');
+    assert.equal(hatchState.panes.length,4,'shared Hatch must contain React, JavaScript, Java and HTML panes');
     const reactPane=hatchState.panes.find(p=>p.key==='tsx');
     const javascriptPane=hatchState.panes.find(p=>p.key==='javascript');
     const javaPane=hatchState.panes.find(p=>p.key==='java');
-    assert.equal(reactPane.file,'my-component.tsx','React editor must stay first');
+    const htmlPane=hatchState.panes.find(p=>p.key==='html');
+    assert.equal(reactPane.file,'my-component.tsx','React editor must stay top-left');
     assert.equal(javascriptPane.file,'script.js','JavaScript editor must be below React');
-    assert.equal(javaPane.file,'Main.java','Java editor must stay on the right');
+    assert.equal(javaPane.file,'Main.java','Java editor must stay top-right');
+    assert.equal(htmlPane.file,'index.html','HTML editor must be below Java');
     assert(Math.abs(javascriptPane.left-reactPane.left)<=2,'JavaScript must align under React');
     assert(javascriptPane.top>=reactPane.bottom-2,'JavaScript must be positioned below React');
     assert(javaPane.left>=reactPane.right-2,'Java pane must be positioned to the right of React');
-    assert(javaPane.top<=reactPane.top+2&&javaPane.bottom>=javascriptPane.bottom-2,'Java pane must span both left-side editors');
+    assert(Math.abs(htmlPane.left-javaPane.left)<=2,'HTML must align under Java');
+    assert(htmlPane.top>=javaPane.bottom-2,'HTML must be positioned below Java');
     assert.equal(hatchState.javaIconViewBox,'0 0 50 50','Java pane must use the supplied Java SVG');
     assert.equal(hatchState.javascriptIconViewBox,'0 0 48 48','JavaScript pane must preserve the supplied 48x48 SVG');
     assert.equal(hatchState.javascriptIconYellow,'M6,42V6h36v36H6z','JavaScript pane must use the supplied yellow JS icon');
+    assert.equal(hatchState.htmlIconViewBox,'0 0 48 48','HTML pane must preserve the supplied 48x48 SVG');
+    assert.equal(hatchState.htmlPolygonCount,6,'HTML pane must preserve all six supplied polygons');
+    assert.equal(hatchState.htmlOuterPolygon,'8,5 42,5 38,39 25,43 11,39','HTML pane must use the supplied shield polygon');
     assert.equal(hatchState.copyReact,true,'React pane must keep its copy button');
     assert.equal(hatchState.copyJavaScript,true,'JavaScript pane must have its own copy button');
     assert.equal(hatchState.copyJava,true,'Java pane must have its own copy button');
+    assert.equal(hatchState.copyHtml,true,'HTML pane must have its own copy button');
     assert.equal(hatchState.close,true,'shared Hatch must have one close button');
     assert.equal(hatchState.tsxFocused,true,'React code area must receive initial focus');
     assert(hatchState.tsxValue.includes("type MyComponentProps"),'React pane must keep the supplied TSX example');
     assert(hatchState.javaValue.includes('public class Main'),'Java pane must start with Java source');
     assert(hatchState.javascriptValue.includes("language: 'JavaScript'"),'JavaScript pane must start with JavaScript source');
+    assert(hatchState.htmlValue.includes('<!doctype html>'),'HTML pane must start with HTML source');
 
     const editedTsx=hatchState.tsxValue+'\n// hatch editable';
     const editedJavaScript=hatchState.javascriptValue+'\n// javascript hatch editable';
     const editedJava=hatchState.javaValue+'\n// java hatch editable';
+    const editedHtml=hatchState.htmlValue+'\n<!-- html hatch editable -->';
     await page.locator('#d5HatchCodeInput').fill(editedTsx);
     await page.locator('#d5JavaScriptHatchCodeInput').fill(editedJavaScript);
     await page.locator('#d5JavaHatchCodeInput').fill(editedJava);
+    await page.locator('#d5HtmlHatchCodeInput').fill(editedHtml);
 
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-code:v1')?.endsWith('// hatch editable')),true,'React edits must persist');
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-javascript-code:v1')?.endsWith('// javascript hatch editable')),true,'JavaScript edits must persist independently');
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-java-code:v1')?.endsWith('// java hatch editable')),true,'Java edits must persist independently');
+    assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-html-code:v1')?.endsWith('<!-- html hatch editable -->')),true,'HTML edits must persist independently');
 
     await page.keyboard.press('Escape');
     await page.waitForSelector('#d5HatchCodeEditor',{state:'detached',timeout:5000});
@@ -712,13 +729,14 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal((await page.locator('#d5HatchCodeInput').inputValue()).endsWith('// hatch editable'),true,'React code must survive close and reopen');
     assert.equal((await page.locator('#d5JavaScriptHatchCodeInput').inputValue()).endsWith('// javascript hatch editable'),true,'JavaScript code must survive close and reopen in the same Hatch');
     assert.equal((await page.locator('#d5JavaHatchCodeInput').inputValue()).endsWith('// java hatch editable'),true,'Java code must survive close and reopen in the same Hatch');
+    assert.equal((await page.locator('#d5HtmlHatchCodeInput').inputValue()).endsWith('<!-- html hatch editable -->'),true,'HTML code must survive close and reopen in the same Hatch');
     await page.locator('#d5HatchClose').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'detached',timeout:5000});
 
     assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatch must not set the Workspace modal state');
     assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Hatch must not open Workspace');
 
-    console.log('✓ React, JavaScript and Java editors share one Hatch window with independent editing');
+    console.log('✓ React, JavaScript, Java and HTML editors share one Hatch window with independent editing');
   }finally{
     await browser.close();
   }

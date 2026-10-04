@@ -3982,3 +3982,26 @@ body[data-hashcod-code-access-required="1"][data-hashcod-code-access-authorized=
   .code-access-root .code-access-boot-head>i{display:none}
   .code-access-root .code-access-boot-editor{min-height:270px;padding:18px 16px}
 }
+
+
+.code-access-root .code-access-boot-mesh{
+  position:relative;
+}
+.code-access-root .code-access-boot-vector{
+  position:absolute;
+  right:18px;
+  bottom:18px;
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.34);
+  border-radius:12px;
+  background:#fff;
+  color:#0a0a0a;
+  box-shadow:0 12px 30px rgba(0,0,0,.28);
+}
+.code-access-root .code-access-boot-vector svg{
+  display:block;
+  fill:currentColor;
+}

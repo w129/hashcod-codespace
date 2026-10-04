@@ -78,3 +78,233 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
     transition: none;
   }
 }
+
+
+/* Open Hatch — editable adaptation of Animate UI Code / CodeHeader / CodeBlock. */
+.hatch-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+  background: rgba(255, 255, 255, 0.56);
+  backdrop-filter: blur(24px) saturate(0.92);
+  -webkit-backdrop-filter: blur(24px) saturate(0.92);
+  overscroll-behavior: contain;
+}
+
+.hatch-code-shell {
+  position: relative;
+  width: 420px;
+  height: 372px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 72px);
+  display: grid;
+  grid-template-rows: 46px minmax(0, 1fr);
+  overflow: visible;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.16),
+    0 2px 8px rgba(15, 23, 42, 0.08);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hatch-code-header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px 0 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px 12px 0 0;
+  background: #f8fafc;
+}
+
+.hatch-code-file {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.hatch-code-file span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hatch-code-react-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  color: #149eca;
+}
+
+.hatch-code-copy {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #64748b;
+  padding: 0 8px;
+  font: 500 11px/1 Inter, ui-sans-serif, sans-serif;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.hatch-code-copy:hover {
+  background: #eef2f7;
+  color: #0f172a;
+}
+
+.hatch-code-copy:active {
+  transform: scale(0.97);
+}
+
+.hatch-code-copy:focus-visible,
+.hatch-code-close:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.28);
+  outline-offset: 2px;
+}
+
+.hatch-code-copy svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hatch-code-close {
+  position: absolute;
+  top: -38px;
+  right: 0;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #0f172a;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.10);
+  font: 400 20px/1 ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hatch-code-editor-wrap {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0 0 12px 12px;
+  background: #ffffff;
+}
+
+.hatch-code-highlight,
+.hatch-code-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  padding: 16px 18px 18px;
+  overflow: auto;
+  tab-size: 2;
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+  font: 500 12.5px/1.58 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  letter-spacing: -0.01em;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.hatch-code-highlight {
+  z-index: 1;
+  pointer-events: none;
+  color: #24292f;
+}
+
+.hatch-code-highlight code {
+  font: inherit;
+}
+
+.hatch-code-input {
+  z-index: 2;
+  resize: none;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: #111827;
+}
+
+.hatch-code-input::selection {
+  background: rgba(56, 139, 253, 0.24);
+}
+
+.hatch-code-input::-webkit-scrollbar,
+.hatch-code-highlight::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.hatch-code-input::-webkit-scrollbar-thumb,
+.hatch-code-highlight::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #cbd5e1;
+  background-clip: padding-box;
+}
+
+.hatch-token-default { color: #24292f; }
+.hatch-token-comment { color: #6e7781; font-style: italic; }
+.hatch-token-string { color: #0a3069; }
+.hatch-token-keyword { color: #cf222e; }
+.hatch-token-type { color: #8250df; }
+.hatch-token-tag { color: #116329; }
+.hatch-token-number { color: #0550ae; }
+
+body.hashcod-hatch-open {
+  overscroll-behavior: none;
+}
+
+@media (max-width: 520px) {
+  .hatch-modal-backdrop {
+    padding: 48px 16px 24px;
+  }
+
+  .hatch-code-shell {
+    width: calc(100vw - 32px);
+    height: min(372px, calc(100dvh - 84px));
+  }
+
+  .hatch-code-copy span {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hatch-code-copy {
+    transition: none;
+  }
+}

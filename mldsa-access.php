@@ -98,10 +98,12 @@ function mldsaAccessName(): string { return 'l8_mldsa87_access_v2'; }
 
 function mldsaChallengeTtl(int $phase): int {
     $name=$phase===2?'L8_ACCESS_MLDSA87_PHASE2_TTL':'L8_ACCESS_MLDSA87_PHASE1_TTL';
-    $fallback=$phase===2?60:90;
+    // Phase 1 is signed manually from the desktop Tkinter signer, so give the
+    // user enough time to copy, sign and paste without weakening anti-replay.
+    $fallback=$phase===2?90:300;
     $value=(int)secretGet($name,(string)$fallback);
-    $min=$phase===2?30:45;
-    $max=$phase===2?120:180;
+    $min=$phase===2?45:120;
+    $max=$phase===2?180:600;
     return max($min,min($max,$value));
 }
 function mldsaIssueChallenge(int $phase=1,string $binding='',string $parentJti=''): array {
@@ -322,8 +324,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5',ENT_QUOTES,'UTF-8');
     $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261004-file-vault2',ENT_QUOTES,'UTF-8');
     $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261004-file-vault2',ENT_QUOTES,'UTF-8');
-    $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261004-code-access2',ENT_QUOTES,'UTF-8');
-    $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261004-code-access2',ENT_QUOTES,'UTF-8');
+    $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261004-code-access3',ENT_QUOTES,'UTF-8');
+    $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261004-code-access3',ENT_QUOTES,'UTF-8');
     $codeAccessRequired=$entryIntro&&codeAccessRequired();
     $codeAccessAuthorized=!$codeAccessRequired||codeAccessAuthorized();
     $bodyAttr=$entryIntro

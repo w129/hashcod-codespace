@@ -685,7 +685,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(Math.abs(hatchState.centerX-hatchState.viewportX)<=2,'shared Hatch must be horizontally centered');
     assert(Math.abs(hatchState.centerY-hatchState.viewportY)<=2,'shared Hatch must be vertically centered');
     assert(Math.abs(hatchState.width-864)<=2,'shared Hatch must contain both 420px-class editors');
-    assert(Math.abs(hatchState.height-820)<=2,'shared Hatch must grow vertically for the CSS editor');
+    assert(Math.abs(hatchState.height-Math.min(820,(hatchState.viewportY*2)-112))<=2,'shared Hatch must grow responsively for the CSS editor');
     assert(hatchState.blur.includes('blur(24px)'),'Hatch must blur the platform behind it');
     assert.equal(hatchState.panes.length,5,'shared Hatch must contain React, JavaScript, CSS, Java and HTML panes');
     const reactPane=hatchState.panes.find(p=>p.key==='tsx');

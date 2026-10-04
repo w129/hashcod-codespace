@@ -154,7 +154,7 @@ assert(centerEmptyStateEntryCss.includes('grid-row: 5 / span 2'),'CSS must sit b
 assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="java"]'),'Java pane layout missing');
 assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="html"]'),'HTML pane layout missing');
 assert(centerEmptyStateEntryCss.includes('grid-row: 4 / span 3'),'HTML must remain below Java on the right');
-assert(centerEmptyStateEntryCss.includes('height: 820px'),'shared Hatch must grow for the CSS editor');
+assert(centerEmptyStateEntryCss.includes('height: min(820px, calc(100dvh - 112px))'),'shared Hatch must grow responsively for the CSS editor');
 assert(centerEmptyStateEntryCss.includes('backdrop-filter: blur(24px)'),'Hatch backdrop blur missing');
 assert(centerEmptyStateEntryCss.includes('.hatch-code-preview-toggle'),'HTML preview button styling missing');
 assert(centerEmptyStateEntryCss.includes('.hatch-html-preview-frame'),'HTML preview frame styling missing');

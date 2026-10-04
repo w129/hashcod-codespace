@@ -720,6 +720,113 @@ function CodePane({
   );
 }
 
+const MUSE_GADGET_SOURCE_URL = "https://github.com/facebookincubator/muse-gadget-sdk";
+
+const MUSE_GADGET_STATES = Object.freeze({
+  idle: {
+    label: "Idle",
+    caption: "Ready for a request.",
+    progress: 0.12,
+  },
+  listening: {
+    label: "Listening",
+    caption: "Listening on the gadget.",
+    progress: 0.42,
+  },
+  thinking: {
+    label: "Thinking",
+    caption: "Finding a good answer…",
+    progress: 0.68,
+  },
+  speaking: {
+    label: "Speaking",
+    caption: "Responding through Muse.",
+    progress: 0.86,
+  },
+  error: {
+    label: "Error",
+    caption: "Check the Muse connection.",
+    progress: 1,
+  },
+});
+
+function MuseGadgetSidecar() {
+  const [state, setState] = useState("idle");
+  const current = MUSE_GADGET_STATES[state];
+
+  return (
+    <aside
+      id="d5MuseGadget"
+      className={`hatch-muse-sidecar is-${state}`}
+      data-muse-state={state}
+      data-muse-source="facebookincubator/muse-gadget-sdk"
+      aria-label="Muse Gadget SDK sidecar"
+    >
+      <div className="hatch-muse-header">
+        <div>
+          <span className="hatch-muse-kicker">Meta open-source SDK</span>
+          <h2>Muse Gadget</h2>
+        </div>
+        <span className="hatch-muse-live-dot" aria-label="SDK preview ready" />
+      </div>
+
+      <div className="hatch-muse-display" aria-live="polite">
+        <div
+          className="hatch-muse-orbit"
+          style={{ "--muse-progress": `${Math.round(current.progress * 360)}deg` }}
+          aria-hidden="true"
+        >
+          <span className="hatch-muse-orbit-core">M</span>
+          <span className="hatch-muse-orbit-ring" />
+          <span className="hatch-muse-orbit-pulse" />
+        </div>
+
+        <div className="hatch-muse-copy">
+          <strong>{current.label}</strong>
+          <span>{current.caption}</span>
+        </div>
+
+        <div className="hatch-muse-meter" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => (
+            <i key={index} style={{ "--muse-bar": index }} />
+          ))}
+        </div>
+      </div>
+
+      <div className="hatch-muse-status" aria-label="Muse gadget simulated status">
+        <span><i /> Wi-Fi</span>
+        <span><i /> BLE</span>
+        <span><i /> Paired</span>
+        <span><i /> Link online</span>
+      </div>
+
+      <div className="hatch-muse-controls" role="group" aria-label="Muse preview state">
+        {Object.entries(MUSE_GADGET_STATES).map(([key, value]) => (
+          <button
+            key={key}
+            type="button"
+            className={state === key ? "is-active" : ""}
+            aria-pressed={state === key ? "true" : "false"}
+            onClick={() => setState(key)}
+          >
+            {value.label}
+          </button>
+        ))}
+      </div>
+
+      <a
+        id="d5MuseGadgetSource"
+        className="hatch-muse-source"
+        href={MUSE_GADGET_SOURCE_URL}
+        target="_blank"
+        rel="noreferrer"
+      >
+        facebookincubator/muse-gadget-sdk
+      </a>
+    </aside>
+  );
+}
+
 function HatchCodeEditor({ open, onClose }) {
   const reduce = useReducedMotion();
   const [tsxCode, setTsxCode] = usePersistentCode(HATCH_STORAGE_KEY, DEFAULT_HATCH_CODE);
@@ -825,11 +932,11 @@ function HatchCodeEditor({ open, onClose }) {
         }}
       >
         <motion.div
-          id="d5HatchCodeEditor"
-          className="hatch-code-shell hatch-code-shell-dual"
+          id="d5HatchExperience"
+          className="hatch-experience-layout"
           role="dialog"
           aria-modal="true"
-          aria-label="Hatch code editor"
+          aria-label="Hatch code editor with Muse Gadget"
           initial={reduce ? { opacity: 1 } : { opacity: 0, y: 16, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 10, scale: 0.985 }}
@@ -839,6 +946,10 @@ function HatchCodeEditor({ open, onClose }) {
               : { type: "spring", stiffness: 390, damping: 30, mass: 0.72 }
           }
         >
+          <div
+            id="d5HatchCodeEditor"
+            className="hatch-code-shell hatch-code-shell-dual"
+          >
           <button
             id="d5HatchClose"
             className="hatch-code-close"
@@ -962,6 +1073,9 @@ function HatchCodeEditor({ open, onClose }) {
               }
             />
           </div>
+          </div>
+
+          <MuseGadgetSidecar />
         </motion.div>
       </motion.div>
     </AnimatePresence>,
@@ -1009,7 +1123,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-python-terminal11",
+    version: "20261004-muse-sidecar12",
   });
 
   return true;

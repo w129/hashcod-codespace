@@ -627,8 +627,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const javascriptInput=document.getElementById('d5JavaScriptHatchCodeInput');
       const cssInput=document.getElementById('d5CssHatchCodeInput');
       const htmlInput=document.getElementById('d5HtmlHatchCodeInput');
+      const grid=document.getElementById('d5HatchCodeGrid');
       const rect=editor.getBoundingClientRect();
+      const gridRect=grid.getBoundingClientRect();
       const backdropStyle=getComputedStyle(backdrop);
+      const gridStyle=getComputedStyle(grid);
       const panes=Array.from(editor.querySelectorAll('.hatch-code-pane')).map((pane)=>({
         key:pane.getAttribute('data-code-pane')||'',
         file:pane.querySelector('.hatch-code-file span')?.textContent?.trim()||'',
@@ -648,6 +651,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         width:rect.width,
         height:rect.height,
         blur:backdropStyle.backdropFilter||backdropStyle.webkitBackdropFilter||'',
+        gridClientHeight:grid.clientHeight,
+        gridScrollHeight:grid.scrollHeight,
+        gridOverflowY:gridStyle.overflowY,
+        gridRight:gridRect.right,
+        editorRight:rect.right,
         panes,
         tsxValue:tsxInput?.value||'',
         javaValue:javaInput?.value||'',
@@ -685,9 +693,15 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(Math.abs(hatchState.centerX-hatchState.viewportX)<=2,'shared Hatch must be horizontally centered');
     assert(Math.abs(hatchState.centerY-hatchState.viewportY)<=2,'shared Hatch must be vertically centered');
     assert(Math.abs(hatchState.width-864)<=2,'shared Hatch must contain both 420px-class editors');
-    assert(Math.abs(hatchState.height-Math.min(820,(hatchState.viewportY*2)-112))<=2,'shared Hatch must grow responsively for the CSS editor');
+    assert(Math.abs(hatchState.height-Math.min(744,(hatchState.viewportY*2)-112))<=2,'shared Hatch viewport must remain centered and responsive');
+    assert.equal(hatchState.gridOverflowY,'auto','Hatch must expose a vertical scrollbar');
+    assert(hatchState.gridScrollHeight>hatchState.gridClientHeight,'Hatch content must scroll instead of shrinking blocks');
+    assert(Math.abs(hatchState.gridRight-hatchState.editorRight)<=3,'Hatch scrollbar must sit on the right edge');
     assert(hatchState.blur.includes('blur(24px)'),'Hatch must blur the platform behind it');
     assert.equal(hatchState.panes.length,5,'shared Hatch must contain React, JavaScript, CSS, Java and HTML panes');
+    for(const pane of hatchState.panes){
+      assert(Math.abs((pane.bottom-pane.top)-372)<=2,`${pane.key} pane must keep the same 372px height`);
+    }
     const reactPane=hatchState.panes.find(p=>p.key==='tsx');
     const javascriptPane=hatchState.panes.find(p=>p.key==='javascript');
     const cssPane=hatchState.panes.find(p=>p.key==='css');
@@ -701,7 +715,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(Math.abs(javascriptPane.left-reactPane.left)<=2,'JavaScript must align under React');
     assert(javascriptPane.top>=reactPane.bottom-2,'JavaScript must be positioned below React');
     assert(Math.abs(cssPane.left-javascriptPane.left)<=2,'CSS must align under JavaScript');
-    assert(cssPane.top>=javascriptPane.bottom-2,'CSS must be positioned below JavaScript');
+    assert(cssPane.top>=javascriptPane.bottom-2,'CSS must be positioned below JavaScript without shrinking');
     assert(javaPane.left>=reactPane.right-2,'Java pane must be positioned to the right of React');
     assert(Math.abs(htmlPane.left-javaPane.left)<=2,'HTML must align under Java');
     assert(htmlPane.top>=javaPane.bottom-2,'HTML must be positioned below Java');
@@ -731,6 +745,15 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(hatchState.javascriptValue.includes("language: 'JavaScript'"),'JavaScript pane must start with JavaScript source');
     assert(hatchState.cssValue.includes(':root {'),'CSS pane must start with CSS source');
     assert(hatchState.htmlValue.includes('<!doctype html>'),'HTML pane must start with HTML source');
+
+    const scrollState=await page.evaluate(()=>{
+      const grid=document.getElementById('d5HatchCodeGrid');
+      grid.scrollTop=grid.scrollHeight;
+      return {scrollTop:grid.scrollTop,max:grid.scrollHeight-grid.clientHeight};
+    });
+    assert(scrollState.scrollTop>0,'Hatch side scrollbar must move vertically');
+    assert(Math.abs(scrollState.scrollTop-scrollState.max)<=2,'Hatch must scroll far enough to reveal the last row');
+    await page.locator('#d5HatchCodeGrid').evaluate(node=>{node.scrollTop=0;});
 
     const editedTsx=hatchState.tsxValue+'\n// hatch editable';
     const editedJavaScript=hatchState.javascriptValue+'\n// javascript hatch editable';
@@ -777,7 +800,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatch must not set the Workspace modal state');
     assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Hatch must not open Workspace');
 
-    console.log('✓ React, JavaScript, CSS, Java and HTML editors share one Hatch window with independent editing');
+    console.log('✓ Hatch editors keep equal height and use a vertical side scrollbar');
   }finally{
     await browser.close();
   }

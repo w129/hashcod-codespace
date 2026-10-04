@@ -123,9 +123,9 @@ assert(centerEmptyStateEntry.includes('onClick={() => setHatchOpen(true)}'),'Ope
 assert(centerEmptyStateEntry.includes('function ExpandingButtonGroup'),'ExpandingButtonGroup implementation missing');
 assert(centerEmptyStateEntry.includes('data-hashcod-expanding-group="true"'),'ExpandingButtonGroup runtime marker missing');
 assert(centerEmptyStateEntry.includes('className="hashcod-empty-state-actions-row"'),'Open Hatch and ExpandingButtonGroup row missing');
-assert(centerEmptyStateEntry.includes('id="d5ExpandingAction1"'),'ExpandingButtonGroup first placeholder slot missing');
-assert(centerEmptyStateEntry.includes('id="d5ExpandingAction2"'),'ExpandingButtonGroup second placeholder slot missing');
-assert(centerEmptyStateEntry.includes('id="d5ExpandingAction3"'),'ExpandingButtonGroup third placeholder slot missing');
+assert(centerEmptyStateEntry.includes('domId: "d5ExpandingAction1"'),'ExpandingButtonGroup first placeholder slot missing');
+assert(centerEmptyStateEntry.includes('domId: "d5ExpandingAction2"'),'ExpandingButtonGroup second placeholder slot missing');
+assert(centerEmptyStateEntry.includes('domId: "d5ExpandingAction3"'),'ExpandingButtonGroup third placeholder slot missing');
 assert(centerEmptyStateEntryCss.includes('.hashcod-expanding-button-group'),'ExpandingButtonGroup CSS missing');
 assert(centerEmptyStateEntry.includes('const FILE_VAULT_DB_NAME = "hashcod_file_vault_v1"'),'File vault IndexedDB namespace missing');
 assert(centerEmptyStateEntry.includes('id="d5FileVaultTrigger"'),'File vault trigger missing');

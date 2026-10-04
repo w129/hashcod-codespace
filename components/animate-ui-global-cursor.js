@@ -36,7 +36,7 @@ function boot(){
   var followIcon=document.createElement('img');
   followIcon.alt='';
   followIcon.setAttribute('aria-hidden','true');
-  followIcon.src=new URL('dominican-cursor-follow.svg',CURSOR_SCRIPT_SRC||window.location.href).href;
+  followIcon.src=new URL('book-cursor-follow.svg',CURSOR_SCRIPT_SRC||window.location.href).href;
   follow.appendChild(followIcon);
 
   layer.appendChild(cursor);
@@ -122,8 +122,8 @@ function boot(){
     sideOffset:SIDE_OFFSET,
     align:'end',
     alignOffset:ALIGN_OFFSET,
-    followIcon:'dominican-republic',
-    version:'20261004-animate-cursor-dr1'
+    followIcon:'book',
+    version:'20261004-animate-cursor-book1'
   });
 
   window.addEventListener('pagehide',function(){

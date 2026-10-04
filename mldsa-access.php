@@ -297,8 +297,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $rotatingTextCss=htmlspecialchars($base.'components/react-bits-rotating-text.css?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
-    $animateCursorCss=htmlspecialchars($base.'components/animate-ui-global-cursor.css?v=20261004-animate-cursor-dr1',ENT_QUOTES,'UTF-8');
-    $animateCursorJs=htmlspecialchars($base.'components/animate-ui-global-cursor.js?v=20261004-animate-cursor-dr1',ENT_QUOTES,'UTF-8');
+    $animateCursorCss=htmlspecialchars($base.'components/animate-ui-global-cursor.css?v=20261004-animate-cursor-book1',ENT_QUOTES,'UTF-8');
+    $animateCursorJs=htmlspecialchars($base.'components/animate-ui-global-cursor.js?v=20261004-animate-cursor-book1',ENT_QUOTES,'UTF-8');
     $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5',ENT_QUOTES,'UTF-8');
     $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5',ENT_QUOTES,'UTF-8');
     $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261004-file-vault2',ENT_QUOTES,'UTF-8');

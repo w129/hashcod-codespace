@@ -6,7 +6,7 @@ import './node_modules/monaco-editor/min/vs/editor/editor.main.css';
 import './entry.css';
 
 const API = '/api/code-access';
-const VERSION = '20261004-mesh-bind2';
+const VERSION = '20261004-mesh-dialog1';
 const SCHEMA = 'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI';
 const FIELD_NAMES = ['TYPE', 'PAYLOAD', 'SALT', 'NONCE', 'ISSUED', 'USE', 'CHECK'];
 
@@ -178,43 +178,99 @@ function MeshCredentialWindow({
 }) {
   if (!open) return null;
 
+  const completed = FIELD_NAMES.filter((name) => String(fields[name] || '').trim()).length;
+
   return (
-    <div className="mesh-dialog-backdrop" role="presentation">
+    <div
+      className="mesh-dialog-backdrop"
+      role="presentation"
+      data-animate-ui-dialog="mesh-credential"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget && !busy) onClose();
+      }}
+    >
       <section
         id="d5MeshCredentialWindow"
-        className="mesh-tk-window"
+        className="mesh-animate-dialog"
         role="dialog"
         aria-modal="true"
         aria-labelledby="d5MeshCredentialTitle"
       >
-        <header className="mesh-tk-titlebar">
-          <span className="mesh-tk-title-icon"><MeshNodeIcon size={18} /></span>
-          <strong id="d5MeshCredentialTitle">OCG Mesh Node Credential</strong>
-          <button type="button" aria-label="Close credential window" onClick={onClose}>×</button>
+        <header className="mesh-animate-header">
+          <div className="mesh-animate-heading">
+            <span className="mesh-animate-logo" aria-hidden="true">
+              <MeshNodeIcon size={26} />
+            </span>
+            <div>
+              <span className="mesh-animate-eyebrow">OCG MESH ACCESS</span>
+              <h2 id="d5MeshCredentialTitle">Mesh node credential</h2>
+            </div>
+          </div>
+
+          <div className="mesh-animate-header-actions">
+            <span className="mesh-animate-state" data-bound={bound ? 'true' : 'false'}>
+              <i aria-hidden="true" />
+              {bound ? 'Bound' : 'First enrollment'}
+            </span>
+            <button
+              className="mesh-animate-close"
+              type="button"
+              aria-label="Close credential window"
+              onClick={onClose}
+              disabled={busy}
+            >
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M5.25 5.25 14.75 14.75M14.75 5.25 5.25 14.75" />
+              </svg>
+            </button>
+          </div>
         </header>
 
-        <div className="mesh-tk-body">
-          <div className="mesh-schema-row">
-            <span>SCHEMA</span>
+        <div className="mesh-animate-body">
+          <div className="mesh-animate-schema">
+            <div>
+              <span>Schema</span>
+              <strong>OCG Mesh Node</strong>
+            </div>
             <code>{SCHEMA}</code>
           </div>
 
-          <p className="mesh-tk-hint">
-            {bound
-              ? 'This browser is already bound. Enter the exact same values used during the first enrollment.'
-              : 'First enrollment: any non-empty values are accepted once, then this browser is permanently bound to that exact set.'}
-          </p>
+          <div className="mesh-animate-callout" data-bound={bound ? 'true' : 'false'}>
+            <span className="mesh-animate-callout-icon" aria-hidden="true">
+              {bound ? '02' : '01'}
+            </span>
+            <div>
+              <strong>{bound ? 'Verify the original binding' : 'Create this browser binding'}</strong>
+              <p>
+                {bound
+                  ? 'Enter the exact same seven values used during the first enrollment. A different value will be rejected.'
+                  : 'Enter any non-empty values once. After binding, this browser will only accept this exact set after reload.'}
+              </p>
+            </div>
+          </div>
 
-          <div className="mesh-tk-fields">
-            {FIELD_NAMES.map((name) => (
-              <label key={name}>
-                <span>{name}=</span>
+          <div className="mesh-animate-progress" aria-label={completed + ' of 7 fields completed'}>
+            <span><b>{completed}</b>/7 fields</span>
+            <div aria-hidden="true">
+              <i style={{ '--mesh-progress': completed / FIELD_NAMES.length }} />
+            </div>
+          </div>
+
+          <div className="mesh-animate-fields">
+            {FIELD_NAMES.map((name, index) => (
+              <label
+                key={name}
+                className="mesh-animate-field"
+                style={{ '--mesh-field-index': index }}
+              >
+                <span>{name}</span>
                 <input
                   id={'d5MeshField' + name}
                   name={name}
                   value={fields[name]}
                   autoComplete="off"
                   spellCheck="false"
+                  placeholder={'Enter ' + name.toLowerCase()}
                   onChange={(event) => {
                     const value = event.target.value;
                     setFields((current) => ({ ...current, [name]: value }));
@@ -224,20 +280,43 @@ function MeshCredentialWindow({
             ))}
           </div>
 
-          {error ? <p className="mesh-tk-error" role="alert">{error}</p> : null}
+          {error ? (
+            <div className="mesh-animate-error" role="alert">
+              <span aria-hidden="true">!</span>
+              <p>{error}</p>
+            </div>
+          ) : null}
         </div>
 
-        <footer className="mesh-tk-actions">
-          <button type="button" onClick={onClose} disabled={busy}>Cancel</button>
-          <button
-            id="d5MeshCredentialSubmit"
-            className="mesh-tk-primary"
-            type="button"
-            onClick={onSubmit}
-            disabled={busy}
-          >
-            {busy ? 'Checking…' : bound ? 'Verify & unlock' : 'Bind & unlock'}
-          </button>
+        <footer className="mesh-animate-footer">
+          <p>
+            <span aria-hidden="true" />
+            Stored as a sealed browser binding
+          </p>
+          <div>
+            <button
+              className="mesh-animate-button mesh-animate-button-ghost"
+              type="button"
+              onClick={onClose}
+              disabled={busy}
+            >
+              Cancel
+            </button>
+            <button
+              id="d5MeshCredentialSubmit"
+              className="mesh-animate-button mesh-animate-button-primary"
+              type="button"
+              onClick={onSubmit}
+              disabled={busy}
+            >
+              {busy ? (
+                <>
+                  <span className="mesh-animate-spinner" aria-hidden="true" />
+                  Checking
+                </>
+              ) : bound ? 'Verify & unlock' : 'Bind & unlock'}
+            </button>
+          </div>
         </footer>
       </section>
     </div>

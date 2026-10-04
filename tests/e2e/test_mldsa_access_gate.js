@@ -81,14 +81,18 @@ assert(codeAccessCss.includes('background: transparent'),'vector icon must have 
 assert(codeAccessCss.includes('border: 0'),'vector icon must have no border');
 assert(codeAccessCss.includes('box-shadow: none'),'vector icon must have no shadow container');
 assert(codeAccessEntry.includes('data-vector-icon="ocg-mesh-node"'),'vector mesh icon marker missing');
-assert(codeAccessEntry.includes("OCG Mesh Node Credential"),'Tkinter-style mesh credential window missing');
+assert(codeAccessEntry.includes('data-animate-ui-dialog="mesh-credential"'),'Animate UI mesh dialog marker missing');
+assert(codeAccessEntry.includes("Mesh node credential"),'Animate UI mesh credential title missing');
 assert(codeAccessEntry.includes("Bind & unlock"),'first enrollment action missing');
 assert(codeAccessEntry.includes("Verify & unlock"),'bound credential verification action missing');
 assert(codeAccessEntry.includes("Access.php")&&codeAccessEntry.includes("Protocol"),'CodeTabs-style access tabs missing');
 assert(codeAccessCss.includes('.code-tabs-shell'),'CodeTabs-style editor shell missing');
 assert(codeAccessCss.includes('.code-access-overlay'),'blocking access overlay missing');
 assert(codeAccessCss.includes('.mesh-editor-icon'),'vector mesh icon styling missing');
-assert(codeAccessCss.includes('.mesh-tk-window'),'Tkinter-style mesh window styling missing');
+assert(codeAccessCss.includes('.mesh-animate-dialog'),'Animate UI mesh dialog styling missing');
+assert(codeAccessCss.includes('@keyframes meshAnimateDialogIn'),'Animate UI dialog entrance animation missing');
+assert(codeAccessCss.includes('.mesh-animate-field'),'Animate UI field styling missing');
+assert(codeAccessCss.includes('.mesh-animate-button-primary'),'Animate UI primary action styling missing');
 
 // Root stays on the first presentation.
 assert(l8.includes('Single-screen mode: the root route permanently renders only the'),'single-screen root contract missing');
@@ -112,8 +116,8 @@ assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be remov
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5'),'BranchedMenu JS bundle must load');
-assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-bind2'),'code access CSS bundle must load');
-assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-bind2'),'code access JS bundle must load');
+assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-dialog1'),'code access CSS bundle must load');
+assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-dialog1'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
 assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
 assert(gate.includes('class="code-access-boot-window"'),'styled CodeTabs boot window missing');

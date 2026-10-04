@@ -287,8 +287,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $splashCursorJs=htmlspecialchars($base.'components/react-bits-splash-cursor.js?v=20261002-splash1',ENT_QUOTES,'UTF-8');
     $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261003-textcard1',ENT_QUOTES,'UTF-8');
     $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261003-textcard1',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261004-dual-code-hatch3',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261004-dual-code-hatch3',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261004-javascript-hatch4',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261004-javascript-hatch4',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE

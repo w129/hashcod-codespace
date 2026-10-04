@@ -98,12 +98,12 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 .hatch-code-shell {
   position: relative;
   width: 864px;
-  height: 620px;
+  height: 820px;
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 72px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: repeat(6, minmax(0, 1fr));
   overflow: visible;
   border: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 12px;
@@ -126,27 +126,33 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 
 .hatch-code-pane[data-code-pane="tsx"] {
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 1 / span 2;
   border-radius: 12px 0 0 0;
 }
 
 .hatch-code-pane[data-code-pane="javascript"] {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 3 / span 2;
+  border-top: 1px solid rgba(15, 23, 42, 0.10);
+}
+
+.hatch-code-pane[data-code-pane="css"] {
+  grid-column: 1;
+  grid-row: 5 / span 2;
   border-top: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 0 0 0 12px;
 }
 
 .hatch-code-pane[data-code-pane="java"] {
   grid-column: 2;
-  grid-row: 1;
+  grid-row: 1 / span 3;
   border-left: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 0 12px 0 0;
 }
 
 .hatch-code-pane[data-code-pane="html"] {
   grid-column: 2;
-  grid-row: 2;
+  grid-row: 4 / span 3;
   border-top: 1px solid rgba(15, 23, 42, 0.10);
   border-left: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 0 0 12px 0;
@@ -183,6 +189,7 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 .hatch-code-react-icon,
 .hatch-code-java-icon,
 .hatch-code-javascript-icon,
+.hatch-code-css-icon,
 .hatch-code-html-icon {
   width: 17px;
   height: 17px;
@@ -397,8 +404,8 @@ body.hashcod-hatch-open {
 @media (max-width: 620px) {
   .hatch-code-shell {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-    height: min(620px, calc(100dvh - 84px));
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+    height: min(820px, calc(100dvh - 84px));
   }
 
   .hatch-code-header {

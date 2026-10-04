@@ -614,11 +614,67 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(centerPosition.button,'Open Hatch','center action label changed');
 
     await page.locator('#d5CenterEmptyStateAction').click();
-    await page.waitForTimeout(350);
-    assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'center button must not set the Workspace modal state');
-    assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'center button must not open Workspace until a destination is assigned');
+    await page.waitForSelector('#d5HatchCodeEditor',{state:'visible',timeout:5000});
+    await page.waitForSelector('#d5HatchBackdrop',{state:'visible',timeout:5000});
 
-    console.log('✓ FAQ, Card, Workspace, Text Card, Documents and centered EmptyState remain functional without a center-button destination');
+    const hatchState=await page.evaluate(()=>{
+      const editor=document.getElementById('d5HatchCodeEditor');
+      const backdrop=document.getElementById('d5HatchBackdrop');
+      const input=document.getElementById('d5HatchCodeInput');
+      const rect=editor.getBoundingClientRect();
+      const backdropStyle=getComputedStyle(backdrop);
+      return {
+        bodyOpen:document.body.classList.contains('hashcod-hatch-open'),
+        role:editor.getAttribute('role'),
+        ariaModal:editor.getAttribute('aria-modal'),
+        centerX:rect.left+(rect.width/2),
+        centerY:rect.top+(rect.height/2),
+        viewportX:innerWidth/2,
+        viewportY:innerHeight/2,
+        width:rect.width,
+        height:rect.height,
+        blur:backdropStyle.backdropFilter||backdropStyle.webkitBackdropFilter||'',
+        filename:editor.querySelector('.hatch-code-file span')?.textContent?.trim()||'',
+        copy:Boolean(document.getElementById('d5HatchCopy')),
+        close:Boolean(document.getElementById('d5HatchClose')),
+        focused:document.activeElement===input,
+        value:input.value
+      };
+    });
+
+    assert.equal(hatchState.bodyOpen,true,'Open Hatch must mark its modal state');
+    assert.equal(hatchState.role,'dialog','Hatch editor must expose dialog semantics');
+    assert.equal(hatchState.ariaModal,'true','Hatch editor must be modal');
+    assert(Math.abs(hatchState.centerX-hatchState.viewportX)<=2,'Hatch editor must be horizontally centered');
+    assert(Math.abs(hatchState.centerY-hatchState.viewportY)<=2,'Hatch editor must be vertically centered');
+    assert(Math.abs(hatchState.width-420)<=2,'Hatch editor must keep the supplied 420px desktop width');
+    assert(Math.abs(hatchState.height-372)<=2,'Hatch editor must keep the supplied 372px desktop height');
+    assert(hatchState.blur.includes('blur(24px)'),'Hatch must blur the platform behind it');
+    assert.equal(hatchState.filename,'my-component.tsx','Hatch must preserve the supplied CodeHeader filename');
+    assert.equal(hatchState.copy,true,'Hatch must include a copy button');
+    assert.equal(hatchState.close,true,'Hatch must include an accessible close button');
+    assert.equal(hatchState.focused,true,'Hatch editable code area must receive focus');
+    assert(hatchState.value.includes("type MyComponentProps"),'Hatch must start with the supplied TSX example');
+
+    const editedCode=hatchState.value+'\n// hatch editable';
+    await page.locator('#d5HatchCodeInput').fill(editedCode);
+    assert.equal(await page.locator('#d5HatchCodeInput').inputValue(),editedCode,'Hatch code area must be writable');
+    assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-code:v1')?.endsWith('// hatch editable')),true,'Hatch edits must persist locally');
+
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('#d5HatchCodeEditor',{state:'detached',timeout:5000});
+    assert.equal(await page.evaluate(()=>document.body.classList.contains('hashcod-hatch-open')),false,'Escape must clear Hatch modal state');
+
+    await page.locator('#d5CenterEmptyStateAction').click();
+    await page.waitForSelector('#d5HatchCodeEditor',{state:'visible',timeout:5000});
+    assert.equal((await page.locator('#d5HatchCodeInput').inputValue()).endsWith('// hatch editable'),true,'Hatch code must survive close and reopen');
+    await page.locator('#d5HatchClose').click();
+    await page.waitForSelector('#d5HatchCodeEditor',{state:'detached',timeout:5000});
+
+    assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatch must not set the Workspace modal state');
+    assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Open Hatch must not open Workspace');
+
+    console.log('✓ Open Hatch shows a centered blurred editable TSX code editor and preserves existing first-screen flows');
   }finally{
     await browser.close();
   }

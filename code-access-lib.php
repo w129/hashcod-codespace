@@ -11,8 +11,20 @@ function smithAuthFootprintProtocol(): string {
     return 'OCG-SMITH-FOOTPRINT/1';
 }
 
+function smithAuthGammaProtocol(): string {
+    return 'SMITH-GAMMA-Z0-50/1';
+}
+
 function smithAuthFieldNames(): array {
     return ['TYPE','PAYLOAD','SALT','NONCE','ISSUED','USE','CHECK'];
+}
+
+function smithAuthZ0Ohm(): int {
+    return 50;
+}
+
+function smithAuthZ0MicroOhm(): int {
+    return smithAuthZ0Ohm()*1000000;
 }
 
 function smithAuthNormalizeFields(array $input): ?array {
@@ -40,22 +52,41 @@ function smithAuthProjection(string $name,string $value): array {
     $u1=(int)($a[1]??0);
     $u2=(int)($b[1]??0);
 
-    // Fixed-point authority values. These integers are the source of truth;
-    // floating-point Gamma values are derived only for visualization/reporting.
-    $rMicro=1000+($u1%999999001);        // 0.001000 .. 1000.000000
-    $xMicro=($u2%200000001)-100000000;   // -100.000000 .. +100.000000
+    // Deterministic normalized impedance z = r + jx. Fixed-point integers are
+    // the authority values so Python, C and PHP can compare them exactly.
+    $rMicro=1000+($u1%999999001);        // r: 0.001000 .. 1000.000000
+    $xMicro=($u2%200000001)-100000000;   // x: -100.000000 .. +100.000000
 
-    $r=$rMicro/1000000.0;
-    $x=$xMicro/1000000.0;
-    $den=(($r+1.0)*($r+1.0))+($x*$x);
-    $gammaR=(($r*$r)+($x*$x)-1.0)/$den;
-    $gammaI=(2.0*$x)/$den;
+    // Physical impedance uses Z0 = 50 ohm. Because z = ZL/Z0:
+    //   Re(ZL) = Z0*r, Im(ZL) = Z0*x.
+    $z0MicroOhm=smithAuthZ0MicroOhm();
+    $zlRMicroOhm=$rMicro*smithAuthZ0Ohm();
+    $zlIMicroOhm=$xMicro*smithAuthZ0Ohm();
+
+    // Exact integer form of:
+    // Gamma_L = (ZL - Z0) / (ZL + Z0)
+    // after dividing all impedances by Z0 and using a 1e6 fixed scale.
+    $oneMicro=1000000;
+    $gammaDen=(($rMicro+$oneMicro)*($rMicro+$oneMicro))+($xMicro*$xMicro);
+    $gammaRNum=($rMicro*$rMicro)+($xMicro*$xMicro)-($oneMicro*$oneMicro);
+    $gammaINum=2*$oneMicro*$xMicro;
+
+    $gammaR=$gammaRNum/$gammaDen;
+    $gammaI=$gammaINum/$gammaDen;
     $gammaAbs=sqrt(($gammaR*$gammaR)+($gammaI*$gammaI));
     $gammaPhase=rad2deg(atan2($gammaI,$gammaR));
 
     return [
+        'formula'=>smithAuthGammaProtocol(),
+        'z0_ohm'=>smithAuthZ0Ohm(),
+        'z0_micro_ohm'=>$z0MicroOhm,
         'r_micro'=>$rMicro,
         'x_micro'=>$xMicro,
+        'zl_r_micro_ohm'=>$zlRMicroOhm,
+        'zl_i_micro_ohm'=>$zlIMicroOhm,
+        'gamma_r_num'=>$gammaRNum,
+        'gamma_i_num'=>$gammaINum,
+        'gamma_den'=>$gammaDen,
         'gamma_r'=>round($gammaR,12),
         'gamma_i'=>round($gammaI,12),
         'gamma_abs'=>round($gammaAbs,12),
@@ -73,11 +104,21 @@ function smithAuthProjections(array $fields): array {
 }
 
 function smithAuthFootprintCanonical(array $fields,array $smith): string {
-    $lines=[smithAuthFootprintProtocol()];
+    $lines=[
+        smithAuthFootprintProtocol(),
+        'FORMULA='.smithAuthGammaProtocol(),
+        'Z0_OHM='.(string)smithAuthZ0Ohm()
+    ];
     foreach(smithAuthFieldNames() as $name){
+        $p=$smith[$name];
         $lines[]=$name.'='.(string)$fields[$name];
-        $lines[]=$name.'.R_MICRO='.(string)$smith[$name]['r_micro'];
-        $lines[]=$name.'.X_MICRO='.(string)$smith[$name]['x_micro'];
+        $lines[]=$name.'.R_MICRO='.(string)$p['r_micro'];
+        $lines[]=$name.'.X_MICRO='.(string)$p['x_micro'];
+        $lines[]=$name.'.ZL_R_MICRO_OHM='.(string)$p['zl_r_micro_ohm'];
+        $lines[]=$name.'.ZL_I_MICRO_OHM='.(string)$p['zl_i_micro_ohm'];
+        $lines[]=$name.'.GAMMA_R_NUM='.(string)$p['gamma_r_num'];
+        $lines[]=$name.'.GAMMA_I_NUM='.(string)$p['gamma_i_num'];
+        $lines[]=$name.'.GAMMA_DEN='.(string)$p['gamma_den'];
     }
     return implode("\n",$lines);
 }
@@ -107,7 +148,7 @@ function smithAuthParseManifest(string $source): ?array {
 
 function smithAuthDecodePayload(string $payloadB64): ?array {
     $json=smithAuthB64uDecode($payloadB64);
-    if($json===''||strlen($json)>16000)return null;
+    if($json===''||strlen($json)>24000)return null;
     $payload=json_decode($json,true);
     if(!is_array($payload))return null;
     return ['json'=>$json,'data'=>$payload];
@@ -116,6 +157,12 @@ function smithAuthDecodePayload(string $payloadB64): ?array {
 function smithAuthVerifyPayload(array $payload,string $expectedChallenge): array {
     if(($payload['protocol']??'')!==smithAuthProtocol()){
         return ['ok'=>false,'code'=>'protocol_mismatch','error'=>'The signed code uses the wrong access protocol.'];
+    }
+    if(($payload['formula']??'')!==smithAuthGammaProtocol()){
+        return ['ok'=>false,'code'=>'formula_mismatch','error'=>'The signed code did not pass through the required Smith reflection-coefficient formula.'];
+    }
+    if((int)($payload['z0_ohm']??0)!==smithAuthZ0Ohm()){
+        return ['ok'=>false,'code'=>'z0_mismatch','error'=>'The signed code uses the wrong reference impedance Z0.'];
     }
     if(!isset($payload['challenge'])||!is_string($payload['challenge'])||!hash_equals($expectedChallenge,$payload['challenge'])){
         return ['ok'=>false,'code'=>'challenge_mismatch','error'=>'The signed code does not match the current challenge. Generate a new code with the current challenge.'];
@@ -130,23 +177,33 @@ function smithAuthVerifyPayload(array $payload,string $expectedChallenge): array
     }
     $suppliedSmith=$payload['smith']??null;
     if(!is_array($suppliedSmith)){
-        return ['ok'=>false,'code'=>'invalid_smith','error'=>'The signed code does not contain Smith projection values.'];
+        return ['ok'=>false,'code'=>'invalid_smith','error'=>'The signed code does not contain Smith reflection values.'];
     }
+
     $expectedSmith=smithAuthProjections($fields);
+    $exactKeys=[
+        'z0_micro_ohm','r_micro','x_micro','zl_r_micro_ohm','zl_i_micro_ohm',
+        'gamma_r_num','gamma_i_num','gamma_den'
+    ];
     foreach(smithAuthFieldNames() as $name){
         $entry=$suppliedSmith[$name]??null;
         if(!is_array($entry)){
-            return ['ok'=>false,'code'=>'invalid_smith','error'=>'A Smith projection is missing: '.$name];
+            return ['ok'=>false,'code'=>'invalid_smith','error'=>'A Smith reflection projection is missing: '.$name];
         }
-        if((int)($entry['r_micro']??PHP_INT_MIN)!==$expectedSmith[$name]['r_micro']
-            ||(int)($entry['x_micro']??PHP_INT_MIN)!==$expectedSmith[$name]['x_micro']){
-            return ['ok'=>false,'code'=>'smith_mismatch','error'=>'The Smith projection does not correspond to the credential values: '.$name];
+        if(($entry['formula']??'')!==smithAuthGammaProtocol()){
+            return ['ok'=>false,'code'=>'formula_mismatch','error'=>'The Smith formula marker is missing or invalid: '.$name];
+        }
+        foreach($exactKeys as $key){
+            if(!array_key_exists($key,$entry)||(int)$entry[$key]!==$expectedSmith[$name][$key]){
+                return ['ok'=>false,'code'=>'smith_mismatch','error'=>'The impedance/reflection values do not correspond to the credential: '.$name.' / '.$key];
+            }
         }
     }
+
     $expectedFootprint=smithAuthFootprint($fields,$expectedSmith);
     $footprint=strtolower(trim((string)($payload['footprint']??'')));
     if(!preg_match('/^[a-f0-9]{64}$/',$footprint)||!hash_equals($expectedFootprint,$footprint)){
-        return ['ok'=>false,'code'=>'footprint_mismatch','error'=>'The authentic footprint does not match the credential structure.'];
+        return ['ok'=>false,'code'=>'footprint_mismatch','error'=>'The authentic footprint does not match the impedance/reflection structure.'];
     }
     return [
         'ok'=>true,
@@ -160,6 +217,7 @@ function smithAuthTemplate(string $challenge): string {
     $safe=str_replace("'","",$challenge);
     return "<?php\n\n"
         . "// Generate this block with Hashcod Smith Credential Console.\n"
+        . "// Every input is transformed with Gamma_L=(Z_L-Z_0)/(Z_L+Z_0), Z0=50 ohm.\n"
         . "// Current challenge (copy it into the desktop signer):\n"
         . "// ".$safe."\n\n"
         . "return [\n"

@@ -9,6 +9,7 @@ const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
 const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
 const JAVASCRIPT_HATCH_STORAGE_KEY = "hashcod:hatch-javascript-code:v1";
 const HTML_HATCH_STORAGE_KEY = "hashcod:hatch-html-code:v1";
+const CSS_HATCH_STORAGE_KEY = "hashcod:hatch-css-code:v1";
 
 const DEFAULT_HATCH_CODE = `'use client';
 
@@ -59,6 +60,22 @@ const DEFAULT_HTML_HATCH_CODE = `<!doctype html>
   </body>
 </html>`;
 
+const DEFAULT_CSS_HATCH_CODE = `:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #111827;
+  background: #ffffff;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.1;
+}`;
+
 function CcCardTitleIcon() {
   return (
     <svg
@@ -108,6 +125,67 @@ function JavaScriptIcon() {
         fill="#000001"
         d="M29.538,32.947c0.692,1.124,1.444,2.201,3.037,2.201c1.338,0,2.04-0.665,2.04-1.585 c0-1.101-0.726-1.492-2.198-2.133l-0.807-0.344c-2.329-0.988-3.878-2.226-3.878-4.841c0-2.41,1.845-4.244,4.728-4.244 c2.053,0,3.528,0.711,4.592,2.573l-2.514,1.607c-0.553-0.988-1.151-1.377-2.078-1.377c-0.946,0-1.545,0.597-1.545,1.377 c0,0.964,0.6,1.354,1.985,1.951l0.807,0.344C36.452,29.645,38,30.839,38,33.523C38,36.415,35.716,38,32.65,38 c-2.999,0-4.702-1.505-5.65-3.368L29.538,32.947z M17.952,33.029c0.506,0.906,1.275,1.603,2.381,1.603 c1.058,0,1.667-0.418,1.667-2.043V22h3.333v11.101c0,3.367-1.953,4.899-4.805,4.899c-2.577,0-4.437-1.746-5.195-3.368 L17.952,33.029z"
       />
+    </svg>
+  );
+}
+
+function CssIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="100"
+      height="100"
+      viewBox="0 0 256 256"
+      className="hatch-code-css-icon"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient x1="8.89439" y1="12.3151" x2="8.89439" y2="7.17663" gradientUnits="userSpaceOnUse" id="color-1_4d9YPiN04osD_gr1">
+          <stop offset="0.387" stopColor="#d1d3d4" stopOpacity="0" />
+          <stop offset="1" stopColor="#d1d3d4" />
+        </linearGradient>
+        <linearGradient x1="15.31865" y1="9.75283" x2="15.31865" y2="4.41012" gradientUnits="userSpaceOnUse" id="color-2_4d9YPiN04osD_gr2">
+          <stop offset="0.387" stopColor="#d1d3d4" stopOpacity="0" />
+          <stop offset="1" stopColor="#d1d3d4" />
+        </linearGradient>
+        <linearGradient x1="5.80296" y1="14.60815" x2="18.15014" y2="14.60815" gradientUnits="userSpaceOnUse" id="color-3_4d9YPiN04osD_gr3">
+          <stop offset="0" stopColor="#e8e7e5" />
+          <stop offset="1" stopColor="#ffffff" />
+        </linearGradient>
+        <linearGradient x1="5.23201" y1="5.71446" x2="18.63753" y2="5.71446" gradientUnits="userSpaceOnUse" id="color-4_4d9YPiN04osD_gr4">
+          <stop offset="0" stopColor="#e8e7e5" />
+          <stop offset="1" stopColor="#ffffff" />
+        </linearGradient>
+      </defs>
+      <g
+        fill="none"
+        fillRule="nonzero"
+        stroke="none"
+        strokeWidth="1"
+        strokeLinecap="butt"
+        strokeLinejoin="miter"
+        strokeMiterlimit="10"
+        strokeDasharray=""
+        strokeDashoffset="0"
+        fontFamily="none"
+        fontWeight="none"
+        fontSize="none"
+        textAnchor="none"
+        style={{ mixBlendMode: "normal" }}
+      >
+        <g transform="scale(10.66667,10.66667)">
+          <path d="M20.667,21.666l-8.667,2.334l-8.667,-2.334l-2,-21.666h21.333z" fill="#2062af" />
+          <path d="M12,1.755v20.384l0.02,0.005l7.013,-1.889l1.619,-18.501l-8.652,0.001z" fill="#3c9cd7" />
+          <path d="M11.992,7.172l-6.203,2.584l0.206,2.558l5.997,-2.564l6.38,-2.728l0.264,-2.616l-6.644,2.766z" fill="#ffffff" />
+          <path d="M5.789,9.756l0.206,2.558l5.997,-2.564v-2.578z" fill="url(#color-1_4d9YPiN04osD_gr1)" />
+          <path d="M18.636,4.405l-6.644,2.767v2.577l6.38,-2.728z" fill="url(#color-2_4d9YPiN04osD_gr2)" />
+          <path d="M5.799,9.756l0.206,2.558l9.202,0.029l-0.206,3.41l-3.028,0.852l-2.911,-0.735l-0.176,-2.117h-2.705l0.353,4.086l5.468,1.617l5.439,-1.588l0.706,-8.114h-12.348z" fill="url(#color-3_4d9YPiN04osD_gr3)" />
+          <path d="M11.992,9.756h-6.203l0.206,2.558l5.997,0.019v-2.577zM11.992,16.597l-0.029,0.008l-2.91,-0.735l-0.176,-2.117h-2.706l0.353,4.086l5.468,1.617z" fill="#000000" opacity="0.05" />
+          <path d="M5.231,4.405h13.406l-0.264,2.616h-12.819l-0.323,-2.616z" fill="url(#color-4_4d9YPiN04osD_gr4)" />
+          <path d="M11.992,4.405h-6.761l0.323,2.616h6.438v-2.616z" fill="#000000" opacity="0.05" />
+        </g>
+      </g>
     </svg>
   );
 }
@@ -232,6 +310,18 @@ function tokenizeJavaScript(code) {
     if (token.startsWith("'") || token.startsWith('"') || token.startsWith("`")) return "hatch-token-string";
     if (/^\d/.test(token)) return "hatch-token-number";
     if (/^(console|Math|Array|Object|String|Number|Boolean|Promise|Date|JSON)$/.test(token)) return "hatch-token-type";
+    return "hatch-token-keyword";
+  });
+}
+
+function tokenizeCss(code) {
+  const pattern = /(\/\*[\s\S]*?\*\/|#[0-9a-fA-F]{3,8}\b|\b(?:px|rem|em|vh|vw|%|s|ms|deg)\b|\b(?:display|position|width|height|margin|padding|color|background|font|font-size|font-family|line-height|border|border-radius|gap|grid|grid-template-columns|grid-template-rows|align-items|justify-content|min-height|max-width|overflow|opacity|transform|transition)\b|:[a-zA-Z-]+|\.[a-zA-Z_-][\w-]*|#[a-zA-Z_-][\w-]*|\b\d+(?:\.\d+)?\b)/g;
+  return pushTokens(code, pattern, (token) => {
+    if (token.startsWith("/*")) return "hatch-token-comment";
+    if (token.startsWith(".") || (token.startsWith("#") && !/^#[0-9a-fA-F]{3,8}$/.test(token))) return "hatch-token-tag";
+    if (/^#[0-9a-fA-F]{3,8}$/.test(token)) return "hatch-token-string";
+    if (/^\d/.test(token)) return "hatch-token-number";
+    if (token.startsWith(":")) return "hatch-token-type";
     return "hatch-token-keyword";
   });
 }
@@ -430,6 +520,10 @@ function HatchCodeEditor({ open, onClose }) {
     HTML_HATCH_STORAGE_KEY,
     DEFAULT_HTML_HATCH_CODE,
   );
+  const [cssCode, setCssCode] = usePersistentCode(
+    CSS_HATCH_STORAGE_KEY,
+    DEFAULT_CSS_HATCH_CODE,
+  );
 
   useEffect(() => {
     if (!open) return undefined;
@@ -519,6 +613,18 @@ function HatchCodeEditor({ open, onClose }) {
           />
 
           <CodePane
+            paneKey="css"
+            inputId="d5CssHatchCodeInput"
+            copyId="d5CssHatchCopy"
+            filename="styles.css"
+            icon={<CssIcon />}
+            code={cssCode}
+            setCode={setCssCode}
+            tokenize={tokenizeCss}
+            inputLabel="Editable CSS code"
+          />
+
+          <CodePane
             paneKey="java"
             inputId="d5JavaHatchCodeInput"
             copyId="d5JavaHatchCopy"
@@ -591,7 +697,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-html-preview6",
+    version: "20261004-css-hatch7",
   });
 
   return true;

@@ -19,22 +19,6 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   pointer-events: auto;
 }
 
-.center-hatch-launchers {
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 28px;
-}
-
-.center-hatch-launcher-state {
-  width: 180px;
-  min-width: 0;
-}
-
-.java-hatch-launcher-icon {
-  color: #0a0a0a;
-}
 
 .hashcod-empty-state-action {
   min-width: 148px;
@@ -113,12 +97,13 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 
 .hatch-code-shell {
   position: relative;
-  width: 420px;
+  width: 864px;
   height: 372px;
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 72px);
   display: grid;
-  grid-template-rows: 46px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   overflow: visible;
   border: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 12px;
@@ -130,6 +115,24 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+.hatch-code-pane {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 46px minmax(0, 1fr);
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.hatch-code-pane:first-of-type {
+  border-radius: 12px 0 0 12px;
+}
+
+.hatch-code-pane:last-of-type {
+  border-left: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 0 12px 12px 0;
+}
+
 .hatch-code-header {
   min-width: 0;
   display: flex;
@@ -138,7 +141,6 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   gap: 12px;
   padding: 0 12px 0 14px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 12px 12px 0 0;
   background: #f8fafc;
 }
 
@@ -239,7 +241,6 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  border-radius: 0 0 12px 12px;
   background: #ffffff;
 }
 
@@ -313,31 +314,43 @@ body.hashcod-hatch-open {
   overscroll-behavior: none;
 }
 
-@media (max-width: 520px) {
-  .center-hatch-launchers {
-    gap: 12px;
-  }
-
-  .center-hatch-launcher-state {
-    width: min(156px, calc((100vw - 52px) / 2));
-  }
-
-  .hashcod-empty-state-action {
-    min-width: 136px;
-    padding-inline: 14px;
-  }
-
+@media (max-width: 900px) {
   .hatch-modal-backdrop {
     padding: 48px 16px 24px;
   }
 
   .hatch-code-shell {
     width: calc(100vw - 32px);
+  }
+}
+
+@media (max-width: 620px) {
+  .hatch-code-shell {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     height: min(372px, calc(100dvh - 84px));
+  }
+
+  .hatch-code-header {
+    padding-inline: 8px;
+  }
+
+  .hatch-code-file {
+    gap: 5px;
+    font-size: 10px;
+  }
+
+  .hatch-code-copy {
+    padding-inline: 5px;
   }
 
   .hatch-code-copy span {
     display: none;
+  }
+
+  .hatch-code-highlight,
+  .hatch-code-input {
+    padding: 12px 10px 14px;
+    font-size: 11px;
   }
 }
 

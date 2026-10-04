@@ -59,12 +59,6 @@ html.hashcod-animate-cursor-active body * {
   opacity: 1;
 }
 
-@media (pointer:coarse), (hover:none) {
-  #d5AnimateCursorLayer {
-    display: none !important;
-  }
-}
-
 @media (prefers-reduced-motion:reduce) {
   .hashcod-animate-cursor,
   .hashcod-animate-cursor-follow {

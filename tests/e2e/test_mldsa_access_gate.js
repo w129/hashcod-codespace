@@ -82,8 +82,8 @@ assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the t
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-javascript-hatch4'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-javascript-hatch4'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-html-hatch5'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-html-hatch5'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -93,6 +93,10 @@ assert(centerEmptyStateEntry.includes('viewBox="0 0 48 48"'),'retained center ic
 assert(centerEmptyStateEntry.includes('icon={<CcCardTitleIcon />}'),'single Hatch launcher icon missing');
 assert(centerEmptyStateEntry.includes('function JavaIcon()'),'Java icon component missing');
 assert(centerEmptyStateEntry.includes('function JavaScriptIcon()'),'JavaScript icon component missing');
+assert(centerEmptyStateEntry.includes('function HtmlIcon()'),'HTML icon component missing');
+assert(centerEmptyStateEntry.includes('fill="#e7a42b"'),'HTML icon outer shield color missing');
+assert(centerEmptyStateEntry.includes('fill="#f2bf22"'),'HTML icon inner shield color missing');
+assert(centerEmptyStateEntry.includes('points="8,5 42,5 38,39 25,43 11,39"'),'supplied HTML shield polygon missing');
 assert(centerEmptyStateEntry.includes('fill="#f7df1e"'),'JavaScript icon yellow field missing');
 assert(centerEmptyStateEntry.includes('M29.538,32.947c0.692,1.124'),'supplied JavaScript JS path missing');
 assert(centerEmptyStateEntry.includes('viewBox="0 0 50 50"'),'Java icon must preserve supplied 50x50 viewBox');
@@ -112,12 +116,15 @@ assert(centerEmptyStateEntry.includes('id="d5HatchCodeEditor"'),'shared Hatch ed
 assert(centerEmptyStateEntry.includes('filename="my-component.tsx"'),'React pane filename missing');
 assert(centerEmptyStateEntry.includes('filename="Main.java"'),'Java pane filename missing');
 assert(centerEmptyStateEntry.includes('filename="script.js"'),'JavaScript pane filename missing');
+assert(centerEmptyStateEntry.includes('filename="index.html"'),'HTML pane filename missing');
 assert(centerEmptyStateEntry.includes('inputId="d5HatchCodeInput"'),'React textarea id must remain stable');
 assert(centerEmptyStateEntry.includes('inputId="d5JavaHatchCodeInput"'),'Java textarea id missing');
 assert(centerEmptyStateEntry.includes('inputId="d5JavaScriptHatchCodeInput"'),'JavaScript textarea id missing');
+assert(centerEmptyStateEntry.includes('inputId="d5HtmlHatchCodeInput"'),'HTML textarea id missing');
 assert(centerEmptyStateEntry.includes('public class Main'),'Java default source missing');
 assert(centerEmptyStateEntry.includes('JAVA_HATCH_STORAGE_KEY'),'Java storage key missing');
 assert(centerEmptyStateEntry.includes('JAVASCRIPT_HATCH_STORAGE_KEY'),'JavaScript storage key missing');
+assert(centerEmptyStateEntry.includes('HTML_HATCH_STORAGE_KEY'),'HTML storage key missing');
 assert(centerEmptyStateEntry.includes('navigator.clipboard.writeText(code)'),'Hatch copy behavior missing');
 assert(centerEmptyStateEntry.includes('window.localStorage.setItem(storageKey, next)'),'independent Hatch persistence missing');
 assert(centerEmptyStateEntry.includes('event.key !== "Tab"'),'Hatch Tab indentation behavior missing');
@@ -127,7 +134,9 @@ assert(centerEmptyStateEntryCss.includes('grid-template-rows: minmax(0, 1fr) min
 assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="javascript"]'),'JavaScript pane layout missing');
 assert(centerEmptyStateEntryCss.includes('grid-row: 2'),'JavaScript must be below React');
 assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="java"]'),'Java pane layout missing');
-assert(centerEmptyStateEntryCss.includes('grid-row: 1 / span 2'),'Java must span the right side');
+assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="html"]'),'HTML pane layout missing');
+assert(centerEmptyStateEntryCss.includes('grid-column: 2'),'right-side pane column styling missing');
+assert(centerEmptyStateEntryCss.includes('grid-row: 2'),'second-row pane styling missing');
 assert(centerEmptyStateEntryCss.includes('height: 620px'),'shared Hatch must grow for the third editor');
 assert(centerEmptyStateEntryCss.includes('backdrop-filter: blur(24px)'),'Hatch backdrop blur missing');
 assert(!centerEmptyStateEntry.includes('hashcod:first-screen-branched-menu-select'),'Hatch must not reuse the Workspace destination');

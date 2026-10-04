@@ -621,8 +621,6 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     const hatchState=await page.evaluate(()=>{
       const editor=document.getElementById('d5HatchCodeEditor');
-      const experience=document.getElementById('d5HatchExperience');
-      const muse=document.getElementById('d5MuseGadget');
       const backdrop=document.getElementById('d5HatchBackdrop');
       const tsxInput=document.getElementById('d5HatchCodeInput');
       const javaInput=document.getElementById('d5JavaHatchCodeInput');
@@ -632,8 +630,6 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const pythonInput=document.getElementById('d5PythonHatchCodeInput');
       const grid=document.getElementById('d5HatchCodeGrid');
       const rect=editor.getBoundingClientRect();
-      const experienceRect=experience.getBoundingClientRect();
-      const museRect=muse.getBoundingClientRect();
       const gridRect=grid.getBoundingClientRect();
       const backdropStyle=getComputedStyle(backdrop);
       const gridStyle=getComputedStyle(grid);
@@ -647,10 +643,10 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       }));
       return {
         bodyOpen:document.body.classList.contains('hashcod-hatch-open'),
-        role:experience.getAttribute('role'),
-        ariaModal:experience.getAttribute('aria-modal'),
-        centerX:experienceRect.left+(experienceRect.width/2),
-        centerY:experienceRect.top+(experienceRect.height/2),
+        role:editor.getAttribute('role'),
+        ariaModal:editor.getAttribute('aria-modal'),
+        centerX:rect.left+(rect.width/2),
+        centerY:rect.top+(rect.height/2),
         viewportX:innerWidth/2,
         viewportY:innerHeight/2,
         width:rect.width,
@@ -661,14 +657,6 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         gridOverflowY:gridStyle.overflowY,
         gridRight:gridRect.right,
         editorRight:rect.right,
-        museLeft:museRect.left,
-        museTop:museRect.top,
-        museWidth:museRect.width,
-        museHeight:museRect.height,
-        museState:muse.getAttribute('data-muse-state')||'',
-        museSource:muse.getAttribute('data-muse-source')||'',
-        museSourceHref:document.getElementById('d5MuseGadgetSource')?.getAttribute('href')||'',
-        museControlCount:muse.querySelectorAll('.hatch-muse-controls button').length,
         panes,
         tsxValue:tsxInput?.value||'',
         javaValue:javaInput?.value||'',
@@ -720,17 +708,9 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(hatchState.bodyOpen,true,'Open Hatch must mark its modal state');
     assert.equal(hatchState.role,'dialog','shared Hatch must expose dialog semantics');
     assert.equal(hatchState.ariaModal,'true','shared Hatch must be modal');
-    assert(Math.abs(hatchState.centerX-hatchState.viewportX)<=2,'Hatch + Muse experience must be horizontally centered');
-    assert(Math.abs(hatchState.centerY-hatchState.viewportY)<=2,'Hatch + Muse experience must be vertically centered');
+    assert(Math.abs(hatchState.centerX-hatchState.viewportX)<=2,'shared Hatch must be horizontally centered');
+    assert(Math.abs(hatchState.centerY-hatchState.viewportY)<=2,'shared Hatch must be vertically centered');
     assert(Math.abs(hatchState.width-864)<=2,'shared Hatch must contain both 420px-class editors');
-    assert(hatchState.museLeft>=hatchState.editorRight+20,'Muse Gadget must sit outside the editor blocks on their right side');
-    assert(Math.abs(hatchState.museTop-(hatchState.viewportY-(hatchState.height/2)))<=3,'Muse Gadget must align with the top of the Hatch');
-    assert(Math.abs(hatchState.museWidth-412)<=2,'Muse Gadget must use the official simulator-inspired 412px desktop width');
-    assert(Math.abs(hatchState.museHeight-412)<=2,'Muse Gadget must use a square 412px desktop display');
-    assert.equal(hatchState.museState,'idle','Muse Gadget must start in idle state');
-    assert.equal(hatchState.museSource,'facebookincubator/muse-gadget-sdk','Muse Gadget must identify its upstream SDK');
-    assert.equal(hatchState.museSourceHref,'https://github.com/facebookincubator/muse-gadget-sdk','Muse source link must target the requested repository');
-    assert.equal(hatchState.museControlCount,5,'Muse sidecar must expose the five simulator-inspired states');
     assert(Math.abs(hatchState.height-Math.min(744,(hatchState.viewportY*2)-112))<=2,'shared Hatch viewport must remain centered and responsive');
     assert.equal(hatchState.gridOverflowY,'auto','Hatch must expose a vertical scrollbar');
     assert(hatchState.gridScrollHeight>hatchState.gridClientHeight,'Hatch content must scroll instead of shrinking blocks');
@@ -802,11 +782,6 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(hatchState.cssValue.includes(':root {'),'CSS pane must start with CSS source');
     assert(hatchState.htmlValue.includes('<!doctype html>'),'HTML pane must start with HTML source');
     assert(hatchState.pythonValue.includes('def main():'),'Python pane must start with Python source');
-
-    await page.locator('#d5MuseGadget .hatch-muse-controls button').filter({hasText:'Thinking'}).click();
-    assert.equal(await page.locator('#d5MuseGadget').getAttribute('data-muse-state'),'thinking','Muse state control must switch to thinking');
-    assert.equal(await page.locator('#d5MuseGadget .hatch-muse-copy strong').textContent(),'Thinking','Muse state label must update');
-    assert((await page.locator('#d5MuseGadget .hatch-muse-copy span').textContent()).includes('Finding a good answer'),'Muse thinking caption must mirror the SDK simulator concept');
 
     const scrollState=await page.evaluate(()=>{
       const grid=document.getElementById('d5HatchCodeGrid');
@@ -916,7 +891,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatch must not set the Workspace modal state');
     assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Hatch must not open Workspace');
 
-    console.log('✓ Muse Gadget sits outside the Hatch on the right while editors, Python terminal and CSS-linked preview remain functional');
+    console.log('✓ Python runs in an in-pane terminal while Hatch panes keep equal height, scrolling and CSS-linked preview');
   }finally{
     await browser.close();
   }

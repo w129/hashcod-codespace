@@ -303,8 +303,8 @@ assert(rotatingJs.includes('window.HashcodRotatingText'),'RotatingText controlle
 assert(!gate.includes('d5SplashCursorBackground'),'retired smoke cursor host must be removed');
 assert(!gate.includes('d5SplashCursorCanvas'),'retired smoke cursor canvas must be removed');
 assert(!gate.includes('react-bits-splash-cursor'),'retired SplashCursor assets must not load');
-assert(gate.includes('components/animate-ui-global-cursor.css?v=20261004-animate-cursor2'),'Animate UI cursor CSS must load');
-assert(gate.includes('components/animate-ui-global-cursor.js?v=20261004-animate-cursor2'),'Animate UI cursor JS must load');
+assert(gate.includes('components/animate-ui-global-cursor.css?v=20261004-animate-cursor3'),'Animate UI cursor CSS must load');
+assert(gate.includes('components/animate-ui-global-cursor.js?v=20261004-animate-cursor3'),'Animate UI cursor JS must load');
 assert(animateCursorCss.includes('html.hashcod-animate-cursor-active body *'),'global native cursor suppression missing');
 assert(animateCursorCss.includes('cursor: none !important'),'native desktop cursor must be hidden');
 assert(animateCursorCss.includes('.hashcod-animate-cursor-follow'),'CursorFollow styling missing');

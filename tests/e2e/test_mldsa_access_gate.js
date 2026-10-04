@@ -16,6 +16,11 @@ const centerEmptyStateEntry=fs.readFileSync('center-empty-state-build/entry.jsx'
 const centerEmptyStateCss=fs.readFileSync('center-empty-state-build/empty-state.css','utf8');
 const centerEmptyStateEntryCss=fs.readFileSync('center-empty-state-build/entry.css','utf8');
 const centerEmptyStatePkg=JSON.parse(fs.readFileSync('center-empty-state-build/package.json','utf8'));
+const codeAccessLib=fs.readFileSync('code-access-lib.php','utf8');
+const codeAccessApi=fs.readFileSync('code-access-api.php','utf8');
+const codeAccessEntry=fs.readFileSync('code-access-build/entry.jsx','utf8');
+const codeAccessCss=fs.readFileSync('code-access-build/entry.css','utf8');
+const codeAccessPkg=JSON.parse(fs.readFileSync('code-access-build/package.json','utf8'));
 const rotatingCss=fs.readFileSync('components/react-bits-rotating-text.css','utf8');
 const rotatingJs=fs.readFileSync('components/react-bits-rotating-text.js','utf8');
 const animateCursorCss=fs.readFileSync('components/animate-ui-global-cursor.css','utf8');
@@ -48,6 +53,25 @@ assert(gate.includes("function mldsaOriginAllowed"),'same-origin request binding
 assert(api.includes("protocol'=>'ML-DSA-87-2PHASE"),'two-phase protocol marker missing');
 assert(api.includes("replay_detected"),'replay rejection missing');
 assert(router.includes("'/api/mldsa-access'"),'ML-DSA API route missing');
+assert(router.includes("'/api/code-access'"),'signed code access API route missing');
+assert(gate.includes("function codeAccessRequired()"),'code access requirement switch missing');
+assert(gate.includes("L8_CODE_ACCESS_REQUIRED','1'"),'code access must default to required');
+assert(gate.includes("function codeAccessAuthorized()"),'code access session verification missing');
+assert(gate.includes("function codeAccessGrant(string $proof)"),'code access session grant missing');
+assert(codeAccessLib.includes("function codeAccessParseManifest"),'strict PHP-shaped manifest parser missing');
+assert(codeAccessLib.includes("Nothing is"),'code access parser safety contract missing');
+assert(!codeAccessApi.includes('eval('),'code access API must never eval user code');
+assert(!codeAccessApi.includes('include($source'),'code access API must never include user code');
+assert(codeAccessApi.includes("mldsaVerify($expectedChallenge,$signature)"),'code access must use ML-DSA signature verification');
+assert(codeAccessApi.includes("mldsaConsumeJti"),'code access must consume anti-replay challenge JTI');
+assert(codeAccessApi.includes("codeAccessGrant($proof)"),'successful signed manifest must grant the code access session');
+assert.equal(codeAccessPkg.dependencies['monaco-editor'],'0.52.2','Monaco Editor dependency changed');
+assert(codeAccessEntry.includes("monaco.editor.create"),'Monaco Editor must render the access manifest');
+assert(codeAccessEntry.includes("HASHCOD-ACCESS/1"),'signed access protocol marker missing from Monaco gate');
+assert(codeAccessEntry.includes("Validate access code"),'code access validation action missing');
+assert(codeAccessEntry.includes("Access.php")&&codeAccessEntry.includes("Protocol"),'CodeTabs-style access tabs missing');
+assert(codeAccessCss.includes('.code-tabs-shell'),'CodeTabs-style editor shell missing');
+assert(codeAccessCss.includes('.code-access-overlay'),'blocking access overlay missing');
 
 // Root stays on the first presentation.
 assert(l8.includes('Single-screen mode: the root route permanently renders only the'),'single-screen root contract missing');
@@ -71,6 +95,10 @@ assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be remov
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/code-access.bundle.css?v=20261004-code-access1'),'code access CSS bundle must load');
+assert(gate.includes('components/code-access.bundle.js?v=20261004-code-access1'),'code access JS bundle must load');
+assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
+assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');

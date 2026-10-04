@@ -2,11 +2,29 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import 'monaco-editor/esm/vs/basic-languages/php/php.contribution.js';
-import 'monaco-editor/esm/vs/editor/editor.main.css';
+import './node_modules/monaco-editor/min/vs/editor/editor.main.css';
 import './entry.css';
 
 const API = '/api/code-access';
 const VERSION = '20261004-code-access1';
+
+function resolveMonacoWorkerUrl() {
+  const script = Array.from(document.scripts).find((node) =>
+    String(node.src || '').includes('code-access.bundle.js')
+  );
+  if (script?.src) {
+    return script.src.replace(/code-access\.bundle\.js(?:\?.*)?$/, 'monaco-editor.worker.js?v=' + VERSION);
+  }
+  return '/components/monaco-editor.worker.js?v=' + VERSION;
+}
+
+self.MonacoEnvironment = {
+  getWorker() {
+    return new Worker(resolveMonacoWorkerUrl(), {
+      name: 'hashcod-monaco-editor',
+    });
+  },
+};
 
 const PROTOCOL_SOURCE = `<?php
 

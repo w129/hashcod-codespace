@@ -108,8 +108,8 @@ jobs:
           grep -q 'id="d5CenterEmptyStateStage"' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-home.html
           grep -q 'data-hashcod-component="EmptyState"' /tmp/hashcod-home.html
-          grep -q 'center-empty-state.bundle.css?v=20261003-open-hatch6' /tmp/hashcod-home.html
-          grep -q 'center-empty-state.bundle.js?v=20261003-open-hatch6' /tmp/hashcod-home.html
+          grep -q 'center-empty-state.bundle.css?v=20261004-hatch-editor1' /tmp/hashcod-home.html
+          grep -q 'center-empty-state.bundle.js?v=20261004-hatch-editor1' /tmp/hashcod-home.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-home.html
           ! grep -q 'id="d5VerifyText">Entrar</span>' /tmp/hashcod-home.html
           ! grep -q 'id="d5EntryStatCard"' /tmp/hashcod-home.html
@@ -149,7 +149,7 @@ jobs:
           grep -q 'id="d5FirstBranchedMenuMount"' /tmp/hashcod-laragon.html
           grep -q 'first-screen-branched-menu.bundle.js?v=20261003-textcard1' /tmp/hashcod-laragon.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-laragon.html
-          grep -q 'center-empty-state.bundle.js?v=20261003-open-hatch6' /tmp/hashcod-laragon.html
+          grep -q 'center-empty-state.bundle.js?v=20261004-hatch-editor1' /tmp/hashcod-laragon.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-laragon.html
           ! grep -q 'platform-entry-hold.js' /tmp/hashcod-laragon.html
           ! grep -q 'toolbook-page-blank.js' /tmp/hashcod-laragon.html

@@ -106,8 +106,8 @@ jobs:
           grep -q 'id="d5FirstBranchedMenuStage"' /tmp/hashcod-home.html
           grep -q 'id="d5FirstBranchedMenuMount"' /tmp/hashcod-home.html
           grep -q 'data-react-bits-component="BranchedMenu"' /tmp/hashcod-home.html
-          grep -q 'first-screen-branched-menu.bundle.css?v=20261004-calendar1' /tmp/hashcod-home.html
-          grep -q 'first-screen-branched-menu.bundle.js?v=20261004-calendar1' /tmp/hashcod-home.html
+          grep -q 'first-screen-branched-menu.bundle.css?v=20261004-calendar2' /tmp/hashcod-home.html
+          grep -q 'first-screen-branched-menu.bundle.js?v=20261004-calendar2' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateStage"' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-home.html
           grep -q 'data-hashcod-component="EmptyState"' /tmp/hashcod-home.html
@@ -153,7 +153,7 @@ jobs:
         run: |
           php laragon-local-entry.php >/tmp/hashcod-laragon.html
           grep -q 'id="d5FirstBranchedMenuMount"' /tmp/hashcod-laragon.html
-          grep -q 'first-screen-branched-menu.bundle.js?v=20261004-calendar1' /tmp/hashcod-laragon.html
+          grep -q 'first-screen-branched-menu.bundle.js?v=20261004-calendar2' /tmp/hashcod-laragon.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-laragon.html
           grep -q 'center-empty-state.bundle.js?v=20261004-file-vault2' /tmp/hashcod-laragon.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-laragon.html

@@ -275,7 +275,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
     $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261003-menu-pos2',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261004-calendar1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261004-calendar2',ENT_QUOTES,'UTF-8');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
@@ -285,8 +285,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $animateCursorCss=htmlspecialchars($base.'components/animate-ui-global-cursor.css?v=20261004-animate-cursor-dr1',ENT_QUOTES,'UTF-8');
     $animateCursorJs=htmlspecialchars($base.'components/animate-ui-global-cursor.js?v=20261004-animate-cursor-dr1',ENT_QUOTES,'UTF-8');
-    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261004-calendar1',ENT_QUOTES,'UTF-8');
-    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261004-calendar1',ENT_QUOTES,'UTF-8');
+    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261004-calendar2',ENT_QUOTES,'UTF-8');
+    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261004-calendar2',ENT_QUOTES,'UTF-8');
     $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261004-file-vault2',ENT_QUOTES,'UTF-8');
     $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261004-file-vault2',ENT_QUOTES,'UTF-8');
     $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';

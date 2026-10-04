@@ -689,6 +689,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         cssCopyLeft:document.getElementById('d5CssHatchCopy')?.getBoundingClientRect().left||0,
         copyHtml:Boolean(document.getElementById('d5HtmlHatchCopy')),
         copyPython:Boolean(document.getElementById('d5PythonHatchCopy')),
+        pythonRun:Boolean(document.getElementById('d5PythonRun')),
+        pythonRunPressed:document.getElementById('d5PythonRun')?.getAttribute('aria-pressed')||'',
+        pythonRunViewBox:document.querySelector('#d5PythonRun svg')?.getAttribute('viewBox')||'',
+        pythonRunPath:document.querySelector('#d5PythonRun path')?.getAttribute('d')||'',
+        pythonRunRight:document.getElementById('d5PythonRun')?.getBoundingClientRect().right||0,
+        pythonCopyLeft:document.getElementById('d5PythonHatchCopy')?.getBoundingClientRect().left||0,
         htmlPreview:Boolean(document.getElementById('d5HtmlHatchPreview')),
         htmlPreviewPressed:document.getElementById('d5HtmlHatchPreview')?.getAttribute('aria-pressed')||'',
         htmlPreviewIconViewBox:document.querySelector('#d5HtmlHatchPreview svg')?.getAttribute('viewBox')||'',
@@ -758,6 +764,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(hatchState.copyJava,true,'Java pane must have its own copy button');
     assert.equal(hatchState.copyHtml,true,'HTML pane must have its own copy button');
     assert.equal(hatchState.copyPython,true,'Python pane must have its own copy button');
+    assert.equal(hatchState.pythonRun,true,'Python pane must have a run button');
+    assert.equal(hatchState.pythonRunPressed,'false','Python run button must start in editor mode');
+    assert.equal(hatchState.pythonRunViewBox,'0 0 30 30','Python run button must preserve the supplied 30x30 SVG');
+    assert(hatchState.pythonRunPath.startsWith('M 5 4 C 3.895 4 3 4.895 3 6'),'Python run button must use the supplied SVG path');
+    assert(hatchState.pythonRunRight<=hatchState.pythonCopyLeft+2,'Python run button must sit to the left of Copy');
     assert.equal(hatchState.htmlPreview,true,'HTML pane must have a preview button beside Copy');
     assert.equal(hatchState.htmlPreviewPressed,'false','HTML preview must start in code mode');
     assert.equal(hatchState.htmlPreviewIconViewBox,'0 0 24 24','HTML preview button must preserve the supplied 24x24 SVG');
@@ -801,6 +812,44 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-html-code:v1')?.endsWith('<!-- html hatch editable -->')),true,'HTML edits must persist independently');
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-python-code:v1')?.endsWith('# python hatch editable')),true,'Python edits must persist independently');
 
+    await page.evaluate(()=>{
+      window.__hashcodNativeWorker=window.Worker;
+      window.Worker=class FakePythonWorker {
+        constructor(){
+          this.onmessage=null;
+          this.onerror=null;
+        }
+        postMessage(){
+          setTimeout(()=>{
+            this.onmessage?.({data:{type:'stdout',text:'Hello from Hashcod Hatch'}});
+            this.onmessage?.({data:{type:'done'}});
+          },10);
+        }
+        terminate(){}
+      };
+    });
+
+    await page.locator('#d5PythonRun').click();
+    await page.waitForSelector('#d5PythonTerminal',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>document.getElementById('d5PythonTerminalOutput')?.textContent?.includes('Hello from Hashcod Hatch'));
+    assert.equal(await page.locator('#d5PythonRun').getAttribute('aria-pressed'),'true','Python run button must switch the pane to terminal mode');
+    assert.equal(await page.locator('#d5PythonHatchCodeInput').count(),0,'Python textarea must be replaced by the terminal while running');
+    const pythonTerminalText=await page.locator('#d5PythonTerminalOutput').textContent();
+    assert(pythonTerminalText.includes('$ python main.py'),'Python terminal must show the executed file command');
+    assert(pythonTerminalText.includes('Hello from Hashcod Hatch'),'Python terminal must show stdout from the runner');
+
+    await page.locator('#d5PythonTerminalBack').click();
+    await page.waitForSelector('#d5PythonHatchCodeInput',{state:'visible',timeout:5000});
+    assert.equal((await page.locator('#d5PythonHatchCodeInput').inputValue()).endsWith('# python hatch editable'),true,'Python code must remain intact after terminal execution');
+    assert.equal(await page.locator('#d5PythonRun').getAttribute('aria-pressed'),'false','returning to code must leave terminal mode');
+
+    await page.evaluate(()=>{
+      if(window.__hashcodNativeWorker){
+        window.Worker=window.__hashcodNativeWorker;
+        delete window.__hashcodNativeWorker;
+      }
+    });
+
     await page.locator('#d5CssHtmlLink').click();
     assert.equal(await page.locator('#d5CssHtmlLink').getAttribute('aria-pressed'),'true','CSS to HTML link button must connect styles');
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-css-html-linked:v1')), 'true','CSS to HTML link state must persist');
@@ -842,7 +891,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatch must not set the Workspace modal state');
     assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Hatch must not open Workspace');
 
-    console.log('✓ Python sits below HTML while Hatch panes keep equal height, scrolling and CSS-linked preview');
+    console.log('✓ Python runs in an in-pane terminal while Hatch panes keep equal height, scrolling and CSS-linked preview');
   }finally{
     await browser.close();
   }

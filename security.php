@@ -90,7 +90,7 @@ function securityApplyHeaders() {
             "img-src 'self' data: blob: https:; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
-            "script-src 'self' 'nonce-" . securityCspNonce() . "' https://challenges.cloudflare.com; " .
+            "script-src 'self' 'nonce-" . securityCspNonce() . "' https://challenges.cloudflare.com https://cdn.jsdelivr.net; " .
             "script-src-attr 'unsafe-inline'; " .
             "connect-src 'self' https: wss: https://challenges.cloudflare.com; " .
             "frame-src 'self' https://challenges.cloudflare.com" . (securityDeskcommFrameSource() !== '' ? ' ' . securityDeskcommFrameSource() : '') . "; " .

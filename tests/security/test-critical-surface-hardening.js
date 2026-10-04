@@ -36,6 +36,7 @@ assert(legacy.includes('filePath.startsWith(publicRoot)'), 'Legacy static servin
 assert(!security.includes("'unsafe-eval'"), 'CSP must not allow unsafe-eval');
 assert(!security.includes("script-src 'self' 'unsafe-inline'"), 'CSP scripts must not allow unsafe-inline');
 assert(security.includes('securityCspNonce()'), 'CSP must use a per-request nonce');
+assert(security.includes('https://cdn.jsdelivr.net'), 'CSP must explicitly allow the pinned Pyodide CDN origin');
 assert(security.includes("script-src-attr 'unsafe-inline'"), 'Legacy inline handlers must be isolated from script-src while migration continues');
 assert(!security.includes("$_GET['admin']"), 'Administrative secrets must not be accepted in query strings');
 assert(html.includes('l8_apply_csp_nonce'), 'Native HTML pages must receive CSP nonces');

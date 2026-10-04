@@ -599,19 +599,27 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         viewportCenterX:window.innerWidth/2,
         headingCount:stage.querySelectorAll('h3').length,
         paragraphCount:stage.querySelectorAll('p').length,
-        svgCount:stage.querySelectorAll('.center-empty-state-root svg').length,
+        svgCount:stage.querySelectorAll('.center-empty-state-root > .center-empty-state-icon svg').length,
         iconViewBox:svg?.getAttribute('viewBox')||'',
         iconWidth:svg?getComputedStyle(svg).width:'',
-        button:document.getElementById('d5CenterEmptyStateAction')?.textContent?.trim()||''
+        button:document.getElementById('d5CenterEmptyStateAction')?.textContent?.trim()||'',
+        javaButton:document.getElementById('d5JavaHatchAction')?.textContent?.trim()||'',
+        launchers:Array.from(stage.querySelectorAll('.center-hatch-launcher-state')).map(node=>{
+          const rect=node.getBoundingClientRect();
+          return {left:rect.left,right:rect.right,width:rect.width};
+        })
       };
     });
     assert(Math.abs(centerPosition.centerX-centerPosition.viewportCenterX)<=3,'center EmptyState must stay centered in the viewport');
     assert.equal(centerPosition.headingCount,0,'center layout must not render a title');
     assert.equal(centerPosition.paragraphCount,0,'center layout must not render a subtitle');
-    assert.equal(centerPosition.svgCount,1,'center layout must render only the retained former title icon');
-    assert.equal(centerPosition.iconViewBox,'0 0 48 48','retained centered icon must preserve the supplied viewBox');
-    assert.equal(centerPosition.iconWidth,'30px','retained centered icon must keep the adapted 30px size');
-    assert.equal(centerPosition.button,'Open Hatch','center action label changed');
+    assert.equal(centerPosition.svgCount,2,'center layout must render React and Java launcher icons');
+    assert.equal(centerPosition.iconViewBox,'0 0 48 48','retained React launcher icon must preserve its supplied viewBox');
+    assert.equal(centerPosition.iconWidth,'30px','launcher icons must keep the adapted 30px size');
+    assert.equal(centerPosition.button,'Open Hatch','React Hatch action label changed');
+    assert.equal(centerPosition.javaButton,'Open Hatch','Java Hatch action label changed');
+    assert.equal(centerPosition.launchers.length,2,'React and Java launchers must both render');
+    assert(centerPosition.launchers[1].left>centerPosition.launchers[0].right,'Java Hatch must be positioned to the right of React Hatch');
 
     await page.locator('#d5CenterEmptyStateAction').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'visible',timeout:5000});
@@ -671,10 +679,40 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.locator('#d5HatchClose').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'detached',timeout:5000});
 
-    assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatch must not set the Workspace modal state');
-    assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Open Hatch must not open Workspace');
+    await page.locator('#d5JavaHatchAction').click();
+    await page.waitForSelector('#d5JavaHatchCodeEditor',{state:'visible',timeout:5000});
 
-    console.log('✓ Open Hatch shows a centered blurred editable TSX code editor and preserves existing first-screen flows');
+    const javaState=await page.evaluate(()=>{
+      const editor=document.getElementById('d5JavaHatchCodeEditor');
+      const input=document.getElementById('d5JavaHatchCodeInput');
+      const rect=editor.getBoundingClientRect();
+      return {
+        filename:editor.querySelector('.hatch-code-file span')?.textContent?.trim()||'',
+        value:input?.value||'',
+        focused:document.activeElement===input,
+        width:rect.width,
+        height:rect.height,
+        icon:Boolean(editor.querySelector('.hatch-code-java-icon'))
+      };
+    });
+
+    assert.equal(javaState.filename,'Main.java','Java Hatch must use a .java file');
+    assert(javaState.value.includes('public class Main'),'Java Hatch must start with Java source');
+    assert.equal(javaState.focused,true,'Java Hatch editor must receive focus');
+    assert(Math.abs(javaState.width-420)<=2,'Java Hatch must keep 420px desktop width');
+    assert(Math.abs(javaState.height-372)<=2,'Java Hatch must keep 372px desktop height');
+    assert.equal(javaState.icon,true,'Java Hatch header must show the Java icon');
+
+    const editedJava=javaState.value+'\n// java hatch editable';
+    await page.locator('#d5JavaHatchCodeInput').fill(editedJava);
+    assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-java-code:v1')?.endsWith('// java hatch editable')),true,'Java Hatch edits must persist independently');
+    await page.locator('#d5JavaHatchClose').click();
+    await page.waitForSelector('#d5JavaHatchCodeEditor',{state:'detached',timeout:5000});
+
+    assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatches must not set the Workspace modal state');
+    assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Hatches must not open Workspace');
+
+    console.log('✓ React and Java Hatches render side by side and open independent editable code editors');
   }finally{
     await browser.close();
   }

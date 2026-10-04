@@ -347,6 +347,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(new URL(page.url()).hash,'#card','Card selection must navigate to #card');
     await page.waitForSelector('#d5CardModalShell',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5CardModalBackdrop',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>document.activeElement?.id==='d5CardClose',{timeout:5000});
 
     const cardModalState=await page.evaluate(()=>{
       const shell=document.getElementById('d5CardModalShell');

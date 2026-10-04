@@ -622,8 +622,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     const hatchState=await page.evaluate(()=>{
       const editor=document.getElementById('d5HatchCodeEditor');
       const backdrop=document.getElementById('d5HatchBackdrop');
-      const tsxInput=document.getElementById('d5HatchInput');
-      const javaInput=document.getElementById('d5JavaHatchInput');
+      const tsxInput=document.getElementById('d5HatchCodeInput');
+      const javaInput=document.getElementById('d5JavaHatchCodeInput');
       const rect=editor.getBoundingClientRect();
       const backdropStyle=getComputedStyle(backdrop);
       const panes=Array.from(editor.querySelectorAll('.hatch-code-pane')).map((pane)=>({
@@ -675,8 +675,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     const editedTsx=hatchState.tsxValue+'\n// hatch editable';
     const editedJava=hatchState.javaValue+'\n// java hatch editable';
-    await page.locator('#d5HatchInput').fill(editedTsx);
-    await page.locator('#d5JavaHatchInput').fill(editedJava);
+    await page.locator('#d5HatchCodeInput').fill(editedTsx);
+    await page.locator('#d5JavaHatchCodeInput').fill(editedJava);
 
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-code:v1')?.endsWith('// hatch editable')),true,'React edits must persist');
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-java-code:v1')?.endsWith('// java hatch editable')),true,'Java edits must persist independently');
@@ -687,15 +687,15 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     await page.locator('#d5CenterEmptyStateAction').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'visible',timeout:5000});
-    assert.equal((await page.locator('#d5HatchInput').inputValue()).endsWith('// hatch editable'),true,'React code must survive close and reopen');
-    assert.equal((await page.locator('#d5JavaHatchInput').inputValue()).endsWith('// java hatch editable'),true,'Java code must survive close and reopen in the same Hatch');
+    assert.equal((await page.locator('#d5HatchCodeInput').inputValue()).endsWith('// hatch editable'),true,'React code must survive close and reopen');
+    assert.equal((await page.locator('#d5JavaHatchCodeInput').inputValue()).endsWith('// java hatch editable'),true,'Java code must survive close and reopen in the same Hatch');
     await page.locator('#d5HatchClose').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'detached',timeout:5000});
 
     assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatch must not set the Workspace modal state');
     assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Hatch must not open Workspace');
 
-    console.log('✓ React and Java Hatches render side by side and open independent editable code editors');
+    console.log('✓ React and Java editors share one Hatch window with independent editing');
   }finally{
     await browser.close();
   }

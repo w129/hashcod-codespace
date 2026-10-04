@@ -69,8 +69,8 @@ assert(!gate.includes('id="d5SavedChatDemo"'),'Saved Messages card must be remov
 assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be removed');
 
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy2'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy2'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy3'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy3'),'BranchedMenu JS bundle must load');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
@@ -369,7 +369,7 @@ assert(animateCursorJs.includes('window.HashcodAnimateCursor=Object.freeze'),'gl
 
 // FAQ must escape the page layout and cover the entire viewport.
 assert(gate.includes('components/mldsa-access-gate.css?v=20261004-calendar-black2'),'FAQ modal CSS cache-bust missing');
-assert(gate.includes('components/mldsa-access-gate.js?v=20261004-preview-policy2'),'FAQ modal JS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261004-preview-policy3'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
 assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');

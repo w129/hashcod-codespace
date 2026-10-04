@@ -286,7 +286,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     assert.equal(await page.locator('#d5PreviewPolicyContent').getAttribute('data-open'),'false','Preview Link Card must start closed');
     await page.locator('#d5PreviewPolicyTrigger').hover();
-    await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyContent')?.getAttribute('data-open')==='true');
+    await page.waitForFunction(()=>{
+      const node=document.getElementById('d5PreviewPolicyContent');
+      if(!node||node.getAttribute('data-open')!=='true') return false;
+      const style=getComputedStyle(node);
+      return Number.parseFloat(style.opacity)>=0.99&&style.visibility==='visible';
+    });
     const previewPolicyState=await page.locator('#d5PreviewPolicyContent').evaluate(node=>({
       opacity:getComputedStyle(node).opacity,
       visibility:getComputedStyle(node).visibility,

@@ -380,7 +380,7 @@ function mountPreviewPolicyFooter() {
   window.HashcodPreviewPolicyLinkCard = Object.freeze({
     mounted: true,
     href: '/privacy',
-    version: '20261004-preview-policy1'
+    version: '20261004-preview-policy2'
   });
   return true;
 }
@@ -395,7 +395,7 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261004-preview-policy1'
+    version: '20261004-preview-policy2'
   });
   return true;
 }

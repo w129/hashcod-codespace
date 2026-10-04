@@ -11,6 +11,7 @@ const JAVASCRIPT_HATCH_STORAGE_KEY = "hashcod:hatch-javascript-code:v1";
 const HTML_HATCH_STORAGE_KEY = "hashcod:hatch-html-code:v1";
 const CSS_HATCH_STORAGE_KEY = "hashcod:hatch-css-code:v1";
 const CSS_HTML_LINK_STORAGE_KEY = "hashcod:hatch-css-html-linked:v1";
+const PYTHON_HATCH_STORAGE_KEY = "hashcod:hatch-python-code:v1";
 
 const DEFAULT_HATCH_CODE = `'use client';
 
@@ -61,6 +62,15 @@ const DEFAULT_HTML_HATCH_CODE = `<!doctype html>
   </body>
 </html>`;
 
+const DEFAULT_PYTHON_HATCH_CODE = `def main():
+    message = "Hello from Hashcod Hatch"
+    print(message)
+
+
+if __name__ == "__main__":
+    main()
+`;
+
 const DEFAULT_CSS_HATCH_CODE = `:root {
   font-family: Inter, system-ui, sans-serif;
   color: #111827;
@@ -89,6 +99,23 @@ function CcCardTitleIcon() {
       focusable="false"
     >
       <path d="M 27.607422 6.9980469 C 26.352666 7.0120547 25.059761 7.1042075 23.738281 7.2792969 C 18.452417 7.9796473 13.66972 9.8778977 10.091797 12.498047 C 6.5138736 15.118196 4 18.560747 4 22.443359 C 4 25.85995 6.1160513 28.694861 9.1464844 30.501953 C 9.0602377 30.848045 9 31.200556 9 31.558594 C 9 33.415574 10.09709 34.975782 11.380859 35.818359 C 12.664629 36.660937 14.125108 37 15.535156 37 C 15.551086 37 15.568034 36.994241 15.583984 36.994141 C 15.1831 39.346618 14.640625 41.265625 14.640625 41.265625 A 2.0002 2.0002 0 1 0 18.359375 42.734375 C 18.359375 42.734375 19.295328 39.756034 19.697266 36.126953 C 20.298327 35.898565 20.915525 35.718174 21.476562 35.384766 C 22.451394 34.805473 23.37214 33.990454 24.03125 32.984375 C 29.260547 32.640915 34.095712 30.998162 37.751953 28.386719 C 41.438969 25.753294 44 21.995709 44 17.675781 C 44 13.793169 41.28539 10.66032 37.574219 8.9257812 C 35.718633 8.0585122 33.580715 7.4720066 31.246094 7.1894531 C 30.078783 7.0481764 28.862177 6.9840391 27.607422 6.9980469 z M 27.646484 11.003906 C 30.911701 10.977549 33.777988 11.567951 35.880859 12.550781 C 38.684688 13.861243 40 15.595394 40 17.675781 C 40 20.418853 38.384468 23.019034 35.427734 25.130859 C 32.737896 27.052057 28.993177 28.439813 24.884766 28.888672 C 24.699104 28.076557 24.287687 27.365461 23.695312 26.699219 C 22.879189 25.781326 21.573503 25 20 25 C 17.463873 25 16.217585 26.353088 15.496094 27.371094 C 14.859603 27.182483 14.214947 27 13.53125 27 C 12.885786 27 12.284894 27.13869 11.744141 27.376953 C 9.1984811 26.080168 8 24.426333 8 22.443359 C 8 20.362972 9.5180014 17.87546 12.455078 15.724609 C 15.392155 13.573758 19.607583 11.86079 24.261719 11.244141 C 25.425239 11.08998 26.558079 11.012692 27.646484 11.003906 z M 20 29 C 20.296497 29 20.490655 29.114064 20.707031 29.357422 C 20.923407 29.60078 21 30.030702 21 29.853516 C 21 30.561866 20.547645 31.16549 19.660156 31.757812 C 19.452809 30.964871 19.104901 30.265386 18.650391 29.623047 C 18.881122 29.321539 19.255982 29 20 29 z M 13.53125 31 C 14.411069 31 14.929853 31.252778 15.3125 31.658203 C 15.545513 31.905086 15.606501 32.49711 15.730469 32.972656 C 15.669824 32.974585 15.593918 33 15.535156 33 C 14.841204 33 14.033903 32.775032 13.576172 32.474609 C 13.118441 32.174187 13 32.013613 13 31.558594 C 13 31.276563 13.085528 31 13.53125 31 z" />
+    </svg>
+  );
+}
+
+function PythonIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="100"
+      height="100"
+      viewBox="0 0 48 48"
+      className="hatch-code-python-icon"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path fill="#0277BD" d="M24.047,5c-1.555,0.005-2.633,0.142-3.936,0.367c-3.848,0.67-4.549,2.077-4.549,4.67V14h9v2H15.22h-4.35c-2.636,0-4.943,1.242-5.674,4.219c-0.826,3.417-0.863,5.557,0,9.125C5.851,32.005,7.294,34,9.931,34h3.632v-5.104c0-2.966,2.686-5.896,5.764-5.896h7.236c2.523,0,5-1.862,5-4.377v-8.586c0-2.439-1.759-4.263-4.218-4.672C27.406,5.359,25.589,4.994,24.047,5z M19.063,9c0.821,0,1.5,0.677,1.5,1.502c0,0.833-0.679,1.498-1.5,1.498c-0.837,0-1.5-0.664-1.5-1.498C17.563,9.68,18.226,9,19.063,9z" />
+      <path fill="#FFC107" d="M23.078,43c1.555-0.005,2.633-0.142,3.936-0.367c3.848-0.67,4.549-2.077,4.549-4.67V34h-9v-2h9.343h4.35c2.636,0,4.943-1.242,5.674-4.219c0.826-3.417,0.863-5.557,0-9.125C41.274,15.995,39.831,14,37.194,14h-3.632v5.104c0,2.966-2.686,5.896-5.764,5.896h-7.236c-2.523,0-5,1.862-5,4.377v8.586c0,2.439,1.759,4.263,4.218,4.672C19.719,42.641,21.536,43.006,23.078,43z M28.063,39c-0.821,0-1.5-0.677-1.5-1.502c0-0.833,0.679-1.498,1.5-1.498c0.837,0,1.5,0.664,1.5,1.498C29.563,38.32,28.899,39,28.063,39z" />
     </svg>
   );
 }
@@ -326,6 +353,17 @@ function tokenizeJavaScript(code) {
     if (token.startsWith("'") || token.startsWith('"') || token.startsWith("`")) return "hatch-token-string";
     if (/^\d/.test(token)) return "hatch-token-number";
     if (/^(console|Math|Array|Object|String|Number|Boolean|Promise|Date|JSON)$/.test(token)) return "hatch-token-type";
+    return "hatch-token-keyword";
+  });
+}
+
+function tokenizePython(code) {
+  const pattern = /(#[^\n]*|'''[\s\S]*?'''|"""[\s\S]*?"""|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\b(?:def|class|return|if|elif|else|for|while|in|import|from|as|try|except|finally|raise|with|lambda|yield|async|await|pass|break|continue|and|or|not|is|None|True|False)\b|\b(?:print|len|range|str|int|float|list|dict|set|tuple|bool|main)\b|\b\d+(?:\.\d+)?\b)/g;
+  return pushTokens(code, pattern, (token) => {
+    if (token.startsWith("#")) return "hatch-token-comment";
+    if (token.startsWith("'") || token.startsWith('"')) return "hatch-token-string";
+    if (/^\d/.test(token)) return "hatch-token-number";
+    if (/^(print|len|range|str|int|float|list|dict|set|tuple|bool|main)$/.test(token)) return "hatch-token-type";
     return "hatch-token-keyword";
   });
 }
@@ -579,6 +617,10 @@ function HatchCodeEditor({ open, onClose }) {
     CSS_HTML_LINK_STORAGE_KEY,
     false,
   );
+  const [pythonCode, setPythonCode] = usePersistentCode(
+    PYTHON_HATCH_STORAGE_KEY,
+    DEFAULT_PYTHON_HATCH_CODE,
+  );
 
   const htmlPreviewSource = useMemo(
     () => (cssLinkedToHtml ? attachCssToHtml(htmlCode, cssCode) : htmlCode),
@@ -725,6 +767,18 @@ function HatchCodeEditor({ open, onClose }) {
               previewFrameId="d5HtmlHatchPreviewFrame"
               previewSource={htmlPreviewSource}
             />
+
+            <CodePane
+              paneKey="python"
+              inputId="d5PythonHatchCodeInput"
+              copyId="d5PythonHatchCopy"
+              filename="main.py"
+              icon={<PythonIcon />}
+              code={pythonCode}
+              setCode={setPythonCode}
+              tokenize={tokenizePython}
+              inputLabel="Editable Python code"
+            />
           </div>
         </motion.div>
       </motion.div>
@@ -773,7 +827,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-css-html-link9",
+    version: "20261004-python-hatch10",
   });
 
   return true;

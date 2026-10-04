@@ -19,6 +19,10 @@ on:
       - components/mldsa-access-gate.js
       - first-screen-branched-menu-build/**
       - center-empty-state-build/**
+      - code-access-build/**
+      - code-access-lib.php
+      - code-access-api.php
+      - tests/e2e/test_code_access_manifest.php
       - hashcod-file-vault.php
       - Dockerfile
       - components/react-bits-rotating-text.js
@@ -86,7 +90,9 @@ jobs:
           npm run build
           test -s ../components/code-access.bundle.js
           test -s ../components/code-access.bundle.css
+          test -s ../components/monaco-editor.worker.js
           node --check ../components/code-access.bundle.js
+          node --check ../components/monaco-editor.worker.js
 
       - name: Build centered EmptyState
         working-directory: center-empty-state-build

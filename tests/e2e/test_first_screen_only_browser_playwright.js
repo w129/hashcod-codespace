@@ -663,6 +663,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         copyJava:Boolean(document.getElementById('d5JavaHatchCopy')),
         copyJavaScript:Boolean(document.getElementById('d5JavaScriptHatchCopy')),
         copyHtml:Boolean(document.getElementById('d5HtmlHatchCopy')),
+        htmlPreview:Boolean(document.getElementById('d5HtmlHatchPreview')),
+        htmlPreviewPressed:document.getElementById('d5HtmlHatchPreview')?.getAttribute('aria-pressed')||'',
+        htmlPreviewIconViewBox:document.querySelector('#d5HtmlHatchPreview svg')?.getAttribute('viewBox')||'',
+        htmlPreviewIconPath:document.querySelector('#d5HtmlHatchPreview path')?.getAttribute('d')||'',
+        htmlCopyRight:document.getElementById('d5HtmlHatchCopy')?.getBoundingClientRect().right||0,
+        htmlPreviewLeft:document.getElementById('d5HtmlHatchPreview')?.getBoundingClientRect().left||0,
         close:Boolean(document.getElementById('d5HatchClose'))
       };
     });
@@ -699,6 +705,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(hatchState.copyJavaScript,true,'JavaScript pane must have its own copy button');
     assert.equal(hatchState.copyJava,true,'Java pane must have its own copy button');
     assert.equal(hatchState.copyHtml,true,'HTML pane must have its own copy button');
+    assert.equal(hatchState.htmlPreview,true,'HTML pane must have a preview button beside Copy');
+    assert.equal(hatchState.htmlPreviewPressed,'false','HTML preview must start in code mode');
+    assert.equal(hatchState.htmlPreviewIconViewBox,'0 0 24 24','HTML preview button must preserve the supplied 24x24 SVG');
+    assert(hatchState.htmlPreviewIconPath.startsWith('M 6 2 C 4.897 2 4 2.897 4 4'),'HTML preview button must use the supplied SVG path');
+    assert(hatchState.htmlPreviewLeft>=hatchState.htmlCopyRight-2,'HTML preview button must sit beside the Copy control');
     assert.equal(hatchState.close,true,'shared Hatch must have one close button');
     assert.equal(hatchState.tsxFocused,true,'React code area must receive initial focus');
     assert(hatchState.tsxValue.includes("type MyComponentProps"),'React pane must keep the supplied TSX example');
@@ -719,6 +730,17 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-javascript-code:v1')?.endsWith('// javascript hatch editable')),true,'JavaScript edits must persist independently');
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-java-code:v1')?.endsWith('// java hatch editable')),true,'Java edits must persist independently');
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-html-code:v1')?.endsWith('<!-- html hatch editable -->')),true,'HTML edits must persist independently');
+
+    await page.locator('#d5HtmlHatchPreview').click();
+    await page.waitForSelector('#d5HtmlHatchPreviewFrame',{state:'visible',timeout:5000});
+    assert.equal(await page.locator('#d5HtmlHatchPreview').getAttribute('aria-pressed'),'true','HTML preview button must enter preview mode');
+    assert.equal(await page.locator('#d5HtmlHatchCodeInput').count(),0,'HTML textarea must be replaced by the page preview while previewing');
+    assert.equal(await page.frameLocator('#d5HtmlHatchPreviewFrame').locator('h1').textContent(),'Hello from Hashcod Hatch','HTML preview must render the current index.html page');
+
+    await page.locator('#d5HtmlHatchPreview').click();
+    await page.waitForSelector('#d5HtmlHatchCodeInput',{state:'visible',timeout:5000});
+    assert.equal(await page.locator('#d5HtmlHatchPreviewFrame').count(),0,'HTML preview frame must close when toggled back to code');
+    assert.equal((await page.locator('#d5HtmlHatchCodeInput').inputValue()).endsWith('<!-- html hatch editable -->'),true,'HTML code must remain intact after previewing');
 
     await page.keyboard.press('Escape');
     await page.waitForSelector('#d5HatchCodeEditor',{state:'detached',timeout:5000});

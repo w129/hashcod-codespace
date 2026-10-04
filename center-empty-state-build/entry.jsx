@@ -149,6 +149,21 @@ function ReactIcon() {
   );
 }
 
+function HtmlPreviewIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="100"
+      height="100"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M 6 2 C 4.897 2 4 2.897 4 4 L 4 20 C 4 21.103 4.897 22 6 22 L 12.259766 22 C 11.837766 21.396 11.509922 20.723 11.294922 20 L 6 20 L 6 4 L 13 4 L 13 9 L 18 9 L 18 11 C 18.695 11 19.366 11.105922 20 11.294922 L 20 8 L 14 2 L 6 2 z M 18 13 C 15.2 13 13 15.2 13 18 C 13 20.8 15.2 23 18 23 C 19 23 20.000781 22.699219 20.800781 22.199219 L 22.599609 24 L 24 22.599609 L 22.199219 20.800781 C 22.699219 20.000781 23 19 23 18 C 23 15.2 20.8 13 18 13 z M 18 15 C 19.7 15 21 16.3 21 18 C 21 19.7 19.7 21 18 21 C 16.3 21 15 19.7 15 18 C 15 16.3 16.3 15 18 15 z" />
+    </svg>
+  );
+}
+
 function CopyIcon({ checked }) {
   if (checked) {
     return (
@@ -263,11 +278,15 @@ function CodePane({
   tokenize,
   inputLabel,
   autoFocus = false,
+  preview = false,
+  previewButtonId,
+  previewFrameId,
 }) {
   const textareaRef = useRef(null);
   const highlightRef = useRef(null);
   const copyTimerRef = useRef(null);
   const [copied, setCopied] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const highlighted = useMemo(() => tokenize(code), [code, tokenize]);
 
   useEffect(() => {
@@ -333,36 +352,64 @@ function CodePane({
           {icon}
           <span>{filename}</span>
         </div>
-        <button
-          id={copyId}
-          className="hatch-code-copy"
-          type="button"
-          aria-label={copied ? "Copied" : `Copy ${filename}`}
-          title={copied ? "Copied" : "Copy code"}
-          onClick={copyCode}
-        >
-          <CopyIcon checked={copied} />
-          <span>{copied ? "Copied" : "Copy"}</span>
-        </button>
+        <div className="hatch-code-header-actions">
+          <button
+            id={copyId}
+            className="hatch-code-copy"
+            type="button"
+            aria-label={copied ? "Copied" : `Copy ${filename}`}
+            title={copied ? "Copied" : "Copy code"}
+            onClick={copyCode}
+          >
+            <CopyIcon checked={copied} />
+            <span>{copied ? "Copied" : "Copy"}</span>
+          </button>
+
+          {preview && (
+            <button
+              id={previewButtonId}
+              className={`hatch-code-preview-toggle${showPreview ? " is-active" : ""}`}
+              type="button"
+              aria-label={showPreview ? "Back to HTML code" : "Preview HTML page"}
+              aria-pressed={showPreview ? "true" : "false"}
+              title={showPreview ? "Back to code" : "Preview page"}
+              onClick={() => setShowPreview((value) => !value)}
+            >
+              <HtmlPreviewIcon />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="hatch-code-editor-wrap">
-        <pre ref={highlightRef} className="hatch-code-highlight" aria-hidden="true">
-          <code>{highlighted}</code>
-        </pre>
-        <textarea
-          id={inputId}
-          ref={textareaRef}
-          className="hatch-code-input"
-          value={code}
-          onChange={(event) => setCode(event.target.value)}
-          onKeyDown={handleEditorKeyDown}
-          onScroll={syncScroll}
-          spellCheck="false"
-          autoCapitalize="off"
-          autoCorrect="off"
-          aria-label={inputLabel}
-        />
+        {preview && showPreview ? (
+          <iframe
+            id={previewFrameId}
+            className="hatch-html-preview-frame"
+            title="HTML page preview"
+            srcDoc={code}
+            sandbox="allow-scripts"
+          />
+        ) : (
+          <>
+            <pre ref={highlightRef} className="hatch-code-highlight" aria-hidden="true">
+              <code>{highlighted}</code>
+            </pre>
+            <textarea
+              id={inputId}
+              ref={textareaRef}
+              className="hatch-code-input"
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              onKeyDown={handleEditorKeyDown}
+              onScroll={syncScroll}
+              spellCheck="false"
+              autoCapitalize="off"
+              autoCorrect="off"
+              aria-label={inputLabel}
+            />
+          </>
+        )}
       </div>
     </section>
   );
@@ -493,6 +540,9 @@ function HatchCodeEditor({ open, onClose }) {
             setCode={setHtmlCode}
             tokenize={tokenizeHtml}
             inputLabel="Editable HTML code"
+            preview
+            previewButtonId="d5HtmlHatchPreview"
+            previewFrameId="d5HtmlHatchPreviewFrame"
           />
         </motion.div>
       </motion.div>
@@ -541,7 +591,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-html-hatch5",
+    version: "20261004-html-preview6",
   });
 
   return true;

@@ -82,8 +82,8 @@ assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the t
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-html-hatch5'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-html-hatch5'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-html-preview6'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-html-preview6'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -94,6 +94,9 @@ assert(centerEmptyStateEntry.includes('icon={<CcCardTitleIcon />}'),'single Hatc
 assert(centerEmptyStateEntry.includes('function JavaIcon()'),'Java icon component missing');
 assert(centerEmptyStateEntry.includes('function JavaScriptIcon()'),'JavaScript icon component missing');
 assert(centerEmptyStateEntry.includes('function HtmlIcon()'),'HTML icon component missing');
+assert(centerEmptyStateEntry.includes('function HtmlPreviewIcon()'),'HTML preview button icon component missing');
+assert(centerEmptyStateEntry.includes('viewBox="0 0 24 24"'),'HTML preview button icon viewBox missing');
+assert(centerEmptyStateEntry.includes('M 6 2 C 4.897 2 4 2.897 4 4'),'supplied HTML preview button path missing');
 assert(centerEmptyStateEntry.includes('fill="#e7a42b"'),'HTML icon outer shield color missing');
 assert(centerEmptyStateEntry.includes('fill="#f2bf22"'),'HTML icon inner shield color missing');
 assert(centerEmptyStateEntry.includes('points="8,5 42,5 38,39 25,43 11,39"'),'supplied HTML shield polygon missing');
@@ -121,6 +124,10 @@ assert(centerEmptyStateEntry.includes('inputId="d5HatchCodeInput"'),'React texta
 assert(centerEmptyStateEntry.includes('inputId="d5JavaHatchCodeInput"'),'Java textarea id missing');
 assert(centerEmptyStateEntry.includes('inputId="d5JavaScriptHatchCodeInput"'),'JavaScript textarea id missing');
 assert(centerEmptyStateEntry.includes('inputId="d5HtmlHatchCodeInput"'),'HTML textarea id missing');
+assert(centerEmptyStateEntry.includes('previewButtonId="d5HtmlHatchPreview"'),'HTML preview button id missing');
+assert(centerEmptyStateEntry.includes('previewFrameId="d5HtmlHatchPreviewFrame"'),'HTML preview frame id missing');
+assert(centerEmptyStateEntry.includes('srcDoc={code}'),'HTML preview must render the current editor code');
+assert(centerEmptyStateEntry.includes('sandbox="allow-scripts"'),'HTML preview must be isolated in a sandboxed iframe');
 assert(centerEmptyStateEntry.includes('public class Main'),'Java default source missing');
 assert(centerEmptyStateEntry.includes('JAVA_HATCH_STORAGE_KEY'),'Java storage key missing');
 assert(centerEmptyStateEntry.includes('JAVASCRIPT_HATCH_STORAGE_KEY'),'JavaScript storage key missing');
@@ -139,6 +146,8 @@ assert(centerEmptyStateEntryCss.includes('grid-column: 2'),'right-side pane colu
 assert(centerEmptyStateEntryCss.includes('grid-row: 2'),'second-row pane styling missing');
 assert(centerEmptyStateEntryCss.includes('height: 620px'),'shared Hatch must grow for the third editor');
 assert(centerEmptyStateEntryCss.includes('backdrop-filter: blur(24px)'),'Hatch backdrop blur missing');
+assert(centerEmptyStateEntryCss.includes('.hatch-code-preview-toggle'),'HTML preview button styling missing');
+assert(centerEmptyStateEntryCss.includes('.hatch-html-preview-frame'),'HTML preview frame styling missing');
 assert(!centerEmptyStateEntry.includes('hashcod:first-screen-branched-menu-select'),'Hatch must not reuse the Workspace destination');
 assert(centerEmptyState.includes('(title || description)'),'EmptyState must omit copy markup when no title or description is provided');
 assert(centerEmptyStateEntryCss.includes('left: 50%')&&centerEmptyStateEntryCss.includes('transform: translate(-50%, -50%)'),'center EmptyState must be horizontally centered');

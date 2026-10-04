@@ -41,8 +41,8 @@ html.hashcod-animate-cursor-active body * {
   position: fixed;
   left: 0;
   top: 0;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   opacity: 0;
@@ -51,10 +51,11 @@ html.hashcod-animate-cursor-active body * {
   transition: opacity 120ms ease;
 }
 
-.hashcod-animate-cursor-follow svg {
+.hashcod-animate-cursor-follow img {
   display: block;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
 .hashcod-animate-cursor-follow.is-visible {

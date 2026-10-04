@@ -198,7 +198,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         previewPolicy:{
           exists:Boolean(document.getElementById('d5PreviewPolicyFooter')),
           afterMain:Boolean(document.querySelector('main')?.compareDocumentPosition(document.getElementById('d5PreviewPolicyFooter')) & Node.DOCUMENT_POSITION_FOLLOWING),
-          text:document.getElementById('d5PreviewPolicyFooter')?.textContent?.replace(/\s+/g,' ').trim()||'',
+          text:document.getElementById('d5PreviewPolicyFooter')?.innerText?.replace(/\s+/g,' ').trim()||'',
           href:document.getElementById('d5PreviewPolicyTrigger')?.getAttribute('href')||'',
           target:document.getElementById('d5PreviewPolicyTrigger')?.getAttribute('target')||'',
           component:document.getElementById('d5PreviewPolicyMount')?.getAttribute('data-hashcod-component')||'',

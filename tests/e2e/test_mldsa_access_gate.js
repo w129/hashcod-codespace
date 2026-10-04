@@ -18,8 +18,8 @@ const centerEmptyStateEntryCss=fs.readFileSync('center-empty-state-build/entry.c
 const centerEmptyStatePkg=JSON.parse(fs.readFileSync('center-empty-state-build/package.json','utf8'));
 const rotatingCss=fs.readFileSync('components/react-bits-rotating-text.css','utf8');
 const rotatingJs=fs.readFileSync('components/react-bits-rotating-text.js','utf8');
-const splashCss=fs.readFileSync('components/react-bits-splash-cursor.css','utf8');
-const splashJs=fs.readFileSync('components/react-bits-splash-cursor.js','utf8');
+const animateCursorCss=fs.readFileSync('components/animate-ui-global-cursor.css','utf8');
+const animateCursorJs=fs.readFileSync('components/animate-ui-global-cursor.js','utf8');
 const l8=fs.readFileSync('l8-html.php','utf8');
 const router=fs.readFileSync('router.php','utf8');
 const pub=fs.readFileSync('config/mldsa87-access-public.b64','utf8').replace(/\s+/g,'');
@@ -296,13 +296,27 @@ assert.equal(pkg.dependencies['@hugeicons/react'],'1.1.9','@hugeicons/react depe
 assert.equal(pkg.dependencies['@hugeicons/core-free-icons'],'4.3.5','Hugeicons icon package changed');
 assert.equal(pkg.dependencies.react,'19.2.4','React dependency changed');
 
-// Existing first-screen effects remain intact.
+// Existing RotatingText stays; the smoke cursor is fully replaced by the global Animate UI cursor.
 assert(gate.includes('id="d5RotatingTextHero"'),'RotatingText host missing');
-assert(gate.includes('id="d5SplashCursorBackground"'),'SplashCursor host missing');
 assert(rotatingCss.includes('background:#0a0a0a')&&rotatingCss.includes('color:#fff'),'RotatingText black treatment missing');
 assert(rotatingJs.includes('window.HashcodRotatingText'),'RotatingText controller missing');
-assert(splashCss.includes('.entry-splash-cursor{')&&splashCss.includes('pointer-events:none'),'SplashCursor background styling missing');
-assert(splashJs.includes("window.addEventListener('mousemove', handleMouseMove)"),'SplashCursor pointer interaction missing');
+assert(!gate.includes('d5SplashCursorBackground'),'retired smoke cursor host must be removed');
+assert(!gate.includes('d5SplashCursorCanvas'),'retired smoke cursor canvas must be removed');
+assert(!gate.includes('react-bits-splash-cursor'),'retired SplashCursor assets must not load');
+assert(gate.includes('components/animate-ui-global-cursor.css?v=20261004-animate-cursor1'),'Animate UI cursor CSS must load');
+assert(gate.includes('components/animate-ui-global-cursor.js?v=20261004-animate-cursor1'),'Animate UI cursor JS must load');
+assert(animateCursorCss.includes('html.hashcod-animate-cursor-active body *'),'global native cursor suppression missing');
+assert(animateCursorCss.includes('cursor: none !important'),'native desktop cursor must be hidden');
+assert(animateCursorCss.includes('.hashcod-animate-cursor-follow'),'CursorFollow styling missing');
+assert(animateCursorJs.includes("follow.textContent='Designer'"),'CursorFollow Designer label missing');
+assert(animateCursorJs.includes('var SIDE_OFFSET=15'),'CursorFollow sideOffset must remain 15');
+assert(animateCursorJs.includes('var ALIGN_OFFSET=5'),'CursorFollow alignOffset must remain 5');
+assert(animateCursorJs.includes("side:'bottom'"),'CursorFollow side must remain bottom');
+assert(animateCursorJs.includes("align:'end'"),'CursorFollow align must remain end');
+assert(animateCursorJs.includes('var SPRING_STIFFNESS=500'),'Animate UI cursor spring stiffness changed');
+assert(animateCursorJs.includes('var SPRING_DAMPING=50'),'Animate UI cursor spring damping changed');
+assert(animateCursorJs.includes("window.addEventListener('pointermove',onPointerMove"),'global cursor pointer tracking missing');
+assert(animateCursorJs.includes('window.HashcodAnimateCursor=Object.freeze'),'global cursor controller marker missing');
 
 
 // FAQ must escape the page layout and cover the entire viewport.

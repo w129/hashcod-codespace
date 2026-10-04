@@ -6,7 +6,7 @@ import './node_modules/monaco-editor/min/vs/editor/editor.main.css';
 import './entry.css';
 
 const API = '/api/code-access';
-const VERSION = '20261004-code-access2';
+const VERSION = '20261004-code-access3';
 
 function resolveMonacoWorkerUrl() {
   const script = Array.from(document.scripts).find((node) =>
@@ -146,6 +146,7 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
   const [busy, setBusy] = useState(required && !initiallyAuthorized);
   const [status, setStatus] = useState('Preparing one-time challenge…');
   const [statusKind, setStatusKind] = useState('idle');
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
 
   const editorValue = activeTab === 'Access.php' ? source : PROTOCOL_SOURCE;
   const readOnly = activeTab !== 'Access.php';
@@ -189,8 +190,20 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
     if (required && !initiallyAuthorized) loadChallenge();
   }, [required, initiallyAuthorized, loadChallenge]);
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setNow(Math.floor(Date.now() / 1000));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   const validate = useCallback(async () => {
     if (busy || authorized) return;
+    if (!expiresAt || expiresAt <= Math.floor(Date.now() / 1000)) {
+      setStatus('Challenge expired. Click Refresh, sign the new challenge, then paste the new manifest.');
+      setStatusKind('error');
+      return;
+    }
     setBusy(true);
     setStatus('Validating signed access manifest…');
     setStatusKind('idle');
@@ -226,7 +239,7 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
     } finally {
       setBusy(false);
     }
-  }, [source, busy, authorized]);
+  }, [source, busy, authorized, expiresAt]);
 
   const copyChallenge = useCallback(async () => {
     if (!challenge) return;
@@ -240,10 +253,13 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
     }
   }, [challenge]);
 
-  const timeLabel = useMemo(() => {
-    if (!expiresAt) return '—';
-    return Math.max(0, expiresAt - Math.floor(Date.now() / 1000)) + 's';
-  }, [expiresAt, source, busy]);
+  const remainingSeconds = useMemo(() => {
+    if (!expiresAt) return 0;
+    return Math.max(0, expiresAt - now);
+  }, [expiresAt, now]);
+
+  const timeLabel = expiresAt ? remainingSeconds + 's' : '—';
+  const challengeExpired = Boolean(expiresAt && remainingSeconds <= 0);
 
   if (!required || authorized) return null;
 
@@ -322,7 +338,7 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
             className="code-access-validate"
             type="button"
             onClick={validate}
-            disabled={busy || activeTab !== 'Access.php'}
+            disabled={busy || activeTab !== 'Access.php' || challengeExpired}
           >
             {busy ? 'Validating…' : 'Validate access code'}
           </button>

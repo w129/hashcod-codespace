@@ -1,16 +1,16 @@
 (function(){
 'use strict';
 
-var VERSION='20261004-smith3';
+var VERSION='20261004-smith-auth1';
 var current=(document.currentScript&&document.currentScript.src)||window.location.href;
 var base=new URL('.',current);
 
-function addStyle(){
-  if(document.querySelector('link[data-hashcod-smith-chart="style"]'))return;
+function addStyle(name,src){
+  if(document.querySelector('link[data-hashcod-loader-style="'+name+'"]'))return;
   var link=document.createElement('link');
   link.rel='stylesheet';
-  link.href=new URL('smith-credential-chart.css?v='+VERSION,base).href;
-  link.setAttribute('data-hashcod-smith-chart','style');
+  link.href=new URL(src,base).href;
+  link.setAttribute('data-hashcod-loader-style',name);
   document.head.appendChild(link);
 }
 
@@ -36,23 +36,17 @@ function addScript(name,src,onload,onerror){
   return script;
 }
 
-function loadSmithAfterGate(){
-  addStyle();
-  addScript(
-    'smith-chart',
-    'smith-credential-chart.js?v='+VERSION,
-    function(){
-      addScript('smith-chart-layout','smith-credential-chart-layout.js?v='+VERSION);
-    }
-  );
+function loadSignedSmithBridge(){
+  addStyle('signed-smith-editor','signed-smith-editor-bridge.css?v='+VERSION);
+  addScript('signed-smith-editor','signed-smith-editor-bridge.js?v='+VERSION);
 }
 
-// The gate runtime is loaded first from a direct PHP bridge. Smith chart code
-// is strictly secondary and cannot block Monaco initialization.
+// The production gate runtime always initializes first. The signed-Smith bridge
+// is secondary: if it fails, the React/Monaco gate still loads normally.
 addScript(
   'gate-core',
   '../mldsa-access-gate-core.php?v='+VERSION,
-  loadSmithAfterGate,
+  loadSignedSmithBridge,
   function(){
     var status=document.getElementById('d5CodeAccessStatus');
     if(status)status.textContent='Access runtime unavailable. Reload the page.';

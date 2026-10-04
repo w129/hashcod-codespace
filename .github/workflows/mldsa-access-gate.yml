@@ -130,8 +130,8 @@ jobs:
           grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-home.html
           grep -q 'data-hashcod-component="CodeAccessGate"' /tmp/hashcod-home.html
           grep -q 'data-required="0"' /tmp/hashcod-home.html
-          grep -q 'code-access.bundle.css?v=20261004-code-access2' /tmp/hashcod-home.html
-          grep -q 'code-access.bundle.js?v=20261004-code-access2' /tmp/hashcod-home.html
+          grep -q 'code-access.bundle.css?v=20261004-code-access3' /tmp/hashcod-home.html
+          grep -q 'code-access.bundle.js?v=20261004-code-access3' /tmp/hashcod-home.html
           grep -q 'first-screen-branched-menu.bundle.css?v=20261004-preview-policy5' /tmp/hashcod-home.html
           grep -q 'first-screen-branched-menu.bundle.js?v=20261004-preview-policy5' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateStage"' /tmp/hashcod-home.html
@@ -270,7 +270,7 @@ jobs:
           grep -q 'id="d5PreviewPolicyFooter"' /tmp/hashcod-laragon.html
           grep -q 'id="d5PreviewPolicyMount"' /tmp/hashcod-laragon.html
           grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-laragon.html
-          grep -q 'code-access.bundle.js?v=20261004-code-access2' /tmp/hashcod-laragon.html
+          grep -q 'code-access.bundle.js?v=20261004-code-access3' /tmp/hashcod-laragon.html
           grep -q 'first-screen-branched-menu.bundle.js?v=20261004-preview-policy5' /tmp/hashcod-laragon.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-laragon.html
           grep -q 'center-empty-state.bundle.js?v=20261004-file-vault2' /tmp/hashcod-laragon.html

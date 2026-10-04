@@ -669,6 +669,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.locator('#d5CenterEmptyStateAction').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5HatchBackdrop',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>{
+      const editor=document.getElementById('d5HatchCodeEditor');
+      if(!editor)return false;
+      const rect=editor.getBoundingClientRect();
+      return Math.abs((rect.left+rect.width/2)-(innerWidth/2))<=2
+        && Math.abs((rect.top+rect.height/2)-(innerHeight/2))<=2;
+    },{timeout:5000});
 
     const hatchState=await page.evaluate(()=>{
       const editor=document.getElementById('d5HatchCodeEditor');

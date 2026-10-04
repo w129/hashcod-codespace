@@ -98,12 +98,12 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 .hatch-code-shell {
   position: relative;
   width: 864px;
-  height: 372px;
+  height: 620px;
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 72px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
   overflow: visible;
   border: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 12px;
@@ -124,11 +124,22 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   background: #ffffff;
 }
 
-.hatch-code-pane:first-of-type {
-  border-radius: 12px 0 0 12px;
+.hatch-code-pane[data-code-pane="tsx"] {
+  grid-column: 1;
+  grid-row: 1;
+  border-radius: 12px 0 0 0;
 }
 
-.hatch-code-pane:last-of-type {
+.hatch-code-pane[data-code-pane="javascript"] {
+  grid-column: 1;
+  grid-row: 2;
+  border-top: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 0 0 0 12px;
+}
+
+.hatch-code-pane[data-code-pane="java"] {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   border-left: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 0 12px 12px 0;
 }
@@ -162,7 +173,8 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 }
 
 .hatch-code-react-icon,
-.hatch-code-java-icon {
+.hatch-code-java-icon,
+.hatch-code-javascript-icon {
   width: 17px;
   height: 17px;
   flex: 0 0 17px;
@@ -327,7 +339,8 @@ body.hashcod-hatch-open {
 @media (max-width: 620px) {
   .hatch-code-shell {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    height: min(372px, calc(100dvh - 84px));
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    height: min(620px, calc(100dvh - 84px));
   }
 
   .hatch-code-header {

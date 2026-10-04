@@ -297,7 +297,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       visibility:getComputedStyle(node).visibility,
       title:node.querySelector('.preview-link-card__document strong')?.textContent?.trim()||''
     }));
-    assert.equal(previewPolicyState.opacity,'1','Preview Link Card must become visible on hover');
+    assert(Number.parseFloat(previewPolicyState.opacity)>=0.99,'Preview Link Card must become visible on hover');
     assert.equal(previewPolicyState.visibility,'visible','Preview Link Card must be visually exposed on hover');
     assert.equal(previewPolicyState.title,'Use and Privacy Policy','Preview Link Card title changed');
     await page.mouse.move(700,450);

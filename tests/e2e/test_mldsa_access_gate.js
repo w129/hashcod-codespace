@@ -82,8 +82,8 @@ assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the t
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-equal-scroll8'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-equal-scroll8'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-css-html-link9'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-css-html-link9'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -134,7 +134,14 @@ assert(centerEmptyStateEntry.includes('inputId="d5CssHatchCodeInput"'),'CSS text
 assert(centerEmptyStateEntry.includes('inputId="d5HtmlHatchCodeInput"'),'HTML textarea id missing');
 assert(centerEmptyStateEntry.includes('previewButtonId="d5HtmlHatchPreview"'),'HTML preview button id missing');
 assert(centerEmptyStateEntry.includes('previewFrameId="d5HtmlHatchPreviewFrame"'),'HTML preview frame id missing');
-assert(centerEmptyStateEntry.includes('srcDoc={code}'),'HTML preview must render the current editor code');
+assert(centerEmptyStateEntry.includes('srcDoc={previewSource ?? code}'),'HTML preview must render the composed preview source');
+assert(centerEmptyStateEntry.includes('function CssHtmlLinkIcon()'),'CSS to HTML link icon component missing');
+assert(centerEmptyStateEntry.includes('viewBox="0 0 24 24"'),'CSS to HTML link icon viewBox missing');
+assert(centerEmptyStateEntry.includes('M 19 3 C 17.35499 3 16 4.3549904 16 6'),'supplied CSS to HTML link icon path missing');
+assert(centerEmptyStateEntry.includes('id="d5CssHtmlLink"'),'CSS to HTML link button id missing');
+assert(centerEmptyStateEntry.includes('CSS_HTML_LINK_STORAGE_KEY'),'CSS to HTML link persistence key missing');
+assert(centerEmptyStateEntry.includes('function attachCssToHtml(html, css)'),'CSS to HTML preview composition helper missing');
+assert(centerEmptyStateEntry.includes('data-hashcod-hatch-css'),'linked CSS style marker missing');
 assert(centerEmptyStateEntry.includes('sandbox="allow-scripts"'),'HTML preview must be isolated in a sandboxed iframe');
 assert(centerEmptyStateEntry.includes('public class Main'),'Java default source missing');
 assert(centerEmptyStateEntry.includes('JAVA_HATCH_STORAGE_KEY'),'Java storage key missing');
@@ -160,6 +167,7 @@ assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="java"
 assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="html"]'),'HTML pane layout missing');
 assert(centerEmptyStateEntryCss.includes('height: min(744px, calc(100dvh - 112px))'),'shared Hatch viewport height must stay responsive');
 assert(centerEmptyStateEntryCss.includes('backdrop-filter: blur(24px)'),'Hatch backdrop blur missing');
+assert(centerEmptyStateEntryCss.includes('.hatch-code-link-toggle'),'CSS to HTML link button styling missing');
 assert(centerEmptyStateEntryCss.includes('.hatch-code-preview-toggle'),'HTML preview button styling missing');
 assert(centerEmptyStateEntryCss.includes('.hatch-html-preview-frame'),'HTML preview frame styling missing');
 assert(!centerEmptyStateEntry.includes('hashcod:first-screen-branched-menu-select'),'Hatch must not reuse the Workspace destination');

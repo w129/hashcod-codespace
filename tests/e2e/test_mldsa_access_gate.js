@@ -95,10 +95,18 @@ assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be remov
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5'),'BranchedMenu JS bundle must load');
-assert(gate.includes('components/code-access.bundle.css?v=20261004-code-access1'),'code access CSS bundle must load');
-assert(gate.includes('components/code-access.bundle.js?v=20261004-code-access1'),'code access JS bundle must load');
+assert(gate.includes('components/code-access.bundle.css?v=20261004-code-access2'),'code access CSS bundle must load');
+assert(gate.includes('components/code-access.bundle.js?v=20261004-code-access2'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
 assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
+assert(gate.includes('class="code-access-boot-window"'),'styled CodeTabs boot window missing');
+assert(gate.includes('Access.php'),'CodeTabs boot Access.php tab missing');
+assert(gate.includes('Protocol'),'CodeTabs boot Protocol tab missing');
+assert(css.includes('/* Code access fallback shell'),'code access fallback styling missing from always-loaded gate CSS');
+assert(css.includes('backdrop-filter:blur(20px) saturate(.72)'),'code access fallback must blur the platform behind it');
+assert(css.includes('.code-access-root .code-access-boot-window'),'code access fallback window styling missing');
+assert(codeAccessCss.includes('background: rgba(247,247,245,.56)'),'Monaco overlay must keep the platform visible behind a translucent blur');
+assert(codeAccessCss.includes('backdrop-filter: blur(20px) saturate(.72)'),'Monaco overlay blur missing');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
@@ -402,7 +410,7 @@ assert(animateCursorJs.includes('window.HashcodAnimateCursor=Object.freeze'),'gl
 
 
 // FAQ must escape the page layout and cover the entire viewport.
-assert(gate.includes('components/mldsa-access-gate.css?v=20261004-calendar-black2'),'FAQ modal CSS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.css?v=20261004-code-access-fallback1'),'FAQ modal CSS cache-bust missing');
 assert(gate.includes('components/mldsa-access-gate.js?v=20261004-preview-policy5'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');

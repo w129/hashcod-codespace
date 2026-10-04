@@ -43,13 +43,8 @@ function boot(){
   var followX=targetX;
   var followY=targetY+SIDE_OFFSET+12;
   var visible=false;
-  var pressed=false;
   var raf=0;
   var last=performance.now();
-
-  function interactiveTarget(target){
-    return !!(target&&target.closest&&target.closest('a,button,input,textarea,select,summary,[role="button"],[role="link"],[tabindex]:not([tabindex="-1"])'));
-  }
 
   function setVisible(next){
     visible=next;
@@ -81,8 +76,7 @@ function boot(){
     followX+=(fp.x-followX)*followAlpha;
     followY+=(fp.y-followY)*followAlpha;
 
-    var cursorScale=pressed?0.82:1;
-    cursor.style.transform='translate3d('+targetX+'px,'+targetY+'px,0) translate(-50%,-50%) scale('+cursorScale+')';
+    cursor.style.transform='translate3d('+targetX+'px,'+targetY+'px,0) translate(-50%,-50%) scale(1)';
     follow.style.transform='translate3d('+followX+'px,'+followY+'px,0) translate(-50%,-50%)';
 
     raf=requestAnimationFrame(frame);
@@ -92,19 +86,7 @@ function boot(){
     if(event.pointerType&&event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
     targetX=event.clientX;
     targetY=event.clientY;
-    cursor.classList.toggle('is-interactive',interactiveTarget(event.target));
     if(!visible)setVisible(true);
-  }
-
-  function onPointerDown(event){
-    if(event.pointerType&&event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
-    pressed=true;
-    cursor.classList.add('is-pressed');
-  }
-
-  function onPointerUp(){
-    pressed=false;
-    cursor.classList.remove('is-pressed');
   }
 
   function onPointerLeave(event){
@@ -112,8 +94,6 @@ function boot(){
   }
 
   window.addEventListener('pointermove',onPointerMove,{passive:true});
-  window.addEventListener('pointerdown',onPointerDown,{passive:true});
-  window.addEventListener('pointerup',onPointerUp,{passive:true});
   window.addEventListener('blur',function(){setVisible(false);});
   document.addEventListener('mouseout',onPointerLeave,{passive:true});
 

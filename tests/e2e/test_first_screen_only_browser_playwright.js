@@ -29,7 +29,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForSelector('#d5AnimateCursor',{state:'attached',timeout:5000});
     await page.waitForSelector('#d5AnimateCursorFollow',{state:'attached',timeout:5000});
     await page.mouse.move(700,450);
-    await page.waitForTimeout(220);
+    await page.waitForTimeout(500);
 
     const cursorState=await page.evaluate(()=>{
       const cursor=document.getElementById('d5AnimateCursor');
@@ -53,8 +53,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         nativeCursor:getComputedStyle(action).cursor,
         cursorCenterX:cursorRect.left+(cursorRect.width/2),
         cursorCenterY:cursorRect.top+(cursorRect.height/2),
-        followTop:followRect.top,
-        followRight:followRect.right
+        followCenterX:followRect.left+(followRect.width/2),
+        followCenterY:followRect.top+(followRect.height/2)
       };
     });
 
@@ -71,10 +71,10 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(cursorState.cursorOpacity,'1','custom cursor must be visible after mouse movement');
     assert.equal(cursorState.followOpacity,'1','CursorFollow must be visible after mouse movement');
     assert.equal(cursorState.nativeCursor,'none','native cursor must be hidden across the platform');
-    assert(Math.abs(cursorState.cursorCenterX-700)<=8,'custom cursor must follow pointer X');
-    assert(Math.abs(cursorState.cursorCenterY-450)<=8,'custom cursor must follow pointer Y');
-    assert(cursorState.followTop>=450+8,'CursorFollow must sit below the pointer');
-    assert(cursorState.followRight<=700+12,'end-aligned CursorFollow must finish near the pointer X');
+    assert(Math.abs(cursorState.cursorCenterX-700)<=2,'custom cursor must follow pointer X directly');
+    assert(Math.abs(cursorState.cursorCenterY-450)<=2,'custom cursor must follow pointer Y directly');
+    assert(Math.abs(cursorState.followCenterX-717)<=10,'end-aligned CursorFollow must settle near pointer X + alignOffset + cursor half-width');
+    assert(Math.abs(cursorState.followCenterY-477)<=10,'bottom CursorFollow must settle near pointer Y + sideOffset + cursor half-height');
 
     const state=await page.evaluate(()=>{
       const stage=document.getElementById('d5FirstBranchedMenuStage');

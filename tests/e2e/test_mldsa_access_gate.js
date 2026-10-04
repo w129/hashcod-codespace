@@ -108,8 +108,8 @@ assert(centerEmptyStateEntry.includes('id="d5HatchBackdrop"'),'shared Hatch blur
 assert(centerEmptyStateEntry.includes('id="d5HatchCodeEditor"'),'shared Hatch editor dialog missing');
 assert(centerEmptyStateEntry.includes('filename="my-component.tsx"'),'React pane filename missing');
 assert(centerEmptyStateEntry.includes('filename="Main.java"'),'Java pane filename missing');
-assert(centerEmptyStateEntry.includes('idPrefix="d5Hatch"'),'React pane ids missing');
-assert(centerEmptyStateEntry.includes('idPrefix="d5JavaHatch"'),'Java pane ids missing');
+assert(centerEmptyStateEntry.includes('inputId="d5HatchCodeInput"'),'React textarea id must remain stable');
+assert(centerEmptyStateEntry.includes('inputId="d5JavaHatchCodeInput"'),'Java textarea id missing');
 assert(centerEmptyStateEntry.includes('public class Main'),'Java default source missing');
 assert(centerEmptyStateEntry.includes('JAVA_HATCH_STORAGE_KEY'),'Java storage key missing');
 assert(centerEmptyStateEntry.includes('navigator.clipboard.writeText(code)'),'Hatch copy behavior missing');

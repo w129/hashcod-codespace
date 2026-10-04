@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-var VERSION='20261004-smith2';
+var VERSION='20261004-smith3';
 var current=(document.currentScript&&document.currentScript.src)||window.location.href;
 var base=new URL('.',current);
 
@@ -38,13 +38,17 @@ function addScript(name,src,onload,onerror){
 
 function loadSmithAfterGate(){
   addStyle();
-  addScript('smith-chart','smith-credential-chart.js?v='+VERSION);
+  addScript(
+    'smith-chart',
+    'smith-credential-chart.js?v='+VERSION,
+    function(){
+      addScript('smith-chart-layout','smith-credential-chart-layout.js?v='+VERSION);
+    }
+  );
 }
 
-// Important: never resolve the gate core through /components/mldsa-access-gate.js.
-// That URL is this loader in production. The PHP bridge reads the real runtime
-// directly from disk, preventing rewrite recursion and guaranteeing that the
-// access editor initializes before the optional Smith visualization.
+// The gate runtime is loaded first from a direct PHP bridge. Smith chart code
+// is strictly secondary and cannot block Monaco initialization.
 addScript(
   'gate-core',
   '../mldsa-access-gate-core.php?v='+VERSION,

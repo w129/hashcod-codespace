@@ -6,7 +6,7 @@ import './node_modules/monaco-editor/min/vs/editor/editor.main.css';
 import './entry.css';
 
 const API = '/api/code-access';
-const VERSION = '20261004-code-access1';
+const VERSION = '20261004-code-access2';
 
 function resolveMonacoWorkerUrl() {
   const script = Array.from(document.scripts).find((node) =>

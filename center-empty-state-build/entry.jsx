@@ -285,6 +285,21 @@ function CssHtmlLinkIcon() {
   );
 }
 
+function PythonRunIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="100"
+      height="100"
+      viewBox="0 0 30 30"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M 5 4 C 3.895 4 3 4.895 3 6 L 3 9 L 3 25 A 1.0001 1.0001 0 0 0 4 26 L 26 26 A 1.0001 1.0001 0 0 0 27 25 L 27 8 L 27 6 C 27 4.895 26.105 4 25 4 L 5 4 z M 5 9 L 25 9 L 25 24 L 5 24 L 5 9 z M 8.9902344 12.990234 A 1.0001 1.0001 0 0 0 8.2929688 14.707031 L 10.585938 17 L 8.2929688 19.292969 A 1.0001 1.0001 0 1 0 9.7070312 20.707031 L 12.707031 17.707031 A 1.0001 1.0001 0 0 0 12.707031 16.292969 L 9.7070312 13.292969 A 1.0001 1.0001 0 0 0 8.9902344 12.990234 z M 15 19 A 1.0001 1.0001 0 1 0 15 21 L 21 21 A 1.0001 1.0001 0 1 0 21 19 L 15 19 z" />
+    </svg>
+  );
+}
+
 function CopyIcon({ checked }) {
   if (checked) {
     return (
@@ -443,6 +458,113 @@ function attachCssToHtml(html, css) {
   return `${styleTag}\n${html}`;
 }
 
+const PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.28.3/full/";
+const PYTHON_RUN_TIMEOUT_MS = 10000;
+
+function createPythonRun(code, onChunk) {
+  const workerSource = `
+self.onmessage = async (event) => {
+  const { code, indexURL } = event.data;
+  try {
+    importScripts(indexURL + "pyodide.js");
+    const pyodide = await loadPyodide({ indexURL });
+    pyodide.setStdout({
+      batched: (text) => self.postMessage({ type: "stdout", text })
+    });
+    pyodide.setStderr({
+      batched: (text) => self.postMessage({ type: "stderr", text })
+    });
+    const result = await pyodide.runPythonAsync(code);
+    if (result !== undefined && result !== null && String(result) !== "None") {
+      self.postMessage({ type: "result", text: String(result) });
+    }
+    self.postMessage({ type: "done" });
+  } catch (error) {
+    self.postMessage({
+      type: "error",
+      text: error && error.message ? error.message : String(error)
+    });
+  }
+};
+`;
+
+  const blobUrl = URL.createObjectURL(
+    new Blob([workerSource], { type: "text/javascript" }),
+  );
+  const worker = new Worker(blobUrl);
+  let settled = false;
+  let resolvePromise;
+
+  const finish = (status) => {
+    if (settled) return;
+    settled = true;
+    window.clearTimeout(timeout);
+    worker.terminate();
+    URL.revokeObjectURL(blobUrl);
+    resolvePromise(status);
+  };
+
+  const promise = new Promise((resolve) => {
+    resolvePromise = resolve;
+  });
+
+  const timeout = window.setTimeout(() => {
+    onChunk("stderr", "Execution stopped after 10 seconds.");
+    finish("timeout");
+  }, PYTHON_RUN_TIMEOUT_MS);
+
+  worker.onmessage = (event) => {
+    const message = event.data || {};
+    if (message.type === "stdout" || message.type === "stderr" || message.type === "result") {
+      onChunk(message.type, String(message.text ?? ""));
+      return;
+    }
+    if (message.type === "done") {
+      finish("success");
+      return;
+    }
+    if (message.type === "error") {
+      onChunk("stderr", String(message.text ?? "Python execution failed."));
+      finish("error");
+    }
+  };
+
+  worker.onerror = (event) => {
+    onChunk("stderr", event.message || "Python worker failed.");
+    finish("error");
+  };
+
+  worker.postMessage({ code, indexURL: PYODIDE_INDEX_URL });
+
+  return {
+    promise,
+    cancel() {
+      finish("cancelled");
+    },
+  };
+}
+
+function PythonTerminal({ output, running, onBack }) {
+  return (
+    <div id="d5PythonTerminal" className="hatch-python-terminal" role="region" aria-live="polite">
+      <div className="hatch-python-terminal-bar">
+        <span>{running ? "Running Python…" : "Python terminal"}</span>
+        <button
+          id="d5PythonTerminalBack"
+          className="hatch-python-terminal-back"
+          type="button"
+          onClick={onBack}
+        >
+          Code
+        </button>
+      </div>
+      <pre id="d5PythonTerminalOutput" className="hatch-python-terminal-output">
+        {output.length ? output.join("\n") : "Ready."}
+      </pre>
+    </div>
+  );
+}
+
 function CodePane({
   inputId,
   copyId,
@@ -459,6 +581,8 @@ function CodePane({
   previewFrameId,
   previewSource,
   beforeCopyAction = null,
+  alternateView = null,
+  showAlternate = false,
 }) {
   const textareaRef = useRef(null);
   const highlightRef = useRef(null);
@@ -569,6 +693,8 @@ function CodePane({
             srcDoc={previewSource ?? code}
             sandbox="allow-scripts"
           />
+        ) : showAlternate && alternateView ? (
+          alternateView
         ) : (
           <>
             <pre ref={highlightRef} className="hatch-code-highlight" aria-hidden="true">
@@ -621,11 +747,45 @@ function HatchCodeEditor({ open, onClose }) {
     PYTHON_HATCH_STORAGE_KEY,
     DEFAULT_PYTHON_HATCH_CODE,
   );
+  const [pythonTerminalOpen, setPythonTerminalOpen] = useState(false);
+  const [pythonRunning, setPythonRunning] = useState(false);
+  const [pythonOutput, setPythonOutput] = useState([]);
+  const pythonRunRef = useRef(null);
 
   const htmlPreviewSource = useMemo(
     () => (cssLinkedToHtml ? attachCssToHtml(htmlCode, cssCode) : htmlCode),
     [htmlCode, cssCode, cssLinkedToHtml],
   );
+
+  useEffect(
+    () => () => {
+      pythonRunRef.current?.cancel();
+      pythonRunRef.current = null;
+    },
+    [],
+  );
+
+  const runPython = () => {
+    if (pythonRunning) return;
+
+    pythonRunRef.current?.cancel();
+    setPythonTerminalOpen(true);
+    setPythonRunning(true);
+    setPythonOutput(["$ python main.py"]);
+
+    const run = createPythonRun(pythonCode, (type, chunk) => {
+      const prefix = type === "stderr" ? "[stderr] " : type === "result" ? "=> " : "";
+      setPythonOutput((current) => [...current, `${prefix}${chunk}`]);
+    });
+    pythonRunRef.current = run;
+
+    run.promise.finally(() => {
+      if (pythonRunRef.current === run) {
+        pythonRunRef.current = null;
+        setPythonRunning(false);
+      }
+    });
+  };
 
   useEffect(() => {
     if (!open) return undefined;
@@ -778,6 +938,28 @@ function HatchCodeEditor({ open, onClose }) {
               setCode={setPythonCode}
               tokenize={tokenizePython}
               inputLabel="Editable Python code"
+              beforeCopyAction={
+                <button
+                  id="d5PythonRun"
+                  className={`hatch-code-python-run${pythonTerminalOpen ? " is-active" : ""}`}
+                  type="button"
+                  aria-label={pythonRunning ? "Python is running" : "Run Python code"}
+                  aria-pressed={pythonTerminalOpen ? "true" : "false"}
+                  title={pythonRunning ? "Running Python…" : "Run main.py"}
+                  disabled={pythonRunning}
+                  onClick={runPython}
+                >
+                  <PythonRunIcon />
+                </button>
+              }
+              showAlternate={pythonTerminalOpen}
+              alternateView={
+                <PythonTerminal
+                  output={pythonOutput}
+                  running={pythonRunning}
+                  onBack={() => setPythonTerminalOpen(false)}
+                />
+              }
             />
           </div>
         </motion.div>
@@ -827,7 +1009,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-python-hatch10",
+    version: "20261004-python-terminal11",
   });
 
   return true;

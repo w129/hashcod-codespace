@@ -389,11 +389,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const editor=document.getElementById('d5TextEditorCard');
       const backdrop=document.getElementById('d5WorkspaceModalBackdrop');
       const close=document.getElementById('d5WorkspaceClose');
-      const grid=document.getElementById('d5HatchCodeGrid');
       const rect=editor.getBoundingClientRect();
-      const gridRect=grid.getBoundingClientRect();
       const backdropStyle=getComputedStyle(backdrop);
-      const gridStyle=getComputedStyle(grid);
       return {
         bodyOpen:document.body.classList.contains('workspace-modal-open'),
         hidden:editor.hidden,
@@ -630,8 +627,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const javascriptInput=document.getElementById('d5JavaScriptHatchCodeInput');
       const cssInput=document.getElementById('d5CssHatchCodeInput');
       const htmlInput=document.getElementById('d5HtmlHatchCodeInput');
+      const grid=document.getElementById('d5HatchCodeGrid');
       const rect=editor.getBoundingClientRect();
+      const gridRect=grid.getBoundingClientRect();
       const backdropStyle=getComputedStyle(backdrop);
+      const gridStyle=getComputedStyle(grid);
       const panes=Array.from(editor.querySelectorAll('.hatch-code-pane')).map((pane)=>({
         key:pane.getAttribute('data-code-pane')||'',
         file:pane.querySelector('.hatch-code-file span')?.textContent?.trim()||'',

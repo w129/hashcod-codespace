@@ -28,6 +28,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForFunction(()=>window.HashcodAnimateCursor?.mounted===true,{timeout:5000});
     await page.waitForSelector('#d5AnimateCursor',{state:'attached',timeout:5000});
     await page.waitForSelector('#d5AnimateCursorFollow',{state:'attached',timeout:5000});
+    await page.waitForFunction(()=>document.querySelector('#d5AnimateCursorFollow img')?.complete===true&&document.querySelector('#d5AnimateCursorFollow img')?.naturalWidth>0,{timeout:5000});
     await page.mouse.move(700,450);
     await page.waitForTimeout(500);
 
@@ -48,9 +49,9 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         align:window.HashcodAnimateCursor?.align||'',
         alignOffset:window.HashcodAnimateCursor?.alignOffset,
         followText:follow.textContent.trim(),
-        followIconViewBox:follow.querySelector('svg')?.getAttribute('viewBox')||'',
-        followIconPath:follow.querySelector('path')?.getAttribute('d')||'',
-        followIconFill:follow.querySelector('path')?.getAttribute('fill')||'',
+        followImageSrc:follow.querySelector('img')?.getAttribute('src')||'',
+        followImageNaturalWidth:follow.querySelector('img')?.naturalWidth||0,
+        followImageNaturalHeight:follow.querySelector('img')?.naturalHeight||0,
         cursorOpacity:getComputedStyle(cursor).opacity,
         followOpacity:getComputedStyle(follow).opacity,
         nativeCursor:getComputedStyle(action).cursor,
@@ -71,9 +72,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(cursorState.align,'end','CursorFollow align must be end');
     assert.equal(cursorState.alignOffset,5,'CursorFollow alignOffset must be 5');
     assert.equal(cursorState.followText,'','CursorFollow must not render Designer text');
-    assert.equal(cursorState.followIconViewBox,'0 0 30 30','CursorFollow icon must preserve the supplied 30x30 viewBox');
-    assert(cursorState.followIconPath.startsWith('M20.14197,16C20.58905,17.72052'),'CursorFollow must use the supplied SVG path');
-    assert.equal(cursorState.followIconFill,'#323232','CursorFollow icon fill must remain #323232');
+    assert(cursorState.followImageSrc.endsWith('/components/dominican-cursor-follow.svg'),'CursorFollow must load the supplied Dominican flag SVG');
+    assert(cursorState.followImageNaturalWidth>0&&cursorState.followImageNaturalHeight>0,'Dominican CursorFollow icon must load successfully');
     assert.equal(cursorState.cursorOpacity,'1','custom cursor must be visible after mouse movement');
     assert.equal(cursorState.followOpacity,'1','CursorFollow must be visible after mouse movement');
     assert.equal(cursorState.nativeCursor,'none','native cursor must be hidden across the platform');

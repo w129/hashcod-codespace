@@ -25,6 +25,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
     await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyMount')?.dataset.reactMounted==='true',{timeout:5000});
     await page.waitForSelector('#d5PreviewPolicyTrigger',{state:'attached',timeout:5000});
+    await page.waitForFunction(()=>document.getElementById('d5CodeAccessMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('#d5CenterEmptyStateAction',{state:'visible',timeout:5000});
     await page.waitForFunction(()=>window.HashcodAnimateCursor?.mounted===true,{timeout:5000});
@@ -195,6 +196,15 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           strokeWidth:basePath?getComputedStyle(basePath).strokeWidth:''
         },
         markerBackground:markerStyle.backgroundColor,
+        codeAccess:{
+          exists:Boolean(document.getElementById('d5CodeAccessMount')),
+          component:document.getElementById('d5CodeAccessMount')?.getAttribute('data-hashcod-component')||'',
+          required:document.getElementById('d5CodeAccessMount')?.getAttribute('data-required')||'',
+          authorized:document.getElementById('d5CodeAccessMount')?.getAttribute('data-authorized')||'',
+          mounted:Boolean(window.HashcodCodeAccess?.mounted),
+          editor:window.HashcodCodeAccess?.editor||'',
+          gateCount:document.querySelectorAll('#d5CodeAccessGate').length
+        },
         previewPolicy:{
           exists:Boolean(document.getElementById('d5PreviewPolicyFooter')),
           afterMain:Boolean(document.querySelector('main')?.compareDocumentPosition(document.getElementById('d5PreviewPolicyFooter')) & Node.DOCUMENT_POSITION_FOLLOWING),
@@ -244,6 +254,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.calendar.selected,'2026-09-12','calendar default appointment must be 12 September');
     assert.equal(state.calendar.unavailable,true,'20 September must remain unavailable');
     assert.equal(state.calendar.accent,'black','calendar accent must be black');
+    assert.equal(state.codeAccess.exists,true,'Code access React mount must exist');
+    assert.equal(state.codeAccess.component,'CodeAccessGate','Code access component marker changed');
+    assert.equal(state.codeAccess.required,'0','CI first-screen flow must explicitly disable the production code gate');
+    assert.equal(state.codeAccess.authorized,'1','disabled CI code gate must be treated as authorized');
+    assert.equal(state.codeAccess.mounted,true,'Code access React island must mount');
+    assert.equal(state.codeAccess.editor,'Monaco','Code access must report Monaco as its editor');
+    assert.equal(state.codeAccess.gateCount,0,'disabled CI code gate must not cover ordinary first-screen tests');
     assert.equal(state.previewPolicy.exists,true,'Preview Link Card footer must exist at the end of the platform');
     assert.equal(state.previewPolicy.afterMain,true,'Preview Link Card footer must follow the main platform content');
     assert.equal(state.previewPolicy.text,'Before continuing, please read the Use and Privacy Policy.','Preview Link Card footer text must match exactly');

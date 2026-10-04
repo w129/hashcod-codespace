@@ -4,8 +4,9 @@
 if(window.__hashcodAnimateCursorLoaded)return;
 window.__hashcodAnimateCursorLoaded=true;
 
-var FINE_POINTER=window.matchMedia&&window.matchMedia('(pointer:fine)').matches;
-var HOVER_POINTER=window.matchMedia&&window.matchMedia('(hover:hover)').matches;
+var maxTouchPoints=Number(navigator.maxTouchPoints||0);
+var FINE_POINTER=(window.matchMedia&&window.matchMedia('(pointer:fine)').matches)||maxTouchPoints===0;
+var HOVER_POINTER=(window.matchMedia&&window.matchMedia('(hover:hover)').matches)||maxTouchPoints===0;
 if(!FINE_POINTER||!HOVER_POINTER)return;
 
 var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;

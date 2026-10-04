@@ -1896,7 +1896,7 @@ function FileVault() {
       >
         <FileVaultStoreIcon />
       </button>
-      <AnimatePresence initial={false}>{modal}</AnimatePresence>
+      {modal}
     </>
   );
 }
@@ -1951,7 +1951,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-file-vault1",
+    version: "20261004-file-vault2",
   });
 
   return true;

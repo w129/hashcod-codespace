@@ -7,14 +7,14 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, max-age=0, must-revalidate');
 header('Pragma: no-cache');
 
-function meshAccessJson(array $payload,int $status=200): void {
+function smithApiJson(array $payload,int $status=200): void {
     http_response_code($status);
     echo json_encode($payload,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-function meshAccessFail(string $code,string $message,int $status=400,array $extra=[]): void {
-    meshAccessJson(array_merge([
+function smithApiFail(string $code,string $message,int $status=400,array $extra=[]): void {
+    smithApiJson(array_merge([
         'ok'=>false,
         'code'=>$code,
         'error'=>$message
@@ -22,117 +22,115 @@ function meshAccessFail(string $code,string $message,int $status=400,array $extr
 }
 
 if(!codeAccessRequired()){
-    meshAccessJson([
+    smithApiJson([
         'ok'=>true,
         'required'=>false,
         'authorized'=>true,
-        'bound'=>false,
-        'schema'=>meshAccessSchema(),
-        'fields'=>meshAccessFieldNames()
+        'protocol'=>smithAuthProtocol()
     ]);
 }
 
 $method=strtoupper((string)($_SERVER['REQUEST_METHOD']??'GET'));
 
 if(function_exists('securityRateAllowSliding')){
-    $rate=securityRateAllowSliding(
-        'hashcod_mesh_access_v1',
-        $method==='POST'?12:40,
-        60
-    );
+    $rate=securityRateAllowSliding('hashcod_smith_auth_v1',$method==='POST'?8:30,60);
     if(empty($rate['allowed'])){
-        meshAccessFail(
-            'rate_limited',
-            'Too many requests. Wait briefly before trying again.',
-            429,
-            ['retry_after'=>(int)($rate['retry_after']??60)]
-        );
+        smithApiFail('rate_limited','Too many requests. Wait briefly before trying again.',429,[
+            'retry_after'=>(int)($rate['retry_after']??60)
+        ]);
     }
 }
 
 if($method==='GET'){
-    $binding=meshAccessReadBinding();
-    meshAccessJson([
+    if(!mldsaAccessConfigured()){
+        smithApiJson([
+            'ok'=>true,
+            'required'=>true,
+            'authorized'=>false,
+            'authority_configured'=>false,
+            'protocol'=>smithAuthProtocol(),
+            'challenge'=>'',
+            'template'=>smithAuthTemplate('PUBLIC_KEY_NOT_CONFIGURED'),
+            'message'=>'Configure the ML-DSA-87 public key before validating signed Smith access codes.'
+        ]);
+    }
+
+    $issued=mldsaIssueChallenge(1);
+    $challenge=(string)$issued['challenge'];
+    smithApiJson([
         'ok'=>true,
         'required'=>true,
         'authorized'=>false,
-        'bound'=>is_array($binding),
-        'schema'=>meshAccessSchema(),
-        'fields'=>meshAccessFieldNames(),
-        'template'=>meshAccessTemplate()
+        'authority_configured'=>true,
+        'protocol'=>smithAuthProtocol(),
+        'challenge'=>$challenge,
+        'expires_at'=>(int)$issued['expires_at'],
+        'ttl_seconds'=>(int)$issued['ttl_seconds'],
+        'template'=>smithAuthTemplate($challenge)
     ]);
 }
 
 if($method!=='POST'){
     header('Allow: GET, POST');
-    meshAccessFail('method_not_allowed','Method not allowed.',405);
+    smithApiFail('method_not_allowed','Method not allowed.',405);
 }
 
 $fetchSite=strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE']??'')));
 if($fetchSite!==''&&!in_array($fetchSite,['same-origin','same-site'],true)){
-    meshAccessFail('cross_site_denied','Cross-site mesh binding requests are not allowed.',403);
+    smithApiFail('cross_site_denied','Cross-site access-code requests are not allowed.',403);
 }
-
-if(!hash_equals('1',trim((string)($_SERVER['HTTP_X_HASHCOD_MESH']??'')))){
-    meshAccessFail('missing_mesh_header','Missing Hashcod mesh request marker.',400);
+if(!hash_equals('1',trim((string)($_SERVER['HTTP_X_HASHCOD_SMITH']??'')))){
+    smithApiFail('missing_smith_header','Missing Hashcod Smith request marker.',400);
+}
+if(!mldsaAccessConfigured()){
+    smithApiFail('authority_not_configured','The ML-DSA-87 public key is not configured on the server.',503);
 }
 
 $raw=(string)file_get_contents('php://input');
-if(strlen($raw)>12000){
-    meshAccessFail('payload_too_large','Mesh credential payload is too large.',413);
-}
-
+if(strlen($raw)>40000)smithApiFail('payload_too_large','Signed access request is too large.',413);
 $body=json_decode($raw,true);
-if(!is_array($body)){
-    meshAccessFail('invalid_json','Invalid JSON request.',400);
+if(!is_array($body))smithApiFail('invalid_json','Invalid JSON request.',400);
+$manifest=$body['manifest']??null;
+if(!is_string($manifest)||trim($manifest)===''){
+    smithApiFail('manifest_required','Paste the generated access code into the editor before validating.',400);
 }
 
-$fields=$body['fields']??null;
-if(!is_array($fields)){
-    meshAccessFail('invalid_fields','Mesh credential fields are required.',400);
+$parsed=smithAuthParseManifest($manifest);
+if(!is_array($parsed)){
+    smithApiFail('invalid_manifest','Only the generated OCG-SMITH-AUTH/1 PHP-shaped manifest is accepted. PHP is never executed.',400);
+}
+$decoded=smithAuthDecodePayload((string)$parsed['payload_b64']);
+if(!is_array($decoded)){
+    smithApiFail('invalid_payload','The signed payload could not be decoded.',400);
 }
 
-$normalized=meshAccessNormalizeFields($fields);
-if(!is_array($normalized)){
-    meshAccessFail(
-        'invalid_fields',
-        'Fill every mesh credential field with a non-empty value.',
-        400
-    );
+$challengeState=mldsaCurrentChallengeState();
+if(!is_array($challengeState)){
+    smithApiFail('challenge_expired','The current challenge has expired. Reload or request a new challenge and regenerate the code.',409);
+}
+$challenge=(string)$challengeState['challenge'];
+$verification=smithAuthVerifyPayload((array)$decoded['data'],$challenge);
+if(empty($verification['ok'])){
+    smithApiFail((string)$verification['code'],(string)$verification['error'],409);
 }
 
-$digest=meshAccessDigest($normalized);
-$binding=meshAccessReadBinding();
-
-if(!is_array($binding)){
-    meshAccessWriteBinding($digest);
-    meshAccessJson([
-        'ok'=>true,
-        'required'=>true,
-        'authorized'=>true,
-        'bound'=>true,
-        'enrolled'=>true,
-        'schema'=>meshAccessSchema(),
-        'message'=>'This mesh credential is now bound to this browser.'
-    ]);
+$signature=(string)$parsed['signature_b64'];
+if(!mldsaVerify((string)$decoded['json'],$signature)){
+    smithApiFail('invalid_signature','The ML-DSA-87 signature is invalid for the configured public key.',401);
 }
 
-$stored=(string)$binding['digest'];
-if(!hash_equals($stored,$digest)){
-    meshAccessFail(
-        'binding_mismatch',
-        'This browser is already bound to a different mesh credential. Enter the exact values used during the first enrollment.',
-        409,
-        ['bound'=>true]
-    );
+$jti=(string)($challengeState['jti']??'');
+$exp=(int)($challengeState['exp']??0);
+if($jti===''||$exp<=0||!mldsaConsumeJti($jti,$exp)){
+    smithApiFail('replay_detected','This challenge has already been consumed. Generate a new signed code.',409);
 }
+mldsaCookie(mldsaChallengeName(),'',time()-3600);
 
-meshAccessJson([
+smithApiJson([
     'ok'=>true,
     'required'=>true,
     'authorized'=>true,
-    'bound'=>true,
-    'enrolled'=>false,
-    'schema'=>meshAccessSchema(),
-    'message'=>'Mesh credential matched the stored binding.'
+    'protocol'=>smithAuthProtocol(),
+    'footprint'=>(string)$verification['footprint'],
+    'message'=>'Signed Smith credential verified.'
 ]);

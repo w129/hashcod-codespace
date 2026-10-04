@@ -46,6 +46,10 @@ if ($bootstrapSyncPath === '/api/pqc-actions') {
     require __DIR__ . '/pqc-actions.php';
     exit;
 }
+if ($bootstrapSyncPath === '/api/code-access') {
+    require __DIR__ . '/code-access-api.php';
+    exit;
+}
 
 // Optional strict mode: when enabled, every state-changing same-origin request
 // must carry a short-lived permit minted by an ML-DSA-87-signed action receipt.

@@ -85,15 +85,15 @@ Hashcod Codespace uses a native JavaScript adaptation of **React Bits RotatingTe
 - Hashcod adaptation: preserves the requested four-text loop (`code`, `dev`, `programing`, `llm`, `deeplearming`, plus data-structure terms such as `data structures`, `algorithms`, `schemas`, `vectors`, `graphs`, `trees`, and `hash maps`), 2000 ms rotation interval, character-level reveal, last-to-first 25 ms staggering, vertical 100% entry / -120% exit motion, reduced-motion handling, and imperative next/previous/jump/reset controls. The first entry page is native PHP/JavaScript, so this adaptation does not add a React/Motion runtime. The demo accent background is replaced with Hashcod black.
 
 
-## React Bits — SplashCursor
+## Animate UI — Cursor
 
-Hashcod Codespace uses a native JavaScript adaptation of **React Bits SplashCursor** as the interactive fluid background on the first entry screen.
+Hashcod Codespace uses a native JavaScript/CSS adaptation of **Animate UI Cursor** as the global desktop cursor.
 
-- Project: React Bits
-- Source: https://github.com/DavidHDev/react-bits
-- Component: `SplashCursor`
+- Project: Animate UI
+- Source: https://github.com/imskyleen/animate-ui
+- Component: `CursorProvider`, `Cursor`, and `CursorFollow`
 - License: MIT
-- Hashcod adaptation: preserves the upstream WebGL fluid simulation defaults, including simulation resolution 128, dye resolution 1440, density dissipation 3.5, velocity dissipation 2, pressure 0.1, 20 pressure iterations, curl 3, splat radius 0.2, splat force 6000, shading, and cursor/touch-driven splats. Rainbow mode is disabled. Because a literal black dye would have zero RGB density in the upstream alpha calculation, Hashcod keeps non-zero internal density while the display shader renders that density as black with alpha, producing a visible black liquid effect on the light entry background.
+- Hashcod adaptation: the previous WebGL smoke cursor is retired. The cursor is global on fine-pointer desktop devices, suppresses the native pointer, follows pointer movement with spring-inspired motion, and renders the requested `Designer` follow label using the requested defaults: `side="bottom"`, `sideOffset={15}`, `align="end"`, and `alignOffset={5}`. Touch/coarse-pointer devices fall back to their normal pointer behavior.
 
 ## Toolbook BranchedMenu / Hugeicons React island
 

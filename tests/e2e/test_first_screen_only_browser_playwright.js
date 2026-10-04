@@ -25,6 +25,56 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
     await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('#d5CenterEmptyStateAction',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>window.HashcodAnimateCursor?.mounted===true,{timeout:5000});
+    await page.waitForSelector('#d5AnimateCursor',{state:'attached',timeout:5000});
+    await page.waitForSelector('#d5AnimateCursorFollow',{state:'attached',timeout:5000});
+    await page.mouse.move(700,450);
+    await page.waitForTimeout(500);
+
+    const cursorState=await page.evaluate(()=>{
+      const cursor=document.getElementById('d5AnimateCursor');
+      const follow=document.getElementById('d5AnimateCursorFollow');
+      const action=document.getElementById('d5CenterEmptyStateAction');
+      const cursorRect=cursor.getBoundingClientRect();
+      const followRect=follow.getBoundingClientRect();
+      return {
+        smokeHost:Boolean(document.getElementById('d5SplashCursorBackground')),
+        smokeCanvas:Boolean(document.getElementById('d5SplashCursorCanvas')),
+        rootActive:document.documentElement.classList.contains('hashcod-animate-cursor-active'),
+        mounted:Boolean(window.HashcodAnimateCursor?.mounted),
+        global:window.HashcodAnimateCursor?.global===true,
+        side:window.HashcodAnimateCursor?.side||'',
+        sideOffset:window.HashcodAnimateCursor?.sideOffset,
+        align:window.HashcodAnimateCursor?.align||'',
+        alignOffset:window.HashcodAnimateCursor?.alignOffset,
+        label:follow.textContent.trim(),
+        cursorOpacity:getComputedStyle(cursor).opacity,
+        followOpacity:getComputedStyle(follow).opacity,
+        nativeCursor:getComputedStyle(action).cursor,
+        cursorCenterX:cursorRect.left+(cursorRect.width/2),
+        cursorCenterY:cursorRect.top+(cursorRect.height/2),
+        followCenterX:followRect.left+(followRect.width/2),
+        followCenterY:followRect.top+(followRect.height/2)
+      };
+    });
+
+    assert.equal(cursorState.smokeHost,false,'retired smoke cursor host must not exist');
+    assert.equal(cursorState.smokeCanvas,false,'retired WebGL smoke canvas must not exist');
+    assert.equal(cursorState.rootActive,true,'Animate UI cursor must activate globally on desktop');
+    assert.equal(cursorState.mounted,true,'Animate UI cursor runtime must mount');
+    assert.equal(cursorState.global,true,'Animate UI cursor must run in global mode');
+    assert.equal(cursorState.side,'bottom','CursorFollow side must be bottom');
+    assert.equal(cursorState.sideOffset,15,'CursorFollow sideOffset must be 15');
+    assert.equal(cursorState.align,'end','CursorFollow align must be end');
+    assert.equal(cursorState.alignOffset,5,'CursorFollow alignOffset must be 5');
+    assert.equal(cursorState.label,'Designer','CursorFollow label must be Designer');
+    assert.equal(cursorState.cursorOpacity,'1','custom cursor must be visible after mouse movement');
+    assert.equal(cursorState.followOpacity,'1','CursorFollow must be visible after mouse movement');
+    assert.equal(cursorState.nativeCursor,'none','native cursor must be hidden across the platform');
+    assert(Math.abs(cursorState.cursorCenterX-700)<=2,'custom cursor must follow pointer X directly');
+    assert(Math.abs(cursorState.cursorCenterY-450)<=2,'custom cursor must follow pointer Y directly');
+    assert(Math.abs(cursorState.followCenterX-717)<=10,'end-aligned CursorFollow must settle near pointer X + alignOffset + cursor half-width');
+    assert(Math.abs(cursorState.followCenterY-477)<=10,'bottom CursorFollow must settle near pointer Y + sideOffset + cursor half-height');
 
     const state=await page.evaluate(()=>{
       const stage=document.getElementById('d5FirstBranchedMenuStage');
@@ -297,6 +347,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(new URL(page.url()).hash,'#card','Card selection must navigate to #card');
     await page.waitForSelector('#d5CardModalShell',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5CardModalBackdrop',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>document.activeElement?.id==='d5CardClose',{timeout:5000});
 
     const cardModalState=await page.evaluate(()=>{
       const shell=document.getElementById('d5CardModalShell');
@@ -618,6 +669,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.locator('#d5CenterEmptyStateAction').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5HatchBackdrop',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>{
+      const editor=document.getElementById('d5HatchCodeEditor');
+      if(!editor)return false;
+      const rect=editor.getBoundingClientRect();
+      return Math.abs((rect.left+rect.width/2)-(innerWidth/2))<=2
+        && Math.abs((rect.top+rect.height/2)-(innerHeight/2))<=2;
+    },{timeout:5000});
 
     const hatchState=await page.evaluate(()=>{
       const editor=document.getElementById('d5HatchCodeEditor');

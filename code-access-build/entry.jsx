@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import 'monaco-editor/esm/vs/basic-languages/php/php.contribution.js';
@@ -6,7 +6,9 @@ import './node_modules/monaco-editor/min/vs/editor/editor.main.css';
 import './entry.css';
 
 const API = '/api/code-access';
-const VERSION = '20261004-code-access3';
+const VERSION = '20261004-mesh-bind1';
+const SCHEMA = 'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI';
+const FIELD_NAMES = ['TYPE', 'PAYLOAD', 'SALT', 'NONCE', 'ISSUED', 'USE', 'CHECK'];
 
 function resolveMonacoWorkerUrl() {
   const script = Array.from(document.scripts).find((node) =>
@@ -26,40 +28,59 @@ self.MonacoEnvironment = {
   },
 };
 
+const ACCESS_SOURCE = `<?php
+
+// OCG Mesh Node access
+// Click the vector mesh icon inside this editor to open the credential window.
+
+return [
+  'schema' => 'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI',
+  'mode' => 'MESH-NODE-BINDING',
+  'action' => 'OPEN_VECTOR_MESH_ICON',
+];
+`;
+
 const PROTOCOL_SOURCE = `<?php
 
-// HASHCOD-ACCESS/1
-// This PHP-shaped document is parsed as literal data.
-// The server NEVER executes eval(), include(), require(), shell commands,
-// functions, variables, objects, or arbitrary PHP from this editor.
+// FIRST-USE BINDING
+//
+// 1. Open the vector mesh icon.
+// 2. Fill TYPE, PAYLOAD, SALT, NONCE, ISSUED, USE and CHECK.
+// 3. The first accepted set is bound to this browser.
+// 4. After a reload, only that exact same set can unlock the platform.
+//
+// The server stores a sealed digest, not the field values.
 
 return [
-  'protocol' => 'HASHCOD-ACCESS/1',
-  'challenge' => 'ONE_TIME_SERVER_CHALLENGE',
-  'signature' => 'ML_DSA_87_SIGNATURE_BASE64',
+  'schema' => 'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI',
+  'binding' => 'FIRST-USE',
+  'persistence' => 'HTTPONLY-SIGNED-COOKIE',
 ];
 `;
 
-function buildTemplate(challenge = 'LOADING_ONE_TIME_CHALLENGE') {
-  return `<?php
-
-return [
-  'protocol' => 'HASHCOD-ACCESS/1',
-  'challenge' => '${challenge}',
-  'signature' => 'PASTE_ML_DSA_87_SIGNATURE_BASE64_HERE',
-];
-`;
+function MeshNodeIcon({ size = 24 }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M12,2C6.486,2,2,6.486,2,12c0,0.532,0.054,1.05,0.134,1.56c2.88-0.676,7.328,0.815,7.328,0.815 c6.032-3.567,9.263-0.79,9.263-0.79c-6.176-0.574-8.928,3.758-8.928,3.758c-2.156-1.921-6.006-2.267-7.331-2.329 C3.748,19.059,7.537,22,12,22c5.514,0,10-4.486,10-10S17.514,2,12,2z M13.915,10.043c-1.771-2.13-5.386-1.652-5.386-1.652 c2.609-1.843,5.362-0.072,5.362-0.072c2.801-1.843,6.176,0.215,6.176,0.215C15.662,7.505,13.915,10.043,13.915,10.043z" />
+    </svg>
+  );
 }
 
-function MonacoCodeEditor({ value, onChange, readOnly = false, ariaLabel }) {
+function MonacoCodeEditor({ value, ariaLabel }) {
   const hostRef = useRef(null);
   const editorRef = useRef(null);
-  const changeSubscriptionRef = useRef(null);
 
   useEffect(() => {
     if (!hostRef.current || editorRef.current) return undefined;
 
-    monaco.editor.defineTheme('hashcod-access-dark', {
+    monaco.editor.defineTheme('hashcod-mesh-dark', {
       base: 'vs-dark',
       inherit: true,
       rules: [
@@ -85,8 +106,8 @@ function MonacoCodeEditor({ value, onChange, readOnly = false, ariaLabel }) {
     const editor = monaco.editor.create(hostRef.current, {
       value,
       language: 'php',
-      theme: 'hashcod-access-dark',
-      readOnly,
+      theme: 'hashcod-mesh-dark',
+      readOnly: true,
       automaticLayout: true,
       minimap: { enabled: false },
       lineNumbers: 'on',
@@ -104,23 +125,17 @@ function MonacoCodeEditor({ value, onChange, readOnly = false, ariaLabel }) {
       lineHeight: 21,
       tabSize: 2,
       padding: { top: 16, bottom: 16 },
-      contextmenu: true,
+      contextmenu: false,
       links: false,
       occurrencesHighlight: 'off',
       selectionHighlight: false,
-      suggest: { showWords: false },
       quickSuggestions: false,
       parameterHints: { enabled: false },
       ariaLabel,
     });
     editorRef.current = editor;
 
-    changeSubscriptionRef.current = editor.onDidChangeModelContent(() => {
-      if (!readOnly && onChange) onChange(editor.getValue());
-    });
-
     return () => {
-      changeSubscriptionRef.current?.dispose();
       editor.dispose();
       editorRef.current = null;
     };
@@ -129,33 +144,111 @@ function MonacoCodeEditor({ value, onChange, readOnly = false, ariaLabel }) {
   useEffect(() => {
     const editor = editorRef.current;
     if (!editor) return;
-    editor.updateOptions({ readOnly });
     if (editor.getValue() !== value) editor.setValue(value);
-  }, [value, readOnly]);
+  }, [value]);
 
   return <div ref={hostRef} className="code-access-monaco" />;
+}
+
+function emptyFields() {
+  return Object.fromEntries(FIELD_NAMES.map((name) => [name, '']));
+}
+
+function MeshCredentialWindow({
+  open,
+  bound,
+  fields,
+  setFields,
+  busy,
+  error,
+  onClose,
+  onSubmit,
+}) {
+  if (!open) return null;
+
+  return (
+    <div className="mesh-dialog-backdrop" role="presentation">
+      <section
+        id="d5MeshCredentialWindow"
+        className="mesh-tk-window"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="d5MeshCredentialTitle"
+      >
+        <header className="mesh-tk-titlebar">
+          <span className="mesh-tk-title-icon"><MeshNodeIcon size={18} /></span>
+          <strong id="d5MeshCredentialTitle">OCG Mesh Node Credential</strong>
+          <button type="button" aria-label="Close credential window" onClick={onClose}>×</button>
+        </header>
+
+        <div className="mesh-tk-body">
+          <div className="mesh-schema-row">
+            <span>SCHEMA</span>
+            <code>{SCHEMA}</code>
+          </div>
+
+          <p className="mesh-tk-hint">
+            {bound
+              ? 'This browser is already bound. Enter the exact same values used during the first enrollment.'
+              : 'First enrollment: any non-empty values are accepted once, then this browser is permanently bound to that exact set.'}
+          </p>
+
+          <div className="mesh-tk-fields">
+            {FIELD_NAMES.map((name) => (
+              <label key={name}>
+                <span>{name}=</span>
+                <input
+                  id={'d5MeshField' + name}
+                  name={name}
+                  value={fields[name]}
+                  autoComplete="off"
+                  spellCheck="false"
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setFields((current) => ({ ...current, [name]: value }));
+                  }}
+                />
+              </label>
+            ))}
+          </div>
+
+          {error ? <p className="mesh-tk-error" role="alert">{error}</p> : null}
+        </div>
+
+        <footer className="mesh-tk-actions">
+          <button type="button" onClick={onClose} disabled={busy}>Cancel</button>
+          <button
+            id="d5MeshCredentialSubmit"
+            className="mesh-tk-primary"
+            type="button"
+            onClick={onSubmit}
+            disabled={busy}
+          >
+            {busy ? 'Checking…' : bound ? 'Verify & unlock' : 'Bind & unlock'}
+          </button>
+        </footer>
+      </section>
+    </div>
+  );
 }
 
 function CodeAccessGate({ required, initiallyAuthorized }) {
   const [authorized, setAuthorized] = useState(initiallyAuthorized || !required);
   const [activeTab, setActiveTab] = useState('Access.php');
-  const [source, setSource] = useState(buildTemplate());
-  const [challenge, setChallenge] = useState('');
-  const [expiresAt, setExpiresAt] = useState(0);
-  const [fingerprint, setFingerprint] = useState('');
+  const [bound, setBound] = useState(false);
   const [busy, setBusy] = useState(required && !initiallyAuthorized);
-  const [status, setStatus] = useState('Preparing one-time challenge…');
+  const [status, setStatus] = useState('Preparing OCG mesh binding…');
   const [statusKind, setStatusKind] = useState('idle');
-  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogError, setDialogError] = useState('');
+  const [fields, setFields] = useState(() => emptyFields());
 
-  const editorValue = activeTab === 'Access.php' ? source : PROTOCOL_SOURCE;
-  const readOnly = activeTab !== 'Access.php';
+  const editorValue = activeTab === 'Access.php' ? ACCESS_SOURCE : PROTOCOL_SOURCE;
 
-  const loadChallenge = useCallback(async () => {
+  const loadBindingState = useCallback(async () => {
     if (!required) return;
     setBusy(true);
     setStatusKind('idle');
-    setStatus('Generating a new signed-manifest challenge…');
     try {
       const response = await fetch(API, {
         method: 'GET',
@@ -164,22 +257,19 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
         cache: 'no-store',
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.ok) throw new Error(data.error || 'Unable to create access challenge.');
-      if (data.authorized) {
-        setAuthorized(true);
-        document.body.dataset.hashcodCodeAccessAuthorized = '1';
-        return;
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || 'Unable to read mesh binding state.');
       }
-      const nextChallenge = String(data.challenge || '');
-      setChallenge(nextChallenge);
-      setExpiresAt(Number(data.expires_at || 0));
-      setFingerprint(String(data.public_key_fingerprint || ''));
-      setSource(String(data.template || buildTemplate(nextChallenge)));
-      setActiveTab('Access.php');
-      setStatus('Paste the ML-DSA-87 signature into the signature field, then validate.');
+      const isBound = Boolean(data.bound);
+      setBound(isBound);
+      setStatus(
+        isBound
+          ? 'This browser already has an OCG mesh binding. Click the vector icon and enter the original values.'
+          : 'Click the vector mesh icon inside the editor to create the first binding.'
+      );
       setStatusKind('ready');
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Unable to initialize secure access.');
+      setStatus(error instanceof Error ? error.message : 'Unable to initialize OCG mesh access.');
       setStatusKind('error');
     } finally {
       setBusy(false);
@@ -187,26 +277,29 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
   }, [required]);
 
   useEffect(() => {
-    if (required && !initiallyAuthorized) loadChallenge();
-  }, [required, initiallyAuthorized, loadChallenge]);
+    if (required && !initiallyAuthorized) loadBindingState();
+  }, [required, initiallyAuthorized, loadBindingState]);
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setNow(Math.floor(Date.now() / 1000));
-    }, 1000);
-    return () => window.clearInterval(timer);
+  const openCredential = useCallback(() => {
+    setDialogError('');
+    setFields(emptyFields());
+    setDialogOpen(true);
   }, []);
 
-  const validate = useCallback(async () => {
-    if (busy || authorized) return;
-    if (!expiresAt || expiresAt <= Math.floor(Date.now() / 1000)) {
-      setStatus('Challenge expired. Click Refresh, sign the new challenge, then paste the new manifest.');
-      setStatusKind('error');
+  const submitCredential = useCallback(async () => {
+    if (busy) return;
+
+    const missing = FIELD_NAMES.find((name) => !String(fields[name] || '').trim());
+    if (missing) {
+      setDialogError('Fill every field before continuing. Missing: ' + missing);
       return;
     }
+
     setBusy(true);
-    setStatus('Validating signed access manifest…');
+    setDialogError('');
+    setStatus('Checking OCG mesh credential…');
     setStatusKind('idle');
+
     try {
       const response = await fetch(API, {
         method: 'POST',
@@ -214,52 +307,49 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          'X-Hashcod-Mesh': '1',
         },
-        body: JSON.stringify({ source }),
+        body: JSON.stringify({ fields }),
       });
+
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok || !data.authorized) {
-        throw new Error(data.error || 'Access manifest rejected.');
+        const message = data.error || 'Mesh credential rejected.';
+        setDialogError(message);
+        setStatus(message);
+        setStatusKind('error');
+        return;
       }
-      setStatus('Access granted. Opening Hashcod Codespace…');
+
+      setBound(true);
+      setStatus(
+        data.enrolled
+          ? 'Mesh credential bound. Opening Hashcod Codespace…'
+          : 'Mesh credential matched. Opening Hashcod Codespace…'
+      );
       setStatusKind('success');
       document.body.dataset.hashcodCodeAccessAuthorized = '1';
       window.HashcodCodeAccess = Object.freeze({
         mounted: true,
         authorized: true,
-        protocol: 'HASHCOD-ACCESS/1',
+        protocol: SCHEMA,
         editor: 'Monaco',
+        mode: 'mesh-first-use-binding',
+        bound: true,
         version: VERSION,
       });
       window.dispatchEvent(new CustomEvent('hashcod:code-access-granted'));
-      setTimeout(() => setAuthorized(true), 260);
+      setDialogOpen(false);
+      window.setTimeout(() => setAuthorized(true), 260);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Access manifest rejected.');
+      const message = error instanceof Error ? error.message : 'Mesh credential rejected.';
+      setDialogError(message);
+      setStatus(message);
       setStatusKind('error');
     } finally {
       setBusy(false);
     }
-  }, [source, busy, authorized, expiresAt]);
-
-  const copyChallenge = useCallback(async () => {
-    if (!challenge) return;
-    try {
-      await navigator.clipboard.writeText(challenge);
-      setStatus('Challenge copied.');
-      setStatusKind('ready');
-    } catch {
-      setStatus('Could not copy the challenge automatically.');
-      setStatusKind('error');
-    }
-  }, [challenge]);
-
-  const remainingSeconds = useMemo(() => {
-    if (!expiresAt) return 0;
-    return Math.max(0, expiresAt - now);
-  }, [expiresAt, now]);
-
-  const timeLabel = expiresAt ? remainingSeconds + 's' : '—';
-  const challengeExpired = Boolean(expiresAt && remainingSeconds <= 0);
+  }, [busy, fields]);
 
   if (!required || authorized) return null;
 
@@ -272,21 +362,22 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
         aria-modal="true"
         aria-labelledby="d5CodeAccessTitle"
         data-editor="monaco"
-        data-protocol="HASHCOD-ACCESS/1"
+        data-protocol={SCHEMA}
+        data-bound={bound ? 'true' : 'false'}
       >
         <header className="code-access-header">
           <div className="code-access-heading">
             <span className="code-access-mark" aria-hidden="true">HC</span>
             <div>
               <p>HASHCOD CODESPACE · SECURE ENTRY</p>
-              <h1 id="d5CodeAccessTitle">Access manifest</h1>
+              <h1 id="d5CodeAccessTitle">Mesh access binding</h1>
             </div>
           </div>
-          <span className="code-access-security-pill">ML-DSA-87 · FIPS 204</span>
+          <span className="code-access-security-pill">OCG MESH · FIRST-USE BINDING</span>
         </header>
 
         <p className="code-access-description">
-          Enter the signed PHP-shaped access code. It is parsed as data and is never executed by the server.
+          Click the vector mesh icon inside the editor. The first credential set is bound to this browser; later reloads require the exact same values.
         </p>
 
         <div className="code-tabs-shell">
@@ -309,23 +400,35 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
             </div>
             <div className="code-tabs-tools">
               <span>PHP</span>
-              <button type="button" onClick={copyChallenge} disabled={!challenge}>Copy challenge</button>
-              <button type="button" onClick={loadChallenge} disabled={busy}>Refresh</button>
+              <span className="mesh-binding-state" data-bound={bound ? 'true' : 'false'}>
+                {bound ? 'BOUND' : 'UNBOUND'}
+              </span>
             </div>
           </div>
 
-          <MonacoCodeEditor
-            value={editorValue}
-            onChange={activeTab === 'Access.php' ? setSource : undefined}
-            readOnly={readOnly}
-            ariaLabel={activeTab === 'Access.php' ? 'Hashcod access PHP manifest editor' : 'Hashcod access protocol example'}
-          />
+          <div className="mesh-editor-stage">
+            <MonacoCodeEditor
+              value={editorValue}
+              ariaLabel={activeTab === 'Access.php' ? 'OCG mesh access editor' : 'OCG mesh binding protocol'}
+            />
+            <button
+              id="d5MeshNodeIcon"
+              className="mesh-editor-icon"
+              type="button"
+              aria-label="Open OCG mesh credential window"
+              title="Open OCG Mesh Node Credential"
+              data-vector-icon="ocg-mesh-node"
+              onClick={openCredential}
+            >
+              <MeshNodeIcon size={32} />
+            </button>
+          </div>
         </div>
 
-        <div className="code-access-meta">
-          <span><b>Challenge</b><code>{challenge ? challenge.slice(0, 25) + '…' : 'loading…'}</code></span>
-          <span><b>Expires</b><code>{timeLabel}</code></span>
-          <span><b>Fingerprint</b><code>{fingerprint ? fingerprint.slice(0, 14) + '…' : '—'}</code></span>
+        <div className="code-access-meta mesh-meta">
+          <span><b>SCHEMA</b><code>{SCHEMA}</code></span>
+          <span><b>MODE</b><code>MESH-NODE</code></span>
+          <span><b>BINDING</b><code>{bound ? 'BOUND' : 'FIRST ENROLLMENT'}</code></span>
         </div>
 
         <footer className="code-access-footer">
@@ -334,15 +437,26 @@ function CodeAccessGate({ required, initiallyAuthorized }) {
             <span>{status}</span>
           </p>
           <button
-            id="d5CodeAccessValidate"
+            id="d5OpenMeshCredential"
             className="code-access-validate"
             type="button"
-            onClick={validate}
-            disabled={busy || activeTab !== 'Access.php' || challengeExpired}
+            onClick={openCredential}
+            disabled={busy}
           >
-            {busy ? 'Validating…' : 'Validate access code'}
+            Open mesh credential
           </button>
         </footer>
+
+        <MeshCredentialWindow
+          open={dialogOpen}
+          bound={bound}
+          fields={fields}
+          setFields={setFields}
+          busy={busy}
+          error={dialogError}
+          onClose={() => !busy && setDialogOpen(false)}
+          onSubmit={submitCredential}
+        />
       </section>
     </div>
   );
@@ -362,8 +476,10 @@ function mountCodeAccess() {
   window.HashcodCodeAccess = Object.freeze({
     mounted: true,
     authorized: initiallyAuthorized || !required,
-    protocol: 'HASHCOD-ACCESS/1',
+    protocol: SCHEMA,
     editor: 'Monaco',
+    mode: 'mesh-first-use-binding',
+    bound: false,
     version: VERSION,
   });
   return true;

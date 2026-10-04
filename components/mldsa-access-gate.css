@@ -3825,3 +3825,160 @@ body.text-card-modal-open #d5BeamCardDemo .beam-card-grid{
 .entry-branched-menu-stage .v-calendar .v-calendar__day[data-selected="true"] i{
   background:#fff!important;
 }
+
+
+/* Code access fallback shell: loaded before Monaco so the blocking screen never flashes unstyled. */
+body[data-hashcod-code-access-required="1"][data-hashcod-code-access-authorized="0"]{
+  overflow:hidden!important;
+}
+.code-access-root[data-required="0"],
+.code-access-root[data-authorized="1"]{
+  display:none!important;
+}
+.code-access-root .code-access-boot{
+  position:fixed;
+  inset:0;
+  z-index:2147483600;
+  display:grid;
+  place-items:center;
+  padding:22px;
+  background:rgba(247,247,245,.56);
+  backdrop-filter:blur(20px) saturate(.72);
+  -webkit-backdrop-filter:blur(20px) saturate(.72);
+}
+.code-access-root .code-access-boot-window{
+  width:min(790px,calc(100vw - 32px));
+  overflow:hidden;
+  border:1px solid #0a0a0a;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 30px 90px rgba(10,10,10,.18);
+  color:#0a0a0a;
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+}
+.code-access-root .code-access-boot-head{
+  min-height:66px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:14px 18px;
+  border-bottom:1px solid #e5e5e5;
+}
+.code-access-root .code-access-boot-mark{
+  width:36px;
+  height:36px;
+  flex:0 0 36px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:#0a0a0a;
+  color:#fff;
+  font:800 11px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+.code-access-root .code-access-boot-head>span:nth-child(2){
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.code-access-root .code-access-boot-head b{
+  color:#737373;
+  font:700 8px/1.2 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  letter-spacing:.08em;
+}
+.code-access-root .code-access-boot-head small{
+  color:#0a0a0a;
+  font-size:18px;
+  font-weight:700;
+  line-height:1.1;
+}
+.code-access-root .code-access-boot-head>i{
+  margin-left:auto;
+  padding:7px 9px;
+  border:1px solid #d4d4d4;
+  border-radius:999px;
+  color:#525252;
+  font:normal 650 8px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+.code-access-root .code-access-boot-tabs{
+  min-height:39px;
+  display:flex;
+  align-items:center;
+  border-bottom:1px solid #262626;
+  background:#111;
+}
+.code-access-root .code-access-boot-tabs span{
+  align-self:stretch;
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  border-right:1px solid #262626;
+  color:#737373;
+  font:600 10px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+.code-access-root .code-access-boot-tabs span[data-active="true"]{
+  background:#0a0a0a;
+  color:#f5f5f5;
+  box-shadow:inset 0 -1px 0 #fff;
+}
+.code-access-root .code-access-boot-tabs em{
+  margin-left:auto;
+  padding-right:12px;
+  color:#737373;
+  font:normal 600 8px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+.code-access-root .code-access-boot-editor{
+  min-height:310px;
+  padding:22px 24px;
+  overflow:auto;
+  background:#0a0a0a;
+  color:#d4d4d4;
+  text-align:left;
+}
+.code-access-root .code-access-boot-editor code{
+  color:inherit;
+  font:500 13px/21px "SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+.code-access-root .code-access-boot-editor mark{
+  padding:0;
+  background:transparent;
+  color:#c7f9cc;
+}
+.code-access-root .code-access-boot-foot{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:10px 14px 10px 18px;
+}
+.code-access-root .code-access-boot-foot>span{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#737373;
+  font-size:10px;
+}
+.code-access-root .code-access-boot-foot>span i{
+  width:7px;
+  height:7px;
+  flex:0 0 7px;
+  border-radius:999px;
+  background:#0a0a0a;
+}
+.code-access-root .code-access-boot-foot button{
+  min-height:38px;
+  margin-left:auto;
+  padding:0 15px;
+  border:1px solid #0a0a0a;
+  border-radius:9px;
+  background:#0a0a0a;
+  color:#fff;
+  opacity:.48;
+  font:700 10px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+@media(max-width:640px){
+  .code-access-root .code-access-boot{padding:10px}
+  .code-access-root .code-access-boot-window{width:calc(100vw - 20px);border-radius:13px}
+  .code-access-root .code-access-boot-head>i{display:none}
+  .code-access-root .code-access-boot-editor{min-height:270px;padding:18px 16px}
+}

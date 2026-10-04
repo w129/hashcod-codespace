@@ -138,8 +138,35 @@ http://:{$PORT:8000} {
 		file_server
 	}
 
-	# ML-DSA access gate assets are security-critical and must never stay stale.
+	# Access gate loader is security-critical and never stays stale. It preserves
+	# the original gate as a virtual core route and adds the Smith chart runtime.
 	handle /components/mldsa-access-gate.js {
+		root * /var/www/html
+		rewrite * /components/mldsa-access-gate-loader.js
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
+	}
+	handle /components/mldsa-access-gate-core.js {
+		root * /var/www/html
+		rewrite * /components/mldsa-access-gate.js
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
+	}
+	handle /components/smith-credential-chart.js {
+		root * /var/www/html
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
+		file_server
+	}
+	handle /components/smith-credential-chart.css {
 		root * /var/www/html
 		encode zstd gzip
 		header Cache-Control "no-store, max-age=0, must-revalidate"

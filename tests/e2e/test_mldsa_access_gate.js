@@ -64,6 +64,11 @@ assert(!codeAccessApi.includes('eval('),'code access API must never eval user co
 assert(!codeAccessApi.includes('include($source'),'code access API must never include user code');
 assert(codeAccessApi.includes("mldsaVerify($expectedChallenge,$signature)"),'code access must use ML-DSA signature verification');
 assert(codeAccessApi.includes("mldsaConsumeJti"),'code access must consume anti-replay challenge JTI');
+assert(!codeAccessApi.includes("securityIpStrike('code_access_signature_fail'"),'signed code flow must not create long IP bans for invalid signatures');
+assert(codeAccessApi.includes("$method==='POST'?8:30"),'signed code access rate limits changed unexpectedly');
+assert(gate.includes("$fallback=$phase===2?90:300"),'manual signer phase-1 TTL must allow enough time');
+assert(codeAccessEntry.includes("Challenge expired. Click Refresh"),'expired challenge UI guidance missing');
+assert(codeAccessEntry.includes("challengeExpired"),'expired challenges must disable validation');
 assert(codeAccessApi.includes("codeAccessGrant($proof)"),'successful signed manifest must grant the code access session');
 assert.equal(codeAccessPkg.dependencies['monaco-editor'],'0.52.2','Monaco Editor dependency changed');
 assert(codeAccessEntry.includes("monaco.editor.create"),'Monaco Editor must render the access manifest');
@@ -95,8 +100,8 @@ assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be remov
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5'),'BranchedMenu JS bundle must load');
-assert(gate.includes('components/code-access.bundle.css?v=20261004-code-access2'),'code access CSS bundle must load');
-assert(gate.includes('components/code-access.bundle.js?v=20261004-code-access2'),'code access JS bundle must load');
+assert(gate.includes('components/code-access.bundle.css?v=20261004-code-access3'),'code access CSS bundle must load');
+assert(gate.includes('components/code-access.bundle.js?v=20261004-code-access3'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
 assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
 assert(gate.includes('class="code-access-boot-window"'),'styled CodeTabs boot window missing');

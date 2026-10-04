@@ -193,6 +193,14 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           strokeWidth:basePath?getComputedStyle(basePath).strokeWidth:''
         },
         markerBackground:markerStyle.backgroundColor,
+        calendar:{
+          exists:Boolean(document.getElementById('d5FirstScreenCalendar')),
+          belowMenu:(document.getElementById('d5FirstScreenCalendar')?.getBoundingClientRect().top||0)>menu.getBoundingClientRect().bottom,
+          month:document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()||'',
+          selected:document.querySelector('.v-calendar__day[data-selected="true"]')?.getAttribute('data-calendar-date')||'',
+          unavailable:document.querySelector('[data-calendar-date="2026-09-20"]')?.disabled===true,
+          accent:document.querySelector('.v-calendar')?.getAttribute('data-calendar-accent')||''
+        },
         mounted:Boolean(window.HashcodFirstScreenBranchedMenu?.mounted),
         secondEntry:document.getElementById('hashcodEntryHold')!==null,
         toolbook:document.getElementById('hashcodToolbookBlankPage')!==null
@@ -215,6 +223,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.deepEqual(state.heads,[{label:'Getting started',expanded:'true'},{label:'Components',expanded:'false'}],'defaultOpen={[0]} must remain exact');
     assert.deepEqual(state.labels,['FAQ','Card','Workspace','Text Card','Documents','Quick start','Configuration','Buttons','Overlays'],'menu labels must include Documents in the requested structure');
     assert.equal(state.active,'Quick start','defaultActive must remain quick');
+    assert.equal(state.calendar.exists,true,'calendar must render below the BranchedMenu');
+    assert.equal(state.calendar.belowMenu,true,'calendar must be positioned below the BranchedMenu');
+    assert.equal(state.calendar.month,'September 2026','calendar must open on September 2026');
+    assert.equal(state.calendar.selected,'2026-09-12','calendar default appointment must be 12 September');
+    assert.equal(state.calendar.unavailable,true,'20 September must remain unavailable');
+    assert.equal(state.calendar.accent,'black','calendar accent must be black');
     assert.equal(state.item.display,'flex','child row source layout changed');
     assert.equal(state.item.height,'36px','rowHeight=36 must remain exact');
     assert.equal(state.item.borderTopWidth,'0px','browser-default button border must not leak through');
@@ -251,6 +265,21 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.documentsMenu.height,'16px','Documents SVG height must be 16px');
     assert.equal(state.documentsMenu.fill,'rgb(10, 10, 10)','Documents SVG must inherit black menu ink');
     assert.equal(state.documentsMenu.viewBox,'0 0 24 24','Documents SVG must preserve the supplied viewBox');
+
+    await page.locator('[data-calendar-date="2026-09-18"]').click();
+    await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.includes('Studio review'));
+    assert.equal(await page.locator('[data-calendar-date="2026-09-18"]').getAttribute('data-selected'),'true','18 September must become selected');
+    const selectedCalendarBackground=await page.locator('[data-calendar-date="2026-09-18"]').evaluate(node=>getComputedStyle(node).backgroundColor);
+    assert.equal(selectedCalendarBackground,'rgb(10, 10, 10)','selected calendar day must use black rather than pink');
+
+    await page.locator('#d5CalendarPreviousMonth').click();
+    await page.waitForFunction(()=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()==='August 2026');
+    await page.locator('#d5CalendarNextMonth').click();
+    await page.waitForFunction(()=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()==='September 2026');
+
+    await page.locator('#d5CalendarClear').click();
+    await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.trim()==='Choose an appointment day.');
+    assert.equal(await page.locator('.v-calendar__day[data-selected="true"]').count(),0,'Clear selection must remove the appointment day');
     assert.equal(state.svg.fill,'none','branch SVG must never render as filled polygons');
     assert.equal(state.svg.stroke,'rgb(10, 10, 10)','branch lines must be black');
     assert.equal(state.svg.strokeWidth,'1.5px','lineWidth=1.5 must remain exact');

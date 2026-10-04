@@ -109,36 +109,208 @@ function navigate(value, item) {
   } catch (_) {}
 }
 
+
+const CALENDAR_DEFAULT_MONTH = new Date(2026, 8, 1);
+const CALENDAR_TODAY = new Date(2026, 8, 10);
+const CALENDAR_UNAVAILABLE = new Date(2026, 8, 20);
+const CALENDAR_MARKS = new Set(['2026-09-18', '2026-09-24']);
+const CALENDAR_WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+const calendarIso = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const calendarSameDay = (left, right) =>
+  Boolean(left && right) &&
+  left.getFullYear() === right.getFullYear() &&
+  left.getMonth() === right.getMonth() &&
+  left.getDate() === right.getDate();
+
+const calendarDayText = (date) =>
+  date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
+function CalendarExample() {
+  const [visibleMonth, setVisibleMonth] = React.useState(
+    () => new Date(CALENDAR_DEFAULT_MONTH)
+  );
+  const [selected, setSelected] = React.useState(
+    () => new Date(2026, 8, 12)
+  );
+
+  const year = visibleMonth.getFullYear();
+  const monthIndex = visibleMonth.getMonth();
+  const first = new Date(year, monthIndex, 1);
+  const offset = (first.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const cells = [];
+
+  for (let index = 0; index < offset; index += 1) cells.push(null);
+  for (let value = 1; value <= daysInMonth; value += 1) {
+    cells.push(new Date(year, monthIndex, value));
+  }
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const moveMonth = (amount) => {
+    setVisibleMonth((current) =>
+      new Date(current.getFullYear(), current.getMonth() + amount, 1)
+    );
+  };
+
+  const summary = selected
+    ? `${calendarDayText(selected)}${
+        selected.getDate() === 18 && selected.getMonth() === 8
+          ? ' · Studio review'
+          : ' · Available for an appointment'
+      }`
+    : 'Choose an appointment day.';
+
+  return (
+    <section
+      id="d5FirstScreenCalendar"
+      className="v-calendar-example"
+      data-calendar-example="single"
+      aria-label="Appointment calendar"
+    >
+      <div className="v-calendar-example__intro">
+        <span className="v-calendar-example__eyebrow">Appointment day</span>
+        <h3>Make time for a conversation</h3>
+        <p>Use when one day anchors an appointment.</p>
+        <p>Try choosing the 18th; it has a review pencilled in.</p>
+      </div>
+
+      <div className="v-calendar" data-calendar-accent="black">
+        <div className="v-calendar__header">
+          <button
+            id="d5CalendarPreviousMonth"
+            className="v-calendar__nav"
+            type="button"
+            aria-label="Previous month"
+            onClick={() => moveMonth(-1)}
+          >
+            <span aria-hidden="true">‹</span>
+          </button>
+          <strong id="d5CalendarMonthLabel" aria-live="polite">
+            {visibleMonth.toLocaleDateString('en-GB', {
+              month: 'long',
+              year: 'numeric'
+            })}
+          </strong>
+          <button
+            id="d5CalendarNextMonth"
+            className="v-calendar__nav"
+            type="button"
+            aria-label="Next month"
+            onClick={() => moveMonth(1)}
+          >
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <div className="v-calendar__weekdays" aria-hidden="true">
+          {CALENDAR_WEEKDAYS.map((weekday) => (
+            <span key={weekday}>{weekday.slice(0, 2)}</span>
+          ))}
+        </div>
+
+        <div className="v-calendar__grid" role="grid" aria-labelledby="d5CalendarMonthLabel">
+          {cells.map((date, index) => {
+            if (!date) {
+              return <span className="v-calendar__blank" key={`blank-${index}`} aria-hidden="true" />;
+            }
+
+            const iso = calendarIso(date);
+            const isDisabled = calendarSameDay(date, CALENDAR_UNAVAILABLE);
+            const isSelected = calendarSameDay(date, selected);
+            const isToday = calendarSameDay(date, CALENDAR_TODAY);
+            const isMarked = CALENDAR_MARKS.has(iso);
+
+            return (
+              <button
+                className="v-calendar__day"
+                type="button"
+                role="gridcell"
+                key={iso}
+                data-calendar-date={iso}
+                data-selected={isSelected ? 'true' : undefined}
+                data-today={isToday ? 'true' : undefined}
+                data-marked={isMarked ? 'true' : undefined}
+                disabled={isDisabled}
+                aria-current={isToday ? 'date' : undefined}
+                aria-pressed={isSelected}
+                aria-label={`${calendarDayText(date)}${isDisabled ? ', unavailable' : ''}`}
+                onClick={() => {
+                  if (!isDisabled) setSelected(date);
+                }}
+              >
+                <span>{date.getDate()}</span>
+                {isMarked ? <i aria-hidden="true" /> : null}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="v-calendar-example__summary" aria-live="polite">
+        <p id="d5CalendarSummary" role="status">{summary}</p>
+        <p>Black dot · Studio review on 18 September.</p>
+      </div>
+
+      <button
+        id="d5CalendarClear"
+        className="v-calendar-example__clear"
+        type="button"
+        onClick={() => setSelected(undefined)}
+      >
+        Clear selection
+      </button>
+    </section>
+  );
+}
+
+function FirstScreenMenuStack() {
+  return (
+    <div className="first-screen-menu-stack">
+      <BranchedMenu
+        items={items}
+        defaultOpen={[0]}
+        defaultActive="quick"
+        onSelect={(value, item) => navigate(value, item)}
+        color="#0a0a0a"
+        accentColor="#0a0a0a"
+        lineColor="#0a0a0a"
+        width={240}
+        rowHeight={36}
+        indent={40}
+        trunk={14}
+        radius={10}
+        lineWidth={1.5}
+        fontSize={14}
+        drawDuration={400}
+        foldDuration={300}
+      />
+      <CalendarExample />
+    </div>
+  );
+}
+
 function mountBranchedMenu() {
   const node = document.getElementById('d5FirstBranchedMenuMount');
   if (!node || node.dataset.reactMounted === 'true') return Boolean(node);
 
   const root = createRoot(node);
-  root.render(
-    <BranchedMenu
-      items={items}
-      defaultOpen={[0]}
-      defaultActive="quick"
-      onSelect={(value, item) => navigate(value, item)}
-      color="#0a0a0a"
-      accentColor="#0a0a0a"
-      lineColor="#0a0a0a"
-      width={240}
-      rowHeight={36}
-      indent={40}
-      trunk={14}
-      radius={10}
-      lineWidth={1.5}
-      fontSize={14}
-      drawDuration={400}
-      foldDuration={300}
-    />
-  );
+  root.render(<FirstScreenMenuStack />);
 
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261003-textcard1'
+    version: '20261004-calendar1'
   });
   return true;
 }

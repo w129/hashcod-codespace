@@ -69,8 +69,8 @@ assert(!gate.includes('id="d5SavedChatDemo"'),'Saved Messages card must be remov
 assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be removed');
 
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261003-textcard1'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261003-textcard1'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-calendar1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-calendar1'),'BranchedMenu JS bundle must load');
 assert(css.includes('.entry-branched-menu-stage{'),'BranchedMenu host styling missing');
 assert(css.includes('background:transparent'),'BranchedMenu host must not have the old black background');
 assert(css.includes('color:#0a0a0a'),'BranchedMenu host text color must be black');
@@ -263,6 +263,15 @@ for(const token of [
   assert(entry.includes(token),`requested BranchedMenu usage missing: ${token}`);
 }
 assert(entry.includes("document.getElementById('d5FirstBranchedMenuMount')"),'entry must mount into first-screen host');
+assert(entry.includes('function CalendarExample()'),'functional calendar component missing below menu');
+assert(entry.includes('id="d5FirstScreenCalendar"'),'calendar root missing');
+assert(entry.includes('data-calendar-accent="black"'),'calendar black accent marker missing');
+assert(entry.includes('CALENDAR_UNAVAILABLE = new Date(2026, 8, 20)'),'20 September unavailable rule missing');
+assert(entry.includes("new Date(2026, 8, 12)"),'calendar default selection must remain 12 September');
+assert(entry.includes('Clear selection'),'calendar clear action missing');
+assert(entry.includes('<CalendarExample />'),'calendar must render below BranchedMenu');
+assert(componentCss.includes('.v-calendar-example'),'calendar styling missing from BranchedMenu bundle');
+assert(componentCss.includes('.v-calendar__day[data-selected="true"]'),'calendar selected-day styling missing');
 assert(entry.includes("url.hash = value"),'onSelect navigate behavior missing');
 assert(entry.includes('const WorkspaceIcon = ('),'Workspace SVG icon component missing');
 assert(entry.includes('viewBox="0 0 24 24"'),'Workspace SVG viewBox changed');
@@ -347,7 +356,7 @@ assert(animateCursorJs.includes('window.HashcodAnimateCursor=Object.freeze'),'gl
 
 // FAQ must escape the page layout and cover the entire viewport.
 assert(gate.includes('components/mldsa-access-gate.css?v=20261003-menu-pos2'),'FAQ modal CSS cache-bust missing');
-assert(gate.includes('components/mldsa-access-gate.js?v=20261003-textcard1'),'FAQ modal JS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261004-calendar1'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
 assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');

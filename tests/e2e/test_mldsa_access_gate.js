@@ -82,8 +82,8 @@ assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the t
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-python-hatch10'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-python-hatch10'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-python-terminal11'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-python-terminal11'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -139,6 +139,9 @@ assert(centerEmptyStateEntry.includes('previewFrameId="d5HtmlHatchPreviewFrame"'
 assert(centerEmptyStateEntry.includes('srcDoc={previewSource ?? code}'),'HTML preview must render the composed preview source');
 assert(centerEmptyStateEntry.includes('function CssHtmlLinkIcon()'),'CSS to HTML link icon component missing');
 assert(centerEmptyStateEntry.includes('function PythonIcon()'),'Python icon component missing');
+assert(centerEmptyStateEntry.includes('function PythonRunIcon()'),'Python run icon component missing');
+assert(centerEmptyStateEntry.includes('viewBox="0 0 30 30"'),'Python run icon must preserve supplied 30x30 viewBox');
+assert(centerEmptyStateEntry.includes('M 5 4 C 3.895 4 3 4.895 3 6'),'supplied Python terminal icon path missing');
 assert(centerEmptyStateEntry.includes('fill="#0277BD"'),'Python icon blue path missing');
 assert(centerEmptyStateEntry.includes('fill="#FFC107"'),'Python icon yellow path missing');
 assert(centerEmptyStateEntry.includes('M24.047,5c-1.555,0.005'),'supplied Python blue path missing');
@@ -157,6 +160,15 @@ assert(centerEmptyStateEntry.includes('CSS_HATCH_STORAGE_KEY'),'CSS storage key 
 assert(centerEmptyStateEntry.includes('function tokenizeCss(code)'),'CSS tokenizer missing');
 assert(centerEmptyStateEntry.includes('HTML_HATCH_STORAGE_KEY'),'HTML storage key missing');
 assert(centerEmptyStateEntry.includes('PYTHON_HATCH_STORAGE_KEY'),'Python storage key missing');
+assert(centerEmptyStateEntry.includes('id="d5PythonRun"'),'Python run button id missing');
+assert(centerEmptyStateEntry.includes('id="d5PythonTerminal"'),'Python terminal view missing');
+assert(centerEmptyStateEntry.includes('id="d5PythonTerminalOutput"'),'Python terminal output missing');
+assert(centerEmptyStateEntry.includes('id="d5PythonTerminalBack"'),'Python terminal back button missing');
+assert(centerEmptyStateEntry.includes('PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.28.3/full/"'),'pinned Pyodide runtime missing');
+assert(centerEmptyStateEntry.includes('new Worker(blobUrl)'),'Python runner must execute in a Web Worker');
+assert(centerEmptyStateEntry.includes('importScripts(indexURL + "pyodide.js")'),'Python worker must load Pyodide');
+assert(centerEmptyStateEntry.includes('pyodide.runPythonAsync(code)'),'Python worker execution missing');
+assert(centerEmptyStateEntry.includes('PYTHON_RUN_TIMEOUT_MS = 10000'),'Python execution timeout missing');
 assert(centerEmptyStateEntry.includes('function tokenizePython(code)'),'Python tokenizer missing');
 assert(centerEmptyStateEntry.includes('navigator.clipboard.writeText(code)'),'Hatch copy behavior missing');
 assert(centerEmptyStateEntry.includes('window.localStorage.setItem(storageKey, next)'),'independent Hatch persistence missing');
@@ -176,6 +188,8 @@ assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="java"
 assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="html"]'),'HTML pane layout missing');
 assert(centerEmptyStateEntryCss.includes('.hatch-code-pane[data-code-pane="python"]'),'Python pane layout missing');
 assert(centerEmptyStateEntryCss.includes('.hatch-code-python-icon'),'Python icon sizing missing');
+assert(centerEmptyStateEntryCss.includes('.hatch-code-python-run'),'Python run button styling missing');
+assert(centerEmptyStateEntryCss.includes('.hatch-python-terminal'),'Python terminal styling missing');
 assert(centerEmptyStateEntryCss.includes('height: min(744px, calc(100dvh - 112px))'),'shared Hatch viewport height must stay responsive');
 assert(centerEmptyStateEntryCss.includes('backdrop-filter: blur(24px)'),'Hatch backdrop blur missing');
 assert(centerEmptyStateEntryCss.includes('.hatch-code-link-toggle'),'CSS to HTML link button styling missing');

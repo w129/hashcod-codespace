@@ -47,7 +47,10 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         sideOffset:window.HashcodAnimateCursor?.sideOffset,
         align:window.HashcodAnimateCursor?.align||'',
         alignOffset:window.HashcodAnimateCursor?.alignOffset,
-        label:follow.textContent.trim(),
+        followText:follow.textContent.trim(),
+        followIconViewBox:follow.querySelector('svg')?.getAttribute('viewBox')||'',
+        followIconPath:follow.querySelector('path')?.getAttribute('d')||'',
+        followIconFill:follow.querySelector('path')?.getAttribute('fill')||'',
         cursorOpacity:getComputedStyle(cursor).opacity,
         followOpacity:getComputedStyle(follow).opacity,
         nativeCursor:getComputedStyle(action).cursor,
@@ -67,7 +70,10 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(cursorState.sideOffset,15,'CursorFollow sideOffset must be 15');
     assert.equal(cursorState.align,'end','CursorFollow align must be end');
     assert.equal(cursorState.alignOffset,5,'CursorFollow alignOffset must be 5');
-    assert.equal(cursorState.label,'Designer','CursorFollow label must be Designer');
+    assert.equal(cursorState.followText,'','CursorFollow must not render Designer text');
+    assert.equal(cursorState.followIconViewBox,'0 0 30 30','CursorFollow icon must preserve the supplied 30x30 viewBox');
+    assert(cursorState.followIconPath.startsWith('M20.14197,16C20.58905,17.72052'),'CursorFollow must use the supplied SVG path');
+    assert.equal(cursorState.followIconFill,'#323232','CursorFollow icon fill must remain #323232');
     assert.equal(cursorState.cursorOpacity,'1','custom cursor must be visible after mouse movement');
     assert.equal(cursorState.followOpacity,'1','CursorFollow must be visible after mouse movement');
     assert.equal(cursorState.nativeCursor,'none','native cursor must be hidden across the platform');
@@ -514,6 +520,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(new URL(page.url()).hash,'#text-card','Text Card selection must navigate to #text-card');
     await page.waitForSelector('#d5BeamCardDemo',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5TextCardBackdrop',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>document.activeElement===document.getElementById('d5TextCardClose'),{timeout:5000});
 
     const textCardState=await page.evaluate(()=>{
       const demo=document.getElementById('d5BeamCardDemo');
@@ -675,6 +682,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       const rect=editor.getBoundingClientRect();
       return Math.abs((rect.left+rect.width/2)-(innerWidth/2))<=2
         && Math.abs((rect.top+rect.height/2)-(innerHeight/2))<=2;
+    },{timeout:5000});
+    await page.waitForFunction(()=>{
+      const editor=document.getElementById('d5HatchCodeEditor');
+      if(!editor)return false;
+      return Math.abs(editor.getBoundingClientRect().width-editor.offsetWidth)<=0.5;
     },{timeout:5000});
 
     const hatchState=await page.evaluate(()=>{

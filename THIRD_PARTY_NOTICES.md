@@ -93,7 +93,7 @@ Hashcod Codespace uses a native JavaScript/CSS adaptation of **Animate UI Cursor
 - Source: https://github.com/imskyleen/animate-ui
 - Component: `CursorProvider`, `Cursor`, and `CursorFollow`
 - License: MIT
-- Hashcod adaptation: the previous WebGL smoke cursor is retired. The cursor is global on fine-pointer desktop devices, suppresses the native pointer, follows pointer movement with spring-inspired motion, and renders the requested `Designer` follow label using the requested defaults: `side="bottom"`, `sideOffset={15}`, `align="end"`, and `alignOffset={5}`. Touch/coarse-pointer devices fall back to their normal pointer behavior.
+- Hashcod adaptation: the previous WebGL smoke cursor is retired. The cursor is global on fine-pointer desktop devices, suppresses the native pointer, follows pointer movement with spring-inspired motion, and renders the requested branch-style SVG icon as the follow element using the requested defaults: `side="bottom"`, `sideOffset={15}`, `align="end"`, and `alignOffset={5}`. Touch/coarse-pointer devices fall back to their normal pointer behavior.
 
 ## Toolbook BranchedMenu / Hugeicons React island
 

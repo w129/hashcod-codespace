@@ -74,6 +74,12 @@ assert(!codeAccessApi.includes("mldsaOriginAllowed()"),'mesh flow must not depen
 assert.equal(codeAccessPkg.dependencies['monaco-editor'],'0.52.2','Monaco Editor dependency changed');
 assert(codeAccessEntry.includes("monaco.editor.create"),'Monaco Editor must render the access view');
 assert(codeAccessEntry.includes("function MeshNodeIcon"),'vector mesh icon component missing');
+assert(codeAccessEntry.includes('viewBox="0 0 256 256"'),'new vector icon viewBox missing');
+assert(codeAccessEntry.includes('M17.22656,46.58203'),'new vector icon path missing');
+assert(codeAccessEntry.includes('fill="#ffffff"'),'vector icon must be white');
+assert(codeAccessCss.includes('background: transparent'),'vector icon must have no background');
+assert(codeAccessCss.includes('border: 0'),'vector icon must have no border');
+assert(codeAccessCss.includes('box-shadow: none'),'vector icon must have no shadow container');
 assert(codeAccessEntry.includes('data-vector-icon="ocg-mesh-node"'),'vector mesh icon marker missing');
 assert(codeAccessEntry.includes("OCG Mesh Node Credential"),'Tkinter-style mesh credential window missing');
 assert(codeAccessEntry.includes("Bind & unlock"),'first enrollment action missing');
@@ -106,8 +112,8 @@ assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be remov
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5'),'BranchedMenu JS bundle must load');
-assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-bind1'),'code access CSS bundle must load');
-assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-bind1'),'code access JS bundle must load');
+assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-bind2'),'code access CSS bundle must load');
+assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-bind2'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
 assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
 assert(gate.includes('class="code-access-boot-window"'),'styled CodeTabs boot window missing');

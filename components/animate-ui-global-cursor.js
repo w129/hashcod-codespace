@@ -27,6 +27,7 @@ function boot(){
   var cursor=document.createElement('div');
   cursor.id='d5AnimateCursor';
   cursor.className='hashcod-animate-cursor';
+  cursor.innerHTML='<svg viewBox="0 0 40 40" aria-hidden="true"><path fill="currentColor" d="M1.8 4.4 7 36.2c.3 1.8 2.6 2.3 3.6.8l3.9-5.7c1.7-2.5 4.5-4.1 7.5-4.3l6.9-.5c1.8-.1 2.5-2.4 1.1-3.5L5 2.5c-1.4-1.1-3.5 0-3.3 1.9Z"/></svg>';
 
   var follow=document.createElement('div');
   follow.id='d5AnimateCursorFollow';
@@ -39,10 +40,8 @@ function boot(){
 
   var targetX=window.innerWidth/2;
   var targetY=window.innerHeight/2;
-  var cursorX=targetX;
-  var cursorY=targetY;
   var followX=targetX;
-  var followY=targetY+SIDE_OFFSET;
+  var followY=targetY+SIDE_OFFSET+12;
   var visible=false;
   var pressed=false;
   var raf=0;
@@ -59,13 +58,16 @@ function boot(){
   }
 
   function positionFollow(){
+    var cursorRect=cursor.getBoundingClientRect();
+    var cursorWidth=cursorRect.width||24;
+    var cursorHeight=cursorRect.height||24;
+    var desiredX=targetX+ALIGN_OFFSET+(cursorWidth/2);
+    var desiredY=targetY+SIDE_OFFSET+(cursorHeight/2);
     var rect=follow.getBoundingClientRect();
-    var desiredX=targetX-rect.width+ALIGN_OFFSET;
-    var desiredY=targetY+SIDE_OFFSET;
-    var maxX=Math.max(8,window.innerWidth-rect.width-8);
-    var maxY=Math.max(8,window.innerHeight-rect.height-8);
-    desiredX=Math.min(Math.max(8,desiredX),maxX);
-    desiredY=Math.min(Math.max(8,desiredY),maxY);
+    var halfW=rect.width/2;
+    var halfH=rect.height/2;
+    desiredX=Math.min(Math.max(halfW+8,desiredX),window.innerWidth-halfW-8);
+    desiredY=Math.min(Math.max(halfH+8,desiredY),window.innerHeight-halfH-8);
     return {x:desiredX,y:desiredY};
   }
 
@@ -73,19 +75,15 @@ function boot(){
     var dt=Math.min(32,Math.max(1,now-last))/1000;
     last=now;
 
-    var cursorAlpha=reduceMotion?1:1-Math.exp(-Math.sqrt(SPRING_STIFFNESS)*dt*1.85);
     var followAlpha=reduceMotion?1:1-Math.exp(-(SPRING_DAMPING/2.5)*dt);
-
-    cursorX+=(targetX-cursorX)*cursorAlpha;
-    cursorY+=(targetY-cursorY)*cursorAlpha;
 
     var fp=positionFollow();
     followX+=(fp.x-followX)*followAlpha;
     followY+=(fp.y-followY)*followAlpha;
 
-    var cursorScale=pressed?0.76:1;
-    cursor.style.transform='translate3d('+cursorX+'px,'+cursorY+'px,0) scale('+cursorScale+')';
-    follow.style.transform='translate3d('+followX+'px,'+followY+'px,0)';
+    var cursorScale=pressed?0.82:1;
+    cursor.style.transform='translate3d('+targetX+'px,'+targetY+'px,0) translate(-50%,-50%) scale('+cursorScale+')';
+    follow.style.transform='translate3d('+followX+'px,'+followY+'px,0) translate(-50%,-50%)';
 
     raf=requestAnimationFrame(frame);
   }

@@ -53,30 +53,36 @@ assert(gate.includes("function mldsaOriginAllowed"),'same-origin request binding
 assert(api.includes("protocol'=>'ML-DSA-87-2PHASE"),'two-phase protocol marker missing');
 assert(api.includes("replay_detected"),'replay rejection missing');
 assert(router.includes("'/api/mldsa-access'"),'ML-DSA API route missing');
-assert(router.includes("'/api/code-access'"),'signed code access API route missing');
+assert(router.includes("'/api/code-access'"),'OCG mesh access API route missing');
 assert(gate.includes("function codeAccessRequired()"),'code access requirement switch missing');
 assert(gate.includes("L8_CODE_ACCESS_REQUIRED','1'"),'code access must default to required');
-assert(gate.includes("function codeAccessAuthorized()"),'code access session verification missing');
-assert(gate.includes("function codeAccessGrant(string $proof)"),'code access session grant missing');
-assert(codeAccessLib.includes("function codeAccessParseManifest"),'strict PHP-shaped manifest parser missing');
-assert(codeAccessLib.includes("Nothing is"),'code access parser safety contract missing');
-assert(!codeAccessApi.includes('eval('),'code access API must never eval user code');
-assert(!codeAccessApi.includes('include($source'),'code access API must never include user code');
-assert(codeAccessApi.includes("mldsaVerify($expectedChallenge,$signature)"),'code access must use ML-DSA signature verification');
-assert(codeAccessApi.includes("mldsaConsumeJti"),'code access must consume anti-replay challenge JTI');
-assert(!codeAccessApi.includes("securityIpStrike('code_access_signature_fail'"),'signed code flow must not create long IP bans for invalid signatures');
-assert(codeAccessApi.includes("$method==='POST'?8:30"),'signed code access rate limits changed unexpectedly');
-assert(gate.includes("$fallback=$phase===2?90:300"),'manual signer phase-1 TTL must allow enough time');
-assert(codeAccessEntry.includes("Challenge expired. Click Refresh"),'expired challenge UI guidance missing');
-assert(codeAccessEntry.includes("challengeExpired"),'expired challenges must disable validation');
-assert(codeAccessApi.includes("codeAccessGrant($proof)"),'successful signed manifest must grant the code access session');
+assert(gate.includes("function codeAccessAuthorized()"),'code access reload gate missing');
+assert(gate.includes("return !codeAccessRequired();"),'OCG mesh gate must reappear after reload');
+assert(codeAccessLib.includes("function meshAccessSchema()"),'OCG mesh schema helper missing');
+assert(codeAccessLib.includes("OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI"),'OCG mesh schema changed');
+assert(codeAccessLib.includes("meshAccessFieldNames"),'mesh credential field list missing');
+assert(codeAccessLib.includes("['TYPE','PAYLOAD','SALT','NONCE','ISSUED','USE','CHECK']"),'mesh credential field names changed');
+assert(codeAccessLib.includes("meshAccessDigest"),'mesh credential digest missing');
+assert(codeAccessLib.includes("meshAccessReadBinding"),'persistent mesh binding read missing');
+assert(codeAccessLib.includes("meshAccessWriteBinding"),'persistent mesh binding write missing');
+assert(codeAccessLib.includes("l8_ocg_mesh_binding_v1"),'mesh binding cookie name changed');
+assert(codeAccessApi.includes("X_HASHCOD_MESH"),'mesh request marker validation missing');
+assert(codeAccessApi.includes("binding_mismatch"),'different post-enrollment credentials must be rejected');
+assert(codeAccessApi.includes("meshAccessWriteBinding($digest)"),'first-use mesh enrollment missing');
+assert(codeAccessApi.includes("hash_equals($stored,$digest)"),'stored mesh binding comparison missing');
+assert(!codeAccessApi.includes("mldsaOriginAllowed()"),'mesh flow must not depend on the proxy-fragile Origin matcher');
 assert.equal(codeAccessPkg.dependencies['monaco-editor'],'0.52.2','Monaco Editor dependency changed');
-assert(codeAccessEntry.includes("monaco.editor.create"),'Monaco Editor must render the access manifest');
-assert(codeAccessEntry.includes("HASHCOD-ACCESS/1"),'signed access protocol marker missing from Monaco gate');
-assert(codeAccessEntry.includes("Validate access code"),'code access validation action missing');
+assert(codeAccessEntry.includes("monaco.editor.create"),'Monaco Editor must render the access view');
+assert(codeAccessEntry.includes("function MeshNodeIcon"),'vector mesh icon component missing');
+assert(codeAccessEntry.includes('data-vector-icon="ocg-mesh-node"'),'vector mesh icon marker missing');
+assert(codeAccessEntry.includes("OCG Mesh Node Credential"),'Tkinter-style mesh credential window missing');
+assert(codeAccessEntry.includes("Bind & unlock"),'first enrollment action missing');
+assert(codeAccessEntry.includes("Verify & unlock"),'bound credential verification action missing');
 assert(codeAccessEntry.includes("Access.php")&&codeAccessEntry.includes("Protocol"),'CodeTabs-style access tabs missing');
 assert(codeAccessCss.includes('.code-tabs-shell'),'CodeTabs-style editor shell missing');
 assert(codeAccessCss.includes('.code-access-overlay'),'blocking access overlay missing');
+assert(codeAccessCss.includes('.mesh-editor-icon'),'vector mesh icon styling missing');
+assert(codeAccessCss.includes('.mesh-tk-window'),'Tkinter-style mesh window styling missing');
 
 // Root stays on the first presentation.
 assert(l8.includes('Single-screen mode: the root route permanently renders only the'),'single-screen root contract missing');
@@ -100,11 +106,14 @@ assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be remov
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5'),'BranchedMenu JS bundle must load');
-assert(gate.includes('components/code-access.bundle.css?v=20261004-code-access3'),'code access CSS bundle must load');
-assert(gate.includes('components/code-access.bundle.js?v=20261004-code-access3'),'code access JS bundle must load');
+assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-bind1'),'code access CSS bundle must load');
+assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-bind1'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
 assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
 assert(gate.includes('class="code-access-boot-window"'),'styled CodeTabs boot window missing');
+assert(gate.includes('Mesh access binding'),'OCG mesh fallback title missing');
+assert(gate.includes('OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI'),'OCG mesh fallback schema missing');
+assert(gate.includes('code-access-boot-vector'),'OCG vector icon fallback missing');
 assert(gate.includes('Access.php'),'CodeTabs boot Access.php tab missing');
 assert(gate.includes('Protocol'),'CodeTabs boot Protocol tab missing');
 assert(css.includes('/* Code access fallback shell'),'code access fallback styling missing from always-loaded gate CSS');
@@ -415,7 +424,7 @@ assert(animateCursorJs.includes('window.HashcodAnimateCursor=Object.freeze'),'gl
 
 
 // FAQ must escape the page layout and cover the entire viewport.
-assert(gate.includes('components/mldsa-access-gate.css?v=20261004-code-access-fallback1'),'FAQ modal CSS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.css?v=20261004-mesh-fallback1'),'FAQ modal CSS cache-bust missing');
 assert(gate.includes('components/mldsa-access-gate.js?v=20261004-preview-policy5'),'FAQ modal JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');

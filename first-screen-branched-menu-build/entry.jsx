@@ -249,7 +249,12 @@ function CalendarExample() {
                   if (!isDisabled) setSelected(date);
                 }}
               >
-                <span>{date.getDate()}</span>
+                <span
+                  className="v-calendar__day-face"
+                  data-selected-face={isSelected ? 'true' : undefined}
+                >
+                  {date.getDate()}
+                </span>
                 {isMarked ? <i aria-hidden="true" /> : null}
               </button>
             );
@@ -310,7 +315,7 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261004-calendar3'
+    version: '20261004-calendar4'
   });
   return true;
 }

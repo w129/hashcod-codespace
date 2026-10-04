@@ -3813,8 +3813,12 @@ body.text-card-modal-open #d5BeamCardDemo .beam-card-grid{
 }
 
 
-/* Calendar accent override: selected dates are black, never the upstream pink accent. */
+/* Calendar accent override: the visible selected-day face is black, never pink. */
 .entry-branched-menu-stage .v-calendar .v-calendar__day[data-selected="true"]{
+  background:transparent!important;
+  color:#fff!important;
+}
+.entry-branched-menu-stage .v-calendar .v-calendar__day[data-selected="true"] .v-calendar__day-face{
   background:#0a0a0a!important;
   color:#fff!important;
 }

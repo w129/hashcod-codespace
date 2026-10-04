@@ -269,8 +269,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.locator('[data-calendar-date="2026-09-18"]').click();
     await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.includes('Studio review'));
     assert.equal(await page.locator('[data-calendar-date="2026-09-18"]').getAttribute('data-selected'),'true','18 September must become selected');
-    const selectedCalendarBackground=await page.locator('[data-calendar-date="2026-09-18"]').evaluate(node=>getComputedStyle(node).backgroundColor);
-    assert.equal(selectedCalendarBackground,'rgb(10, 10, 10)','selected calendar day must use black rather than pink');
+    const selectedCalendarBackground=await page.locator('[data-calendar-date="2026-09-18"] .v-calendar__day-face').evaluate(node=>getComputedStyle(node).backgroundColor);
+    assert.equal(selectedCalendarBackground,'rgb(10, 10, 10)','selected calendar day face must use black rather than pink');
 
     await page.locator('#d5CalendarPreviousMonth').click();
     await page.waitForFunction(()=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()==='August 2026');

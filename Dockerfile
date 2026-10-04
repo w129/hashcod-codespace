@@ -109,6 +109,15 @@ RUN cd /var/www/html/first-screen-branched-menu-build \
     && test -s /var/www/html/components/first-screen-branched-menu.bundle.css \
     && rm -rf /var/www/html/first-screen-branched-menu-build/node_modules /root/.npm
 
+# Build the Monaco + CodeTabs signed access gate shown over the blurred first screen.
+RUN cd /var/www/html/code-access-build \
+    && npm install --no-fund --no-audit \
+    && npm run build \
+    && test -s /var/www/html/components/code-access.bundle.js \
+    && test -s /var/www/html/components/code-access.bundle.css \
+    && test -s /var/www/html/components/monaco-editor.worker.js \
+    && rm -rf /var/www/html/code-access-build/node_modules /root/.npm
+
 # Build the centered EmptyState React/Motion island used on the first screen.
 RUN cd /var/www/html/center-empty-state-build \
     && npm install --no-fund --no-audit \

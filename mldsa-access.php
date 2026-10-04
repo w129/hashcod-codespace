@@ -242,6 +242,39 @@ function mldsaGrant(string $proof=''): void {
     ]),$now+$ttl);
     mldsaCookie(mldsaChallengeName(),'',time()-3600);
 }
+function codeAccessRequired(): bool {
+    $raw=strtolower(trim((string)secretGet('L8_CODE_ACCESS_REQUIRED','1')));
+    return !in_array($raw,['0','false','off','no'],true);
+}
+function codeAccessName(): string { return 'l8_hashcod_code_access_v1'; }
+function codeAccessAuthorized(): bool {
+    if(!codeAccessRequired())return true;
+    $d=mldsaOpen((string)($_COOKIE[codeAccessName()]??''));
+    if(!is_array($d))return false;
+    if(($d['kind']??'')!=='code-access-v1')return false;
+    if((int)($d['exp']??0)<time())return false;
+    if(!hash_equals((string)($d['ua']??''),mldsaUa()))return false;
+    if(!hash_equals((string)($d['host']??''),mldsaHost()))return false;
+    if(!hash_equals((string)($d['pkh']??''),mldsaPkHash()))return false;
+    return true;
+}
+function codeAccessGrant(string $proof): void {
+    $now=time();
+    $ttl=max(300,min(7200,(int)secretGet('L8_CODE_ACCESS_TTL','1800')));
+    mldsaCookie(codeAccessName(),mldsaSeal([
+        'kind'=>'code-access-v1',
+        'v'=>1,
+        'sid'=>bin2hex(random_bytes(16)),
+        'iat'=>$now,
+        'exp'=>$now+$ttl,
+        'ua'=>mldsaUa(),
+        'host'=>mldsaHost(),
+        'pkh'=>mldsaPkHash(),
+        'proof'=>$proof
+    ]),$now+$ttl);
+    mldsaCookie(mldsaChallengeName(),'',time()-3600);
+}
+
 function mldsaVerify(string $challenge,string $sigB64): bool {
     $sig=base64_decode(trim($sigB64),true);
     if(!is_string($sig)||strlen($sig)!==4627)return false;
@@ -289,7 +322,13 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5',ENT_QUOTES,'UTF-8');
     $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261004-file-vault2',ENT_QUOTES,'UTF-8');
     $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261004-file-vault2',ENT_QUOTES,'UTF-8');
-    $bodyAttr=$entryIntro?' data-hashcod-entry-intro="1"':'';
+    $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261004-code-access1',ENT_QUOTES,'UTF-8');
+    $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261004-code-access1',ENT_QUOTES,'UTF-8');
+    $codeAccessRequired=$entryIntro&&codeAccessRequired();
+    $codeAccessAuthorized=!$codeAccessRequired||codeAccessAuthorized();
+    $bodyAttr=$entryIntro
+      ? ' data-hashcod-entry-intro="1" data-hashcod-code-access-required="'.($codeAccessRequired?'1':'0').'" data-hashcod-code-access-authorized="'.($codeAccessAuthorized?'1':'0').'"'
+      : '';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE
     $accessCard=$entryIntro
@@ -306,7 +345,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
         .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
         .'</section>';
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"><link rel="stylesheet" href="'.$animateCursorCss.'">'.($entryIntro?'<link rel="stylesheet" href="'.$branchedMenuCss.'"><link rel="stylesheet" href="'.$centerEmptyStateCss.'">':'').'</head><body'.$bodyAttr.'>'
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'"><link rel="stylesheet" href="'.$animateCursorCss.'">'.($entryIntro?'<link rel="stylesheet" href="'.$branchedMenuCss.'"><link rel="stylesheet" href="'.$centerEmptyStateCss.'"><link rel="stylesheet" href="'.$codeAccessCss.'">':'').'</head><body'.$bodyAttr.'>'
+      .($entryIntro?'<div id="d5CodeAccessMount" class="code-access-root" data-hashcod-component="CodeAccessGate" data-required="'.($codeAccessRequired?'1':'0').'" data-authorized="'.($codeAccessAuthorized?'1':'0').'"><div class="code-access-boot" aria-hidden="true"><span>HASHCOD ACCESS</span><small>Loading secure code editor…</small></div></div>':'')
       .'<main class="access-stage">'
       .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Creates like rotating text"><span class="entry-rotating-text-prefix">Creates like</span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">code</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
       .($entryIntro?'<section id="d5CenterEmptyStateStage" class="entry-empty-state-stage" aria-label="VC"><div id="d5CenterEmptyStateMount" class="entry-empty-state-mount" data-hashcod-component="EmptyState"></div></section>':'')
@@ -496,5 +536,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</section>'
       .($entryIntro?'<footer id="d5PreviewPolicyFooter" class="preview-policy-footer" aria-label="Use and Privacy Policy"><div id="d5PreviewPolicyMount" class="preview-policy-mount" data-hashcod-component="PreviewLinkCard"></div></footer>':'')
-      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script><script src="'.$animateCursorJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script>':'').'</body></html>';
+      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script><script src="'.$animateCursorJs.'" defer></script>'.($entryIntro?'<script src="'.$codeAccessJs.'" defer></script><script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script>':'').'</body></html>';
 }

@@ -305,6 +305,86 @@ function FirstScreenMenuStack() {
   );
 }
 
+
+function PreviewPolicyFooter() {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <p
+      className="preview-policy-copy"
+      data-hashcod-preview-policy="true"
+    >
+      Before continuing, please read the{' '}
+      <span
+        className="preview-link-card"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') setOpen(false);
+        }}
+      >
+        <a
+          id="d5PreviewPolicyTrigger"
+          className="preview-link-card__trigger"
+          href="/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-describedby={open ? 'd5PreviewPolicyContent' : undefined}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+        >
+          Use and Privacy Policy
+        </a>
+        <span
+          id="d5PreviewPolicyContent"
+          className="preview-link-card__content"
+          data-open={open ? 'true' : 'false'}
+          role="tooltip"
+          aria-hidden={open ? 'false' : 'true'}
+        >
+          <span className="preview-link-card__image" aria-hidden="true">
+            <span className="preview-link-card__browser-bar">
+              <i />
+              <i />
+              <i />
+              <b>hashcodcodespace.dev/privacy</b>
+            </span>
+            <span className="preview-link-card__document">
+              <span className="preview-link-card__kicker">
+                HASHCOD CODESPACE · LEGAL
+              </span>
+              <strong>Use and Privacy Policy</strong>
+              <small>
+                Documento de Aceptación Contractual, Privacidad y Evidencia de Registro
+              </small>
+              <span className="preview-link-card__meta">
+                Effective document · Open to read
+              </span>
+            </span>
+          </span>
+        </span>
+      </span>
+      .
+    </p>
+  );
+}
+
+function mountPreviewPolicyFooter() {
+  const node = document.getElementById('d5PreviewPolicyMount');
+  if (!node || node.dataset.reactMounted === 'true') return Boolean(node);
+
+  const root = createRoot(node);
+  root.render(<PreviewPolicyFooter />);
+  node.dataset.reactMounted = 'true';
+
+  window.HashcodPreviewPolicyLinkCard = Object.freeze({
+    mounted: true,
+    href: '/privacy',
+    version: '20261004-preview-policy1'
+  });
+  return true;
+}
+
 function mountBranchedMenu() {
   const node = document.getElementById('d5FirstBranchedMenuMount');
   if (!node || node.dataset.reactMounted === 'true') return Boolean(node);
@@ -315,13 +395,18 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261004-calendar4'
+    version: '20261004-preview-policy1'
   });
   return true;
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountBranchedMenu, { once: true });
-} else {
+function mountFirstScreenReactIslands() {
   mountBranchedMenu();
+  mountPreviewPolicyFooter();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', mountFirstScreenReactIslands, { once: true });
+} else {
+  mountFirstScreenReactIslands();
 }

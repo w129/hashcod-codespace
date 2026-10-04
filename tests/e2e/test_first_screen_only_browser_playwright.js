@@ -23,6 +23,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForSelector('#d5FirstBranchedMenuStage',{state:'visible',timeout:10000});
     await page.waitForFunction(()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
+    await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyMount')?.dataset.reactMounted==='true',{timeout:5000});
+    await page.waitForSelector('#d5PreviewPolicyTrigger',{state:'attached',timeout:5000});
     await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('#d5CenterEmptyStateAction',{state:'visible',timeout:5000});
     await page.waitForFunction(()=>window.HashcodAnimateCursor?.mounted===true,{timeout:5000});
@@ -193,6 +195,15 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           strokeWidth:basePath?getComputedStyle(basePath).strokeWidth:''
         },
         markerBackground:markerStyle.backgroundColor,
+        previewPolicy:{
+          exists:Boolean(document.getElementById('d5PreviewPolicyFooter')),
+          afterMain:Boolean(document.querySelector('main')?.compareDocumentPosition(document.getElementById('d5PreviewPolicyFooter')) & Node.DOCUMENT_POSITION_FOLLOWING),
+          text:document.getElementById('d5PreviewPolicyFooter')?.textContent?.replace(/\s+/g,' ').trim()||'',
+          href:document.getElementById('d5PreviewPolicyTrigger')?.getAttribute('href')||'',
+          target:document.getElementById('d5PreviewPolicyTrigger')?.getAttribute('target')||'',
+          component:document.getElementById('d5PreviewPolicyMount')?.getAttribute('data-hashcod-component')||'',
+          mounted:Boolean(window.HashcodPreviewPolicyLinkCard?.mounted)
+        },
         calendar:{
           exists:Boolean(document.getElementById('d5FirstScreenCalendar')),
           belowMenu:(document.getElementById('d5FirstScreenCalendar')?.getBoundingClientRect().top||0)>menu.getBoundingClientRect().bottom,
@@ -229,6 +240,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.calendar.selected,'2026-09-12','calendar default appointment must be 12 September');
     assert.equal(state.calendar.unavailable,true,'20 September must remain unavailable');
     assert.equal(state.calendar.accent,'black','calendar accent must be black');
+    assert.equal(state.previewPolicy.exists,true,'Preview Link Card footer must exist at the end of the platform');
+    assert.equal(state.previewPolicy.afterMain,true,'Preview Link Card footer must follow the main platform content');
+    assert.equal(state.previewPolicy.text,'Before continuing, please read the Use and Privacy Policy.','Preview Link Card footer text must match exactly');
+    assert.equal(state.previewPolicy.href,'/privacy','Use and Privacy Policy must link to the existing privacy route');
+    assert.equal(state.previewPolicy.target,'_blank','Use and Privacy Policy must open in a new tab');
+    assert.equal(state.previewPolicy.component,'PreviewLinkCard','Preview Link Card component marker changed');
+    assert.equal(state.previewPolicy.mounted,true,'Preview Link Card React island must mount');
     assert.equal(state.item.display,'flex','child row source layout changed');
     assert.equal(state.item.height,'36px','rowHeight=36 must remain exact');
     assert.equal(state.item.borderTopWidth,'0px','browser-default button border must not leak through');
@@ -265,6 +283,20 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.documentsMenu.height,'16px','Documents SVG height must be 16px');
     assert.equal(state.documentsMenu.fill,'rgb(10, 10, 10)','Documents SVG must inherit black menu ink');
     assert.equal(state.documentsMenu.viewBox,'0 0 24 24','Documents SVG must preserve the supplied viewBox');
+
+    assert.equal(await page.locator('#d5PreviewPolicyContent').getAttribute('data-open'),'false','Preview Link Card must start closed');
+    await page.locator('#d5PreviewPolicyTrigger').hover();
+    await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyContent')?.getAttribute('data-open')==='true');
+    const previewPolicyState=await page.locator('#d5PreviewPolicyContent').evaluate(node=>({
+      opacity:getComputedStyle(node).opacity,
+      visibility:getComputedStyle(node).visibility,
+      title:node.querySelector('.preview-link-card__document strong')?.textContent?.trim()||''
+    }));
+    assert.equal(previewPolicyState.opacity,'1','Preview Link Card must become visible on hover');
+    assert.equal(previewPolicyState.visibility,'visible','Preview Link Card must be visually exposed on hover');
+    assert.equal(previewPolicyState.title,'Use and Privacy Policy','Preview Link Card title changed');
+    await page.mouse.move(700,450);
+    await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyContent')?.getAttribute('data-open')==='false');
 
     await page.locator('[data-calendar-date="2026-09-18"]').click();
     await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.includes('Studio review'));

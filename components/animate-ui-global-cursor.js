@@ -42,6 +42,8 @@ function boot(){
   var targetY=window.innerHeight/2;
   var followX=targetX;
   var followY=targetY+SIDE_OFFSET+12;
+  var followVX=0;
+  var followVY=0;
   var visible=false;
   var raf=0;
   var last=performance.now();
@@ -70,13 +72,21 @@ function boot(){
     var dt=Math.min(32,Math.max(1,now-last))/1000;
     last=now;
 
-    var followAlpha=reduceMotion?1:1-Math.exp(-(SPRING_DAMPING/2.5)*dt);
-
     var fp=positionFollow();
-    followX+=(fp.x-followX)*followAlpha;
-    followY+=(fp.y-followY)*followAlpha;
+    if(reduceMotion){
+      followX=fp.x;
+      followY=fp.y;
+      followVX=0;
+      followVY=0;
+    }else{
+      var ax=SPRING_STIFFNESS*(fp.x-followX)-SPRING_DAMPING*followVX;
+      var ay=SPRING_STIFFNESS*(fp.y-followY)-SPRING_DAMPING*followVY;
+      followVX+=ax*dt;
+      followVY+=ay*dt;
+      followX+=followVX*dt;
+      followY+=followVY*dt;
+    }
 
-    cursor.style.transform='translate3d('+targetX+'px,'+targetY+'px,0) translate(-50%,-50%) scale(1)';
     follow.style.transform='translate3d('+followX+'px,'+followY+'px,0) translate(-50%,-50%)';
 
     raf=requestAnimationFrame(frame);
@@ -86,6 +96,7 @@ function boot(){
     if(event.pointerType&&event.pointerType!=='mouse'&&event.pointerType!=='pen')return;
     targetX=event.clientX;
     targetY=event.clientY;
+    cursor.style.transform='translate3d('+targetX+'px,'+targetY+'px,0) translate(-50%,-50%) scale(1)';
     if(!visible)setVisible(true);
   }
 
@@ -107,7 +118,7 @@ function boot(){
     align:'end',
     alignOffset:ALIGN_OFFSET,
     label:'Designer',
-    version:'20261004-animate-cursor1'
+    version:'20261004-animate-cursor2'
   });
 
   window.addEventListener('pagehide',function(){

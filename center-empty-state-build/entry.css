@@ -98,12 +98,9 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 .hatch-code-shell {
   position: relative;
   width: 864px;
-  height: min(820px, calc(100dvh - 112px));
+  height: min(744px, calc(100dvh - 112px));
   max-width: calc(100vw - 32px);
   max-height: none;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: repeat(6, minmax(0, 1fr));
   overflow: visible;
   border: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 12px;
@@ -113,6 +110,41 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
     0 24px 60px rgba(15, 23, 42, 0.16),
     0 2px 8px rgba(15, 23, 42, 0.08);
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hatch-code-grid-scroll {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-auto-rows: 372px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 12px;
+  background: #ffffff;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+  overscroll-behavior: contain;
+}
+
+.hatch-code-grid-scroll::-webkit-scrollbar {
+  width: 11px;
+}
+
+.hatch-code-grid-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 0 12px 12px 0;
+}
+
+.hatch-code-grid-scroll::-webkit-scrollbar-thumb {
+  border: 3px solid #f1f5f9;
+  border-radius: 999px;
+  background: #94a3b8;
+}
+
+.hatch-code-grid-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
 
 .hatch-code-pane {
@@ -126,36 +158,32 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 
 .hatch-code-pane[data-code-pane="tsx"] {
   grid-column: 1;
-  grid-row: 1 / span 2;
-  border-radius: 12px 0 0 0;
-}
-
-.hatch-code-pane[data-code-pane="javascript"] {
-  grid-column: 1;
-  grid-row: 3 / span 2;
-  border-top: 1px solid rgba(15, 23, 42, 0.10);
-}
-
-.hatch-code-pane[data-code-pane="css"] {
-  grid-column: 1;
-  grid-row: 5 / span 2;
-  border-top: 1px solid rgba(15, 23, 42, 0.10);
-  border-radius: 0 0 0 12px;
+  grid-row: 1;
 }
 
 .hatch-code-pane[data-code-pane="java"] {
   grid-column: 2;
-  grid-row: 1 / span 3;
+  grid-row: 1;
   border-left: 1px solid rgba(15, 23, 42, 0.10);
-  border-radius: 0 12px 0 0;
+}
+
+.hatch-code-pane[data-code-pane="javascript"] {
+  grid-column: 1;
+  grid-row: 2;
+  border-top: 1px solid rgba(15, 23, 42, 0.10);
 }
 
 .hatch-code-pane[data-code-pane="html"] {
   grid-column: 2;
-  grid-row: 4 / span 3;
+  grid-row: 2;
   border-top: 1px solid rgba(15, 23, 42, 0.10);
   border-left: 1px solid rgba(15, 23, 42, 0.10);
-  border-radius: 0 0 12px 0;
+}
+
+.hatch-code-pane[data-code-pane="css"] {
+  grid-column: 1;
+  grid-row: 3;
+  border-top: 1px solid rgba(15, 23, 42, 0.10);
 }
 
 .hatch-code-header {
@@ -403,9 +431,12 @@ body.hashcod-hatch-open {
 
 @media (max-width: 620px) {
   .hatch-code-shell {
+    height: min(744px, calc(100dvh - 112px));
+  }
+
+  .hatch-code-grid-scroll {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: repeat(6, minmax(0, 1fr));
-    height: min(820px, calc(100dvh - 112px));
+    grid-auto-rows: 372px;
   }
 
   .hatch-code-header {

@@ -164,7 +164,9 @@ function usePersistentCode(storageKey, initialValue) {
 }
 
 function CodePane({
-  idPrefix,
+  inputId,
+  copyId,
+  paneKey,
   filename,
   icon,
   code,
@@ -236,14 +238,14 @@ function CodePane({
   };
 
   return (
-    <section className="hatch-code-pane" data-code-pane={idPrefix}>
+    <section className="hatch-code-pane" data-code-pane={paneKey}>
       <div className="hatch-code-header">
         <div className="hatch-code-file">
           {icon}
           <span>{filename}</span>
         </div>
         <button
-          id={`${idPrefix}Copy`}
+          id={copyId}
           className="hatch-code-copy"
           type="button"
           aria-label={copied ? "Copied" : `Copy ${filename}`}
@@ -260,7 +262,7 @@ function CodePane({
           <code>{highlighted}</code>
         </pre>
         <textarea
-          id={`${idPrefix}Input`}
+          id={inputId}
           ref={textareaRef}
           className="hatch-code-input"
           value={code}
@@ -348,7 +350,9 @@ function HatchCodeEditor({ open, onClose }) {
           </button>
 
           <CodePane
-            idPrefix="d5Hatch"
+            paneKey="tsx"
+            inputId="d5HatchCodeInput"
+            copyId="d5HatchCopy"
             filename="my-component.tsx"
             icon={<ReactIcon />}
             code={tsxCode}
@@ -359,7 +363,9 @@ function HatchCodeEditor({ open, onClose }) {
           />
 
           <CodePane
-            idPrefix="d5JavaHatch"
+            paneKey="java"
+            inputId="d5JavaHatchCodeInput"
+            copyId="d5JavaHatchCopy"
             filename="Main.java"
             icon={<JavaIcon />}
             code={javaCode}

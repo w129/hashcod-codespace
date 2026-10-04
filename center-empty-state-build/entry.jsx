@@ -587,69 +587,71 @@ function HatchCodeEditor({ open, onClose }) {
             ×
           </button>
 
-          <CodePane
-            paneKey="tsx"
-            inputId="d5HatchCodeInput"
-            copyId="d5HatchCopy"
-            filename="my-component.tsx"
-            icon={<ReactIcon />}
-            code={tsxCode}
-            setCode={setTsxCode}
-            tokenize={tokenizeTsx}
-            inputLabel="Editable TSX code"
-            autoFocus
-          />
+          <div id="d5HatchCodeGrid" className="hatch-code-grid-scroll">
+            <CodePane
+              paneKey="tsx"
+              inputId="d5HatchCodeInput"
+              copyId="d5HatchCopy"
+              filename="my-component.tsx"
+              icon={<ReactIcon />}
+              code={tsxCode}
+              setCode={setTsxCode}
+              tokenize={tokenizeTsx}
+              inputLabel="Editable TSX code"
+              autoFocus
+            />
 
-          <CodePane
-            paneKey="javascript"
-            inputId="d5JavaScriptHatchCodeInput"
-            copyId="d5JavaScriptHatchCopy"
-            filename="script.js"
-            icon={<JavaScriptIcon />}
-            code={javascriptCode}
-            setCode={setJavaScriptCode}
-            tokenize={tokenizeJavaScript}
-            inputLabel="Editable JavaScript code"
-          />
+            <CodePane
+              paneKey="javascript"
+              inputId="d5JavaScriptHatchCodeInput"
+              copyId="d5JavaScriptHatchCopy"
+              filename="script.js"
+              icon={<JavaScriptIcon />}
+              code={javascriptCode}
+              setCode={setJavaScriptCode}
+              tokenize={tokenizeJavaScript}
+              inputLabel="Editable JavaScript code"
+            />
 
-          <CodePane
-            paneKey="css"
-            inputId="d5CssHatchCodeInput"
-            copyId="d5CssHatchCopy"
-            filename="styles.css"
-            icon={<CssIcon />}
-            code={cssCode}
-            setCode={setCssCode}
-            tokenize={tokenizeCss}
-            inputLabel="Editable CSS code"
-          />
+            <CodePane
+              paneKey="css"
+              inputId="d5CssHatchCodeInput"
+              copyId="d5CssHatchCopy"
+              filename="styles.css"
+              icon={<CssIcon />}
+              code={cssCode}
+              setCode={setCssCode}
+              tokenize={tokenizeCss}
+              inputLabel="Editable CSS code"
+            />
 
-          <CodePane
-            paneKey="java"
-            inputId="d5JavaHatchCodeInput"
-            copyId="d5JavaHatchCopy"
-            filename="Main.java"
-            icon={<JavaIcon />}
-            code={javaCode}
-            setCode={setJavaCode}
-            tokenize={tokenizeJava}
-            inputLabel="Editable Java code"
-          />
+            <CodePane
+              paneKey="java"
+              inputId="d5JavaHatchCodeInput"
+              copyId="d5JavaHatchCopy"
+              filename="Main.java"
+              icon={<JavaIcon />}
+              code={javaCode}
+              setCode={setJavaCode}
+              tokenize={tokenizeJava}
+              inputLabel="Editable Java code"
+            />
 
-          <CodePane
-            paneKey="html"
-            inputId="d5HtmlHatchCodeInput"
-            copyId="d5HtmlHatchCopy"
-            filename="index.html"
-            icon={<HtmlIcon />}
-            code={htmlCode}
-            setCode={setHtmlCode}
-            tokenize={tokenizeHtml}
-            inputLabel="Editable HTML code"
-            preview
-            previewButtonId="d5HtmlHatchPreview"
-            previewFrameId="d5HtmlHatchPreviewFrame"
-          />
+            <CodePane
+              paneKey="html"
+              inputId="d5HtmlHatchCodeInput"
+              copyId="d5HtmlHatchCopy"
+              filename="index.html"
+              icon={<HtmlIcon />}
+              code={htmlCode}
+              setCode={setHtmlCode}
+              tokenize={tokenizeHtml}
+              inputLabel="Editable HTML code"
+              preview
+              previewButtonId="d5HtmlHatchPreview"
+              previewFrameId="d5HtmlHatchPreviewFrame"
+            />
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>,
@@ -697,7 +699,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-css-hatch7",
+    version: "20261004-equal-scroll8",
   });
 
   return true;

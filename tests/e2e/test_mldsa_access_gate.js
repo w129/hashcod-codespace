@@ -303,12 +303,14 @@ assert(rotatingJs.includes('window.HashcodRotatingText'),'RotatingText controlle
 assert(!gate.includes('d5SplashCursorBackground'),'retired smoke cursor host must be removed');
 assert(!gate.includes('d5SplashCursorCanvas'),'retired smoke cursor canvas must be removed');
 assert(!gate.includes('react-bits-splash-cursor'),'retired SplashCursor assets must not load');
-assert(gate.includes('components/animate-ui-global-cursor.css?v=20261004-animate-cursor1'),'Animate UI cursor CSS must load');
-assert(gate.includes('components/animate-ui-global-cursor.js?v=20261004-animate-cursor1'),'Animate UI cursor JS must load');
+assert(gate.includes('components/animate-ui-global-cursor.css?v=20261004-animate-cursor2'),'Animate UI cursor CSS must load');
+assert(gate.includes('components/animate-ui-global-cursor.js?v=20261004-animate-cursor2'),'Animate UI cursor JS must load');
 assert(animateCursorCss.includes('html.hashcod-animate-cursor-active body *'),'global native cursor suppression missing');
 assert(animateCursorCss.includes('cursor: none !important'),'native desktop cursor must be hidden');
 assert(animateCursorCss.includes('.hashcod-animate-cursor-follow'),'CursorFollow styling missing');
 assert(animateCursorJs.includes("follow.textContent='Designer'"),'CursorFollow Designer label missing');
+assert(animateCursorJs.includes('M1.8 4.4 7 36.2'),'official Animate UI cursor arrow path missing');
+assert(animateCursorCss.includes('width: 24px')&&animateCursorCss.includes('height: 24px'),'official Animate UI cursor size missing');
 assert(animateCursorJs.includes('var SIDE_OFFSET=15'),'CursorFollow sideOffset must remain 15');
 assert(animateCursorJs.includes('var ALIGN_OFFSET=5'),'CursorFollow alignOffset must remain 5');
 assert(animateCursorJs.includes("side:'bottom'"),'CursorFollow side must remain bottom');

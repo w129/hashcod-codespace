@@ -10,6 +10,7 @@ const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
 const JAVASCRIPT_HATCH_STORAGE_KEY = "hashcod:hatch-javascript-code:v1";
 const HTML_HATCH_STORAGE_KEY = "hashcod:hatch-html-code:v1";
 const CSS_HATCH_STORAGE_KEY = "hashcod:hatch-css-code:v1";
+const CSS_HTML_LINK_STORAGE_KEY = "hashcod:hatch-css-html-linked:v1";
 
 const DEFAULT_HATCH_CODE = `'use client';
 
@@ -242,6 +243,21 @@ function HtmlPreviewIcon() {
   );
 }
 
+function CssHtmlLinkIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="100"
+      height="100"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M 19 3 C 17.35499 3 16 4.3549904 16 6 C 16 6.4598564 16.114225 6.8919393 16.302734 7.2832031 L 12.585938 11 L 7.8125 11 C 7.3951413 9.8426699 6.2931586 9 5 9 C 3.3549904 9 2 10.35499 2 12 C 2 13.64501 3.3549904 15 5 15 C 6.2931586 15 7.3951413 14.15733 7.8125 13 L 12.585938 13 L 16.302734 16.716797 C 16.114225 17.108061 16 17.540143 16 18 C 16 19.64501 17.35499 21 19 21 C 20.64501 21 22 19.64501 22 18 C 22 16.35499 20.64501 15 19 15 C 18.540143 15 18.108061 15.114225 17.716797 15.302734 L 14.414062 12 L 17.716797 8.6972656 C 18.108061 8.8857754 18.540143 9 19 9 C 20.64501 9 22 7.6450096 22 6 C 22 4.3549904 20.64501 3 19 3 z M 19 5 C 19.564129 5 20 5.4358706 20 6 C 20 6.5641294 19.564129 7 19 7 C 18.435871 7 18 6.5641294 18 6 C 18 5.4358706 18.435871 5 19 5 z M 5 11 C 5.5641294 11 6 11.435871 6 12 C 6 12.564129 5.5641294 13 5 13 C 4.4358706 13 4 12.564129 4 12 C 4 11.435871 4.4358706 11 5 11 z M 19 17 C 19.564129 17 20 17.435871 20 18 C 20 18.564129 19.564129 19 19 19 C 18.435871 19 18 18.564129 18 18 C 18 17.435871 18.435871 17 19 17 z" />
+    </svg>
+  );
+}
+
 function CopyIcon({ checked }) {
   if (checked) {
     return (
@@ -357,6 +373,38 @@ function usePersistentCode(storageKey, initialValue) {
   return [code, update];
 }
 
+function usePersistentBoolean(storageKey, initialValue = false) {
+  const [value, setValue] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem(storageKey);
+      return saved === null ? initialValue : saved === "true";
+    } catch (_) {
+      return initialValue;
+    }
+  });
+
+  const update = (nextValue) => {
+    const resolved =
+      typeof nextValue === "function" ? nextValue(value) : Boolean(nextValue);
+    setValue(resolved);
+    try {
+      window.localStorage.setItem(storageKey, String(resolved));
+    } catch (_) {
+      // The connection toggle remains functional when storage is unavailable.
+    }
+  };
+
+  return [value, update];
+}
+
+function attachCssToHtml(html, css) {
+  const styleTag = `<style data-hashcod-hatch-css>\n${css}\n</style>`;
+  if (/<\/head\s*>/i.test(html)) {
+    return html.replace(/<\/head\s*>/i, `${styleTag}\n</head>`);
+  }
+  return `${styleTag}\n${html}`;
+}
+
 function CodePane({
   inputId,
   copyId,
@@ -371,6 +419,8 @@ function CodePane({
   preview = false,
   previewButtonId,
   previewFrameId,
+  previewSource,
+  beforeCopyAction = null,
 }) {
   const textareaRef = useRef(null);
   const highlightRef = useRef(null);
@@ -443,6 +493,7 @@ function CodePane({
           <span>{filename}</span>
         </div>
         <div className="hatch-code-header-actions">
+          {beforeCopyAction}
           <button
             id={copyId}
             className="hatch-code-copy"
@@ -477,7 +528,7 @@ function CodePane({
             id={previewFrameId}
             className="hatch-html-preview-frame"
             title="HTML page preview"
-            srcDoc={code}
+            srcDoc={previewSource ?? code}
             sandbox="allow-scripts"
           />
         ) : (
@@ -523,6 +574,15 @@ function HatchCodeEditor({ open, onClose }) {
   const [cssCode, setCssCode] = usePersistentCode(
     CSS_HATCH_STORAGE_KEY,
     DEFAULT_CSS_HATCH_CODE,
+  );
+  const [cssLinkedToHtml, setCssLinkedToHtml] = usePersistentBoolean(
+    CSS_HTML_LINK_STORAGE_KEY,
+    false,
+  );
+
+  const htmlPreviewSource = useMemo(
+    () => (cssLinkedToHtml ? attachCssToHtml(htmlCode, cssCode) : htmlCode),
+    [htmlCode, cssCode, cssLinkedToHtml],
   );
 
   useEffect(() => {
@@ -623,6 +683,19 @@ function HatchCodeEditor({ open, onClose }) {
               setCode={setCssCode}
               tokenize={tokenizeCss}
               inputLabel="Editable CSS code"
+              beforeCopyAction={
+                <button
+                  id="d5CssHtmlLink"
+                  className={`hatch-code-link-toggle${cssLinkedToHtml ? " is-active" : ""}`}
+                  type="button"
+                  aria-label={cssLinkedToHtml ? "Disconnect CSS from HTML" : "Connect CSS to HTML"}
+                  aria-pressed={cssLinkedToHtml ? "true" : "false"}
+                  title={cssLinkedToHtml ? "CSS connected to HTML" : "Connect CSS to HTML"}
+                  onClick={() => setCssLinkedToHtml((value) => !value)}
+                >
+                  <CssHtmlLinkIcon />
+                </button>
+              }
             />
 
             <CodePane
@@ -650,6 +723,7 @@ function HatchCodeEditor({ open, onClose }) {
               preview
               previewButtonId="d5HtmlHatchPreview"
               previewFrameId="d5HtmlHatchPreviewFrame"
+              previewSource={htmlPreviewSource}
             />
           </div>
         </motion.div>
@@ -699,7 +773,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-equal-scroll8",
+    version: "20261004-css-html-link9",
   });
 
   return true;

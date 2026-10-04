@@ -676,6 +676,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         copyJava:Boolean(document.getElementById('d5JavaHatchCopy')),
         copyJavaScript:Boolean(document.getElementById('d5JavaScriptHatchCopy')),
         copyCss:Boolean(document.getElementById('d5CssHatchCopy')),
+        cssHtmlLink:Boolean(document.getElementById('d5CssHtmlLink')),
+        cssHtmlLinkPressed:document.getElementById('d5CssHtmlLink')?.getAttribute('aria-pressed')||'',
+        cssHtmlLinkViewBox:document.querySelector('#d5CssHtmlLink svg')?.getAttribute('viewBox')||'',
+        cssHtmlLinkPath:document.querySelector('#d5CssHtmlLink path')?.getAttribute('d')||'',
+        cssHtmlLinkRight:document.getElementById('d5CssHtmlLink')?.getBoundingClientRect().right||0,
+        cssCopyLeft:document.getElementById('d5CssHatchCopy')?.getBoundingClientRect().left||0,
         copyHtml:Boolean(document.getElementById('d5HtmlHatchCopy')),
         htmlPreview:Boolean(document.getElementById('d5HtmlHatchPreview')),
         htmlPreviewPressed:document.getElementById('d5HtmlHatchPreview')?.getAttribute('aria-pressed')||'',
@@ -731,6 +737,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(hatchState.copyReact,true,'React pane must keep its copy button');
     assert.equal(hatchState.copyJavaScript,true,'JavaScript pane must have its own copy button');
     assert.equal(hatchState.copyCss,true,'CSS pane must have its own copy button');
+    assert.equal(hatchState.cssHtmlLink,true,'CSS pane must have a CSS to HTML link button');
+    assert.equal(hatchState.cssHtmlLinkPressed,'false','CSS to HTML link must start disconnected');
+    assert.equal(hatchState.cssHtmlLinkViewBox,'0 0 24 24','CSS to HTML link button must preserve the supplied 24x24 SVG');
+    assert(hatchState.cssHtmlLinkPath.startsWith('M 19 3 C 17.35499 3 16 4.3549904 16 6'),'CSS to HTML link button must use the supplied SVG path');
+    assert(hatchState.cssHtmlLinkRight<=hatchState.cssCopyLeft+2,'CSS to HTML link button must sit to the left of Copy');
     assert.equal(hatchState.copyJava,true,'Java pane must have its own copy button');
     assert.equal(hatchState.copyHtml,true,'HTML pane must have its own copy button');
     assert.equal(hatchState.htmlPreview,true,'HTML pane must have a preview button beside Copy');
@@ -757,7 +768,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     const editedTsx=hatchState.tsxValue+'\n// hatch editable';
     const editedJavaScript=hatchState.javascriptValue+'\n// javascript hatch editable';
-    const editedCss=hatchState.cssValue+'\n/* css hatch editable */';
+    const editedCss=hatchState.cssValue+'\nh1 { color: rgb(12, 34, 56); background: rgb(240, 241, 242); }\n/* css hatch editable */';
     const editedJava=hatchState.javaValue+'\n// java hatch editable';
     const editedHtml=hatchState.htmlValue+'\n<!-- html hatch editable -->';
     await page.locator('#d5HatchCodeInput').fill(editedTsx);
@@ -772,11 +783,22 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-java-code:v1')?.endsWith('// java hatch editable')),true,'Java edits must persist independently');
     assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-html-code:v1')?.endsWith('<!-- html hatch editable -->')),true,'HTML edits must persist independently');
 
+    await page.locator('#d5CssHtmlLink').click();
+    assert.equal(await page.locator('#d5CssHtmlLink').getAttribute('aria-pressed'),'true','CSS to HTML link button must connect styles');
+    assert.equal(await page.evaluate(()=>localStorage.getItem('hashcod:hatch-css-html-linked:v1')), 'true','CSS to HTML link state must persist');
+
     await page.locator('#d5HtmlHatchPreview').click();
     await page.waitForSelector('#d5HtmlHatchPreviewFrame',{state:'visible',timeout:5000});
     assert.equal(await page.locator('#d5HtmlHatchPreview').getAttribute('aria-pressed'),'true','HTML preview button must enter preview mode');
     assert.equal(await page.locator('#d5HtmlHatchCodeInput').count(),0,'HTML textarea must be replaced by the page preview while previewing');
     assert.equal(await page.frameLocator('#d5HtmlHatchPreviewFrame').locator('h1').textContent(),'Hello from Hashcod Hatch','HTML preview must render the current index.html page');
+    assert.equal(await page.frameLocator('#d5HtmlHatchPreviewFrame').locator('style[data-hashcod-hatch-css]').count(),1,'HTML preview must inject linked CSS');
+    const linkedCssStyle=await page.frameLocator('#d5HtmlHatchPreviewFrame').locator('h1').evaluate(node=>{
+      const style=getComputedStyle(node);
+      return {color:style.color,background:style.backgroundColor};
+    });
+    assert.equal(linkedCssStyle.color,'rgb(12, 34, 56)','HTML preview must apply CSS editor color');
+    assert.equal(linkedCssStyle.background,'rgb(240, 241, 242)','HTML preview must apply CSS editor background');
 
     await page.locator('#d5HtmlHatchPreview').click();
     await page.waitForSelector('#d5HtmlHatchCodeInput',{state:'visible',timeout:5000});
@@ -792,6 +814,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal((await page.locator('#d5HatchCodeInput').inputValue()).endsWith('// hatch editable'),true,'React code must survive close and reopen');
     assert.equal((await page.locator('#d5JavaScriptHatchCodeInput').inputValue()).endsWith('// javascript hatch editable'),true,'JavaScript code must survive close and reopen in the same Hatch');
     assert.equal((await page.locator('#d5CssHatchCodeInput').inputValue()).endsWith('/* css hatch editable */'),true,'CSS code must survive close and reopen in the same Hatch');
+    assert.equal(await page.locator('#d5CssHtmlLink').getAttribute('aria-pressed'),'true','CSS to HTML connection must survive close and reopen');
     assert.equal((await page.locator('#d5JavaHatchCodeInput').inputValue()).endsWith('// java hatch editable'),true,'Java code must survive close and reopen in the same Hatch');
     assert.equal((await page.locator('#d5HtmlHatchCodeInput').inputValue()).endsWith('<!-- html hatch editable -->'),true,'HTML code must survive close and reopen in the same Hatch');
     await page.locator('#d5HatchClose').click();
@@ -800,7 +823,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.evaluate(()=>document.body.classList.contains('workspace-modal-open')),false,'Hatch must not set the Workspace modal state');
     assert.equal(await page.locator('#d5TextEditorCard').isVisible(),false,'Hatch must not open Workspace');
 
-    console.log('✓ Hatch editors keep equal height and use a vertical side scrollbar');
+    console.log('✓ CSS can link into the HTML preview while Hatch panes keep equal height and scrolling');
   }finally{
     await browser.close();
   }

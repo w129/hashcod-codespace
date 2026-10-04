@@ -186,6 +186,13 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
   border-top: 1px solid rgba(15, 23, 42, 0.10);
 }
 
+.hatch-code-pane[data-code-pane="python"] {
+  grid-column: 2;
+  grid-row: 3;
+  border-top: 1px solid rgba(15, 23, 42, 0.10);
+  border-left: 1px solid rgba(15, 23, 42, 0.10);
+}
+
 .hatch-code-header {
   min-width: 0;
   display: flex;
@@ -218,7 +225,8 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-mount {
 .hatch-code-java-icon,
 .hatch-code-javascript-icon,
 .hatch-code-css-icon,
-.hatch-code-html-icon {
+.hatch-code-html-icon,
+.hatch-code-python-icon {
   width: 17px;
   height: 17px;
   flex: 0 0 17px;

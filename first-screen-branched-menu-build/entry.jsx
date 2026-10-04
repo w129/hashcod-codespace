@@ -245,11 +245,6 @@ function CalendarExample() {
                 aria-current={isToday ? 'date' : undefined}
                 aria-pressed={isSelected}
                 aria-label={`${calendarDayText(date)}${isDisabled ? ', unavailable' : ''}`}
-                style={
-                  isSelected
-                    ? { backgroundColor: '#0a0a0a', color: '#ffffff' }
-                    : undefined
-                }
                 onClick={() => {
                   if (!isDisabled) setSelected(date);
                 }}
@@ -315,7 +310,7 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261004-calendar2'
+    version: '20261004-calendar3'
   });
   return true;
 }

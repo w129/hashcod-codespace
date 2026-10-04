@@ -3811,3 +3811,13 @@ body.text-card-modal-open #d5BeamCardDemo .beam-card-grid{
     animation:none!important;
   }
 }
+
+
+/* Calendar accent override: selected dates are black, never the upstream pink accent. */
+.entry-branched-menu-stage .v-calendar .v-calendar__day[data-selected="true"]{
+  background:#0a0a0a!important;
+  color:#fff!important;
+}
+.entry-branched-menu-stage .v-calendar .v-calendar__day[data-selected="true"] i{
+  background:#fff!important;
+}

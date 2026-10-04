@@ -6,6 +6,7 @@ import EmptyState from "./EmptyState";
 import "./entry.css";
 
 const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
+const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
 
 const DEFAULT_HATCH_CODE = `'use client';
 
@@ -25,6 +26,12 @@ function MyComponent(props: MyComponentProps) {
 
 export { MyComponent, type MyComponentProps };`;
 
+const DEFAULT_JAVA_HATCH_CODE = `public class Main {
+  public static void main(String[] args) {
+    System.out.println("Hello from Hashcod Hatch");
+  }
+}`;
+
 function CcCardTitleIcon() {
   return (
     <svg
@@ -37,6 +44,29 @@ function CcCardTitleIcon() {
       focusable="false"
     >
       <path d="M 27.607422 6.9980469 C 26.352666 7.0120547 25.059761 7.1042075 23.738281 7.2792969 C 18.452417 7.9796473 13.66972 9.8778977 10.091797 12.498047 C 6.5138736 15.118196 4 18.560747 4 22.443359 C 4 25.85995 6.1160513 28.694861 9.1464844 30.501953 C 9.0602377 30.848045 9 31.200556 9 31.558594 C 9 33.415574 10.09709 34.975782 11.380859 35.818359 C 12.664629 36.660937 14.125108 37 15.535156 37 C 15.551086 37 15.568034 36.994241 15.583984 36.994141 C 15.1831 39.346618 14.640625 41.265625 14.640625 41.265625 A 2.0002 2.0002 0 1 0 18.359375 42.734375 C 18.359375 42.734375 19.295328 39.756034 19.697266 36.126953 C 20.298327 35.898565 20.915525 35.718174 21.476562 35.384766 C 22.451394 34.805473 23.37214 33.990454 24.03125 32.984375 C 29.260547 32.640915 34.095712 30.998162 37.751953 28.386719 C 41.438969 25.753294 44 21.995709 44 17.675781 C 44 13.793169 41.28539 10.66032 37.574219 8.9257812 C 35.718633 8.0585122 33.580715 7.4720066 31.246094 7.1894531 C 30.078783 7.0481764 28.862177 6.9840391 27.607422 6.9980469 z M 27.646484 11.003906 C 30.911701 10.977549 33.777988 11.567951 35.880859 12.550781 C 38.684688 13.861243 40 15.595394 40 17.675781 C 40 20.418853 38.384468 23.019034 35.427734 25.130859 C 32.737896 27.052057 28.993177 28.439813 24.884766 28.888672 C 24.699104 28.076557 24.287687 27.365461 23.695312 26.699219 C 22.879189 25.781326 21.573503 25 20 25 C 17.463873 25 16.217585 26.353088 15.496094 27.371094 C 14.859603 27.182483 14.214947 27 13.53125 27 C 12.885786 27 12.284894 27.13869 11.744141 27.376953 C 9.1984811 26.080168 8 24.426333 8 22.443359 C 8 20.362972 9.5180014 17.87546 12.455078 15.724609 C 15.392155 13.573758 19.607583 11.86079 24.261719 11.244141 C 25.425239 11.08998 26.558079 11.012692 27.646484 11.003906 z M 20 29 C 20.296497 29 20.490655 29.114064 20.707031 29.357422 C 20.923407 29.60078 21 30.030702 21 29.853516 C 21 30.561866 20.547645 31.16549 19.660156 31.757812 C 19.452809 30.964871 19.104901 30.265386 18.650391 29.623047 C 18.881122 29.321539 19.255982 29 20 29 z M 13.53125 31 C 14.411069 31 14.929853 31.252778 15.3125 31.658203 C 15.545513 31.905086 15.606501 32.49711 15.730469 32.972656 C 15.669824 32.974585 15.593918 33 15.535156 33 C 14.841204 33 14.033903 32.775032 13.576172 32.474609 C 13.118441 32.174187 13 32.013613 13 31.558594 C 13 31.276563 13.085528 31 13.53125 31 z" />
+    </svg>
+  );
+}
+
+function JavaIcon({ className = "hatch-code-java-icon" }) {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 8c5 3-4 5 1 9" />
+      <path d="M25 5c6 4-5 7 1 12" />
+      <path d="M31 9c4 3-3 5 1 8" />
+      <path d="M12 21h22v8c0 6-4.5 10-11 10s-11-4-11-10v-8Z" />
+      <path d="M34 24h3.5a4.5 4.5 0 0 1 0 9H34" />
+      <path d="M9 41h28" />
     </svg>
   );
 }
@@ -73,8 +103,7 @@ function CopyIcon({ checked }) {
   );
 }
 
-function tokenizeTsx(code) {
-  const pattern = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\b(?:import|from|as|type|function|return|export|const|let|var|interface|extends|new|if|else|true|false|null|undefined)\b|\b(?:React|ComponentProps|MyComponentProps|MyComponent|string)\b|<\/?[A-Za-z][^>]*>|\b\d+(?:\.\d+)?\b)/g;
+function pushTokens(code, pattern, classify) {
   const parts = [];
   let last = 0;
   let match;
@@ -85,18 +114,9 @@ function tokenizeTsx(code) {
       parts.push(<span key={key++}>{code.slice(last, match.index)}</span>);
     }
 
-    const token = match[0];
-    let className = "hatch-token-default";
-    if (token.startsWith("//") || token.startsWith("/*")) className = "hatch-token-comment";
-    else if (token.startsWith("'") || token.startsWith('"')) className = "hatch-token-string";
-    else if (token.startsWith("<")) className = "hatch-token-tag";
-    else if (/^\d/.test(token)) className = "hatch-token-number";
-    else if (/^(React|ComponentProps|MyComponentProps|MyComponent|string)$/.test(token)) className = "hatch-token-type";
-    else className = "hatch-token-keyword";
-
     parts.push(
-      <span className={className} key={key++}>
-        {token}
+      <span className={classify(match[0])} key={key++}>
+        {match[0]}
       </span>,
     );
     last = pattern.lastIndex;
@@ -109,7 +129,65 @@ function tokenizeTsx(code) {
   return parts;
 }
 
-function HatchCodeEditor({ open, onClose }) {
+function tokenizeTsx(code) {
+  const pattern = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\b(?:import|from|as|type|function|return|export|const|let|var|interface|extends|new|if|else|true|false|null|undefined)\b|\b(?:React|ComponentProps|MyComponentProps|MyComponent|string)\b|<\/?[A-Za-z][^>]*>|\b\d+(?:\.\d+)?\b)/g;
+  return pushTokens(code, pattern, (token) => {
+    if (token.startsWith("//") || token.startsWith("/*")) return "hatch-token-comment";
+    if (token.startsWith("'") || token.startsWith('"')) return "hatch-token-string";
+    if (token.startsWith("<")) return "hatch-token-tag";
+    if (/^\d/.test(token)) return "hatch-token-number";
+    if (/^(React|ComponentProps|MyComponentProps|MyComponent|string)$/.test(token)) return "hatch-token-type";
+    return "hatch-token-keyword";
+  });
+}
+
+function tokenizeJava(code) {
+  const pattern = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])'|\b(?:public|private|protected|class|static|void|int|long|double|float|boolean|char|byte|short|new|return|if|else|for|while|do|switch|case|break|continue|package|import|extends|implements|try|catch|finally|throw|throws|final|this|super|null|true|false)\b|\b(?:String|System|Main|Object|Integer|Double|Boolean|Exception|RuntimeException)\b|\b\d+(?:\.\d+)?\b)/g;
+  return pushTokens(code, pattern, (token) => {
+    if (token.startsWith("//") || token.startsWith("/*")) return "hatch-token-comment";
+    if (token.startsWith('"') || token.startsWith("'")) return "hatch-token-string";
+    if (/^\d/.test(token)) return "hatch-token-number";
+    if (/^(String|System|Main|Object|Integer|Double|Boolean|Exception|RuntimeException)$/.test(token)) return "hatch-token-type";
+    return "hatch-token-keyword";
+  });
+}
+
+function HatchCodeEditor({ open, onClose, language = "tsx" }) {
+  const isJava = language === "java";
+  const config = isJava
+    ? {
+        storageKey: JAVA_HATCH_STORAGE_KEY,
+        defaultCode: DEFAULT_JAVA_HATCH_CODE,
+        filename: "Main.java",
+        tokenize: tokenizeJava,
+        Icon: JavaIcon,
+        ids: {
+          backdrop: "d5JavaHatchBackdrop",
+          editor: "d5JavaHatchCodeEditor",
+          close: "d5JavaHatchClose",
+          copy: "d5JavaHatchCopy",
+          input: "d5JavaHatchCodeInput",
+        },
+        label: "Java Hatch code editor",
+        inputLabel: "Editable Java code",
+      }
+    : {
+        storageKey: HATCH_STORAGE_KEY,
+        defaultCode: DEFAULT_HATCH_CODE,
+        filename: "my-component.tsx",
+        tokenize: tokenizeTsx,
+        Icon: ReactIcon,
+        ids: {
+          backdrop: "d5HatchBackdrop",
+          editor: "d5HatchCodeEditor",
+          close: "d5HatchClose",
+          copy: "d5HatchCopy",
+          input: "d5HatchCodeInput",
+        },
+        label: "Hatch code editor",
+        inputLabel: "Editable TSX code",
+      };
+
   const reduce = useReducedMotion();
   const textareaRef = useRef(null);
   const highlightRef = useRef(null);
@@ -117,12 +195,12 @@ function HatchCodeEditor({ open, onClose }) {
   const [copied, setCopied] = useState(false);
   const [code, setCode] = useState(() => {
     try {
-      return window.localStorage.getItem(HATCH_STORAGE_KEY) ?? DEFAULT_HATCH_CODE;
+      return window.localStorage.getItem(config.storageKey) ?? config.defaultCode;
     } catch (_) {
-      return DEFAULT_HATCH_CODE;
+      return config.defaultCode;
     }
   });
-  const highlighted = useMemo(() => tokenizeTsx(code), [code]);
+  const highlighted = useMemo(() => config.tokenize(code), [code, config.tokenize]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -161,7 +239,7 @@ function HatchCodeEditor({ open, onClose }) {
   const setAndPersistCode = (next) => {
     setCode(next);
     try {
-      window.localStorage.setItem(HATCH_STORAGE_KEY, next);
+      window.localStorage.setItem(config.storageKey, next);
     } catch (_) {
       // Editing remains fully functional even when storage is unavailable.
     }
@@ -211,11 +289,14 @@ function HatchCodeEditor({ open, onClose }) {
 
   if (!open || typeof document === "undefined") return null;
 
+  const HeaderIcon = config.Icon;
+
   return createPortal(
     <AnimatePresence>
       <motion.div
-        id="d5HatchBackdrop"
+        id={config.ids.backdrop}
         className="hatch-modal-backdrop"
+        data-hatch-language={language}
         role="presentation"
         initial={reduce ? { opacity: 1 } : { opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -226,11 +307,12 @@ function HatchCodeEditor({ open, onClose }) {
         }}
       >
         <motion.div
-          id="d5HatchCodeEditor"
+          id={config.ids.editor}
           className="hatch-code-shell"
+          data-hatch-language={language}
           role="dialog"
           aria-modal="true"
-          aria-label="Hatch code editor"
+          aria-label={config.label}
           initial={reduce ? { opacity: 1 } : { opacity: 0, y: 16, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 10, scale: 0.985 }}
@@ -241,10 +323,10 @@ function HatchCodeEditor({ open, onClose }) {
           }
         >
           <button
-            id="d5HatchClose"
+            id={config.ids.close}
             className="hatch-code-close"
             type="button"
-            aria-label="Close Hatch editor"
+            aria-label={`Close ${isJava ? "Java " : ""}Hatch editor`}
             onClick={onClose}
           >
             ×
@@ -252,12 +334,12 @@ function HatchCodeEditor({ open, onClose }) {
 
           <div className="hatch-code-header">
             <div className="hatch-code-file">
-              <ReactIcon />
-              <span>my-component.tsx</span>
+              <HeaderIcon />
+              <span>{config.filename}</span>
             </div>
 
             <button
-              id="d5HatchCopy"
+              id={config.ids.copy}
               className="hatch-code-copy"
               type="button"
               aria-label={copied ? "Copied" : "Copy code"}
@@ -278,7 +360,7 @@ function HatchCodeEditor({ open, onClose }) {
               <code>{highlighted}</code>
             </pre>
             <textarea
-              id="d5HatchCodeInput"
+              id={config.ids.input}
               ref={textareaRef}
               className="hatch-code-input"
               value={code}
@@ -288,7 +370,7 @@ function HatchCodeEditor({ open, onClose }) {
               spellCheck="false"
               autoCapitalize="off"
               autoCorrect="off"
-              aria-label="Editable TSX code"
+              aria-label={config.inputLabel}
             />
           </div>
         </motion.div>
@@ -299,30 +381,59 @@ function HatchCodeEditor({ open, onClose }) {
 }
 
 function CenterWorkspaceEmptyState() {
-  const [hatchOpen, setHatchOpen] = useState(false);
+  const [activeHatch, setActiveHatch] = useState(null);
 
   return (
     <>
-      <EmptyState
-        label="VC"
-        icon={<CcCardTitleIcon />}
-        action={
-          <button
-            id="d5CenterEmptyStateAction"
-            className="hashcod-empty-state-action"
-            type="button"
-            aria-haspopup="dialog"
-            aria-expanded={hatchOpen ? "true" : "false"}
-            onClick={() => setHatchOpen(true)}
-          >
-            Open Hatch
-          </button>
-        }
+      <div className="center-hatch-launchers">
+        <EmptyState
+          className="center-hatch-launcher-state"
+          label="VC"
+          icon={<CcCardTitleIcon />}
+          action={
+            <button
+              id="d5CenterEmptyStateAction"
+              className="hashcod-empty-state-action"
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={activeHatch === "tsx" ? "true" : "false"}
+              onClick={() => setActiveHatch("tsx")}
+            >
+              Open Hatch
+            </button>
+          }
+        />
+
+        <EmptyState
+          className="center-hatch-launcher-state"
+          label="Java Hatch"
+          icon={<JavaIcon className="java-hatch-launcher-icon" />}
+          action={
+            <button
+              id="d5JavaHatchAction"
+              className="hashcod-empty-state-action"
+              type="button"
+              aria-label="Open Java Hatch"
+              aria-haspopup="dialog"
+              aria-expanded={activeHatch === "java" ? "true" : "false"}
+              onClick={() => setActiveHatch("java")}
+            >
+              Open Hatch
+            </button>
+          }
+        />
+      </div>
+
+      <HatchCodeEditor
+        open={activeHatch === "tsx"}
+        language="tsx"
+        onClose={() => setActiveHatch(null)}
       />
 
       <HatchCodeEditor
-        open={hatchOpen}
-        onClose={() => setHatchOpen(false)}
+        open={activeHatch === "java"}
+        language="java"
+        onClose={() => setActiveHatch(null)}
       />
     </>
   );
@@ -338,7 +449,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-hatch-editor1",
+    version: "20261004-java-hatch2",
   });
 
   return true;

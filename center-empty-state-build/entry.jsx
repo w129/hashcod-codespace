@@ -1200,6 +1200,707 @@ function ExpandingButtonGroup({
   );
 }
 
+
+const FILE_VAULT_DB_NAME = "hashcod_file_vault_v1";
+const FILE_VAULT_DB_VERSION = 1;
+const FILE_VAULT_META_STORE = "files";
+const FILE_VAULT_BLOB_STORE = "blobs";
+const FILE_VAULT_ENDPOINT = "/api/hashcod-file-vault";
+
+function fileVaultOpenDb() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      reject(new Error("IndexedDB is unavailable."));
+      return;
+    }
+    const request = window.indexedDB.open(
+      FILE_VAULT_DB_NAME,
+      FILE_VAULT_DB_VERSION,
+    );
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(FILE_VAULT_META_STORE)) {
+        db.createObjectStore(FILE_VAULT_META_STORE, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(FILE_VAULT_BLOB_STORE)) {
+        db.createObjectStore(FILE_VAULT_BLOB_STORE, { keyPath: "id" });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () =>
+      reject(request.error ?? new Error("Could not open file storage."));
+  });
+}
+
+async function fileVaultListLocal() {
+  const db = await fileVaultOpenDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FILE_VAULT_META_STORE, "readonly");
+    const request = tx.objectStore(FILE_VAULT_META_STORE).getAll();
+    request.onsuccess = () => {
+      const rows = Array.isArray(request.result) ? request.result : [];
+      rows.sort(
+        (a, b) =>
+          new Date(b.uploadedAt ?? 0).getTime() -
+          new Date(a.uploadedAt ?? 0).getTime(),
+      );
+      resolve(rows);
+    };
+    request.onerror = () =>
+      reject(request.error ?? new Error("Could not read local files."));
+    tx.oncomplete = () => db.close();
+    tx.onabort = () => db.close();
+  });
+}
+
+async function fileVaultPutLocal(file, id) {
+  const db = await fileVaultOpenDb();
+  const uploadedAt = new Date().toISOString();
+  const meta = {
+    id,
+    name: file.name || "file",
+    type: file.type || "application/octet-stream",
+    size: Number(file.size || 0),
+    uploadedAt,
+    cloud: false,
+    local: true,
+  };
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(
+      [FILE_VAULT_META_STORE, FILE_VAULT_BLOB_STORE],
+      "readwrite",
+    );
+    tx.objectStore(FILE_VAULT_META_STORE).put(meta);
+    tx.objectStore(FILE_VAULT_BLOB_STORE).put({ id, blob: file });
+    tx.oncomplete = () => {
+      db.close();
+      resolve(meta);
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error ?? new Error("Could not save file locally."));
+    };
+    tx.onabort = tx.onerror;
+  });
+}
+
+async function fileVaultMarkCloud(id, cloudMeta = {}) {
+  const db = await fileVaultOpenDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FILE_VAULT_META_STORE, "readwrite");
+    const store = tx.objectStore(FILE_VAULT_META_STORE);
+    const request = store.get(id);
+    request.onsuccess = () => {
+      const current = request.result;
+      if (!current) return;
+      store.put({
+        ...current,
+        ...cloudMeta,
+        id,
+        cloud: true,
+        local: true,
+      });
+    };
+    tx.oncomplete = () => {
+      db.close();
+      resolve(true);
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error ?? new Error("Could not update local metadata."));
+    };
+    tx.onabort = tx.onerror;
+  });
+}
+
+async function fileVaultGetLocalBlob(id) {
+  const db = await fileVaultOpenDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FILE_VAULT_BLOB_STORE, "readonly");
+    const request = tx.objectStore(FILE_VAULT_BLOB_STORE).get(id);
+    request.onsuccess = () => resolve(request.result?.blob ?? null);
+    request.onerror = () =>
+      reject(request.error ?? new Error("Could not read local file."));
+    tx.oncomplete = () => db.close();
+    tx.onabort = () => db.close();
+  });
+}
+
+async function fileVaultDeleteLocal(id) {
+  const db = await fileVaultOpenDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(
+      [FILE_VAULT_META_STORE, FILE_VAULT_BLOB_STORE],
+      "readwrite",
+    );
+    tx.objectStore(FILE_VAULT_META_STORE).delete(id);
+    tx.objectStore(FILE_VAULT_BLOB_STORE).delete(id);
+    tx.oncomplete = () => {
+      db.close();
+      resolve(true);
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error ?? new Error("Could not delete local file."));
+    };
+    tx.onabort = tx.onerror;
+  });
+}
+
+function fileVaultNewId() {
+  const suffix =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID().replace(/-/g, "")
+      : Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return "fv_" + suffix.slice(0, 40);
+}
+
+function fileVaultExt(name) {
+  const clean = String(name || "");
+  const dot = clean.lastIndexOf(".");
+  if (dot <= 0 || dot === clean.length - 1) return "FILE";
+  return clean
+    .slice(dot + 1)
+    .replace(/[^a-z0-9]/gi, "")
+    .slice(0, 5)
+    .toUpperCase() || "FILE";
+}
+
+function fileVaultFormatSize(bytes) {
+  const value = Number(bytes || 0);
+  if (value >= 1024 ** 3) return (value / 1024 ** 3).toFixed(2) + " GB";
+  if (value >= 1024 ** 2) return (value / 1024 ** 2).toFixed(1) + " MB";
+  if (value >= 1024) return Math.round(value / 1024) + " KB";
+  return value + " B";
+}
+
+function FileVaultPageIcon({ file, size = 40 }) {
+  const ext = fileVaultExt(file?.name);
+  return (
+    <svg
+      className="hfv-page"
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        className="hfv-page-line"
+        d="M7.75 4A3.25 3.25 0 0 1 11 .75h16c.121 0 .238.048.323.134l10.793 10.793a.46.46 0 0 1 .134.323v24A3.25 3.25 0 0 1 35 39.25H11A3.25 3.25 0 0 1 7.75 36z"
+      />
+      <path className="hfv-page-line" d="M27 .5V8a4 4 0 0 0 4 4h7.5" />
+      <rect width="29" height="16" x="1" y="18" rx="8" className="hfv-page-chip" />
+      <text x="15.5" y="29.2" textAnchor="middle" className="hfv-page-ext">
+        {ext}
+      </text>
+    </svg>
+  );
+}
+
+function FileVaultStoreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 7.5h16v11.25A1.25 1.25 0 0 1 18.75 20H5.25A1.25 1.25 0 0 1 4 18.75z" />
+      <path d="M3.5 4h17v3.5h-17zM9 11h6" />
+    </svg>
+  );
+}
+
+function FileVaultUploadIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 16V5M8 9l4-4 4 4" />
+      <path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" />
+    </svg>
+  );
+}
+
+function FileVaultDownloadIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 4v11M8 11l4 4 4-4" />
+      <path d="M5 19h14" />
+    </svg>
+  );
+}
+
+function FileVaultTrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13" />
+      <path d="M10 11v5M14 11v5" />
+    </svg>
+  );
+}
+
+function FileVaultCloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="m6 6 12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+async function fileVaultCloudList() {
+  const response = await fetch(FILE_VAULT_ENDPOINT + "?action=list", {
+    credentials: "same-origin",
+    headers: {
+      Accept: "application/json",
+      "X-Requested-With": "XMLHttpRequest",
+    },
+  });
+  if (!response.ok) return [];
+  const payload = await response.json().catch(() => ({}));
+  return Array.isArray(payload.files) ? payload.files : [];
+}
+
+function fileVaultCloudUpload(file, id, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", FILE_VAULT_ENDPOINT + "?action=upload", true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    xhr.upload.onprogress = (event) => {
+      if (!event.lengthComputable) return;
+      onProgress?.(Math.max(0, Math.min(100, (event.loaded / event.total) * 100)));
+    };
+    xhr.onerror = () => reject(new Error("Cloud upload unavailable."));
+    xhr.onload = () => {
+      let payload = {};
+      try {
+        payload = JSON.parse(xhr.responseText || "{}");
+      } catch {
+        payload = {};
+      }
+      if (xhr.status >= 200 && xhr.status < 300 && payload.ok) {
+        onProgress?.(100);
+        resolve(payload.file ?? {});
+        return;
+      }
+      const error = new Error(payload.error || "Cloud upload unavailable.");
+      error.status = xhr.status;
+      reject(error);
+    };
+    const form = new FormData();
+    form.append("id", id);
+    form.append("file", file, file.name || "file");
+    xhr.send(form);
+  });
+}
+
+async function fileVaultCloudDelete(id) {
+  const response = await fetch(FILE_VAULT_ENDPOINT + "?action=delete", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    body: JSON.stringify({ id }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.ok) {
+    throw new Error(payload.error || "Could not delete the cloud copy.");
+  }
+  return true;
+}
+
+function fileVaultMerge(localRows, cloudRows) {
+  const map = new Map();
+  (cloudRows || []).forEach((row) => {
+    if (!row?.id) return;
+    map.set(row.id, {
+      id: row.id,
+      name: row.name || row.filename || "file",
+      type: row.type || row.mime_type || "application/octet-stream",
+      size: Number(row.size ?? row.size_bytes ?? 0),
+      uploadedAt: row.uploadedAt || row.upload_date || new Date().toISOString(),
+      cloud: true,
+      local: false,
+    });
+  });
+  (localRows || []).forEach((row) => {
+    if (!row?.id) return;
+    const cloud = map.get(row.id);
+    map.set(row.id, {
+      ...(cloud || {}),
+      ...row,
+      cloud: Boolean(row.cloud || cloud?.cloud),
+      local: true,
+    });
+  });
+  return Array.from(map.values()).sort(
+    (a, b) =>
+      new Date(b.uploadedAt ?? 0).getTime() -
+      new Date(a.uploadedAt ?? 0).getTime(),
+  );
+}
+
+function FileVault() {
+  const [open, setOpen] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [activeName, setActiveName] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [notice, setNotice] = useState("");
+  const inputRef = useRef(null);
+  const reduce = useReducedMotion() ?? false;
+
+  const refresh = async () => {
+    let localRows = [];
+    let cloudRows = [];
+    try {
+      localRows = await fileVaultListLocal();
+    } catch {
+      localRows = [];
+    }
+    try {
+      cloudRows = await fileVaultCloudList();
+    } catch {
+      cloudRows = [];
+    }
+    setFiles(fileVaultMerge(localRows, cloudRows));
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    void refresh();
+    try {
+      navigator.storage?.persist?.().catch(() => false);
+    } catch {
+      // Storage persistence is optional.
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (event) => {
+      if (event.key === "Escape" && !uploading) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, uploading]);
+
+  const saveFiles = async (incoming) => {
+    const queue = Array.from(incoming || []).filter(
+      (file) => file && typeof file.name === "string",
+    );
+    if (!queue.length || uploading) return;
+
+    setUploading(true);
+    setNotice("");
+
+    let cloudFailures = 0;
+    let saved = 0;
+
+    for (const file of queue) {
+      const id = fileVaultNewId();
+      setActiveName(file.name || "file");
+      setProgress(0);
+
+      let localSaved = false;
+      let cloudSaved = false;
+
+      try {
+        await fileVaultPutLocal(file, id);
+        localSaved = true;
+      } catch {
+        localSaved = false;
+      }
+
+      try {
+        const remote = await fileVaultCloudUpload(file, id, setProgress);
+        cloudSaved = true;
+        if (localSaved) {
+          await fileVaultMarkCloud(id, {
+            name: remote.name || file.name,
+            type: remote.type || file.type || "application/octet-stream",
+            size: Number(remote.size ?? file.size ?? 0),
+            uploadedAt: remote.uploadedAt || new Date().toISOString(),
+          }).catch(() => {});
+        }
+      } catch {
+        cloudFailures += 1;
+      }
+
+      if (localSaved || cloudSaved) saved += 1;
+      setProgress(100);
+      await refresh();
+    }
+
+    setUploading(false);
+    setActiveName("");
+    setProgress(0);
+
+    if (saved === 0) {
+      setNotice("The browser and cloud could not save these files.");
+    } else if (cloudFailures > 0) {
+      setNotice(
+        "Saved locally. Cloud sync will be available when an authenticated account session is active.",
+      );
+    } else {
+      setNotice(saved === 1 ? "File stored." : saved + " files stored.");
+    }
+
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const downloadFile = async (file) => {
+    setNotice("");
+    try {
+      const blob = await fileVaultGetLocalBlob(file.id);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = file.name || "file";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return;
+      }
+    } catch {
+      // Fall through to the authenticated cloud copy.
+    }
+
+    if (file.cloud) {
+      const anchor = document.createElement("a");
+      anchor.href =
+        FILE_VAULT_ENDPOINT +
+        "?action=download&id=" +
+        encodeURIComponent(file.id);
+      anchor.download = file.name || "file";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      return;
+    }
+
+    setNotice("This file is not available on this device.");
+  };
+
+  const deleteFile = async (file) => {
+    setNotice("");
+    try {
+      if (file.cloud) await fileVaultCloudDelete(file.id);
+      if (file.local) await fileVaultDeleteLocal(file.id);
+      setFiles((current) => current.filter((item) => item.id !== file.id));
+    } catch (error) {
+      setNotice(error?.message || "Could not delete the file.");
+    }
+  };
+
+  const modal = open
+    ? createPortal(
+        <div
+          id="d5FileVaultBackdrop"
+          className="hfv-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target && !uploading) setOpen(false);
+          }}
+        >
+          <motion.section
+            id="d5FileVault"
+            className="hfv-shell"
+            role="dialog"
+            aria-modal="true"
+            aria-label="File storage"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.985 }}
+            transition={
+              reduce
+                ? { duration: 0.1 }
+                : { duration: 0.2, ease: [0.16, 1, 0.3, 1] }
+            }
+          >
+            <header className="hfv-header">
+              <div>
+                <span className="hfv-eyebrow">Storage</span>
+                <h2>File vault</h2>
+                <p>Store any file type. Files remain available after reload.</p>
+              </div>
+              <button
+                id="d5FileVaultClose"
+                className="hfv-close"
+                type="button"
+                aria-label="Close storage"
+                disabled={uploading}
+                onClick={() => setOpen(false)}
+              >
+                <FileVaultCloseIcon />
+              </button>
+            </header>
+
+            <div
+              id="d5FileVaultDropzone"
+              className="hfv-dropzone"
+              data-over={dragging ? "true" : undefined}
+              data-busy={uploading ? "true" : undefined}
+              role="button"
+              tabIndex={0}
+              aria-label="Choose files or drop files here"
+              onClick={() => {
+                if (!uploading) inputRef.current?.click();
+              }}
+              onKeyDown={(event) => {
+                if (
+                  !uploading &&
+                  (event.key === "Enter" || event.key === " ")
+                ) {
+                  event.preventDefault();
+                  inputRef.current?.click();
+                }
+              }}
+              onDragEnter={(event) => {
+                event.preventDefault();
+                if (!uploading) setDragging(true);
+              }}
+              onDragOver={(event) => {
+                event.preventDefault();
+                if (!uploading) {
+                  event.dataTransfer.dropEffect = "copy";
+                  setDragging(true);
+                }
+              }}
+              onDragLeave={(event) => {
+                if (event.currentTarget.contains(event.relatedTarget)) return;
+                setDragging(false);
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                setDragging(false);
+                if (!uploading) void saveFiles(event.dataTransfer.files);
+              }}
+            >
+              <input
+                id="d5FileVaultInput"
+                ref={inputRef}
+                className="hfv-input"
+                type="file"
+                multiple
+                onChange={(event) => void saveFiles(event.target.files)}
+              />
+
+              <motion.span
+                className="hfv-upload-icon"
+                animate={
+                  dragging && !reduce
+                    ? { y: -5, scale: 1.08 }
+                    : { y: 0, scale: 1 }
+                }
+                transition={{ type: "spring", stiffness: 420, damping: 26 }}
+              >
+                <FileVaultUploadIcon />
+              </motion.span>
+
+              {uploading ? (
+                <div className="hfv-uploading">
+                  <strong>{activeName || "Saving file"}</strong>
+                  <span>{Math.round(progress)}%</span>
+                  <span className="hfv-progress-track">
+                    <span
+                      className="hfv-progress-bar"
+                      style={{ transform: "scaleX(" + progress / 100 + ")" }}
+                    />
+                  </span>
+                </div>
+              ) : (
+                <div className="hfv-drop-copy">
+                  <strong>{dragging ? "Drop to store" : "Drop files here"}</strong>
+                  <span>or click to choose · any file type</span>
+                </div>
+              )}
+            </div>
+
+            <div className="hfv-list-head">
+              <span>{files.length} stored</span>
+              <button type="button" onClick={() => void refresh()}>
+                Refresh
+              </button>
+            </div>
+
+            <div id="d5FileVaultList" className="hfv-list">
+              {files.length === 0 ? (
+                <div className="hfv-empty">
+                  <span>No files yet.</span>
+                  <small>Drop one above to add it to the vault.</small>
+                </div>
+              ) : (
+                files.map((file) => (
+                  <article className="hfv-file-row" key={file.id}>
+                    <FileVaultPageIcon file={file} size={38} />
+                    <div className="hfv-file-copy">
+                      <strong title={file.name}>{file.name}</strong>
+                      <span>
+                        {fileVaultFormatSize(file.size)}
+                        {" · "}
+                        {file.cloud ? "Cloud" : "Local"}
+                        {file.cloud && file.local ? " + device" : ""}
+                      </span>
+                    </div>
+                    <div className="hfv-file-actions">
+                      <button
+                        type="button"
+                        aria-label={"Download " + file.name}
+                        title="Download"
+                        onClick={() => void downloadFile(file)}
+                      >
+                        <FileVaultDownloadIcon />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={"Delete " + file.name}
+                        title="Delete"
+                        onClick={() => void deleteFile(file)}
+                      >
+                        <FileVaultTrashIcon />
+                      </button>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+
+            <div className="hfv-footer" aria-live="polite">
+              <span>{notice}</span>
+              <small>
+                Private cloud storage is used when your account session is active;
+                IndexedDB keeps a device copy when possible.
+              </small>
+            </div>
+          </motion.section>
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <>
+      <button
+        id="d5FileVaultTrigger"
+        className="hashcod-file-vault-trigger"
+        type="button"
+        aria-label="Open file storage"
+        aria-haspopup="dialog"
+        aria-expanded={open ? "true" : "false"}
+        title="File storage"
+        onClick={() => setOpen(true)}
+      >
+        <FileVaultStoreIcon />
+      </button>
+      <AnimatePresence initial={false}>{modal}</AnimatePresence>
+    </>
+  );
+}
+
 function CenterWorkspaceEmptyState() {
   const [hatchOpen, setHatchOpen] = useState(false);
 
@@ -1226,6 +1927,8 @@ function CenterWorkspaceEmptyState() {
               label="Additional Hatch actions"
               defaultExpanded="slot-1"
             />
+
+            <FileVault />
           </div>
         }
       />
@@ -1248,7 +1951,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-expanding-group1",
+    version: "20261004-file-vault1",
   });
 
   return true;

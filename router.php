@@ -28,6 +28,8 @@ if (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], tru
     $bootstrapController = __DIR__ . '/hashcod-sync.php';
 } elseif (in_array($bootstrapSyncPath, ['/toolbox-secure.php', '/api/toolbox-secure'], true)) {
     $bootstrapController = __DIR__ . '/toolbox-secure.php';
+} elseif (in_array($bootstrapSyncPath, ['/hashcod-file-vault.php', '/api/hashcod-file-vault'], true)) {
+    $bootstrapController = __DIR__ . '/hashcod-file-vault.php';
 }
 if ($bootstrapController !== null) {
     $bootstrapQuery = parse_url($bootstrapRequestUri, PHP_URL_QUERY);
@@ -175,6 +177,10 @@ if ($uri === '/hashcod-sync.php' || $uri === '/api/hashcod-sync') {
 }
 if ($uri === '/toolbox-secure.php' || $uri === '/api/toolbox-secure') {
     require __DIR__ . '/toolbox-secure.php';
+    exit;
+}
+if ($uri === '/hashcod-file-vault.php' || $uri === '/api/hashcod-file-vault') {
+    require __DIR__ . '/hashcod-file-vault.php';
     exit;
 }
 

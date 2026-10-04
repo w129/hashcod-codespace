@@ -665,6 +665,9 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         expandingItemCount:stage.querySelectorAll('[data-ebg-item]').length,
         actionRight:document.getElementById('d5CenterEmptyStateAction')?.getBoundingClientRect().right||0,
         expandingLeft:stage.querySelector('[data-hashcod-expanding-group="true"]')?.getBoundingClientRect().left||0,
+        expandingRight:stage.querySelector('[data-hashcod-expanding-group="true"]')?.getBoundingClientRect().right||0,
+        vaultTriggerCount:stage.querySelectorAll('#d5FileVaultTrigger').length,
+        vaultLeft:document.getElementById('d5FileVaultTrigger')?.getBoundingClientRect().left||0,
         javaLauncherExists:Boolean(document.getElementById('d5JavaHatchAction'))
       };
     });
@@ -678,7 +681,16 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(centerPosition.expandingGroupCount,1,'there must be exactly one ExpandingButtonGroup beside Open Hatch');
     assert.equal(centerPosition.expandingItemCount,3,'ExpandingButtonGroup must expose the three temporary action slots');
     assert(centerPosition.expandingLeft>centerPosition.actionRight,'ExpandingButtonGroup must remain to the right of Open Hatch');
+    assert.equal(centerPosition.vaultTriggerCount,1,'there must be exactly one FileVault trigger');
+    assert(centerPosition.vaultLeft>=centerPosition.expandingRight,'FileVault must remain to the right of ExpandingButtonGroup');
     assert.equal(centerPosition.javaLauncherExists,false,'Java must not create a second Hatch launcher');
+
+    await page.locator('#d5FileVaultTrigger').click();
+    await page.waitForSelector('#d5FileVault',{state:'visible',timeout:5000});
+    await page.waitForSelector('#d5FileVaultDropzone',{state:'visible',timeout:5000});
+    assert.equal(await page.locator('#d5FileVaultInput[type="file"][multiple]').count(),1,'FileVault must expose one real multiple file input');
+    await page.locator('#d5FileVaultClose').click();
+    await page.waitForSelector('#d5FileVault',{state:'detached',timeout:5000});
 
     await page.locator('#d5CenterEmptyStateAction').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'visible',timeout:5000});

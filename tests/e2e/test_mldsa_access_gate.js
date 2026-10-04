@@ -83,8 +83,8 @@ assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the t
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-expanding-group1'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-expanding-group1'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-file-vault1'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-file-vault1'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -127,6 +127,15 @@ assert(centerEmptyStateEntry.includes('id="d5ExpandingAction1"'),'ExpandingButto
 assert(centerEmptyStateEntry.includes('id="d5ExpandingAction2"'),'ExpandingButtonGroup second placeholder slot missing');
 assert(centerEmptyStateEntry.includes('id="d5ExpandingAction3"'),'ExpandingButtonGroup third placeholder slot missing');
 assert(centerEmptyStateEntryCss.includes('.hashcod-expanding-button-group'),'ExpandingButtonGroup CSS missing');
+assert(centerEmptyStateEntry.includes('const FILE_VAULT_DB_NAME = "hashcod_file_vault_v1"'),'File vault IndexedDB namespace missing');
+assert(centerEmptyStateEntry.includes('id="d5FileVaultTrigger"'),'File vault trigger missing');
+assert(centerEmptyStateEntry.includes('id="d5FileVaultDropzone"'),'File vault dropzone missing');
+assert(centerEmptyStateEntry.includes('type="file"'),'File vault must use a real browser file input');
+assert(centerEmptyStateEntry.includes('multiple'),'File vault must allow multiple files');
+assert(centerEmptyStateEntry.includes('XMLHttpRequest'),'File vault must report real upload progress');
+assert(centerEmptyStateEntry.includes('FILE_VAULT_ENDPOINT = "/api/hashcod-file-vault"'),'File vault backend endpoint missing');
+assert(centerEmptyStateEntryCss.includes('.hashcod-file-vault-trigger'),'File vault trigger CSS missing');
+assert(centerEmptyStateEntryCss.includes('.hfv-dropzone'),'File vault dropzone CSS missing');
 assert(centerEmptyStateEntry.includes('createPortal'),'Hatch dialog must portal to body for viewport blur');
 assert(centerEmptyStateEntry.includes('id="d5HatchBackdrop"'),'shared Hatch blur backdrop missing');
 assert(centerEmptyStateEntry.includes('id="d5HatchCodeEditor"'),'shared Hatch editor dialog missing');

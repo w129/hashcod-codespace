@@ -661,6 +661,10 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
         iconViewBox:svg?.getAttribute('viewBox')||'',
         iconWidth:svg?getComputedStyle(svg).width:'',
         button:document.getElementById('d5CenterEmptyStateAction')?.textContent?.trim()||'',
+        expandingGroupCount:stage.querySelectorAll('[data-hashcod-expanding-group="true"]').length,
+        expandingItemCount:stage.querySelectorAll('[data-ebg-item]').length,
+        actionRight:document.getElementById('d5CenterEmptyStateAction')?.getBoundingClientRect().right||0,
+        expandingLeft:stage.querySelector('[data-hashcod-expanding-group="true"]')?.getBoundingClientRect().left||0,
         javaLauncherExists:Boolean(document.getElementById('d5JavaHatchAction'))
       };
     });
@@ -671,6 +675,9 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(centerPosition.iconViewBox,'0 0 48 48','retained launcher icon must preserve its supplied viewBox');
     assert.equal(centerPosition.iconWidth,'30px','launcher icon must keep the adapted 30px size');
     assert.equal(centerPosition.button,'Open Hatch','Open Hatch action label changed');
+    assert.equal(centerPosition.expandingGroupCount,1,'there must be exactly one ExpandingButtonGroup beside Open Hatch');
+    assert.equal(centerPosition.expandingItemCount,3,'ExpandingButtonGroup must expose the three temporary action slots');
+    assert(centerPosition.expandingLeft>centerPosition.actionRight,'ExpandingButtonGroup must remain to the right of Open Hatch');
     assert.equal(centerPosition.javaLauncherExists,false,'Java must not create a second Hatch launcher');
 
     await page.locator('#d5CenterEmptyStateAction').click();

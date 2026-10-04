@@ -83,8 +83,8 @@ assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the t
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-python-terminal11'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-python-terminal11'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261004-expanding-group1'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261004-expanding-group1'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -120,6 +120,13 @@ assert(!centerEmptyStateEntry.includes('description={'),'subtitle must be remove
 assert(!centerEmptyStateEntry.includes('titleIcon='),'title-side icon slot must no longer be used');
 assert(centerEmptyStateEntry.includes('id="d5CenterEmptyStateAction"'),'single Open Hatch action button missing');
 assert(centerEmptyStateEntry.includes('onClick={() => setHatchOpen(true)}'),'Open Hatch must open the shared Hatch dialog');
+assert(centerEmptyStateEntry.includes('function ExpandingButtonGroup'),'ExpandingButtonGroup implementation missing');
+assert(centerEmptyStateEntry.includes('data-hashcod-expanding-group="true"'),'ExpandingButtonGroup runtime marker missing');
+assert(centerEmptyStateEntry.includes('className="hashcod-empty-state-actions-row"'),'Open Hatch and ExpandingButtonGroup row missing');
+assert(centerEmptyStateEntry.includes('id="d5ExpandingAction1"'),'ExpandingButtonGroup first placeholder slot missing');
+assert(centerEmptyStateEntry.includes('id="d5ExpandingAction2"'),'ExpandingButtonGroup second placeholder slot missing');
+assert(centerEmptyStateEntry.includes('id="d5ExpandingAction3"'),'ExpandingButtonGroup third placeholder slot missing');
+assert(centerEmptyStateEntryCss.includes('.hashcod-expanding-button-group'),'ExpandingButtonGroup CSS missing');
 assert(centerEmptyStateEntry.includes('createPortal'),'Hatch dialog must portal to body for viewport blur');
 assert(centerEmptyStateEntry.includes('id="d5HatchBackdrop"'),'shared Hatch blur backdrop missing');
 assert(centerEmptyStateEntry.includes('id="d5HatchCodeEditor"'),'shared Hatch editor dialog missing');

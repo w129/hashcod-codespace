@@ -969,6 +969,237 @@ function HatchCodeEditor({ open, onClose }) {
   );
 }
 
+
+function ExpandingPlaceholderIcon({ kind }) {
+  if (kind === "square") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <rect x="6.5" y="6.5" width="11" height="11" rx="2.2" />
+      </svg>
+    );
+  }
+
+  if (kind === "dots") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="6" cy="12" r="1.35" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none" />
+        <circle cx="18" cy="12" r="1.35" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="5.5" />
+      <path d="M12 3.75v2.5M12 17.75v2.5M3.75 12h2.5M17.75 12h2.5" />
+    </svg>
+  );
+}
+
+const EXPANDING_BUTTON_ITEMS = Object.freeze([
+  {
+    id: "slot-1",
+    domId: "d5ExpandingAction1",
+    label: "Tools",
+    icon: <ExpandingPlaceholderIcon kind="target" />,
+  },
+  {
+    id: "slot-2",
+    domId: "d5ExpandingAction2",
+    label: "Slot 2",
+    icon: <ExpandingPlaceholderIcon kind="square" />,
+  },
+  {
+    id: "slot-3",
+    domId: "d5ExpandingAction3",
+    label: "Slot 3",
+    icon: <ExpandingPlaceholderIcon kind="dots" />,
+  },
+]);
+
+function ExpandingButtonGroup({
+  items,
+  label,
+  defaultExpanded = null,
+  onAction,
+}) {
+  const reduced = useReducedMotion() ?? false;
+  const rootRef = useRef(null);
+  const touchArmedRef = useRef(null);
+  const firstEnabled =
+    items.find((item) => !item.disabled)?.id ?? items[0]?.id ?? null;
+  const restingId =
+    items.some((item) => item.id === defaultExpanded)
+      ? defaultExpanded
+      : firstEnabled;
+  const [expandedId, setExpandedId] = useState(restingId);
+  const [focusedId, setFocusedId] = useState(restingId);
+  const [busyId, setBusyId] = useState(null);
+
+  useEffect(() => {
+    setExpandedId((current) =>
+      items.some((item) => item.id === current) ? current : restingId,
+    );
+  }, [items, restingId]);
+
+  const activate = async (item) => {
+    if (item.disabled || busyId === item.id) return;
+    setExpandedId(item.id);
+    onAction?.(item.id);
+
+    try {
+      const pending = item.onSelect?.();
+      if (pending instanceof Promise) {
+        setBusyId(item.id);
+        await pending;
+      }
+    } finally {
+      setBusyId((current) => (current === item.id ? null : current));
+    }
+  };
+
+  const handlePointerDown = (item, event) => {
+    if (event.pointerType === "touch" && expandedId !== item.id) {
+      touchArmedRef.current = item.id;
+      setExpandedId(item.id);
+      return;
+    }
+    touchArmedRef.current = null;
+  };
+
+  const handleClick = (item) => {
+    if (touchArmedRef.current === item.id) {
+      touchArmedRef.current = null;
+      return;
+    }
+    void activate(item);
+  };
+
+  const handleKeyDown = (event) => {
+    const buttons = Array.from(
+      rootRef.current?.querySelectorAll("[data-ebg-item]") ?? [],
+    );
+    const index = buttons.findIndex(
+      (button) => button === document.activeElement,
+    );
+    if (index < 0) return;
+
+    const last = buttons.length - 1;
+    const next =
+      event.key === "ArrowRight"
+        ? index === last
+          ? 0
+          : index + 1
+        : event.key === "ArrowLeft"
+          ? index === 0
+            ? last
+            : index - 1
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? last
+              : -1;
+
+    if (next < 0) return;
+    event.preventDefault();
+    buttons[next].focus();
+  };
+
+  return (
+    <div
+      ref={rootRef}
+      className="hashcod-expanding-button-group"
+      role="toolbar"
+      aria-label={label}
+      aria-orientation="horizontal"
+      data-hashcod-expanding-group="true"
+      onKeyDown={handleKeyDown}
+      onMouseLeave={() => setExpandedId(focusedId ?? restingId)}
+      onBlur={(event) => {
+        if (rootRef.current?.contains(event.relatedTarget)) return;
+        setFocusedId(restingId);
+        setExpandedId(restingId);
+      }}
+    >
+      {items.map((item) => {
+        const expanded = expandedId === item.id;
+        const busy = busyId === item.id;
+
+        return (
+          <motion.button
+            layout
+            id={item.domId}
+            key={item.id}
+            type="button"
+            className="hashcod-expanding-button-group__item"
+            data-ebg-item=""
+            data-id={item.id}
+            data-expanded={expanded ? "true" : undefined}
+            aria-label={item.label}
+            aria-disabled={item.disabled || undefined}
+            aria-busy={busy || undefined}
+            tabIndex={focusedId === item.id ? 0 : -1}
+            transition={
+              reduced
+                ? { duration: 0.1 }
+                : { type: "spring", stiffness: 420, damping: 32, mass: 0.7 }
+            }
+            onPointerDown={(event) => handlePointerDown(item, event)}
+            onMouseEnter={() => setExpandedId(item.id)}
+            onFocus={(event) => {
+              setFocusedId(item.id);
+              try {
+                if (event.currentTarget.matches(":focus-visible")) {
+                  setExpandedId(item.id);
+                }
+              } catch {
+                setExpandedId(item.id);
+              }
+            }}
+            onClick={() => handleClick(item)}
+          >
+            <span
+              className="hashcod-expanding-button-group__icon"
+              aria-hidden="true"
+            >
+              {item.icon}
+            </span>
+
+            <AnimatePresence initial={false}>
+              {expanded ? (
+                <motion.span
+                  key={item.id + "-label"}
+                  className="hashcod-expanding-button-group__label"
+                  aria-hidden="true"
+                  initial={
+                    reduced
+                      ? { opacity: 0 }
+                      : { opacity: 0, x: -6, filter: "blur(4px)" }
+                  }
+                  animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                  exit={
+                    reduced
+                      ? { opacity: 0 }
+                      : { opacity: 0, x: -4, filter: "blur(3px)" }
+                  }
+                  transition={
+                    reduced
+                      ? { duration: 0.1 }
+                      : { duration: 0.18, ease: [0.16, 1, 0.3, 1] }
+                  }
+                >
+                  {item.label}
+                </motion.span>
+              ) : null}
+            </AnimatePresence>
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+}
+
 function CenterWorkspaceEmptyState() {
   const [hatchOpen, setHatchOpen] = useState(false);
 
@@ -978,16 +1209,24 @@ function CenterWorkspaceEmptyState() {
         label="VC"
         icon={<CcCardTitleIcon />}
         action={
-          <button
-            id="d5CenterEmptyStateAction"
-            className="hashcod-empty-state-action"
-            type="button"
-            aria-haspopup="dialog"
-            aria-expanded={hatchOpen ? "true" : "false"}
-            onClick={() => setHatchOpen(true)}
-          >
-            Open Hatch
-          </button>
+          <div className="hashcod-empty-state-actions-row">
+            <button
+              id="d5CenterEmptyStateAction"
+              className="hashcod-empty-state-action"
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={hatchOpen ? "true" : "false"}
+              onClick={() => setHatchOpen(true)}
+            >
+              Open Hatch
+            </button>
+
+            <ExpandingButtonGroup
+              items={EXPANDING_BUTTON_ITEMS}
+              label="Additional Hatch actions"
+              defaultExpanded="slot-1"
+            />
+          </div>
         }
       />
 
@@ -1009,7 +1248,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-python-terminal11",
+    version: "20261004-expanding-group1",
   });
 
   return true;

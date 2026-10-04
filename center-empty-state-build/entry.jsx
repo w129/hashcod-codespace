@@ -1,7 +1,29 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import EmptyState from "./EmptyState";
 import "./entry.css";
+
+const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
+
+const DEFAULT_HATCH_CODE = `'use client';
+
+import * as React from 'react';
+
+type MyComponentProps = {
+  myProps: string;
+} & React.ComponentProps<'div'>;
+
+function MyComponent(props: MyComponentProps) {
+  return (
+    <div {...props}>
+      <p>My Component</p>
+    </div>
+  );
+}
+
+export { MyComponent, type MyComponentProps };`;
 
 function CcCardTitleIcon() {
   return (
@@ -19,21 +41,290 @@ function CcCardTitleIcon() {
   );
 }
 
-function CenterWorkspaceEmptyState() {
+function ReactIcon() {
   return (
-    <EmptyState
-      label="VC"
-      icon={<CcCardTitleIcon />}
-      action={
-        <button
-          id="d5CenterEmptyStateAction"
-          className="hashcod-empty-state-action"
-          type="button"
-        >
-          Open Hatch
-        </button>
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+      className="hatch-code-react-icon"
+    >
+      <circle cx="12" cy="12" r="2.05" fill="currentColor" />
+      <ellipse cx="12" cy="12" rx="9.25" ry="3.55" fill="none" stroke="currentColor" strokeWidth="1.25" />
+      <ellipse cx="12" cy="12" rx="9.25" ry="3.55" fill="none" stroke="currentColor" strokeWidth="1.25" transform="rotate(60 12 12)" />
+      <ellipse cx="12" cy="12" rx="9.25" ry="3.55" fill="none" stroke="currentColor" strokeWidth="1.25" transform="rotate(120 12 12)" />
+    </svg>
+  );
+}
+
+function CopyIcon({ checked }) {
+  if (checked) {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m5 12 4 4L19 6" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="8" y="8" width="10" height="10" rx="2" />
+      <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+    </svg>
+  );
+}
+
+function tokenizeTsx(code) {
+  const pattern = /(\/\*[\s\S]*?\*\/|\/\/[^\n]*|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\b(?:import|from|as|type|function|return|export|const|let|var|interface|extends|new|if|else|true|false|null|undefined)\b|\b(?:React|ComponentProps|MyComponentProps|MyComponent|string)\b|<\/?[A-Za-z][^>]*>|\b\d+(?:\.\d+)?\b)/g;
+  const parts = [];
+  let last = 0;
+  let match;
+  let key = 0;
+
+  while ((match = pattern.exec(code)) !== null) {
+    if (match.index > last) {
+      parts.push(<span key={key++}>{code.slice(last, match.index)}</span>);
+    }
+
+    const token = match[0];
+    let className = "hatch-token-default";
+    if (token.startsWith("//") || token.startsWith("/*")) className = "hatch-token-comment";
+    else if (token.startsWith("'") || token.startsWith('"')) className = "hatch-token-string";
+    else if (token.startsWith("<")) className = "hatch-token-tag";
+    else if (/^\d/.test(token)) className = "hatch-token-number";
+    else if (/^(React|ComponentProps|MyComponentProps|MyComponent|string)$/.test(token)) className = "hatch-token-type";
+    else className = "hatch-token-keyword";
+
+    parts.push(
+      <span className={className} key={key++}>
+        {token}
+      </span>,
+    );
+    last = pattern.lastIndex;
+  }
+
+  if (last < code.length) {
+    parts.push(<span key={key++}>{code.slice(last)}</span>);
+  }
+
+  return parts;
+}
+
+function HatchCodeEditor({ open, onClose }) {
+  const reduce = useReducedMotion();
+  const textareaRef = useRef(null);
+  const highlightRef = useRef(null);
+  const copyTimerRef = useRef(null);
+  const [copied, setCopied] = useState(false);
+  const [code, setCode] = useState(() => {
+    try {
+      return window.localStorage.getItem(HATCH_STORAGE_KEY) ?? DEFAULT_HATCH_CODE;
+    } catch (_) {
+      return DEFAULT_HATCH_CODE;
+    }
+  });
+  const highlighted = useMemo(() => tokenizeTsx(code), [code]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    document.body.classList.add("hashcod-hatch-open");
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focusTimer = window.setTimeout(() => {
+      textareaRef.current?.focus({ preventScroll: true });
+    }, 80);
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
       }
-    />
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.clearTimeout(focusTimer);
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.classList.remove("hashcod-hatch-open");
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open, onClose]);
+
+  useEffect(
+    () => () => {
+      if (copyTimerRef.current) window.clearTimeout(copyTimerRef.current);
+    },
+    [],
+  );
+
+  const setAndPersistCode = (next) => {
+    setCode(next);
+    try {
+      window.localStorage.setItem(HATCH_STORAGE_KEY, next);
+    } catch (_) {
+      // Editing remains fully functional even when storage is unavailable.
+    }
+  };
+
+  const handleEditorKeyDown = (event) => {
+    if (event.key !== "Tab") return;
+    event.preventDefault();
+    const node = event.currentTarget;
+    const start = node.selectionStart;
+    const end = node.selectionEnd;
+    const next = code.slice(0, start) + "  " + code.slice(end);
+    setAndPersistCode(next);
+    requestAnimationFrame(() => {
+      node.selectionStart = node.selectionEnd = start + 2;
+    });
+  };
+
+  const syncScroll = (event) => {
+    if (!highlightRef.current) return;
+    highlightRef.current.scrollTop = event.currentTarget.scrollTop;
+    highlightRef.current.scrollLeft = event.currentTarget.scrollLeft;
+  };
+
+  const copyCode = async () => {
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(code);
+      ok = true;
+    } catch (_) {
+      const fallback = document.createElement("textarea");
+      fallback.value = code;
+      fallback.setAttribute("readonly", "");
+      fallback.style.position = "fixed";
+      fallback.style.opacity = "0";
+      document.body.appendChild(fallback);
+      fallback.select();
+      ok = document.execCommand("copy");
+      fallback.remove();
+    }
+
+    if (!ok) return;
+    setCopied(true);
+    if (copyTimerRef.current) window.clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = window.setTimeout(() => setCopied(false), 1400);
+  };
+
+  if (!open || typeof document === "undefined") return null;
+
+  return createPortal(
+    <AnimatePresence>
+      <motion.div
+        id="d5HatchBackdrop"
+        className="hatch-modal-backdrop"
+        role="presentation"
+        initial={reduce ? { opacity: 1 } : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: reduce ? 0 : 0.2 }}
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) onClose();
+        }}
+      >
+        <motion.div
+          id="d5HatchCodeEditor"
+          className="hatch-code-shell"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Hatch code editor"
+          initial={reduce ? { opacity: 1 } : { opacity: 0, y: 16, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 10, scale: 0.985 }}
+          transition={
+            reduce
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 390, damping: 30, mass: 0.72 }
+          }
+        >
+          <button
+            id="d5HatchClose"
+            className="hatch-code-close"
+            type="button"
+            aria-label="Close Hatch editor"
+            onClick={onClose}
+          >
+            ×
+          </button>
+
+          <div className="hatch-code-header">
+            <div className="hatch-code-file">
+              <ReactIcon />
+              <span>my-component.tsx</span>
+            </div>
+
+            <button
+              id="d5HatchCopy"
+              className="hatch-code-copy"
+              type="button"
+              aria-label={copied ? "Copied" : "Copy code"}
+              title={copied ? "Copied" : "Copy code"}
+              onClick={copyCode}
+            >
+              <CopyIcon checked={copied} />
+              <span>{copied ? "Copied" : "Copy"}</span>
+            </button>
+          </div>
+
+          <div className="hatch-code-editor-wrap">
+            <pre
+              ref={highlightRef}
+              className="hatch-code-highlight"
+              aria-hidden="true"
+            >
+              <code>{highlighted}</code>
+            </pre>
+            <textarea
+              id="d5HatchCodeInput"
+              ref={textareaRef}
+              className="hatch-code-input"
+              value={code}
+              onChange={(event) => setAndPersistCode(event.target.value)}
+              onKeyDown={handleEditorKeyDown}
+              onScroll={syncScroll}
+              spellCheck="false"
+              autoCapitalize="off"
+              autoCorrect="off"
+              aria-label="Editable TSX code"
+            />
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>,
+    document.body,
+  );
+}
+
+function CenterWorkspaceEmptyState() {
+  const [hatchOpen, setHatchOpen] = useState(false);
+
+  return (
+    <>
+      <EmptyState
+        label="VC"
+        icon={<CcCardTitleIcon />}
+        action={
+          <button
+            id="d5CenterEmptyStateAction"
+            className="hashcod-empty-state-action"
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={hatchOpen ? "true" : "false"}
+            onClick={() => setHatchOpen(true)}
+          >
+            Open Hatch
+          </button>
+        }
+      />
+
+      <HatchCodeEditor
+        open={hatchOpen}
+        onClose={() => setHatchOpen(false)}
+      />
+    </>
   );
 }
 
@@ -47,7 +338,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261003-open-hatch6",
+    version: "20261004-hatch-editor1",
   });
 
   return true;

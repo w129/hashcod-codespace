@@ -1,25 +1,27 @@
 (function(){
 'use strict';
 
-var VERSION='20261005-file-vault-fast5';
-var ORIGINAL_ENDPOINT='/api/hashcod-file-vault';
+var VERSION='20261005-file-vault-fast5-route2';
 var FAST_ENDPOINT='/hashcod-file-vault-fast-upload.php';
 var RETRY_DELAYS=[0,500,1400,3000];
+var uiBusy=false;
 
 if(window.__hashcodFileVaultFast5Loaded)return;
 window.__hashcodFileVaultFast5Loaded=true;
 
 var proto=XMLHttpRequest.prototype;
-var previousOpen=proto.open;
-var previousSend=proto.send;
+var nativeOpen=proto.open;
+var nativeSend=proto.send;
 
 function sleep(ms){return new Promise(function(resolve){setTimeout(resolve,ms);});}
-function isUploadRequest(method,url){
-  return String(method||'').toUpperCase()==='POST'&&
-    String(url||'').indexOf(ORIGINAL_ENDPOINT)!==-1&&
-    String(url||'').indexOf('action=upload')!==-1;
+function clamp(value,min,max){return Math.max(min,Math.min(max,value));}
+function makeId(){
+  var raw='';
+  try{raw=crypto.randomUUID().replace(/-/g,'');}
+  catch(_){raw=Date.now().toString(36)+Math.random().toString(36).slice(2);}
+  return 'fv_'+raw.slice(0,40);
 }
-function bridgeProgress(owner,loaded,total){
+function callProgress(owner,loaded,total){
   try{
     var handler=owner&&owner.upload&&owner.upload.onprogress;
     if(typeof handler==='function'){
@@ -42,18 +44,19 @@ function finishOwner(owner,status,payload){
     try{owner.dispatchEvent(new Event('loadend'));}catch(_){}
   });
 }
-async function json(response){try{return await response.json();}catch(_){return {};}}
-function phase(name,detail){
-  try{
-    window.dispatchEvent(new CustomEvent('hashcod:file-vault-transfer-phase',{detail:{phase:name,detail:detail||'',version:VERSION}}));
-  }catch(_){}
+async function parseJson(response){
+  try{return await response.json();}catch(_){return {};}
 }
-async function prepare(file,id,secret,code){
+async function prepareUpload(file,id,secret,code){
   var response=await fetch(FAST_ENDPOINT+'?action=prepare',{
     method:'POST',
     credentials:'same-origin',
     cache:'no-store',
-    headers:{'Accept':'application/json','Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+    headers:{
+      'Accept':'application/json',
+      'Content-Type':'application/json',
+      'X-Requested-With':'XMLHttpRequest'
+    },
     body:JSON.stringify({
       id:id,
       name:file&&file.name||'file',
@@ -63,32 +66,34 @@ async function prepare(file,id,secret,code){
       totp_code:code
     })
   });
-  var payload=await json(response);
-  if(!response.ok||!payload.ok||!payload.uploadUrl||!payload.ticket){
-    var error=new Error(payload.error||'Could not prepare direct cloud upload.');
-    error.status=response.status||503;
+  var payload=await parseJson(response);
+  if(!response.ok||!payload.ok){
+    var error=new Error(payload.error||'Could not prepare direct upload.');
+    error.status=response.status;
     throw error;
   }
   return payload;
 }
-function putOnce(url,file,onProgress){
+function directPut(url,file,onProgress){
   return new Promise(function(resolve,reject){
     var xhr=new XMLHttpRequest();
     xhr.open('PUT',url,true);
-    xhr.timeout=240000;
     try{xhr.setRequestHeader('x-upsert','true');}catch(_){}
     xhr.upload.onprogress=function(event){
-      if(event.lengthComputable&&typeof onProgress==='function')onProgress(event.loaded,event.total);
+      if(event.lengthComputable&&typeof onProgress==='function'){
+        onProgress(event.loaded,event.total);
+      }
     };
     xhr.onerror=function(){reject(new Error('Direct Storage connection was interrupted.'));};
     xhr.ontimeout=function(){reject(new Error('Direct Storage upload timed out.'));};
+    xhr.timeout=180000;
     xhr.onload=function(){
       if(xhr.status>=200&&xhr.status<300){
         if(typeof onProgress==='function')onProgress(file.size||1,file.size||1);
         resolve(true);
-      }else{
-        reject(new Error('Direct Storage upload failed with HTTP '+xhr.status+'.'));
+        return;
       }
+      reject(new Error('Storage upload failed with HTTP '+xhr.status+'.'));
     };
     var form=new FormData();
     form.append('cacheControl','3600');
@@ -96,90 +101,240 @@ function putOnce(url,file,onProgress){
     xhr.send(form);
   });
 }
-async function putWithRetry(url,file,onProgress){
+async function uploadWithRetry(url,file,onProgress){
   var lastError=null;
-  for(var attempt=0;attempt<RETRY_DELAYS.length;attempt++){
-    if(attempt>0){
-      phase('retry','attempt '+(attempt+1));
-      await sleep(RETRY_DELAYS[attempt]);
-    }
+  for(var attempt=0;attempt<3;attempt++){
+    if(attempt>0)await sleep(RETRY_DELAYS[attempt]||1000);
     try{
-      await putOnce(url,file,onProgress);
+      await directPut(url,file,onProgress);
       return true;
     }catch(error){
       lastError=error;
     }
   }
-  throw lastError||new Error('Direct cloud upload failed.');
+  throw lastError||new Error('Direct upload failed.');
 }
-function ensureBadge(){
+async function completeUpload(ticket){
+  var response=await fetch(FAST_ENDPOINT+'?action=complete',{
+    method:'POST',
+    credentials:'same-origin',
+    cache:'no-store',
+    headers:{
+      'Accept':'application/json',
+      'Content-Type':'application/json',
+      'X-Requested-With':'XMLHttpRequest'
+    },
+    body:JSON.stringify({ticket:ticket})
+  });
+  var payload=await parseJson(response);
+  if(!response.ok||!payload.ok){
+    var error=new Error(payload.error||'Could not finalize cloud upload.');
+    error.status=response.status;
+    throw error;
+  }
+  return payload;
+}
+async function performDirectUpload(file,id,secret,code,onProgress,onPhase){
+  if(typeof onPhase==='function')onPhase('Preparing secure direct upload');
+  var prepared=await prepareUpload(file,id,secret,code);
+  var progress=function(loaded,total){
+    if(typeof onProgress==='function')onProgress(loaded,total);
+  };
+
+  if(typeof onPhase==='function')onPhase('Uploading browser → Supabase Storage');
+  await uploadWithRetry(prepared.uploadUrl,file,progress);
+
+  if(typeof onPhase==='function')onPhase('Finalizing cloud index');
+  return await completeUpload(prepared.ticket);
+}
+function waitForTotpApi(){
+  return new Promise(function(resolve,reject){
+    var started=Date.now();
+    (function check(){
+      if(window.HashcodFileVaultTotp&&typeof window.HashcodFileVaultTotp.requestSetup==='function'){
+        resolve(window.HashcodFileVaultTotp);
+        return;
+      }
+      if(Date.now()-started>10000){
+        reject(new Error('TOTP interface did not initialize.'));
+        return;
+      }
+      setTimeout(check,35);
+    })();
+  });
+}
+function ensureUiStyle(){
+  if(document.getElementById('d5HfvFastStyle'))return;
+  var style=document.createElement('style');
+  style.id='d5HfvFastStyle';
+  style.textContent='.hfv-dropzone{position:relative}.hfv-fast-layer{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:22px;border-radius:inherit;background:#0a0a0a;color:#fff;text-align:center}.hfv-fast-box{width:min(440px,88%);display:grid;gap:10px}.hfv-fast-box strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 14px/1.3 Inter,system-ui,sans-serif}.hfv-fast-box small{color:#a3a3a3;font:600 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace}.hfv-fast-track{display:block;height:4px;overflow:hidden;border-radius:999px;background:#333}.hfv-fast-bar{display:block;height:100%;transform-origin:left center;background:#fff;transition:transform .12s linear}.hfv-fast-layer[data-state="error"] .hfv-fast-bar{background:#fca5a5}.hfv-fast-layer[data-state="done"] .hfv-fast-bar{background:#d4d4d4}';
+  style.textContent+='.hfv-fast-layer[data-state="error"]{pointer-events:none}.hfv-fast-box small{overflow-wrap:anywhere}';
+  document.head.appendChild(style);
+}
+function uiLayer(){
+  ensureUiStyle();
   var drop=document.getElementById('d5FileVaultDropzone');
-  if(!drop)return;
-  if(drop.querySelector('.hfv-fast5-badge'))return;
-  try{drop.style.position='relative';}catch(_){}
-  var badge=document.createElement('span');
-  badge.className='hfv-fast5-badge';
-  badge.textContent='Direct cloud';
-  badge.title='File bytes upload directly to Supabase Storage; Railway only prepares and finalizes metadata.';
-  badge.style.cssText='position:absolute;right:12px;top:12px;z-index:5;padding:5px 8px;border:1px solid #3f3f46;border-radius:999px;background:#171717;color:#d4d4d8;font:600 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.02em;pointer-events:none';
-  drop.appendChild(badge);
+  if(!drop)return null;
+  var layer=drop.querySelector('.hfv-fast-layer');
+  if(!layer){
+    layer=document.createElement('div');
+    layer.className='hfv-fast-layer';
+    layer.setAttribute('role','status');
+    layer.setAttribute('aria-live','polite');
+    layer.innerHTML='<div class="hfv-fast-box"><strong></strong><small></small><span class="hfv-fast-track"><span class="hfv-fast-bar"></span></span></div>';
+    drop.appendChild(layer);
+  }
+  return layer;
 }
-function installBadgeObserver(){
-  ensureBadge();
-  var observer=new MutationObserver(ensureBadge);
-  observer.observe(document.body,{childList:true,subtree:true});
+function setUi(fileName,percent,phase,state){
+  var layer=uiLayer();
+  if(!layer)return;
+  layer.dataset.state=state||'uploading';
+  var strong=layer.querySelector('strong');
+  var small=layer.querySelector('small');
+  var bar=layer.querySelector('.hfv-fast-bar');
+  if(strong)strong.textContent=fileName||'File';
+  if(small)small.textContent=(phase||'Uploading')+(state==='error'?' · Click or drop the file to try again.':' · '+Math.round(clamp(percent,0,100))+'%');
+  if(bar)bar.style.transform='scaleX('+clamp(percent,0,100)/100+')';
+}
+function clearUi(delay){
+  setTimeout(function(){
+    var layer=document.querySelector('#d5FileVaultDropzone .hfv-fast-layer');
+    if(layer)layer.remove();
+  },delay||0);
+}
+function refreshVault(){
+  setTimeout(function(){
+    var button=document.querySelector('#d5FileVault .hfv-list-head button');
+    if(button)button.click();
+  },120);
+}
+async function uploadFromUi(file){
+  var api=await waitForTotpApi();
+  var setup=await api.requestSetup(file.name||'file');
+  if(!setup)return false;
+
+  var id=makeId();
+  var lastPercent=2;
+  setUi(file.name,2,'Preparing secure direct upload','uploading');
+
+  var completed=await performDirectUpload(
+    file,
+    id,
+    setup.secret,
+    setup.code,
+    function(loaded,total){
+      var raw=total>0?(loaded/total)*100:0;
+      lastPercent=5+(raw*0.9);
+      setUi(file.name,lastPercent,'Direct cloud transfer','uploading');
+    },
+    function(phase){
+      setUi(file.name,lastPercent,phase,'uploading');
+    }
+  );
+
+  setUi(file.name,100,'Stored in cloud','done');
+  refreshVault();
+  return completed;
+}
+async function processUiFiles(files){
+  if(uiBusy)return;
+  var queue=Array.from(files||[]).filter(function(file){
+    return file&&typeof file.name==='string';
+  });
+  if(!queue.length)return;
+
+  uiBusy=true;
+  var lastFailure=null;
+  try{
+    for(var i=0;i<queue.length;i++){
+      try{
+        await uploadFromUi(queue[i]);
+        await sleep(160);
+      }catch(error){
+        lastFailure={name:queue[i].name,message:error&&error.message||'Direct upload failed.'};
+        setUi(lastFailure.name,100,lastFailure.message,'error');
+        await sleep(2200);
+      }
+    }
+  }finally{
+    uiBusy=false;
+    if(lastFailure)setUi(lastFailure.name,100,lastFailure.message,'error');
+    else clearUi(350);
+    var input=document.getElementById('d5FileVaultInput');
+    if(input)input.value='';
+  }
+}
+function captureFilesEvent(event){
+  if(!event||event.__hashcodHfvFast5Handled)return;
+  var files=null;
+
+  if(event.type==='change'){
+    var input=event.target;
+    if(!input||input.id!=='d5FileVaultInput'||!input.files||!input.files.length)return;
+    files=input.files;
+  }else if(event.type==='drop'){
+    var target=event.target;
+    var drop=target&&target.closest?target.closest('#d5FileVaultDropzone'):null;
+    if(!drop||!event.dataTransfer||!event.dataTransfer.files||!event.dataTransfer.files.length)return;
+    files=event.dataTransfer.files;
+  }else{
+    return;
+  }
+
+  try{Object.defineProperty(event,'__hashcodHfvFast5Handled',{value:true});}catch(_){}
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  void processUiFiles(files);
+}
+function installUiCapture(){
+  window.addEventListener('change',captureFilesEvent,true);
+  window.addEventListener('drop',captureFilesEvent,true);
+  document.addEventListener('change',captureFilesEvent,true);
+  document.addEventListener('drop',captureFilesEvent,true);
 }
 
+// Backup path for older File Vault builds: once TOTP fields are present,
+// reroute the upload away from PHP and directly to Supabase Storage.
 proto.open=function(method,url){
-  this.__hashcodHfvFast5Upload=isUploadRequest(method,url);
-  return previousOpen.apply(this,arguments);
+  var args=Array.prototype.slice.call(arguments,2);
+  this.__hashcodHfvFastUpload=
+    String(method||'').toUpperCase()==='POST'&&
+    String(url||'').indexOf('/api/hashcod-file-vault')!==-1&&
+    String(url||'').indexOf('action=upload')!==-1;
+  return nativeOpen.apply(this,[method,url].concat(args));
 };
-
 proto.send=function(body){
-  if(!this.__hashcodHfvFast5Upload||!(body instanceof FormData)){
-    return previousSend.call(this,body);
+  if(
+    !this.__hashcodHfvFastUpload||
+    !(body instanceof FormData)||
+    !body.has('totp_secret')||
+    !body.has('totp_code')
+  ){
+    return nativeSend.call(this,body);
   }
 
   var owner=this;
   var file=body.get('file');
   var id=String(body.get('id')||'');
-  if(!(file instanceof Blob)||!id){
-    return previousSend.call(owner,body);
-  }
+  var secret=String(body.get('totp_secret')||'');
+  var code=String(body.get('totp_code')||'');
+  if(!(file instanceof Blob)||!id)return nativeSend.call(owner,body);
 
   (async function(){
     try{
-      var api=window.HashcodFileVaultTotp;
-      if(!api||typeof api.requestSetup!=='function'){
-        throw new Error('TOTP protection is not ready. Reload the page and try again.');
-      }
-
-      phase('totp','waiting for TOTP setup');
-      var setup=await api.requestSetup(file.name||'file');
-      if(!setup){
-        try{if(typeof owner.onerror==='function')owner.onerror.call(owner,new Event('error'));}catch(_){}
-        return;
-      }
-
-      var total=Math.max(1,Number(file.size||1));
-      bridgeProgress(owner,Math.max(1,Math.floor(total*0.01)),total);
-      phase('prepare','requesting signed upload URL');
-      var prepared=await prepare(file,id,setup.secret,setup.code);
-
-      phase('upload','browser → Supabase Storage');
-      await putWithRetry(prepared.uploadUrl,file,function(loaded,bytesTotal){
-        bridgeProgress(owner,loaded,bytesTotal||total);
-      });
-
-      phase('finalize','indexing l8_files');
-      previousOpen.call(owner,'POST',FAST_ENDPOINT+'?action=complete',true);
-      owner.withCredentials=true;
-      try{owner.setRequestHeader('Accept','application/json');}catch(_){}
-      try{owner.setRequestHeader('Content-Type','application/json');}catch(_){}
-      try{owner.setRequestHeader('X-Requested-With','XMLHttpRequest');}catch(_){}
-      previousSend.call(owner,JSON.stringify({ticket:prepared.ticket}));
+      var total=Number(file.size||1);
+      callProgress(owner,Math.max(1,Math.floor(total*0.02)),total);
+      var completed=await performDirectUpload(
+        file,
+        id,
+        secret,
+        code,
+        function(loaded,bytesTotal){callProgress(owner,loaded,bytesTotal);}
+      );
+      finishOwner(owner,201,completed);
     }catch(error){
-      phase('error',error&&error.message||'direct upload failed');
       finishOwner(owner,Number(error&&error.status||502),{
         ok:false,
         error:error&&error.message||'Direct cloud upload unavailable.'
@@ -190,18 +345,16 @@ proto.send=function(body){
   return undefined;
 };
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installBadgeObserver,{once:true});
-else installBadgeObserver();
+installUiCapture();
 
 window.HashcodFileVaultFastUpload=Object.freeze({
   version:VERSION,
   transport:'supabase-signed-direct',
-  strategy:'aws-s3-presigned-style-direct-object-transfer',
+  strategy:'aws-style-direct-object-transfer',
   endpoint:FAST_ENDPOINT,
-  retries:RETRY_DELAYS.length,
   phpProxyBytes:false,
+  localBlocking:false,
   legacyPhpFallback:false,
-  totpBeforeTransfer:true,
-  database:'l8_files'
+  capturePhase:'window+document'
 });
 })();

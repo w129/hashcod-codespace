@@ -1521,6 +1521,7 @@ function fileVaultMerge(localRows, cloudRows) {
       uploadedAt: row.uploadedAt || row.upload_date || new Date().toISOString(),
       cloud: true,
       local: false,
+      totpProtected: Boolean(row.totpProtected),
     });
   });
   (localRows || []).forEach((row) => {
@@ -1653,36 +1654,15 @@ function FileVault() {
   const downloadFile = async (file) => {
     setNotice("");
     try {
-      const blob = await fileVaultGetLocalBlob(file.id);
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = file.name || "file";
-        document.body.appendChild(anchor);
-        anchor.click();
-        anchor.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const api = window.HashcodFileVaultTotp;
+      if (!api || typeof api.download !== "function") {
+        setNotice("TOTP verification is not ready. Reload the page and try again.");
         return;
       }
-    } catch {
-      // Fall through to the authenticated cloud copy.
+      await api.download(file);
+    } catch (error) {
+      setNotice(error?.message || "Could not verify the file download.");
     }
-
-    if (file.cloud) {
-      const anchor = document.createElement("a");
-      anchor.href =
-        FILE_VAULT_ENDPOINT +
-        "?action=download&id=" +
-        encodeURIComponent(file.id);
-      anchor.download = file.name || "file";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      return;
-    }
-
-    setNotice("This file is not available on this device.");
   };
 
   const deleteFile = async (file) => {
@@ -1835,7 +1815,7 @@ function FileVault() {
                 </div>
               ) : (
                 files.map((file) => (
-                  <article className="hfv-file-row" key={file.id}>
+                  <article className="hfv-file-row" key={file.id} data-hfv-file-id={file.id}>
                     <FileVaultPageIcon file={file} size={38} />
                     <div className="hfv-file-copy">
                       <strong title={file.name}>{file.name}</strong>

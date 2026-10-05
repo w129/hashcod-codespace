@@ -21,6 +21,10 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/hashcod-workspace-access.php';
 
+// The router admits only this deliberate JSON controller before the generic
+// PHP-path deny rule. Keep IP/threat checks and rate limits on the API itself.
+securityBootstrap('api');
+
 const HFVU_MAX_UPLOAD_BYTES = 99614720; // 95 MiB
 const HFVU_TOTP_HELPER = '/usr/local/bin/hashcod-file-vault-totp';
 const HFVU_TICKET_TTL = 1800;
@@ -75,7 +79,7 @@ function hfvuOriginalName(string $name): string {
 
 function hfvuMime(string $mime): string {
     $mime = trim((string)preg_replace('/[\r\n]+/', '', $mime));
-    if ($mime === '' || strlen($mime) > 160 || !preg_match('#^[A-Za-z0-9][A-Za-z0-9!#$&^_.+\-]*/[A-Za-z0-9][A-Za-z0-9!#$&^_.+\-]*$#D', $mime)) {
+    if ($mime === '' || strlen($mime) > 160 || !preg_match('~^[A-Za-z0-9][A-Za-z0-9!#$&^_.+\-]*/[A-Za-z0-9][A-Za-z0-9!#$&^_.+\-]*$~D', $mime)) {
         return 'application/octet-stream';
     }
     return $mime;
@@ -180,6 +184,21 @@ function hfvuReadJson(): array {
     if ($raw === '' || strlen($raw) > 65536) return [];
     $body = json_decode($raw, true);
     return is_array($body) ? $body : [];
+}
+
+function hfvuSameOrigin(): bool {
+    if (strcasecmp((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''), 'XMLHttpRequest') !== 0) return false;
+    $site = strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')));
+    if ($site === 'cross-site') return false;
+    $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
+    if ($origin === '') return true;
+    $parts = parse_url($origin);
+    if (!is_array($parts) || !in_array(strtolower((string)($parts['scheme'] ?? '')), ['http', 'https'], true)) return false;
+    $host = strtolower((string)($parts['host'] ?? ''));
+    $port = isset($parts['port']) ? ':' . (int)$parts['port'] : '';
+    $scheme = securityIsHttps() ? 'https' : 'http';
+    return strtolower((string)$parts['scheme']) === $scheme
+        && $host !== '' && hash_equals(strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? ''))), $host . $port);
 }
 
 function hfvuDirectStorageOrigin(string $supabaseUrl): string {
@@ -307,6 +326,10 @@ if (function_exists('securityRateAllowSliding')) {
 if (strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== 'POST') {
     header('Allow: POST');
     hfvuJson(405, ['ok' => false, 'error' => 'Method not allowed.']);
+}
+
+if (!hfvuSameOrigin()) {
+    hfvuJson(403, ['ok' => false, 'error' => 'Upload requests must come from this platform.']);
 }
 
 $body = hfvuReadJson();

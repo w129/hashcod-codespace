@@ -6,6 +6,8 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/hashcod-workspace-access.php';
 
+securityBootstrap('api');
+
 const HFV_MAX_UPLOAD_BYTES = 99614720; // 95 MiB
 const HFV_TOTP_HELPER = '/usr/local/bin/hashcod-file-vault-totp';
 const HFV_TOTP_PERIOD = 30;
@@ -202,8 +204,13 @@ function hfvTotpRateLimit(string $id): void {
     }
 }
 
-function hfvRequireTotp(array $row, string $code): void {
-    if (!hfvTotpProtected($row)) return;
+function hfvRequireTotp(array $row, string $code, bool $requireProtection = false): void {
+    if (!hfvTotpProtected($row)) {
+        if ($requireProtection) {
+            hfvJson(409, ['ok' => false, 'error' => 'This file has no uploader TOTP key. Ask the uploader to upload it again with TOTP protection.']);
+        }
+        return;
+    }
     hfvTotpRateLimit((string)($row['id'] ?? 'file'));
     $secret = hfvTotpSecretFromRow($row);
     if ($secret === '' || !hfvTotpValidateCode($secret, trim($code))) {
@@ -331,24 +338,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'list') {
     ]);
 }
 
-// Legacy unprotected files keep their old GET download behavior. TOTP files
-// never accept a code in a URL/query string.
+// Every download uses the uploader's stored TOTP key. Codes are never accepted
+// in URLs and legacy unprotected files cannot silently bypass verification.
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'download') {
-    $id = hfvSafeId((string)($_GET['id'] ?? ''));
-    $row = hfvFindRow($readAccounts, $id);
-    if ($row === null) hfvJson(404, ['ok' => false, 'error' => 'File not found.']);
-    if (hfvTotpProtected($row)) {
-        hfvJson(405, ['ok' => false, 'error' => 'TOTP-protected files require verified POST download.']);
-    }
-    hfvStreamRow($row);
+    header('Allow: POST');
+    hfvJson(405, ['ok' => false, 'error' => 'File downloads require verified TOTP POST requests.']);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'download') {
+    if (strcasecmp((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''), 'XMLHttpRequest') !== 0
+        || strtolower((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')) === 'cross-site') {
+        hfvJson(403, ['ok' => false, 'error' => 'Download verification must come from this platform.']);
+    }
+    $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
+    if ($origin !== '') {
+        $parts = parse_url($origin);
+        $originHost = strtolower((string)($parts['host'] ?? '')) . (isset($parts['port']) ? ':' . (int)$parts['port'] : '');
+        if (strtolower((string)($parts['scheme'] ?? '')) !== (securityIsHttps() ? 'https' : 'http')
+            || !hash_equals(strtolower((string)($_SERVER['HTTP_HOST'] ?? '')), $originHost)) {
+            hfvJson(403, ['ok' => false, 'error' => 'Download verification must come from this platform.']);
+        }
+    }
     $body = hfvReadJsonBody();
     $id = hfvSafeId((string)($body['id'] ?? ''));
     $row = hfvFindRow($readAccounts, $id);
     if ($row === null) hfvJson(404, ['ok' => false, 'error' => 'File not found.']);
-    hfvRequireTotp($row, (string)($body['code'] ?? ''));
+    hfvRequireTotp($row, (string)($body['code'] ?? ''), true);
     hfvStreamRow($row);
 }
 

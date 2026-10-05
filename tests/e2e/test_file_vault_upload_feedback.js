@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-const source = fs.readFileSync(path.resolve(__dirname, '../../components/file-vault-fast-upload-v4.js'), 'utf8');
+const source = fs.readFileSync(path.resolve(__dirname, '../../components/file-vault-fast-upload-v5.js'), 'utf8');
 const queue = source.slice(source.indexOf('async function processUiFiles('), source.indexOf('function captureFilesEvent('));
 
 async function run(failures) {

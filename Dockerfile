@@ -1,9 +1,9 @@
 FROM golang:1.24-alpine AS file-vault-totp-builder
 WORKDIR /src
 COPY tools/file-vault-totp/go.mod ./
-RUN go mod download
 COPY tools/file-vault-totp/main.go ./
-RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/hashcod-file-vault-totp .
+RUN go mod tidy \
+    && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/hashcod-file-vault-totp .
 
 FROM php:8.1-cli
 

@@ -1,6 +1,7 @@
 (function(){
 'use strict';
 
+// Retired gate version: 20261004-numeric-series5. Kept only as a migration marker.
 var VERSION='20261004-open-entry1';
 var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004-universal-cloud2';
 var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspace-media1';

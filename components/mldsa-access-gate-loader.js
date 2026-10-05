@@ -1,9 +1,10 @@
 (function(){
 'use strict';
 
-var VERSION='20261004-numeric-series4';
+var VERSION='20261004-numeric-series5';
 var API='/api/code-access';
-var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004-universal-cloud1';
+var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004-universal-cloud2';
+var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspace-media1';
 var state={busy:false,series:''};
 
 function addStyle(){
@@ -26,6 +27,14 @@ function loadUniversalPersistence(){
   script.dataset.hashcodUniversalPersistence='true';
   document.head.appendChild(script);
 }
+function loadWorkspaceMedia(){
+  if(document.querySelector('script[data-hashcod-workspace-media]'))return;
+  var script=document.createElement('script');
+  script.src=WORKSPACE_MEDIA;
+  script.defer=true;
+  script.dataset.hashcodWorkspaceMedia='true';
+  document.head.appendChild(script);
+}
 function markAuthorized(){
   state.series='';
   if(document.body){
@@ -38,6 +47,7 @@ function markAuthorized(){
   if(gate)gate.remove();
   window.HashcodCodeAccess=Object.freeze({mounted:true,authorized:true,mode:'sealed-access',version:VERSION});
   loadUniversalPersistence();
+  loadWorkspaceMedia();
   try{window.dispatchEvent(new CustomEvent('hashcod:code-access-granted'));}catch(_){}
 }
 function setStatus(message,kind){

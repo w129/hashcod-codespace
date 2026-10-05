@@ -1,8 +1,9 @@
 (function(){
 'use strict';
 
-var VERSION='20261004-universal-cloud1';
+var VERSION='20261004-universal-cloud2';
 var ENDPOINT='/hashcod-workspace-state.php';
+var PRODUCT_IMAGE_SYNC='/components/product-image-cloud-sync.js?v=20261004-product-image-cloud1';
 var META_KEY='__hashcod_cloud_meta_v1';
 var APPLIED_REVISION_KEY='hashcod:workspace:applied-revision';
 var MAX_VALUE_BYTES=524288;
@@ -23,10 +24,18 @@ var state={
 function sensitiveKey(key){
   var k=String(key||'').toLowerCase();
   if(!k||k===META_KEY||k.indexOf('__hashcod_cloud_')===0)return true;
-  if(/(?:^|[_:\-.])(auth|token|secret|password|passwd|private|credential|dilithium|webauthn|csrf|nonce|challenge|turnstile|session|jwt|oauth|supabase|api[_-]?key|access[_-]?code)(?:$|[_:\-.])/i.test(k))return true;
+  if(/(?:^|[_:\-.])(auth|token|secret|password|passwd|private|credential|dilithium|webauthn|csrf|nonce|challenge|turnstile|session|jwt|oauth|supabase|api[_-]?key|access[_-]?code|crypto|certified|certificate|validated)(?:$|[_:\-.])/i.test(k))return true;
   // Runtime/network caches are reproducible and should not overwrite user work on another device.
   if(/(?:^|[_:\-.])(cache|telemetry|orbit|satellite|ephemeris|rate[_-]?limit|debug|temporary|temp|tmp)(?:$|[_:\-.])/i.test(k))return true;
   return false;
+}
+function loadProductImageSync(){
+  if(document.querySelector('script[data-hashcod-product-image-cloud]'))return;
+  var script=document.createElement('script');
+  script.src=PRODUCT_IMAGE_SYNC;
+  script.defer=true;
+  script.dataset.hashcodProductImageCloud='true';
+  document.head.appendChild(script);
 }
 function loadMeta(){
   try{
@@ -243,6 +252,7 @@ async function bootstrap(){
   state.pullTimer=setInterval(function(){if(document.visibilityState!=='hidden')pull({allowReload:false});},15000);
 }
 function start(){
+  loadProductImageSync();
   bootstrap();
 }
 

@@ -111,12 +111,13 @@ if(!codeAccessRequired()){
 }
 
 $method=strtoupper((string)($_SERVER['REQUEST_METHOD']??'GET'));
+$isCi=numericCiLegacyEnabled();
 if(function_exists('securityRateAllowSliding')){
     $rate=securityRateAllowSliding('hashcod_numeric_access_v2',$method==='POST'?6:40,60);
     if(empty($rate['allowed']))numericAccessFail('access_unavailable','Access unavailable.',429);
 }
 
-if($method==='GET'&&numericCiLegacyEnabled()){
+if($method==='GET'&&$isCi){
     numericAccessJson([
         'ok'=>true,'required'=>true,'authorized'=>false,
         'bound'=>numericCiLegacyRead()!=='',
@@ -150,12 +151,17 @@ if($fetchSite!==''&&!in_array($fetchSite,['same-origin','same-site'],true)){
     numericAccessFail('access_unavailable','Access unavailable.',403);
 }
 
+// Production checks the request origin before php://input is opened.
+if(!$isCi&&!numericAccessNetworkAllowed()){
+    numericAccessFail('access_unavailable','Access unavailable.',403);
+}
+
 $raw=(string)file_get_contents('php://input');
 if(strlen($raw)>380000)numericAccessFail('access_unavailable','Access unavailable.',413);
 $body=json_decode($raw,true);
 if(!is_array($body))numericAccessFail('access_unavailable','Access unavailable.',400);
 
-if(numericCiLegacyEnabled()
+if($isCi
     &&hash_equals('1',trim((string)($_SERVER['HTTP_X_HASHCOD_MESH']??'')))
     &&isset($body['fields'])&&is_array($body['fields'])){
     $fields=numericCiLegacyFields($body['fields']);
@@ -172,8 +178,7 @@ if(numericCiLegacyEnabled()
     numericAccessJson(['ok'=>true,'required'=>true,'authorized'=>true,'bound'=>true,'enrolled'=>false,'schema'=>'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI']);
 }
 
-// Fail closed before processing any supplied access data from an unavailable connection.
-if(!numericAccessNetworkAllowed())numericAccessFail('access_unavailable','Access unavailable.',403);
+if($isCi)numericAccessFail('access_unavailable','Access unavailable.',403);
 if(!hash_equals('1',trim((string)($_SERVER['HTTP_X_HASHCOD_NUMERIC_SERIES']??'')))){
     numericAccessFail('access_unavailable','Access unavailable.',400);
 }

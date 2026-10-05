@@ -38,13 +38,14 @@ assert(ui.includes('action=delete'), 'protected deletion guard missing');
 assert(ui.includes('generateSecret()'), 'TOTP setup key generator missing');
 assert(css.includes('.hfv-totp-dialog'), 'TOTP dialog styles missing');
 assert(css.includes('.hfv-totp-row-badge'), 'TOTP protection badge styles missing');
-assert(css.includes('z-index:2147483646'), 'TOTP dialog layer must remain above the File Vault modal');
+assert(css.includes('z-index:2147483647!important'), 'TOTP dialog must render above the File Vault modal');
+assert(css.includes('.hfv-totp-dialog{position:relative;z-index:1'), 'TOTP dialog stacking context is missing');
 
 // Production build and runtime loading.
 assert(docker.includes('FROM golang:1.24-alpine AS file-vault-totp-builder'), 'Docker Go builder stage missing');
 assert(docker.includes('/out/hashcod-file-vault-totp'), 'TOTP helper binary build missing');
 assert(docker.includes('file-vault-totp-build'), 'Animate UI TOTP bundle build missing');
 assert(loader.includes('file-vault-totp.bundle.js?v=20261005-file-vault-totp2'), 'TOTP runtime bundle is not loaded');
-assert(loader.includes('file-vault-totp.css?v=20261005-file-vault-totp3'), 'TOTP runtime CSS is not loaded');
+assert(loader.includes('file-vault-totp.css?v=20261005-file-vault-totp4'), 'TOTP stacking-fix CSS is not loaded');
 
 console.log('File Vault TOTP contract OK');

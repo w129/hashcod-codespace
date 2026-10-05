@@ -54,8 +54,8 @@ function smithAuthProjection(string $name,string $value): array {
 
     // Deterministic normalized impedance z = r + jx. Fixed-point integers are
     // the authority values so Python, C and PHP can compare them exactly.
-    $rMicro=1000+($u1%999999001);        // r: 0.001000 .. 1000.000000
-    $xMicro=($u2%200000001)-100000000;   // x: -100.000000 .. +100.000000
+    $rMicro=1000+($u1%999999001);
+    $xMicro=($u2%200000001)-100000000;
 
     // Physical impedance uses Z0 = 50 ohm. Because z = ZL/Z0:
     //   Re(ZL) = Z0*r, Im(ZL) = Z0*x.
@@ -63,9 +63,7 @@ function smithAuthProjection(string $name,string $value): array {
     $zlRMicroOhm=$rMicro*smithAuthZ0Ohm();
     $zlIMicroOhm=$xMicro*smithAuthZ0Ohm();
 
-    // Exact integer form of:
-    // Gamma_L = (ZL - Z0) / (ZL + Z0)
-    // after dividing all impedances by Z0 and using a 1e6 fixed scale.
+    // Exact integer form of Gamma_L = (ZL - Z0) / (ZL + Z0).
     $oneMicro=1000000;
     $gammaDen=(($rMicro+$oneMicro)*($rMicro+$oneMicro))+($xMicro*$xMicro);
     $gammaRNum=($rMicro*$rMicro)+($xMicro*$xMicro)-($oneMicro*$oneMicro);
@@ -225,4 +223,44 @@ function smithAuthTemplate(string $challenge): string {
         . "  'payload_b64' => 'PASTE_GENERATED_PAYLOAD_HERE',\n"
         . "  'signature_b64' => 'PASTE_GENERATED_ML_DSA_87_SIGNATURE_HERE',\n"
         . "];\n";
+}
+
+// Retired first-use mesh helpers kept only so historical CI fixtures can run.
+// The production /api/code-access endpoint does not load or use this layer.
+function meshAccessSchema(): string {
+    return 'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI';
+}
+function meshAccessFieldNames(): array {
+    return ['TYPE','PAYLOAD','SALT','NONCE','ISSUED','USE','CHECK'];
+}
+function meshAccessNormalizeFields(array $input): ?array {
+    $names=meshAccessFieldNames();
+    if(count($input)!==count($names))return null;
+    $out=[];
+    foreach($names as $name){
+        if(!array_key_exists($name,$input)||!is_scalar($input[$name]))return null;
+        $value=trim((string)$input[$name]);
+        if($value==='')return null;
+        $out[$name]=$value;
+    }
+    foreach(array_keys($input) as $key){
+        if(!in_array((string)$key,$names,true))return null;
+    }
+    return $out;
+}
+function meshAccessCanonical(array $fields): string {
+    $normalized=meshAccessNormalizeFields($fields);
+    if(!is_array($normalized))return '';
+    $lines=[meshAccessSchema()];
+    foreach(meshAccessFieldNames() as $name)$lines[]=$name.'='.$normalized[$name];
+    return implode("\n",$lines);
+}
+function meshAccessDigest(array $fields): string {
+    return hash('sha256',meshAccessCanonical($fields));
+}
+function meshAccessBindingName(): string { return 'l8_ocg_mesh_binding_v1'; }
+function meshAccessReadBinding(): string { return (string)($_COOKIE[meshAccessBindingName()]??''); }
+function meshAccessWriteBinding(string $digest): void {
+    if(headers_sent()||!preg_match('/^[a-f0-9]{64}$/D',$digest))return;
+    setcookie(meshAccessBindingName(),$digest,['expires'=>time()+3600,'path'=>'/','httponly'=>true,'samesite'=>'Strict']);
 }

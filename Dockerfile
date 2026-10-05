@@ -1,3 +1,10 @@
+FROM golang:1.24-alpine AS file-vault-totp-builder
+WORKDIR /src
+COPY tools/file-vault-totp/go.mod ./
+RUN go mod download
+COPY tools/file-vault-totp/main.go ./
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/hashcod-file-vault-totp .
+
 FROM php:8.1-cli
 
 # Sistema + GitHub CLI + Python/Streamlit + Caddy (proxy websockets /st/*)
@@ -35,6 +42,9 @@ RUN apt-get update && apt-get install -y \
     && /opt/l8-py/bin/pip install --no-cache-dir --upgrade pip \
     && chown -R l8user:l8group /opt/l8-py \
     && rm -rf /var/lib/apt/lists/*
+
+COPY --from=file-vault-totp-builder /out/hashcod-file-vault-totp /usr/local/bin/hashcod-file-vault-totp
+RUN chmod 0755 /usr/local/bin/hashcod-file-vault-totp
 
 # Node.js + agent-browser (control de páginas Google)
 # https://github.com/vercel-labs/agent-browser
@@ -125,6 +135,13 @@ RUN cd /var/www/html/center-empty-state-build \
     && test -s /var/www/html/components/center-empty-state.bundle.js \
     && test -s /var/www/html/components/center-empty-state.bundle.css \
     && rm -rf /var/www/html/center-empty-state-build/node_modules /root/.npm
+
+# Build the Animate UI / Motion TOTP dialog that protects File Vault objects.
+RUN cd /var/www/html/file-vault-totp-build \
+    && npm install --no-fund --no-audit \
+    && npm run build \
+    && test -s /var/www/html/components/file-vault-totp.bundle.js \
+    && rm -rf /var/www/html/file-vault-totp-build/node_modules /root/.npm
 
 # Build the official Animate UI FlipButton React/Motion island used by
 # the registration submit control.

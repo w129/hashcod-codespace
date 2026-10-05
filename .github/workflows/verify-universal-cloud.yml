@@ -14,8 +14,13 @@ on:
       - components/workspace-image-vault-sync.js
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
+      - components/file-vault-totp.css
+      - file-vault-totp-build/**
+      - tools/file-vault-totp/**
+      - Dockerfile
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_open_platform_entry.js
+      - tests/e2e/test_file_vault_totp.js
       - .github/workflows/verify-universal-cloud.yml
   pull_request:
     branches: [main]
@@ -30,8 +35,13 @@ on:
       - components/workspace-image-vault-sync.js
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
+      - components/file-vault-totp.css
+      - file-vault-totp-build/**
+      - tools/file-vault-totp/**
+      - Dockerfile
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_open_platform_entry.js
+      - tests/e2e/test_file_vault_totp.js
       - .github/workflows/verify-universal-cloud.yml
   workflow_dispatch:
 
@@ -57,9 +67,24 @@ jobs:
           node --check components/workspace-media-bootstrap.js
           node --check components/mldsa-access-gate-loader.js
           node --check tests/e2e/test_open_platform_entry.js
+          node --check tests/e2e/test_file_vault_totp.js
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+          cache-dependency-path: tools/file-vault-totp/go.mod
+
+      - name: pquerna OTP helper
+        run: |
+          cd tools/file-vault-totp
+          go test ./...
+          go build ./...
 
       - name: Direct platform entry contract
         run: node tests/e2e/test_open_platform_entry.js
+
+      - name: File Vault TOTP contract
+        run: node tests/e2e/test_file_vault_totp.js
 
       - name: Cross-device contract
         run: node tests/e2e/test_cloud_device_sync.js

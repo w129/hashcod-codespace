@@ -2,9 +2,11 @@
 'use strict';
 
 // Retired gate version: 20261004-numeric-series5. Kept only as a migration marker.
-var VERSION='20261004-open-entry1';
+var VERSION='20261004-open-entry2';
 var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004-universal-cloud2';
 var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspace-media1';
+var FILE_VAULT_TOTP='/components/file-vault-totp.bundle.js?v=20261004-file-vault-totp1';
+var FILE_VAULT_TOTP_CSS='/components/file-vault-totp.css?v=20261004-file-vault-totp1';
 
 function hideLegacyGate(){
   var root=document.getElementById('d5CodeAccessMount');
@@ -37,6 +39,22 @@ function loadWorkspaceMedia(){
   document.head.appendChild(script);
 }
 
+function loadFileVaultTotp(){
+  if(!document.querySelector('link[data-hashcod-file-vault-totp-style]')){
+    var link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href=FILE_VAULT_TOTP_CSS;
+    link.dataset.hashcodFileVaultTotpStyle='true';
+    document.head.appendChild(link);
+  }
+  if(document.querySelector('script[data-hashcod-file-vault-totp]'))return;
+  var script=document.createElement('script');
+  script.src=FILE_VAULT_TOTP;
+  script.defer=true;
+  script.dataset.hashcodFileVaultTotp='true';
+  document.head.appendChild(script);
+}
+
 function openPlatform(){
   hideLegacyGate();
   if(document.body){
@@ -54,6 +72,7 @@ function openPlatform(){
   });
   loadUniversalPersistence();
   loadWorkspaceMedia();
+  loadFileVaultTotp();
   try{
     window.dispatchEvent(new CustomEvent('hashcod:code-access-granted',{detail:{required:false,mode:'open-entry'}}));
   }catch(_){}

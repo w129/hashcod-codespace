@@ -2,11 +2,11 @@
 'use strict';
 
 // Retired gate version: 20261004-numeric-series5. Kept only as a migration marker.
-var VERSION='20261005-open-entry5';
+var VERSION='20261005-open-entry6';
 var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004-universal-cloud2';
 var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspace-media1';
 var FILE_VAULT_RECOVERY='/components/file-vault-commit-recovery.js?v=20261005-file-vault-commit-recovery1';
-var FILE_VAULT_FAST='/components/file-vault-fast-upload-v4.js?v=20261005-file-vault-fast4';
+var FILE_VAULT_FAST='/components/file-vault-fast-upload-v4.js?v=20261005-file-vault-fast4-route2';
 var FILE_VAULT_TOTP='/components/file-vault-totp.bundle.js?v=20261005-file-vault-totp2';
 var FILE_VAULT_TOTP_CSS='/components/file-vault-totp.css?v=20261005-file-vault-totp4';
 

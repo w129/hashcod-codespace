@@ -15,7 +15,7 @@ assert(php.includes("supabaseSyncFileRecord"), 'same l8_files database finalizat
 assert(php.includes("totp_secret_cipher"), 'TOTP protection metadata must be preserved');
 assert(php.includes("HFVU_TICKET_TTL"), 'signed finalization ticket missing');
 
-assert(fast.includes("20261005-file-vault-fast4"), 'fast4 upload runtime version missing');
+assert(fast.includes("20261005-file-vault-fast4-route2"), 'fast4 upload runtime version missing');
 assert(fast.includes("?action=prepare"), 'prepare phase missing');
 assert(fast.includes("?action=complete"), 'complete phase missing');
 assert(fast.includes("xhr.open('PUT',url,true)"), 'direct object PUT transport missing');
@@ -39,7 +39,7 @@ assert(fast.includes("legacyPhpFallback:false"), 'slow PHP file fallback must st
 assert(!fast.includes("error.fallback"), 'fast4 must not silently return to the slow PHP upload');
 assert(fast.includes("direct-signed-storage+tus-resumable"), 'hybrid direct/resumable transport marker missing');
 
-const fastIndex = loader.indexOf('file-vault-fast-upload-v4.js?v=20261005-file-vault-fast4');
+const fastIndex = loader.indexOf('file-vault-fast-upload-v4.js?v=20261005-file-vault-fast4-route2');
 const totpIndex = loader.indexOf('file-vault-totp.bundle.js?v=20261005-file-vault-totp2');
 assert(fastIndex >= 0, 'fast4 upload runtime is not loaded');
 assert(totpIndex >= 0, 'TOTP runtime is not loaded');

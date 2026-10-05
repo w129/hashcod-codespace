@@ -30,6 +30,8 @@ if (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], tru
     $bootstrapController = __DIR__ . '/toolbox-secure.php';
 } elseif (in_array($bootstrapSyncPath, ['/hashcod-file-vault.php', '/api/hashcod-file-vault'], true)) {
     $bootstrapController = __DIR__ . '/hashcod-file-vault.php';
+} elseif (in_array($bootstrapSyncPath, ['/hashcod-file-vault-fast-upload.php', '/api/hashcod-file-vault-fast-upload'], true)) {
+    $bootstrapController = __DIR__ . '/hashcod-file-vault-fast-upload.php';
 }
 if ($bootstrapController !== null) {
     $bootstrapQuery = parse_url($bootstrapRequestUri, PHP_URL_QUERY);

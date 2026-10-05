@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-var VERSION='20261005-file-vault-fast4';
+var VERSION='20261005-file-vault-fast4-route2';
 var FAST_ENDPOINT='/hashcod-file-vault-fast-upload.php';
 var TUS_THRESHOLD=6*1024*1024;
 var TUS_CHUNK_SIZE=6*1024*1024;
@@ -333,6 +333,7 @@ function ensureUiStyle(){
   var style=document.createElement('style');
   style.id='d5HfvFastStyle';
   style.textContent='.hfv-dropzone{position:relative}.hfv-fast-layer{position:absolute;inset:0;z-index:30;display:grid;place-items:center;padding:22px;border-radius:inherit;background:#0a0a0a;color:#fff;text-align:center}.hfv-fast-box{width:min(440px,88%);display:grid;gap:10px}.hfv-fast-box strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 14px/1.3 Inter,system-ui,sans-serif}.hfv-fast-box small{color:#a3a3a3;font:600 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace}.hfv-fast-track{display:block;height:4px;overflow:hidden;border-radius:999px;background:#333}.hfv-fast-bar{display:block;height:100%;transform-origin:left center;background:#fff;transition:transform .12s linear}.hfv-fast-layer[data-state="error"] .hfv-fast-bar{background:#fca5a5}.hfv-fast-layer[data-state="done"] .hfv-fast-bar{background:#d4d4d4}';
+  style.textContent+='.hfv-fast-layer[data-state="error"]{pointer-events:none}.hfv-fast-box small{overflow-wrap:anywhere}';
   document.head.appendChild(style);
 }
 function uiLayer(){
@@ -343,6 +344,8 @@ function uiLayer(){
   if(!layer){
     layer=document.createElement('div');
     layer.className='hfv-fast-layer';
+    layer.setAttribute('role','status');
+    layer.setAttribute('aria-live','polite');
     layer.innerHTML='<div class="hfv-fast-box"><strong></strong><small></small><span class="hfv-fast-track"><span class="hfv-fast-bar"></span></span></div>';
     drop.appendChild(layer);
   }
@@ -356,7 +359,7 @@ function setUi(fileName,percent,phase,state){
   var small=layer.querySelector('small');
   var bar=layer.querySelector('.hfv-fast-bar');
   if(strong)strong.textContent=fileName||'File';
-  if(small)small.textContent=(phase||'Uploading')+' · '+Math.round(clamp(percent,0,100))+'%';
+  if(small)small.textContent=(phase||'Uploading')+(state==='error'?' · Click or drop the file to try again.':' · '+Math.round(clamp(percent,0,100))+'%');
   if(bar)bar.style.transform='scaleX('+clamp(percent,0,100)/100+')';
 }
 function clearUi(delay){
@@ -407,19 +410,22 @@ async function processUiFiles(files){
   if(!queue.length)return;
 
   uiBusy=true;
+  var lastFailure=null;
   try{
     for(var i=0;i<queue.length;i++){
       try{
         await uploadFromUi(queue[i]);
         await sleep(160);
       }catch(error){
-        setUi(queue[i].name,100,error&&error.message||'Direct upload failed.','error');
+        lastFailure={name:queue[i].name,message:error&&error.message||'Direct upload failed.'};
+        setUi(lastFailure.name,100,lastFailure.message,'error');
         await sleep(2200);
       }
     }
   }finally{
     uiBusy=false;
-    clearUi(350);
+    if(lastFailure)setUi(lastFailure.name,100,lastFailure.message,'error');
+    else clearUi(350);
     var input=document.getElementById('d5FileVaultInput');
     if(input)input.value='';
   }

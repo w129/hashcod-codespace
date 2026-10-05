@@ -7,7 +7,7 @@ var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004
 var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspace-media1';
 var FILE_VAULT_FAST='/components/file-vault-fast-upload.js?v=20261005-file-vault-fast2';
 var FILE_VAULT_TOTP='/components/file-vault-totp.bundle.js?v=20261005-file-vault-totp2';
-var FILE_VAULT_TOTP_CSS='/components/file-vault-totp.css?v=20261005-file-vault-totp2';
+var FILE_VAULT_TOTP_CSS='/components/file-vault-totp.css?v=20261005-file-vault-totp3';
 
 function hideLegacyGate(){
   var root=document.getElementById('d5CodeAccessMount');

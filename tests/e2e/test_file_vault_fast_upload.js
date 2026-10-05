@@ -24,7 +24,7 @@ assert(fast.includes("var delays=[0,400,1000,2200]"), 'exponential retry schedul
 assert(fast.includes("error.fallback"), 'legacy PHP fallback missing');
 
 const fastIndex = loader.indexOf('file-vault-fast-upload.js?v=20261005-file-vault-fast1');
-const totpIndex = loader.indexOf('file-vault-totp.bundle.js?v=20261004-file-vault-totp1');
+const totpIndex = loader.indexOf('file-vault-totp.bundle.js?v=20261005-file-vault-totp2');
 assert(fastIndex >= 0, 'fast upload runtime is not loaded');
 assert(totpIndex >= 0, 'TOTP runtime is not loaded');
 assert(fastIndex < totpIndex, 'fast upload runtime must be declared before TOTP runtime');

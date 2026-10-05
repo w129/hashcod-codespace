@@ -1,8 +1,9 @@
 (function(){
 'use strict';
 
-var VERSION='20261004-numeric-series3';
+var VERSION='20261004-numeric-series4';
 var API='/api/code-access';
+var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004-universal-cloud1';
 var state={busy:false,series:''};
 
 function addStyle(){
@@ -17,6 +18,14 @@ function hideLegacyGate(){
   var root=document.getElementById('d5CodeAccessMount');
   if(root)root.style.display='none';
 }
+function loadUniversalPersistence(){
+  if(document.querySelector('script[data-hashcod-universal-persistence]'))return;
+  var script=document.createElement('script');
+  script.src=UNIVERSAL_PERSISTENCE;
+  script.defer=true;
+  script.dataset.hashcodUniversalPersistence='true';
+  document.head.appendChild(script);
+}
 function markAuthorized(){
   state.series='';
   if(document.body){
@@ -27,8 +36,9 @@ function markAuthorized(){
   if(root){root.dataset.authorized='1';root.style.display='none';}
   var gate=document.getElementById('d5NumericSeriesGate');
   if(gate)gate.remove();
-  try{window.dispatchEvent(new CustomEvent('hashcod:code-access-granted'));}catch(_){}
   window.HashcodCodeAccess=Object.freeze({mounted:true,authorized:true,mode:'sealed-access',version:VERSION});
+  loadUniversalPersistence();
+  try{window.dispatchEvent(new CustomEvent('hashcod:code-access-granted'));}catch(_){}
 }
 function setStatus(message,kind){
   var node=document.getElementById('d5NumericSeriesStatus');

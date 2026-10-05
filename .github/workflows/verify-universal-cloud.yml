@@ -1,0 +1,59 @@
+name: Verify universal cloud persistence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - hashcod-workspace-access.php
+      - hashcod-workspace-state.php
+      - hashcod-workspace-blob.php
+      - hashcod-workspace-image-vault.php
+      - hashcod-file-vault.php
+      - components/universal-cloud-persistence.js
+      - components/product-image-cloud-sync.js
+      - components/workspace-image-vault-sync.js
+      - components/workspace-media-bootstrap.js
+      - components/mldsa-access-gate-loader.js
+      - tests/e2e/test_cloud_device_sync.js
+      - .github/workflows/verify-universal-cloud.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - hashcod-workspace-access.php
+      - hashcod-workspace-state.php
+      - hashcod-workspace-blob.php
+      - hashcod-workspace-image-vault.php
+      - hashcod-file-vault.php
+      - components/universal-cloud-persistence.js
+      - components/product-image-cloud-sync.js
+      - components/workspace-image-vault-sync.js
+      - components/workspace-media-bootstrap.js
+      - components/mldsa-access-gate-loader.js
+      - tests/e2e/test_cloud_device_sync.js
+      - .github/workflows/verify-universal-cloud.yml
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP syntax
+        run: |
+          php -l hashcod-workspace-access.php
+          php -l hashcod-workspace-state.php
+          php -l hashcod-workspace-blob.php
+          php -l hashcod-workspace-image-vault.php
+          php -l hashcod-file-vault.php
+
+      - name: JavaScript syntax
+        run: |
+          node --check components/universal-cloud-persistence.js
+          node --check components/product-image-cloud-sync.js
+          node --check components/workspace-image-vault-sync.js
+          node --check components/workspace-media-bootstrap.js
+          node --check components/mldsa-access-gate-loader.js
+
+      - name: Cross-device contract
+        run: node tests/e2e/test_cloud_device_sync.js

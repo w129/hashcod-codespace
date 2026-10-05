@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-var VERSION='20261004-numeric-series2';
+var VERSION='20261004-numeric-series3';
 var API='/api/code-access';
 var state={busy:false,series:''};
 
@@ -47,23 +47,6 @@ function setLoaded(series){
     input.dataset.loaded=state.series.trim()?'true':'false';
   }
   setStatus(state.series.trim()?'Access data loaded. Ready to validate.':'Waiting for access data.',state.series.trim()?'ready':'idle');
-}
-function buildUnavailableGate(){
-  if(document.getElementById('d5NumericSeriesGate'))return;
-  hideLegacyGate();
-  addStyle();
-  var overlay=document.createElement('div');
-  overlay.id='d5NumericSeriesGate';
-  overlay.className='numeric-series-overlay';
-  overlay.innerHTML=''
-    +'<section class="numeric-series-window numeric-series-unavailable" data-mode="unavailable" role="dialog" aria-modal="true" aria-labelledby="d5NumericSeriesTitle">'
-    +  '<div class="numeric-series-unavailable-mark"><img src="/components/access-tab-icon.svg" alt="" aria-hidden="true"></div>'
-    +  '<p>HASHCOD CODESPACE · SECURE ENTRY</p>'
-    +  '<h1 id="d5NumericSeriesTitle">Secure entry</h1>'
-    +  '<span>Access unavailable.</span>'
-    +'</section>';
-  document.body.appendChild(overlay);
-  window.HashcodCodeAccess=Object.freeze({mounted:true,authorized:false,available:false,version:VERSION});
 }
 function buildGate(){
   if(document.getElementById('d5NumericSeriesGate'))return;
@@ -169,16 +152,14 @@ function buildGate(){
   window.setTimeout(function(){input.focus();},80);
 }
 async function init(){
+  hideLegacyGate();
   try{
     var response=await fetch(API,{method:'GET',credentials:'same-origin',headers:{Accept:'application/json'},cache:'no-store'});
     var data={};
     try{data=await response.json();}catch(_){}
     if(data&&data.authorized){markAuthorized();return;}
-    if(data&&data.available===true){buildGate();return;}
-    buildUnavailableGate();
-  }catch(_){
-    buildUnavailableGate();
-  }
+  }catch(_){}
+  buildGate();
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});

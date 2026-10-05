@@ -16,6 +16,7 @@ on:
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
       - components/file-vault-fast-upload-v4.js
+      - components/file-vault-fast-upload-v5.js
       - components/file-vault-commit-recovery.js
       - components/file-vault-totp.css
       - file-vault-totp-build/**
@@ -42,6 +43,7 @@ on:
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
       - components/file-vault-fast-upload-v4.js
+      - components/file-vault-fast-upload-v5.js
       - components/file-vault-commit-recovery.js
       - components/file-vault-totp.css
       - file-vault-totp-build/**
@@ -78,6 +80,7 @@ jobs:
           node --check components/workspace-media-bootstrap.js
           node --check components/mldsa-access-gate-loader.js
           node --check components/file-vault-fast-upload-v4.js
+          node --check components/file-vault-fast-upload-v5.js
           node --check components/file-vault-commit-recovery.js
           node --check tests/e2e/test_open_platform_entry.js
           node --check tests/e2e/test_file_vault_totp.js
@@ -101,6 +104,9 @@ jobs:
 
       - name: File Vault TOTP contract
         run: node tests/e2e/test_file_vault_totp.js
+
+      - name: File Vault uploader TOTP download behavior
+        run: node tests/e2e/test_file_vault_download_totp.js
 
       - name: File Vault fast upload contract
         run: node tests/e2e/test_file_vault_fast_upload.js

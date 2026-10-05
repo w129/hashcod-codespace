@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-const VERSION = "20261004-file-vault-totp1";
+const VERSION = "20261005-file-vault-download-totp3";
 const ENDPOINT = "/api/hashcod-file-vault";
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
@@ -10,6 +10,7 @@ let requestHandler = null;
 const pendingRequests = [];
 let cloudFiles = [];
 let decorateTimer = 0;
+let downloadBusy = false;
 
 function bytesToBase32(bytes) {
   let bits = 0;
@@ -71,6 +72,7 @@ function TotpDialogHost() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const codeRef = useRef(null);
+  const dialogRef = useRef(null);
 
   const begin = (entry) => {
     setRequest(entry);
@@ -93,8 +95,33 @@ function TotpDialogHost() {
 
   useEffect(() => {
     if (!request) return;
-    const timer = window.setTimeout(() => codeRef.current?.focus(), 90);
-    return () => window.clearTimeout(timer);
+    const previousFocus = document.activeElement;
+    const timer = window.setTimeout(() => (codeRef.current || dialogRef.current)?.focus(), 90);
+    const onKey = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        finish(null);
+      } else if (event.key === "Tab") {
+        const elements = Array.from(dialogRef.current?.querySelectorAll('input:not([disabled]), button:not([disabled])') || []);
+        const first = elements[0], last = elements.at(-1);
+        if (!first) return;
+        if (!dialogRef.current?.contains(document.activeElement) || (!event.shiftKey && document.activeElement === last) || (event.shiftKey && document.activeElement === first)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
+        }
+      }
+    };
+    const siblings = Array.from(document.body.children).filter((node) => node.id !== 'd5FileVaultTotpMount');
+    const originalInert = siblings.map((node) => node.inert);
+    siblings.forEach((node) => { node.inert = true; });
+    document.addEventListener('keydown', onKey, true);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('keydown', onKey, true);
+      siblings.forEach((node, index) => { node.inert = originalInert[index]; });
+      if (previousFocus?.isConnected) previousFocus.focus?.();
+    };
   }, [request]);
 
   const finish = (value) => {
@@ -107,11 +134,13 @@ function TotpDialogHost() {
   };
 
   const setup = request?.options?.mode === "setup";
+  const notice = request?.options?.mode === "notice";
   const fileName = request?.options?.fileName || "file";
-  const purpose = request?.options?.purpose || "open";
+  const purpose = request?.options?.purpose || "download";
 
   const submit = (event) => {
     event?.preventDefault?.();
+    if (notice) return;
     const cleanCode = normalizeCode(code);
     if (cleanCode.length !== 6) {
       setError("Enter the current 6-digit TOTP code.");
@@ -154,11 +183,14 @@ function TotpDialogHost() {
           }}
         >
           <motion.form
+            ref={dialogRef}
+            tabIndex={-1}
             className="hfv-totp-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="hfvTotpTitle"
-            data-mode={setup ? "setup" : "verify"}
+            aria-describedby="hfvTotpDescription"
+            data-mode={setup ? "setup" : notice ? "notice" : "verify"}
             initial={
               reduce
                 ? { opacity: 1 }
@@ -175,11 +207,12 @@ function TotpDialogHost() {
           >
             <div className="hfv-totp-icon"><LockIcon /></div>
             <div className="hfv-totp-heading">
-              <span>{setup ? "TOTP protection" : "Protected file"}</span>
+              <span>{setup ? "TOTP protection" : "Uploader TOTP protection"}</span>
               <h2 id="hfvTotpTitle">
-                {setup ? "Protect before upload" : purpose === "delete" ? "Verify before delete" : "Verify before open"}
+                {setup ? "Protect before upload" : notice ? "Download unavailable" : purpose === "delete" ? "Verify before delete" : "Verify before download"}
               </h2>
               <p title={fileName}>{fileName}</p>
+              <small id="hfvTotpDescription">{setup ? "Configure the key that will protect this file." : "Use the current code from the authenticator key set by the person who uploaded this file."}</small>
             </div>
 
             {setup ? (
@@ -202,8 +235,8 @@ function TotpDialogHost() {
               </div>
             ) : null}
 
-            <div className="hfv-totp-code-block">
-              <label htmlFor="hfvTotpCode">Current TOTP code</label>
+            {!notice ? <div className="hfv-totp-code-block">
+              <label htmlFor="hfvTotpCode">{setup ? "Current TOTP code" : "Uploader's current TOTP code"}</label>
               <input
                 id="hfvTotpCode"
                 ref={codeRef}
@@ -217,21 +250,21 @@ function TotpDialogHost() {
                 aria-label="Current six digit TOTP code"
               />
               <small>6 digits · rotates every 30 seconds</small>
-            </div>
+            </div> : null}
 
             <div className="hfv-totp-error" data-visible={error ? "true" : "false"} aria-live="polite">
               {error || "Protected with a time-based one-time password."}
             </div>
 
             <div className="hfv-totp-actions">
-              <button type="button" className="hfv-totp-secondary" onClick={() => finish(null)}>Cancel</button>
-              <motion.button
+              <button type="button" className="hfv-totp-secondary" onClick={() => finish(null)}>{notice ? "Close" : "Cancel"}</button>
+              {!notice ? <motion.button
                 type="submit"
                 className="hfv-totp-primary"
                 whileTap={reduce ? undefined : { scale: 0.97 }}
               >
-                {setup ? "Protect & upload" : purpose === "delete" ? "Verify & delete" : "Verify & open"}
-              </motion.button>
+                {setup ? "Protect & upload" : purpose === "delete" ? "Verify & delete" : "Verify & download"}
+              </motion.button> : null}
             </div>
           </motion.form>
         </motion.div>
@@ -275,25 +308,28 @@ function matchCloudFile(row) {
   const directId = row?.dataset?.hfvFileId;
   if (directId) {
     const direct = cloudFiles.find((file) => file.id === directId);
-    if (direct) return direct;
+    return direct || null;
   }
   const { name, meta } = rowIdentity(row);
   const candidates = cloudFiles.filter(
     (file) => String(file.name || "") === name && meta.includes(formatSize(file.size)),
   );
   if (candidates.length === 1) return candidates[0];
-  return cloudFiles.find((file) => String(file.name || "") === name) || null;
+  const named = cloudFiles.filter((file) => String(file.name || "") === name);
+  return named.length === 1 ? named[0] : null;
 }
 
 function decorateRows() {
   const rows = Array.from(document.querySelectorAll("#d5FileVaultList .hfv-file-row"));
   const unused = cloudFiles.slice();
   rows.forEach((row) => {
-    const { name, meta } = rowIdentity(row);
-    let index = unused.findIndex(
-      (file) => String(file.name || "") === name && meta.includes(formatSize(file.size)),
-    );
-    if (index < 0) index = unused.findIndex((file) => String(file.name || "") === name);
+    let index = -1;
+    if (row.dataset.hfvFileId) {
+      index = unused.findIndex((file) => file.id === row.dataset.hfvFileId);
+    } else {
+      const matched = matchCloudFile(row);
+      if (matched) index = unused.findIndex((file) => file.id === matched.id);
+    }
     if (index < 0) return;
     const file = unused.splice(index, 1)[0];
     row.dataset.hfvFileId = file.id;
@@ -378,12 +414,13 @@ async function verifiedDownload(file) {
     const result = await requestTotpDialog({
       mode: "verify",
       fileName: file.name || "file",
-      purpose: "open",
+      purpose: "download",
       error,
     });
     if (!result) return;
 
-    const response = await fetch(ENDPOINT + "?action=download", {
+    let response;
+    try { response = await fetch(ENDPOINT + "?action=download", {
       method: "POST",
       credentials: "same-origin",
       headers: {
@@ -392,11 +429,15 @@ async function verifiedDownload(file) {
         "X-Requested-With": "XMLHttpRequest",
       },
       body: JSON.stringify({ id: file.id, code: result.code }),
-    });
+    }); } catch {
+      await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file.name, error: "Could not verify this file. Check your connection and try again." });
+      return;
+    }
     if (!response.ok) {
       error = await parseError(response, "The TOTP code is invalid or expired.");
-      if (response.status === 429) return;
-      continue;
+      if (response.status === 401) continue;
+      await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file.name, error });
+      return;
     }
 
     const blob = await response.blob();
@@ -409,6 +450,22 @@ async function verifiedDownload(file) {
     anchor.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1200);
     return;
+  }
+}
+
+async function downloadSelectedFile(file) {
+  if (downloadBusy) return;
+  downloadBusy = true;
+  try {
+    if (!file?.id) {
+      await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file?.name || "file", error: "This file could not be identified safely. Refresh the vault and try again." });
+      return;
+    }
+    await verifiedDownload(file);
+  } catch {
+    await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file?.name || "file", error: "The download could not be completed. Check your connection and try again." });
+  } finally {
+    downloadBusy = false;
   }
 }
 
@@ -457,12 +514,12 @@ function installActionGuard() {
     async (event) => {
       const button = event.target?.closest?.("#d5FileVaultList .hfv-file-actions button");
       if (!button) return;
-      if (button.dataset.hfvTotpBypass === "1") {
+      const title = String(button.getAttribute("title") || "").toLowerCase();
+      if (title === "delete" && button.dataset.hfvTotpBypass === "1") {
         delete button.dataset.hfvTotpBypass;
         return;
       }
 
-      const title = String(button.getAttribute("title") || "").toLowerCase();
       if (title !== "download" && title !== "delete") return;
 
       const row = button.closest(".hfv-file-row");
@@ -472,6 +529,15 @@ function installActionGuard() {
       event.stopPropagation();
       event.stopImmediatePropagation();
 
+      // Downloads always go through the verified POST path, including local
+      // copies and old rows whose protection metadata could not be restored.
+      if (title === "download") {
+        const file = row.dataset.hfvFileId
+          ? { id: row.dataset.hfvFileId, name: rowIdentity(row).name }
+          : await resolveProtectedFile(row);
+        await downloadSelectedFile(file);
+        return;
+      }
       const file = await resolveProtectedFile(row);
       if (!file || !file.totpProtected) {
         button.dataset.hfvTotpBypass = "1";
@@ -479,8 +545,7 @@ function installActionGuard() {
         return;
       }
 
-      if (title === "delete") await verifiedDelete(file);
-      else await verifiedDownload(file);
+      await verifiedDelete(file);
     },
     true,
   );
@@ -506,8 +571,9 @@ function boot() {
   window.HashcodFileVaultTotp = Object.freeze({
     version: VERSION,
     refresh: refreshCloudIndex,
+    download: downloadSelectedFile,
     requestSetup: (fileName) => requestTotpDialog({ mode: "setup", fileName }),
-    requestVerify: (fileName) => requestTotpDialog({ mode: "verify", fileName, purpose: "open" }),
+    requestVerify: (fileName) => requestTotpDialog({ mode: "verify", fileName, purpose: "download" }),
   });
 }
 

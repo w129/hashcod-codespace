@@ -28,7 +28,7 @@ assert(fast.includes("supabase-signed-direct"), 'signed direct transport marker 
 assert(!fast.includes("x-signature"), 'fast5 must not misuse signed-upload tokens as TUS credentials');
 assert(!fast.includes("/storage/v1/upload/resumable"), 'fast5 must not use undocumented signed-token TUS path');
 
-const totpIndex = loader.indexOf('file-vault-totp.bundle.js?v=20261005-file-vault-totp2');
+const totpIndex = loader.indexOf('file-vault-totp.bundle.js?v=20261005-file-vault-download-totp3');
 const fastIndex = loader.indexOf('file-vault-fast-upload-v5.js?v=20261005-file-vault-fast5-route2');
 assert(totpIndex >= 0, 'TOTP runtime is not loaded');
 assert(fastIndex >= 0, 'fast5 upload runtime is not loaded');

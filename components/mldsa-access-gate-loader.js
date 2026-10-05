@@ -1,11 +1,9 @@
 (function(){
 'use strict';
 
-var VERSION='20261004-numeric-series1';
+var VERSION='20261004-numeric-series2';
 var API='/api/code-access';
-var EXPECTED_ROWS=9865;
-var COLUMNS=8;
-var state={busy:false,rows:0};
+var state={busy:false,series:''};
 
 function addStyle(){
   if(document.querySelector('link[data-hashcod-numeric-series-style]'))return;
@@ -20,6 +18,7 @@ function hideLegacyGate(){
   if(root)root.style.display='none';
 }
 function markAuthorized(){
+  state.series='';
   if(document.body){
     document.body.dataset.hashcodCodeAccessAuthorized='1';
     document.body.style.overflow='';
@@ -29,26 +28,42 @@ function markAuthorized(){
   var gate=document.getElementById('d5NumericSeriesGate');
   if(gate)gate.remove();
   try{window.dispatchEvent(new CustomEvent('hashcod:code-access-granted'));}catch(_){}
-  window.HashcodCodeAccess=Object.freeze({
-    mounted:true,
-    authorized:true,
-    protocol:'HASHCOD-NUMERIC-SERIES/1',
-    mode:'numeric-series',
-    version:VERSION
-  });
+  window.HashcodCodeAccess=Object.freeze({mounted:true,authorized:true,mode:'sealed-access',version:VERSION});
 }
 function setStatus(message,kind){
   var node=document.getElementById('d5NumericSeriesStatus');
   if(!node)return;
-  node.textContent=message||'';
+  var copy=node.querySelector('span');
+  if(copy)copy.textContent=message||'';
+  else node.textContent=message||'';
   node.dataset.kind=kind||'idle';
 }
-function normalizePreview(value){
-  var rows=String(value||'').split(/\r?\n/).map(function(line){return line.trim();}).filter(Boolean);
-  state.rows=rows.length;
-  var counter=document.getElementById('d5NumericSeriesRows');
-  if(counter)counter.textContent=rows.length.toLocaleString()+' / '+EXPECTED_ROWS.toLocaleString()+' rows';
-  return rows;
+function setLoaded(series){
+  state.series=String(series||'');
+  var input=document.getElementById('d5NumericSeriesInput');
+  if(input){
+    input.value='';
+    input.placeholder=state.series.trim()?'Access data loaded ••••••••••••':'Paste access data here…';
+    input.dataset.loaded=state.series.trim()?'true':'false';
+  }
+  setStatus(state.series.trim()?'Access data loaded. Ready to validate.':'Waiting for access data.',state.series.trim()?'ready':'idle');
+}
+function buildUnavailableGate(){
+  if(document.getElementById('d5NumericSeriesGate'))return;
+  hideLegacyGate();
+  addStyle();
+  var overlay=document.createElement('div');
+  overlay.id='d5NumericSeriesGate';
+  overlay.className='numeric-series-overlay';
+  overlay.innerHTML=''
+    +'<section class="numeric-series-window numeric-series-unavailable" data-mode="unavailable" role="dialog" aria-modal="true" aria-labelledby="d5NumericSeriesTitle">'
+    +  '<div class="numeric-series-unavailable-mark"><img src="/components/access-tab-icon.svg" alt="" aria-hidden="true"></div>'
+    +  '<p>HASHCOD CODESPACE · SECURE ENTRY</p>'
+    +  '<h1 id="d5NumericSeriesTitle">Secure entry</h1>'
+    +  '<span>Access unavailable.</span>'
+    +'</section>';
+  document.body.appendChild(overlay);
+  window.HashcodCodeAccess=Object.freeze({mounted:true,authorized:false,available:false,version:VERSION});
 }
 function buildGate(){
   if(document.getElementById('d5NumericSeriesGate'))return;
@@ -63,24 +78,24 @@ function buildGate(){
     +  '<header class="numeric-series-header">'
     +    '<div class="numeric-series-heading">'
     +      '<img src="/components/access-tab-icon.svg" alt="" aria-hidden="true">'
-    +      '<div><p>HASHCOD CODESPACE · SECURE ENTRY</p><h1 id="d5NumericSeriesTitle">Numeric access series</h1></div>'
+    +      '<div><p>HASHCOD CODESPACE · SECURE ENTRY</p><h1 id="d5NumericSeriesTitle">Secure access data</h1></div>'
     +    '</div>'
-    +    '<span class="numeric-series-pill">HASHCOD-NUMERIC-SERIES/1</span>'
+    +    '<span class="numeric-series-pill">PRIVATE ENTRY</span>'
     +  '</header>'
-    +  '<p class="numeric-series-description">Paste the complete authorized numeric series or load the original .txt file. Spacing may vary, but every number and row order must match.</p>'
+    +  '<p class="numeric-series-description">Paste the authorized access data or load the original local file. Its contents are never rendered in this window.</p>'
     +  '<div class="numeric-series-toolbar">'
-    +    '<span>NUMERIC SERIES</span>'
-    +    '<div><label class="numeric-series-file-label" for="d5NumericSeriesFile">Load .txt</label><input id="d5NumericSeriesFile" type="file" accept=".txt,text/plain" hidden><button id="d5NumericSeriesClear" type="button">Clear</button></div>'
+    +    '<span>SEALED INPUT</span>'
+    +    '<div><label class="numeric-series-file-label" for="d5NumericSeriesFile">Load local file</label><input id="d5NumericSeriesFile" type="file" accept=".txt,text/plain" hidden><button id="d5NumericSeriesClear" type="button">Clear</button></div>'
     +  '</div>'
-    +  '<textarea id="d5NumericSeriesInput" class="numeric-series-editor" spellcheck="false" autocomplete="off" placeholder="0 1 0 866 268 0 0 0&#10;0 1 1 865 272 0 0 0&#10;..."></textarea>'
+    +  '<textarea id="d5NumericSeriesInput" class="numeric-series-editor numeric-series-editor-sealed" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Sealed access data input" placeholder="Paste access data here…"></textarea>'
     +  '<div class="numeric-series-meta">'
-    +    '<span><b>ROWS</b><code id="d5NumericSeriesRows">0 / '+EXPECTED_ROWS.toLocaleString()+' rows</code></span>'
-    +    '<span><b>COLUMNS</b><code>'+COLUMNS+' integers / row</code></span>'
-    +    '<span><b>VALIDATION</b><code>SHA-256 exact series</code></span>'
+    +    '<span><b>INPUT</b><code>sealed locally</code></span>'
+    +    '<span><b>TRANSPORT</b><code>same-origin only</code></span>'
+    +    '<span><b>VALIDATION</b><code>server-side</code></span>'
     +  '</div>'
     +  '<footer class="numeric-series-footer">'
-    +    '<p id="d5NumericSeriesStatus" data-kind="idle"><i></i><span>Waiting for authorized numeric series.</span></p>'
-    +    '<button id="d5NumericSeriesValidate" type="button">Validate series</button>'
+    +    '<p id="d5NumericSeriesStatus" data-kind="idle"><i></i><span>Waiting for access data.</span></p>'
+    +    '<button id="d5NumericSeriesValidate" type="button">Validate access</button>'
     +  '</footer>'
     +'</section>';
   document.body.appendChild(overlay);
@@ -90,56 +105,80 @@ function buildGate(){
   var clear=document.getElementById('d5NumericSeriesClear');
   var validate=document.getElementById('d5NumericSeriesValidate');
 
-  input.addEventListener('input',function(){normalizePreview(input.value);});
-  clear.addEventListener('click',function(){input.value='';normalizePreview('');setStatus('Waiting for authorized numeric series.','idle');input.focus();});
+  input.addEventListener('keydown',function(event){
+    var paste=(event.ctrlKey||event.metaKey)&&String(event.key||'').toLowerCase()==='v';
+    if(!paste)event.preventDefault();
+  });
+  input.addEventListener('paste',function(event){
+    event.preventDefault();
+    var clipboard=event.clipboardData||window.clipboardData;
+    setLoaded(clipboard?clipboard.getData('text'): '');
+  });
+  input.addEventListener('drop',function(event){event.preventDefault();});
+  clear.addEventListener('click',function(){
+    setLoaded('');
+    if(file)file.value='';
+    input.focus();
+  });
   file.addEventListener('change',function(){
     var selected=file.files&&file.files[0];
     if(!selected)return;
     var reader=new FileReader();
-    reader.onload=function(){input.value=String(reader.result||'');normalizePreview(input.value);setStatus('File loaded. Validate the series to continue.','ready');};
-    reader.onerror=function(){setStatus('Could not read the selected file.','error');};
+    reader.onload=function(){setLoaded(String(reader.result||''));file.value='';};
+    reader.onerror=function(){setLoaded('');setStatus('Access data could not be loaded.','error');file.value='';};
     reader.readAsText(selected);
   });
   validate.addEventListener('click',async function(){
     if(state.busy)return;
-    var series=input.value;
-    if(!series.trim()){setStatus('Paste or load the complete numeric series first.','error');input.focus();return;}
+    var payload=state.series;
+    if(!payload.trim()){setStatus('Load access data before continuing.','error');input.focus();return;}
     state.busy=true;
     validate.disabled=true;
     validate.textContent='Validating…';
-    setStatus('Checking '+state.rows.toLocaleString()+' rows against the authorized series…','idle');
+    setStatus('Validating access…','idle');
     try{
       var response=await fetch(API,{
         method:'POST',
         credentials:'same-origin',
         headers:{'Content-Type':'application/json','Accept':'application/json','X-Hashcod-Numeric-Series':'1'},
-        body:JSON.stringify({series:series})
+        body:JSON.stringify({series:payload})
       });
+      state.series='';
+      payload='';
+      input.value='';
+      input.placeholder='Paste access data here…';
+      input.dataset.loaded='false';
       var data={};
       try{data=await response.json();}catch(_){}
-      if(!response.ok||!data.ok||!data.authorized){
-        throw new Error(data.error||'The numeric series was rejected.');
-      }
-      setStatus('Authorized series verified. Opening Hashcod Codespace…','success');
-      window.setTimeout(markAuthorized,220);
-    }catch(error){
-      setStatus(error&&error.message?error.message:'The numeric series was rejected.','error');
+      if(!response.ok||!data.ok||!data.authorized)throw new Error('Access denied.');
+      setStatus('Access granted. Opening Hashcod Codespace…','success');
+      window.setTimeout(markAuthorized,180);
+    }catch(_){
+      state.series='';
+      payload='';
+      input.value='';
+      input.placeholder='Paste access data here…';
+      input.dataset.loaded='false';
+      setStatus('Access denied.','error');
     }finally{
       state.busy=false;
       validate.disabled=false;
-      validate.textContent='Validate series';
+      validate.textContent='Validate access';
     }
   });
   window.setTimeout(function(){input.focus();},80);
 }
 async function init(){
-  hideLegacyGate();
   try{
     var response=await fetch(API,{method:'GET',credentials:'same-origin',headers:{Accept:'application/json'},cache:'no-store'});
-    var data=await response.json();
+    var data={};
+    try{data=await response.json();}catch(_){}
     if(data&&data.authorized){markAuthorized();return;}
-  }catch(_){}
-  buildGate();
+    if(data&&data.available===true){buildGate();return;}
+    buildUnavailableGate();
+  }catch(_){
+    buildUnavailableGate();
+  }
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});

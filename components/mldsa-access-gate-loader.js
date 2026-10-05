@@ -5,6 +5,7 @@
 var VERSION='20261004-open-entry2';
 var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004-universal-cloud2';
 var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspace-media1';
+var FILE_VAULT_FAST='/components/file-vault-fast-upload.js?v=20261005-file-vault-fast1';
 var FILE_VAULT_TOTP='/components/file-vault-totp.bundle.js?v=20261004-file-vault-totp1';
 var FILE_VAULT_TOTP_CSS='/components/file-vault-totp.css?v=20261004-file-vault-totp1';
 
@@ -39,6 +40,15 @@ function loadWorkspaceMedia(){
   document.head.appendChild(script);
 }
 
+function appendFileVaultTotp(){
+  if(document.querySelector('script[data-hashcod-file-vault-totp]'))return;
+  var script=document.createElement('script');
+  script.src=FILE_VAULT_TOTP;
+  script.defer=true;
+  script.dataset.hashcodFileVaultTotp='true';
+  document.head.appendChild(script);
+}
+
 function loadFileVaultTotp(){
   if(!document.querySelector('link[data-hashcod-file-vault-totp-style]')){
     var link=document.createElement('link');
@@ -47,12 +57,26 @@ function loadFileVaultTotp(){
     link.dataset.hashcodFileVaultTotpStyle='true';
     document.head.appendChild(link);
   }
-  if(document.querySelector('script[data-hashcod-file-vault-totp]'))return;
-  var script=document.createElement('script');
-  script.src=FILE_VAULT_TOTP;
-  script.defer=true;
-  script.dataset.hashcodFileVaultTotp='true';
-  document.head.appendChild(script);
+
+  if(window.__hashcodFileVaultFastUploadLoaded){
+    appendFileVaultTotp();
+    return;
+  }
+
+  var existing=document.querySelector('script[data-hashcod-file-vault-fast]');
+  if(existing){
+    existing.addEventListener('load',appendFileVaultTotp,{once:true});
+    existing.addEventListener('error',appendFileVaultTotp,{once:true});
+    return;
+  }
+
+  var fast=document.createElement('script');
+  fast.src=FILE_VAULT_FAST;
+  fast.async=false;
+  fast.dataset.hashcodFileVaultFast='true';
+  fast.addEventListener('load',appendFileVaultTotp,{once:true});
+  fast.addEventListener('error',appendFileVaultTotp,{once:true});
+  document.head.appendChild(fast);
 }
 
 function openPlatform(){

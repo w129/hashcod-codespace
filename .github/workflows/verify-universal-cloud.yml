@@ -9,11 +9,13 @@ on:
       - hashcod-workspace-blob.php
       - hashcod-workspace-image-vault.php
       - hashcod-file-vault.php
+      - hashcod-file-vault-fast-upload.php
       - components/universal-cloud-persistence.js
       - components/product-image-cloud-sync.js
       - components/workspace-image-vault-sync.js
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
+      - components/file-vault-fast-upload.js
       - components/file-vault-totp.css
       - file-vault-totp-build/**
       - tools/file-vault-totp/**
@@ -21,6 +23,7 @@ on:
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_open_platform_entry.js
       - tests/e2e/test_file_vault_totp.js
+      - tests/e2e/test_file_vault_fast_upload.js
       - .github/workflows/verify-universal-cloud.yml
   pull_request:
     branches: [main]
@@ -30,11 +33,13 @@ on:
       - hashcod-workspace-blob.php
       - hashcod-workspace-image-vault.php
       - hashcod-file-vault.php
+      - hashcod-file-vault-fast-upload.php
       - components/universal-cloud-persistence.js
       - components/product-image-cloud-sync.js
       - components/workspace-image-vault-sync.js
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
+      - components/file-vault-fast-upload.js
       - components/file-vault-totp.css
       - file-vault-totp-build/**
       - tools/file-vault-totp/**
@@ -42,6 +47,7 @@ on:
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_open_platform_entry.js
       - tests/e2e/test_file_vault_totp.js
+      - tests/e2e/test_file_vault_fast_upload.js
       - .github/workflows/verify-universal-cloud.yml
   workflow_dispatch:
 
@@ -58,6 +64,7 @@ jobs:
           php -l hashcod-workspace-blob.php
           php -l hashcod-workspace-image-vault.php
           php -l hashcod-file-vault.php
+          php -l hashcod-file-vault-fast-upload.php
 
       - name: JavaScript syntax
         run: |
@@ -66,8 +73,10 @@ jobs:
           node --check components/workspace-image-vault-sync.js
           node --check components/workspace-media-bootstrap.js
           node --check components/mldsa-access-gate-loader.js
+          node --check components/file-vault-fast-upload.js
           node --check tests/e2e/test_open_platform_entry.js
           node --check tests/e2e/test_file_vault_totp.js
+          node --check tests/e2e/test_file_vault_fast_upload.js
 
       - uses: actions/setup-go@v5
         with:
@@ -86,6 +95,9 @@ jobs:
 
       - name: File Vault TOTP contract
         run: node tests/e2e/test_file_vault_totp.js
+
+      - name: File Vault fast upload contract
+        run: node tests/e2e/test_file_vault_fast_upload.js
 
       - name: Cross-device contract
         run: node tests/e2e/test_cloud_device_sync.js

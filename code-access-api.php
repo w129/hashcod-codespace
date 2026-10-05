@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/mldsa-access.php';
-if(!function_exists('securityClientIp'))require_once __DIR__ . '/security.php';
+if(!function_exists('securityRateAllowSliding'))require_once __DIR__ . '/security.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, max-age=0, must-revalidate');
@@ -11,7 +11,6 @@ header('Pragma: no-cache');
 const HASHCOD_NUMERIC_SERIES_SHA256 = 'a01e4963b84fe49738d8daf0ec1b0012c277ec8915e657f3a8b555dca3942519';
 const HASHCOD_NUMERIC_SERIES_ROWS = 9865;
 const HASHCOD_NUMERIC_SERIES_COLUMNS = 8;
-const HASHCOD_NUMERIC_ACCESS_NETWORK_SHA256 = 'b3e6313b423496348e68174cd785d71b40432f77d51ef99bf60c24c467dafea1';
 
 function numericAccessJson(array $payload,int $status=200): void {
     http_response_code($status);
@@ -21,22 +20,8 @@ function numericAccessJson(array $payload,int $status=200): void {
 function numericAccessFail(string $code,string $message,int $status=400): void {
     numericAccessJson(['ok'=>false,'code'=>$code,'error'=>$message],$status);
 }
-function numericAccessNetworkDigest(): string {
-    $configured=strtolower(trim((string)secretGet('L8_NUMERIC_ACCESS_NETWORK_SHA256','')));
-    return preg_match('/^[a-f0-9]{64}$/D',$configured)?$configured:HASHCOD_NUMERIC_ACCESS_NETWORK_SHA256;
-}
-function numericAccessClientIp(): string {
-    $ip=function_exists('securityClientIp')?(string)securityClientIp():(string)($_SERVER['REMOTE_ADDR']??'');
-    return trim($ip);
-}
-function numericAccessNetworkAllowed(): bool {
-    $ip=numericAccessClientIp();
-    if(!filter_var($ip,FILTER_VALIDATE_IP))return false;
-    return hash_equals(numericAccessNetworkDigest(),hash('sha256',$ip));
-}
 function numericAccessCookieName(): string { return 'l8_numeric_series_access_v1'; }
 function numericAccessAuthorized(): bool {
-    if(!numericAccessNetworkAllowed())return false;
     $token=(string)($_COOKIE[numericAccessCookieName()]??'');
     if($token==='')return false;
     $data=mldsaOpen($token);
@@ -45,8 +30,7 @@ function numericAccessAuthorized(): bool {
     if((int)($data['exp']??0)<time())return false;
     if(!hash_equals((string)($data['ua']??''),mldsaUa()))return false;
     if(!hash_equals((string)($data['host']??''),mldsaHost()))return false;
-    if(!hash_equals((string)($data['proof']??''),HASHCOD_NUMERIC_SERIES_SHA256))return false;
-    return hash_equals((string)($data['network']??''),hash('sha256',numericAccessClientIp()));
+    return hash_equals((string)($data['proof']??''),HASHCOD_NUMERIC_SERIES_SHA256);
 }
 function numericAccessGrant(): void {
     $now=time();
@@ -57,8 +41,7 @@ function numericAccessGrant(): void {
         'exp'=>$now+$ttl,
         'ua'=>mldsaUa(),
         'host'=>mldsaHost(),
-        'proof'=>HASHCOD_NUMERIC_SERIES_SHA256,
-        'network'=>hash('sha256',numericAccessClientIp())
+        'proof'=>HASHCOD_NUMERIC_SERIES_SHA256
     ]),$now+$ttl);
 }
 function numericAccessNormalize(string $source): array {
@@ -113,7 +96,7 @@ if(!codeAccessRequired()){
 $method=strtoupper((string)($_SERVER['REQUEST_METHOD']??'GET'));
 $isCi=numericCiLegacyEnabled();
 if(function_exists('securityRateAllowSliding')){
-    $rate=securityRateAllowSliding('hashcod_numeric_access_v2',$method==='POST'?6:40,60);
+    $rate=securityRateAllowSliding('hashcod_numeric_access_v3',$method==='POST'?6:40,60);
     if(empty($rate['allowed']))numericAccessFail('access_unavailable','Access unavailable.',429);
 }
 
@@ -128,9 +111,6 @@ if($method==='GET'&&$isCi){
 }
 
 if($method==='GET'){
-    if(!numericAccessNetworkAllowed()){
-        numericAccessJson(['ok'=>true,'required'=>true,'authorized'=>false,'available'=>false]);
-    }
     numericAccessJson([
         'ok'=>true,
         'required'=>true,
@@ -148,11 +128,6 @@ if($method!=='POST'){
 
 $fetchSite=strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE']??'')));
 if($fetchSite!==''&&!in_array($fetchSite,['same-origin','same-site'],true)){
-    numericAccessFail('access_unavailable','Access unavailable.',403);
-}
-
-// Production checks the request origin before php://input is opened.
-if(!$isCi&&!numericAccessNetworkAllowed()){
     numericAccessFail('access_unavailable','Access unavailable.',403);
 }
 

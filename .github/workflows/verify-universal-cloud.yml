@@ -16,6 +16,7 @@ on:
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
       - components/file-vault-fast-upload-v4.js
+      - components/file-vault-commit-recovery.js
       - components/file-vault-totp.css
       - file-vault-totp-build/**
       - tools/file-vault-totp/**
@@ -24,6 +25,7 @@ on:
       - tests/e2e/test_open_platform_entry.js
       - tests/e2e/test_file_vault_totp.js
       - tests/e2e/test_file_vault_fast_upload.js
+      - tests/e2e/test_file_vault_commit_recovery.js
       - .github/workflows/verify-universal-cloud.yml
   pull_request:
     branches: [main]
@@ -40,6 +42,7 @@ on:
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
       - components/file-vault-fast-upload-v4.js
+      - components/file-vault-commit-recovery.js
       - components/file-vault-totp.css
       - file-vault-totp-build/**
       - tools/file-vault-totp/**
@@ -48,6 +51,7 @@ on:
       - tests/e2e/test_open_platform_entry.js
       - tests/e2e/test_file_vault_totp.js
       - tests/e2e/test_file_vault_fast_upload.js
+      - tests/e2e/test_file_vault_commit_recovery.js
       - .github/workflows/verify-universal-cloud.yml
   workflow_dispatch:
 
@@ -74,9 +78,11 @@ jobs:
           node --check components/workspace-media-bootstrap.js
           node --check components/mldsa-access-gate-loader.js
           node --check components/file-vault-fast-upload-v4.js
+          node --check components/file-vault-commit-recovery.js
           node --check tests/e2e/test_open_platform_entry.js
           node --check tests/e2e/test_file_vault_totp.js
           node --check tests/e2e/test_file_vault_fast_upload.js
+          node --check tests/e2e/test_file_vault_commit_recovery.js
 
       - uses: actions/setup-go@v5
         with:
@@ -98,6 +104,9 @@ jobs:
 
       - name: File Vault fast upload contract
         run: node tests/e2e/test_file_vault_fast_upload.js
+
+      - name: File Vault commit recovery contract
+        run: node tests/e2e/test_file_vault_commit_recovery.js
 
       - name: Cross-device contract
         run: node tests/e2e/test_cloud_device_sync.js

@@ -1,154 +1,128 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/code-access-lib.php';
+require_once __DIR__ . '/mldsa-access.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, max-age=0, must-revalidate');
 header('Pragma: no-cache');
 
-function smithApiJson(array $payload,int $status=200): void {
+const HASHCOD_NUMERIC_SERIES_SHA256 = 'a01e4963b84fe49738d8daf0ec1b0012c277ec8915e657f3a8b555dca3942519';
+const HASHCOD_NUMERIC_SERIES_ROWS = 9865;
+const HASHCOD_NUMERIC_SERIES_COLUMNS = 8;
+
+function numericAccessJson(array $payload,int $status=200): void {
     http_response_code($status);
     echo json_encode($payload,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
     exit;
 }
-
-function smithApiFail(string $code,string $message,int $status=400,array $extra=[]): void {
-    smithApiJson(array_merge(['ok'=>false,'code'=>$code,'error'=>$message],$extra),$status);
+function numericAccessFail(string $code,string $message,int $status=400,array $extra=[]): void {
+    numericAccessJson(array_merge(['ok'=>false,'code'=>$code,'error'=>$message],$extra),$status);
 }
-
-function smithCiLegacyEnabled(): bool {
-    return strtolower(trim((string)getenv('GITHUB_ACTIONS')))==='true';
+function numericAccessCookieName(): string { return 'l8_numeric_series_access_v1'; }
+function numericAccessAuthorized(): bool {
+    $token=(string)($_COOKIE[numericAccessCookieName()]??'');
+    if($token==='')return false;
+    $data=mldsaOpen($token);
+    if(!is_array($data))return false;
+    if(($data['kind']??'')!=='numeric-series-access-v1')return false;
+    if((int)($data['exp']??0)<time())return false;
+    if(!hash_equals((string)($data['ua']??''),mldsaUa()))return false;
+    if(!hash_equals((string)($data['host']??''),mldsaHost()))return false;
+    return hash_equals((string)($data['proof']??''),HASHCOD_NUMERIC_SERIES_SHA256);
 }
-
-function smithCiLegacyCookie(): string { return 'l8_ci_mesh_binding_v1'; }
-function smithCiLegacyRead(): string { return (string)($_COOKIE[smithCiLegacyCookie()]??''); }
-function smithCiLegacyWrite(string $digest): void {
-    if(headers_sent())return;
-    setcookie(smithCiLegacyCookie(),$digest,['expires'=>time()+3600,'path'=>'/','httponly'=>true,'samesite'=>'Strict']);
+function numericAccessGrant(): void {
+    $now=time();
+    $ttl=max(300,min(86400,(int)secretGet('L8_NUMERIC_SERIES_ACCESS_TTL','7200')));
+    mldsaCookie(numericAccessCookieName(),mldsaSeal([
+        'kind'=>'numeric-series-access-v1',
+        'iat'=>$now,
+        'exp'=>$now+$ttl,
+        'ua'=>mldsaUa(),
+        'host'=>mldsaHost(),
+        'proof'=>HASHCOD_NUMERIC_SERIES_SHA256
+    ]),$now+$ttl);
+}
+function numericAccessNormalize(string $source): array {
+    if(strlen($source)>350000)return ['ok'=>false,'code'=>'series_too_large','error'=>'The numeric series is too large.'];
+    $lines=preg_split('/\R/u',$source)?:[];
+    $out=[];
+    foreach($lines as $line){
+        $line=trim((string)$line);
+        if($line==='')continue;
+        $parts=preg_split('/\s+/u',$line)?:[];
+        if(count($parts)!==HASHCOD_NUMERIC_SERIES_COLUMNS){
+            return ['ok'=>false,'code'=>'invalid_columns','error'=>'Each row must contain exactly 8 integers.'];
+        }
+        foreach($parts as $part){
+            if(!preg_match('/^-?\d+$/D',(string)$part)){
+                return ['ok'=>false,'code'=>'invalid_number','error'=>'The series contains a non-integer value.'];
+            }
+        }
+        $out[]=implode(' ',$parts);
+        if(count($out)>HASHCOD_NUMERIC_SERIES_ROWS){
+            return ['ok'=>false,'code'=>'too_many_rows','error'=>'The numeric series contains too many rows.'];
+        }
+    }
+    if(count($out)!==HASHCOD_NUMERIC_SERIES_ROWS){
+        return ['ok'=>false,'code'=>'row_count_mismatch','error'=>'The numeric series must contain exactly '.HASHCOD_NUMERIC_SERIES_ROWS.' rows.','rows'=>count($out)];
+    }
+    $canonical=implode("\n",$out);
+    return ['ok'=>true,'canonical'=>$canonical,'sha256'=>hash('sha256',$canonical),'rows'=>count($out)];
 }
 
 if(!codeAccessRequired()){
-    smithApiJson(['ok'=>true,'required'=>false,'authorized'=>true,'protocol'=>smithAuthProtocol()]);
+    numericAccessJson(['ok'=>true,'required'=>false,'authorized'=>true]);
 }
 
 $method=strtoupper((string)($_SERVER['REQUEST_METHOD']??'GET'));
-
 if(function_exists('securityRateAllowSliding')){
-    $rate=securityRateAllowSliding('hashcod_smith_auth_v1',$method==='POST'?8:30,60);
-    if(empty($rate['allowed'])){
-        smithApiFail('rate_limited','Too many requests. Wait briefly before trying again.',429,['retry_after'=>(int)($rate['retry_after']??60)]);
-    }
+    $rate=securityRateAllowSliding('hashcod_numeric_series_access_v1',$method==='POST'?6:40,60);
+    if(empty($rate['allowed']))numericAccessFail('rate_limited','Too many attempts. Try again shortly.',429,['retry_after'=>(int)($rate['retry_after']??60)]);
 }
 
 if($method==='GET'){
-    if(smithCiLegacyEnabled()){
-        smithApiJson([
-            'ok'=>true,'required'=>true,'authorized'=>false,
-            'bound'=>smithCiLegacyRead()!=='',
-            'schema'=>'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI',
-            'fields'=>smithAuthFieldNames(),
-            'protocol'=>smithAuthProtocol()
-        ]);
-    }
-
-    if(!mldsaAccessConfigured()){
-        smithApiJson([
-            'ok'=>true,'required'=>true,'authorized'=>false,
-            'authority_configured'=>false,
-            'protocol'=>smithAuthProtocol(),
-            'challenge'=>'',
-            'template'=>smithAuthTemplate('PUBLIC_KEY_NOT_CONFIGURED'),
-            'message'=>'Configure the ML-DSA-87 public key before validating signed Smith access codes.'
-        ]);
-    }
-
-    $issued=mldsaIssueChallenge(1);
-    $challenge=(string)$issued['challenge'];
-    smithApiJson([
-        'ok'=>true,'required'=>true,'authorized'=>false,
-        'authority_configured'=>true,
-        'protocol'=>smithAuthProtocol(),
-        'challenge'=>$challenge,
-        'expires_at'=>(int)$issued['expires_at'],
-        'ttl_seconds'=>(int)$issued['ttl_seconds'],
-        'template'=>smithAuthTemplate($challenge)
+    numericAccessJson([
+        'ok'=>true,
+        'required'=>true,
+        'authorized'=>numericAccessAuthorized(),
+        'protocol'=>'HASHCOD-NUMERIC-SERIES/1',
+        'expected_rows'=>HASHCOD_NUMERIC_SERIES_ROWS,
+        'columns_per_row'=>HASHCOD_NUMERIC_SERIES_COLUMNS
     ]);
 }
-
 if($method!=='POST'){
     header('Allow: GET, POST');
-    smithApiFail('method_not_allowed','Method not allowed.',405);
+    numericAccessFail('method_not_allowed','Method not allowed.',405);
 }
 
 $fetchSite=strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE']??'')));
 if($fetchSite!==''&&!in_array($fetchSite,['same-origin','same-site'],true)){
-    smithApiFail('cross_site_denied','Cross-site access-code requests are not allowed.',403);
+    numericAccessFail('cross_site_denied','Cross-site access requests are not allowed.',403);
+}
+if(!hash_equals('1',trim((string)($_SERVER['HTTP_X_HASHCOD_NUMERIC_SERIES']??'')))){
+    numericAccessFail('missing_series_header','Missing Hashcod numeric-series request marker.',400);
 }
 
 $raw=(string)file_get_contents('php://input');
-if(strlen($raw)>40000)smithApiFail('payload_too_large','Signed access request is too large.',413);
+if(strlen($raw)>380000)numericAccessFail('payload_too_large','Request is too large.',413);
 $body=json_decode($raw,true);
-if(!is_array($body))smithApiFail('invalid_json','Invalid JSON request.',400);
+if(!is_array($body))numericAccessFail('invalid_json','Invalid JSON request.',400);
+$series=$body['series']??null;
+if(!is_string($series)||trim($series)==='')numericAccessFail('series_required','Paste the complete numeric series before validating.',400);
 
-// CI-only compatibility for the retired first-use binding test. Production
-// never enters this branch because Railway does not set GITHUB_ACTIONS=true.
-// Legacy markers retained for regression assertions: X_HASHCOD_MESH,
-// binding_mismatch, meshAccessWriteBinding($digest), hash_equals($stored,$digest).
-if(smithCiLegacyEnabled() && hash_equals('1',trim((string)($_SERVER['HTTP_X_HASHCOD_MESH']??''))) && isset($body['fields']) && is_array($body['fields'])){
-    $fields=smithAuthNormalizeFields($body['fields']);
-    if(!is_array($fields))smithApiFail('invalid_fields','Invalid CI mesh fields.',400);
-    $digest=hash('sha256',json_encode($fields,JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-    $stored=smithCiLegacyRead();
-    if($stored===''){
-        smithCiLegacyWrite($digest);
-        smithApiJson(['ok'=>true,'required'=>true,'authorized'=>true,'bound'=>true,'enrolled'=>true,'schema'=>'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI']);
-    }
-    if(!hash_equals($stored,$digest)){
-        smithApiFail('binding_mismatch','CI legacy binding mismatch.',409,['bound'=>true]);
-    }
-    smithApiJson(['ok'=>true,'required'=>true,'authorized'=>true,'bound'=>true,'enrolled'=>false,'schema'=>'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI']);
+$normalized=numericAccessNormalize($series);
+if(empty($normalized['ok']))numericAccessFail((string)$normalized['code'],(string)$normalized['error'],400,array_filter(['rows'=>$normalized['rows']??null],fn($v)=>$v!==null));
+if(!hash_equals(HASHCOD_NUMERIC_SERIES_SHA256,(string)$normalized['sha256'])){
+    numericAccessFail('series_mismatch','The numeric series does not match the authorized access series.',401,['rows'=>(int)$normalized['rows']]);
 }
 
-if(!hash_equals('1',trim((string)($_SERVER['HTTP_X_HASHCOD_SMITH']??'')))){
-    smithApiFail('missing_smith_header','Missing Hashcod Smith request marker.',400);
-}
-if(!mldsaAccessConfigured()){
-    smithApiFail('authority_not_configured','The ML-DSA-87 public key is not configured on the server.',503);
-}
-
-$manifest=$body['manifest']??null;
-if(!is_string($manifest)||trim($manifest)===''){
-    smithApiFail('manifest_required','Paste the generated access code into the editor before validating.',400);
-}
-$parsed=smithAuthParseManifest($manifest);
-if(!is_array($parsed)){
-    smithApiFail('invalid_manifest','Only the generated OCG-SMITH-AUTH/1 PHP-shaped manifest is accepted. PHP is never executed.',400);
-}
-$decoded=smithAuthDecodePayload((string)$parsed['payload_b64']);
-if(!is_array($decoded))smithApiFail('invalid_payload','The signed payload could not be decoded.',400);
-
-$challengeState=mldsaCurrentChallengeState();
-if(!is_array($challengeState)){
-    smithApiFail('challenge_expired','The current challenge has expired. Reload or request a new challenge and regenerate the code.',409);
-}
-$verification=smithAuthVerifyPayload((array)$decoded['data'],(string)$challengeState['challenge']);
-if(empty($verification['ok']))smithApiFail((string)$verification['code'],(string)$verification['error'],409);
-
-if(!mldsaVerify((string)$decoded['json'],(string)$parsed['signature_b64'])){
-    smithApiFail('invalid_signature','The ML-DSA-87 signature is invalid for the configured public key.',401);
-}
-
-$jti=(string)($challengeState['jti']??'');
-$exp=(int)($challengeState['exp']??0);
-if($jti===''||$exp<=0||!mldsaConsumeJti($jti,$exp)){
-    smithApiFail('replay_detected','This challenge has already been consumed. Generate a new signed code.',409);
-}
-mldsaCookie(mldsaChallengeName(),'',time()-3600);
-
-smithApiJson([
-    'ok'=>true,'required'=>true,'authorized'=>true,
-    'protocol'=>smithAuthProtocol(),
-    'footprint'=>(string)$verification['footprint'],
-    'message'=>'Signed Smith credential verified.'
+numericAccessGrant();
+numericAccessJson([
+    'ok'=>true,
+    'required'=>true,
+    'authorized'=>true,
+    'protocol'=>'HASHCOD-NUMERIC-SERIES/1',
+    'rows'=>(int)$normalized['rows'],
+    'message'=>'Numeric access series verified.'
 ]);

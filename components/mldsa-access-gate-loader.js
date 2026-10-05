@@ -2,9 +2,10 @@
 'use strict';
 
 // Retired gate version: 20261004-numeric-series5. Kept only as a migration marker.
-var VERSION='20261005-open-entry4';
+var VERSION='20261005-open-entry5';
 var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261004-universal-cloud2';
 var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspace-media1';
+var FILE_VAULT_RECOVERY='/components/file-vault-commit-recovery.js?v=20261005-file-vault-commit-recovery1';
 var FILE_VAULT_FAST='/components/file-vault-fast-upload-v4.js?v=20261005-file-vault-fast4';
 var FILE_VAULT_TOTP='/components/file-vault-totp.bundle.js?v=20261005-file-vault-totp2';
 var FILE_VAULT_TOTP_CSS='/components/file-vault-totp.css?v=20261005-file-vault-totp4';
@@ -49,6 +50,26 @@ function appendFileVaultTotp(){
   document.head.appendChild(script);
 }
 
+function appendFileVaultFast(){
+  if(window.__hashcodFileVaultFast4Loaded){
+    appendFileVaultTotp();
+    return;
+  }
+  var existing=document.querySelector('script[data-hashcod-file-vault-fast]');
+  if(existing){
+    existing.addEventListener('load',appendFileVaultTotp,{once:true});
+    existing.addEventListener('error',appendFileVaultTotp,{once:true});
+    return;
+  }
+  var fast=document.createElement('script');
+  fast.src=FILE_VAULT_FAST;
+  fast.async=false;
+  fast.dataset.hashcodFileVaultFast='true';
+  fast.addEventListener('load',appendFileVaultTotp,{once:true});
+  fast.addEventListener('error',appendFileVaultTotp,{once:true});
+  document.head.appendChild(fast);
+}
+
 function loadFileVaultTotp(){
   if(!document.querySelector('link[data-hashcod-file-vault-totp-style]')){
     var link=document.createElement('link');
@@ -58,25 +79,25 @@ function loadFileVaultTotp(){
     document.head.appendChild(link);
   }
 
-  if(window.__hashcodFileVaultFast4Loaded){
-    appendFileVaultTotp();
+  if(window.__hashcodFileVaultCommitRecoveryLoaded){
+    appendFileVaultFast();
     return;
   }
 
-  var existing=document.querySelector('script[data-hashcod-file-vault-fast]');
-  if(existing){
-    existing.addEventListener('load',appendFileVaultTotp,{once:true});
-    existing.addEventListener('error',appendFileVaultTotp,{once:true});
+  var existingRecovery=document.querySelector('script[data-hashcod-file-vault-recovery]');
+  if(existingRecovery){
+    existingRecovery.addEventListener('load',appendFileVaultFast,{once:true});
+    existingRecovery.addEventListener('error',appendFileVaultFast,{once:true});
     return;
   }
 
-  var fast=document.createElement('script');
-  fast.src=FILE_VAULT_FAST;
-  fast.async=false;
-  fast.dataset.hashcodFileVaultFast='true';
-  fast.addEventListener('load',appendFileVaultTotp,{once:true});
-  fast.addEventListener('error',appendFileVaultTotp,{once:true});
-  document.head.appendChild(fast);
+  var recovery=document.createElement('script');
+  recovery.src=FILE_VAULT_RECOVERY;
+  recovery.async=false;
+  recovery.dataset.hashcodFileVaultRecovery='true';
+  recovery.addEventListener('load',appendFileVaultFast,{once:true});
+  recovery.addEventListener('error',appendFileVaultFast,{once:true});
+  document.head.appendChild(recovery);
 }
 
 function openPlatform(){

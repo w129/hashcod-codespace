@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/hashcod-workspace-access.php';
 
 const HFV_MAX_UPLOAD_BYTES = 99614720; // 95 MiB, leaves multipart headroom under the 100M PHP/Supabase limit.
 
@@ -17,11 +18,19 @@ function hfvJson(int $status, array $payload): void {
 }
 
 function hfvAccount(): string {
+    // The numeric access series represents one shared private workspace, so
+    // every authorized device sees the same File Vault namespace.
+    if (hashcodWorkspaceAccessAuthorized()) {
+        $workspace = hashcodWorkspaceKey();
+        if ($workspace !== '') return substr($workspace, 0, 96);
+    }
+
+    // Backward-compatible fallback for installations that still use accounts.
     $session = securityRequireAccountSession();
     $account = (string)($session['account_id'] ?? $session['user_id'] ?? '');
     $account = preg_replace('/[^a-zA-Z0-9_-]/', '', $account) ?? '';
     if ($account === '') {
-        hfvJson(401, ['ok' => false, 'error' => 'No authenticated account was resolved.']);
+        hfvJson(401, ['ok' => false, 'error' => 'No authenticated workspace was resolved.']);
     }
     return substr($account, 0, 96);
 }

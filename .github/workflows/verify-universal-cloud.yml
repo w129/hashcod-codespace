@@ -15,6 +15,7 @@ on:
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
       - tests/e2e/test_cloud_device_sync.js
+      - tests/e2e/test_open_platform_entry.js
       - .github/workflows/verify-universal-cloud.yml
   pull_request:
     branches: [main]
@@ -30,6 +31,7 @@ on:
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
       - tests/e2e/test_cloud_device_sync.js
+      - tests/e2e/test_open_platform_entry.js
       - .github/workflows/verify-universal-cloud.yml
   workflow_dispatch:
 
@@ -54,6 +56,10 @@ jobs:
           node --check components/workspace-image-vault-sync.js
           node --check components/workspace-media-bootstrap.js
           node --check components/mldsa-access-gate-loader.js
+          node --check tests/e2e/test_open_platform_entry.js
+
+      - name: Direct platform entry contract
+        run: node tests/e2e/test_open_platform_entry.js
 
       - name: Cross-device contract
         run: node tests/e2e/test_cloud_device_sync.js

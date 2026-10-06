@@ -1,4 +1,15 @@
-/* First-screen phone/tablet layout. Load after the component styles. */
+/* First-screen viewport and phone/tablet layout. Load after component styles. */
+html:has(> body[data-hashcod-entry-intro="1"]) {
+  overflow-x: clip;
+}
+
+body[data-hashcod-entry-intro="1"] {
+  max-width: 100%;
+  /* Clip decorative overflow on this axis only. The page still scrolls down
+     to reveal Files and the recommendation, including on short desktops. */
+  overflow-x: clip;
+}
+
 @media (max-width: 1179px) {
   body[data-hashcod-entry-intro="1"] {
     position: relative;

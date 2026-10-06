@@ -1,6 +1,6 @@
-# File Vault TOTP UI upstream
+# File Vault access-code UI upstream
 
-The File Vault TOTP window adapts the Animate UI Dialog motion pattern from:
+The File Vault access-code window adapts the Animate UI Dialog motion pattern from:
 
 - Repository: https://github.com/imskyleen/animate-ui
 - Upstream commit used elsewhere in Hashcod Codespace: efeb96ffd7a3b7a4868667e4ac3c346620fb3044
@@ -8,13 +8,14 @@ The File Vault TOTP window adapts the Animate UI Dialog motion pattern from:
 - License: MIT
 
 The Hashcod adaptation keeps the project's existing React 19 + motion/react
-stack and exposes a promise-based TOTP setup/verification dialog to the File
-Vault runtime.
+stack and exposes a promise-based setup/verification dialog to the File Vault
+runtime. New files use a fixed uploader-chosen code; legacy files can still use
+their stored TOTP key.
 
-Downloads use the same animated dialog with a dedicated verification state,
-the selected file name, the uploader's current authenticator code, keyboard
-focus containment, Escape/cancel handling and an inert background. The user
-who downloads cannot generate or replace the uploader's key in this state.
+Downloads use the same animated dialog with a dedicated verification state, the
+selected file name, keyboard focus containment, Escape/cancel handling and an
+inert background. The user who downloads cannot generate or replace the
+uploader's code in this state.
 
 The root File Vault UI delegates every download to the verified POST endpoint,
 including device copies. The server uses the selected row's encrypted TOTP key
@@ -46,19 +47,25 @@ collapsing all visitors onto PHP loopback and sharing rate limits and bans. The
 proxy test seeds bans for loopback and one visitor and verifies that unrelated
 visitors still work while real visitor bans and private-header spoof checks hold.
 
-Setup now checks the current authenticator code through the same-origin POST
-`hashcod-file-vault-fast-upload.php?action=verify-totp` before closing the dialog.
-An invalid code or network error leaves the exact setup key in place for retry;
-cancel ignores a pending response. This check does not transfer bytes, sign an
-upload URL or write metadata. Prepare independently verifies the code again.
-The verifier still uses SHA-1, six digits, a 30-second period and one-period skew;
-users must add the displayed key to their authenticator and enable automatic time.
-Missing verification infrastructure returns 503 rather than claiming a bad code.
+New uploads ask the uploader to choose the file's access code directly in the
+animated dialog. The code is accepted locally and sent with the upload; it is
+never generated, replaced or sent back by the server. Download and deletion use
+the same exact-code dialog and verify it server-side before touching the file.
+Older records that still contain an authenticator key retain the legacy TOTP
+verification path described below.
 
-Windows packaging builds the same dialog and a native Go verifier, placed under
-`tools/file-vault-totp/hashcod-file-vault-totp.exe` in the canonical payload.
-Both controllers use that local binary on Windows and the existing Linux binary
-in production. CI exercises the real helper and HTTP setup endpoint, wrong/expired
-codes, guards and the rendered dialog on both distributions. Cloud persistence
-still requires the existing server-side Supabase configuration; a valid setup
-code does not imply that provider configuration or a complete upload succeeded.
+Windows packaging still includes the native Go verifier for legacy TOTP records,
+placed under `tools/file-vault-totp/hashcod-file-vault-totp.exe` in the canonical
+payload. CI exercises the fixed-code helper, legacy TOTP behavior, request
+guards and the rendered dialog on both distributions. Cloud persistence still
+requires the existing server-side Supabase configuration; a valid access code
+does not imply that provider configuration or a complete upload succeeded.
+
+The current File Vault setup uses a fixed uploader-chosen access code. The code
+may contain letters, numbers, spaces or symbols and stays the same for that
+file. The server stores only a per-file salted bcrypt hash of an HMAC digest;
+the raw code is never returned in the file list. Download and deletion submit
+the code through same-origin POST requests and verify it against the selected
+file before reading or removing cloud data. Old records that contain the
+previous authenticator key continue using their six-digit TOTP flow until they
+are replaced by a new upload.

@@ -2,9 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-const VERSION = "20261006-file-vault-setup-verify2";
+const VERSION = "20261006-file-vault-fixed-code1";
 const ENDPOINT = "/api/hashcod-file-vault";
-const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 let requestHandler = null;
 const pendingRequests = [];
@@ -12,39 +11,8 @@ let cloudFiles = [];
 let decorateTimer = 0;
 let actionBusy = false;
 
-function bytesToBase32(bytes) {
-  let bits = 0;
-  let value = 0;
-  let out = "";
-  for (const byte of bytes) {
-    value = (value << 8) | byte;
-    bits += 8;
-    while (bits >= 5) {
-      out += BASE32[(value >>> (bits - 5)) & 31];
-      bits -= 5;
-    }
-  }
-  if (bits > 0) out += BASE32[(value << (5 - bits)) & 31];
-  return out;
-}
-
-function generateSecret() {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  return bytesToBase32(bytes);
-}
-
-function normalizeSecret(value) {
-  return String(value || "")
-    .toUpperCase()
-    .replace(/[\s-]+/g, "")
-    .replace(/=+$/g, "")
-    .replace(/[^A-Z2-7]/g, "")
-    .slice(0, 128);
-}
-
 function normalizeCode(value) {
-  return String(value || "").replace(/\D+/g, "").slice(0, 6);
+  return String(value ?? "").slice(0, 128);
 }
 
 function requestTotpDialog(options) {
@@ -53,21 +21,6 @@ function requestTotpDialog(options) {
     if (requestHandler) requestHandler(entry);
     else pendingRequests.push(entry);
   });
-}
-
-async function verifySetupCode(secret, code) {
-  try {
-    const response = await fetch('/hashcod-file-vault-fast-upload.php?action=verify-totp', {
-      method: 'POST', credentials: 'same-origin', cache: 'no-store',
-      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-      body: JSON.stringify({ totp_secret: secret, totp_code: code }),
-    });
-    const payload = await response.json();
-    if (response.ok && payload.ok === true) return { ok: true };
-    return { ok: false, error: payload.error || 'TOTP verification is unavailable. Try again shortly.' };
-  } catch {
-    return { ok: false, error: 'Could not verify the code. Check your connection and try again.' };
-  }
 }
 
 function LockIcon() {
@@ -83,27 +36,16 @@ function LockIcon() {
 function TotpDialogHost() {
   const reduce = useReducedMotion() ?? false;
   const [request, setRequest] = useState(null);
-  const [secret, setSecret] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const activeRequest = useRef(null);
-  const verifying = useRef(false);
   const codeRef = useRef(null);
   const dialogRef = useRef(null);
 
   const begin = (entry) => {
-    activeRequest.current = entry;
-    verifying.current = false;
-    setBusy(false);
     setRequest(entry);
     setError(String(entry.options?.error || ""));
     setCode("");
-    setSecret(
-      entry.options?.mode === "setup"
-        ? normalizeSecret(entry.options?.secret || generateSecret())
-        : "",
-    );
+
   };
 
   useEffect(() => {
@@ -147,12 +89,8 @@ function TotpDialogHost() {
 
   const finish = (value) => {
     const resolver = request?.resolve;
-    activeRequest.current = null;
-    verifying.current = false;
-    setBusy(false);
     setRequest(null);
     setCode("");
-    setSecret("");
     setError("");
     resolver?.(value);
   };
@@ -162,47 +100,13 @@ function TotpDialogHost() {
   const fileName = request?.options?.fileName || "file";
   const purpose = request?.options?.purpose || "download";
 
-  const submit = async (event) => {
+  const legacyTotp = request?.options?.protection === "totp";
+  const submit = (event) => {
     event?.preventDefault?.();
-    if (notice || verifying.current) return;
-    const cleanCode = normalizeCode(code);
-    if (cleanCode.length !== 6) {
-      setError("Enter the current 6-digit TOTP code.");
-      return;
-    }
-    if (setup) {
-      const cleanSecret = normalizeSecret(secret);
-      if (cleanSecret.length < 16) {
-        setError("The TOTP setup key is too short.");
-        return;
-      }
-      const entry = request;
-      verifying.current = true;
-      setBusy(true);
-      setError('Checking the current code…');
-      const verified = await verifySetupCode(cleanSecret, cleanCode);
-      if (activeRequest.current !== entry) return;
-      verifying.current = false;
-      setBusy(false);
-      if (!verified.ok) {
-        setError(verified.error);
-        setCode('');
-        window.setTimeout(() => codeRef.current?.focus(), 0);
-        return;
-      }
-      finish({ secret: cleanSecret, code: cleanCode });
-      return;
-    }
-    finish({ code: cleanCode });
-  };
-
-  const copySecret = async () => {
-    try {
-      await navigator.clipboard.writeText(secret);
-      setError("Setup key copied. Add it to your authenticator, then enter the current code.");
-    } catch {
-      setError("Copy is unavailable. Select the setup key manually.");
-    }
+    if (notice) return;
+    if (!code.trim()) { setError("Enter the code you want to use for this file."); return; }
+    if (legacyTotp && !/^\d{6}$/.test(code)) { setError("Enter the current 6-digit authenticator code for this older file."); return; }
+    finish({ code });
   };
 
   return (
@@ -245,55 +149,32 @@ function TotpDialogHost() {
           >
             <div className="hfv-totp-icon"><LockIcon /></div>
             <div className="hfv-totp-heading">
-              <span>{setup ? "TOTP protection" : "Uploader TOTP protection"}</span>
+              <span>{setup ? "File code protection" : "Uploader file code"}</span>
               <h2 id="hfvTotpTitle">
-                {setup ? "Protect before upload" : notice ? (purpose === "delete" ? "Deletion unavailable" : "Download unavailable") : purpose === "delete" ? "Verify before delete" : "Verify before download"}
+                {setup ? "Choose a code for this file" : notice ? (purpose === "delete" ? "Deletion unavailable" : "Download unavailable") : purpose === "delete" ? "Verify before delete" : "Verify before download"}
               </h2>
               <p title={fileName}>{fileName}</p>
-              <small id="hfvTotpDescription">{setup ? "Configure the key that will protect this file." : "Use the current code from the authenticator key set by the person who uploaded this file."}</small>
+              <small id="hfvTotpDescription">{setup ? "Keep this code. You will need the same code to download or delete this file." : legacyTotp ? "This older file uses the uploader’s current authenticator code." : "Enter the exact code chosen by the person who uploaded this file."}</small>
             </div>
 
-            {setup ? (
-              <div className="hfv-totp-secret-block">
-                <label htmlFor="hfvTotpSecret">TOTP setup key</label>
-                <div className="hfv-totp-secret-row">
-                  <input
-                    id="hfvTotpSecret"
-                    value={secret}
-                    disabled={busy}
-                    onChange={(event) => { setSecret(normalizeSecret(event.target.value)); setCode(''); setError(''); }}
-                    spellCheck="false"
-                    autoCapitalize="characters"
-                    autoComplete="off"
-                    aria-label="TOTP setup key"
-                  />
-                  <button type="button" disabled={busy} onClick={() => { setSecret(generateSecret()); setCode(''); setError(''); }}>Generate</button>
-                  <button type="button" disabled={busy} onClick={copySecret}>Copy</button>
-                </div>
-                <small>Add this exact key to your authenticator app, then enter its current code. A code from another key will not work.</small>
-              </div>
-            ) : null}
-
             {!notice ? <div className="hfv-totp-code-block">
-              <label htmlFor="hfvTotpCode">{setup ? "Current TOTP code" : "Uploader's current TOTP code"}</label>
+              <label htmlFor="hfvTotpCode">{legacyTotp ? "Current authenticator code" : setup ? "Choose your file code" : "File access code"}</label>
               <input
                 id="hfvTotpCode"
                 ref={codeRef}
                 value={code}
-                disabled={busy}
                 onChange={(event) => setCode(normalizeCode(event.target.value))}
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                placeholder="000000"
-                aria-label="Current six digit TOTP code"
+                type="password"
+                autoComplete={setup ? "new-password" : "current-password"}
+                maxLength={legacyTotp ? 6 : 128}
+                placeholder={setup ? "Enter any code" : "Enter the uploader’s code"}
+                aria-label={legacyTotp ? "Current authenticator code" : "File access code"}
               />
-              <small>6 digits · rotates every 30 seconds</small>
+              <small>{legacyTotp ? "6 digits · from the uploader’s authenticator" : "Letters, numbers or symbols · this code stays the same"}</small>
             </div> : null}
 
             <div className="hfv-totp-error" data-visible={error ? "true" : "false"} aria-live="polite">
-              {error || "Protected with a time-based one-time password."}
+              {error || "Protected with the uploader’s chosen file code."}
             </div>
 
             <div className="hfv-totp-actions">
@@ -301,10 +182,9 @@ function TotpDialogHost() {
               {!notice ? <motion.button
                 type="submit"
                 className="hfv-totp-primary"
-                disabled={busy}
                 whileTap={reduce ? undefined : { scale: 0.97 }}
               >
-                {busy ? "Checking code…" : setup ? "Protect & upload" : purpose === "delete" ? "Verify & delete" : "Verify & download"}
+                {setup ? "Protect & upload" : purpose === "delete" ? "Verify & delete" : "Verify & download"}
               </motion.button> : null}
             </div>
           </motion.form>
@@ -375,11 +255,12 @@ function decorateRows() {
     const file = unused.splice(index, 1)[0];
     row.dataset.hfvFileId = file.id;
     row.dataset.hfvTotpProtected = file.totpProtected ? "true" : "false";
+    row.dataset.hfvAccessProtection = file.accessProtection || "";
     let badge = row.querySelector(".hfv-totp-row-badge");
     if (file.totpProtected && !badge) {
       badge = document.createElement("span");
       badge.className = "hfv-totp-row-badge";
-      badge.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="10" width="12" height="9" rx="2"/><path d="M9 10V7.5a3 3 0 0 1 6 0V10"/></svg><span>TOTP</span>';
+      badge.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="10" width="12" height="9" rx="2"/><path d="M9 10V7.5a3 3 0 0 1 6 0V10"/></svg><span>' + (file.accessProtection === "totp" ? "TOTP" : "Code") + '</span>';
       row.querySelector(".hfv-file-copy")?.appendChild(badge);
     }
   });
@@ -408,7 +289,7 @@ function installUploadPatch() {
   };
 
   proto.send = function patchedSend(body) {
-    if (!this.__hashcodHfvTotpUpload || !(body instanceof FormData) || body.has("totp_secret")) {
+    if (!this.__hashcodHfvTotpUpload || !(body instanceof FormData) || body.has("access_code")) {
       return nativeSend.call(this, body);
     }
 
@@ -420,8 +301,7 @@ function installUploadPatch() {
           if (typeof xhr.onerror === "function") xhr.onerror(new Event("error"));
           return;
         }
-        body.set("totp_secret", result.secret);
-        body.set("totp_code", result.code);
+        body.set("access_code", result.code);
         nativeSend.call(xhr, body);
       })
       .catch(() => {
@@ -456,6 +336,7 @@ async function verifiedDownload(file) {
       mode: "verify",
       fileName: file.name || "file",
       purpose: "download",
+      protection: file.accessProtection,
       error,
     });
     if (!result) return;
@@ -475,7 +356,7 @@ async function verifiedDownload(file) {
       return;
     }
     if (!response.ok) {
-      error = await parseError(response, "The TOTP code is invalid or expired.");
+      error = await parseError(response, "Use the exact code chosen by the uploader.");
       if (response.status === 401) continue;
       await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file.name, error });
       return;
@@ -513,7 +394,7 @@ async function downloadSelectedFile(file) {
 async function verifiedDelete(file) {
   let error = "";
   while (true) {
-    const result = await requestTotpDialog({ mode: "verify", fileName: file.name || "file", purpose: "delete", error });
+    const result = await requestTotpDialog({ mode: "verify", fileName: file.name || "file", purpose: "delete", protection: file.accessProtection, error });
     if (!result) return false;
 
     const response = await fetch(ENDPOINT + "?action=delete", {
@@ -527,7 +408,7 @@ async function verifiedDelete(file) {
       body: JSON.stringify({ id: file.id, code: result.code }),
     });
     if (!response.ok) {
-      error = await parseError(response, "The TOTP code is invalid or expired.");
+      error = await parseError(response, "Use the exact code chosen by the uploader.");
       if (response.status === 401) continue;
       await requestTotpDialog({ mode: "notice", purpose: "delete", fileName: file.name, error });
       return false;
@@ -580,7 +461,7 @@ function installActionGuard() {
       event.stopImmediatePropagation();
 
       const file = row.dataset.hfvFileId
-        ? { id: row.dataset.hfvFileId, name: rowIdentity(row).name }
+        ? { id: row.dataset.hfvFileId, name: rowIdentity(row).name, accessProtection: row.dataset.hfvAccessProtection }
         : await resolveProtectedFile(row);
       if (title === "download") {
         await downloadSelectedFile(file);

@@ -20,6 +20,7 @@ require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/hashcod-workspace-access.php';
+require_once __DIR__ . '/hashcod-file-vault-access-code.php';
 
 // The router admits only this deliberate JSON controller before the generic
 // PHP-path deny rule. Keep IP/threat checks and rate limits on the API itself.
@@ -268,7 +269,9 @@ function hfvuFinalizeRecord(array $ticket, string $sha256 = ''): array {
     $size = max(0, (int)($ticket['size'] ?? 0));
     $object = (string)($ticket['object'] ?? '');
     $sealed = (string)($ticket['totp'] ?? '');
-    if ($object === '' || $sealed === '' || $size > HFVU_MAX_UPLOAD_BYTES) {
+    $codeHash = (string)($ticket['access_code_hash'] ?? '');
+    $fixedCode = ($ticket['protection'] ?? '') === 'access-code';
+    if ($object === '' || ($fixedCode ? $codeHash === '' : $sealed === '') || $size > HFVU_MAX_UPLOAD_BYTES) {
         return ['ok' => false, 'error' => 'Upload ticket is incomplete.'];
     }
     if (!preg_match('/^[a-f0-9]{64}$/D', strtolower($sha256))) $sha256 = '';
@@ -287,12 +290,18 @@ function hfvuFinalizeRecord(array $ticket, string $sha256 = ''): array {
             'vault' => 'hashcod-file-vault',
             'original_name' => $name,
             'sha256' => $sha256,
-            'totp_protected' => true,
-            'totp_secret_cipher' => $sealed,
-            'totp_backend' => 'github.com/pquerna/otp/totp',
-            'totp_algorithm' => 'SHA1',
-            'totp_digits' => 6,
-            'totp_period' => 30,
+            ...($fixedCode ? [
+                'access_protection' => 'access-code',
+                'access_code_hash' => $codeHash,
+            ] : [
+                // Accept already-signed TOTP tickets until their original expiry.
+                'totp_protected' => true,
+                'totp_secret_cipher' => $sealed,
+                'totp_backend' => 'github.com/pquerna/otp/totp',
+                'totp_algorithm' => 'SHA1',
+                'totp_digits' => 6,
+                'totp_period' => 30,
+            ]),
             'upload_transport' => 'direct-signed-storage',
             'upload_strategy' => 'aws-style-direct-object-transfer',
             'upload_version' => 1,
@@ -322,6 +331,7 @@ function hfvuFinalizeRecord(array $ticket, string $sha256 = ''): array {
             'uploadedAt' => $uploadedAt,
             'cloud' => true,
             'totpProtected' => true,
+            'accessProtection' => $fixedCode ? 'access-code' : 'totp',
             'transport' => 'direct',
         ],
     ];
@@ -366,11 +376,9 @@ if ($action === 'prepare') {
         hfvuJson(413, ['ok' => false, 'error' => 'Cloud files must be 95 MB or smaller.']);
     }
 
-    $totpSecret = hfvuNormalizeTotpSecret((string)($body['totp_secret'] ?? ''));
-    $totpCode = trim((string)($body['totp_code'] ?? ''));
-    hfvuRequireSetupTotp($totpSecret, $totpCode);
-    $sealed = hfvuSealTotp($totpSecret);
-    if ($sealed === '') hfvuJson(500, ['ok' => false, 'error' => 'TOTP protection could not be initialized.']);
+    $accessCode = (string)($body['access_code'] ?? '');
+    if (!hfvAccessCodeInputValid($accessCode)) hfvuJson(400, ['ok' => false, 'error' => 'Choose a file code with 1 to 128 characters.']);
+    $codeHash = hfvAccessCodeHash($accessCode, $id, hfvuSecret());
 
     $account = hfvuAccount();
     $object = hfvuObjectPath($account, $id, $name);
@@ -391,7 +399,8 @@ if ($action === 'prepare') {
         'mime' => $mime,
         'size' => $size,
         'object' => $object,
-        'totp' => $sealed,
+        'protection' => 'access-code',
+        'access_code_hash' => $codeHash,
         'iat' => time(),
         'exp' => time() + HFVU_TICKET_TTL,
     ]);

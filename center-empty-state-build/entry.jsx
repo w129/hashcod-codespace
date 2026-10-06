@@ -1504,6 +1504,7 @@ function fileVaultMerge(localRows, cloudRows) {
       cloud: true,
       local: false,
       totpProtected: Boolean(row.totpProtected),
+      accessProtection: row.accessProtection,
     });
   });
   (localRows || []).forEach((row) => {
@@ -1638,7 +1639,7 @@ function FileVault() {
     try {
       const api = window.HashcodFileVaultTotp;
       if (!api || typeof api.download !== "function") {
-        setNotice("TOTP verification is not ready. Reload the page and try again.");
+        setNotice("File-code verification is not ready. Reload the page and try again.");
         return;
       }
       await api.download(file);
@@ -1652,7 +1653,7 @@ function FileVault() {
     try {
       const api = window.HashcodFileVaultTotp;
       if (!api || typeof api.delete !== "function") {
-        setNotice("TOTP verification is not ready. Reload the page and try again.");
+        setNotice("File-code verification is not ready. Reload the page and try again.");
         return;
       }
       if ((await api.delete(file)) !== true) return;

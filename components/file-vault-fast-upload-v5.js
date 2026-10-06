@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-var VERSION='20261005-file-vault-fast5-route2';
+var VERSION='20261006-file-vault-fast5-fixed-code1';
 var FAST_ENDPOINT='/hashcod-file-vault-fast-upload.php';
 var RETRY_DELAYS=[0,500,1400,3000];
 var uiBusy=false;
@@ -47,7 +47,7 @@ function finishOwner(owner,status,payload){
 async function parseJson(response){
   try{return await response.json();}catch(_){return {};}
 }
-async function prepareUpload(file,id,secret,code){
+async function prepareUpload(file,id,code){
   var response=await fetch(FAST_ENDPOINT+'?action=prepare',{
     method:'POST',
     credentials:'same-origin',
@@ -62,8 +62,7 @@ async function prepareUpload(file,id,secret,code){
       name:file&&file.name||'file',
       type:file&&file.type||'application/octet-stream',
       size:Number(file&&file.size||0),
-      totp_secret:secret,
-      totp_code:code
+      access_code:code
     })
   });
   var payload=await parseJson(response);
@@ -134,9 +133,9 @@ async function completeUpload(ticket){
   }
   return payload;
 }
-async function performDirectUpload(file,id,secret,code,onProgress,onPhase){
+async function performDirectUpload(file,id,code,onProgress,onPhase){
   if(typeof onPhase==='function')onPhase('Preparing secure direct upload');
-  var prepared=await prepareUpload(file,id,secret,code);
+  var prepared=await prepareUpload(file,id,code);
   var progress=function(loaded,total){
     if(typeof onProgress==='function')onProgress(loaded,total);
   };
@@ -156,7 +155,7 @@ function waitForTotpApi(){
         return;
       }
       if(Date.now()-started>10000){
-        reject(new Error('TOTP interface did not initialize.'));
+        reject(new Error('File-code interface did not initialize.'));
         return;
       }
       setTimeout(check,35);
@@ -221,7 +220,6 @@ async function uploadFromUi(file){
   var completed=await performDirectUpload(
     file,
     id,
-    setup.secret,
     setup.code,
     function(loaded,total){
       var raw=total>0?(loaded/total)*100:0;
@@ -295,7 +293,7 @@ function installUiCapture(){
   document.addEventListener('drop',captureFilesEvent,true);
 }
 
-// Backup path for older File Vault builds: once TOTP fields are present,
+// Backup path for older File Vault builds: once a chosen code is present,
 // reroute the upload away from PHP and directly to Supabase Storage.
 proto.open=function(method,url){
   var args=Array.prototype.slice.call(arguments,2);
@@ -309,8 +307,7 @@ proto.send=function(body){
   if(
     !this.__hashcodHfvFastUpload||
     !(body instanceof FormData)||
-    !body.has('totp_secret')||
-    !body.has('totp_code')
+    !body.has('access_code')
   ){
     return nativeSend.call(this,body);
   }
@@ -318,8 +315,7 @@ proto.send=function(body){
   var owner=this;
   var file=body.get('file');
   var id=String(body.get('id')||'');
-  var secret=String(body.get('totp_secret')||'');
-  var code=String(body.get('totp_code')||'');
+  var code=String(body.get('access_code')||'');
   if(!(file instanceof Blob)||!id)return nativeSend.call(owner,body);
 
   (async function(){
@@ -329,7 +325,6 @@ proto.send=function(body){
       var completed=await performDirectUpload(
         file,
         id,
-        secret,
         code,
         function(loaded,bytesTotal){callProgress(owner,loaded,bytesTotal);}
       );

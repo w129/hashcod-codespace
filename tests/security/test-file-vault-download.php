@@ -4,7 +4,8 @@ declare(strict_types=1);
 // Exercise the real row-to-uploader-key authorization logic, isolating only
 // cryptographic transport and HTTP exits so failures can be asserted in CLI.
 $source = file_get_contents(dirname(__DIR__, 2) . '/hashcod-file-vault.php');
-$wanted = ['hfvMetaArray', 'hfvTotpProtected', 'hfvTotpSecretFromRow', 'hfvTotpRateLimit', 'hfvRequireTotp'];
+require_once dirname(__DIR__, 2) . '/hashcod-file-vault-access-code.php';
+$wanted = ['hfvMetaArray', 'hfvTotpProtected', 'hfvAccessProtection', 'hfvTotpSecretFromRow', 'hfvTotpRateLimit', 'hfvRequireTotp'];
 $tokens = token_get_all($source);
 for ($i = 0; $i < count($tokens); $i++) {
     if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_FUNCTION) continue;
@@ -27,6 +28,13 @@ for ($i = 0; $i < count($tokens); $i++) {
 $uploaderKeys = ['sealed-a' => bin2hex(random_bytes(20)), 'sealed-b' => bin2hex(random_bytes(20))];
 $expectedCodes = [$uploaderKeys['sealed-a'] => '111111', $uploaderKeys['sealed-b'] => '222222'];
 $rateAllowed = true;
+function mldsaAccessSecret(): string { return $GLOBALS['accessPepper']; }
+$accessPepper = random_bytes(32);
+$accessHash = hfvAccessCodeHash('MiCodigo-Verde! 2026', 'fv_access_a', $accessPepper);
+$accessRow = ['id' => 'fv_access_a', 'meta' => ['access_protection' => 'access-code', 'access_code_hash' => $accessHash]];
+hfvRequireTotp($accessRow, 'MiCodigo-Verde! 2026', true);
+expectDownloadStatus($accessRow, 'otro-codigo', 401);
+expectDownloadStatus($accessRow, '', 401);
 function hfvTotpOpenSecret(string $cipher): string { return $GLOBALS['uploaderKeys'][$cipher] ?? ''; }
 function hfvTotpValidateCode(string $secret, string $code): bool { return ($GLOBALS['expectedCodes'][$secret] ?? '') === $code; }
 function securityRateAllowSliding($bucket, $limit, $period): array { return ['allowed' => $GLOBALS['rateAllowed']]; }
@@ -56,4 +64,4 @@ downloadCheck(str_contains($source, "hfvRequireTotp(\$row, (string)(\$body['code
 $getHandler = substr($source, strpos($source, "if (\$_SERVER['REQUEST_METHOD'] === 'GET' && \$action === 'download')"));
 $getHandler = substr($getHandler, 0, strpos($getHandler, "if (\$_SERVER['REQUEST_METHOD'] === 'POST'"));
 downloadCheck(!str_contains($getHandler, 'hfvStreamRow(') && str_contains($getHandler, 'hfvJson(405'), 'GET downloads must never release file bytes');
-echo "File Vault download authorization uses each uploader key and rejects legacy, wrong, missing and rate-limited codes\n";
+echo "File Vault download authorization uses fixed uploader codes and legacy TOTP keys; wrong, missing and rate-limited codes fail\n";

@@ -32,6 +32,7 @@ function supabaseLogActivity(...$arguments): void { $GLOBALS['effects'][] = ['ac
 $deleteRows = [
     'fv_uploader_a' => ['id' => 'fv_uploader_a', 'account_key' => 'owner-a', 'supabase_object' => 'object-a', 'meta' => ['totp_protected' => true, 'totp_secret_cipher' => 'sealed-a']],
     'fv_uploader_b' => ['id' => 'fv_uploader_b', 'account_key' => 'owner-b', 'supabase_object' => 'object-b', 'meta' => ['totp_protected' => true, 'totp_secret_cipher' => 'sealed-b']],
+    'fv_access_a' => ['id' => 'fv_access_a', 'account_key' => 'owner-a', 'supabase_object' => 'object-access', 'meta' => ['access_protection' => 'access-code', 'access_code_hash' => $accessHash]],
     'fv_legacy' => ['id' => 'fv_legacy', 'supabase_object' => 'legacy', 'meta' => []],
 ];
 $deleteStart = strpos($source, "if (\$_SERVER['REQUEST_METHOD'] === 'POST' && \$action === 'delete')");
@@ -61,6 +62,8 @@ downloadCheck(deleteRequest(['id' => 'fv_uploader_b', 'code' => '222222'], 429) 
 $rateAllowed = true;
 $valid = deleteRequest(['id' => 'fv_uploader_b', 'code' => '222222'], 200);
 downloadCheck($valid[0] === ['storage', 'object-b'] && str_contains($valid[1][1], 'id=eq.fv_uploader_b&account_key=eq.owner-b'), 'Deletion must target the selected file and its owner');
+$validAccess = deleteRequest(['id' => 'fv_access_a', 'code' => 'MiCodigo-Verde! 2026'], 200);
+downloadCheck($validAccess[0] === ['storage', 'object-access'], 'Fixed file code must authorize deletion of its own file');
 deleteRequest(['id' => 'fv_uploader_b', 'code' => '222222'], 200, ['HTTPS' => 'off', 'HTTP_HOST' => '127.0.0.1:8000', 'HTTP_ORIGIN' => 'http://127.0.0.1:8000']);
 $storageOk = false;
 downloadCheck(count(deleteRequest(['id' => 'fv_uploader_b', 'code' => '222222'], 502)) === 1, 'Storage failure must not remove index');

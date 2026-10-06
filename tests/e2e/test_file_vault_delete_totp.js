@@ -61,7 +61,7 @@ async function deletion(statuses, answers) {
   const file = { id: 'fv_second123', local: true, cloud: true };
   await context.deleteFile(file);
   assert.deepStrictEqual(effects, [], 'missing verification API must not erase local bytes');
-  assert(notices.at(-1).includes('TOTP verification is not ready'));
+  assert(notices.at(-1).includes('File-code verification is not ready'));
   context.window.HashcodFileVaultTotp = { delete: async () => false };
   await context.deleteFile(file);
   assert.deepStrictEqual(effects, [], 'cancel and server errors must preserve device data');
@@ -79,5 +79,5 @@ async function deletion(statuses, answers) {
   await capture({ target: { closest: () => button }, preventDefault() { stopped++; }, stopPropagation() {}, stopImmediatePropagation() {} });
   assert.strictEqual(stopped, 1, 'legacy delete bypass must be intercepted');
   assert.strictEqual(selected[0].id, 'fv_second123');
-  console.log('File Vault delete requires uploader TOTP before local cleanup; cancellation, retry, failures and legacy bypass covered');
+  console.log('File Vault delete requires uploader access code before local cleanup; cancellation, retry, failures and legacy bypass covered');
 })().catch(error => { console.error(error); process.exitCode = 1; });

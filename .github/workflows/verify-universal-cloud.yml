@@ -10,6 +10,7 @@ on:
       - hashcod-workspace-image-vault.php
       - hashcod-file-vault.php
       - hashcod-file-vault-fast-upload.php
+      - hashcod-file-vault-access-code.php
       - components/universal-cloud-persistence.js
       - components/product-image-cloud-sync.js
       - components/workspace-image-vault-sync.js
@@ -25,6 +26,8 @@ on:
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_open_platform_entry.js
       - tests/e2e/test_file_vault_totp.js
+      - tests/e2e/test_file_vault_setup_dialog.js
+      - tests/e2e/test_file_vault_setup_api.js
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
       - .github/workflows/verify-universal-cloud.yml
@@ -37,6 +40,7 @@ on:
       - hashcod-workspace-image-vault.php
       - hashcod-file-vault.php
       - hashcod-file-vault-fast-upload.php
+      - hashcod-file-vault-access-code.php
       - components/universal-cloud-persistence.js
       - components/product-image-cloud-sync.js
       - components/workspace-image-vault-sync.js
@@ -52,6 +56,8 @@ on:
       - tests/e2e/test_cloud_device_sync.js
       - tests/e2e/test_open_platform_entry.js
       - tests/e2e/test_file_vault_totp.js
+      - tests/e2e/test_file_vault_setup_dialog.js
+      - tests/e2e/test_file_vault_setup_api.js
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
       - .github/workflows/verify-universal-cloud.yml
@@ -110,6 +116,12 @@ jobs:
 
       - name: File Vault uploader TOTP delete behavior
         run: node tests/e2e/test_file_vault_delete_totp.js
+
+      - name: File Vault fixed access-code security
+        run: |
+          php tests/security/test-file-vault-access-code.php
+          php tests/security/test-file-vault-download.php
+          php tests/security/test-file-vault-delete.php
 
       - name: File Vault fast upload contract
         run: node tests/e2e/test_file_vault_fast_upload.js

@@ -56,7 +56,7 @@ async function deletion(statuses, answers) {
   const start = core.indexOf('  const deleteFile = async');
   const handler = core.slice(start, core.indexOf('  const modal =', start)).replace('const deleteFile =', 'globalThis.deleteFile =');
   const effects = [], notices = [];
-  const context = vm.createContext({ window: {}, setNotice: text => notices.push(text), setFiles: () => effects.push('index'), fileVaultDeleteLocal: async () => effects.push('local') });
+  const context = vm.createContext({ window: {}, refreshSequence: { current: 0 }, setLoadingFiles() {}, setPreview() {}, setNotice: text => notices.push(text), setFiles: () => effects.push('index'), fileVaultDeleteLocal: async () => effects.push('local') });
   vm.runInContext(handler, context);
   const file = { id: 'fv_second123', local: true, cloud: true };
   await context.deleteFile(file);

@@ -301,8 +301,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $animateCursorJs=htmlspecialchars($base.'components/animate-ui-global-cursor.js?v=20261004-animate-cursor-book1',ENT_QUOTES,'UTF-8');
     $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5',ENT_QUOTES,'UTF-8');
     $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261006-file-vault-delete1',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261006-file-vault-device-fallback2',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261006-protected-files-explorer1',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261006-protected-files-explorer1',ENT_QUOTES,'UTF-8');
     $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261004-mesh-dialog1',ENT_QUOTES,'UTF-8');
     $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261004-mesh-dialog1',ENT_QUOTES,'UTF-8');
     $codeAccessRequired=$entryIntro&&codeAccessRequired();

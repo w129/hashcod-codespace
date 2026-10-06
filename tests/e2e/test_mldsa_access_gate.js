@@ -143,8 +143,8 @@ assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the t
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261006-file-vault-delete1'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261006-file-vault-device-fallback2'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261006-protected-files-explorer1'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261006-protected-files-explorer1'),'center EmptyState JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');

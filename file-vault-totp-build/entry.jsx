@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { saveLocalFile, readLocalFile, deleteLocalFile } from "./local-vault.js";
 
-const VERSION = "20261006-file-vault-device-fallback2";
+const VERSION = "20261006-protected-files-explorer1";
 const ENDPOINT = "/api/hashcod-file-vault";
 
 let requestHandler = null;
@@ -152,10 +152,10 @@ function TotpDialogHost() {
             <div className="hfv-totp-heading">
               <span>{setup ? "File code protection" : "Uploader file code"}</span>
               <h2 id="hfvTotpTitle">
-                {setup ? "Choose a code for this file" : notice ? (purpose === "delete" ? "Deletion unavailable" : "Download unavailable") : purpose === "delete" ? "Verify before delete" : "Verify before download"}
+                {setup ? "Choose a code for this file" : notice ? (purpose === "delete" ? "Deletion unavailable" : purpose === "preview" ? "Preview unavailable" : "Download unavailable") : purpose === "delete" ? "Verify before delete" : purpose === "preview" ? "Verify before preview" : "Verify before download"}
               </h2>
               <p title={fileName}>{fileName}</p>
-              <small id="hfvTotpDescription">{setup ? "Keep this code. You will need the same code to download or delete this file." : legacyTotp ? "This older file uses the uploader’s current authenticator code." : "Enter the exact code chosen by the person who uploaded this file."}</small>
+              <small id="hfvTotpDescription">{setup ? "Keep this code. You will need the same code to preview, download or delete this file." : legacyTotp ? "This older file uses the uploader’s current authenticator code." : "Enter the exact code chosen by the person who uploaded this file."}</small>
             </div>
 
             {!notice ? <div className="hfv-totp-code-block">
@@ -185,7 +185,7 @@ function TotpDialogHost() {
                 className="hfv-totp-primary"
                 whileTap={reduce ? undefined : { scale: 0.97 }}
               >
-                {setup ? "Protect & upload" : purpose === "delete" ? "Verify & delete" : "Verify & download"}
+                {setup ? "Protect & upload" : purpose === "delete" ? "Verify & delete" : purpose === "preview" ? "Verify & open" : "Verify & download"}
               </motion.button> : null}
             </div>
           </motion.form>
@@ -331,14 +331,14 @@ async function parseError(response, fallback) {
   }
 }
 
-async function verifiedDownload(file) {
-  if (file.accessProtection === "local-code" && file.cloud !== true) return verifiedLocalDownload(file);
+async function verifiedDownload(file, purpose = "download") {
+  if (file.accessProtection === "local-code" && file.cloud !== true) return purpose === "preview" ? verifiedLocalAction(file, purpose) : verifiedLocalDownload(file);
   let error = "";
   while (true) {
     const result = await requestTotpDialog({
       mode: "verify",
       fileName: file.name || "file",
-      purpose: "download",
+      purpose,
       protection: file.accessProtection,
       error,
     });
@@ -355,17 +355,18 @@ async function verifiedDownload(file) {
       },
       body: JSON.stringify({ id: file.id, code: result.code }),
     }); } catch {
-      await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file.name, error: "Could not verify this file. Check your connection and try again." });
+      await requestTotpDialog({ mode: "notice", purpose, fileName: file.name, error: "Could not verify this file. Check your connection and try again." });
       return;
     }
     if (!response.ok) {
       error = await parseError(response, "Use the exact code chosen by the uploader.");
       if (response.status === 401) continue;
-      await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file.name, error });
+      await requestTotpDialog({ mode: "notice", purpose, fileName: file.name, error });
       return;
     }
 
     const blob = await response.blob();
+    if (purpose === "preview") return blob;
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
@@ -488,6 +489,7 @@ async function verifiedLocalAction(file, purpose) {
     try {
       if (purpose === "delete") return await deleteLocalFile(file.id, result.code);
       const blob = await readLocalFile(file.id, result.code);
+      if (purpose === "preview") return blob;
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -507,6 +509,18 @@ async function verifiedLocalAction(file, purpose) {
 }
 function verifiedLocalDownload(file) { return verifiedLocalAction(file, "download"); }
 function verifiedLocalDelete(file) { return verifiedLocalAction(file, "delete"); }
+
+async function previewSelectedFile(file) {
+  if (actionBusy) return null;
+  actionBusy = true;
+  try {
+    if (!file?.id) throw new Error("Missing file identity.");
+    return (await verifiedDownload(file, "preview")) || null;
+  } catch {
+    await requestTotpDialog({ mode: "notice", purpose: "preview", fileName: file?.name || "file", error: "The preview could not be opened. Check your connection and try again." });
+    return null;
+  } finally { actionBusy = false; }
+}
 
 function boot() {
   if (window.__hashcodFileVaultTotpLoaded) return;
@@ -529,6 +543,7 @@ function boot() {
     version: VERSION,
     refresh: refreshCloudIndex,
     download: downloadSelectedFile,
+    preview: previewSelectedFile,
     delete: deleteSelectedFile,
     saveLocal: saveLocalFile,
     requestSetup: (fileName) => requestTotpDialog({ mode: "setup", fileName }),

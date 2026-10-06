@@ -1,4 +1,4 @@
-import { sql, json, fail, fileId, code, mac, equal, rate, bucket, storage, objectPath, ticket, openTicket, URL } from './core.ts';
+import { sql, json, fail, fileId, code, mac, equal, rate, bucket, storage, objectPath, ticket, openTicket, URL, MAX_FILE_BYTES } from './core.ts';
 function projection(row: any) {
   return { id: row.id, name: row.name, type: row.mime, size: Number(row.size), uploadedAt: new Date(row.created_at).toISOString(), cloud: true, totpProtected: true, accessProtection: 'access-code' };
 }
@@ -13,7 +13,7 @@ export async function files(action: string, request: Request, body: any) {
     const id = fileId(body.id), accessCode = code(body.access_code);
     const name = String(body.name || 'file').replace(/[\0\r\n]/g, '').split(/[\\/]/).pop()!.slice(0, 220) || 'file';
     const mime = String(body.type || 'application/octet-stream').replace(/[\r\n]/g, '').slice(0, 160);
-    const size = Number(body.size); if (!Number.isSafeInteger(size) || size < 0 || size > 99614720) fail(413, 'Files must be 95 MB or smaller.');
+    const size = Number(body.size); if (!Number.isSafeInteger(size) || size < 0 || size > MAX_FILE_BYTES) fail(413, 'Shared cloud files must be 50 MB or smaller.');
     await bucket();
     const hash = await mac('code|' + id + '|' + accessCode), object = 'files/' + id;
     // Reserve immutable identity/code before issuing a one-use upload URL.

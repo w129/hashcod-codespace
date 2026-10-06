@@ -1,6 +1,8 @@
 import postgres from 'npm:postgres@3.4.7';
 export const sql = postgres(Deno.env.get('SUPABASE_DB_URL')!, { max: 1, prepare: false, connect_timeout: 8, idle_timeout: 20 });
 export const BUCKET = 'hashcod-shared-cloud';
+// Keep this at or below the project's global Storage limit (50 MiB).
+export const MAX_FILE_BYTES = 52428800;
 export const URL = Deno.env.get('SUPABASE_URL')!;
 export const KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}').default;
 const encoder = new TextEncoder();
@@ -41,8 +43,12 @@ export async function bucket() {
   if (bucketReady) return;
   const existing = await storage('bucket/' + BUCKET);
   if (!existing.ok) {
-    const created = await storage('bucket', 'POST', { id: BUCKET, name: BUCKET, public: false, file_size_limit: 99614720 });
-    if (!created.ok && created.status !== 409) fail(503, 'Shared storage is unavailable.');
+    const created = await storage('bucket', 'POST', { id: BUCKET, name: BUCKET, public: false, file_size_limit: MAX_FILE_BYTES });
+    if (!created.ok && created.status !== 409) {
+      const reason = await created.json().catch(() => ({}));
+      console.error('Shared storage bucket creation failed', created.status, String(reason.error || '').slice(0, 100), String(reason.message || '').slice(0, 200));
+      fail(503, 'Shared storage is unavailable.');
+    }
   } else if ((await existing.json()).public === true) fail(503, 'Shared storage protection is unavailable.');
   bucketReady = true;
 }

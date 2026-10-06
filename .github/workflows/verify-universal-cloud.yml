@@ -19,6 +19,7 @@ on:
       - components/workspace-image-vault-sync.js
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
+      - components/mldsa-access-gate.js
       - components/file-vault-fast-upload-v4.js
       - components/file-vault-fast-upload-v5.js
       - components/file-vault-commit-recovery.js
@@ -43,6 +44,7 @@ on:
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
       - tests/e2e/test_shared_workspace_contract.js
+      - tests/e2e/test_shared_cloud_proxy.js
       - .github/workflows/verify-universal-cloud.yml
   pull_request:
     branches: [main]
@@ -62,6 +64,7 @@ on:
       - components/workspace-image-vault-sync.js
       - components/workspace-media-bootstrap.js
       - components/mldsa-access-gate-loader.js
+      - components/mldsa-access-gate.js
       - components/file-vault-fast-upload-v4.js
       - components/file-vault-fast-upload-v5.js
       - components/file-vault-commit-recovery.js
@@ -86,6 +89,7 @@ on:
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
       - tests/e2e/test_shared_workspace_contract.js
+      - tests/e2e/test_shared_cloud_proxy.js
       - .github/workflows/verify-universal-cloud.yml
   workflow_dispatch:
 
@@ -107,6 +111,7 @@ jobs:
 
       - name: JavaScript syntax
         run: |
+          node --check components/mldsa-access-gate.js
           node --check components/universal-cloud-persistence.js
           node --check components/product-image-cloud-sync.js
           node --check components/workspace-image-vault-sync.js
@@ -138,6 +143,9 @@ jobs:
 
       - name: Shared workspace cross-device contract
         run: node tests/e2e/test_shared_workspace_contract.js
+
+      - name: Shared cloud PHP transfer regression
+        run: node tests/e2e/test_shared_cloud_proxy.js
 
       - name: File Vault TOTP contract
         run: node tests/e2e/test_file_vault_totp.js

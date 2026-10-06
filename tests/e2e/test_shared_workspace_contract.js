@@ -12,6 +12,7 @@ const html = fs.readFileSync(path.join(root, 'mldsa-access.php'), 'utf8');
 const edge = fs.readFileSync(path.join(root, 'supabase/functions/hashcod-shared-cloud/index.ts'), 'utf8');
 const files = fs.readFileSync(path.join(root, 'supabase/functions/hashcod-shared-cloud/files.ts'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase/migrations/20261006141143_shared_workspace_cloud.sql'), 'utf8');
+const core = fs.readFileSync(path.join(root, 'supabase/functions/hashcod-shared-cloud/core.ts'), 'utf8');
 
 for (const route of ['/api/hashcod-shared-files', '/api/hashcod-shared-upload', '/api/hashcod-shared-state', '/api/hashcod-shared-text-editor']) {
   assert(router.includes(route), `router must expose ${route}`);
@@ -28,6 +29,9 @@ assert(edge.includes("action === 'state'"), 'Edge function state action missing'
 assert(edge.includes("action.startsWith('files.')"), 'Edge function file actions missing');
 assert(files.includes('equal(row.code_hash'), 'download/delete must verify uploader code server-side');
 assert(files.includes("status = 'deleted'"), 'delete must persist a tombstone');
+assert(core.includes('MAX_FILE_BYTES = 52428800'), 'bucket limit must fit the project Storage limit');
+assert(core.includes('file_size_limit: MAX_FILE_BYTES'), 'bucket creation must use the supported limit');
+assert(files.includes('size > MAX_FILE_BYTES'), 'prepare must reject oversized files before transfer');
 assert(migration.includes('create schema if not exists hashcod_shared'), 'shared schema migration missing');
 assert(migration.includes('enable row level security'), 'shared tables must keep RLS enabled');
 

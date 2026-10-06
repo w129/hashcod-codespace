@@ -88,11 +88,13 @@ function hcsCall(string $action, ?array $body): array {
     return ['status' => $status, 'type' => $type, 'raw' => (string)$raw];
 }
 
-function hcsForwardResponse(array $response): void {
+function hcsForwardResponse(array $response, bool $fileDownload = false): void {
     $type = strtolower((string)$response['type']);
     $status = (int)$response['status'];
     $raw = (string)$response['raw'];
-    if (str_contains($type, 'application/json') || str_starts_with(trim($raw), '{') || str_starts_with(trim($raw), '[')) {
+    // A protected JSON/text file is still a file: never decode or reserialize
+    // successful downloads, even when its bytes look like an API response.
+    if (!$fileDownload || $status < 200 || $status >= 300) {
         $decoded = json_decode($raw, true);
         if (!is_array($decoded)) hcsJson(['ok' => false, 'error' => 'Invalid cloud response.'], 503);
         hcsJson($decoded, $status);
@@ -101,6 +103,7 @@ function hcsForwardResponse(array $response): void {
     header('Content-Type: ' . ($type !== '' ? $type : 'application/octet-stream'));
     header('Cache-Control: no-store');
     header('X-Content-Type-Options: nosniff');
+    header('Content-Length: ' . strlen($raw));
     echo $raw;
     exit;
 }
@@ -123,6 +126,22 @@ function hashcodSharedCloudHandle(): void {
     securityBootstrap('api');
     $route = (string)($_SERVER['HASHCOD_SHARED_ROUTE'] ?? '/api/hashcod-shared-files');
     $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+    if ($method === 'POST') {
+        $site = strtolower(trim((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')));
+        if ($site === 'cross-site' || strcasecmp((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''), 'XMLHttpRequest') !== 0) {
+            hcsJson(['ok' => false, 'error' => 'Same-origin request required.'], 403);
+        }
+        $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
+        if ($origin !== '') {
+            $parts = parse_url($origin);
+            $host = strtolower((string)($parts['host'] ?? ''));
+            $port = isset($parts['port']) ? ':' . (int)$parts['port'] : '';
+            if (!is_array($parts) || strtolower((string)($parts['scheme'] ?? '')) !== (securityIsHttps() ? 'https' : 'http')
+                || $host === '' || !hash_equals(strtolower((string)($_SERVER['HTTP_HOST'] ?? '')), $host . $port)) {
+                hcsJson(['ok' => false, 'error' => 'Same-origin request required.'], 403);
+            }
+        }
+    }
     $query = $_GET;
     $body = $method === 'POST' ? hcsBody() : [];
     [$action, $forwardBody, $textKey] = array_pad(hcsAction($route, $method, $body, $query), 3, null);
@@ -132,7 +151,7 @@ function hashcodSharedCloudHandle(): void {
     }
     $response = hcsCall((string)$action, is_array($forwardBody) ? $forwardBody : null);
     if ($textKey !== null) hcsTextResponse($response, $textKey);
-    hcsForwardResponse($response);
+    hcsForwardResponse($response, $action === 'files.download');
 }
 
 hashcodSharedCloudHandle();

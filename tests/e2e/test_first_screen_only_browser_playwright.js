@@ -28,62 +28,15 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.waitForFunction(()=>document.getElementById('d5CodeAccessMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('#d5CenterEmptyStateAction',{state:'visible',timeout:5000});
-    await page.waitForFunction(()=>window.HashcodAnimateCursor?.mounted===true,{timeout:5000});
-    await page.waitForSelector('#d5AnimateCursor',{state:'attached',timeout:5000});
-    await page.waitForSelector('#d5AnimateCursorFollow',{state:'attached',timeout:5000});
-    await page.waitForFunction(()=>document.querySelector('#d5AnimateCursorFollow img')?.complete===true&&document.querySelector('#d5AnimateCursorFollow img')?.naturalWidth>0,{timeout:5000});
     await page.mouse.move(700,450);
-    await page.waitForTimeout(500);
-
-    const cursorState=await page.evaluate(()=>{
-      const cursor=document.getElementById('d5AnimateCursor');
-      const follow=document.getElementById('d5AnimateCursorFollow');
-      const action=document.getElementById('d5CenterEmptyStateAction');
-      const cursorRect=cursor.getBoundingClientRect();
-      const followRect=follow.getBoundingClientRect();
-      return {
-        smokeHost:Boolean(document.getElementById('d5SplashCursorBackground')),
-        smokeCanvas:Boolean(document.getElementById('d5SplashCursorCanvas')),
-        rootActive:document.documentElement.classList.contains('hashcod-animate-cursor-active'),
-        mounted:Boolean(window.HashcodAnimateCursor?.mounted),
-        global:window.HashcodAnimateCursor?.global===true,
-        side:window.HashcodAnimateCursor?.side||'',
-        sideOffset:window.HashcodAnimateCursor?.sideOffset,
-        align:window.HashcodAnimateCursor?.align||'',
-        alignOffset:window.HashcodAnimateCursor?.alignOffset,
-        followText:follow.textContent.trim(),
-        followImageSrc:follow.querySelector('img')?.getAttribute('src')||'',
-        followImageNaturalWidth:follow.querySelector('img')?.naturalWidth||0,
-        followImageNaturalHeight:follow.querySelector('img')?.naturalHeight||0,
-        cursorOpacity:getComputedStyle(cursor).opacity,
-        followOpacity:getComputedStyle(follow).opacity,
-        nativeCursor:getComputedStyle(action).cursor,
-        cursorCenterX:cursorRect.left+(cursorRect.width/2),
-        cursorCenterY:cursorRect.top+(cursorRect.height/2),
-        followCenterX:followRect.left+(followRect.width/2),
-        followCenterY:followRect.top+(followRect.height/2)
-      };
-    });
-
-    assert.equal(cursorState.smokeHost,false,'retired smoke cursor host must not exist');
-    assert.equal(cursorState.smokeCanvas,false,'retired WebGL smoke canvas must not exist');
-    assert.equal(cursorState.rootActive,true,'Animate UI cursor must activate globally on desktop');
-    assert.equal(cursorState.mounted,true,'Animate UI cursor runtime must mount');
-    assert.equal(cursorState.global,true,'Animate UI cursor must run in global mode');
-    assert.equal(cursorState.side,'bottom','CursorFollow side must be bottom');
-    assert.equal(cursorState.sideOffset,15,'CursorFollow sideOffset must be 15');
-    assert.equal(cursorState.align,'end','CursorFollow align must be end');
-    assert.equal(cursorState.alignOffset,5,'CursorFollow alignOffset must be 5');
-    assert.equal(cursorState.followText,'','CursorFollow must not render Designer text');
-    assert(cursorState.followImageSrc.endsWith('/components/book-cursor-follow.svg'),'CursorFollow must load the supplied book SVG');
-    assert(cursorState.followImageNaturalWidth>0&&cursorState.followImageNaturalHeight>0,'Book CursorFollow icon must load successfully');
-    assert.equal(cursorState.cursorOpacity,'1','custom cursor must be visible after mouse movement');
-    assert.equal(cursorState.followOpacity,'1','CursorFollow must be visible after mouse movement');
-    assert.equal(cursorState.nativeCursor,'none','native cursor must be hidden across the platform');
-    assert(Math.abs(cursorState.cursorCenterX-700)<=2,'custom cursor must follow pointer X directly');
-    assert(Math.abs(cursorState.cursorCenterY-450)<=2,'custom cursor must follow pointer Y directly');
-    assert(Math.abs(cursorState.followCenterX-717)<=10,'end-aligned CursorFollow must settle near pointer X + alignOffset + cursor half-width');
-    assert(Math.abs(cursorState.followCenterY-477)<=10,'bottom CursorFollow must settle near pointer Y + sideOffset + cursor half-height');
+    const cursorState=await page.evaluate(()=>({
+      overlay:Boolean(document.querySelector('#d5AnimateCursorLayer, #d5AnimateCursor, #d5AnimateCursorFollow')),
+      rootActive:document.documentElement.classList.contains('hashcod-animate-cursor-active'),
+      nativeCursor:getComputedStyle(document.getElementById('d5CenterEmptyStateAction')).cursor
+    }));
+    assert.equal(cursorState.overlay,false,'custom arrow and book cursor must be absent');
+    assert.equal(cursorState.rootActive,false,'native cursor must not be suppressed');
+    assert(!/none|url\(/.test(cursorState.nativeCursor),'controls must use the native system cursor');
 
     const state=await page.evaluate(()=>{
       const stage=document.getElementById('d5FirstBranchedMenuStage');

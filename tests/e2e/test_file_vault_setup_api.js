@@ -34,7 +34,17 @@ const quotePhp = value => "'" + value.replaceAll('\\', '/').replaceAll("'", "\\'
     function configureHelper(filename) {
       fs.writeFileSync(controller, source.replace(/const HFVU_TOTP_HELPER =[\s\S]*?;/, 'const HFVU_TOTP_HELPER = ' + quotePhp(filename) + ';'));
     }
-    configureHelper(helper);
+    if (process.platform === 'win32') {
+      // Preserve the actual platform path expression in the Windows controller.
+      const packaged = path.join(fixture, 'tools/file-vault-totp/hashcod-file-vault-totp.exe');
+      fs.mkdirSync(path.dirname(packaged), { recursive: true });
+      fs.copyFileSync(helper, packaged);
+      fs.writeFileSync(controller, source);
+    } else if (helper === '/usr/local/bin/hashcod-file-vault-totp') {
+      fs.writeFileSync(controller, source);
+    } else {
+      configureHelper(helper);
+    }
     fs.writeFileSync(path.join(fixture, 'auth.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'hashcod-workspace-access.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'supabase.php'), `<?php

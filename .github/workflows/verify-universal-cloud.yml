@@ -10,6 +10,7 @@ on:
       - hashcod-workspace-image-vault.php
       - hashcod-file-vault.php
       - hashcod-file-vault-fast-upload.php
+      - hashcod-file-vault-value.php
       - hashcod-file-vault-access-code.php
       - hashcod-shared-cloud.php
       - supabase/functions/hashcod-shared-cloud/**
@@ -35,6 +36,8 @@ on:
       - tests/e2e/test_first_screen_mobile_browser.js
       - tests/e2e/test_file_vault_explorer.js
       - tests/e2e/test_file_vault_explorer_browser.js
+      - tests/e2e/test_file_vault_value.js
+      - tests/e2e/test_file_vault_edge_value.js
       - tests/e2e/test_file_vault_loading.js
       - tools/file-vault-totp/**
       - Dockerfile
@@ -59,6 +62,7 @@ on:
       - hashcod-workspace-image-vault.php
       - hashcod-file-vault.php
       - hashcod-file-vault-fast-upload.php
+      - hashcod-file-vault-value.php
       - hashcod-file-vault-access-code.php
       - hashcod-shared-cloud.php
       - supabase/functions/hashcod-shared-cloud/**
@@ -84,6 +88,8 @@ on:
       - tests/e2e/test_first_screen_mobile_browser.js
       - tests/e2e/test_file_vault_explorer.js
       - tests/e2e/test_file_vault_explorer_browser.js
+      - tests/e2e/test_file_vault_value.js
+      - tests/e2e/test_file_vault_edge_value.js
       - tests/e2e/test_file_vault_loading.js
       - tools/file-vault-totp/**
       - Dockerfile
@@ -113,6 +119,7 @@ jobs:
           php -l hashcod-workspace-state.php
           php -l hashcod-workspace-blob.php
           php -l hashcod-workspace-image-vault.php
+          php -l hashcod-file-vault-value.php
           php -l hashcod-file-vault.php
           php -l hashcod-file-vault-fast-upload.php
           php -l hashcod-shared-cloud.php
@@ -186,6 +193,8 @@ jobs:
           npm run build --prefix first-screen-branched-menu-build
           npm install --prefix "$RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0 fake-indexeddb@6.2.4
           export NODE_PATH="$RUNNER_TEMP/hashcod-dom-tests/node_modules"
+          node tests/e2e/test_file_vault_value.js
+          node tests/e2e/test_file_vault_edge_value.js
           node tests/e2e/test_file_vault_local_protection.js
           node tests/e2e/test_file_vault_device_flow.js
           node tests/e2e/test_file_vault_explorer.js

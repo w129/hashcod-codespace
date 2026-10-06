@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-var VERSION='20261006-files-loading1';
+var VERSION='20261006-file-usd-value1';
 var FAST_ENDPOINT=(document.body&&document.body.dataset.hashcodSharedWorkspace==='1')?'/api/hashcod-shared-upload':'/hashcod-file-vault-fast-upload.php';
 var RETRY_DELAYS=[0,500,1400,3000];
 var uiBusy=false;
@@ -54,7 +54,7 @@ async function boundedFetch(url,options){
   catch(error){if(controller&&controller.signal.aborted)error.status=408;throw error;}
   finally{if(timer!==null)clearTimeout(timer);}
 }
-async function prepareUpload(file,id,code){
+async function prepareUpload(file,id,code,priceUsdCents){
   var response=await boundedFetch(FAST_ENDPOINT+'?action=prepare',{
     method:'POST',
     credentials:'same-origin',
@@ -69,7 +69,8 @@ async function prepareUpload(file,id,code){
       name:file&&file.name||'file',
       type:file&&file.type||'application/octet-stream',
       size:Number(file&&file.size||0),
-      access_code:code
+      access_code:code,
+      priceUsdCents:priceUsdCents??null
     })
   });
   var payload=await parseJson(response);
@@ -142,9 +143,9 @@ async function completeUpload(ticket){
   }
   return payload;
 }
-async function performDirectUpload(file,id,code,onProgress,onPhase){
+async function performDirectUpload(file,id,code,onProgress,onPhase,priceUsdCents){
   if(typeof onPhase==='function')onPhase('Preparing secure direct upload');
-  var prepared=await prepareUpload(file,id,code);
+  var prepared=await prepareUpload(file,id,code,priceUsdCents);
   var progress=function(loaded,total){
     if(typeof onProgress==='function')onProgress(loaded,total);
   };
@@ -160,16 +161,16 @@ function notifyTransfer(id,pending){
     window.dispatchEvent(new CustomEvent('hashcod:file-vault-transfer',{detail:{id:id,pending:pending}}));
   }
 }
-async function uploadProtectedFile(file,id,code,onProgress,onPhase){
+async function uploadProtectedFile(file,id,code,onProgress,onPhase,priceUsdCents){
   notifyTransfer(id,true);
-  try{return await performDirectUpload(file,id,code,onProgress,onPhase);}
+  try{return await performDirectUpload(file,id,code,onProgress,onPhase,priceUsdCents);}
   catch(error){
     var status=Number(error&&error.status||0);
     if(status!==0&&status!==408&&status!==502&&status!==503&&status!==504)throw error;
     var api=window.HashcodFileVaultTotp;
     if(!api||typeof api.saveLocal!=='function')throw error;
     if(typeof onPhase==='function')onPhase('Saving protected file on this device');
-    var local=await api.saveLocal(file,id,code);
+    var local=await api.saveLocal(file,id,code,priceUsdCents);
     if(typeof onProgress==='function')onProgress(file.size||1,file.size||1);
     return {ok:true,file:local,storage:'device',cloud:false};
   }finally{notifyTransfer(id,false);}
@@ -257,7 +258,8 @@ async function uploadFromUi(file){
     },
     function(phase){
       setUi(file.name,lastPercent,phase,'uploading');
-    }
+    },
+    setup.priceUsdCents
   );
 
   var local=completed.file&&completed.file.cloud===false;
@@ -356,7 +358,9 @@ proto.send=function(body){
         file,
         id,
         code,
-        function(loaded,bytesTotal){callProgress(owner,loaded,bytesTotal);}
+        function(loaded,bytesTotal){callProgress(owner,loaded,bytesTotal);},
+        undefined,
+        body.has('priceUsdCents') ? Number(body.get('priceUsdCents')) : null
       );
       finishOwner(owner,201,completed);
     }catch(error){

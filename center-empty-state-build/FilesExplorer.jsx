@@ -1,3 +1,4 @@
+import { FileValueBadge } from "../file-vault-totp-build/file-value-ui.jsx";
 import React from 'react';
 import { FileTextIcon, FileJsonIcon, FileImageIcon, FileVideoIcon, FileAudioIcon, FileArchiveIcon } from 'lucide-react';
 import { Files, FolderItem, FolderTrigger, FolderContent, SubFiles, FileItem } from './animate-ui/Files';
@@ -28,7 +29,7 @@ export default function FilesExplorer({ files, loading, uploading, busy, onPrevi
                 <FileItem key={file.id} icon={iconFor(file)} data-hfv-preview-id={file.id}
                   aria-label={'Preview ' + file.name} title={file.name} disabled={busy}
                   onClick={() => void onPreview(file)}>
-                  {file.name}
+                  <span className="hfv-explorer-filename">{file.name}</span><FileValueBadge cents={file.priceUsdCents} />
                 </FileItem>
               ))}
               {!files.length && <p className="hfv-explorer-empty">{loading ? 'Loading files…' : 'No files uploaded yet.'}</p>}

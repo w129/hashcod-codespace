@@ -36,9 +36,26 @@ async function scenario(origin) {
       await pause();
       w.document.querySelector('form.hfv-totp-dialog').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
     }
+    await until(() => w.document.querySelector('.hfv-value-toggle'));
+    w.document.querySelector('.hfv-value-toggle').click();
+    await until(() => w.document.querySelector('#hfvUsdValue'));
+    const priceField = w.document.querySelector('#hfvUsdValue');
+    Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, 'value').set.call(priceField, '12.50');
+    priceField.dispatchEvent(new w.Event('input', { bubbles: true }));
+    await pause();
+    Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, 'value').set.call(priceField, '12.501');
+    priceField.dispatchEvent(new w.Event('input', { bubbles: true }));
+    await pause();
+    await enter('MiCodigo-Verde! 2026');
+    await until(() => w.document.querySelector('.hfv-totp-error')?.textContent.includes('USD'));
+    assert.equal(meta, undefined, 'invalid amount must stop before saving');
+    Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, 'value').set.call(priceField, '12.50');
+    priceField.dispatchEvent(new w.Event('input', { bubbles: true }));
+    await pause();
     await enter('MiCodigo-Verde! 2026');
     await until(() => meta);
     assert.equal(meta.cloud, false);
+    assert.equal(meta.priceUsdCents, 1250, 'capture upload must preserve chosen USD value');
     assert.equal(meta.accessProtection, 'local-code');
     assert.match(w.document.querySelector('.hfv-fast-layer small').textContent, /Saved on this device/);
     const row = w.document.createElement('article');

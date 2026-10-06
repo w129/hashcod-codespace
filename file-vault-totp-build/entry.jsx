@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { saveLocalFile, readLocalFile, deleteLocalFile } from "./local-vault.js";
+import { parseUsdAmount } from './file-value.js';
+import { FileValueIcon } from './file-value-ui.jsx';
 
-const VERSION = "20261006-protected-files-explorer1";
+const VERSION = "20261006-file-usd-value1";
 const ENDPOINT = typeof document !== "undefined" && document.body?.dataset?.hashcodSharedWorkspace === "1"
   ? "/api/hashcod-shared-files"
   : "/api/hashcod-file-vault";
@@ -41,6 +43,8 @@ function TotpDialogHost() {
   const [request, setRequest] = useState(null);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [valueOpen, setValueOpen] = useState(false);
+  const [amount, setAmount] = useState('');
   const codeRef = useRef(null);
   const dialogRef = useRef(null);
 
@@ -48,7 +52,8 @@ function TotpDialogHost() {
     setRequest(entry);
     setError(String(entry.options?.error || ""));
     setCode("");
-
+    setValueOpen(false);
+    setAmount('');
   };
 
   useEffect(() => {
@@ -109,7 +114,10 @@ function TotpDialogHost() {
     if (notice) return;
     if (!code.trim()) { setError("Enter the code you want to use for this file."); return; }
     if (legacyTotp && !/^\d{6}$/.test(code)) { setError("Enter the current 6-digit authenticator code for this older file."); return; }
-    finish({ code });
+    try {
+      const priceUsdCents = setup && valueOpen ? parseUsdAmount(amount) : null;
+      finish(setup ? { code, priceUsdCents } : { code });
+    } catch (failure) { setError(failure.message); }
   };
 
   return (
@@ -174,6 +182,17 @@ function TotpDialogHost() {
                 aria-label={legacyTotp ? "Current authenticator code" : "File access code"}
               />
               <small>{legacyTotp ? "6 digits · from the uploader’s authenticator" : "Letters, numbers or symbols · this code stays the same"}</small>
+            </div> : null}
+
+            {setup ? <div className="hfv-value-setup">
+              <button type="button" className="hfv-value-toggle" aria-expanded={valueOpen} aria-controls="hfvUsdValuePanel" onClick={() => { setValueOpen(!valueOpen); setError(''); }}>
+                <FileValueIcon /><span>{valueOpen ? 'File value · USD' : 'Add file value · USD'}</span><small>Optional</small>
+              </button>
+              {valueOpen ? <motion.div id="hfvUsdValuePanel" className="hfv-value-panel" initial={reduce ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}>
+                <label htmlFor="hfvUsdValue">Value in US dollars</label>
+                <div className="hfv-value-input"><span aria-hidden="true">$</span><input id="hfvUsdValue" value={amount} onChange={event => setAmount(event.target.value)} inputMode="decimal" type="text" maxLength={10} placeholder="0.00" autoComplete="off" /><span>USD</span></div>
+                <small>Shown with this file in File vault and Files. Leave blank to upload without a value.</small>
+              </motion.div> : null}
             </div> : null}
 
             <div className="hfv-totp-error" data-visible={error ? "true" : "false"} aria-live="polite">
@@ -306,6 +325,7 @@ function installUploadPatch() {
           return;
         }
         body.set("access_code", result.code);
+        if (result.priceUsdCents !== null) body.set("priceUsdCents", String(result.priceUsdCents));
         nativeSend.call(xhr, body);
       })
       .catch(() => {

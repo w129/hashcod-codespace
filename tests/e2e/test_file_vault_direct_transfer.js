@@ -33,8 +33,8 @@ async function scenario(prepareStatus = 200, storageStatus = 200, withFallback =
     FormData,
     XMLHttpRequest: StorageXHR,
     CustomEvent,
-    window: { dispatchEvent: event => { transferEvents.push(event.detail); }, HashcodFileVaultTotp: { saveLocal: async (chosen, id, accessCode) => {
-      calls.push({ stage: 'device', chosen, id, accessCode });
+    window: { dispatchEvent: event => { transferEvents.push(event.detail); }, HashcodFileVaultTotp: { saveLocal: async (chosen, id, accessCode, priceUsdCents) => {
+      calls.push({ stage: 'device', chosen, id, accessCode, priceUsdCents });
       if (localFailure) throw new Error('Device quota exceeded.');
       return { id, name: chosen.name, local: true, cloud: false, accessProtection: 'local-code' };
     } } },
@@ -52,13 +52,14 @@ async function scenario(prepareStatus = 200, storageStatus = 200, withFallback =
   });
   vm.runInContext(transfer, context);
   let result, error;
-  try { result = await (withFallback ? context.uploadProtectedFile : context.performDirectUpload)(file, 'fv_transfer123', code); }
+  try { result = await (withFallback ? context.uploadProtectedFile : context.performDirectUpload)(file, 'fv_transfer123', code, undefined, undefined, 1250); }
   catch (caught) { error = caught; }
   if (withFallback) {
     assert.deepStrictEqual(transferEvents.map(event => event.pending), [true, false], 'loading must stop on success, rejection and fallback failure');
     assert(transferEvents.every(event => event.id === 'fv_transfer123' && !('code' in event)), 'loading events must identify a file without revealing its code');
   }
   assert.strictEqual(calls[0].body.access_code, code);
+  assert.strictEqual(calls[0].body.priceUsdCents, 1250);
   assert.strictEqual('totp_code' in calls[0].body, false);
   assert.strictEqual(calls[0].body.type, 'application/pdf');
   return { calls, result, error };
@@ -81,6 +82,7 @@ async function scenario(prepareStatus = 200, storageStatus = 200, withFallback =
   assert(!unavailable.error);
   assert.equal(unavailable.result.file.cloud, false, 'device save must never claim cloud success');
   assert.deepStrictEqual(unavailable.calls.map(call => call.stage), ['prepare', 'device']);
+  assert.equal(unavailable.calls.at(-1).priceUsdCents, 1250);
   assert.equal(unavailable.calls.at(-1).accessCode, 'MiCodigo-Verde! 2026');
   for (const status of [400, 401, 403, 413, 429]) {
     const denied = await scenario(status, 200, true);

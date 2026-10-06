@@ -1,3 +1,4 @@
+import { FileValueBadge } from "../file-vault-totp-build/file-value-ui.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
@@ -1439,6 +1440,7 @@ function fileVaultMerge(localRows, cloudRows) {
       local: false,
       totpProtected: Boolean(row.totpProtected),
       accessProtection: row.accessProtection,
+      priceUsdCents: row.priceUsdCents ?? null,
     });
   });
   (localRows || []).forEach((row) => {
@@ -1450,6 +1452,7 @@ function fileVaultMerge(localRows, cloudRows) {
       cloud: Boolean(row.cloud || cloud?.cloud),
       local: true,
       accessProtection: cloud?.accessProtection || row.accessProtection,
+      priceUsdCents: cloud ? cloud.priceUsdCents : row.priceUsdCents,
     });
   });
   return Array.from(map.values()).sort(
@@ -1559,7 +1562,7 @@ function FileVault({ actions }) {
         setActiveName(file.name);
         setProgress(0);
         const result = await transfer.upload(file, fileVaultNewId(), setup.code,
-          (loaded, total) => setProgress(total > 0 ? 100 * loaded / total : 0));
+          (loaded, total) => setProgress(total > 0 ? 100 * loaded / total : 0), undefined, setup.priceUsdCents);
         setNotice(result.file?.cloud === false
           ? "Saved with code protection on this device. Cloud sync is unavailable."
           : "File stored in cloud.");
@@ -1769,6 +1772,7 @@ function FileVault({ actions }) {
                         {file.cloud ? "Cloud" : "Device"}
                         {file.cloud && file.local ? " + device" : ""}
                       </span>
+                      <FileValueBadge cents={file.priceUsdCents} />
                     </div>
                     <div className="hfv-file-actions">
                       <button

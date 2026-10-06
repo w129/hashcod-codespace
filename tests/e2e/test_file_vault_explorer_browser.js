@@ -50,7 +50,7 @@ async function main() {
         ['fv_browser_pdf_12345', 'report.pdf', 'application/pdf', pdf],
         ['fv_browser_html_12345', 'example.html', 'text/html', '<script>window.PWNED=true</script>'],
         ['fv_browser_text_12345', 'notes.txt', 'text/plain', 'Protected notes'],
-      ]) await window.HashcodFileVaultTotp.saveLocal(new File([data], name, { type }), id, 'same-file-code');
+      ]) await window.HashcodFileVaultTotp.saveLocal(new File([data], name, { type }), id, 'same-file-code', 1250);
       window.dispatchEvent(new CustomEvent('hashcod:file-vault-saved'));
     }, samplePdf());
     await page.locator('[data-hfv-preview-id="fv_browser_pdf_12345"]').waitFor({ state: 'visible' });
@@ -61,10 +61,11 @@ async function main() {
       const rows = Array.from(document.querySelectorAll('#d5FilesExplorer [data-hfv-preview-id]'));
       return folder && rows.length === 3 && folder.getBoundingClientRect().height >= rows.reduce((total, row) => total + row.getBoundingClientRect().height, 0) - 1 && getComputedStyle(folder).opacity === '1';
     });
+    assert.match(await page.locator('[data-hfv-preview-id="fv_browser_pdf_12345"] .hfv-file-value').textContent(), /\$12.50 USD/);
     assert.equal(await page.locator('[data-hfv-preview-id]').count(), 3, 'reload must restore every stored file');
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('hashcod:file-vault-transfer', { detail: { id: 'fv_browser_pending', pending: true } })));
     await page.locator('#d5FilesExplorer .hfv-loading-state').waitFor();
-    for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 700, height: 500 }]) {
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 320, height: 700 }, { width: 390, height: 844 }, { width: 700, height: 500 }]) {
       await page.setViewportSize(viewport);
       const tree = await page.locator('#d5FilesExplorer').boundingBox();
       const actions = await page.locator('.hashcod-empty-state-actions-row').boundingBox();
@@ -91,6 +92,17 @@ async function main() {
     if (process.env.HFV_SCREENSHOT_DIR) {
       fs.mkdirSync(process.env.HFV_SCREENSHOT_DIR, { recursive: true });
       await page.screenshot({ path: path.join(process.env.HFV_SCREENSHOT_DIR, 'files-explorer.png') });
+    }
+    for (const viewport of [{ width: 320, height: 700 }, { width: 1440, height: 900 }]) {
+      await page.setViewportSize(viewport);
+      await page.evaluate(() => { void window.HashcodFileVaultTotp.requestSetup('priced-document.pdf'); });
+      await page.locator('.hfv-value-toggle').click();
+      await page.locator('#hfvUsdValue').fill('12.50');
+      const dialog = await page.locator('.hfv-totp-dialog').boundingBox();
+      assert(dialog.x >= 0 && dialog.x + dialog.width <= viewport.width + 1 && dialog.y >= 0 && dialog.y + dialog.height <= viewport.height + 1, 'USD setup must fit phone and desktop');
+      if (process.env.HFV_SCREENSHOT_DIR) await page.screenshot({ path: path.join(process.env.HFV_SCREENSHOT_DIR, 'file-value-' + viewport.width + '.png') });
+      await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+      await page.locator('.hfv-totp-dialog').waitFor({ state: 'detached' });
     }
     await page.locator('[data-hfv-preview-id="fv_browser_pdf_12345"]').click();
     await page.locator('#hfvTotpCode').fill('wrong');

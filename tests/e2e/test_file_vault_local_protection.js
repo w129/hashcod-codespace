@@ -6,7 +6,7 @@ const { indexedDB, IDBDatabase } = require('fake-indexeddb');
 globalThis.indexedDB = indexedDB;
 Object.defineProperty(globalThis, 'crypto', { value: webcrypto, configurable: true });
 const filename = path.resolve(__dirname, '../../file-vault-totp-build/local-vault.js');
-async function load() { return import('data:text/javascript;base64,' + Buffer.from(fs.readFileSync(filename)).toString('base64')); }
+async function load() { return import('data:text/javascript;base64,' + Buffer.from(fs.readFileSync(filename, 'utf8').replace('./file-value.js', 'data:text/javascript;base64,' + Buffer.from(fs.readFileSync(path.join(path.dirname(filename), 'file-value.js'))).toString('base64'))).toString('base64')); }
 function rawStore(store, id, change) {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('hashcod_file_vault_v1', 1);
@@ -26,8 +26,10 @@ function rawStore(store, id, change) {
   for (const [id, name, bytes] of [['fv_localpdf123', 'document.pdf', 'original PDF bytes'], ['fv_localzip123', 'archive.zip', '\u0000\u0001\u00ff'], ['fv_localempty1', 'empty.bin', '']]) {
     const code = ' código Verde! 2026 ';
     const file = new File([bytes], name, { type: 'application/octet-stream' });
-    const meta = await vault.saveLocalFile(file, id, code);
+    const meta = await vault.saveLocalFile(file, id, code, 1250);
     assert.equal(meta.cloud, false);
+    assert.equal(meta.priceUsdCents, 1250);
+    assert.equal((await rawStore('files', id)).priceUsdCents, 1250);
     assert.equal(meta.accessProtection, 'local-code');
     assert.equal(meta.local, true);
     const stored = await rawStore('blobs', id);
@@ -44,6 +46,8 @@ function rawStore(store, id, change) {
   }
   const file = new File(['private content'], 'secret.txt');
   await assert.rejects(vault.saveLocalFile(file, 'fv_invalid123', ''));
+  await assert.rejects(vault.saveLocalFile(file, 'fv_price_invalid1', 'code', -1), error => error.status === 400);
+  assert.equal(await vault.findLocalFile('fv_price_invalid1'), null);
   await assert.rejects(vault.saveLocalFile(file, '../traversal', 'code'));
   await vault.saveLocalFile(file, 'fv_tampered123', 'same-code');
   await assert.rejects(vault.saveLocalFile(file, 'fv_tampered123', 'replacement-code'), error => error.status === 507);

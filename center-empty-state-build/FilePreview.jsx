@@ -1,3 +1,4 @@
+import { FileValueBadge } from "../file-vault-totp-build/file-value-ui.jsx";
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, useReducedMotion } from 'motion/react';
@@ -115,7 +116,7 @@ export default function FilePreview({ file, blob, onClose, onDownload, onDelete 
     <div className="hfv-preview-backdrop" onMouseDown={event => { if (event.currentTarget === event.target) onClose(); }}>
       <motion.section id="d5FilePreview" ref={dialog} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="hfvPreviewTitle"
         className="hfv-preview" data-preview-kind={kind} initial={reduce ? false : { opacity: 0, y: 12, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}>
-        <header><div><h2 id="hfvPreviewTitle" title={file.name}>{file.name}</h2><small>{file.cloud ? 'Cloud' : 'Device'} · {(blob.size / 1024).toFixed(1)} KB</small></div>
+        <header><div><h2 id="hfvPreviewTitle" title={file.name}>{file.name}</h2><small>{file.cloud ? 'Cloud' : 'Device'} · {(blob.size / 1024).toFixed(1)} KB</small><FileValueBadge cents={file.priceUsdCents} /></div>
           <div className="hfv-preview-actions">
             <button type="button" aria-label="Download file" title="Download" onClick={() => void onDownload(file)}><DownloadIcon /></button>
             <button type="button" aria-label="Delete file" title="Delete" onClick={() => void onDelete(file)}><Trash2Icon /></button>

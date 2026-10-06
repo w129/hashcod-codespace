@@ -21,6 +21,7 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/hashcod-workspace-access.php';
 require_once __DIR__ . '/hashcod-file-vault-access-code.php';
+require_once __DIR__ . '/hashcod-file-vault-value.php';
 
 // The router admits only this deliberate JSON controller before the generic
 // PHP-path deny rule. Keep IP/threat checks and rate limits on the API itself.
@@ -305,6 +306,7 @@ function hfvuFinalizeRecord(array $ticket, string $sha256 = ''): array {
             'upload_transport' => 'direct-signed-storage',
             'upload_strategy' => 'aws-style-direct-object-transfer',
             'upload_version' => 1,
+            'price_usd_cents' => hfvUsdCents($ticket['priceUsdCents'] ?? null),
         ],
     ], $account);
 
@@ -333,6 +335,7 @@ function hfvuFinalizeRecord(array $ticket, string $sha256 = ''): array {
             'totpProtected' => true,
             'accessProtection' => $fixedCode ? 'access-code' : 'totp',
             'transport' => 'direct',
+            'priceUsdCents' => hfvUsdCents($ticket['priceUsdCents'] ?? null),
         ],
     ];
 }
@@ -371,6 +374,8 @@ if ($action === 'prepare') {
     $id = hfvuSafeId((string)($body['id'] ?? ''));
     $name = hfvuOriginalName((string)($body['name'] ?? 'file'));
     $mime = hfvuMime((string)($body['type'] ?? 'application/octet-stream'));
+    try { $priceUsdCents = hfvUsdCents($body['priceUsdCents'] ?? null); }
+    catch (InvalidArgumentException $error) { hfvuJson(400, ['ok' => false, 'error' => $error->getMessage()]); }
     $size = (int)($body['size'] ?? -1);
     if ($size < 0 || $size > HFVU_MAX_UPLOAD_BYTES) {
         hfvuJson(413, ['ok' => false, 'error' => 'Cloud files must be 95 MB or smaller.']);
@@ -399,6 +404,7 @@ if ($action === 'prepare') {
         'name' => $name,
         'mime' => $mime,
         'size' => $size,
+        'priceUsdCents' => $priceUsdCents,
         'object' => $object,
         'protection' => 'access-code',
         'access_code_hash' => $codeHash,

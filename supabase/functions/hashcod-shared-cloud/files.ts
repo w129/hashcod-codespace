@@ -1,28 +1,29 @@
+import { usdCents } from './file-value.ts';
 import { sql, json, fail, fileId, code, mac, equal, rate, bucket, storage, objectPath, ticket, openTicket, URL, MAX_FILE_BYTES } from './core.ts';
 function projection(row: any) {
-  return { id: row.id, name: row.name, type: row.mime, size: Number(row.size), uploadedAt: new Date(row.created_at).toISOString(), cloud: true, totpProtected: true, accessProtection: 'access-code' };
+  return { id: row.id, name: row.name, type: row.mime, size: Number(row.size), uploadedAt: new Date(row.created_at).toISOString(), cloud: true, totpProtected: true, accessProtection: 'access-code', priceUsdCents: row.price_usd_cents ?? null };
 }
 export async function files(action: string, request: Request, body: any) {
   if (action === 'list') {
-    const rows = await sql`select id, name, mime, size, created_at from hashcod_shared.files where status = 'ready' order by created_at desc limit 500`;
+    const rows = await sql`select id, name, mime, size, created_at, price_usd_cents from hashcod_shared.files where status = 'ready' order by created_at desc limit 500`;
     const deleted = await sql`select id from hashcod_shared.files where status = 'deleted' order by created_at desc limit 500`;
     return json({ ok: true, files: rows.map(projection), deleted: deleted.map(r => r.id), scope: 'cross-device' });
   }
   if (request.method !== 'POST') fail(405, 'File actions require POST.');
   if (action === 'prepare') {
-    const id = fileId(body.id), accessCode = code(body.access_code);
+    const id = fileId(body.id), accessCode = code(body.access_code), price = usdCents(body.priceUsdCents);
     const name = String(body.name || 'file').replace(/[\0\r\n]/g, '').split(/[\\/]/).pop()!.slice(0, 220) || 'file';
     const mime = String(body.type || 'application/octet-stream').replace(/[\r\n]/g, '').slice(0, 160);
     const size = Number(body.size); if (!Number.isSafeInteger(size) || size < 0 || size > MAX_FILE_BYTES) fail(413, 'Shared cloud files must be 50 MB or smaller.');
     await bucket();
     const hash = await mac('code|' + id + '|' + accessCode), object = 'files/' + id;
     // Reserve immutable identity/code before issuing a one-use upload URL.
-    const inserted = await sql`insert into hashcod_shared.files (id, name, mime, size, object_path, code_hash, status)
-      values (${id}, ${name}, ${mime}, ${size}, ${object}, ${hash}, 'pending') on conflict (id) do nothing returning id`;
+    const inserted = await sql`insert into hashcod_shared.files (id, name, mime, size, object_path, code_hash, status, price_usd_cents)
+      values (${id}, ${name}, ${mime}, ${size}, ${object}, ${hash}, 'pending', ${price}) on conflict (id) do nothing returning id`;
     if (!inserted.length) {
       const rows = await sql`select * from hashcod_shared.files where id = ${id}`;
       const row = rows[0];
-      if (row.status !== 'pending' || !equal(row.code_hash, hash) || Number(row.size) !== size || row.name !== name || row.mime !== mime) fail(409, 'This file id is already in use.');
+      if (row.status !== 'pending' || !equal(row.code_hash, hash) || Number(row.size) !== size || row.name !== name || row.mime !== mime || (row.price_usd_cents ?? null) !== price) fail(409, 'This file id is already in use.');
     }
     const signed = await storage('object/upload/sign/' + objectPath(object), 'POST', {}, { 'x-upsert': 'false' });
     if (!signed.ok) fail(503, 'Could not prepare shared upload.');

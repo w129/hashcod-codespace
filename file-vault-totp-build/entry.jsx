@@ -4,7 +4,9 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { saveLocalFile, readLocalFile, deleteLocalFile } from "./local-vault.js";
 
 const VERSION = "20261006-protected-files-explorer1";
-const ENDPOINT = "/api/hashcod-file-vault";
+const ENDPOINT = typeof document !== "undefined" && document.body?.dataset?.hashcodSharedWorkspace === "1"
+  ? "/api/hashcod-shared-files"
+  : "/api/hashcod-file-vault";
 
 let requestHandler = null;
 const pendingRequests = [];

@@ -11,6 +11,9 @@ on:
       - hashcod-file-vault.php
       - hashcod-file-vault-fast-upload.php
       - hashcod-file-vault-access-code.php
+      - hashcod-shared-cloud.php
+      - supabase/functions/hashcod-shared-cloud/**
+      - supabase/migrations/**
       - components/universal-cloud-persistence.js
       - components/product-image-cloud-sync.js
       - components/workspace-image-vault-sync.js
@@ -39,6 +42,7 @@ on:
       - tests/e2e/test_file_vault_device_flow.js
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
+      - tests/e2e/test_shared_workspace_contract.js
       - .github/workflows/verify-universal-cloud.yml
   pull_request:
     branches: [main]
@@ -50,6 +54,9 @@ on:
       - hashcod-file-vault.php
       - hashcod-file-vault-fast-upload.php
       - hashcod-file-vault-access-code.php
+      - hashcod-shared-cloud.php
+      - supabase/functions/hashcod-shared-cloud/**
+      - supabase/migrations/**
       - components/universal-cloud-persistence.js
       - components/product-image-cloud-sync.js
       - components/workspace-image-vault-sync.js
@@ -78,6 +85,7 @@ on:
       - tests/e2e/test_file_vault_device_flow.js
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
+      - tests/e2e/test_shared_workspace_contract.js
       - .github/workflows/verify-universal-cloud.yml
   workflow_dispatch:
 
@@ -95,6 +103,7 @@ jobs:
           php -l hashcod-workspace-image-vault.php
           php -l hashcod-file-vault.php
           php -l hashcod-file-vault-fast-upload.php
+          php -l hashcod-shared-cloud.php
 
       - name: JavaScript syntax
         run: |
@@ -110,6 +119,7 @@ jobs:
           node --check tests/e2e/test_file_vault_totp.js
           node --check tests/e2e/test_file_vault_fast_upload.js
           node --check tests/e2e/test_file_vault_commit_recovery.js
+          node --check tests/e2e/test_shared_workspace_contract.js
 
       - uses: actions/setup-go@v5
         with:
@@ -125,6 +135,9 @@ jobs:
 
       - name: Direct platform entry contract
         run: node tests/e2e/test_open_platform_entry.js
+
+      - name: Shared workspace cross-device contract
+        run: node tests/e2e/test_shared_workspace_contract.js
 
       - name: File Vault TOTP contract
         run: node tests/e2e/test_file_vault_totp.js

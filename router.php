@@ -32,8 +32,13 @@ if (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], tru
     $bootstrapController = __DIR__ . '/hashcod-file-vault.php';
 } elseif (in_array($bootstrapSyncPath, ['/hashcod-file-vault-fast-upload.php', '/api/hashcod-file-vault-fast-upload'], true)) {
     $bootstrapController = __DIR__ . '/hashcod-file-vault-fast-upload.php';
+} elseif (in_array($bootstrapSyncPath, ['/api/hashcod-shared-files', '/api/hashcod-shared-upload', '/api/hashcod-shared-state', '/api/hashcod-shared-text-editor'], true)) {
+    $bootstrapController = __DIR__ . '/hashcod-shared-cloud.php';
 }
 if ($bootstrapController !== null) {
+    if (is_string($bootstrapSyncPath) && str_starts_with($bootstrapSyncPath, '/api/hashcod-shared-')) {
+        $_SERVER['HASHCOD_SHARED_ROUTE'] = $bootstrapSyncPath;
+    }
     $bootstrapQuery = parse_url($bootstrapRequestUri, PHP_URL_QUERY);
     $_SERVER['REQUEST_URI'] = '/api/admin-device/status'
         . (is_string($bootstrapQuery) && $bootstrapQuery !== '' ? '?' . $bootstrapQuery : '');
@@ -187,6 +192,11 @@ if ($uri === '/toolbox-secure.php' || $uri === '/api/toolbox-secure') {
 }
 if ($uri === '/hashcod-file-vault.php' || $uri === '/api/hashcod-file-vault') {
     require __DIR__ . '/hashcod-file-vault.php';
+    exit;
+}
+if (in_array($uri, ['/api/hashcod-shared-files', '/api/hashcod-shared-upload', '/api/hashcod-shared-state', '/api/hashcod-shared-text-editor'], true)) {
+    $_SERVER['HASHCOD_SHARED_ROUTE'] = $uri;
+    require __DIR__ . '/hashcod-shared-cloud.php';
     exit;
 }
 

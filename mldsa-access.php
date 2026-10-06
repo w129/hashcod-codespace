@@ -309,7 +309,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $codeAccessRequired=$entryIntro&&codeAccessRequired();
     $codeAccessAuthorized=!$codeAccessRequired||codeAccessAuthorized();
     $bodyAttr=$entryIntro
-      ? ' data-hashcod-entry-intro="1" data-hashcod-code-access-required="'.($codeAccessRequired?'1':'0').'" data-hashcod-code-access-authorized="'.($codeAccessAuthorized?'1':'0').'"'
+      ? ' data-hashcod-entry-intro="1" data-hashcod-shared-workspace="1" data-hashcod-code-access-required="'.($codeAccessRequired?'1':'0').'" data-hashcod-code-access-authorized="'.($codeAccessAuthorized?'1':'0').'"'
       : '';
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE

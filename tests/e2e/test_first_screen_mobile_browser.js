@@ -22,7 +22,7 @@ async function layout(page, width) {
   const result = await page.evaluate(width => {
     const box = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top + scrollY, bottom: r.bottom + scrollY }; };
     return {
-      calendar: box('#d5FirstScreenCalendar'), actions: box('.hashcod-empty-state-actions-row'), files: box('#d5FilesExplorer'), footer: box('#d5PreviewPolicyFooter'),
+      calendar: box('#d5FirstScreenCalendar'), actions: box('.hashcod-empty-state-actions-row'), files: box('#d5FilesExplorer'), recommendation: box('#d5RecommendationCard'), footer: box('#d5PreviewPolicyFooter'),
       stagePosition: getComputedStyle(document.querySelector('.entry-empty-state-stage')).position,
       footerPosition: getComputedStyle(document.querySelector('#d5PreviewPolicyFooter')).position,
       documentWidth: document.documentElement.scrollWidth,
@@ -40,9 +40,10 @@ async function layout(page, width) {
   assert(result.actions.top >= result.calendar.bottom + 8, 'actions must follow the complete calendar without overlap');
   assert(result.actions.top <= result.calendar.bottom + 120, 'hidden desktop wrappers must not leave a large gap: ' + JSON.stringify(result));
   assert(result.files.top >= result.actions.bottom + 8, 'Files must follow the action buttons');
-  assert(result.footer.top >= result.files.bottom + 8, 'privacy control must follow Files: ' + JSON.stringify(result));
+  assert(result.recommendation.top >= result.files.bottom + 8, 'recommendation must follow Files');
+  assert(result.footer.top >= result.recommendation.bottom + 8, 'privacy control must follow the recommendation: ' + JSON.stringify(result));
   assert(result.documentWidth <= width + 1, 'phone must not scroll horizontally: ' + JSON.stringify(result));
-  for (const item of [result.calendar, result.actions, result.files, result.footer]) assert(item.left >= 0 && item.right <= width + 1, 'every section must fit the phone width');
+  for (const item of [result.calendar, result.actions, result.files, result.recommendation, result.footer]) assert(item.left >= 0 && item.right <= width + 1, 'every section must fit the phone width');
   assert(result.calendarTarget >= 43.9 && result.buttons.every(h => h >= 43.9), 'phone controls need touch-sized heights');
   assert.equal(result.cursorDisplay, 'none', 'decorative mouse cursor must not overlay the touch screen');
 }

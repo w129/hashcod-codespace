@@ -89,6 +89,41 @@ async function main() {
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('hashcod:file-vault-transfer', { detail: { id: 'fv_browser_pending', pending: false } })));
     await page.locator('.hfv-loading-state').waitFor({ state: 'detached' });
     await page.setViewportSize({ width: 1440, height: 900 });
+    const card = page.locator('#d5RecommendationCard');
+    for (const viewport of [{ width: 320, height: 700 }, { width: 1440, height: 900 }]) {
+      await page.setViewportSize(viewport);
+      const tree = await page.locator('#d5FilesExplorer').boundingBox();
+      const closed = await card.boundingBox();
+      assert(closed.y >= tree.y + tree.height, 'recommendation must sit below Files');
+      assert(closed.x >= 0 && closed.x + closed.width <= viewport.width + 1 && closed.width <= 380);
+      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
+      await card.locator('[data-option="review"]').click();
+      await card.getByRole('button', { name: 'Configure', exact: true }).click();
+      assert.equal(await card.getAttribute('data-accepted'), 'true');
+      await card.locator('[data-option="none"]').click();
+      assert.equal(await card.getAttribute('data-accepted'), 'false');
+      await card.getByRole('button', { name: 'Accept full restock', exact: true }).click();
+      await card.locator('[data-option="high"]').click();
+      await card.getByRole('button', { name: 'Accept', exact: true }).click();
+      await card.getByRole('button', { name: 'Accepted', exact: true }).waitFor();
+      await card.locator('.hrc-drawer').evaluate(async node => {
+        await Promise.all(node.getAnimations().map(animation => animation.finished.catch(() => {})));
+      });
+      const expanded = await card.boundingBox();
+      assert(expanded.x >= 0 && expanded.x + expanded.width <= viewport.width + 1);
+      assert.equal(await card.evaluate(node => node.scrollWidth <= node.clientWidth), true, 'drawer must not overflow horizontally');
+      if (process.env.HFV_SCREENSHOT_DIR) {
+        fs.mkdirSync(process.env.HFV_SCREENSHOT_DIR, { recursive: true });
+        await page.screenshot({ path: path.join(process.env.HFV_SCREENSHOT_DIR, 'recommendation-' + viewport.width + '.png'), fullPage: true });
+      }
+      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
+      assert.equal(await card.locator('.hrc-drawer').getAttribute('aria-hidden'), 'true');
+      // Reset to a different option before repeating the acceptance flow.
+      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
+      await card.locator('[data-option="none"]').click();
+      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
     if (process.env.HFV_SCREENSHOT_DIR) {
       fs.mkdirSync(process.env.HFV_SCREENSHOT_DIR, { recursive: true });
       await page.screenshot({ path: path.join(process.env.HFV_SCREENSHOT_DIR, 'files-explorer.png') });

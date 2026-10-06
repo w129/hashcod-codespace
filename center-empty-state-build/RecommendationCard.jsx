@@ -1,0 +1,90 @@
+"use client";
+
+import React, { useId, useState } from 'react';
+import './recommendation-card.css';
+
+// Local equivalents of Beautiful UI's atoms, scoped to this card.
+function Button({ variant = 'primary', className = '', ...props }) {
+  return <button type="button" className={`hrc-button hrc-button--${variant} ${className}`} {...props} />;
+}
+function EntityChip({ name }) { return <span className="hrc-entity-chip">{name}</span>; }
+function ValuePill({ tone, children }) {
+  return <span className={`hrc-value-pill${tone ? ` hrc-value-pill--${tone}` : ''}`}>{children}</span>;
+}
+
+export const DEFAULT_LABELS = {
+  title: 'Want me to place this restock order?',
+  alternatives: 'Alternatives',
+  otherOptions: 'Other options',
+  accepted: 'Accepted',
+};
+
+export const DEFAULT_OPTIONS = [
+  {
+    key: 'high',
+    body: <>Reorder waffle cones from <EntityChip name="Cone King" /> with lead time <ValuePill tone="green">7 days</ValuePill></>,
+    short: 'Reorder from Cone King · 7-day lead', signal: 3, tone: 'var(--hrc-green)',
+    label: 'High confidence', cta: 'Accept', ctaVariant: 'accent',
+  },
+  {
+    key: 'review',
+    body: <>Switch vanilla to <ValuePill>Vanilla Madagascar</ValuePill> for peak season.</>,
+    short: 'Switch to Vanilla Madagascar', signal: 2, tone: 'var(--hrc-orange)',
+    label: 'Needs review', cta: 'Configure', ctaVariant: 'primary',
+  },
+  {
+    key: 'none',
+    body: <>Fall back to a <strong>full restock</strong> across every SKU.</>,
+    short: 'Full restock across every SKU', signal: 0, tone: 'var(--hrc-ink-3)',
+    label: 'No signal', cta: 'Accept full restock', ctaVariant: 'primary',
+  },
+];
+
+function Meter({ signal, tone }) {
+  return <span className="hrc-meter" aria-hidden="true">
+    {[0, 1, 2].map(bar => <span key={bar} style={{ background: bar < signal ? tone : 'var(--hrc-line-strong)' }} />)}
+  </span>;
+}
+
+// Selection and acceptance are UI state only. Future product behavior can use onAccept.
+export default function RecommendationCard({ options = DEFAULT_OPTIONS, labels, onAccept } = {}) {
+  const t = { ...DEFAULT_LABELS, ...labels };
+  const [selectedKey, setSelectedKey] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [acceptedKey, setAcceptedKey] = useState(null);
+  const id = useId();
+  const active = options.find(option => option.key === selectedKey) ?? options[0];
+  if (!active) return null;
+  const others = options.filter(option => option.key !== active.key);
+  const accepted = acceptedKey === active.key;
+
+  return <section id="d5RecommendationCard" className="hrc-card" aria-labelledby={`${id}-title`} data-selected={active.key} data-accepted={accepted}>
+    <div className="hrc-card-pad">
+      <span id={`${id}-title`} className="hrc-title">{t.title}</span>
+      <p key={active.key} className="hrc-body">{active.body}</p>
+    </div>
+    <div id={`${id}-options`} className="hrc-drawer" data-open={open} inert={!open} aria-hidden={!open}>
+      <div className="hrc-drawer-clip">
+        <div className="hrc-options">
+          <p className="hrc-options-title">{t.otherOptions}</p>
+          {others.map(option => <button key={option.key} type="button" className="hrc-option" data-option={option.key}
+            onClick={() => { setSelectedKey(option.key); setAcceptedKey(null); }}>
+            <Meter signal={option.signal} tone={option.tone} />
+            <span className="hrc-option-short">{option.short}</span>
+            <span className="hrc-option-label">{option.label}</span>
+          </button>)}
+        </div>
+      </div>
+    </div>
+    <div className="hrc-footer">
+      <span className="hrc-confidence"><Meter signal={active.signal} tone={active.tone} /><span>{active.label}</span></span>
+      <span className="hrc-actions">
+        <Button variant="secondary" aria-expanded={open} aria-controls={`${id}-options`} disabled={!others.length}
+          onClick={() => setOpen(current => !current)}>{t.alternatives}</Button>
+        <Button variant={accepted ? 'success' : active.ctaVariant} data-recommendation-accept disabled={accepted}
+          onClick={() => { setAcceptedKey(active.key); onAccept?.(active); }}>{accepted ? t.accepted : active.cta}</Button>
+      </span>
+    </div>
+    <span className="hrc-sr-only" role="status">{accepted ? `${t.accepted}: ${active.short}` : ''}</span>
+  </section>;
+}

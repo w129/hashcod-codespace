@@ -1,0 +1,47 @@
+.hrc-card {
+  --hrc-ink: #202020; --hrc-ink-2: #616161; --hrc-ink-3: #8a8a8a;
+  --hrc-line: #ededed; --hrc-line-strong: #ddd; --hrc-green: #278b56; --hrc-orange: #c58423;
+  width: 100%; max-width: 380px; min-width: 0; overflow: hidden;
+  border: 1px solid var(--hrc-line); border-radius: 16px; background: #fff;
+  box-shadow: 0 2px 8px #00000006, 0 1px 2px #00000005;
+  color: var(--hrc-ink); text-align: left; font: 400 13px/1.5 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.hrc-card, .hrc-card * { box-sizing: border-box; }
+.hrc-card-pad { padding: 18px 18px 16px; }
+.hrc-title { font-size: 14px; font-weight: 500; }
+.hrc-body { margin: 6px 0 0; min-height: 48px; color: var(--hrc-ink-2); line-height: 1.65; animation: hrc-fade-in 180ms ease-out both; }
+.hrc-body strong { color: var(--hrc-ink); font-weight: 500; }
+.hrc-entity-chip, .hrc-value-pill { display: inline-flex; align-items: center; padding: 0 5px; border-radius: 5px; color: var(--hrc-ink); background: #f4f4f4; font-size: 12px; font-weight: 500; vertical-align: baseline; }
+.hrc-entity-chip { border: 1px solid #e7e7e7; background: #fafafa; }
+.hrc-value-pill--green { color: #237a4d; background: #eaf5ef; }
+.hrc-meter { display: inline-flex; flex: none; align-items: flex-end; gap: 2px; }
+.hrc-meter > span { width: 4px; height: 10px; border-radius: 999px; transition: background-color 300ms; }
+.hrc-drawer { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 300ms cubic-bezier(.16,1,.3,1), opacity 300ms; }
+.hrc-drawer[data-open="true"] { grid-template-rows: 1fr; opacity: 1; }
+.hrc-drawer-clip { min-height: 0; overflow: hidden; }
+.hrc-options { border-top: 1px solid var(--hrc-line); padding: 8px; }
+.hrc-options-title { margin: 0; padding: 0 6px 4px; color: var(--hrc-ink-3); font-size: 11px; font-weight: 500; }
+.hrc-option { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px; border: 0; border-radius: 7px; background: transparent; color: var(--hrc-ink); text-align: left; font: inherit; cursor: pointer; transition: background-color 100ms; }
+.hrc-option:hover { background: #f5f5f5; }
+.hrc-option-short { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+.hrc-option-label { flex: none; font-size: 11px; color: var(--hrc-ink-3); }
+.hrc-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--hrc-line); padding: 12px 18px; }
+.hrc-confidence { display: inline-flex; align-items: center; gap: 8px; color: var(--hrc-ink-2); font-size: 12.5px; font-weight: 500; }
+.hrc-actions { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
+.hrc-button { display: inline-flex; align-items: center; justify-content: center; min-height: 30px; padding: 5px 10px; border: 1px solid transparent; border-radius: 7px; font: 500 12.5px/1.4 Inter, system-ui, sans-serif; cursor: pointer; transition: background-color 100ms; }
+.hrc-button--secondary { background: #fff; border-color: #e5e5e5; color: var(--hrc-ink); }
+.hrc-button--secondary:hover { background: #f5f5f5; }
+.hrc-button--primary { background: #242424; color: #fff; }
+.hrc-button--accent { background: #278b56; color: #fff; }
+.hrc-button--success { background: #eaf5ef; color: #237a4d; }
+.hrc-button:disabled { cursor: default; }
+.hrc-button--secondary:disabled { opacity: .5; }
+.hrc-card button:focus-visible { outline: 2px solid var(--hrc-green); outline-offset: 2px; }
+.hrc-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hrc-card) { top: 50%; max-height: calc(100dvh - 80px); overflow-y: auto; padding: 4px; pointer-events: auto; }
+@media (max-width: 1179px) {
+  body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hrc-card) { position: static; inset: auto; transform: none; max-height: none; overflow: visible; margin: 24px auto; }
+}
+@media (max-width: 520px) { .hrc-button, .hrc-option { min-height: 44px; } .hrc-option { flex-wrap: wrap; } .hrc-option-short { white-space: normal; } .hrc-footer { padding: 12px; } }
+@keyframes hrc-fade-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .hrc-body { animation: none; } .hrc-drawer, .hrc-meter > span, .hrc-button, .hrc-option { transition: none; } }

@@ -23,7 +23,7 @@ echo json_encode(['controller' => 'fast-upload', 'uri' => $_SERVER['REQUEST_URI'
 `);
   for (const prefix of ['', '/l8', '/l8-codespace']) {
     for (const route of ['/hashcod-file-vault-fast-upload.php', '/api/hashcod-file-vault-fast-upload']) {
-      for (const action of ['prepare', 'complete']) {
+      for (const action of ['verify-totp', 'prepare', 'complete']) {
         const uri = prefix + route + '?action=' + action;
         const code = `$_SERVER['REQUEST_URI']=${JSON.stringify(uri)}; $_SERVER['REQUEST_METHOD']='POST'; $_GET['action']=${JSON.stringify(action)}; require ${JSON.stringify(path.join(fixture, 'router.php'))};`;
         const result = spawnSync(php, ['-r', code], { encoding: 'utf8' });
@@ -36,7 +36,7 @@ echo json_encode(['controller' => 'fast-upload', 'uri' => $_SERVER['REQUEST_URI'
       }
     }
   }
-  console.log('File Vault prepare/complete routing OK (12 production + loopback routes)');
+  console.log('File Vault setup/prepare/complete routing OK (18 production + loopback routes)');
 
   // Exercise the actual upload controller's security boundary through the
   // real router. Cloud calls are unnecessary for rejected/invalid requests.

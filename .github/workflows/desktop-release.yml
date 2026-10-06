@@ -43,6 +43,22 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
+      - name: Build File Vault Animate UI TOTP dialog
+        working-directory: file-vault-totp-build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Set up File Vault TOTP Go compiler
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+          cache-dependency-path: tools/file-vault-totp/go.sum
+
+      - name: Build native Windows File Vault TOTP verifier
+        working-directory: tools/file-vault-totp
+        run: go build -trimpath -ldflags="-s -w" -o hashcod-file-vault-totp.exe .
+
       - name: Stage startup folder animation for desktop shell
         shell: pwsh
         run: |
@@ -166,6 +182,20 @@ jobs:
 
       - name: Verify desktop runtime contract
         run: node tests/e2e/test_desktop_runtime_contract.js
+
+      - name: Verify File Vault TOTP setup in Windows runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:PHP_BIN = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\payload\php\php.exe'
+          $env:HFVU_TEST_HELPER = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\payload\site\tools\file-vault-totp\hashcod-file-vault-totp.exe'
+          node tests/e2e/test_file_vault_setup_api.js
+          if ($LASTEXITCODE -ne 0) { throw 'Native Windows TOTP verification failed.' }
+          npm install --prefix "$env:RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0
+          if ($LASTEXITCODE -ne 0) { throw 'Dialog test dependency installation failed.' }
+          $env:NODE_PATH = "$env:RUNNER_TEMP/hashcod-dom-tests/node_modules"
+          node tests/e2e/test_file_vault_setup_dialog.js
+          if ($LASTEXITCODE -ne 0) { throw 'TOTP setup dialog regression failed.' }
 
       - name: Smoke test local PHP desktop backend
         shell: pwsh

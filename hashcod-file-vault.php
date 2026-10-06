@@ -9,7 +9,9 @@ require_once __DIR__ . '/hashcod-workspace-access.php';
 securityBootstrap('api');
 
 const HFV_MAX_UPLOAD_BYTES = 99614720; // 95 MiB
-const HFV_TOTP_HELPER = '/usr/local/bin/hashcod-file-vault-totp';
+const HFV_TOTP_HELPER = PHP_OS_FAMILY === 'Windows'
+    ? __DIR__ . '/tools/file-vault-totp/hashcod-file-vault-totp.exe'
+    : '/usr/local/bin/hashcod-file-vault-totp';
 const HFV_TOTP_PERIOD = 30;
 const HFV_TOTP_DIGITS = 6;
 

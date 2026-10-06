@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-const VERSION = "20261006-file-vault-actions-totp1";
+const VERSION = "20261006-file-vault-setup-verify2";
 const ENDPOINT = "/api/hashcod-file-vault";
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
@@ -55,6 +55,21 @@ function requestTotpDialog(options) {
   });
 }
 
+async function verifySetupCode(secret, code) {
+  try {
+    const response = await fetch('/hashcod-file-vault-fast-upload.php?action=verify-totp', {
+      method: 'POST', credentials: 'same-origin', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ totp_secret: secret, totp_code: code }),
+    });
+    const payload = await response.json();
+    if (response.ok && payload.ok === true) return { ok: true };
+    return { ok: false, error: payload.error || 'TOTP verification is unavailable. Try again shortly.' };
+  } catch {
+    return { ok: false, error: 'Could not verify the code. Check your connection and try again.' };
+  }
+}
+
 function LockIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -71,10 +86,16 @@ function TotpDialogHost() {
   const [secret, setSecret] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const activeRequest = useRef(null);
+  const verifying = useRef(false);
   const codeRef = useRef(null);
   const dialogRef = useRef(null);
 
   const begin = (entry) => {
+    activeRequest.current = entry;
+    verifying.current = false;
+    setBusy(false);
     setRequest(entry);
     setError(String(entry.options?.error || ""));
     setCode("");
@@ -126,6 +147,9 @@ function TotpDialogHost() {
 
   const finish = (value) => {
     const resolver = request?.resolve;
+    activeRequest.current = null;
+    verifying.current = false;
+    setBusy(false);
     setRequest(null);
     setCode("");
     setSecret("");
@@ -138,9 +162,9 @@ function TotpDialogHost() {
   const fileName = request?.options?.fileName || "file";
   const purpose = request?.options?.purpose || "download";
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event?.preventDefault?.();
-    if (notice) return;
+    if (notice || verifying.current) return;
     const cleanCode = normalizeCode(code);
     if (cleanCode.length !== 6) {
       setError("Enter the current 6-digit TOTP code.");
@@ -150,6 +174,20 @@ function TotpDialogHost() {
       const cleanSecret = normalizeSecret(secret);
       if (cleanSecret.length < 16) {
         setError("The TOTP setup key is too short.");
+        return;
+      }
+      const entry = request;
+      verifying.current = true;
+      setBusy(true);
+      setError('Checking the current code…');
+      const verified = await verifySetupCode(cleanSecret, cleanCode);
+      if (activeRequest.current !== entry) return;
+      verifying.current = false;
+      setBusy(false);
+      if (!verified.ok) {
+        setError(verified.error);
+        setCode('');
+        window.setTimeout(() => codeRef.current?.focus(), 0);
         return;
       }
       finish({ secret: cleanSecret, code: cleanCode });
@@ -222,16 +260,17 @@ function TotpDialogHost() {
                   <input
                     id="hfvTotpSecret"
                     value={secret}
-                    onChange={(event) => setSecret(normalizeSecret(event.target.value))}
+                    disabled={busy}
+                    onChange={(event) => { setSecret(normalizeSecret(event.target.value)); setCode(''); setError(''); }}
                     spellCheck="false"
                     autoCapitalize="characters"
                     autoComplete="off"
                     aria-label="TOTP setup key"
                   />
-                  <button type="button" onClick={() => setSecret(generateSecret())}>Generate</button>
-                  <button type="button" onClick={copySecret}>Copy</button>
+                  <button type="button" disabled={busy} onClick={() => { setSecret(generateSecret()); setCode(''); setError(''); }}>Generate</button>
+                  <button type="button" disabled={busy} onClick={copySecret}>Copy</button>
                 </div>
-                <small>Add this key to your authenticator app. It is shown only while protecting this upload.</small>
+                <small>Add this exact key to your authenticator app, then enter its current code. A code from another key will not work.</small>
               </div>
             ) : null}
 
@@ -241,6 +280,7 @@ function TotpDialogHost() {
                 id="hfvTotpCode"
                 ref={codeRef}
                 value={code}
+                disabled={busy}
                 onChange={(event) => setCode(normalizeCode(event.target.value))}
                 inputMode="numeric"
                 autoComplete="one-time-code"
@@ -261,9 +301,10 @@ function TotpDialogHost() {
               {!notice ? <motion.button
                 type="submit"
                 className="hfv-totp-primary"
+                disabled={busy}
                 whileTap={reduce ? undefined : { scale: 0.97 }}
               >
-                {setup ? "Protect & upload" : purpose === "delete" ? "Verify & delete" : "Verify & download"}
+                {busy ? "Checking code…" : setup ? "Protect & upload" : purpose === "delete" ? "Verify & delete" : "Verify & download"}
               </motion.button> : null}
             </div>
           </motion.form>

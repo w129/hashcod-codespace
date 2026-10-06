@@ -20,7 +20,7 @@ assert(goMain.includes('github.com/pquerna/otp/totp'), 'Go helper must call pque
 assert(goMain.includes('totp.ValidateCustom'), 'Go helper must validate TOTP with pquerna/otp');
 assert(goMain.includes('Period:    30'), 'TOTP period must be 30 seconds');
 assert(goMain.includes('Digits:    otp.DigitsSix'), 'TOTP must use six digits');
-assert(backend.includes("HFV_TOTP_HELPER = '/usr/local/bin/hashcod-file-vault-totp'"), 'PHP must invoke the compiled TOTP helper');
+assert(backend.includes("'/usr/local/bin/hashcod-file-vault-totp'") && backend.includes("'/tools/file-vault-totp/hashcod-file-vault-totp.exe'"), 'PHP must invoke the platform compiled TOTP helper');
 assert(backend.includes("'aes-256-gcm'"), 'TOTP secrets must be encrypted at rest with AES-256-GCM');
 assert(backend.includes('totp_secret_cipher'), 'encrypted TOTP metadata is missing');
 assert(backend.includes("'totpProtected' => hfvTotpProtected($row)"), 'file list must expose only protection status');
@@ -45,7 +45,7 @@ assert(css.includes('.hfv-totp-dialog{position:relative;z-index:1'), 'TOTP dialo
 assert(docker.includes('FROM golang:1.24-alpine AS file-vault-totp-builder'), 'Docker Go builder stage missing');
 assert(docker.includes('/out/hashcod-file-vault-totp'), 'TOTP helper binary build missing');
 assert(docker.includes('file-vault-totp-build'), 'Animate UI TOTP bundle build missing');
-assert(loader.includes('file-vault-totp.bundle.js?v=20261006-file-vault-actions-totp1'), 'TOTP runtime bundle is not loaded');
+assert(loader.includes('file-vault-totp.bundle.js?v=20261006-file-vault-setup-verify2'), 'TOTP runtime bundle is not loaded');
 assert(loader.includes('file-vault-totp.css?v=20261005-file-vault-download-totp5'), 'TOTP stacking-fix CSS is not loaded');
 
 console.log('File Vault TOTP contract OK');

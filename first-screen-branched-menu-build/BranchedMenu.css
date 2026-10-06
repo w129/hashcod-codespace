@@ -404,6 +404,8 @@
   font-weight: 600;
 }
 
+.v-calendar-example__actions { display: flex; gap: 8px; }
+
 .v-calendar-example__clear {
   justify-self: start;
   min-height: 26px;

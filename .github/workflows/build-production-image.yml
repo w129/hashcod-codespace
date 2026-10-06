@@ -108,6 +108,7 @@ jobs:
           docker exec hashcod-production-smoke node tests/e2e/test_file_vault_direct_transfer.js
           docker exec hashcod-production-smoke node tests/e2e/test_file_vault_setup_api.js
           docker exec hashcod-production-smoke npm install --prefix /tmp/hashcod-dom-tests --no-fund --no-audit jsdom@26.1.0 fake-indexeddb@6.2.4
+          docker exec -e NODE_PATH=/tmp/hashcod-dom-tests/node_modules hashcod-production-smoke node tests/e2e/test_calendar_current_date.js
           docker exec -e NODE_PATH=/tmp/hashcod-dom-tests/node_modules hashcod-production-smoke node tests/e2e/test_file_vault_setup_dialog.js
           docker exec -e NODE_PATH=/tmp/hashcod-dom-tests/node_modules hashcod-production-smoke node tests/e2e/test_file_vault_local_protection.js
           docker exec -e NODE_PATH=/tmp/hashcod-dom-tests/node_modules hashcod-production-smoke node tests/e2e/test_file_vault_device_flow.js

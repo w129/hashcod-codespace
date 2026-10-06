@@ -64,7 +64,7 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-stage { width: min(500px, 
 .hfv-preview-loading { display: block; padding: 12px; color: #737373; }
 @media (max-width: 1179px) { body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hfv-explorer) { top: 58%; } }
 @media (max-width: 700px) {
-  body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hfv-explorer) { top: 56%; width: calc(100vw - 28px); }
+  body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hfv-explorer) { top: 56%; width: min(500px, calc(100vw - 28px)); }
   .hfv-explorer { max-height: min(350px, calc(100dvh - 260px)); }
   .hfv-preview-backdrop { padding: 12px; }
   .hfv-preview { max-height: calc(100dvh - 24px); }

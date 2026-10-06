@@ -132,7 +132,7 @@ jobs:
 
       - name: File Vault encrypted device fallback
         run: |
-          npm ci --prefix file-vault-totp-build --no-fund --no-audit
+          npm install --prefix file-vault-totp-build --no-fund --no-audit
           npm run build --prefix file-vault-totp-build
           npm install --prefix "$RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0 fake-indexeddb@6.2.4
           export NODE_PATH="$RUNNER_TEMP/hashcod-dom-tests/node_modules"

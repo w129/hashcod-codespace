@@ -223,7 +223,10 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           belowMenu:(document.getElementById('d5FirstScreenCalendar')?.getBoundingClientRect().top||0)>menu.getBoundingClientRect().bottom,
           month:document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()||'',
           selected:document.querySelector('.v-calendar__day[data-selected="true"]')?.getAttribute('data-calendar-date')||'',
-          unavailable:document.querySelector('[data-calendar-date="2026-09-20"]')?.disabled===true,
+          expected:(()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;})(),
+          expectedMonth:new Date().toLocaleDateString('es-DO',{month:'long',year:'numeric'}),
+          today:document.querySelector('[data-calendar-date][aria-current="date"]')?.getAttribute('data-calendar-date')||'',
+          unavailable:document.querySelectorAll('[data-calendar-date]:disabled').length,
           accent:document.querySelector('.v-calendar')?.getAttribute('data-calendar-accent')||''
         },
         mounted:Boolean(window.HashcodFirstScreenBranchedMenu?.mounted),
@@ -250,9 +253,10 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.active,'Quick start','defaultActive must remain quick');
     assert.equal(state.calendar.exists,true,'calendar must render below the BranchedMenu');
     assert.equal(state.calendar.belowMenu,true,'calendar must be positioned below the BranchedMenu');
-    assert.equal(state.calendar.month,'September 2026','calendar must open on September 2026');
-    assert.equal(state.calendar.selected,'2026-09-12','calendar default appointment must be 12 September');
-    assert.equal(state.calendar.unavailable,true,'20 September must remain unavailable');
+    assert.equal(state.calendar.month,state.calendar.expectedMonth,'calendar must open on the current local month');
+    assert.equal(state.calendar.selected,state.calendar.expected,'calendar must select the current local date');
+    assert.equal(state.calendar.today,state.calendar.expected,'today marker must use the real current date');
+    assert.equal(state.calendar.unavailable,0,'calendar must not invent unavailable appointments');
     assert.equal(state.calendar.accent,'black','calendar accent must be black');
     assert.equal(state.codeAccess.exists,true,'Code access React mount must exist');
     assert.equal(state.codeAccess.component,'CodeAccessGate','Code access component marker changed');
@@ -337,20 +341,24 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.mouse.move(700,450);
     await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyContent')?.getAttribute('data-open')==='false');
 
-    await page.locator('[data-calendar-date="2026-09-18"]').click();
-    await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.includes('Studio review'));
-    assert.equal(await page.locator('[data-calendar-date="2026-09-18"]').getAttribute('data-selected'),'true','18 September must become selected');
-    const selectedCalendarBackground=await page.locator('[data-calendar-date="2026-09-18"] .v-calendar__day-face').evaluate(node=>getComputedStyle(node).backgroundColor);
+    const chosenDate=state.calendar.expected.slice(0,8)+(state.calendar.expected.endsWith('18')?'17':'18');
+    await page.locator(`[data-calendar-date="${chosenDate}"]`).click();
+    await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.includes('Fecha seleccionada'));
+    assert.equal(await page.locator(`[data-calendar-date="${chosenDate}"]`).getAttribute('data-selected'),'true','chosen date must become selected');
+    const selectedCalendarBackground=await page.locator(`[data-calendar-date="${chosenDate}"] .v-calendar__day-face`).evaluate(node=>getComputedStyle(node).backgroundColor);
     assert.equal(selectedCalendarBackground,'rgb(10, 10, 10)','selected calendar day face must use black rather than pink');
 
+    const [calendarYear,calendarMonth]=state.calendar.expected.split('-').map(Number);
+    const previousMonth=new Date(calendarYear,calendarMonth-2,1).toLocaleDateString('es-DO',{month:'long',year:'numeric'});
     await page.locator('#d5CalendarPreviousMonth').click();
-    await page.waitForFunction(()=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()==='August 2026');
-    await page.locator('#d5CalendarNextMonth').click();
-    await page.waitForFunction(()=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()==='September 2026');
+    await page.waitForFunction(label=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()===label,previousMonth);
+    await page.locator('#d5CalendarToday').click();
+    await page.waitForFunction(label=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()===label,state.calendar.expectedMonth);
+    assert.equal(await page.locator('.v-calendar__day[data-selected="true"]').getAttribute('data-calendar-date'),state.calendar.expected,'Today must restore the current date');
 
     await page.locator('#d5CalendarClear').click();
-    await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.trim()==='Choose an appointment day.');
-    assert.equal(await page.locator('.v-calendar__day[data-selected="true"]').count(),0,'Clear selection must remove the appointment day');
+    await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.trim()==='Selecciona una fecha.');
+    assert.equal(await page.locator('.v-calendar__day[data-selected="true"]').count(),0,'Clear selection must remove the chosen day');
     assert.equal(state.svg.fill,'none','branch SVG must never render as filled polygons');
     assert.equal(state.svg.stroke,'rgb(10, 10, 10)','branch lines must be black');
     assert.equal(state.svg.strokeWidth,'1.5px','lineWidth=1.5 must remain exact');

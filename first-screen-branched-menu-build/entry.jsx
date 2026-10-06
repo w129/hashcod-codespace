@@ -110,11 +110,7 @@ function navigate(value, item) {
 }
 
 
-const CALENDAR_DEFAULT_MONTH = new Date(2026, 8, 1);
-const CALENDAR_TODAY = new Date(2026, 8, 10);
-const CALENDAR_UNAVAILABLE = new Date(2026, 8, 20);
-const CALENDAR_MARKS = new Set(['2026-09-18', '2026-09-24']);
-const CALENDAR_WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const CALENDAR_WEEKDAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
 
 const calendarIso = (date) => {
   const year = date.getFullYear();
@@ -130,19 +126,58 @@ const calendarSameDay = (left, right) =>
   left.getDate() === right.getDate();
 
 const calendarDayText = (date) =>
-  date.toLocaleDateString('en-GB', {
+  date.toLocaleDateString('es-DO', {
     day: 'numeric',
     month: 'short',
     year: 'numeric'
   });
 
 function CalendarExample() {
+  const [today, setToday] = React.useState(() => new Date());
   const [visibleMonth, setVisibleMonth] = React.useState(
-    () => new Date(CALENDAR_DEFAULT_MONTH)
+    () => new Date(today.getFullYear(), today.getMonth(), 1)
   );
-  const [selected, setSelected] = React.useState(
-    () => new Date(2026, 8, 12)
-  );
+  const [selected, setSelected] = React.useState(() => today);
+
+  React.useEffect(() => {
+    let currentDay = today;
+    let timer;
+    const refresh = () => {
+      const now = new Date();
+      if (!calendarSameDay(now, currentDay)) {
+        const previousDay = currentDay;
+        currentDay = now;
+        setToday(now);
+        // Follow today across midnight without replacing a user's chosen date/month.
+        setSelected(current => calendarSameDay(current, previousDay) ? now : current);
+        setVisibleMonth(current =>
+          current.getFullYear() === previousDay.getFullYear() && current.getMonth() === previousDay.getMonth()
+            ? new Date(now.getFullYear(), now.getMonth(), 1)
+            : current
+        );
+      }
+      window.clearTimeout(timer);
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      timer = window.setTimeout(refresh, Math.max(1, midnight.getTime() - now.getTime() + 50));
+    };
+    refresh();
+    window.addEventListener('focus', refresh);
+    window.addEventListener('pageshow', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('focus', refresh);
+      window.removeEventListener('pageshow', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [today]);
+
+  const goToToday = () => {
+    const now = new Date();
+    setToday(now);
+    setSelected(now);
+    setVisibleMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+  };
 
   const year = visibleMonth.getFullYear();
   const monthIndex = visibleMonth.getMonth();
@@ -164,25 +199,23 @@ function CalendarExample() {
   };
 
   const summary = selected
-    ? `${calendarDayText(selected)}${
-        selected.getDate() === 18 && selected.getMonth() === 8
-          ? ' · Studio review'
-          : ' · Available for an appointment'
-      }`
-    : 'Choose an appointment day.';
+    ? `${calendarDayText(selected)} · ${calendarSameDay(selected, today) ? 'Hoy' : 'Fecha seleccionada'}`
+    : 'Selecciona una fecha.';
 
   return (
     <section
       id="d5FirstScreenCalendar"
       className="v-calendar-example"
       data-calendar-example="single"
-      aria-label="Appointment calendar"
+      aria-label="Calendario"
     >
       <div className="v-calendar-example__intro">
-        <span className="v-calendar-example__eyebrow">Appointment day</span>
-        <h3>Make time for a conversation</h3>
-        <p>Use when one day anchors an appointment.</p>
-        <p>Try choosing the 18th; it has a review pencilled in.</p>
+        <span className="v-calendar-example__eyebrow">Calendario</span>
+        <h3>La fecha de hoy</h3>
+        <p id="d5CalendarTodayText" aria-live="polite">
+          {today.toLocaleDateString('es-DO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+        </p>
+        <p>Consulta las fechas o vuelve a hoy.</p>
       </div>
 
       <div className="v-calendar" data-calendar-accent="black">
@@ -191,13 +224,13 @@ function CalendarExample() {
             id="d5CalendarPreviousMonth"
             className="v-calendar__nav"
             type="button"
-            aria-label="Previous month"
+            aria-label="Mes anterior"
             onClick={() => moveMonth(-1)}
           >
             <span aria-hidden="true">‹</span>
           </button>
           <strong id="d5CalendarMonthLabel" aria-live="polite">
-            {visibleMonth.toLocaleDateString('en-GB', {
+            {visibleMonth.toLocaleDateString('es-DO', {
               month: 'long',
               year: 'numeric'
             })}
@@ -206,7 +239,7 @@ function CalendarExample() {
             id="d5CalendarNextMonth"
             className="v-calendar__nav"
             type="button"
-            aria-label="Next month"
+            aria-label="Mes siguiente"
             onClick={() => moveMonth(1)}
           >
             <span aria-hidden="true">›</span>
@@ -226,10 +259,8 @@ function CalendarExample() {
             }
 
             const iso = calendarIso(date);
-            const isDisabled = calendarSameDay(date, CALENDAR_UNAVAILABLE);
             const isSelected = calendarSameDay(date, selected);
-            const isToday = calendarSameDay(date, CALENDAR_TODAY);
-            const isMarked = CALENDAR_MARKS.has(iso);
+            const isToday = calendarSameDay(date, today);
 
             return (
               <button
@@ -240,14 +271,10 @@ function CalendarExample() {
                 data-calendar-date={iso}
                 data-selected={isSelected ? 'true' : undefined}
                 data-today={isToday ? 'true' : undefined}
-                data-marked={isMarked ? 'true' : undefined}
-                disabled={isDisabled}
                 aria-current={isToday ? 'date' : undefined}
                 aria-pressed={isSelected}
-                aria-label={`${calendarDayText(date)}${isDisabled ? ', unavailable' : ''}`}
-                onClick={() => {
-                  if (!isDisabled) setSelected(date);
-                }}
+                aria-label={`${calendarDayText(date)}${isToday ? ', hoy' : ''}`}
+                onClick={() => setSelected(date)}
               >
                 <span
                   className="v-calendar__day-face"
@@ -255,7 +282,6 @@ function CalendarExample() {
                 >
                   {date.getDate()}
                 </span>
-                {isMarked ? <i aria-hidden="true" /> : null}
               </button>
             );
           })}
@@ -264,17 +290,21 @@ function CalendarExample() {
 
       <div className="v-calendar-example__summary" aria-live="polite">
         <p id="d5CalendarSummary" role="status">{summary}</p>
-        <p>Black dot · Studio review on 18 September.</p>
       </div>
 
-      <button
-        id="d5CalendarClear"
-        className="v-calendar-example__clear"
-        type="button"
-        onClick={() => setSelected(undefined)}
-      >
-        Clear selection
-      </button>
+      <div className="v-calendar-example__actions">
+        <button id="d5CalendarToday" className="v-calendar-example__clear" type="button" onClick={goToToday}>
+          Hoy
+        </button>
+        <button
+          id="d5CalendarClear"
+          className="v-calendar-example__clear"
+          type="button"
+          onClick={() => setSelected(undefined)}
+        >
+          Limpiar selección
+        </button>
+      </div>
     </section>
   );
 }
@@ -406,7 +436,7 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261004-preview-policy5'
+    version: '20261006-live-calendar1'
   });
   return true;
 }

@@ -114,8 +114,8 @@ assert(!gate.includes('id="d5SavedChatDemo"'),'Saved Messages card must be remov
 assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be removed');
 
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261004-preview-policy5'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261004-preview-policy5'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261006-live-calendar1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261006-live-calendar1'),'BranchedMenu JS bundle must load');
 assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-dialog1'),'code access CSS bundle must load');
 assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-dialog1'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
@@ -329,9 +329,11 @@ assert(entry.includes('data-calendar-accent="black"'),'calendar black accent mar
 assert(entry.includes('className="v-calendar__day-face"'),'calendar selected-day visual face missing');
 assert(css.includes('.v-calendar__day[data-selected="true"] .v-calendar__day-face'),'calendar selected date must enforce the black face in the CSP-safe host stylesheet');
 assert(css.includes('background:#0a0a0a!important'),'calendar black selected-day face override missing');
-assert(entry.includes('CALENDAR_UNAVAILABLE = new Date(2026, 8, 20)'),'20 September unavailable rule missing');
-assert(entry.includes("new Date(2026, 8, 12)"),'calendar default selection must remain 12 September');
-assert(entry.includes('Clear selection'),'calendar clear action missing');
+assert(!entry.includes('CALENDAR_UNAVAILABLE'),'calendar must not invent unavailable dates');
+assert(!entry.includes('CALENDAR_DEFAULT_MONTH'),'calendar must not open on a fixed demo month');
+assert(entry.includes('id="d5CalendarTodayText"'),'live current date text missing');
+assert(entry.includes('id="d5CalendarToday"'),'return to today action missing');
+assert(entry.includes('Limpiar selección'),'calendar clear action missing');
 assert(entry.includes('<CalendarExample />'),'calendar must render below BranchedMenu');
 assert(gate.includes('id="d5PreviewPolicyFooter"'),'final Preview Link Card footer missing');
 assert(gate.includes('id="d5PreviewPolicyMount"'),'Preview Link Card React mount missing');

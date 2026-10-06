@@ -83,6 +83,14 @@ jobs:
           test -s ../components/first-screen-branched-menu.bundle.css
           node --check ../components/first-screen-branched-menu.bundle.js
 
+      - name: Verify calendar midnight, leap year and local dates
+        run: |
+          npm install --prefix "$RUNNER_TEMP/hashcod-calendar-tests" --no-fund --no-audit jsdom@26.1.0
+          export NODE_PATH="$RUNNER_TEMP/hashcod-calendar-tests/node_modules"
+          for calendar_zone in America/Santo_Domingo America/Los_Angeles Asia/Tokyo; do
+            TZ="$calendar_zone" node tests/e2e/test_calendar_current_date.js
+          done
+
       - name: Build Monaco signed-code access gate
         working-directory: code-access-build
         run: |
@@ -132,8 +140,8 @@ jobs:
           grep -q 'data-required="0"' /tmp/hashcod-home.html
           grep -q 'code-access.bundle.css?v=20261004-mesh-dialog1' /tmp/hashcod-home.html
           grep -q 'code-access.bundle.js?v=20261004-mesh-dialog1' /tmp/hashcod-home.html
-          grep -q 'first-screen-branched-menu.bundle.css?v=20261004-preview-policy5' /tmp/hashcod-home.html
-          grep -q 'first-screen-branched-menu.bundle.js?v=20261004-preview-policy5' /tmp/hashcod-home.html
+          grep -q 'first-screen-branched-menu.bundle.css?v=20261006-live-calendar1' /tmp/hashcod-home.html
+          grep -q 'first-screen-branched-menu.bundle.js?v=20261006-live-calendar1' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateStage"' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-home.html
           grep -q 'data-hashcod-component="EmptyState"' /tmp/hashcod-home.html
@@ -323,7 +331,7 @@ jobs:
           grep -q 'id="d5PreviewPolicyMount"' /tmp/hashcod-laragon.html
           grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-laragon.html
           grep -q 'code-access.bundle.js?v=20261004-mesh-dialog1' /tmp/hashcod-laragon.html
-          grep -q 'first-screen-branched-menu.bundle.js?v=20261004-preview-policy5' /tmp/hashcod-laragon.html
+          grep -q 'first-screen-branched-menu.bundle.js?v=20261006-live-calendar1' /tmp/hashcod-laragon.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-laragon.html
           grep -q 'center-empty-state.bundle.js?v=20261006-protected-files-explorer1' /tmp/hashcod-laragon.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-laragon.html

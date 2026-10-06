@@ -55,6 +55,12 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
+      - name: Build first-screen menu and current-date calendar
+        working-directory: first-screen-branched-menu-build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
       - name: Set up File Vault TOTP Go compiler
         uses: actions/setup-go@v5
         with:
@@ -200,6 +206,8 @@ jobs:
           npm install --prefix "$env:RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0 fake-indexeddb@6.2.4
           if ($LASTEXITCODE -ne 0) { throw 'Dialog test dependency installation failed.' }
           $env:NODE_PATH = "$env:RUNNER_TEMP/hashcod-dom-tests/node_modules"
+          node tests/e2e/test_calendar_current_date.js
+          if ($LASTEXITCODE -ne 0) { throw 'Current-date calendar regression failed.' }
           node tests/e2e/test_file_vault_setup_dialog.js
           if ($LASTEXITCODE -ne 0) { throw 'TOTP setup dialog regression failed.' }
           node tests/e2e/test_file_vault_local_protection.js

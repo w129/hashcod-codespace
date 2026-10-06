@@ -269,7 +269,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.previewPolicy.afterMain,true,'Preview Link Card footer must follow the main platform content');
     assert.equal(state.previewPolicy.text,'Before continuing, please read the Use and Privacy Policy.','Preview Link Card footer text must match exactly');
     assert.equal(state.previewPolicy.href,'/privacy','Use and Privacy Policy must link to the existing privacy route');
-    assert.equal(state.previewPolicy.target,'_blank','Use and Privacy Policy must open in a new tab');
+    assert.equal(state.previewPolicy.target,'_self','Use and Privacy Policy must open directly in the current tab');
     assert.equal(state.previewPolicy.component,'PreviewLinkCard','Preview Link Card component marker changed');
     assert.equal(state.previewPolicy.mounted,true,'Preview Link Card React island must mount');
     assert.equal(state.previewPolicy.position,'fixed','Preview Link Card must remain fixed at the final viewport edge');

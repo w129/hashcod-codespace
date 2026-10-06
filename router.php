@@ -11,6 +11,19 @@ $bootstrapRequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
 $bootstrapRawPath = parse_url($bootstrapRequestUri, PHP_URL_PATH);
 $bootstrapRawPath = is_string($bootstrapRawPath) ? $bootstrapRawPath : '/';
 $bootstrapSyncPath = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $bootstrapRawPath);
+// The policy is a public HTML page, including old .php bookmarks. Normalize
+// only these exact aliases before the generic PHP-file denial. The full web
+// security bootstrap still runs; private PHP files remain inaccessible.
+$bootstrapPrivacyRoute = in_array($bootstrapSyncPath, [
+    '/privacy', '/privacy/', '/privacy.php', '/politica', '/politica/',
+    '/politica-de-privacidad', '/politica-de-privacidad/',
+], true);
+$bootstrapPrivacyQuery = parse_url($bootstrapRequestUri, PHP_URL_QUERY);
+$bootstrapPrivacySuffix = is_string($bootstrapPrivacyQuery) && $bootstrapPrivacyQuery !== ''
+    ? '?' . $bootstrapPrivacyQuery : '';
+if ($bootstrapPrivacyRoute) {
+    $_SERVER['REQUEST_URI'] = '/privacy' . $bootstrapPrivacySuffix;
+}
 if (in_array($bootstrapSyncPath, ['/download-local-version', '/download-local-version.php'], true)) {
     require __DIR__ . '/download-local-version.php';
     exit;
@@ -96,6 +109,16 @@ if ($bootstrapSyncPath === '/api/device-usage') {
 
 securityBootstrap('web');
 
+if ($bootstrapPrivacyRoute) {
+    $privacyPrefix = substr($bootstrapRawPath, 0, strlen($bootstrapRawPath) - strlen($bootstrapSyncPath));
+    $privacyCanonical = $privacyPrefix . '/privacy';
+    if ($bootstrapRawPath !== $privacyCanonical) {
+        header('Cache-Control: no-store');
+        header('Location: ' . $privacyCanonical . $bootstrapPrivacySuffix, true, 308);
+        exit;
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
@@ -160,9 +183,6 @@ $routedPages = [
     '/claw' => 'openclaw-ui.php',
     '/claw-ui' => 'openclaw-ui.php',
     '/privacy' => 'privacy.php',
-    '/privacy.php' => 'privacy.php',
-    '/politica' => 'privacy.php',
-    '/politica-de-privacidad' => 'privacy.php',
 ];
 if (isset($routedPages[$uri])) {
     $page = $routedPages[$uri];

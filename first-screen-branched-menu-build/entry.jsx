@@ -365,8 +365,7 @@ function PreviewPolicyFooter() {
           id="d5PreviewPolicyTrigger"
           className="preview-link-card__trigger"
           href="/privacy"
-          target="_blank"
-          rel="noopener noreferrer"
+          target="_self"
           aria-describedby={open ? 'd5PreviewPolicyContent' : undefined}
           onFocus={() => setOpen(true)}
           onBlur={() => setOpen(false)}
@@ -429,7 +428,7 @@ function mountPreviewPolicyFooter() {
   window.HashcodPreviewPolicyLinkCard = Object.freeze({
     mounted: true,
     href: '/privacy',
-    version: '20261004-preview-policy5'
+    version: '20261006-privacy-navigation1'
   });
   return true;
 }

@@ -52,6 +52,23 @@ async function withinViewport(page, selector) {
   assert(box.x >= 0 && box.y >= 0 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1, selector + ' must fit the viewport');
 }
 
+async function checkBrandIcon(page) {
+  await page.waitForFunction(() => {
+    const icon = document.querySelector('.entry-rotating-text-brand-icon');
+    return icon?.complete && icon.naturalWidth > 0;
+  });
+  const brand = await page.evaluate(() => {
+    const icon = document.querySelector('.entry-rotating-text-brand-icon');
+    const text = document.querySelector('.entry-rotating-text-prefix');
+    const a = icon.getBoundingClientRect(), b = text.getBoundingClientRect();
+    return { src: icon.getAttribute('src'), right: a.right, left: b.left, iconCenter: a.top + a.height / 2, textCenter: b.top + b.height / 2, width: a.width, height: a.height };
+  });
+  assert.equal(brand.src, '/hashcod_icon_exact.svg', 'hero must use the original repository icon');
+  assert(brand.right < brand.left, 'brand icon must remain to the left of Creates like');
+  assert(Math.abs(brand.iconCenter - brand.textCenter) < 1, 'icon must align vertically with the text');
+  assert.equal(brand.width, brand.height, 'icon must preserve its square display box');
+}
+
 async function run() {
   const server = http.createServer((req, res) => {
     const pathname = new URL(req.url, 'http://localhost').pathname;
@@ -59,7 +76,7 @@ async function run() {
     if (pathname === '/privacy') { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.end(privacyHtml); return; }
     if (pathname.startsWith('/api/')) { res.writeHead(503, { 'Content-Type': 'application/json' }); res.end('{"ok":false,"error":"Cloud unavailable"}'); return; }
     const file = path.resolve(root, '.' + pathname);
-    if (!/^\/(components|mascots)\//.test(pathname) || !file.startsWith(root + path.sep) || !/\.(js|css|svg|png|webp)$/.test(file) || !fs.existsSync(file)) { res.writeHead(404); res.end(); return; }
+    if ((!/^\/(components|mascots)\//.test(pathname) && pathname !== '/hashcod_icon_exact.svg') || !file.startsWith(root + path.sep) || !/\.(js|css|svg|png|webp)$/.test(file) || !fs.existsSync(file)) { res.writeHead(404); res.end(); return; }
     const type = { '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.png': 'image/png' }[path.extname(file)];
     res.setHeader('Content-Type', type); fs.createReadStream(file).pipe(res);
   });
@@ -74,6 +91,7 @@ async function run() {
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(address);
       await page.waitForSelector('#d5FilesExplorer');
+      await checkBrandIcon(page);
       await page.waitForFunction(() => window.__hashcodAnimateCursorLoaded);
       await page.waitForFunction(() => document.querySelector('#d5FilesExplorer [data-slot="folder-content"]')?.getBoundingClientRect().height > 30);
       assert.deepEqual(await page.locator('.branched-menu__head').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-expanded'))), ['false', 'false'], 'phone navigation must start compact');
@@ -138,6 +156,7 @@ async function run() {
     const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     await desktop.goto(address);
     await desktop.waitForSelector('#d5FilesExplorer');
+    await checkBrandIcon(desktop);
     assert.equal(await desktop.locator('.branched-menu__head').first().getAttribute('aria-expanded'), 'true');
     assert.equal(await desktop.locator('.branched-menu__item').first().evaluate(n => getComputedStyle(n).height), '36px');
     assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).position), 'absolute');

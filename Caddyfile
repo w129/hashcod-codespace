@@ -255,7 +255,8 @@ http://:{$PORT:8000} {
 			# Preserve Railway's external scheme across Caddy's internal HTTP hop.
 			# PHP trusts this private metadata only from loopback inside Railway.
 			header_up X-L8-Railway-Proto {http.request.header.X-Forwarded-Proto}
-			header_up -X-L8-Railway-Real-Ip
+			# Set replaces forged values. A delete for this same field runs after
+			# set in Caddy and would erase the visitor IP for every request.
 			header_up X-L8-Railway-Real-Ip {http.request.header.X-Real-IP}
 			header_up -X-L8-Railway-Request-Id
 			header_up X-L8-Railway-Request-Id {http.request.header.X-Railway-Request-Id}

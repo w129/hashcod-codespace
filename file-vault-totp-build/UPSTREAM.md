@@ -39,3 +39,9 @@ the exact scheme/host origin checks working for upload, download and deletion,
 while the desktop HTTP runtime continues to use its local origin. The production
 image smoke test runs the actual Caddy configuration against PHP and covers
 cross-origin rejection and forged private headers without touching stored files.
+
+The Railway visitor IP uses Caddy's replacing `header_up` operation without a
+second delete for the same field. Combining set and delete erases that field,
+collapsing all visitors onto PHP loopback and sharing rate limits and bans. The
+proxy test seeds bans for loopback and one visitor and verifies that unrelated
+visitors still work while real visitor bans and private-header spoof checks hold.

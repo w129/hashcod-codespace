@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-foreach (['security.php' => ['securityIsHttps'], 'hashcod-file-vault-fast-upload.php' => ['hfvuSameOrigin'], 'hashcod-file-vault.php' => ['hfvRequireSameOriginAction']] as $file => $wanted) {
+foreach (['security.php' => ['securityIsHttps', 'securityIpInCidr', 'securityIsTrustedProxy', 'securityClientIp', 'securityIpBanPath', 'securityIpIsBanned', 'securityIpBan'], 'hashcod-file-vault-fast-upload.php' => ['hfvuSameOrigin'], 'hashcod-file-vault.php' => ['hfvRequireSameOriginAction']] as $file => $wanted) {
     $tokens = token_get_all(file_get_contents(dirname(__DIR__, 2) . '/' . $file));
     for ($i = 0; $i < count($tokens); $i++) {
         if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_FUNCTION) continue;
@@ -25,6 +25,12 @@ putenv('RAILWAY_ENVIRONMENT_ID=proxy-fixture');
 $_SERVER = $base;
 proxyCheck(securityIsHttps(), 'Railway HTTPS must survive the internal HTTP hop');
 proxyCheck(hfvuSameOrigin() && actionAllowed(), 'Uploader/download/delete origin rejected behind Railway');
+$_SERVER = array_merge($base, ['HTTP_X_L8_RAILWAY_REAL_IP' => '198.51.100.10', 'HTTP_X_FORWARDED_FOR' => '198.51.100.99']);
+proxyCheck(securityClientIp() === '198.51.100.10', 'Railway edge IP must be used instead of forwarding chains');
+$_SERVER = array_merge($base, ['REMOTE_ADDR' => '203.0.113.7', 'HTTP_X_L8_RAILWAY_REAL_IP' => '198.51.100.10']);
+proxyCheck(securityClientIp() === '203.0.113.7', 'Private IP metadata must be ignored from a public remote');
+$_SERVER = array_merge($base, ['HTTP_X_L8_RAILWAY_REAL_IP' => '198.51.100.10, 198.51.100.99']);
+proxyCheck(securityClientIp() === '127.0.0.1', 'Malformed private IP header must not authorize a visitor');
 $_SERVER = array_merge($base, ['REMOTE_ADDR' => '::1']);
 proxyCheck(securityIsHttps() && hfvuSameOrigin() && actionAllowed(), 'IPv6 loopback must preserve Railway HTTPS');
 foreach (['', 'http', 'https, http', 'https://hashcodcodespace.dev'] as $protocol) {
@@ -42,6 +48,8 @@ foreach (['203.0.113.7', '10.0.0.7'] as $remote) {
 $_SERVER = $base;
 putenv('RAILWAY_ENVIRONMENT_ID');
 proxyCheck(!securityIsHttps(), 'Railway metadata must be ignored outside Railway');
+$_SERVER['HTTP_X_L8_RAILWAY_REAL_IP'] = '198.51.100.10';
+proxyCheck(securityClientIp() === '127.0.0.1', 'Railway private IP metadata must be ignored outside Railway');
 $_SERVER = ['REMOTE_ADDR' => '127.0.0.1', 'HTTP_HOST' => '127.0.0.1:8000', 'HTTP_ORIGIN' => 'http://127.0.0.1:8000', 'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest', 'HTTPS' => 'off'];
 proxyCheck(!securityIsHttps() && hfvuSameOrigin() && actionAllowed(), 'Desktop HTTP loopback must still work');
 $_SERVER = array_merge($base, ['HTTPS' => 'on']);

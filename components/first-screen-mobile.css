@@ -61,6 +61,12 @@
     padding: 0;
   }
 
+  /* Modal source nodes are moved to body/the Documents portal when opened.
+     Their empty desktop wrappers must not reserve space on the phone. */
+  body[data-hashcod-entry-intro="1"] .access-left-stack { gap: 0; }
+  body[data-hashcod-entry-intro="1"] #d5FaqStack { gap: 0; }
+  body[data-hashcod-entry-intro="1"] #d5NavListDemo { display: none; }
+
   body[data-hashcod-entry-intro="1"] .first-screen-menu-stack { gap: 20px; }
   body[data-hashcod-entry-intro="1"] .branched-menu__head { min-height: 44px; }
   body[data-hashcod-entry-intro="1"] .v-calendar-example { gap: 12px; padding-block: 20px 0; }

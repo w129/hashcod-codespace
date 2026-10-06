@@ -14,7 +14,7 @@ let styles = source.match(/<link rel="stylesheet"[^>]+>/g).join('');
 if (process.env.HASHCOD_TEST_WITHOUT_MOBILE_LAYOUT) styles = styles.replace(/<link[^>]+first-screen-mobile[^>]+>/, '');
 const mainMarkup = source.slice(source.indexOf('<main '), source.indexOf('</main>') + 7);
 const footer = source.match(/<footer id="d5PreviewPolicyFooter"[\s\S]*?<\/footer>/)[0];
-const scripts = ['file-vault-totp.bundle.js', 'first-screen-branched-menu.bundle.js', 'center-empty-state.bundle.js', 'react-bits-rotating-text.js', 'page-mascot-panda.js', 'animate-ui-global-cursor.js'].map(name => `<script src="/components/${name}"></script>`).join('');
+const scripts = ['mldsa-access-gate.js', 'file-vault-totp.bundle.js', 'first-screen-branched-menu.bundle.js', 'center-empty-state.bundle.js', 'react-bits-rotating-text.js', 'page-mascot-panda.js', 'animate-ui-global-cursor.js'].map(name => `<script src="/components/${name}"></script>`).join('');
 const html = `<html lang="es"><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><link rel="stylesheet" href="/components/file-vault-totp.css">${styles}</head><body data-hashcod-entry-intro="1">${mainMarkup}${footer}${scripts}</body></html>`;
 
 async function layout(page, width) {
@@ -25,6 +25,10 @@ async function layout(page, width) {
       stagePosition: getComputedStyle(document.querySelector('.entry-empty-state-stage')).position,
       footerPosition: getComputedStyle(document.querySelector('#d5PreviewPolicyFooter')).position,
       documentWidth: document.documentElement.scrollWidth,
+      overflow: Array.from(document.querySelectorAll('body *')).filter(n => {
+        const r = n.getBoundingClientRect();
+        return r.width > 0 && getComputedStyle(n).visibility !== 'hidden' && (r.right > innerWidth + 1 || r.left < -1);
+      }).slice(0, 12).map(n => ({ id: n.id, class: n.className?.baseVal ?? n.className, left: n.getBoundingClientRect().left, right: n.getBoundingClientRect().right })),
       calendarTarget: document.querySelector('.v-calendar__day').getBoundingClientRect().height,
       buttons: ['#d5CalendarToday', '#d5CalendarPreviousMonth', '#d5CenterEmptyStateAction', '#d5FileVaultTrigger'].map(selector => document.querySelector(selector).getBoundingClientRect().height),
       cursorDisplay: document.getElementById('d5AnimateCursorLayer') ? getComputedStyle(document.getElementById('d5AnimateCursorLayer')).display : 'none',
@@ -33,6 +37,7 @@ async function layout(page, width) {
   assert.equal(result.stagePosition, 'static', 'phone actions must participate in normal document flow');
   assert.equal(result.footerPosition, 'static', 'phone footer must not cover content');
   assert(result.actions.top >= result.calendar.bottom + 8, 'actions must follow the complete calendar without overlap');
+  assert(result.actions.top <= result.calendar.bottom + 120, 'hidden desktop wrappers must not leave a large gap: ' + JSON.stringify(result));
   assert(result.files.top >= result.actions.bottom + 8, 'Files must follow the action buttons');
   assert(result.footer.top >= result.files.bottom + 8, 'privacy control must follow Files: ' + JSON.stringify(result));
   assert(result.documentWidth <= width + 1, 'phone must not scroll horizontally: ' + JSON.stringify(result));

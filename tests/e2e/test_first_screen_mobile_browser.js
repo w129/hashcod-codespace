@@ -165,6 +165,37 @@ async function run() {
     assert.equal(await desktop.locator('.branched-menu__item').first().evaluate(n => getComputedStyle(n).height), '36px');
     assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).position), 'absolute');
     assert.equal(await desktop.locator('#d5PreviewPolicyFooter').evaluate(n => getComputedStyle(n).position), 'fixed');
+    await desktop.locator('#d5RecommendationCard').waitFor({ state: 'visible' });
+    await desktop.waitForFunction(() => getComputedStyle(document.querySelector('#d5FilesExplorer [data-slot="folder-content"]')).opacity === '1');
+    assert(Math.abs(await desktop.locator('.entry-empty-state-stage').evaluate(n => parseFloat(getComputedStyle(n).top)) - 900 * .53) < 1, 'desktop must keep the original workspace level');
+    const workspaceTop = () => desktop.locator('#d5FilesExplorer').evaluate(n => n.getBoundingClientRect().top + scrollY);
+    const originalTop = await workspaceTop();
+    await desktop.locator('.hashcod-workspace-recommendation').evaluate(n => { n.hidden = true; });
+    assert(Math.abs(await workspaceTop() - originalTop) < 1, 'adding the card must not lift Files');
+    await desktop.locator('.hashcod-workspace-recommendation').evaluate(n => { n.hidden = false; });
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 1440, height: 500 }]) {
+      await desktop.setViewportSize(viewport);
+      await desktop.evaluate(() => scrollTo(0, 0));
+      const before = await workspaceTop();
+      const card = desktop.locator('#d5RecommendationCard');
+      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
+      await card.evaluate(async n => { await Promise.all(n.getAnimations({ subtree: true }).map(a => a.finished.catch(() => {}))); });
+      assert(Math.abs(await workspaceTop() - before) < 1, 'expanding alternatives must grow downward without moving Files');
+      assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).overflowY), 'visible', 'scrolling must belong to the page, not a clipped workspace panel');
+      if (viewport.height === 500) {
+        assert(await desktop.evaluate(() => document.documentElement.scrollHeight > innerHeight), 'a short desktop must have a native page scrollbar');
+        await desktop.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+        await desktop.waitForFunction(() => scrollY > 0);
+        const bottom = await card.boundingBox();
+        const footer = await desktop.locator('#d5PreviewPolicyFooter').boundingBox();
+        assert(bottom.y >= 0 && bottom.y + bottom.height <= footer.y - 8, 'scrolling must reveal the complete card above the fixed footer');
+        if (process.env.HASHCOD_MOBILE_SCREENSHOT_DIR) await desktop.screenshot({ path: path.join(process.env.HASHCOD_MOBILE_SCREENSHOT_DIR, 'desktop-workspace-scrolled.png') });
+      }
+      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
+    }
+    await desktop.setViewportSize({ width: 1440, height: 900 });
+    await desktop.evaluate(() => scrollTo(0, 0));
+    console.log('Desktop preserves the original Files level and reveals the complete recommendation using native page scrolling');
     const [desktopPolicy] = await Promise.all([
       desktop.waitForNavigation(), desktop.locator('#d5PreviewPolicyTrigger').click(),
     ]);

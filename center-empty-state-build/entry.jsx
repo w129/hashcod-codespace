@@ -1867,10 +1867,13 @@ function CenterWorkspaceEmptyState() {
             />
 
             </>} />
-            <RecommendationCard />
           </div>
         }
       />
+
+      <div className="hashcod-workspace-recommendation">
+        <RecommendationCard />
+      </div>
 
       <HatchCodeEditor
         open={hatchOpen}
@@ -1890,7 +1893,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261006-recommendation-card1",
+    version: "20261006-workspace-scroll1",
   });
 
   return true;

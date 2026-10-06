@@ -24,7 +24,7 @@ async function main() {
       response.setHeader('Content-Type', 'text/html');
       // Same protection boundaries as production, including no document frames.
       response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; frame-src 'self'; connect-src 'self'");
-      response.end('<html><head><link rel="stylesheet" href="/components/center-empty-state.bundle.css"><link rel="stylesheet" href="/components/file-vault-totp.css"></head><body data-hashcod-entry-intro="1" style="margin:0;background:#f7f7f7"><div class="entry-empty-state-stage"><div class="entry-empty-state-mount" id="d5CenterEmptyStateMount"></div></div><script src="/components/file-vault-totp.bundle.js"></script><script src="/components/center-empty-state.bundle.js"></script></body></html>');
+      response.end('<html><head><link rel="stylesheet" href="/components/center-empty-state.bundle.css"><link rel="stylesheet" href="/components/file-vault-totp.css"><link rel="stylesheet" href="/components/first-screen-mobile.css"></head><body data-hashcod-entry-intro="1" style="margin:0;background:#f7f7f7"><div class="entry-empty-state-stage"><div class="entry-empty-state-mount" id="d5CenterEmptyStateMount"></div></div><script src="/components/file-vault-totp.bundle.js"></script><script src="/components/center-empty-state.bundle.js"></script></body></html>');
       return;
     }
     if (pathname === '/api/hashcod-file-vault') {

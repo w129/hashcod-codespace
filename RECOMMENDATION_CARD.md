@@ -8,4 +8,6 @@
 - Optional `options`, `labels`, and `onAccept(option)` props provide the extension point for future product behavior. An empty options list renders nothing; selection is keyed so replacing/reordering options does not select a different option by index.
 - Collapsed alternatives are inert and hidden from assistive technology. Acceptance has a live status. Reduced motion skips animation; narrow layouts wrap actions and use 44px touch targets.
 
-Root runtime source is shared by hosted and Windows builds. Both rebuild `center-empty-state-build`; the cache identifier is `20261006-recommendation-card1`. Existing explorer integration tests exercise selection/acceptance on hosted and loopback origins, while Chromium verifies placement and width at 320px and 1440px and produces screenshots.
+The recommendation is a sibling of EmptyState. On desktop it starts below the existing workspace without contributing to its vertically centered height, so adding/expanding it cannot lift the icons or Files. Its bottom spacing allows the native page scrollbar to reach the complete card above the fixed privacy footer. On phones it joins the existing normal document flow.
+
+Root runtime source is shared by hosted and Windows builds. Both rebuild `center-empty-state-build`; the cache identifier is `20261006-workspace-scroll1`. Existing explorer integration tests exercise selection/acceptance on hosted and loopback origins, while Chromium verifies placement, stable desktop positioning, and native page scrolling at short viewport heights.

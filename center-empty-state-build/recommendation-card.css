@@ -38,9 +38,16 @@
 .hrc-button--secondary:disabled { opacity: .5; }
 .hrc-card button:focus-visible { outline: 2px solid var(--hrc-green); outline-offset: 2px; }
 .hrc-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hrc-card) { top: 50%; max-height: calc(100dvh - 80px); overflow-y: auto; padding: 4px; pointer-events: auto; }
+.hashcod-workspace-recommendation { position: absolute; top: calc(50% + 24px); left: 50%; width: 100%; max-width: 380px; padding-bottom: 80px; transform: translateX(-50%); }
+html:has(body[data-hashcod-entry-intro="1"] .hashcod-workspace-recommendation) { overflow-y: auto; }
+@media (min-width: 1180px) {
+  /* Center only the original workspace; the new card extends downward. */
+  body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hashcod-workspace-recommendation) { transform: translateX(-50%); }
+  .entry-empty-state-stage:has(.hashcod-workspace-recommendation) .hashcod-files-empty-state { transform: translateY(-50%); }
+}
 @media (max-width: 1179px) {
-  body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hrc-card) { position: static; inset: auto; transform: none; max-height: none; overflow: visible; margin: 24px auto; }
+  body[data-hashcod-entry-intro="1"] .entry-empty-state-mount { flex-direction: column; gap: 16px; }
+  .hashcod-workspace-recommendation { position: static; padding-bottom: 0; transform: none; }
 }
 @media (max-width: 520px) { .hrc-button, .hrc-option { min-height: 44px; } .hrc-option { flex-wrap: wrap; } .hrc-option-short { white-space: normal; } .hrc-footer { padding: 12px; } }
 @keyframes hrc-fade-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }

@@ -16,6 +16,7 @@ const mainMarkup = source.slice(source.indexOf('<main '), source.indexOf('</main
 const footer = source.match(/<footer id="d5PreviewPolicyFooter"[\s\S]*?<\/footer>/)[0];
 const scripts = ['mldsa-access-gate.js', 'file-vault-totp.bundle.js', 'first-screen-branched-menu.bundle.js', 'center-empty-state.bundle.js', 'react-bits-rotating-text.js', 'page-mascot-panda.js', 'animate-ui-global-cursor.js'].map(name => `<script src="/components/${name}"></script>`).join('');
 const html = `<html lang="es"><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><link rel="stylesheet" href="/components/file-vault-totp.css">${styles}</head><body data-hashcod-entry-intro="1">${mainMarkup}${footer}${scripts}</body></html>`;
+const privacyHtml = execFileSync(process.env.PHP_BIN || 'php', ['privacy.php'], { cwd: root }).toString();
 
 async function layout(page, width) {
   const result = await page.evaluate(width => {
@@ -55,6 +56,7 @@ async function run() {
   const server = http.createServer((req, res) => {
     const pathname = new URL(req.url, 'http://localhost').pathname;
     if (pathname === '/') { res.setHeader('Content-Type', 'text/html'); res.end(html); return; }
+    if (pathname === '/privacy') { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.end(privacyHtml); return; }
     if (pathname.startsWith('/api/')) { res.writeHead(503, { 'Content-Type': 'application/json' }); res.end('{"ok":false,"error":"Cloud unavailable"}'); return; }
     const file = path.resolve(root, '.' + pathname);
     if (!/^\/(components|mascots)\//.test(pathname) || !file.startsWith(root + path.sep) || !/\.(js|css|svg|png|webp)$/.test(file) || !fs.existsSync(file)) { res.writeHead(404); res.end(); return; }
@@ -122,6 +124,13 @@ async function run() {
       assert(policy.x >= 0 && policy.x + policy.width <= viewport.width + 1, 'privacy preview must stay inside the phone width');
       await page.locator('#d5PreviewPolicyTrigger').evaluate(n => n.blur());
       await layout(page, viewport.width);
+      const [policyResponse] = await Promise.all([
+        page.waitForNavigation(), page.locator('#d5PreviewPolicyTrigger').tap(),
+      ]);
+      assert.equal(policyResponse.status(), 200, 'phone policy tap must open the full document');
+      assert.equal(page.url(), address + '/privacy');
+      await page.getByRole('heading', { name: 'Documento de Aceptación Contractual, Privacidad y Evidencia de Registro', exact: true }).waitFor();
+      assert.equal(context.pages().length, 1, 'policy navigation must not depend on a popup');
       assert.deepEqual(errors, []);
       console.log(`Phone ${viewport.width}x${viewport.height}: flow, scrolling, touch targets, month navigation, long filenames and protected preview passed`);
       await context.close();
@@ -133,6 +142,13 @@ async function run() {
     assert.equal(await desktop.locator('.branched-menu__item').first().evaluate(n => getComputedStyle(n).height), '36px');
     assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).position), 'absolute');
     assert.equal(await desktop.locator('#d5PreviewPolicyFooter').evaluate(n => getComputedStyle(n).position), 'fixed');
+    const [desktopPolicy] = await Promise.all([
+      desktop.waitForNavigation(), desktop.locator('#d5PreviewPolicyTrigger').click(),
+    ]);
+    assert.equal(desktopPolicy.status(), 200);
+    await desktop.getByRole('heading', { name: 'Declaración de aceptación', exact: true }).waitFor();
+    await desktop.getByRole('link', { name: '← Volver a Hashcod Codespace', exact: true }).click();
+    await desktop.locator('#d5PreviewPolicyTrigger').waitFor({ state: 'visible' });
     console.log('Desktop retains its original menu, centered workspace and footer placement');
   } finally { await browser?.close(); await new Promise(resolve => server.close(resolve)); }
 }

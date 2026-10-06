@@ -28,6 +28,9 @@ on:
       - center-empty-state-build/**
       - first-screen-branched-menu-build/**
       - mldsa-access.php
+      - router.php
+      - privacy.php
+      - tests/e2e/test_privacy_routes.js
       - components/first-screen-mobile.css
       - tests/e2e/test_first_screen_mobile_browser.js
       - tests/e2e/test_file_vault_explorer.js
@@ -74,6 +77,9 @@ on:
       - center-empty-state-build/**
       - first-screen-branched-menu-build/**
       - mldsa-access.php
+      - router.php
+      - privacy.php
+      - tests/e2e/test_privacy_routes.js
       - components/first-screen-mobile.css
       - tests/e2e/test_first_screen_mobile_browser.js
       - tests/e2e/test_file_vault_explorer.js
@@ -142,6 +148,9 @@ jobs:
 
       - name: Direct platform entry contract
         run: node tests/e2e/test_open_platform_entry.js
+
+      - name: Public privacy document routes in hosted and desktop runtimes
+        run: node tests/e2e/test_privacy_routes.js
 
       - name: Shared workspace cross-device contract
         run: node tests/e2e/test_shared_workspace_contract.js

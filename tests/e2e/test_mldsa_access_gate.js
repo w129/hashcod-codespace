@@ -114,8 +114,8 @@ assert(!gate.includes('id="d5SavedChatDemo"'),'Saved Messages card must be remov
 assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be removed');
 
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261006-mobile-layout1'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261006-mobile-layout1'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261006-privacy-navigation1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261006-privacy-navigation1'),'BranchedMenu JS bundle must load');
 assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-dialog1'),'code access CSS bundle must load');
 assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-dialog1'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
@@ -348,7 +348,7 @@ assert(entry.includes('18 de septiembre de 2026'),'Preview card must mirror the 
 assert(componentCss.includes('position: fixed'),'Preview Link Card footer must stay centered at the final viewport edge');
 assert(componentCss.includes('left: 50%'),'Preview Link Card footer center anchor missing');
 assert(componentCss.includes('transform: translateX(-50%)'),'Preview Link Card footer centering transform missing');
-assert(entry.includes('target="_blank"'),'Preview Link Card must open the legal document in a new tab');
+assert(entry.includes('target="_self"'),'Preview Link Card must open the legal document directly in the current tab');
 assert(entry.includes("window.HashcodPreviewPolicyLinkCard = Object.freeze"),'Preview Link Card runtime marker missing');
 assert(componentCss.includes('.preview-link-card__content[data-open="true"]'),'Preview Link Card hover/focus open styling missing');
 assert(componentCss.includes('.v-calendar-example'),'calendar styling missing from BranchedMenu bundle');

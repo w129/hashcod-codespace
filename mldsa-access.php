@@ -299,8 +299,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $animateCursorCss=htmlspecialchars($base.'components/animate-ui-global-cursor.css?v=20261004-animate-cursor-book1',ENT_QUOTES,'UTF-8');
     $animateCursorJs=htmlspecialchars($base.'components/animate-ui-global-cursor.js?v=20261004-animate-cursor-book1',ENT_QUOTES,'UTF-8');
-    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261006-mobile-layout1',ENT_QUOTES,'UTF-8');
-    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261006-mobile-layout1',ENT_QUOTES,'UTF-8');
+    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261006-privacy-navigation1',ENT_QUOTES,'UTF-8');
+    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261006-privacy-navigation1',ENT_QUOTES,'UTF-8');
     $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261006-files-loading1',ENT_QUOTES,'UTF-8');
     $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261006-files-loading1',ENT_QUOTES,'UTF-8');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-mobile-layout1',ENT_QUOTES,'UTF-8');

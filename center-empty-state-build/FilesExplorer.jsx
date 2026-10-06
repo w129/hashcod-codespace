@@ -2,6 +2,7 @@ import React from 'react';
 import { FileTextIcon, FileJsonIcon, FileImageIcon, FileVideoIcon, FileAudioIcon, FileArchiveIcon } from 'lucide-react';
 import { Files, FolderItem, FolderTrigger, FolderContent, SubFiles, FileItem } from './animate-ui/Files';
 import './files-explorer.css';
+import LoadingState from './LoadingState';
 
 function iconFor(file) {
   const ext = String(file.name || '').split('.').pop().toLowerCase();
@@ -13,9 +14,11 @@ function iconFor(file) {
   return FileTextIcon;
 }
 
-export default function FilesExplorer({ files, loading, busy, onPreview }) {
+export default function FilesExplorer({ files, loading, uploading, busy, onPreview }) {
+  const pending = loading || uploading || busy;
   return (
-    <div id="d5FilesExplorer" className="hfv-explorer" data-animate-ui-files="radix" aria-label="Uploaded files" aria-busy={loading || busy}>
+    <div id="d5FilesExplorer" className="hfv-explorer" data-animate-ui-files="radix" aria-label="Uploaded files" aria-busy={Boolean(pending)}>
+      {pending && <div className="hfv-explorer-loading"><LoadingState label={uploading ? 'Uploading' : busy ? 'Opening file' : 'Loading files'} /></div>}
       <Files defaultOpen={['uploaded']}>
         <FolderItem value="uploaded">
           <FolderTrigger>Files</FolderTrigger>

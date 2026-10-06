@@ -32,6 +32,7 @@ on:
       - tests/e2e/test_first_screen_mobile_browser.js
       - tests/e2e/test_file_vault_explorer.js
       - tests/e2e/test_file_vault_explorer_browser.js
+      - tests/e2e/test_file_vault_loading.js
       - tools/file-vault-totp/**
       - Dockerfile
       - tests/e2e/test_cloud_device_sync.js
@@ -77,6 +78,7 @@ on:
       - tests/e2e/test_first_screen_mobile_browser.js
       - tests/e2e/test_file_vault_explorer.js
       - tests/e2e/test_file_vault_explorer_browser.js
+      - tests/e2e/test_file_vault_loading.js
       - tools/file-vault-totp/**
       - Dockerfile
       - tests/e2e/test_cloud_device_sync.js
@@ -178,6 +180,7 @@ jobs:
           node tests/e2e/test_file_vault_local_protection.js
           node tests/e2e/test_file_vault_device_flow.js
           node tests/e2e/test_file_vault_explorer.js
+          node tests/e2e/test_file_vault_loading.js
           node tests/e2e/test_file_vault_direct_transfer.js
 
       - name: Protected Files explorer in Chromium

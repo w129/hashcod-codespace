@@ -62,6 +62,8 @@ async function main() {
       return folder && rows.length === 3 && folder.getBoundingClientRect().height >= rows.reduce((total, row) => total + row.getBoundingClientRect().height, 0) - 1 && getComputedStyle(folder).opacity === '1';
     });
     assert.equal(await page.locator('[data-hfv-preview-id]').count(), 3, 'reload must restore every stored file');
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('hashcod:file-vault-transfer', { detail: { id: 'fv_browser_pending', pending: true } })));
+    await page.locator('#d5FilesExplorer .hfv-loading-state').waitFor();
     for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 700, height: 500 }]) {
       await page.setViewportSize(viewport);
       const tree = await page.locator('#d5FilesExplorer').boundingBox();
@@ -71,7 +73,20 @@ async function main() {
       assert(tree.width <= 500 && tree.height <= 350);
       const styles = await page.locator('#d5FilesExplorer').evaluate(node => ({ radius: getComputedStyle(node).borderRadius, border: getComputedStyle(node).borderTopWidth }));
       assert.equal(styles.radius, '16px'); assert.equal(styles.border, '1px');
+      const loader = await page.locator('.hfv-explorer-loading').boundingBox();
+      assert(Math.abs(tree.x + tree.width - loader.x - loader.width - 16) < 2, 'loader must stay in the Files right corner');
+      assert(loader.y >= tree.y && loader.y + loader.height <= tree.y + 44, 'loader must stay in the Files header');
+      assert(loader.x >= tree.x && loader.x + loader.width <= tree.x + tree.width, 'loader must fit small screens');
     }
+    assert.equal(await page.locator('.hfv-loading-pixel').count(), 9);
+    assert.equal(await page.locator('.hfv-loading-pixel').first().evaluate(node => getComputedStyle(node).width), '4px');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    assert.equal(await page.locator('.hfv-loading-pixel').first().evaluate(node => getComputedStyle(node).animationName), 'none');
+    const elapsed = await page.locator('.hfv-loading-elapsed').textContent();
+    await page.waitForFunction(value => document.querySelector('.hfv-loading-elapsed')?.textContent !== value, elapsed);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('hashcod:file-vault-transfer', { detail: { id: 'fv_browser_pending', pending: false } })));
+    await page.locator('.hfv-loading-state').waitFor({ state: 'detached' });
     await page.setViewportSize({ width: 1440, height: 900 });
     if (process.env.HFV_SCREENSHOT_DIR) {
       fs.mkdirSync(process.env.HFV_SCREENSHOT_DIR, { recursive: true });

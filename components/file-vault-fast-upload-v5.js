@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-var VERSION='20261006-shared-workspace1';
+var VERSION='20261006-files-loading1';
 var FAST_ENDPOINT=(document.body&&document.body.dataset.hashcodSharedWorkspace==='1')?'/api/hashcod-shared-upload':'/hashcod-file-vault-fast-upload.php';
 var RETRY_DELAYS=[0,500,1400,3000];
 var uiBusy=false;
@@ -155,7 +155,13 @@ async function performDirectUpload(file,id,code,onProgress,onPhase){
   if(typeof onPhase==='function')onPhase('Finalizing cloud index');
   return await completeUpload(prepared.ticket);
 }
+function notifyTransfer(id,pending){
+  if(typeof window.dispatchEvent==='function'&&typeof CustomEvent==='function'){
+    window.dispatchEvent(new CustomEvent('hashcod:file-vault-transfer',{detail:{id:id,pending:pending}}));
+  }
+}
 async function uploadProtectedFile(file,id,code,onProgress,onPhase){
+  notifyTransfer(id,true);
   try{return await performDirectUpload(file,id,code,onProgress,onPhase);}
   catch(error){
     var status=Number(error&&error.status||0);
@@ -166,7 +172,7 @@ async function uploadProtectedFile(file,id,code,onProgress,onPhase){
     var local=await api.saveLocal(file,id,code);
     if(typeof onProgress==='function')onProgress(file.size||1,file.size||1);
     return {ok:true,file:local,storage:'device',cloud:false};
-  }
+  }finally{notifyTransfer(id,false);}
 }
 function waitForTotpApi(){
   return new Promise(function(resolve,reject){

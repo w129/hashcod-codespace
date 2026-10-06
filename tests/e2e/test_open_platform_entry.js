@@ -15,7 +15,7 @@ assert(loader.includes("loadUniversalPersistence();"), 'open entry must keep clo
 assert(loader.includes("loadWorkspaceMedia();"), 'open entry must keep workspace media bootstrap');
 assert(loader.includes("loadFileVaultTotp();"), 'open entry must load File Vault TOTP runtime');
 assert(loader.includes("file-vault-commit-recovery.js?v=20261005-file-vault-commit-recovery1"), 'open entry must load File Vault commit recovery');
-assert(loader.includes("file-vault-fast-upload-v5.js?v=20261005-file-vault-fast5-route2"), 'open entry must load fast4 File Vault transport');
+assert(loader.includes("file-vault-fast-upload-v5.js?v=20261006-file-vault-fast5-fixed-code1"), 'open entry must load fast4 File Vault transport');
 assert(loader.indexOf('FILE_VAULT_RECOVERY') < loader.indexOf('FILE_VAULT_FAST'), 'commit recovery must be declared before fast transport');
 assert(loader.includes("hashcod:code-access-granted"), 'compatibility event for platform modules missing');
 

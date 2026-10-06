@@ -79,5 +79,5 @@ async function deletion(statuses, answers) {
   await capture({ target: { closest: () => button }, preventDefault() { stopped++; }, stopPropagation() {}, stopImmediatePropagation() {} });
   assert.strictEqual(stopped, 1, 'legacy delete bypass must be intercepted');
   assert.strictEqual(selected[0].id, 'fv_second123');
-  console.log('File Vault delete requires uploader TOTP before local cleanup; cancellation, retry, failures and legacy bypass covered');
+  console.log('File Vault delete requires uploader access code before local cleanup; cancellation, retry, failures and legacy bypass covered');
 })().catch(error => { console.error(error); process.exitCode = 1; });

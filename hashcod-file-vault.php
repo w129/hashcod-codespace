@@ -5,6 +5,7 @@ require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/hashcod-workspace-access.php';
+require_once __DIR__ . '/hashcod-file-vault-access-code.php';
 
 securityBootstrap('api');
 
@@ -189,7 +190,13 @@ function hfvTotpValidateCode(string $secret, string $code): bool {
 
 function hfvTotpProtected(array $row): bool {
     $meta = hfvMetaArray($row['meta'] ?? []);
-    return !empty($meta['totp_protected']) && !empty($meta['totp_secret_cipher']);
+    return !empty($meta['access_code_hash']) || (!empty($meta['totp_protected']) && !empty($meta['totp_secret_cipher']));
+}
+
+function hfvAccessProtection(array $row): string {
+    $meta = hfvMetaArray($row['meta'] ?? []);
+    if (($meta['access_protection'] ?? '') === 'access-code' || isset($meta['access_code_hash'])) return 'access-code';
+    return hfvTotpProtected($row) ? 'totp' : 'unprotected';
 }
 
 function hfvTotpSecretFromRow(array $row): string {
@@ -207,9 +214,17 @@ function hfvTotpRateLimit(string $id): void {
 }
 
 function hfvRequireTotp(array $row, string $code, bool $requireProtection = false): void {
+    if (hfvAccessProtection($row) === 'access-code') {
+        hfvTotpRateLimit((string)($row['id'] ?? 'file'));
+        $meta = hfvMetaArray($row['meta'] ?? []);
+        if (!hfvAccessCodeVerify($code, (string)($row['id'] ?? ''), (string)($meta['access_code_hash'] ?? ''), mldsaAccessSecret())) {
+            hfvJson(401, ['ok' => false, 'error' => 'Use the exact code chosen by the person who uploaded this file.']);
+        }
+        return;
+    }
     if (!hfvTotpProtected($row)) {
         if ($requireProtection) {
-            hfvJson(409, ['ok' => false, 'error' => 'This file has no uploader TOTP key. Ask the uploader to upload it again with TOTP protection.']);
+            hfvJson(409, ['ok' => false, 'error' => 'This file has no uploader access code. Ask the uploader to upload it again with code protection.']);
         }
         return;
     }
@@ -254,6 +269,7 @@ function hfvListRows(array $accounts): array {
                 'uploadedAt' => (string)($row['upload_date'] ?? ''),
                 'cloud' => true,
                 'totpProtected' => hfvTotpProtected($row),
+                'accessProtection' => hfvAccessProtection($row),
             ];
         }
     }
@@ -356,11 +372,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'list') {
     ]);
 }
 
-// Every download uses the uploader's stored TOTP key. Codes are never accepted
-// in URLs and legacy unprotected files cannot silently bypass verification.
+// Every download uses the uploader's stored access protection. Codes are never
+// accepted in URLs and legacy unprotected files cannot silently bypass it.
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'download') {
     header('Allow: POST');
-    hfvJson(405, ['ok' => false, 'error' => 'File downloads require verified TOTP POST requests.']);
+    hfvJson(405, ['ok' => false, 'error' => 'File downloads require a verified access-code POST request.']);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'download') {
@@ -374,19 +390,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'download') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
+    hfvRequireSameOriginAction();
     $id = hfvSafeId((string)($_POST['id'] ?? ''));
-    $totpSecret = hfvTotpNormalizeSecret((string)($_POST['totp_secret'] ?? ''));
-    $totpCode = trim((string)($_POST['totp_code'] ?? ''));
-    if ($totpSecret === '') {
-        hfvJson(400, ['ok' => false, 'error' => 'A valid TOTP setup key is required.']);
+    $accessCode = (string)($_POST['access_code'] ?? '');
+    if (!hfvAccessCodeInputValid($accessCode)) {
+        hfvJson(400, ['ok' => false, 'error' => 'Choose a file code with 1 to 128 characters.']);
     }
-    if (!hfvTotpValidateCode($totpSecret, $totpCode)) {
-        hfvJson(400, ['ok' => false, 'error' => 'TOTP setup could not be verified.']);
-    }
-    $sealedSecret = hfvTotpSealSecret($totpSecret);
-    if ($sealedSecret === '') {
-        hfvJson(500, ['ok' => false, 'error' => 'TOTP protection could not be initialized.']);
-    }
+    $codeHash = hfvAccessCodeHash($accessCode, $id, mldsaAccessSecret());
 
     if (!isset($_FILES['file']) || !is_array($_FILES['file'])) {
         hfvJson(400, ['ok' => false, 'error' => 'No file was received.']);
@@ -430,12 +440,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
             'vault' => 'hashcod-file-vault',
             'original_name' => $name,
             'sha256' => $sha256,
-            'totp_protected' => true,
-            'totp_secret_cipher' => $sealedSecret,
-            'totp_backend' => 'github.com/pquerna/otp/totp',
-            'totp_algorithm' => 'SHA1',
-            'totp_digits' => HFV_TOTP_DIGITS,
-            'totp_period' => HFV_TOTP_PERIOD,
+            'access_protection' => 'access-code',
+            'access_code_hash' => $codeHash,
         ],
     ], $account);
 
@@ -454,6 +460,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
             'uploadedAt' => $uploadedAt,
             'cloud' => true,
             'totpProtected' => true,
+            'accessProtection' => 'access-code',
         ],
     ]);
 }

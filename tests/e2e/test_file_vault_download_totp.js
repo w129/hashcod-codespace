@@ -88,5 +88,5 @@ async function downloadScenario(statuses, answers) {
   coreContext.window.HashcodFileVaultTotp = { download: async (file) => delegated.push(file) };
   await coreContext.downloadFile(localFile);
   assert.strictEqual(delegated[0], localFile, 'local files must use the verified download API');
-  console.log('File Vault downloads require uploader TOTP; cancellation, retry, server failures and duplicate IDs OK');
+  console.log('File Vault downloads require uploader access code; cancellation, retry, server failures and duplicate IDs OK');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

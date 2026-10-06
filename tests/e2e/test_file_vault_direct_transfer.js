@@ -9,7 +9,7 @@ const transfer = source.slice(source.indexOf('async function parseJson('), sourc
 
 async function scenario(prepareStatus = 200, storageStatus = 200) {
   const calls = [];
-  const secret = randomBytes(20).toString('hex');
+  const code = 'MiCodigo-Verde! 2026';
   const ticket = randomBytes(24).toString('base64url');
   const file = new File(['document bytes'], 'document.pdf', { type: 'application/pdf' });
   class StorageXHR {
@@ -45,10 +45,10 @@ async function scenario(prepareStatus = 200, storageStatus = 200) {
   });
   vm.runInContext(transfer, context);
   let result, error;
-  try { result = await context.performDirectUpload(file, 'fv_transfer123', secret, '123456'); }
+  try { result = await context.performDirectUpload(file, 'fv_transfer123', code); }
   catch (caught) { error = caught; }
-  assert.strictEqual(calls[0].body.totp_secret, secret);
-  assert.strictEqual(calls[0].body.totp_code, '123456');
+  assert.strictEqual(calls[0].body.access_code, code);
+  assert.strictEqual('totp_code' in calls[0].body, false);
   assert.strictEqual(calls[0].body.type, 'application/pdf');
   return { calls, result, error };
 }
@@ -61,10 +61,10 @@ async function scenario(prepareStatus = 200, storageStatus = 200) {
   assert.strictEqual(await success.calls[1].file.text(), 'document bytes', 'original bytes must reach Storage');
   const invalidCode = await scenario(400);
   assert(invalidCode.error);
-  assert.strictEqual(invalidCode.calls.length, 1, 'rejected TOTP must never transfer bytes');
+  assert.strictEqual(invalidCode.calls.length, 1, 'rejected code must never transfer bytes');
   const failedStorage = await scenario(200, 503);
   assert(failedStorage.error);
   assert.strictEqual(failedStorage.calls.filter((call) => call.stage === 'storage').length, 3);
   assert(!failedStorage.calls.some((call) => call.stage === 'complete'), 'failed storage must never be indexed as saved');
-  console.log('File Vault direct transfer: TOTP → original bytes → signed completion; failures stop before false saves');
+  console.log('File Vault direct transfer: file code → original bytes → signed completion; failures stop before false saves');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

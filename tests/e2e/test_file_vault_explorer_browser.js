@@ -106,9 +106,10 @@ async function main() {
       await card.locator('[data-option="high"]').click();
       await card.getByRole('button', { name: 'Accept', exact: true }).click();
       await card.getByRole('button', { name: 'Accepted', exact: true }).waitFor();
-      await card.locator('.hrc-drawer').evaluate(async node => {
-        await Promise.all(node.getAnimations().map(animation => animation.finished.catch(() => {})));
+      await card.evaluate(async node => {
+        await Promise.all(node.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {})));
       });
+      assert.equal(await card.locator('.hrc-body').evaluate(node => getComputedStyle(node).opacity), '1');
       const expanded = await card.boundingBox();
       assert(expanded.x >= 0 && expanded.x + expanded.width <= viewport.width + 1);
       assert.equal(await card.evaluate(node => node.scrollWidth <= node.clientWidth), true, 'drawer must not overflow horizontally');

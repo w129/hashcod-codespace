@@ -1207,7 +1207,8 @@ const FILE_VAULT_DB_NAME = "hashcod_file_vault_v1";
 const FILE_VAULT_DB_VERSION = 1;
 const FILE_VAULT_META_STORE = "files";
 const FILE_VAULT_BLOB_STORE = "blobs";
-const FILE_VAULT_ENDPOINT = "/api/hashcod-file-vault";
+const FILE_VAULT_SHARED = typeof document !== "undefined" && document.body?.dataset?.hashcodSharedWorkspace === "1";
+const FILE_VAULT_ENDPOINT = FILE_VAULT_SHARED ? "/api/hashcod-shared-files" : "/api/hashcod-file-vault";
 
 function fileVaultOpenDb() {
   return new Promise((resolve, reject) => {
@@ -1505,12 +1506,16 @@ function FileVault({ actions }) {
     window.addEventListener("hashcod:file-vault-saved", onSaved);
     window.addEventListener("focus", refresh);
     window.addEventListener("hashcod:cloud-state-restored", refresh);
+    const poll = FILE_VAULT_SHARED ? window.setInterval(() => {
+      if (document.visibilityState !== "hidden") void refresh();
+    }, 15000) : null;
     try {
       navigator.storage?.persist?.().catch(() => false);
     } catch {
       // Storage persistence is optional.
     }
     return () => {
+      if (poll !== null) window.clearInterval(poll);
       ++refreshSequence.current;
       window.removeEventListener("hashcod:file-vault-saved", onSaved);
       window.removeEventListener("focus", refresh);
@@ -1870,7 +1875,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261006-protected-files-explorer1",
+    version: "20261006-shared-cloud-repair1",
   });
 
   return true;

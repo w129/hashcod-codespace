@@ -7,9 +7,17 @@ const { IDBFactory } = require('fake-indexeddb');
 const root = path.resolve(__dirname, '../..');
 const pause = () => new Promise(resolve => setTimeout(resolve, 20));
 async function until(check) { for (let i = 0; i < 300; i++) { if (await check()) return; await pause(); } throw new Error('Files explorer did not reach expected state'); }
-async function scenario(origin) {
+async function scenario(origin, shared = false) {
   const dom = new JSDOM('<body data-hashcod-entry-intro="1"><div id="d5CenterEmptyStateMount"></div></body>', { url: origin, runScripts: 'dangerously', pretendToBeVisual: true });
   const w = dom.window, released = [], revoked = [], requests = [], errors = [], pdfData = [];
+  if (shared) w.document.body.dataset.hashcodSharedWorkspace = '1';
+  const expectedEndpoint = shared ? '/api/hashcod-shared-files' : '/api/hashcod-file-vault';
+  let refreshFromPoll;
+  const nativeInterval = w.setInterval.bind(w);
+  w.setInterval = (callback, delay, ...args) => {
+    if (shared && delay === 15000) refreshFromPoll = callback;
+    return nativeInterval(callback, delay, ...args);
+  };
   w.addEventListener('error', event => errors.push(event.error));
   Object.defineProperty(w, 'crypto', { value: webcrypto });
   w.TextEncoder = TextEncoder; w.Blob = Blob; w.File = File; w.indexedDB = new IDBFactory();
@@ -22,9 +30,11 @@ async function scenario(origin) {
   w.HTMLCanvasElement.prototype.getContext = () => ({});
   w.HashcodFileVaultPdf = { load: data => { pdfData.push(data); return { promise: Promise.resolve({ numPages: 2, getPage: async () => ({ getViewport: () => ({ width: 300, height: 400 }), render: () => ({ promise: Promise.resolve(), cancel() {} }) }) }), destroy: async () => {} }; } };
   const cloud = { id: 'fv_cloud_preview_12345', name: 'report.pdf', type: 'application/pdf', size: 20, cloud: true, accessProtection: 'access-code' };
+  let cloudRows = [cloud];
   w.fetch = async (url, options = {}) => {
     requests.push({ url, options });
-    if (String(url).includes('action=list')) return new Response(JSON.stringify({ ok: true, files: [cloud] }));
+    assert(String(url).startsWith(expectedEndpoint + '?'), 'visible list and protected actions must use the same workspace');
+    if (String(url).includes('action=list')) return new Response(JSON.stringify({ ok: true, files: cloudRows }));
     assert(String(url).includes('action=download'), 'unexpected cloud action');
     assert.equal(options.method, 'POST');
     const body = JSON.parse(options.body);
@@ -43,6 +53,17 @@ async function scenario(origin) {
     assert(!w.document.getElementById('d5FileVault'), 'files must be visible before opening upload vault');
     assert.equal(w.document.querySelector('#d5FilesExplorer').getAttribute('data-animate-ui-files'), 'radix');
     assert(w.document.querySelector('#d5CenterEmptyStateAction').compareDocumentPosition(w.document.querySelector('#d5FilesExplorer')) & w.Node.DOCUMENT_POSITION_FOLLOWING);
+    if (shared) {
+      assert.equal(typeof refreshFromPoll, 'function', 'shared tree must poll other-device changes');
+      const otherDeviceFile = { ...cloud, id: 'fv_other_device_12345', name: 'other-device.pdf' };
+      cloudRows = [cloud, otherDeviceFile];
+      refreshFromPoll();
+      await until(() => w.document.querySelector(`[data-hfv-preview-id="${otherDeviceFile.id}"]`));
+      assert.equal(pdfData.length, 0, 'sync must not expose file contents without a code');
+      cloudRows = [cloud];
+      refreshFromPoll();
+      await until(() => !w.document.querySelector(`[data-hfv-preview-id="${otherDeviceFile.id}"]`));
+    }
     async function enter(code) {
       await until(() => w.document.querySelector('#hfvTotpCode'));
       const field = w.document.querySelector('#hfvTotpCode');
@@ -90,4 +111,8 @@ async function scenario(origin) {
     console.log('Official Files explorer on ' + origin + ': live list, exact-code preview, cloud POST, inert HTML, repeated verification and cleanup OK');
   } finally { await pause(); w.close(); }
 }
-(async () => { for (const origin of ['https://hashcodcodespace.dev', 'http://127.0.0.1:8000']) await scenario(origin); })().catch(error => { console.error(error); process.exitCode = 1; });
+(async () => {
+  for (const origin of ['https://hashcodcodespace.dev', 'http://127.0.0.1:8000']) {
+    for (const shared of [false, true]) await scenario(origin, shared);
+  }
+})().catch(error => { console.error(error); process.exitCode = 1; });

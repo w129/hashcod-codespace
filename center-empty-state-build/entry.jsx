@@ -7,6 +7,7 @@ import EmptyState from "./EmptyState";
 import "./entry.css";
 import FilesExplorer from "./FilesExplorer";
 import FilePreview from "./FilePreview";
+import RecommendationCard from "./RecommendationCard";
 
 const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
 const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
@@ -1866,6 +1867,7 @@ function CenterWorkspaceEmptyState() {
             />
 
             </>} />
+            <RecommendationCard />
           </div>
         }
       />
@@ -1888,7 +1890,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261006-files-loading1",
+    version: "20261006-recommendation-card1",
   });
 
   return true;

@@ -252,6 +252,9 @@ http://:{$PORT:8000} {
 		}
 		request_header @untrustedAdminIngress -CF-Connecting-IP
 		reverse_proxy 127.0.0.1:8001 {
+			# Preserve Railway's external scheme across Caddy's internal HTTP hop.
+			# PHP trusts this private metadata only from loopback inside Railway.
+			header_up X-L8-Railway-Proto {http.request.header.X-Forwarded-Proto}
 			header_up -X-L8-Railway-Real-Ip
 			header_up X-L8-Railway-Real-Ip {http.request.header.X-Real-IP}
 			header_up -X-L8-Railway-Request-Id

@@ -102,8 +102,14 @@ function securityApplyHeaders() {
 }
 
 function securityIsHttps() {
+    // Railway terminates TLS before Caddy's HTTP listener. Caddy stamps this
+    // private header from the edge protocol, replacing any client-supplied value.
+    $railwayHttps = trim((string)getenv('RAILWAY_ENVIRONMENT_ID')) !== ''
+        && in_array((string)($_SERVER['REMOTE_ADDR'] ?? ''), ['127.0.0.1', '::1'], true)
+        && strtolower(trim((string)($_SERVER['HTTP_X_L8_RAILWAY_PROTO'] ?? ''))) === 'https';
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+        || $railwayHttps
         || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
 }
 

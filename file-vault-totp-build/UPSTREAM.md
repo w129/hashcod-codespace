@@ -31,3 +31,11 @@ deletion; cancel, wrong codes and provider failures leave local data intact.
 Legacy shell buttons cannot use a delete bypass. Both downloads and deletion
 share an action lock and same-origin POST guards. Cache versions are refreshed
 for the shell and TOTP runtime; desktop packaging uses the same source.
+
+Railway terminates HTTPS before Caddy's HTTP listener. Caddy replaces the private
+`X-L8-Railway-Proto` header with the edge's `X-Forwarded-Proto`; PHP accepts it
+only on loopback in a Railway environment (`RAILWAY_ENVIRONMENT_ID`). This keeps
+the exact scheme/host origin checks working for upload, download and deletion,
+while the desktop HTTP runtime continues to use its local origin. The production
+image smoke test runs the actual Caddy configuration against PHP and covers
+cross-origin rejection and forged private headers without touching stored files.

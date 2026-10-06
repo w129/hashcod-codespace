@@ -136,6 +136,8 @@
     transform: none;
   }
   body[data-hashcod-entry-intro="1"] .preview-policy-copy { font-size: 12px; line-height: 1.6; }
+  body[data-hashcod-entry-intro="1"] .preview-policy-mount { position: relative; }
+  body[data-hashcod-entry-intro="1"] .preview-link-card { position: static; }
   body[data-hashcod-entry-intro="1"] .preview-link-card__trigger { display: inline-flex; align-items: center; min-height: 44px; }
   body[data-hashcod-entry-intro="1"] #hashcodPageMascotDock.hashcod-page-mascot-dock {
     --hashcod-mascot-size: 52px;

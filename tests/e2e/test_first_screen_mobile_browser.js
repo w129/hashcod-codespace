@@ -18,7 +18,7 @@ const scripts = ['mldsa-access-gate.js', 'file-vault-totp.bundle.js', 'first-scr
 const html = `<html lang="es"><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><link rel="stylesheet" href="/components/file-vault-totp.css">${styles}</head><body data-hashcod-entry-intro="1">${mainMarkup}${footer}${scripts}</body></html>`;
 
 async function layout(page, width) {
-  const result = await page.evaluate(() => {
+  const result = await page.evaluate(width => {
     const box = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top + scrollY, bottom: r.bottom + scrollY }; };
     return {
       calendar: box('#d5FirstScreenCalendar'), actions: box('.hashcod-empty-state-actions-row'), files: box('#d5FilesExplorer'), footer: box('#d5PreviewPolicyFooter'),
@@ -27,13 +27,13 @@ async function layout(page, width) {
       documentWidth: document.documentElement.scrollWidth,
       overflow: Array.from(document.querySelectorAll('body *')).filter(n => {
         const r = n.getBoundingClientRect();
-        return r.width > 0 && getComputedStyle(n).visibility !== 'hidden' && (r.right > innerWidth + 1 || r.left < -1);
+        return r.width > 0 && (r.right > width + 1 || r.left < -1);
       }).slice(0, 12).map(n => ({ id: n.id, class: n.className?.baseVal ?? n.className, left: n.getBoundingClientRect().left, right: n.getBoundingClientRect().right })),
       calendarTarget: document.querySelector('.v-calendar__day').getBoundingClientRect().height,
       buttons: ['#d5CalendarToday', '#d5CalendarPreviousMonth', '#d5CenterEmptyStateAction', '#d5FileVaultTrigger'].map(selector => document.querySelector(selector).getBoundingClientRect().height),
       cursorDisplay: document.getElementById('d5AnimateCursorLayer') ? getComputedStyle(document.getElementById('d5AnimateCursorLayer')).display : 'none',
     };
-  });
+  }, width);
   assert.equal(result.stagePosition, 'static', 'phone actions must participate in normal document flow');
   assert.equal(result.footerPosition, 'static', 'phone footer must not cover content');
   assert(result.actions.top >= result.calendar.bottom + 8, 'actions must follow the complete calendar without overlap');
@@ -114,6 +114,13 @@ async function run() {
       await withinViewport(page, '#d5FilePreview');
       await page.getByRole('button', { name: 'Close preview', exact: true }).tap();
       await page.locator('#d5FilePreview').waitFor({ state: 'detached' });
+      await layout(page, viewport.width);
+      await page.locator('#d5PreviewPolicyTrigger').scrollIntoViewIfNeeded();
+      await page.locator('#d5PreviewPolicyTrigger').focus();
+      await page.locator('#d5PreviewPolicyContent[data-open="true"]').waitFor({ state: 'visible' });
+      const policy = await page.locator('#d5PreviewPolicyContent').boundingBox();
+      assert(policy.x >= 0 && policy.x + policy.width <= viewport.width + 1, 'privacy preview must stay inside the phone width');
+      await page.locator('#d5PreviewPolicyTrigger').evaluate(n => n.blur());
       await layout(page, viewport.width);
       assert.deepEqual(errors, []);
       console.log(`Phone ${viewport.width}x${viewport.height}: flow, scrolling, touch targets, month navigation, long filenames and protected preview passed`);

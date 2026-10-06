@@ -310,18 +310,26 @@ function CalendarExample() {
 }
 
 function FirstScreenMenuStack() {
+  const [compact, setCompact] = React.useState(() => window.matchMedia('(max-width: 1179px)').matches);
+  React.useEffect(() => {
+    const media = window.matchMedia('(max-width: 1179px)');
+    const update = () => setCompact(media.matches);
+    media.addEventListener('change', update);
+    update();
+    return () => media.removeEventListener('change', update);
+  }, []);
   return (
     <div className="first-screen-menu-stack">
       <BranchedMenu
         items={items}
-        defaultOpen={[0]}
+        defaultOpen={compact ? [] : [0]}
         defaultActive="quick"
         onSelect={(value, item) => navigate(value, item)}
         color="#0a0a0a"
         accentColor="#0a0a0a"
         lineColor="#0a0a0a"
         width={240}
-        rowHeight={36}
+        rowHeight={compact ? 44 : 36}
         indent={40}
         trunk={14}
         radius={10}
@@ -436,7 +444,7 @@ function mountBranchedMenu() {
   node.dataset.reactMounted = 'true';
   window.HashcodFirstScreenBranchedMenu = Object.freeze({
     mounted: true,
-    version: '20261006-live-calendar1'
+    version: '20261006-mobile-layout1'
   });
   return true;
 }

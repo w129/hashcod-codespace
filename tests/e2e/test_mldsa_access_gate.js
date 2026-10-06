@@ -114,8 +114,8 @@ assert(!gate.includes('id="d5SavedChatDemo"'),'Saved Messages card must be remov
 assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be removed');
 
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261006-live-calendar1'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261006-live-calendar1'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261006-mobile-layout1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261006-mobile-layout1'),'BranchedMenu JS bundle must load');
 assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-dialog1'),'code access CSS bundle must load');
 assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-dialog1'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
@@ -305,13 +305,13 @@ for(const token of [
   "label: 'Components'",
   "{ value: 'buttons', label: 'Buttons' }",
   "{ value: 'overlays', label: 'Overlays' }",
-  'defaultOpen={[0]}',
+  'defaultOpen={compact ? [] : [0]}',
   'defaultActive="quick"',
   'color="#0a0a0a"',
   'accentColor="#0a0a0a"',
   'lineColor="#0a0a0a"',
   'width={240}',
-  'rowHeight={36}',
+  'rowHeight={compact ? 44 : 36}',
   'indent={40}',
   'trunk={14}',
   'radius={10}',
@@ -478,3 +478,5 @@ assert(js.includes('function closeDocumentsHub()'),'Documents close runtime miss
 assert(js.includes("document.getElementById('d5ScratchCardDemo')"),'Documents must reuse the real ScratchCard');
 
 console.log('✓ First screen uses FAQ, Card, Workspace, Text Card and Documents modal actions');
+
+assert(gate.includes('components/first-screen-mobile.css?v=20261006-mobile-layout1'),'mobile layout stylesheet must load after component styles');

@@ -29,7 +29,7 @@ async function scenario(origin, shared = false) {
   w.HTMLAnchorElement.prototype.click = function () {};
   w.HTMLCanvasElement.prototype.getContext = () => ({});
   w.HashcodFileVaultPdf = { load: data => { pdfData.push(data); return { promise: Promise.resolve({ numPages: 2, getPage: async () => ({ getViewport: () => ({ width: 300, height: 400 }), render: () => ({ promise: Promise.resolve(), cancel() {} }) }) }), destroy: async () => {} }; } };
-  const cloud = { id: 'fv_cloud_preview_12345', name: 'report.pdf', type: 'application/pdf', size: 20, cloud: true, accessProtection: 'access-code' };
+  const cloud = { id: 'fv_cloud_preview_12345', name: 'report.pdf', type: 'application/pdf', size: 20, cloud: true, accessProtection: 'access-code', priceUsdCents: 1250 };
   let cloudRows = [cloud];
   w.fetch = async (url, options = {}) => {
     requests.push({ url, options });
@@ -50,15 +50,23 @@ async function scenario(origin, shared = false) {
     const meta = await w.HashcodFileVaultTotp.saveLocal(new File(['<script>window.PWNED=true</script>'], 'example.html', { type: 'text/html' }), 'fv_local_preview_12345', 'my-code');
     evaluate('center-empty-state.bundle.js');
     await until(() => w.document.querySelectorAll('#d5FilesExplorer [data-hfv-preview-id]').length === 2);
+    assert.match(w.document.querySelector(`[data-hfv-preview-id="${cloud.id}"]`).textContent, /\$12.50 USD/);
+    assert(!w.document.querySelector(`[data-hfv-preview-id="${meta.id}"] .hfv-file-value`), 'older unpriced files must not be shown as free');
+    w.document.querySelector('#d5FileVaultTrigger').click();
+    await until(() => w.document.querySelector('#d5FileVaultList'));
+    assert.match(w.document.querySelector(`[data-hfv-file-id="${cloud.id}"] .hfv-file-value`).textContent, /\$12.50 USD/);
+    w.document.querySelector('[aria-label="Close storage"]').click();
+    await until(() => !w.document.getElementById('d5FileVault'));
     assert(!w.document.getElementById('d5FileVault'), 'files must be visible before opening upload vault');
     assert.equal(w.document.querySelector('#d5FilesExplorer').getAttribute('data-animate-ui-files'), 'radix');
     assert(w.document.querySelector('#d5CenterEmptyStateAction').compareDocumentPosition(w.document.querySelector('#d5FilesExplorer')) & w.Node.DOCUMENT_POSITION_FOLLOWING);
     if (shared) {
       assert.equal(typeof refreshFromPoll, 'function', 'shared tree must poll other-device changes');
-      const otherDeviceFile = { ...cloud, id: 'fv_other_device_12345', name: 'other-device.pdf' };
+      const otherDeviceFile = { ...cloud, id: 'fv_other_device_12345', name: 'other-device.pdf', priceUsdCents: 9900 };
       cloudRows = [cloud, otherDeviceFile];
       refreshFromPoll();
       await until(() => w.document.querySelector(`[data-hfv-preview-id="${otherDeviceFile.id}"]`));
+      assert.match(w.document.querySelector(`[data-hfv-preview-id="${otherDeviceFile.id}"]`).textContent, /\$99.00 USD/);
       assert.equal(pdfData.length, 0, 'sync must not expose file contents without a code');
       cloudRows = [cloud];
       refreshFromPoll();

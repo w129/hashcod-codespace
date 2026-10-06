@@ -11,7 +11,7 @@ const pause = () => new Promise(resolve => setTimeout(resolve, 20));
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'hfv-access-'));
   let server;
   try {
-    for (const file of ['hashcod-file-vault-fast-upload.php', 'hashcod-file-vault-access-code.php']) fs.copyFileSync(path.join(root, file), path.join(fixture, file));
+    for (const file of ['hashcod-file-vault-fast-upload.php', 'hashcod-file-vault-access-code.php', 'hashcod-file-vault-value.php']) fs.copyFileSync(path.join(root, file), path.join(fixture, file));
     fs.writeFileSync(path.join(fixture, 'auth.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'hashcod-workspace-access.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'supabase.php'), `<?php
@@ -29,14 +29,18 @@ function securityRateAllowSliding($bucket, $limit, $period) { return ['allowed' 
     let ready = false;
     for (let i = 0; i < 150; i++) { try { ready = (await fetch(url)).status === 405; } catch {} if (ready) break; await pause(); }
     assert(ready, 'PHP access-code test server did not start');
-    async function request(code) {
-      const response = await fetch(url, { method: 'POST', headers: { Origin: `http://127.0.0.1:${port}`, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'fv_access123', name: 'file.pdf', type: 'application/pdf', size: 1, access_code: code }) });
+    async function request(code, priceUsdCents = null) {
+      const response = await fetch(url, { method: 'POST', headers: { Origin: `http://127.0.0.1:${port}`, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'fv_access123', name: 'file.pdf', type: 'application/pdf', size: 1, access_code: code, priceUsdCents }) });
       return { status: response.status, body: await response.json() };
     }
     const invalid = await request('');
     assert.equal(invalid.status, 400);
     assert.match(invalid.body.error, /code/i);
-    const valid = await request('MiCodigo-Verde! 2026');
+    for (const cents of [-1, 1.5, 1000000000, 'NaN']) {
+      const invalidValue = await request('chosen-code', cents);
+      assert.equal(invalidValue.status, 400, 'invalid USD values must be rejected before provider calls');
+    }
+    const valid = await request('MiCodigo-Verde! 2026', 1250);
     assert.equal(valid.status, 503, 'Valid code should pass validation and reach the unavailable provider guard');
     assert.equal(valid.body.code, 'cloud_upload_unavailable');
     assert.equal(valid.body.fallback, true);

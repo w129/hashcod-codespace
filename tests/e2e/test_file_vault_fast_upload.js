@@ -15,7 +15,7 @@ assert(php.includes("supabaseSyncFileRecord"), 'same l8_files database finalizat
 assert(php.includes("access_code_hash"), 'file access-code metadata must be preserved');
 assert(php.includes("HFVU_TICKET_TTL"), 'signed finalization ticket missing');
 
-assert(fast.includes("20261006-files-loading1"), 'shared fast upload runtime version missing');
+assert(fast.includes("20261006-file-usd-value1"), 'shared fast upload runtime version missing');
 assert(fast.includes("?action=prepare"), 'prepare phase missing');
 assert(fast.includes("?action=complete"), 'complete phase missing');
 assert(fast.includes("xhr.open('PUT',url,true)"), 'direct signed PUT transport missing');
@@ -28,8 +28,8 @@ assert(fast.includes("supabase-signed-direct"), 'signed direct transport marker 
 assert(!fast.includes("x-signature"), 'fast5 must not misuse signed-upload tokens as TUS credentials');
 assert(!fast.includes("/storage/v1/upload/resumable"), 'fast5 must not use undocumented signed-token TUS path');
 
-const totpIndex = loader.indexOf('file-vault-totp.bundle.js?v=20261006-shared-workspace1');
-const fastIndex = loader.indexOf('file-vault-fast-upload-v5.js?v=20261006-files-loading1');
+const totpIndex = loader.indexOf('file-vault-totp.bundle.js?v=20261006-file-usd-value1');
+const fastIndex = loader.indexOf('file-vault-fast-upload-v5.js?v=20261006-file-usd-value1');
 assert(totpIndex >= 0, 'TOTP runtime is not loaded');
 assert(fastIndex >= 0, 'fast5 upload runtime is not loaded');
 assert(totpIndex < fastIndex, 'TOTP runtime must be declared before fast5 transport');

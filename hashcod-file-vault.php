@@ -6,6 +6,7 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/hashcod-workspace-access.php';
 require_once __DIR__ . '/hashcod-file-vault-access-code.php';
+require_once __DIR__ . '/hashcod-file-vault-value.php';
 
 securityBootstrap('api');
 
@@ -270,6 +271,7 @@ function hfvListRows(array $accounts): array {
                 'cloud' => true,
                 'totpProtected' => hfvTotpProtected($row),
                 'accessProtection' => hfvAccessProtection($row),
+                'priceUsdCents' => hfvUsdCents(hfvMetaArray($row['meta'] ?? [])['price_usd_cents'] ?? null),
             ];
         }
     }
@@ -396,6 +398,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
     if (!hfvAccessCodeInputValid($accessCode)) {
         hfvJson(400, ['ok' => false, 'error' => 'Choose a file code with 1 to 128 characters.']);
     }
+    try { $priceUsdCents = hfvUsdCents($_POST['priceUsdCents'] ?? null); }
+    catch (InvalidArgumentException $error) { hfvJson(400, ['ok' => false, 'error' => $error->getMessage()]); }
     $codeHash = hfvAccessCodeHash($accessCode, $id, mldsaAccessSecret());
 
     if (!isset($_FILES['file']) || !is_array($_FILES['file'])) {
@@ -442,6 +446,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
             'sha256' => $sha256,
             'access_protection' => 'access-code',
             'access_code_hash' => $codeHash,
+            'price_usd_cents' => $priceUsdCents,
         ],
     ], $account);
 
@@ -461,6 +466,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
             'cloud' => true,
             'totpProtected' => true,
             'accessProtection' => 'access-code',
+            'priceUsdCents' => $priceUsdCents,
         ],
     ]);
 }

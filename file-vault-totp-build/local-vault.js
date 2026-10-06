@@ -1,5 +1,6 @@
 // Device fallback shares the shell's IndexedDB schema. Neither a plaintext
 // Blob nor the chosen code/key is persisted. Cloud rows keep server validation.
+import { validateUsdCents } from './file-value.js';
 const DB = 'hashcod_file_vault_v1';
 const MODE = 'local-code';
 const ITERATIONS = 310000;
@@ -69,9 +70,10 @@ async function keyFor(code, salt, id) {
     { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 function algorithm(id, iv) { return { name: 'AES-GCM', iv, additionalData: encoder.encode('hashcod-file-vault-local-v1|' + id), tagLength: 128 }; }
-export async function saveLocalFile(file, id, code) {
+export async function saveLocalFile(file, id, code, priceUsdCents = null) {
   validateId(id);
   validateCode(code);
+  priceUsdCents = validateUsdCents(priceUsdCents);
   if (!(file instanceof Blob) || file.size > 99614720) throw fail(413, 'Files must be 95 MB or smaller.');
   if (!globalThis.crypto?.subtle) throw fail(503, 'Protected device storage needs a secure connection.');
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -79,7 +81,7 @@ export async function saveLocalFile(file, id, code) {
   const key = await keyFor(code, salt, id);
   const cipher = await crypto.subtle.encrypt(algorithm(id, iv), key, await file.arrayBuffer());
   const meta = { id, name: file.name || 'file', type: file.type || 'application/octet-stream', size: file.size,
-    uploadedAt: new Date().toISOString(), cloud: false, local: true, totpProtected: true, accessProtection: MODE };
+    uploadedAt: new Date().toISOString(), cloud: false, local: true, totpProtected: true, accessProtection: MODE, priceUsdCents };
   await transaction('readwrite', (tx, done) => {
     // add, not put: retries/duplicate IDs cannot replace someone else's code.
     tx.objectStore('files').add(meta);

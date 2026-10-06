@@ -3,6 +3,9 @@
 The public workspace uses the same-origin `/api/hashcod-shared-*` facade and
 the `hashcod-shared-cloud` Edge Function. File metadata is shared across devices;
 file contents and deletion require the exact code chosen at upload time.
+The visible Files tree uses the same shared index and refreshes every 15 seconds
+while visible, and when the window regains focus. Older non-shared pages retain
+their existing endpoint.
 
 Storage is private. The bucket and upload preparation share a 50 MiB limit,
 matching the current project limit. Setting a bucket above the global Storage

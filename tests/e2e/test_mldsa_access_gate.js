@@ -144,7 +144,7 @@ assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage mi
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
 assert(gate.includes('components/center-empty-state.bundle.css?v=20261006-protected-files-explorer1'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261006-protected-files-explorer1'),'center EmptyState JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261006-shared-cloud-repair1'),'shared Files explorer JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');
@@ -193,7 +193,7 @@ assert(centerEmptyStateEntry.includes('id="d5FileVaultDropzone"'),'File vault dr
 assert(centerEmptyStateEntry.includes('type="file"'),'File vault must use a real browser file input');
 assert(centerEmptyStateEntry.includes('multiple'),'File vault must allow multiple files');
 assert(centerEmptyStateEntry.includes('XMLHttpRequest'),'File vault must report real upload progress');
-assert(centerEmptyStateEntry.includes('FILE_VAULT_ENDPOINT = "/api/hashcod-file-vault"'),'File vault backend endpoint missing');
+assert(centerEmptyStateEntry.includes('FILE_VAULT_SHARED ? "/api/hashcod-shared-files" : "/api/hashcod-file-vault"'),'shared and legacy File vault backend endpoints missing');
 assert(centerEmptyStateEntryCss.includes('.hashcod-file-vault-trigger'),'File vault trigger CSS missing');
 assert(centerEmptyStateEntryCss.includes('.hfv-dropzone'),'File vault dropzone CSS missing');
 assert(centerEmptyStateEntry.includes('createPortal'),'Hatch dialog must portal to body for viewport blur');

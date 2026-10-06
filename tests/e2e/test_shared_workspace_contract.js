@@ -13,6 +13,7 @@ const edge = fs.readFileSync(path.join(root, 'supabase/functions/hashcod-shared-
 const files = fs.readFileSync(path.join(root, 'supabase/functions/hashcod-shared-cloud/files.ts'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase/migrations/20261006141143_shared_workspace_cloud.sql'), 'utf8');
 const core = fs.readFileSync(path.join(root, 'supabase/functions/hashcod-shared-cloud/core.ts'), 'utf8');
+const visibleExplorer = fs.readFileSync(path.join(root, 'center-empty-state-build/entry.jsx'), 'utf8');
 
 for (const route of ['/api/hashcod-shared-files', '/api/hashcod-shared-upload', '/api/hashcod-shared-state', '/api/hashcod-shared-text-editor']) {
   assert(router.includes(route), `router must expose ${route}`);
@@ -24,6 +25,7 @@ assert(facade.includes('hashcod:text-editor:draft:v1'), 'shared text editor key 
 assert(state.includes("'/api/hashcod-shared-state'"), 'workspace state must use shared endpoint');
 assert(fast.includes("'/api/hashcod-shared-upload'"), 'File Vault upload must use shared endpoint');
 assert(explorer.includes('hashcod-shared-files'), 'File Vault explorer must use shared endpoint');
+assert(visibleExplorer.includes('"/api/hashcod-shared-files"'), 'visible Files tree must read the shared index');
 assert(html.includes('data-hashcod-shared-workspace="1"'), 'entry HTML must advertise shared mode');
 assert(edge.includes("action === 'state'"), 'Edge function state action missing');
 assert(edge.includes("action.startsWith('files.')"), 'Edge function file actions missing');

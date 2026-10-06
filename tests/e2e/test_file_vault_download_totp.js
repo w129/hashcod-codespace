@@ -84,7 +84,7 @@ async function downloadScenario(statuses, answers) {
   vm.runInContext(coreDownload, coreContext);
   const localFile = { id: 'fv_second123', name: 'same-name.pdf', local: true };
   await coreContext.downloadFile(localFile);
-  assert(notices.at(-1).includes('TOTP verification is not ready'), 'missing dialog API must fail closed');
+  assert(notices.at(-1).includes('File-code verification is not ready'), 'missing dialog API must fail closed');
   coreContext.window.HashcodFileVaultTotp = { download: async (file) => delegated.push(file) };
   await coreContext.downloadFile(localFile);
   assert.strictEqual(delegated[0], localFile, 'local files must use the verified download API');

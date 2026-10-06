@@ -61,7 +61,7 @@ async function deletion(statuses, answers) {
   const file = { id: 'fv_second123', local: true, cloud: true };
   await context.deleteFile(file);
   assert.deepStrictEqual(effects, [], 'missing verification API must not erase local bytes');
-  assert(notices.at(-1).includes('TOTP verification is not ready'));
+  assert(notices.at(-1).includes('File-code verification is not ready'));
   context.window.HashcodFileVaultTotp = { delete: async () => false };
   await context.deleteFile(file);
   assert.deepStrictEqual(effects, [], 'cancel and server errors must preserve device data');

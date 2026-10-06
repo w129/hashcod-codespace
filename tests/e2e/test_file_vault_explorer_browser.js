@@ -99,7 +99,7 @@ async function main() {
       await page.locator('.hfv-value-toggle').click();
       await page.locator('#hfvUsdValue').fill('12.50');
       const dialog = await page.locator('.hfv-totp-dialog').boundingBox();
-      assert(dialog.x >= 0 && dialog.x + dialog.width <= viewport.width + 1 && dialog.y >= 0 && dialog.y + dialog.height <= viewport.height + 1, 'USD setup must fit phone and desktop');
+      assert(dialog.x >= 0 && dialog.x + dialog.width <= viewport.width + 1 && dialog.y >= 0 && dialog.y + dialog.height <= viewport.height + 1, 'USD setup must fit phone and desktop: ' + JSON.stringify({ viewport, dialog }));
       if (process.env.HFV_SCREENSHOT_DIR) await page.screenshot({ path: path.join(process.env.HFV_SCREENSHOT_DIR, 'file-value-' + viewport.width + '.png') });
       await page.getByRole('button', { name: 'Cancel', exact: true }).click();
       await page.locator('.hfv-totp-dialog').waitFor({ state: 'detached' });

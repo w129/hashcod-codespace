@@ -56,6 +56,11 @@ async function main() {
     await page.locator('[data-hfv-preview-id="fv_browser_pdf_12345"]').waitFor({ state: 'visible' });
     await page.reload();
     await page.locator('[data-hfv-preview-id="fv_browser_pdf_12345"]').waitFor({ state: 'visible' });
+    await page.waitForFunction(() => {
+      const folder = document.querySelector('#d5FilesExplorer [data-slot="folder-content"]');
+      const rows = Array.from(document.querySelectorAll('#d5FilesExplorer [data-hfv-preview-id]'));
+      return folder && rows.length === 3 && folder.getBoundingClientRect().height >= rows.reduce((total, row) => total + row.getBoundingClientRect().height, 0) - 1 && getComputedStyle(folder).opacity === '1';
+    });
     assert.equal(await page.locator('[data-hfv-preview-id]').count(), 3, 'reload must restore every stored file');
     for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 700, height: 500 }]) {
       await page.setViewportSize(viewport);

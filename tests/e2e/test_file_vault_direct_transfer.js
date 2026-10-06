@@ -16,11 +16,11 @@ async function scenario(prepareStatus = 200, storageStatus = 200, withFallback =
     constructor() { this.upload = {}; }
     open(method, url) { calls.push({ stage: 'storage', method, url }); }
     setRequestHeader() {}
-    send(form) {
-      assert(form instanceof FormData);
-      calls.at(-1).file = form.get('');
-      assert.strictEqual(form.get('').name, file.name);
-      assert.strictEqual(form.get('').size, file.size);
+    send(bytes) {
+      assert(bytes instanceof File, 'signed upload must send the original file bytes');
+      calls.at(-1).file = bytes;
+      assert.strictEqual(bytes.name, file.name);
+      assert.strictEqual(bytes.size, file.size);
       this.status = storageStatus;
       queueMicrotask(() => this.onload());
     }

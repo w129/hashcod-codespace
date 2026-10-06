@@ -1,8 +1,8 @@
 (function(){
 'use strict';
 
-var VERSION='20261004-universal-cloud2';
-var ENDPOINT='/hashcod-workspace-state.php';
+var VERSION='20261006-shared-workspace1';
+var ENDPOINT=(document.body&&document.body.dataset.hashcodSharedWorkspace==='1')?'/api/hashcod-shared-state':'/hashcod-workspace-state.php';
 var PRODUCT_IMAGE_SYNC='/components/product-image-cloud-sync.js?v=20261004-product-image-cloud1';
 var META_KEY='__hashcod_cloud_meta_v1';
 var APPLIED_REVISION_KEY='hashcod:workspace:applied-revision';

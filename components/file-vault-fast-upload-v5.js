@@ -1,8 +1,8 @@
 (function(){
 'use strict';
 
-var VERSION='20261006-file-vault-fast5-device-fallback2';
-var FAST_ENDPOINT='/hashcod-file-vault-fast-upload.php';
+var VERSION='20261006-shared-workspace1';
+var FAST_ENDPOINT=(document.body&&document.body.dataset.hashcodSharedWorkspace==='1')?'/api/hashcod-shared-upload':'/hashcod-file-vault-fast-upload.php';
 var RETRY_DELAYS=[0,500,1400,3000];
 var uiBusy=false;
 
@@ -85,6 +85,7 @@ function directPut(url,file,onProgress){
     var xhr=new XMLHttpRequest();
     xhr.open('PUT',url,true);
     try{xhr.setRequestHeader('x-upsert','true');}catch(_){}
+    try{xhr.setRequestHeader('Content-Type',String(file&&file.type||'application/octet-stream'));}catch(_){}
     xhr.upload.onprogress=function(event){
       if(event.lengthComputable&&typeof onProgress==='function'){
         onProgress(event.loaded,event.total);
@@ -103,10 +104,9 @@ function directPut(url,file,onProgress){
       error.status=xhr.status;
       reject(error);
     };
-    var form=new FormData();
-    form.append('cacheControl','3600');
-    form.append('',file,file.name||'file');
-    xhr.send(form);
+    // Supabase signed upload URLs accept the file bytes directly. Sending a
+    // multipart envelope makes the object appear corrupt on some browsers.
+    xhr.send(file);
   });
 }
 async function uploadWithRetry(url,file,onProgress){

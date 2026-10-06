@@ -85,8 +85,8 @@ assert(workspaceState.includes("supabaseDbUpsert('l8_app_states'"), 'workspace s
 assert(workspaceState.includes("'deleted' => $deleted"), 'workspace deletion tombstones missing');
 assert(workspaceState.includes('hcwsSensitiveKey'), 'server-side secret-key filtering missing');
 assert(workspaceState.includes('HCWS_MAX_VALUE_BYTES'), 'per-value cloud size ceiling missing');
-assert(universal.includes("var VERSION='20261004-universal-cloud2'"), 'universal persistence cache version changed unexpectedly');
-assert(universal.includes("ENDPOINT='/hashcod-workspace-state.php'"), 'universal persistence endpoint missing');
+assert(universal.includes("var VERSION='20261006-shared-workspace1'"), 'shared persistence cache version missing');
+assert(universal.includes("'/api/hashcod-shared-state'"), 'shared universal persistence endpoint missing');
 assert(universal.includes('setInterval(markLocalChanges,2000)'), 'local persistent state must be observed continuously');
 assert(universal.includes('setInterval(function(){if(document.visibilityState'), 'cross-device cloud pull loop missing');
 assert(universal.includes("hashcod:cloud-state-restored"), 'cloud restore event missing');
@@ -121,8 +121,8 @@ assert(workspaceImageSync.includes('codeHash'), 'workspace Image Vault must pres
 
 assert(workspaceMedia.includes('product-image-cloud-sync.js?v=20261004-product-image-cloud1'), 'workspace media bootstrap must load Product Card sync');
 assert(workspaceMedia.includes('workspace-image-vault-sync.js?v=20261004-image-vault-workspace1'), 'workspace media bootstrap must load Image Vault sync');
-assert(accessLoader.includes("20261004-numeric-series5"), 'numeric gate cache version must include universal persistence');
-assert(accessLoader.includes("universal-cloud-persistence.js?v=20261004-universal-cloud2"), 'access gate must load current universal persistence version');
+assert(accessLoader.includes("20261006-shared-workspace1"), 'shared access-loader cache version missing');
+assert(accessLoader.includes("universal-cloud-persistence.js?v=20261006-shared-workspace1"), 'access gate must load shared persistence version');
 assert(accessLoader.includes("workspace-media-bootstrap.js?v=20261004-workspace-media1"), 'access gate must load workspace media sync');
 
 console.log('Cloud device sync contract OK');

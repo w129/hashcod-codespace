@@ -109,6 +109,8 @@ jobs:
           docker exec hashcod-production-smoke php tests/security/test-file-vault-upload.php
           docker exec hashcod-production-smoke node tests/e2e/test_file_vault_download_totp.js
           docker exec hashcod-production-smoke php tests/security/test-file-vault-download.php
+          docker exec hashcod-production-smoke node tests/e2e/test_file_vault_delete_totp.js
+          docker exec hashcod-production-smoke php tests/security/test-file-vault-delete.php
 
           echo "Full stack smoke test passed."
 

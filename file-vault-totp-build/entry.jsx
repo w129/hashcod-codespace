@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-const VERSION = "20261005-file-vault-download-totp3";
+const VERSION = "20261006-file-vault-actions-totp1";
 const ENDPOINT = "/api/hashcod-file-vault";
 const BASE32 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
@@ -10,7 +10,7 @@ let requestHandler = null;
 const pendingRequests = [];
 let cloudFiles = [];
 let decorateTimer = 0;
-let downloadBusy = false;
+let actionBusy = false;
 
 function bytesToBase32(bytes) {
   let bits = 0;
@@ -209,7 +209,7 @@ function TotpDialogHost() {
             <div className="hfv-totp-heading">
               <span>{setup ? "TOTP protection" : "Uploader TOTP protection"}</span>
               <h2 id="hfvTotpTitle">
-                {setup ? "Protect before upload" : notice ? "Download unavailable" : purpose === "delete" ? "Verify before delete" : "Verify before download"}
+                {setup ? "Protect before upload" : notice ? (purpose === "delete" ? "Deletion unavailable" : "Download unavailable") : purpose === "delete" ? "Verify before delete" : "Verify before download"}
               </h2>
               <p title={fileName}>{fileName}</p>
               <small id="hfvTotpDescription">{setup ? "Configure the key that will protect this file." : "Use the current code from the authenticator key set by the person who uploaded this file."}</small>
@@ -454,8 +454,8 @@ async function verifiedDownload(file) {
 }
 
 async function downloadSelectedFile(file) {
-  if (downloadBusy) return;
-  downloadBusy = true;
+  if (actionBusy) return;
+  actionBusy = true;
   try {
     if (!file?.id) {
       await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file?.name || "file", error: "This file could not be identified safely. Refresh the vault and try again." });
@@ -465,20 +465,15 @@ async function downloadSelectedFile(file) {
   } catch {
     await requestTotpDialog({ mode: "notice", purpose: "download", fileName: file?.name || "file", error: "The download could not be completed. Check your connection and try again." });
   } finally {
-    downloadBusy = false;
+    actionBusy = false;
   }
 }
 
 async function verifiedDelete(file) {
   let error = "";
   while (true) {
-    const result = await requestTotpDialog({
-      mode: "verify",
-      fileName: file.name || "file",
-      purpose: "delete",
-      error,
-    });
-    if (!result) return;
+    const result = await requestTotpDialog({ mode: "verify", fileName: file.name || "file", purpose: "delete", error });
+    if (!result) return false;
 
     const response = await fetch(ENDPOINT + "?action=delete", {
       method: "POST",
@@ -492,16 +487,31 @@ async function verifiedDelete(file) {
     });
     if (!response.ok) {
       error = await parseError(response, "The TOTP code is invalid or expired.");
-      if (response.status === 429) return;
-      continue;
+      if (response.status === 401) continue;
+      await requestTotpDialog({ mode: "notice", purpose: "delete", fileName: file.name, error });
+      return false;
     }
-
+    const payload = await response.json();
+    if (payload.ok !== true || payload.id !== file.id) throw new Error("Deletion was not confirmed.");
     cloudFiles = cloudFiles.filter((entry) => entry.id !== file.id);
-    window.setTimeout(() => {
-      document.querySelector("#d5FileVault .hfv-list-head button")?.click();
-      scheduleDecorate();
-    }, 80);
-    return;
+    return true;
+  }
+}
+
+async function deleteSelectedFile(file) {
+  if (actionBusy) return false;
+  actionBusy = true;
+  try {
+    if (!file?.id) {
+      await requestTotpDialog({ mode: "notice", purpose: "delete", fileName: file?.name || "file", error: "This file could not be identified safely. Refresh the vault and try again." });
+      return false;
+    }
+    return await verifiedDelete(file);
+  } catch {
+    await requestTotpDialog({ mode: "notice", purpose: "delete", fileName: file?.name || "file", error: "Deletion could not be confirmed. Check your connection and try again." });
+    return false;
+  } finally {
+    actionBusy = false;
   }
 }
 
@@ -515,10 +525,9 @@ function installActionGuard() {
       const button = event.target?.closest?.("#d5FileVaultList .hfv-file-actions button");
       if (!button) return;
       const title = String(button.getAttribute("title") || "").toLowerCase();
-      if (title === "delete" && button.dataset.hfvTotpBypass === "1") {
-        delete button.dataset.hfvTotpBypass;
-        return;
-      }
+      // The current shell waits for the verified API before local cleanup.
+      // Older shells are intercepted below and never receive a delete bypass.
+      if (title === "delete" && button.dataset.hfvDeleteApi === "verified") return;
 
       if (title !== "download" && title !== "delete") return;
 
@@ -529,23 +538,17 @@ function installActionGuard() {
       event.stopPropagation();
       event.stopImmediatePropagation();
 
-      // Downloads always go through the verified POST path, including local
-      // copies and old rows whose protection metadata could not be restored.
+      const file = row.dataset.hfvFileId
+        ? { id: row.dataset.hfvFileId, name: rowIdentity(row).name }
+        : await resolveProtectedFile(row);
       if (title === "download") {
-        const file = row.dataset.hfvFileId
-          ? { id: row.dataset.hfvFileId, name: rowIdentity(row).name }
-          : await resolveProtectedFile(row);
         await downloadSelectedFile(file);
         return;
       }
-      const file = await resolveProtectedFile(row);
-      if (!file || !file.totpProtected) {
-        button.dataset.hfvTotpBypass = "1";
-        button.click();
-        return;
+      if (await deleteSelectedFile(file)) {
+        document.querySelector("#d5FileVault .hfv-list-head button")?.click();
+        scheduleDecorate();
       }
-
-      await verifiedDelete(file);
     },
     true,
   );
@@ -572,6 +575,7 @@ function boot() {
     version: VERSION,
     refresh: refreshCloudIndex,
     download: downloadSelectedFile,
+    delete: deleteSelectedFile,
     requestSetup: (fileName) => requestTotpDialog({ mode: "setup", fileName }),
     requestVerify: (fileName) => requestTotpDialog({ mode: "verify", fileName, purpose: "download" }),
   });

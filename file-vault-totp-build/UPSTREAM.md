@@ -23,3 +23,11 @@ uploaded again with TOTP protection; a new key is never assigned during download
 The browser bundle is rebuilt in Docker, and both it and the File Vault shell
 have new cache versions. The shared source is also packaged for desktop; a real
 Windows installer download verification remains a release check.
+
+Deletion also requires that stored uploader key, even for local or legacy rows.
+The current shell awaits a confirmed server deletion before removing its device
+copy and row. The animated dialog never creates a replacement key during
+deletion; cancel, wrong codes and provider failures leave local data intact.
+Legacy shell buttons cannot use a delete bypass. Both downloads and deletion
+share an action lock and same-origin POST guards. Cache versions are refreshed
+for the shell and TOTP runtime; desktop packaging uses the same source.

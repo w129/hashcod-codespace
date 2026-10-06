@@ -108,6 +108,9 @@ jobs:
       - name: File Vault uploader TOTP download behavior
         run: node tests/e2e/test_file_vault_download_totp.js
 
+      - name: File Vault uploader TOTP delete behavior
+        run: node tests/e2e/test_file_vault_delete_totp.js
+
       - name: File Vault fast upload contract
         run: node tests/e2e/test_file_vault_fast_upload.js
 

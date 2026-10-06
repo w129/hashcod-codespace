@@ -300,6 +300,22 @@ function hfvReadJsonBody(): array {
     return is_array($body) ? $body : [];
 }
 
+function hfvRequireSameOriginAction(): void {
+    if (strcasecmp((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''), 'XMLHttpRequest') !== 0
+        || strtolower((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')) === 'cross-site') {
+        hfvJson(403, ['ok' => false, 'error' => 'File verification must come from this platform.']);
+    }
+    $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
+    if ($origin !== '') {
+        $parts = parse_url($origin);
+        $originHost = strtolower((string)($parts['host'] ?? '')) . (isset($parts['port']) ? ':' . (int)$parts['port'] : '');
+        if (strtolower((string)($parts['scheme'] ?? '')) !== (securityIsHttps() ? 'https' : 'http')
+            || !hash_equals(strtolower((string)($_SERVER['HTTP_HOST'] ?? '')), $originHost)) {
+            hfvJson(403, ['ok' => false, 'error' => 'File verification must come from this platform.']);
+        }
+    }
+}
+
 function hfvStreamRow(array $row): void {
     $object = (string)($row['supabase_object'] ?? '');
     if ($object === '') hfvJson(404, ['ok' => false, 'error' => 'Stored object is missing.']);
@@ -346,19 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'download') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'download') {
-    if (strcasecmp((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''), 'XMLHttpRequest') !== 0
-        || strtolower((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '')) === 'cross-site') {
-        hfvJson(403, ['ok' => false, 'error' => 'Download verification must come from this platform.']);
-    }
-    $origin = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
-    if ($origin !== '') {
-        $parts = parse_url($origin);
-        $originHost = strtolower((string)($parts['host'] ?? '')) . (isset($parts['port']) ? ':' . (int)$parts['port'] : '');
-        if (strtolower((string)($parts['scheme'] ?? '')) !== (securityIsHttps() ? 'https' : 'http')
-            || !hash_equals(strtolower((string)($_SERVER['HTTP_HOST'] ?? '')), $originHost)) {
-            hfvJson(403, ['ok' => false, 'error' => 'Download verification must come from this platform.']);
-        }
-    }
+    hfvRequireSameOriginAction();
     $body = hfvReadJsonBody();
     $id = hfvSafeId((string)($body['id'] ?? ''));
     $row = hfvFindRow($readAccounts, $id);
@@ -453,12 +457,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'delete') {
+    hfvRequireSameOriginAction();
     $body = hfvReadJsonBody();
     if (!$body) $body = $_POST;
     $id = hfvSafeId((string)($body['id'] ?? ''));
     $row = hfvFindRow($readAccounts, $id);
     if ($row === null) hfvJson(404, ['ok' => false, 'error' => 'File not found.']);
-    hfvRequireTotp($row, (string)($body['code'] ?? ''));
+    hfvRequireTotp($row, (string)($body['code'] ?? ''), true);
 
     $object = (string)($row['supabase_object'] ?? '');
     if ($object !== '' && !hfvDeleteStorageObject($object)) {

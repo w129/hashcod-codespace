@@ -1468,6 +1468,7 @@ function FileVault({ actions }) {
   const refreshSequence = useRef(0);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [activeTransfers, setActiveTransfers] = useState([]);
   const [activeName, setActiveName] = useState("");
   const [progress, setProgress] = useState(0);
   const [notice, setNotice] = useState("");
@@ -1476,6 +1477,7 @@ function FileVault({ actions }) {
 
   const refresh = async () => {
     const sequence = ++refreshSequence.current;
+    setLoadingFiles(true);
     let localRows = null;
     let cloudRows = null;
     try {
@@ -1506,6 +1508,12 @@ function FileVault({ actions }) {
     window.addEventListener("hashcod:file-vault-saved", onSaved);
     window.addEventListener("focus", refresh);
     window.addEventListener("hashcod:cloud-state-restored", refresh);
+    const onTransfer = (event) => {
+      const { id, pending } = event.detail || {};
+      if (!id) return;
+      setActiveTransfers(current => pending ? [...new Set([...current, id])] : current.filter(active => active !== id));
+    };
+    window.addEventListener("hashcod:file-vault-transfer", onTransfer);
     const poll = FILE_VAULT_SHARED ? window.setInterval(() => {
       if (document.visibilityState !== "hidden") void refresh();
     }, 15000) : null;
@@ -1520,6 +1528,7 @@ function FileVault({ actions }) {
       window.removeEventListener("hashcod:file-vault-saved", onSaved);
       window.removeEventListener("focus", refresh);
       window.removeEventListener("hashcod:cloud-state-restored", refresh);
+      window.removeEventListener("hashcod:file-vault-transfer", onTransfer);
     };
   }, []);
 
@@ -1815,7 +1824,7 @@ function FileVault({ actions }) {
         <FileVaultStoreIcon />
       </button>
       </div>
-      <FilesExplorer files={files} loading={loadingFiles} busy={previewBusy} onPreview={previewFile} />
+      <FilesExplorer files={files} loading={loadingFiles} uploading={uploading || activeTransfers.length > 0} busy={previewBusy} onPreview={previewFile} />
       {notice && !open && <p className="hfv-explorer-notice" role="status">{notice}</p>}
       {preview && <FilePreview file={preview.file} blob={preview.blob} onClose={() => setPreview(null)} onDownload={downloadFile} onDelete={deleteFile} />}
       {modal}
@@ -1875,7 +1884,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261006-shared-cloud-repair1",
+    version: "20261006-files-loading1",
   });
 
   return true;

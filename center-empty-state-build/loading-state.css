@@ -1,0 +1,18 @@
+.hfv-loading-state { --hfv-loading-ink: #171717; --hfv-loading-muted: #737373; display: flex; width: fit-content; max-width: 100%; flex-direction: column; align-items: flex-start; }
+.hfv-loading-line { display: flex; align-items: center; gap: 10px; max-width: 100%; white-space: nowrap; }
+.hfv-loading-grid { display: grid; flex-shrink: 0; grid-template-columns: repeat(3, 4px); gap: 1.5px; }
+.hfv-loading-pixel { width: 4px; height: 4px; background: var(--hfv-loading-ink); }
+.hfv-loading-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; font: 500 13px/20px Inter, system-ui, sans-serif; color: transparent; background-image: linear-gradient(90deg, var(--hfv-loading-muted) 35%, var(--hfv-loading-ink) 50%, var(--hfv-loading-muted) 65%); background-size: 200% 100%; background-clip: text; -webkit-background-clip: text; animation: hfv-shimmer-text 1.4s linear infinite; }
+.hfv-loading-elapsed { flex-shrink: 0; color: var(--hfv-loading-muted); font: 400 12px/20px ui-monospace, SFMono-Regular, Consolas, monospace; font-variant-numeric: tabular-nums; }
+.hfv-loading-video-card { margin-top: 8px; width: 224px; max-width: 100%; overflow: hidden; border-radius: 10px; box-shadow: 0 8px 24px #0002; transform-origin: top left; animation: hfv-loading-pop-in 200ms cubic-bezier(0.16,1,0.3,1) both; }
+.hfv-loading-video { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #171717; }
+.hfv-loading-video video { width: 100%; height: 100%; object-fit: cover; }
+.hfv-loading-video-fallback { display: flex; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 6px; --hfv-loading-ink: #fff; color: #a3a3a3; font: 10px ui-monospace, monospace; text-align: center; }
+@keyframes hfv-pixel-on { 0%, 60%, 100% { opacity: .15; } 25% { opacity: 1; } }
+@keyframes hfv-shimmer-text { from { background-position: 200% 0; } to { background-position: 0 0; } }
+@keyframes hfv-loading-pop-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .hfv-loading-pixel { animation: none !important; }
+  .hfv-loading-label { animation: none; background: none; color: var(--hfv-loading-muted); }
+  .hfv-loading-video-card { animation: none; }
+}

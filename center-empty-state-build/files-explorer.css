@@ -1,6 +1,7 @@
 /* Scoped equivalents of Animate UI Files' Tailwind utilities. */
 .hfv-explorer { position: relative; width: 100%; max-width: 500px; max-height: min(350px, calc(100dvh - 180px)); overflow: auto; border: 1px solid #e5e5e5; border-radius: 16px; background: #fff; color: #171717; text-align: left; font: 400 14px/20px Inter, ui-sans-serif, system-ui, sans-serif; }
 .hfv-explorer, .hfv-explorer * { box-sizing: border-box; }
+.hfv-explorer-loading { position: absolute; top: 16px; right: 16px; z-index: 1; max-width: calc(100% - 110px); pointer-events: none; }
 .hfv-explorer .p-2 { padding: 8px; }
 .hfv-explorer .w-full { width: 100%; }
 .hfv-explorer .flex { display: flex; }

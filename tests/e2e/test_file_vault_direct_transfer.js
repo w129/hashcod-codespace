@@ -9,6 +9,7 @@ const transfer = source.slice(source.indexOf('async function parseJson('), sourc
 
 async function scenario(prepareStatus = 200, storageStatus = 200, withFallback = false, localFailure = false) {
   const calls = [];
+  const transferEvents = [];
   const code = 'MiCodigo-Verde! 2026';
   const ticket = randomBytes(24).toString('base64url');
   const file = new File(['document bytes'], 'document.pdf', { type: 'application/pdf' });
@@ -31,7 +32,8 @@ async function scenario(prepareStatus = 200, storageStatus = 200, withFallback =
     sleep: async () => {},
     FormData,
     XMLHttpRequest: StorageXHR,
-    window: { HashcodFileVaultTotp: { saveLocal: async (chosen, id, accessCode) => {
+    CustomEvent,
+    window: { dispatchEvent: event => { transferEvents.push(event.detail); }, HashcodFileVaultTotp: { saveLocal: async (chosen, id, accessCode) => {
       calls.push({ stage: 'device', chosen, id, accessCode });
       if (localFailure) throw new Error('Device quota exceeded.');
       return { id, name: chosen.name, local: true, cloud: false, accessProtection: 'local-code' };
@@ -52,6 +54,10 @@ async function scenario(prepareStatus = 200, storageStatus = 200, withFallback =
   let result, error;
   try { result = await (withFallback ? context.uploadProtectedFile : context.performDirectUpload)(file, 'fv_transfer123', code); }
   catch (caught) { error = caught; }
+  if (withFallback) {
+    assert.deepStrictEqual(transferEvents.map(event => event.pending), [true, false], 'loading must stop on success, rejection and fallback failure');
+    assert(transferEvents.every(event => event.id === 'fv_transfer123' && !('code' in event)), 'loading events must identify a file without revealing its code');
+  }
   assert.strictEqual(calls[0].body.access_code, code);
   assert.strictEqual('totp_code' in calls[0].body, false);
   assert.strictEqual(calls[0].body.type, 'application/pdf');

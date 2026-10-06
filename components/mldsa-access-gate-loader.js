@@ -8,7 +8,7 @@ var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspa
 var FILE_VAULT_RECOVERY='/components/file-vault-commit-recovery.js?v=20261005-file-vault-commit-recovery1';
 var FILE_VAULT_TOTP='/components/file-vault-totp.bundle.js?v=20261006-shared-workspace1';
 var FILE_VAULT_TOTP_CSS='/components/file-vault-totp.css?v=20261005-file-vault-download-totp5';
-var FILE_VAULT_FAST='/components/file-vault-fast-upload-v5.js?v=20261006-shared-workspace1';
+var FILE_VAULT_FAST='/components/file-vault-fast-upload-v5.js?v=20261006-files-loading1';
 
 function hideLegacyGate(){
   var root=document.getElementById('d5CodeAccessMount');

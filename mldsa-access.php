@@ -291,6 +291,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261004-mesh-fallback1',ENT_QUOTES,'UTF-8');
     $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261006-file-usd-value1',ENT_QUOTES,'UTF-8');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
+    $uiSoundsJs=htmlspecialchars($base.'components/ui-interaction-sounds.js?v=20261006-ui-sounds1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
@@ -517,5 +518,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</section>'
       .($entryIntro?'<footer id="d5PreviewPolicyFooter" class="preview-policy-footer" aria-label="Use and Privacy Policy"><div id="d5PreviewPolicyMount" class="preview-policy-mount" data-hashcod-component="PreviewLinkCard"></div></footer>':'')
-      .'<script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$codeAccessJs.'" defer></script><script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script>':'').'</body></html>';
+      .'<script src="'.$uiSoundsJs.'" defer data-hashcod-ui-sounds="true"></script><script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$codeAccessJs.'" defer></script><script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script>':'').'</body></html>';
 }

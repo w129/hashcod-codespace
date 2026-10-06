@@ -454,4 +454,4 @@ assert(js.includes("document.getElementById('d5ScratchCardDemo')"),'Documents mu
 
 console.log('✓ First screen uses FAQ, Card, Workspace, Text Card and Documents modal actions');
 
-assert(gate.includes('components/first-screen-mobile.css?v=20261006-mobile-layout1'),'mobile layout stylesheet must load after component styles');
+assert(gate.includes('components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1'),'mobile layout stylesheet must load after component styles');

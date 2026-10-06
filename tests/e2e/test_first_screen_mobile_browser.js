@@ -53,6 +53,13 @@ async function withinViewport(page, selector) {
   assert(box.x >= 0 && box.y >= 0 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1, selector + ' must fit the viewport');
 }
 
+async function noHorizontalScroll(page) {
+  const width = await page.evaluate(() => ({ actual: document.documentElement.scrollWidth, available: document.documentElement.clientWidth }));
+  assert(width.actual <= width.available + 1, 'page must fit its available width, including the vertical scrollbar gutter: ' + JSON.stringify(width));
+  await page.evaluate(() => scrollTo(200, scrollY));
+  assert.equal(await page.evaluate(() => scrollX), 0, 'the page must not move sideways');
+}
+
 async function checkBrandIcon(page) {
   await page.waitForFunction(() => {
     const icon = document.querySelector('.entry-rotating-text-brand-icon');
@@ -96,6 +103,7 @@ async function run() {
       await page.waitForFunction(() => document.querySelector('#d5FilesExplorer [data-slot="folder-content"]')?.getBoundingClientRect().height > 30);
       assert.deepEqual(await page.locator('.branched-menu__head').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-expanded'))), ['false', 'false'], 'phone navigation must start compact');
       await layout(page, viewport.width);
+      await noHorizontalScroll(page);
       await page.locator('.branched-menu__head').first().tap();
       await page.getByRole('button', { name: 'Configuration', exact: true }).waitFor({ state: 'visible' });
       const row = await page.getByRole('button', { name: 'Configuration', exact: true }).boundingBox();
@@ -166,6 +174,9 @@ async function run() {
     assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).position), 'absolute');
     assert.equal(await desktop.locator('#d5PreviewPolicyFooter').evaluate(n => getComputedStyle(n).position), 'fixed');
     await desktop.locator('#d5RecommendationCard').waitFor({ state: 'visible' });
+    // Windows reserves space for its native scrollbar. A stable gutter exercises
+    // that narrower layout width even in Chromium's headless/overlay environment.
+    await desktop.addStyleTag({ content: 'html { scrollbar-gutter: stable; }' });
     await desktop.waitForFunction(() => getComputedStyle(document.querySelector('#d5FilesExplorer [data-slot="folder-content"]')).opacity === '1');
     assert(Math.abs(await desktop.locator('.entry-empty-state-stage').evaluate(n => parseFloat(getComputedStyle(n).top)) - 900 * .53) < 1, 'desktop must keep the original workspace level');
     const workspaceTop = () => desktop.locator('#d5FilesExplorer').evaluate(n => n.getBoundingClientRect().top + scrollY);
@@ -176,16 +187,19 @@ async function run() {
     for (const viewport of [{ width: 1440, height: 900 }, { width: 1440, height: 500 }]) {
       await desktop.setViewportSize(viewport);
       await desktop.evaluate(() => scrollTo(0, 0));
+      await noHorizontalScroll(desktop);
       const before = await workspaceTop();
       const card = desktop.locator('#d5RecommendationCard');
       await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
       await card.evaluate(async n => { await Promise.all(n.getAnimations({ subtree: true }).map(a => a.finished.catch(() => {}))); });
       assert(Math.abs(await workspaceTop() - before) < 1, 'expanding alternatives must grow downward without moving Files');
+      await noHorizontalScroll(desktop);
       assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).overflowY), 'visible', 'scrolling must belong to the page, not a clipped workspace panel');
       if (viewport.height === 500) {
         assert(await desktop.evaluate(() => document.documentElement.scrollHeight > innerHeight), 'a short desktop must have a native page scrollbar');
         await desktop.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
         await desktop.waitForFunction(() => scrollY > 0);
+        await noHorizontalScroll(desktop);
         const bottom = await card.boundingBox();
         const footer = await desktop.locator('#d5PreviewPolicyFooter').boundingBox();
         assert(bottom.y >= 0 && bottom.y + bottom.height <= footer.y - 8, 'scrolling must reveal the complete card above the fixed footer');

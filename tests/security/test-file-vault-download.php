@@ -30,7 +30,7 @@ $rateAllowed = true;
 function hfvTotpOpenSecret(string $cipher): string { return $GLOBALS['uploaderKeys'][$cipher] ?? ''; }
 function hfvTotpValidateCode(string $secret, string $code): bool { return ($GLOBALS['expectedCodes'][$secret] ?? '') === $code; }
 function securityRateAllowSliding($bucket, $limit, $period): array { return ['allowed' => $GLOBALS['rateAllowed']]; }
-function hfvJson(int $status, array $payload): void { throw new RuntimeException($payload['error'], $status); }
+function hfvJson(int $status, array $payload): void { throw new RuntimeException($payload['error'] ?? 'HTTP response', $status); }
 function downloadCheck(bool $condition, string $message): void { if (!$condition) throw new RuntimeException($message); }
 function expectDownloadStatus(array $row, string $code, int $status): void {
     try { hfvRequireTotp($row, $code, true); }

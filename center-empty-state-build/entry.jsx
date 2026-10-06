@@ -1491,24 +1491,6 @@ function fileVaultCloudUpload(file, id, onProgress) {
   });
 }
 
-async function fileVaultCloudDelete(id) {
-  const response = await fetch(FILE_VAULT_ENDPOINT + "?action=delete", {
-    method: "POST",
-    credentials: "same-origin",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      "X-Requested-With": "XMLHttpRequest",
-    },
-    body: JSON.stringify({ id }),
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok || !payload.ok) {
-    throw new Error(payload.error || "Could not delete the cloud copy.");
-  }
-  return true;
-}
-
 function fileVaultMerge(localRows, cloudRows) {
   const map = new Map();
   (cloudRows || []).forEach((row) => {
@@ -1668,7 +1650,12 @@ function FileVault() {
   const deleteFile = async (file) => {
     setNotice("");
     try {
-      if (file.cloud) await fileVaultCloudDelete(file.id);
+      const api = window.HashcodFileVaultTotp;
+      if (!api || typeof api.delete !== "function") {
+        setNotice("TOTP verification is not ready. Reload the page and try again.");
+        return;
+      }
+      if ((await api.delete(file)) !== true) return;
       if (file.local) await fileVaultDeleteLocal(file.id);
       setFiles((current) => current.filter((item) => item.id !== file.id));
     } catch (error) {
@@ -1839,6 +1826,7 @@ function FileVault() {
                         type="button"
                         aria-label={"Delete " + file.name}
                         title="Delete"
+                        data-hfv-delete-api="verified"
                         onClick={() => void deleteFile(file)}
                       >
                         <FileVaultTrashIcon />

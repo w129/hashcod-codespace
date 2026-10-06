@@ -46,14 +46,14 @@ async function downloadScenario(statuses, answers) {
   }
   const interruptedDialogs = [];
   const interruptedContext = vm.createContext({
-    downloadBusy: false,
+    actionBusy: false,
     verifiedDownload: async () => { throw new Error('Interrupted response body'); },
     requestTotpDialog: async (options) => interruptedDialogs.push(options),
   });
   vm.runInContext(functions('async function downloadSelectedFile(', 'async function verifiedDelete('), interruptedContext);
   await interruptedContext.downloadSelectedFile({ id: 'fv_second123', name: 'same-name.pdf' });
   assert.strictEqual(interruptedDialogs[0].mode, 'notice', 'interrupted download must show a recoverable error');
-  assert.strictEqual(vm.runInContext('downloadBusy', interruptedContext), false, 'failed transfer must release the download lock');
+  assert.strictEqual(vm.runInContext('actionBusy', interruptedContext), false, 'failed transfer must release the download lock');
   const identityContext = vm.createContext({ cloudFiles: [{ id: 'fv_first123', name: 'same-name.pdf', size: 5 }, { id: 'fv_second123', name: 'same-name.pdf', size: 5 }], formatSize: () => '5 B' });
   vm.runInContext(functions('function rowIdentity(', 'function decorateRows('), identityContext);
   const row = { dataset: { hfvFileId: 'fv_second123' }, querySelector: () => ({ textContent: 'same-name.pdf' }) };

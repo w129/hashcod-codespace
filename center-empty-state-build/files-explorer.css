@@ -62,9 +62,9 @@ body[data-hashcod-entry-intro="1"] .entry-empty-state-stage { width: min(500px, 
 .hfv-pdf-toolbar span { min-width: 100px; font-size: 12px; }
 .hfv-pdf-viewer canvas { display: block; max-width: 100%; height: auto; margin: auto; box-shadow: 0 1px 8px #0001; }
 .hfv-preview-loading { display: block; padding: 12px; color: #737373; }
-@media (max-width: 1179px) { body[data-hashcod-entry-intro="1"] .entry-empty-state-stage { top: 58%; } }
+@media (max-width: 1179px) { body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hfv-explorer) { top: 58%; } }
 @media (max-width: 700px) {
-  body[data-hashcod-entry-intro="1"] .entry-empty-state-stage { top: 56%; width: calc(100vw - 28px); }
+  body[data-hashcod-entry-intro="1"] .entry-empty-state-stage:has(.hfv-explorer) { top: 56%; width: calc(100vw - 28px); }
   .hfv-explorer { max-height: min(350px, calc(100dvh - 260px)); }
   .hfv-preview-backdrop { padding: 12px; }
   .hfv-preview { max-height: calc(100dvh - 24px); }

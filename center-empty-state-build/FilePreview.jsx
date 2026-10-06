@@ -1,4 +1,4 @@
-import { FileValueBadge } from "../file-vault-totp-build/file-value-ui.jsx";
+import { FileValueBadge } from "./FileValue.jsx";
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, useReducedMotion } from 'motion/react';

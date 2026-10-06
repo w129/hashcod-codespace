@@ -1,4 +1,4 @@
-import { FileValueBadge } from "../file-vault-totp-build/file-value-ui.jsx";
+import { FileValueBadge } from "./FileValue.jsx";
 import React from 'react';
 import { FileTextIcon, FileJsonIcon, FileImageIcon, FileVideoIcon, FileAudioIcon, FileArchiveIcon } from 'lucide-react';
 import { Files, FolderItem, FolderTrigger, FolderContent, SubFiles, FileItem } from './animate-ui/Files';

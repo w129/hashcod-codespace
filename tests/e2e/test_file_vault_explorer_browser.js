@@ -70,7 +70,7 @@ async function main() {
       const tree = await page.locator('#d5FilesExplorer').boundingBox();
       const actions = await page.locator('.hashcod-empty-state-actions-row').boundingBox();
       assert(tree.y >= actions.y + actions.height, 'Files must appear below icons');
-      assert(tree.x >= 0 && tree.x + tree.width <= viewport.width + 1 && tree.y + tree.height <= viewport.height + 1, 'Files must remain visible without viewport overflow');
+      assert(tree.x >= 0 && tree.x + tree.width <= viewport.width + 1 && tree.y + tree.height <= viewport.height + 1, 'Files must remain visible without viewport overflow: ' + JSON.stringify({ viewport, tree }));
       assert(tree.width <= 500 && tree.height <= 350);
       const styles = await page.locator('#d5FilesExplorer').evaluate(node => ({ radius: getComputedStyle(node).borderRadius, border: getComputedStyle(node).borderTopWidth }));
       assert.equal(styles.radius, '16px'); assert.equal(styles.border, '1px');

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FILE_VALUE_ICON_PATH, formatUsdValue } from './file-value.js';
+import { FILE_VALUE_ICON_PATH, formatUsdValue } from '../file-vault-totp-build/file-value.js';
 
 export function FileValueIcon() {
   return <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor"><path d={FILE_VALUE_ICON_PATH} /></svg>;

@@ -28,6 +28,8 @@ on:
       - tests/e2e/test_file_vault_totp.js
       - tests/e2e/test_file_vault_setup_dialog.js
       - tests/e2e/test_file_vault_setup_api.js
+      - tests/e2e/test_file_vault_local_protection.js
+      - tests/e2e/test_file_vault_device_flow.js
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
       - .github/workflows/verify-universal-cloud.yml
@@ -58,6 +60,8 @@ on:
       - tests/e2e/test_file_vault_totp.js
       - tests/e2e/test_file_vault_setup_dialog.js
       - tests/e2e/test_file_vault_setup_api.js
+      - tests/e2e/test_file_vault_local_protection.js
+      - tests/e2e/test_file_vault_device_flow.js
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
       - .github/workflows/verify-universal-cloud.yml
@@ -125,6 +129,16 @@ jobs:
 
       - name: File Vault fast upload contract
         run: node tests/e2e/test_file_vault_fast_upload.js
+
+      - name: File Vault encrypted device fallback
+        run: |
+          npm ci --prefix file-vault-totp-build --no-fund --no-audit
+          npm run build --prefix file-vault-totp-build
+          npm install --prefix "$RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0 fake-indexeddb@6.2.4
+          export NODE_PATH="$RUNNER_TEMP/hashcod-dom-tests/node_modules"
+          node tests/e2e/test_file_vault_local_protection.js
+          node tests/e2e/test_file_vault_device_flow.js
+          node tests/e2e/test_file_vault_direct_transfer.js
 
       - name: File Vault commit recovery contract
         run: node tests/e2e/test_file_vault_commit_recovery.js

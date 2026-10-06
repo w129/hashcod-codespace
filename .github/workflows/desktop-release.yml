@@ -191,11 +191,15 @@ jobs:
           $env:HFVU_TEST_HELPER = Join-Path $env:GITHUB_WORKSPACE 'local-app\desktop\payload\site\tools\file-vault-totp\hashcod-file-vault-totp.exe'
           node tests/e2e/test_file_vault_setup_api.js
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows TOTP verification failed.' }
-          npm install --prefix "$env:RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0
+          npm install --prefix "$env:RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0 fake-indexeddb@6.2.4
           if ($LASTEXITCODE -ne 0) { throw 'Dialog test dependency installation failed.' }
           $env:NODE_PATH = "$env:RUNNER_TEMP/hashcod-dom-tests/node_modules"
           node tests/e2e/test_file_vault_setup_dialog.js
           if ($LASTEXITCODE -ne 0) { throw 'TOTP setup dialog regression failed.' }
+          node tests/e2e/test_file_vault_local_protection.js
+          if ($LASTEXITCODE -ne 0) { throw 'Device vault protection regression failed.' }
+          node tests/e2e/test_file_vault_device_flow.js
+          if ($LASTEXITCODE -ne 0) { throw 'Device vault workflow regression failed.' }
 
       - name: Smoke test local PHP desktop backend
         shell: pwsh

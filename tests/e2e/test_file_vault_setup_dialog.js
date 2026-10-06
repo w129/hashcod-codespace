@@ -10,6 +10,7 @@ async function until(check) { for (let i = 0; i < 150; i++) { if (check()) retur
   const dom = new JSDOM('<!doctype html><body><button id="outside">Vault</button></body>', { url: 'https://hashcodcodespace.dev', runScripts: 'dangerously', pretendToBeVisual: true });
   const w = dom.window;
   try {
+    w.TextEncoder = TextEncoder;
     w.matchMedia = () => ({ matches: true, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} });
     w.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
     let networkCalls = 0;

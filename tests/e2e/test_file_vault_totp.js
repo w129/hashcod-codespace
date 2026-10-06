@@ -46,7 +46,7 @@ assert(css.includes('.hfv-totp-dialog{position:relative;z-index:1'), 'TOTP dialo
 assert(docker.includes('FROM golang:1.24-alpine AS file-vault-totp-builder'), 'Docker Go builder stage missing');
 assert(docker.includes('/out/hashcod-file-vault-totp'), 'TOTP helper binary build missing');
 assert(docker.includes('file-vault-totp-build'), 'Animate UI TOTP bundle build missing');
-assert(loader.includes('file-vault-totp.bundle.js?v=20261006-file-vault-fixed-code1'), 'TOTP runtime bundle is not loaded');
+assert(loader.includes('file-vault-totp.bundle.js?v=20261006-file-vault-device-fallback2'), 'TOTP runtime bundle is not loaded');
 assert(loader.includes('file-vault-totp.css?v=20261005-file-vault-download-totp5'), 'TOTP stacking-fix CSS is not loaded');
 
 console.log('File Vault TOTP contract OK');

@@ -26,7 +26,9 @@ require_once __DIR__ . '/hashcod-workspace-access.php';
 securityBootstrap('api');
 
 const HFVU_MAX_UPLOAD_BYTES = 99614720; // 95 MiB
-const HFVU_TOTP_HELPER = '/usr/local/bin/hashcod-file-vault-totp';
+const HFVU_TOTP_HELPER = PHP_OS_FAMILY === 'Windows'
+    ? __DIR__ . '/tools/file-vault-totp/hashcod-file-vault-totp.exe'
+    : '/usr/local/bin/hashcod-file-vault-totp';
 const HFVU_TICKET_TTL = 1800;
 
 function hfvuJson(int $status, array $payload): void {
@@ -128,6 +130,15 @@ function hfvuValidateTotp(string $secret, string $code): bool {
 
     $payload = json_decode(trim($stdout), true);
     return is_array($payload) && !empty($payload['ok']) && !empty($payload['valid']);
+}
+
+function hfvuRequireSetupTotp(string $secret, string $code): void {
+    if (!is_executable(HFVU_TOTP_HELPER) || !function_exists('proc_open')) {
+        hfvuJson(503, ['ok' => false, 'code' => 'totp_unavailable', 'error' => 'TOTP verification is unavailable. Try again shortly.']);
+    }
+    if ($secret === '' || !hfvuValidateTotp($secret, $code)) {
+        hfvuJson(401, ['ok' => false, 'code' => 'invalid_totp', 'error' => 'Use the current 6-digit code for this exact setup key. Check automatic time in your authenticator.']);
+    }
 }
 
 function hfvuCryptoKey(): string {
@@ -335,6 +346,17 @@ if (!hfvuSameOrigin()) {
 $body = hfvuReadJson();
 $action = strtolower(trim((string)($_GET['action'] ?? $body['action'] ?? '')));
 
+// Verify inside the setup dialog before releasing the file to its upload path.
+// This endpoint never creates a signed URL, writes metadata or transfers bytes.
+if ($action === 'verify-totp') {
+    if (function_exists('securityRateAllowSliding')) {
+        $rate = securityRateAllowSliding('hashcod_file_vault_setup_totp', 8, 60);
+        if (empty($rate['allowed'])) hfvuJson(429, ['ok' => false, 'error' => 'Too many verification attempts. Try again shortly.']);
+    }
+    hfvuRequireSetupTotp(hfvuNormalizeTotpSecret((string)($body['totp_secret'] ?? '')), trim((string)($body['totp_code'] ?? '')));
+    hfvuJson(200, ['ok' => true]);
+}
+
 if ($action === 'prepare') {
     $id = hfvuSafeId((string)($body['id'] ?? ''));
     $name = hfvuOriginalName((string)($body['name'] ?? 'file'));
@@ -346,9 +368,7 @@ if ($action === 'prepare') {
 
     $totpSecret = hfvuNormalizeTotpSecret((string)($body['totp_secret'] ?? ''));
     $totpCode = trim((string)($body['totp_code'] ?? ''));
-    if ($totpSecret === '' || !hfvuValidateTotp($totpSecret, $totpCode)) {
-        hfvuJson(400, ['ok' => false, 'error' => 'TOTP setup could not be verified.']);
-    }
+    hfvuRequireSetupTotp($totpSecret, $totpCode);
     $sealed = hfvuSealTotp($totpSecret);
     if ($sealed === '') hfvuJson(500, ['ok' => false, 'error' => 'TOTP protection could not be initialized.']);
 

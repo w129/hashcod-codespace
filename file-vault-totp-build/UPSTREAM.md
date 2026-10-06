@@ -45,3 +45,20 @@ second delete for the same field. Combining set and delete erases that field,
 collapsing all visitors onto PHP loopback and sharing rate limits and bans. The
 proxy test seeds bans for loopback and one visitor and verifies that unrelated
 visitors still work while real visitor bans and private-header spoof checks hold.
+
+Setup now checks the current authenticator code through the same-origin POST
+`hashcod-file-vault-fast-upload.php?action=verify-totp` before closing the dialog.
+An invalid code or network error leaves the exact setup key in place for retry;
+cancel ignores a pending response. This check does not transfer bytes, sign an
+upload URL or write metadata. Prepare independently verifies the code again.
+The verifier still uses SHA-1, six digits, a 30-second period and one-period skew;
+users must add the displayed key to their authenticator and enable automatic time.
+Missing verification infrastructure returns 503 rather than claiming a bad code.
+
+Windows packaging builds the same dialog and a native Go verifier, placed under
+`tools/file-vault-totp/hashcod-file-vault-totp.exe` in the canonical payload.
+Both controllers use that local binary on Windows and the existing Linux binary
+in production. CI exercises the real helper and HTTP setup endpoint, wrong/expired
+codes, guards and the rendered dialog on both distributions. Cloud persistence
+still requires the existing server-side Supabase configuration; a valid setup
+code does not imply that provider configuration or a complete upload succeeded.

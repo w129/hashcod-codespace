@@ -14,7 +14,7 @@ let styles = source.match(/<link rel="stylesheet"[^>]+>/g).join('');
 if (process.env.HASHCOD_TEST_WITHOUT_MOBILE_LAYOUT) styles = styles.replace(/<link[^>]+first-screen-mobile[^>]+>/, '');
 const mainMarkup = source.slice(source.indexOf('<main '), source.indexOf('</main>') + 7);
 const footer = source.match(/<footer id="d5PreviewPolicyFooter"[\s\S]*?<\/footer>/)[0];
-const scripts = ['mldsa-access-gate.js', 'file-vault-totp.bundle.js', 'first-screen-branched-menu.bundle.js', 'center-empty-state.bundle.js', 'react-bits-rotating-text.js', 'page-mascot-panda.js', 'animate-ui-global-cursor.js'].map(name => `<script src="/components/${name}"></script>`).join('');
+const scripts = ['mldsa-access-gate.js', 'file-vault-totp.bundle.js', 'first-screen-branched-menu.bundle.js', 'center-empty-state.bundle.js', 'react-bits-rotating-text.js', 'page-mascot-panda.js'].map(name => `<script src="/components/${name}"></script>`).join('');
 const html = `<html lang="es"><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><link rel="stylesheet" href="/components/file-vault-totp.css">${styles}</head><body data-hashcod-entry-intro="1">${mainMarkup}${footer}${scripts}</body></html>`;
 const privacyHtml = execFileSync(process.env.PHP_BIN || 'php', ['privacy.php'], { cwd: root }).toString();
 
@@ -92,7 +92,6 @@ async function run() {
       await page.goto(address);
       await page.waitForSelector('#d5FilesExplorer');
       await checkBrandIcon(page);
-      await page.waitForFunction(() => window.__hashcodAnimateCursorLoaded);
       await page.waitForFunction(() => document.querySelector('#d5FilesExplorer [data-slot="folder-content"]')?.getBoundingClientRect().height > 30);
       assert.deepEqual(await page.locator('.branched-menu__head').evaluateAll(nodes => nodes.map(n => n.getAttribute('aria-expanded'))), ['false', 'false'], 'phone navigation must start compact');
       await layout(page, viewport.width);
@@ -157,6 +156,10 @@ async function run() {
     await desktop.goto(address);
     await desktop.waitForSelector('#d5FilesExplorer');
     await checkBrandIcon(desktop);
+    await desktop.mouse.move(700, 450);
+    assert.equal(await desktop.locator('#d5AnimateCursorLayer, #d5AnimateCursor, #d5AnimateCursorFollow').count(), 0, 'custom cursor and book must be absent');
+    assert.equal(await desktop.evaluate(() => document.documentElement.classList.contains('hashcod-animate-cursor-active')), false);
+    assert(!/none|url\(/.test(await desktop.locator('#d5CenterEmptyStateAction').evaluate(n => getComputedStyle(n).cursor)), 'desktop controls must use the native cursor');
     assert.equal(await desktop.locator('.branched-menu__head').first().getAttribute('aria-expanded'), 'true');
     assert.equal(await desktop.locator('.branched-menu__item').first().evaluate(n => getComputedStyle(n).height), '36px');
     assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).position), 'absolute');

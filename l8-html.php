@@ -619,6 +619,12 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         }
     }
 
+    if (strpos($html, 'data-hashcod-ui-sounds=') === false) {
+        $soundBase = htmlspecialchars(l8_public_base_path(), ENT_QUOTES, 'UTF-8');
+        $soundTag = '<script defer src="' . $soundBase . 'components/ui-interaction-sounds.js?v=20261006-ui-sounds1" data-hashcod-ui-sounds="true"></script>';
+        $soundBodyPos = strripos($html, '</body>');
+        $html = $soundBodyPos === false ? $html . $soundTag : substr($html, 0, $soundBodyPos) . $soundTag . substr($html, $soundBodyPos);
+    }
     echo l8_apply_csp_nonce($html);
     exit;
 }

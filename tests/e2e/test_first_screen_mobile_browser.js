@@ -34,7 +34,7 @@ async function layout(page, width) {
   assert.equal(result.footerPosition, 'static', 'phone footer must not cover content');
   assert(result.actions.top >= result.calendar.bottom + 8, 'actions must follow the complete calendar without overlap');
   assert(result.files.top >= result.actions.bottom + 8, 'Files must follow the action buttons');
-  assert(result.footer.top >= result.files.bottom + 8, 'privacy control must follow Files');
+  assert(result.footer.top >= result.files.bottom + 8, 'privacy control must follow Files: ' + JSON.stringify(result));
   assert(result.documentWidth <= width + 1, 'phone must not scroll horizontally');
   for (const item of [result.calendar, result.actions, result.files, result.footer]) assert(item.left >= 0 && item.right <= width + 1, 'every section must fit the phone width');
   assert(result.calendarTarget >= 43.9 && result.buttons.every(h => h >= 43.9), 'phone controls need touch-sized heights');

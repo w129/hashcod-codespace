@@ -1,0 +1,73 @@
+/* Scoped equivalents of Animate UI Files' Tailwind utilities. */
+.hfv-explorer { position: relative; width: 100%; max-width: 500px; max-height: min(350px, calc(100dvh - 180px)); overflow: auto; border: 1px solid #e5e5e5; border-radius: 16px; background: #fff; color: #171717; text-align: left; font: 400 14px/20px Inter, ui-sans-serif, system-ui, sans-serif; }
+.hfv-explorer, .hfv-explorer * { box-sizing: border-box; }
+.hfv-explorer .p-2 { padding: 8px; }
+.hfv-explorer .w-full { width: 100%; }
+.hfv-explorer .flex { display: flex; }
+.hfv-explorer .items-center { align-items: center; }
+.hfv-explorer .justify-between { justify-content: space-between; }
+.hfv-explorer .gap-2 { gap: 8px; }
+.hfv-explorer .relative { position: relative; }
+.hfv-explorer .ml-6 { margin-left: 24px; }
+.hfv-explorer .ml-6::before { content: ''; position: absolute; left: -8px; inset-block: 0; width: 1px; height: 100%; background: #e5e5e5; }
+.hfv-explorer .bg-accent { background: #f5f5f5; }
+.hfv-explorer .rounded-lg { border-radius: 8px; }
+.hfv-explorer .rounded-full { border-radius: 9999px; }
+.hfv-explorer .pointer-events-none { pointer-events: none; }
+.hfv-explorer .text-start { text-align: start; }
+.hfv-explorer .text-sm { font-size: 14px; line-height: 20px; }
+.hfv-explorer .font-medium { font-weight: 500; }
+.hfv-explorer .size-4\.5 { width: 18px; height: 18px; }
+.hfv-explorer .size-2 { width: 8px; height: 8px; }
+.hfv-explorer .text-green-400 { color: #4ade80; }
+.hfv-explorer .text-amber-400 { color: #fbbf24; }
+.hfv-explorer .text-red-400 { color: #f87171; }
+.hfv-explorer .bg-green-400 { background: #4ade80; }
+.hfv-explorer .bg-amber-400 { background: #fbbf24; }
+.hfv-explorer .bg-red-400 { background: #f87171; }
+.hfv-explorer button { display: block; width: 100%; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: 8px; }
+.hfv-explorer button:focus-visible { outline: 2px solid #a3a3a3; outline-offset: -2px; }
+.hfv-explorer button:disabled { cursor: wait; }
+.hfv-explorer [data-slot="folder-header"] { margin: 0; font: inherit; }
+.hfv-explorer [data-slot="folder-icon"], .hfv-explorer [data-slot="file-icon"] { display: inline-flex; flex: 0 0 auto; }
+.hfv-explorer [data-slot="file"] > div, .hfv-explorer [data-slot="folder"] > div { min-width: 0; }
+.hfv-explorer [data-slot="file-label"] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hfv-explorer-empty { margin: 0; padding: 8px; color: #737373; font-size: 14px; }
+.hfv-explorer-notice { margin: 0; max-width: 500px; color: #737373; font: 12px/1.5 Inter, system-ui, sans-serif; }
+.hashcod-workspace-files-content { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; }
+.hashcod-files-empty-state { width: 100%; }
+.hashcod-files-empty-state .center-empty-state-action-slot { width: 100%; }
+body[data-hashcod-entry-intro="1"] .entry-empty-state-stage { width: min(500px, calc(100vw - 36px)); }
+
+.hfv-preview-backdrop { position: fixed; inset: 0; z-index: 2147483646; display: grid; place-items: center; padding: 24px; background: rgba(0,0,0,.35); backdrop-filter: blur(12px); }
+.hfv-preview { width: min(1100px, 100%); max-height: calc(100dvh - 48px); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e5e5e5; border-radius: 16px; background: #fff; color: #171717; box-shadow: 0 24px 80px #0003; text-align: left; font: 14px/1.5 Inter, system-ui, sans-serif; }
+.hfv-preview header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #e5e5e5; }
+.hfv-preview header > div:first-child { min-width: 0; }
+.hfv-preview h2 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 15px/1.5 Inter, system-ui, sans-serif; }
+.hfv-preview small { color: #737373; font-size: 12px; }
+.hfv-preview-actions, .hfv-pdf-toolbar { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.hfv-preview button { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 7px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; color: #171717; cursor: pointer; }
+.hfv-preview button:hover { background: #f5f5f5; }
+.hfv-preview button:disabled { opacity: .4; cursor: default; }
+.hfv-preview button:focus-visible { outline: 2px solid #a3a3a3; outline-offset: 2px; }
+.hfv-preview button svg { width: 18px; height: 18px; }
+.hfv-preview-content { min-height: 160px; overflow: auto; padding: 20px; }
+.hfv-preview-content > img, .hfv-preview-content > video { display: block; width: auto; max-width: 100%; max-height: calc(100dvh - 180px); margin: auto; object-fit: contain; }
+.hfv-preview-content > audio { display: block; width: min(500px,100%); margin: 40px auto; }
+.hfv-preview-content pre { margin: 0; color: #171717; font: 13px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 2; }
+.hfv-preview-unavailable { padding: 40px 16px; text-align: center; }
+.hfv-pdf-viewer { position: relative; text-align: center; }
+.hfv-pdf-toolbar { position: sticky; top: 0; z-index: 1; width: fit-content; margin: 0 auto 16px; padding: 6px 8px; border: 1px solid #e5e5e5; border-radius: 12px; background: #fff; }
+.hfv-pdf-toolbar span { min-width: 100px; font-size: 12px; }
+.hfv-pdf-viewer canvas { display: block; max-width: 100%; height: auto; margin: auto; box-shadow: 0 1px 8px #0001; }
+.hfv-preview-loading { display: block; padding: 12px; color: #737373; }
+@media (max-width: 1179px) { body[data-hashcod-entry-intro="1"] .entry-empty-state-stage { top: 58%; } }
+@media (max-width: 700px) {
+  body[data-hashcod-entry-intro="1"] .entry-empty-state-stage { top: 56%; width: calc(100vw - 28px); }
+  .hfv-explorer { max-height: min(350px, calc(100dvh - 260px)); }
+  .hfv-preview-backdrop { padding: 12px; }
+  .hfv-preview { max-height: calc(100dvh - 24px); }
+  .hfv-preview header { padding: 12px; gap: 8px; }
+  .hfv-preview-content { padding: 12px; }
+  .hfv-preview-actions { gap: 4px; }
+}

@@ -49,6 +49,12 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
+      - name: Build protected Files explorer and PDF viewer
+        working-directory: center-empty-state-build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
       - name: Set up File Vault TOTP Go compiler
         uses: actions/setup-go@v5
         with:
@@ -200,6 +206,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Device vault protection regression failed.' }
           node tests/e2e/test_file_vault_device_flow.js
           if ($LASTEXITCODE -ne 0) { throw 'Device vault workflow regression failed.' }
+          node tests/e2e/test_file_vault_explorer.js
+          if ($LASTEXITCODE -ne 0) { throw 'Protected Files explorer regression failed.' }
 
       - name: Smoke test local PHP desktop backend
         shell: pwsh

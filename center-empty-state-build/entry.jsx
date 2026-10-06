@@ -4,6 +4,8 @@ import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import EmptyState from "./EmptyState";
 import "./entry.css";
+import FilesExplorer from "./FilesExplorer";
+import FilePreview from "./FilePreview";
 
 const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
 const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
@@ -1370,16 +1372,21 @@ function FileVaultCloseIcon() {
 }
 
 async function fileVaultCloudList() {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 10000);
+  try {
   const response = await fetch(FILE_VAULT_ENDPOINT + "?action=list", {
+    signal: controller.signal,
     credentials: "same-origin",
     headers: {
       Accept: "application/json",
       "X-Requested-With": "XMLHttpRequest",
     },
   });
-  if (!response.ok) return [];
-  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error("Cloud index unavailable.");
+  const payload = await response.json();
   return Array.isArray(payload.files) ? payload.files : [];
+  } finally { window.clearTimeout(timer); }
 }
 
 function fileVaultCloudUpload(file, id, onProgress) {
@@ -1451,9 +1458,13 @@ function fileVaultMerge(localRows, cloudRows) {
   );
 }
 
-function FileVault() {
+function FileVault({ actions }) {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState([]);
+  const [loadingFiles, setLoadingFiles] = useState(true);
+  const [preview, setPreview] = useState(null);
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const refreshSequence = useRef(0);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [activeName, setActiveName] = useState("");
@@ -1463,23 +1474,27 @@ function FileVault() {
   const reduce = useReducedMotion() ?? false;
 
   const refresh = async () => {
-    let localRows = [];
-    let cloudRows = [];
+    const sequence = ++refreshSequence.current;
+    let localRows = null;
+    let cloudRows = null;
     try {
       localRows = await fileVaultListLocal();
     } catch {
-      localRows = [];
+      localRows = null;
     }
+    if (sequence === refreshSequence.current && localRows) setFiles(current => fileVaultMerge(localRows, current.filter(file => file.cloud)));
     try {
       cloudRows = await fileVaultCloudList();
     } catch {
-      cloudRows = [];
+      cloudRows = null;
     }
-    setFiles(fileVaultMerge(localRows, cloudRows));
+    if (sequence === refreshSequence.current) {
+      setFiles(current => fileVaultMerge(localRows ?? current.filter(file => file.local), cloudRows ?? current.filter(file => file.cloud)));
+      setLoadingFiles(false);
+    }
   };
 
   useEffect(() => {
-    if (!open) return;
     void refresh();
     const onSaved = (event) => {
       setNotice(event.detail?.file?.cloud === false
@@ -1488,13 +1503,20 @@ function FileVault() {
       void refresh();
     };
     window.addEventListener("hashcod:file-vault-saved", onSaved);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("hashcod:cloud-state-restored", refresh);
     try {
       navigator.storage?.persist?.().catch(() => false);
     } catch {
       // Storage persistence is optional.
     }
-    return () => window.removeEventListener("hashcod:file-vault-saved", onSaved);
-  }, [open]);
+    return () => {
+      ++refreshSequence.current;
+      window.removeEventListener("hashcod:file-vault-saved", onSaved);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("hashcod:cloud-state-restored", refresh);
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -1539,6 +1561,18 @@ function FileVault() {
     }
   };
 
+  const previewFile = async (file) => {
+    if (previewBusy) return;
+    setPreviewBusy(true);
+    try {
+      const api = window.HashcodFileVaultTotp;
+      if (!api?.preview) { setNotice("File-code verification is not ready. Reload the page and try again."); return; }
+      const blob = await api.preview(file);
+      if (blob) setPreview({ file, blob });
+    } catch { setNotice("Could not open this file. Try again."); }
+    finally { setPreviewBusy(false); }
+  };
+
   const downloadFile = async (file) => {
     setNotice("");
     try {
@@ -1563,7 +1597,10 @@ function FileVault() {
       }
       if ((await api.delete(file)) !== true) return;
       if (file.local) await fileVaultDeleteLocal(file.id);
+      ++refreshSequence.current;
+      setLoadingFiles(false);
       setFiles((current) => current.filter((item) => item.id !== file.id));
+      setPreview(current => current?.file.id === file.id ? null : current);
     } catch (error) {
       setNotice(error?.message || "Could not delete the file.");
     }
@@ -1758,6 +1795,8 @@ function FileVault() {
 
   return (
     <>
+      <div className="hashcod-empty-state-actions-row">
+      {actions}
       <button
         id="d5FileVaultTrigger"
         className="hashcod-file-vault-trigger"
@@ -1766,10 +1805,14 @@ function FileVault() {
         aria-haspopup="dialog"
         aria-expanded={open ? "true" : "false"}
         title="File storage"
-        onClick={() => setOpen(true)}
+        onClick={() => { setOpen(true); void refresh(); }}
       >
         <FileVaultStoreIcon />
       </button>
+      </div>
+      <FilesExplorer files={files} loading={loadingFiles} busy={previewBusy} onPreview={previewFile} />
+      {notice && !open && <p className="hfv-explorer-notice" role="status">{notice}</p>}
+      {preview && <FilePreview file={preview.file} blob={preview.blob} onClose={() => setPreview(null)} onDownload={downloadFile} onDelete={deleteFile} />}
       {modal}
     </>
   );
@@ -1781,10 +1824,12 @@ function CenterWorkspaceEmptyState() {
   return (
     <>
       <EmptyState
+        className="hashcod-files-empty-state"
         label="VC"
         icon={<CcCardTitleIcon />}
         action={
-          <div className="hashcod-empty-state-actions-row">
+          <div className="hashcod-workspace-files-content">
+            <FileVault actions={<>
             <button
               id="d5CenterEmptyStateAction"
               className="hashcod-empty-state-action"
@@ -1802,7 +1847,7 @@ function CenterWorkspaceEmptyState() {
               defaultExpanded="slot-1"
             />
 
-            <FileVault />
+            </>} />
           </div>
         }
       />
@@ -1825,7 +1870,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261004-file-vault2",
+    version: "20261006-protected-files-explorer1",
   });
 
   return true;

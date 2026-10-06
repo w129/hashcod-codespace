@@ -1,0 +1,93 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { webcrypto } = require('node:crypto');
+const { JSDOM } = require('jsdom');
+const { IDBFactory } = require('fake-indexeddb');
+const root = path.resolve(__dirname, '../..');
+const pause = () => new Promise(resolve => setTimeout(resolve, 20));
+async function until(check) { for (let i = 0; i < 300; i++) { if (await check()) return; await pause(); } throw new Error('Files explorer did not reach expected state'); }
+async function scenario(origin) {
+  const dom = new JSDOM('<body data-hashcod-entry-intro="1"><div id="d5CenterEmptyStateMount"></div></body>', { url: origin, runScripts: 'dangerously', pretendToBeVisual: true });
+  const w = dom.window, released = [], revoked = [], requests = [], errors = [], pdfData = [];
+  w.addEventListener('error', event => errors.push(event.error));
+  Object.defineProperty(w, 'crypto', { value: webcrypto });
+  w.TextEncoder = TextEncoder; w.Blob = Blob; w.File = File; w.indexedDB = new IDBFactory();
+  w.matchMedia = () => ({ matches: true, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} });
+  w.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
+  w.scrollTo = () => {};
+  w.URL.createObjectURL = blob => { released.push(blob); return 'blob:preview-' + released.length; };
+  w.URL.revokeObjectURL = url => revoked.push(url);
+  w.HTMLAnchorElement.prototype.click = function () {};
+  w.HTMLCanvasElement.prototype.getContext = () => ({});
+  w.HashcodFileVaultPdf = { load: data => { pdfData.push(data); return { promise: Promise.resolve({ numPages: 2, getPage: async () => ({ getViewport: () => ({ width: 300, height: 400 }), render: () => ({ promise: Promise.resolve(), cancel() {} }) }) }), destroy: async () => {} }; } };
+  const cloud = { id: 'fv_cloud_preview_12345', name: 'report.pdf', type: 'application/pdf', size: 20, cloud: true, accessProtection: 'access-code' };
+  w.fetch = async (url, options = {}) => {
+    requests.push({ url, options });
+    if (String(url).includes('action=list')) return new Response(JSON.stringify({ ok: true, files: [cloud] }));
+    assert(String(url).includes('action=download'), 'unexpected cloud action');
+    assert.equal(options.method, 'POST');
+    const body = JSON.parse(options.body);
+    assert.equal(body.id, cloud.id);
+    if (body.code !== 'cloud-code') return new Response(JSON.stringify({ error: 'Use the exact code chosen by the uploader.' }), { status: 401 });
+    return new Response(new Blob(['%PDF-1.7\nprotected pdf bytes'], { type: 'application/pdf' }));
+  };
+  const evaluate = name => w.eval(fs.readFileSync(path.join(root, 'components', name), 'utf8'));
+  try {
+    evaluate('file-vault-totp.bundle.js');
+    await until(() => w.HashcodFileVaultTotp);
+    assert.equal(typeof w.HashcodFileVaultTotp.preview, 'function', 'preview must authorize before exposing bytes');
+    const meta = await w.HashcodFileVaultTotp.saveLocal(new File(['<script>window.PWNED=true</script>'], 'example.html', { type: 'text/html' }), 'fv_local_preview_12345', 'my-code');
+    evaluate('center-empty-state.bundle.js');
+    await until(() => w.document.querySelectorAll('#d5FilesExplorer [data-hfv-preview-id]').length === 2);
+    assert(!w.document.getElementById('d5FileVault'), 'files must be visible before opening upload vault');
+    assert.equal(w.document.querySelector('#d5FilesExplorer').getAttribute('data-animate-ui-files'), 'radix');
+    assert(w.document.querySelector('#d5CenterEmptyStateAction').compareDocumentPosition(w.document.querySelector('#d5FilesExplorer')) & w.Node.DOCUMENT_POSITION_FOLLOWING);
+    async function enter(code) {
+      await until(() => w.document.querySelector('#hfvTotpCode'));
+      const field = w.document.querySelector('#hfvTotpCode');
+      Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, 'value').set.call(field, code);
+      field.dispatchEvent(new w.Event('input', { bubbles: true }));
+      await pause();
+      w.document.querySelector('form.hfv-totp-dialog').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+    }
+    w.document.querySelector(`[data-hfv-preview-id="${meta.id}"]`).click();
+    await enter('wrong');
+    await until(() => w.document.querySelector('.hfv-totp-error')?.textContent.includes('exact code'));
+    assert.equal(released.length, 0);
+    assert(!w.document.getElementById('d5FilePreview'), 'wrong code must not open preview');
+    await enter('my-code');
+    await until(() => w.document.querySelector('#d5FilePreview pre')?.textContent.includes('window.PWNED'));
+    assert.equal(w.document.querySelector('#d5FilePreview pre').textContent, '<script>window.PWNED=true</script>');
+    assert.equal(w.PWNED, undefined, 'uploaded HTML must be inert text');
+    w.document.querySelector('[data-hfv-preview-close]').click();
+    await until(() => !w.document.getElementById('d5FilePreview'));
+    w.document.querySelector(`[data-hfv-preview-id="${cloud.id}"]`).click();
+    await enter('wrong');
+    await until(() => w.document.querySelector('.hfv-totp-error')?.textContent.includes('exact code'));
+    assert.equal(pdfData.length, 0, 'PDF renderer must not receive bytes before authorization');
+    await enter('cloud-code');
+    await until(() => pdfData.length === 1 && w.document.querySelector('#d5FilePreview canvas'));
+    assert.equal(new TextDecoder().decode(pdfData[0]), '%PDF-1.7\nprotected pdf bytes');
+    w.document.querySelector('[data-hfv-preview-close]').click();
+    await until(() => !w.document.getElementById('d5FilePreview'));
+    // Every opening asks again; cancelling does not reuse the previous unlock.
+    w.document.querySelector(`[data-hfv-preview-id="${meta.id}"]`).click();
+    await until(() => w.document.querySelector('#hfvTotpCode'));
+    w.document.querySelector('.hfv-totp-secondary').click();
+    await pause();
+    assert(!w.document.getElementById('d5FilePreview'));
+    const added = await w.HashcodFileVaultTotp.saveLocal(new File(['image bytes'], 'photo.png', { type: 'image/png' }), 'fv_live_preview_12345', 'image-code');
+    w.dispatchEvent(new w.CustomEvent('hashcod:file-vault-saved', { detail: { file: added } }));
+    await until(() => w.document.querySelector(`[data-hfv-preview-id="${added.id}"]`));
+    w.document.querySelector(`[data-hfv-preview-id="${added.id}"]`).click();
+    await enter('image-code');
+    await until(() => w.document.querySelector('#d5FilePreview img'));
+    assert.equal(released.length, 1);
+    w.document.querySelector('[data-hfv-preview-close]').click();
+    await until(() => revoked.length === 1);
+    assert.equal(errors.length, 0, errors.map(String).join('\n'));
+    console.log('Official Files explorer on ' + origin + ': live list, exact-code preview, cloud POST, inert HTML, repeated verification and cleanup OK');
+  } finally { await pause(); w.close(); }
+}
+(async () => { for (const origin of ['https://hashcodcodespace.dev', 'http://127.0.0.1:8000']) await scenario(origin); })().catch(error => { console.error(error); process.exitCode = 1; });

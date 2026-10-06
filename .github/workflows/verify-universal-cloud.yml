@@ -48,6 +48,7 @@ on:
       - tests/e2e/test_file_vault_setup_api.js
       - tests/e2e/test_file_vault_local_protection.js
       - tests/e2e/test_file_vault_device_flow.js
+      - tests/e2e/test_file_vault_upload_routes.js
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
       - tests/e2e/test_shared_workspace_contract.js
@@ -100,6 +101,7 @@ on:
       - tests/e2e/test_file_vault_setup_api.js
       - tests/e2e/test_file_vault_local_protection.js
       - tests/e2e/test_file_vault_device_flow.js
+      - tests/e2e/test_file_vault_upload_routes.js
       - tests/e2e/test_file_vault_fast_upload.js
       - tests/e2e/test_file_vault_commit_recovery.js
       - tests/e2e/test_shared_workspace_contract.js
@@ -181,7 +183,9 @@ jobs:
           php tests/security/test-file-vault-delete.php
 
       - name: File Vault fast upload contract
-        run: node tests/e2e/test_file_vault_fast_upload.js
+        run: |
+          node tests/e2e/test_file_vault_upload_routes.js
+          node tests/e2e/test_file_vault_fast_upload.js
 
       - name: File Vault encrypted device fallback
         run: |

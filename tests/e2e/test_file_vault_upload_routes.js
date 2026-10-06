@@ -41,7 +41,9 @@ echo json_encode(['controller' => 'fast-upload', 'uri' => $_SERVER['REQUEST_URI'
   // Exercise the actual upload controller's security boundary through the
   // real router. Cloud calls are unnecessary for rejected/invalid requests.
   fs.copyFileSync(path.join(root, 'hashcod-file-vault-fast-upload.php'), path.join(fixture, 'hashcod-file-vault-fast-upload.php'));
-  fs.copyFileSync(path.join(root, 'hashcod-file-vault-access-code.php'), path.join(fixture, 'hashcod-file-vault-access-code.php'));
+  for (const file of ['hashcod-file-vault-access-code.php', 'hashcod-file-vault-value.php']) {
+    fs.copyFileSync(path.join(root, file), path.join(fixture, file));
+  }
   fs.writeFileSync(path.join(fixture, 'auth.php'), '<?php');
   fs.writeFileSync(path.join(fixture, 'supabase.php'), '<?php');
   fs.writeFileSync(path.join(fixture, 'hashcod-workspace-access.php'), '<?php');

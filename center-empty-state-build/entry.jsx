@@ -1253,80 +1253,6 @@ async function fileVaultListLocal() {
   });
 }
 
-async function fileVaultPutLocal(file, id) {
-  const db = await fileVaultOpenDb();
-  const uploadedAt = new Date().toISOString();
-  const meta = {
-    id,
-    name: file.name || "file",
-    type: file.type || "application/octet-stream",
-    size: Number(file.size || 0),
-    uploadedAt,
-    cloud: false,
-    local: true,
-  };
-
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(
-      [FILE_VAULT_META_STORE, FILE_VAULT_BLOB_STORE],
-      "readwrite",
-    );
-    tx.objectStore(FILE_VAULT_META_STORE).put(meta);
-    tx.objectStore(FILE_VAULT_BLOB_STORE).put({ id, blob: file });
-    tx.oncomplete = () => {
-      db.close();
-      resolve(meta);
-    };
-    tx.onerror = () => {
-      db.close();
-      reject(tx.error ?? new Error("Could not save file locally."));
-    };
-    tx.onabort = tx.onerror;
-  });
-}
-
-async function fileVaultMarkCloud(id, cloudMeta = {}) {
-  const db = await fileVaultOpenDb();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(FILE_VAULT_META_STORE, "readwrite");
-    const store = tx.objectStore(FILE_VAULT_META_STORE);
-    const request = store.get(id);
-    request.onsuccess = () => {
-      const current = request.result;
-      if (!current) return;
-      store.put({
-        ...current,
-        ...cloudMeta,
-        id,
-        cloud: true,
-        local: true,
-      });
-    };
-    tx.oncomplete = () => {
-      db.close();
-      resolve(true);
-    };
-    tx.onerror = () => {
-      db.close();
-      reject(tx.error ?? new Error("Could not update local metadata."));
-    };
-    tx.onabort = tx.onerror;
-  });
-}
-
-async function fileVaultGetLocalBlob(id) {
-  const db = await fileVaultOpenDb();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(FILE_VAULT_BLOB_STORE, "readonly");
-    const request = tx.objectStore(FILE_VAULT_BLOB_STORE).get(id);
-    request.onsuccess = () => resolve(request.result?.blob ?? null);
-    request.onerror = () =>
-      reject(request.error ?? new Error("Could not read local file."));
-    tx.oncomplete = () => db.close();
-    tx.onabort = () => db.close();
-  });
-}
-
 async function fileVaultDeleteLocal(id) {
   const db = await fileVaultOpenDb();
   return new Promise((resolve, reject) => {
@@ -1515,6 +1441,7 @@ function fileVaultMerge(localRows, cloudRows) {
       ...row,
       cloud: Boolean(row.cloud || cloud?.cloud),
       local: true,
+      accessProtection: cloud?.accessProtection || row.accessProtection,
     });
   });
   return Array.from(map.values()).sort(
@@ -1554,11 +1481,19 @@ function FileVault() {
   useEffect(() => {
     if (!open) return;
     void refresh();
+    const onSaved = (event) => {
+      setNotice(event.detail?.file?.cloud === false
+        ? "Saved with code protection on this device. Cloud sync is unavailable."
+        : "File stored in cloud.");
+      void refresh();
+    };
+    window.addEventListener("hashcod:file-vault-saved", onSaved);
     try {
       navigator.storage?.persist?.().catch(() => false);
     } catch {
       // Storage persistence is optional.
     }
+    return () => window.removeEventListener("hashcod:file-vault-saved", onSaved);
   }, [open]);
 
   useEffect(() => {
@@ -1571,67 +1506,37 @@ function FileVault() {
   }, [open, uploading]);
 
   const saveFiles = async (incoming) => {
-    const queue = Array.from(incoming || []).filter(
-      (file) => file && typeof file.name === "string",
-    );
+    const queue = Array.from(incoming || []).filter(file => file && typeof file.name === "string");
     if (!queue.length || uploading) return;
-
+    const api = window.HashcodFileVaultTotp;
+    const transfer = window.HashcodFileVaultFastUpload;
+    if (!api?.requestSetup || !transfer?.upload) {
+      setNotice("File-code storage is not ready. Reload the page and try again.");
+      return;
+    }
     setUploading(true);
     setNotice("");
-
-    let cloudFailures = 0;
-    let saved = 0;
-
-    for (const file of queue) {
-      const id = fileVaultNewId();
-      setActiveName(file.name || "file");
+    try {
+      for (const file of queue) {
+        const setup = await api.requestSetup(file.name);
+        if (!setup) continue;
+        setActiveName(file.name);
+        setProgress(0);
+        const result = await transfer.upload(file, fileVaultNewId(), setup.code,
+          (loaded, total) => setProgress(total > 0 ? 100 * loaded / total : 0));
+        setNotice(result.file?.cloud === false
+          ? "Saved with code protection on this device. Cloud sync is unavailable."
+          : "File stored in cloud.");
+        await refresh();
+      }
+    } catch (error) {
+      setNotice(error.message || "Could not save this file. Check device storage and try again.");
+    } finally {
+      setUploading(false);
+      setActiveName("");
       setProgress(0);
-
-      let localSaved = false;
-      let cloudSaved = false;
-
-      try {
-        await fileVaultPutLocal(file, id);
-        localSaved = true;
-      } catch {
-        localSaved = false;
-      }
-
-      try {
-        const remote = await fileVaultCloudUpload(file, id, setProgress);
-        cloudSaved = true;
-        if (localSaved) {
-          await fileVaultMarkCloud(id, {
-            name: remote.name || file.name,
-            type: remote.type || file.type || "application/octet-stream",
-            size: Number(remote.size ?? file.size ?? 0),
-            uploadedAt: remote.uploadedAt || new Date().toISOString(),
-          }).catch(() => {});
-        }
-      } catch {
-        cloudFailures += 1;
-      }
-
-      if (localSaved || cloudSaved) saved += 1;
-      setProgress(100);
-      await refresh();
+      if (inputRef.current) inputRef.current.value = "";
     }
-
-    setUploading(false);
-    setActiveName("");
-    setProgress(0);
-
-    if (saved === 0) {
-      setNotice("The browser and cloud could not save these files.");
-    } else if (cloudFailures > 0) {
-      setNotice(
-        "Saved locally. Cloud sync will be available when an authenticated account session is active.",
-      );
-    } else {
-      setNotice(saved === 1 ? "File stored." : saved + " files stored.");
-    }
-
-    if (inputRef.current) inputRef.current.value = "";
   };
 
   const downloadFile = async (file) => {
@@ -1803,14 +1708,14 @@ function FileVault() {
                 </div>
               ) : (
                 files.map((file) => (
-                  <article className="hfv-file-row" key={file.id} data-hfv-file-id={file.id}>
+                  <article className="hfv-file-row" key={file.id} data-hfv-file-id={file.id} data-hfv-access-protection={file.accessProtection} data-hfv-cloud={String(Boolean(file.cloud))}>
                     <FileVaultPageIcon file={file} size={38} />
                     <div className="hfv-file-copy">
                       <strong title={file.name}>{file.name}</strong>
                       <span>
                         {fileVaultFormatSize(file.size)}
                         {" · "}
-                        {file.cloud ? "Cloud" : "Local"}
+                        {file.cloud ? "Cloud" : "Device"}
                         {file.cloud && file.local ? " + device" : ""}
                       </span>
                     </div>
@@ -1841,8 +1746,8 @@ function FileVault() {
             <div className="hfv-footer" aria-live="polite">
               <span>{notice}</span>
               <small>
-                Private cloud storage is used when your account session is active;
-                IndexedDB keeps a device copy when possible.
+                Files require the uploader's code. Device files stay in this
+                browser; cloud files are available across devices.
               </small>
             </div>
           </motion.section>

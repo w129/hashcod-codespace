@@ -18,9 +18,10 @@ inert background. The user who downloads cannot generate or replace the
 uploader's code in this state.
 
 The root File Vault UI delegates every download to the verified POST endpoint,
-including device copies. The server uses the selected row's encrypted TOTP key
-and refuses GET downloads and legacy rows without that key. Such files must be
-uploaded again with TOTP protection; a new key is never assigned during download.
+including device copies of cloud files. The server uses the selected row's
+hashed fixed code (or encrypted legacy TOTP key) and refuses GET downloads and
+unprotected rows. Such files must be uploaded again with code protection; a new
+code is never assigned during download.
 The browser bundle is rebuilt in Docker, and both it and the File Vault shell
 have new cache versions. The shared source is also packaged for desktop; a real
 Windows installer download verification remains a release check.
@@ -69,3 +70,20 @@ the code through same-origin POST requests and verify it against the selected
 file before reading or removing cloud data. Old records that contain the
 previous authenticator key continue using their six-digit TOTP flow until they
 are replaced by a new upload.
+
+When the direct cloud transfer is unavailable, new uploads use the existing
+device IndexedDB vault instead of discarding the selected file. The device
+copy is AES-256-GCM encrypted using a key derived from the exact chosen code
+with PBKDF2-SHA256 (310,000 iterations), a random salt, a random IV and the file
+ID as authenticated context. The code, derived key and plaintext Blob are never
+persisted. Metadata and ciphertext commit together in one transaction; quota
+or transaction failures do not report success. Download decrypts with the code;
+deletion verifies it before atomically removing both records. Older unprotected
+local records continue to fail closed and must be uploaded again.
+
+Fallback is limited to offline/transport failures and HTTP 408/502/503/504;
+validation, authorization, size and rate-limit denials remain errors. The UI
+labels fallback files as Device and states that cloud synchronization is
+unavailable. Device copies live in this browser profile and are not available
+on another device. Clearing site data removes them. Once cloud configuration
+is present, new uploads retain the signed-direct route and server code guards.

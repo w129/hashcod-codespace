@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-var VERSION='20261006-file-vault-fast5-fixed-code1';
+var VERSION='20261006-file-vault-fast5-device-fallback2';
 var FAST_ENDPOINT='/hashcod-file-vault-fast-upload.php';
 var RETRY_DELAYS=[0,500,1400,3000];
 var uiBusy=false;
@@ -47,8 +47,15 @@ function finishOwner(owner,status,payload){
 async function parseJson(response){
   try{return await response.json();}catch(_){return {};}
 }
+async function boundedFetch(url,options){
+  var controller=typeof AbortController==='function'?new AbortController():null;
+  var timer=controller?setTimeout(function(){controller.abort();},20000):null;
+  try{return await fetch(url,Object.assign({},options,controller?{signal:controller.signal}:{}));}
+  catch(error){if(controller&&controller.signal.aborted)error.status=408;throw error;}
+  finally{if(timer!==null)clearTimeout(timer);}
+}
 async function prepareUpload(file,id,code){
-  var response=await fetch(FAST_ENDPOINT+'?action=prepare',{
+  var response=await boundedFetch(FAST_ENDPOINT+'?action=prepare',{
     method:'POST',
     credentials:'same-origin',
     cache:'no-store',
@@ -68,7 +75,7 @@ async function prepareUpload(file,id,code){
   var payload=await parseJson(response);
   if(!response.ok||!payload.ok){
     var error=new Error(payload.error||'Could not prepare direct upload.');
-    error.status=response.status;
+    error.status=response.ok?502:response.status;
     throw error;
   }
   return payload;
@@ -92,7 +99,9 @@ function directPut(url,file,onProgress){
         resolve(true);
         return;
       }
-      reject(new Error('Storage upload failed with HTTP '+xhr.status+'.'));
+      var error=new Error('Cloud transfer could not be completed.');
+      error.status=xhr.status;
+      reject(error);
     };
     var form=new FormData();
     form.append('cacheControl','3600');
@@ -114,7 +123,7 @@ async function uploadWithRetry(url,file,onProgress){
   throw lastError||new Error('Direct upload failed.');
 }
 async function completeUpload(ticket){
-  var response=await fetch(FAST_ENDPOINT+'?action=complete',{
+  var response=await boundedFetch(FAST_ENDPOINT+'?action=complete',{
     method:'POST',
     credentials:'same-origin',
     cache:'no-store',
@@ -128,7 +137,7 @@ async function completeUpload(ticket){
   var payload=await parseJson(response);
   if(!response.ok||!payload.ok){
     var error=new Error(payload.error||'Could not finalize cloud upload.');
-    error.status=response.status;
+    error.status=response.ok?502:response.status;
     throw error;
   }
   return payload;
@@ -145,6 +154,19 @@ async function performDirectUpload(file,id,code,onProgress,onPhase){
 
   if(typeof onPhase==='function')onPhase('Finalizing cloud index');
   return await completeUpload(prepared.ticket);
+}
+async function uploadProtectedFile(file,id,code,onProgress,onPhase){
+  try{return await performDirectUpload(file,id,code,onProgress,onPhase);}
+  catch(error){
+    var status=Number(error&&error.status||0);
+    if(status!==0&&status!==408&&status!==502&&status!==503&&status!==504)throw error;
+    var api=window.HashcodFileVaultTotp;
+    if(!api||typeof api.saveLocal!=='function')throw error;
+    if(typeof onPhase==='function')onPhase('Saving protected file on this device');
+    var local=await api.saveLocal(file,id,code);
+    if(typeof onProgress==='function')onProgress(file.size||1,file.size||1);
+    return {ok:true,file:local,storage:'device',cloud:false};
+  }
 }
 function waitForTotpApi(){
   return new Promise(function(resolve,reject){
@@ -202,7 +224,8 @@ function clearUi(delay){
     if(layer)layer.remove();
   },delay||0);
 }
-function refreshVault(){
+function refreshVault(file){
+  window.dispatchEvent(new CustomEvent('hashcod:file-vault-saved',{detail:{file:file}}));
   setTimeout(function(){
     var button=document.querySelector('#d5FileVault .hfv-list-head button');
     if(button)button.click();
@@ -217,7 +240,7 @@ async function uploadFromUi(file){
   var lastPercent=2;
   setUi(file.name,2,'Preparing secure direct upload','uploading');
 
-  var completed=await performDirectUpload(
+  var completed=await uploadProtectedFile(
     file,
     id,
     setup.code,
@@ -231,8 +254,9 @@ async function uploadFromUi(file){
     }
   );
 
-  setUi(file.name,100,'Stored in cloud','done');
-  refreshVault();
+  var local=completed.file&&completed.file.cloud===false;
+  setUi(file.name,100,local?'Saved on this device · cloud unavailable':'Stored in cloud','done');
+  refreshVault(completed.file);
   return completed;
 }
 async function processUiFiles(files){
@@ -322,7 +346,7 @@ proto.send=function(body){
     try{
       var total=Number(file.size||1);
       callProgress(owner,Math.max(1,Math.floor(total*0.02)),total);
-      var completed=await performDirectUpload(
+      var completed=await uploadProtectedFile(
         file,
         id,
         code,
@@ -350,6 +374,7 @@ window.HashcodFileVaultFastUpload=Object.freeze({
   phpProxyBytes:false,
   localBlocking:false,
   legacyPhpFallback:false,
-  capturePhase:'window+document'
+  capturePhase:'window+document',
+  upload:uploadProtectedFile
 });
 })();

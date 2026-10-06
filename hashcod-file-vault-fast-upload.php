@@ -387,7 +387,8 @@ if ($action === 'prepare') {
         hfvuJson(503, [
             'ok' => false,
             'fallback' => true,
-            'error' => (string)($signed['error'] ?? 'Direct upload is unavailable.'),
+            'code' => 'cloud_upload_unavailable',
+            'error' => 'Cloud storage is unavailable. The file can be saved with code protection on this device.',
         ]);
     }
 

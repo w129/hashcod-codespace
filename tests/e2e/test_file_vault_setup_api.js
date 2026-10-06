@@ -38,7 +38,9 @@ function securityRateAllowSliding($bucket, $limit, $period) { return ['allowed' 
     assert.match(invalid.body.error, /code/i);
     const valid = await request('MiCodigo-Verde! 2026');
     assert.equal(valid.status, 503, 'Valid code should pass validation and reach the unavailable provider guard');
-    assert.match(valid.body.error, /direct upload|configured/i);
+    assert.equal(valid.body.code, 'cloud_upload_unavailable');
+    assert.equal(valid.body.fallback, true);
+    assert.match(valid.body.error, /saved.*device/i);
     console.log('Fast upload accepts arbitrary chosen file codes before provider setup and rejects empty codes');
   } finally {
     if (server && server.exitCode === null) server.kill();

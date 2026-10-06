@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { saveLocalFile, readLocalFile, deleteLocalFile } from "./local-vault.js";
 
-const VERSION = "20261006-file-vault-fixed-code1";
+const VERSION = "20261006-file-vault-device-fallback2";
 const ENDPOINT = "/api/hashcod-file-vault";
 
 let requestHandler = null;
@@ -256,6 +257,7 @@ function decorateRows() {
     row.dataset.hfvFileId = file.id;
     row.dataset.hfvTotpProtected = file.totpProtected ? "true" : "false";
     row.dataset.hfvAccessProtection = file.accessProtection || "";
+    row.dataset.hfvCloud = "true";
     let badge = row.querySelector(".hfv-totp-row-badge");
     if (file.totpProtected && !badge) {
       badge = document.createElement("span");
@@ -330,6 +332,7 @@ async function parseError(response, fallback) {
 }
 
 async function verifiedDownload(file) {
+  if (file.accessProtection === "local-code" && file.cloud !== true) return verifiedLocalDownload(file);
   let error = "";
   while (true) {
     const result = await requestTotpDialog({
@@ -392,6 +395,7 @@ async function downloadSelectedFile(file) {
 }
 
 async function verifiedDelete(file) {
+  if (file.accessProtection === "local-code" && file.cloud !== true) return verifiedLocalDelete(file);
   let error = "";
   while (true) {
     const result = await requestTotpDialog({ mode: "verify", fileName: file.name || "file", purpose: "delete", protection: file.accessProtection, error });
@@ -461,7 +465,7 @@ function installActionGuard() {
       event.stopImmediatePropagation();
 
       const file = row.dataset.hfvFileId
-        ? { id: row.dataset.hfvFileId, name: rowIdentity(row).name, accessProtection: row.dataset.hfvAccessProtection }
+        ? { id: row.dataset.hfvFileId, name: rowIdentity(row).name, accessProtection: row.dataset.hfvAccessProtection, cloud: row.dataset.hfvCloud === "true" }
         : await resolveProtectedFile(row);
       if (title === "download") {
         await downloadSelectedFile(file);
@@ -475,6 +479,34 @@ function installActionGuard() {
     true,
   );
 }
+
+async function verifiedLocalAction(file, purpose) {
+  let error = "";
+  while (true) {
+    const result = await requestTotpDialog({ mode: "verify", fileName: file.name, purpose, error });
+    if (!result) return false;
+    try {
+      if (purpose === "delete") return await deleteLocalFile(file.id, result.code);
+      const blob = await readLocalFile(file.id, result.code);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = file.name || "file";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+      return true;
+    } catch (failure) {
+      error = failure.message || "Could not read this protected device file.";
+      if (failure.status === 401) continue;
+      await requestTotpDialog({ mode: "notice", purpose, fileName: file.name, error });
+      return false;
+    }
+  }
+}
+function verifiedLocalDownload(file) { return verifiedLocalAction(file, "download"); }
+function verifiedLocalDelete(file) { return verifiedLocalAction(file, "delete"); }
 
 function boot() {
   if (window.__hashcodFileVaultTotpLoaded) return;
@@ -498,6 +530,7 @@ function boot() {
     refresh: refreshCloudIndex,
     download: downloadSelectedFile,
     delete: deleteSelectedFile,
+    saveLocal: saveLocalFile,
     requestSetup: (fileName) => requestTotpDialog({ mode: "setup", fileName }),
     requestVerify: (fileName) => requestTotpDialog({ mode: "verify", fileName, purpose: "download" }),
   });

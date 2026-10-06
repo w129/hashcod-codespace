@@ -35,7 +35,7 @@ async function layout(page, width) {
   assert(result.actions.top >= result.calendar.bottom + 8, 'actions must follow the complete calendar without overlap');
   assert(result.files.top >= result.actions.bottom + 8, 'Files must follow the action buttons');
   assert(result.footer.top >= result.files.bottom + 8, 'privacy control must follow Files: ' + JSON.stringify(result));
-  assert(result.documentWidth <= width + 1, 'phone must not scroll horizontally');
+  assert(result.documentWidth <= width + 1, 'phone must not scroll horizontally: ' + JSON.stringify(result));
   for (const item of [result.calendar, result.actions, result.files, result.footer]) assert(item.left >= 0 && item.right <= width + 1, 'every section must fit the phone width');
   assert(result.calendarTarget >= 43.9 && result.buttons.every(h => h >= 43.9), 'phone controls need touch-sized heights');
   assert.equal(result.cursorDisplay, 'none', 'decorative mouse cursor must not overlay the touch screen');
@@ -86,12 +86,17 @@ async function run() {
         window.dispatchEvent(new CustomEvent('hashcod:file-vault-saved'));
       });
       await page.locator('[data-hfv-preview-id="fv_phone_preview_12345"]').waitFor({ state: 'visible' });
-      await layout(page, viewport.width);
+      await page.waitForFunction(() => {
+        const folder = document.querySelector('#d5FilesExplorer [data-slot="folder-content"]');
+        const row = document.querySelector('[data-hfv-preview-id="fv_phone_preview_12345"]');
+        return folder && row && folder.getBoundingClientRect().height >= row.getBoundingClientRect().height - 1;
+      });
       await page.locator('#d5FilesExplorer').scrollIntoViewIfNeeded();
       if (process.env.HASHCOD_MOBILE_SCREENSHOT_DIR) {
         fs.mkdirSync(process.env.HASHCOD_MOBILE_SCREENSHOT_DIR, { recursive: true });
         await page.screenshot({ path: path.join(process.env.HASHCOD_MOBILE_SCREENSHOT_DIR, `phone-${viewport.width}x${viewport.height}.png`), fullPage: true });
       }
+      await layout(page, viewport.width);
       await page.locator('[data-hfv-preview-id="fv_phone_preview_12345"]').tap();
       await page.locator('#hfvTotpCode').fill('wrong');
       await page.getByRole('button', { name: 'Verify & open' }).tap();

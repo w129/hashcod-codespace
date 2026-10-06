@@ -86,6 +86,15 @@
   }
 
   body[data-hashcod-entry-intro="1"] .hashcod-workspace-files-content { gap: 16px; }
+  body[data-hashcod-entry-intro="1"] .hashcod-files-empty-state {
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+  }
+  body[data-hashcod-entry-intro="1"] .center-empty-state-action-slot,
+  body[data-hashcod-entry-intro="1"] .hashcod-workspace-files-content {
+    min-width: 0;
+    max-width: 100%;
+  }
   body[data-hashcod-entry-intro="1"] .hashcod-empty-state-actions-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 48px;
@@ -110,7 +119,7 @@
     font-size: 12px;
   }
   body[data-hashcod-entry-intro="1"] .hashcod-file-vault-trigger { width: 48px; height: 48px; }
-  body[data-hashcod-entry-intro="1"] .hfv-explorer { max-height: 350px; }
+  body[data-hashcod-entry-intro="1"] .hfv-explorer { min-width: 0; max-width: 100%; max-height: 350px; }
   body[data-hashcod-entry-intro="1"] .hfv-explorer button { min-height: 44px; }
 
   body[data-hashcod-entry-intro="1"] .preview-policy-footer {

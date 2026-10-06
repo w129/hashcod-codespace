@@ -437,7 +437,7 @@ assert(animateCursorJs.includes('window.HashcodAnimateCursor=Object.freeze'),'gl
 
 // FAQ must escape the page layout and cover the entire viewport.
 assert(gate.includes('components/mldsa-access-gate.css?v=20261004-mesh-fallback1'),'FAQ modal CSS cache-bust missing');
-assert(gate.includes('components/mldsa-access-gate.js?v=20261004-preview-policy5'),'FAQ modal JS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261006-shared-cloud-repair1'),'restored shared-cloud runtime JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
 assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');

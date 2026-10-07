@@ -555,89 +555,10 @@ function streamlitWaitPort($port, $timeoutSec = 25) {
 }
 
 function streamlitStart($slot) {
-    $slot = streamlitNormalizeSlot($slot);
-    if (!$slot) return ['ok' => false, 'error' => 'Slot inválido'];
-
-    $avail = streamlitAvailable();
-    if (empty($avail['ok'])) {
-        return ['ok' => false, 'error' => $avail['error'] ?? 'Streamlit no disponible'];
-    }
-
-    $app = streamlitAppPath($slot);
-    if (!is_readable($app) || filesize($app) <= 0) {
-        return ['ok' => false, 'error' => 'No hay código en este slot. Guarda una app Streamlit primero.'];
-    }
-
-    streamlitEnsureConfig($slot);
-
-    if (streamlitIsRunning($slot)) {
-        return [
-            'ok' => true,
-            'already' => true,
-            'slot' => $slot,
-            'url' => streamlitPublicUrlForSlot($slot),
-            'runtime' => streamlitReadRuntime($slot),
-        ];
-    }
-
-    $port = streamlitPortForSlot($slot);
-    $base = streamlitBasePathForSlot($slot);
-    $py = $avail['python_bin'];
-    $log = streamlitLogPath($slot);
-    $work = streamlitSlotDir($slot);
-
-    // setsid: grupo de proceso fácil de matar
-    $cmd = 'cd ' . escapeshellarg($work)
-        . ' && setsid '
-        . escapeshellarg($py)
-        . ' -m streamlit run ' . escapeshellarg($app)
-        . ' --server.address=127.0.0.1'
-        . ' --server.port=' . (int) $port
-        . ' --server.headless=true'
-        . ' --server.enableCORS=false'
-        . ' --server.enableXsrfProtection=false'
-        . ' --server.baseUrlPath=' . escapeshellarg($base)
-        . ' --browser.gatherUsageStats=false'
-        . ' > ' . escapeshellarg($log) . ' 2>&1 & echo $!';
-
-    $pidOut = [];
-    $code = 1;
-    @exec($cmd, $pidOut, $code);
-    $pid = isset($pidOut[0]) ? (int) trim($pidOut[0]) : 0;
-    if ($pid <= 1) {
-        return [
-            'ok' => false,
-            'error' => 'No se pudo iniciar Streamlit',
-            'log_tail' => streamlitLogTail($slot),
-        ];
-    }
-
-    $ready = streamlitWaitPort($port, 30);
-    $runtime = [
-        'pid' => $pid,
-        'port' => $port,
-        'base' => $base,
-        'url' => streamlitPublicUrlForSlot($slot),
-        'started_at' => date('c'),
-        'ready' => $ready,
-    ];
-    streamlitWriteRuntime($slot, $runtime);
-
-    if (!$ready) {
-        streamlitStop($slot);
-        return [
-            'ok' => false,
-            'error' => 'Streamlit no respondió a tiempo en el puerto ' . $port,
-            'log_tail' => streamlitLogTail($slot, 2500),
-        ];
-    }
-
-    return [
-        'ok' => true,
-        'slot' => $slot,
-        'url' => streamlitPublicUrlForSlot($slot),
-        'runtime' => $runtime,
-    ];
+    require_once __DIR__ . '/execution-security.php';
+    require_once __DIR__ . '/admin-device.php';
+    adminRequire();
+    return executionUnavailable();
 }
 
 function streamlitStop($slot) {

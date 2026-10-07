@@ -5,6 +5,7 @@ vendor/
 node_modules/
 *.log
 uploads/
+data_storage/
 data_storage/repos/
 data_storage/gateway/
 data_storage/ubuntu-cli/
@@ -32,10 +33,6 @@ streamlit_tools/mdx_component/frontend/node_modules/
 __pycache__/
 streamlit_tools/wang_component/frontend/node_modules/
 tiptap_editor/frontend/node_modules/
-# Catalyst Logs and State tracking
-!data_storage/catalyst_logs/
-!data_storage/catalyst_logs/*.log
-!data_storage/catalyst_state.json
 .env.*
 .env.local
 *.env

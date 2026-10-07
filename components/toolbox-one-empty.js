@@ -158,6 +158,7 @@
   }, true);
 
   const style = document.createElement('style');
+  style.nonce = document.querySelector('script[nonce]')?.nonce || '';
   style.id = 'hashcod-toolbox-one-empty-style';
   style.textContent =
     '.toolbox-panel[data-hashcod-toolbox-one-empty="true"] .tb-slot{' +

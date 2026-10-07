@@ -262,7 +262,7 @@
                                 const isSealedExcel = (r.impenetrable_seal === true);
                                 rowHtml += `
                                     <td style="${tdStyle}">
-                                        <button type="button" class="cell-home-icon-btn" onclick="openBlogCodeViewer('${r.account_id || r.identifier_code}')" title="${isSealedExcel ? 'Publicación sellada permanentemente (Solo Lectura)' : 'Ver código adjunto (' + (r.platform_code_name || 'script') + ')'}">
+                                        <button type="button" class="cell-home-icon-btn" data-hc-click="haf6bc2f56aa5285c4e4b" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${r.account_id || r.identifier_code}`]))}" title="${isSealedExcel ? 'Publicación sellada permanentemente (Solo Lectura)' : 'Ver código adjunto (' + (r.platform_code_name || 'script') + ')'}">
                                             <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
                                         </button>
                                     </td>`;
@@ -311,7 +311,7 @@
                                 } else {
                                     rowHtml += `
                                         <td style="${tdStyle}">
-                                            <button type="button" class="btn-impenetrable-seal" onclick="applyImpenetrableSeal('${r.account_id || r.identifier_code}')" title="Marcar Sello Impenetrable (Permanente)">
+                                            <button type="button" class="btn-impenetrable-seal" data-hc-click="h728e7768a46144f3eed7" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${r.account_id || r.identifier_code}`]))}" title="Marcar Sello Impenetrable (Permanente)">
                                                 🔒 Marcar Sello
                                             </button>
                                         </td>`;
@@ -345,8 +345,8 @@
                                 rowHtml += `
                                     <td style="${tdStyle}">
                                         <div class="cell-text-editor-wrap">
-                                            <input type="password" class="input-field-figma" placeholder="${hasTextExcel ? '••••••••••••' : 'Escribe texto...'}" value="${hasTextExcel ? '••••••••••••' : ''}" readonly style="flex:1; min-width:60px; letter-spacing:2px; cursor:pointer;" title="${hasTextExcel ? 'Texto confidencial guardado - Solo accesible por el Administrador' : 'Escribe texto...'}" onclick="openTextEditorModal('${r.identifier_code}')">
-                                            <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal('${r.identifier_code}')" title="Abrir Editor de Texto (Confidencial)">
+                                            <input type="password" class="input-field-figma" placeholder="${hasTextExcel ? '••••••••••••' : 'Escribe texto...'}" value="${hasTextExcel ? '••••••••••••' : ''}" readonly style="flex:1; min-width:60px; letter-spacing:2px; cursor:pointer;" title="${hasTextExcel ? 'Texto confidencial guardado - Solo accesible por el Administrador' : 'Escribe texto...'}" data-hc-click="hc5c97d0ac2b34658c6ba" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${r.identifier_code}`]))}">
+                                            <button type="button" class="cell-text-editor-btn" data-hc-click="hc5c97d0ac2b34658c6ba" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${r.identifier_code}`]))}" title="Abrir Editor de Texto (Confidencial)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" fill="currentColor">
                                                     <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M16,21h-2v-7h2V21z M15,11.5 c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,11.5,15,11.5z"></path>
                                                 </svg>
@@ -1139,7 +1139,7 @@
                             <th style="min-width: ${col.minWidth};">
                                 <div class="th-content-box">
                                     <span>${col.label}</span>
-                                    <button type="button" class="th-del-btn" onclick="deleteTableColumn('${col.key}', event)" title="Eliminar columna ${col.label}">✕</button>
+                                    <button type="button" class="th-del-btn" data-hc-click="h61d13655575c6d80810d" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${col.key}`]))}" title="Eliminar columna ${col.label}">✕</button>
                                 </div>
                             </th>
                         `;
@@ -1185,7 +1185,7 @@
                                 });
                                 rowHtml += `
                                     <td>
-                                        <select class="select-account-admin" onchange="updateRowAccountId(${idx}, this.value)" title="Asignar cuenta activa (Solo Admin)">
+                                        <select class="select-account-admin" data-hc-change="h2221a6effe2df8218f3f" data-hc-args-change="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Asignar cuenta activa (Solo Admin)">
                                             ${accOptions}
                                         </select>
                                     </td>`;
@@ -1197,7 +1197,7 @@
                                 const isSealedAdmin = (r.impenetrable_seal === true);
                                 rowHtml += `
                                     <td>
-                                        <button type="button" class="cell-home-icon-btn" onclick="openPlatformCodeModal()" title="${isSealedAdmin ? 'Publicación sellada permanentemente (Lectura)' : 'Ver/subir código'}">
+                                        <button type="button" class="cell-home-icon-btn" data-hc-click="h2e6880f9b69c881a1af9" title="${isSealedAdmin ? 'Publicación sellada permanentemente (Lectura)' : 'Ver/subir código'}">
                                             <svg viewBox="0 0 24 24"><path d="M 9.4238281 0.98632812 A 1.0001 1.0001 0 0 0 8.6699219 1.3105469 L 2.2617188 8.3261719 A 1.0001 1.0001 0 0 0 2.0976562 9.4277344 A 1.0001 1.0001 0 0 0 2.1054688 9.4453125 C 2.1402752 9.5346047 5.2618257 17.541307 6.5039062 20.726562 C 6.8039062 21.494563 7.5431875 22 8.3671875 22 L 20 22 C 21.105 22 22 21.105 22 20 L 22 11.013672 C 22 10.376672 21.697594 9.7763906 21.183594 9.4003906 C 18.514163 7.4418892 10.37325 1.4715432 10.119141 1.2851562 A 1.0001 1.0001 0 0 0 9.4238281 0.98632812 z M 9.4179688 3.4570312 L 13.6875 8 L 13 8 A 1.0001 1.0001 0 0 0 12 9 L 12 14 L 7 14 L 7 9 A 1.0001 1.0001 0 0 0 6 8 L 5.2675781 8 L 9.4179688 3.4570312 z M 7 16 L 12 16 L 12 18 L 7 18 L 7 16 z"/></svg>
                                         </button>
                                     </td>`;
@@ -1206,13 +1206,13 @@
                                 const isAuthSigned = (r.auth_signature && r.auth_signature.includes('Authorized'));
                                 rowHtml += `
                                     <td>
-                                        <button type="button" class="btn-auth-figma signed" onclick="stampSphincsSignature()" title="Certificar manualmente con SPHINCS+ (Solo Admin)">
+                                        <button type="button" class="btn-auth-figma signed" data-hc-click="he122f772d8dff900e19b" title="Certificar manualmente con SPHINCS+ (Solo Admin)">
                                             ${isAuthSigned ? 'Authorized ✓' : 'Authorize (SPHINCS+)'}
                                         </button>
                                     </td>`;
                                 break;
                             case 'num_tokens':
-                                rowHtml += `<td><input type="text" class="input-field-figma" value="${r.num_tokens || '0'}" onchange="updateCellData(${idx}, 'num_tokens', this.value)" oninput="updateCellDataRealtime(${idx}, 'num_tokens', this.value)" title="Cantidad de tokens"></td>`;
+                                rowHtml += `<td><input type="text" class="input-field-figma" value="${r.num_tokens || '0'}" data-hc-change="h824d57462195cbedd952" data-hc-args-change="${encodeURIComponent(JSON.stringify([(idx)]))}" data-hc-input="hc4c97ef0b85a35b9fe81" data-hc-args-input="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Cantidad de tokens"></td>`;
                                 break;
                             case 'cost_per_token':
                                 rowHtml += `
@@ -1245,7 +1245,7 @@
                                 } else {
                                     rowHtml += `
                                         <td>
-                                            <button type="button" class="btn-impenetrable-seal" onclick="applyImpenetrableSeal(${idx})" title="Marcar Sello Impenetrable (Permanente)">
+                                            <button type="button" class="btn-impenetrable-seal" data-hc-click="h728e7768a46144f3eed7" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Marcar Sello Impenetrable (Permanente)">
                                                 🔒 Marcar Sello
                                             </button>
                                         </td>`;
@@ -1261,12 +1261,12 @@
                             case 'creator_name':
                             case 'phone':
                             case 'email':
-                                rowHtml += `<td><input type="text" class="input-field-figma" value="${r[key] || ''}" onchange="updateCellData(${idx}, '${key}', this.value)" oninput="updateCellDataRealtime(${idx}, '${key}', this.value)"></td>`;
+                                rowHtml += `<td><input type="text" class="input-field-figma" value="${r[key] || ''}" data-hc-change="h9518f779280cc62a37da" data-hc-args-change="${encodeURIComponent(JSON.stringify([`${key}`,(idx)]))}" data-hc-input="h5ef9d81bb7753974c738" data-hc-args-input="${encodeURIComponent(JSON.stringify([`${key}`,(idx)]))}"></td>`;
                                 break;
                             case 'cors_method':
                                 rowHtml += `
                                     <td>
-                                        <div class="cell-checkboxes" onclick="toggleAdminCors(${idx})" style="cursor:pointer;" title="Alternar CORS (Y/N)">
+                                        <div class="cell-checkboxes" data-hc-click="h0d3975219fc6e551049a" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}" style="cursor:pointer;" title="Alternar CORS (Y/N)">
                                             <span class="cell-chk-box ${r.cors_method === 'Yes' ? 'checked' : ''}"></span>
                                             <span class="cell-chk-label">Y</span>
                                             <span class="cell-chk-box ${r.cors_method === 'No' ? 'checked' : ''}"></span>
@@ -1280,8 +1280,8 @@
                                 rowHtml += `
                                     <td>
                                         <div class="cell-text-editor-wrap">
-                                            <input type="password" class="input-field-figma" placeholder="${hasTextAdm ? '••••••••••••' : 'Escribe texto...'}" value="${hasTextAdm ? '••••••••••••' : ''}" readonly style="flex:1; min-width:60px; letter-spacing:2px; cursor:pointer;" title="${hasTextAdm ? (isUserTextAuthedAdmin ? 'Texto protegido confidencial (Ver en Notificaciones o Presentación)' : 'Texto protegido confidencial - Solo Admin') : 'Escribe texto...'}" onclick="openTextEditorModal(${idx})">
-                                            <button type="button" class="cell-text-editor-btn" onclick="openTextEditorModal(${idx})" title="Abrir Editor de Texto (Confidencial)">
+                                            <input type="password" class="input-field-figma" placeholder="${hasTextAdm ? '••••••••••••' : 'Escribe texto...'}" value="${hasTextAdm ? '••••••••••••' : ''}" readonly style="flex:1; min-width:60px; letter-spacing:2px; cursor:pointer;" title="${hasTextAdm ? (isUserTextAuthedAdmin ? 'Texto protegido confidencial (Ver en Notificaciones o Presentación)' : 'Texto protegido confidencial - Solo Admin') : 'Escribe texto...'}" data-hc-click="hc5c97d0ac2b34658c6ba" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}">
+                                            <button type="button" class="cell-text-editor-btn" data-hc-click="hc5c97d0ac2b34658c6ba" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Abrir Editor de Texto (Confidencial)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="16" height="16" fill="currentColor">
                                                     <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M16,21h-2v-7h2V21z M15,11.5 c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S15.828,11.5,15,11.5z"></path>
                                                 </svg>
@@ -1293,10 +1293,10 @@
                                 rowHtml += `
                                     <td>
                                         <div class="cell-color-squares">
-                                            <div class="cell-color-rect ${safeColor==='#E63333'?'active':''}" style="background:#E63333;" onclick="updateAdminHasnaColor(${idx}, '#E63333')" title="Rojo HASNA"></div>
-                                            <div class="cell-color-rect ${safeColor==='#33B34D'?'active':''}" style="background:#33B34D;" onclick="updateAdminHasnaColor(${idx}, '#33B34D')" title="Verde HASNA"></div>
-                                            <div class="cell-color-rect ${safeColor==='#3366E6'?'active':''}" style="background:#3366E6;" onclick="updateAdminHasnaColor(${idx}, '#3366E6')" title="Azul HASNA"></div>
-                                            <div class="cell-color-rect ${safeColor==='#FFFFFF'?'active':''}" style="background:#FFFFFF;" onclick="updateAdminHasnaColor(${idx}, '#FFFFFF')" title="Blanco HASNA"></div>
+                                            <div class="cell-color-rect ${safeColor==='#E63333'?'active':''}" style="background:#E63333;" data-hc-click="h37e70ffa020d72ac7103" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Rojo HASNA"></div>
+                                            <div class="cell-color-rect ${safeColor==='#33B34D'?'active':''}" style="background:#33B34D;" data-hc-click="he08af24062baacea17e4" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Verde HASNA"></div>
+                                            <div class="cell-color-rect ${safeColor==='#3366E6'?'active':''}" style="background:#3366E6;" data-hc-click="h39330d0a614b7bc932f5" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Azul HASNA"></div>
+                                            <div class="cell-color-rect ${safeColor==='#FFFFFF'?'active':''}" style="background:#FFFFFF;" data-hc-click="h6a198e06a2b0953d0855" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Blanco HASNA"></div>
                                         </div>
                                     </td>`;
                                 break;
@@ -1306,7 +1306,7 @@
                     // Acciones: Eliminar registro
                     rowHtml += `
                         <td style="border-right:none; text-align:center;">
-                            <button type="button" class="cell-del-row-btn" onclick="deleteTableRow(${idx}, event)" title="Eliminar registro ${r.identifier_code}">
+                            <button type="button" class="cell-del-row-btn" data-hc-click="h57200ea535590196728d" data-hc-args-click="${encodeURIComponent(JSON.stringify([(idx)]))}" title="Eliminar registro ${r.identifier_code}">
                                 <svg style="width:14px;height:14px;fill:currentColor;" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                             </button>
                         </td>
@@ -2794,3 +2794,24 @@ ${jsonPayload}
 
             markReady();
         })();
+
+// CSP-safe listeners; argument values are JSON data, never JavaScript source.
+(window.HashcodCspEvents?.register || (map => (window.__hashcodCspEventQueue ||= []).push(map)))({
+"haf6bc2f56aa5285c4e4b": function(event,args){openBlogCodeViewer(args[0])},
+"h728e7768a46144f3eed7": function(event,args){applyImpenetrableSeal(args[0])},
+"hc5c97d0ac2b34658c6ba": function(event,args){openTextEditorModal(args[0])},
+"h61d13655575c6d80810d": function(event,args){deleteTableColumn(args[0], event)},
+"h2221a6effe2df8218f3f": function(event,args){updateRowAccountId(args[0], this.value)},
+"h2e6880f9b69c881a1af9": function(event,args){openPlatformCodeModal()},
+"he122f772d8dff900e19b": function(event,args){stampSphincsSignature()},
+"h824d57462195cbedd952": function(event,args){updateCellData(args[0], 'num_tokens', this.value)},
+"hc4c97ef0b85a35b9fe81": function(event,args){updateCellDataRealtime(args[0], 'num_tokens', this.value)},
+"h9518f779280cc62a37da": function(event,args){updateCellData(args[1], args[0], this.value)},
+"h5ef9d81bb7753974c738": function(event,args){updateCellDataRealtime(args[1], args[0], this.value)},
+"h0d3975219fc6e551049a": function(event,args){toggleAdminCors(args[0])},
+"h37e70ffa020d72ac7103": function(event,args){updateAdminHasnaColor(args[0], '#E63333')},
+"he08af24062baacea17e4": function(event,args){updateAdminHasnaColor(args[0], '#33B34D')},
+"h39330d0a614b7bc932f5": function(event,args){updateAdminHasnaColor(args[0], '#3366E6')},
+"h6a198e06a2b0953d0855": function(event,args){updateAdminHasnaColor(args[0], '#FFFFFF')},
+"h57200ea535590196728d": function(event,args){deleteTableRow(args[0], event)}
+});

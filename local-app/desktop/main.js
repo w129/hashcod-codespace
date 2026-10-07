@@ -303,6 +303,7 @@ function markDesktopRenderer() {
             if (!document.getElementById('hashcodDesktopCompatStyle')) {
                 const style = document.createElement('style');
                 style.id = 'hashcodDesktopCompatStyle';
+                style.nonce = document.querySelector('script[nonce]')?.nonce || '';
                 style.textContent = '.cf-turnstile,#cfTurnstileRegister{display:none!important}';
                 document.head.appendChild(style);
             }

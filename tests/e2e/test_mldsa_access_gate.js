@@ -65,7 +65,7 @@ assert(codeAccessCss.includes('.code-access-overlay'),'blocking access overlay m
 
 // Root stays on the first presentation.
 assert(l8.includes('Single-screen mode: the root route permanently renders only the'),'single-screen root contract missing');
-assert(l8.includes("echo mldsaGateHtml(l8_public_base_path(), true);"),'first-screen renderer missing');
+assert(l8.includes("echo l8_apply_csp_nonce(mldsaGateHtml(l8_public_base_path(), true));"),'first-screen renderer missing');
 assert(!l8.includes('$entryPass = l8_entry_intro_consume();'),'one-shot platform entry pass must no longer be used');
 
 // The former white access window must be gone from first-screen markup.

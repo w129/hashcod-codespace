@@ -59,6 +59,7 @@
 
     if (typeof document !== 'undefined' && document.head && !document.getElementById('cryptoCardValidationStyles')) {
         const styleEl = document.createElement('style');
+  styleEl.nonce = document.querySelector('script[nonce]')?.nonce || '';
         styleEl.id = 'cryptoCardValidationStyles';
         styleEl.textContent = CRYPTO_CARD_VALIDATION_CSS;
         document.head.appendChild(styleEl);

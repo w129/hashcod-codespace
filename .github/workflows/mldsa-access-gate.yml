@@ -135,6 +135,9 @@ jobs:
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
 
+      - name: Verify CSP listener migration in Chromium
+        run: node tests/e2e/test_csp_event_bindings.js
+
       - name: Start Hashcod locally
         run: |
           L8_CODE_ACCESS_REQUIRED=0 php -S 127.0.0.1:8097 router.php >/tmp/mldsa-direct-entry.log 2>&1 &

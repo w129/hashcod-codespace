@@ -4,7 +4,7 @@ const root=path.resolve(__dirname,'..','..');
 const index=fs.readFileSync(path.join(root,'index.php'),'utf8');
 const runtime=fs.readFileSync(path.join(root,'components','main-platform-runtime.js'),'utf8');
 function assert(v,m){if(!v){console.error('FAIL:',m);process.exit(1);}}
-assert(index.includes('components/main-platform-runtime.js?v=20260921-folderonly1'),'external main runtime tag missing');
+assert(index.includes('components/main-platform-runtime.js?v=20261007-security1'),'external main runtime tag missing');
 assert(!index.includes('/* ===== SHARED DATA & COLUMNS CONFIGURATION ===== */'),'giant inline main runtime must not remain in index.php');
 assert(runtime.includes('/* ===== SHARED DATA & COLUMNS CONFIGURATION ===== */'),'main runtime payload missing');
 assert(runtime.includes('Hashes activos'),'account validation runtime missing');

@@ -306,7 +306,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
     $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261007-access-brand2',ENT_QUOTES,'UTF-8');
     $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261007-access-brand2',ENT_QUOTES,'UTF-8');
-    $entryBootstrapJs=htmlspecialchars($base.'components/mldsa-access-gate-loader.js?v=20261007-entry-bootstrap2',ENT_QUOTES,'UTF-8');
+    $entryBootstrapJs=htmlspecialchars($base.'components/mldsa-access-gate-loader.js?v=20261007-security1',ENT_QUOTES,'UTF-8');
     $codeAccessRequired=$entryIntro&&codeAccessRequired();
     $codeAccessAuthorized=!$codeAccessRequired||codeAccessAuthorized();
     $bodyAttr=$entryIntro

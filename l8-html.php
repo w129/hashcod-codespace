@@ -121,13 +121,15 @@ function l8_apply_csp_nonce(string $html): string {
     };
 
     while ($cursor < $length) {
-        $start = stripos($html, '<script', $cursor);
-        if ($start === false) {
+        if (!preg_match('/<(script|style)(?=[\s>\/])/i', $html, $nextTag, PREG_OFFSET_CAPTURE, $cursor)) {
             $output .= substr($html, $cursor);
             break;
         }
+        $start = $nextTag[0][1];
+        $tagName = strtolower($nextTag[1][0]);
+        $prefixLength = strlen($tagName) + 1;
 
-        $boundaryPos = $start + 7;
+        $boundaryPos = $start + $prefixLength;
         $boundary = $boundaryPos < $length ? $html[$boundaryPos] : '';
         if ($boundary !== '' && !ctype_space($boundary) && $boundary !== '>' && $boundary !== '/') {
             $output .= substr($html, $cursor, $boundaryPos - $cursor);
@@ -144,10 +146,9 @@ function l8_apply_csp_nonce(string $html): string {
 
         $openingTag = substr($html, $start, $tagEnd - $start + 1);
         if (!preg_match('/\\bnonce\\s*=/i', $openingTag)) {
-            // "<script" is seven bytes in every supported casing.
-            $openingTag = substr($openingTag, 0, 7)
+            $openingTag = substr($openingTag, 0, $prefixLength)
                 . ' nonce="' . $nonce . '"'
-                . substr($openingTag, 7);
+                . substr($openingTag, $prefixLength);
         }
         $output .= $openingTag;
 
@@ -155,7 +156,7 @@ function l8_apply_csp_nonce(string $html): string {
         // text. Skip that entire region so "<script ...>" strings inside JS are
         // never interpreted as HTML tags by this nonce injector.
         $contentStart = $tagEnd + 1;
-        $closeStart = stripos($html, '</script', $contentStart);
+        $closeStart = stripos($html, '</' . $tagName, $contentStart);
         if ($closeStart === false) {
             $output .= substr($html, $contentStart);
             break;
@@ -227,7 +228,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         require_once __DIR__ . '/mldsa-access.php';
         l8_init_compression();
         l8_html_headers(true, 0);
-        echo mldsaGateHtml(l8_public_base_path(), true);
+        echo l8_apply_csp_nonce(mldsaGateHtml(l8_public_base_path(), true));
         exit;
     }
 
@@ -257,7 +258,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
         // per response so entry fixes cannot be defeated by browser/CDN cache.
         $html = str_replace(
             'components/main-platform-runtime.js?v=20260921-folderonly1',
-            'components/main-platform-runtime.js?v=20260926-nofreeze4',
+            'components/main-platform-runtime.js?v=20261007-security1',
             $html
         );
 
@@ -457,7 +458,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-toolbox-one-empty-inline">' . $toolboxOneEmptyJs . '</script>'
             : '';
         $toolboxOneEmptyExternalTag = $toolboxOneEmptyJs === ''
-            ? '<script defer src="' . $base . 'components/toolbox-one-empty.js?v=20260920-empty1" data-hashcod-toolbox-one-empty="true"></script>'
+            ? '<script defer src="' . $base . 'components/toolbox-one-empty.js?v=20261007-security1" data-hashcod-toolbox-one-empty="true"></script>'
             : '';
 
         // Inline the EFR editor too. Its global idempotency guard means the
@@ -471,7 +472,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-efr-code-editor-inline">' . $efrJs . '</script>'
             : '';
         $efrExternalJsTag = $efrJs === ''
-            ? '<script defer src="' . $base . 'components/efr-code-editor.js?v=20260919-perf2" data-hashcod-efr-code-editor="true"></script>'
+            ? '<script defer src="' . $base . 'components/efr-code-editor.js?v=20261007-security1" data-hashcod-efr-code-editor="true"></script>'
             : '';
 
         // Registration runtime and its React/Motion submit island are retired.
@@ -539,7 +540,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             ? '<script id="hashcod-platform-crm-inline" data-hashcod-platform-crm-inline="true">' . $platformCrmJs . '</script>'
             : '';
         $platformCrmJsExternalTag = $platformCrmJs === ''
-            ? '<script defer src="' . $base . 'components/platform-crm.js?v=20260927-platformcrm6" data-hashcod-platform-crm="true"></script>'
+            ? '<script defer src="' . $base . 'components/platform-crm.js?v=20261007-security1" data-hashcod-platform-crm="true"></script>'
             : '';
 
         $platformSkeletonJsPath = __DIR__ . '/components/platform-loading-skeleton.js';
@@ -581,7 +582,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/toolbox-secure-links.js?v=20260913-4" data-hashcod-toolbox-secure="true"></script>'
             . '<script defer src="' . $base . 'components/toolbox-signature-copy.js?v=20260913-2" data-hashcod-toolbox-signature-copy="true"></script>'
             . $rescueExternalTag
-            . '<script defer src="' . $base . 'components/topbar-windows-hello.js?v=20260919-perf1" data-hashcod-topbar-windows-hello="true"></script>'
+            . '<script defer src="' . $base . 'components/topbar-windows-hello.js?v=20261007-security1" data-hashcod-topbar-windows-hello="true"></script>'
             . '<script defer src="' . $base . 'components/duo-page-transition.js?v=20260926-nofreeze3" data-hashcod-duo-transition="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer.js?v=20260919-perf1" data-hashcod-entry-capability-footer="true"></script>'
             . '<script defer src="' . $base . 'components/platform-entry-capability-footer-fix.js?v=20260926-noregform1" data-hashcod-entry-capability-footer-fix="true"></script>'
@@ -589,7 +590,7 @@ function l8_require_html_page($file, $ok = true, $cacheTtl = 0) {
             . '<script defer src="' . $base . 'components/page-mascot-panda.js?v=20260929-panda2" data-hashcod-page-mascot="true"></script>'
             . '<script defer src="' . $base . 'components/toolbook-page-blank.js?v=20261003-react2" data-hashcod-toolbook-blank="true"></script>'
             . '<script defer src="' . $base . 'components/auth-tabs-rescue.js?v=20260919-perf1" data-hashcod-auth-tabs-rescue="true"></script>'
-            . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20260919-perf1" data-hashcod-codekey-picker-rescue="true"></script>'
+            . '<script defer src="' . $base . 'components/admin-codekey-picker-rescue.js?v=20261007-security1" data-hashcod-codekey-picker-rescue="true"></script>'
             . '<script defer src="' . $base . 'components/percent-feature-button.js?v=20260914-1" data-hashcod-percent-feature="true"></script>'
             . $efrExternalJsTag
             . '<script defer src="' . $base . 'components/boot-brand-credit-relocate.js?v=20260919-perf1" data-hashcod-boot-brand-credit-relocate="true"></script>'
@@ -642,7 +643,7 @@ function l8_html_not_found_page() {
         '<title>l8 codespace</title>' .
         '<base href="' . $base . '">' .
         '<link rel="icon" href="favicon.svg?v=3" type="image/svg+xml">' .
-        '<style>body{font-family:IBM Plex Sans,Segoe UI,sans-serif;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fff;color:#111}' .
+        '<style nonce="' . htmlspecialchars(securityCspNonce(), ENT_QUOTES, 'UTF-8') . '">body{font-family:IBM Plex Sans,Segoe UI,sans-serif;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fff;color:#111}' .
         '.box{max-width:28rem;padding:2rem;text-align:center}h1{font-size:1.25rem;margin:0 0 .5rem}p{color:#666;margin:0 0 1.25rem;line-height:1.45}' .
         'a{color:#0b3d2e;font-weight:600;text-decoration:none}a:hover{text-decoration:underline}</style>' .
         '</head><body><div class="box">' .

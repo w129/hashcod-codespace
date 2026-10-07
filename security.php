@@ -57,6 +57,25 @@ function securityDeskcommFrameSource(): string {
     return $origin;
 }
 
+/** Exact HTTPS origins only: configured providers never become scheme wildcards. */
+function securityCspOrigin(string $url): string {
+    $parts = @parse_url(trim($url));
+    $host = strtolower((string)($parts['host'] ?? ''));
+    if (($parts['scheme'] ?? '') !== 'https' || !preg_match('/^[a-z0-9.-]+$/', $host)
+        || isset($parts['user']) || isset($parts['pass']) || isset($parts['fragment'])) return '';
+    if (filter_var($host, FILTER_VALIDATE_IP) || $host === 'localhost' || str_ends_with($host, '.internal')) return '';
+    $port = isset($parts['port']) ? (int)$parts['port'] : 443;
+    if ($port < 1 || $port > 65535) return '';
+    return 'https://' . $host . ($port === 443 ? '' : ':' . $port);
+}
+
+function securityCspConnectSources(): string {
+    $sources = ["'self'", 'https://challenges.cloudflare.com', 'https://cdn.jsdelivr.net', 'https://api.github.com', 'https://celestrak.org', 'https://earthquake.usgs.gov', 'https://api.wheretheiss.at', 'https://nominatim.openstreetmap.org', 'https://api.spacexdata.com'];
+    $supabase = securityCspOrigin((string)secretGet('SUPABASE_URL', ''));
+    if ($supabase !== '') { $sources[] = $supabase; $sources[] = 'wss://' . substr($supabase, 8); }
+    return implode(' ', array_unique($sources));
+}
+
 function securityApplyHeaders() {
     static $done = false;
     if ($done) return;
@@ -87,12 +106,13 @@ function securityApplyHeaders() {
             "frame-ancestors 'none'; " .
             "object-src 'none'; " .
             "form-action 'self'; " .
-            "img-src 'self' data: blob: https:; " .
+            "img-src 'self' data: blob: https://avatars.githubusercontent.com https://images.unsplash.com https://img.icons8.com; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " .
+            "style-src 'self' 'nonce-" . securityCspNonce() . "' https://fonts.googleapis.com; " .
+            "style-src-attr 'unsafe-inline'; " .
             "script-src 'self' 'nonce-" . securityCspNonce() . "' https://challenges.cloudflare.com https://cdn.jsdelivr.net; " .
-            "script-src-attr 'unsafe-inline'; " .
-            "connect-src 'self' https: wss: https://challenges.cloudflare.com; " .
+            "script-src-attr 'none'; " .
+            "connect-src " . securityCspConnectSources() . "; " .
             "frame-src 'self' https://challenges.cloudflare.com" . (securityDeskcommFrameSource() !== '' ? ' ' . securityDeskcommFrameSource() : '') . "; " .
             "worker-src 'self' blob:; " .
             "media-src 'self' blob:;"

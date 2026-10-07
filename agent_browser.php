@@ -141,43 +141,10 @@ function agentBrowserNormalizeUrl($url) {
 }
 
 function agentBrowserRun(array $args, $timeoutSec = 90) {
-    $bin = agentBrowserBin();
-    if ($bin === '') {
-        return [
-            'ok' => false,
-            'error' => 'agent-browser no está instalado. Usa Asegurar / instalar en el panel.',
-            'code' => 'missing_bin',
-        ];
-    }
-    agentBrowserEnsureDirs();
-    $session = agentBrowserSessionId();
-    $allowed = agentBrowserAllowedDomains();
-    $prefix = [
-        $bin,
-        '--session', $session,
-        '--allowed-domains', $allowed,
-    ];
-    $cmdParts = [];
-    foreach (array_merge($prefix, $args) as $part) {
-        $cmdParts[] = escapeshellarg((string) $part);
-    }
-    $cmd = 'HOME=' . escapeshellarg(agentBrowserRootDir())
-        . ' AGENT_BROWSER_SESSION=' . escapeshellarg($session)
-        . ' AGENT_BROWSER_ALLOWED_DOMAINS=' . escapeshellarg($allowed)
-        . ' timeout ' . max(5, (int) $timeoutSec) . 's '
-        . implode(' ', $cmdParts)
-        . ' 2>&1';
-    $out = [];
-    $code = 1;
-    @exec($cmd, $out, $code);
-    $text = trim(implode("\n", $out));
-    return [
-        'ok' => ((int) $code === 0),
-        'code' => (int) $code,
-        'output' => $text,
-        'error' => ((int) $code === 0) ? null : ($text !== '' ? $text : 'Falló agent-browser'),
-        'cmd' => $args,
-    ];
+    require_once __DIR__ . '/execution-security.php';
+    require_once __DIR__ . '/admin-device.php';
+    adminRequire();
+    return executionUnavailable();
 }
 
 function agentBrowserStatusPayload() {
@@ -219,74 +186,10 @@ function agentBrowserStatusPayload() {
 }
 
 function agentBrowserEnsure() {
-    agentBrowserEnsureDirs();
-    $bin = agentBrowserBin();
-    $installed = false;
-    $logs = [];
-
-    if ($bin === '') {
-        // Prefer local install under /opt or project node_modules
-        $target = '/opt/agent-browser';
-        if (!is_dir($target)) {
-            @mkdir($target, 0775, true);
-        }
-        $npm = trim((string) @shell_exec('command -v npm 2>/dev/null'));
-        if ($npm === '') {
-            return [
-                'ok' => false,
-                'error' => 'npm no está disponible para instalar agent-browser',
-                'logs' => $logs,
-            ];
-        }
-        $cmd = 'cd ' . escapeshellarg($target)
-            . ' && npm install agent-browser@^0.34.0 --no-fund --no-audit 2>&1';
-        $out = [];
-        $code = 1;
-        @exec($cmd, $out, $code);
-        $logs[] = implode("\n", $out);
-        $installed = ((int) $code === 0);
-        $bin = agentBrowserBin();
-    }
-
-    if ($bin === '') {
-        return [
-            'ok' => false,
-            'error' => 'No se pudo instalar agent-browser',
-            'logs' => $logs,
-            'installed' => $installed,
-        ];
-    }
-
-    // Download Chrome for Testing + Linux deps when possible
-    $install = [];
-    $code = 1;
-    @exec(
-        'HOME=' . escapeshellarg(agentBrowserRootDir()) . ' '
-        . escapeshellarg($bin) . ' install --with-deps 2>&1',
-        $install,
-        $code
-    );
-    $logs[] = implode("\n", $install);
-    if ((int) $code !== 0) {
-        $install2 = [];
-        @exec(
-            'HOME=' . escapeshellarg(agentBrowserRootDir()) . ' '
-            . escapeshellarg($bin) . ' install 2>&1',
-            $install2,
-            $code
-        );
-        $logs[] = implode("\n", $install2);
-    }
-
-    $st = agentBrowserStatusPayload();
-    $st['ensure'] = true;
-    $st['installed_cli'] = $installed || ($bin !== '');
-    $st['logs_tail'] = substr(implode("\n---\n", $logs), -4000);
-    $st['ok'] = !empty($st['available']);
-    if (!$st['ok']) {
-        $st['error'] = 'agent-browser no quedó disponible tras ensure';
-    }
-    return $st;
+    require_once __DIR__ . '/execution-security.php';
+    require_once __DIR__ . '/admin-device.php';
+    adminRequire();
+    return executionUnavailable();
 }
 
 function agentBrowserOpen($url) {

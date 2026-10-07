@@ -160,13 +160,13 @@
                         </svg>
                         <span>Durable Objects · Actor Model Engine</span>
                     </div>
-                    <button class="do-close-btn" onclick="window.DurableObjects.closeInspectorModal()" title="Cerrar modal">&times;</button>
+                    <button class="do-close-btn" data-hc-click="h23f65b5eacfa1d0f5630" title="Cerrar modal">&times;</button>
                 </div>
                 <div class="do-modal-body">
                     <div class="do-sidebar">
                         <div class="do-sidebar-head">
                             <span>Namespaces & Actores</span>
-                            <button class="do-mini-btn" onclick="loadInspectorData()" title="Refrescar">↻</button>
+                            <button class="do-mini-btn" data-hc-click="h17fad031eb48119fc099" title="Refrescar">↻</button>
                         </div>
                         <div class="do-namespaces-list" id="doNamespacesList">
                             <div class="do-loading">Cargando namespaces...</div>
@@ -182,7 +182,7 @@
                                 <option value="generic">GenericActor</option>
                             </select>
                             <input type="text" id="doNewActorName" class="do-input-text" placeholder="Nombre único del actor (ej: sala-1)" />
-                            <button class="do-btn-primary" onclick="createOrOpenActor()">Abrir / Crear</button>
+                            <button class="do-btn-primary" data-hc-click="hfa28a007ac6fd5b8151c">Abrir / Crear</button>
                         </div>
                     </div>
                     <div class="do-content-panel" id="doContentPanel">
@@ -219,7 +219,7 @@
                         </div>
                         <div class="do-actors-sublist">
                             ${nsObjs.length ? nsObjs.map(o => `
-                                <div class="do-actor-item" onclick="inspectActor('${ns.name}', '${o.id}')">
+                                <div class="do-actor-item" data-hc-click="h8c95ab974866aad21cb0" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${ns.name}`,`${o.id}`]))}">
                                     <span class="do-actor-dot"></span>
                                     <span class="do-actor-name">${o.name || o.id.slice(0, 12) + '…'}</span>
                                     <span class="do-actor-keys">${o.keys_count}k</span>
@@ -263,8 +263,8 @@
                             <div class="do-actor-id-code">ID: <code>${id}</code></div>
                         </div>
                         <div class="do-actor-actions">
-                            <button class="do-action-btn" onclick="inspectActor('${namespace}', '${id}', '${customName}')">↻ Refrescar</button>
-                            <button class="do-action-btn" onclick="promptPutStorage('${namespace}', '${id}')">+ Guardar Clave</button>
+                            <button class="do-action-btn" data-hc-click="h0520311902c7f3ee89e5" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${namespace}`,`${id}`,`${customName}`]))}">↻ Refrescar</button>
+                            <button class="do-action-btn" data-hc-click="he8cd806b09ec3d0edbb7" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${namespace}`,`${id}`]))}">+ Guardar Clave</button>
                         </div>
                     </div>
 
@@ -300,7 +300,7 @@
                                             <td><code>${k}</code></td>
                                             <td><pre class="do-val-pre">${escapeHtml(JSON.stringify(storage[k], null, 2))}</pre></td>
                                             <td>
-                                                <button class="do-del-btn" onclick="deleteStorageKey('${namespace}', '${id}', '${k}')" title="Eliminar clave">✕</button>
+                                                <button class="do-del-btn" data-hc-click="hc772eb36b17bccacccf0" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${namespace}`,`${id}`,`${k}`]))}" title="Eliminar clave">✕</button>
                                             </td>
                                         </tr>
                                     `).join('')}
@@ -313,7 +313,7 @@
                     <div class="do-rpc-tester">
                         <input type="text" id="doRpcMethodInput" class="do-input-text" placeholder="Nombre de método (ej: increment, appendTransaction, joinUser)" />
                         <input type="text" id="doRpcParamsInput" class="do-input-text" placeholder="Parámetros JSON (ej: [5] o [\"usuario1\", {\"rol\":\"admin\"}])" />
-                        <button class="do-btn-primary" onclick="executeActorRpc('${namespace}', '${id}')">Ejecutar RPC</button>
+                        <button class="do-btn-primary" data-hc-click="hc9d7a57ac6429d022d51" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${namespace}`,`${id}`]))}">Ejecutar RPC</button>
                     </div>
                     <div id="doRpcResultBox" class="do-rpc-result" style="display: none;"></div>
                 </div>
@@ -375,4 +375,16 @@
 
     // Exportar al objeto global
     window.DurableObjects = DurableObjectsSDK;
+
+// CSP-safe listeners; argument values are JSON data, never JavaScript source.
+(window.HashcodCspEvents?.register || (map => (window.__hashcodCspEventQueue ||= []).push(map)))({
+"h23f65b5eacfa1d0f5630": function(event,args){window.DurableObjects.closeInspectorModal()},
+"h17fad031eb48119fc099": function(event,args){loadInspectorData()},
+"hfa28a007ac6fd5b8151c": function(event,args){createOrOpenActor()},
+"h8c95ab974866aad21cb0": function(event,args){inspectActor(args[0], args[1])},
+"h0520311902c7f3ee89e5": function(event,args){inspectActor(args[0], args[1], args[2])},
+"he8cd806b09ec3d0edbb7": function(event,args){promptPutStorage(args[0], args[1])},
+"hc772eb36b17bccacccf0": function(event,args){deleteStorageKey(args[0], args[1], args[2])},
+"hc9d7a57ac6429d022d51": function(event,args){executeActorRpc(args[0], args[1])}
+});
 })();

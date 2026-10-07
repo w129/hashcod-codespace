@@ -1241,15 +1241,15 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                     <td style="text-align:right;">
                         <div style="display:inline-flex; gap:4px;">
                             ${locations.length > 0 ? `
-                                <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" onclick="window.PolyglotGridStudio.jumpToFileBox(${locations[0].x}, ${locations[0].y})">
+                                <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" data-hc-click="hbc801d1343bc5d6f2cb2" data-hc-args-click="${encodeURIComponent(JSON.stringify([(locations[0].x),(locations[0].y)]))}">
                                     📦 Ir a Caja
                                 </button>
                             ` : `
-                                <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" onclick="window.PolyglotGridStudio.closeFileDistributionLogModal(); window.PolyglotGridStudio.openFileAssignModal();">
+                                <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" data-hc-click="h149555b29005579b09a7">
                                     🔗 Asignar
                                 </button>
                             `}
-                            <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" onclick="window.PolyglotGridStudio.closeFileDistributionLogModal(); window.PolyglotGridStudio.openIdeModal('${path}')">
+                            <button type="button" class="tk-btn-action" style="padding:2px 8px; font-size:10.5px;" data-hc-click="hceb27832494d3d68ede1" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${path}`]))}">
                                 ✏️ IDE
                             </button>
                         </div>
@@ -1923,7 +1923,7 @@ public class ${fn.name.charAt(0).toUpperCase() + fn.name.slice(1)}Controller {
                     </div>
                     <div style="font-weight:700; font-size:13px; color:#000000;">Caja V(x${activeCell.y + 1}) F(${activeCell.x}) Vacía</div>
                     <div style="font-size:11.5px; color:#555555; margin:6px 0 12px;">Esta caja no tiene archivos asignados.</div>
-                    <button type="button" class="tk-btn-action" style="margin:0 auto; padding:6px 14px; display:inline-flex; align-items:center; gap:6px;" onclick="window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal(${activeCell.x}, ${activeCell.y})">
+                    <button type="button" class="tk-btn-action" style="margin:0 auto; padding:6px 14px; display:inline-flex; align-items:center; gap:6px;" data-hc-click="hdae2a6ca79625175d9bf" data-hc-args-click="${encodeURIComponent(JSON.stringify([(activeCell.x),(activeCell.y)]))}">
                         <svg viewBox="0 0 64 64" width="16" height="16" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;">
                             <polygon points="12,22 32,32 52,22 32,12" fill="#ffffff"/>
                             <polyline points="12,22 12,46 32,56 32,32"/>
@@ -2725,3 +2725,11 @@ Hola, deseo obtener la herramienta ${tool.name} para hacer MCP vía WhatsApp.`;
         window.closeOnDemandToolModal = closeOnDemandToolModal;
         window.sendOnDemandWhatsAppOrder = sendOnDemandWhatsAppOrder;
     }
+
+// CSP-safe listeners; argument values are JSON data, never JavaScript source.
+(window.HashcodCspEvents?.register || (map => (window.__hashcodCspEventQueue ||= []).push(map)))({
+"hbc801d1343bc5d6f2cb2": function(event,args){window.PolyglotGridStudio.jumpToFileBox(args[0], args[1])},
+"h149555b29005579b09a7": function(event,args){window.PolyglotGridStudio.closeFileDistributionLogModal(); window.PolyglotGridStudio.openFileAssignModal();},
+"hceb27832494d3d68ede1": function(event,args){window.PolyglotGridStudio.closeFileDistributionLogModal(); window.PolyglotGridStudio.openIdeModal(args[0])},
+"hdae2a6ca79625175d9bf": function(event,args){window.PolyglotGridStudio && window.PolyglotGridStudio.openFileAssignModal(args[0], args[1])}
+});

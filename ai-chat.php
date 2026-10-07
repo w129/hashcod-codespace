@@ -494,10 +494,10 @@ function aiChatOauthResultPage($ok, $message) {
     $color = $ok ? '#137333' : '#c5221f';
     header('Content-Type: text/html; charset=utf-8');
     echo '<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>' . $title . '</title>'
-        . '<style>body{font-family:IBM Plex Mono,ui-monospace,monospace;background:#f6f6f6;color:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}'
+        . '<style nonce="' . htmlspecialchars(securityCspNonce(), ENT_QUOTES, 'UTF-8') . '">body{font-family:IBM Plex Mono,ui-monospace,monospace;background:#f6f6f6;color:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}'
         . '.box{background:#fff;border:1px solid #ccc;padding:24px;max-width:480px;line-height:1.45}h1{font-size:16px;margin:0 0 10px;color:' . $color . '}p{font-size:13px;margin:0}</style></head><body>'
         . '<div class="box"><h1>' . $title . '</h1><p>' . $safe . '</p></div>'
-        . '<script>try{if(window.opener){window.opener.postMessage({type:"l8-ai-oauth",ok:' . ($ok ? 'true' : 'false') . '},"*");}setTimeout(function(){window.close();},1200);}catch(e){}</script>'
+        . '<script nonce="' . htmlspecialchars(securityCspNonce(), ENT_QUOTES, 'UTF-8') . '">try{if(window.opener){window.opener.postMessage({type:"l8-ai-oauth",ok:' . ($ok ? 'true' : 'false') . '},"*");}setTimeout(function(){window.close();},1200);}catch(e){}</script>'
         . '</body></html>';
     return true;
 }

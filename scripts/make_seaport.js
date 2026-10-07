@@ -433,8 +433,8 @@ console.log('Written components/data-seaport.js successfully! Length:', code.len
 
 ['index.html', '404.html'].forEach(f => {
     let text = fs.readFileSync(f, 'utf8');
-    const target = '<script src="components/warp-terminal.js?v=2026.1"></script>';
-    const replacement = '<script src="components/data-seaport.js?v=2026.1"></script>\n    <script src="components/warp-terminal.js?v=2026.1"></script>';
+    const target = '<script src="components/warp-terminal.js?v=20261007-security1"></script>';
+    const replacement = '<script src="components/data-seaport.js?v=2026.1"></script>\n    <script src="components/warp-terminal.js?v=20261007-security1"></script>';
     if (text.includes(target) && !text.includes('data-seaport.js')) {
         text = text.replace(target, replacement);
         fs.writeFileSync(f, text, 'utf8');

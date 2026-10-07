@@ -21,6 +21,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     gosu \
+    bubblewrap \
+    util-linux \
     && groupadd -g 10001 l8group \
     && useradd -u 10001 -g l8group -m -d /home/l8user -s /bin/bash l8user \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \

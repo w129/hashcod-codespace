@@ -24,6 +24,7 @@ window.__nonceParserStillValid = true;
 </script>
 <script src="/components/example.js"></script>
 <script nonce="KEEP_ME">window.__existingNonce = true;</script>
+<style>.sample { color: black; } /* <script is plain CSS text */</style>
 </head>
 <body></body>
 </html>
@@ -32,8 +33,8 @@ HTML;
 $output = l8_apply_csp_nonce($input);
 
 cspCheck(
-    substr_count($output, 'nonce="TEST_CSP_NONCE_123"') === 2,
-    'nonce must be added only to the two real script elements without an existing nonce'
+    substr_count($output, 'nonce="TEST_CSP_NONCE_123"') === 3,
+    'nonce must be added to two real scripts and one real stylesheet'
 );
 cspCheck(
     str_contains($output, 'const snippet = "<script data-demo=\'x\'>";'),
@@ -52,4 +53,6 @@ cspCheck(
     'existing nonce must not be duplicated'
 );
 
-echo "PASS: CSP nonce injection touches only real HTML script opening tags.\n";
+cspCheck(str_contains($output, '<style nonce="TEST_CSP_NONCE_123">'), 'inline styles receive a nonce');
+cspCheck(str_contains($output, '/* <script is plain CSS text */'), 'script-like text inside CSS is untouched');
+echo "PASS: CSP nonce injection touches only real HTML script/style opening tags.\n";

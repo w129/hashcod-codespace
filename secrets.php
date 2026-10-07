@@ -4,11 +4,11 @@
  *
  * Orden de resolución (nunca hardcodear Supabase/API keys en el código):
  *   1) Variables de entorno / putenv
- *   2) Secret Files de Render: /etc/secrets/<KEY>
+ *   2) Archivos de secretos compatibles: /etc/secrets/<KEY>
  *   3) Bóveda local cifrada: data_storage/security/vault.enc
  *
  * La clave maestra de la bóveda: L8_VAULT_MASTER_KEY (env o /etc/secrets).
- * Si falta, se genera una vez en data_storage/security/.vault_master (chmod 0600).
+ * Solo en local se genera data_storage/security/.vault_master (chmod 0600).
  */
 
 if (!function_exists('envValue')) {
@@ -58,6 +58,10 @@ function secretsVaultMasterKey() {
             }
         }
         return $key;
+    }
+
+    if (trim((string)getenv('RAILWAY_ENVIRONMENT_ID')) !== '') {
+        throw new RuntimeException('Stable production vault key is required');
     }
 
     $file = secretsVaultDir() . '/.vault_master';

@@ -281,6 +281,7 @@ function privacy_h(string $value): string {
             .dpa-table tr { break-inside: avoid; }
         }
     </style>
+<script defer src="./components/csp-event-bindings.js?v=20261007-security1"></script><script defer src="./components/csp-native-handlers.js?v=20261007-security1"></script>
 </head>
 <body>
 <main class="privacy-container">
@@ -426,7 +427,7 @@ function privacy_h(string $value): string {
 
     <footer class="document-actions">
         <a href="./">← Volver a Hashcod Codespace</a>
-        <button type="button" onclick="window.print()">Imprimir documento</button>
+        <button type="button" data-hc-click="hb4d7c3c1bb1af97fa198">Imprimir documento</button>
         <a class="primary" href="./#platform-registration">Continuar al registro</a>
     </footer>
 </main>

@@ -41,6 +41,14 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
   let browser;
   try {
     for (let i=0; i<80; i++) { try { if ((await fetch(base+'/api/code-access')).ok) break; } catch {} await new Promise(r=>setTimeout(r,100)); }
+    for (const family of ['bash','catalyst','storage','django','ubuntu','claude','zylon','macos','chromeos','streamlit','agent-browser','libreoffice','ssh','cli','originkit']) {
+      for (const suffix of ['', '/exec']) {
+        const response=await fetch(base+'/api/'+family+suffix,{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:'{}'});
+        assert.equal(response.status,403,'unauthenticated host route must fail: '+family+suffix);
+      }
+    }
+    for (const target of ['/api/repo/clone','/api/clone']) assert.equal((await fetch(base+target,{method:'POST',body:'{}'})).status,403);
+    assert.equal((await fetch(base+'/api/command',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:'{"command":"bash pwd"}'})).status,403,'AJAX headers are not an account session');
     const state = await (await fetch(base+'/api/code-access')).json();
     assert.equal(state.authorized, false); assert.equal(state.bound, false); assert.equal(state.protocol, 'HASHCOD-NUMERIC-SERIES/1');
     const legacy = await fetch(base+'/api/code-access', { method:'POST', headers:{'Content-Type':'application/json','X-Hashcod-Mesh':'1'}, body:JSON.stringify({fields:{TYPE:'anything'}}) });

@@ -3859,7 +3859,7 @@ return qrcode;
 
             const modalHtml = `
 <div class="warp-modal-overlay" id="vectorVisionModal" aria-hidden="true" role="dialog" aria-modal="true" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px; box-sizing:border-box;">
-    <div style="background:#FFFFFF; border:1.5px solid #000000; border-radius:8px; width:100%; max-width:1152px; max-height:94vh; display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.25); color:#000000; font-family:'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing:border-box; padding:24px; gap:20px;" onclick="event.stopPropagation()">
+    <div style="background:#FFFFFF; border:1.5px solid #000000; border-radius:8px; width:100%; max-width:1152px; max-height:94vh; display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.25); color:#000000; font-family:'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing:border-box; padding:24px; gap:20px;" data-hc-click="h8d0e1582b4b1a39f8c42">
         
         <!-- Header Section -->
         <div style="box-sizing:border-box; display:flex; flex-direction:row; justify-content:space-between; align-items:flex-start; padding:0 0 16px; width:100%; border-bottom:2px solid #FFD600;">
@@ -3887,14 +3887,14 @@ return qrcode;
                     Analizador de vectores de imagen, extractor de CoffeeScript numérico y generador de QR / JAB Code avanzado
                 </div>
             </div>
-            <button type="button" onclick="window.VectorVisionStudio.closeModal()" style="background:transparent; border:none; color:#000000; font-size:26px; font-weight:700; cursor:pointer; line-height:1; padding:2px 8px; border-radius:6px; transition:opacity 0.15s;" title="Cerrar">&times;</button>
+            <button type="button" data-hc-click="hdf316831898f84389901" style="background:transparent; border:none; color:#000000; font-size:26px; font-weight:700; cursor:pointer; line-height:1; padding:2px 8px; border-radius:6px; transition:opacity 0.15s;" title="Cerrar">&times;</button>
         </div>
 
         <!-- Top Section: Dropzone & Metadata -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:stretch;">
             <!-- Left: Dropzone -->
-            <div id="vvDropzone" style="border:1.5px dashed #000000; border-radius:8px; background:#FFFFFF; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; cursor:pointer; transition:all 0.2s ease; box-sizing:border-box;" onclick="document.getElementById('vvFileInput').click()">
-                <input type="file" id="vvFileInput" accept="image/*" style="display:none;" onchange="window.VectorVisionStudio.handleFileSelect(event)" />
+            <div id="vvDropzone" style="border:1.5px dashed #000000; border-radius:8px; background:#FFFFFF; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; cursor:pointer; transition:all 0.2s ease; box-sizing:border-box;" data-hc-click="h68728f16c12a257f4234">
+                <input type="file" id="vvFileInput" accept="image/*" style="display:none;" data-hc-change="h6cd124f296c7828cda4d" />
                 <div style="margin-bottom:12px; display:flex; justify-content:center;">
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
@@ -3925,7 +3925,7 @@ return qrcode;
                     </div>
                 </div>
                 <div style="margin-top:16px;">
-                    <button type="button" id="vvDemoBtn" onclick="window.VectorVisionStudio.loadDemoSeaport()" style="background:#FFFFFF; border:1.5px solid #000000; border-radius:6px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:13px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Cargar Ilustración del Puerto de Datos (Demo)</button>
+                    <button type="button" id="vvDemoBtn" data-hc-click="h802c69de6c1449883692" style="background:#FFFFFF; border:1.5px solid #000000; border-radius:6px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:13px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Cargar Ilustración del Puerto de Datos (Demo)</button>
                 </div>
             </div>
         </div>
@@ -3940,7 +3940,7 @@ return qrcode;
                         <span style="font-size:14px;">☕</span>
                         <span style="font-family:'Geist', sans-serif; font-size:13px; font-weight:700; color:#000000;">CoffeeScript Numérico Puro (Sin Texto)</span>
                     </div>
-                    <button type="button" onclick="window.VectorVisionStudio.copyCoffeeScript()" style="display:flex; align-items:center; gap:6px; background:#FFFFFF; border:1.5px solid #000000; border-radius:6px; padding:5px 12px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">
+                    <button type="button" data-hc-click="h5e4a357b47ef377e699b" style="display:flex; align-items:center; gap:6px; background:#FFFFFF; border:1.5px solid #000000; border-radius:6px; padding:5px 12px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                         Copiar
                     </button>
@@ -3953,8 +3953,8 @@ return qrcode;
             <!-- Right: JAB / QR Matrix Canvas & Validation -->
             <div style="border:1.5px solid #000000; border-radius:8px; background:#FFFFFF; display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box;">
                 <div style="display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1.5px solid #000000; background:#FFFFFF;">
-                    <button type="button" id="vvTabJab" onclick="window.VectorVisionStudio.switchMatrixMode('jab')" style="background:#FFFFFF; border:1px solid #000000; border-radius:6px; padding:6px 14px; font-family:'Geist', sans-serif; font-size:12px; font-weight:600; color:#000000; cursor:pointer; transition:all 0.15s ease;">JAB Code (8 Colores)</button>
-                    <button type="button" id="vvTabQr" onclick="window.VectorVisionStudio.switchMatrixMode('qr')" style="background:#FFD600; border:1px solid #000000; border-radius:6px; padding:6px 14px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease; display:flex; align-items:center; gap:6px;"><span style="font-size:8px;">●</span> QR Estándar (Móvil)</button>
+                    <button type="button" id="vvTabJab" data-hc-click="he24ad37918087864b577" style="background:#FFFFFF; border:1px solid #000000; border-radius:6px; padding:6px 14px; font-family:'Geist', sans-serif; font-size:12px; font-weight:600; color:#000000; cursor:pointer; transition:all 0.15s ease;">JAB Code (8 Colores)</button>
+                    <button type="button" id="vvTabQr" data-hc-click="h8f61820b28618da24f84" style="background:#FFD600; border:1px solid #000000; border-radius:6px; padding:6px 14px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease; display:flex; align-items:center; gap:6px;"><span style="font-size:8px;">●</span> QR Estándar (Móvil)</button>
                 </div>
                 <div style="padding:20px; background:#FFFFFF; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;">
                     <span id="vvValidationBadge" style="display:inline-flex; align-items:center; gap:6px; background:#FFD600; border:1px solid #000000; border-radius:4px; padding:4px 12px; font-family:'Geist', sans-serif; font-size:11px; font-weight:700; color:#000000; letter-spacing:0.02em; text-transform:uppercase;">
@@ -3973,11 +3973,11 @@ return qrcode;
                 <div id="vvStatusDetail" style="font-family:'Geist', sans-serif; font-size:11.5px; color:#444444; line-height:1.4;">Ilustración Marítima verificada: 422 puntos y valores del patrón CoffeeScript validados en matriz JAB Code polícroma.</div>
             </div>
             <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <input type="file" id="vvScanFileInput" accept="image/*" style="display:none;" onchange="window.VectorVisionStudio.handleScanFileInput(event)" />
-                <button type="button" onclick="document.getElementById('vvScanFileInput').click()" style="background:#FFD600; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;" title="Escanear foto o archivo de matriz JAB / QR">Escanear Foto Matriz</button>
-                <button type="button" onclick="window.VectorVisionStudio.verifyPattern()" style="background:#FFD600; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Verificar &amp; Validar</button>
-                <button type="button" onclick="window.VectorVisionStudio.downloadSvg()" style="background:#000000; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#FFFFFF; cursor:pointer; transition:all 0.15s ease;">Exportar SVG</button>
-                <button type="button" onclick="window.VectorVisionStudio.downloadPng()" style="background:#FFFFFF; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Exportar PNG</button>
+                <input type="file" id="vvScanFileInput" accept="image/*" style="display:none;" data-hc-change="h70b728216ff59fd9bf9f" />
+                <button type="button" data-hc-click="hdedfbddf46b27ab6afaf" style="background:#FFD600; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;" title="Escanear foto o archivo de matriz JAB / QR">Escanear Foto Matriz</button>
+                <button type="button" data-hc-click="h0acc25a1be73b50b0957" style="background:#FFD600; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Verificar &amp; Validar</button>
+                <button type="button" data-hc-click="hca8437dbeaf7a3fd2273" style="background:#000000; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#FFFFFF; cursor:pointer; transition:all 0.15s ease;">Exportar SVG</button>
+                <button type="button" data-hc-click="h47391abdabe1e2a299ac" style="background:#FFFFFF; border:1.5px solid #000000; border-radius:4px; padding:8px 16px; font-family:'Geist', sans-serif; font-size:12px; font-weight:700; color:#000000; cursor:pointer; transition:all 0.15s ease;">Exportar PNG</button>
             </div>
         </div>
 
@@ -5274,5 +5274,22 @@ return qrcode;
         module.exports.VectorVisionMatrixEngine = VectorVisionMatrixEngine;
         module.exports.VectorVisionScannerEngine = VectorVisionScannerEngine;
     }
+
+// CSP-safe listeners; argument values are JSON data, never JavaScript source.
+(window.HashcodCspEvents?.register || (map => (window.__hashcodCspEventQueue ||= []).push(map)))({
+"h8d0e1582b4b1a39f8c42": function(event,args){event.stopPropagation()},
+"hdf316831898f84389901": function(event,args){window.VectorVisionStudio.closeModal()},
+"h68728f16c12a257f4234": function(event,args){document.getElementById('vvFileInput').click()},
+"h6cd124f296c7828cda4d": function(event,args){window.VectorVisionStudio.handleFileSelect(event)},
+"h802c69de6c1449883692": function(event,args){window.VectorVisionStudio.loadDemoSeaport()},
+"h5e4a357b47ef377e699b": function(event,args){window.VectorVisionStudio.copyCoffeeScript()},
+"he24ad37918087864b577": function(event,args){window.VectorVisionStudio.switchMatrixMode('jab')},
+"h8f61820b28618da24f84": function(event,args){window.VectorVisionStudio.switchMatrixMode('qr')},
+"h70b728216ff59fd9bf9f": function(event,args){window.VectorVisionStudio.handleScanFileInput(event)},
+"hdedfbddf46b27ab6afaf": function(event,args){document.getElementById('vvScanFileInput').click()},
+"h0acc25a1be73b50b0957": function(event,args){window.VectorVisionStudio.verifyPattern()},
+"hca8437dbeaf7a3fd2273": function(event,args){window.VectorVisionStudio.downloadSvg()},
+"h47391abdabe1e2a299ac": function(event,args){window.VectorVisionStudio.downloadPng()}
+});
 })();
 

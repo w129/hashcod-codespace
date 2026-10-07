@@ -86,6 +86,7 @@
     let style = byId(STYLE_ID);
     if (style) return style;
     style = document.createElement('style');
+  style.nonce = document.querySelector('script[nonce]')?.nonce || '';
     style.id = STYLE_ID;
     style.textContent = CRITICAL_CSS;
     (document.head || document.documentElement).appendChild(style);

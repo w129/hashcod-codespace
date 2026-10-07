@@ -29,6 +29,7 @@ const { chromium } = require('playwright');
    await page.getByRole('button',{name:'Enviar solicitud',exact:true}).click();await page.locator('.htk-notice').waitFor();
    await page.getByRole('button',{name:'Área de solicitudes ↗'}).click();await page.locator('#htk-admin-key').fill('fixture-key');await page.getByRole('button',{name:'Ver solicitudes',exact:true}).click();await page.locator('.htk-records-table').waitFor();
    if(out)await page.screenshot({path:path.join(out,`tokenization-requests-${width}.png`)});
+   assert.equal(await page.locator('.htk-records-table td').first().evaluate(n=>getComputedStyle(n).fontSize),'13px');
    assert(await page.locator('.htk-records-table').textContent().then(s=>s.includes('fixture@example.test')));
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Page overflows horizontally');
    assert(await page.locator('.htk-scroll').evaluate(n=>n.scrollWidth<=n.clientWidth),'Records overflow horizontally');

@@ -7,7 +7,7 @@ async function scenario(origin) {
  const w=dom.window;w.scrollTo=()=>{};w.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});w.ResizeObserver=class{observe(){}unobserve(){}disconnect(){}};
  const now=Math.floor(Date.now()/1000);Object.assign(w.document.body.dataset,{hashcodPeriodDays:'10',hashcodPeriodExpiresAt:String(now+864000),hashcodPeriodNow:String(now)});
  const file={id:'fv_testfile123',name:'<img src=x onerror=alert(1)>.pdf',size:4,type:'application/pdf',totpProtected:true,priceUsdCents:1234};
- let loggedIn=false, failSave=true, saves=0, calls=[];
+ let loggedIn=false, failSave=true, saves=0, calls=[], status='pending', failUpdate=false;
  w.fetch=async(url,options={})=>{
   if(url==='/api/platform-period')return Response.json({ok:true,state:'active',days:10,expiresAt:now+864000,serverNow:now});
   if(url.includes('?action=list'))return Response.json({ok:true,files:[file]});
@@ -19,7 +19,8 @@ async function scenario(origin) {
   }
   if(body.action==='auth'){if(body.key!=='test-admin-key')return Response.json({ok:false,error:'Clave incorrecta.'},{status:403});loggedIn=true;return Response.json({ok:true,expiresAt:now+900});}
   if(body.action==='logout'){loggedIn=false;return Response.json({ok:true});}
-  if(body.action==='list'){assert(loggedIn,'Private list fetched without key');return Response.json({ok:true,hasMore:false,requests:[{...file,fileId:file.id,mime:file.type,phone:'+1 809 555 1234',email:'fixture@example.test',createdAt:new Date().toISOString(),fileAvailable:true}]});}
+  if(body.action==='list'){assert(loggedIn,'Private list fetched without key');return Response.json({ok:true,hasMore:false,requests:[{...file,id:'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',status,fileId:file.id,mime:file.type,phone:'+1 809 555 1234',email:'fixture@example.test',createdAt:new Date().toISOString(),fileAvailable:true}]});}
+  if(body.action==='update'){assert(loggedIn);assert.equal(body.expectedStatus,status);if(failUpdate)return Response.json({ok:false,error:'No se pudo guardar el estado.'},{status:503});status=body.status;return Response.json({ok:true,request:{id:body.id,status}});}
   throw Error('Unexpected route');
  };
  const set=async(id,value)=>{const input=w.document.getElementById(id);Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype,'value').set.call(input,value);input.dispatchEvent(new w.Event('input',{bubbles:true}));await wait();};
@@ -38,6 +39,11 @@ async function scenario(origin) {
   button('Área de solicitudes ↗').click();await until(()=>w.document.querySelector('#htk-admin-key'));await set('htk-admin-key','wrong');submit();await until(()=>w.document.querySelector('.htk-error'));
   assert.equal(calls.filter(c=>c.action==='list').length,0);await set('htk-admin-key','test-admin-key');submit();await until(()=>w.document.querySelector('.htk-records-table'));
   assert(w.document.querySelector('.htk-records-table').textContent.includes('fixture@example.test'));assert(!w.document.querySelector('#d5TokenizationTool img'));assert(!w.document.querySelector('#htk-admin-key'));
+  const change=async value=>{const input=w.document.querySelector('.htk-status-select');input.value=value;input.dispatchEvent(new w.Event('change',{bubbles:true}));await wait();await until(()=>!w.document.querySelector('.htk-status-select').disabled);};
+  assert.equal(w.document.querySelectorAll('.htk-status-select option').length,5);
+  for(const value of ['in_progress','delayed','awaiting_payment','completed']){await change(value);assert.equal(w.document.querySelector('.htk-status-select').value,value);}
+  button('Actualizar').click();await wait();await until(()=>!button('Actualizar').disabled);assert.equal(w.document.querySelector('.htk-status-select').value,'completed');
+  failUpdate=true;await change('pending');assert.equal(w.document.querySelector('.htk-status-select').value,'completed');assert(w.document.querySelector('.htk-error'));failUpdate=false;
   button('Cerrar sesión').click();await until(()=>w.document.querySelector('.htk-files-table'));assert(!w.document.querySelector('#d5TokenizationTool').textContent.includes('fixture@example.test'));
   w.document.querySelector('[aria-label="Cerrar tokenización"]').click();await until(()=>!w.document.querySelector('#d5TokenizationTool'));assert.equal(w.document.querySelector('main').inert,undefined);
   console.log(`Tokenization UI ${origin}: file selection, contacts, failures, duplicate guard, private key, logout, XSS and focus OK`);

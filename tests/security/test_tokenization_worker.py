@@ -60,6 +60,14 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(self.server.received['key'], 'test-private-key')
         self.assertNotIn('test-private-key', json.dumps(result))
 
+    def test_status_update_transport(self):
+        result = self.run_worker({'action': 'update', 'body': {'id': 'fixture-request', 'status': 'completed', 'expectedStatus': 'pending', 'adminTicket': 'test-ticket'}})
+        self.assertTrue(result['data']['ok'])
+        self.assertEqual(self.server.received['status'], 'completed')
+        self.server.status = 409
+        self.server.output = b'{"ok":false,"error":"Refresh the list."}'
+        self.assertEqual(self.run_worker({'action': 'update', 'body': {}})['status'], 409)
+
     def test_upstream_denial_and_invalid_response(self):
         self.server.status = 403
         self.server.output = b'{"ok":false,"error":"Clave incorrecta."}'

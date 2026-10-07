@@ -11,6 +11,7 @@ export function TokenizationIcon() {
 function SendIcon() {
   return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M 22 2 L 2 9.2714844 L 14.728516 22 L 22 2 z M 18.65625 5.34375 L 13.921875 18.365234 L 10.578125 15.021484 L 15.636719 8.3632812 L 8.9785156 13.421875 L 5.6347656 10.078125 L 18.65625 5.34375 z" /></svg>;
 }
+const REQUEST_STATES = { pending: 'Pendiente', in_progress: 'En curso', delayed: 'Retrasada', awaiting_payment: 'Falta de pago', completed: 'Completada' };
 function bytes(size) { return size < 1048576 ? `${(size / 1024).toFixed(1)} KB` : `${(size / 1048576).toFixed(1)} MB`; }
 
 export default function TokenizationTool({ files, loading, onRefresh, onClose }) {
@@ -39,7 +40,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
         headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(body) });
       const data = await response.json();
       if (!response.ok || !data.ok) {
-        if (body.action === 'list' && response.status === 403 && alive.current) { setRows([]); setView('auth'); }
+        if (['list', 'update'].includes(body.action) && response.status === 403 && alive.current) { setRows([]); setView('auth'); }
         throw new Error(data.error || 'No se pudo completar la operación.');
       }
       return data;
@@ -47,7 +48,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
   }
   async function run(work) {
     if (pending.current) return;
-    pending.current = true; setBusy(true); setError('');
+    pending.current = true; setBusy(true); setError(''); setNotice('');
     try { await work(); } catch (reason) { if (alive.current) setError(reason.name === 'AbortError' ? 'La conexión tardó demasiado. Intenta de nuevo.' : reason.message); }
     finally { pending.current = false; if (alive.current) setBusy(false); }
   }
@@ -56,6 +57,15 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
     if (!alive.current) return;
     setRows(data.requests); setMore(data.hasMore); setOffset(next); setView('requests');
   }
+  async function changeStatus(row, status) {
+    if (status === row.status) return;
+    await run(async () => {
+      const data = await request({ action: 'update', id: row.id, status, expectedStatus: row.status || 'pending' });
+      if (!alive.current) return;
+      setRows(current => current.map(item => item.id === data.request.id ? { ...item, ...data.request } : item));
+      setNotice(`Estado guardado: ${REQUEST_STATES[data.request.status]}.`);
+    });
+  }
   const visible = rows.filter(row => [row.name, row.email, row.phone].some(value => value.toLowerCase().includes(search.toLowerCase())));
   return createPortal(<div className="htk-backdrop" onMouseDown={event => { if (event.target === event.currentTarget && !busy) onClose(); }}>
     <motion.section ref={dialog} id="d5TokenizationTool" className={`htk-shell ${view === 'requests' ? 'htk-shell--wide' : ''}`} role="dialog" aria-modal="true" aria-labelledby="htk-title"
@@ -63,7 +73,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
       onKeyDown={event => {
         if (event.key === 'Escape') { event.preventDefault(); if (!busy) onClose(); }
         if (event.key !== 'Tab') return;
-        const nodes = Array.from(dialog.current.querySelectorAll('button,input')).filter(n => !n.disabled);
+        const nodes = Array.from(dialog.current.querySelectorAll('button,input,select')).filter(n => !n.disabled);
         if (event.shiftKey && document.activeElement === nodes[0]) { event.preventDefault(); nodes.at(-1)?.focus(); }
         else if (!event.shiftKey && document.activeElement === nodes.at(-1)) { event.preventDefault(); nodes[0]?.focus(); }
       }}>
@@ -71,7 +81,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
         <h2 id="htk-title">{view === 'requests' ? 'Solicitudes' : view === 'auth' ? 'Área privada de solicitudes' : view === 'contact' ? 'Enviar solicitud' : 'Solicitar tokenización'}</h2></div></div>
         <button className="htk-icon-button" type="button" aria-label="Cerrar tokenización" disabled={busy} onClick={onClose}>×</button></header>
       {error && <p className="htk-error" role="alert">{error}</p>}
-      {notice && view === 'files' && <p className="htk-notice" role="status">{notice}</p>}
+      {notice && ['files', 'requests'].includes(view) && <p className="htk-notice" role="status">{notice}</p>}
       {view === 'files' && <><div className="htk-card-bar"><span>Archivos disponibles</span><button type="button" className="htk-button" disabled={loading} onClick={onRefresh}>Actualizar</button></div>
         <div className="htk-scroll"><table className="htk-files-table"><thead><tr><th>Archivo</th><th>Estado</th><th><span className="htk-sr-only">Enviar</span></th></tr></thead>
           <tbody>{files.map(file => <tr key={file.id} data-htk-file-id={file.id} className={submitted.has(file.id) ? 'htk-sent-row' : ''}>
@@ -110,7 +120,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
         <button type="button" className="htk-button" disabled={busy} onClick={() => run(() => page(offset))}>Actualizar</button></div>
         <div className="htk-scroll htk-records-scroll"><table className="htk-records-table"><thead><tr>{['Archivo', 'Correo', 'Teléfono', 'Fecha', 'Estado'].map(label => <th key={label}>{label}</th>)}</tr></thead><tbody data-sound-silent>
           {visible.map((row, i) => <tr key={row.id} data-htk-request-id={row.id}><td data-label="Archivo"><span className="htk-record-name"><span className="htk-rownum">{offset + i + 1}</span><span className="htk-file-mark">{row.name.slice(0, 1).toUpperCase()}</span><span>{row.name}</span></span><small>{bytes(row.size)} · {row.mime}<FileValueBadge cents={row.priceUsdCents} />{!row.fileAvailable && ' · Archivo eliminado'}</small><small title={row.id}>ID: {row.id.slice(0, 8)}</small></td>
-            <td data-label="Correo">{row.email}</td><td data-label="Teléfono">{row.phone}</td><td data-label="Fecha">{new Date(row.createdAt).toLocaleString('es-DO')}</td><td data-label="Estado"><span className="htk-pill htk-pill--orange">Pendiente</span></td></tr>)}
+            <td data-label="Correo">{row.email}</td><td data-label="Teléfono">{row.phone}</td><td data-label="Fecha">{new Date(row.createdAt).toLocaleString('es-DO')}</td><td data-label="Estado"><select className={`htk-status-select htk-status-select--${row.status || 'pending'}`} aria-label={`Estado de solicitud ${row.id.slice(0, 8)}: ${row.name}`} disabled={busy} value={row.status || 'pending'} onChange={event => changeStatus(row, event.target.value)}>{Object.entries(REQUEST_STATES).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></td></tr>)}
         </tbody></table>{!visible.length && <p className="htk-empty">{rows.length ? 'No hay coincidencias en esta página.' : 'Todavía no hay solicitudes.'}</p>}</div>
         <footer className="htk-footer"><span className="htk-muted">{rows.length} registros · página {offset / 50 + 1}</span><span className="htk-footer-actions"><button className="htk-button" type="button" disabled={busy || !offset} onClick={() => run(() => page(offset - 50))}>Anterior</button><button className="htk-button" type="button" disabled={busy || !more} onClick={() => run(() => page(offset + 50))}>Siguiente</button>
           <button className="htk-button" type="button" disabled={busy} onClick={() => run(async () => { await request({ action: 'logout' }); setRows([]); clearTimeout(expiry.current); setView('files'); })}>Cerrar sesión</button></span></footer></>}

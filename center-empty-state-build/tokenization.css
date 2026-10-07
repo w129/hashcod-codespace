@@ -9,7 +9,7 @@
 .htk-mark svg { width: 22px; height: 22px; }
 .htk-eyebrow { color: var(--htk-muted); font-size: 11px; }
 .htk-shell h2 { margin: 2px 0 0; font-size: 16px; font-weight: 600; letter-spacing: -.025em; }
-.htk-shell button, .htk-shell input { font: inherit; }
+.htk-shell button, .htk-shell input, .htk-shell select { font: inherit; }
 .htk-icon-button { width: 32px; height: 32px; border: 0; border-radius: 7px; background: transparent; font-size: 24px !important; color: #737373; }
 .htk-card-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--htk-line); color: #616161; font-size: 12.5px; }
 .htk-scroll { min-height: 0; overflow-y: auto; overflow-x: hidden; }
@@ -44,7 +44,7 @@
 .htk-notice { margin: 0; padding: 12px 20px; color: #278b56; background: #edf8f1; overflow-wrap: anywhere; }
 .htk-search { min-width: 0; width: min(360px, 100%); border: 0; border-radius: 6px; background: #fafafa; padding: 8px; color: #303030; }
 .htk-records-table th, .htk-records-table td { padding: 10px 12px; border-right: 1px solid var(--htk-line); }
-.htk-records-table th:first-child { width: 28%; } .htk-records-table th:nth-child(2) { width: 24%; } .htk-records-table th:nth-child(3) { width: 18%; } .htk-records-table th:nth-child(4) { width: 18%; }
+.htk-records-table th:first-child { width: 25%; } .htk-records-table th:nth-child(2) { width: 22%; } .htk-records-table th:nth-child(3) { width: 17%; } .htk-records-table th:nth-child(4) { width: 17%; }
 .htk-records-table tr:hover { background: #fafafa; }
 .htk-record-name { display: flex; align-items: center; gap: 8px; font-weight: 500; }
 .htk-rownum { color: #a3a3a3; font: 10px ui-monospace, monospace; }
@@ -61,3 +61,12 @@
 @media (prefers-reduced-motion: reduce) { .htk-shell *, .htk-shell { animation: none !important; transition: none !important; } }
 
 .hashcod-expanding-button-group__icon svg.htk-tool-icon { fill: currentColor; stroke: none; }
+
+.htk-status-select { width: 100%; min-width: 0; min-height: 34px; padding: 5px 4px; border: 1px solid #e4e4e4; border-radius: 7px; background: #fafafa; color: #555; cursor: pointer; font-size: 11px !important; }
+.htk-status-select--in_progress { background: #eef4ff; border-color: #dbe7ff; color: #3565ad; }
+.htk-status-select--delayed { background: #fff7e9; border-color: #fae9c9; color: #996b20; }
+.htk-status-select--awaiting_payment { background: #fff2f0; border-color: #f8dcd7; color: #b42318; }
+.htk-status-select--completed { background: #eef8f1; border-color: #def0e4; color: #278b56; }
+.htk-status-select:focus-visible { outline: 2px solid #278b56; outline-offset: 2px; }
+.htk-status-select:disabled { opacity: .65; cursor: wait; }
+@media (max-width: 600px) { .htk-status-select { min-height: 44px; max-width: 210px; font-size: 13px !important; } }

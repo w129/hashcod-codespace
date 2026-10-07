@@ -1,5 +1,5 @@
 import { sql, json, fail, mac, equal, rate, code, fileId, ticket, openTicket } from './core.ts';
-import { contact, adminKey } from './tokenization-validation.ts';
+import { contact, adminKey, statusUpdate } from './tokenization-validation.ts';
 
 async function activePeriod(value: unknown) {
   if (typeof value !== 'string') fail(403, 'Primero confirma tu plazo en la plataforma.');
@@ -42,9 +42,17 @@ export async function tokenization(action: string, request: Request, body: any) 
     const expires = Date.now() + 15 * 60 * 1000;
     return json({ ok: true, expiresAt: Math.floor(expires / 1000), adminTicket: await ticket({ kind: 'tokenization-admin', period, revision: settings.revision, expires }) });
   }
-  if (action === 'list') {
+  if (action === 'list' || action === 'update') {
     const auth = await openTicket(body.adminTicket), settings = await config();
     if (auth.kind !== 'tokenization-admin' || auth.period !== period || auth.revision !== settings.revision) fail(403, 'Introduce la clave para ver las solicitudes.');
+    if (action === 'update') {
+      await rate('tokenization-update|' + period, 60);
+      const change = statusUpdate(body);
+      const rows = await sql`update hashcod_shared.tokenization_requests set status = ${change.status}, updated_at = now()
+        where id = ${change.id} and status = ${change.expectedStatus} returning id, status, updated_at`;
+      if (!rows[0]) fail(409, 'La solicitud cambió o ya no está disponible. Actualiza la lista e intenta de nuevo.');
+      return json({ ok: true, request: { id: rows[0].id, status: rows[0].status, updatedAt: rows[0].updated_at } });
+    }
     await rate('tokenization-list|' + period, 90);
     const offset = Number.isInteger(body.offset) && body.offset >= 0 && body.offset <= 100000 ? body.offset : 0;
     const rows = await sql`select r.id, r.file_id, r.file_name, r.mime, r.size, r.price_usd_cents, r.phone, r.email, r.status, r.created_at,

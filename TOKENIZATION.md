@@ -3,7 +3,7 @@
 The first toolbar action opens a file table using the supplied Beautiful UI
 DiffTable layout. Sending a request asks for phone, email and the original file
 code. The private RecordsTable-style queue requires its administrator key.
-Requests stay **pending**; this feature submits files for review and does not
+Requests start **pending**; this feature submits files for review and does not
 mint blockchain tokens or send email/SMS.
 
 ## Boundaries and persistence
@@ -21,6 +21,10 @@ mint blockchain tokens or send email/SMS.
 - Contacts live only in `hashcod_shared.tokenization_requests`, with RLS enabled
   and no public/anonymous/authenticated grants. The public files/state index
   never returns these records. Only authenticated administrator list actions do.
+  Administrators may set Pending, In progress, Delayed, Awaiting payment or
+  Completed. The dropdown saves immediately through the same signed session;
+  updates compare the previously read status and reject stale changes with 409.
+  Completion is a queue status, not blockchain minting or proof of payment.
 - Administrator sessions last 15 minutes, use signed HttpOnly/SameSite=Strict,
   host-bound cookies, and are also checked in the Edge function. Browser-supplied
   period tokens or administrative tickets are ignored by PHP. Rotating the
@@ -35,7 +39,7 @@ mint blockchain tokens or send email/SMS.
 
 ## Deployment and Windows
 
-Apply `supabase/migrations/*_tokenization_requests.sql`, then deploy the existing
+Apply the tokenization requests and tokenization request statuses migrations, then deploy the existing
 `hashcod-shared-cloud` Edge function with the new tokenization modules. Preserve
 its existing custom-auth/`verify_jwt=false` configuration. Privately provision row
 `id=1` in `hashcod_shared.tokenization_config` with a SHA-256 administrator-key

@@ -8,6 +8,7 @@ const root=path.resolve(__dirname,'../..'),phpBin=process.env.PHP_BIN||'php';
   const action=new URL(req.url,'http://localhost').searchParams.get('action');assert.equal(body.token,'server-period-token');
   if(action==='tokenization.auth'){assert.equal(body.key,'test-admin-key');res.end(JSON.stringify({ok:true,adminTicket,expiresAt:Math.floor(Date.now()/1000)+900}));}
   else if(action==='tokenization.list'){assert.equal(body.adminTicket,adminTicket);res.end('{"ok":true,"requests":[],"hasMore":false}');}
+  else if(action==='tokenization.update'){assert.equal(body.adminTicket,adminTicket);assert.equal(body.id,'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');assert.equal(body.status,'completed');assert.equal(body.expectedStatus,'pending');assert(!('phone' in body));res.end(JSON.stringify({ok:true,request:{id:body.id,status:body.status}}));}
   else if(action==='tokenization.submit'){assert.equal(body.code,'chosen-code');res.end('{"ok":true,"request":{"id":"fixture","status":"pending"}}');}
   else {res.statusCode=400;res.end('{"ok":false}');}
  });await new Promise(r=>upstream.listen(0,'127.0.0.1',r));
@@ -23,9 +24,11 @@ const root=path.resolve(__dirname,'../..'),phpBin=process.env.PHP_BIN||'php';
   const noPeriod=await post({action:'submit'},{Cookie:''});assert.equal(noPeriod.status,403);assert.equal(calls.length,0);
   for(const extra of [{Origin:'https://evil.test'},{'X-Requested-With':''},{'Sec-Fetch-Site':'cross-site'}])assert.equal((await post({action:'submit'},extra)).status,403);
   assert.equal((await post({action:'list',adminTicket:'spoofed'})).status,403);assert.equal(calls.length,0);
+  assert.equal((await post({action:'update',id:'fixture',status:'completed',adminTicket:'spoofed'})).status,403);assert.equal(calls.length,0);
   const submit=await post({action:'submit',token:'spoofed',id:'fv_testfile123',code:'chosen-code',phone:'+1 809 555 1234',email:'fixture@example.test'});assert.equal(submit.status,200);assert((await submit.json()).ok);
   const auth=await post({action:'auth',key:'test-admin-key'});assert.equal(auth.status,200);assert(!(await auth.text()).includes(adminTicket));const setCookie=auth.headers.get('set-cookie');assert.match(setCookie,/HttpOnly/);assert.match(setCookie,/SameSite=Strict/);cookie+='; '+setCookie.split(';')[0];
   assert.equal((await post({action:'list',adminTicket:'spoofed',token:'spoofed'})).status,200);
+  assert.equal((await post({action:'update',id:'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',status:'completed',expectedStatus:'pending',adminTicket:'spoofed',token:'spoofed',phone:'must-not-forward'})).status,200);
   assert.equal((await post({action:'logout'})).status,200);
   assert.equal((await fetch(base+'/hashcod-tokenization.php',{method:'POST',headers:{Origin:base,'X-Requested-With':'XMLHttpRequest','Content-Type':'application/json'},body:'{}'})).status,403);
   console.log('Tokenization facade: actual Requests process, period, CSRF, private cookie and browser identity/ticket spoof protection OK');

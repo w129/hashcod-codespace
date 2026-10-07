@@ -28,7 +28,7 @@ def edge_url():
 def call(payload):
     action = payload.get('action')
     body = payload.get('body')
-    if action not in ('submit', 'auth', 'list') or not isinstance(body, dict):
+    if action not in ('submit', 'auth', 'list', 'update') or not isinstance(body, dict):
         raise ValueError('Invalid action')
     with requests.Session() as session:
         # No ambient proxy/.netrc credentials; HTTPS verification stays enabled.

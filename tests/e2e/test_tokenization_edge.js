@@ -18,9 +18,13 @@ const core = {
     if (query.includes('access_periods')) return active ? [{ id: period }] : [];
     if (query.includes('tokenization_config')) return [{ admin_hash: crypto.createHash('sha256').update(key).digest('hex'), revision }];
     if (query.includes('from hashcod_shared.files')) return [{ id: 'fv_testfile123', name: '<script>alert(1)</script>.pdf', mime:'application/pdf',size:4,price_usd_cents:1000,code_hash:await mac('code|fv_testfile123|chosen-code') }];
+    if (query.startsWith('update')) {
+      if (!saved || saved.id !== values[1] || saved.status !== values[2]) return [];
+      saved = { ...saved, status: values[0], updated_at: new Date().toISOString() }; return [saved];
+    }
     if (query.startsWith('insert')) {
       if (saved) return [];
-      inserts++; saved = {id:'test-request',file_id:values[1],file_name:values[2],mime:values[3],size:values[4],price_usd_cents:values[5],phone:values[6],email:values[7],status:'pending',created_at:'2026-10-07T00:00:00Z',file_available:true}; return [saved];
+      inserts++; saved = {id:'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',file_id:values[1],file_name:values[2],mime:values[3],size:values[4],price_usd_cents:values[5],phone:values[6],email:values[7],status:'pending',created_at:'2026-10-07T00:00:00Z',file_available:true}; return [saved];
     }
     return saved ? [saved] : [];
   }
@@ -47,8 +51,21 @@ function load(name) {
  await assert.rejects(tokenization('auth',request,{token,key:'a'.repeat(8193)}),e=>e.status===403);
  const auth=await(await tokenization('auth',request,{token,key})).json();
  const list=await(await tokenization('list',request,{token,adminTicket:auth.adminTicket})).json();assert.equal(list.requests[0].email,body.email);assert.equal(list.requests[0].phone,body.phone);assert.equal(list.requests[0].priceUsdCents,1000);
+ const change = {token, adminTicket:auth.adminTicket, id:saved.id, expectedStatus:'pending', status:'in_progress'};
+ await assert.rejects(tokenization('update',request,{...change,adminTicket:undefined}),e=>e.status===403);
+ for (const invalid of [{id:'not-a-uuid'},{status:'invented'},{expectedStatus:'invented'}]) await assert.rejects(tokenization('update',request,{...change,...invalid}),e=>e.status===400);
+ for (const status of ['in_progress','delayed','awaiting_payment','completed','pending']) {
+   const updated = await(await tokenization('update',request,{...change,expectedStatus:saved.status,status})).json();
+   assert.equal(updated.request.status,status);assert(updated.request.updatedAt);assert(!JSON.stringify(updated).includes(body.email));
+   const refreshed=await(await tokenization('list',request,{token,adminTicket:auth.adminTicket})).json();assert.equal(refreshed.requests[0].status,status);
+ }
+ await tokenization('update',request,change);
+ await assert.rejects(tokenization('update',request,{...change,status:'completed'}),e=>e.status===409);
+ await assert.rejects(tokenization('update',request,{...change,id:'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'}),e=>e.status===409);
  const expired=JSON.stringify({...JSON.parse(auth.adminTicket),expires:Date.now()-1});await assert.rejects(tokenization('list',request,{token,adminTicket:expired}),e=>e.status===403);
+ await assert.rejects(tokenization('update',request,{...change,adminTicket:expired}),e=>e.status===403);
  revision='rotated';await assert.rejects(tokenization('list',request,{token,adminTicket:auth.adminTicket}),e=>e.status===403);
+ await assert.rejects(tokenization('update',request,change),e=>e.status===403);
  active=false;await assert.rejects(tokenization('list',request,{token,adminTicket:auth.adminTicket}),e=>e.status===403);
  console.log('Tokenization Edge: period, code, contacts, canonical metadata, idempotency, private list, expiry and rotation OK');
 })().catch(e=>{console.error(e);process.exitCode=1});

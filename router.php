@@ -11,6 +11,16 @@ $bootstrapRequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
 $bootstrapRawPath = parse_url($bootstrapRequestUri, PHP_URL_PATH);
 $bootstrapRawPath = is_string($bootstrapRawPath) ? $bootstrapRawPath : '/';
 $bootstrapSyncPath = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $bootstrapRawPath);
+if ($bootstrapSyncPath === '/api/platform-period') {
+    // Use the existing non-interactive polling bucket; keep IP/threat controls.
+    $_SERVER['REQUEST_URI'] = '/api/admin-device/status';
+    require __DIR__ . '/platform-period-api.php';
+    exit;
+}
+if (preg_match('~^/(?:api/|hashcod-(?:workspace|file-vault))~', $bootstrapSyncPath)) {
+    require_once __DIR__ . '/platform-period-lib.php';
+    platformPeriodGuard();
+}
 // The policy is a public HTML page, including old .php bookmarks. Normalize
 // only these exact aliases before the generic PHP-file denial. The full web
 // security bootstrap still runs; private PHP files remain inaccessible.

@@ -32,6 +32,10 @@ async function scenario(origin, shared = false) {
   const cloud = { id: 'fv_cloud_preview_12345', name: 'report.pdf', type: 'application/pdf', size: 20, cloud: true, accessProtection: 'access-code', priceUsdCents: 1250 };
   let cloudRows = [cloud];
   w.fetch = async (url, options = {}) => {
+    if (url === '/api/platform-period') {
+      const days = options.body ? JSON.parse(options.body).days : null;
+      return new Response(JSON.stringify({ ok: true, state: days ? 'active' : 'choose', days, expiresAt: days ? Math.floor(Date.now()/1000) + days*86400 : null, serverNow: Math.floor(Date.now()/1000) }));
+    }
     requests.push({ url, options });
     assert(String(url).startsWith(expectedEndpoint + '?'), 'visible list and protected actions must use the same workspace');
     if (String(url).includes('action=list')) return new Response(JSON.stringify({ ok: true, files: cloudRows }));
@@ -63,24 +67,24 @@ async function scenario(origin, shared = false) {
     const card = w.document.querySelector('#d5RecommendationCard');
     assert(card, 'recommendation must be present below Files even before opening the vault');
     assert(w.document.querySelector('#d5FilesExplorer').compareDocumentPosition(card) & w.Node.DOCUMENT_POSITION_FOLLOWING);
-    assert.equal(card.dataset.selected, 'high');
-    assert(card.querySelector('.hrc-drawer').hasAttribute('inert'), 'collapsed alternatives must not receive keyboard focus');
+    await until(() => !card.querySelector('.hrc-button--secondary').disabled);
+    assert.equal(card.dataset.selected, '10');
+    assert.match(card.querySelector('.hrc-title').textContent, /¿Cuántos días vas a durar en la plataforma\?/);
+    assert.equal(card.querySelector('.hrc-entity-chip').textContent, 'plataforma');
+    assert(card.querySelector('.hrc-drawer').hasAttribute('inert'));
     card.querySelector('.hrc-button--secondary').click();
     await until(() => card.querySelector('.hrc-button--secondary').getAttribute('aria-expanded') === 'true');
-    assert(!card.querySelector('.hrc-drawer').hasAttribute('inert'));
-    card.querySelector('[data-option="review"]').click();
-    await until(() => card.dataset.selected === 'review');
-    assert.match(card.querySelector('.hrc-body').textContent, /Vanilla Madagascar/);
-    assert.equal(card.querySelector('[data-recommendation-accept]').textContent, 'Configure');
-    card.querySelector('[data-recommendation-accept]').click();
-    await until(() => card.dataset.accepted === 'true');
-    assert.match(card.querySelector('[role="status"]').textContent, /Accepted: Switch to Vanilla Madagascar/);
-    assert(card.querySelector('[data-recommendation-accept]').disabled);
-    card.querySelector('[data-option="none"]').click();
-    await until(() => card.dataset.selected === 'none' && card.dataset.accepted === 'false');
-    assert.equal(card.querySelector('[data-recommendation-accept]').textContent, 'Accept full restock');
+    for (const days of [20, 30, 60]) {
+      card.querySelector(`[data-option="${days}"]`).click();
+      await until(() => card.dataset.selected === String(days));
+      assert.match(card.querySelector('.hrc-body').textContent, new RegExp(days + ' days'));
+    }
     card.querySelector('.hrc-button--secondary').click();
     await until(() => card.querySelector('.hrc-drawer').hasAttribute('inert'));
+    card.querySelector('[data-recommendation-accept]').click();
+    await until(() => card.dataset.accepted === 'true');
+    assert.match(card.querySelector('[role="status"]').textContent, /Activo: 60 days/);
+    assert(card.querySelector('[data-recommendation-accept]').disabled);
     assert.equal(released.length, 0, 'recommendations must not unlock files');
     if (shared) {
       assert.equal(typeof refreshFromPoll, 'function', 'shared tree must poll other-device changes');
@@ -88,7 +92,7 @@ async function scenario(origin, shared = false) {
       cloudRows = [cloud, otherDeviceFile];
       refreshFromPoll();
       await until(() => w.document.querySelector(`[data-hfv-preview-id="${otherDeviceFile.id}"]`));
-      assert.equal(card.dataset.selected, 'none', 'file polling must preserve the selected recommendation');
+      assert.equal(card.dataset.selected, '60', 'file polling must preserve the selected recommendation');
       assert.match(w.document.querySelector(`[data-hfv-preview-id="${otherDeviceFile.id}"]`).textContent, /\$99.00 USD/);
       assert.equal(pdfData.length, 0, 'sync must not expose file contents without a code');
       cloudRows = [cloud];

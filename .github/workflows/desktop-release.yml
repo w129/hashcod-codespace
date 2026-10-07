@@ -216,6 +216,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Device vault protection regression failed.' }
           node tests/e2e/test_file_vault_device_flow.js
           if ($LASTEXITCODE -ne 0) { throw 'Device vault workflow regression failed.' }
+          node tests/e2e/test_platform_period.js
+          if ($LASTEXITCODE -ne 0) { throw 'Platform access period regression failed.' }
           node tests/e2e/test_file_vault_explorer.js
           if ($LASTEXITCODE -ne 0) { throw 'Protected Files explorer regression failed.' }
 

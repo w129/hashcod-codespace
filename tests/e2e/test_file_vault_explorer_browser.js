@@ -18,7 +18,8 @@ function samplePdf() {
 }
 
 async function main() {
-  const server = http.createServer((request, response) => {
+  let period = {ok:true,state:'choose',days:null,expiresAt:null,serverNow:Math.floor(Date.now()/1000)};
+  const server = http.createServer(async (request, response) => {
     const pathname = new URL(request.url, 'http://localhost').pathname;
     if (pathname === '/') {
       response.setHeader('Content-Type', 'text/html');
@@ -26,6 +27,14 @@ async function main() {
       response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; frame-src 'self'; connect-src 'self'");
       response.end('<html><head><link rel="stylesheet" href="/components/center-empty-state.bundle.css"><link rel="stylesheet" href="/components/file-vault-totp.css"><link rel="stylesheet" href="/components/first-screen-mobile.css"></head><body data-hashcod-entry-intro="1" style="margin:0;background:#f7f7f7"><div class="entry-empty-state-stage"><div class="entry-empty-state-mount" id="d5CenterEmptyStateMount"></div></div><script src="/components/file-vault-totp.bundle.js"></script><script src="/components/center-empty-state.bundle.js"></script></body></html>');
       return;
+    }
+    if (pathname === '/api/platform-period') {
+      if (request.method === 'POST') {
+        let raw=''; for await (const part of request) raw+=part;
+        const {days}=JSON.parse(raw);
+        period={ok:true,state:'active',days,expiresAt:Math.floor(Date.now()/1000)+days*86400,serverNow:Math.floor(Date.now()/1000)};
+      }
+      response.setHeader('Content-Type','application/json');response.end(JSON.stringify(period));return;
     }
     if (pathname === '/api/hashcod-file-vault') {
       response.writeHead(503, { 'Content-Type': 'application/json' }); response.end('{"ok":false,"error":"Cloud unavailable"}'); return;
@@ -97,15 +106,12 @@ async function main() {
       assert(closed.y >= tree.y + tree.height, 'recommendation must sit below Files');
       assert(closed.x >= 0 && closed.x + closed.width <= viewport.width + 1 && closed.width <= 380);
       await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
-      await card.locator('[data-option="review"]').click();
-      await card.getByRole('button', { name: 'Configure', exact: true }).click();
-      assert.equal(await card.getAttribute('data-accepted'), 'true');
-      await card.locator('[data-option="none"]').click();
-      assert.equal(await card.getAttribute('data-accepted'), 'false');
-      await card.getByRole('button', { name: 'Accept full restock', exact: true }).click();
-      await card.locator('[data-option="high"]').click();
-      await card.getByRole('button', { name: 'Accept', exact: true }).click();
-      await card.getByRole('button', { name: 'Accepted', exact: true }).waitFor();
+      for (const days of [20,30,60]) {
+        await card.locator(`[data-option="${days}"]`).click();
+        await page.waitForFunction(days=>document.querySelector('#d5RecommendationCard').dataset.selected===String(days),days);
+        assert.match(await card.locator('.hrc-body').textContent(),new RegExp(days+' days'));
+      }
+      assert.equal(await card.getAttribute('data-accepted'),'false');
       await card.evaluate(async node => {
         await Promise.all(node.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {})));
       });
@@ -119,11 +125,10 @@ async function main() {
       }
       await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
       assert.equal(await card.locator('.hrc-drawer').getAttribute('aria-hidden'), 'true');
-      // Reset to a different option before repeating the acceptance flow.
-      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
-      await card.locator('[data-option="none"]').click();
-      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
     }
+    await card.getByRole('button',{name:'Aceptar',exact:true}).click();
+    await page.waitForSelector('#d5RecommendationCard[data-selected="60"][data-accepted="true"]');
+    assert.equal(await card.getByRole('button',{name:'Activo',exact:true}).isDisabled(),true);
     await page.setViewportSize({ width: 1440, height: 900 });
     if (process.env.HFV_SCREENSHOT_DIR) {
       fs.mkdirSync(process.env.HFV_SCREENSHOT_DIR, { recursive: true });

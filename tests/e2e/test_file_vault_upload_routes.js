@@ -11,6 +11,8 @@ const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'hfv-routes-'));
 const php = process.env.PHP_BIN || 'php';
 try {
   fs.copyFileSync(path.join(root, 'router.php'), path.join(fixture, 'router.php'));
+  fs.copyFileSync(path.join(root, 'platform-period-lib.php'), path.join(fixture, 'platform-period-lib.php'));
+  fs.writeFileSync(path.join(fixture, 'mldsa-access.php'), '<?php');
   fs.writeFileSync(path.join(fixture, 'security.php'), `<?php
 function securityBootstrap($mode) { throw new RuntimeException('Generic bootstrap blocked upload'); }
 `);

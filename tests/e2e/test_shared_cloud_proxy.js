@@ -9,12 +9,24 @@ async function main() {
   const jsonFile = Buffer.from('{ "preserve": true, "unicode": "ñ" }\r\n');
   const textFile = Buffer.from('[this is plain text, not JSON]\n');
   let upstreamCalls = 0;
+  let period = { ok: true, token: '12345678-1234-1234-1234-123456789abc.' + 'a'.repeat(64), state: 'choose', days: null, expiresAt: null, serverNow: Math.floor(Date.now()/1000) };
   const upstream = http.createServer(async (req, res) => {
     upstreamCalls++;
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
     const body = JSON.parse(Buffer.concat(chunks).toString() || '{}');
-    if (new URL(req.url, 'http://localhost').searchParams.get('action') === 'files.download') {
+    const action = new URL(req.url, 'http://localhost').searchParams.get('action');
+    if (action.startsWith('period.')) {
+      if (action === 'period.accept') {
+        assert.equal(body.token, period.token, 'browser-supplied identity must be ignored');
+        if (period.state === 'expired' && body.code !== 'test-renewal-key') {
+          res.writeHead(403, { 'Content-Type': 'application/json' }); res.end('{"ok":false,"error":"Clave de renovación incorrecta."}'); return;
+        }
+        period = {...period, state:'active', days:body.days, expiresAt:Math.floor(Date.now()/1000)+body.days*86400};
+      }
+      res.setHeader('Content-Type','application/json');res.end(JSON.stringify(period));return;
+    }
+    if (action === 'files.download') {
       if (body.code !== 'chosen-code') {
         res.writeHead(401, { 'Content-Type': 'application/json' });
         res.end('{"ok":false,"error":"Incorrect code."}');
@@ -65,6 +77,30 @@ async function main() {
     assert.equal((await post({}, { ...headers, 'Sec-Fetch-Site': 'cross-site' })).status, 403);
     assert.equal((await post({}, { 'Content-Type': 'application/json' })).status, 403);
     assert.equal(upstreamCalls, callsBeforeRejection, 'cross-origin requests must never reach storage');
+    const periodUrl = base + '/api/platform-period';
+    const initial = await fetch(periodUrl);
+    assert.equal(initial.status,200);
+    assert(!(await initial.text()).includes(period.token), 'identity token leaked to browser JavaScript');
+    let cookie = initial.headers.get('set-cookie');
+    assert.match(cookie, /HttpOnly/i);assert.match(cookie, /SameSite=Strict/i);cookie=cookie.split(';')[0];
+    const periodPost = (body,extra={}) => fetch(periodUrl,{method:'POST',headers:{...headers,Cookie:cookie,...extra},body:JSON.stringify(body)});
+    assert.equal((await periodPost({days:11})).status,400);
+    assert.equal((await periodPost({days:20},{Origin:'https://other.example'})).status,403);
+    assert.equal((await periodPost({days:20,code:'x'.repeat(257)})).status,400);
+    const accepted = await periodPost({days:20,token:'forged-body-identity'});
+    assert.equal(accepted.status,200);assert.equal((await accepted.json()).days,20);
+    cookie=accepted.headers.get('set-cookie').split(';')[0];
+    period={...period,state:'expired',expiresAt:Math.floor(Date.now()/1000)-1};
+    const expired=await fetch(periodUrl,{headers:{Cookie:cookie}});assert.equal((await expired.json()).state,'expired');
+    cookie=expired.headers.get('set-cookie').split(';')[0];
+    const beforeBlocked=upstreamCalls;
+    for(const route of ['/api/hashcod-shared-files?action=list','/api/hashcod-shared-state','/api/hashcod-file-vault?action=list','/hashcod-file-vault-fast-upload.php']) {
+      const denied=await fetch(base+route,{headers:{Cookie:cookie}});assert.equal(denied.status,403);assert.equal((await denied.json()).code,'platform_period_expired');
+    }
+    assert.equal(upstreamCalls,beforeBlocked,'expired workspace actions reached upstream');
+    assert.equal((await periodPost({days:30,code:'incorrect'})).status,403);
+    const renewed=await periodPost({days:30,code:'test-renewal-key'});assert.equal(renewed.status,200);assert.equal((await renewed.json()).state,'active');
+    console.log('Period PHP facade: HttpOnly identity, bounds, CSRF, expired API guards and renewal OK');
     console.log('Shared PHP facade: exact JSON/text bytes, wrong-code errors and same-origin enforcement OK');
   } finally {
     php.kill();

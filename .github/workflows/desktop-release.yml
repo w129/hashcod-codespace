@@ -95,7 +95,7 @@ jobs:
         run: |
           python -m pip install -r tools/tokenization/requirements-build.txt
           if ($LASTEXITCODE -ne 0) { throw 'Requests backend dependencies failed.' }
-          python -m PyInstaller --noconfirm --clean --onefile --name hashcod-tokenization --distpath tools/tokenization --workpath "$env:RUNNER_TEMP/tokenization-build" --specpath "$env:RUNNER_TEMP" tools/tokenization/backend.py
+          python -m PyInstaller --noconfirm --clean --onefile --copy-metadata requests --copy-metadata urllib3 --copy-metadata certifi --copy-metadata idna --copy-metadata charset-normalizer --name hashcod-tokenization --distpath tools/tokenization --workpath "$env:RUNNER_TEMP/tokenization-build" --specpath "$env:RUNNER_TEMP" tools/tokenization/backend.py
           if ($LASTEXITCODE -ne 0) { throw 'Requests backend build failed.' }
           $env:HASHCOD_TOKENIZATION_EXE = Join-Path $env:GITHUB_WORKSPACE 'tools/tokenization/hashcod-tokenization.exe'
           python tests/security/test_tokenization_worker.py

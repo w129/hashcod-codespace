@@ -45,7 +45,8 @@ or hosting dashboard is required.
 
 The hosted image installs `tools/tokenization/requirements.txt` into `/opt/l8-py`.
 Windows packages the same worker as `tools/tokenization/hashcod-tokenization.exe`
-using pinned PyInstaller, including Requests and its CA bundle. The desktop
+using pinned PyInstaller, including Requests, its CA bundle and dependency
+license/NOTICE metadata. The desktop
 workflow tests the packaged executable, PHP facade, cookie security and React
 UI before refreshing `desktop-latest` from main. An explicitly configured
 `HASHCOD_TOKENIZATION_PYTHON` path can select another server Python interpreter;

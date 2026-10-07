@@ -11,6 +11,11 @@ on:
       - 404.html
       - l8-html.php
       - laragon-local-entry.php
+      - mldsa-access.php
+      - first-screen-branched-menu-build/**
+      - code-access-build/**
+      - center-empty-state-build/**
+      - file-vault-totp-build/**
       - components/**
       - rare-folder-build/**
       - registration-flip-build/**
@@ -25,6 +30,11 @@ on:
       - 404.html
       - l8-html.php
       - laragon-local-entry.php
+      - mldsa-access.php
+      - first-screen-branched-menu-build/**
+      - code-access-build/**
+      - center-empty-state-build/**
+      - file-vault-totp-build/**
       - components/**
       - rare-folder-build/**
       - registration-flip-build/**
@@ -65,9 +75,15 @@ jobs:
           sudo install -m 0755 /tmp/iris /usr/local/bin/iris
           iris --version
 
+      - name: Build the current entry interface
+        run: |
+          for entry_build in first-screen-branched-menu-build code-access-build center-empty-state-build file-vault-totp-build; do
+            (cd "$entry_build" && npm install --no-fund --no-audit --package-lock=false && npm run build)
+          done
+
       - name: Start local Hashcod UI
         run: |
-          php -S 127.0.0.1:8099 >/tmp/hashcod-iris-php.log 2>&1 &
+          L8_CODE_ACCESS_REQUIRED=0 php -S 127.0.0.1:8099 router.php >/tmp/hashcod-iris-php.log 2>&1 &
           echo $! > /tmp/hashcod-iris-php.pid
           ready=0
           for attempt in $(seq 1 45); do

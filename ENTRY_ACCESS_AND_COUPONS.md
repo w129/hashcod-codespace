@@ -9,6 +9,11 @@ server rendering and GET `/api/code-access` validate that proof. The client
 confirms the cookie with GET after POST; reloads reuse the valid proof.
 There is no separate GitHub Actions authentication path.
 
+Production keeps `L8_ACCESS_GATE_COOKIE_SECRET` in private environment
+configuration so binding and platform-period signatures survive redeployment.
+Existing proofs issued with a discarded temporary key require verification or
+renewal once; never replace a configured signing key during routine deployment.
+
 `L8_NUMERIC_SERIES_SHA256` optionally configures the private server-side verifier.
 It must contain a lowercase SHA-256 digest. Without it, the existing verifier
 is unchanged. Tests use an isolated runtime and a synthetic server configuration;

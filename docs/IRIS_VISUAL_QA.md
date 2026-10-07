@@ -9,7 +9,7 @@ The workflow captures four deterministic visual checkpoints from a local Hashcod
 - desktop entrance/platform view;
 - iPhone-sized view;
 - full-page view;
-- isolated `.top-bar` view, where platform tool icons are mounted.
+- isolated current entry menu (`#d5FirstBranchedMenuStage`), after its React mount.
 
 Each capture produces a PNG and JSON metadata. CI uploads the evidence as a GitHub Actions artifact so layout regressions can be inspected after UI changes.
 
@@ -32,7 +32,10 @@ Requirements:
 Start Hashcod:
 
 ```bash
-php -S 127.0.0.1:8099
+for entry_build in first-screen-branched-menu-build code-access-build center-empty-state-build file-vault-totp-build; do
+  (cd "$entry_build" && npm install --no-fund --no-audit --package-lock=false && npm run build)
+done
+L8_CODE_ACCESS_REQUIRED=0 php -S 127.0.0.1:8099 router.php
 ```
 
 Then run:

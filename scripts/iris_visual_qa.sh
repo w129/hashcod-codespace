@@ -39,8 +39,8 @@ capture iphone   --size iphone   --scale 1   --wait 900   -o "$OUT/iphone.png"
 # Full-page: exposes vertical overflow, detached overlays, and layout gaps.
 capture full   --full   --scale 1   --wait 900   -o "$OUT/full.png"
 
-# Top bar: deliberately watches the area where platform tool icons are mounted.
-capture topbar   --size desktop   --scale 1   --wait-for '.top-bar'   --selector '.top-bar'   --padding 12   --wait 350   -o "$OUT/topbar.png"
+# The current entry uses the branched menu; the retired .top-bar is absent.
+capture topbar   --size desktop   --scale 1   --wait-for '#d5FirstBranchedMenuMount[data-react-mounted="true"]'   --selector '#d5FirstBranchedMenuStage'   --padding 12   --wait 350   -o "$OUT/topbar.png"
 
 for image in "$OUT/desktop.png" "$OUT/iphone.png" "$OUT/full.png" "$OUT/topbar.png"; do
   test -s "$image" || { echo "error: missing visual QA artifact: $image" >&2; exit 1; }

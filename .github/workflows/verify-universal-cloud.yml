@@ -45,6 +45,7 @@ on:
       - tests/e2e/test_ui_interaction_sounds_browser.js
       - router.php
       - privacy.php
+      - data-processing-addendum.php
       - tests/e2e/test_privacy_routes.js
       - components/first-screen-mobile.css
       - tests/e2e/test_first_screen_mobile_browser.js
@@ -112,6 +113,7 @@ on:
       - tests/e2e/test_ui_interaction_sounds_browser.js
       - router.php
       - privacy.php
+      - data-processing-addendum.php
       - tests/e2e/test_privacy_routes.js
       - components/first-screen-mobile.css
       - tests/e2e/test_first_screen_mobile_browser.js
@@ -147,6 +149,8 @@ jobs:
         run: |
           php -l mldsa-access.php
           php -l l8-html.php
+          php -l privacy.php
+          php -l data-processing-addendum.php
           php -l hashcod-workspace-access.php
           php -l hashcod-workspace-state.php
           php -l hashcod-workspace-blob.php

@@ -159,7 +159,7 @@ jobs:
 
           $desktopPhp = Join-Path $phpDestination 'php.exe'
           $desktopIni = Join-Path $phpDestination 'php.ini'
-          foreach ($file in @('router.php', 'desktop-runtime.php', 'admin-device.php', 'cloudflare-turnstile.php', 'hashcod-sync.php', 'hashcod-tokenization.php', 'tokenization-lib.php')) {
+          foreach ($file in @('router.php', 'desktop-runtime.php', 'admin-device.php', 'cloudflare-turnstile.php', 'hashcod-sync.php', 'hashcod-tokenization.php', 'tokenization-lib.php', 'privacy.php', 'data-processing-addendum.php')) {
             & $desktopPhp -c $desktopIni -l (Join-Path $site $file)
             if ($LASTEXITCODE -ne 0) {
               throw "$file did not pass PHP syntax validation."
@@ -219,6 +219,13 @@ jobs:
 
       - name: Verify desktop runtime contract
         run: node tests/e2e/test_desktop_runtime_contract.js
+
+      - name: Verify Windows privacy document and data processing license
+        shell: pwsh
+        run: |
+          $env:PHP_BIN = Join-Path $env:GITHUB_WORKSPACE 'local-app/desktop/payload/php/php.exe'
+          node tests/e2e/test_privacy_routes.js
+          if ($LASTEXITCODE -ne 0) { throw 'Windows privacy document regression failed.' }
 
       - name: Verify File Vault TOTP setup in Windows runtime
         shell: pwsh

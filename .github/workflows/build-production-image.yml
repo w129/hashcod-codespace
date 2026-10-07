@@ -96,11 +96,11 @@ jobs:
             exit 1
           fi
 
-          # File Vault must reach its JSON controller before generic PHP denies.
+          # File Vault must reject use before mandatory period confirmation.
           # These checks require no provider credentials or uploaded user files.
           vault_status="$(curl --silent --show-error --max-time 15 -o /tmp/hashcod-vault.json -w '%{http_code}' http://127.0.0.1:18000/hashcod-file-vault-fast-upload.php)"
-          if [ "$vault_status" != "405" ]; then
-            echo "File Vault upload controller did not return its method guard: $vault_status"
+          if [ "$vault_status" != "403" ] || ! grep -q '"platform_period_required"' /tmp/hashcod-vault.json; then
+            echo "File Vault upload controller did not enforce mandatory selection: $vault_status"
             exit 1
           fi
           docker exec hashcod-production-smoke node tests/e2e/test_file_vault_upload_routes.js

@@ -27,7 +27,8 @@ if (!is_array($data)) hcsJson(['ok' => false, 'error' => 'No se pudo verificar e
 if (empty($data['ok'])) hcsJson(['ok' => false, 'error' => $data['error'] ?? 'No se pudo verificar el plazo.'], $response['status']);
 if (!in_array($data['state'] ?? '', ['choose', 'active', 'expired'], true) || !is_string($data['token'] ?? null) || !preg_match('/^[a-f0-9-]{36}\.[a-f0-9]{64}$/D', $data['token'])
     || !is_int($data['serverNow'] ?? null) || ($data['state'] !== 'choose' && (!in_array($data['days'] ?? null, [10, 20, 30, 60], true) || !is_int($data['expiresAt'] ?? null)))) hcsJson(['ok' => false, 'error' => 'No se pudo verificar el plazo.'], 503);
-mldsaCookie('hashcod_platform_period_v1', mldsaSeal([
+// A delayed 'choose' status must not overwrite an accepted cookie in another tab.
+if ($method === 'POST' || !$forward['token'] || $data['state'] !== 'choose') mldsaCookie('hashcod_platform_period_v1', mldsaSeal([
     'kind' => 'platform-period-v1', 'host' => mldsaHost(), 'token' => $data['token'],
     'state' => $data['state'], 'days' => $data['days'], 'expiresAt' => $data['expiresAt']
 ]), time() + 5 * 365 * 86400);

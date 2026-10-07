@@ -52,17 +52,38 @@ async function main() {
   php.on('error', error => { spawnError = error; });
   const base = `http://127.0.0.1:${port}`;
   const url = base + '/api/hashcod-shared-files?action=download';
+  let cookie = '';
   const headers = { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', Origin: base };
-  const post = (body, requestHeaders = headers) => fetch(url, { method: 'POST', headers: requestHeaders, body: JSON.stringify(body) });
+  const post = (body, requestHeaders = headers) => fetch(url, { method: 'POST', headers: { ...requestHeaders, Cookie: cookie }, body: JSON.stringify(body) });
   try {
     let ready = false;
     for (let attempt = 0; attempt < 50; attempt++) {
       if (spawnError) throw spawnError;
-      try { ready = (await fetch(base + '/api/hashcod-shared-files?action=list')).ok; } catch (_) {}
+      try { ready = (await fetch(base + '/api/hashcod-shared-files?action=list')).status === 403; } catch (_) {}
       if (ready) break;
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     assert(ready, 'PHP facade must start');
+    const untouched=upstreamCalls;
+    for(const route of ['/api/hashcod-shared-files?action=list','/api/hashcod-shared-state','/hashcod-sync.php','/hashcod-file-vault-fast-upload.php','/l8-codespace/api/hashcod-shared-files?action=list']) {
+      const denied=await fetch(base+route);assert.equal(denied.status,403);assert.equal((await denied.json()).code,'platform_period_required');
+    }
+    assert.equal(upstreamCalls,untouched,'Requests without confirmation reached storage');
+    const periodUrl = base + '/api/platform-period';
+    const initial = await fetch(periodUrl);
+    assert.equal(initial.status,200);
+    assert(!(await initial.text()).includes(period.token), 'identity token leaked to browser JavaScript');
+    cookie = initial.headers.get('set-cookie');
+    assert.match(cookie, /HttpOnly/i);assert.match(cookie, /SameSite=Strict/i);cookie=cookie.split(';')[0];
+    const periodPost = (body,extra={}) => fetch(periodUrl,{method:'POST',headers:{...headers,Cookie:cookie,...extra},body:JSON.stringify(body)});
+    assert.equal((await periodPost({days:11})).status,400);
+    assert.equal((await periodPost({days:20},{Origin:'https://other.example'})).status,403);
+    assert.equal((await periodPost({days:20,code:'x'.repeat(257)})).status,400);
+    const pending = await fetch(base+'/api/hashcod-shared-files?action=list',{headers:{Cookie:cookie}});
+    assert.equal(pending.status,403);assert.equal((await pending.json()).code,'platform_period_required');
+    const accepted = await periodPost({days:20,token:'forged-body-identity'});
+    assert.equal(accepted.status,200);assert.equal((await accepted.json()).days,20);
+    cookie=accepted.headers.get('set-cookie').split(';')[0];
     for (const [id, bytes] of [['json', jsonFile], ['text', textFile]]) {
       const response = await post({ id, code: 'chosen-code' });
       assert.equal(response.status, 200);
@@ -77,19 +98,6 @@ async function main() {
     assert.equal((await post({}, { ...headers, 'Sec-Fetch-Site': 'cross-site' })).status, 403);
     assert.equal((await post({}, { 'Content-Type': 'application/json' })).status, 403);
     assert.equal(upstreamCalls, callsBeforeRejection, 'cross-origin requests must never reach storage');
-    const periodUrl = base + '/api/platform-period';
-    const initial = await fetch(periodUrl);
-    assert.equal(initial.status,200);
-    assert(!(await initial.text()).includes(period.token), 'identity token leaked to browser JavaScript');
-    let cookie = initial.headers.get('set-cookie');
-    assert.match(cookie, /HttpOnly/i);assert.match(cookie, /SameSite=Strict/i);cookie=cookie.split(';')[0];
-    const periodPost = (body,extra={}) => fetch(periodUrl,{method:'POST',headers:{...headers,Cookie:cookie,...extra},body:JSON.stringify(body)});
-    assert.equal((await periodPost({days:11})).status,400);
-    assert.equal((await periodPost({days:20},{Origin:'https://other.example'})).status,403);
-    assert.equal((await periodPost({days:20,code:'x'.repeat(257)})).status,400);
-    const accepted = await periodPost({days:20,token:'forged-body-identity'});
-    assert.equal(accepted.status,200);assert.equal((await accepted.json()).days,20);
-    cookie=accepted.headers.get('set-cookie').split(';')[0];
     period={...period,state:'expired',expiresAt:Math.floor(Date.now()/1000)-1};
     const expired=await fetch(periodUrl,{headers:{Cookie:cookie}});assert.equal((await expired.json()).state,'expired');
     cookie=expired.headers.get('set-cookie').split(';')[0];

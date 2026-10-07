@@ -14,6 +14,8 @@ export default function PlatformPeriod() {
   const queue = useRef(Promise.resolve()), mounted = useRef(true), controller = useRef(null);
   const clock = useRef({ now: period.serverNow || 0, at: performance.now() }), input = useRef(null), dialog = useRef(null);
   const expired = period.state === 'expired';
+  const locked = period.state !== 'active';
+  const choosing = period.state === 'choose';
 
   // Serialize status/accept requests so an older response cannot replace the
   // newly renewed cookie or state when another tab becomes visible.
@@ -28,6 +30,7 @@ export default function PlatformPeriod() {
       if (mounted.current) {
         clock.current = { now: data.serverNow, at: performance.now() };
         setPeriod(data); setError('');
+        if (body && data.state === 'active') window.dispatchEvent(new CustomEvent('hashcod:platform-period-granted'));
       }
       return data;
     });
@@ -54,19 +57,19 @@ export default function PlatformPeriod() {
     return () => clearInterval(timer);
   }, [period.state, period.expiresAt]);
   useLayoutEffect(() => {
-    if (!expired) return;
+    if (!locked) { delete document.body.dataset.hashcodPeriodRequired; return; }
     document.body.classList.add('hpa-locked');
     const targets = Array.from(document.querySelectorAll('body > main, body > footer'));
     const previous = targets.map(n => n.inert);
     targets.forEach(n => { n.inert = true; });
     const oldFocus = document.activeElement;
-    input.current?.focus();
+    (input.current || dialog.current?.querySelector('select,button'))?.focus();
     return () => { document.body.classList.remove('hpa-locked'); targets.forEach((n, i) => { n.inert = previous[i]; }); oldFocus?.focus?.(); };
-  }, [expired]);
+  }, [locked, period.state]);
 
   async function renew(event) {
     event.preventDefault(); setBusy(true); setError('');
-    try { await request({ days, code }); setCode(''); }
+    try { await request(expired ? { days, code } : { days }); setCode(''); }
     catch (reason) { setError(reason.message); }
     finally { setBusy(false); }
   }
@@ -74,27 +77,31 @@ export default function PlatformPeriod() {
     <RecommendationCard onAccept={option => request({ days: option.days })} activeDays={period.state === 'active' ? period.days : null}
       locked={period.state !== 'choose'} labels={{ accepted: 'Activo' }} />
     {period.state === 'active' && <p className="hpa-period-status" role="status">Acceso hasta {new Date(period.expiresAt * 1000).toLocaleString('es-DO')}</p>}
-    {error && !expired && <p className="hpa-error" role="alert">{error} <button type="button" onClick={() => request().catch(reason => setError(reason.message))}>Reintentar</button></p>}
-    {expired && createPortal(<div id="hpaGatePortal" className="hpa-backdrop">
+    {error && !locked && <p className="hpa-error" role="alert">{error} <button type="button" onClick={() => request().catch(reason => setError(reason.message))}>Reintentar</button></p>}
+    {locked && createPortal(<div id="hpaGatePortal" className="hpa-backdrop">
       <section ref={dialog} className="hpa-dialog" role="dialog" aria-modal="true" aria-labelledby="hpa-title" aria-describedby="hpa-description"
         onKeyDown={event => {
+          if (event.key === 'Escape') { event.preventDefault(); return; }
           if (event.key !== 'Tab') return;
           const nodes = Array.from(dialog.current.querySelectorAll('input,select,button')).filter(n => !n.disabled);
           if (event.shiftKey && document.activeElement === nodes[0]) { event.preventDefault(); nodes.at(-1)?.focus(); }
           else if (!event.shiftKey && document.activeElement === nodes.at(-1)) { event.preventDefault(); nodes[0]?.focus(); }
         }}>
-        <div className="hpa-dialog-head"><span className="hpa-expired-pill">Plazo finalizado</span><h2 id="hpa-title">Vuelve a la plataforma</h2>
-          <p id="hpa-description">Tu tiempo de acceso ha terminado. Introduce la clave de renovación y elige tu nuevo plazo.</p></div>
-        <form onSubmit={renew}>
-          <label htmlFor="hpa-code">Clave de renovación</label>
-          <input ref={input} id="hpa-code" type="password" autoComplete="current-password" value={code} onChange={event => setCode(event.target.value)} maxLength={256} required disabled={busy} />
-          <label htmlFor="hpa-days">Nuevo plazo</label>
+        <div className="hpa-dialog-head"><span className="hpa-expired-pill">{expired ? 'Plazo finalizado' : 'Paso obligatorio'}</span>
+          <h2 id="hpa-title">{expired ? 'Vuelve a la plataforma' : <>¿Cuántos días vas a durar en la <span className="hpa-entity-chip">plataforma</span>?</>}</h2>
+          <p id="hpa-description">{expired ? 'Tu tiempo de acceso ha terminado. Introduce la clave de renovación y elige tu nuevo plazo.' : 'Selecciona y confirma tu plazo para poder usar la plataforma.'}</p></div>
+        {expired || choosing ? <form onSubmit={renew}>
+          {expired && <><label htmlFor="hpa-code">Clave de renovación</label>
+            <input ref={input} id="hpa-code" type="password" autoComplete="current-password" value={code} onChange={event => setCode(event.target.value)} maxLength={256} required disabled={busy} /></>}
+          <label htmlFor="hpa-days">{expired ? 'Nuevo plazo' : 'Tiempo de permanencia'}</label>
           <select id="hpa-days" value={days} onChange={event => setDays(Number(event.target.value))} disabled={busy}>
             {[10, 20, 30, 60].map(value => <option key={value} value={value}>{value} days</option>)}
           </select>
           {error && <p className="hpa-error" role="alert">{error}</p>}
-          <div className="hpa-dialog-footer"><span className="hpa-period-note">Acceso protegido</span><button type="submit" className="hrc-button hrc-button--accent" disabled={busy}>{busy ? 'Verificando…' : 'Renovar acceso'}</button></div>
-        </form>
+          <div className="hpa-dialog-footer"><span className="hpa-period-note">Acceso protegido</span><button type="submit" className="hrc-button hrc-button--accent" disabled={busy}>{busy ? 'Verificando…' : expired ? 'Renovar acceso' : 'Confirmar y entrar'}</button></div>
+        </form> : <div className="hpa-loading" role="status">
+          {error ? <><p className="hpa-error" role="alert">{error}</p><button className="hrc-button" type="button" onClick={() => request().catch(reason => setError(reason.message))}>Reintentar</button></> : 'Comprobando el acceso…'}
+        </div>}
       </section>
     </div>, document.body)}
   </>;

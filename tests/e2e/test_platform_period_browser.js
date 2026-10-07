@@ -32,9 +32,12 @@ async function run(){
       const page=await browser.newPage({viewport:{width,height:820},reducedMotion:'reduce'});
       await page.goto('http://127.0.0.1:'+server.address().port);
       const card=page.locator('#d5RecommendationCard');
-      await card.getByRole('button',{name:'Alternatives',exact:true}).click();
-      await card.locator('[data-option="20"]').click();
-      await card.getByRole('button',{name:'Aceptar',exact:true}).click();
+      await page.locator('#hpa-days').waitFor();
+      assert(await page.locator('main').evaluate(n=>n.inert),'Workspace must block before confirmation');
+      await page.keyboard.press('Escape');
+      assert.equal(await page.locator('#hpaGatePortal').count(),1,'Escape bypassed selection');
+      await page.locator('#hpa-days').selectOption('20');
+      await page.getByRole('button',{name:'Confirmar y entrar'}).click();
       await page.waitForSelector('#d5RecommendationCard[data-accepted="true"]');
       period={...period,state:'expired'};
       await page.waitForSelector('#hpaGatePortal');

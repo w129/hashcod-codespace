@@ -16,3 +16,8 @@
 .hpa-dialog-footer button { min-height: 44px; }
 body.hpa-locked > main, body.hpa-locked > footer { pointer-events: none; filter: blur(6px); }
 body.hpa-locked .code-access-root { visibility: hidden; }
+
+.hpa-entity-chip { display: inline-flex; padding: 1px 6px; border: 1px solid #e5e5e5; border-radius: 5px; background: #fafafa; }
+.hpa-loading { padding: 0 24px 24px; color: #737373; }
+body[data-hashcod-period-required="1"] > main, body[data-hashcod-period-required="1"] > footer { pointer-events: none; filter: blur(6px); }
+body[data-hashcod-period-required="1"] .code-access-root { visibility: hidden; }

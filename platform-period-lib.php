@@ -15,11 +15,19 @@ function platformPeriodExpired(): bool {
     return is_array($data) && (($data['state'] ?? '') === 'expired'
         || (!empty($data['expiresAt']) && (int)$data['expiresAt'] <= time()));
 }
+function platformPeriodActive(): bool {
+    $data = platformPeriodData();
+    return is_array($data) && ($data['state'] ?? '') === 'active'
+        && in_array($data['days'] ?? null, [10, 20, 30, 60], true)
+        && is_int($data['expiresAt'] ?? null) && $data['expiresAt'] > time()
+        && is_string($data['token'] ?? null) && $data['token'] !== '';
+}
 function platformPeriodGuard(): void {
-    if (!platformPeriodExpired()) return;
+    if (platformPeriodActive()) return;
+    $expired = platformPeriodExpired();
     http_response_code(403);
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
-    echo json_encode(['ok' => false, 'code' => 'platform_period_expired', 'error' => 'Tu plazo ha terminado. Introduce la clave para renovar.']);
+    echo json_encode(['ok' => false, 'code' => $expired ? 'platform_period_expired' : 'platform_period_required', 'error' => $expired ? 'Tu plazo ha terminado. Introduce la clave para renovar.' : 'Primero selecciona y confirma cuánto tiempo vas a durar en la plataforma.']);
     exit;
 }

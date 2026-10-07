@@ -25,7 +25,7 @@ async function main() {
       response.setHeader('Content-Type', 'text/html');
       // Same protection boundaries as production, including no document frames.
       response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; frame-src 'self'; connect-src 'self'");
-      response.end('<html><head><link rel="stylesheet" href="/components/center-empty-state.bundle.css"><link rel="stylesheet" href="/components/file-vault-totp.css"><link rel="stylesheet" href="/components/first-screen-mobile.css"></head><body data-hashcod-entry-intro="1" style="margin:0;background:#f7f7f7"><div class="entry-empty-state-stage"><div class="entry-empty-state-mount" id="d5CenterEmptyStateMount"></div></div><script src="/components/file-vault-totp.bundle.js"></script><script src="/components/center-empty-state.bundle.js"></script></body></html>');
+      response.end('<html><head><link rel="stylesheet" href="/components/center-empty-state.bundle.css"><link rel="stylesheet" href="/components/file-vault-totp.css"><link rel="stylesheet" href="/components/first-screen-mobile.css"></head><body data-hashcod-entry-intro="1" style="margin:0;background:#f7f7f7"><main><div class="entry-empty-state-stage"><div class="entry-empty-state-mount" id="d5CenterEmptyStateMount"></div></div></main><script src="/components/file-vault-totp.bundle.js"></script><script src="/components/center-empty-state.bundle.js"></script></body></html>');
       return;
     }
     if (pathname === '/api/platform-period') {
@@ -53,6 +53,11 @@ async function main() {
     page.on('pageerror', error => errors.push(error));
     const base = 'http://127.0.0.1:' + server.address().port;
     await page.goto(base);
+    await page.locator('#hpa-days').waitFor();
+    assert(await page.locator('main').evaluate(n=>n.inert));
+    for(const days of ['10','20','30','60']) await page.locator('#hpa-days').selectOption(days);
+    await page.getByRole('button',{name:'Confirmar y entrar'}).click();
+    await page.waitForSelector('#hpaGatePortal',{state:'detached'});
     await page.waitForFunction(() => window.HashcodFileVaultTotp);
     await page.evaluate(async pdf => {
       for (const [id, name, type, data] of [
@@ -106,12 +111,8 @@ async function main() {
       assert(closed.y >= tree.y + tree.height, 'recommendation must sit below Files');
       assert(closed.x >= 0 && closed.x + closed.width <= viewport.width + 1 && closed.width <= 380);
       await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
-      for (const days of [20,30,60]) {
-        await card.locator(`[data-option="${days}"]`).click();
-        await page.waitForFunction(days=>document.querySelector('#d5RecommendationCard').dataset.selected===String(days),days);
-        assert.match(await card.locator('.hrc-body').textContent(),new RegExp(days+' days'));
-      }
-      assert.equal(await card.getAttribute('data-accepted'),'false');
+      for (const days of [10,20,30]) assert.equal(await card.locator(`[data-option="${days}"]`).isDisabled(),true,'Active period cannot be changed');
+      assert.equal(await card.getAttribute('data-accepted'),'true');
       await card.evaluate(async node => {
         await Promise.all(node.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {})));
       });
@@ -126,7 +127,6 @@ async function main() {
       await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
       assert.equal(await card.locator('.hrc-drawer').getAttribute('aria-hidden'), 'true');
     }
-    await card.getByRole('button',{name:'Aceptar',exact:true}).click();
     await page.waitForSelector('#d5RecommendationCard[data-selected="60"][data-accepted="true"]');
     assert.equal(await card.getByRole('button',{name:'Activo',exact:true}).isDisabled(),true);
     await page.setViewportSize({ width: 1440, height: 900 });

@@ -123,6 +123,8 @@ function hcsTextResponse(array $response, string $key): void {
 }
 
 function hashcodSharedCloudHandle(): void {
+    require_once __DIR__ . '/platform-period-lib.php';
+    platformPeriodGuard();
     securityBootstrap('api');
     $route = (string)($_SERVER['HASHCOD_SHARED_ROUTE'] ?? '/api/hashcod-shared-files');
     $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
@@ -154,4 +156,4 @@ function hashcodSharedCloudHandle(): void {
     hcsForwardResponse($response, $action === 'files.download');
 }
 
-hashcodSharedCloudHandle();
+if (!defined('HCS_LIBRARY_ONLY')) hashcodSharedCloudHandle();

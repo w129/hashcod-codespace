@@ -1,6 +1,7 @@
 import { sql, json, fail, mac, rate } from './core.ts';
 import { files } from './files.ts';
 import { sharedState } from './state.ts';
+import { accessPeriod } from './period.ts';
 
 // The owner chose a public shared workspace. Account/admin/auth/private data
 // has no route here. File reads/deletions require the uploader's stored code.
@@ -16,6 +17,7 @@ Deno.serve(async (request: Request) => {
       const raw = await request.text(); if (new TextEncoder().encode(raw).length > 2097152) fail(413, 'Request too large.');
       try { body = JSON.parse(raw); } catch { fail(400, 'Invalid JSON.'); }
     }
+    if (['period.status', 'period.accept'].includes(action)) return await accessPeriod(action.slice(7), body);
     if (action === 'state') return await sharedState(request, body);
     if (action.startsWith('files.')) return await files(action.slice(6), request, body);
     fail(400, 'Unsupported action.');

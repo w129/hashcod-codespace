@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import './recommendation-card.css';
 
 // Local equivalents of Beautiful UI's atoms, scoped to this card.
@@ -13,32 +13,18 @@ function ValuePill({ tone, children }) {
 }
 
 export const DEFAULT_LABELS = {
-  title: 'Want me to place this restock order?',
+  title: <>¿Cuántos días vas a durar en la <EntityChip name="plataforma" />?</>,
   alternatives: 'Alternatives',
   otherOptions: 'Other options',
   accepted: 'Accepted',
 };
 
-export const DEFAULT_OPTIONS = [
-  {
-    key: 'high',
-    body: <>Reorder waffle cones from <EntityChip name="Cone King" /> with lead time <ValuePill tone="green">7 days</ValuePill></>,
-    short: 'Reorder from Cone King · 7-day lead', signal: 3, tone: 'var(--hrc-green)',
-    label: 'High confidence', cta: 'Accept', ctaVariant: 'accent',
-  },
-  {
-    key: 'review',
-    body: <>Switch vanilla to <ValuePill>Vanilla Madagascar</ValuePill> for peak season.</>,
-    short: 'Switch to Vanilla Madagascar', signal: 2, tone: 'var(--hrc-orange)',
-    label: 'Needs review', cta: 'Configure', ctaVariant: 'primary',
-  },
-  {
-    key: 'none',
-    body: <>Fall back to a <strong>full restock</strong> across every SKU.</>,
-    short: 'Full restock across every SKU', signal: 0, tone: 'var(--hrc-ink-3)',
-    label: 'No signal', cta: 'Accept full restock', ctaVariant: 'primary',
-  },
-];
+export const DEFAULT_OPTIONS = [10, 20, 30, 60].map(days => ({
+  key: String(days), days,
+  body: <>Tiempo de permanencia: <ValuePill tone="green">{days} days</ValuePill></>,
+  short: `${days} days`, signal: 3, tone: 'var(--hrc-green)',
+  label: 'Tiempo de acceso', cta: 'Aceptar', ctaVariant: 'accent',
+}));
 
 function Meter({ signal, tone }) {
   return <span className="hrc-meter" aria-hidden="true">
@@ -46,12 +32,14 @@ function Meter({ signal, tone }) {
   </span>;
 }
 
-// Selection and acceptance are UI state only. Future product behavior can use onAccept.
-export default function RecommendationCard({ options = DEFAULT_OPTIONS, labels, onAccept } = {}) {
+export default function RecommendationCard({ options = DEFAULT_OPTIONS, labels, onAccept, activeDays, locked = false } = {}) {
   const t = { ...DEFAULT_LABELS, ...labels };
   const [selectedKey, setSelectedKey] = useState(null);
   const [open, setOpen] = useState(false);
   const [acceptedKey, setAcceptedKey] = useState(null);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => { if (activeDays) { setSelectedKey(String(activeDays)); setAcceptedKey(String(activeDays)); setOpen(false); } }, [activeDays]);
   const id = useId();
   const active = options.find(option => option.key === selectedKey) ?? options[0];
   if (!active) return null;
@@ -67,7 +55,7 @@ export default function RecommendationCard({ options = DEFAULT_OPTIONS, labels, 
       <div className="hrc-drawer-clip">
         <div className="hrc-options">
           <p className="hrc-options-title">{t.otherOptions}</p>
-          {others.map(option => <button key={option.key} type="button" className="hrc-option" data-option={option.key}
+          {others.map(option => <button key={option.key} type="button" className="hrc-option" data-option={option.key} disabled={locked || pending}
             onClick={() => { setSelectedKey(option.key); setAcceptedKey(null); }}>
             <Meter signal={option.signal} tone={option.tone} />
             <span className="hrc-option-short">{option.short}</span>
@@ -79,12 +67,18 @@ export default function RecommendationCard({ options = DEFAULT_OPTIONS, labels, 
     <div className="hrc-footer">
       <span className="hrc-confidence"><Meter signal={active.signal} tone={active.tone} /><span>{active.label}</span></span>
       <span className="hrc-actions">
-        <Button variant="secondary" aria-expanded={open} aria-controls={`${id}-options`} disabled={!others.length}
+        <Button variant="secondary" aria-expanded={open} aria-controls={`${id}-options`} disabled={!others.length || locked || pending}
           onClick={() => setOpen(current => !current)}>{t.alternatives}</Button>
-        <Button variant={accepted ? 'success' : active.ctaVariant} data-recommendation-accept disabled={accepted}
-          onClick={() => { setAcceptedKey(active.key); onAccept?.(active); }}>{accepted ? t.accepted : active.cta}</Button>
+        <Button variant={accepted ? 'success' : active.ctaVariant} data-recommendation-accept disabled={accepted || locked || pending}
+          onClick={async () => {
+            setPending(true); setError('');
+            try { await onAccept?.(active); setAcceptedKey(active.key); setOpen(false); }
+            catch (reason) { setError(reason?.message || 'No se pudo guardar el plazo.'); }
+            finally { setPending(false); }
+          }}>{pending ? 'Guardando…' : accepted ? t.accepted : active.cta}</Button>
       </span>
     </div>
     <span className="hrc-sr-only" role="status">{accepted ? `${t.accepted}: ${active.short}` : ''}</span>
+    {error && <p className="hpa-error" role="alert">{error}</p>}
   </section>;
 }

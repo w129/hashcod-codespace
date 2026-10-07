@@ -13,6 +13,11 @@ on:
       - hashcod-file-vault-value.php
       - hashcod-file-vault-access-code.php
       - hashcod-shared-cloud.php
+      - platform-period-api.php
+      - platform-period-lib.php
+      - tests/security/test-platform-period.php
+      - tests/e2e/test_platform_period.js
+      - tests/e2e/test_platform_period_browser.js
       - supabase/functions/hashcod-shared-cloud/**
       - supabase/migrations/**
       - components/universal-cloud-persistence.js
@@ -70,6 +75,11 @@ on:
       - hashcod-file-vault-value.php
       - hashcod-file-vault-access-code.php
       - hashcod-shared-cloud.php
+      - platform-period-api.php
+      - platform-period-lib.php
+      - tests/security/test-platform-period.php
+      - tests/e2e/test_platform_period.js
+      - tests/e2e/test_platform_period_browser.js
       - supabase/functions/hashcod-shared-cloud/**
       - supabase/migrations/**
       - components/universal-cloud-persistence.js
@@ -135,6 +145,9 @@ jobs:
           php -l hashcod-file-vault.php
           php -l hashcod-file-vault-fast-upload.php
           php -l hashcod-shared-cloud.php
+          php -l platform-period-api.php
+          php -l platform-period-lib.php
+          php tests/security/test-platform-period.php
 
       - name: JavaScript syntax
         run: |
@@ -215,6 +228,7 @@ jobs:
           node tests/e2e/test_file_vault_local_protection.js
           node tests/e2e/test_file_vault_device_flow.js
           node tests/e2e/test_file_vault_explorer.js
+          node tests/e2e/test_platform_period.js
           node tests/e2e/test_file_vault_loading.js
           node tests/e2e/test_file_vault_direct_transfer.js
 
@@ -225,6 +239,7 @@ jobs:
           export NODE_PATH="$RUNNER_TEMP/hashcod-browser-tests/node_modules"
           export HFV_SCREENSHOT_DIR="$RUNNER_TEMP/hashcod-files-evidence"
           node tests/e2e/test_file_vault_explorer_browser.js
+          node tests/e2e/test_platform_period_browser.js
 
       - name: First-screen phone layout and protected file preview
         run: |

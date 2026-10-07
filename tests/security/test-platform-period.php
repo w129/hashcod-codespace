@@ -1,0 +1,29 @@
+<?php
+declare(strict_types=1);
+putenv('L8_ACCESS_GATE_COOKIE_SECRET=' . bin2hex(random_bytes(32)));
+$_SERVER['HTTP_HOST'] = '127.0.0.1:8000';
+require dirname(__DIR__, 2) . '/platform-period-lib.php';
+function periodCheck(bool $condition, string $message): void { if (!$condition) throw new RuntimeException($message); }
+function periodCookie(array $override = []): void {
+    $_COOKIE['hashcod_platform_period_v1'] = mldsaSeal(array_merge(['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'private-test-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000], $override));
+}
+periodCheck(!platformPeriodExpired(), 'Unselected period changed existing entry');
+periodCookie(); periodCheck(!platformPeriodExpired(), 'Valid period rejected');
+$html = mldsaGateHtml('/', true);
+periodCheck(str_contains($html, 'data-hashcod-period-days="10"'), 'Reload must restore days');
+periodCheck(!str_contains($html, 'private-test-token'), 'HttpOnly identity leaked into HTML');
+periodCookie(['expiresAt'=>time()-1]); periodCheck(platformPeriodExpired(), 'Expired period allowed');
+periodCheck(str_contains(mldsaGateHtml('/',true), 'data-hashcod-period-expired="1"'), 'Expired reload must restore modal');
+periodCookie(['host'=>'another-host']); periodCheck(platformPeriodExpired(), 'Cookie reused across hosts');
+periodCookie(); $_COOKIE['hashcod_platform_period_v1'] .= 'tampered'; periodCheck(platformPeriodExpired(), 'Tampered signature allowed');
+periodCookie(['state'=>'expired','expiresAt'=>null]); periodCheck(platformPeriodExpired(), 'Expired state lost');
+periodCookie(['expiresAt'=>time()-1]);
+foreach (['hashcod-file-vault.php','hashcod-file-vault-fast-upload.php','hashcod-workspace-state.php','hashcod-workspace-blob.php','hashcod-workspace-image-vault.php'] as $controller) {
+    $script = '$_SERVER["HTTP_HOST"]="127.0.0.1:8000";$_COOKIE["hashcod_platform_period_v1"]='.var_export($_COOKIE['hashcod_platform_period_v1'],true).';require '.var_export(dirname(__DIR__,2).'/'.$controller,true).';';
+    $process = proc_open([PHP_BINARY,'-r',$script],[1=>['pipe','w'],2=>['pipe','w']],$pipes);
+    periodCheck(is_resource($process), 'Guard process did not start');
+    $result = json_decode(stream_get_contents($pipes[1]),true);
+    $errors = stream_get_contents($pipes[2]); fclose($pipes[1]); fclose($pipes[2]);
+    periodCheck(proc_close($process) === 0 && ($result['code'] ?? '') === 'platform_period_expired', 'Direct API guard missing: '.$controller.' '.$errors);
+}
+echo "Platform period: server deadline, reload, signature, host binding and private identity OK\n";

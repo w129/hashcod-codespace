@@ -11,7 +11,8 @@ const pause = () => new Promise(resolve => setTimeout(resolve, 20));
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'hfv-access-'));
   let server;
   try {
-    for (const file of ['hashcod-file-vault-fast-upload.php', 'hashcod-file-vault-access-code.php', 'hashcod-file-vault-value.php']) fs.copyFileSync(path.join(root, file), path.join(fixture, file));
+    for (const file of ['platform-period-lib.php', 'hashcod-file-vault-fast-upload.php', 'hashcod-file-vault-access-code.php', 'hashcod-file-vault-value.php']) fs.copyFileSync(path.join(root, file), path.join(fixture, file));
+    fs.writeFileSync(path.join(fixture, 'mldsa-access.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'auth.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'hashcod-workspace-access.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'supabase.php'), `<?php

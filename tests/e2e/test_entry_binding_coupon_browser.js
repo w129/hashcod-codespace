@@ -58,8 +58,12 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
         const url=new URL(route.request().url());
         if(url.origin!==base)return route.abort();
         const real=['/api/code-access','/api/hashcod-coupon','/api/platform-period'];
+        // A missing binary image is 404. Returning JSON with 200 here makes
+        // media sync restore it as an image and reload the page mid-test.
+        if(url.pathname==='/hashcod-workspace-blob.php')
+          return route.fulfill({status:404,contentType:'application/json',body:'{"ok":false,"error":"not_found"}'});
         if((url.pathname.startsWith('/api/')&&!real.includes(url.pathname))||/^\/(?:hashcod-|toolbox-secure).*\.php$/.test(url.pathname))
-          return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,files:[],state:{},text:'',updatedAt:0})});
+          return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,files:[],images:[],entries:{},revision:0,state:{},text:'',updatedAt:0})});
         return route.continue();
       });
       await page.goto(base, {waitUntil:'domcontentloaded'});
@@ -82,6 +86,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
       await waitFor(page,()=>document.getElementById('d5CodeAccessMount')?.dataset.reactMounted==='true');
       await page.locator('#d5CodeAccessGate').waitFor({state:'detached'});
       assert.equal(await page.evaluate(()=>window.HashcodCodeAccess.bound),true,'persisted proof must resolve on reload');
+      const interactionDocument=await page.evaluate(()=>performance.timeOrigin);
       if(await page.locator('.branched-menu__head').first().getAttribute('aria-expanded')!=='true') await page.locator('.branched-menu__head').first().click();
       await page.getByRole('button',{name:'FAQ',exact:true}).click();
       await page.locator('#d5FaqCard').waitFor({state:'visible'});
@@ -130,6 +135,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
       }
       assert.equal(await page.locator('.entry-rotating-text-prefix').innerText(),'Crea con');
       assert.deepEqual(errors,[],'no uncaught browser errors');
+      assert.equal(await page.evaluate(()=>performance.timeOrigin),interactionDocument,'isolated background fixtures must not reload the UI during interaction');
       console.log(`${viewport.width}x${viewport.height}: real binding/reload, invalid credential, all FAQ tabs, signed coupon/reuse/tamper/copy, responsive headline OK`);
       await context.close();
     }

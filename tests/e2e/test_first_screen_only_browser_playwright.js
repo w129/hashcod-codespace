@@ -2,12 +2,34 @@
 
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
+const {execFileSync}=require('node:child_process');
+const path=require('node:path');
 
 const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
+
+// Poll through the isolated automation world without unsafe-eval under CSP.
+async function waitFor(page,predicate,arg,options){
+  if(arg&&typeof arg==='object'&&'timeout' in arg){options=arg;arg=undefined;}
+  const deadline=Date.now()+(options?.timeout||15000);
+  while(Date.now()<deadline){if(await page.evaluate(predicate,arg))return;await page.waitForTimeout(50);}
+  throw new Error('Timed out waiting for browser state: '+predicate.toString());
+}
+
 
 (async()=>{
   const browser=await chromium.launch({headless:true});
   const page=await browser.newPage({viewport:{width:1440,height:900}});
+  // Ordinary UI checks run after a legitimate local server-issued period.
+  // Dedicated period/security suites test selection, renewal and forged cookies.
+  const localUrl=new URL(target);
+  if(['127.0.0.1','localhost'].includes(localUrl.hostname)){
+    const expiry=Math.floor(Date.now()/1000)+86400;
+    const payload={kind:'platform-period-v1',host:localUrl.host,state:'active',days:10,expiresAt:expiry,token:'first-screen-test-period'};
+    const cookie=execFileSync(process.env.PHP_BIN||'php',['-r',"require 'mldsa-access.php'; echo mldsaSeal(json_decode($argv[1],true));",JSON.stringify(payload)],{cwd:path.resolve(__dirname,'../..'),encoding:'utf8'}).trim();
+    await page.context().addCookies([{name:'hashcod_platform_period_v1',value:cookie,url:localUrl.origin,httpOnly:true,sameSite:'Strict'}]);
+    await page.route('**/api/platform-period',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,state:'active',days:10,expiresAt:expiry,serverNow:Math.floor(Date.now()/1000)})}));
+    await page.route('**/api/hashcod-shared-*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,files:[],state:{},text:'',updatedAt:0})}));
+  }
   const componentErrors=[];
   page.on('pageerror',error=>componentErrors.push('pageerror: '+error.message));
   page.on('console',msg=>{
@@ -21,12 +43,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(response&&response.status()===200,'root must return 200');
 
     await page.waitForSelector('#d5FirstBranchedMenuStage',{state:'visible',timeout:10000});
-    await page.waitForFunction(()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
+    await waitFor(page,()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
-    await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyMount')?.dataset.reactMounted==='true',{timeout:5000});
+    await waitFor(page,()=>document.getElementById('d5PreviewPolicyMount')?.dataset.reactMounted==='true',{timeout:5000});
     await page.waitForSelector('#d5PreviewPolicyTrigger',{state:'attached',timeout:5000});
-    await page.waitForFunction(()=>document.getElementById('d5CodeAccessMount')?.dataset.reactMounted==='true',{timeout:15000});
-    await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
+    await waitFor(page,()=>document.getElementById('d5CodeAccessMount')?.dataset.reactMounted==='true',{timeout:15000});
+    await waitFor(page,()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('#d5CenterEmptyStateAction',{state:'visible',timeout:5000});
     await page.mouse.move(700,450);
     const cursorState=await page.evaluate(()=>({
@@ -269,7 +291,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     assert.equal(await page.locator('#d5PreviewPolicyContent').getAttribute('data-open'),'false','Preview Link Card must start closed');
     await page.locator('#d5PreviewPolicyTrigger').hover();
-    await page.waitForFunction(()=>{
+    await waitFor(page,()=>{
       const node=document.getElementById('d5PreviewPolicyContent');
       if(!node||node.getAttribute('data-open')!=='true') return false;
       const style=getComputedStyle(node);
@@ -294,11 +316,11 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert(privacyHtml.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'),'privacy route must render the repository contract');
     assert(privacyHtml.includes('Hashcod Codespace® / Documento contractual'),'privacy route must render the platform legal document header');
     await page.mouse.move(700,450);
-    await page.waitForFunction(()=>document.getElementById('d5PreviewPolicyContent')?.getAttribute('data-open')==='false');
+    await waitFor(page,()=>document.getElementById('d5PreviewPolicyContent')?.getAttribute('data-open')==='false');
 
     const chosenDate=state.calendar.expected.slice(0,8)+(state.calendar.expected.endsWith('18')?'17':'18');
     await page.locator(`[data-calendar-date="${chosenDate}"]`).click();
-    await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.includes('Fecha seleccionada'));
+    await waitFor(page,()=>document.getElementById('d5CalendarSummary')?.textContent?.includes('Fecha seleccionada'));
     assert.equal(await page.locator(`[data-calendar-date="${chosenDate}"]`).getAttribute('data-selected'),'true','chosen date must become selected');
     const selectedCalendarBackground=await page.locator(`[data-calendar-date="${chosenDate}"] .v-calendar__day-face`).evaluate(node=>getComputedStyle(node).backgroundColor);
     assert.equal(selectedCalendarBackground,'rgb(10, 10, 10)','selected calendar day face must use black rather than pink');
@@ -306,13 +328,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     const [calendarYear,calendarMonth]=state.calendar.expected.split('-').map(Number);
     const previousMonth=new Date(calendarYear,calendarMonth-2,1).toLocaleDateString('es-DO',{month:'long',year:'numeric'});
     await page.locator('#d5CalendarPreviousMonth').click();
-    await page.waitForFunction(label=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()===label,previousMonth);
+    await waitFor(page,label=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()===label,previousMonth);
     await page.locator('#d5CalendarToday').click();
-    await page.waitForFunction(label=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()===label,state.calendar.expectedMonth);
+    await waitFor(page,label=>document.getElementById('d5CalendarMonthLabel')?.textContent?.trim()===label,state.calendar.expectedMonth);
     assert.equal(await page.locator('.v-calendar__day[data-selected="true"]').getAttribute('data-calendar-date'),state.calendar.expected,'Today must restore the current date');
 
     await page.locator('#d5CalendarClear').click();
-    await page.waitForFunction(()=>document.getElementById('d5CalendarSummary')?.textContent?.trim()==='Selecciona una fecha.');
+    await waitFor(page,()=>document.getElementById('d5CalendarSummary')?.textContent?.trim()==='Selecciona una fecha.');
     assert.equal(await page.locator('.v-calendar__day[data-selected="true"]').count(),0,'Clear selection must remove the chosen day');
     assert.equal(state.svg.fill,'none','branch SVG must never render as filled polygons');
     assert.equal(state.svg.stroke,'rgb(10, 10, 10)','branch lines must be black');
@@ -416,7 +438,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(new URL(page.url()).hash,'#card','Card selection must navigate to #card');
     await page.waitForSelector('#d5CardModalShell',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5CardModalBackdrop',{state:'visible',timeout:5000});
-    await page.waitForFunction(()=>document.activeElement?.id==='d5CardClose',{timeout:5000});
+    await waitFor(page,()=>document.activeElement?.id==='d5CardClose',{timeout:5000});
 
     const cardModalState=await page.evaluate(()=>{
       const shell=document.getElementById('d5CardModalShell');
@@ -474,7 +496,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(originalDeckAfter,null,'source card deck must remain hidden while the Card modal is open');
 
     await page.locator('#d5CardModalDeck').click({position:{x:480,y:340}});
-    await page.waitForFunction(()=>document.getElementById('d5CardModalDeck')?.classList.contains('expanded'));
+    await waitFor(page,()=>document.getElementById('d5CardModalDeck')?.classList.contains('expanded'));
     assert.equal(await page.locator('#d5CardModalDeck').getAttribute('aria-expanded'),'true','modal card deck must keep expand/collapse functionality');
 
     await page.locator('#d5CardClose').click();
@@ -583,7 +605,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(new URL(page.url()).hash,'#text-card','Text Card selection must navigate to #text-card');
     await page.waitForSelector('#d5BeamCardDemo',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5TextCardBackdrop',{state:'visible',timeout:5000});
-    await page.waitForFunction(()=>document.activeElement===document.getElementById('d5TextCardClose'),{timeout:5000});
+    await waitFor(page,()=>document.activeElement===document.getElementById('d5TextCardClose'),{timeout:5000});
 
     const textCardState=await page.evaluate(()=>{
       const demo=document.getElementById('d5BeamCardDemo');
@@ -697,7 +719,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5ScratchCardDemo').isVisible(),false,'ScratchCard must hide again after Documents closes');
 
     await page.getByRole('button',{name:'Componentes'}).click();
-    await page.waitForFunction(()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Componentes')?.getAttribute('aria-expanded')==='true');
+    await waitFor(page,()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Componentes')?.getAttribute('aria-expanded')==='true');
     await page.getByRole('button',{name:'Capas'}).click();
     assert.equal(new URL(page.url()).hash,'#overlays','onSelect navigate(value) must update the selected destination');
 
@@ -706,10 +728,10 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     response=await page.goto(target+'?hashcod_enter=1',{waitUntil:'domcontentloaded',timeout:15000});
     assert(response&&response.status()===200,'legacy query must still return first screen');
-    await page.waitForFunction(()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
+    await waitFor(page,()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
     assert.equal(await page.locator('.branched-menu').count(),1,'legacy query must still show exactly one BranchedMenu');
     assert.equal(await page.locator('.entry-access-card').count(),0,'legacy query must not restore old window');
-    await page.waitForFunction(()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
+    await waitFor(page,()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
 
     const centerPosition=await page.evaluate(()=>{
       const stage=document.getElementById('d5CenterEmptyStateStage');
@@ -718,8 +740,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
       return {
         centerX:rect.left+(rect.width/2),
         viewportCenterX:window.innerWidth/2,
-        headingCount:stage.querySelectorAll('h3').length,
-        paragraphCount:stage.querySelectorAll('p').length,
+        headingCount:stage.querySelectorAll('.center-empty-state-root > h3').length,
+        paragraphCount:stage.querySelectorAll('.center-empty-state-root > p').length,
         launcherIconCount:stage.querySelectorAll('.center-empty-state-root > .center-empty-state-icon svg').length,
         iconViewBox:svg?.getAttribute('viewBox')||'',
         iconWidth:svg?getComputedStyle(svg).width:'',
@@ -758,14 +780,14 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     await page.locator('#d5CenterEmptyStateAction').click();
     await page.waitForSelector('#d5HatchCodeEditor',{state:'visible',timeout:5000});
     await page.waitForSelector('#d5HatchBackdrop',{state:'visible',timeout:5000});
-    await page.waitForFunction(()=>{
+    await waitFor(page,()=>{
       const editor=document.getElementById('d5HatchCodeEditor');
       if(!editor)return false;
       const rect=editor.getBoundingClientRect();
       return Math.abs((rect.left+rect.width/2)-(innerWidth/2))<=2
         && Math.abs((rect.top+rect.height/2)-(innerHeight/2))<=2;
     },{timeout:5000});
-    await page.waitForFunction(()=>{
+    await waitFor(page,()=>{
       const editor=document.getElementById('d5HatchCodeEditor');
       if(!editor)return false;
       return Math.abs(editor.getBoundingClientRect().width-editor.offsetWidth)<=0.5;
@@ -983,7 +1005,7 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
 
     await page.locator('#d5PythonRun').click();
     await page.waitForSelector('#d5PythonTerminal',{state:'visible',timeout:5000});
-    await page.waitForFunction(()=>document.getElementById('d5PythonTerminalOutput')?.textContent?.includes('Hello from Hashcod Hatch'));
+    await waitFor(page,()=>document.getElementById('d5PythonTerminalOutput')?.textContent?.includes('Hello from Hashcod Hatch'));
     assert.equal(await page.locator('#d5PythonRun').getAttribute('aria-pressed'),'true','Python run button must switch the pane to terminal mode');
     assert.equal(await page.locator('#d5PythonHatchCodeInput').count(),0,'Python textarea must be replaced by the terminal while running');
     const pythonTerminalText=await page.locator('#d5PythonTerminalOutput').textContent();

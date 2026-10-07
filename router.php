@@ -49,7 +49,9 @@ if (in_array($bootstrapSyncPath, ['/download-local-version', '/download-local-ve
 // threat blocks remain active, while write authorization stays inside each
 // controller (Windows Hello / Dilithium-5 / authenticated account as applicable).
 $bootstrapController = null;
-if (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], true)) {
+if (in_array($bootstrapSyncPath, ['/api/hashcod-tokenization', '/hashcod-tokenization.php'], true)) {
+    $bootstrapController = __DIR__ . '/hashcod-tokenization.php';
+} elseif (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], true)) {
     $bootstrapController = __DIR__ . '/hashcod-sync.php';
 } elseif (in_array($bootstrapSyncPath, ['/toolbox-secure.php', '/api/toolbox-secure'], true)) {
     $bootstrapController = __DIR__ . '/toolbox-secure.php';

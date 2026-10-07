@@ -8,6 +8,7 @@ import "./entry.css";
 import FilesExplorer from "./FilesExplorer";
 import FilePreview from "./FilePreview";
 import PlatformPeriod from "./PlatformPeriod";
+import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
 
 const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
 const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
@@ -1005,8 +1006,8 @@ const EXPANDING_BUTTON_ITEMS = Object.freeze([
   {
     id: "slot-1",
     domId: "d5ExpandingAction1",
-    label: "Tools",
-    icon: <ExpandingPlaceholderIcon kind="target" />,
+    label: "Tokenización",
+    icon: <TokenizationIcon />,
   },
   {
     id: "slot-2",
@@ -1463,7 +1464,7 @@ function fileVaultMerge(localRows, cloudRows) {
   );
 }
 
-function FileVault({ actions }) {
+function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
@@ -1835,12 +1836,14 @@ function FileVault({ actions }) {
       {notice && !open && <p className="hfv-explorer-notice" role="status">{notice}</p>}
       {preview && <FilePreview file={preview.file} blob={preview.blob} onClose={() => setPreview(null)} onDownload={downloadFile} onDelete={deleteFile} />}
       {modal}
+      {tokenizationOpen && <TokenizationTool files={files} loading={loadingFiles} onRefresh={refresh} onClose={onCloseTokenization} />}
     </>
   );
 }
 
 function CenterWorkspaceEmptyState() {
   const [hatchOpen, setHatchOpen] = useState(false);
+  const [tokenizationOpen, setTokenizationOpen] = useState(false);
 
   return (
     <>
@@ -1850,7 +1853,7 @@ function CenterWorkspaceEmptyState() {
         icon={<CcCardTitleIcon />}
         action={
           <div className="hashcod-workspace-files-content">
-            <FileVault actions={<>
+            <FileVault tokenizationOpen={tokenizationOpen} onCloseTokenization={() => setTokenizationOpen(false)} actions={<>
             <button
               id="d5CenterEmptyStateAction"
               className="hashcod-empty-state-action"
@@ -1866,6 +1869,7 @@ function CenterWorkspaceEmptyState() {
               items={EXPANDING_BUTTON_ITEMS}
               label="Additional Hatch actions"
               defaultExpanded="slot-1"
+              onAction={id => { if (id === "slot-1") setTokenizationOpen(true); }}
             />
 
             </>} />
@@ -1895,7 +1899,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261007-mandatory-period1",
+    version: "20261007-tokenization1",
   });
 
   return true;

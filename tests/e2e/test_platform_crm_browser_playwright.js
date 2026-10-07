@@ -175,7 +175,14 @@ const server = http.createServer((req, res) => {
     await page.click('#hashcodPlatformCrmButton');
     await page.waitForFunction(() => window.HashcodPlatformCRM.records().some(r => r.name === 'Demo Platform' && r.stage === 'contactado' && r.nextAction === 'Agendar demo'));
     assert.deepStrictEqual(await page.evaluate(() => window.cspViolations), [], 'CRM reload violates enforced CSP');
+    // Reloaded records exist before the trusted-click callback opens the host.
+    // Wait for the dialog, then for the browser to apply the mobile viewport.
+    await page.locator('#hashcodPlatformCrmModal').waitFor({state: 'visible'});
     await page.setViewportSize({width: 390, height: 844});
+    await page.waitForFunction(() => {
+      const box = document.getElementById('hashcodPlatformCrmModal').shadowRoot.querySelector('.window').getBoundingClientRect();
+      return box.width > 300 && box.width <= 390 && box.height > 0 && box.height <= 844;
+    }, null, {timeout: 5000});
     const mobile = await page.evaluate(() => {
       const host = document.getElementById('hashcodPlatformCrmModal');
       const box = host.shadowRoot.querySelector('.window').getBoundingClientRect();

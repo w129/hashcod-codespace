@@ -17,7 +17,9 @@ if ($bootstrapSyncPath === '/api/platform-period') {
     require __DIR__ . '/platform-period-api.php';
     exit;
 }
-if (preg_match('~^/(?:api/|hashcod-(?:workspace|file-vault))~', $bootstrapSyncPath)) {
+// Only entrance proofs and runtime security configuration may precede selection.
+$periodBootstrapRoute = in_array($bootstrapSyncPath, ['/api/code-access', '/api/mldsa-access', '/api/pqc-actions', '/api/admin-device/status', '/api/cloudflare/turnstile/config'], true);
+if (!$periodBootstrapRoute && preg_match('~^/(?:api/|hashcod-(?:workspace|file-vault|sync\.php)|toolbox-secure\.php)~', $bootstrapSyncPath)) {
     require_once __DIR__ . '/platform-period-lib.php';
     platformPeriodGuard();
 }

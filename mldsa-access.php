@@ -302,8 +302,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
     $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261006-privacy-navigation1',ENT_QUOTES,'UTF-8');
     $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261006-privacy-navigation1',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261007-platform-period1',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261007-platform-period1',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261007-mandatory-period1',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261007-mandatory-period1',ENT_QUOTES,'UTF-8');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
     $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261004-mesh-dialog1',ENT_QUOTES,'UTF-8');
     $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261004-mesh-dialog1',ENT_QUOTES,'UTF-8');
@@ -315,9 +315,9 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     if ($entryIntro) {
       $period = platformPeriodData();
       if (platformPeriodExpired()) $bodyAttr .= ' data-hashcod-period-expired="1"';
-      elseif (is_array($period) && ($period['state'] ?? '') === 'active') {
+      elseif (platformPeriodActive()) {
         $bodyAttr .= ' data-hashcod-period-days="'.(int)$period['days'].'" data-hashcod-period-expires-at="'.(int)$period['expiresAt'].'" data-hashcod-period-now="'.time().'"';
-      }
+      } else $bodyAttr .= ' data-hashcod-period-required="1"';
     }
     // Legacy regression marker only; this text is not rendered in the UI:
     // ENTRAR A HASHCOD CODESPACE

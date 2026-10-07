@@ -82,7 +82,7 @@ async function run() {
     const pathname = new URL(req.url, 'http://localhost').pathname;
     if (pathname === '/') { res.setHeader('Content-Type', 'text/html'); res.end(html); return; }
     if (pathname === '/privacy') { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.end(privacyHtml); return; }
-    if (pathname === '/api/platform-period') { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ok:true, state:'choose', serverNow:Math.floor(Date.now()/1000)})); return; }
+    if (pathname === '/api/platform-period') { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ok:true, state:'active', days:10, expiresAt:Math.floor(Date.now()/1000)+864000, serverNow:Math.floor(Date.now()/1000)})); return; }
     if (pathname.startsWith('/api/')) { res.writeHead(503, { 'Content-Type': 'application/json' }); res.end('{"ok":false,"error":"Cloud unavailable"}'); return; }
     const file = path.resolve(root, '.' + pathname);
     if ((!/^\/(components|mascots)\//.test(pathname) && pathname !== '/hashcod_icon_exact.svg') || !file.startsWith(root + path.sep) || !/\.(js|css|svg|png|webp)$/.test(file) || !fs.existsSync(file)) { res.writeHead(404); res.end(); return; }

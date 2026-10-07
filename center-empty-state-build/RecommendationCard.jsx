@@ -67,7 +67,7 @@ export default function RecommendationCard({ options = DEFAULT_OPTIONS, labels, 
     <div className="hrc-footer">
       <span className="hrc-confidence"><Meter signal={active.signal} tone={active.tone} /><span>{active.label}</span></span>
       <span className="hrc-actions">
-        <Button variant="secondary" aria-expanded={open} aria-controls={`${id}-options`} disabled={!others.length || locked || pending}
+        <Button variant="secondary" aria-expanded={open} aria-controls={`${id}-options`} disabled={!others.length || pending}
           onClick={() => setOpen(current => !current)}>{t.alternatives}</Button>
         <Button variant={accepted ? 'success' : active.ctaVariant} data-recommendation-accept disabled={accepted || locked || pending}
           onClick={async () => {

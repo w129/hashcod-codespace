@@ -1512,6 +1512,7 @@ function FileVault({ actions }) {
     window.addEventListener("hashcod:file-vault-saved", onSaved);
     window.addEventListener("focus", refresh);
     window.addEventListener("hashcod:cloud-state-restored", refresh);
+    window.addEventListener("hashcod:platform-period-granted", refresh);
     const onTransfer = (event) => {
       const { id, pending } = event.detail || {};
       if (!id) return;
@@ -1532,6 +1533,7 @@ function FileVault({ actions }) {
       window.removeEventListener("hashcod:file-vault-saved", onSaved);
       window.removeEventListener("focus", refresh);
       window.removeEventListener("hashcod:cloud-state-restored", refresh);
+      window.removeEventListener("hashcod:platform-period-granted", refresh);
       window.removeEventListener("hashcod:file-vault-transfer", onTransfer);
     };
   }, []);
@@ -1893,7 +1895,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261007-platform-period1",
+    version: "20261007-mandatory-period1",
   });
 
   return true;

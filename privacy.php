@@ -253,6 +253,7 @@ function privacy_h(string $value): string {
         .dpa-table th, .dpa-table td { padding: 12px; text-align: left; vertical-align: top; border: 1px solid var(--line); overflow-wrap: anywhere; }
         .dpa-table th { background: var(--soft); }
         .dpa-table th:first-child { width: 25%; }
+        .dpa-caption { caption-side: top; text-align: left; padding-bottom: 12px; color: var(--muted); font-size: 12px; }
         @media (max-width: 720px) {
             body { padding: 16px 10px 40px; }
             .document-head, .document-body { padding-left: 20px; padding-right: 20px; }
@@ -263,6 +264,13 @@ function privacy_h(string $value): string {
             .dpa-index ul { columns: 1; }
             .dpa-meta { grid-template-columns: 1fr; }
             .dpa-table th, .dpa-table td { padding: 8px; font-size: 12px; }
+            .dpa-table, .dpa-table tbody { display: block; }
+            .dpa-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+            .dpa-table tr { display: block; margin: 12px 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+            .dpa-table td { display: block; border: 0; border-bottom: 1px solid var(--line); padding: 12px; font-size: 14px; }
+            .dpa-table td:last-child { border-bottom: 0; }
+            .dpa-table td::before { content: attr(data-label); display: block; margin-bottom: 5px; color: var(--muted); font-size: 11px; font-weight: 600; }
+            .dpa-table caption { display: block; }
         }
         @media print {
             body { padding: 0; background: #fff; }
@@ -401,9 +409,9 @@ function privacy_h(string $value): string {
                     <?php endif; ?>
                     <?php if (!empty($section['table'])): ?>
                         <table class="dpa-table">
-                            <caption class="meta-label">Proveedores del servicio y funciones aplicables</caption>
+                            <caption class="dpa-caption">Proveedores del servicio y funciones aplicables</caption>
                             <thead><tr><?php foreach ($section['table']['headers'] as $heading): ?><th scope="col"><?= privacy_h($heading) ?></th><?php endforeach; ?></tr></thead>
-                            <tbody><?php foreach ($section['table']['rows'] as $row): ?><tr><?php foreach ($row as $cell): ?><td><?= privacy_h($cell) ?></td><?php endforeach; ?></tr><?php endforeach; ?></tbody>
+                            <tbody><?php foreach ($section['table']['rows'] as $row): ?><tr><?php foreach ($row as $cellIndex => $cell): ?><td data-label="<?= privacy_h($section['table']['headers'][$cellIndex]) ?>"><?= privacy_h($cell) ?></td><?php endforeach; ?></tr><?php endforeach; ?></tbody>
                         </table>
                     <?php endif; ?>
                 </section>

@@ -3,7 +3,6 @@
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/l8-html.php';
 require_once __DIR__ . '/pqc-actions-lib.php';
-require_once __DIR__ . '/entry-assets.php';
 
 // Public local-installer download. Route this before the generic security
 // bootstrap because direct *.php paths are deliberately denied elsewhere.
@@ -312,6 +311,7 @@ if (
  * y streaming eficiente con zero-copy / buffer limpio.
  */
 function l8_serve_static_asset(string $filePath, string $uri): void {
+    require_once __DIR__ . '/entry-assets.php';
     $mtime = (int)@filemtime($filePath);
     $size = (int)@filesize($filePath);
     $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));

@@ -155,7 +155,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           required:document.getElementById('d5CodeAccessMount')?.getAttribute('data-required')||'',
           authorized:document.getElementById('d5CodeAccessMount')?.getAttribute('data-authorized')||'',
           mounted:Boolean(window.HashcodCodeAccess?.mounted),
-          editor:window.HashcodCodeAccess?.editor||'',
+          mode:window.HashcodCodeAccess?.mode||'',
+          bound:Boolean(window.HashcodCodeAccess?.bound),
           gateCount:document.querySelectorAll('#d5CodeAccessGate').length
         },
         previewPolicy:{
@@ -216,7 +217,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.codeAccess.required,'0','CI first-screen flow must explicitly disable the production code gate');
     assert.equal(state.codeAccess.authorized,'1','disabled CI code gate must be treated as authorized');
     assert.equal(state.codeAccess.mounted,true,'Code access React island must mount');
-    assert.equal(state.codeAccess.editor,'Monaco','Code access must report Monaco as its editor');
+    assert.equal(state.codeAccess.mode,'open-entry','disabled gate must report open entry');
+    assert.equal(state.codeAccess.bound,false,'open entry must not claim a credential binding');
     assert.equal(state.codeAccess.gateCount,0,'disabled CI code gate must not cover ordinary first-screen tests');
     assert.equal(state.previewPolicy.exists,true,'Preview Link Card footer must exist at the end of the platform');
     assert.equal(state.previewPolicy.afterMain,true,'Preview Link Card footer must follow the main platform content');

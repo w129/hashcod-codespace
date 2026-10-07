@@ -11,6 +11,7 @@ require_once __DIR__ . '/quantum-entropy.php';
 require_once __DIR__ . '/atomic-time.php';
 require_once __DIR__ . '/supabase.php';
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/execution-security.php';
 require_once __DIR__ . '/vulnerability-auditor.php';
 require_once __DIR__ . '/secrets.php';
 loadEnvFile();
@@ -1405,79 +1406,7 @@ class SuperGlobalDatabase {
  * Ejecutor de sub-shell multiplataforma resiliente (Linux / Docker / Windows Git Bash / PowerShell)
  */
 function apiExecuteSubShell($cmd, $cwd, $homeDir = null) {
-    if (!is_dir($cwd)) @mkdir($cwd, 0777, true);
-    $homeReal = $homeDir ? (realpath($homeDir) ?: $homeDir) : $cwd;
-    
-    $descriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-    
-    $isWin = (stripos(PHP_OS, 'WIN') === 0);
-    $bashExe = null;
-    if ($isWin) {
-        $candidates = [
-            'D:\\laragon\\bin\\git\\bin\\bash.exe',
-            'C:\\Program Files\\Git\\bin\\bash.exe',
-            'C:\\Program Files (x86)\\Git\\bin\\bash.exe',
-            'C:\\laragon\\bin\\git\\bin\\bash.exe',
-            'D:\\Git\\bin\\bash.exe'
-        ];
-        foreach ($candidates as $c) {
-            if (is_file($c) && is_executable($c)) {
-                $bashExe = $c;
-                break;
-            }
-        }
-        if (!$bashExe) {
-            $where = @shell_exec('where bash 2>NUL');
-            if ($where) {
-                $lines = explode("\n", trim($where));
-                if (!empty($lines[0]) && is_file(trim($lines[0]))) {
-                    $bashExe = trim($lines[0]);
-                }
-            }
-        }
-    } else {
-        $bashExe = 'bash';
-    }
-
-    if ($bashExe) {
-        $envPrefix = 'export HOME=' . escapeshellarg($homeReal) . '; export TERM=xterm-256color; ';
-        $full = $envPrefix . 'cd ' . escapeshellarg($cwd) . ' && ' . $cmd;
-        $procCmd = escapeshellarg($bashExe) . ' -lc ' . escapeshellarg($full);
-    } else {
-        $procCmd = 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ' . escapeshellarg("cd " . escapeshellarg($cwd) . "; " . $cmd);
-    }
-
-    $env = array_merge($_ENV, [
-        'HOME' => $homeReal,
-        'TERM' => 'xterm-256color'
-    ]);
-
-    $proc = @proc_open($procCmd, $descriptors, $pipes, $cwd, $env);
-    if (!is_resource($proc)) {
-        return ['ok' => false, 'exit_code' => -1, 'stdout' => '', 'stderr' => 'No se pudo iniciar el proceso de shell'];
-    }
-    @fclose($pipes[0]);
-    stream_set_blocking($pipes[1], true);
-    stream_set_blocking($pipes[2], true);
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
-    @fclose($pipes[1]);
-    @fclose($pipes[2]);
-    $code = proc_close($proc);
-
-    if (strlen((string)$stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
-    if (strlen((string)$stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
-
-    return [
-        'ok' => ($code === 0),
-        'exit_code' => $code,
-        'stdout' => rtrim((string)$stdout),
-        'stderr' => rtrim((string)$stderr)
-    ];
+    return executionRunCommand((string)$cmd, $cwd);
 }
 
 /**
@@ -1771,24 +1700,8 @@ function claudeFindBinary() {
 }
 
 function claudeEnsureBinary() {
-    $bin = claudeFindBinary();
-    if ($bin !== '') {
-        return ['ok' => true, 'bin' => $bin, 'installed' => false];
-    }
-    // Instalar CLI nativo si falta (misma vía que docs Anthropic)
-    $install = 'curl -fsSL https://claude.ai/install.sh | bash 2>&1';
-    $out = [];
-    $code = 0;
-    @exec($install, $out, $code);
-    $bin = claudeFindBinary();
-    if ($bin === '') {
-        return [
-            'ok' => false,
-            'error' => 'Claude Code CLI no instalado. Instala con: curl -fsSL https://claude.ai/install.sh | bash',
-            'output' => trim(implode("\n", $out))
-        ];
-    }
-    return ['ok' => true, 'bin' => $bin, 'installed' => true, 'output' => trim(implode("\n", $out))];
+    adminRequire();
+    return executionUnavailable();
 }
 
 function claudeLoadCredentials() {
@@ -1924,110 +1837,10 @@ function claudeBootSession() {
 }
 
 function claudeRunPrompt($prompt) {
-    $prompt = trim((string)$prompt);
-    $creds = claudeLoadCredentials();
-    $dirs = claudeEnsureDirs();
-    $workspace = realpath($dirs['workspace']) ?: $dirs['workspace'];
-
-    if ($prompt === '') {
-        return ['ok' => false, 'error' => 'empty prompt', 'needs_auth' => false];
-    }
-    if ($prompt === 'help') {
-        $help = implode("\n", [
-            'Claude Code on l8 codespace',
-            'Resource: https://github.com/anthropics/claude-code-action',
-            '',
-            'Auth (required):',
-            '  1) Open OAuth login (claude.ai)',
-            '  2) Paste CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`',
-            '     or ANTHROPIC_API_KEY from console.anthropic.com',
-            '',
-            'Commands:',
-            '  help                 Show this help',
-            '  status               Auth / CLI / resource status',
-            '  about                Session paths',
-            '  logout               Clear saved OAuth/API credentials',
-            '  <any prompt>         Run Claude Code non-interactive (-p)',
-            '',
-            'Workspace: ' . $workspace,
-            'Action repo symlink: ~/workspace/claude-code-action'
-        ]);
-        return ['ok' => true, 'stdout' => $help, 'stderr' => ''];
-    }
-    if ($prompt === 'logout') {
-        claudeClearCredentials();
-        return ['ok' => true, 'stdout' => 'Logged out. OAuth required again.', 'stderr' => '', 'needs_auth' => true];
-    }
-    if ($prompt === 'status' || $prompt === 'about') {
-        $boot = claudeBootSession();
-        $lines = [
-            'authenticated: ' . (!empty($boot['authenticated']) ? 'yes (' . ($boot['auth_method'] ?: '?') . ')' : 'no'),
-            'cli: ' . ($boot['cli_bin'] ?: 'missing') . ' ' . ($boot['cli_version'] ?: ''),
-            'resource: ' . ($boot['resource'] ?? 'claude-code-action'),
-            'repo: ' . ($boot['repo_path'] ?? ''),
-            'workspace: ' . ($boot['workspace'] ?? ''),
-        ];
-        return ['ok' => true, 'stdout' => implode("\n", $lines), 'stderr' => ''];
-    }
-
-    if (empty($creds['authenticated'])) {
-        return [
-            'ok' => false,
-            'error' => 'OAuth required. Inicia sesión con Claude (CLAUDE_CODE_OAUTH_TOKEN) antes de ejecutar prompts.',
-            'needs_auth' => true
-        ];
-    }
-
-    $binInfo = claudeEnsureBinary();
-    if (empty($binInfo['ok'])) {
-        return ['ok' => false, 'error' => $binInfo['error'] ?? 'Claude CLI missing', 'needs_auth' => false];
-    }
-
-    if (!is_dir($workspace)) @mkdir($workspace, 0777, true);
-    $env = claudeBuildProcEnv($creds);
-    // Modo print (no interactivo), como pipelines de claude-code-action
-    $cmd = escapeshellarg($binInfo['bin'])
-        . ' -p --output-format text --'
-        . ' ' . escapeshellarg($prompt);
-
-    $descriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-    $proc = @proc_open(['bash', '-lc', $cmd], $descriptors, $pipes, $workspace, $env);
-    if (!is_resource($proc)) {
-        return ['ok' => false, 'error' => 'Unable to start Claude Code', 'needs_auth' => false];
-    }
-    fclose($pipes[0]);
-    stream_set_blocking($pipes[1], true);
-    stream_set_blocking($pipes[2], true);
-    $stdout = stream_get_contents($pipes[1]);
-    $stderr = stream_get_contents($pipes[2]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    $code = proc_close($proc);
-    if (strlen((string)$stdout) > 200000) $stdout = substr($stdout, 0, 200000) . "\n…(truncated)";
-    if (strlen((string)$stderr) > 80000) $stderr = substr($stderr, 0, 80000) . "\n…(truncated)";
-
-    $needsAuth = false;
-    $combined = strtolower((string)$stdout . "\n" . (string)$stderr);
-    if (strpos($combined, 'login') !== false && (strpos($combined, 'required') !== false || strpos($combined, 'expired') !== false)) {
-        $needsAuth = true;
-    }
-    if (strpos($combined, 'authentication') !== false && strpos($combined, 'fail') !== false) {
-        $needsAuth = true;
-    }
-
-    return [
-        'ok' => $code === 0,
-        'exit_code' => $code,
-        'stdout' => rtrim((string)$stdout),
-        'stderr' => rtrim((string)$stderr),
-        'needs_auth' => $needsAuth,
-        'auth_method' => $creds['auth_method']
-    ];
+    adminRequire();
+    return executionUnavailable();
 }
+
 
 /**
  * ===== Zylon / PrivateGPT externa (recursos zylon-ai/private-gpt) =====
@@ -3634,7 +3447,7 @@ $hostExecutionPrefixes = [
     '/api/originkit/',
 ];
 foreach ($hostExecutionPrefixes as $hostExecutionPrefix) {
-    if (str_starts_with($uri, $hostExecutionPrefix)) {
+    if ($uri === rtrim($hostExecutionPrefix, '/') || str_starts_with($uri, $hostExecutionPrefix)) {
         adminRequire();
         break;
     }
@@ -3875,6 +3688,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/repo/file')) {
 
 // Endpoint para clonar repositorios vía POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/repo/clone' || $uri === '/api/clone')) {
+    adminRequire();
     if (!securityRateAllow('repo_clone', 8, 60)) {
         securityRateDenyJson(60);
     }
@@ -4064,138 +3878,9 @@ if ($uri === '/api/ssh/key') {
  * CLI de arranque: bunx --bun originkit@latest add blackhole
  */
 function runOriginKitBlackhole() {
-    global $STORAGE_DIR;
-    $command = 'bunx --bun originkit@latest add blackhole';
-    $workDir = $STORAGE_DIR . '/originkit-workspace';
-    if (!file_exists($workDir)) {
-        @mkdir($workDir, 0777, true);
-    }
-
-    // Minimal project scaffold so the CLI has a place to write
-    $pkgPath = $workDir . '/package.json';
-    if (!file_exists($pkgPath)) {
-        file_put_contents($pkgPath, json_encode([
-            'name' => 'l8-codespace-originkit',
-            'private' => true,
-            'version' => '0.0.1'
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-    }
-    $srcDir = $workDir . '/src/components';
-    if (!file_exists($srcDir)) {
-        @mkdir($srcDir, 0777, true);
-    }
-
-    $bun = trim((string)@shell_exec('command -v bunx 2>/dev/null || command -v /usr/local/bin/bunx 2>/dev/null || command -v /root/.bun/bin/bunx 2>/dev/null'));
-    $hasBun = $bun !== '';
-    $apiKey = function_exists('envValue') ? envValue('ORIGINKIT_API_KEY') : (getenv('ORIGINKIT_API_KEY') ?: '');
-
-    $envExports = 'export ORIGINKIT_NO_BROWSER=1; ';
-    if ($apiKey !== '') {
-        $envExports .= 'export ORIGINKIT_API_KEY=' . escapeshellarg($apiKey) . '; ';
-    }
-
-    $lines = [];
-    $lines[] = '$ ' . $command;
-    $lines[] = '';
-    $exitCode = 1;
-    $raw = '';
-
-    if (!$hasBun) {
-        $componentDir = $workDir . '/src/components/originkit/ui';
-        if (!is_dir($componentDir)) @mkdir($componentDir, 0777, true);
-        $componentFile = $componentDir . '/blackhole.tsx';
-        if (!file_exists($componentFile)) {
-            @file_put_contents($componentFile, "import React from 'react';\n\nexport const BlackHole: React.FC = () => {\n  return (\n    <div className=\"blackhole-container\" style={{ width: '100%', height: '100%', minHeight: '300px', background: '#000', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>\n      <h2>OriginKit Blackhole Canvas</h2>\n    </div>\n  );\n};\nexport default BlackHole;\n");
-        }
-        $lines[] = 'bunx: command not found (using native component scaffold)';
-        $lines[] = '√ Resolved originkit component: blackhole';
-        $lines[] = '√ Created src/components/originkit/ui/blackhole.tsx';
-        $lines[] = '√ blackhole component scaffold ready on l8 codespace';
-        $ok = true;
-        $mode = 'native_scaffold';
-    } else {
-        $fullCmd = $envExports . 'cd ' . escapeshellarg($workDir) . ' && ' . escapeshellarg($bun) . ' --bun originkit@latest add blackhole --no-deps 2>&1';
-        $descriptorSpec = [
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ];
-        $proc = @proc_open($fullCmd, $descriptorSpec, $pipes, $workDir, null);
-        if (!is_resource($proc)) {
-            $raw = (string)@shell_exec($fullCmd);
-            $exitCode = 0;
-        } else {
-            stream_set_blocking($pipes[1], true);
-            stream_set_blocking($pipes[2], true);
-            $stdout = stream_get_contents($pipes[1]);
-            $stderr = stream_get_contents($pipes[2]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
-            $exitCode = proc_close($proc);
-            $raw = trim($stdout . (($stderr !== '' && $stderr !== false) ? ("\n" . $stderr) : ''));
-        }
-
-        if ($raw === '') {
-            $lines[] = '√ bunx available · running originkit';
-            $lines[] = '√ blackhole component request sent';
-        } else {
-            foreach (preg_split("/\r\n|\n|\r/", $raw) as $line) {
-                $lines[] = $line;
-            }
-        }
-
-        // If CLI needs auth and failed, still complete boot with informative lines
-        if ($exitCode !== 0) {
-            $lines[] = '';
-            if ($apiKey === '') {
-                $lines[] = '! ORIGINKIT_API_KEY not set — CLI may require auth for live registry delivery.';
-            }
-            $lines[] = '√ Boot continue: blackhole session initialized on l8 codespace';
-        } else {
-            $lines[] = '';
-            $lines[] = '√ blackhole added via originkit';
-        }
-        $ok = true;
-        $mode = ($exitCode === 0) ? 'live' : 'live_partial';
-    }
-
-    $lines[] = '';
-    $lines[] = 'l8 codespace · CLI ready';
-
-    // Persistir el componente fuera del volume efímero + Supabase
-    $generated = null;
-    foreach ([
-        $workDir . '/src/components/originkit/ui/blackhole.tsx',
-        $workDir . '/src/components/originkit/ui/blackhole.jsx',
-        $workDir . '/components/originkit/ui/blackhole.tsx',
-    ] as $cand) {
-        if (file_exists($cand)) { $generated = $cand; break; }
-    }
-    $persistPath = __DIR__ . '/components/originkit/ui/blackhole.tsx';
-    if ($generated) {
-        @mkdir(dirname($persistPath), 0777, true);
-        @copy($generated, $persistPath);
-        if (function_exists('supabaseStorageUpload') && function_exists('supabaseConfig') && !empty(supabaseConfig()['configured'])) {
-            @supabaseStorageUpload('originkit/ui/blackhole.tsx', $persistPath, 'text/plain', true);
-        }
-        $lines[] = '√ Presenting blackhole visual from generated source';
-    }
-
-    return [
-        'ok' => $ok,
-        'type' => 'CLI_BLACKHOLE_RESULT',
-        'command' => $command,
-        'cwd' => $workDir,
-        'mode' => $mode,
-        'exit_code' => $exitCode,
-        'has_bun' => $hasBun,
-        'has_api_key' => $apiKey !== '',
-        'component_path' => $generated ?: $persistPath,
-        'visual' => 'blackhole',
-        'lines' => $lines,
-        'output' => implode("\n", $lines)
-    ];
+    adminRequire();
+    return executionUnavailable();
 }
-
 
 // Leer el source del componente blackhole generado por originkit
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($uri === '/api/originkit/blackhole' || $uri === '/api/cli/blackhole/source')) {
@@ -5437,6 +5122,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
         exit;
     }
 
+    // Host capabilities require the verified administrative session, including aliases.
+    if ($isBash || $isClone || $isSshKey || $isStatus || $lowerCmd === 'browsers') adminRequire();
+
     // Bootstrap pesado solo cuando el comando toca catálogo/repos/archivos
     if ($isClone || $isSave || $isRepos || $isSetICode || $isSupabase) {
         maybeBootstrapPlatformData();
@@ -5847,38 +5535,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($uri === '/api/command' || $uri ==
                 'shell' => $bashRes['shell'] ?? 'GNU Bash'
             ];
         } else {
-            $startTime = microtime(true);
-            $descriptors = [
-                0 => ["pipe", "r"],
-                1 => ["pipe", "w"],
-                2 => ["pipe", "w"]
-            ];
-            $cwd = __DIR__;
-            $process = @proc_open($rawCmd, $descriptors, $pipes, $cwd, null);
-            $stdout = '';
-            $stderr = '';
-            $exitCode = 0;
-            if (is_resource($process)) {
-                fclose($pipes[0]);
-                $stdout = stream_get_contents($pipes[1]);
-                fclose($pipes[1]);
-                $stderr = stream_get_contents($pipes[2]);
-                fclose($pipes[2]);
-                $exitCode = proc_close($process);
-            } else {
-                $exitCode = 1;
-                $stderr = 'No se pudo iniciar el subshell bash.';
-            }
-            $durMs = round((microtime(true) - $startTime) * 1000, 2);
-            $outputResult = [
-                'type' => 'BASH_OUTPUT',
-                'command' => $rawCmd,
-                'exit_code' => $exitCode,
-                'duration_ms' => $durMs,
-                'stdout' => mb_convert_encoding($stdout, 'UTF-8', 'UTF-8, ISO-8859-1'),
-                'stderr' => mb_convert_encoding($stderr, 'UTF-8', 'UTF-8, ISO-8859-1'),
-                'cwd' => $cwd
-            ];
+            $outputResult = ['type'=>'BASH_OUTPUT','exit_code'=>126,'stdout'=>'',
+                'stderr'=>'El ejecutor aislado no está disponible.','code'=>'isolation_required'];
         }
     } else if ($lowerCmd === 'ping') {
         $outputResult = [

@@ -255,65 +255,11 @@ jobs:
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Verify real fifth-cube click opens EFR in Chromium
-        run: |
-          php -S 127.0.0.1:8099 >/tmp/hashcod-efr-php.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" >/dev/null 2>&1 || true' EXIT
-          ready=0
-          for attempt in $(seq 1 45); do
-            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
-              ready=1
-              break
-            fi
-            sleep 1
-          done
-          if [ "$ready" -ne 1 ]; then
-            echo "Local Hashcod UI server did not become ready"
-            cat /tmp/hashcod-efr-php.log || true
-            exit 1
-          fi
-          EFR_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_efr_browser_playwright.js
-
-      - name: Verify real sixth-cube click opens God's Eye View in-platform
-        run: |
-          php -S 127.0.0.1:8099 >/tmp/hashcod-gev-php.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" >/dev/null 2>&1 || true' EXIT
-          ready=0
-          for attempt in $(seq 1 45); do
-            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
-              ready=1
-              break
-            fi
-            sleep 1
-          done
-          if [ "$ready" -ne 1 ]; then
-            echo "Local Hashcod UI server did not become ready"
-            cat /tmp/hashcod-gev-php.log || true
-            exit 1
-          fi
-          GEV_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_gods_eye_view_browser_playwright.js
-
-      - name: Verify shared UX in Chromium
-        run: |
-          php -S 127.0.0.1:8099 >/tmp/hashcod-ux-php.log 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" >/dev/null 2>&1 || true' EXIT
-          ready=0
-          for attempt in $(seq 1 45); do
-            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
-              ready=1
-              break
-            fi
-            sleep 1
-          done
-          if [ "$ready" -ne 1 ]; then
-            echo "Local Hashcod UI server did not become ready"
-            cat /tmp/hashcod-ux-php.log || true
-            exit 1
-          fi
-          UX_TEST_URL=http://127.0.0.1:8099/laragon-local-entry.php node tests/e2e/test_hashcod_ux_browser_playwright.js
+      # Laragon now renders only the first presentation. The removed cube/boot
+      # browser scenarios target a retired screen; active entry/mobile coverage
+      # lives in mldsa-access-gate.yml. Keep the CSP migration tested in Chromium.
+      - name: Verify native controls under enforced CSP
+        run: node tests/e2e/test_csp_event_bindings.js
 
       - name: Verify mobile platform polish
         run: node tests/e2e/test_mobile_platform_polish.js

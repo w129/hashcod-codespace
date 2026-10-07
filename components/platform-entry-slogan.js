@@ -63,6 +63,7 @@
         if (document.getElementById('hashcodVectorTrayStyles')) return;
 
         const style = document.createElement('style');
+  style.nonce = document.querySelector('script[nonce]')?.nonce || '';
         style.id = 'hashcodVectorTrayStyles';
         style.textContent = [
             '#hashcodVectorTray{',

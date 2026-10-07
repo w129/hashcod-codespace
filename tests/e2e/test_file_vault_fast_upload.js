@@ -29,7 +29,7 @@ assert(!fast.includes("x-signature"), 'fast5 must not misuse signed-upload token
 assert(!fast.includes("/storage/v1/upload/resumable"), 'fast5 must not use undocumented signed-token TUS path');
 
 const totpIndex = loader.indexOf('file-vault-totp.bundle.js?v=20261006-file-usd-value1');
-const fastIndex = loader.indexOf('file-vault-fast-upload-v5.js?v=20261006-file-usd-value1');
+const fastIndex = loader.indexOf('file-vault-fast-upload-v5.js?v=20261007-security1');
 assert(totpIndex >= 0, 'TOTP runtime is not loaded');
 assert(fastIndex >= 0, 'fast5 upload runtime is not loaded');
 assert(totpIndex < fastIndex, 'TOTP runtime must be declared before fast5 transport');

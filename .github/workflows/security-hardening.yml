@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in api.php bash-engine.php security.php router.php l8-html.php openclaw-bridge.php secrets.php resilient-proxy.php hashcod-keys.php; do
+          for file in api.php bash-engine.php security.php railway-router.php router.php l8-html.php openclaw-bridge.php secrets.php resilient-proxy.php hashcod-keys.php execution-security.php agent_browser.php streamlit.php; do
             php -l "$file"
           done
 
@@ -52,3 +52,17 @@ jobs:
 
       - name: Verify CSP nonce HTML parser
         run: php tests/security/test-csp-nonce-injection.php
+
+      - name: Verify isolated execution policy
+        run: php tests/security/test-execution-security.php
+
+      - name: Verify current admin boundary
+        env:
+          L8_VAULT_MASTER_KEY: isolated-ci-master-key-at-least-32-characters
+        run: php tests/security/test-admin-device.php
+
+      - name: Verify CSP exact origins
+        run: php tests/security/test-csp-origins.php
+
+      - name: Verify stable production key guards
+        run: node tests/security/test-production-keys.js

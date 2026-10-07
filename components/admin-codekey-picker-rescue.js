@@ -223,6 +223,7 @@
         let style = document.getElementById(EFT_GATE_STYLE_ID);
         if (style) return style;
         style = document.createElement('style');
+  style.nonce = document.querySelector('script[nonce]')?.nonce || '';
         style.id = EFT_GATE_STYLE_ID;
         style.textContent = [
             'html:not([data-admin-authenticated="true"]) #hashcodVectorTray [data-vector-tray-slot="4"]{opacity:.34!important;filter:grayscale(1)!important;cursor:not-allowed!important}',

@@ -65,7 +65,7 @@ assert(codeAccessCss.includes('.code-access-overlay'),'blocking access overlay m
 
 // Root stays on the first presentation.
 assert(l8.includes('Single-screen mode: the root route permanently renders only the'),'single-screen root contract missing');
-assert(l8.includes("echo mldsaGateHtml(l8_public_base_path(), true);"),'first-screen renderer missing');
+assert(l8.includes("echo l8_apply_csp_nonce(mldsaGateHtml(l8_public_base_path(), true));"),'first-screen renderer missing');
 assert(!l8.includes('$entryPass = l8_entry_intro_consume();'),'one-shot platform entry pass must no longer be used');
 
 // The former white access window must be gone from first-screen markup.
@@ -110,7 +110,7 @@ assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage mi
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
 assert(gate.includes('components/center-empty-state.bundle.css?v=20261007-tokenization-status1'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261007-tokenization-status1'),'shared Files explorer JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261007-security1'),'shared Files explorer JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');

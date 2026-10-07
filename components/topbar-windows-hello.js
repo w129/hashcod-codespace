@@ -12,6 +12,7 @@
     function injectStyle() {
         if (document.getElementById(STYLE_ID)) return;
         const style = document.createElement('style');
+  style.nonce = document.querySelector('script[nonce]')?.nonce || '';
         style.id = STYLE_ID;
         style.textContent = `
             #${BUTTON_ID} {

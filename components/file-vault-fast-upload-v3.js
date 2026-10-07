@@ -221,6 +221,7 @@ function waitForTotpApi(){
 function ensureUiStyle(){
   if(document.getElementById('d5HfvFastStyle'))return;
   var style=document.createElement('style');
+  style.nonce = document.querySelector('script[nonce]')?.nonce || '';
   style.id='d5HfvFastStyle';
   style.textContent='.hfv-dropzone{position:relative}.hfv-fast-layer{position:absolute;inset:0;z-index:12;display:grid;place-items:center;padding:22px;border-radius:inherit;background:#0a0a0a;color:#fff;text-align:center}.hfv-fast-box{width:min(420px,86%);display:grid;gap:10px}.hfv-fast-box strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 14px/1.3 Inter,system-ui,sans-serif}.hfv-fast-box small{color:#a3a3a3;font:600 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace}.hfv-fast-track{display:block;height:4px;overflow:hidden;border-radius:999px;background:#333}.hfv-fast-bar{display:block;height:100%;transform-origin:left center;background:#fff;transition:transform .12s linear}.hfv-fast-layer[data-state="error"] .hfv-fast-bar{background:#fca5a5}.hfv-fast-layer[data-state="done"] .hfv-fast-bar{background:#d4d4d4}';
   document.head.appendChild(style);

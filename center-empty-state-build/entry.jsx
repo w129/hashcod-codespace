@@ -456,7 +456,9 @@ function usePersistentBoolean(storageKey, initialValue = false) {
 }
 
 function attachCssToHtml(html, css) {
-  const styleTag = `<style data-hashcod-hatch-css>\n${css}\n</style>`;
+  const nonce = document.querySelector('script[nonce]')?.nonce || '';
+  const safeCss = css.replace(/<\/style/gi, '<\\/style');
+  const styleTag = `<style nonce="${nonce}" data-hashcod-hatch-css>\n${safeCss}\n</style>`;
   if (/<\/head\s*>/i.test(html)) {
     return html.replace(/<\/head\s*>/i, `${styleTag}\n</head>`);
   }

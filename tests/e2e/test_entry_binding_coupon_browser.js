@@ -28,6 +28,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
   const port = reservation.address().port; await new Promise(r => reservation.close(r));
   const base = `http://127.0.0.1:${port}`;
   const env = { ...process.env, APP_ENV: 'test', GITHUB_ACTIONS: 'true', L8_CODE_ACCESS_REQUIRED: '1',
+    RAILWAY_ENVIRONMENT_ID: 'isolated-test-production', L8_VAULT_MASTER_KEY: crypto.randomBytes(32).toString('hex'),
     SUPABASE_URL: base+'/unavailable-test-cloud', SUPABASE_PUBLISHABLE_KEY: 'isolated-test-key',
     SUPABASE_SECRET_KEY: 'isolated-test-key', SUPABASE_ANON_KEY: 'isolated-test-key', SUPABASE_SERVICE_ROLE_KEY: 'isolated-test-key',
     L8_NUMERIC_SERIES_SHA256: crypto.createHash('sha256').update(series).digest('hex'),
@@ -37,10 +38,22 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
   const period = seal({ kind: 'platform-period-v1', host: `127.0.0.1:${port}`, state: 'active', days: 10, expiresAt: Math.floor(Date.now()/1000)+86400, token: 'server-test-period' });
   // No PHP controller can transmit to a cloud service during this local suite.
   const php = spawn(phpBin, ['-d','allow_url_fopen=0','-d','disable_functions=curl_exec,fsockopen,pfsockopen,stream_socket_client,socket_connect,exec,shell_exec,passthru,system,proc_open',
-    '-d','session.save_path='+path.join(runtime,'sessions'),'-S', `127.0.0.1:${port}`, '-t', runtime, path.join(runtime, 'router.php')], { cwd: runtime, env, stdio: 'ignore' });
+    '-d','session.save_path='+path.join(runtime,'sessions'),'-S', `127.0.0.1:${port}`, '-t', runtime, path.join(runtime, 'railway-router.php')], { cwd: runtime, env, stdio: 'ignore' });
   let browser;
   try {
     for (let i=0; i<80; i++) { try { if ((await fetch(base+'/api/code-access')).ok) break; } catch {} await new Promise(r=>setTimeout(r,100)); }
+    const landing = await fetch(base);
+    assert(landing.headers.get('Content-Security-Policy')?.includes("script-src-attr 'none'"), 'Railway landing must emit enforced CSP');
+    const landingHtml=await landing.text(), landingNonce=/nonce-([^']+)/.exec(landing.headers.get('Content-Security-Policy'))?.[1];
+    assert(landingNonce && landingHtml.includes('nonce="'+landingNonce+'"'), 'Railway HTML must receive the nonce used by its enforced CSP');
+    for (const family of ['bash','catalyst','storage','django','ubuntu','claude','zylon','macos','chromeos','streamlit','agent-browser','libreoffice','ssh','cli','originkit']) {
+      for (const suffix of ['', '/exec']) {
+        const response=await fetch(base+'/api/'+family+suffix,{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:'{}'});
+        assert.equal(response.status,403,'unauthenticated host route must fail: '+family+suffix);
+      }
+    }
+    for (const target of ['/api/repo/clone','/api/clone']) assert.equal((await fetch(base+target,{method:'POST',body:'{}'})).status,403);
+    assert.equal((await fetch(base+'/api/command',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},body:'{"command":"bash pwd"}'})).status,403,'AJAX headers are not an account session');
     const state = await (await fetch(base+'/api/code-access')).json();
     assert.equal(state.authorized, false); assert.equal(state.bound, false); assert.equal(state.protocol, 'HASHCOD-NUMERIC-SERIES/1');
     const legacy = await fetch(base+'/api/code-access', { method:'POST', headers:{'Content-Type':'application/json','X-Hashcod-Mesh':'1'}, body:JSON.stringify({fields:{TYPE:'anything'}}) });

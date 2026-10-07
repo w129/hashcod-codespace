@@ -103,9 +103,7 @@ assert(css.includes('dialog#hashcodEfrEditorModal::backdrop'), 'native dialog ba
 assert(css.includes('#hashcodEfrEditorTextarea'), 'editor textarea styling missing');
 assert(hosted.includes('hashcod-efr-code-editor-inline'), 'hosted page must inline the current EFT implementation to bypass stale CDN cache');
 assert(hosted.includes("$efrExternalJsTag = $efrJs === ''"), 'hosted EFR external loader must be fallback-only');
-assert(hosted.includes('components/efr-code-editor.js?v=20260919-perf2'), 'hosted JS fallback loader missing');
-assert(local.includes('hashcod-laragon-efr-code-editor-inline'), 'local entry must inline the current EFT implementation');
-assert(local.includes("$efrExternalJs = $efrJs === ''"), 'local EFR external loader must be fallback-only');
-assert(local.includes('components/efr-code-editor.js?v=20260919-perf2'), 'local JS fallback loader missing');
+assert(hosted.includes('components/efr-code-editor.js?v=20261007-security1'), 'hosted JS fallback loader missing');
 
 console.log('PASS: EFT keeps CoffeeScript/IPYNB 4.5 and adds a TheAlgorithms/Jupyter-inspired definition/math → implementation → demo algorithm profile without executing code.');
+assert(local.includes('echo l8_apply_csp_nonce(mldsaGateHtml(hashcodLaragonBasePath(), true));'), 'local entry must render the current single screen with CSP nonces');

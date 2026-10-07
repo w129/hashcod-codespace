@@ -239,7 +239,7 @@
   }
 
   function buildShell(shadow) {
-    shadow.innerHTML = '<style>' + SHADOW_CSS + '</style>' +
+    shadow.innerHTML = '<style nonce="' + (document.querySelector('script[nonce]')?.nonce || '') + '">' + SHADOW_CSS + '</style>' +
       '<div class="overlay">' +
         '<section class="window" role="dialog" aria-modal="true" aria-label="Hashcod Platform CRM">' +
           '<header class="header">' +

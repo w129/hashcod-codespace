@@ -75,7 +75,7 @@ Never hardcode or commit:
 - database service-role credentials;
 - recovery secrets or authentication material.
 
-Use Render/environment variables, secret files, or the repository's existing server-side secret helpers. Browser JavaScript must never receive provider secrets merely to call a third-party API.
+Use Railway/environment variables, secret files, or the repository's existing server-side secret helpers. Browser JavaScript must never receive provider secrets merely to call a third-party API.
 
 If a secret has been pasted into chat, logs, source code, screenshots, commits, or another exposed location, treat it as compromised and recommend rotation. Do not reproduce exposed secret values in commits, documentation, logs, or responses.
 

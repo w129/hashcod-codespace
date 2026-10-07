@@ -215,8 +215,8 @@
                     </div>
 
                     <div class="warp-ws-footer">
-                        <button type="button" class="warp-ws-btn warp-ws-btn-secondary" onclick="WarpTerminal.closeWorkspaceModal()">Cerrar</button>
-                        <button type="button" class="warp-ws-btn warp-ws-btn-primary" onclick="WarpTerminal.saveWorkspaceModalConfig()">
+                        <button type="button" class="warp-ws-btn warp-ws-btn-secondary" data-hc-click="h847dc17de0b070217ee3">Cerrar</button>
+                        <button type="button" class="warp-ws-btn warp-ws-btn-primary" data-hc-click="h3fb1de42ebe732e91208">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                             <span>Guardar y Conectar</span>
                         </button>
@@ -500,7 +500,7 @@
                 tabEl.innerHTML = `
                     <span class="warp-tab-icon">${SVG_ICONS[tab.icon] || SVG_ICONS.nodejs}</span>
                     <span class="warp-tab-title">${escapeHtml(tab.title)}</span>
-                    <button type="button" class="warp-tab-close" title="Cerrar pestaña" onclick="window.closeWarpTab('${tab.id}', event)">&times;</button>
+                    <button type="button" class="warp-tab-close" title="Cerrar pestaña" data-hc-click="hd8cdd187edf4bbad8780" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${tab.id}`]))}">&times;</button>
                 `;
                 container.appendChild(tabEl);
             });
@@ -595,8 +595,8 @@
                     <span class="warp-block-duration" style="${isRunning ? 'display:none;' : ''}"></span>
                 </div>
                 <div class="warp-block-actions">
-                    <button type="button" class="warp-block-action-btn" title="Copiar salida" onclick="copyBlockOutput(this)">Copiar</button>
-                    <button type="button" class="warp-block-action-btn" title="Re-ejecutar" onclick="window.WarpTerminal && window.WarpTerminal.executeCommand('${escapeHtml(cmd)}')">Re-ejecutar</button>
+                    <button type="button" class="warp-block-action-btn" title="Copiar salida" data-hc-click="h9cfdda429e701ab1cdee">Copiar</button>
+                    <button type="button" class="warp-block-action-btn" title="Re-ejecutar" data-hc-click="hd79c968eee0a4a7d65e8" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${cmd}`]))}">Re-ejecutar</button>
                 </div>
             </div>
             <div class="warp-block-prompt-line">
@@ -646,8 +646,8 @@
                             ${item.duration_ms ? `<span class="warp-block-duration">${item.duration_ms}ms</span>` : ''}
                         </div>
                         <div class="warp-block-actions">
-                            <button type="button" class="warp-block-action-btn" title="Copiar salida" onclick="copyBlockOutput(this)">Copiar</button>
-                            <button type="button" class="warp-block-action-btn" title="Re-ejecutar" onclick="window.WarpTerminal && window.WarpTerminal.executeCommand('${escapeHtml(item.command)}')">Re-ejecutar</button>
+                            <button type="button" class="warp-block-action-btn" title="Copiar salida" data-hc-click="h9cfdda429e701ab1cdee">Copiar</button>
+                            <button type="button" class="warp-block-action-btn" title="Re-ejecutar" data-hc-click="hd79c968eee0a4a7d65e8" data-hc-args-click="${encodeURIComponent(JSON.stringify([`${item.command}`]))}">Re-ejecutar</button>
                         </div>
                     </div>
                     <div class="warp-block-prompt-line">
@@ -676,42 +676,42 @@
                 <!-- sidebar -->
                 <div class="warp-sidebar">
                     <div class="warp-sidebar-top">
-                        <button type="button" class="warp-sidebar-btn active" id="warpBtnHome" title="Terminal Home & Node.js" onclick="selectSidebarTool('home')">
+                        <button type="button" class="warp-sidebar-btn active" id="warpBtnHome" title="Terminal Home & Node.js" data-hc-click="h10681c642803f8995d98">
                             ${SVG_ICONS.nodejs}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnSearch" title="Búsqueda Global" onclick="selectSidebarTool('search')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnSearch" title="Búsqueda Global" data-hc-click="h3c327f89e036d4e2ef2d">
                             ${SVG_ICONS.search}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnWarpAi" title="Warp AI Magic" onclick="selectSidebarTool('warpAi')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnWarpAi" title="Warp AI Magic" data-hc-click="h05b161d1d75e00f46c35">
                             ${SVG_ICONS.sparkles}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnNotebook" title="Notebook & Docs" onclick="selectSidebarTool('notebook')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnNotebook" title="Notebook & Docs" data-hc-click="h361f34e442bc04839410">
                             ${SVG_ICONS.notebook}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnAccordion" title="Estructura & Archivos" onclick="selectSidebarTool('accordion')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnAccordion" title="Estructura & Archivos" data-hc-click="h6fa95daa3760ff31ab16">
                             ${SVG_ICONS.accordion}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnSaxophone" title="DSP Audio Engine" onclick="selectSidebarTool('saxophone')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnSaxophone" title="DSP Audio Engine" data-hc-click="h3f1909bc59f4805519f3">
                             ${SVG_ICONS.saxophone}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnPlane" title="Cloud Deploy" onclick="selectSidebarTool('plane')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnPlane" title="Cloud Deploy" data-hc-click="hedd9b2116aea97f0ed37">
                             ${SVG_ICONS.plane}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnAirplane" title="API Gateway" onclick="selectSidebarTool('airplane')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnAirplane" title="API Gateway" data-hc-click="haf4b1649da34c0230945">
                             ${SVG_ICONS.airplane}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnPotion" title="WASM Compiler" onclick="selectSidebarTool('potion')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnPotion" title="WASM Compiler" data-hc-click="h16551301f3d8171fd076">
                             ${SVG_ICONS.potion}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnDragon" title="Engine AI Core" onclick="selectSidebarTool('dragon')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnDragon" title="Engine AI Core" data-hc-click="h883de0e5b111b747b212">
                             ${SVG_ICONS.dragon}
                         </button>
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnTractor" title="Data Pipeline" onclick="selectSidebarTool('tractor')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnTractor" title="Data Pipeline" data-hc-click="h67db3ff5d8690600a7fb">
                             ${SVG_ICONS.tractor}
                         </button>
                     </div>
                     <div class="warp-sidebar-bottom">
-                        <button type="button" class="warp-sidebar-btn" id="warpBtnSettings" title="Configuración" onclick="selectSidebarTool('settings')">
+                        <button type="button" class="warp-sidebar-btn" id="warpBtnSettings" title="Configuración" data-hc-click="h681ff4c53989735ba4df">
                             ${SVG_ICONS.gear}
                         </button>
                     </div>
@@ -722,7 +722,7 @@
                     <!-- title-bar -->
                     <div class="warp-title-bar">
                         <div class="warp-traffic-lights">
-                            <button class="warp-light close" onclick="window.WarpTerminal.close()" title="Cerrar ventana"></button>
+                            <button class="warp-light close" data-hc-click="hf0aa2f017a913247fce6" title="Cerrar ventana"></button>
                             <button class="warp-light minimize" title="Minimizar"></button>
                             <button class="warp-light expand" title="Maximizar"></button>
                         </div>
@@ -736,7 +736,7 @@
                         </div>
                         <div class="warp-window-actions">
                             <button class="warp-window-action-btn" title="Buscar">${SVG_ICONS.windowSearch}</button>
-                            <button type="button" class="warp-window-action-btn" id="warpTopBtnApi" title="API Gateway & Storage Controller" onclick="selectSidebarTool('airplane')">${SVG_ICONS.receipt}</button>
+                            <button type="button" class="warp-window-action-btn" id="warpTopBtnApi" title="API Gateway & Storage Controller" data-hc-click="haf4b1649da34c0230945">${SVG_ICONS.receipt}</button>
                             <button class="warp-window-action-btn" title="Opciones">${SVG_ICONS.dotsVertical}</button>
                         </div>
                     </div>
@@ -767,7 +767,7 @@
                                     <span>AI</span>
                                 </div>
                                 <div class="warp-shortcut-indicator" title="Atajo de ejecución">Ctrl+↵</div>
-                                <button type="button" class="warp-run-button" title="Ejecutar comando" onclick="submitWarpInput()">
+                                <button type="button" class="warp-run-button" title="Ejecutar comando" data-hc-click="he44040c98e956fe8d7e5">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                                 </button>
                             </div>
@@ -777,7 +777,7 @@
                     <!-- status-bar -->
                     <div class="warp-status-bar">
                         <div class="warp-status-left">
-                            <span class="warp-status-item warp-status-clickable" title="Configurar y conectar carpeta central a la API" onclick="WarpTerminal.openWorkspaceModal()">
+                            <span class="warp-status-item warp-status-clickable" title="Configurar y conectar carpeta central a la API" data-hc-click="h790630fed121ac75fc3a">
                                 ${SVG_ICONS.folder}
                                 <span id="warpStatusPath">~/workspace</span>
                             </span>
@@ -992,7 +992,7 @@
                             <span class="warp-api-tag warp-api-tag-catalyst">
                                 4 ENV Stream Active
                             </span>
-                            <button type="button" class="warp-sidebar-btn" onclick="selectSidebarTool('home')" style="width:28px;height:28px;" title="Volver a la terminal">&times;</button>
+                            <button type="button" class="warp-sidebar-btn" data-hc-click="h10681c642803f8995d98" style="width:28px;height:28px;" title="Volver a la terminal">&times;</button>
                         </div>
                     </div>
 
@@ -1036,13 +1036,13 @@
                                 </div>
                             </div>
                             <div class="warp-env-actions-row">
-                                <button type="button" class="warp-env-btn ${state.macho.mode === 'ONE_WAY' ? 'warp-env-btn-active' : ''}" onclick="WarpTerminal.execApiCmd('/a activate')">
+                                <button type="button" class="warp-env-btn ${state.macho.mode === 'ONE_WAY' ? 'warp-env-btn-active' : ''}" data-hc-click="h04073b20a0dd1178fbfe">
                                     /a activate (1 Vía)
                                 </button>
-                                <button type="button" class="warp-env-btn ${state.macho.mode === 'BRIDGED_ONE_WAY' ? 'warp-env-btn-active' : ''}" onclick="WarpTerminal.execApiCmd('/a. sync')">
+                                <button type="button" class="warp-env-btn ${state.macho.mode === 'BRIDGED_ONE_WAY' ? 'warp-env-btn-active' : ''}" data-hc-click="hd2206b446644f39d54a1">
                                     /a. (Puente a /b)
                                 </button>
-                                <button type="button" class="warp-env-btn" onclick="WarpTerminal.execApiCmd('/a deactivate')">
+                                <button type="button" class="warp-env-btn" data-hc-click="hc8dc26252ee53f8220bf">
                                     Desactivar
                                 </button>
                             </div>
@@ -1075,13 +1075,13 @@
                                 </div>
                             </div>
                             <div class="warp-env-actions-row">
-                                <button type="button" class="warp-env-btn ${state.hembra.mode === 'TWO_WAY' ? 'warp-env-btn-active' : ''}" onclick="WarpTerminal.execApiCmd('/b activate')">
+                                <button type="button" class="warp-env-btn ${state.hembra.mode === 'TWO_WAY' ? 'warp-env-btn-active' : ''}" data-hc-click="ha5b8d69ac3da3cf666ad">
                                     /b activate (2 Vías)
                                 </button>
-                                <button type="button" class="warp-env-btn ${state.hembra.mode === 'REACTIVE_TWO_WAY' ? 'warp-env-btn-active' : ''}" onclick="WarpTerminal.execApiCmd('/b. on_request')">
+                                <button type="button" class="warp-env-btn ${state.hembra.mode === 'REACTIVE_TWO_WAY' ? 'warp-env-btn-active' : ''}" data-hc-click="hcf69c4f7220e297de1d4">
                                     /b. (Reactivo)
                                 </button>
-                                <button type="button" class="warp-env-btn" onclick="WarpTerminal.execApiCmd('/b deactivate')">
+                                <button type="button" class="warp-env-btn" data-hc-click="h019559d318e1fe5f323e">
                                     Desactivar
                                 </button>
                             </div>
@@ -1118,14 +1118,14 @@
                             </div>
                             <div class="warp-api-term-input-row">
                                 <span class="warp-api-term-prompt">&gt;</span>
-                                <input type="text" class="warp-api-term-input" id="warpApiTermInput" placeholder="Escribe un comando (/a, /b, /a., /b., workspace...)" onkeydown="if(event.key==='Enter'){WarpTerminal.submitApiTerminalInput();}" />
+                                <input type="text" class="warp-api-term-input" id="warpApiTermInput" placeholder="Escribe un comando (/a, /b, /a., /b., workspace...)" data-hc-keydown="h85502f391eac013f41a3" />
                             </div>
                         </div>
 
                         <div class="warp-api-logs-box">
                             <div class="warp-api-logs-header">
                                 <span>Registros de Catalizadores (.log)</span>
-                                <button type="button" class="warp-env-btn" style="padding:2px 8px; font-size:10.5px;" onclick="refreshApiGatewayStateOnly()">Refrescar</button>
+                                <button type="button" class="warp-env-btn" style="padding:2px 8px; font-size:10.5px;" data-hc-click="h76e83c9b03fe89d84c69">Refrescar</button>
                             </div>
                             <div class="warp-api-logs-feed" id="warpApiLogsFeed">
                                 <div style="color:#38BDF8; font-weight:bold; margin-bottom:4px;">[catalyst_macho.log]</div>
@@ -1168,8 +1168,8 @@
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <button type="button" class="warp-env-btn" onclick="showTerminalView()" title="Volver a Terminal">Volver a Terminal</button>
-                        <button type="button" class="warp-sidebar-btn" onclick="selectSidebarTool('home')" style="width:28px; height:28px;" title="Cerrar">&times;</button>
+                        <button type="button" class="warp-env-btn" data-hc-click="hbb2a93d958d130ca659f" title="Volver a Terminal">Volver a Terminal</button>
+                        <button type="button" class="warp-sidebar-btn" data-hc-click="h10681c642803f8995d98" style="width:28px; height:28px;" title="Cerrar">&times;</button>
                     </div>
                 </div>
 
@@ -1224,12 +1224,12 @@
                 <div style="background:#0F172A; border:1px solid #1E293B; border-radius:8px; padding:12px;">
                     <div style="font-size:12px; font-weight:bold; color:#94A3B8; margin-bottom:8px;">Atajos de Comandos Marítimos en Bash:</div>
                     <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('port status');" style="font-size:11px;">$ port status</button>
-                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('port map');" style="font-size:11px;">$ port map</button>
-                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('cargo manifest dock-01');" style="font-size:11px;">$ cargo manifest</button>
-                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('cargo inspect CNT-D5-9821');" style="font-size:11px;">$ cargo inspect</button>
-                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('customs scan');" style="font-size:11px;">$ customs scan</button>
-                        <button type="button" class="warp-env-btn" onclick="showTerminalView(); WarpTerminal.executeCommand('seaport health');" style="font-size:11px;">$ seaport health</button>
+                        <button type="button" class="warp-env-btn" data-hc-click="hbf27d0d725929a9fd286" style="font-size:11px;">$ port status</button>
+                        <button type="button" class="warp-env-btn" data-hc-click="h5ecb19fafbad9b0740bf" style="font-size:11px;">$ port map</button>
+                        <button type="button" class="warp-env-btn" data-hc-click="hbda90761864d7b88ddd5" style="font-size:11px;">$ cargo manifest</button>
+                        <button type="button" class="warp-env-btn" data-hc-click="h741e89136eec5e04260e" style="font-size:11px;">$ cargo inspect</button>
+                        <button type="button" class="warp-env-btn" data-hc-click="hcdd01935bcf64e5cacc4" style="font-size:11px;">$ customs scan</button>
+                        <button type="button" class="warp-env-btn" data-hc-click="hafd29c735de89424c9f4" style="font-size:11px;">$ seaport health</button>
                     </div>
                 </div>
             </div>
@@ -1249,7 +1249,7 @@
                             ${SVG_ICONS[toolId] || ''}
                             <span>${escapeHtml(title)}</span>
                         </h2>
-                        <button type="button" class="warp-sidebar-btn" onclick="selectSidebarTool('home')" style="width:28px; height:28px;" title="Volver a la terminal">&times;</button>
+                        <button type="button" class="warp-sidebar-btn" data-hc-click="h10681c642803f8995d98" style="width:28px; height:28px;" title="Volver a la terminal">&times;</button>
                     </div>
                     <p style="color:#888888; font-size:12px;">Ventana y motor para <strong>${escapeHtml(title)}</strong> listo para integrar las funciones y comandos adicionales.</p>
                 </div>
@@ -1319,4 +1319,43 @@
     }
 
     window.WarpTerminal = WarpTerminal;
+
+// CSP-safe listeners; argument values are JSON data, never JavaScript source.
+(window.HashcodCspEvents?.register || (map => (window.__hashcodCspEventQueue ||= []).push(map)))({
+"h847dc17de0b070217ee3": function(event,args){WarpTerminal.closeWorkspaceModal()},
+"h3fb1de42ebe732e91208": function(event,args){WarpTerminal.saveWorkspaceModalConfig()},
+"hd8cdd187edf4bbad8780": function(event,args){window.closeWarpTab(args[0], event)},
+"h9cfdda429e701ab1cdee": function(event,args){copyBlockOutput(this)},
+"hd79c968eee0a4a7d65e8": function(event,args){window.WarpTerminal && window.WarpTerminal.executeCommand(args[0])},
+"h10681c642803f8995d98": function(event,args){selectSidebarTool('home')},
+"h3c327f89e036d4e2ef2d": function(event,args){selectSidebarTool('search')},
+"h05b161d1d75e00f46c35": function(event,args){selectSidebarTool('warpAi')},
+"h361f34e442bc04839410": function(event,args){selectSidebarTool('notebook')},
+"h6fa95daa3760ff31ab16": function(event,args){selectSidebarTool('accordion')},
+"h3f1909bc59f4805519f3": function(event,args){selectSidebarTool('saxophone')},
+"hedd9b2116aea97f0ed37": function(event,args){selectSidebarTool('plane')},
+"haf4b1649da34c0230945": function(event,args){selectSidebarTool('airplane')},
+"h16551301f3d8171fd076": function(event,args){selectSidebarTool('potion')},
+"h883de0e5b111b747b212": function(event,args){selectSidebarTool('dragon')},
+"h67db3ff5d8690600a7fb": function(event,args){selectSidebarTool('tractor')},
+"h681ff4c53989735ba4df": function(event,args){selectSidebarTool('settings')},
+"hf0aa2f017a913247fce6": function(event,args){window.WarpTerminal.close()},
+"he44040c98e956fe8d7e5": function(event,args){submitWarpInput()},
+"h790630fed121ac75fc3a": function(event,args){WarpTerminal.openWorkspaceModal()},
+"h04073b20a0dd1178fbfe": function(event,args){WarpTerminal.execApiCmd('/a activate')},
+"hd2206b446644f39d54a1": function(event,args){WarpTerminal.execApiCmd('/a. sync')},
+"hc8dc26252ee53f8220bf": function(event,args){WarpTerminal.execApiCmd('/a deactivate')},
+"ha5b8d69ac3da3cf666ad": function(event,args){WarpTerminal.execApiCmd('/b activate')},
+"hcf69c4f7220e297de1d4": function(event,args){WarpTerminal.execApiCmd('/b. on_request')},
+"h019559d318e1fe5f323e": function(event,args){WarpTerminal.execApiCmd('/b deactivate')},
+"h85502f391eac013f41a3": function(event,args){if(event.key==='Enter'){WarpTerminal.submitApiTerminalInput();}},
+"h76e83c9b03fe89d84c69": function(event,args){refreshApiGatewayStateOnly()},
+"hbb2a93d958d130ca659f": function(event,args){showTerminalView()},
+"hbf27d0d725929a9fd286": function(event,args){showTerminalView(); WarpTerminal.executeCommand('port status');},
+"h5ecb19fafbad9b0740bf": function(event,args){showTerminalView(); WarpTerminal.executeCommand('port map');},
+"hbda90761864d7b88ddd5": function(event,args){showTerminalView(); WarpTerminal.executeCommand('cargo manifest dock-01');},
+"h741e89136eec5e04260e": function(event,args){showTerminalView(); WarpTerminal.executeCommand('cargo inspect CNT-D5-9821');},
+"hcdd01935bcf64e5cacc4": function(event,args){showTerminalView(); WarpTerminal.executeCommand('customs scan');},
+"hafd29c735de89424c9f4": function(event,args){showTerminalView(); WarpTerminal.executeCommand('seaport health');}
+});
 })();

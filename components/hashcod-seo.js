@@ -89,6 +89,7 @@
   function installEntryButtonRestoreStyles() {
     if (document.getElementById('hashcodEntryButtonRestoreStyles')) return;
     const style = document.createElement('style');
+  style.nonce = document.querySelector('script[nonce]')?.nonce || '';
     style.id = 'hashcodEntryButtonRestoreStyles';
     style.textContent = [
       '#hashcodEntryHold{isolation:isolate;}',

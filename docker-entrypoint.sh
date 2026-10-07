@@ -3,6 +3,17 @@ set -eu
 
 echo "[l8] starting container…"
 
+# Ephemeral production instances must never invent replacement signing keys.
+if [ -n "${RAILWAY_ENVIRONMENT_ID:-}" ]; then
+  for key in L8_VAULT_MASTER_KEY L8_ACCESS_GATE_COOKIE_SECRET L8_COUPON_SIGNING_KEY; do
+    eval "val=\${$key-}"
+    if [ "${#val}" -lt 32 ]; then
+      echo "[l8] required stable key missing: $key" >&2
+      exit 1
+    fi
+  done
+fi
+
 # Diagnóstico seguro: solo indica si existen las vars (no imprime valores)
 for key in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SECRET_KEY SUPABASE_STORAGE_BUCKET GITHUB_TOKEN ORIGINKIT_API_KEY RAILWAY_ENVIRONMENT_ID RAILWAY_PUBLIC_DOMAIN RAILWAY_PRIVATE_DOMAIN; do
   eval "val=\${$key-}"

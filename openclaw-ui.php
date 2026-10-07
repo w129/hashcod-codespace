@@ -227,6 +227,7 @@ $cfg = openclawGetConfig();
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
     </style>
+<script defer src="./components/csp-event-bindings.js?v=20261007-security1"></script><script defer src="./components/csp-native-handlers.js?v=20261007-security1"></script>
 </head>
 <body>
 
@@ -239,7 +240,7 @@ $cfg = openclawGetConfig();
         </a>
         <div class="header-actions">
             <a href="<?= htmlspecialchars($base, ENT_QUOTES, 'UTF-8') ?>" class="btn">← Volver al Codespace</a>
-            <button class="btn btn-primary" onclick="triggerDaemonOnboard()">⚡ Onboard Daemon</button>
+            <button class="btn btn-primary" data-hc-click="hb24f80d6db0e9af8c7e4">⚡ Onboard Daemon</button>
         </div>
     </header>
 
@@ -344,8 +345,8 @@ $cfg = openclawGetConfig();
 Escribe una instrucción en el campo inferior para que el agente OpenClaw opere sobre tu código.
 </div>
                 <div class="terminal-prompt">
-                    <input type="text" id="promptInput" class="prompt-input" placeholder="Ej: Analiza el workspace y genera un diagrama de arquitectura Mermaid..." onkeydown="if(event.key==='Enter') sendTask()">
-                    <button class="btn btn-primary" onclick="sendTask()">Ejecutar Tarea 🦞</button>
+                    <input type="text" id="promptInput" class="prompt-input" placeholder="Ej: Analiza el workspace y genera un diagrama de arquitectura Mermaid..." data-hc-keydown="hef8d8c7762b5c79387ff">
+                    <button class="btn btn-primary" data-hc-click="hc71a4a52d507b5fd4fda">Ejecutar Tarea 🦞</button>
                 </div>
             </div>
         </main>

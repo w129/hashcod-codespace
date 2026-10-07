@@ -78,6 +78,7 @@
   function installDockIconIntegrationStyle() {
     if (document.getElementById('hashcodDockIconIntegrationRescue')) return;
     var style = document.createElement('style');
+  style.nonce = document.querySelector('script[nonce]')?.nonce || '';
     style.id = 'hashcodDockIconIntegrationRescue';
     style.textContent = [
       '#hashcodAuthUtilityDock.hashcod-auth-utility-dock{display:inline-flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;height:54px!important;min-height:54px!important;padding:5px!important;border:1px solid rgba(17,17,17,.10)!important;border-radius:16px!important;background:rgba(255,255,255,.86)!important;box-shadow:0 18px 42px rgba(0,0,0,.08)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;overflow:hidden!important;}',

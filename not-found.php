@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/l8-html.php';
+ob_start();
 $base = getenv('L8_PUBLIC_BASE');
 if ($base === false || $base === null) $base = '';
 $base = '/' . trim((string)$base, '/');
@@ -55,11 +57,18 @@ header('X-Robots-Tag: noindex, nofollow');
     <div class="nf-path"><?= htmlspecialchars((string)($_SERVER['REQUEST_URI'] ?? '/'), ENT_QUOTES, 'UTF-8') ?></div>
     <div class="nf-actions">
       <a class="primary" href="<?= htmlspecialchars($home, ENT_QUOTES, 'UTF-8') ?>">Volver a Codespace</a>
-      <button type="button" onclick="history.length>1?history.back():location.assign('<?= htmlspecialchars($home, ENT_QUOTES, 'UTF-8') ?>')">Atrás</button>
-      <button type="button" onclick="window.HashcodUX&&HashcodUX.palette.open()">Command palette</button>
+      <button type="button" id="nfBack">Atrás</button>
+      <button type="button" id="nfPalette">Command palette</button>
     </div>
     <div class="nf-foot"><span>HASHCOD CODESPACE</span><span>HTTP 404 · NOT FOUND</span></div>
   </main>
   <script defer src="<?= htmlspecialchars($components, ENT_QUOTES, 'UTF-8') ?>hashcod-ux-system.js?v=20260919-perf1" data-hashcod-ux-system="true"></script>
+  <script>
+    document.getElementById('nfBack').addEventListener('click', function () {
+      if (history.length > 1) history.back(); else location.assign(document.querySelector('.nf-actions a').href);
+    });
+    document.getElementById('nfPalette').addEventListener('click', function () { window.HashcodUX?.palette.open(); });
+  </script>
 </body>
 </html>
+<?php echo l8_apply_csp_nonce(ob_get_clean()); ?>

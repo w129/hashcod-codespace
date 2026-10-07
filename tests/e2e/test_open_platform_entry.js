@@ -6,7 +6,7 @@ const repoDir = path.resolve(__dirname, '../..');
 const loader = fs.readFileSync(path.join(repoDir, 'components/mldsa-access-gate-loader.js'), 'utf8');
 const workspaceAccess = fs.readFileSync(path.join(repoDir, 'hashcod-workspace-access.php'), 'utf8');
 
-assert(loader.includes("var VERSION='20261007-entry-bootstrap2'"), 'shared runtime version missing');
+assert(loader.includes("var VERSION='20261007-security1'"), 'shared runtime version missing');
 assert(loader.includes("mode:'open-entry'"), 'platform must identify direct open-entry mode');
 assert(loader.includes('required:false'), 'entry lock must be disabled');
 assert(loader.includes("dataset.hashcodEntryLock='disabled'"), 'DOM must expose disabled entry lock state');
@@ -15,7 +15,7 @@ assert(loader.includes("loadUniversalPersistence();"), 'open entry must keep clo
 assert(loader.includes("loadWorkspaceMedia();"), 'open entry must keep workspace media bootstrap');
 assert(loader.includes("loadFileVaultTotp();"), 'open entry must load File Vault TOTP runtime');
 assert(loader.includes("file-vault-commit-recovery.js?v=20261005-file-vault-commit-recovery1"), 'open entry must load File Vault commit recovery');
-assert(loader.includes("file-vault-fast-upload-v5.js?v=20261006-file-usd-value1"), 'open entry must load shared File Vault transport');
+assert(loader.includes("file-vault-fast-upload-v5.js?v=20261007-security1"), 'open entry must load shared File Vault transport');
 assert(loader.includes("universal-cloud-persistence.js?v=20261006-shared-workspace1"), 'open entry must load shared persistence');
 assert(loader.indexOf('FILE_VAULT_RECOVERY') < loader.indexOf('FILE_VAULT_FAST'), 'commit recovery must be declared before fast transport');
 assert(loader.includes("hashcod:code-access-granted"), 'compatibility event for platform modules missing');
@@ -36,6 +36,6 @@ assert(!workspaceAccess.includes("return 'global'"), 'workspace must not fall ba
 const caddy=fs.readFileSync(path.join(repoDir,'Caddyfile'),'utf8');
 const gate=fs.readFileSync(path.join(repoDir,'mldsa-access.php'),'utf8');
 assert(!caddy.includes('rewrite * /components/mldsa-access-gate-loader.js'),'Caddy must not replace the real FAQ/Documents runtime');
-assert(gate.includes('components/mldsa-access-gate-loader.js?v=20261007-entry-bootstrap2'),'both distributions must explicitly load the bootstrap');
+assert(gate.includes('components/mldsa-access-gate-loader.js?v=20261007-security1'),'both distributions must explicitly load the bootstrap');
 assert(loader.includes("dataset.hashcodCodeAccessRequired==='1'"),'bootstrap must honor server-required credentials');
 console.log('Direct platform entry and actual UI delivery contract OK');

@@ -250,10 +250,9 @@ function codeAccessRequired(): bool {
 }
 function codeAccessName(): string { return 'l8_hashcod_code_access_v1'; }
 function codeAccessAuthorized(): bool {
-    // The OCG mesh gate intentionally reappears after every page reload.
-    // The persistent first-use binding is stored separately in an HttpOnly
-    // signed cookie and is verified by /api/code-access.
-    return !codeAccessRequired();
+    if (!codeAccessRequired()) return true;
+    require_once __DIR__ . '/numeric-access-lib.php';
+    return numericAccessAuthorized();
 }
 
 function mldsaVerify(string $challenge,string $sigB64): bool {
@@ -290,23 +289,23 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
     $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261004-mesh-fallback1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261006-file-usd-value1',ENT_QUOTES,'UTF-8');
+    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $uiSoundsJs=htmlspecialchars($base.'components/ui-interaction-sounds.js?v=20261006-ui-sounds1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
-    $rotatingTextCss=htmlspecialchars($base.'components/react-bits-rotating-text.css?v=20261006-hero-brand1',ENT_QUOTES,'UTF-8');
+    $rotatingTextCss=htmlspecialchars($base.'components/react-bits-rotating-text.css?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
     $rotatingTextBrandIcon=htmlspecialchars($base.'hashcod_icon_exact.svg',ENT_QUOTES,'UTF-8');
-    $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261002-rotating2',ENT_QUOTES,'UTF-8');
-    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261006-privacy-navigation1',ENT_QUOTES,'UTF-8');
-    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261006-privacy-navigation1',ENT_QUOTES,'UTF-8');
+    $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
+    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
+    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
     $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261007-tokenization-status1',ENT_QUOTES,'UTF-8');
     $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261007-tokenization-status1',ENT_QUOTES,'UTF-8');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
-    $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261004-mesh-dialog1',ENT_QUOTES,'UTF-8');
-    $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261004-mesh-dialog1',ENT_QUOTES,'UTF-8');
+    $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
+    $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
     $codeAccessRequired=$entryIntro&&codeAccessRequired();
     $codeAccessAuthorized=!$codeAccessRequired||codeAccessAuthorized();
     $bodyAttr=$entryIntro
@@ -336,9 +335,9 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
         .'</section>';
     return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'">'.($entryIntro?'<link rel="stylesheet" href="'.$branchedMenuCss.'"><link rel="stylesheet" href="'.$centerEmptyStateCss.'"><link rel="stylesheet" href="'.$codeAccessCss.'"><link rel="stylesheet" href="'.$mobileCss.'">':'').'</head><body'.$bodyAttr.'>'
-      .($entryIntro?'<div id="d5CodeAccessMount" class="code-access-root" data-hashcod-component="CodeAccessGate" data-required="'.($codeAccessRequired?'1':'0').'" data-authorized="'.($codeAccessAuthorized?'1':'0').'"><div class="code-access-boot" aria-hidden="true"><section class="code-access-boot-window"><header class="code-access-boot-head"><span class="code-access-boot-mark">HC</span><span><b>HASHCOD CODESPACE · SECURE ENTRY</b><small>Mesh access binding</small></span><i>OCG MESH · FIRST-USE BINDING</i></header><div class="code-access-boot-tabs"><span data-active="true">Access.php</span><span>Protocol</span><em>PHP</em></div><div class="code-access-boot-editor code-access-boot-mesh"><code><span>&lt;?php</span><br><br>return [<br>&nbsp;&nbsp;<b>&#39;schema&#39;</b> =&gt; <mark>&#39;OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI&#39;</mark>,<br>&nbsp;&nbsp;<b>&#39;mode&#39;</b> =&gt; <mark>&#39;MESH-NODE-BINDING&#39;</mark>,<br>&nbsp;&nbsp;<b>&#39;action&#39;</b> =&gt; <mark>&#39;OPEN_VECTOR_MESH_ICON&#39;</mark>,<br>];</code><span class="code-access-boot-vector"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 256 256"><g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10"><g transform="scale(5.12,5.12)"><path d="M17.22656,46.58203c-0.12109,0 -0.24219,-0.01953 -0.35547,-0.0625c-8.89453,-3.36328 -14.87109,-12.01172 -14.87109,-21.51953c0,-12.68359 10.31641,-23 23,-23c12.68359,0 23,10.31641 23,23c0,9.50781 -5.97656,18.15625 -14.87109,21.51953c-0.24609,0.09375 -0.52344,0.08594 -0.76562,-0.02734c-0.24219,-0.10547 -0.42969,-0.30859 -0.52344,-0.55469l-4.94922,-13.10937c-0.19531,-0.51562 0.0625,-1.09375 0.58203,-1.28906c2.70703,-1.01953 4.52734,-3.64844 4.52734,-6.53906c0,-3.85937 -3.14062,-7 -7,-7c-3.85937,0 -7,3.14063 -7,7c0,2.89063 1.82031,5.51953 4.52734,6.53906c0.51953,0.19531 0.77734,0.77344 0.58203,1.28906l-4.94922,13.10547c-0.09375,0.25 -0.28125,0.44922 -0.52344,0.55859c-0.12891,0.0625 -0.26953,0.08984 -0.41016,0.08984z"></path></g></g></svg></span></div><footer class="code-access-boot-foot"><span><i></i> Loading OCG mesh binding…</span><button type="button" disabled>Open mesh credential</button></footer></section></div></div>':'')
+      .($entryIntro?'<div id="d5CodeAccessMount" class="code-access-root" data-hashcod-component="CodeAccessGate" data-required="'.($codeAccessRequired?'1':'0').'" data-authorized="'.($codeAccessAuthorized?'1':'0').'"><div class="code-access-boot"><section class="code-access-boot-window" aria-label="Verificación de acceso"><header class="code-access-boot-head"><span class="code-access-boot-mark">HC</span><span><b>HASHCOD CODESPACE</b><small>Verificación de acceso</small></span></header><p role="status" style="padding:24px">Comprobando tu acceso con el servidor…</p></section></div></div>':'')
       .'<main class="access-stage">'
-      .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Creates like rotating text"><span class="entry-rotating-text-brand"><img class="entry-rotating-text-brand-icon" src="'.$rotatingTextBrandIcon.'" width="38" height="38" alt="" aria-hidden="true"><span class="entry-rotating-text-prefix">Creates like</span></span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">code</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
+      .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="código|desarrollo|programación|IA|aprendizaje profundo|estructuras de datos|algoritmos|esquemas|vectores|grafos|árboles|mapas hash" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Crea con código"><span class="entry-rotating-text-brand"><img class="entry-rotating-text-brand-icon" src="'.$rotatingTextBrandIcon.'" width="38" height="38" alt="" aria-hidden="true"><span class="entry-rotating-text-prefix">Crea con </span></span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">código</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
       .($entryIntro?'<section id="d5CenterEmptyStateStage" class="entry-empty-state-stage" aria-label="VC"><div id="d5CenterEmptyStateMount" class="entry-empty-state-mount" data-hashcod-component="EmptyState"></div></section>':'')
       .'<div class="access-layout"><div class="access-left-stack">'.$accessCard
       .'<div id="d5FaqStack" class="faq-stack">'
@@ -352,10 +351,10 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</section>'
       .'<section id="d5FaqCard" class="faq-tabs-card" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="d5FaqModalTitle">'
       .'<div class="faq-modal-header"><h2 id="d5FaqModalTitle">FAQ</h2><button id="d5FaqClose" class="faq-modal-close" type="button" aria-label="Cerrar FAQ">×</button></div>'
-      .'<div class="faq-tabs" role="tablist" aria-label="FAQ categories">'
+      .'<div class="faq-tabs" role="tablist" aria-label="Categorías de preguntas frecuentes">'
       .'<button class="faq-tab active" type="button" role="tab" aria-selected="true" data-faq-tab="0"><span class="faq-tab-pill"></span><span class="faq-tab-label">General</span></button>'
-      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="1"><span class="faq-tab-label">Building</span></button>'
-      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="2"><span class="faq-tab-label">Goals</span></button>'
+      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="1"><span class="faq-tab-label">Desarrollo</span></button>'
+      .'<button class="faq-tab" type="button" role="tab" aria-selected="false" data-faq-tab="2"><span class="faq-tab-label">Objetivos</span></button>'
       .'</div>'
       .'<div id="d5FaqAccordion" class="faq-accordion"></div>'
       .'<button id="d5FaqFooter" class="faq-footer" type="button">Comenzar mi Solicitud</button>'
@@ -481,22 +480,23 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'<button id="d5TickerIncrease" class="number-ticker-button" type="button" aria-label="Increase"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></button>'
       .'</div>'
       .'</section>'
-      .'<section id="d5ScratchCardDemo" class="scratch-card-demo" aria-label="Scratch card demo">'
+      .'<section id="d5ScratchCardDemo" class="scratch-card-demo" aria-label="Cupón de descuento">'
       .'<div id="d5ScratchCard" class="scratch-card-shell">'
       .'<div id="d5ScratchContent" class="scratch-card-content" inert>'
       .'<span class="scratch-ticket-icon" aria-hidden="true"><img class="scratch-platform-icon" src="'.$base.'hashcod_icon_exact.svg" alt=""></span>'
-      .'<span class="scratch-card-label">Coupon unlocked</span>'
-      .'<span class="scratch-card-prize">20% off</span>'
-      .'<button id="d5ScratchCopy" class="scratch-copy-button" type="button"><span id="d5ScratchCouponCode" class="scratch-copy-code">HC20-LOADING</span><span id="d5ScratchCopyIcon" class="scratch-copy-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg></span><span id="d5ScratchCopySr" class="sr-only">Copy coupon code</span></button>'
+      .'<span class="scratch-card-label">Cupón disponible</span>'
+      .'<span class="scratch-card-prize">20% de descuento</span>'
+      .'<button id="d5ScratchCopy" class="scratch-copy-button" type="button"><span id="d5ScratchCouponCode" class="scratch-copy-code">Cargando cupón…</span><span id="d5ScratchCopyIcon" class="scratch-copy-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg></span><span id="d5ScratchCopySr" class="sr-only">Copiar código del cupón</span></button>'
       .'</div>'
       .'<div id="d5ScratchFoil" class="scratch-foil">'
-      .'<canvas id="d5ScratchCanvas" class="scratch-canvas" role="button" tabindex="0" aria-label="Scratch to reveal your coupon code. Press Enter to reveal."></canvas>'
+      .'<canvas id="d5ScratchCanvas" class="scratch-canvas" role="button" tabindex="0" aria-label="Rasca para revelar tu cupón. Pulsa Enter para revelarlo."></canvas>'
       .'<canvas id="d5ScratchParticles" class="scratch-particles" aria-hidden="true"></canvas>'
       .'</div>'
       .'<span id="d5ScratchAnnouncement" class="sr-only" aria-live="polite"></span>'
       .'</div>'
-      .'<p class="scratch-card-hint">Drag across the card to scratch off the foil</p>'
-      .'<button id="d5ScratchReset" class="scratch-reset-button" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg><span>Scratch again</span></button>'
+      .'<p id="d5ScratchCouponStatus" class="scratch-card-hint" role="status"></p><button id="d5ScratchCouponRetry" class="scratch-reset-button" type="button" hidden>Reintentar cupón</button>'
+      .'<p class="scratch-card-hint">Desliza sobre la tarjeta para revelar el cupón</p>'
+      .'<button id="d5ScratchReset" class="scratch-reset-button" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg><span>Volver a rascar</span></button>'
       .'</section>'
       .'</section></div>'
       .'<section id="d5ToolDeck" class="tool-deck" data-card-source="true" hidden aria-hidden="true">'

@@ -7,7 +7,7 @@ window.__hashcodReactBitsRotatingTextLoaded=true;
 function splitCharacters(text){
   if(typeof Intl!=='undefined'&&Intl.Segmenter){
     try{
-      var segmenter=new Intl.Segmenter('en',{granularity:'grapheme'});
+      var segmenter=new Intl.Segmenter('es',{granularity:'grapheme'});
       return Array.from(segmenter.segment(text),function(part){return part.segment;});
     }catch(_){}
   }
@@ -23,7 +23,7 @@ function boot(){
   var live=document.getElementById('d5RotatingTextLive');
   if(!root||!viewport||!live)return;
 
-  var texts=(root.getAttribute('data-texts')||'code|dev|programing|llm|deeplearming|data structures|algorithms|schemas|vectors|graphs|trees|hash maps').split('|').filter(Boolean);
+  var texts=(root.getAttribute('data-texts')||'código|desarrollo|programación|IA|aprendizaje profundo|estructuras de datos|algoritmos|esquemas|vectores|grafos|árboles|mapas hash').split('|').filter(Boolean);
   if(!texts.length)return;
 
   var rotationInterval=Math.max(400,Number(root.getAttribute('data-rotation-interval'))||2000);
@@ -90,6 +90,7 @@ function boot(){
     var layer=createLayer(text);
     currentLayer=layer;
     live.textContent=text;
+    root.setAttribute('aria-label','Crea con '+text);
     fitViewport(layer);
 
     if(immediate||reduced){

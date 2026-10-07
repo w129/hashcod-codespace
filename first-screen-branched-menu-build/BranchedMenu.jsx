@@ -16,20 +16,20 @@ import './BranchedMenu.css';
 
 const DEFAULT_ITEMS = [
   {
-    label: 'Getting started',
+    label: 'Inicio',
     children: [
       { value: 'install', label: 'Installation', icon: Download04Icon },
-      { value: 'quick', label: 'Quick start', icon: Rocket01Icon },
-      { value: 'config', label: 'Configuration', icon: Settings02Icon },
+      { value: 'quick', label: 'Inicio rápido', icon: Rocket01Icon },
+      { value: 'config', label: 'Configuración', icon: Settings02Icon },
       { value: 'theming', label: 'Theming', icon: PaintBoardIcon }
     ]
   },
   {
-    label: 'Components',
+    label: 'Componentes',
     children: [
-      { value: 'buttons', label: 'Buttons', icon: CursorPointer01Icon },
+      { value: 'buttons', label: 'Botones', icon: CursorPointer01Icon },
       { value: 'typography', label: 'Typography', icon: TextFontIcon },
-      { value: 'overlays', label: 'Overlays', icon: Layers01Icon },
+      { value: 'overlays', label: 'Capas', icon: Layers01Icon },
       { value: 'toasts', label: 'Toasts', icon: Notification03Icon }
     ]
   }

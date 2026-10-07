@@ -122,7 +122,7 @@ function securityApplyHeaders() {
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "style-src 'self' 'nonce-" . securityCspNonce() . "' https://fonts.googleapis.com; " .
             "style-src-attr 'unsafe-inline'; " .
-            "script-src 'self' 'nonce-" . securityCspNonce() . "' https://challenges.cloudflare.com https://cdn.jsdelivr.net; " .
+            "script-src 'self' 'nonce-" . securityCspNonce() . "' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net; " .
             "script-src-attr 'none'; " .
             "connect-src " . securityCspConnectSources() . "; " .
             "frame-src 'self' https://challenges.cloudflare.com" . (securityDeskcommFrameSource() !== '' ? ' ' . securityDeskcommFrameSource() : '') . "; " .

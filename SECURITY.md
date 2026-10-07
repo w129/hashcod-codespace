@@ -35,6 +35,7 @@ Streamlit (código Python subido), agent-browser, prompts del CLI Claude y desca
 
 - La ruta pública especial de Railway y la entrada local aplican los headers de seguridad antes de renderizar. La excepción de reputación de la portada no omite la CSP.
 - `script-src-attr 'none'`: los controles nativos y sus plantillas dinámicas usan `addEventListener`. Los argumentos son JSON, nunca código evaluado.
+- `wasm-unsafe-eval` permite WebAssembly para Python/PDF en el navegador; `unsafe-eval` de JavaScript sigue prohibido.
 - Los scripts y estilos embebidos reciben un nonce por respuesta. Los estilos creados por los componentes heredan ese nonce.
 - `connect-src` contiene `'self'`, los proveedores específicos utilizados (Turnstile, jsDelivr, GitHub y las APIs del mapa) y únicamente los orígenes HTTPS/WSS de Supabase configurados y el dominio de almacenamiento de ese proyecto. No incluye comodines `https:` ni `wss:`.
 - Las imágenes externas están restringidas a los orígenes explícitos de avatares GitHub, Unsplash, Icons8 y el proyecto Supabase configurado.

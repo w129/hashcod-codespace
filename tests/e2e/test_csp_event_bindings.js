@@ -9,8 +9,8 @@ const root = path.resolve(__dirname, '../..');
   const server = http.createServer((req,res) => {
     if (req.url === '/native.js') { res.setHeader('Content-Type','text/javascript'); return res.end(fs.readFileSync(path.join(root,'components/csp-native-handlers.js'))); }
     if (req.url === '/bindings.js') { res.setHeader('Content-Type','text/javascript'); return res.end(fs.readFileSync(path.join(root,'components/csp-event-bindings.js'))); }
-    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self' 'nonce-test'; script-src-attr 'none'; style-src 'nonce-test'; connect-src 'self'; img-src 'self';");
-    res.end(`<style nonce="test">#button{color:rgb(1,2,3)}</style><button id="button" data-hc-click="test">Run</button><script nonce="test" src="/bindings.js"></script><script nonce="test">window.calls=[]; window.openPrivacyPolicyModal=()=>{window.privacyOpened=true;}; HashcodCspEvents.register({test:function(event,args){ calls.push({id:this.id,arg:args[0]}); return false; }});</script><script nonce="test" src="/native.js"></script>`);
+    res.setHeader('Content-Security-Policy', "default-src 'none'; script-src 'self' 'nonce-test' 'wasm-unsafe-eval'; script-src-attr 'none'; style-src 'nonce-test'; connect-src 'self'; img-src 'self';");
+    res.end(`<style nonce="test">#button{color:rgb(1,2,3)}</style><button id="button" data-hc-click="test">Run</button><script nonce="test" src="/bindings.js"></script><script nonce="test">window.calls=[];window.evalBlocked=false;try{eval('window.evalExecuted=true')}catch(e){window.evalBlocked=true;}window.wasmReady=WebAssembly.compile(new Uint8Array([0,97,115,109,1,0,0,0])).then(()=>true); window.openPrivacyPolicyModal=()=>{window.privacyOpened=true;}; HashcodCspEvents.register({test:function(event,args){ calls.push({id:this.id,arg:args[0]}); return false; }});</script><script nonce="test" src="/native.js"></script>`);
   });
   await new Promise(r=>server.listen(0,'127.0.0.1',r));
   let browser;
@@ -19,6 +19,8 @@ const root = path.resolve(__dirname, '../..');
     const page = await browser.newPage();
     await page.route('**/*',route=>new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
     await page.goto('http://127.0.0.1:'+server.address().port);
+    assert.equal(await page.evaluate(()=>window.evalBlocked),true,'JavaScript eval remains blocked');
+    assert.equal(await page.evaluate(()=>window.wasmReady),true,'browser WASM remains available for Python/PDF');
     await page.locator('#button').click();
     assert.equal(await page.evaluate(()=>calls[0].id),'button');
     assert.equal(await page.locator('#button').evaluate(e=>getComputedStyle(e).color),'rgb(1, 2, 3)');

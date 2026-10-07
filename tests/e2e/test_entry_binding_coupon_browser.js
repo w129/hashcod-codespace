@@ -50,6 +50,15 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
       const context = await browser.newContext({ viewport, reducedMotion:'reduce', hasTouch:viewport.width<500 });
       await context.addCookies([{name:'hashcod_platform_period_v1', value:period, url:base, httpOnly:true, sameSite:'Strict'}]);
       const page = await context.newPage(), errors=[];
+      await page.addInitScript(()=>{
+        window.__faqCloseTrace=[];
+        const remove=DOMTokenList.prototype.remove;
+        DOMTokenList.prototype.remove=function(...tokens){
+          if(tokens.includes('faq-modal-open')&&this.contains('faq-modal-open'))
+            window.__faqCloseTrace.push({stack:new Error().stack,event:window.event?.type,target:window.event?.target?.id});
+          return remove.apply(this,tokens);
+        };
+      });
       page.setDefaultTimeout(8000);
       page.on('pageerror', e=>errors.push(e.message));
       // Access, coupon and period reach the real local PHP server. Every other
@@ -94,7 +103,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
             console.error('FAQ layout diagnostic',JSON.stringify(await page.evaluate(()=>{
               const card=document.getElementById('d5FaqCard'),accordion=document.getElementById('d5FaqAccordion');
               const describe=node=>{const s=getComputedStyle(node),r=node.getBoundingClientRect();return {id:node.id,display:s.display,visibility:s.visibility,width:r.width,height:r.height,scrollHeight:node.scrollHeight,overflow:s.overflow,flex:s.flex};};
-              return {bodyClass:document.body.className,card:describe(card),accordion:describe(accordion),questions:Array.from(card.querySelectorAll('.faq-question')).map(describe)};
+              return {closeTrace:window.__faqCloseTrace,bodyClass:document.body.className,card:describe(card),accordion:describe(accordion),questions:Array.from(card.querySelectorAll('.faq-question')).map(describe)};
             })));
             throw error;
           });

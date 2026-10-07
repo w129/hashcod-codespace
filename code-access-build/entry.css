@@ -7,7 +7,8 @@ body[data-hashcod-code-access-required="1"][data-hashcod-code-access-authorized=
 .code-access-window { box-sizing: border-box; width: min(540px,100%); max-height: calc(100dvh - 32px); overflow: auto;
   padding: 28px; border: 1px solid #dedede; border-radius: 20px; background: #fff; color: #0a0a0a;
   box-shadow: 0 24px 80px rgba(0,0,0,.16); font-family: Inter,"Segoe UI",sans-serif; }
-.code-access-brand { font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+.code-access-brand { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+.code-access-brand img { width: 28px; height: 28px; flex: 0 0 28px; object-fit: contain; }
 .code-access-window h1 { font-size: clamp(22px,5vw,30px); margin: 18px 0 12px; }
 .code-access-window p { font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
 .code-access-window form { display: grid; gap: 12px; }

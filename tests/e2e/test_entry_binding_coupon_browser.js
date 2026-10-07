@@ -28,11 +28,16 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
   const port = reservation.address().port; await new Promise(r => reservation.close(r));
   const base = `http://127.0.0.1:${port}`;
   const env = { ...process.env, APP_ENV: 'test', GITHUB_ACTIONS: 'true', L8_CODE_ACCESS_REQUIRED: '1',
+    SUPABASE_URL: base+'/unavailable-test-cloud', SUPABASE_PUBLISHABLE_KEY: 'isolated-test-key',
+    SUPABASE_SECRET_KEY: 'isolated-test-key', SUPABASE_ANON_KEY: 'isolated-test-key', SUPABASE_SERVICE_ROLE_KEY: 'isolated-test-key',
     L8_NUMERIC_SERIES_SHA256: crypto.createHash('sha256').update(series).digest('hex'),
+    L8_COUPON_SIGNING_KEY: crypto.randomBytes(48).toString('hex'),
     L8_ACCESS_GATE_COOKIE_SECRET: crypto.randomBytes(48).toString('hex') };
   const seal = payload => execFileSync(phpBin, ['-r', `$_SERVER['HTTP_HOST']='127.0.0.1:${port}'; require 'mldsa-access.php'; echo mldsaSeal(json_decode($argv[1],true));`, JSON.stringify(payload)], { cwd: runtime, env, encoding: 'utf8' }).trim();
   const period = seal({ kind: 'platform-period-v1', host: `127.0.0.1:${port}`, state: 'active', days: 10, expiresAt: Math.floor(Date.now()/1000)+86400, token: 'server-test-period' });
-  const php = spawn(phpBin, ['-d','session.save_path='+path.join(runtime,'sessions'),'-S', `127.0.0.1:${port}`, '-t', runtime, path.join(runtime, 'router.php')], { cwd: runtime, env, stdio: 'ignore' });
+  // No PHP controller can transmit to a cloud service during this local suite.
+  const php = spawn(phpBin, ['-d','allow_url_fopen=0','-d','disable_functions=curl_exec,fsockopen,pfsockopen,stream_socket_client,socket_connect,exec,shell_exec,passthru,system,proc_open',
+    '-d','session.save_path='+path.join(runtime,'sessions'),'-S', `127.0.0.1:${port}`, '-t', runtime, path.join(runtime, 'router.php')], { cwd: runtime, env, stdio: 'ignore' });
   let browser;
   try {
     for (let i=0; i<80; i++) { try { if ((await fetch(base+'/api/code-access')).ok) break; } catch {} await new Promise(r=>setTimeout(r,100)); }
@@ -47,9 +52,16 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
       const page = await context.newPage(), errors=[];
       page.setDefaultTimeout(8000);
       page.on('pageerror', e=>errors.push(e.message));
-      // Only unrelated cloud workspace content is stubbed; access and coupon
-      // requests always reach the actual PHP server. No network credentials needed.
-      await page.route('**/api/hashcod-shared-*', route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,files:[],state:{},text:'',updatedAt:0})}));
+      // Access, coupon and period reach the real local PHP server. Every other
+      // background controller is an isolated fixture; external traffic is denied.
+      await page.route('**/*', route=>{
+        const url=new URL(route.request().url());
+        if(url.origin!==base)return route.abort();
+        const real=['/api/code-access','/api/hashcod-coupon','/api/platform-period'];
+        if((url.pathname.startsWith('/api/')&&!real.includes(url.pathname))||/^\/(?:hashcod-|toolbox-secure).*\.php$/.test(url.pathname))
+          return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,files:[],state:{},text:'',updatedAt:0})});
+        return route.continue();
+      });
       await page.goto(base, {waitUntil:'domcontentloaded'});
       await page.waitForTimeout(200);
       await page.locator('#d5AccessSeries').waitFor({state:'visible'});
@@ -101,7 +113,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
       const validate = code => context.request.post(base+'/api/hashcod-coupon',{data:{action:'validate',code},headers:{Origin:base}});
       assert.equal((await validate(code)).status(),200);
       assert.equal((await validate(code.slice(0,-1)+(code.endsWith('0')?'1':'0'))).status(),422);
-      const expired = execFileSync(phpBin, ['-r', `require 'secrets.php'; $key=hash_hmac('sha256','hashcod|coupon-validation|v1',secretGet('L8_ACCESS_GATE_COOKIE_SECRET'),true); $exp=strtoupper(base_convert((string)(time()-60),10,36)); $nonce='ABCDEFGH'; echo 'HC20-'.$exp.'-'.$nonce.'-'.strtoupper(substr(hash_hmac('sha256','HC20|'.$exp.'|'.$nonce,$key),0,12));`], {cwd:runtime,env,encoding:'utf8'}).trim();
+      const expired = execFileSync(phpBin, ['-r', `require 'secrets.php'; $key=hash_hmac('sha256','hashcod|coupon-validation|v1',secretGet('L8_COUPON_SIGNING_KEY'),true); $exp=strtoupper(base_convert((string)(time()-60),10,36)); $nonce='ABCDEFGH'; echo 'HC20-'.$exp.'-'.$nonce.'-'.strtoupper(substr(hash_hmac('sha256','HC20|'.$exp.'|'.$nonce,$key),0,12));`], {cwd:runtime,env,encoding:'utf8'}).trim();
       const expiredResponse=await validate(expired);
       assert.equal(expiredResponse.status(),422,'expired signed coupons must be rejected');
       assert.equal((await expiredResponse.json()).coupon.reason,'expired');

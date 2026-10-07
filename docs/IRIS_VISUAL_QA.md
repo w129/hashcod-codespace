@@ -41,7 +41,7 @@ L8_CODE_ACCESS_REQUIRED=0 php -S 127.0.0.1:8099 router.php
 Then run:
 
 ```bash
-IRIS_URL=http://127.0.0.1:8099/laragon-local-entry.php \
+IRIS_URL=http://127.0.0.1:8099/ \
   bash scripts/iris_visual_qa.sh
 ```
 

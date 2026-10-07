@@ -85,8 +85,8 @@ assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be remov
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1'),'BranchedMenu JS bundle must load');
-assert(gate.includes('components/code-access.bundle.css?v=20261007-entry-fixes1'),'code access CSS bundle must load');
-assert(gate.includes('components/code-access.bundle.js?v=20261007-entry-fixes1'),'code access JS bundle must load');
+assert(gate.includes('components/code-access.bundle.css?v=20261007-access-brand2'),'code access CSS bundle must load');
+assert(gate.includes('components/code-access.bundle.js?v=20261007-access-brand2'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
 assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
 assert(gate.includes('class="code-access-boot-window"'),'styled CodeTabs boot window missing');

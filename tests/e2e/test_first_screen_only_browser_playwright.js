@@ -636,12 +636,12 @@ async function waitFor(page,predicate,arg,options){
     assert.equal(textCardState.backdropBackground,'rgba(255, 255, 255, 0.94)','Text Card backdrop must strongly veil the page');
     assert.equal(textCardState.closeFocused,true,'Text Card close control must receive focus');
     assert.deepEqual(textCardState.cards,[
-      'Custom Toolbook',
-      'Goal-driven building',
-      'Development requests',
-      'Unique validation codes',
-      'Modular environment',
-      'Everything in one space'
+      'Toolbook a medida',
+      'Desarrollo por objetivos',
+      'Solicitudes de desarrollo',
+      'Códigos de validación únicos',
+      'Entorno modular',
+      'Todo en un espacio'
     ],'Text Card must show exactly the six existing text cards');
 
     await page.locator('#d5TextCardClose').click();

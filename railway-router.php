@@ -19,6 +19,10 @@ $isRailway = trim((string)getenv('RAILWAY_ENVIRONMENT_ID')) !== '';
 $isPublicLanding = in_array($uri, ['/', '/index.php', '/index.html'], true);
 
 if ($isRailway && $isPublicLanding) {
+    // Keep landing reachable through reputation changes without skipping CSP
+    // or any other response header. The general router still gates all APIs.
+    require_once __DIR__ . '/security.php';
+    securityApplyHeaders();
     require_once __DIR__ . '/l8-html.php';
     l8_require_html_page('index.php', true);
 }

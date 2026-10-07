@@ -22,6 +22,8 @@ function hashcodLaragonBasePath(): string {
     return '/' . implode('/', array_map('rawurlencode', $parts)) . '/';
 }
 
+require_once __DIR__ . '/security.php';
+securityApplyHeaders();
 require_once __DIR__ . '/mldsa-access.php';
 require_once __DIR__ . '/l8-html.php';
 

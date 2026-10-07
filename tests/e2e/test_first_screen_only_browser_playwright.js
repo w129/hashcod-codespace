@@ -155,7 +155,8 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
           required:document.getElementById('d5CodeAccessMount')?.getAttribute('data-required')||'',
           authorized:document.getElementById('d5CodeAccessMount')?.getAttribute('data-authorized')||'',
           mounted:Boolean(window.HashcodCodeAccess?.mounted),
-          editor:window.HashcodCodeAccess?.editor||'',
+          mode:window.HashcodCodeAccess?.mode||'',
+          bound:Boolean(window.HashcodCodeAccess?.bound),
           gateCount:document.querySelectorAll('#d5CodeAccessGate').length
         },
         previewPolicy:{
@@ -201,9 +202,9 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.menu.display,'flex','BranchedMenu must use source flex layout');
     assert.equal(state.menu.paddingLeft,'14px','source rail offset must remain exact');
     assert(state.menu.width<=240.5,'BranchedMenu width prop must remain 240px');
-    assert.deepEqual(state.heads,[{label:'Getting started',expanded:'true'},{label:'Components',expanded:'false'}],'defaultOpen={[0]} must remain exact');
-    assert.deepEqual(state.labels,['FAQ','Card','Workspace','Text Card','Documents','Quick start','Configuration','Buttons','Overlays'],'menu labels must include Documents in the requested structure');
-    assert.equal(state.active,'Quick start','defaultActive must remain quick');
+    assert.deepEqual(state.heads,[{label:'Inicio',expanded:'true'},{label:'Componentes',expanded:'false'}],'defaultOpen={[0]} must remain exact');
+    assert.deepEqual(state.labels,['FAQ','Card','Workspace','Text Card','Documents','Inicio rápido','Configuración','Botones','Capas'],'menu labels must include Documents in the requested structure');
+    assert.equal(state.active,'Inicio rápido','defaultActive must remain quick');
     assert.equal(state.calendar.exists,true,'calendar must render below the BranchedMenu');
     assert.equal(state.calendar.belowMenu,true,'calendar must be positioned below the BranchedMenu');
     assert.equal(state.calendar.month,state.calendar.expectedMonth,'calendar must open on the current local month');
@@ -216,11 +217,12 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(state.codeAccess.required,'0','CI first-screen flow must explicitly disable the production code gate');
     assert.equal(state.codeAccess.authorized,'1','disabled CI code gate must be treated as authorized');
     assert.equal(state.codeAccess.mounted,true,'Code access React island must mount');
-    assert.equal(state.codeAccess.editor,'Monaco','Code access must report Monaco as its editor');
+    assert.equal(state.codeAccess.mode,'open-entry','disabled gate must report open entry');
+    assert.equal(state.codeAccess.bound,false,'open entry must not claim a credential binding');
     assert.equal(state.codeAccess.gateCount,0,'disabled CI code gate must not cover ordinary first-screen tests');
     assert.equal(state.previewPolicy.exists,true,'Preview Link Card footer must exist at the end of the platform');
     assert.equal(state.previewPolicy.afterMain,true,'Preview Link Card footer must follow the main platform content');
-    assert.equal(state.previewPolicy.text,'Before continuing, please read the Use and Privacy Policy.','Preview Link Card footer text must match exactly');
+    assert.equal(state.previewPolicy.text,'Antes de continuar, lee la Use and Privacy Policy.','Preview Link Card footer text must match exactly');
     assert.equal(state.previewPolicy.href,'/privacy','Use and Privacy Policy must link to the existing privacy route');
     assert.equal(state.previewPolicy.target,'_self','Use and Privacy Policy must open directly in the current tab');
     assert.equal(state.previewPolicy.component,'PreviewLinkCard','Preview Link Card component marker changed');
@@ -694,13 +696,13 @@ const target=process.env.HASHCOD_FIRST_SCREEN_URL||'http://127.0.0.1:8097/';
     assert.equal(await page.locator('#d5NumberTickerDemo').isVisible(),false,'NumberTicker must hide again after Documents closes');
     assert.equal(await page.locator('#d5ScratchCardDemo').isVisible(),false,'ScratchCard must hide again after Documents closes');
 
-    await page.getByRole('button',{name:'Components'}).click();
-    await page.waitForFunction(()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Components')?.getAttribute('aria-expanded')==='true');
-    await page.getByRole('button',{name:'Overlays'}).click();
+    await page.getByRole('button',{name:'Componentes'}).click();
+    await page.waitForFunction(()=>Array.from(document.querySelectorAll('.branched-menu__head')).find(n=>n.textContent.trim()==='Componentes')?.getAttribute('aria-expanded')==='true');
+    await page.getByRole('button',{name:'Capas'}).click();
     assert.equal(new URL(page.url()).hash,'#overlays','onSelect navigate(value) must update the selected destination');
 
     const selected=await page.locator('.branched-menu__item[aria-current="true"]').textContent();
-    assert.equal(selected.trim(),'Overlays','selected item must become active');
+    assert.equal(selected.trim(),'Capas','selected item must become active');
 
     response=await page.goto(target+'?hashcod_enter=1',{waitUntil:'domcontentloaded',timeout:15000});
     assert(response&&response.status()===200,'legacy query must still return first screen');

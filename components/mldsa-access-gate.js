@@ -884,53 +884,61 @@ var faqActiveTab=0;
 var faqOpenIndex=0;
 var FAQ_TABS=[
   {
-    label:'General',
-    faqs:[
+    "label": "General",
+    "faqs": [
       {
-        question:'¿Qué obtengo al entrar a Hashcod Codespace?',
-        answer:'Al entrar a Hashcod Codespace obtienes acceso a un entorno digital diseñado para trabajar, organizar y desarrollar tu proyecto desde un mismo espacio. Podrás utilizar las herramientas disponibles de la plataforma, gestionar información relacionada con tu creación, guardar tu progreso y acceder a las funciones habilitadas para tu cuenta. La plataforma está pensada para acompañar el proceso desde la preparación de tu proyecto hasta los servicios de análisis, validación y certificación disponibles dentro del ecosistema Hashcod.'
+        "question": "¿Qué puedo hacer en Hashcod Codespace?",
+        "answer": "Puedes trabajar con archivos, escribir y guardar texto, organizar solicitudes y usar las herramientas disponibles. El espacio de trabajo y los archivos compartidos pueden ser visibles para otros usuarios; evita subir información confidencial sin autorización."
       },
       {
-        question:'¿Qué puedo hacer dentro de Hashcod Codespace?',
-        answer:'Dentro de Hashcod Codespace puedes utilizar diferentes herramientas para crear, organizar, desarrollar y gestionar tu proyecto digital desde un solo entorno. La plataforma integra espacios de trabajo, herramientas técnicas, gestión de archivos, almacenamiento de información y funciones destinadas al análisis y validación de proyectos. Dependiendo de las funciones habilitadas en tu cuenta, también podrás registrar información de tu plataforma, conservar tu progreso y acceder a los diferentes recursos que forman parte del ecosistema Hashcod Codespace.'
+        "question": "¿Cómo solicito la tokenización de un archivo?",
+        "answer": "Abre la herramienta de tokenización, selecciona un archivo que hayas subido e introduce tu teléfono y correo. Revisa y acepta la licencia de procesamiento antes de enviar. Se registra una solicitud de revisión; enviar un archivo no crea un token automáticamente."
       },
       {
-        question:'¿Cómo funciona el proceso de validación de mi proyecto?',
-        answer:'Cuando envías la información de tu proyecto a través de Hashcod Codespace, se genera un registro asociado a tu solicitud. Posteriormente, el proyecto puede pasar por un proceso de revisión y análisis según el servicio seleccionado. Durante esta evaluación se pueden comprobar aspectos técnicos, estructurales y funcionales del proyecto. Una vez completada la revisión y cumplidos los requisitos correspondientes, se podrá continuar con el proceso de validación o certificación disponible dentro del ecosistema Hashcod.'
+        "question": "¿Qué pasa después de enviar una solicitud?",
+        "answer": "La administración revisa el archivo y los datos de contacto. Puede indicar En curso, Retrasada, Falta de pago o Completada. El alcance, coste y plazo del servicio se acuerdan con Hashcod; el envío por sí solo no garantiza su aprobación."
+      },
+      {
+        "question": "¿Cómo se utiliza el cupón del 20%?",
+        "answer": "Abre Documentos y rasca la tarjeta, o pulsa Enter para revelarla. El servidor genera y valida el código. Puedes copiarlo y presentarlo al solicitar el servicio; su aplicación debe confirmarse con Hashcod. Caduca 30 días después de su emisión y se conserva en esta sesión."
+      },
+      {
+        "question": "¿Dónde consulto el uso de mis datos?",
+        "answer": "Abre Use and Privacy Policy desde el menú o el enlace inferior. Allí encontrarás la licencia de procesamiento, los datos que se recogen y las condiciones del servicio. Para consultas de privacidad o sobre tu solicitud, contacta con Hashcod por WhatsApp al +1 829 472 1257."
       }
     ]
   },
   {
-    label:'Building',
-    faqs:[
+    "label": "Desarrollo",
+    "faqs": [
       {
-        question:'¿Por qué mi Toolbook está vacía cuando entro por primera vez?',
-        answer:'Cuando accedes por primera vez a Hashcod Codespace, tu Toolbook estará vacía por defecto. Esto es completamente normal, ya que las herramientas y módulos de tu proyecto no se generan automáticamente. Para comenzar a llenarla, primero debes realizar una petición de desarrollo a Hashcod Codespace, explicando qué necesitas para tu plataforma, sistema o proyecto. Nuestro proceso parte de esa solicitud. A partir de ella se analizan tus necesidades, se determina qué herramientas, funciones o módulos deben desarrollarse y se organiza el trabajo correspondiente. A medida que Hashcod Codespace desarrolla e incorpora las soluciones solicitadas para tu proyecto, estas podrán aparecer dentro de tu Toolbook según las funciones habilitadas para tu cuenta. Esto permite que cada Toolbook sea diferente y se adapte al proyecto de cada usuario, en lugar de mostrar herramientas genéricas que posiblemente no necesite.'
+        "question": "¿Por qué mi Toolbook está vacía al principio?",
+        "answer": "Las herramientas de tu proyecto no se generan automáticamente. Primero envía una petición de desarrollo explicando qué necesitas. Hashcod revisa el alcance y, cuando el desarrollo está preparado y habilitado, incorpora las herramientas correspondientes."
       },
       {
-        question:'¿Cómo solicito que Hashcod Codespace desarrolle una herramienta o función para mi proyecto?',
-        answer:'Para solicitar una nueva herramienta, función o módulo, debes enviar una petición de desarrollo a Hashcod Codespace explicando qué deseas incorporar a tu proyecto y cuál es el objetivo de esa función. La petición será revisada para determinar los requerimientos técnicos, el alcance del desarrollo y los recursos necesarios para llevarla a cabo. Si se necesita información adicional, Hashcod Codespace podrá solicitar detalles sobre el funcionamiento esperado, diseño, integraciones, tecnologías o características específicas del proyecto. Una vez definida la solicitud, se podrá establecer el proceso de desarrollo correspondiente. Cuando la herramienta o función esté preparada y habilitada para tu cuenta, podrá integrarse dentro de tu entorno y aparecer en tu Toolbook. Cada petición se trabaja de acuerdo con las necesidades particulares del proyecto, por lo que las herramientas disponibles pueden variar entre diferentes usuarios de Hashcod Codespace.'
+        "question": "¿Cómo solicito una herramienta o función?",
+        "answer": "Pulsa Comenzar mi solicitud para abrir WhatsApp. Describe el problema, el resultado esperado y las funciones que necesitas. Puedes aportar referencias de diseño e integraciones. Hashcod te ayudará a definir el alcance, los requisitos, el coste y el plazo antes de comenzar."
       },
       {
-        question:'¿Qué tipo de herramientas o funciones puedo solicitar que se desarrollen?',
-        answer:'En Hashcod Codespace puedes solicitar el desarrollo de herramientas, funciones o módulos adaptados a las necesidades de tu proyecto. Esto puede incluir interfaces, sistemas de gestión, automatizaciones, formularios, almacenamiento de información, paneles de control, herramientas técnicas, integraciones entre servicios y otras funciones relacionadas con el funcionamiento de tu plataforma. Cada solicitud se evalúa de forma individual para determinar si puede desarrollarse dentro del ecosistema de Hashcod Codespace, qué recursos requiere y cómo debe integrarse con el resto de tu proyecto. No todas las Toolbooks serán iguales. Las herramientas que aparezcan en tu espacio dependerán de las funciones que hayas solicitado y de los desarrollos que hayan sido habilitados específicamente para tu cuenta.'
+        "question": "¿Qué desarrollos puedo solicitar?",
+        "answer": "Puedes proponer interfaces, formularios, paneles, automatizaciones e integraciones. Cada petición se evalúa por separado según los requisitos y recursos disponibles. La revisión permite confirmar qué se puede construir y cómo se integrará en tu proyecto."
       }
     ]
   },
   {
-    label:'Goals',
-    faqs:[
+    "label": "Objetivos",
+    "faqs": [
       {
-        question:'¿Para qué sirven los Goals dentro de Hashcod Codespace?',
-        answer:'Los Goals representan los objetivos que deseas alcanzar con tu proyecto dentro de Hashcod Codespace. Al definir tus objetivos, nos ayudas a comprender qué quieres construir, mejorar o solucionar en tu plataforma. Estos objetivos sirven como referencia para determinar qué herramientas, módulos y funciones pueden ser necesarias durante el desarrollo. Por ejemplo, un Goal puede ser automatizar un proceso, crear un nuevo sistema, mejorar una función existente, integrar una tecnología, organizar información o desarrollar una herramienta específica para tu proyecto. Los Goals permiten que el desarrollo tenga una dirección clara y que las soluciones incorporadas a tu Toolbook estén relacionadas directamente con las necesidades reales de tu proyecto.'
+        "question": "¿Para qué sirven los objetivos del proyecto?",
+        "answer": "Los objetivos explican qué quieres conseguir y permiten priorizar el desarrollo. Describe resultados concretos, como organizar archivos, reducir un trabajo manual o conectar un servicio. No es necesario conocer todos los detalles técnicos para empezar."
       },
       {
-        question:'¿Cómo creo un Goal para mi proyecto?',
-        answer:'Para crear un Goal, debes definir de forma clara qué deseas conseguir con tu proyecto. No es necesario explicar todos los detalles técnicos desde el principio; lo más importante es indicar cuál es el resultado que quieres alcanzar. Por ejemplo, puedes establecer como Goal crear una nueva función, automatizar un proceso, mejorar una parte de tu plataforma, conectar un servicio externo, organizar determinada información o desarrollar una herramienta específica. Mientras más claro sea el objetivo, más fácil será analizar qué recursos, módulos o herramientas pueden ser necesarios para desarrollarlo. Una vez definido el Goal, este puede servir como referencia para organizar las solicitudes de desarrollo y orientar las funciones que posteriormente podrán incorporarse a tu Toolbook.'
+        "question": "¿Cómo defino un objetivo?",
+        "answer": "Indica el resultado esperado, a quién beneficia y cómo comprobarás que funciona. Por ejemplo: poder localizar un archivo por nombre desde el móvil. Incluye restricciones o fechas relevantes para que Hashcod pueda evaluar la petición."
       },
       {
-        question:'¿Puedo tener varios Goals al mismo tiempo?',
-        answer:'Sí. Dentro de Hashcod Codespace puedes trabajar con varios Goals al mismo tiempo siempre que cada uno represente un objetivo claro dentro de tu proyecto. Por ejemplo, puedes tener un Goal enfocado en desarrollar una nueva herramienta, otro destinado a mejorar la interfaz de tu plataforma y otro relacionado con automatizar un proceso o integrar un servicio externo. Mantener los Goals separados ayuda a organizar mejor el desarrollo, identificar qué funciones pertenecen a cada objetivo y dar seguimiento al progreso de cada parte del proyecto. A medida que avances, cada Goal puede requerir distintas herramientas, módulos o soluciones, las cuales podrán incorporarse a tu Toolbook según el desarrollo realizado para tu cuenta.'
+        "question": "¿Puedo trabajar con varios objetivos?",
+        "answer": "Sí. Separa los objetivos y ordénalos por prioridad. Hashcod podrá evaluar las dependencias y acordar el alcance de cada fase. El avance y la disponibilidad de herramientas dependerán de los desarrollos acordados."
       }
     ]
   }
@@ -2403,6 +2411,9 @@ var scratchParticlesCanvas=document.getElementById('d5ScratchParticles');
 var scratchCopy=document.getElementById('d5ScratchCopy');
 var scratchCouponCodeEl=document.getElementById('d5ScratchCouponCode');
 var SCRATCH_COUPON_ENDPOINT='/api/hashcod-coupon';
+var scratchCouponStatus=document.getElementById('d5ScratchCouponStatus');
+var scratchCouponRetry=document.getElementById('d5ScratchCouponRetry');
+var scratchCouponLoading=false;
 var scratchCouponCode='';
 var scratchCouponValid=false;
 var scratchCopyIcon=document.getElementById('d5ScratchCopyIcon');
@@ -2557,8 +2568,8 @@ function revealScratchCard(){
   }
   if(scratchAnnouncement){
     scratchAnnouncement.textContent=scratchCouponValid
-      ?('Coupon revealed: '+scratchCouponCode+' for 20% off')
-      :'Coupon revealed. Validation code unavailable.';
+      ?('Cupón revelado: '+scratchCouponCode+' · 20% de descuento')
+      :'Cupón no disponible. Pulsa Reintentar cupón.';
   }
   if(scratchReset)scratchReset.hidden=false;
 }
@@ -2587,19 +2598,22 @@ function resetScratchCopyState(){
   if(scratchCopyIcon){
     scratchCopyIcon.innerHTML='<svg viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>';
   }
-  if(scratchCopySr)scratchCopySr.textContent='Copy coupon code';
+  if(scratchCopySr)scratchCopySr.textContent='Copiar código del cupón';
 }
 function setScratchCopiedState(){
   if(scratchCopyIcon){
     scratchCopyIcon.innerHTML='<svg viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"></path></svg>';
   }
-  if(scratchCopySr)scratchCopySr.textContent='Copied to clipboard';
+  if(scratchCopySr)scratchCopySr.textContent='Copiado al portapapeles';
   window.clearTimeout(scratchCopyTimer);
   scratchCopyTimer=window.setTimeout(resetScratchCopyState,2000);
 }
 async function loadScratchCoupon(){
-  if(!scratchCouponCodeEl)return;
-  scratchCouponCodeEl.textContent='HC20-LOADING';
+  if(!scratchCouponCodeEl||scratchCouponLoading)return;
+  scratchCouponLoading=true;
+  if(scratchCouponRetry)scratchCouponRetry.hidden=true;
+  if(scratchCouponStatus)scratchCouponStatus.textContent='Preparando tu cupón…';
+  scratchCouponCodeEl.textContent='Cargando cupón…';
   if(scratchCopy)scratchCopy.disabled=true;
   try{
     var response=await fetch(SCRATCH_COUPON_ENDPOINT+'?action=issue',{
@@ -2630,15 +2644,20 @@ async function loadScratchCoupon(){
     scratchCouponValid=true;
     scratchCouponCodeEl.textContent=code;
     if(scratchCopy)scratchCopy.disabled=false;
+    if(scratchCouponStatus)scratchCouponStatus.textContent='Válido hasta '+new Date(coupon.expires_at).toLocaleDateString('es')+'. Presenta el código al solicitar tu servicio.';
+    if(scratchRevealed&&scratchAnnouncement)scratchAnnouncement.textContent='Cupón disponible: '+code+' · 20% de descuento';
   }catch(_){
     scratchCouponCode='';
     scratchCouponValid=false;
-    scratchCouponCodeEl.textContent='CODE UNAVAILABLE';
+    scratchCouponCodeEl.textContent='Cupón no disponible';
     if(scratchCopy)scratchCopy.disabled=true;
-  }
+    if(scratchCouponStatus)scratchCouponStatus.textContent='No se pudo preparar el cupón. Comprueba tu plazo de acceso y reintenta.';
+    if(scratchCouponRetry)scratchCouponRetry.hidden=false;
+  }finally{scratchCouponLoading=false;}
 }
 
 function copyScratchCoupon(){
+  if(!scratchCouponValid||!scratchCouponCode)return;
   var value=scratchCouponValid?scratchCouponCode:'';
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(value).then(setScratchCopiedState).catch(function(){
@@ -2682,7 +2701,11 @@ function resetScratchCard(){
   requestAnimationFrame(paintScratchOverlay);
 }
 
-loadScratchCoupon();
+if(scratchCopy)scratchCopy.disabled=true;
+if(scratchCouponRetry)scratchCouponRetry.addEventListener('click',loadScratchCoupon);
+window.addEventListener('hashcod:platform-period-granted',function(){
+  if(document.body.classList.contains('documents-hub-open')&&!scratchCouponValid)loadScratchCoupon();
+});
 
 if(scratchCard&&scratchCanvas&&scratchParticlesCanvas){
   requestAnimationFrame(paintScratchOverlay);
@@ -2776,6 +2799,7 @@ function restoreDocumentsHubPieces(){
   documentsHubMoves=[];
 }
 function openDocumentsHub(){
+  if(!scratchCouponValid)loadScratchCoupon();
   if(!documentsHubShell||!documentsHubContent)return;
   ensureDocumentsHubPortal();
   documentsHubLastFocus=document.activeElement;

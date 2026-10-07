@@ -75,22 +75,22 @@ const DocumentsIcon = (
 
 const items = [
   {
-    label: 'Getting started',
+    label: 'Inicio',
     children: [
       { value: 'faq', label: 'FAQ', icon: FaqIcon },
       { value: 'card', label: 'Card', icon: CardIcon },
       { value: 'workspace', label: 'Workspace', icon: WorkspaceIcon },
       { value: 'text-card', label: 'Text Card', icon: TextCardIcon },
       { value: 'documents', label: 'Documents', icon: DocumentsIcon },
-      { value: 'quick', label: 'Quick start', icon: Rocket01Icon },
-      { value: 'config', label: 'Configuration', icon: Settings02Icon }
+      { value: 'quick', label: 'Inicio rápido', icon: Rocket01Icon },
+      { value: 'config', label: 'Configuración', icon: Settings02Icon }
     ]
   },
   {
-    label: 'Components',
+    label: 'Componentes',
     children: [
-      { value: 'buttons', label: 'Buttons' },
-      { value: 'overlays', label: 'Overlays' }
+      { value: 'buttons', label: 'Botones' },
+      { value: 'overlays', label: 'Capas' }
     ]
   }
 ];
@@ -352,7 +352,7 @@ function PreviewPolicyFooter() {
       className="preview-policy-copy"
       data-hashcod-preview-policy="true"
     >
-      Before continuing, please read the{' '}
+      Antes de continuar, lee la{' '}
       <span
         className="preview-link-card"
         onMouseEnter={() => setOpen(true)}

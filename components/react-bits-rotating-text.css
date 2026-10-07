@@ -154,7 +154,7 @@ body[data-hashcod-entry-intro="1"] .access-stage{
   }
   .entry-rotating-text-prefix,
   .entry-rotating-text-shell{
-    font-size:20px;
+    font-size:clamp(16px,4.6vw,20px);
   }
   .entry-rotating-text-brand{gap:8px}
   .entry-rotating-text-brand-icon{width:24px;height:24px}

@@ -24,6 +24,9 @@ on:
       - code-access-build/**
       - code-access-lib.php
       - code-access-api.php
+      - numeric-access-lib.php
+      - coupon-system.php
+      - tests/e2e/test_entry_binding_coupon_browser.js
       - tests/e2e/test_code_access_manifest.php
       - hashcod-file-vault.php
       - Dockerfile
@@ -63,6 +66,8 @@ jobs:
           php -l hashcod-file-vault.php
           php -l code-access-lib.php
           php -l code-access-api.php
+          php -l numeric-access-lib.php
+          php -l coupon-system.php
           php tests/e2e/test_code_access_manifest.php
           python3 -m py_compile scripts/mldsa87_access.py
           node --check components/mldsa-access-gate.js
@@ -140,10 +145,10 @@ jobs:
           grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-home.html
           grep -q 'data-hashcod-component="CodeAccessGate"' /tmp/hashcod-home.html
           grep -q 'data-required="0"' /tmp/hashcod-home.html
-          grep -q 'code-access.bundle.css?v=20261004-mesh-dialog1' /tmp/hashcod-home.html
-          grep -q 'code-access.bundle.js?v=20261004-mesh-dialog1' /tmp/hashcod-home.html
-          grep -q 'first-screen-branched-menu.bundle.css?v=20261006-privacy-navigation1' /tmp/hashcod-home.html
-          grep -q 'first-screen-branched-menu.bundle.js?v=20261006-privacy-navigation1' /tmp/hashcod-home.html
+          grep -q 'code-access.bundle.css?v=20261007-entry-fixes1' /tmp/hashcod-home.html
+          grep -q 'code-access.bundle.js?v=20261007-entry-fixes1' /tmp/hashcod-home.html
+          grep -q 'first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1' /tmp/hashcod-home.html
+          grep -q 'first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateStage"' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-home.html
           grep -q 'data-hashcod-component="EmptyState"' /tmp/hashcod-home.html
@@ -158,7 +163,7 @@ jobs:
           ! grep -q 'Saved Messages</h3>' /tmp/hashcod-home.html
           ! grep -q 'Acceso a Hashcod Codespace</h1>' /tmp/hashcod-home.html
           grep -q 'id="d5RotatingTextHero"' /tmp/hashcod-home.html
-          grep -q '>Creates like</span>' /tmp/hashcod-home.html
+          grep -q '>Crea con </span>' /tmp/hashcod-home.html
           ! grep -q 'animate-ui-global-cursor.css' /tmp/hashcod-home.html
           ! grep -q 'animate-ui-global-cursor.js' /tmp/hashcod-home.html
           ! grep -q 'id="d5SplashCursorBackground"' /tmp/hashcod-home.html
@@ -181,145 +186,8 @@ jobs:
           ! grep -q 'platform-entry-hold.js' /tmp/hashcod-after.html
           ! grep -q 'toolbook-page-blank.js' /tmp/hashcod-after.html
 
-      - name: Verify OCG mesh first-use binding endpoint
-        run: |
-          L8_CODE_ACCESS_REQUIRED=1 php -S 127.0.0.1:8098 router.php >/tmp/code-access-gate.log 2>&1 &
-          echo $! >/tmp/code-access-gate.pid
-          ready=0
-          for i in $(seq 1 30); do
-            if curl -fsS -c /tmp/mesh.cookies http://127.0.0.1:8098/api/code-access >/tmp/mesh-state.json; then ready=1; break; fi
-            sleep 1
-          done
-          test "$ready" -eq 1
-          node - <<'NODE'
-          const fs=require('fs');
-          const assert=require('assert/strict');
-          const data=JSON.parse(fs.readFileSync('/tmp/mesh-state.json','utf8'));
-          assert.equal(data.ok,true);
-          assert.equal(data.required,true);
-          assert.equal(data.authorized,false);
-          assert.equal(data.bound,false);
-          assert.equal(data.schema,'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI');
-          assert.deepEqual(data.fields,['TYPE','PAYLOAD','SALT','NONCE','ISSUED','USE','CHECK']);
-          NODE
-          cat >/tmp/mesh-fields.json <<'JSON'
-          {"fields":{"TYPE":"MESH-NODE","PAYLOAD":"ghWl-S1-4_OotRJmydmA_8kIkzQYw-GEPrIyfrTu9XK9BuXaTWmRYLWNkQpPl4C7","SALT":"0e83721b7ffe4c04e3b238656fd4d316","NONCE":"e3c51657884155c396882b9a","ISSUED":"20261004174810","USE":"distributed node credential","CHECK":"4D38EF3C"}}
-          JSON
-          curl -fsS -b /tmp/mesh.cookies -c /tmp/mesh.cookies             -H 'Content-Type: application/json' -H 'X-Hashcod-Mesh: 1'             --data-binary @/tmp/mesh-fields.json             http://127.0.0.1:8098/api/code-access >/tmp/mesh-enroll.json
-          node - <<'NODE'
-          const fs=require('fs');
-          const assert=require('assert/strict');
-          const data=JSON.parse(fs.readFileSync('/tmp/mesh-enroll.json','utf8'));
-          assert.equal(data.ok,true);
-          assert.equal(data.authorized,true);
-          assert.equal(data.bound,true);
-          assert.equal(data.enrolled,true);
-          NODE
-          curl -fsS -b /tmp/mesh.cookies http://127.0.0.1:8098/api/code-access >/tmp/mesh-bound.json
-          node - <<'NODE'
-          const fs=require('fs');
-          const assert=require('assert/strict');
-          const data=JSON.parse(fs.readFileSync('/tmp/mesh-bound.json','utf8'));
-          assert.equal(data.bound,true);
-          NODE
-          curl -fsS -b /tmp/mesh.cookies -c /tmp/mesh.cookies             -H 'Content-Type: application/json' -H 'X-Hashcod-Mesh: 1'             --data-binary @/tmp/mesh-fields.json             http://127.0.0.1:8098/api/code-access >/tmp/mesh-match.json
-          grep -q '"enrolled":false' /tmp/mesh-match.json
-          node - <<'NODE'
-          const fs=require('fs');
-          const data=JSON.parse(fs.readFileSync('/tmp/mesh-fields.json','utf8'));
-          data.fields.CHECK='DIFFERENT-CHECK';
-          fs.writeFileSync('/tmp/mesh-different.json',JSON.stringify(data));
-          NODE
-          status=$(curl -sS -o /tmp/mesh-mismatch.json -w '%{http_code}' -b /tmp/mesh.cookies -c /tmp/mesh.cookies             -H 'Content-Type: application/json' -H 'X-Hashcod-Mesh: 1'             --data-binary @/tmp/mesh-different.json             http://127.0.0.1:8098/api/code-access)
-          test "$status" -eq 409
-          grep -q '"code":"binding_mismatch"' /tmp/mesh-mismatch.json
-          curl -fsS -b /tmp/mesh.cookies http://127.0.0.1:8098/ >/tmp/code-access-home.html
-          grep -q 'data-hashcod-code-access-required="1"' /tmp/code-access-home.html
-          grep -q 'data-hashcod-code-access-authorized="0"' /tmp/code-access-home.html
-          grep -q 'data-required="1"' /tmp/code-access-home.html
-
-      - name: Verify production blurred OCG mesh gate in Chromium
-        run: |
-          node - <<'NODE'
-          const assert=require('node:assert/strict');
-          const {chromium}=require('playwright');
-          const values={
-            TYPE:'MESH-NODE',
-            PAYLOAD:'ghWl-S1-4_OotRJmydmA_8kIkzQYw-GEPrIyfrTu9XK9BuXaTWmRYLWNkQpPl4C7',
-            SALT:'0e83721b7ffe4c04e3b238656fd4d316',
-            NONCE:'e3c51657884155c396882b9a',
-            ISSUED:'20261004174810',
-            USE:'distributed node credential',
-            CHECK:'4D38EF3C'
-          };
-          (async()=>{
-            const browser=await chromium.launch({headless:true});
-            const context=await browser.newContext({viewport:{width:1440,height:900}});
-            const page=await context.newPage();
-            try{
-              const response=await page.goto('http://127.0.0.1:8098/',{waitUntil:'domcontentloaded',timeout:15000});
-              assert(response&&response.status()===200,'production OCG mesh gate root must return 200');
-              await page.waitForSelector('#d5CodeAccessGate',{state:'visible',timeout:15000});
-              await page.waitForSelector('#d5CodeAccessGate .monaco-editor',{state:'visible',timeout:15000});
-              await page.waitForSelector('#d5MeshNodeIcon',{state:'visible',timeout:15000});
-              const state=await page.evaluate(()=>{
-                const overlay=document.querySelector('.code-access-overlay');
-                const gate=document.getElementById('d5CodeAccessGate');
-                const platform=document.getElementById('d5FirstBranchedMenuStage');
-                const rect=gate.getBoundingClientRect();
-                const style=getComputedStyle(overlay);
-                return {
-                  overlayPosition:style.position,
-                  backdrop:style.backdropFilter||style.webkitBackdropFilter||'',
-                  centerX:rect.left+rect.width/2,
-                  centerY:rect.top+rect.height/2,
-                  viewportX:innerWidth/2,
-                  viewportY:innerHeight/2,
-                  tabs:Array.from(document.querySelectorAll('#d5CodeAccessGate [role="tab"]')).map(n=>n.textContent.trim()),
-                  active:document.querySelector('#d5CodeAccessGate [role="tab"][aria-selected="true"]')?.textContent?.trim()||'',
-                  monaco:Boolean(document.querySelector('#d5CodeAccessGate .monaco-editor')),
-                  vector:Boolean(document.querySelector('#d5MeshNodeIcon svg path')),
-                  platformBehind:Boolean(platform),
-                  protocol:gate.getAttribute('data-protocol')||'',
-                  bound:gate.getAttribute('data-bound')||''
-                };
-              });
-              assert.equal(state.overlayPosition,'fixed');
-              assert(state.backdrop.includes('blur(20px)'),'gate must blur the platform behind it');
-              assert(Math.abs(state.centerX-state.viewportX)<=3,'gate must be horizontally centered');
-              assert(Math.abs(state.centerY-state.viewportY)<=20,'gate must be vertically centered');
-              assert.deepEqual(state.tabs,['Access.php','Protocol']);
-              assert.equal(state.active,'Access.php');
-              assert.equal(state.monaco,true);
-              assert.equal(state.vector,true,'provided OCG SVG path must render inside the editor');
-              assert.equal(state.platformBehind,true,'platform must remain rendered behind the blurred blocker');
-              assert.equal(state.protocol,'OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI');
-              assert.equal(state.bound,'false');
-
-              await page.locator('#d5MeshNodeIcon').click();
-              await page.waitForSelector('#d5MeshCredentialWindow',{state:'visible'});
-              for(const [name,value] of Object.entries(values)){
-                await page.locator('#d5MeshField'+name).fill(value);
-              }
-              await page.locator('#d5MeshCredentialSubmit').click();
-              await page.waitForSelector('#d5CodeAccessGate',{state:'detached',timeout:10000});
-
-              await page.reload({waitUntil:'domcontentloaded'});
-              await page.waitForSelector('#d5CodeAccessGate',{state:'visible',timeout:15000});
-              await page.waitForFunction(()=>document.getElementById('d5CodeAccessGate')?.getAttribute('data-bound')==='true');
-              await page.locator('#d5MeshNodeIcon').click();
-              for(const [name,value] of Object.entries({...values,CHECK:'DIFFERENT-CHECK'})){
-                await page.locator('#d5MeshField'+name).fill(value);
-              }
-              await page.locator('#d5MeshCredentialSubmit').click();
-              await page.waitForFunction(()=>document.querySelector('.mesh-tk-error')?.textContent?.includes('already bound'));
-              assert.equal(await page.locator('#d5MeshCredentialWindow').isVisible(),true,'different credential must keep the lock window open');
-            } finally {
-              await browser.close();
-            }
-          })().catch(error=>{console.error(error);process.exit(1);});
-          NODE
-          kill "$(cat /tmp/code-access-gate.pid)" || true
+      - name: Verify real server binding, FAQ and coupon on phone and desktop
+        run: node tests/e2e/test_entry_binding_coupon_browser.js
 
       - name: Verify first screen in Chromium
         run: |
@@ -332,8 +200,8 @@ jobs:
           grep -q 'id="d5PreviewPolicyFooter"' /tmp/hashcod-laragon.html
           grep -q 'id="d5PreviewPolicyMount"' /tmp/hashcod-laragon.html
           grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-laragon.html
-          grep -q 'code-access.bundle.js?v=20261004-mesh-dialog1' /tmp/hashcod-laragon.html
-          grep -q 'first-screen-branched-menu.bundle.js?v=20261006-privacy-navigation1' /tmp/hashcod-laragon.html
+          grep -q 'code-access.bundle.js?v=20261007-entry-fixes1' /tmp/hashcod-laragon.html
+          grep -q 'first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1' /tmp/hashcod-laragon.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-laragon.html
           grep -q 'center-empty-state.bundle.js?v=20261007-tokenization-status1' /tmp/hashcod-laragon.html
           ! grep -q 'class="access-card entry-access-card"' /tmp/hashcod-laragon.html

@@ -72,7 +72,7 @@ async function checkBrandIcon(page) {
     return { src: icon.getAttribute('src'), right: a.right, left: b.left, iconCenter: a.top + a.height / 2, textCenter: b.top + b.height / 2, width: a.width, height: a.height };
   });
   assert.equal(brand.src, '/hashcod_icon_exact.svg', 'hero must use the original repository icon');
-  assert(brand.right < brand.left, 'brand icon must remain to the left of Creates like');
+  assert(brand.right < brand.left, 'brand icon must remain to the left of Crea con');
   assert(Math.abs(brand.iconCenter - brand.textCenter) < 1, 'icon must align vertically with the text');
   assert.equal(brand.width, brand.height, 'icon must preserve its square display box');
 }
@@ -106,8 +106,8 @@ async function run() {
       await layout(page, viewport.width);
       await noHorizontalScroll(page);
       await page.locator('.branched-menu__head').first().tap();
-      await page.getByRole('button', { name: 'Configuration', exact: true }).waitFor({ state: 'visible' });
-      const row = await page.getByRole('button', { name: 'Configuration', exact: true }).boundingBox();
+      await page.getByRole('button', { name: 'Configuración', exact: true }).waitFor({ state: 'visible' });
+      const row = await page.getByRole('button', { name: 'Configuración', exact: true }).boundingBox();
       assert.equal(Math.round(row.height), 44, 'branch geometry and phone rows must share the same height');
       await layout(page, viewport.width);
       await page.locator('.branched-menu__head').first().tap();

@@ -54,42 +54,14 @@ assert(router.includes("'/api/code-access'"),'OCG mesh access API route missing'
 assert(gate.includes("function codeAccessRequired()"),'code access requirement switch missing');
 assert(gate.includes("L8_CODE_ACCESS_REQUIRED','1'"),'code access must default to required');
 assert(gate.includes("function codeAccessAuthorized()"),'code access reload gate missing');
-assert(gate.includes("return !codeAccessRequired();"),'OCG mesh gate must reappear after reload');
-assert(codeAccessLib.includes("function meshAccessSchema()"),'OCG mesh schema helper missing');
-assert(codeAccessLib.includes("OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI"),'OCG mesh schema changed');
-assert(codeAccessLib.includes("meshAccessFieldNames"),'mesh credential field list missing');
-assert(codeAccessLib.includes("['TYPE','PAYLOAD','SALT','NONCE','ISSUED','USE','CHECK']"),'mesh credential field names changed');
-assert(codeAccessLib.includes("meshAccessDigest"),'mesh credential digest missing');
-assert(codeAccessLib.includes("meshAccessReadBinding"),'persistent mesh binding read missing');
-assert(codeAccessLib.includes("meshAccessWriteBinding"),'persistent mesh binding write missing');
-assert(codeAccessLib.includes("l8_ocg_mesh_binding_v1"),'mesh binding cookie name changed');
-assert(codeAccessApi.includes("X_HASHCOD_MESH"),'mesh request marker validation missing');
-assert(codeAccessApi.includes("binding_mismatch"),'different post-enrollment credentials must be rejected');
-assert(codeAccessApi.includes("meshAccessWriteBinding($digest)"),'first-use mesh enrollment missing');
-assert(codeAccessApi.includes("hash_equals($stored,$digest)"),'stored mesh binding comparison missing');
-assert(!codeAccessApi.includes("mldsaOriginAllowed()"),'mesh flow must not depend on the proxy-fragile Origin matcher');
-assert.equal(codeAccessPkg.dependencies['monaco-editor'],'0.52.2','Monaco Editor dependency changed');
-assert(codeAccessEntry.includes("monaco.editor.create"),'Monaco Editor must render the access view');
-assert(codeAccessEntry.includes("function MeshNodeIcon"),'vector mesh icon component missing');
-assert(codeAccessEntry.includes('viewBox="0 0 256 256"'),'new vector icon viewBox missing');
-assert(codeAccessEntry.includes('M17.22656,46.58203'),'new vector icon path missing');
-assert(codeAccessEntry.includes('fill="#ffffff"'),'vector icon must be white');
-assert(codeAccessCss.includes('background: transparent'),'vector icon must have no background');
-assert(codeAccessCss.includes('border: 0'),'vector icon must have no border');
-assert(codeAccessCss.includes('box-shadow: none'),'vector icon must have no shadow container');
-assert(codeAccessEntry.includes('data-vector-icon="ocg-mesh-node"'),'vector mesh icon marker missing');
-assert(codeAccessEntry.includes('data-animate-ui-dialog="mesh-credential"'),'Animate UI mesh dialog marker missing');
-assert(codeAccessEntry.includes("Mesh node credential"),'Animate UI mesh credential title missing');
-assert(codeAccessEntry.includes("Bind & unlock"),'first enrollment action missing');
-assert(codeAccessEntry.includes("Verify & unlock"),'bound credential verification action missing');
-assert(codeAccessEntry.includes("Access.php")&&codeAccessEntry.includes("Protocol"),'CodeTabs-style access tabs missing');
-assert(codeAccessCss.includes('.code-tabs-shell'),'CodeTabs-style editor shell missing');
+assert(gate.includes('return numericAccessAuthorized();'),'rendered access must use the signed server binding');
+assert(codeAccessApi.includes('numericAccessExpectedDigest()'),'server must validate the configured credential digest');
+assert(!codeAccessApi.includes('numericCiLegacy'),'CI must execute the same authorization as production');
+assert(codeAccessEntry.includes('await verifyState()'),'POST must be confirmed by a subsequent server read');
+assert(codeAccessEntry.includes("data.bound === true"),'client must require a verified persisted cookie');
+assert(!codeAccessEntry.includes('<?php'),'client must not display PHP examples');
+assert(codeAccessEntry.includes('Credencial de acceso'),'access form must be Spanish');
 assert(codeAccessCss.includes('.code-access-overlay'),'blocking access overlay missing');
-assert(codeAccessCss.includes('.mesh-editor-icon'),'vector mesh icon styling missing');
-assert(codeAccessCss.includes('.mesh-animate-dialog'),'Animate UI mesh dialog styling missing');
-assert(codeAccessCss.includes('@keyframes meshAnimateDialogIn'),'Animate UI dialog entrance animation missing');
-assert(codeAccessCss.includes('.mesh-animate-field'),'Animate UI field styling missing');
-assert(codeAccessCss.includes('.mesh-animate-button-primary'),'Animate UI primary action styling missing');
 
 // Root stays on the first presentation.
 assert(l8.includes('Single-screen mode: the root route permanently renders only the'),'single-screen root contract missing');
@@ -111,18 +83,15 @@ assert(!gate.includes('id="d5SavedChatDemo"'),'Saved Messages card must be remov
 assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be removed');
 
 
-assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261006-privacy-navigation1'),'BranchedMenu CSS bundle must load');
-assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261006-privacy-navigation1'),'BranchedMenu JS bundle must load');
-assert(gate.includes('components/code-access.bundle.css?v=20261004-mesh-dialog1'),'code access CSS bundle must load');
-assert(gate.includes('components/code-access.bundle.js?v=20261004-mesh-dialog1'),'code access JS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1'),'BranchedMenu CSS bundle must load');
+assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1'),'BranchedMenu JS bundle must load');
+assert(gate.includes('components/code-access.bundle.css?v=20261007-entry-fixes1'),'code access CSS bundle must load');
+assert(gate.includes('components/code-access.bundle.js?v=20261007-entry-fixes1'),'code access JS bundle must load');
 assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
 assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
 assert(gate.includes('class="code-access-boot-window"'),'styled CodeTabs boot window missing');
-assert(gate.includes('Mesh access binding'),'OCG mesh fallback title missing');
-assert(gate.includes('OCG.MSH.v10.119-ibAKA-QJ73o-NrdXI'),'OCG mesh fallback schema missing');
-assert(gate.includes('code-access-boot-vector'),'OCG vector icon fallback missing');
-assert(gate.includes('Access.php'),'CodeTabs boot Access.php tab missing');
-assert(gate.includes('Protocol'),'CodeTabs boot Protocol tab missing');
+assert(gate.includes('Verificación de acceso'),'safe boot placeholder missing');
+assert(!gate.includes('&lt;?php'),'boot placeholder must not send PHP samples');
 assert(css.includes('/* Code access fallback shell'),'code access fallback styling missing from always-loaded gate CSS');
 assert(css.includes('backdrop-filter:blur(20px) saturate(.72)'),'code access fallback must blur the platform behind it');
 assert(css.includes('.code-access-root .code-access-boot-window'),'code access fallback window styling missing');
@@ -295,13 +264,13 @@ assert(componentCss.includes('fill: none'),'SVG branches must remain unfilled');
 assert(componentCss.includes('stroke-width: var(--bm-line-w)'),'SVG stroke width binding missing');
 
 for(const token of [
-  "label: 'Getting started'",
+  "label: 'Inicio'",
   "{ value: 'faq', label: 'FAQ', icon: FaqIcon }",
-  "{ value: 'quick', label: 'Quick start', icon: Rocket01Icon }",
-  "{ value: 'config', label: 'Configuration', icon: Settings02Icon }",
-  "label: 'Components'",
-  "{ value: 'buttons', label: 'Buttons' }",
-  "{ value: 'overlays', label: 'Overlays' }",
+  "{ value: 'quick', label: 'Inicio rápido', icon: Rocket01Icon }",
+  "{ value: 'config', label: 'Configuración', icon: Settings02Icon }",
+  "label: 'Componentes'",
+  "{ value: 'buttons', label: 'Botones' }",
+  "{ value: 'overlays', label: 'Capas' }",
   'defaultOpen={compact ? [] : [0]}',
   'defaultActive="quick"',
   'color="#0a0a0a"',
@@ -336,7 +305,7 @@ assert(gate.includes('id="d5PreviewPolicyFooter"'),'final Preview Link Card foot
 assert(gate.includes('id="d5PreviewPolicyMount"'),'Preview Link Card React mount missing');
 assert(gate.includes('data-hashcod-component="PreviewLinkCard"'),'Preview Link Card component marker missing');
 assert(entry.includes('function PreviewPolicyFooter()'),'Preview Link Card footer component missing');
-assert(entry.includes('Before continuing, please read the'),'Preview Link Card lead text missing');
+assert(entry.includes('Antes de continuar, lee la'),'Preview Link Card lead text missing');
 assert(entry.includes('Use and Privacy Policy'),'Preview Link Card linked text missing');
 assert(entry.includes('href="/privacy"'),'Preview Link Card must point to the existing privacy route');
 assert(entry.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'),'Preview card must mirror the repository privacy document title');
@@ -412,7 +381,7 @@ assert(!gate.includes('animate-ui-global-cursor.js'),'custom cursor runtime must
 
 // FAQ must escape the page layout and cover the entire viewport.
 assert(gate.includes('components/mldsa-access-gate.css?v=20261004-mesh-fallback1'),'FAQ modal CSS cache-bust missing');
-assert(gate.includes('components/mldsa-access-gate.js?v=20261006-file-usd-value1'),'restored shared-cloud runtime JS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.js?v=20261007-entry-fixes1'),'restored shared-cloud runtime JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');
 assert(js.includes('function ensureFaqModalPortal()'),'FAQ body portal helper missing');

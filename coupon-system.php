@@ -5,6 +5,9 @@ if (!function_exists('secretGet')) {
     require_once __DIR__ . '/secrets.php';
 }
 
+require_once __DIR__ . '/mldsa-access.php';
+if (!function_exists('securityRateAllowSliding')) require_once __DIR__ . '/security.php';
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, max-age=0');
 header('Pragma: no-cache');
@@ -16,13 +19,18 @@ function hashcodCouponJson(array $payload, int $status = 200): void {
 }
 
 function hashcodCouponSigningKey(): string {
-    foreach (['L8_AUTH_PEPPER', 'L8_VAULT_MASTER_KEY', 'SUPABASE_SECRET_KEY'] as $name) {
+    foreach (['L8_COUPON_SIGNING_KEY', 'L8_AUTH_PEPPER', 'L8_VAULT_MASTER_KEY', 'SUPABASE_SECRET_KEY', 'L8_ACCESS_GATE_COOKIE_SECRET'] as $name) {
         $raw = trim((string) secretGet($name, ''));
         if ($raw !== '') {
             return hash_hmac('sha256', 'hashcod|coupon-validation|v1', $raw, true);
         }
     }
-    return '';
+    // Domain-separated derivation from the existing durable private vault key.
+    $master = secretsVaultMasterKey();
+    $stored = @file_get_contents(secretsVaultDir() . '/.vault_master');
+    $bytes = is_string($stored) && preg_match('/^[a-f0-9]{64}$/iD', trim($stored)) ? hex2bin(trim($stored)) : $stored;
+    if (!is_string($bytes) || !hash_equals($master, $bytes)) return '';
+    return hash_hmac('sha256', 'hashcod|coupon-validation|v1', $master, true);
 }
 
 function hashcodCouponRandomToken(int $length = 8): string {
@@ -76,7 +84,7 @@ function hashcodCouponValidate(string $rawCode, string $key): array {
         return ['valid' => false, 'reason' => 'invalid_signature'];
     }
 
-    if ($expiresAt < time()) {
+    if ($expiresAt <= time()) {
         return [
             'valid' => false,
             'reason' => 'expired',
@@ -94,11 +102,18 @@ function hashcodCouponValidate(string $rawCode, string $key): array {
     ];
 }
 
+$site = strtolower((string)($_SERVER['HTTP_SEC_FETCH_SITE'] ?? ''));
+if (($site !== '' && !in_array($site, ['same-origin', 'same-site'], true))
+    || (isset($_SERVER['HTTP_ORIGIN']) && !mldsaOriginAllowed())) {
+    hashcodCouponJson(['ok' => false, 'error' => 'Solicitud no permitida.', 'code' => 'origin_denied'], 403);
+}
+$rate = securityRateAllowSliding('hashcod_coupon_v1', 60, 60);
+if (empty($rate['allowed'])) hashcodCouponJson(['ok' => false, 'error' => 'Espera un momento y reintenta.', 'code' => 'rate_limited'], 429);
 $key = hashcodCouponSigningKey();
 if ($key === '') {
     hashcodCouponJson([
         'ok' => false,
-        'error' => 'Coupon validation service is not configured.',
+        'error' => 'No se pudo preparar el cupón.',
         'code' => 'coupon_signing_key_unavailable',
     ], 503);
 }
@@ -107,9 +122,12 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     @session_start([
         'use_strict_mode' => 1,
         'cookie_httponly' => 1,
+        'cookie_secure' => mldsaHttps() ? 1 : 0,
         'cookie_samesite' => 'Lax',
     ]);
 }
+
+if (session_status() !== PHP_SESSION_ACTIVE) hashcodCouponJson(['ok' => false, 'error' => 'No se pudo conservar el cupón. Reintenta.', 'code' => 'coupon_session_unavailable'], 503);
 
 $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 $action = trim((string) ($_GET['action'] ?? ''));
@@ -143,18 +161,21 @@ if ($method === 'GET' && ($action === '' || $action === 'issue')) {
 }
 
 if ($method === 'POST') {
-    $raw = file_get_contents('php://input');
+    if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 2048) hashcodCouponJson(['ok' => false, 'code' => 'body_too_large'], 413);
+    $raw = file_get_contents('php://input', false, null, 0, 2049);
+    if (strlen((string)$raw) > 2048) hashcodCouponJson(['ok' => false, 'code' => 'body_too_large'], 413);
     $body = json_decode(is_string($raw) ? $raw : '', true);
     if (!is_array($body)) {
-        hashcodCouponJson(['ok' => false, 'error' => 'Invalid JSON body.', 'code' => 'invalid_json'], 400);
+        hashcodCouponJson(['ok' => false, 'error' => 'Datos incorrectos.', 'code' => 'invalid_json'], 400);
     }
 
-    $postAction = trim((string) ($body['action'] ?? 'validate'));
+    $postAction = is_string($body['action'] ?? 'validate') ? trim($body['action'] ?? 'validate') : '';
     if ($postAction !== 'validate') {
-        hashcodCouponJson(['ok' => false, 'error' => 'Unsupported coupon action.', 'code' => 'unsupported_action'], 400);
+        hashcodCouponJson(['ok' => false, 'error' => 'Acción no permitida.', 'code' => 'unsupported_action'], 400);
     }
 
-    $code = (string) ($body['code'] ?? '');
+    if (!is_string($body['code'] ?? null) || strlen($body['code']) > 100) hashcodCouponJson(['ok' => false, 'code' => 'invalid_code'], 400);
+    $code = $body['code'];
     $result = hashcodCouponValidate($code, $key);
     hashcodCouponJson([
         'ok' => true,
@@ -163,4 +184,4 @@ if ($method === 'POST') {
 }
 
 header('Allow: GET, POST');
-hashcodCouponJson(['ok' => false, 'error' => 'Method not allowed.', 'code' => 'method_not_allowed'], 405);
+hashcodCouponJson(['ok' => false, 'error' => 'Método no permitido.', 'code' => 'method_not_allowed'], 405);

@@ -85,6 +85,22 @@ jobs:
             throw "Desktop startup folder bundle was not staged: $destination"
           }
 
+      - name: Set up tokenization Python backend
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Build native Windows Requests backend
+        shell: pwsh
+        run: |
+          python -m pip install -r tools/tokenization/requirements-build.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Requests backend dependencies failed.' }
+          python -m PyInstaller --noconfirm --clean --onefile --name hashcod-tokenization --distpath tools/tokenization --workpath "$env:RUNNER_TEMP/tokenization-build" --specpath "$env:RUNNER_TEMP" tools/tokenization/backend.py
+          if ($LASTEXITCODE -ne 0) { throw 'Requests backend build failed.' }
+          $env:HASHCOD_TOKENIZATION_EXE = Join-Path $env:GITHUB_WORKSPACE 'tools/tokenization/hashcod-tokenization.exe'
+          python tests/security/test_tokenization_worker.py
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged Requests backend regression failed.' }
+
       - name: Set up portable PHP runtime
         uses: shivammathur/setup-php@v2
         with:
@@ -143,7 +159,7 @@ jobs:
 
           $desktopPhp = Join-Path $phpDestination 'php.exe'
           $desktopIni = Join-Path $phpDestination 'php.ini'
-          foreach ($file in @('router.php', 'desktop-runtime.php', 'admin-device.php', 'cloudflare-turnstile.php', 'hashcod-sync.php')) {
+          foreach ($file in @('router.php', 'desktop-runtime.php', 'admin-device.php', 'cloudflare-turnstile.php', 'hashcod-sync.php', 'hashcod-tokenization.php', 'tokenization-lib.php')) {
             & $desktopPhp -c $desktopIni -l (Join-Path $site $file)
             if ($LASTEXITCODE -ne 0) {
               throw "$file did not pass PHP syntax validation."
@@ -192,6 +208,15 @@ jobs:
           Set-Content -LiteralPath (Join-Path $site '.hashcod-desktop-source') -Value $env:GITHUB_SHA -Encoding ASCII
           Write-Host "Desktop payload parity verified for source commit $env:GITHUB_SHA"
 
+      - name: Verify Windows tokenization facade and authorization
+        shell: pwsh
+        run: |
+          $env:PHP_BIN = Join-Path $env:GITHUB_WORKSPACE 'local-app/desktop/payload/php/php.exe'
+          & $env:PHP_BIN tests/security/test-tokenization.php
+          if ($LASTEXITCODE -ne 0) { throw 'Tokenization session regression failed.' }
+          node tests/e2e/test_tokenization_proxy.js
+          if ($LASTEXITCODE -ne 0) { throw 'Windows Requests facade regression failed.' }
+
       - name: Verify desktop runtime contract
         run: node tests/e2e/test_desktop_runtime_contract.js
 
@@ -218,6 +243,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Device vault workflow regression failed.' }
           node tests/e2e/test_platform_period.js
           if ($LASTEXITCODE -ne 0) { throw 'Platform access period regression failed.' }
+          node tests/e2e/test_tokenization_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Tokenization UI regression failed.' }
           node tests/e2e/test_file_vault_explorer.js
           if ($LASTEXITCODE -ne 0) { throw 'Protected Files explorer regression failed.' }
 

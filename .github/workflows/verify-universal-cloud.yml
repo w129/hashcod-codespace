@@ -13,6 +13,11 @@ on:
       - hashcod-file-vault-value.php
       - hashcod-file-vault-access-code.php
       - hashcod-shared-cloud.php
+      - hashcod-tokenization.php
+      - tokenization-lib.php
+      - tools/tokenization/**
+      - tests/e2e/test_tokenization*
+      - tests/security/test*tokenization*
       - platform-period-api.php
       - platform-period-lib.php
       - tests/security/test-platform-period.php
@@ -75,6 +80,11 @@ on:
       - hashcod-file-vault-value.php
       - hashcod-file-vault-access-code.php
       - hashcod-shared-cloud.php
+      - hashcod-tokenization.php
+      - tokenization-lib.php
+      - tools/tokenization/**
+      - tests/e2e/test_tokenization*
+      - tests/security/test*tokenization*
       - platform-period-api.php
       - platform-period-lib.php
       - tests/security/test-platform-period.php
@@ -148,6 +158,21 @@ jobs:
           php -l platform-period-api.php
           php -l platform-period-lib.php
           php tests/security/test-platform-period.php
+
+      - name: Set up Requests backend
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Verify Requests worker and PHP boundary
+        run: |
+          python -m pip install -r tools/tokenization/requirements.txt
+          export HASHCOD_TOKENIZATION_PYTHON="$(command -v python)"
+          python tests/security/test_tokenization_worker.py
+          php -l hashcod-tokenization.php
+          php -l tokenization-lib.php
+          php tests/security/test-tokenization.php
+          node tests/e2e/test_tokenization_proxy.js
 
       - name: JavaScript syntax
         run: |
@@ -229,6 +254,8 @@ jobs:
           node tests/e2e/test_file_vault_device_flow.js
           node tests/e2e/test_file_vault_explorer.js
           node tests/e2e/test_platform_period.js
+          node tests/e2e/test_tokenization_edge.js
+          node tests/e2e/test_tokenization_ui.js
           node tests/e2e/test_file_vault_loading.js
           node tests/e2e/test_file_vault_direct_transfer.js
 
@@ -240,6 +267,8 @@ jobs:
           export HFV_SCREENSHOT_DIR="$RUNNER_TEMP/hashcod-files-evidence"
           node tests/e2e/test_file_vault_explorer_browser.js
           node tests/e2e/test_platform_period_browser.js
+          export HASHCOD_TOKENIZATION_SCREENSHOT_DIR="$RUNNER_TEMP/hashcod-tokenization-evidence"
+          node tests/e2e/test_tokenization_browser.js
 
       - name: First-screen phone layout and protected file preview
         run: |
@@ -269,3 +298,11 @@ jobs:
 
       - name: Cross-device contract
         run: node tests/e2e/test_cloud_device_sync.js
+
+      - name: Upload tokenization visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hashcod-tokenization-evidence
+          path: ${{ runner.temp }}/hashcod-tokenization-evidence
+          if-no-files-found: ignore

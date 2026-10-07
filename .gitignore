@@ -56,3 +56,6 @@ local-app/desktop/rare-folder-entry.bundle.js
 # File Vault preview assets generated from the pinned PDF.js dependency.
 components/file-vault-pdf/
 components/file-vault-pdf.bundle.js
+
+# Generated standalone Requests backend for the Windows payload.
+tools/tokenization/hashcod-tokenization.exe

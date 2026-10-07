@@ -97,10 +97,11 @@ RUN { \
 WORKDIR /var/www/html
 
 COPY requirements-streamlit.txt /tmp/requirements-streamlit.txt
-RUN /opt/l8-py/bin/pip install --no-cache-dir -r /tmp/requirements-streamlit.txt \
+COPY tools/tokenization/requirements.txt /tmp/requirements-tokenization.txt
+RUN /opt/l8-py/bin/pip install --no-cache-dir -r /tmp/requirements-streamlit.txt -r /tmp/requirements-tokenization.txt \
     && ln -sf /opt/l8-py/bin/streamlit /usr/local/bin/streamlit \
     && ln -sf /opt/l8-py/bin/python /usr/local/bin/l8-python \
-    && rm -f /tmp/requirements-streamlit.txt
+    && rm -f /tmp/requirements-streamlit.txt /tmp/requirements-tokenization.txt
 
 COPY . /var/www/html
 

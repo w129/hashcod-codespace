@@ -58,7 +58,7 @@ async function scenario(origin, offline = false, unconfirmed = false) {
       assert(w.document.querySelector('#hpaGatePortal'),'Wrong key dismissed gate');
       const select=w.document.querySelector('#hpa-days');select.value='30';select.dispatchEvent(new w.Event('change',{bubbles:true}));await wait();
       now=0; await enter('fixture-renewal-key');
-      await until(()=>!w.document.querySelector('#hpaGatePortal'));
+      await until(()=>!w.document.querySelector('#hpaGatePortal') && card.dataset.selected==='30' && card.dataset.accepted==='true');
       assert.equal(card.dataset.selected,'30');assert.equal(w.document.querySelector('main').inert,undefined);
       assert.equal(calls.at(-1).days,30);
     }

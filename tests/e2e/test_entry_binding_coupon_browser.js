@@ -87,7 +87,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
       await page.locator('#d5FaqCard').waitFor({state:'visible'});
       for(const label of ['General','Desarrollo','Objetivos']) {
         await page.getByRole('tab',{name:label,exact:true}).click();
-        await page.waitForTimeout(120);
+        await waitFor(page,()=>!document.getElementById('d5FaqAccordion')?.classList.contains('switching'));
         const questions = page.locator('.faq-question'); assert(await questions.count()>=3);
         for(let i=0;i<await questions.count();i++) {
           if(await questions.nth(i).getAttribute('aria-expanded')!=='true') await questions.nth(i).click();

@@ -1899,7 +1899,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261007-tokenization1",
+    version: "20261007-tokenization-status1",
   });
 
   return true;

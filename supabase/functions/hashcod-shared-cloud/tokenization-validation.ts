@@ -10,3 +10,12 @@ export function adminKey(value: unknown) {
   if (typeof value !== 'string' || !value.trim() || value.length > 8192 || value.includes('\0')) throw Object.assign(new Error('Clave incorrecta.'), { status: 403 });
   return value.trim();
 }
+
+export function statusUpdate(body: any) {
+  const states = ['pending', 'in_progress', 'delayed', 'awaiting_payment', 'completed'];
+  if (typeof body.id !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(body.id))
+    throw Object.assign(new Error('Solicitud incorrecta.'), { status: 400 });
+  if (!states.includes(body.status) || !states.includes(body.expectedStatus))
+    throw Object.assign(new Error('Estado de solicitud incorrecto.'), { status: 400 });
+  return { id: body.id, status: body.status, expectedStatus: body.expectedStatus };
+}

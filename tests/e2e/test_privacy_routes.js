@@ -36,6 +36,12 @@ async function check(router, railway) {
         const html = await response.text();
         assert(html.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'), url);
         assert(html.includes('Declaración de aceptación'), 'complete document must be rendered');
+        assert(html.includes('id="data-processing-license"'), 'DPA must be available through every policy URL');
+        assert(html.includes('href="#data-processing-license"'), 'policy must provide direct navigation to the DPA');
+        assert(html.includes('Licencia de procesamiento de datos y acuerdo de tratamiento (DPA)'), 'adapted license must be rendered');
+        assert(html.includes('Anexo 5 · Proveedores y ubicaciones operativas'), 'subprocessor annex must be present');
+        assert(html.includes('no equivalen a aceptar retroactivamente'), 'publication must not invent past consent');
+        assert(html.includes('Files utiliza un listado compartido'), 'known shared-space privacy boundary must be disclosed');
         assert(!html.includes('<?php'), 'PHP source must never be served');
         if (route !== '/privacy') {
           const alias = await fetch(url, { redirect: 'manual' });
@@ -48,7 +54,7 @@ async function check(router, railway) {
     const head = await fetch(base + '/privacy.php', { method: 'HEAD' });
     assert.equal(head.status, 200);
     assert.equal(await head.text(), '');
-    for (const route of ['/security.php', '/platform-registration-contract.php', '/privacy.php/extra', '/privacy/missing']) {
+    for (const route of ['/security.php', '/platform-registration-contract.php', '/data-processing-addendum.php', '/privacy.php/extra', '/privacy/missing']) {
       assert.equal((await fetch(base + route)).status, 404, 'private and unknown paths remain denied: ' + route);
     }
     console.log(router + ': privacy document, aliases, subpaths, HEAD and private-file denial passed');

@@ -68,3 +68,16 @@ is permitted only for isolated tests with both `APP_ENV=test` and
 UI tests need the built center bundle and jsdom; browser tests need Playwright
 Chromium. The facade tests use an isolated loopback upstream and never touch
 production contacts or files. Existing platform-period regressions also run.
+
+## Data processing policy
+
+`/privacy#data-processing-license` renders the template-adapted DPA from
+`data-processing-addendum.php`, including the shared Files metadata boundary,
+private request contacts, manual privacy requests and retention after access
+expiry or source-file deletion. The document has its own version and SHA-256;
+publishing it does not rewrite the registration contract or establish that a
+customer accepted it. A contractual engagement must explicitly incorporate the
+relevant DPA version. Keep provider locations and stated safeguards consistent
+with the active infrastructure when updating it. The common PHP source is
+packaged for desktop, and policy-route checks run against both web routers and
+the Windows PHP runtime.

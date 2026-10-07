@@ -87,7 +87,7 @@ jobs:
           echo $! > /tmp/hashcod-iris-php.pid
           ready=0
           for attempt in $(seq 1 45); do
-            if curl --fail --silent --show-error http://127.0.0.1:8099/laragon-local-entry.php >/dev/null; then
+            if curl --fail --silent --show-error http://127.0.0.1:8099/ >/dev/null; then
               ready=1
               break
             fi
@@ -101,7 +101,7 @@ jobs:
 
       - name: Capture visual QA evidence with Iris
         env:
-          IRIS_URL: http://127.0.0.1:8099/laragon-local-entry.php
+          IRIS_URL: http://127.0.0.1:8099/
           IRIS_OUT_DIR: artifacts/iris-visual-qa
           IRIS_CHROME: /usr/bin/google-chrome
         run: bash scripts/iris_visual_qa.sh

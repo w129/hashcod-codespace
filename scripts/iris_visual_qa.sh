@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-URL="${IRIS_URL:-http://127.0.0.1:8099/laragon-local-entry.php}"
+URL="${IRIS_URL:-http://127.0.0.1:8099/}"
 OUT="${IRIS_OUT_DIR:-artifacts/iris-visual-qa}"
 IRIS_BIN="${IRIS_BIN:-iris}"
 CHROME_ARG=()

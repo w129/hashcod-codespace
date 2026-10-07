@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client';
 import './entry.css';
 
 const API = '/api/code-access';
-const VERSION = '20261007-entry-fixes1';
+const VERSION = '20261007-access-brand2';
 const PROTOCOL = 'HASHCOD-NUMERIC-SERIES/1';
 
-function CodeAccessGate({ required }) {
+function CodeAccessGate({ required, brandIcon }) {
   const [checking, setChecking] = useState(required);
   const [authorized, setAuthorized] = useState(!required);
   const [series, setSeries] = useState('');
@@ -67,7 +67,7 @@ function CodeAccessGate({ required }) {
 
   if (authorized) return null;
   return <div className="code-access-overlay"><section id="d5CodeAccessGate" className="code-access-window" role="dialog" aria-modal="true" aria-labelledby="access-title">
-    <span className="code-access-brand">HC · HASHCOD CODESPACE</span>
+    <span className="code-access-brand"><img src={brandIcon} width="28" height="28" alt="" aria-hidden="true" /><span>HASHCOD CODESPACE</span></span>
     <h1 id="access-title">Verifica tu acceso</h1>
     <p>Introduce la serie numérica de tu credencial. El servidor valida el acceso y guarda la verificación para este navegador.</p>
     {checking ? <p role="status">Comprobando tu acceso con el servidor…</p> : <form onSubmit={submit}>
@@ -93,7 +93,7 @@ function mountCodeAccess() {
   const required = node.dataset.required === '1';
   window.HashcodCodeAccess = Object.freeze({ mounted: true, authorized: !required, required,
     bound: false, mode: required ? 'server-verified-access' : 'open-entry', version: VERSION });
-  createRoot(node).render(<CodeAccessGate required={required} />);
+  createRoot(node).render(<CodeAccessGate required={required} brandIcon={node.dataset.brandIcon || '/hashcod_icon_exact.svg'} />);
   node.dataset.reactMounted = 'true';
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountCodeAccess, { once: true });

@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in api.php bash-engine.php security.php railway-router.php router.php l8-html.php openclaw-bridge.php secrets.php resilient-proxy.php hashcod-keys.php execution-security.php agent_browser.php streamlit.php; do
+          for file in api.php bash-engine.php security.php railway-router.php router.php entry-assets.php mldsa-access.php l8-html.php openclaw-bridge.php secrets.php resilient-proxy.php hashcod-keys.php execution-security.php agent_browser.php streamlit.php; do
             php -l "$file"
           done
 

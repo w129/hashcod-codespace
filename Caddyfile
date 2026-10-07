@@ -138,6 +138,12 @@ http://:{$PORT:8000} {
 		file_server
 	}
 
+	# Always send current bytes for mutable entry files, including conditional
+	# requests from clients that cached an earlier release.
+	@entryValidators path /components/mldsa-access-gate.js /components/mldsa-access-gate-core.js /components/mldsa-access-gate.css /components/mldsa-access-gate-loader.js /components/code-access.bundle.js /components/code-access.bundle.css /components/monaco-editor.worker.js /components/center-empty-state.bundle.js /components/center-empty-state.bundle.css /components/first-screen-branched-menu.bundle.js /components/first-screen-branched-menu.bundle.css /components/react-bits-rotating-text.js /components/react-bits-rotating-text.css
+	request_header @entryValidators -If-None-Match
+	request_header @entryValidators -If-Modified-Since
+
 	# Serve the actual interface runtime. The bootstrap is a separate script,
 	# so FAQ and Documents initialization cannot be replaced by open-entry setup.
 	handle /components/mldsa-access-gate.js {
@@ -213,6 +219,17 @@ http://:{$PORT:8000} {
 		encode zstd gzip
 		header Cache-Control "no-store, max-age=0, must-revalidate"
 		header -ETag
+		file_server
+	}
+
+	# Mutable entry bundles: never freeze a manual version label in a browser/CDN.
+	@entryRuntime path /components/mldsa-access-gate-loader.js /components/code-access.bundle.js /components/code-access.bundle.css /components/monaco-editor.worker.js /components/center-empty-state.bundle.js /components/center-empty-state.bundle.css /components/first-screen-branched-menu.bundle.js /components/first-screen-branched-menu.bundle.css /components/react-bits-rotating-text.js /components/react-bits-rotating-text.css
+	handle @entryRuntime {
+		root * /var/www/html
+		encode zstd gzip
+		header Cache-Control "no-store, max-age=0, must-revalidate"
+		header -ETag
+		header -Last-Modified
 		file_server
 	}
 

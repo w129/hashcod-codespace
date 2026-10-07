@@ -96,6 +96,10 @@ jobs:
             exit 1
           fi
 
+          # Prove that the running Caddy/PHP image serves the current entry
+          # bytes, including old bookmarks and conditional browser requests.
+          python3 tests/e2e/test_entry_asset_freshness.py http://127.0.0.1:18000
+
           # File Vault must reject use before mandatory period confirmation.
           # These checks require no provider credentials or uploaded user files.
           vault_status="$(curl --silent --show-error --max-time 15 -o /tmp/hashcod-vault.json -w '%{http_code}' http://127.0.0.1:18000/hashcod-file-vault-fast-upload.php)"
@@ -142,5 +146,5 @@ jobs:
             echo "- Smoke test: passed"
             echo "- Image: `ghcr.io/w129/hashcod-codespace:latest`"
             echo "- Commit tag: `ghcr.io/w129/hashcod-codespace:sha-$GITHUB_SHA`"
-            echo "- Deployment target: Railway via GHCR image update"
+            echo "- Deployment: Railway tracks main; GHCR contains the verified image"
           } >> "$GITHUB_STEP_SUMMARY"

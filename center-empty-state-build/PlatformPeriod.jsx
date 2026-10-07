@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import RecommendationCard from './RecommendationCard';
 import './platform-period.css';
@@ -53,7 +53,7 @@ export default function PlatformPeriod() {
     const timer = setInterval(tick, 1000); tick();
     return () => clearInterval(timer);
   }, [period.state, period.expiresAt]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!expired) return;
     document.body.classList.add('hpa-locked');
     const targets = Array.from(document.querySelectorAll('body > main, body > footer'));

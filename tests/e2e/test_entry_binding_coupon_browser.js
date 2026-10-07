@@ -90,7 +90,14 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
         await waitFor(page,()=>!document.getElementById('d5FaqAccordion')?.classList.contains('switching'));
         const questions = page.locator('.faq-question'); assert(await questions.count()>=3);
         for(let i=0;i<await questions.count();i++) {
-          if(await questions.nth(i).getAttribute('aria-expanded')!=='true') await questions.nth(i).click();
+          if(await questions.nth(i).getAttribute('aria-expanded')!=='true') await questions.nth(i).click().catch(async error=>{
+            console.error('FAQ layout diagnostic',JSON.stringify(await page.evaluate(()=>{
+              const card=document.getElementById('d5FaqCard'),accordion=document.getElementById('d5FaqAccordion');
+              const describe=node=>{const s=getComputedStyle(node),r=node.getBoundingClientRect();return {id:node.id,display:s.display,visibility:s.visibility,width:r.width,height:r.height,scrollHeight:node.scrollHeight,overflow:s.overflow,flex:s.flex};};
+              return {bodyClass:document.body.className,card:describe(card),accordion:describe(accordion),questions:Array.from(card.querySelectorAll('.faq-question')).map(describe)};
+            })));
+            throw error;
+          });
           assert((await page.locator('.faq-item.open .faq-answer').innerText()).length>80,'all FAQ answers must be complete');
         }
       }

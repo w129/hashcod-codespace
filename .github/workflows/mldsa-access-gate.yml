@@ -42,6 +42,8 @@ on:
       - config/mldsa87-access-public.b64
       - l8-html.php
       - router.php
+      - entry-assets.php
+      - tests/e2e/test_entry_asset_freshness.py
       - tests/e2e/test_mldsa_access_gate.js
       - tests/e2e/test_first_screen_only_browser_playwright.js
       - tests/e2e/test_pqc_action_bus.js
@@ -203,6 +205,9 @@ jobs:
 
       - name: Verify real server binding, FAQ and coupon on phone and desktop
         run: node tests/e2e/test_entry_binding_coupon_browser.js
+
+      - name: Verify entry asset freshness through the PHP router
+        run: python3 tests/e2e/test_entry_asset_freshness.py http://127.0.0.1:8097
 
       - name: Verify first screen in Chromium
         run: |

@@ -121,6 +121,15 @@ if ($bootstrapSyncPath === '/api/device-usage') {
     exit;
 }
 
+// Old public landing bookmarks must reach the same rendered document in
+// desktop/PHP as Railway. Normalize only these exact aliases; all other PHP
+// files still pass through the generic denial and every security check.
+if (in_array($bootstrapSyncPath, ['/index.php', '/index.html'], true)) {
+    $landingQuery = parse_url($bootstrapRequestUri, PHP_URL_QUERY);
+    $_SERVER['REQUEST_URI'] = '/'
+        . (is_string($landingQuery) && $landingQuery !== '' ? '?' . $landingQuery : '');
+}
+
 securityBootstrap('web');
 
 if ($bootstrapPrivacyRoute) {
@@ -302,6 +311,7 @@ if (
  * y streaming eficiente con zero-copy / buffer limpio.
  */
 function l8_serve_static_asset(string $filePath, string $uri): void {
+    require_once __DIR__ . '/entry-assets.php';
     $mtime = (int)@filemtime($filePath);
     $size = (int)@filesize($filePath);
     $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
@@ -329,6 +339,20 @@ function l8_serve_static_asset(string $filePath, string $uri): void {
     ];
 
     $mime = $mimes[$ext] ?? 'application/octet-stream';
+    // Entry bundles must refresh even when a client sends old validators.
+    // Caddy applies the same rule in production; this covers desktop/PHP.
+    if (entryAssetIsMutable($uri)) {
+        http_response_code(200);
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . $size);
+        header('Cache-Control: no-store, max-age=0, must-revalidate');
+        header('X-Content-Type-Options: nosniff');
+        header_remove('ETag');
+        header_remove('Last-Modified');
+        while (ob_get_level()) ob_end_clean();
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'HEAD') readfile($filePath);
+        exit;
+    }
     $etag = 'W/"' . dechex($mtime) . '-' . dechex($size) . '"';
     $lastModified = gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
 

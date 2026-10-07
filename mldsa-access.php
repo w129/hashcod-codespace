@@ -1,5 +1,6 @@
 <?php
 if (!function_exists('secretGet')) require_once __DIR__ . '/secrets.php';
+require_once __DIR__ . '/entry-assets.php';
 
 function mldsaNormalizePublicKeyB64(string $raw): string {
     $b64=(string)preg_replace('/\s+/', '', trim($raw));
@@ -288,25 +289,25 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     require_once __DIR__ . '/platform-period-lib.php';
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261007-faq-scroll1',ENT_QUOTES,'UTF-8');
-    $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
+    $css=entryAssetUrl($base,'components/mldsa-access-gate.css?v=20261007-faq-scroll1');
+    $js=entryAssetUrl($base,'components/mldsa-access-gate.js?v=20261007-entry-fixes1');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $uiSoundsJs=htmlspecialchars($base.'components/ui-interaction-sounds.js?v=20261006-ui-sounds1',ENT_QUOTES,'UTF-8');
     $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
     $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
-    $rotatingTextCss=htmlspecialchars($base.'components/react-bits-rotating-text.css?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
+    $rotatingTextCss=entryAssetUrl($base,'components/react-bits-rotating-text.css?v=20261007-entry-fixes1');
     $rotatingTextBrandIcon=htmlspecialchars($base.'hashcod_icon_exact.svg',ENT_QUOTES,'UTF-8');
-    $rotatingTextJs=htmlspecialchars($base.'components/react-bits-rotating-text.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
-    $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
-    $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261007-tokenization-status1',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261007-security1',ENT_QUOTES,'UTF-8');
+    $rotatingTextJs=entryAssetUrl($base,'components/react-bits-rotating-text.js?v=20261007-entry-fixes1');
+    $branchedMenuCss=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1');
+    $branchedMenuJs=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1');
+    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261007-tokenization-status1');
+    $centerEmptyStateJs=entryAssetUrl($base,'components/center-empty-state.bundle.js?v=20261007-security1');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
-    $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261007-access-brand2',ENT_QUOTES,'UTF-8');
-    $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261007-access-brand2',ENT_QUOTES,'UTF-8');
-    $entryBootstrapJs=htmlspecialchars($base.'components/mldsa-access-gate-loader.js?v=20261007-security1',ENT_QUOTES,'UTF-8');
+    $codeAccessCss=entryAssetUrl($base,'components/code-access.bundle.css?v=20261007-access-brand2');
+    $codeAccessJs=entryAssetUrl($base,'components/code-access.bundle.js?v=20261007-access-brand2');
+    $entryBootstrapJs=entryAssetUrl($base,'components/mldsa-access-gate-loader.js?v=20261007-security1');
     $codeAccessRequired=$entryIntro&&codeAccessRequired();
     $codeAccessAuthorized=!$codeAccessRequired||codeAccessAuthorized();
     $bodyAttr=$entryIntro
